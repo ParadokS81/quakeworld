@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "type": "http",
+      "url": "http://localhost:8099/mcp"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://context7.liam.sh/mcp"
+    }
+  }
+}

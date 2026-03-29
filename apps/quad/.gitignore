@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Recordings (audio files)
+recordings/
+
+# Environment variables
+.env
+
+# Firebase service account (secrets)
+service-account*.json
+
+# Data exports (mIRC logs, Discord backfills)
+exports/
+
+# Docker Compose local overrides
+docker-compose.override.yml
+
+# Runtime logs
+*.log
+
+# Claude Code local settings (personal)
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~

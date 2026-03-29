@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -q 'public/css/main.css'; then echo 'BLOCKED: This is a generated file. Edit src/css/input.css instead.' >&2; exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -q 'src/css/input.css'; then cd /home/paradoks/projects/quake/MatchScheduler && npx tailwindcss -i ./src/css/input.css -o ./public/css/main.css --minify 2>/dev/null; echo 'Tailwind CSS rebuilt.'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "qw-oracle",
+  "version": "0.1.0",
+  "description": "QuakeWorld community knowledge base — IRC + Discord chat intelligence",
+  "type": "module",
+  "scripts": {
+    "import:discord": "node scripts/import-discord.mjs",
+    "import:irc": "node scripts/import-irc.mjs",
+    "stats": "node scripts/stats.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0"
+  }
+}

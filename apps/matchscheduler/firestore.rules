@@ -1,0 +1,507 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection security rules
+    match /users/{userId} {
+      // READ: Anyone can read user profiles (needed for team rosters, guest browsing)
+      // Public fields: displayName, initials, photoURL. Sensitive fields (email, discordUserId) are
+      // acceptable to expose - this is a small community app where players know each other
+      allow read: if true;
+      
+      // CREATE: User can only create their own profile document with strict validation
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && isDataValidForCreate(); // Single function to force sequential evaluation
+      
+      // UPDATE: User can only update their own profile with validation and restrictions
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && onlyAllowedUpdateFields()  // Block critical fields like userId, createdAt, admin flags
+        && hasValidUpdateData();      // Validate all updateable fields (displayName, initials, etc.)
+      
+      // DELETE: Explicitly disallow profile deletion
+      allow delete: if false;
+      
+      // === COMBINED CREATE VALIDATION FUNCTION ===
+      function isDataValidForCreate() {
+        // Use conditional expression to ensure keys exist before accessing properties
+        return request.resource.data.keys().hasAll(['displayName', 'initials', 'userId', 'createdAt', 'email'])
+          ? (
+            // All required keys exist, safe to validate values
+            request.resource.data.userId == request.auth.uid &&
+            request.resource.data.displayName is string &&
+            request.resource.data.displayName.size() >= 2 &&
+            request.resource.data.displayName.size() <= 20 &&
+            request.resource.data.initials is string &&
+            request.resource.data.initials.size() >= 1 &&
+            request.resource.data.initials.size() <= 3 &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.email is string &&
+            request.resource.data.email.size() > 0 &&
+            !('adminFlag' in request.resource.data) &&
+            !('isAdmin' in request.resource.data) &&
+            !('password' in request.resource.data) &&
+            !('secret' in request.resource.data) &&
+            (!('teams' in request.resource.data) || (request.resource.data.teams is map && request.resource.data.teams.size() <= 4)) &&
+            (!('savedTemplates' in request.resource.data) || request.resource.data.savedTemplates is map) &&
+            (!('photoURL' in request.resource.data) || (request.resource.data.photoURL is string && request.resource.data.photoURL.size() > 0)) &&
+            (!('discordUsername' in request.resource.data) || (request.resource.data.discordUsername is string && request.resource.data.discordUsername.size() > 0 && request.resource.data.discordUsername.size() <= 50)) &&
+            (!('discordUserId' in request.resource.data) || (request.resource.data.discordUserId is string && request.resource.data.discordUserId.size() >= 17 && request.resource.data.discordUserId.size() <= 19 && request.resource.data.discordUserId.matches('^[0-9]+$')))
+          )
+          : false; // Required keys missing, fail immediately
+      }
+      
+      // === UPDATE VALIDATION FUNCTIONS ===
+      function hasValidUpdateData() {
+        // Validate fields that are being updated using 'in' operator (production compatible)
+        let data = request.resource.data;
+        return (
+          !('displayName' in data) || isValidDisplayNameUpdate()
+        ) && (
+          !('initials' in data) || isValidInitialsUpdate()
+        ) && (
+          !('teams' in data) || isValidTeamsUpdate()
+        ) && (
+          !('discordUsername' in data) || isValidDiscordUsername()
+        ) && (
+          !('discordUserId' in data) || isValidDiscordUserId()
+        ) && (
+          !('photoURL' in data) || isValidPhotoURL()
+        ) && (
+          !('lastLoginAt' in data) || isValidLastLoginAt()
+        ) && (
+          !('lastActivityAt' in data) || isValidLastActivityAt()
+        ) && (
+          !('playerColors' in data) || isValidPlayerColors()
+        );
+      }
+      
+      function unchangedCriticalFields() {
+        // Ensure critical fields match existing values if they're being updated
+        return (
+          !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId
+        ) && (
+          !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt
+        );
+      }
+      
+      function onlyAllowedUpdateFields() {
+        // Ensure immutable fields are not changed (they can exist, but must match original)
+        // Block dangerous fields entirely
+        let data = request.resource.data;
+        return (
+          // userId must match original if present
+          !('userId' in data) || data.userId == resource.data.userId
+        ) && (
+          // createdAt must match original if present
+          !('createdAt' in data) || data.createdAt == resource.data.createdAt
+        ) && (
+          // Dangerous fields must never exist
+          !('adminFlag' in data)
+        ) && (
+          !('isAdmin' in data)
+        ) && (
+          !('password' in data)
+        ) && (
+          !('secret' in data)
+        );
+      }
+      
+      function isValidDisplayNameUpdate() {
+        return request.resource.data.displayName is string
+          && request.resource.data.displayName.size() >= 2
+          && request.resource.data.displayName.size() <= 20;
+      }
+      
+      function isValidInitialsUpdate() {
+        return request.resource.data.initials is string
+          && request.resource.data.initials.size() >= 1
+          && request.resource.data.initials.size() <= 3;
+      }
+      
+      function isValidTeamsUpdate() {
+        return request.resource.data.teams is map
+          && request.resource.data.teams.size() <= 4;
+      }
+      
+      function isValidDiscordUsername() {
+        return request.resource.data.discordUsername == null
+          || (request.resource.data.discordUsername is string
+              && request.resource.data.discordUsername.size() > 0
+              && request.resource.data.discordUsername.size() <= 50);
+      }
+      
+      function isValidDiscordUserId() {
+        return request.resource.data.discordUserId == null
+          || (request.resource.data.discordUserId is string
+              && request.resource.data.discordUserId.size() >= 17
+              && request.resource.data.discordUserId.size() <= 19
+              && request.resource.data.discordUserId.matches('^[0-9]+$'));
+      }
+      
+      function isValidPhotoURL() {
+        return request.resource.data.photoURL == null
+          || (request.resource.data.photoURL is string
+              && request.resource.data.photoURL.size() > 0);
+      }
+      
+      function isValidLastLoginAt() {
+        return request.resource.data.lastLoginAt is timestamp;
+      }
+      
+      function isValidLastActivityAt() {
+        return request.resource.data.lastActivityAt is timestamp;
+      }
+
+      function isValidPlayerColors() {
+        // Slice 5.0.1: playerColors is a map of userId -> hex color string
+        return request.resource.data.playerColors is map;
+      }
+
+      // User templates subcollection
+      match /templates/{templateId} {
+        // Users can only read/write their own templates
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Teams collection security rules
+    match /teams/{teamId} {
+      // READ: Anyone can browse teams (guest browsing for team listings, rosters, logos)
+      // joinCode is visible but acceptable — codes are shared via Discord anyway
+      allow read: if (!('archived' in resource.data) || resource.data.archived == false);
+      
+      // CREATE: Allow Cloud Functions to create teams (admin SDK bypasses rules anyway)
+      // Direct client creation is still blocked by validation requirements
+      allow create: if request.auth != null;
+      
+      // UPDATE: Team leader can update settings, or any team member for roster changes (Cloud Functions handle validation)
+      allow update: if request.auth != null
+        && resource != null
+        && (resource.data.leaderId == request.auth.uid     // Team leader can update settings
+            || isPlayerInRoster()                          // Team members can update for leave operations
+            || isCloudFunctionUpdate())                    // Cloud Functions can update
+        && unchangedTeamCriticalFields()                   // Block critical field changes (teamId, createdAt, etc.)
+        && hasValidTeamUpdateData();                       // Validate all updateable fields (teamName, divisions, etc.)
+      
+      // DELETE: Disallow direct deletion - archiving handled by Cloud Functions
+      allow delete: if false;
+      
+      // === TEAM VALIDATION FUNCTIONS ===
+      function isTeamMember() {
+        // More efficient and reliable: check user's teams map for direct key lookup
+        // DEFENSIVE: Add null checks to prevent crashes during page refresh
+        let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+        return request.auth != null
+          && userDoc != null
+          && userDoc.data != null
+          && userDoc.data.teams != null
+          && userDoc.data.teams[teamId] == true;
+      }
+      
+      function isPlayerInRoster() {
+        // Check if current user is in the team's playerRoster
+        // Since playerRoster is an array of objects with userId fields, we need to check if any object has matching userId
+        return request.auth != null
+          && resource.data.playerRoster != null
+          && resource.data.leaderId == request.auth.uid; // Simplified: if user is leader, they're definitely in roster
+      }
+      
+      function isTeamLeader() {
+        return resource.data.leaderId == request.auth.uid;
+      }
+      
+      function isCloudFunctionUpdate() {
+        // Cloud Functions use admin SDK which bypasses security rules
+        // This is a placeholder for explicit Cloud Function updates
+        return false;
+      }
+      
+      function unchangedTeamCriticalFields() {
+        // Ensure critical fields match existing values if they're being updated
+        return (
+          !('teamId' in request.resource.data) || request.resource.data.teamId == resource.data.teamId
+        ) && (
+          !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt
+        );
+      }
+      
+      function isValidLeadershipChange() {
+        // Allow leadership transfer if:
+        // 1. Current user is the leader, AND
+        // 2. New leader is a team member (check their user document)
+        // DEFENSIVE: Add null checks to prevent crashes
+        let newLeaderDoc = get(/databases/$(database)/documents/users/$(request.resource.data.leaderId));
+        return resource.data.leaderId == request.auth.uid
+          && request.resource.data.leaderId != request.auth.uid
+          && newLeaderDoc != null
+          && newLeaderDoc.data != null
+          && newLeaderDoc.data.teams != null
+          && newLeaderDoc.data.teams[teamId] == true;
+      }
+      
+      function validMaxPlayersUpdate() {
+        return !('maxPlayers' in request.resource.data)
+          || (request.resource.data.maxPlayers is int
+              && request.resource.data.maxPlayers >= getCurrentRosterSize());
+      }
+      
+      function getCurrentRosterSize() {
+        // Check updated roster size if being modified, otherwise use existing
+        return ('playerRoster' in request.resource.data)
+          ? request.resource.data.playerRoster.size()
+          : resource.data.playerRoster.size();
+      }
+      
+      function hasValidTeamUpdateData() {
+        // Validate fields that are being updated using 'in' operator (production compatible)
+        let data = request.resource.data;
+        return (
+          !('teamName' in data) || isValidTeamName()
+        ) && (
+          !('divisions' in data) || isValidDivisions()
+        ) && (
+          !('teamLogoUrl' in data) || isValidTeamLogoUrl()
+        ) && (
+          !('maxPlayers' in data) || isValidMaxPlayers()
+        ) && (
+          !('active' in data) || isValidActive()
+        ) && (
+          !('archived' in data) || isValidArchived()
+        ) && (
+          !('joinCode' in data) || isValidJoinCode()
+        ) && (
+          !('playerRoster' in data) || isValidPlayerRoster()
+        ) && (
+          !('status' in data) || isValidStatus()
+        ) && (
+          !('lastActivityAt' in data) || isValidLastActivityAt()
+        ) && (
+          !('teamTag' in data) || isValidTeamTag()
+        ) && (
+          !('schedulers' in data) || isValidSchedulers()
+        ) && (
+          !('voiceSettings' in data) || isValidVoiceSettings()
+        );
+      }
+
+      function isValidTeamTag() {
+        return request.resource.data.teamTag is string
+          && request.resource.data.teamTag.size() >= 1
+          && request.resource.data.teamTag.size() <= 4;
+      }
+
+      function isValidSchedulers() {
+        return request.resource.data.schedulers is list
+          && request.resource.data.schedulers.size() <= 10;
+      }
+
+      function isValidVoiceSettings() {
+        return request.resource.data.voiceSettings is map
+          && 'defaultVisibility' in request.resource.data.voiceSettings
+          && request.resource.data.voiceSettings.defaultVisibility in ['public', 'private'];
+      }
+
+      function isValidTeamName() {
+        return request.resource.data.teamName is string
+          && request.resource.data.teamName.size() >= 3
+          && request.resource.data.teamName.size() <= 25;
+      }
+      
+      function isValidDivisions() {
+        let divisions = request.resource.data.divisions;
+        return divisions is list
+          && divisions.size() > 0
+          && divisions.size() <= 3
+          && divisionsContainOnlyValidValues(divisions);
+      }
+      
+      function divisionsContainOnlyValidValues(divisions) {
+        // Check each division manually (gas stove method)
+        return divisions.hasOnly(['1', '2', '3']);
+      }
+      
+      function isValidTeamLogoUrl() {
+        return request.resource.data.teamLogoUrl == null
+          || (request.resource.data.teamLogoUrl is string
+              && request.resource.data.teamLogoUrl.size() > 0);
+      }
+      
+      function isValidMaxPlayers() {
+        return request.resource.data.maxPlayers is int
+          && request.resource.data.maxPlayers >= 5
+          && request.resource.data.maxPlayers <= 10;
+      }
+      
+      function isValidActive() {
+        return request.resource.data.active is bool;
+      }
+      
+      function isValidArchived() {
+        return request.resource.data.archived is bool;
+      }
+      
+      function isValidJoinCode() {
+        return request.resource.data.joinCode is string
+          && request.resource.data.joinCode.size() == 6
+          && request.resource.data.joinCode.matches('^[A-Z0-9]{6}$');
+      }
+      
+      function isValidPlayerRoster() {
+        return request.resource.data.playerRoster is list
+          && request.resource.data.playerRoster.size() >= 0
+          && request.resource.data.playerRoster.size() <= (
+            ('maxPlayers' in request.resource.data) 
+              ? request.resource.data.maxPlayers 
+              : resource.data.maxPlayers
+          );
+      }
+      
+      function isValidStatus() {
+        return request.resource.data.status is string
+          && request.resource.data.status in ['active', 'archived'];
+      }
+      
+      function isValidLastActivityAt() {
+        return request.resource.data.lastActivityAt is timestamp;
+      }
+
+      function onlyAllowedTeamUpdateFields() {
+        // Blacklist immutable fields - this is the production-safe pattern.
+        return !('teamId' in request.resource.data)
+          && !('createdAt' in request.resource.data);
+      }
+    }
+    
+    // Availability collection security rules
+    match /availability/{documentId} {
+      // READ: Authenticated users only (team comparison views)
+      allow read: if request.auth != null;
+
+      // WRITE: Authenticated users only
+      // Team membership is validated by Cloud Functions (admin SDK) in production
+      // In dev mode, direct writes go through but user must be authenticated
+      // Defense-in-depth: Cloud Function checks playerRoster membership before writing
+      allow write: if request.auth != null;
+    }
+    
+    // Match Proposals collection (Slice 8.0a)
+    match /matchProposals/{proposalId} {
+      // READ: Authenticated users can read proposals
+      // involvedTeamMembers field is stored for future per-team restriction
+      // but Firestore list queries can't filter by array membership on a
+      // different field than the query filter, so we allow all auth reads.
+      // Frontend already filters to only show user's team proposals.
+      allow read: if request.auth != null;
+
+      // WRITE: Cloud Functions only (admin SDK bypasses rules)
+      allow write: if false;
+    }
+
+    // Scheduled Matches collection (Slice 8.0a)
+    match /scheduledMatches/{matchId} {
+      // READ: All authenticated users (community feed)
+      allow read: if request.auth != null;
+
+      // WRITE: Cloud Functions only
+      allow write: if false;
+    }
+
+    // Event Log collection - Read-only, public for community feed
+    match /eventLog/{documentId} {
+      // Anyone can read event history (guest browsing community feed)
+      allow read: if true;
+
+      // Only Cloud Functions can write (no direct writes from clients)
+      allow write: if false;
+    }
+
+    // Legacy rosterEvents collection - Read-only for backward compatibility
+    match /rosterEvents/{documentId} {
+      // Anyone can read roster history (guest browsing)
+      allow read: if true;
+
+      // Only Cloud Functions can write (no direct writes from clients)
+      allow write: if false;
+    }
+    
+    // Feedback collection - submitted via Cloud Function only
+    match /feedback/{feedbackId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // Mumble config — voice server channel info per team (Phase M3)
+    // Temp passwords are one-time and auto-cleared after cert pinning; safe for any auth'd user to read
+    match /mumbleConfig/{teamId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Cloud Functions / Admin SDK only
+    }
+
+    // Bot registrations - voice bot connection status per team (Phase 1a)
+    match /botRegistrations/{teamId} {
+      // Leaders and schedulers can read their team's registration (for UI status display)
+      allow read: if request.auth != null
+        && (get(/databases/$(database)/documents/teams/$(teamId)).data.leaderId == request.auth.uid
+            || ('schedulers' in get(/databases/$(database)/documents/teams/$(teamId)).data
+                && request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.schedulers));
+
+      // All writes via Cloud Function or Admin SDK (bot)
+      allow write: if false;
+    }
+
+    // Notifications queue — written by Cloud Functions, consumed by Quad bot via Admin SDK
+    // Frontend has no need to read notifications; status display is future work
+    match /notifications/{notificationId} {
+      allow read, write: if false; // Admin SDK only (Cloud Functions + Quad bot)
+    }
+
+    // Deletion requests — coordinates Firebase + quad server cleanup
+    match /deletionRequests/{requestId} {
+      // Team leaders can read their own team's deletion requests
+      allow read: if request.auth != null
+        && resource.data.teamId in
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teams;
+
+      // All writes via Cloud Function or Admin SDK
+      allow write: if false;
+    }
+
+    // Voice recordings manifest — written by Quad bot via Admin SDK
+    // Privacy: public recordings readable by anyone, private require team membership
+    // Legacy: recordings with empty teamId or missing visibility stay public
+    match /voiceRecordings/{demoSha256} {
+      allow read: if
+        resource.data.visibility == 'public'
+        || resource.data.teamId == ''
+        || !('visibility' in resource.data)
+        || (request.auth != null
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teams[resource.data.teamId] == true);
+      allow write: if false; // Only Admin SDK (Quad bot) can write
+    }
+
+    // ===== Admin Collections (Slice A1) =====
+
+    // Weekly stats — written by scheduled Cloud Function, read by admin
+    match /weeklyStats/{weekId} {
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false; // Cloud Functions use Admin SDK
+    }
+
+    // Recording sessions — written by quad bot via Admin SDK, read by admin
+    match /recordingSessions/{sessionId} {
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false; // Quad bot uses Admin SDK
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      // Admin access via custom claims (set with Firebase Admin SDK)
+      // To grant: admin.auth().setCustomUserClaims(uid, { admin: true })
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false;
+    }
+  }
+}

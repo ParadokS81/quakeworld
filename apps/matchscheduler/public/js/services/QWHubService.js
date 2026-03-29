@@ -1,0 +1,523 @@
+// QWHubService.js - Fetch match history from QW Hub API
+// Slice 5.1b: Team Match History
+// Slice 5.3: Multi-tag support — accepts string or string[] for team params
+// Read-only external API service with in-memory caching
+
+const QWHubService = (function() {
+    'use strict';
+
+    const API_BASE = 'https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games';
+    const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jc3Boa2pmb21pbmlteHp0amlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY5Mzg1NjMsImV4cCI6MjAxMjUxNDU2M30.NN6hjlEW-qB4Og9hWAVlgvUdwrbBO13s8OkAJuBGVbo';
+
+    const _matchCache = new Map(); // teamTag -> { data, fetchedAt }
+    const _pendingRequests = new Map(); // cacheKey -> Promise (in-flight dedup)
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+    // Normalize tag input: string or string[] → lowercase array
+    function _normalizeTags(input) {
+        if (!input) return [];
+        const arr = Array.isArray(input) ? input : [input];
+        return arr.map(t => t.toLowerCase());
+    }
+
+    /**
+     * Fetch a single tag's matches from QWHub API (no cache check).
+     * @param {string} apiTag - Lowercased tag
+     * @param {string} select - Supabase select fields
+     * @param {number} limit
+     * @param {string} [sinceStr] - Optional YYYY-MM-DD date filter
+     */
+    async function _fetchTagMatches(apiTag, select, limit, sinceStr) {
+        const encodedTag = encodeURIComponent(`{${apiTag}}`);
+        let url = `${API_BASE}` +
+            `?select=${select}` +
+            `&mode=eq.4on4` +
+            `&team_names=cs.${encodedTag}` +
+            `&order=timestamp.desc` +
+            `&limit=${limit}`;
+        if (sinceStr) url += `&timestamp=gte.${sinceStr}`;
+
+        const response = await fetch(url, {
+            headers: { 'apikey': API_KEY }
+        });
+
+        if (!response.ok) {
+            throw new Error(`QW Hub API error: ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    /**
+     * Deduplicate matches by id, sort desc by timestamp, apply limit.
+     */
+    function _dedupeAndSort(matches, limit) {
+        const seen = new Set();
+        const deduped = matches.filter(m => {
+            if (seen.has(m.id)) return false;
+            seen.add(m.id);
+            return true;
+        });
+        deduped.sort((a, b) => new Date(b.date) - new Date(a.date));
+        return limit ? deduped.slice(0, limit) : deduped;
+    }
+
+    /**
+     * Fetch recent 4on4 matches for a team by tag(s).
+     * Accepts string or string[] — parallel queries per tag, dedup by match id.
+     * @param {string|string[]} teamTag
+     * @param {number} limit
+     */
+    async function getRecentMatches(teamTag, limit = 5) {
+        const tags = _normalizeTags(teamTag);
+        if (tags.length === 0) return [];
+
+        const results = [];
+        const uncached = [];
+
+        // Check per-tag cache (HOT PATH)
+        for (const tag of tags) {
+            const cached = _matchCache.get(tag);
+            if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) {
+                results.push(...cached.data);
+            } else {
+                uncached.push(tag);
+            }
+        }
+
+        // Parallel fetch uncached tags (COLD PATH)
+        if (uncached.length > 0) {
+            const SELECT = 'id,timestamp,mode,map,teams,players,demo_sha256';
+            const fetches = uncached.map(tag => _fetchTagMatches(tag, SELECT, limit));
+            const fetchResults = await Promise.all(fetches);
+
+            for (let i = 0; i < uncached.length; i++) {
+                const tag = uncached[i];
+                const matches = fetchResults[i].map(m => _transformMatch(m, tag));
+                _matchCache.set(tag, { data: matches, fetchedAt: Date.now() });
+                results.push(...matches);
+            }
+        }
+
+        return _dedupeAndSort(results, limit);
+    }
+
+    /**
+     * Transform raw API match into our internal format.
+     * @param {object} apiMatch - Raw Supabase row
+     * @param {string|string[]} ourTeamTag - Single tag or array of tags (lowercased)
+     */
+    function _transformMatch(apiMatch, ourTeamTag) {
+        const ourTags = Array.isArray(ourTeamTag)
+            ? ourTeamTag.map(t => t.toLowerCase())
+            : [ourTeamTag.toLowerCase()];
+
+        const ourTeam = apiMatch.teams.find(t =>
+            ourTags.includes(t.name.toLowerCase())
+        );
+        const opponent = apiMatch.teams.find(t =>
+            !ourTags.includes(t.name.toLowerCase())
+        );
+
+        const won = ourTeam && opponent && ourTeam.frags > opponent.frags;
+        const lost = ourTeam && opponent && ourTeam.frags < opponent.frags;
+
+        return {
+            id: apiMatch.id,
+            date: new Date(apiMatch.timestamp),
+            map: apiMatch.map,
+            ourTag: ourTeam?.name || (Array.isArray(ourTeamTag) ? ourTeamTag[0] : ourTeamTag),
+            ourScore: ourTeam?.frags || 0,
+            opponentTag: opponent?.name || '???',
+            opponentScore: opponent?.frags || 0,
+            result: won ? 'W' : lost ? 'L' : 'D',
+            demoHash: apiMatch.demo_sha256,
+            // Raw Supabase data for hub-style scoreboard rendering
+            teams: apiMatch.teams || [],
+            players: apiMatch.players || []
+        };
+    }
+
+    /**
+     * Generate QW Hub URL filtered to a team's 4on4 matches.
+     * Accepts string or string[] — uses first tag for the URL.
+     */
+    function getHubUrl(teamTag) {
+        const tag = Array.isArray(teamTag) ? teamTag[0] : teamTag;
+        return `https://hub.quakeworld.nu/games/?mode=4on4&team=${encodeURIComponent(tag || '')}`;
+    }
+
+    /**
+     * Generate QW Hub URL for a specific match.
+     */
+    function getMatchUrl(matchId) {
+        return `https://hub.quakeworld.nu/games/${matchId}`;
+    }
+
+    // --- ktxstats (detailed per-player game stats) ---
+
+    const _statsCache = new Map(); // demoSha256 -> stats object (never expires)
+
+    /**
+     * Fetch detailed game stats from ktxstats S3.
+     * Stats are immutable so cache indefinitely.
+     */
+    async function getGameStats(demoSha256) {
+        if (!demoSha256) return null;
+
+        const cached = _statsCache.get(demoSha256);
+        if (cached) return cached;
+
+        const prefix = demoSha256.substring(0, 3);
+        const url = `https://d.quake.world/${prefix}/${demoSha256}.mvd.ktxstats.json`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`ktxstats fetch error: ${response.status}`);
+        }
+
+        const stats = await response.json();
+        _statsCache.set(demoSha256, stats);
+        return stats;
+    }
+
+    /**
+     * Synchronous cache lookup for ktxstats. Returns cached stats or null.
+     */
+    function getCachedGameStats(demoSha256) {
+        return _statsCache.get(demoSha256) || null;
+    }
+
+    // --- Mapshot URLs ---
+
+    /**
+     * Get map background image URL.
+     * @param {string} mapName - e.g. "dm2", "e1m2"
+     * @param {'sm'|'lg'} size - sm (~15KB thumbs) or lg (~60KB backgrounds)
+     */
+    function getMapshotUrl(mapName, size = 'lg') {
+        return `https://a.quake.world/mapshots/webp/${size}/${mapName}.webp`;
+    }
+
+    // --- QW Color Palette & Rendering (from hub source) ---
+
+    const QW_COLORS = [
+        [140,140,140], // 0  gray
+        [83,59,27],    // 1  dark brown
+        [79,79,115],   // 2  slate blue
+        [55,55,7],     // 3  dark olive
+        [71,0,0],      // 4  dark red
+        [95,71,7],     // 5  bronze
+        [143,67,51],   // 6  rust/salmon
+        [127,83,63],   // 7  tan
+        [87,55,67],    // 8  mauve
+        [95,51,63],    // 9  plum
+        [107,87,71],   // 10 khaki
+        [47,67,55],    // 11 forest green
+        [123,99,7],    // 12 gold/olive
+        [47,47,127],   // 13 royal blue
+        [183,51,15],   // 14 bright orange-red
+        [103,0,0],     // 15 crimson
+        [0,0,0]        // 16 black
+    ];
+
+    /**
+     * Lighten an RGB color by a percentage (hub uses 5%).
+     */
+    function _lighten([r, g, b], pct) {
+        const f = pct / 100;
+        return [
+            Math.min(255, Math.round(r + (255 - r) * f)),
+            Math.min(255, Math.round(g + (255 - g) * f)),
+            Math.min(255, Math.round(b + (255 - b) * f))
+        ];
+    }
+
+    /**
+     * Get inline CSS for the two-tone frag color gradient.
+     * Exact replica of hub's _quake_colors.scss gradient.
+     * @param {number[]} colors - [topColorIdx, bottomColorIdx]
+     */
+    function getFragColorStyle(colors) {
+        if (!colors || colors.length < 2) return '';
+        const top = _lighten(QW_COLORS[colors[0]] || QW_COLORS[0], 5);
+        const bot = _lighten(QW_COLORS[colors[1]] || QW_COLORS[0], 5);
+        const t = `rgb(${top.join(',')})`;
+        const b = `rgb(${bot.join(',')})`;
+        return `background:linear-gradient(to bottom,transparent 0,${t} 0 50.5%,transparent 49.5% 100%),linear-gradient(to top,transparent 0,${b} 0 50.5%,transparent 49.5% 100%)`;
+    }
+
+    /**
+     * Render a colored QW name from Supabase data (name + name_color).
+     * Exact replica of hub's QuakeText.jsx quakeTextToHtml().
+     * @param {string} name - Display name
+     * @param {string} nameColor - Color string (e.g., "bwwb")
+     */
+    function coloredQuakeName(name, nameColor) {
+        if (!nameColor) return _escapeHtml(name);
+        let result = '';
+        let lastColor = '';
+        for (let i = 0; i < name.length; i++) {
+            const charColor = nameColor[i] || 'w';
+            if (charColor !== lastColor) {
+                if (i > 0) result += '</span>';
+                result += `<span class="qw-color-${charColor}">`;
+            }
+            const ch = name[i];
+            if (ch === '<') result += '&lt;';
+            else if (ch === '>') result += '&gt;';
+            else if (ch === '"') result += '&quot;';
+            else result += ch;
+            lastColor = charColor;
+        }
+        result += '</span>';
+        return result;
+    }
+
+    function _escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // --- QW Character Encoding ---
+
+    const QW_CHAR_LOOKUP = {
+        0:'=', 2:'=', 5:'\u2022', 10:' ', 14:'\u2022', 15:'\u2022',
+        16:'[', 17:']', 18:'0', 19:'1', 20:'2', 21:'3', 22:'4',
+        23:'5', 24:'6', 25:'7', 26:'8', 27:'9', 28:'\u2022',
+        29:'=', 30:'=', 31:'='
+    };
+
+    /**
+     * Convert QW-encoded unicode string to readable ASCII.
+     * ktxstats names use chars >= 128 for "colored" text (subtract 128),
+     * and chars 0-31 for special symbols like [], digits, bullets.
+     */
+    function qwToAscii(name) {
+        return Array.from(name).map(ch => {
+            let code = ch.charCodeAt(0);
+            if (code >= 128) code -= 128;
+            if (code >= 32) return String.fromCharCode(code);
+            return QW_CHAR_LOOKUP[code] || '?';
+        }).join('');
+    }
+
+    /**
+     * Fetch match data for map activity summary.
+     * Accepts string or string[] — parallel queries per tag, dedup by match id.
+     * Returns aggregated stats: { totalMatches, months, maps: [{ map, total, wins, losses, draws }] }
+     * @param {string|string[]} teamTag
+     * @param {number} months
+     */
+    async function getTeamMapStats(teamTag, months = 6) {
+        const tags = _normalizeTags(teamTag);
+        if (tags.length === 0) return null;
+
+        // Combined cache key for the full tag set
+        const sortedKey = [...tags].sort().join(',');
+        const cacheKey = `mapstats_${sortedKey}_${months}`;
+
+        // Check combined result cache (HOT PATH)
+        const cached = _matchCache.get(cacheKey);
+        if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) {
+            return cached.data;
+        }
+
+        // Deduplicate in-flight
+        if (_pendingRequests.has(cacheKey)) {
+            return _pendingRequests.get(cacheKey);
+        }
+
+        const promise = _fetchTeamMapStats(tags, cacheKey, months);
+        _pendingRequests.set(cacheKey, promise);
+        promise.finally(() => _pendingRequests.delete(cacheKey));
+        return promise;
+    }
+
+    async function _fetchTeamMapStats(tags, cacheKey, months) {
+        const since = new Date();
+        since.setMonth(since.getMonth() - months);
+        const sinceStr = since.toISOString().split('T')[0];
+
+        const SELECT = 'id,timestamp,map,teams';
+        const fetches = tags.map(tag => _fetchTagMatches(tag, SELECT, 1000, sinceStr));
+        const fetchResults = await Promise.all(fetches);
+
+        // Merge and dedup raw results by match id
+        const seen = new Set();
+        const allMatches = [];
+        for (const rawData of fetchResults) {
+            for (const match of rawData) {
+                if (!seen.has(match.id)) {
+                    seen.add(match.id);
+                    allMatches.push(match);
+                }
+            }
+        }
+
+        // Aggregate by map
+        const mapAgg = {};
+        allMatches.forEach(match => {
+            const map = match.map;
+            if (!mapAgg[map]) {
+                mapAgg[map] = { map, total: 0, wins: 0, losses: 0, draws: 0 };
+            }
+            mapAgg[map].total++;
+
+            const ourTeam = match.teams.find(t => tags.includes(t.name.toLowerCase()));
+            const opponent = match.teams.find(t => !tags.includes(t.name.toLowerCase()));
+            if (ourTeam && opponent) {
+                if (ourTeam.frags > opponent.frags) mapAgg[map].wins++;
+                else if (ourTeam.frags < opponent.frags) mapAgg[map].losses++;
+                else mapAgg[map].draws++;
+            }
+        });
+
+        const maps = Object.values(mapAgg).sort((a, b) => b.total - a.total);
+
+        const result = {
+            totalMatches: allMatches.length,
+            months,
+            maps
+        };
+
+        _matchCache.set(cacheKey, {
+            data: result,
+            fetchedAt: Date.now()
+        });
+
+        return result;
+    }
+
+    /**
+     * Fetch full match history for a team within a time period.
+     * Accepts string or string[] — parallel queries per tag, dedup by match id.
+     * Used by Match History tab's split-panel view.
+     * @param {string|string[]} teamTag
+     * @param {number} months - Time period in months (default 3)
+     */
+    async function getMatchHistory(teamTag, months = 3) {
+        const tags = _normalizeTags(teamTag);
+        if (tags.length === 0) return [];
+
+        // Combined cache key for the full tag set
+        const sortedKey = [...tags].sort().join(',');
+        const cacheKey = `history_${sortedKey}_${months}`;
+
+        // Check combined result cache (HOT PATH)
+        const cached = _matchCache.get(cacheKey);
+        if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) {
+            return cached.data;
+        }
+
+        // Deduplicate in-flight
+        if (_pendingRequests.has(cacheKey)) {
+            return _pendingRequests.get(cacheKey);
+        }
+
+        const promise = _fetchMatchHistory(tags, cacheKey, months);
+        _pendingRequests.set(cacheKey, promise);
+        promise.finally(() => _pendingRequests.delete(cacheKey));
+        return promise;
+    }
+
+    async function _fetchMatchHistory(tags, cacheKey, months) {
+        const since = new Date();
+        since.setMonth(since.getMonth() - months);
+        const sinceStr = since.toISOString().split('T')[0];
+
+        const SELECT = 'id,timestamp,mode,map,teams,players,demo_sha256';
+        const fetches = tags.map(tag => _fetchTagMatches(tag, SELECT, 1000, sinceStr));
+        const fetchResults = await Promise.all(fetches);
+
+        // Merge all raw results, then transform with full tag set for correct perspective
+        const seen = new Set();
+        const allRaw = [];
+        for (const rawData of fetchResults) {
+            for (const match of rawData) {
+                if (!seen.has(match.id)) {
+                    seen.add(match.id);
+                    allRaw.push(match);
+                }
+            }
+        }
+
+        const matches = allRaw.map(m => _transformMatch(m, tags));
+        matches.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        _matchCache.set(cacheKey, {
+            data: matches,
+            fetchedAt: Date.now()
+        });
+
+        return matches;
+    }
+
+    /**
+     * Render colored QW name from ktxstats byte-encoded string.
+     * ktxstats names use chars >= 128 for brown text (subtract 128 to get ASCII).
+     * Chars 0-31 are special QW symbols (brackets, digits, bullets).
+     */
+    function coloredQuakeNameFromBytes(qwName) {
+        if (!qwName) return '';
+        let str = '', type = 'normal';
+        const changeType = (newType) => {
+            if (type !== newType) {
+                if (type !== 'normal') str += '</span>';
+                if (newType !== 'normal') str += `<span class="qw-color-${newType}">`;
+                type = newType;
+            }
+        };
+        for (let i = 0; i < qwName.length; i++) {
+            const raw = qwName.charCodeAt(i);
+            let ch = raw;
+            if (ch >= 128) ch -= 128;
+
+            if (ch < 16 || (ch >= 29 && ch <= 31)) {
+                changeType('normal'); str += '_';
+            } else if (ch === 16) {
+                changeType('g'); str += '[';
+            } else if (ch === 17) {
+                changeType('g'); str += ']';
+            } else if (ch >= 18 && ch <= 27) {
+                changeType('g'); str += String.fromCharCode(ch - 18 + 48);
+            } else if (ch === 28) {
+                changeType('normal'); str += '&#8226;';
+            } else {
+                changeType(raw >= 160 ? 'b' : 'normal');
+                const c = String.fromCharCode(ch);
+                if (c === '<') str += '&lt;';
+                else if (c === '>') str += '&gt;';
+                else if (c === '"') str += '&quot;';
+                else if (c === '&') str += '&amp;';
+                else str += c;
+            }
+        }
+        changeType('normal');
+        return str;
+    }
+
+    /**
+     * Clear all cached match data.
+     */
+    function clearCache() {
+        _matchCache.clear();
+        _pendingRequests.clear();
+        _statsCache.clear();
+    }
+
+    return {
+        getRecentMatches,
+        getMatchHistory,
+        getTeamMapStats,
+        getGameStats,
+        getCachedGameStats,
+        getHubUrl,
+        getMatchUrl,
+        getMapshotUrl,
+        qwToAscii,
+        getFragColorStyle,
+        coloredQuakeName,
+        coloredQuakeNameFromBytes,
+        clearCache
+    };
+})();

@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build output
+dist/
+.tsbuildinfo
+
+# Tauri build
+apps/slipgate-app/src-tauri/target/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+service-account.json
+
+# Data files (large, local-only)
+apps/qw-stats/data/4on4_full/
+apps/qw-stats/data/*.zip
+apps/qw-stats/data/*.db
+apps/qw-oracle/data/*.db
+apps/quad/recordings/
+apps/quad/exports/
+
+# Research repos (cloned, not tracked)
+research/repos/*/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Patches cache
+patches/

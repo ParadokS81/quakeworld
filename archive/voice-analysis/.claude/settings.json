@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean -f *)"
+    ],
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash(*)",
+      "WebSearch",
+      "WebFetch(domain:hub.quakeworld.nu)",
+      "WebFetch(domain:www.quakeworld.nu)",
+      "WebFetch(domain:ncsphkjfominimxztjip.supabase.co)",
+      "WebFetch(domain:d.quake.world)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.python.org)",
+      "WebFetch(domain:pypi.org)",
+      "Task(*)"
+    ]
+  }
+}

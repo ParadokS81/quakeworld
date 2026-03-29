@@ -1,0 +1,1954 @@
+// Team Operations Cloud Functions
+// Following PRD v2 Architecture with Firebase v11
+
+const functions = require('firebase-functions');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
+const { getStorage } = require('firebase-admin/storage');
+
+const db = getFirestore();
+
+// Generate initials from a display name (max 3 chars, alphanumeric only)
+function generateInitials(name) {
+    if (!name || typeof name !== 'string') return 'USR';
+    const clean = name.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    return clean.length === 0 ? 'USR' : clean.substring(0, 3);
+}
+
+// Generate secure join code
+function generateJoinCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+/**
+ * Check if any of the given tags (lowercased) are already used by another team.
+ * @param {string[]} tagsLower - Lowercased tags to check
+ * @param {string} excludeTeamId - Skip this team (our own)
+ * @returns {{ conflict: string, ownerName: string } | null}
+ */
+async function checkTagUniqueness(tagsLower, excludeTeamId) {
+    const allTeamsSnap = await db.collection('teams').get();
+    for (const otherDoc of allTeamsSnap.docs) {
+        if (otherDoc.id === excludeTeamId) continue;
+        const other = otherDoc.data();
+        const otherTags = (other.teamTags && Array.isArray(other.teamTags) && other.teamTags.length > 0)
+            ? other.teamTags.map(t => t.tag.toLowerCase())
+            : (other.teamTag ? [other.teamTag.toLowerCase()] : []);
+        for (const ot of otherTags) {
+            if (tagsLower.includes(ot)) {
+                return { conflict: ot, ownerName: other.teamName };
+            }
+        }
+    }
+    return null;
+}
+
+// Validate team data
+function validateTeamData(teamData) {
+    const errors = [];
+    
+    // Team name validation
+    if (!teamData.teamName || typeof teamData.teamName !== 'string') {
+        errors.push('Team name is required');
+    } else {
+        const trimmed = teamData.teamName.trim();
+        if (trimmed.length < 3) {
+            errors.push('Team name must be at least 3 characters');
+        }
+        if (trimmed.length > 30) {
+            errors.push('Team name must be less than 30 characters');
+        }
+        if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmed)) {
+            errors.push('Team name can only contain letters, numbers, spaces, hyphens, and underscores');
+        }
+    }
+    
+    // Team tag validation (case-sensitive, matches QW in-game tag)
+    if (!teamData.teamTag || typeof teamData.teamTag !== 'string') {
+        errors.push('Team tag is required');
+    } else {
+        const trimmed = teamData.teamTag.trim();
+        if (trimmed.length < 1) {
+            errors.push('Team tag is required');
+        }
+        if (trimmed.length > 4) {
+            errors.push('Team tag must be 4 characters or less');
+        }
+        // Allow letters, numbers, and QW-style special characters: [ ] ( ) { } - _ . , !
+        if (!/^[a-zA-Z0-9\[\]\(\)\{\}\-_.,!]+$/.test(trimmed)) {
+            errors.push('Team tag can only contain letters, numbers, and common QW characters');
+        }
+    }
+    
+    // Divisions validation
+    if (!teamData.divisions || !Array.isArray(teamData.divisions)) {
+        errors.push('At least one division must be selected');
+    } else {
+        if (teamData.divisions.length === 0) {
+            errors.push('At least one division must be selected');
+        }
+        const validDivisions = ['D1', 'D2', 'D3'];
+        for (const division of teamData.divisions) {
+            if (!validDivisions.includes(division)) {
+                errors.push('Invalid division selected');
+                break;
+            }
+        }
+    }
+    
+    // Max players validation
+    if (!teamData.maxPlayers || typeof teamData.maxPlayers !== 'number') {
+        errors.push('Max players must be specified');
+    } else {
+        if (teamData.maxPlayers < 4 || teamData.maxPlayers > 20) {
+            errors.push('Max players must be between 4 and 20');
+        }
+    }
+    
+    return errors;
+}
+
+// Create team function
+exports.createTeam = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        // Check authentication
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated to create a team');
+        }
+
+        const userId = context.auth.uid;
+        const teamData = data;
+        
+        console.log('Creating team for user:', userId);
+        console.log('Team data:', teamData);
+        
+        // Validate team data
+        const validationErrors = validateTeamData(teamData);
+        if (validationErrors.length > 0) {
+            throw new functions.https.HttpsError('invalid-argument', validationErrors.join(', '));
+        }
+        
+        // Get user profile to include in team roster
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User profile not found. Please create your profile first.');
+        }
+        
+        const userProfile = userDoc.data();
+
+        // Check if user already has max teams
+        const userTeams = userProfile.teams || {};
+        if (Object.keys(userTeams).length >= 4) {
+            throw new functions.https.HttpsError('failed-precondition', 'You can only be on a maximum of 4 teams');
+        }
+
+        // Check if team name already exists (case-insensitive)
+        const normalizedName = teamData.teamName.trim().toLowerCase();
+        const existingTeamByName = await db.collection('teams')
+            .where('teamNameLower', '==', normalizedName)
+            .limit(1)
+            .get();
+
+        if (!existingTeamByName.empty) {
+            throw new functions.https.HttpsError('already-exists', `A team named "${teamData.teamName.trim()}" already exists. Please choose a different name.`);
+        }
+
+        // Check if team tag already exists (case-insensitive)
+        if (teamData.teamTag) {
+            const dup = await checkTagUniqueness([teamData.teamTag.trim().toLowerCase()], '');
+            if (dup) {
+                throw new functions.https.HttpsError(
+                    'already-exists',
+                    `Tag "${teamData.teamTag.trim()}" is already used by ${dup.ownerName}. Please choose a different tag.`
+                );
+            }
+        }
+
+        // Generate unique join code
+        let joinCode;
+        let isUnique = false;
+        let attempts = 0;
+        
+        while (!isUnique && attempts < 10) {
+            joinCode = generateJoinCode();
+            
+            // Check if join code is unique
+            const existingTeam = await db.collection('teams').where('joinCode', '==', joinCode).get();
+            if (existingTeam.empty) {
+                isUnique = true;
+            }
+            attempts++;
+        }
+        
+        if (!isUnique) {
+            throw new functions.https.HttpsError('internal', 'Failed to generate unique join code. Please try again.');
+        }
+        
+        // Create team document with readable ID: team-{tag}-{nnn}
+        const tagSlug = (teamData.teamTag || teamData.teamName)
+            .trim().toLowerCase()
+            .replace(/[^a-z0-9]/g, '')
+            .substring(0, 10) || 'new';
+        let teamId;
+        let teamRef;
+        let idAttempts = 0;
+        while (idAttempts < 10) {
+            const suffix = idAttempts === 0 ? '001' : String(idAttempts + 1).padStart(3, '0');
+            const candidateId = `team-${tagSlug}-${suffix}`;
+            const existing = await db.collection('teams').doc(candidateId).get();
+            if (!existing.exists) {
+                teamId = candidateId;
+                teamRef = db.collection('teams').doc(teamId);
+                break;
+            }
+            idAttempts++;
+        }
+        if (!teamRef) {
+            // Fallback to auto-generated ID if all readable IDs taken
+            teamRef = db.collection('teams').doc();
+            teamId = teamRef.id;
+        }
+        
+        const now = FieldValue.serverTimestamp();
+        const nowDate = new Date(); // Use regular Date for array fields
+        
+        const team = {
+            teamName: teamData.teamName.trim(),
+            teamNameLower: teamData.teamName.trim().toLowerCase(), // For case-insensitive uniqueness
+            teamTag: teamData.teamTag.trim(),
+            teamTags: [{ tag: teamData.teamTag.trim(), isPrimary: true }],
+            leaderId: userId,
+            divisions: teamData.divisions,
+            maxPlayers: teamData.maxPlayers,
+            joinCode: joinCode,
+            status: 'active',
+            playerRoster: [{
+                userId: userId,
+                displayName: userProfile.displayName,
+                initials: userProfile.initials,
+                photoURL: userProfile.photoURL || null,
+                joinedAt: nowDate,
+                role: 'leader'
+            }],
+            lastActivityAt: now,
+            createdAt: now
+        };
+
+        // If leader has Discord linked, store on team for contact feature
+        if (userProfile.discordUserId) {
+            team.leaderDiscord = {
+                username: userProfile.discordUsername,
+                userId: userProfile.discordUserId
+            };
+        }
+        
+        // Use transaction to ensure consistency
+        await db.runTransaction(async (transaction) => {
+            // Create team
+            transaction.set(teamRef, team);
+            
+            // Update user's teams
+            transaction.update(db.collection('users').doc(userId), {
+                [`teams.${teamId}`]: true
+            });
+            
+            // Log team creation event
+            const eventId = `${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${
+                new Date().toTimeString().slice(0, 5).replace(':', '')
+            }-${teamData.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20)}-team_created_${
+                Math.random().toString(36).substr(2, 4).toUpperCase()
+            }`;
+            
+            // Team lifecycle event
+            transaction.set(db.collection('eventLog').doc(eventId), {
+                eventId,
+                teamId,
+                teamName: team.teamName,
+                type: 'TEAM_CREATED',
+                category: 'TEAM_LIFECYCLE',
+                timestamp: nowDate,
+                details: {
+                    divisions: team.divisions,
+                    maxPlayers: team.maxPlayers,
+                    creator: {
+                        displayName: userProfile.displayName,
+                        initials: userProfile.initials
+                    }
+                }
+            });
+            
+            // Player movement event
+            const joinEventId = eventId.replace('team_created', 'joined');
+            transaction.set(db.collection('eventLog').doc(joinEventId), {
+                eventId: joinEventId,
+                teamId,
+                teamName: team.teamName,
+                type: 'JOINED',
+                category: 'PLAYER_MOVEMENT',
+                timestamp: nowDate,
+                userId,
+                player: {
+                    displayName: userProfile.displayName,
+                    initials: userProfile.initials
+                },
+                details: {
+                    role: 'leader',
+                    isFounder: true,
+                    joinMethod: 'created'
+                }
+            });
+        });
+        
+        console.log('✅ Team created successfully:', team.teamName);
+        
+        return {
+            success: true,
+            team: {
+                id: teamId,
+                ...team,
+                // Convert server timestamp to ISO string for client
+                createdAt: new Date().toISOString(),
+                lastActivityAt: new Date().toISOString()
+            }
+        };
+        
+    } catch (error) {
+        console.error('❌ Error creating team:', error);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Failed to create team: ' + error.message);
+    }
+});
+
+// Join team function
+exports.joinTeam = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    console.log('🚀 joinTeam function called');
+    console.log('Request auth:', context.auth ? 'authenticated' : 'not authenticated');
+    console.log('Request data:', data);
+
+    try {
+        // Check authentication
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated to join a team');
+        }
+
+        const userId = context.auth.uid;
+        const { joinCode } = data;
+        
+        console.log('User joining team:', userId, 'with code:', joinCode);
+        
+        // Validate join code
+        if (!joinCode || typeof joinCode !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'Join code is required');
+        }
+
+        const trimmedCode = joinCode.trim().toUpperCase();
+        if (trimmedCode.length !== 6) {
+            throw new functions.https.HttpsError('invalid-argument', 'Join code must be exactly 6 characters');
+        }
+
+        if (!/^[A-Z0-9]{6}$/.test(trimmedCode)) {
+            throw new functions.https.HttpsError('invalid-argument', 'Join code must contain only uppercase letters and numbers');
+        }
+        
+        // Get user profile
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User profile not found. Please create your profile first.');
+        }
+
+        const userProfile = userDoc.data();
+
+        // Check if user already has max teams
+        const userTeams = userProfile.teams || {};
+        if (Object.keys(userTeams).length >= 4) {
+            throw new functions.https.HttpsError('failed-precondition', 'You can only be on a maximum of 4 teams');
+        }
+
+        // Find team by join code
+        const teamQuery = await db.collection('teams').where('joinCode', '==', trimmedCode).get();
+
+        if (teamQuery.empty) {
+            throw new functions.https.HttpsError('not-found', 'Invalid join code. Please check the code and try again.');
+        }
+
+        const teamDoc = teamQuery.docs[0];
+        const team = teamDoc.data();
+        const teamId = teamDoc.id;
+
+        // Check if team is active
+        if (team.status !== 'active') {
+            throw new functions.https.HttpsError('failed-precondition', 'This team is not currently accepting new members');
+        }
+
+        // Check if user is already on this team
+        if (userTeams[teamId]) {
+            throw new functions.https.HttpsError('already-exists', 'You are already a member of this team');
+        }
+
+        // Check if team is full
+        if (team.playerRoster.length >= team.maxPlayers) {
+            throw new functions.https.HttpsError('failed-precondition', `Team is full (${team.playerRoster.length}/${team.maxPlayers} players)`);
+        }
+
+        // Determine if this user should become leader
+        // Team is "unclaimed" if: empty roster OR leaderId is null/placeholder
+        const isUnclaimedTeam = team.playerRoster.length === 0 ||
+                                !team.leaderId ||
+                                team.leaderId === 'UNCLAIMED';
+
+        // Add player to team
+        const now = FieldValue.serverTimestamp();
+        const nowDate = new Date(); // Use regular Date for array fields
+        const newPlayer = {
+            userId: userId,
+            displayName: userProfile.displayName,
+            initials: userProfile.initials,
+            photoURL: userProfile.photoURL || null,
+            joinedAt: nowDate,
+            role: isUnclaimedTeam ? 'leader' : 'member'
+        };
+        
+        // Use transaction to ensure consistency
+        await db.runTransaction(async (transaction) => {
+            // Build team update object
+            const teamUpdate = {
+                playerRoster: FieldValue.arrayUnion(newPlayer),
+                lastActivityAt: now
+            };
+
+            // If claiming unclaimed team, also set leaderId and Discord info
+            if (isUnclaimedTeam) {
+                teamUpdate.leaderId = userId;
+
+                // Copy leader's Discord info to team if available
+                if (userProfile.discordUserId) {
+                    teamUpdate.leaderDiscord = {
+                        username: userProfile.discordUsername,
+                        userId: userProfile.discordUserId
+                    };
+                }
+            }
+
+            // Add player to team roster (and optionally set leader)
+            transaction.update(db.collection('teams').doc(teamId), teamUpdate);
+
+            // Update user's teams
+            transaction.update(db.collection('users').doc(userId), {
+                [`teams.${teamId}`]: true
+            });
+
+            // Log join event
+            const eventId = `${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${
+                new Date().toTimeString().slice(0, 5).replace(':', '')
+            }-${team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20)}-joined_${
+                Math.random().toString(36).substr(2, 4).toUpperCase()
+            }`;
+
+            transaction.set(db.collection('eventLog').doc(eventId), {
+                eventId,
+                teamId,
+                teamName: team.teamName,
+                type: isUnclaimedTeam ? 'CLAIMED_LEADERSHIP' : 'JOINED',
+                category: 'PLAYER_MOVEMENT',
+                timestamp: nowDate,
+                userId,
+                player: {
+                    displayName: userProfile.displayName,
+                    initials: userProfile.initials
+                },
+                details: {
+                    role: isUnclaimedTeam ? 'leader' : 'member',
+                    isFounder: false,
+                    joinMethod: 'joinCode',
+                    claimedLeadership: isUnclaimedTeam
+                }
+            });
+        });
+        
+        console.log(`✅ User ${isUnclaimedTeam ? 'claimed leadership of' : 'joined'} team successfully:`, team.teamName);
+
+        // Write pendingSync if Mumble is enabled for this team
+        const mumbleConfig = await db.collection('mumbleConfig').doc(teamId).get();
+        if (mumbleConfig.exists && mumbleConfig.data().status === 'active') {
+            await db.collection('mumbleConfig').doc(teamId).update({
+                pendingSync: {
+                    action: 'add',
+                    userId: userId,
+                    displayName: userProfile.displayName,
+                    discordUserId: userProfile.discordUserId || null,
+                    timestamp: FieldValue.serverTimestamp(),
+                },
+                updatedAt: FieldValue.serverTimestamp(),
+            });
+        }
+
+        return {
+            success: true,
+            team: {
+                id: teamId,
+                ...team,
+                leaderId: isUnclaimedTeam ? userId : team.leaderId,
+                playerRoster: [...team.playerRoster, newPlayer]
+            },
+            claimedLeadership: isUnclaimedTeam
+        };
+        
+    } catch (error) {
+        console.error('❌ Error joining team:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Failed to join team: ' + error.message);
+    }
+});
+
+// Regenerate join code function
+exports.regenerateJoinCode = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        // Check authentication
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+        }
+
+        const userId = context.auth.uid;
+        const { teamId } = data;
+        
+        // Validate input
+        if (!teamId || typeof teamId !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'teamId is required');
+        }
+
+        // Get team and verify user is leader
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        const team = teamDoc.data();
+        if (team.leaderId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Only team leaders can regenerate join codes');
+        }
+        
+        // Generate new join code
+        const generateJoinCode = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        };
+        
+        let newJoinCode;
+        let attempts = 0;
+        
+        // Ensure unique join code
+        do {
+            newJoinCode = generateJoinCode();
+            const existingTeam = await db.collection('teams')
+                .where('joinCode', '==', newJoinCode)
+                .limit(1)
+                .get();
+            
+            if (existingTeam.empty) {
+                break;
+            }
+            
+            attempts++;
+            if (attempts > 10) {
+                throw new functions.https.HttpsError('internal', 'Failed to generate unique join code');
+            }
+        } while (true);
+        
+        // Update team document
+        await db.collection('teams').doc(teamId).update({
+            joinCode: newJoinCode,
+            lastActivityAt: FieldValue.serverTimestamp()
+        });
+        
+        // Log event - PRD format: YYYYMMDD-HHMM-teamname-eventtype_XXXX
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+        const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+        const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase();
+        const eventId = `${dateStr}-${timeStr}-${teamNameClean}-joincode_regenerated_${randomSuffix}`;
+        
+        await db.collection('eventLog').doc(eventId).set({
+            eventId,
+            teamId,
+            teamName: team.teamName,
+            type: 'JOIN_CODE_REGENERATED',
+            category: 'TEAM_MANAGEMENT',
+            timestamp: FieldValue.serverTimestamp(),
+            userId,
+            player: {
+                displayName: team.playerRoster.find(p => p.userId === userId)?.displayName || 'Unknown',
+                initials: team.playerRoster.find(p => p.userId === userId)?.initials || 'UN'
+            },
+            details: {
+                oldJoinCode: team.joinCode,
+                newJoinCode
+            }
+        });
+        
+        console.log('✅ Join code regenerated successfully:', teamId);
+        
+        return {
+            success: true,
+            data: {
+                joinCode: newJoinCode
+            }
+        };
+        
+    } catch (error) {
+        console.error('❌ Error regenerating join code:', error);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Failed to regenerate join code: ' + error.message);
+    }
+});
+
+// Leave team function
+exports.leaveTeam = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        // Check authentication
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+        }
+
+        const userId = context.auth.uid;
+        const { teamId } = data;
+        
+        // Validate input
+        if (!teamId || typeof teamId !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'teamId is required');
+        }
+
+        // Get team and user documents
+        const [teamDoc, userDoc] = await Promise.all([
+            db.collection('teams').doc(teamId).get(),
+            db.collection('users').doc(userId).get()
+        ]);
+        
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User not found');
+        }
+
+        const team = teamDoc.data();
+        const user = userDoc.data();
+
+        // Check if user is on team
+        const playerIndex = team.playerRoster.findIndex(p => p.userId === userId);
+        if (playerIndex === -1) {
+            throw new functions.https.HttpsError('permission-denied', 'User is not on this team');
+        }
+
+        const player = team.playerRoster[playerIndex];
+        const isLeader = team.leaderId === userId;
+        const isLastMember = team.playerRoster.length === 1;
+
+        // Leaders can only leave if they're the last member
+        if (isLeader && !isLastMember) {
+            throw new functions.https.HttpsError('permission-denied', 'Leaders cannot leave their team unless they are the last member');
+        }
+        
+        // Execute in transaction
+        await db.runTransaction(async (transaction) => {
+            // Remove player from team roster
+            const updatedRoster = team.playerRoster.filter(p => p.userId !== userId);
+            
+            // Update user's teams
+            const userTeams = { ...user.teams };
+            delete userTeams[teamId];
+            
+            if (isLastMember) {
+                // Archive team if last member
+                transaction.update(db.collection('teams').doc(teamId), {
+                    status: 'archived',
+                    playerRoster: updatedRoster,
+                    lastActivityAt: FieldValue.serverTimestamp()
+                });
+                
+                // Log team archived event - PRD format: YYYYMMDD-HHMM-teamname-eventtype_XXXX
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+                const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+                const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+                const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase();
+                const archiveEventId = `${dateStr}-${timeStr}-${teamNameClean}-team_archived_${randomSuffix}`;
+                
+                transaction.set(db.collection('eventLog').doc(archiveEventId), {
+                    eventId: archiveEventId,
+                    teamId,
+                    teamName: team.teamName,
+                    type: 'TEAM_ARCHIVED',
+                    category: 'TEAM_MANAGEMENT',
+                    timestamp: FieldValue.serverTimestamp(),
+                    userId,
+                    player: {
+                        displayName: player.displayName,
+                        initials: player.initials
+                    },
+                    details: {
+                        reason: 'last_member_left',
+                        finalRosterSize: 0
+                    }
+                });
+            } else {
+                // Just remove player from team
+                transaction.update(db.collection('teams').doc(teamId), {
+                    playerRoster: updatedRoster,
+                    lastActivityAt: FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Update user document
+            transaction.update(db.collection('users').doc(userId), {
+                teams: userTeams,
+                lastActivityAt: FieldValue.serverTimestamp()
+            });
+            
+            // Log leave event - PRD format: YYYYMMDD-HHMM-teamname-eventtype_XXXX
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+            const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+            const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+            const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase();
+            const leaveEventId = `${dateStr}-${timeStr}-${teamNameClean}-left_${randomSuffix}`;
+            
+            console.log('📝 Creating leave event:', leaveEventId);
+            
+            transaction.set(db.collection('eventLog').doc(leaveEventId), {
+                eventId: leaveEventId,
+                teamId,
+                teamName: team.teamName,
+                type: 'LEFT',
+                category: 'PLAYER_MOVEMENT',
+                timestamp: FieldValue.serverTimestamp(),
+                userId,
+                player: {
+                    displayName: player.displayName,
+                    initials: player.initials
+                },
+                details: {
+                    wasLeader: isLeader,
+                    wasLastMember: isLastMember,
+                    remainingRosterSize: updatedRoster.length
+                }
+            });
+            
+            console.log('📝 Leave event transaction set, will commit with transaction');
+        });
+        
+        // After transaction: clean up availability (outside transaction for query)
+        const availabilitySnap = await db.collection('availability')
+            .where('teamId', '==', teamId)
+            .get();
+
+        if (!availabilitySnap.empty) {
+            const cleanupBatch = db.batch();
+            let cleanedSlots = 0;
+            availabilitySnap.docs.forEach(doc => {
+                const data = doc.data();
+                const slots = data.slots || {};
+                let hasChanges = false;
+
+                Object.keys(slots).forEach(slotKey => {
+                    if (Array.isArray(slots[slotKey]) && slots[slotKey].includes(userId)) {
+                        slots[slotKey] = slots[slotKey].filter(uid => uid !== userId);
+                        hasChanges = true;
+                        cleanedSlots++;
+                    }
+                });
+
+                if (hasChanges) {
+                    cleanupBatch.update(doc.ref, { slots });
+                }
+            });
+
+            if (cleanedSlots > 0) {
+                await cleanupBatch.commit();
+                console.log(`🧹 Cleaned ${cleanedSlots} availability slots for departed player ${userId}`);
+            }
+        }
+
+        // Write pendingSync if Mumble is enabled and team is not being archived
+        if (!isLastMember) {
+            const mumbleConfigLeave = await db.collection('mumbleConfig').doc(teamId).get();
+            if (mumbleConfigLeave.exists && mumbleConfigLeave.data().status === 'active') {
+                await db.collection('mumbleConfig').doc(teamId).update({
+                    pendingSync: {
+                        action: 'remove',
+                        userId: userId,
+                        displayName: player.displayName,
+                        timestamp: FieldValue.serverTimestamp(),
+                    },
+                    updatedAt: FieldValue.serverTimestamp(),
+                });
+            }
+        }
+
+        console.log('✅ Player left team successfully:', { teamId, userId, isLastMember });
+
+        return {
+            success: true,
+            data: {
+                leftTeam: true,
+                teamArchived: isLastMember
+            }
+        };
+        
+    } catch (error) {
+        console.error('❌ Error leaving team:', error);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Failed to leave team: ' + error.message);
+    }
+});
+
+// Kick player function - removes a player from the team
+exports.kickPlayer = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const { teamId, playerToKickId } = data;
+    const callerId = context.auth.uid;
+
+    if (!teamId || !playerToKickId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Missing required parameters');
+    }
+
+    if (callerId === playerToKickId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Cannot remove yourself. Use "Leave Team" instead.');
+    }
+
+    let kickedPlayerDisplayName = '';
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const teamRef = db.collection('teams').doc(teamId);
+            const userRef = db.collection('users').doc(playerToKickId);
+
+            // ALL READS FIRST (Firestore transaction requirement)
+            const teamDoc = await transaction.get(teamRef);
+            const userDoc = await transaction.get(userRef);
+
+            if (!teamDoc.exists) {
+                throw new Error('Team not found');
+            }
+
+            const team = teamDoc.data();
+
+            // Verify caller is leader
+            if (team.leaderId !== callerId) {
+                throw new Error('Only team leaders can remove players');
+            }
+
+            // Find player to kick
+            const playerToKick = team.playerRoster.find(p => p.userId === playerToKickId);
+            if (!playerToKick) {
+                throw new Error('Player not found on team roster');
+            }
+            kickedPlayerDisplayName = playerToKick.displayName;
+
+            // ALL WRITES AFTER READS
+            // Remove from roster
+            const updatedRoster = team.playerRoster.filter(p => p.userId !== playerToKickId);
+            transaction.update(teamRef, { playerRoster: updatedRoster });
+
+            // Update kicked player's user document
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                const updatedTeams = { ...userData.teams };
+                delete updatedTeams[teamId];
+                transaction.update(userRef, { teams: updatedTeams });
+            }
+
+            // Create event log
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '').slice(0, 4);
+            const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const eventId = `${dateStr}-${timeStr}-${teamNameClean}-kicked_${randomSuffix}`;
+
+            const caller = team.playerRoster.find(p => p.userId === callerId);
+
+            transaction.set(db.collection('eventLog').doc(eventId), {
+                eventId,
+                teamId,
+                teamName: team.teamName,
+                type: 'KICKED',
+                category: 'PLAYER_MOVEMENT',
+                timestamp: FieldValue.serverTimestamp(),
+                userId: playerToKickId,
+                player: {
+                    displayName: playerToKick.displayName,
+                    initials: playerToKick.initials
+                },
+                details: {
+                    kickedBy: callerId,
+                    kickedByName: caller?.displayName || 'Unknown'
+                }
+            });
+        });
+
+        // After transaction: clean up availability (outside transaction for query)
+        const availabilitySnap = await db.collection('availability')
+            .where('teamId', '==', teamId)
+            .get();
+
+        const batch = db.batch();
+        availabilitySnap.docs.forEach(doc => {
+            const data = doc.data();
+            const slots = data.slots || {};
+            let hasChanges = false;
+
+            Object.keys(slots).forEach(slotKey => {
+                if (Array.isArray(slots[slotKey]) && slots[slotKey].includes(playerToKickId)) {
+                    slots[slotKey] = slots[slotKey].filter(uid => uid !== playerToKickId);
+                    hasChanges = true;
+                }
+            });
+
+            if (hasChanges) {
+                batch.update(doc.ref, { slots });
+            }
+        });
+
+        await batch.commit();
+
+        // Write pendingSync if Mumble is enabled for this team
+        const mumbleConfigKick = await db.collection('mumbleConfig').doc(teamId).get();
+        if (mumbleConfigKick.exists && mumbleConfigKick.data().status === 'active') {
+            await db.collection('mumbleConfig').doc(teamId).update({
+                pendingSync: {
+                    action: 'remove',
+                    userId: playerToKickId,
+                    displayName: kickedPlayerDisplayName,
+                    timestamp: FieldValue.serverTimestamp(),
+                },
+                updatedAt: FieldValue.serverTimestamp(),
+            });
+        }
+
+        console.log('✅ Player kicked successfully:', { teamId, playerToKickId });
+        return { success: true };
+    } catch (error) {
+        console.error('❌ kickPlayer error:', error);
+        if (error instanceof functions.https.HttpsError) throw error;
+        throw new functions.https.HttpsError('internal', 'Failed to kick player: ' + error.message);
+    }
+});
+
+// Transfer leadership function
+exports.transferLeadership = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const { teamId, newLeaderId } = data;
+    const callerId = context.auth.uid;
+
+    if (!teamId || !newLeaderId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Missing required parameters');
+    }
+
+    if (callerId === newLeaderId) {
+        throw new functions.https.HttpsError('invalid-argument', 'You are already the leader');
+    }
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const teamRef = db.collection('teams').doc(teamId);
+            const teamDoc = await transaction.get(teamRef);
+
+            if (!teamDoc.exists) {
+                throw new Error('Team not found');
+            }
+
+            const team = teamDoc.data();
+
+            // Verify caller is current leader
+            if (team.leaderId !== callerId) {
+                throw new Error('Only the current leader can transfer leadership');
+            }
+
+            // Verify new leader is on roster
+            const newLeader = team.playerRoster.find(p => p.userId === newLeaderId);
+            if (!newLeader) {
+                throw new Error('Selected player is not on the team');
+            }
+
+            // Update roster roles
+            const updatedRoster = team.playerRoster.map(p => {
+                if (p.userId === callerId) {
+                    return { ...p, role: 'member' };
+                }
+                if (p.userId === newLeaderId) {
+                    return { ...p, role: 'leader' };
+                }
+                return p;
+            });
+
+            // Get new leader's user profile to update leaderDiscord
+            const newLeaderUserDoc = await transaction.get(db.collection('users').doc(newLeaderId));
+            const newLeaderProfile = newLeaderUserDoc.exists ? newLeaderUserDoc.data() : null;
+
+            // Build team update
+            const teamUpdate = {
+                leaderId: newLeaderId,
+                playerRoster: updatedRoster
+            };
+
+            // Update leaderDiscord with new leader's info (or clear if not linked)
+            if (newLeaderProfile?.discordUserId) {
+                teamUpdate.leaderDiscord = {
+                    username: newLeaderProfile.discordUsername,
+                    userId: newLeaderProfile.discordUserId
+                };
+            } else {
+                teamUpdate.leaderDiscord = FieldValue.delete();
+            }
+
+            // Update team
+            transaction.update(teamRef, teamUpdate);
+
+            // Create event log
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '').slice(0, 4);
+            const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const eventId = `${dateStr}-${timeStr}-${teamNameClean}-transferred_leadership_${randomSuffix}`;
+
+            const oldLeader = team.playerRoster.find(p => p.userId === callerId);
+
+            transaction.set(db.collection('eventLog').doc(eventId), {
+                eventId,
+                teamId,
+                teamName: team.teamName,
+                type: 'TRANSFERRED_LEADERSHIP',
+                category: 'PLAYER_MOVEMENT',
+                timestamp: FieldValue.serverTimestamp(),
+                userId: newLeaderId,
+                player: {
+                    displayName: newLeader.displayName,
+                    initials: newLeader.initials
+                },
+                details: {
+                    fromUserId: callerId,
+                    fromUserName: oldLeader?.displayName || 'Unknown'
+                }
+            });
+        });
+
+        console.log('✅ Leadership transferred successfully:', { teamId, newLeaderId });
+        return { success: true };
+    } catch (error) {
+        console.error('❌ transferLeadership error:', error);
+        if (error instanceof functions.https.HttpsError) throw error;
+        throw new functions.https.HttpsError('internal', 'Failed to transfer leadership: ' + error.message);
+    }
+});
+
+// Update a player's initials on a specific team's roster
+// Any team member can edit any teammate's initials (per-team, not global)
+exports.updateRosterInitials = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const { teamId, targetUserId, initials } = data;
+    const callerId = context.auth.uid;
+
+    if (!teamId || typeof teamId !== 'string') {
+        throw new functions.https.HttpsError('invalid-argument', 'teamId is required');
+    }
+    if (!targetUserId || typeof targetUserId !== 'string') {
+        throw new functions.https.HttpsError('invalid-argument', 'targetUserId is required');
+    }
+    if (!initials || typeof initials !== 'string') {
+        throw new functions.https.HttpsError('invalid-argument', 'initials is required');
+    }
+
+    const trimmed = initials.trim().toUpperCase();
+    if (trimmed.length < 1 || trimmed.length > 3 || !/^[A-Z]{1,3}$/.test(trimmed)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Initials must be 1-3 uppercase letters');
+    }
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const teamRef = db.collection('teams').doc(teamId);
+            const teamDoc = await transaction.get(teamRef);
+
+            if (!teamDoc.exists) {
+                throw new Error('Team not found');
+            }
+
+            const team = teamDoc.data();
+            const playerRoster = team.playerRoster || [];
+
+            // Verify caller is a team member
+            if (!playerRoster.some(p => p.userId === callerId)) {
+                throw new Error('You are not a member of this team');
+            }
+
+            // Verify target is a team member
+            if (!playerRoster.some(p => p.userId === targetUserId)) {
+                throw new Error('Target player not found on team roster');
+            }
+
+            // Update the target player's initials
+            const updatedRoster = playerRoster.map(p => {
+                if (p.userId === targetUserId) {
+                    return { ...p, initials: trimmed };
+                }
+                return p;
+            });
+
+            transaction.update(teamRef, {
+                playerRoster: updatedRoster,
+                lastActivityAt: FieldValue.serverTimestamp()
+            });
+        });
+
+        console.log('✅ Roster initials updated:', { teamId, targetUserId, initials: trimmed, by: callerId });
+        return { success: true };
+    } catch (error) {
+        console.error('❌ updateRosterInitials error:', error);
+        if (error instanceof functions.https.HttpsError) throw error;
+        throw new functions.https.HttpsError('internal', 'Failed to update initials: ' + error.message);
+    }
+});
+
+// Update team settings function
+exports.updateTeamSettings = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        // Check authentication
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+        }
+
+        const userId = context.auth.uid;
+        const { teamId, teamTag, maxPlayers, divisions, hideRosterNames, hideFromComparison, voiceSettings } = data;
+
+        // Validate input
+        if (!teamId || typeof teamId !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'teamId is required');
+        }
+
+        // At least one setting must be provided
+        const hasTeamTag = teamTag !== undefined;
+        const hasMaxPlayers = maxPlayers !== undefined;
+        const hasHideRosterNames = hideRosterNames !== undefined;
+        const hasDivisions = divisions !== undefined;
+        const hasHideFromComparison = hideFromComparison !== undefined;
+        const hasVoiceSettings = voiceSettings !== undefined;
+
+        if (!hasTeamTag && !hasMaxPlayers && !hasDivisions && !hasHideRosterNames && !hasHideFromComparison && !hasVoiceSettings) {
+            throw new functions.https.HttpsError('invalid-argument', 'At least one setting must be provided');
+        }
+
+        if (hasTeamTag) {
+            if (typeof teamTag !== 'string') {
+                throw new functions.https.HttpsError('invalid-argument', 'teamTag must be a string');
+            }
+            const trimmedTag = teamTag.trim();
+            if (trimmedTag.length < 1 || trimmedTag.length > 4) {
+                throw new functions.https.HttpsError('invalid-argument', 'teamTag must be 1-4 characters');
+            }
+            if (!/^[a-zA-Z0-9\[\]\(\)\{\}\-_.,!]+$/.test(trimmedTag)) {
+                throw new functions.https.HttpsError('invalid-argument', 'teamTag contains invalid characters');
+            }
+        }
+        if (hasMaxPlayers && (typeof maxPlayers !== 'number' || maxPlayers < 4 || maxPlayers > 20)) {
+            throw new functions.https.HttpsError('invalid-argument', 'maxPlayers must be between 4 and 20');
+        }
+        if (hasDivisions) {
+            if (!Array.isArray(divisions) || divisions.length === 0) {
+                throw new functions.https.HttpsError('invalid-argument', 'At least one division must be selected');
+            }
+            const validDivisions = ['D1', 'D2', 'D3'];
+            for (const d of divisions) {
+                if (!validDivisions.includes(d)) {
+                    throw new functions.https.HttpsError('invalid-argument', 'Invalid division: ' + d);
+                }
+            }
+        }
+        if (hasHideRosterNames && typeof hideRosterNames !== 'boolean') {
+            throw new functions.https.HttpsError('invalid-argument', 'hideRosterNames must be a boolean');
+        }
+        if (hasHideFromComparison && typeof hideFromComparison !== 'boolean') {
+            throw new functions.https.HttpsError('invalid-argument', 'hideFromComparison must be a boolean');
+        }
+        if (hasVoiceSettings) {
+            if (typeof voiceSettings !== 'object' || voiceSettings === null) {
+                throw new functions.https.HttpsError('invalid-argument', 'voiceSettings must be an object');
+            }
+            if (!['public', 'private'].includes(voiceSettings.defaultVisibility)) {
+                throw new functions.https.HttpsError('invalid-argument', 'defaultVisibility must be "public" or "private"');
+            }
+        }
+
+        // Get team document
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        const team = teamDoc.data();
+
+        // Check if user is team leader
+        if (team.leaderId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Only team leaders can update team settings');
+        }
+
+        // Validate maxPlayers is not less than current roster size
+        if (hasMaxPlayers && maxPlayers < team.playerRoster.length) {
+            throw new functions.https.HttpsError('invalid-argument', `Max players cannot be less than current roster size (${team.playerRoster.length})`);
+        }
+
+        // Build update object dynamically
+        const trimmedTag = hasTeamTag ? teamTag.trim() : null;
+        const updateData = { lastActivityAt: FieldValue.serverTimestamp() };
+        if (hasTeamTag) updateData.teamTag = trimmedTag;
+        if (hasMaxPlayers) updateData.maxPlayers = maxPlayers;
+        if (hasDivisions) updateData.divisions = divisions;
+        if (hasHideRosterNames) updateData.hideRosterNames = hideRosterNames;
+        if (hasHideFromComparison) updateData.hideFromComparison = hideFromComparison;
+        if (hasVoiceSettings) updateData.voiceSettings = { defaultVisibility: voiceSettings.defaultVisibility };
+
+        await db.collection('teams').doc(teamId).update(updateData);
+
+        // Propagate tag change to active proposals and upcoming matches
+        if (hasTeamTag && trimmedTag !== team.teamTag) {
+            await _propagateTeamTagChange(teamId, trimmedTag);
+        }
+
+        // Log event
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+        const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+        const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase();
+        const eventId = `${dateStr}-${timeStr}-${teamNameClean}-settings_updated_${randomSuffix}`;
+
+        const details = {};
+        if (hasTeamTag) {
+            details.oldTeamTag = team.teamTag;
+            details.newTeamTag = trimmedTag;
+        }
+        if (hasMaxPlayers) {
+            details.oldMaxPlayers = team.maxPlayers;
+            details.newMaxPlayers = maxPlayers;
+        }
+        if (hasDivisions) {
+            details.oldDivisions = team.divisions || [];
+            details.newDivisions = divisions;
+        }
+        if (hasHideRosterNames) {
+            details.oldHideRosterNames = team.hideRosterNames || false;
+            details.newHideRosterNames = hideRosterNames;
+        }
+        if (hasHideFromComparison) {
+            details.oldHideFromComparison = team.hideFromComparison || false;
+            details.newHideFromComparison = hideFromComparison;
+        }
+        if (hasVoiceSettings) {
+            details.oldDefaultVisibility = team.voiceSettings?.defaultVisibility || 'private';
+            details.newDefaultVisibility = voiceSettings.defaultVisibility;
+        }
+
+        await db.collection('eventLog').doc(eventId).set({
+            eventId,
+            teamId,
+            teamName: team.teamName,
+            type: 'TEAM_SETTINGS_UPDATED',
+            category: 'TEAM_MANAGEMENT',
+            timestamp: FieldValue.serverTimestamp(),
+            userId,
+            player: {
+                displayName: team.playerRoster.find(p => p.userId === userId)?.displayName || 'Unknown',
+                initials: team.playerRoster.find(p => p.userId === userId)?.initials || 'UN'
+            },
+            details
+        });
+
+        console.log('✅ Team settings updated successfully:', teamId);
+
+        return {
+            success: true,
+            data: updateData
+        };
+        
+    } catch (error) {
+        console.error('❌ Error updating team settings:', error);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Failed to update team settings: ' + error.message);
+    }
+});
+
+/**
+ * Propagate team tag change to active proposals and upcoming matches.
+ * Completed/cancelled matches keep the historical tag.
+ */
+async function _propagateTeamTagChange(teamId, newTag) {
+    const batch = db.batch();
+    let updateCount = 0;
+
+    // Update active proposals where this team is proposer
+    const asProposer = await db.collection('matchProposals')
+        .where('proposerTeamId', '==', teamId)
+        .where('status', '==', 'active')
+        .get();
+    asProposer.docs.forEach(doc => {
+        batch.update(doc.ref, { proposerTeamTag: newTag });
+        updateCount++;
+    });
+
+    // Update active proposals where this team is opponent
+    const asOpponent = await db.collection('matchProposals')
+        .where('opponentTeamId', '==', teamId)
+        .where('status', '==', 'active')
+        .get();
+    asOpponent.docs.forEach(doc => {
+        batch.update(doc.ref, { opponentTeamTag: newTag });
+        updateCount++;
+    });
+
+    // Update upcoming scheduled matches where this team is team A
+    const asTeamA = await db.collection('scheduledMatches')
+        .where('teamAId', '==', teamId)
+        .where('status', '==', 'upcoming')
+        .get();
+    asTeamA.docs.forEach(doc => {
+        batch.update(doc.ref, { teamATag: newTag });
+        updateCount++;
+    });
+
+    // Update upcoming scheduled matches where this team is team B
+    const asTeamB = await db.collection('scheduledMatches')
+        .where('teamBId', '==', teamId)
+        .where('status', '==', 'upcoming')
+        .get();
+    asTeamB.docs.forEach(doc => {
+        batch.update(doc.ref, { teamBTag: newTag });
+        updateCount++;
+    });
+
+    if (updateCount > 0) {
+        await batch.commit();
+        console.log(`📋 Propagated tag change to ${updateCount} proposals/matches for team ${teamId}`);
+    }
+}
+
+// ─── Update Team Tags (Slice 5.3) ─────────────────────────────────────────────
+
+const TAG_REGEX = /^[a-zA-Z0-9\[\]\(\)\{\}\-_.,!']+$/;
+const MAX_TAGS = 6;
+
+exports.updateTeamTags = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+        }
+
+        const userId = context.auth.uid;
+        const { teamId, teamTags } = data;
+
+        // Validate input structure
+        if (!teamId || typeof teamId !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'teamId is required');
+        }
+        if (!Array.isArray(teamTags) || teamTags.length === 0) {
+            throw new functions.https.HttpsError('invalid-argument', 'At least one tag is required');
+        }
+        if (teamTags.length > MAX_TAGS) {
+            throw new functions.https.HttpsError('invalid-argument', `Maximum ${MAX_TAGS} tags allowed`);
+        }
+
+        // Validate each tag entry
+        let primaryCount = 0;
+        for (const entry of teamTags) {
+            if (!entry || typeof entry.tag !== 'string') {
+                throw new functions.https.HttpsError('invalid-argument', 'Each tag entry must have a "tag" string');
+            }
+            const trimmed = entry.tag.trim();
+            if (trimmed.length < 1 || trimmed.length > 4) {
+                throw new functions.https.HttpsError('invalid-argument', `Tag "${trimmed}" must be 1-4 characters`);
+            }
+            if (!TAG_REGEX.test(trimmed)) {
+                throw new functions.https.HttpsError('invalid-argument', `Tag "${trimmed}" contains invalid characters`);
+            }
+            if (entry.isPrimary) primaryCount++;
+        }
+
+        if (primaryCount !== 1) {
+            throw new functions.https.HttpsError('invalid-argument', 'Exactly one tag must be marked as primary');
+        }
+
+        // Check for duplicate tags (case-insensitive)
+        const lowerTags = teamTags.map(e => e.tag.trim().toLowerCase());
+        if (new Set(lowerTags).size !== lowerTags.length) {
+            throw new functions.https.HttpsError('invalid-argument', 'Duplicate tags are not allowed');
+        }
+
+        // Get team document
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        const team = teamDoc.data();
+
+        // Authorization: leader only
+        if (team.leaderId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Only team leaders can update team tags');
+        }
+
+        // Normalize entries (trim whitespace)
+        const cleanTags = teamTags.map(e => ({
+            tag: e.tag.trim(),
+            isPrimary: !!e.isPrimary
+        }));
+
+        // Cross-team uniqueness check (case-insensitive)
+        const newLowerTags = cleanTags.map(e => e.tag.toLowerCase());
+        const dup = await checkTagUniqueness(newLowerTags, teamId);
+        if (dup) {
+            const originalCase = cleanTags.find(e => e.tag.toLowerCase() === dup.conflict)?.tag || dup.conflict;
+            throw new functions.https.HttpsError(
+                'already-exists',
+                `Tag "${originalCase}" is already used by ${dup.ownerName}`
+            );
+        }
+
+        const primaryTag = cleanTags.find(e => e.isPrimary).tag;
+        const oldPrimaryTag = team.teamTag;
+
+        // Update team document: both teamTags array and teamTag (primary)
+        await db.collection('teams').doc(teamId).update({
+            teamTags: cleanTags,
+            teamTag: primaryTag,
+            lastActivityAt: FieldValue.serverTimestamp()
+        });
+
+        // Propagate primary tag change to proposals/matches if changed
+        if (primaryTag !== oldPrimaryTag) {
+            await _propagateTeamTagChange(teamId, primaryTag);
+        }
+
+        // Event log
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+        const teamNameClean = team.teamName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+        const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase();
+        const eventId = `${dateStr}-${timeStr}-${teamNameClean}-tags_updated_${randomSuffix}`;
+
+        await db.collection('eventLog').doc(eventId).set({
+            eventId,
+            teamId,
+            teamName: team.teamName,
+            type: 'TEAM_TAGS_UPDATED',
+            category: 'TEAM_MANAGEMENT',
+            timestamp: FieldValue.serverTimestamp(),
+            userId,
+            player: {
+                displayName: team.playerRoster.find(p => p.userId === userId)?.displayName || 'Unknown',
+                initials: team.playerRoster.find(p => p.userId === userId)?.initials || 'UN'
+            },
+            details: {
+                oldTags: team.teamTags || [{ tag: oldPrimaryTag, isPrimary: true }],
+                newTags: cleanTags,
+                primaryChanged: primaryTag !== oldPrimaryTag
+            }
+        });
+
+        console.log('✅ Team tags updated:', { teamId, tags: cleanTags.map(t => t.tag), primary: primaryTag });
+        return { success: true };
+
+    } catch (error) {
+        console.error('❌ updateTeamTags error:', error);
+        if (error instanceof functions.https.HttpsError) throw error;
+        throw new functions.https.HttpsError('internal', 'Failed to update team tags: ' + error.message);
+    }
+});
+
+/**
+ * Update voice recording visibility (public/private)
+ * Only team leaders can change visibility for their team's recordings
+ */
+exports.updateRecordingVisibility = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
+        }
+
+        const { demoSha256, visibility } = data;
+        const userId = context.auth.uid;
+
+        // Validate inputs
+        if (!demoSha256 || typeof demoSha256 !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'demoSha256 required');
+        }
+        if (!['public', 'private'].includes(visibility)) {
+            throw new functions.https.HttpsError('invalid-argument', 'visibility must be public or private');
+        }
+
+        // Read the recording
+        const recDoc = await db.collection('voiceRecordings').doc(demoSha256).get();
+        if (!recDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Recording not found');
+        }
+
+        const recording = recDoc.data();
+        const teamId = recording.teamId;
+
+        if (!teamId) {
+            throw new functions.https.HttpsError('failed-precondition', 'Recording has no team association');
+        }
+
+        // Verify caller is team leader
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        if (teamDoc.data().leaderId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Only team leaders can change recording visibility');
+        }
+
+        // Update visibility
+        await db.collection('voiceRecordings').doc(demoSha256).update({ visibility });
+
+        console.log('✅ Recording visibility updated:', { demoSha256, visibility, teamId, userId });
+        return { success: true };
+
+    } catch (error) {
+        if (error instanceof functions.https.HttpsError) throw error;
+        console.error('❌ updateRecordingVisibility error:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to update visibility');
+    }
+});
+
+/**
+ * Delete a voice recording:
+ * 1. Delete all audio files from Firebase Storage
+ * 2. Delete the Firestore voiceRecordings document
+ * 3. Create a deletionRequest for quad to clean up local files
+ */
+exports.deleteRecording = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
+        }
+
+        const { demoSha256 } = data;
+        const userId = context.auth.uid;
+
+        if (!demoSha256 || typeof demoSha256 !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'demoSha256 required');
+        }
+
+        // Read the recording
+        const recDoc = await db.collection('voiceRecordings').doc(demoSha256).get();
+        if (!recDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Recording not found');
+        }
+
+        const recording = recDoc.data();
+        const teamId = recording.teamId;
+
+        if (!teamId) {
+            throw new functions.https.HttpsError('failed-precondition', 'Recording has no team association');
+        }
+
+        // Verify caller is team leader
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        if (!teamDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Team not found');
+        }
+
+        if (teamDoc.data().leaderId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Only team leaders can delete recordings');
+        }
+
+        // Delete Storage files
+        const bucket = getStorage().bucket();
+        const deletePromises = (recording.tracks || []).map(track => {
+            return bucket.file(track.storagePath).delete().catch(err => {
+                console.warn(`Storage file not found (may already be deleted): ${track.storagePath}`);
+            });
+        });
+        await Promise.all(deletePromises);
+
+        // Delete Firestore doc
+        await db.collection('voiceRecordings').doc(demoSha256).delete();
+
+        // Create deletion request for quad
+        await db.collection('deletionRequests').add({
+            demoSha256,
+            teamId,
+            sessionId: recording.sessionId || '',
+            mapName: recording.mapName || '',
+            requestedBy: userId,
+            requestedAt: FieldValue.serverTimestamp(),
+            status: 'pending',
+            completedAt: null,
+            error: null,
+        });
+
+        console.log('✅ Recording deleted:', { demoSha256, teamId, userId });
+        return { success: true };
+
+    } catch (error) {
+        if (error instanceof functions.https.HttpsError) throw error;
+        console.error('❌ deleteRecording error:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to delete recording');
+    }
+});
+
+/**
+ * Add a Discord user as a phantom member to a team.
+ * Creates a Firebase Auth account + user doc + roster entry.
+ * The phantom auto-upgrades when the real person logs in via Discord OAuth (D4).
+ */
+exports.addPhantomMember = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    // 1. Auth check
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
+    }
+
+    const { teamId, discordUserId, displayName } = data;
+    const callerId = context.auth.uid;
+
+    // 2. Validate input
+    if (!teamId || typeof teamId !== 'string') {
+        throw new functions.https.HttpsError('invalid-argument', 'teamId required');
+    }
+    if (!discordUserId || typeof discordUserId !== 'string' || !/^\d{17,19}$/.test(discordUserId)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Valid Discord user ID required');
+    }
+    if (!displayName || typeof displayName !== 'string' || displayName.length < 2 || displayName.length > 30) {
+        throw new functions.https.HttpsError('invalid-argument', 'Display name must be 2-30 characters');
+    }
+
+    // 3. Verify caller is team leader
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    if (!teamDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Team not found');
+    }
+    const team = teamDoc.data();
+    if (team.leaderId !== callerId) {
+        throw new functions.https.HttpsError('permission-denied', 'Only team leaders can add phantom members');
+    }
+
+    // 4. Check maxPlayers
+    const currentRosterSize = (team.playerRoster || []).length;
+    if (currentRosterSize >= (team.maxPlayers || 20)) {
+        throw new functions.https.HttpsError('failed-precondition', 'Team is at max capacity');
+    }
+
+    // 5. Verify bot registration is active and discordUserId is in guildMembers
+    const regDoc = await db.collection('botRegistrations').doc(teamId).get();
+    if (!regDoc.exists || regDoc.data().status !== 'active') {
+        throw new functions.https.HttpsError('failed-precondition', 'Bot must be connected first');
+    }
+    const guildMembers = regDoc.data().guildMembers || {};
+    if (!guildMembers[discordUserId]) {
+        throw new functions.https.HttpsError('not-found', 'Discord user not found in server member list');
+    }
+
+    // 6. Conflict check — is this Discord UID already linked to a user with team membership?
+    const existingUsers = await db.collection('users')
+        .where('discordUserId', '==', discordUserId)
+        .limit(1)
+        .get();
+
+    if (!existingUsers.empty) {
+        const existingUser = existingUsers.docs[0].data();
+        const existingTeams = existingUser.teams || {};
+        const teamIds = Object.keys(existingTeams).filter(t => existingTeams[t] === true);
+
+        if (teamIds.length > 0) {
+            let teamName = 'another team';
+            try {
+                const otherTeam = await db.collection('teams').doc(teamIds[0]).get();
+                if (otherTeam.exists) teamName = otherTeam.data().teamName;
+            } catch { /* use fallback */ }
+
+            throw new functions.https.HttpsError(
+                'already-exists',
+                `This user is already on ${teamName}. They need to join your team themselves.`
+            );
+        }
+
+        // Orphaned phantom (no teams) — clean it up
+        const orphanId = existingUsers.docs[0].id;
+        try {
+            await getAuth().deleteUser(orphanId);
+        } catch { /* may not have Auth account */ }
+        await db.collection('users').doc(orphanId).delete();
+    }
+
+    // 7. Check if discordUserId is already in this team's roster
+    const alreadyOnRoster = (team.playerRoster || []).some(
+        p => p.discordUserId === discordUserId
+    );
+    if (alreadyOnRoster) {
+        throw new functions.https.HttpsError('already-exists', 'This Discord user is already on the roster');
+    }
+
+    // 8. Create Firebase Auth account (shell — no email, no password)
+    let authUser;
+    try {
+        authUser = await getAuth().createUser({
+            displayName: displayName,
+            disabled: false,
+        });
+    } catch (err) {
+        throw new functions.https.HttpsError('internal', 'Failed to create auth account: ' + err.message);
+    }
+
+    const userId = authUser.uid;
+    const guildMember = guildMembers[discordUserId];
+
+    // 9. Generate initials
+    const initials = generateInitials(displayName);
+
+    try {
+        // 10. Create user doc
+        await db.collection('users').doc(userId).set({
+            displayName: displayName,
+            initials: initials,
+            email: null,
+            photoURL: guildMember.avatarUrl || null,
+            teams: { [teamId]: true },
+            favoriteTeams: [],
+            discordUserId: discordUserId,
+            discordUsername: guildMember.username || null,
+            discordAvatarHash: null,
+            discordLinkedAt: null,
+            avatarSource: guildMember.avatarUrl ? 'discord' : 'initials',
+            isPhantom: true,
+            phantomCreatedBy: callerId,
+            createdAt: FieldValue.serverTimestamp(),
+            lastUpdatedAt: FieldValue.serverTimestamp(),
+        });
+
+        // 11. Add to team roster
+        const rosterEntry = {
+            userId: userId,
+            displayName: displayName,
+            initials: initials,
+            photoURL: guildMember.avatarUrl || null,
+            joinedAt: new Date(),
+            role: 'member',
+            isPhantom: true,
+            discordUserId: discordUserId,
+        };
+
+        await db.collection('teams').doc(teamId).update({
+            playerRoster: FieldValue.arrayUnion(rosterEntry),
+        });
+
+        // 12. Update knownPlayers on bot registration
+        await db.collection('botRegistrations').doc(teamId).update({
+            [`knownPlayers.${discordUserId}`]: displayName,
+        });
+
+        console.log('✅ Phantom member added:', { userId, discordUserId, displayName, teamId });
+
+    } catch (err) {
+        // Cleanup on failure — delete the Auth account we created
+        try { await getAuth().deleteUser(userId); } catch { /* best effort */ }
+        try { await db.collection('users').doc(userId).delete(); } catch { /* best effort */ }
+        throw new functions.https.HttpsError('internal', 'Failed to create phantom member: ' + err.message);
+    }
+
+    // 13. Write pendingSync if Mumble is enabled for this team (outside cleanup try — roster already committed)
+    const mumbleConfig = await db.collection('mumbleConfig').doc(teamId).get();
+    if (mumbleConfig.exists && mumbleConfig.data().status === 'active') {
+        await db.collection('mumbleConfig').doc(teamId).update({
+            pendingSync: {
+                action: 'add',
+                userId: userId,
+                displayName: displayName,
+                discordUserId: discordUserId,
+                timestamp: FieldValue.serverTimestamp(),
+            },
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
+
+    return { success: true, userId };
+});
+
+/**
+ * Remove a phantom member from a team.
+ * Completely deletes the phantom: user doc, Auth account, roster entry, knownPlayers.
+ * Rejects if the user is not a phantom (use kickPlayer for real users).
+ */
+exports.removePhantomMember = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
+    }
+
+    const { teamId, userId } = data;
+    const callerId = context.auth.uid;
+
+    if (!teamId || !userId) {
+        throw new functions.https.HttpsError('invalid-argument', 'teamId and userId required');
+    }
+
+    // Verify caller is team leader
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    if (!teamDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Team not found');
+    }
+    if (teamDoc.data().leaderId !== callerId) {
+        throw new functions.https.HttpsError('permission-denied', 'Only team leaders can remove phantom members');
+    }
+
+    // Read user doc — verify it's a phantom
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+    const userData = userDoc.data();
+    if (!userData.isPhantom) {
+        throw new functions.https.HttpsError(
+            'failed-precondition',
+            'This user has logged in and is no longer a phantom. Use the regular kick flow.'
+        );
+    }
+
+    const discordUserId = userData.discordUserId;
+
+    // Remove from team roster
+    const roster = teamDoc.data().playerRoster || [];
+    const removedMember = roster.find(p => p.userId === userId);
+    const updatedRoster = roster.filter(p => p.userId !== userId);
+    await db.collection('teams').doc(teamId).update({
+        playerRoster: updatedRoster,
+    });
+
+    // Write pendingSync if Mumble is enabled for this team
+    const mumbleConfig = await db.collection('mumbleConfig').doc(teamId).get();
+    if (mumbleConfig.exists && mumbleConfig.data().status === 'active') {
+        await db.collection('mumbleConfig').doc(teamId).update({
+            pendingSync: {
+                action: 'remove',
+                userId: userId,
+                displayName: removedMember ? removedMember.displayName : userData.displayName,
+                timestamp: FieldValue.serverTimestamp(),
+            },
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
+
+    // Remove from knownPlayers (if present)
+    if (discordUserId) {
+        try {
+            await db.collection('botRegistrations').doc(teamId).update({
+                [`knownPlayers.${discordUserId}`]: FieldValue.delete(),
+            });
+        } catch { /* bot registration may not exist */ }
+    }
+
+    // Clean up any availability entries for this phantom
+    const availabilitySnap = await db.collection('availability')
+        .where('teamId', '==', teamId)
+        .get();
+
+    const batch = db.batch();
+    availabilitySnap.docs.forEach(doc => {
+        const data = doc.data();
+        const slots = data.slots || {};
+        let hasChanges = false;
+
+        Object.keys(slots).forEach(slotKey => {
+            if (Array.isArray(slots[slotKey]) && slots[slotKey].includes(userId)) {
+                slots[slotKey] = slots[slotKey].filter(uid => uid !== userId);
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            batch.update(doc.ref, { slots });
+        }
+    });
+
+    await batch.commit();
+
+    // Delete user doc
+    await db.collection('users').doc(userId).delete();
+
+    // Delete Firebase Auth account
+    try {
+        await getAuth().deleteUser(userId);
+    } catch (err) {
+        console.warn('⚠️ Failed to delete phantom Auth account (may not exist):', err.message);
+    }
+
+    console.log('✅ Phantom member removed:', { userId, discordUserId, teamId });
+    return { success: true };
+});

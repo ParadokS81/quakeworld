@@ -1,0 +1,204 @@
+// PlayerTooltip.js - Lightweight hover tooltip for player lists
+// Following CLAUDE.md architecture: Revealing Module Pattern
+
+const PlayerTooltip = (function() {
+    'use strict';
+
+    let _tooltip = null;
+    let _hideTimeout = null;
+    let _currentCellId = null;
+
+    function _escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function _createTooltip() {
+        if (_tooltip) return;
+
+        _tooltip = document.createElement('div');
+        _tooltip.id = 'player-tooltip';
+        _tooltip.className = 'player-tooltip';
+        _tooltip.style.display = 'none';
+        document.body.appendChild(_tooltip);
+
+        // Keep tooltip visible when hovering over it
+        _tooltip.addEventListener('mouseenter', () => {
+            if (_hideTimeout) {
+                clearTimeout(_hideTimeout);
+                _hideTimeout = null;
+            }
+        });
+
+        _tooltip.addEventListener('mouseleave', () => {
+            hide();
+        });
+    }
+
+    /**
+     * Show tooltip near the hovered cell
+     * @param {HTMLElement} cell - The grid cell being hovered
+     * @param {Array} players - Array of available player display objects
+     * @param {string} currentUserId - Current user's ID
+     * @param {Array} [unavailablePlayers] - Array of unavailable player display objects (Slice 15.0)
+     */
+    function show(cell, players, currentUserId, unavailablePlayers) {
+        _createTooltip();
+
+        if (_hideTimeout) {
+            clearTimeout(_hideTimeout);
+            _hideTimeout = null;
+        }
+
+        _currentCellId = cell.dataset.cellId;
+
+        // Sort: current user first, then alphabetically
+        const sortedPlayers = [...players].sort((a, b) => {
+            if (a.isCurrentUser) return -1;
+            if (b.isCurrentUser) return 1;
+            return a.displayName.localeCompare(b.displayName);
+        });
+
+        // Build available players HTML
+        const playersHtml = sortedPlayers.map(player => {
+            const youBadge = player.isCurrentUser ? ' <span class="tooltip-you">(You)</span>' : '';
+            const currentClass = player.isCurrentUser ? 'tooltip-current' : '';
+            return `
+                <div class="tooltip-player ${currentClass}">
+                    <span class="tooltip-initials">${_escapeHtml(player.initials)}</span>
+                    <span class="tooltip-name">${_escapeHtml(player.displayName)}${youBadge}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Build unavailable (away) section (Slice 15.0)
+        const sortedUnavailable = unavailablePlayers ? [...unavailablePlayers].sort((a, b) => {
+            if (a.isCurrentUser) return -1;
+            if (b.isCurrentUser) return 1;
+            return a.displayName.localeCompare(b.displayName);
+        }) : [];
+
+        const awayHtml = sortedUnavailable.length > 0 ? `
+            <div class="tooltip-divider"></div>
+            <div class="tooltip-header tooltip-away-header">Away</div>
+            <div class="tooltip-list">
+                ${sortedUnavailable.map(player => {
+                    const youBadge = player.isCurrentUser ? ' <span class="tooltip-you">(You)</span>' : '';
+                    return `
+                        <div class="tooltip-player tooltip-away">
+                            <span class="tooltip-initials">${_escapeHtml(player.initials)}</span>
+                            <span class="tooltip-name">${_escapeHtml(player.displayName)}${youBadge}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        ` : '';
+
+        _tooltip.innerHTML = `
+            <div class="tooltip-header">${players.length} available</div>
+            <div class="tooltip-list">
+                ${playersHtml}
+            </div>
+            ${awayHtml}
+        `;
+
+        // Position tooltip near cell
+        const cellRect = cell.getBoundingClientRect();
+
+        // Make tooltip visible (but off-screen) to measure it
+        _tooltip.style.visibility = 'hidden';
+        _tooltip.style.display = 'block';
+        const tooltipRect = _tooltip.getBoundingClientRect();
+
+        // If action buttons are visible, tack tooltip below them
+        const actionPanel = document.querySelector('.selection-action-container:not(.hidden)');
+        let left, top;
+
+        if (actionPanel) {
+            const actionRect = actionPanel.getBoundingClientRect();
+            left = actionRect.left;
+            top = actionRect.bottom + 4;
+
+            // If below goes off-screen, try above the action panel
+            if (top + tooltipRect.height > window.innerHeight - 8) {
+                top = actionRect.top - tooltipRect.height - 4;
+            }
+            // Keep within horizontal bounds
+            if (left + tooltipRect.width > window.innerWidth - 8) {
+                left = window.innerWidth - tooltipRect.width - 8;
+            }
+        } else {
+            // Default: show to the right of the cell
+            left = cellRect.right + 8;
+            top = cellRect.top;
+
+            // If tooltip would go off right edge, show on left
+            if (left + tooltipRect.width > window.innerWidth) {
+                left = cellRect.left - tooltipRect.width - 8;
+            }
+
+            // If tooltip would go off bottom, adjust up
+            if (top + tooltipRect.height > window.innerHeight) {
+                top = window.innerHeight - tooltipRect.height - 8;
+            }
+        }
+
+        // Ensure tooltip doesn't go off top
+        if (top < 8) {
+            top = 8;
+        }
+        if (left < 8) {
+            left = 8;
+        }
+
+        _tooltip.style.left = `${left}px`;
+        _tooltip.style.top = `${top}px`;
+        _tooltip.style.visibility = 'visible';
+    }
+
+    function hide() {
+        _hideTimeout = setTimeout(() => {
+            if (_tooltip) {
+                _tooltip.style.display = 'none';
+            }
+            _currentCellId = null;
+        }, 150); // Small delay to allow moving to tooltip
+    }
+
+    function hideImmediate() {
+        if (_hideTimeout) {
+            clearTimeout(_hideTimeout);
+            _hideTimeout = null;
+        }
+        if (_tooltip) {
+            _tooltip.style.display = 'none';
+        }
+        _currentCellId = null;
+    }
+
+    function isVisible() {
+        return _tooltip && _tooltip.style.display !== 'none';
+    }
+
+    function getCurrentCellId() {
+        return _currentCellId;
+    }
+
+    function cleanup() {
+        hideImmediate();
+        if (_tooltip) {
+            _tooltip.remove();
+            _tooltip = null;
+        }
+    }
+
+    return {
+        show,
+        hide,
+        hideImmediate,
+        isVisible,
+        getCurrentCellId,
+        cleanup
+    };
+})();

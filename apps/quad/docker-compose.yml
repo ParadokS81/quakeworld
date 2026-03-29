@@ -1,0 +1,45 @@
+services:
+  quad:
+    build: .
+    volumes:
+      - ./recordings:/app/recordings
+      - ./service-account.json:/app/service-account.json:ro
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "${HEALTH_PORT:-3000}:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+  mumble:
+    image: mumblevoip/mumble-server:latest
+    container_name: mumble-server
+    restart: unless-stopped
+    ports:
+      - "64738:64738"
+      - "64738:64738/udp"
+    volumes:
+      - ./mumble-data:/data
+    environment:
+      MUMBLE_SUPERUSER_PASSWORD: "${MUMBLE_SUPERUSER_PASSWORD:-changeme}"
+      MUMBLE_CONFIG_WELCOMETEXT: "Welcome to the QuakeWorld Voice Server"
+      MUMBLE_CONFIG_USERS: 50
+      MUMBLE_CONFIG_BANDWIDTH: 128000
+      MUMBLE_CONFIG_SERVERPASSWORD: "${MUMBLE_SERVER_PASSWORD:-}"
+      MUMBLE_CONFIG_REGISTERNAME: "QuakeWorld Voice"
+      MUMBLE_CONFIG_ALLOWRECORDING: "true"
+      MUMBLE_CONFIG_ICE: "tcp -h 0.0.0.0 -p 6502"
+      MUMBLE_CONFIG_ICESECRETWRITE: "${MUMBLE_ICE_SECRET}"
+    expose:
+      - "6502"   # ICE API — internal Docker network only, not public

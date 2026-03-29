@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatchScheduler - Gaming Community Match Scheduling</title>
+    
+    <!-- Google Fonts: Inter (consistent cross-platform rendering) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link href="css/main.css?v=20260218a" rel="stylesheet">
+
+    <!-- Cropper.js for image cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" integrity="sha384-AMJcAgMUmNt1Zo4ranquGLeT5m7yOrVbtNsNk0oZohvxqKk6RRzXHqlEaS9gFXR7" crossorigin="anonymous">
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Gaming community match scheduling platform for tournaments and clan matches">
+    <meta name="keywords" content="gaming, tournament, scheduling, match, clan, esports">
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+
+    <!-- PWA Manifest - enables "Add to Home Screen" on Android (hides address bar) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MatchSched">
+
+    <!-- Version (loaded early for indicator) -->
+    <script src="js/version.js"></script>
+
+    <!-- Production console guard: suppress debug output in production -->
+    <script>
+        (function() {
+            var isLocalDev = ['localhost', '127.0.0.1'].includes(location.hostname)
+                || location.hostname.startsWith('192.168.')
+                || location.hostname.startsWith('172.')
+                || location.hostname.startsWith('100.');
+            if (!isLocalDev) {
+                var noop = function() {};
+                console.log = noop;
+                console.debug = noop;
+                console.info = noop;
+                // Keep console.warn and console.error for production issue debugging
+            }
+        })();
+    </script>
+
+    <!-- Firebase v11 SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+        import { getFirestore, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
+        import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+        import { getStorage, connectStorageEmulator } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js';
+        import { getFunctions, connectFunctionsEmulator } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-functions.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAElazBT8eT13fT0wCO5K7z3-5D1z42ZBM",
+            authDomain: "matchscheduler-dev.firebaseapp.com",
+            projectId: "matchscheduler-dev",
+            storageBucket: "matchscheduler-dev.firebasestorage.app",
+            messagingSenderId: "340309534131",
+            appId: "1:340309534131:web:77155fb67f95ec2816d7c6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const functions = getFunctions(app, 'europe-west3');
+
+        // Check if we should use emulators (localhost development)
+        const isLocalDev = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.startsWith('172.') ||
+            window.location.hostname.startsWith('192.168.') ||
+            window.location.hostname.startsWith('100.');
+
+        if (isLocalDev) {
+            const emulatorHost = window.location.hostname;
+            try {
+                connectFirestoreEmulator(db, emulatorHost, 8080);
+                console.log(`🔗 Connected to Firestore emulator on ${emulatorHost}:8080`);
+            } catch (error) {
+                console.warn('⚠️ Firestore emulator connection failed:', error.message);
+            }
+            try {
+                connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+                console.log(`🔗 Connected to Auth emulator on ${emulatorHost}:9099`);
+            } catch (error) {
+                console.warn('⚠️ Auth emulator connection failed:', error.message);
+            }
+            try {
+                connectFunctionsEmulator(functions, emulatorHost, 5001);
+                console.log(`🔗 Connected to Functions emulator on ${emulatorHost}:5001`);
+            } catch (error) {
+                console.warn('⚠️ Functions emulator connection failed:', error.message);
+            }
+            try {
+                connectStorageEmulator(storage, emulatorHost, 9199);
+                console.log(`🔗 Connected to Storage emulator on ${emulatorHost}:9199`);
+            } catch (error) {
+                console.warn('⚠️ Storage emulator connection failed:', error.message);
+            }
+        } else {
+            console.log('ℹ️ Using production Firebase services');
+        }
+
+        // Make globally available
+        window.firebase = { app, db, auth, storage, functions, isLocalDev };
+
+        // Application configuration
+        // Discord Client ID is public (safe to expose in frontend)
+        // Discord Client Secret is in Cloud Functions config (never exposed)
+        window.APP_CONFIG = {
+            DISCORD_CLIENT_ID: '1465332663152808031',
+            DEV_MODE: isLocalDev
+        };
+    </script>
+
+    <!-- Register service worker + PWA install handling -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+
+        // Capture install prompt for custom install button
+        window._pwaInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window._pwaInstallPrompt = e;
+            console.log('PWA: install prompt captured - app is installable');
+            // Only show install banner on mobile/tablet (not desktop)
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (!isMobile) return;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA: app installed successfully');
+            window._pwaInstallPrompt = null;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) btn.classList.add('hidden');
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Content Area - True 3x3 Grid with Middle Row as Divider -->
+        <main class="main-grid-v3">
+            <!-- Left Sidebar (spans all rows) - Slice 13.0f -->
+            <div id="panel-left" class="panel sidebar-panel">
+                <div class="sidebar-content">
+                    <!-- Team Identity Section (Logo + Name + Tag) — fixed top -->
+                    <div class="sidebar-section sidebar-top">
+                        <div id="team-identity-container">
+                            <!-- TeamInfo renders logo + name + tag here -->
+                        </div>
+                    </div>
+
+                    <!-- Scrollable middle zone -->
+                    <div class="sidebar-scrollable">
+                        <!-- Roster Section (collapsible) -->
+                        <div class="sidebar-section">
+                            <div id="roster-container">
+                                <!-- TeamInfo renders roster list here -->
+                            </div>
+                        </div>
+
+                        <!-- Match Proposals Section -->
+                        <div class="sidebar-section">
+                            <div id="sidebar-proposals-container">
+                                <!-- SidebarProposals renders compact proposal cards here -->
+                            </div>
+                        </div>
+
+                        <!-- Your Matches Section -->
+                        <div class="sidebar-section">
+                            <div id="your-matches-container">
+                                <!-- UpcomingMatchesPanel renders user's team matches here -->
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Matches Section -->
+                        <div class="sidebar-section sidebar-list">
+                            <div id="upcoming-matches-container">
+                                <!-- UpcomingMatchesPanel renders community matches here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Section — pinned bottom -->
+                    <div class="sidebar-section sidebar-footer">
+                        <div id="profile-compact-container">
+                            <!-- UserProfile.renderCompact() renders here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-top-center" class="panel">
+                <!-- WeekDisplay (Week 1) renders here -->
+            </div>
+
+            <!-- Right Sidebar (spans all rows) - Slice 13.0e -->
+            <div id="panel-right" class="panel sidebar-panel">
+                <div class="sidebar-content">
+                    <!-- Search + Min Filters + Browser Controls -->
+                    <div class="sidebar-section sidebar-header">
+                        <div id="compare-controls" class="flex items-center flex-shrink-0">
+                            <!-- FilterPanel renders [X] vs [X] here (inits before TeamBrowser) -->
+                        </div>
+                        <div id="team-browser-header">
+                            <!-- TeamBrowser renders search + filter buttons here, moves compare-controls into search row -->
+                        </div>
+                    </div>
+
+                    <!-- Team List (scrollable) -->
+                    <div class="sidebar-section sidebar-list">
+                        <div id="team-browser-list">
+                            <!-- TeamBrowser renders team list here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Row (Divider - Tabs only now) -->
+            <div id="panel-mid-center" class="panel panel-divider">
+                <div class="divider-content divider-content-centered">
+                    <div class="divider-tabs">
+                        <button class="divider-tab active" data-tab="matches"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 2.5 21 6l-3 3"/><path d="M21 6H3"/><path d="M6.5 21.5 3 18l3-3"/><path d="M3 18h18"/></svg> Matches</button>
+                        <button class="divider-tab" data-tab="teams"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Teams</button>
+                        <button class="divider-tab" data-tab="players"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Players</button>
+                        <button class="divider-tab" data-tab="tournament"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Tournament</button>
+                        <button class="divider-tab hidden" data-tab="admin" id="admin-tab-btn"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Admin</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-bottom-center" class="panel">
+                <!-- WeekDisplay (Week 2) renders here -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Mobile Layout Container (Slice M1.0: hidden on desktop, shown on mobile via CSS) -->
+    <div id="mobile-app" class="mobile-app">
+
+        <!-- Header -->
+        <header class="mobile-header">
+            <button id="mobile-team-name" class="mobile-team-name">
+                Select team &#9662;
+            </button>
+            <div id="mobile-team-dropdown" class="mobile-team-dropdown hidden">
+                <!-- Populated by MobileApp.js -->
+            </div>
+            <button id="mobile-grid-tools-btn" class="mobile-gear-btn" aria-label="Grid tools">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </button>
+            <div class="mobile-week-nav">
+                <button id="mobile-week-prev" class="mobile-week-btn">&#9664;</button>
+                <span id="mobile-week-label" class="mobile-week-label">W8</span>
+                <button id="mobile-week-next" class="mobile-week-btn">&#9654;</button>
+            </div>
+        </header>
+
+        <!-- Calendar grid -->
+        <div id="mobile-calendar" class="mobile-calendar">
+            <!-- MobileCalendarGrid renders here -->
+        </div>
+
+        <!-- Context panel -->
+        <div id="mobile-context" class="mobile-context">
+            <!-- MobileHomeContent renders here -->
+        </div>
+
+        <!-- Bottom nav -->
+        <nav id="mobile-nav" class="mobile-nav">
+            <!-- MobileBottomNav renders here -->
+        </nav>
+
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="fixed inset-0 z-50 hidden">
+        <!-- Modals will be dynamically inserted here -->
+    </div>
+
+    <!-- Avatar Modal Container (separate to avoid conflict with ProfileModal) -->
+    <div id="avatar-modal-container" class="fixed inset-0 z-[60] hidden">
+        <!-- Avatar upload modal inserted here -->
+    </div>
+
+    <!-- Feedback Modal Container -->
+    <div id="feedback-modal-container" class="fixed inset-0 z-[60] hidden">
+        <!-- Feedback modal inserted here -->
+    </div>
+
+    <!-- Team Operation Status -->
+    <div id="team-operation-container" class="fixed bottom-0 left-0 right-0 z-40">
+        <!-- Loading Status -->
+        <div id="team-operation-status" class="bg-primary text-primary-foreground py-2 px-4 text-center hidden">
+            <!-- Status text will be dynamically inserted here -->
+        </div>
+        
+        <!-- Error Display -->
+        <div id="team-operation-error" class="bg-red-600 text-white py-2 px-4 text-center hidden">
+            <!-- Error text will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-40 space-y-2">
+        <!-- Toast notifications will be dynamically inserted here -->
+    </div>
+
+    <!-- PWA Install Banner (hidden until beforeinstallprompt fires) -->
+    <div id="pwa-install-btn" class="hidden fixed top-2 left-1/2 -translate-x-1/2 z-50">
+        <button onclick="window._pwaInstallPrompt?.prompt().then(()=>{this.parentElement.classList.add('hidden')})"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg text-sm font-medium"
+                style="background-color: #5865F2; color: white;">
+            Install App (hide address bar)
+            <span onclick="event.stopPropagation();this.parentElement.parentElement.classList.add('hidden')"
+                  class="ml-2 opacity-70 hover:opacity-100 cursor-pointer">✕</span>
+        </button>
+    </div>
+
+    <!-- Version Indicator (tiny, bottom-left corner) -->
+    <div id="version-indicator" class="fixed bottom-1 left-1 text-[0.6rem] text-muted-foreground/50 font-mono pointer-events-none z-10 select-none hidden md:block">
+        <script>document.write('v' + (window.APP_VERSION || '?'));</script>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 hidden">
+        <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <div class="text-foreground text-lg">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" integrity="sha384-Rpe/8orFUm5Q1GplYBHxbuA8Az8O8C5sAoOsdbRWkqPjKFaxPgGZipj4zeHL7lxX" crossorigin="anonymous"></script>
+
+    <!-- Cropper.js for image cropping -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js" integrity="sha384-jzwsV9ieM/KUDMeo+d8dc+jm0GEl7ywPNwg10alB5BodVuC/Kx9RpEnyrl2Om9zH" crossorigin="anonymous"></script>
+
+    <!-- JavaScript Modules -->
+    <script src="js/utils/DateUtils.js?v=20260203a"></script>
+    <script src="js/services/TimezoneService.js?v=20260203a"></script>
+    <script src="js/services/AuthService.js?v=20260203a"></script>
+    <script src="js/services/TeamService.js?v=20260203a"></script>
+    <script src="js/services/BotRegistrationService.js?v=20260214a"></script>
+    <script src="js/services/MumbleConfigService.js?v=20260227a"></script>
+    <script src="js/services/AvailabilityService.js?v=20260203a"></script>
+    <script src="js/services/StandinFinderService.js?v=20260209a"></script>
+    <script src="js/services/TemplateService.js?v=20260203a"></script>
+    <script src="js/services/PlayerDisplayService.js?v=20260203a"></script>
+    <script src="js/services/PlayerColorService.js?v=20260203a"></script>
+    <script src="js/services/ConfirmationModal.js?v=20260203a"></script>
+    <script src="js/components/ToastService.js?v=20260203a"></script>
+    <script src="js/components/UserProfile.js?v=20260203a"></script>
+    <script src="js/components/ProfileModal.js?v=20260203a"></script>
+    <script src="js/components/OnboardingModal.js?v=20260203a"></script>
+    <script src="js/components/TeamManagementDrawer.js?v=20260203a"></script>
+    <script src="js/components/KickPlayerModal.js?v=20260203a"></script>
+    <script src="js/components/QuickAddMatchModal.js?v=20260214a"></script>
+    <script src="js/components/CancelMatchModal.js?v=20260214a"></script>
+    <script src="js/components/RescheduleMatchModal.js?v=20260225a"></script>
+    <script src="js/components/TransferLeadershipModal.js?v=20260203a"></script>
+    <script src="js/components/TeamManagementModal.js?v=20260203a"></script>
+    <script src="js/components/ManagePlayersModal.js?v=20260221a"></script>
+    <script src="js/services/AdminStatsService.js?v=20260216i"></script>
+    <script src="js/components/AdminStatsDisplay.js?v=20260216i"></script>
+    <script src="js/components/TeamInfo.js?v=20260203a"></script>
+    <script src="js/components/TeamNameDisplay.js?v=20260205a"></script>
+    <script src="js/components/AvailabilityGrid.js?v=20260203a"></script>
+    <script src="js/components/WeekDisplay.js?v=20260203a"></script>
+    <script src="js/components/WeekNavigation.js?v=20260203a"></script>
+    <script src="js/components/GridActionButtons.js?v=20260203a"></script>
+    <script src="js/components/TemplatesModal.js?v=20260203a"></script>
+    <script src="js/components/SelectionActionButton.js?v=20260203a"></script>
+    <script src="js/components/PlayerTooltip.js?v=20260203a"></script>
+    <script src="js/components/ColorPickerPopover.js?v=20260203a"></script>
+    <script src="js/components/OverflowModal.js?v=20260203a"></script>
+    <script src="js/components/DevToolbar.js?v=20260203a"></script>
+    <script src="js/services/TeamBrowserState.js?v=20260203a"></script>
+    <script src="js/services/FavoritesService.js?v=20260203a"></script>
+    <script src="js/components/TeamBrowser.js?v=20260203a"></script>
+    <script src="js/components/FavoritesPanel.js?v=20260203a"></script>
+    <script src="js/services/FilterService.js?v=20260203a"></script>
+    <script src="js/components/FilterPanel.js?v=20260203a"></script>
+    <script src="js/services/ComparisonEngine.js?v=20260203a"></script>
+    <script src="js/components/ComparisonModal.js?v=20260203a"></script>
+    <script src="js/components/MatchSealedModal.js?v=20260203a"></script>
+    <script src="js/services/LogoUploadService.js?v=20260203a"></script>
+    <script src="js/components/LogoUploadModal.js?v=20260203a"></script>
+    <script src="js/services/AvatarUploadService.js?v=20260203a"></script>
+    <script src="js/components/AvatarUploadModal.js?v=20260203a"></script>
+    <script src="js/components/AvatarManagerModal.js?v=20260203a"></script>
+    <script src="js/services/FeedbackUploadService.js?v=20260207a"></script>
+    <script src="js/components/FeedbackModal.js?v=20260207a"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@5.3.6/dist/apexcharts.min.js" integrity="sha384-mrR3K8Jvv+o9bZ6Yu9HWI0M8tuzo5VWNi4fWcmmbFq3NbB+WvjW/tF/wnELivEnc" crossorigin="anonymous"></script>
+    <script src="js/services/QWHubService.js?v=20260203a"></script>
+    <script src="js/services/QWStatsService.js?v=20260203a"></script>
+    <!-- P5.4: Voice Replay for inline WebQTV player in Match History -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="js/services/RecordingDownloadService.js?v=20260215a"></script>
+    <script src="js/services/VoiceReplayService.js?v=20260215a"></script>
+    <script src="js/components/VoiceReplayPlayer.js?v=20260215b"></script>
+    <script src="js/components/TeamsBrowserPanel.js?v=20260203a"></script>
+    <script src="js/services/ProposalService.js?v=20260203a"></script>
+    <script src="js/services/ScheduledMatchService.js?v=20260203a"></script>
+    <script src="js/components/UpcomingMatchesPanel.js?v=20260203a"></script>
+    <script src="js/components/MatchesPanel.js?v=20260203a"></script>
+    <script src="js/components/SidebarProposals.js?v=20260210a"></script>
+    <!-- A3: Admin Discord panel -->
+    <script src="js/services/RecordingSessionService.js?v=20260216i"></script>
+    <script src="js/components/AdminPanel.js?v=20260216i"></script>
+    <script src="js/components/BottomPanelController.js?v=20260216i"></script>
+    <script src="js/Router.js?v=20260203a"></script>
+    <!-- Mobile M1.0: New portrait-first mobile components -->
+    <script src="js/mobile/MobileBottomSheet.js?v=20260218a"></script>
+    <script src="js/mobile/MobileProposalDetail.js?v=20260218a"></script>
+    <script src="js/mobile/MobileCompareContent.js?v=20260218a"></script>
+    <script src="js/mobile/MobileCompareDetail.js?v=20260218a"></script>
+    <script src="js/mobile/MobileCalendarGrid.js?v=20260218a"></script>
+    <script src="js/mobile/MobileHomeContent.js?v=20260218a"></script>
+    <script src="js/mobile/MobileGridTools.js?v=20260218c"></script>
+    <script src="js/mobile/MobileTeamTab.js?v=20260218b"></script>
+    <script src="js/mobile/MobileProfileTab.js?v=20260218b"></script>
+    <script src="js/mobile/MobileBottomNav.js?v=20260218b"></script>
+    <script src="js/mobile/MobileApp.js?v=20260218b"></script>
+    <script src="js/app.js?v=20260216i" type="module"></script>
+</body>
+</html>

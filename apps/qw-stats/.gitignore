@@ -1,0 +1,16 @@
+# Data files — download from GitHub Releases
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Environment & credentials
+.env
+INFRASTRUCTURE.md
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

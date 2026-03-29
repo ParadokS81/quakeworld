@@ -1,0 +1,353 @@
+# QW Voice Analysis - QuakeWorld Glossary
+# Terms for Whisper initial_prompt and Claude analysis context
+# Corrected with actual ]sr[ team callout conventions
+
+items:
+  powerups:
+    - quad      # Quad Damage (4x damage, 30s, respawns every 60s)
+    - pent      # Pentagram of Protection (invulnerability, 30s)
+    - ring      # Ring of Shadows (invisibility, 30s)
+  armor:
+    - red       # Red Armor (200 armor) - called "red" not "ra"
+    - yellow    # Yellow Armor (150 armor) - called "yellow" not "ya"
+    - green     # Green Armor (100 armor) - called "green" not "ga"
+  health:
+    - mega      # Megahealth (100hp, decays)
+  weapons:
+    - rocket    # Rocket Launcher (30s respawn)
+    - shaft     # Lightning Gun - also called "lg" or "lightning gun"
+    - grenade   # Grenade Launcher
+    - sng       # Super Nailgun - also called "super nailgun"
+    - nailgun   # Nailgun
+    - buckshot  # Super Shotgun (SSG)
+    - boomstick # Shotgun (SG) - also called "shotgun"
+
+actions:
+  - get quad        # Pick up Quad Damage
+  - quad soon       # Quad spawning soon
+  - quad up         # Quad has spawned
+  - pack            # Backpack (dropped items from kill)
+  - bore pack       # Self-rocket to drop a pack with RL for teammate (also "bore packs")
+  - tp              # Teleporter
+  - tele            # Teleporter (more common spoken form)
+  - spawn           # Respawn point
+  - stack           # Well-equipped (high health + armor)
+  - stacked         # Very well-equipped
+  - fat             # Same as stacked - well-equipped
+  - strong          # Same as stacked - well-equipped
+  - weak            # Low on health/armor - "im fucking weak"
+  - almost dead     # Very low health
+  - so dead         # About to die
+  - one shot        # Enemy is nearly dead
+  - out             # Died / lost control
+  - lost            # Died (often triggers mm2 death message showing location)
+  - coming          # Moving towards a location
+  - holding         # Controlling an area
+  - push            # Aggressive move together
+  - fall back       # Retreat
+  - regroup         # Meet up at a location
+  - lock            # Hold position / lock down area
+  - map lock        # Team has full map control (enemy can't get weapons)
+  - spam            # Shoot at area for denial
+  - safe            # Area is clear / under control (e.g. "back safe")
+  - zone            # Holding/controlling a zone (e.g. "red zone")
+  - flood           # Multiple enemies rushing an area (e.g. "they flood me")
+  - build           # Gather weapons/armor before a push (e.g. "build for penta")
+  - gl hf           # Good luck have fun (pre-match)
+  - team quad       # Calling for team to group for quad pickup
+  - team pent       # Calling for team to group for pent
+  - slip            # Enemy teleported (slipped) through YA tele to high (dm2-specific)
+  - brösting        # Swedish term: self-damage (like chest-bumping) - doing self-rocket damage
+
+# Item timing callouts
+# Weapons respawn every 30 seconds. Players have in-game clocks counting up.
+# When you pick up a weapon at 12:15, you say "rocket on 45" (spawns at xx:45)
+timing_patterns:
+  # "[location/item] on [time]" - item spawns at that second mark of the current minute
+  # "[location/item] in [x]" - item spawns in x seconds from now
+  # Examples:
+  #   "red on 20" = red armor spawns at second 20 of current minute
+  #   "red in 10" = red armor spawns in 10 seconds
+  #   "low on 32" = weapon at low location spawns at second 32
+  #   "high on 45" = weapon at high location spawns at second 45
+  # Locations are often used instead of item names when a weapon is tied to a spot
+
+# Note: "low" in callouts usually refers to a map location (low rocket, low area),
+# NOT low health. Low health is expressed as "weak", "almost dead", "so dead".
+
+# Communication meta-patterns
+# Understanding HOW things are said, not just WHAT is said
+communication_patterns:
+  # Voice (mm3) and text (mm2) complement each other
+  # mm2 = teamplay text messages (binds for location reports, death messages, item timing)
+  # mm3 = voice communication via Discord (callouts, coordination, reactions)
+  # Players have keybinds for mm2: "lost" button shows death location on team text chat
+  # Death to enemy weapon is always reported (shows where enemy RL/LG is)
+  # Random deaths (bad spawns, suicides) don't always need voice callout
+
+  # Weapon tracking is rapid-fire sequential callouts
+  # When an enemy has RL/LG, the team tracks their movement in real-time:
+  # "rocket red" -> "rocket tunnel" -> "rocket low" -> "rocket bridge"
+  # This means one enemy with rocket launcher moving through those locations
+  # The weapon name IS the enemy identifier in these sequences
+
+  # Call urgency maps to voice volume and repetition
+  # More critical = louder, faster, repeated: "take the rocket, take the rocket"
+  # Routine calls are calm: "yellow safe", "red zone"
+  # Panic/excitement: "he's weak, he's weak, he's weak" (urgent kill opportunity)
+
+  # Unfinished sentences are normal
+  # Players cut themselves off when: the situation changed, someone said something
+  # more important, or the info became irrelevant (enemy died, item was taken)
+  # Fragments like "he's", "I", "they" are natural, not transcription errors
+
+  # Quad timing is approximate by convention
+  # "quad soon" = within ~10 seconds. Exact second often unknown because
+  # the cycle drifts by a few seconds each minute (pickup delay).
+  # More precise timing ("quad on 45") used when the player saw the pickup.
+
+  # Enemy name as identifier
+  # Players call out specific enemy names when tracking: "Milton has rocket"
+  # One stacked enemy is a bigger threat than 3 weak ones, so names matter
+  # The best/most dangerous enemy gets tracked by name more often
+
+  # Context-dependent callouts
+  # "he's weak" without location is valid when multiple teammates are fighting
+  # the same enemy in one area - everyone knows who and where
+  # "I'm here" / "there's a rocket there" is valid when players have line of sight
+  # to each other in-game - they share spatial context that the transcript lacks
+  # "boomstick at [location]" means a non-weapon enemy (only has SG)
+  # Context-dependent: can mean "safe to push, easy kill" OR "warning: enemy there"
+  # depending on whether the listener is strong or weak. Transcript alone can't tell.
+
+  # Slipping (dm2-specific)
+  # "they slipped" / "enemy slip" ALWAYS means enemy went through YA tele to high
+  # This is a specific dm2 mechanic - the YA teleporter is the only tele on dm2
+
+# Common Whisper transcription errors (misheard QW terms)
+# Used to flag known error patterns and improve future accuracy
+whisper_corrections:
+  # Player names often misheard
+  - misheard: "myrton"
+    correct: "Milton"
+    context: "opponent player name"
+  - misheard: "borpax"
+    correct: "bore packs"
+    context: "self-rocket to drop pack with RL"
+  - misheard: "mutant"
+    correct: "Milton"
+    context: "opponent player name"
+  - misheard: "Minotone"
+    correct: "Milton"
+    context: "opponent player name"
+  - misheard: "grizzling"
+    correct: "grisling"
+    context: "teammate player name"
+  # Location/callout misheards
+  - misheard: "rock tie"
+    correct: "rock high"
+    context: "rocket at high RL location (tie sounds like high)"
+  - misheard: "breasted"
+    correct: "brösting"
+    context: "Swedish term for self-damage (self-rocket). Used by carapace"
+  - misheard: "weak in pot"
+    correct: "weak in path"
+    context: "enemy weak at path location"
+  - misheard: "house backroom"
+    correct: "our backroom"
+    context: "backroom is under our control / safe"
+  - misheard: "soldered"
+    correct: "so dead"
+    context: "zero's pronunciation of 'so dead' - means completely dead / no chance"
+  - misheard: "I'm sold out"
+    correct: "I'm so dead"
+    context: "zero - same as soldered, means dead or about to die"
+  - misheard: "woody"
+    correct: "unknown - needs verification"
+    context: "possibly opponent name or location"
+
+# Known player names (opponents and teammates) for Whisper vocab biasing
+# These help Whisper recognize player names instead of guessing similar English words
+# Update this list per-session or automate from ktxstats in the future
+known_player_names:
+  - ParadokS
+  - zero
+  - grisling
+  - carapace
+  - bps
+  - Razor
+  # Common opponents (update as needed)
+  - Milton
+  - sae
+  - stepcop
+  - Javve
+
+map_callouts:
+  dm3:
+    # The .loc file has detailed positions. Key spoken callouts:
+    - bridge        # Large central area with bridge structure
+    - bridge high   # Upper bridge walkway
+    - bridge low    # Lower bridge area / under bridge
+    - bridge stairs # Stairs connecting bridge levels
+    - rocket-box    # Where RL spawns in the bridge area (also called "rl")
+    - water         # Water area below bridge
+    - water gl      # Water area near grenade launcher
+    - water lg      # Water area near lightning gun
+    - water tunnel  # Tunnel through water
+    - water rox     # Water near rockets
+    - hill          # Hill area
+    - sng           # Super Nailgun area (also has a mega here)
+    - sng low       # Lower SNG area
+    - sng tele      # SNG teleporter
+    - sng mega      # Mega at SNG (just called "sng" usually)
+    - sng ledge     # Ledge in SNG area
+    - sng lifts     # Lifts near SNG
+    - pent          # Pentagram area (also has a mega - called "pent" or "pent-mega")
+    - pent hide     # Hiding spot near pent
+    - center        # Center area (has a mega - just called "center")
+    - red           # Red Armor area
+    - red low       # Lower red armor area
+    - red tunnel    # Tunnel near red armor
+    - red rox       # Rockets near red armor
+    - red entry     # Entry to red armor
+    - yellow        # Yellow Armor area
+    - yellow up     # Upper yellow area
+    - yellow box    # Yellow armor box/platform
+    - yellow entry  # Entry to yellow armor
+    - quad          # Quad Damage spawn area
+    - ring          # Ring of Shadows area
+    - window        # Window areas (multiple)
+    - lifts         # Lift areas
+    - lifts below   # Below lifts
+
+  dm2:
+    # Key spoken callouts:
+    - big           # Big room (largest room)
+    - big wall      # Wall area in big room
+    - big stairs    # Stairs in big room
+    - big button    # Button area in big room
+    - tele          # Teleporter - ALWAYS means YA tele specifically
+    - tele high     # High teleporter area
+    - tele entry    # Teleporter entrance
+    - water         # Water area (just "water", no low/high distinction)
+    - ng            # Nailgun area
+    - secret        # Secret room (where one of the red armors is - "red secret")
+    - quad          # Quad Damage area
+    - quad low      # Lower quad area
+    - quad high     # Upper quad area
+    - quad way      # Pathway to quad
+    - quad button   # Button near quad
+    - high rl       # High rocket launcher
+    - low rl        # Low rocket launcher
+    - low button    # Button at low area
+    - low stairs    # Stairs at low area
+    - low lift      # Lift at low area
+    - backroom      # Backroom at low area - has red armor, mega, and rockets
+    # "back safe" = backroom is under control
+    # "took everything at backroom" = took RA + mega there
+    - platforms     # Platform area
+    - path          # Pathway area
+    - path lift     # Lift along the path
+    - floating      # Floating platforms
+    - gl            # Grenade launcher area
+    - gl roof       # Roof above GL area
+    - red mega      # Red armor + mega area (in backroom context)
+
+  e1m2:
+    # Key spoken callouts:
+    - mega          # Megahealth room (the largest room)
+    - mega low      # Lower mega area
+    - mega sng      # SNG near mega
+    - mega exit     # Exit from mega room
+    - mega rox      # Rockets near mega
+    - mega above    # Above mega room
+    - mega entry    # Entry to mega
+    - green         # Green Armor area (also called "bridge")
+    - bridge        # Bridge area (same area as green armor)
+    - bridge room   # Room connected to bridge
+    - yellow        # Yellow Armor area
+    - yellow water  # Water near yellow armor
+    - yellow tele   # Teleporter near yellow
+    - yellow spikes # Spikes near yellow
+    - yellow up     # Upper yellow area
+    - quad          # Quad Damage area
+    - quad stairs   # Stairs near quad
+    - quad box      # Box near quad
+    - start         # Start/spawn area
+    - start stairs  # Stairs at start
+    - start water   # Water at start
+    - start rl      # Rocket launcher at start
+    - start window  # Window at start
+    - start hide    # Hiding spot at start
+    - rl            # Rocket launcher area
+    - water rl      # Water near RL
+    - water green   # Water near green armor
+    - water spikes  # Water near spikes area
+    - gl            # Grenade launcher area (connects YA and quad)
+    - gl sng        # SNG near GL
+    - gl stairs     # Stairs near GL
+    - gl rox        # Rockets near GL
+    - ssg           # Super Shotgun area
+    - ssg spikes    # SSG near spikes
+    - spikes        # Spikes area
+    - door          # Door area
+    - cross         # Cross/intersection area
+    - cross water   # Water at cross area
+    # Note: NO red armor, NO pent, NO lg, NO ring on this map
+    # "water" is vague - specify: water bridge, water ya, water rl, etc.
+
+  schloss:
+    # Key spoken callouts from .loc file:
+    - red           # Red Armor
+    - red low       # Lower red armor area
+    - red window    # Window near red armor
+    - red cellar    # Cellar near red armor
+    - yard          # Yard area
+    - yard pent     # Pent area in yard
+    - yard tunnel   # Tunnel in yard
+    - yard roof     # Roof over yard
+    - tower         # Tower area
+    - tower entry   # Tower entrance
+    - tower rl      # Rocket launcher at tower
+    - quad          # Quad area
+    - quad low      # Lower quad
+    - quad high     # Upper quad
+    - quad ledge    # Ledge near quad
+    - cemetary      # Cemetery area
+    - cemetary tele # Teleporter at cemetery
+    - cemetary ring # Ring at cemetery
+    - cat           # Cathedral area (shortened from "cathedral")
+    - cat yellow    # Yellow armor at cathedral
+    - cat ssg       # SSG at cathedral
+
+  phantombase:
+    # Key spoken callouts from .loc file:
+    - quad          # Quad area
+    - quad platform # Platform near quad
+    - quad low      # Lower quad
+    - pent          # Pentagram area
+    - pent low      # Lower pent
+    - pent tele     # Teleporter near pent
+    - red           # Red Armor
+    - red stairs    # Stairs near red armor
+    - red below     # Below red armor
+    - red sng       # SNG near red armor
+    - yellow        # Yellow Armor
+    - yellow up     # Upper yellow armor
+    - yellow rl     # RL near yellow armor
+    - yellow water  # Water near yellow armor
+    - yellow spikes # Spikes near yellow armor
+    - yellow tele   # Tele near yellow armor
+    - lg            # Lightning Gun area
+    - lg high       # Upper LG
+    - lg low        # Lower LG
+    - gl            # Grenade Launcher area
+    - green         # Green Armor area
+    - cross         # Cross/intersection
+    - water         # Water areas
+    - water mh      # Water near mega
+    - water rl      # Water near RL
+    - water ledge   # Ledge in water
+    - water ladder  # Ladder in water
+    - water ring    # Ring in water
+    - water stand   # Standing area in water

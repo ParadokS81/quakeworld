@@ -1,0 +1,25 @@
+# QW Voice Analysis - Player Mappings
+# Discord username -> QuakeWorld name mappings
+
+team_tag: "]sr["
+
+players:
+  paradoks:
+    qw_name: "ParadokS"
+    role: "team leader"
+  razor:
+    qw_name: "Razor"
+  zero:
+    qw_name: "zero"
+  grisling:
+    qw_name: "grisling"
+
+# Standins
+standins:
+  carapace:
+    qw_name: "carapace"
+  bps:
+    qw_name: "bps"
+  jerias:
+    qw_name: "jerias"
+    discord_display_name: "TheChosenOne"

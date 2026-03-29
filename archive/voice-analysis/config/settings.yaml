@@ -1,0 +1,83 @@
+# QW Voice Analysis - Pipeline Configuration
+
+# Audio processing
+audio:
+  sample_rate: 48000          # Craig default sample rate
+  format: flac                # Source format from Craig
+
+# Marker tone detection
+markers:
+  start_frequency: 18000      # Hz - match start tone
+  end_frequency: 17500        # Hz - match end tone
+  duration: 0.15              # seconds - tone length
+  amplitude: 0.3              # 0-1 scale
+  detection_threshold: 0.5    # FFT magnitude threshold for detection
+  window_size: 2048           # FFT window size
+  hop_size: 512               # FFT hop between windows
+
+# Whisper transcription (local CPU fallback)
+whisper:
+  model: small                # tiny, base, small, medium, large-v3, turbo
+  language: en                # Force English (faster than auto-detect)
+  device: cpu                 # cpu or cuda
+  compute_type: int8          # int8 for CPU, float16 for GPU
+  beam_size: 5
+  vad_filter: true            # Voice activity detection (skip silence)
+
+# Remote GPU transcription (Xerial's RTX 4090)
+gpu:
+  enabled: false              # Use --gpu flag to enable
+  host: qwvoice               # SSH config alias
+  model: turbo                # large-v3-turbo: 1-2% WER loss, 3x faster
+  batch_size: 16              # BatchedInferencePipeline batch size
+  workers: 2                  # Concurrent file threads (2 optimal for 4090)
+  compute_type: float16       # GPU precision
+  remote_input: /data/input   # SCP upload path (restricted shell)
+  remote_audio: /data/input/audio  # Audio files path inside container
+  remote_output: /data/output # Transcription results path
+
+# Analysis
+analysis:
+  model: claude-sonnet-4-20250514  # Claude model for analysis
+  max_tokens: 8192
+
+# Maps (for context in analysis)
+maps:
+  - dm3
+  - dm2
+  - e1m2
+  - schloss
+  - phantombase
+
+# QW Hub API
+api:
+  supabase_url: "https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games"
+  supabase_anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jc3Boa2pmb21pbmlteHp0amlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY5Mzg1NjMsImV4cCI6MjAxMjUxNDU2M30.NN6hjlEW-qB4Og9hWAVlgvUdwrbBO13s8OkAJuBGVbo"
+  ktxstats_base_url: "https://d.quake.world"
+  timeout_seconds: 30
+  session_buffer_minutes: 15
+
+# Match pairing
+pairing:
+  clock_tolerance_seconds: 5.0
+  padding_seconds: 0.0
+  default_duration_seconds: 1200
+  min_confidence: 0.3
+
+# Team
+team:
+  tag: "]sr["
+  player_query: "paradok"
+  player_name_map:
+    paradoks: "ParadokS"
+    grisling2947: "grisling"
+    zerohero5954: "zero"
+    fs_razor: "Razor"
+    carapace: "carapace"
+    bps: "bps"
+    jerias: "jerias"
+
+# Output
+output:
+  timeline_format: json       # Timeline output format
+  report_format: markdown     # Analysis report format

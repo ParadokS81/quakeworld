@@ -1,0 +1,1211 @@
+// ComparisonModal.js - Shows detailed roster comparison for a matched time slot
+// Slice 4.2: Enhanced Comparison Modal with VS Layout and Logos
+// Following CLAUDE.md architecture: Revealing Module Pattern
+
+const ComparisonModal = (function() {
+    'use strict';
+
+    let _container = null;
+    let _isOpen = false;
+    let _keydownHandler = null;
+    let _selectedOpponentIndex = 0;
+    let _currentData = null; // Store current modal data for re-rendering
+    let _selectedGameType = null; // 'official' | 'practice' | null
+    let _withStandin = false; // Standin toggle (practice only)
+    let _proposalStep = 1; // 1=match type, 2=propose, 3=contact
+    let _createdProposalId = null;
+    let _discordMessage = null; // Pre-built message for step 3
+    let _opponentDiscordUserId = null; // Resolved in background
+    let _viableSlots = []; // All 4v3+ viable slots for the week (proposal picker)
+    let _selectedSlots = new Set(); // Slot IDs the user has checked for the proposal
+    let _confirmedSlotsCount = 0; // Count of pre-confirmed slots at proposal creation time
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function _escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Get the Monday of a given week (UTC) for DST-correct formatting.
+     * @param {string} weekId - e.g., "2026-05"
+     * @returns {Date|undefined}
+     */
+    function _getRefDate(weekId) {
+        if (!weekId) return undefined;
+        const weekNum = parseInt(weekId.split('-')[1], 10);
+        if (isNaN(weekNum)) return undefined;
+        return DateUtils.getMondayOfWeek(weekId);
+    }
+
+    /**
+     * Format UTC slot ID for display in user's local timezone.
+     * e.g., "mon_2000" → "Monday at 21:00" for CET user
+     */
+    function _formatSlot(utcSlotId, refDate) {
+        if (typeof TimezoneService !== 'undefined') {
+            const display = TimezoneService.formatSlotForDisplay(utcSlotId, refDate);
+            return display.fullLabel;
+        }
+        // Fallback: raw display
+        const [day, time] = utcSlotId.split('_');
+        const dayNames = {
+            mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday',
+            thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday'
+        };
+        return `${dayNames[day] || day} at ${time.slice(0, 2)}:${time.slice(2)}`;
+    }
+
+    /**
+     * Format UTC slot ID for message in user's local timezone.
+     * e.g., "mon_2000" → "Mon 21:00" for CET user
+     */
+    function _formatSlotForMessage(utcSlotId, refDate) {
+        if (typeof TimezoneService !== 'undefined') {
+            const display = TimezoneService.formatSlotForDisplay(utcSlotId, refDate);
+            const shortDayNames = {
+                Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed',
+                Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun'
+            };
+            return `${shortDayNames[display.dayLabel] || display.dayLabel} ${display.timeLabel}`;
+        }
+        // Fallback: raw display
+        const [day, time] = utcSlotId.split('_');
+        const dayNames = {
+            mon: 'Mon', tue: 'Tue', wed: 'Wed',
+            thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'
+        };
+        return `${dayNames[day] || day} ${time.slice(0, 2)}:${time.slice(2)}`;
+    }
+
+    /**
+     * Generate a formatted match request message for Discord
+     * @param {string} selectedSlotId - The slot user clicked (e.g., 'mon_1900')
+     * @param {string} selectedWeekId - The week of the clicked slot
+     * @param {Object} userTeamInfo - User's team info from ComparisonEngine
+     * @param {Object} selectedMatch - The opponent team being contacted
+     * @returns {string} Formatted message ready to paste
+     */
+    function _generateContactMessage(selectedSlotId, selectedWeekId, userTeamInfo, selectedMatch) {
+        const comparisonState = ComparisonEngine.getComparisonState();
+        const allMatches = comparisonState.matches;
+
+        // Find all slots where this specific opponent matches
+        const opponentSlots = [];
+        for (const [fullSlotId, matches] of Object.entries(allMatches)) {
+            const opponentMatch = matches.find(m => m.teamId === selectedMatch.teamId);
+            if (opponentMatch) {
+                // fullSlotId format: "2024-W01_mon_1900"
+                const parts = fullSlotId.split('_');
+                const weekId = parts[0];
+                const slotId = parts.slice(1).join('_'); // Handle 'mon_1900' format
+
+                // Get user team count for this slot
+                const userInfo = ComparisonEngine.getUserTeamInfo(weekId, slotId);
+                const userCount = userInfo?.availablePlayers?.length || 0;
+                const opponentCount = opponentMatch.availablePlayers.length;
+
+                opponentSlots.push({
+                    weekId,
+                    slotId,
+                    fullSlotId,
+                    userCount,
+                    opponentCount,
+                    isPriority: slotId === selectedSlotId && weekId === selectedWeekId
+                });
+            }
+        }
+
+        // Sort: priority first, then by total player count (highest first)
+        opponentSlots.sort((a, b) => {
+            if (a.isPriority && !b.isPriority) return -1;
+            if (!a.isPriority && b.isPriority) return 1;
+            const aTotal = a.userCount + a.opponentCount;
+            const bTotal = b.userCount + b.opponentCount;
+            return bTotal - aTotal;
+        });
+
+        // Format the message
+        const lines = [
+            `Match request: ${userTeamInfo.teamTag} vs ${selectedMatch.teamTag}`,
+            ''
+        ];
+
+        opponentSlots.forEach((slot) => {
+            const formatted = _formatSlotForMessage(slot.slotId, _getRefDate(slot.weekId));
+            const marker = slot.isPriority ? '> ' : '  ';
+            const counts = `${slot.userCount}v${slot.opponentCount}`;
+            lines.push(`${marker}${formatted} (${counts})`);
+        });
+
+        lines.push('');
+        lines.push('https://scheduler.quake.world');
+        lines.push('Let me know what works!');
+
+        return lines.join('\n');
+    }
+
+    /**
+     * Generate a Discord template message for a match proposal.
+     * Includes team tags, all viable slot times with roster counts, and a link.
+     * @param {string} weekId - e.g., "2026-05"
+     * @param {Object} userTeamInfo - User's team info
+     * @param {Object} selectedMatch - Opponent team info
+     * @returns {string} Formatted Discord message
+     */
+    function _generateProposalDiscordTemplate(weekId, userTeamInfo, selectedMatch) {
+        const comparisonState = ComparisonEngine.getComparisonState();
+        const minFilter = comparisonState.filters || { yourTeam: 1, opponent: 1 };
+
+        // Compute viable slots from cached availability
+        const viableSlots = ProposalService.computeViableSlots(
+            userTeamInfo.teamId,
+            selectedMatch.teamId,
+            weekId,
+            minFilter
+        );
+
+        const refDate = _getRefDate(weekId);
+        const weekNum = weekId.split('-')[1];
+
+        const lines = [
+            `Match proposal: ${userTeamInfo.teamTag} vs ${selectedMatch.teamTag} — Week ${weekNum}`,
+            `Filter: ${minFilter.yourTeam}v${minFilter.opponent} minimum`,
+            ''
+        ];
+
+        if (viableSlots.length > 0) {
+            lines.push('Viable slots:');
+            viableSlots.forEach(slot => {
+                const formatted = _formatSlotForMessage(slot.slotId, refDate);
+                lines.push(`  ${formatted} (${slot.proposerCount}v${slot.opponentCount})`);
+            });
+        } else {
+            lines.push('No viable slots yet — check back as players fill in availability.');
+        }
+
+        lines.push('');
+        lines.push('https://scheduler.quake.world');
+        lines.push('');
+        lines.push('Confirm slots in the Matches tab. Let me know!');
+
+        return lines.join('\n');
+    }
+
+    /**
+     * Fetch Discord info for multiple leaders
+     */
+    async function _fetchLeaderDiscordInfo(leaderIds) {
+        const info = {};
+        for (const leaderId of leaderIds) {
+            const discordInfo = await _getUserDiscordInfo(leaderId);
+            if (discordInfo) {
+                info[leaderId] = discordInfo;
+            }
+        }
+        return info;
+    }
+
+    /**
+     * Get Discord info for a user
+     */
+    async function _getUserDiscordInfo(userId) {
+        try {
+            const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+            const userDoc = await getDoc(doc(window.firebase.db, 'users', userId));
+
+            if (!userDoc.exists()) return null;
+
+            const data = userDoc.data();
+
+            if (data.discordUsername) {
+                return {
+                    discordUsername: data.discordUsername,
+                    discordUserId: data.discordUserId || null
+                };
+            }
+
+            if (data.discordTag) {
+                return {
+                    discordUsername: data.discordTag,
+                    discordUserId: null
+                };
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Error fetching user Discord info:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Get team logo URL or null
+     */
+    function _getTeamLogo(teamId, size = 'medium') {
+        const team = TeamService.getTeamFromCache(teamId);
+        return team?.activeLogo?.urls?.[size] || null;
+    }
+
+    /**
+     * Render the logo or fallback to team tag
+     * Sizes: 'small' (tabs), 'medium' (cards - same as TeamInfo panel)
+     */
+    function _renderLogo(teamId, teamTag, size = 'medium') {
+        // Use 'large' logos for medium display, 'small' for tabs
+        const logoSize = size === 'small' ? 'small' : 'large';
+        const logoUrl = _getTeamLogo(teamId, logoSize);
+
+        // Match TeamInfo panel: w-32 h-32 (8rem) for cards, w-8 h-8 for tabs
+        const sizeClasses = size === 'small' ? 'w-8 h-8' : 'w-32 h-32';
+
+        if (logoUrl) {
+            return `<img src="${logoUrl}" alt="${_escapeHtml(teamTag)}" class="${sizeClasses} rounded-lg object-cover">`;
+        }
+
+        // Fallback to team tag
+        const tagSizeClass = size === 'small' ? 'text-xs' : 'text-2xl';
+        return `
+            <div class="${sizeClasses} rounded-lg bg-muted flex items-center justify-center border border-border">
+                <span class="${tagSizeClass} font-bold text-muted-foreground">${_escapeHtml(teamTag)}</span>
+            </div>
+        `;
+    }
+
+    /**
+     * Render player roster with dot indicators
+     */
+    function _renderRoster(availablePlayers, unavailablePlayers) {
+        const availableHtml = availablePlayers.map(p => {
+            const name = p.displayName || p.initials || '?';
+            return `
+                <div class="flex items-center gap-2 py-0.5">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: oklch(0.60 0.18 145);"></span>
+                    <span class="text-sm text-foreground">${_escapeHtml(name)}</span>
+                </div>
+            `;
+        }).join('');
+
+        const unavailableHtml = unavailablePlayers.map(p => {
+            const name = p.displayName || p.initials || '?';
+            return `
+                <div class="flex items-center gap-2 py-0.5">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: oklch(0.5 0.02 260); opacity: 0.5;"></span>
+                    <span class="text-sm text-muted-foreground">${_escapeHtml(name)}</span>
+                </div>
+            `;
+        }).join('');
+
+        return availableHtml + unavailableHtml;
+    }
+
+    /**
+     * Render anonymous roster summary (when team has hideRosterNames enabled)
+     */
+    function _renderAnonymousRoster(availablePlayers, unavailablePlayers) {
+        const availCount = availablePlayers.length;
+        const unavailCount = unavailablePlayers.length;
+
+        return `
+            <div class="py-2">
+                <div class="flex items-center gap-2 py-0.5">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: oklch(0.60 0.18 145);"></span>
+                    <span class="text-sm text-foreground">${availCount} player${availCount !== 1 ? 's' : ''} available</span>
+                </div>
+                ${unavailCount > 0 ? `
+                    <div class="flex items-center gap-2 py-0.5">
+                        <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: oklch(0.5 0.02 260); opacity: 0.5;"></span>
+                        <span class="text-sm text-muted-foreground">${unavailCount} unavailable</span>
+                    </div>
+                ` : ''}
+                <p class="text-xs text-muted-foreground mt-1 italic">Roster hidden by team</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Render contact section for opponent with message preview and action buttons
+     * @param {Object} discordInfo - Leader's Discord info
+     * @param {string} selectedSlotId - The slot user clicked
+     * @param {string} selectedWeekId - The week of the clicked slot
+     * @param {Object} userTeamInfo - User's team info
+     * @param {Object} selectedMatch - The opponent team being contacted
+     */
+    function _renderContactSection(discordInfo, selectedSlotId, selectedWeekId, userTeamInfo, selectedMatch) {
+        if (!discordInfo || !discordInfo.discordUsername) {
+            return `
+                <div class="mt-3 pt-3 border-t border-border">
+                    <p class="text-xs text-muted-foreground">Leader hasn't linked Discord</p>
+                </div>
+            `;
+        }
+
+        // Generate message for preview
+        const message = _generateContactMessage(selectedSlotId, selectedWeekId, userTeamInfo, selectedMatch);
+
+        // Store message in data attribute for click handler (escape newlines for HTML attribute)
+        const escapedMessage = _escapeHtml(message).replace(/\n/g, '&#10;');
+
+        const discordIcon = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>`;
+
+        return `
+            <div class="mt-3 pt-3 border-t border-border">
+                <p class="text-xs text-muted-foreground mb-2">Contact Leader</p>
+
+                <!-- Message Preview -->
+                <div class="bg-muted/30 rounded p-2 mb-3 text-xs font-mono text-muted-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">${_escapeHtml(message)}</div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    ${discordInfo.discordUserId ? `
+                        <button class="btn btn-sm bg-[#5865F2] hover:bg-[#4752C4] text-white contact-discord-btn"
+                                data-discord-id="${discordInfo.discordUserId}"
+                                data-message="${escapedMessage}">
+                            ${discordIcon}
+                            <span class="ml-1">Contact on Discord</span>
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-sm btn-secondary copy-message-btn"
+                            data-message="${escapedMessage}">
+                        Copy Message Only
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Render a team card (used for both user team and opponent)
+     * @param {string} teamId - Team ID
+     * @param {string} teamTag - Team tag
+     * @param {string} teamName - Team name
+     * @param {Array} availablePlayers - Players available for this slot
+     * @param {Array} unavailablePlayers - Players not available
+     * @param {boolean} isUserTeam - Is this the user's team?
+     * @param {Object} discordInfo - Leader's Discord info (for opponent)
+     * @param {boolean} showContact - Should show contact section?
+     * @param {string} selectedSlotId - The slot user clicked (for contact message)
+     * @param {string} selectedWeekId - The week of the clicked slot
+     * @param {Object} userTeamInfo - User's team info (for contact message)
+     * @param {Object} matchData - The opponent match data (for contact message)
+     */
+    function _renderTeamCard(teamId, teamTag, teamName, availablePlayers, unavailablePlayers, isUserTeam, discordInfo, showContact, selectedSlotId, selectedWeekId, userTeamInfo, matchData) {
+        const contactSection = (!isUserTeam && showContact)
+            ? _renderContactSection(discordInfo, selectedSlotId, selectedWeekId, userTeamInfo, matchData)
+            : '';
+
+        return `
+            <div class="vs-team-card">
+                <!-- Logo -->
+                <div class="flex justify-center mb-3">
+                    ${_renderLogo(teamId, teamTag, 'medium')}
+                </div>
+
+                <!-- Team Name - single line: [TAG] Team Name -->
+                <div class="text-center mb-3">
+                    <div class="flex items-center justify-center">
+                        <span class="text-sm font-mono text-primary font-bold">${_escapeHtml(teamTag)}</span>
+                        <span class="font-semibold text-foreground ml-2">${_escapeHtml(teamName)}</span>
+                    </div>
+                </div>
+
+                <!-- Roster -->
+                <div class="vs-roster">
+                    ${(!isUserTeam && matchData?.hideRosterNames)
+                        ? _renderAnonymousRoster(availablePlayers, unavailablePlayers)
+                        : _renderRoster(availablePlayers, unavailablePlayers)}
+                </div>
+
+                ${isUserTeam && availablePlayers.length < 4 ? `
+                    <button class="find-standin-link flex items-center gap-1.5 mt-2 text-xs text-primary hover:underline transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Find standin
+                    </button>
+                ` : ''}
+
+                ${contactSection}
+            </div>
+        `;
+    }
+
+    /**
+     * Render opponent selector tabs for header (right side)
+     */
+    function _renderOpponentSelectorForHeader(matches) {
+        if (matches.length <= 1) return '';
+
+        const tabs = matches.map((match, index) => {
+            const isActive = index === _selectedOpponentIndex;
+            const activeClass = isActive ? 'opponent-tab-active' : '';
+            const logoHtml = _renderLogo(match.teamId, match.teamTag, 'small');
+
+            return `
+                <button class="opponent-tab ${activeClass}" data-opponent-index="${index}" title="${_escapeHtml(match.teamName)}">
+                    ${logoHtml}
+                </button>
+            `;
+        }).join('');
+
+        return `
+            <div class="opponent-tabs">
+                ${tabs}
+            </div>
+        `;
+    }
+
+    /**
+     * Compute viable slots for the proposal picker using the 4v3 gate.
+     * No auto-selection — user explicitly picks slots. Updates _viableSlots and clears _selectedSlots.
+     */
+    function _computeViableForProposal() {
+        if (!_currentData || !_selectedGameType) return;
+        const selectedMatch = _currentData.matches[_selectedOpponentIndex] || _currentData.matches[0];
+        const standinSettings = _selectedGameType === 'practice' && _withStandin
+            ? { proposerStandin: true, opponentStandin: false }
+            : undefined;
+
+        // Gate: proposer needs 4 (or 3+standin=4), opponent needs at least 3
+        const gateFilter = { yourTeam: 4, opponent: 3 };
+
+        _viableSlots = ProposalService.computeViableSlots(
+            _currentData.userTeamInfo.teamId,
+            selectedMatch.teamId,
+            _currentData.weekId,
+            gateFilter,
+            standinSettings
+        );
+
+        // Start with empty selection — user picks explicitly
+        _selectedSlots = new Set();
+    }
+
+    /**
+     * Render the compact single-line stepper bar above the VS layout.
+     * Step 1: Game type buttons inline
+     * Step 2: "Select" label (slots are in center column)
+     * Step 3: Discord action buttons
+     */
+    function _renderCompactStepper() {
+        const step1Done = !!_selectedGameType;
+        const step2Done = _proposalStep >= 3;
+        const step3Active = _proposalStep === 3;
+
+        const checkSvg = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+        const discordIcon = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.04.001-.088-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+
+        // Step circle helper
+        const circle = (num, done, active) => {
+            if (done) return `<div class="w-5 h-5 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center text-green-400 flex-shrink-0">${checkSvg}</div>`;
+            if (active) return `<div class="w-5 h-5 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">${num}</div>`;
+            return `<div class="w-5 h-5 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground/40 text-xs flex-shrink-0">${num}</div>`;
+        };
+
+        // Connector line
+        const line = (done) => `<div class="flex-1 h-px ${done ? 'bg-green-500/50' : 'bg-border'} mx-1 flex-shrink-0" style="min-width:1rem"></div>`;
+
+        // Step 1: game type buttons — always visible until step 3 (so standin can be toggled)
+        const step1Html = step2Done
+            ? `<span class="text-xs ${_selectedGameType === 'official' ? 'text-green-400' : 'text-amber-400'} flex items-center gap-1">
+                 ${checkSvg} ${_selectedGameType === 'official' ? 'Official' : 'Practice'}
+               </span>`
+            : `<div class="flex items-center gap-1.5">
+                 <button id="game-type-off" class="cm-type-btn official ${_selectedGameType === 'official' ? 'active' : ''}">Official</button>
+                 <button id="game-type-prac" class="cm-type-btn practice ${_selectedGameType === 'practice' ? 'active' : ''}">Practice</button>
+                 ${_selectedGameType === 'practice' ? `
+                     <button id="standin-toggle" class="cm-type-btn standin ${_withStandin ? 'active' : ''}" title="+1 standin for your team">
+                         ${_withStandin ? 'Add Standin ✓' : 'Add Standin'}
+                     </button>` : ''}
+               </div>`;
+
+        // Step 2: just a label
+        const step2Html = step2Done
+            ? `<span class="text-green-400 text-xs flex items-center gap-1">${checkSvg} Created</span>`
+            : `<span class="text-xs ${step1Done ? 'text-foreground' : 'text-muted-foreground/40'}">Select</span>`;
+
+        // Step 3: Discord actions or inactive icon
+        const escapedMsg = _discordMessage ? _escapeHtml(_discordMessage).replace(/\n/g, '&#10;') : '';
+        const step3Html = step3Active && _discordMessage
+            ? `<div class="flex items-center gap-1.5">
+                <button id="post-proposal-discord" class="cm-type-btn flex items-center gap-1 bg-[#5865F2] hover:bg-[#4752C4] text-white border-[#5865F2]"
+                        data-message="${escapedMsg}">
+                    DM ${discordIcon}
+                </button>
+                <button id="post-proposal-copy" class="cm-type-btn"
+                        data-message="${escapedMsg}">
+                    Copy
+                </button>
+               </div>`
+            : step3Active
+            ? `<span class="text-xs text-green-400 flex items-center gap-1">${checkSvg} Sent</span>`
+            : `<span class="text-muted-foreground/30">${discordIcon}</span>`;
+
+        return `
+            <div class="flex items-center gap-2">
+                ${circle(1, step2Done, !step2Done)}
+                ${step1Html}
+                ${line(step1Done)}
+                ${circle(2, step2Done, step1Done && !step2Done)}
+                ${step2Html}
+                ${line(step2Done)}
+                ${circle(3, false, step3Active)}
+                ${step3Html}
+            </div>`;
+    }
+
+    /**
+     * Render the slot picker for the center column (replaces "VS" text when game type selected).
+     * Shows day-grouped pill toggles + Propose button at bottom.
+     */
+    function _renderSlotPicker() {
+        const refDate = _getRefDate(_currentData?.weekId);
+
+        if (_viableSlots.length === 0) {
+            // Compute best slot counts for informative message
+            const bestInfo = (() => {
+                if (!_currentData) return '';
+                const selectedMatch = _currentData.matches[_selectedOpponentIndex] || _currentData.matches[0];
+                const all = ProposalService.computeViableSlots(
+                    _currentData.userTeamInfo.teamId,
+                    selectedMatch.teamId,
+                    _currentData.weekId,
+                    { yourTeam: 1, opponent: 1 }
+                );
+                if (!all.length) return '';
+                const best = all.reduce((a, b) =>
+                    (a.proposerCount + a.opponentCount) >= (b.proposerCount + b.opponentCount) ? a : b
+                );
+                return `${best.proposerCount}v${best.opponentCount}`;
+            })();
+            return `<div class="text-center">
+                <span class="vs-text">VS</span>
+                <div class="text-xs text-muted-foreground/60 mt-2">No 4v3+ slots${bestInfo ? ` (best: ${bestInfo})` : ''}</div>
+            </div>`;
+        }
+
+        const dayColors = {
+            Monday: 'text-blue-400', Tuesday: 'text-teal-400', Wednesday: 'text-violet-400',
+            Thursday: 'text-amber-400', Friday: 'text-rose-400', Saturday: 'text-emerald-400', Sunday: 'text-orange-400'
+        };
+        // Group slots by day first
+        const byDay = [];
+        let currentGroup = null;
+        for (const slot of _viableSlots) {
+            const display = TimezoneService.formatSlotForDisplay(slot.slotId, refDate);
+            const dayName = display.dayLabel || '';
+            if (dayName !== currentGroup?.day) {
+                currentGroup = { day: dayName, slots: [] };
+                byDay.push(currentGroup);
+            }
+            currentGroup.slots.push({ slot, display });
+        }
+
+        const rows = byDay.map(({ day, slots }, gi) => {
+            const dayColor = dayColors[day] || 'text-muted-foreground';
+            const mt = gi > 0 ? 'mt-2' : '';
+
+            const slotRows = slots.map(({ slot, display }, si) => {
+                const selected = _selectedSlots.has(slot.slotId);
+                const groupMt = si === 0 ? mt : '';
+                // Row 1: day name (left, only on first slot) + xvx count (right)
+                // Row 2: time (left) + pill toggle (right)
+                return `<div class="cm-slot-group ${groupMt}" data-slot-id="${slot.slotId}">
+                    <span class="cm-slot-day ${si === 0 ? dayColor : 'invisible'}">${day}</span>
+                    <span class="cm-slot-count">${slot.proposerCount}v${slot.opponentCount}</span>
+                    <span class="cm-slot-time">${display.timeLabel}</span>
+                    <button class="cm-pill-toggle ${selected ? 'active' : ''}"
+                            data-slot-id="${slot.slotId}"
+                            aria-pressed="${selected}">
+                        <span class="cm-pill-dot"></span>
+                    </button>
+                </div>`;
+            }).join('');
+
+            return slotRows;
+        }).join('');
+
+        const selCount = _selectedSlots.size;
+        return `
+            <div class="cm-slot-picker" id="cm-slot-list">${rows}</div>
+            <button id="propose-match-btn" class="cm-propose-btn mt-2 ${selCount > 0 ? 'active' : ''}"
+                    ${selCount > 0 ? '' : 'disabled'}>
+                ${selCount > 0 ? `Propose (${selCount}) →` : 'Select times'}
+            </button>`;
+    }
+
+    /**
+     * Compute week-wide availability for a team's roster.
+     * A player is "available" if they appear in ANY slot this week.
+     * @param {string} teamId
+     * @param {string} weekId
+     * @param {Array} roster - playerRoster array from team data
+     * @returns {{ available: Array, unavailable: Array }}
+     */
+    function _getWeekWideAvailability(teamId, weekId, roster) {
+        const availData = AvailabilityService.getCachedData(teamId, weekId);
+        const allSlots = availData?.slots || {};
+
+        // Collect all unique player IDs available in ANY slot
+        const availableIds = new Set();
+        for (const playerList of Object.values(allSlots)) {
+            if (Array.isArray(playerList)) {
+                for (const id of playerList) availableIds.add(id);
+            }
+        }
+
+        return {
+            available: roster.filter(p => availableIds.has(p.userId)),
+            unavailable: roster.filter(p => !availableIds.has(p.userId))
+        };
+    }
+
+    /**
+     * Render the full modal with VS layout
+     */
+    function _renderModal(weekId, slotId, userTeamInfo, matches, isLeader, leaderDiscordInfo, canSchedule) {
+        const selectedMatch = matches[_selectedOpponentIndex] || matches[0];
+
+        // Get user's team ID from TeamService or userTeamInfo
+        const userTeamId = userTeamInfo.teamId;
+
+        // Format week label for header (e.g., "Week 08")
+        const weekNum = weekId?.split('-')[1] || '?';
+
+        // Compute week-wide availability (player is green if available in ANY slot this week)
+        const userRoster = TeamService.getTeamFromCache(userTeamId)?.playerRoster || [];
+        const userWeekAvail = _getWeekWideAvailability(userTeamId, weekId, userRoster);
+
+        const opponentRoster = TeamService.getTeamFromCache(selectedMatch.teamId)?.playerRoster || [];
+        const opponentWeekAvail = selectedMatch.hideRosterNames
+            ? { available: selectedMatch.availablePlayers, unavailable: selectedMatch.unavailablePlayers }
+            : _getWeekWideAvailability(selectedMatch.teamId, weekId, opponentRoster);
+
+        const html = `
+            <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+                 id="comparison-modal-backdrop">
+                <div class="bg-card border border-border rounded-lg shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+                    <!-- Header: match info left, opponent selector right -->
+                    <div class="flex items-center justify-between p-4 border-b border-border shrink-0">
+                        <!-- Left: Match Details - single line -->
+                        <h2 class="text-lg font-semibold text-foreground">
+                            Match Details <span class="text-muted-foreground font-normal">— Week ${weekNum}</span>
+                        </h2>
+                        <!-- Right: Opponent selector + close button -->
+                        <div class="flex items-center gap-4">
+                            ${_renderOpponentSelectorForHeader(matches)}
+                            <button id="comparison-modal-close"
+                                    class="text-muted-foreground hover:text-foreground transition-colors p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Body - Stepper bar + VS Layout -->
+                    <div class="p-4 overflow-y-auto flex-1">
+                        ${canSchedule ? `<div class="cm-stepper-bar">${_renderCompactStepper()}</div>` : ''}
+
+                        <!-- VS Container with center slot column -->
+                        <div class="vs-container">
+                            <!-- User Team (Left) -->
+                            ${_renderTeamCard(
+                                userTeamId,
+                                userTeamInfo.teamTag,
+                                userTeamInfo.teamName,
+                                userWeekAvail.available,
+                                userWeekAvail.unavailable,
+                                true,
+                                null,
+                                false,
+                                null, null, null, null
+                            )}
+
+                            <!-- Center: Slot picker (replaces VS divider) -->
+                            <div class="vs-divider-slots" id="cm-slot-column">
+                                ${canSchedule && _selectedGameType
+                                    ? _renderSlotPicker()
+                                    : '<span class="vs-text">VS</span>'}
+                            </div>
+
+                            <!-- Opponent Team Card -->
+                            ${_renderTeamCard(
+                                selectedMatch.teamId,
+                                selectedMatch.teamTag,
+                                selectedMatch.teamName,
+                                opponentWeekAvail.available,
+                                opponentWeekAvail.unavailable,
+                                false,
+                                isLeader ? leaderDiscordInfo[selectedMatch.leaderId] : null,
+                                isLeader && !canSchedule,
+                                slotId,
+                                weekId,
+                                userTeamInfo,
+                                selectedMatch
+                            )}
+                        </div>
+                    </div>
+
+                    <!-- Footer: Close/Done -->
+                    <div class="p-4 border-t border-border shrink-0">
+                        <button id="comparison-modal-done" class="btn btn-secondary w-full text-sm">${_proposalStep === 3 ? 'Done' : 'Close'}</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (!_container) {
+            _container = document.createElement('div');
+            _container.id = 'comparison-modal-container';
+            document.body.appendChild(_container);
+        }
+
+        _container.innerHTML = html;
+        _attachListeners();
+        _isOpen = true;
+    }
+
+    /**
+     * Attach event listeners to modal elements
+     */
+    function _attachListeners() {
+        const backdrop = document.getElementById('comparison-modal-backdrop');
+        const closeBtn = document.getElementById('comparison-modal-close');
+        const doneBtn = document.getElementById('comparison-modal-done');
+
+        backdrop?.addEventListener('click', (e) => {
+            if (e.target === backdrop) close();
+        });
+        closeBtn?.addEventListener('click', close);
+        doneBtn?.addEventListener('click', close);
+
+        // Opponent tab clicks
+        document.querySelectorAll('.opponent-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const index = parseInt(tab.dataset.opponentIndex, 10);
+                if (index !== _selectedOpponentIndex && _currentData) {
+                    _selectedOpponentIndex = index;
+                    // Keep game type + standin — just reset slot selection for new opponent
+                    _proposalStep = 1;
+                    _viableSlots = [];
+                    _selectedSlots = new Set();
+                    _confirmedSlotsCount = 0;
+                    _discordMessage = null;
+                    // Re-compute viable slots for new opponent if game type already selected
+                    if (_selectedGameType) _computeViableForProposal();
+                    // Re-render with new selection
+                    _renderModal(
+                        _currentData.weekId,
+                        _currentData.slotId,
+                        _currentData.userTeamInfo,
+                        _currentData.matches,
+                        _currentData.isLeader,
+                        _currentData.leaderDiscordInfo,
+                        _currentData.canSchedule
+                    );
+                }
+            });
+        });
+
+        // Game type toggle buttons
+        const _reRenderModal = () => {
+            _renderModal(
+                _currentData.weekId, _currentData.slotId,
+                _currentData.userTeamInfo, _currentData.matches,
+                _currentData.isLeader, _currentData.leaderDiscordInfo,
+                _currentData.canSchedule
+            );
+        };
+        document.getElementById('game-type-off')?.addEventListener('click', () => {
+            _selectedGameType = 'official';
+            _withStandin = false; // No standin for officials
+            _computeViableForProposal();
+            _reRenderModal();
+        });
+        document.getElementById('game-type-prac')?.addEventListener('click', () => {
+            _selectedGameType = 'practice';
+            _computeViableForProposal();
+            _reRenderModal();
+        });
+        document.getElementById('standin-toggle')?.addEventListener('click', () => {
+            _withStandin = !_withStandin;
+            _computeViableForProposal();
+            _reRenderModal();
+        });
+
+        // Pill toggle clicks in center column — in-place DOM update, no re-render
+        document.getElementById('cm-slot-column')?.addEventListener('click', (e) => {
+            const pill = e.target.closest('.cm-pill-toggle');
+            if (!pill) return;
+
+            const slotId = pill.dataset.slotId;
+            const nowSelected = !_selectedSlots.has(slotId);
+
+            if (nowSelected) {
+                _selectedSlots.add(slotId);
+            } else {
+                _selectedSlots.delete(slotId);
+            }
+
+            // Toggle just this pill's visual state
+            pill.classList.toggle('active', nowSelected);
+            pill.setAttribute('aria-pressed', String(nowSelected));
+
+            // Update just the Propose button text/state
+            const proposeBtn = document.getElementById('propose-match-btn');
+            if (proposeBtn) {
+                const count = _selectedSlots.size;
+                proposeBtn.disabled = count === 0;
+                proposeBtn.classList.toggle('active', count > 0);
+                proposeBtn.textContent = count > 0 ? `Propose (${count}) →` : 'Select times';
+            }
+        });
+
+        // Propose Match button
+        const proposeBtn = document.getElementById('propose-match-btn');
+        if (proposeBtn) {
+            proposeBtn.addEventListener('click', async () => {
+                if (!_selectedGameType || _selectedSlots.size === 0) return;
+                proposeBtn.disabled = true;
+                proposeBtn.textContent = 'Creating...';
+
+                try {
+                    const selectedMatch = _currentData.matches[_selectedOpponentIndex] || _currentData.matches[0];
+                    // Proposal minFilter stays 4v4 (the living document filter)
+                    const minFilter = { yourTeam: 4, opponent: 4 };
+
+                    const result = await ProposalService.createProposal({
+                        proposerTeamId: _currentData.userTeamInfo.teamId,
+                        opponentTeamId: selectedMatch.teamId,
+                        weekId: _currentData.weekId,
+                        minFilter,
+                        gameType: _selectedGameType,
+                        proposerStandin: _selectedGameType === 'practice' && _withStandin,
+                        confirmedSlots: [..._selectedSlots]
+                    });
+
+                    if (result.success) {
+                        // Show post-creation step with Discord contact prompt
+                        _showPostProposalStep(selectedMatch, result.proposalId);
+                    } else {
+                        ToastService.showError(result.error || 'Failed to create proposal');
+                        proposeBtn.disabled = false;
+                        proposeBtn.textContent = `Propose (${_selectedSlots.size}) →`;
+                    }
+                } catch (error) {
+                    console.error('Propose match failed:', error);
+                    ToastService.showError('Network error — please try again');
+                    proposeBtn.disabled = false;
+                    proposeBtn.textContent = `Propose (${_selectedSlots.size}) →`;
+                }
+            });
+        }
+
+        // Contact on Discord button (copy + open DM)
+        document.querySelectorAll('.contact-discord-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const discordId = btn.dataset.discordId;
+                const message = btn.dataset.message.replace(/&#10;/g, '\n');
+
+                try {
+                    // 1. Copy message to clipboard
+                    await navigator.clipboard.writeText(message);
+
+                    // 2. Show success toast
+                    if (typeof ToastService !== 'undefined') {
+                        ToastService.showSuccess('Message copied! Paste in Discord');
+                    }
+
+                    // 3. Open Discord app (slight delay to ensure toast shows)
+                    setTimeout(() => {
+                        window.location.href = `discord://discord.com/users/${discordId}`;
+                    }, 100);
+
+                } catch (err) {
+                    console.error('Failed to copy message:', err);
+                    // Fallback: just open Discord
+                    window.location.href = `discord://discord.com/users/${discordId}`;
+                    if (typeof ToastService !== 'undefined') {
+                        ToastService.showInfo('Opening Discord... (copy failed)');
+                    }
+                }
+            });
+        });
+
+        // Copy message only button
+        document.querySelectorAll('.copy-message-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const message = btn.dataset.message.replace(/&#10;/g, '\n');
+                try {
+                    await navigator.clipboard.writeText(message);
+                    if (typeof ToastService !== 'undefined') {
+                        ToastService.showSuccess('Message copied to clipboard!');
+                    }
+                    // Visual feedback on button
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg><span class="ml-1">Copied!</span>`;
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                    if (typeof ToastService !== 'undefined') {
+                        ToastService.showError('Failed to copy message');
+                    }
+                }
+            });
+        });
+
+        // Step 3: Discord DM button (in stepper)
+        const discordBtn = document.getElementById('post-proposal-discord');
+        if (discordBtn) {
+            discordBtn.addEventListener('click', async () => {
+                const msg = discordBtn.dataset.message.replace(/&#10;/g, '\n');
+                try {
+                    await navigator.clipboard.writeText(msg);
+                    ToastService.showSuccess('Message copied! Paste in Discord');
+                } catch (err) { /* silent */ }
+                if (_opponentDiscordUserId) {
+                    setTimeout(() => {
+                        window.location.href = `discord://discord.com/users/${_opponentDiscordUserId}`;
+                    }, 100);
+                }
+            });
+        }
+
+        // Step 3: Copy button (in stepper)
+        const copyBtn = document.getElementById('post-proposal-copy');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                const msg = copyBtn.dataset.message.replace(/&#10;/g, '\n');
+                try {
+                    await navigator.clipboard.writeText(msg);
+                    ToastService.showSuccess('Message copied!');
+                    copyBtn.textContent = '✓';
+                    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                } catch (err) {
+                    ToastService.showError('Failed to copy');
+                }
+            });
+        }
+
+        // Find standin link (user team roster, < 4 available)
+        document.querySelector('.find-standin-link')?.addEventListener('click', () => {
+            if (!_currentData) return;
+            const teamId = _currentData.userTeamInfo.teamId;
+            const team = TeamService.getTeamFromCache(teamId);
+            const divisions = team?.divisions || [];
+            const defaultDiv = divisions[0] || 'D1';
+            const weekId = _currentData.weekId;
+            const slotId = _currentData.slotId;
+
+            close();
+
+            StandinFinderService.activate(weekId, [slotId], defaultDiv);
+            BottomPanelController.switchTab('players', { force: true });
+        });
+
+        // ESC key to close
+        _keydownHandler = (e) => {
+            if (e.key === 'Escape' && _isOpen) close();
+        };
+        document.addEventListener('keydown', _keydownHandler);
+    }
+
+    /**
+     * Advance to step 3 after proposal creation — builds Discord message and re-renders stepper
+     */
+    function _showPostProposalStep(selectedMatch, proposalId) {
+        const weekId = _currentData.weekId;
+        const userTeamInfo = _currentData.userTeamInfo;
+        const weekNum = weekId.split('-')[1];
+        const minFilter = { yourTeam: 4, opponent: 4 };
+
+        // Compute viable slots for message (with standin if applicable)
+        const standinSettings = _selectedGameType === 'practice' && _withStandin
+            ? { proposerStandin: true, opponentStandin: false }
+            : undefined;
+        const viableSlots = ProposalService.computeViableSlots(
+            userTeamInfo.teamId, selectedMatch.teamId, weekId, minFilter, standinSettings
+        );
+
+        // Build Discord message
+        const sorted = [...viableSlots].sort((a, b) =>
+            (b.proposerCount + b.opponentCount) - (a.proposerCount + a.opponentCount)
+        );
+        const top3 = sorted.slice(0, 3);
+        const remaining = sorted.length - 3;
+
+        const lines = [
+            `Hey! We proposed a match: ${userTeamInfo.teamTag} vs ${selectedMatch.teamTag} (W${weekNum})`,
+            '',
+            'Best times for both teams:'
+        ];
+        for (const slot of top3) {
+            const display = TimezoneService.formatSlotForDisplay(slot.slotId, _getRefDate(weekId));
+            const shortDay = (display.dayLabel || '').slice(0, 3);
+            lines.push(`\u25B8 ${shortDay} ${display.timeLabel} (${slot.proposerCount}v${slot.opponentCount})`);
+        }
+        if (top3.length === 0) {
+            lines.length = 2;
+            lines.push('No viable slots yet \u2014 check availability!');
+        }
+        if (remaining > 0) {
+            lines.push('');
+            lines.push(`+${remaining} more time${remaining !== 1 ? 's' : ''} available`);
+        }
+        lines.push('');
+        const deepLink = proposalId
+            ? `https://scheduler.quake.world/#/matches/${proposalId}`
+            : 'https://scheduler.quake.world';
+        lines.push(`Check proposal: ${deepLink}`);
+
+        _discordMessage = lines.join('\n');
+        _createdProposalId = proposalId;
+        _confirmedSlotsCount = _selectedSlots.size;
+        _proposalStep = 3;
+
+        // Resolve opponent leader Discord ID in background
+        const opponentTeam = TeamService.getTeamFromCache(selectedMatch.teamId);
+        const leaderId = opponentTeam?.leaderId;
+        if (leaderId) {
+            _getUserDiscordInfo(leaderId).then(info => {
+                if (info?.discordUserId) {
+                    _opponentDiscordUserId = info.discordUserId;
+                }
+            }).catch(() => {});
+        }
+
+        // Re-render to update stepper to step 3
+        _renderModal(
+            _currentData.weekId, _currentData.slotId,
+            _currentData.userTeamInfo, _currentData.matches,
+            _currentData.isLeader, _currentData.leaderDiscordInfo,
+            _currentData.canSchedule
+        );
+
+        ToastService.showSuccess('Proposal sent! Opponent will be notified.');
+    }
+
+    /**
+     * Show the comparison modal for a specific slot
+     */
+    async function show(weekId, slotId) {
+        if (typeof ComparisonEngine === 'undefined') {
+            console.error('ComparisonModal: ComparisonEngine not available');
+            return;
+        }
+
+        // Reset selection
+        _selectedOpponentIndex = 0;
+
+        // Get data from ComparisonEngine cache (instant)
+        const userTeamInfo = ComparisonEngine.getUserTeamInfo(weekId, slotId);
+        const matches = ComparisonEngine.getSlotMatches(weekId, slotId);
+
+        if (!userTeamInfo || matches.length === 0) {
+            console.warn('No match data available for slot');
+            return;
+        }
+
+        // Check if current user is a leader or scheduler
+        const currentUser = AuthService.getCurrentUser();
+        const currentUserId = currentUser?.uid;
+        const isLeader = userTeamInfo.leaderId === currentUserId;
+        const canSchedule = TeamService.isScheduler(userTeamInfo.teamId, currentUserId);
+
+        // Store data for re-renders (tab switching)
+        _currentData = {
+            weekId,
+            slotId,
+            userTeamInfo,
+            matches,
+            isLeader,
+            canSchedule,
+            leaderDiscordInfo: {}
+        };
+
+        // Render modal immediately
+        _renderModal(weekId, slotId, userTeamInfo, matches, isLeader, {}, canSchedule);
+
+        // If user is a leader, fetch leader Discord info async
+        if (isLeader) {
+            const leaderIds = matches.map(m => m.leaderId).filter(Boolean);
+            const leaderDiscordInfo = await _fetchLeaderDiscordInfo(leaderIds);
+
+            _currentData.leaderDiscordInfo = leaderDiscordInfo;
+
+            // Re-render with Discord info if modal still open
+            if (_isOpen) {
+                _renderModal(weekId, slotId, userTeamInfo, matches, isLeader, leaderDiscordInfo, canSchedule);
+            }
+        }
+    }
+
+    /**
+     * Close the modal
+     */
+    function close() {
+        // Save proposal ID before clearing state — navigate after cleanup
+        const navigateToProposal = _createdProposalId;
+
+        if (_container) _container.innerHTML = '';
+        if (_keydownHandler) {
+            document.removeEventListener('keydown', _keydownHandler);
+            _keydownHandler = null;
+        }
+        _isOpen = false;
+        _currentData = null;
+        _selectedOpponentIndex = 0;
+        _selectedGameType = null;
+        _withStandin = false;
+        _proposalStep = 1;
+        _createdProposalId = null;
+        _discordMessage = null;
+        _opponentDiscordUserId = null;
+        _viableSlots = [];
+        _selectedSlots = new Set();
+        _confirmedSlotsCount = 0;
+
+        // Deep-link to the created proposal so user can confirm timeslots
+        if (navigateToProposal) {
+            window.location.hash = `/matches/${navigateToProposal}`;
+        }
+    }
+
+    /**
+     * Check if modal is currently open
+     */
+    function isOpen() {
+        return _isOpen;
+    }
+
+    /**
+     * Cleanup modal resources
+     */
+    function cleanup() {
+        close();
+        if (_container) {
+            _container.remove();
+            _container = null;
+        }
+    }
+
+    return {
+        show,
+        close,
+        isOpen,
+        cleanup
+    };
+})();
+
+// Make globally accessible
+window.ComparisonModal = ComparisonModal;
