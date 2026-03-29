@@ -18,7 +18,7 @@ A single community bot that QW teams self-host via Docker:
 Replace Craig bot ($5/month, Google Drive export, no control) with:
 - Per-speaker OGG/Opus files written directly to the local filesystem
 - `session_metadata.json` with standardized timing and track info
-- Direct feed into the [voice-analysis](../voice-analysis/) pipeline (or any consumer)
+- Direct feed into voice analysis pipeline or any downstream consumer
 
 The recording module is **record-only**. No transcription, no analysis, no API queries, no match pairing. It writes files. The downstream pipeline reads them.
 
@@ -267,13 +267,6 @@ quad/
 └── recordings/            # Default output dir (gitignored, volume-mounted in Docker)
 ```
 
-## Downstream Consumer: voice-analysis Pipeline
-
-The [voice-analysis](../voice-analysis/) pipeline reads our output. Key compatibility:
-- `craig_parser.py` needs a small update: read `recording_start_time` (alias to internal `start_time`), glob `*.ogg` alongside `*.flac`
-- `timestamp_splitter.py`, `transcriber.py`, `analyzer.py` — unchanged. They work on audio files + timing, format-agnostic.
-- `session_metadata.json` is the bridge: same concept as Craig's `info.txt` + `raw.dat`, but cleaner schema.
-
 ## DAVE Protocol
 
 Discord Audio & Video End-to-End Encryption. **Mandatory by March 1, 2026.**
@@ -404,31 +397,7 @@ scp -P 5555 -r 'dave@83.172.66.214:/srv/qwvoice/quad/recordings/SESSION_ID/proce
 
 ## Development Workflow
 
-### WSL Development Environment
-
-**Setup:** Windows VSCode + Claude Code extension, with WSL Ubuntu project folder.
-
-#### Command Execution Rules
-Use `wsl bash -ic` (interactive) for npm/node commands so nvm loads properly:
-
-**Simple commands work directly:**
-```bash
-git status              # Works
-bash scripts/foo.sh     # Works
-cat / ls / grep         # Works
-```
-
-**For npm/node commands, use interactive bash (`-ic` flag is critical):**
-```bash
-wsl bash -ic "cd /home/paradoks/projects/quake/quad && npm run build"
-wsl bash -ic "cd /home/paradoks/projects/quake/quad && npm start"
-wsl bash -ic "cd /home/paradoks/projects/quake/quad && npx tsc --noEmit"
-```
-
-The `-ic` flag runs bash in interactive mode, which loads `.bashrc` and nvm. Without it, `node`/`npm`/`npx` won't be found.
-
-#### Slash Command Skills
-Use these instead of running commands manually:
+### Slash Commands
 - **`/build`** — Compile TypeScript (`npx tsc --noEmit`). Use after writing or editing any `.ts` file.
 - **`/dev`** — Start the bot locally for testing. Loads `.env` and runs with ts-node ESM loader.
 
@@ -471,32 +440,6 @@ This bot is built for the QW 4on4 community:
 - Long-term vision: multiple QW teams use this, recordings paired to Hub matches, voice comms embedded on match pages at hub.quakeworld.nu
 
 ---
-
-## Bug Triage Protocol
-
-**When hitting a bug or unexpected behavior, follow this sequence strictly. Do NOT skip to "fix".**
-
-1. **Reproduce** - Confirm the exact steps that trigger it. If you can't reproduce it, you don't understand it yet.
-2. **Localize** - Narrow down WHERE. Which file, function, stream, or data flow? Use console logs, check Discord events, read the relevant code.
-3. **Reduce** - Strip it to the smallest case. Is it a data issue? A timing issue? A race condition? A wrong parameter?
-4. **Fix** - Apply the smallest change that resolves the root cause. Not a workaround, not a band-aid.
-5. **Guard** - Ask: can this class of bug happen elsewhere? Check similar patterns in the codebase.
-6. **Verify** - Confirm the fix works AND didn't break the surrounding flow.
-
-**Common traps:**
-- Jumping to step 4 without localizing (most frequent AI mistake)
-- Fixing symptoms instead of root cause (e.g., adding a null check instead of asking why it's null)
-- Over-fixing by refactoring surrounding code that wasn't broken
-
-## Testing Philosophy
-
-**After implementing a feature:**
-1. Compile first (`npx tsc --noEmit`)
-2. Manual test with a real Discord bot connection
-3. Fix issues through iteration (1-2 rounds is normal)
-4. Only write automated tests if specifically requested
-
-Do NOT write automated tests immediately after implementing. Get the feature working first.
 
 ## Common AI Mistakes to Avoid
 

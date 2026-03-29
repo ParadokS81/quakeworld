@@ -171,30 +171,6 @@ Cross-reference points: QW Hub player profiles, EQL/NQR tournament rosters, Disc
 
 ## Development Notes
 
-### WSL Development Environment
-
-**Setup:** Windows VSCode + Claude Code extension, with WSL Ubuntu project folder.
-
-#### Command Execution Rules
-Use `wsl bash -ic` (interactive) for npm/node commands so nvm loads properly:
-
-**Simple commands work directly:**
-```bash
-git status              # Works
-bash scripts/foo.sh     # Works
-```
-
-**For npm/node commands, use interactive bash (`-ic` flag is critical):**
-```bash
-wsl bash -ic "cd /home/paradoks/projects/quake/qw-oracle && node scripts/stats.mjs"
-wsl bash -ic "cd /home/paradoks/projects/quake/qw-oracle && npm install"
-```
-
-The `-ic` flag runs bash in interactive mode, which loads `.bashrc` and nvm. Without it, `node`/`npm` won't be found.
-
-### NEVER use `wsl mkdir`
-Use `wsl bash -ic "mkdir -p /path"` or the Write tool instead. `wsl mkdir` creates dirs at wrong paths.
-
 ### Fetching More Discord Data
 The backfill script in `../quad/scripts/backfill.mjs` is resumable.
 To add more channels, edit the CHANNELS array and re-run.

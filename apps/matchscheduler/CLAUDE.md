@@ -6,31 +6,6 @@ For complete architecture specifications, refer to the Pillar documents.
 
 ---
 
-## WSL Development Environment
-
-**Setup:** Windows VSCode + Claude Code extension, with WSL Ubuntu project folder.
-
-### Command Execution Rules
-Use `wsl bash -ic` (interactive) for npm scripts so nvm loads properly:
-
-**✅ Simple commands work directly:**
-```bash
-git status              # Works
-bash scripts/foo.sh     # Works
-cat / ls / grep         # Works
-```
-
-**🔧 For npm scripts, use interactive bash (`-ic` flag is critical):**
-```bash
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && npm run deploy"
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && npm run build"
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && npm start"
-```
-
-The `-ic` flag runs bash in interactive mode, which loads `.bashrc` and nvm.
-
----
-
 ## Essential References
 - **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview (READ FIRST for orientation)
 - **Data Schema**: `context/SCHEMA.md` - Firestore document structures (ALWAYS check before writing backend code)
@@ -304,30 +279,6 @@ function componentName() {
 - Fixed UIDs (dev-user-001 for ParadokS)
 - Direct Firestore writes (bypasses Cloud Functions)
 - WSL networking tips
-
-### Testing Approach
-**After implementing a feature:**
-1. DO NOT write automated tests immediately
-2. DO NOT mess with emulator configuration
-3. Use QCHECK to find integration issues
-4. Fix issues (1-2 iterations normal)
-5. Use QTEST for manual testing guide
-6. Only write automated tests if specifically requested
-
-### Bug Triage Protocol
-**When hitting a bug or unexpected behavior, follow this sequence strictly. Do NOT skip to "fix".**
-
-1. **Reproduce** - Confirm the exact steps that trigger it. If you can't reproduce it, you don't understand it yet.
-2. **Localize** - Narrow down WHERE. Which file, function, listener, or data flow? Use console logs, check Firestore state, read the relevant code.
-3. **Reduce** - Strip it to the smallest case. Is it a data issue? A timing issue? A missing listener? A wrong parameter?
-4. **Fix** - Apply the smallest change that resolves the root cause. Not a workaround, not a band-aid.
-5. **Guard** - Ask: can this class of bug happen elsewhere? Check similar patterns in the codebase.
-6. **Verify** - Confirm the fix works AND didn't break the surrounding flow.
-
-**Common traps:**
-- Jumping to step 4 without localizing (most frequent AI mistake)
-- Fixing symptoms instead of root cause (e.g., adding a null check instead of asking why it's null)
-- Over-fixing by refactoring surrounding code that wasn't broken
 
 ### Deployment (Production)
 

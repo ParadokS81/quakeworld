@@ -6,20 +6,17 @@ A cross-platform system tray application that bridges the QuakeWorld game client
 
 ## Ecosystem Context
 
-This project is part of the QuakeWorld ecosystem. Unlike the other QW projects (which live in WSL), **this project runs on native Windows** because Tauri builds native desktop apps and needs the Windows toolchain for Windows binaries.
+This project is part of the QuakeWorld monorepo. Source lives in WSL with all other apps, but **builds run on native Windows** because Tauri needs the Windows toolchain for Windows binaries.
 
-For full details on all sibling projects, shared infrastructure, integration points, and cross-project workflows, see the **orchestrator CLAUDE.md** in the WSL workspace.
+See the root `CLAUDE.md` for the full project map, shared infrastructure, and cross-project workflows.
 
-Key sibling projects (all in WSL at `\\wsl.localhost\Ubuntu\home\paradoks\projects\quake\`):
-- **`slipgate/`** — Slipgate web hub (SolidJS + Tailwind + DaisyUI). Shares design system with this app
-- **`MatchScheduler/`** — Current match scheduling platform (Firebase). Auth, availability, match data
-- **`quad/`** — Discord bot (TypeScript). Voice recording, standin flow, Mumble integration
-- **`MatchScheduler/qw-stats/`** — Stats API (Express + PostgreSQL). Player rankings, H2H, match history
-- **`qw-oracle/`** — Community knowledge base (SQLite). 2.66M messages from IRC + Discord
+Sibling apps in this monorepo:
+- **`apps/matchscheduler/`** — Firebase web app (Auth, availability, match data)
+- **`apps/quad/`** — Discord bot (voice recording, standin flow, Mumble)
+- **`apps/qw-stats/`** — Stats API (Express + PostgreSQL)
+- **`apps/qw-oracle/`** — Community knowledge base (SQLite)
 
-Shared infrastructure: Firebase project `matchscheduler-dev`, QW Hub API (Supabase), Mumble server on Xerial's box. See the orchestrator CLAUDE.md for connection details, credentials locations, and deploy workflows.
-
-**Important:** There are NO build-time dependencies on sibling projects. All integration is via network (Firebase, HTTP APIs). The sibling references above are for documentation context only.
+**No build-time dependencies on siblings.** All integration is via network (Firebase, HTTP APIs).
 
 ## What This App Does
 
