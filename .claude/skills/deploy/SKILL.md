@@ -10,7 +10,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 | Project | Deploy command | Verify |
 |---------|---------------|--------|
 | matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
-| quad | `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
+| quad | `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
 | qw-stats | `scp` files + `ssh root@100.114.81.91` rebuild | `curl https://qw-api.poker-affiliate.org/health` |
 | slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
 
@@ -54,12 +54,13 @@ If `recording.active === true` → **STOP. Do not deploy.** A team is currently 
 Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
 
 **Deploy steps:**
-1. Ensure code is committed and pushed to remote
-2. Deploy:
+1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
+2. Wait for the GitHub Actions workflow to complete (`gh run list --workflow=quad-docker.yml --limit=1`)
+3. Deploy:
    ```bash
-   wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
+   wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"
    ```
-3. Verify — check logs for successful startup:
+4. Verify — check logs for successful startup:
    ```bash
    ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
    ```
@@ -72,7 +73,7 @@ Note: The health endpoint is only accessible from inside the server (port 3000 i
 | Restart (no rebuild) | `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad restart'` |
 | Edit .env on server | `ssh pinnaclepowerhouse 'nano /srv/qwvoice/quad/.env'` |
 
-Docker layer caching makes rebuilds fast (~15-30s) when only source code changed.
+Images are pre-built by GitHub Actions and pushed to ghcr.io/paradoks81/quad. Deploy pulls only changed layers (typically a few MB for code changes).
 
 For details: `apps/quad/DEPLOYMENT.md`
 
