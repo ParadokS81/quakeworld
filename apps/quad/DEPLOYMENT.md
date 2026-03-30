@@ -1,6 +1,6 @@
 # Deployment Guide
 
-## Server
+## Infrastructure
 
 | | |
 |---|---|
@@ -13,6 +13,18 @@
 | **Quad repo** | `/srv/qwvoice/quad/` |
 | **Recordings** | `/srv/qwvoice/quad/recordings/` (volume-mounted, survives rebuilds) |
 | **Admin** | Xerial (manages OS-level config, firewall, NVIDIA drivers) |
+
+## Pre-deploy Safety Check
+
+**Before ANY deploy, check for active voice recordings:**
+
+```bash
+curl http://83.172.66.214:3000/health
+```
+
+If the response shows `"recording": { "active": true }` — **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
+
+Wait for the recording to finish, then re-check before proceeding.
 
 ### SSH Access
 
@@ -81,7 +93,7 @@ Docker layer caching makes rebuilds fast (~30-60s) when only source code changed
 wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
 ```
 
-### When to use what
+## Operational Commands
 
 | Scenario | Command |
 |---|---|
@@ -93,7 +105,7 @@ wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qw
 | **Check status** | `sudo qwvoice-ctl /srv/qwvoice/quad ps` |
 | **Clean old images** | `sudo qwvoice-ctl /srv/qwvoice/quad prune` |
 
-## Docker Architecture
+## Architecture Notes
 
 ### Multi-stage build
 
