@@ -39,6 +39,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -q 'slipgate-app/src-tauri/'; then ~/projects/quakeworld/apps/slipgate-app/scripts/sync-rust.sh; fi"
+          }
+        ]
+      }
     ]
   },
   "env": {
