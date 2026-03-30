@@ -44,5 +44,7 @@ Thumbs.db
 # Logs
 *.log
 
-# Patches cache
+# Patches cache (global default)
 patches/
+# But track quad's patches (needed for Docker builds)
+!apps/quad/patches/
