@@ -316,84 +316,11 @@ CRC checksums require `node-crc@^1.3.2` (must be v1, CJS — v3+ is ESM-only and
 2. **ffmpeg pipe** — `spawn('ffmpeg', ['-f', 'opus', '-i', 'pipe:0', '-c', 'copy', 'output.ogg'])`. Rock-solid but adds a process per speaker and a system dependency.
 3. **Raw capture + post-process** — What Craig and Pandora do. Dump raw Opus packets with timestamps, mux into OGG later. More complex, only worth it if we need two-phase processing.
 
-## Deployment — Xerial's Server
+## Deployment
 
-Full reference: see `DEPLOYMENT.md` in repo root.
+See `DEPLOYMENT.md` for full deployment reference (SSH access, Docker operations, deploy workflow, troubleshooting).
 
-### Server Details
-- **Host**: `83.172.66.214`, port `5555`
-- **User**: `dave`
-- **SSH alias**: `pinnaclepowerhouse` (configured in `~/.ssh/config`)
-- **SSH key**: `~/.ssh/id_ed25519`
-- **GPU**: NVIDIA RTX 4090 (24GB VRAM) — GPU-accelerated whisper with `device="auto"`
-- **Quad repo**: `/srv/qwvoice/quad/` (dave has group write access via `qwvoice` group)
-- **Recordings**: `/srv/qwvoice/quad/recordings/` (volume-mounted, survives rebuilds)
-- **Other services**: `qwvoice-whisper` + `ollama` at `/srv/qwvoice/docker/` (independent)
-
-### SSH Access (full bash shell)
-```bash
-ssh pinnaclepowerhouse
-```
-
-**Important**: Use `wsl bash -c` (NOT `-ic`) for SSH commands from the Windows/WSL environment:
-```bash
-wsl bash -c "ssh pinnaclepowerhouse 'command here'"
-```
-
-### Container Management — qwvoice-ctl
-
-All Docker operations go through the `qwvoice-ctl` wrapper. No direct `docker` or `docker compose` access.
-
-```bash
-sudo qwvoice-ctl /srv/qwvoice/quad <command>    # Quad bot
-sudo qwvoice-ctl /srv/qwvoice/docker <command>  # Whisper + Ollama
-```
-
-Commands: `up`, `down`, `restart`, `rebuild`, `logs`, `ps`, `pull`, `prune`
-
-### Deploy Workflow (self-service, no Xerial needed)
-
-```bash
-# 1. Develop locally
-/build                    # Compile TypeScript
-/dev                      # Test with real Discord connection
-
-# 2. Commit and push
-git add ... && git commit && git push
-
-# 3. Deploy (one command)
-wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
-```
-
-Docker layer caching makes rebuilds fast (~15-30s) when only source code changed.
-
-### Common Server Operations
-```bash
-# View logs (live)
-ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs -f'
-
-# View recent logs
-ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=50'
-
-# Check status
-ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad ps'
-
-# Restart (no rebuild — only picks up .env changes)
-ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad restart'
-
-# Edit .env on server
-ssh pinnaclepowerhouse 'nano /srv/qwvoice/quad/.env'
-
-# Download recordings
-scp -P 5555 -r 'dave@83.172.66.214:/srv/qwvoice/quad/recordings/SESSION_ID/processed/*' /tmp/
-```
-
-### Notes
-- Xerial manages OS-level config (firewall, NVIDIA drivers). Routine deploys are self-service.
-- The bot is `Quake.World#7716` on Discord
-- Recordings are volume-mounted — they persist across container rebuilds
-- The `docker-compose.yml` includes GPU reservation — container won't start without NVIDIA GPU
-- For local dev without GPU, create `docker-compose.override.yml` (gitignored)
+Quick deploy: `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"`
 
 ## Development Workflow
 
