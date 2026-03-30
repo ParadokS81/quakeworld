@@ -9,7 +9,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 
 | Project | Deploy command | Verify |
 |---------|---------------|--------|
-| matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler.web.app |
+| matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
 | quad | `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
 | qw-stats | `scp` files + `ssh root@100.114.81.91` rebuild | `curl https://qw-api.poker-affiliate.org/health` |
 | slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
@@ -34,7 +34,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
    firebase deploy --only hosting,functions    # Both
    firebase deploy                             # Everything
    ```
-4. Verify: open https://matchscheduler.web.app and check the feature
+4. Verify: open https://matchscheduler-dev.web.app and check the feature
 
 **Region config:**
 - v1 functions (25): `europe-west3` (shared container, fast deploys)
