@@ -83,23 +83,49 @@ Managed via: `sudo qwvoice-ctl /srv/qwvoice/docker <command>`
 ```bash
 ssh pinnaclepowerhouse
 cd /srv/qwvoice/quad
-git pull
-sudo qwvoice-ctl /srv/qwvoice/quad rebuild
+sudo qwvoice-ctl /srv/qwvoice/quad pull
+sudo qwvoice-ctl /srv/qwvoice/quad up
 ```
 
-Docker layer caching makes rebuilds fast (~30-60s) when only source code changed. The `npm ci` layer is cached unless `package.json` or `package-lock.json` changed.
+Images are built by GitHub Actions and pushed to `ghcr.io/paradoks81/quad`. On a typical deploy, Docker only downloads the changed layers (usually a few MB for code-only changes).
 
 ### One-liner from local machine
 
 ```bash
-wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
+wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"
 ```
+
+### First Deploy / Migration from git-based deploy
+
+1. Stop the old container:
+   ```bash
+   sudo qwvoice-ctl /srv/qwvoice/quad down
+   ```
+2. Back up the existing `docker-compose.yml` and replace it with the new version (uses `image:` instead of `build:`).
+3. Create the models directory:
+   ```bash
+   mkdir -p /srv/qwvoice/quad/models
+   ```
+4. Pull and start:
+   ```bash
+   sudo qwvoice-ctl /srv/qwvoice/quad pull
+   sudo qwvoice-ctl /srv/qwvoice/quad up
+   ```
+5. The Whisper model downloads on first `/process transcribe` (~500MB for `small`, takes ~1 min). It's cached in `./models/` and persists across container restarts.
+
+The monorepo source code at `/srv/qwvoice/quad/` is no longer needed after migration. Only these files matter:
+- `docker-compose.yml`
+- `.env`
+- `service-account.json`
+- `recordings/` (volume)
+- `models/` (volume, Whisper model cache)
+- `mumble-data/` (volume)
 
 ## Operational Commands
 
 | Scenario | Command |
 |---|---|
-| **Code changes** (most common) | `git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild` |
+| **Code update** (most common) | `sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up` |
 | **Only .env changed** | `sudo qwvoice-ctl /srv/qwvoice/quad restart` |
 | **View logs** | `sudo qwvoice-ctl /srv/qwvoice/quad logs -f` |
 | **View recent logs** | `sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=100` |
@@ -113,27 +139,34 @@ wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qw
 
 ```
 Build stage (node:22-slim):
-  npm ci → tsc → produces dist/ + node_modules/
+  npm ci -> tsc -> produces dist/ + node_modules/
+
+Python deps stage (node:22-slim):
+  python3-venv + faster-whisper + CUDA libs + zeroc-ice
 
 Runtime stage (node:22-slim):
-  ffmpeg + Python venv + faster-whisper
+  ffmpeg + Python venv from python-deps stage
   dist/ + node_modules/ from build stage
-  knowledge YAMLs + transcribe.py script
-  Whisper model pre-downloaded (baked into image)
+  knowledge YAMLs + scripts + fonts
 ```
+
+Images are built by GitHub Actions and published to `ghcr.io/paradoks81/quad`.
 
 ### What's in the container
 
 - **Node.js 22** — bot runtime
 - **ffmpeg** — audio splitting for processing module
 - **Python 3 + faster-whisper** — transcription (GPU-accelerated)
-- **Whisper model** (`small` by default) — pre-downloaded at build time
+- **Whisper model** (`small` by default) — downloaded on first use, cached in `./models/`
 
 ### Volumes
 
 | Mount | Purpose |
 |---|---|
-| `./recordings:/app/recordings` | Recording output. Persists across container rebuilds. |
+| `./recordings:/app/recordings` | Recording output. Persists across container restarts. |
+| `./service-account.json:/app/service-account.json:ro` | Firebase credentials for standin module. |
+| `./models:/root/.cache/huggingface/hub` | Whisper model cache. Downloads on first transcription, persists across restarts. |
+| `./mumble-data:/data` | Mumble server state. |
 
 ### Environment
 
@@ -142,7 +175,8 @@ Configured via `.env` file (not checked into git). See `.env.example` for all op
 Key vars for deployment:
 - `DISCORD_TOKEN` — bot token (required)
 - `RECORDING_DIR` — defaults to `./recordings`
-- `WHISPER_MODEL` — model baked into image at build time (default: `small`)
+- `WHISPER_MODEL` — model name for transcription (default: `small`). Downloads to `./models/` on first use.
+- `QUAD_VERSION` — Docker image tag to pull (default: `latest`)
 - `FIREBASE_SERVICE_ACCOUNT` — path to service account JSON for standin module
 
 ### GPU
@@ -162,6 +196,11 @@ services:
 
 This file is gitignored.
 
+Prerequisites on the host machine:
+- NVIDIA GPU driver installed
+- NVIDIA Container Toolkit (`nvidia-ctk`)
+- Verify with: `docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi`
+
 ## Local Development
 
 Local development does NOT use Docker. Use the built-in skills:
@@ -178,6 +217,7 @@ The bot runs directly on Node.js in WSL, loading `.env` from the project root.
 | `/srv/qwvoice/quad/` | `qwvoice` group | Git repo, source code. `dave` has group write access. |
 | `/srv/qwvoice/quad/.env` | varies | Secrets file |
 | `/srv/qwvoice/quad/recordings/` | `root` | Created by Docker (runs as root inside container) |
+| `/srv/qwvoice/quad/models/` | `root` | Whisper model cache, created by Docker |
 | `/srv/qwvoice/docker/` | `qwvoice` group | Legacy whisper + ollama compose |
 
 The `dave` user is in the `qwvoice` group (gid 1002). New files inherit the group via setgid. If containers create files as root, ask Xerial to fix permissions.
