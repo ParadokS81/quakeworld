@@ -47,9 +47,11 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 **SAFETY CHECK — do this FIRST:**
 ```bash
-curl http://83.172.66.214:3000/health
+ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
 ```
 If `recording.active === true` → **STOP. Do not deploy.** A team is currently recording. Wait for the session to end or coordinate with the user. Deploying would interrupt their recording.
+
+Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to remote

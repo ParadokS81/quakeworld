@@ -19,10 +19,12 @@
 **Before ANY deploy, check for active voice recordings:**
 
 ```bash
-curl http://83.172.66.214:3000/health
+ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
 ```
 
 If the response shows `"recording": { "active": true }` — **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
+
+Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
 
 Wait for the recording to finish, then re-check before proceeding.
 
