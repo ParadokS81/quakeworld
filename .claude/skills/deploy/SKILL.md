@@ -10,7 +10,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 | Project | Deploy command | Verify |
 |---------|---------------|--------|
 | matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
-| quad | `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
+| quad | `ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
 | qw-stats | `scp` files + `ssh root@100.114.81.91` rebuild | `curl https://qw-api.poker-affiliate.org/health` |
 | slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
 
@@ -58,7 +58,7 @@ Note: The health endpoint is only accessible from inside the server (port 3000 i
 2. Wait for the GitHub Actions workflow to complete (`gh run list --workflow=quad-docker.yml --limit=1`)
 3. Deploy:
    ```bash
-   wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"
+   ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'
    ```
 4. Verify — check logs for successful startup:
    ```bash

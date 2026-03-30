@@ -10,8 +10,8 @@
 | **SSH alias** | `pinnaclepowerhouse` (configured in `~/.ssh/config`) |
 | **SSH key** | `~/.ssh/id_ed25519` |
 | **GPU** | NVIDIA RTX 4090 (24GB VRAM) |
-| **Quad repo** | `/srv/qwvoice/quad/` |
-| **Recordings** | `/srv/qwvoice/quad/recordings/` (volume-mounted, survives rebuilds) |
+| **Quad directory** | `/srv/qwvoice/quad/` (compose + config + volumes, no source code) |
+| **Recordings** | `/srv/qwvoice/quad/recordings/` (volume-mounted, survives restarts) |
 | **Admin** | Xerial (manages OS-level config, firewall, NVIDIA drivers) |
 
 ## Pre-deploy Safety Check
@@ -214,7 +214,7 @@ The bot runs directly on Node.js in WSL, loading `.env` from the project root.
 
 | Path | Owner | Notes |
 |---|---|---|
-| `/srv/qwvoice/quad/` | `qwvoice` group | Git repo, source code. `dave` has group write access. |
+| `/srv/qwvoice/quad/` | `qwvoice` group | Compose config + volumes. `dave` has group write access. |
 | `/srv/qwvoice/quad/.env` | varies | Secrets file |
 | `/srv/qwvoice/quad/recordings/` | `root` | Created by Docker (runs as root inside container) |
 | `/srv/qwvoice/quad/models/` | `root` | Whisper model cache, created by Docker |
