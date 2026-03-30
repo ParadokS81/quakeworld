@@ -134,35 +134,11 @@ Read the relevant app's CLAUDE.md before working in it.
 
 ## Shared Infrastructure
 
-### Firebase Project: matchscheduler-dev
-- Firestore, Auth (Google + Discord OAuth), Storage, Hosting, Cloud Functions
-- Functions: europe-west3 (v1), europe-west10 (v2 storage triggers)
-- Hosting: https://matchscheduler.web.app
-
-### Xerial's Server (quad deployment)
-- Host: 83.172.66.214, SSH port: 5555, User: qwvoice
-- Key: ~/.ssh/qwvoice_key
-- GPU: NVIDIA RTX 4090 (used for faster-whisper)
-- Deploy: `ssh -i ~/.ssh/qwvoice_key -p 5555 qwvoice@83.172.66.214 'cd /srv/qwvoice/quad && git pull && sudo docker compose up -d --build'`
-
-### Unraid (qw-stats deployment)
-- Tailscale: 100.114.81.91
-- PostgreSQL: port 5432, db quake_stats
-- API: port 3100, public via https://qw-api.poker-affiliate.org
+Infrastructure details, deploy commands, and credential locations are in the deploy skill — invoke with "deploy" or `/deploy`. For detailed reference, each deployed project has a `DEPLOYMENT.md`.
 
 ### QW Hub API (external, read-only)
 - Supabase: https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games
 - KtxStats: https://d.quake.world/{sha256[0:3]}/{sha256}.mvd.ktxstats.json
-
-### Credentials (locations, not values)
-| Credential | Location |
-|-----------|----------|
-| Firebase service account | apps/matchscheduler/service-account.json, apps/quad/service-account.json |
-| Discord bot token | apps/quad/.env (DISCORD_TOKEN) |
-| Discord OAuth | apps/matchscheduler/functions/.env |
-| PostgreSQL password | apps/qw-stats/.env |
-| Xerial SSH key | ~/.ssh/qwvoice_key |
-| Unraid SSH key | ~/.ssh/id_rsa |
 
 ---
 
@@ -188,25 +164,3 @@ All projects except slipgate-app run in WSL Ubuntu.
 - **Tailscale**: Required for Unraid access (100.114.81.91)
 - **Firebase emulators**: MatchScheduler dev on localhost:5000
 
----
-
-## Cross-Project Workflows
-
-### Voice recording pipeline changes (quad → MatchScheduler)
-1. Update quad processing stages
-2. Deploy quad to Xerial
-3. Update MatchScheduler storage/firestore rules if schema changed
-4. Update MatchScheduler frontend if display changed
-5. Deploy MatchScheduler
-
-### Stats API changes (qw-stats → MatchScheduler)
-1. Update qw-stats api/server.js
-2. Deploy to Unraid
-3. Update MatchScheduler QWStatsService.js
-4. Deploy MatchScheduler hosting
-
-### Standin flow changes (MatchScheduler ↔ quad)
-1. Update MatchScheduler standin creation + Cloud Function
-2. Deploy MatchScheduler functions + rules
-3. Update quad standin module if DM handling changed
-4. Deploy quad to Xerial
