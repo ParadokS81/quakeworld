@@ -62,10 +62,6 @@ COPY scripts/transcribe.py scripts/transcribe.py
 COPY scripts/mumble-ice.py scripts/mumble-ice.py
 COPY scripts/MumbleServer.ice scripts/MumbleServer.ice
 
-# Pre-download Whisper model so it's baked into the image
-ARG WHISPER_MODEL=small
-RUN python3 -c "from faster_whisper import WhisperModel; WhisperModel('${WHISPER_MODEL}', device='cpu', compute_type='default')"
-
 # Recordings volume mount point
 RUN mkdir -p /app/recordings
 VOLUME /app/recordings
