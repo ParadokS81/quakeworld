@@ -280,54 +280,6 @@ function componentName() {
 - Direct Firestore writes (bypasses Cloud Functions)
 - WSL networking tips
 
-### Deployment (Production)
-
-**Region:** Functions use `europe-west3` (Frankfurt) except storage triggers:
-- Backend v1 onCall functions: `functions.region('europe-west3').https.onCall(...)`
-- Backend v2 storage triggers: `{ region: 'europe-west10' }` (must match bucket region)
-- Frontend: `getFunctions(app, 'europe-west3')` in `public/index.html`
-
-**Architecture (after v1 migration):**
-- **v1 functions (25)**: Share a single Cloud Functions container - fast deploys!
-- **v2 storage triggers (2)**: `processLogoUpload`, `processAvatarUpload` - separate Cloud Run services
-
-**Deploy all functions:**
-```bash
-firebase deploy --only functions          # ✅ Works now! v1 functions share infrastructure
-./scripts/deploy-functions.sh             # ✅ Same thing, just with logging
-```
-
-**Deploy hosting + rules:**
-```bash
-firebase deploy --only hosting            # Frontend changes
-firebase deploy --only firestore:rules    # Security rules
-firebase deploy --only hosting,firestore:rules  # Both
-```
-
-**After adding a new Cloud Function (v1 pattern):**
-```javascript
-// In your function file:
-const functions = require('firebase-functions');
-
-exports.myNewFunction = functions
-    .region('europe-west3')
-    .https.onCall(async (data, context) => {
-        // data = parameters, context.auth = user auth
-    });
-```
-1. Use the v1 pattern above (NOT v2 `onCall({ region }, handler)`)
-2. Export it in `functions/index.js`
-3. Deploy with `firebase deploy --only functions`
-
-**Cleaning up old Cloud Run services:** After the region migration, delete orphaned services:
-```bash
-# List Cloud Run services in the region
-gcloud run services list --region=europe-west3
-
-# Delete old function services (keep processLogoUpload, processAvatarUpload)
-gcloud run services delete functionName --region=europe-west3
-```
-
 ### Common Integration Mistakes (Check These First!)
 
 1. **Frontend calls backend but doesn't handle errors**
@@ -404,27 +356,6 @@ setLoading(false);
 11. **Writing tests immediately** - Implementation first, check for errors, then test
 12. **Using React/Vue for new components** - Use Alpine.js for reactive UI needs
 13. **Using `set({ merge: true })` with dot-notation keys** - Use `update()` instead! `set({ merge: true })` treats `"slots.mon_1800"` as a literal top-level field name, while `update()` correctly interprets it as nested path `slots.mon_1800`
-
----
-
-## Workflow Commands
-
-For all Q-commands and workflow instructions, see `CLAUDE-COMMANDS.md`
-
-Quick reference:
-- `QNEW` - Initialize context
-- `QPLAN [slice]` - Create technical slice
-- `QCODE [slice]` - Execute implementation (no auto tests!)
-- `QCHECK` - Verify implementation and find issues
-- `QTEST` - Manual testing guide
-- `QSTATUS` - Progress check
-- `QGIT` - Commit changes
-
-Expected iteration cycle:
-1. QCODE implements the slice
-2. QCHECK finds issues (always will!)
-3. QCODE fixes issues (1-2 iterations normal)
-4. QTEST guides manual verification
 
 ---
 
