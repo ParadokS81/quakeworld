@@ -329,4 +329,4 @@ Team Damage (penalty)        x -0.05
 
 ## Private Infrastructure
 
-If you have access to the live infrastructure (ParadokS's Unraid server), see `INFRASTRUCTURE.md` for connection details, deployment instructions, and server reference. That file is gitignored and not included in the public repo.
+If you have access to the live infrastructure (ParadokS's Unraid server), see `DEPLOYMENT.md` for connection details, deployment instructions, and server reference. That file is gitignored and not included in the public repo.
