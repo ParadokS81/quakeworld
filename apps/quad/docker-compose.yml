@@ -1,9 +1,10 @@
 services:
   quad:
-    build: .
+    image: ghcr.io/paradoks81/quad:${QUAD_VERSION:-latest}
     volumes:
       - ./recordings:/app/recordings
       - ./service-account.json:/app/service-account.json:ro
+      - ./models:/root/.cache/huggingface/hub
     env_file: .env
     restart: unless-stopped
     ports:
