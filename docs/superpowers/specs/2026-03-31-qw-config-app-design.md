@@ -29,6 +29,16 @@ The **new TypeScript library** (`packages/qw-config/`) answers "what do these se
 
 They complement, not compete. The Rust parser stays as-is.
 
+### N-client extensibility
+
+The agnostic format is the hub — every client connects to it, not to each other. Adding a new client requires only:
+1. A cvar data file (`newclient-variables.json`)
+2. A parser (config text → agnostic)
+3. A writer (agnostic → config text)
+4. Mappings to shared cvar IDs
+
+Once added, the new client automatically gets conversion to/from every other client already in the system. The viewer, compare view, and converter UI all work without changes. ezQuake and FTE are first, but the architecture is designed for any QW client.
+
 ### Package integration
 
 `packages/qw-config/` is a workspace package. slipgate-app adds `"qw-config": "workspace:*"` to its package.json. Vite bundles it into the .exe at build time — no network calls, no publishing.
