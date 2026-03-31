@@ -15,6 +15,9 @@ declare -A REPOS=(
   ["slime-quake"]="https://github.com/vikpe/slime-quake.git"
   ["dusty-mvdsv"]="https://github.com/dusty-qw/mvdsv.git"
   ["dusty-ktx"]="https://github.com/dusty-qw/ktx.git"
+  ["qwcl-original"]="https://github.com/id-Software/Quake.git"
+  ["fteqw"]="https://github.com/fte-team/fteqw.git"
+  ["ezquake-source"]="https://github.com/QW-Group/ezquake-source.git"
 )
 
 for name in "${!REPOS[@]}"; do
