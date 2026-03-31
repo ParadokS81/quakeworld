@@ -16,24 +16,13 @@ export default function ConfigConverter(props: ConfigConverterProps) {
   const [search, setSearch] = createSignal("");
   const [copied, setCopied] = createSignal<"config" | "report" | null>(null);
 
-  // Build the conversion report once (memoized)
-  const report = createMemo((): ConversionReport => {
-    const configText = Object.entries(props.config.raw_cvars)
-      .map(([k, v]) => `${k} "${v}"`)
-      .join("\n");
-    const parsed = parseConfig(configText);
-    const result = convertConfig(parsed, "ezquake", "fte");
-    return generateReport(result, parsed, "ezquake", "fte");
-  });
-
-  const fteConfigText = createMemo(() => {
-    const configText = Object.entries(props.config.raw_cvars)
-      .map(([k, v]) => `${k} "${v}"`)
-      .join("\n");
-    const parsed = parseConfig(configText);
-    const result = convertConfig(parsed, "ezquake", "fte");
-    return writeFteConfig(result.targetCvars, result.targetBinds);
-  });
+  const configText = createMemo(() =>
+    Object.entries(props.config.raw_cvars).map(([k, v]) => `${k} "${v}"`).join("\n")
+  );
+  const parsed = createMemo(() => parseConfig(configText()));
+  const result = createMemo(() => convertConfig(parsed(), "ezquake", "fte"));
+  const report = createMemo(() => generateReport(result(), parsed(), "ezquake", "fte"));
+  const fteConfigText = createMemo(() => writeFteConfig(result()));
 
   const allRows = createMemo((): ConvertedCvar[] => {
     const r = report();
@@ -43,16 +32,7 @@ export default function ConfigConverter(props: ConfigConverterProps) {
   const filteredRows = createMemo(() => {
     const q = search().trim().toLowerCase();
     return allRows().filter(row => {
-      if (filter() !== "all" && row.status !== filter().replace("_", "_")) {
-        // map filter id to status string
-        const statusMap: Record<ConvertFilter, string> = {
-          all: "all",
-          transferred: "transferred",
-          mapped: "mapped",
-          no_equivalent: "no_equivalent",
-        };
-        if (row.status !== statusMap[filter()]) return false;
-      }
+      if (filter() !== "all" && row.status !== filter()) return false;
       if (q && !row.sourceCvar.toLowerCase().includes(q) && !row.description.toLowerCase().includes(q)) {
         return false;
       }

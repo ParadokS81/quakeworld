@@ -1,5 +1,5 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
-import { lookupCvar } from "qw-config";
+import { lookupCvar, parseConfig } from "qw-config";
 import type { EzQuakeConfig } from "../types";
 
 interface ConfigCompareProps {
@@ -29,24 +29,8 @@ export default function ConfigCompare(props: ConfigCompareProps) {
   const rightCvars = createMemo((): Map<string, string> => {
     const text = pasteText().trim();
     if (!text) return new Map();
-    const result = new Map<string, string>();
-    for (const line of text.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("//") || trimmed.startsWith(";")) continue;
-
-      // Handle: cvar "value" or cvar value
-      const quoted = trimmed.match(/^(\S+)\s+"([^"]*)"(?:\s*\/\/.*)?$/);
-      if (quoted) {
-        result.set(quoted[1], quoted[2]);
-        continue;
-      }
-      const unquoted = trimmed.match(/^(\S+)\s+(\S+)(?:\s*\/\/.*)?$/);
-      if (unquoted) {
-        result.set(unquoted[1], unquoted[2]);
-        continue;
-      }
-    }
-    return result;
+    const parsed = parseConfig(text);
+    return new Map(parsed.cvars);
   });
 
   const leftCvars = createMemo(() => new Map(Object.entries(props.config.raw_cvars)));
