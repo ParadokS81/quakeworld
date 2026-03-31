@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "bun test",
-    "extract-fte": "bun run scripts/extract-fte-cvars.ts"
+    "extract-fte": "bun run scripts/extract-fte-cvars.ts",
+    "assemble-qwcl": "bun run scripts/assemble-qwcl.ts"
   },
   "devDependencies": {
     "typescript": "~5.6.2"

@@ -5,6 +5,7 @@ import {
   getEzQuakeVarCount,
 } from "../src/loaders/ezquake.js";
 import { loadFteCvars, getFteCvarCount } from "../src/loaders/fte.js";
+import { loadDatabase, lookupCvar, findEquivalent } from "../src/loaders/index.js";
 
 describe("ezQuake loader", () => {
   test("loads all variables", () => {
@@ -58,5 +59,35 @@ describe("FTE loader", () => {
     const cvars = loadFteCvars();
     const withCategory = Array.from(cvars.values()).filter((c) => c.category !== "Other");
     expect(withCategory.length).toBeGreaterThan(0);
+  });
+});
+
+describe("unified loader", () => {
+  test("loads all three clients", () => {
+    const db = loadDatabase();
+    expect(db.clients.ezquake.size).toBeGreaterThan(2500);
+    expect(db.clients.fte.size).toBeGreaterThan(400);
+    expect(db.clients.qwcl.size).toBeGreaterThan(50);
+  });
+
+  test("generates auto-mappings for shared cvars", () => {
+    const db = loadDatabase();
+    // cl_maxfps is shared across all three clients
+    const maxfpsMapping = db.mappings.find((m) => m.id === "cl_maxfps");
+    expect(maxfpsMapping).toBeDefined();
+    expect(maxfpsMapping!.clients.ezquake).toBe("cl_maxfps");
+    expect(maxfpsMapping!.clients.fte).toBe("cl_maxfps");
+  });
+
+  test("lookupCvar prefers ezQuake descriptions", () => {
+    const info = lookupCvar("sensitivity");
+    expect(info).toBeDefined();
+    expect(info!.client).toBe("ezquake");
+    expect(info!.description).toBeTruthy();
+  });
+
+  test("findEquivalent works for shared cvars", () => {
+    const equiv = findEquivalent("cl_maxfps", "ezquake", "fte");
+    expect(equiv).toBe("cl_maxfps");
   });
 });

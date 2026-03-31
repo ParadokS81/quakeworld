@@ -1,0 +1,1318 @@
+[
+  {
+    "name": "gl_ztrick",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_mode",
+    "default": "0",
+    "description": "This variables sets the next video mode to be used.\nAny change of this variable will cause the video mode to be changed immediately.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "_vid_default_mode",
+    "default": "0",
+    "description": "This variable sets the default video mode that the client uses.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "_vid_default_mode_win",
+    "default": "3",
+    "description": "This variable sets the default video mode that the client uses when windowed.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "vid_wait",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_nopageflip",
+    "default": "0",
+    "description": "This variable toggles the use of page-flipping during supported video modes.\nBy default the game will allow for page-flipping for video modes that support this feature.\nFor example if a given VESA mode can support page flipping, then it defaults to page-flipped operation.\nA VESA mode can be forced to non-page-flipped operation by setting the \"vid_nopageflip\" variable to \"1\", then setting the mode (note that \"vid_nopageflip\" takes operation on the next, not the current video mode, and note that it then stays in effect permanently, even when the client is exited and restarted, unless it is manually set back to \"0\").\nIf there is not enough memory for two pages in a VESA mode, or if the adapter doesn't support page flipping, then the mode will automatically be nnon-page-flipped.\n\nPage-flipping works by drawing multiple virtual game screens at the same time in the video memory and then switching among them to display the current gamescreen. Page-flipped modes thus use less system memory than non-page-flipped modes, but require more video memory.\nWhen using page-flipping, visual quality may be higher, but performance of the game can change to better or worse, depending on the graphics adapter and other hardware (see the discussion of the Pentium Pro below, for a discussion of why page flipping can be faster but is sometimes much slower on that processor). However in most cases the performance (and thus frame rate) will be increased, but for people with hardware that has problems with page-flipping \"vid_nopageflip 1\" may help.\nThe Pentium Pro is an example for such a hardware: it is an okay client platform (sniff!), but it has one weak spot, it is by default very slow on writes to video memory.\nThis means that in default hardware configurations, you are usually much better off setting \"vid_nopageflip\" to \"1\" if you use VESA modes, so drawing is done to system memory instead of to video memory.\nRemember that you must set the mode after setting \"vid_nopageflip\" to \"1\" in order to get \"vid_nopageflip\" to take effect. \"vid_nopageflip 1\" can sometimes be faster on a Pentium too, but not by nearly as much in general, and it's often slower.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "_vid_wait_override",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_config_x",
+    "default": "800",
+    "description": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"640\".",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "vid_config_y",
+    "default": "600",
+    "description": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"400\"",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "vid_stretch_by_2",
+    "default": "1",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "_windowed_mouse",
+    "default": "1",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_nodelta",
+    "default": "0",
+    "description": "Control the network packet delta compression.\nWhen you get blue lines in your netgraph, you should set 'cl_nodelta 1'.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_upspeed",
+    "default": "200",
+    "description": "This allows you to set the speed with which you move up and down in liquids or in spectator mode.\nObviously this is also limited by the server, usually to 320*0.7 = 224 when being in liquid and to 500 in spectator mode.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_forwardspeed",
+    "default": "200",
+    "description": "This allows you to set your forward speed.\nObviously this is also limited by the server, usually to \"320\".",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_backspeed",
+    "default": "200",
+    "description": "This allows you to set your backward speed.\nObviously this is also limited by the server, usually to \"320\".",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_sidespeed",
+    "default": "350",
+    "description": "This allows you to set your strafe speed.\nObviously this is also limited by the server, usually to \"320\".",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_movespeedkey",
+    "default": "2.0",
+    "description": "This variable is the multiplier for how fast you move when running (+speed) in relation to when walking (-speed).",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_yawspeed",
+    "default": "140",
+    "description": "This variable defines how quickly you turn left (+left) or right (+right).",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_pitchspeed",
+    "default": "150",
+    "description": "This variable determines how fast you you turn up/down when using \"+lookup\" and \"+lookdown\".",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_anglespeedkey",
+    "default": "1.5",
+    "description": "This variable sets multiplier by which your \"cl_yawspeed\" (how fast you turn) is multiplied when running (+speed).",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_nopred",
+    "default": "0",
+    "description": "For debugging, disables movement prediction for your character; other players are still predicted.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "pushlatency",
+    "default": "-999",
+    "description": "",
+    "category": "Network",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_draworder",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "screensize",
+    "default": "1",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "sys_linerefresh",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_redrawfull",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_waitforrefresh",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "m_filter",
+    "default": "1",
+    "description": "This variable toggles mouse input filtering.\nWhen set to \"1\", the values which are received from the mouse's input will first be averaged together and then that value will be used in the game.\nThe reason for this command is that some mice had problems with sending sporadic coordinates which make the input from the mouse jerky, also when using a serial or PS/2 mouse, the Windows operating system will only sample mouse input every 25ms, that is 40 times a second (for USB mice the sample rate is 125 Hz, that is every 8 ms).\nWhen set to \"1\" this variable will smooth out the input but it will cause latency between the movement of the mouse and the actual response in the game.\nWhen using a PS/2 mouse it is thus first recommended to try to increase the sampling rate either by changing it via your mouse driver or by using the ps2rate program which can be downloaded at ps2rate homepage.\nIf you are playing the game at frame rates above 40 FPS and if you can't increase the sampling rate of your PS/2 rate or if you are playing with a serial mouse it is recommended that you enable this toggle.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "con_notifytime",
+    "default": "3",
+    "description": "How long console messages stay on screen.",
+    "category": "HUD",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "baseskin",
+    "default": "base",
+    "description": "Defines what skin you see other people using if you don't have their skin and don't have skin forcing on.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "noskins",
+    "default": "0",
+    "description": "",
+    "category": "Multiplayer",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_norefresh",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_drawentities",
+    "default": "1",
+    "description": "This variable can be used to disable that any object entities are drawn.\nThis command is useful to map authors who wish to take a look at their map without drawing any objects such as lifts, buttons, platforms or items.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_drawviewmodel",
+    "default": "1",
+    "description": "Controls transparency level of the currently-held weapon.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_speeds",
+    "default": "0",
+    "description": "Toggles the displaying of drawing time and stats of what is currently being viewed.\nExample:\n32.7 ms 267/196/ 74 poly   3 surf\n38.6 ms 267/196/ 74 poly  20 surf\n60.4 ms 267/196/ 74 poly  18 surf\n38.2 ms 267/196/ 73 poly  18 surf",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_fullbright",
+    "default": "0",
+    "description": "This variable toggles the use of lights at full brightness on the map.\nThis allows map authors to remove all of the lighting effects from the map, effectively removing all shadows.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_lightmap",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_shadows",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_mirroralpha",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_wateralpha",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_dynamic",
+    "default": "1",
+    "description": "Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_novis",
+    "default": "0",
+    "description": "This variable toggles the use of VIS information from the map data.\nWhen this variable is set to \"1\" the game will calculate it's own VIS information on the fly instead of using the information stored in the map data, this will cause a severe performance penalty in the game.\nWhen \"r_novis\" is set to \"1\", the variable \"gl_turbalpha\" has a value lower than \"1\" and the server allows the client to display liquid transparently the player will be able to see through liquids.\nThis is a nice effect to see but it is not recommended to keep this variable set to \"1\" because of the huge performance penalty.\nIt is possible to enable transparent liquids and still keep this variable set to \"0\" (and thus not experience such a severe performance drop) by using maps that are VISed accordingly.\nYou can visit the official Water VIS site at \"http://www.sod.net/\" and download the vispatch program along with the patch data files which you would use to update the VIS data for all of your game maps.\nThere are also map packs available that contain VISed versions of the original ID maps.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_netgraph",
+    "default": "0",
+    "description": "Netgraph is a diagnostic tool to help you tweak your rate.\nIf you find that you suffer from short pauses in the game and you see red spikes in your netgraph, you should try setting the rate down a bit.\nThe height of the pink lines towards the bottom is your latency on received packets.\nRed lines are lost packets. (bad)\nYellow lines are from the rate command kicking in, it's data that wasn't sent to you because you didn't have the bandwidth for it. (OK)\nBlue lines are very bad, they invalid delta's, and are related to the U_REMOVE warnings.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_clear",
+    "default": "0",
+    "description": "Clears the screen with gl_clearcolor between each frame.\nPrevents hall-of-mirrors glitches, e.g. when flying out of the map.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_cull",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_texsort",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_smoothmodels",
+    "default": "1",
+    "description": "Toggles between flat-shaded and smooth shaded models.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_affinemodels",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_polyblend",
+    "default": "1",
+    "description": "Controls a short burst of screen tinting when submerged, taking a powerup, or taking damage.\nVariables to look at are: gl_cshiftpercent (controls overall palette shifting) v_damagechisft v_quadcshift v_pentcshift v_ringcshift v_suitcshift.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_flashblend",
+    "default": "1",
+    "description": "This variable affects when glow bubbles are displayed in the client. You can change the color of the rocket glow by r_rocketLightColor, the color of explosions by r_explosionLightColor, and the color of flag carriers by r_flagColor.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_playermip",
+    "default": "0",
+    "description": "Determines the level of detail of player model textures.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_nocolors",
+    "default": "0",
+    "description": "Enable top/bottom colors on 8-bit .pcx skins.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_keeptjunctions",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_reporttjunctions",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_finish",
+    "default": "0",
+    "description": "Wait until OpenGL has finished working to start rendering the next frame.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joystick",
+    "default": "0",
+    "description": "Enables usage of joystick device.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyname",
+    "default": "joystick",
+    "description": "User-assigned name of the joystick.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvanced",
+    "default": "0",
+    "description": "Enables advanced joystick features.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisx",
+    "default": "0",
+    "description": "Mapping for joystick's X axis.  joyadvanced must be enabled.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisy",
+    "default": "0",
+    "description": "Mapping for joystick's Y axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisz",
+    "default": "0",
+    "description": "Mapping for joystick's Z axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisr",
+    "default": "0",
+    "description": "Mapping for joystick's R axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisu",
+    "default": "0",
+    "description": "Mapping for joystick's U axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyadvaxisv",
+    "default": "0",
+    "description": "Mapping for joystick's V axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyforwardthreshold",
+    "default": "0.15",
+    "description": "Minimum deflection required for forward movement.\nRange [0.0,1.0]",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joysidethreshold",
+    "default": "0.15",
+    "description": "Minimum deflection required for strafing movement.\nRange [0.0,1.0]",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joypitchthreshold",
+    "default": "0.15",
+    "description": "Minimum deflection required for pitching up/down.\nRange [0.0,1.0]",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyyawthreshold",
+    "default": "0.15",
+    "description": "Minimum deflection required for turning left/right.\nRange [0.0,1.0]",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyforwardsensitivity",
+    "default": "-1.0",
+    "description": "Scale multiplier for forward movement.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joysidesensitivity",
+    "default": "-1.0",
+    "description": "Scale multiplier for strafing movement.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joypitchsensitivity",
+    "default": "1.0",
+    "description": "Scale multiplier for pitching up/down.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joyyawsensitivity",
+    "default": "-1.0",
+    "description": "Scale multiplier for turning left/right.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "joywwhack1",
+    "default": "0.0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "joywwhack2",
+    "default": "0.0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_fullscreen_mode",
+    "default": "3",
+    "description": "This variable sets the full screen video mode that the game will switch to when the \"vid_fullscreen\" command is executed.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "vid_windowed_mode",
+    "default": "0",
+    "description": "This variable sets the windowed video mode that the game will switch to when the \"vid_windowed\" command is executed.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "block_switch",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "vid_window_x",
+    "default": "0",
+    "description": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "vid_window_y",
+    "default": "0",
+    "description": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "d_subdiv16",
+    "default": "1",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "d_mipcap",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "d_mipscale",
+    "default": "1",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "lcd_x",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_rollspeed",
+    "default": "200",
+    "description": "This variable controls how quickly you and other players straighten out after strafing.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_rollangle",
+    "default": "2.0",
+    "description": "This variable controls how much your screen tilts when strafing.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_bob",
+    "default": "0.02",
+    "description": "This variable controls how much your weapon moves up and down when walking.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_bobcycle",
+    "default": "0.6",
+    "description": "This variable determines how quickly your weapon moves up and down when walking.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_bobup",
+    "default": "0.5",
+    "description": "This variable controls how long your weapon stays up before cycling when walking.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_kicktime",
+    "default": "0.5",
+    "description": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_kickroll",
+    "default": "0.6",
+    "description": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_kickpitch",
+    "default": "0.6",
+    "description": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_iyaw_cycle",
+    "default": "2",
+    "description": "Sets how quickly you look left and right when v_idlescale is active.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_iroll_cycle",
+    "default": "0.5",
+    "description": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_ipitch_cycle",
+    "default": "1",
+    "description": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_iyaw_level",
+    "default": "0.3",
+    "description": "Sets how far you look left and right when v_idlescale is active.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_iroll_level",
+    "default": "0.1",
+    "description": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_ipitch_level",
+    "default": "0.3",
+    "description": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_idlescale",
+    "default": "0",
+    "description": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "crosshair",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "crosshaircolor",
+    "default": "79",
+    "description": "This variable defines the color of the crosshair.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_crossx",
+    "default": "0",
+    "description": "This variable allows you to move the position of the crosshair on the X-axis by the specified amount of pixels.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_crossy",
+    "default": "0",
+    "description": "This variable allows you to move the position of the crosshair on the Y-axis by the specified amount of pixels.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_cshiftpercent",
+    "default": "100",
+    "description": "This variable sets the percentage value for palette shifting effects (damage flash, powerup blend). (needs gl_polyblend 1).",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_contentblend",
+    "default": "1",
+    "description": "Turning this variable on will temporarily change the hue of your screen when inside liquid (water/slime/lava) (requires gl_polyblend 1)",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_centermove",
+    "default": "0.15",
+    "description": "This variable sets the distance that the player must move before the screen automatically centers itself when \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player nmoves the distance specified in this variable the screen will pop back to the center position.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "v_centerspeed",
+    "default": "500",
+    "description": "This variable sets how quickly your view returns to the center after looking up or down and moving after that and \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player moves the distance specified in this variable the screen will pop back to the center position.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gamma",
+    "default": "1",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "registered",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_nobind",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_max_size",
+    "default": "1024",
+    "description": "This variable determines the detail level for loaded textures.\nWhen set to \"1\", the objects and walls will be textured with 1x1 pixel textures.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "gl_picmip",
+    "default": "0",
+    "description": "Determines the level of detail for world textures.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "showpackets",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "showdrop",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "qport",
+    "default": "0",
+    "description": "Local port the client uses to connect to servers.",
+    "category": "Miscellaneous",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_timegraph",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_zgraph",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_graphheight",
+    "default": "15",
+    "description": "This variable used to set the number of lines displayed in the \"r_timegraph\" command.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_clearcolor",
+    "default": "2",
+    "description": "This variable changes the color of the areas outside the map, commonly seen when free floating as a spectator.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_waterwarp",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_polymodelstats",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_dspeeds",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_drawflat",
+    "default": "0",
+    "description": "Replaces wall/floor textures with a solid color (/r_wallcolor or /r_floorcolor, depending on the angle of the surface).",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_ambient",
+    "default": "0",
+    "description": "This variable controls the amount of ambient lighting on the map.\nWhen this variable is increased the map will become brighter and all walls and objects will be rendered in a lighter color.\nIt was removed in QWCL and has been re-introduced in this client, however it can only be used when the server is running with cheats enabled (for example \"qwsv -cheats\"), because it could be used as a cheat by making it easier to see players in dark corners when no fullbright skins are used.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_reportsurfout",
+    "default": "0",
+    "description": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_maxsurfs",
+    "default": "0",
+    "description": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_numsurfs",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_reportedgeout",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_maxedges",
+    "default": "0",
+    "description": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_numedges",
+    "default": "0",
+    "description": "",
+    "category": "Obsolete",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "r_aliastransbase",
+    "default": "200",
+    "description": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "r_aliastransadj",
+    "default": "100",
+    "description": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
+    "category": "Obsolete",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_hightrack",
+    "default": "0",
+    "description": "Turns auto-tracking player with most frags ON when spectating or watching a demo.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_chasecam",
+    "default": "0",
+    "description": "Toggle between 3rd-person view and 1st-person view while observing or during demo playback.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "viewsize",
+    "default": "100",
+    "description": "This variable determines how large the viewable screen size is.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "fov",
+    "default": "90",
+    "description": "This variable defines your field of vision, which determines how close your vision field is to the objects.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "scr_conspeed",
+    "default": "300",
+    "description": "This variable controls the speed at which the console screen scrolls up and down.",
+    "category": "HUD",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "scr_centertime",
+    "default": "2",
+    "description": "This variable sets the amount of time in seconds that centerprinted messages stay on the screen.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "showram",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "showturtle",
+    "default": "0",
+    "description": "Sets the value at which the turtle icon will be displayed. For example, if showturtle is set to 70, the turtle will appear when the FPS drops to 70 or below.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "showpause",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "scr_printspeed",
+    "default": "8",
+    "description": "",
+    "category": "HUD",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "scr_allowsnap",
+    "default": "1",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "rcon_password",
+    "default": "",
+    "description": "Password used for remote console communication.",
+    "category": "Miscellaneous",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "rcon_address",
+    "default": "",
+    "description": "Address of the server to query with remote console commands.",
+    "category": "Miscellaneous",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_timeout",
+    "default": "60",
+    "description": "This variable defines the timeout value in seconds until the client considers himself to be disconnected from the server.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_shownet",
+    "default": "0",
+    "description": "This variable toggles the display of current net info.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_sbar",
+    "default": "0",
+    "description": "",
+    "category": "HUD",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_hudswap",
+    "default": "0",
+    "description": "",
+    "category": "HUD",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_maxfps",
+    "default": "0",
+    "description": "This variable sets the maximum limit for frames-per-second while in-game. Please see cl_maxfps_menu, vid_vsync, cl_independentphysics, and cl_physfps.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "lookspring",
+    "default": "0",
+    "description": "This variable toggles the centering of the screen after the -klook command.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "lookstrafe",
+    "default": "0",
+    "description": "This variable toggles the automatic strafing when the +klook command is used.\nWhen set to \"1\" and the player used the +klook command, the keys that are bound to the +left and +right commands will now act as if they were bound to +moveleft and +moveright.\nThis command was put it in order to allow keyboard player to combine the +strafe and +klook commands into one.\nThis command also has effect on the mouse controls. When set to \"1\" moving the mouse left and right will make the player move left and right instead of making him turn left and right.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "sensitivity",
+    "default": "3",
+    "description": "This variable sets the sensitivity of the mouse, it is one of the most important variables in the whole game.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "m_pitch",
+    "default": "0.022",
+    "description": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "m_yaw",
+    "default": "0.022",
+    "description": "This variable controls how fast the player turns left and right when the mouse is moved left and right.\nIt is recommended that this variable be left alone and instead the \"sensitivity\" variable is used to change the level of precision.\nIf you set this variable to a negative value you will reverse the mouse movement.\nSome script writers use this variable to increase the level of precision when the \"fov\" variable is used to zoom the screen.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "m_forward",
+    "default": "1",
+    "description": "This variable controls how fast the player should move forward and back when the mouse is moved forward and back.\nThis command has no effect if the +mlook command is in effect because when the mouse is moved forward and back the player looks up and down instead of moving forward and back.\nSome players might want to set this variable to \"0\" if they happen not to use +mlook constantly and they only want to use the mouse to turn the player.\nSetting this variable to \"0\" will prevent the inadvertent movement of the player forward and back while trying to make precise turns with the mouse.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "m_side",
+    "default": "0.8",
+    "description": "When the +strafe command is active or when \"lookspring\" is set to \"1\" this variable is used to control the sensitivity when the mouse is moved left and right to make the player move left and right.",
+    "category": "Input",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "entlatency",
+    "default": "20",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_predict_players",
+    "default": "1",
+    "description": "This toggles the prediction for other players' movement. Unless you are having problems this variable should be left at \"1\".",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_predict_players2",
+    "default": "1",
+    "description": "",
+    "category": "Client",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "cl_solid_players",
+    "default": "1",
+    "description": "If not set then client will not perform collision detection against other players.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "localid",
+    "default": "",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "password",
+    "default": "",
+    "description": "Password players have to use to connect to local server.",
+    "category": "Server",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "spectator",
+    "default": "",
+    "description": "",
+    "category": "Multiplayer",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "name",
+    "default": "unnamed",
+    "description": "Player's name.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "team",
+    "default": "",
+    "description": "Set the team name.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "skin",
+    "default": "",
+    "description": "Sets the skin name for the player.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "topcolor",
+    "default": "0",
+    "description": "Sets the shirt color.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "bottomcolor",
+    "default": "0",
+    "description": "Sets the pants color.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "rate",
+    "default": "2500",
+    "description": "Sets the maximum amount of bytes per second that the server should send to the client.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "noaim",
+    "default": "0",
+    "description": "This variable toggles whether a server-sided aiming-help should be used when shooting rockets (not possible when the server variable \"sv_aim\" is set to \"0\").",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "msg",
+    "default": "1",
+    "description": "",
+    "category": "Multiplayer",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "host_speeds",
+    "default": "0",
+    "description": "",
+    "category": "System",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "show_fps",
+    "default": "0",
+    "description": "",
+    "category": "Graphics",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "developer",
+    "default": "0",
+    "description": "Enables debug mode which prints more messages into the console than for normal user.",
+    "category": "Miscellaneous",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "bgmvolume",
+    "default": "1",
+    "description": "This variable sets the volume of the CD music.",
+    "category": "Sound",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "volume",
+    "default": "0.7",
+    "description": "Sets sound volume.",
+    "category": "Sound",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "nosound",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "precache",
+    "default": "1",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "loadas8bit",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "bgmbuffer",
+    "default": "4096",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "ambient_level",
+    "default": "0.3",
+    "description": "",
+    "category": "Sound",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "ambient_fade",
+    "default": "100",
+    "description": "",
+    "category": "Sound",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "snd_noextraupdate",
+    "default": "0",
+    "description": "",
+    "category": "Sound",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "snd_show",
+    "default": "0",
+    "description": "",
+    "category": "Sound",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "_snd_mixahead",
+    "default": "0.1",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_subdivide_size",
+    "default": "128",
+    "description": "This variable sets the division value for the sky brushes.\nThe higher the value the better the performance, but the smoothness of the sky suffers.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  },
+  {
+    "name": "cl_warncmd",
+    "default": "0",
+    "description": "",
+    "category": "Miscellaneous",
+    "descriptionSource": "none"
+  },
+  {
+    "name": "gl_triplebuffer",
+    "default": "1",
+    "description": "Triple buffering of HUD graphics. If you have problems with screen graphics, turn this on.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake"
+  }
+]
