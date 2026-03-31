@@ -10,6 +10,7 @@ import ToolsTab from "./components/ToolsTab";
 import ClientsTab from "./components/ClientsTab";
 import ScheduleTab from "./components/ScheduleTab";
 import SettingsTab from "./components/SettingsTab";
+import MyQuakeTab from "./components/MyQuakeTab";
 
 function App() {
   const [activeTab, setActiveTab] = createSignal("profile");
@@ -154,6 +155,13 @@ function App() {
                 onConfigLoaded={handleConfigLoaded}
                 monitor={monitor()}
                 profile={profile()}
+              />
+            </Match>
+            <Match when={activeTab() === "myquake"}>
+              <MyQuakeTab
+                config={ezConfig()}
+                exePath={profile() ? getPrimarySetup(profile()!).client.exe_path ?? null : null}
+                configName={profile() ? getPrimarySetup(profile()!).client.config_name ?? null : null}
               />
             </Match>
             <Match when={activeTab() === "settings"}>

@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { Calendar, User, Wrench, Monitor, Settings } from "lucide-solid";
+import { Calendar, User, Wrench, Monitor, FolderOpen, Settings } from "lucide-solid";
 import type { JSX } from "solid-js";
 
 interface NavItem {
@@ -13,6 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "profile", label: "Profile", icon: User },
   { id: "tools", label: "Tools", icon: Wrench },
   { id: "clients", label: "Clients", icon: Monitor },
+  { id: "myquake", label: "My Quake", icon: FolderOpen },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
