@@ -1,0 +1,15 @@
+{
+  "description": "Manual cross-client cvar mappings for cvars with different names but equivalent function. Auto-mappings (same name) are generated at runtime.",
+  "mappings": [
+    {
+      "id": "centerprint_time",
+      "note": "Duration for center screen messages",
+      "clients": { "ezquake": "scr_centertime", "fte": "con_centertime" }
+    },
+    {
+      "id": "lerp_frames",
+      "note": "Animation frame interpolation",
+      "clients": { "ezquake": "r_lerpframes", "fte": "r_lerpmove" }
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import type { CvarInfo, CvarDatabase, CvarMapping, CategoryGroup, ClientId } fro
 import { loadEzQuakeCvars, getEzQuakeCategories } from "./ezquake.js";
 import { loadFteCvars } from "./fte.js";
 import { loadQwclCvars } from "./qwcl.js";
+import manualMappingsData from "../data/mappings.json" with { type: "json" };
 
 // ── Module-level cache ─────────────────────────────────────────────────────
 
@@ -47,6 +48,31 @@ function generateAutoMappings(
   }
 
   return mappings;
+}
+
+// ── Manual mapping merge ───────────────────────────────────────────────────
+
+/**
+ * Merge manual mappings from mappings.json into the auto-generated set.
+ * Manual mappings are added only if their ID is not already present
+ * (auto-mappings cover same-name cvars; manual ones cover different-name equivalents).
+ */
+function mergeManualMappings(autoMappings: CvarMapping[]): CvarMapping[] {
+  const merged = [...autoMappings];
+  const existingIds = new Set(autoMappings.map((m) => m.id));
+
+  for (const entry of manualMappingsData.mappings) {
+    if (existingIds.has(entry.id)) continue;
+
+    const mapping: CvarMapping = {
+      id: entry.id,
+      clients: entry.clients as Partial<Record<ClientId, string>>,
+      note: entry.note,
+    };
+    merged.push(mapping);
+  }
+
+  return merged;
 }
 
 // ── Category aggregation ───────────────────────────────────────────────────
@@ -96,7 +122,8 @@ export function loadDatabase(): CvarDatabase {
     qwcl,
   };
 
-  const mappings = generateAutoMappings(clients);
+  const autoMappings = generateAutoMappings(clients);
+  const mappings = mergeManualMappings(autoMappings);
 
   const ezCategories = getEzQuakeCategories();
   const fteCategories = Array.from(new Set(Array.from(fte.values()).map((c) => c.category)));
