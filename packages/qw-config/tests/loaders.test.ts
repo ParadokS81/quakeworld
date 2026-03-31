@@ -4,6 +4,7 @@ import {
   getEzQuakeCategories,
   getEzQuakeVarCount,
 } from "../src/loaders/ezquake.js";
+import { loadFteCvars, getFteCvarCount } from "../src/loaders/fte.js";
 
 describe("ezQuake loader", () => {
   test("loads all variables", () => {
@@ -38,5 +39,24 @@ describe("ezQuake loader", () => {
 
   test("var count matches", () => {
     expect(getEzQuakeVarCount()).toBeGreaterThan(2500);
+  });
+});
+
+describe("FTE loader", () => {
+  test("loads variables", () => {
+    const cvars = loadFteCvars();
+    expect(cvars.size).toBeGreaterThan(400);
+  });
+
+  test("cvars have descriptions", () => {
+    const cvars = loadFteCvars();
+    const withDesc = Array.from(cvars.values()).filter((c) => c.description.length > 0);
+    expect(withDesc.length / cvars.size).toBeGreaterThan(0.9);
+  });
+
+  test("cvars have categories", () => {
+    const cvars = loadFteCvars();
+    const withCategory = Array.from(cvars.values()).filter((c) => c.category !== "Other");
+    expect(withCategory.length).toBeGreaterThan(0);
   });
 });
