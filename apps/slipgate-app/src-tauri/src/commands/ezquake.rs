@@ -43,6 +43,106 @@ struct ParsedConfig {
     exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
 }
 
+// ============================================================
+// Config chain discovery
+// ============================================================
+
+#[derive(Serialize, Clone, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum ConfigSource {
+    Primary,
+    Exec,
+    AutoExec,
+    ClOnload,
+    BoundExec,
+    AliasExec,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct ExecReference {
+    pub file: String,
+    pub context: String,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct ConfigFile {
+    pub name: String,
+    pub relative_path: String,
+    pub source: ConfigSource,
+    pub referenced_by: Option<ExecReference>,
+    pub cvars: HashMap<String, String>,
+    pub binds: Vec<(String, String)>,
+    pub aliases: HashMap<String, String>,
+    pub exec_refs: Vec<String>,
+    pub line_count: u32,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct UnresolvedExec {
+    pub raw_ref: String,
+    pub referenced_by: ExecReference,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct OtherConfig {
+    pub name: String,
+    pub relative_path: String,
+    pub size_bytes: u64,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct ConfigChain {
+    pub files: Vec<ConfigFile>,
+    pub unresolved: Vec<UnresolvedExec>,
+    pub other_cfgs: Vec<OtherConfig>,
+}
+
+/// Extract exec file references from a command string.
+/// Handles semicolon-separated commands like "echo loading; exec tp.cfg; exec msg.cfg".
+fn extract_exec_refs(command: &str) -> Vec<String> {
+    let mut refs = Vec::new();
+    for segment in command.split(';') {
+        let trimmed = segment.trim();
+        if let Some(rest) = trimmed.strip_prefix("exec ").or_else(|| trimmed.strip_prefix("exec\t")) {
+            let path = rest.trim().trim_matches('"');
+            if !path.is_empty() {
+                refs.push(path.to_string());
+            }
+        }
+    }
+    refs
+}
+
+/// Check if an exec reference contains variable substitution (unresolvable).
+fn is_dynamic_ref(exec_ref: &str) -> bool {
+    exec_ref.contains('$') || exec_ref.contains('%')
+}
+
+/// Resolve an exec reference to an actual file path.
+/// Tries multiple candidate locations (same strategy as read_ezquake_config).
+/// Returns the canonical path and the path relative to game_dir, or None if not found.
+fn resolve_exec_path(exec_ref: &str, game_dir: &Path, cfg_dir: &Path) -> Option<(PathBuf, String)> {
+    let candidates = [
+        game_dir.join(exec_ref),
+        cfg_dir.join(exec_ref),
+        game_dir.join(exec_ref.trim_start_matches("configs/")),
+    ];
+    for candidate in &candidates {
+        if candidate.exists() && candidate.is_file() {
+            if let (Ok(canonical), Ok(game_canonical)) = (candidate.canonicalize(), game_dir.canonicalize()) {
+                if canonical.starts_with(&game_canonical) {
+                    let rel = canonical.strip_prefix(&game_canonical)
+                        .unwrap_or(&canonical)
+                        .to_string_lossy()
+                        .replace('\\', "/");
+                    return Some((canonical, rel));
+                }
+            }
+        }
+    }
+    None
+}
+
 /// Parse an ezQuake config file into cvars and key bindings.
 fn parse_config(content: &str) -> ParsedConfig {
     let mut cvars = HashMap::new();
