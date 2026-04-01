@@ -1676,8 +1676,18 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
     seen.insert(canonical);
 
     let primary_rel = format!("configs/{}", config_name);
-    let primary_exec_refs = parsed.exec_refs.clone();
     let cl_onload = parsed.cvars.get("cl_onload").cloned();
+
+    // parse_config appends cl_onload exec refs into exec_refs — separate them
+    // so Phase 2 only walks top-level execs and Phase 4 handles cl_onload independently.
+    let cl_onload_refs: Vec<String> = cl_onload.as_ref()
+        .map(|v| extract_exec_refs(v))
+        .unwrap_or_default();
+    let cl_onload_set: std::collections::HashSet<&str> = cl_onload_refs.iter().map(|s| s.as_str()).collect();
+    let top_level_exec_refs: Vec<String> = parsed.exec_refs.iter()
+        .filter(|r| !cl_onload_set.contains(r.as_str()))
+        .cloned()
+        .collect();
 
     chain.push(ConfigFile {
         name: config_name.clone(),
@@ -1687,13 +1697,13 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
         cvars: parsed.cvars,
         binds: parsed.bindings,
         aliases: parsed.aliases,
-        exec_refs: parsed.exec_refs,
+        exec_refs: top_level_exec_refs.clone(),
         line_count,
     });
 
-    // Phase 2: Follow inline exec refs from primary config
+    // Phase 2: Follow inline exec refs from primary config (excludes cl_onload refs)
     walk_exec_refs(
-        &primary_exec_refs,
+        &top_level_exec_refs,
         ConfigSource::Exec,
         &primary_rel,
         "exec",
