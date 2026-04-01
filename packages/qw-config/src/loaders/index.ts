@@ -149,12 +149,20 @@ export function lookupCvar(name: string, client?: ClientId): CvarInfo | undefine
 
   // Preference order: ezquake (richest descriptions), fte, qwcl
   const preferenceOrder: ClientId[] = ["ezquake", "fte", "qwcl"];
+  let best: CvarInfo | undefined;
   for (const clientId of preferenceOrder) {
     const info = db.clients[clientId].get(name);
-    if (info) return info;
+    if (!info) continue;
+    if (!best) {
+      best = info;
+    } else if (best.default === undefined && info.default !== undefined) {
+      // Enrich the preferred entry with the default from another client
+      // (e.g. ezQuake hud_* cvars lack defaults, but FTE ezhud plugin has them)
+      best = { ...best, default: info.default };
+    }
   }
 
-  return undefined;
+  return best;
 }
 
 // ── Exported: findEquivalent ───────────────────────────────────────────────
