@@ -1648,6 +1648,243 @@ pub fn read_ezquake_config(exe_path: String, config_name: String) -> Result<EzQu
     Ok(build_config(parsed))
 }
 
+/// Discover and return the full config file chain starting from a primary config.
+#[tauri::command]
+pub fn read_config_chain(exe_path: String, config_name: String) -> Result<ConfigChain, String> {
+    let path = PathBuf::from(&exe_path);
+    let cfg_dir = config_dir_from_exe(&path);
+    let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
+
+    let primary_path = cfg_dir.join(&config_name);
+    if !primary_path.exists() {
+        return Err(format!("Config file not found: {}", primary_path.display()));
+    }
+
+    let mut chain: Vec<ConfigFile> = Vec::new();
+    let mut unresolved: Vec<UnresolvedExec> = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+
+    // Phase 1: Parse primary config
+    let content = std::fs::read(&primary_path)
+        .map_err(|e| format!("Failed to read {}: {}", config_name, e))?;
+    let content = String::from_utf8_lossy(&content).to_string();
+    let parsed = parse_config(&content);
+    let line_count = content.lines().count() as u32;
+
+    let canonical = primary_path.canonicalize()
+        .unwrap_or_else(|_| primary_path.clone());
+    seen.insert(canonical);
+
+    let primary_rel = format!("configs/{}", config_name);
+    let primary_exec_refs = parsed.exec_refs.clone();
+    let cl_onload = parsed.cvars.get("cl_onload").cloned();
+
+    chain.push(ConfigFile {
+        name: config_name.clone(),
+        relative_path: primary_rel.clone(),
+        source: ConfigSource::Primary,
+        referenced_by: None,
+        cvars: parsed.cvars,
+        binds: parsed.bindings,
+        aliases: parsed.aliases,
+        exec_refs: parsed.exec_refs,
+        line_count,
+    });
+
+    // Phase 2: Follow inline exec refs from primary config
+    walk_exec_refs(
+        &primary_exec_refs,
+        ConfigSource::Exec,
+        &primary_rel,
+        "exec",
+        &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+    );
+
+    // Phase 3: Check for autoexec.cfg
+    let autoexec_path = game_dir.join("autoexec.cfg");
+    if autoexec_path.exists() {
+        let canonical = autoexec_path.canonicalize().unwrap_or_else(|_| autoexec_path.clone());
+        if !seen.contains(&canonical) {
+            seen.insert(canonical);
+            if let Ok(bytes) = std::fs::read(&autoexec_path) {
+                let content = String::from_utf8_lossy(&bytes).to_string();
+                let parsed = parse_config(&content);
+                let line_count = content.lines().count() as u32;
+                let autoexec_refs = parsed.exec_refs.clone();
+
+                chain.push(ConfigFile {
+                    name: "autoexec.cfg".to_string(),
+                    relative_path: "autoexec.cfg".to_string(),
+                    source: ConfigSource::AutoExec,
+                    referenced_by: Some(ExecReference {
+                        file: primary_rel.clone(),
+                        context: "engine (loaded after config.cfg)".to_string(),
+                    }),
+                    cvars: parsed.cvars,
+                    binds: parsed.bindings,
+                    aliases: parsed.aliases,
+                    exec_refs: parsed.exec_refs,
+                    line_count,
+                });
+
+                walk_exec_refs(
+                    &autoexec_refs,
+                    ConfigSource::Exec,
+                    "autoexec.cfg",
+                    "exec",
+                    &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+                );
+            }
+        }
+    }
+
+    // Phase 4: Follow cl_onload exec refs
+    if let Some(onload) = cl_onload {
+        let onload_refs = extract_exec_refs(&onload);
+        walk_exec_refs(
+            &onload_refs,
+            ConfigSource::ClOnload,
+            &primary_rel,
+            "cl_onload",
+            &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+        );
+    }
+
+    // Phase 5: Scan binds and aliases in ALL chain files for exec refs
+    let mut bound_refs: Vec<(String, String, String)> = Vec::new();
+    for file in &chain {
+        for (key, cmd) in &file.binds {
+            for exec_ref in extract_exec_refs(cmd) {
+                bound_refs.push((exec_ref, file.relative_path.clone(), format!("bind {}", key)));
+            }
+        }
+        for (alias_name, cmd) in &file.aliases {
+            for exec_ref in extract_exec_refs(cmd) {
+                bound_refs.push((exec_ref, file.relative_path.clone(), format!("alias {}", alias_name)));
+            }
+        }
+    }
+
+    for (exec_ref, parent_file, context) in &bound_refs {
+        if is_dynamic_ref(exec_ref) {
+            unresolved.push(UnresolvedExec {
+                raw_ref: exec_ref.clone(),
+                referenced_by: ExecReference {
+                    file: parent_file.clone(),
+                    context: context.clone(),
+                },
+            });
+            continue;
+        }
+
+        if let Some((canonical, rel_path)) = resolve_exec_path(exec_ref, &game_dir, &cfg_dir) {
+            if seen.contains(&canonical) {
+                continue;
+            }
+            seen.insert(canonical.clone());
+
+            if let Ok(bytes) = std::fs::read(&canonical) {
+                let content = String::from_utf8_lossy(&bytes).to_string();
+                let parsed = parse_config(&content);
+                let lc = content.lines().count() as u32;
+                let name = canonical.file_name()
+                    .unwrap_or_default().to_string_lossy().to_string();
+
+                let source = if context.starts_with("bind") {
+                    ConfigSource::BoundExec
+                } else {
+                    ConfigSource::AliasExec
+                };
+
+                let sub_refs = parsed.exec_refs.clone();
+
+                chain.push(ConfigFile {
+                    name,
+                    relative_path: rel_path.clone(),
+                    source,
+                    referenced_by: Some(ExecReference {
+                        file: parent_file.clone(),
+                        context: context.clone(),
+                    }),
+                    cvars: parsed.cvars,
+                    binds: parsed.bindings,
+                    aliases: parsed.aliases,
+                    exec_refs: parsed.exec_refs,
+                    line_count: lc,
+                });
+
+                walk_exec_refs(
+                    &sub_refs,
+                    ConfigSource::Exec,
+                    &rel_path,
+                    "exec",
+                    &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+                );
+            }
+        }
+    }
+
+    // Phase 6: Collect other .cfg files not in the chain
+    let mut other_cfgs: Vec<OtherConfig> = Vec::new();
+    let scan_dirs = [cfg_dir.clone(), game_dir.clone()];
+    for dir in &scan_dirs {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_file() && path.extension().map_or(false, |ext| ext == "cfg") {
+                    if let Ok(canonical) = path.canonicalize() {
+                        if !seen.contains(&canonical) {
+                            seen.insert(canonical);
+                            let name = path.file_name()
+                                .unwrap_or_default().to_string_lossy().to_string();
+                            let rel = path.strip_prefix(&game_dir)
+                                .unwrap_or(&path)
+                                .to_string_lossy()
+                                .replace('\\', "/");
+                            let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
+                            other_cfgs.push(OtherConfig {
+                                name,
+                                relative_path: rel,
+                                size_bytes: size,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    other_cfgs.sort_by(|a, b| a.name.cmp(&b.name));
+
+    // Debug output
+    println!("\n=== CONFIG CHAIN ({} files) ===", chain.len());
+    for (i, f) in chain.iter().enumerate() {
+        let ref_str = match &f.referenced_by {
+            Some(r) => format!(" <- {} ({})", r.file, r.context),
+            None => String::new(),
+        };
+        println!("  {}. [{:?}] {} - {} cvars, {} binds, {} aliases{}",
+            i + 1,
+            f.source,
+            f.relative_path,
+            f.cvars.len(),
+            f.binds.len(),
+            f.aliases.len(),
+            ref_str,
+        );
+    }
+    if !unresolved.is_empty() {
+        println!("  Unresolved: {:?}", unresolved.iter().map(|u| &u.raw_ref).collect::<Vec<_>>());
+    }
+    println!("  Other cfgs: {}", other_cfgs.len());
+
+    Ok(ConfigChain {
+        files: chain,
+        unresolved,
+        other_cfgs,
+    })
+}
+
 /// Launch ezQuake with optional parameters.
 #[derive(Deserialize)]
 pub struct LaunchOptions {
