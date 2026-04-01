@@ -189,3 +189,47 @@ export interface UpdateResult {
   backup_path: string | null;
   error: string | null;
 }
+
+// ── Config chain discovery ────────────────────────────────────────────────
+
+export type ConfigSource =
+  | "primary"
+  | "exec"
+  | "auto_exec"
+  | "cl_onload"
+  | "bound_exec"
+  | "alias_exec";
+
+export interface ExecReference {
+  file: string;
+  context: string;
+}
+
+export interface ConfigFile {
+  name: string;
+  relative_path: string;
+  source: ConfigSource;
+  referenced_by: ExecReference | null;
+  cvars: Record<string, string>;
+  binds: [string, string][];
+  aliases: Record<string, string>;
+  exec_refs: string[];
+  line_count: number;
+}
+
+export interface UnresolvedExec {
+  raw_ref: string;
+  referenced_by: ExecReference;
+}
+
+export interface OtherConfig {
+  name: string;
+  relative_path: string;
+  size_bytes: number;
+}
+
+export interface ConfigChain {
+  files: ConfigFile[];
+  unresolved: UnresolvedExec[];
+  other_cfgs: OtherConfig[];
+}
