@@ -143,6 +143,82 @@ fn resolve_exec_path(exec_ref: &str, game_dir: &Path, cfg_dir: &Path) -> Option<
     None
 }
 
+/// Recursively discover and parse config files starting from exec refs.
+/// Adds discovered files to `chain` and tracks seen paths to prevent cycles.
+fn walk_exec_refs(
+    exec_refs: &[String],
+    source: ConfigSource,
+    parent_file: &str,
+    context_prefix: &str,
+    game_dir: &Path,
+    cfg_dir: &Path,
+    seen: &mut std::collections::HashSet<PathBuf>,
+    chain: &mut Vec<ConfigFile>,
+    unresolved: &mut Vec<UnresolvedExec>,
+) {
+    for exec_ref in exec_refs {
+        if is_dynamic_ref(exec_ref) {
+            unresolved.push(UnresolvedExec {
+                raw_ref: exec_ref.clone(),
+                referenced_by: ExecReference {
+                    file: parent_file.to_string(),
+                    context: context_prefix.to_string(),
+                },
+            });
+            continue;
+        }
+
+        let resolved = resolve_exec_path(exec_ref, game_dir, cfg_dir);
+        let (canonical, rel_path) = match resolved {
+            Some(r) => r,
+            None => continue,
+        };
+
+        if seen.contains(&canonical) {
+            continue;
+        }
+        seen.insert(canonical.clone());
+
+        let content = match std::fs::read(&canonical) {
+            Ok(bytes) => String::from_utf8_lossy(&bytes).to_string(),
+            Err(_) => continue,
+        };
+
+        let parsed = parse_config(&content);
+        let line_count = content.lines().count() as u32;
+        let name = canonical.file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+
+        let exec_refs_clone = parsed.exec_refs.clone();
+
+        chain.push(ConfigFile {
+            name,
+            relative_path: rel_path.clone(),
+            source: source.clone(),
+            referenced_by: Some(ExecReference {
+                file: parent_file.to_string(),
+                context: context_prefix.to_string(),
+            }),
+            cvars: parsed.cvars,
+            binds: parsed.bindings,
+            aliases: parsed.aliases,
+            exec_refs: parsed.exec_refs,
+            line_count,
+        });
+
+        // Recurse into this file's own exec refs
+        walk_exec_refs(
+            &exec_refs_clone,
+            ConfigSource::Exec,
+            &rel_path,
+            "exec",
+            game_dir, cfg_dir, seen, chain, unresolved,
+        );
+    }
+}
+
 /// Parse an ezQuake config file into cvars and key bindings.
 fn parse_config(content: &str) -> ParsedConfig {
     let mut cvars = HashMap::new();
