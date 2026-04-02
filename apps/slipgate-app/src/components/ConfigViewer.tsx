@@ -1,6 +1,5 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
 import { lookupCvar, parseConfig } from "qw-config";
-import type { CvarInfo } from "qw-config";
 import type { EzQuakeConfig } from "../types";
 import CvarRow from "./CvarRow";
 import CvarTooltip from "./CvarTooltip";
@@ -31,17 +30,15 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // Tooltip hover state
   const [hoveredCvar, setHoveredCvar] = createSignal<string | null>(null);
-  const [tooltipTarget, setTooltipTarget] = createSignal<HTMLElement | null>(null);
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
   onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
 
-  function handleMouseEnter(name: string, e: MouseEvent) {
+  function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
     if (hoverTimer) clearTimeout(hoverTimer);
     hoverTimer = setTimeout(() => {
       setHoveredCvar(name);
-      setTooltipTarget(e.currentTarget as HTMLElement);
     }, 200);
   }
 
@@ -49,7 +46,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     if (hoverTimer) clearTimeout(hoverTimer);
     hoverTimer = null;
     setHoveredCvar(null);
-    setTooltipTarget(null);
   }
 
   // Compare config parsing
@@ -206,7 +202,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   function toggleCvar(name: string) {
     setExpandedCvar(prev => prev === name ? null : name);
     setHoveredCvar(null);
-    setTooltipTarget(null);
   }
 
   function startCompare() {
