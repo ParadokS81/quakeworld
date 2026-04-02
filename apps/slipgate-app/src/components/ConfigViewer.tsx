@@ -27,7 +27,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const enrichedCvars = createMemo(() => {
     if (!props.config) return [];
     return Object.entries(props.config.raw_cvars).map(([name, value]) => {
-      const info = lookupCvar(name, "ezquake");
+      const info = lookupCvar(name);
       return { name, value, info };
     });
   });

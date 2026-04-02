@@ -39,7 +39,7 @@ export default function ConfigCompare(props: ConfigCompareProps) {
   const allRows = createMemo((): CompareRow[] => {
     const keys = new Set([...leftCvars().keys(), ...rightCvars().keys()]);
     return Array.from(keys).sort().map(name => {
-      const info = lookupCvar(name, "ezquake");
+      const info = lookupCvar(name);
       return {
         name,
         leftValue: leftCvars().get(name),
@@ -73,7 +73,7 @@ export default function ConfigCompare(props: ConfigCompareProps) {
       }
       // Hide defaults
       if (hideDefaults()) {
-        const info = lookupCvar(row.name, "ezquake");
+        const info = lookupCvar(row.name);
         if (info?.default !== undefined) {
           const leftIsDefault = row.leftValue === info.default || row.leftValue === undefined;
           const rightIsDefault = row.rightValue === info.default || row.rightValue === undefined;
