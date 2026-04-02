@@ -8,6 +8,8 @@ interface CvarRowProps {
   info: CvarInfo | undefined;
   isExpanded: boolean;
   isCompareMode: boolean;
+  isObsolete?: boolean;
+  isUnknown?: boolean;
   onToggle: () => void;
   onMouseEnter: (e: MouseEvent) => void;
   onMouseLeave: () => void;
@@ -49,14 +51,24 @@ export default function CvarRow(props: CvarRowProps) {
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
     >
-      {/* Cvar name */}
+      {/* Cvar name + status badges */}
       <span
-        class={`px-4 py-1.5 font-mono truncate ${
-          isChanged() ? "text-[var(--color-primary)]" : "text-[var(--sg-text-dim)]"
+        class={`px-4 py-1.5 font-mono truncate flex items-center gap-1.5 ${
+          props.isObsolete
+            ? "text-[var(--sg-section-label)] line-through"
+            : isChanged()
+              ? "text-[var(--color-primary)]"
+              : "text-[var(--sg-text-dim)]"
         }`}
         title={props.name}
       >
         {props.name}
+        <Show when={props.isObsolete}>
+          <span class="badge badge-warning text-[9px] h-3.5 px-1 flex-shrink-0 no-underline" style={{ "text-decoration": "none" }}>obsolete</span>
+        </Show>
+        <Show when={props.isUnknown}>
+          <span class="badge badge-ghost text-[9px] h-3.5 px-1 flex-shrink-0">custom</span>
+        </Show>
       </span>
 
       {/* Your value */}

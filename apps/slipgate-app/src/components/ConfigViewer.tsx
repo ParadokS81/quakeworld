@@ -76,31 +76,41 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const isCompareMode = () => compareActive() && compareCvars().size > 0;
 
   // Build complete cvar list: start from full database, overlay user's config values
+  // Obsolete cvars are excluded from the database baseline but shown if the user has them set
   const enrichedCvars = createMemo(() => {
     if (!props.config) return [];
     const db = loadDatabase();
-    const allDbNames = Array.from(db.clients.ezquake.keys());
     const userCvars = props.config.raw_cvars;
     const cmpMode = isCompareMode();
     const cmpMap = compareCvars();
 
-    // Union of database cvars + any user/compare cvars not in database (custom set vars, etc.)
-    const extraUserKeys = Object.keys(userCvars).filter(k => !db.clients.ezquake.has(k));
+    // Database cvars: exclude obsolete (they'll be added back if user has them)
+    const dbNames = Array.from(db.clients.ezquake.entries())
+      .filter(([_, info]) => info.category !== "Obsolete")
+      .map(([name]) => name);
+
+    // User/compare cvars not in the filtered database list
+    const dbNameSet = new Set(dbNames);
+    const extraUserKeys = Object.keys(userCvars).filter(k => !dbNameSet.has(k));
     const extraCompareKeys = cmpMode
-      ? Array.from(cmpMap.keys()).filter(k => !db.clients.ezquake.has(k) && !(k in userCvars))
+      ? Array.from(cmpMap.keys()).filter(k => !dbNameSet.has(k) && !(k in userCvars))
       : [];
-    const allKeys = [...allDbNames, ...extraUserKeys, ...extraCompareKeys].sort();
+    const allKeys = [...dbNames, ...extraUserKeys, ...extraCompareKeys].sort();
 
     return allKeys.map((name) => {
       const info = lookupCvar(name);
       const userValue = userCvars[name];
       const hasLeft = userValue !== undefined;
-      // Use user's value if set, otherwise fall back to documented default
       const value = userValue ?? info?.default ?? "";
       const compareValue = cmpMode ? cmpMap.get(name) : undefined;
       const leftIsDefault = isDefaultValue(value, info?.default);
       const rightIsDefault = isDefaultValue(compareValue, info?.default);
-      return { name, value, info, hasLeft, compareValue, leftIsDefault, rightIsDefault };
+
+      // Determine special status
+      const isObsolete = info?.category === "Obsolete";
+      const isUnknown = !info;
+
+      return { name, value, info, hasLeft, compareValue, leftIsDefault, rightIsDefault, isObsolete, isUnknown };
     });
   });
 
@@ -490,6 +500,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       info={cvar.info}
                       isExpanded={expandedCvar() === cvar.name}
                       isCompareMode={isCompareMode()}
+                      isObsolete={cvar.isObsolete}
+                      isUnknown={cvar.isUnknown}
                       onToggle={() => toggleCvar(cvar.name)}
                       onMouseEnter={(e) => handleMouseEnter(cvar.name, e)}
                       onMouseLeave={handleMouseLeave}
