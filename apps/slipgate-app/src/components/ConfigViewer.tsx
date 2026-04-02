@@ -16,7 +16,7 @@ type ViewMode = "list" | "compare" | "convert";
 
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
-  const [activeCategory, setActiveCategory] = createSignal<string>("All");
+  const [activeCategories, setActiveCategories] = createSignal<Set<string>>(new Set(["__all__"]));
   const [hideDefaults, setHideDefaults] = createSignal(false);
   const [search, setSearch] = createSignal("");
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
@@ -43,15 +43,59 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
   });
 
+  const allCategoryNames = createMemo(() => categories().map(([cat]) => cat));
+
+  const isAllSelected = createMemo(() => {
+    const active = activeCategories();
+    return active.has("__all__") || allCategoryNames().every(c => active.has(c));
+  });
+
+  function toggleCategory(cat: string) {
+    setActiveCategories(prev => {
+      const next = new Set(prev);
+
+      // If "all" is active, switch to "all except this one"
+      if (next.has("__all__")) {
+        next.delete("__all__");
+        for (const c of allCategoryNames()) next.add(c);
+        next.delete(cat);
+        return next;
+      }
+
+      if (next.has(cat)) {
+        next.delete(cat);
+      } else {
+        next.add(cat);
+        // If all individual categories are now selected, set __all__
+        if (allCategoryNames().every(c => next.has(c))) {
+          next.add("__all__");
+        }
+      }
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (isAllSelected()) {
+      setActiveCategories(new Set<string>());
+    } else {
+      setActiveCategories(new Set<string>(["__all__"]));
+    }
+  }
+
   // Filtered cvar list
   const filteredCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
+    const active = activeCategories();
+    const showAll = active.has("__all__");
     return enrichedCvars().filter(({ name, value, info }) => {
-      // Category filter
-      if (activeCategory() !== "All") {
+      // Category filter (multi-select)
+      if (!showAll && active.size > 0) {
         const cat = info?.category ?? "Unknown";
-        if (cat !== activeCategory()) return false;
+        if (!active.has(cat)) return false;
       }
+      // If nothing selected, show nothing
+      if (active.size === 0) return false;
       // Hide defaults
       if (hideDefaults()) {
         if (info?.default !== undefined && value === info.default) return false;
@@ -182,14 +226,14 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
           {/* ── Filter bar ── */}
           <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 overflow-x-auto">
-            {/* Category pills */}
+            {/* Category pills (multi-select toggles) */}
             <button
               class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-                activeCategory() === "All"
+                isAllSelected()
                   ? "badge-primary"
                   : "badge-ghost hover:badge-outline"
               }`}
-              onClick={() => setActiveCategory("All")}
+              onClick={toggleAll}
             >
               All ({enrichedCvars().length})
             </button>
@@ -197,11 +241,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               {([cat, count]) => (
                 <button
                   class={`badge cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors ${
-                    activeCategory() === cat
+                    activeCategories().has(cat) || activeCategories().has("__all__")
                       ? "badge-primary"
                       : "badge-ghost hover:badge-outline"
                   }`}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => toggleCategory(cat)}
                 >
                   {cat} ({count})
                 </button>
