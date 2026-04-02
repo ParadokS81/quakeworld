@@ -1,5 +1,5 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
-import { lookupCvar, parseConfig } from "qw-config";
+import { lookupCvar, loadDatabase, parseConfig } from "qw-config";
 import type { EzQuakeConfig } from "../types";
 import CvarRow from "./CvarRow";
 import CvarTooltip from "./CvarTooltip";
@@ -75,21 +75,32 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   const isCompareMode = () => compareActive() && compareCvars().size > 0;
 
-  // Build enriched cvar list
+  // Build complete cvar list: start from full database, overlay user's config values
   const enrichedCvars = createMemo(() => {
     if (!props.config) return [];
-    const leftKeys = Object.keys(props.config.raw_cvars);
-    const rightKeys = isCompareMode() ? Array.from(compareCvars().keys()) : [];
-    const allKeys = Array.from(new Set([...leftKeys, ...rightKeys])).sort();
+    const db = loadDatabase();
+    const allDbNames = Array.from(db.clients.ezquake.keys());
+    const userCvars = props.config.raw_cvars;
     const cmpMode = isCompareMode();
+    const cmpMap = compareCvars();
+
+    // Union of database cvars + any user/compare cvars not in database (custom set vars, etc.)
+    const extraUserKeys = Object.keys(userCvars).filter(k => !db.clients.ezquake.has(k));
+    const extraCompareKeys = cmpMode
+      ? Array.from(cmpMap.keys()).filter(k => !db.clients.ezquake.has(k) && !(k in userCvars))
+      : [];
+    const allKeys = [...allDbNames, ...extraUserKeys, ...extraCompareKeys].sort();
 
     return allKeys.map((name) => {
       const info = lookupCvar(name);
-      const value = props.config!.raw_cvars[name] ?? undefined;
-      const compareValue = cmpMode ? compareCvars().get(name) : undefined;
+      const userValue = userCvars[name];
+      const hasLeft = userValue !== undefined;
+      // Use user's value if set, otherwise fall back to documented default
+      const value = userValue ?? info?.default ?? "";
+      const compareValue = cmpMode ? cmpMap.get(name) : undefined;
       const leftIsDefault = isDefaultValue(value, info?.default);
       const rightIsDefault = isDefaultValue(compareValue, info?.default);
-      return { name, value: value ?? "", info, hasLeft: value !== undefined, compareValue, leftIsDefault, rightIsDefault };
+      return { name, value, info, hasLeft, compareValue, leftIsDefault, rightIsDefault };
     });
   });
 
@@ -97,7 +108,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const relevantCvars = createMemo(() => {
     const cvars = enrichedCvars();
     if (!isCompareMode()) return cvars;
-    return cvars.filter(c => !c.leftIsDefault || !c.rightIsDefault || !c.hasLeft || c.compareValue === undefined);
+    return cvars.filter(c => !c.leftIsDefault || !c.rightIsDefault);
   });
 
   // Category counts (from relevant cvars, not the full bloated list)
