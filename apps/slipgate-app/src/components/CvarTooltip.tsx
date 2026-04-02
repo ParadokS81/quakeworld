@@ -2,6 +2,13 @@ import { Show } from "solid-js";
 import { findEquivalent } from "qw-config";
 import type { CvarInfo } from "qw-config";
 
+/** Display a cvar value — show empty strings as a visible marker */
+function displayVal(val: string | undefined): string {
+  if (val === undefined) return "—";
+  if (val === "") return '""';
+  return val;
+}
+
 interface CvarTooltipProps {
   name: string;
   value: string;
@@ -63,7 +70,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
           <div>
             <span class="text-[var(--sg-section-label)]">Yours</span>
             <span class={`font-mono ml-2 ${isChanged() ? "text-[var(--sg-text-bright)] font-semibold" : "text-[var(--sg-text-dim)]"}`}>
-              {props.value}
+              {displayVal(props.value)}
             </span>
           </div>
 
@@ -71,7 +78,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
             <div>
               <span class="text-[var(--sg-section-label)]">Theirs</span>
               <span class={`font-mono ml-2 ${props.compareValue !== props.value ? "text-[var(--color-success)] font-semibold" : "text-[var(--sg-text-dim)]"}`}>
-                {props.compareValue}
+                {displayVal(props.compareValue)}
               </span>
             </div>
           </Show>
@@ -79,7 +86,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
           <div>
             <span class="text-[var(--sg-section-label)]">Default</span>
             <span class="font-mono ml-2 text-[var(--sg-text-dim)]">
-              {props.info?.default ?? "—"}
+              {displayVal(props.info?.default)}
             </span>
           </div>
 

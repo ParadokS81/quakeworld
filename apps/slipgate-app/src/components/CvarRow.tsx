@@ -82,7 +82,7 @@ export default function CvarRow(props: CvarRowProps) {
         }`}
         title={props.value}
       >
-        {props.value}
+        {props.value === "" ? '""' : props.value}
       </span>
 
       {/* Compare value (only in compare mode) */}
