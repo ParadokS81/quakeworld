@@ -1,9 +1,9 @@
-import { createSignal, createMemo, For, Show, Switch, Match } from "solid-js";
-import { lookupCvar, getEzQuakeCategories } from "qw-config";
+import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
+import { lookupCvar, parseConfig } from "qw-config";
+import type { CvarInfo } from "qw-config";
 import type { EzQuakeConfig } from "../types";
 import CvarRow from "./CvarRow";
-import CvarDetail from "./CvarDetail";
-import ConfigCompare from "./ConfigCompare";
+import CvarTooltip from "./CvarTooltip";
 import ConfigConverter from "./ConfigConverter";
 
 interface ConfigViewerProps {
@@ -12,7 +12,8 @@ interface ConfigViewerProps {
   configName: string | null;
 }
 
-type ViewMode = "list" | "compare" | "convert";
+type ViewMode = "list" | "convert";
+type CompareFilter = "all" | "diff" | "same" | "only_left" | "only_right";
 
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
@@ -21,25 +22,69 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [search, setSearch] = createSignal("");
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
   const [configExpanded, setConfigExpanded] = createSignal(false);
-  const [compareText, setCompareText] = createSignal<string | null>(null);
 
-  // Build enriched cvar list from raw_cvars
+  // Compare state
+  const [compareText, setCompareText] = createSignal("");
+  const [compareActive, setCompareActive] = createSignal(false);
+  const [showPasteUI, setShowPasteUI] = createSignal(false);
+  const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
+
+  // Tooltip hover state
+  const [hoveredCvar, setHoveredCvar] = createSignal<string | null>(null);
+  const [tooltipTarget, setTooltipTarget] = createSignal<HTMLElement | null>(null);
+  let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+
+  onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
+
+  function handleMouseEnter(name: string, e: MouseEvent) {
+    if (expandedCvar() === name) return;
+    if (hoverTimer) clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => {
+      setHoveredCvar(name);
+      setTooltipTarget(e.currentTarget as HTMLElement);
+    }, 200);
+  }
+
+  function handleMouseLeave() {
+    if (hoverTimer) clearTimeout(hoverTimer);
+    hoverTimer = null;
+    setHoveredCvar(null);
+    setTooltipTarget(null);
+  }
+
+  // Compare config parsing
+  const compareCvars = createMemo((): Map<string, string> => {
+    if (!compareActive()) return new Map();
+    const text = compareText().trim();
+    if (!text) return new Map();
+    const parsed = parseConfig(text);
+    return new Map(parsed.cvars);
+  });
+
+  const isCompareMode = () => compareActive() && compareCvars().size > 0;
+
+  // Build enriched cvar list
   const enrichedCvars = createMemo(() => {
     if (!props.config) return [];
-    return Object.entries(props.config.raw_cvars).map(([name, value]) => {
+    const leftKeys = Object.keys(props.config.raw_cvars);
+    const rightKeys = isCompareMode() ? Array.from(compareCvars().keys()) : [];
+    const allKeys = Array.from(new Set([...leftKeys, ...rightKeys])).sort();
+
+    return allKeys.map((name) => {
       const info = lookupCvar(name);
-      return { name, value, info };
+      const value = props.config!.raw_cvars[name] ?? undefined;
+      const compareValue = isCompareMode() ? compareCvars().get(name) : undefined;
+      return { name, value: value ?? "", info, hasLeft: value !== undefined, compareValue };
     });
   });
 
-  // Gather category counts from the enriched list
+  // Category counts
   const categories = createMemo(() => {
     const counts = new Map<string, number>();
     for (const { info } of enrichedCvars()) {
       const cat = info?.category ?? "Unknown";
       counts.set(cat, (counts.get(cat) ?? 0) + 1);
     }
-    // Sort by count desc
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
   });
 
@@ -53,23 +98,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   function toggleCategory(cat: string) {
     setActiveCategories(prev => {
       const next = new Set(prev);
-
-      // If "all" is active, switch to "all except this one"
       if (next.has("__all__")) {
         next.delete("__all__");
         for (const c of allCategoryNames()) next.add(c);
         next.delete(cat);
         return next;
       }
-
       if (next.has(cat)) {
         next.delete(cat);
       } else {
         next.add(cat);
-        // If all individual categories are now selected, set __all__
-        if (allCategoryNames().every(c => next.has(c))) {
-          next.add("__all__");
-        }
+        if (allCategoryNames().every(c => next.has(c))) next.add("__all__");
       }
       return next;
     });
@@ -83,27 +122,75 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
   }
 
+  // Compare filter counts
+  const compareCounts = createMemo(() => {
+    if (!isCompareMode()) return { diff: 0, same: 0, onlyLeft: 0, onlyRight: 0 };
+    const cvars = enrichedCvars();
+    let diff = 0, same = 0, onlyLeft = 0, onlyRight = 0;
+    for (const c of cvars) {
+      if (c.hasLeft && c.compareValue !== undefined) {
+        if (c.value !== c.compareValue) diff++;
+        else same++;
+      } else if (c.hasLeft && c.compareValue === undefined) {
+        onlyLeft++;
+      } else if (!c.hasLeft && c.compareValue !== undefined) {
+        onlyRight++;
+      }
+    }
+    return { diff, same, onlyLeft, onlyRight };
+  });
+
   // Filtered cvar list
   const filteredCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
     const active = activeCategories();
     const showAll = active.has("__all__");
-    return enrichedCvars().filter(({ name, value, info }) => {
-      // Category filter (multi-select)
+    const cmpFilter = compareFilter();
+    const cmpMode = isCompareMode();
+
+    return enrichedCvars().filter((cvar) => {
+      // Category filter
       if (!showAll && active.size > 0) {
-        const cat = info?.category ?? "Unknown";
+        const cat = cvar.info?.category ?? "Unknown";
         if (!active.has(cat)) return false;
       }
-      // If nothing selected, show nothing
       if (active.size === 0) return false;
+
+      // Compare filter
+      if (cmpMode && cmpFilter !== "all") {
+        const hasLeft = cvar.hasLeft;
+        const hasRight = cvar.compareValue !== undefined;
+        switch (cmpFilter) {
+          case "diff":
+            if (!hasLeft || !hasRight || cvar.value === cvar.compareValue) return false;
+            break;
+          case "same":
+            if (!hasLeft || !hasRight || cvar.value !== cvar.compareValue) return false;
+            break;
+          case "only_left":
+            if (hasRight) return false;
+            break;
+          case "only_right":
+            if (hasLeft) return false;
+            break;
+        }
+      }
+
       // Hide defaults
       if (hideDefaults()) {
-        if (info?.default !== undefined && value === info.default) return false;
+        if (cvar.info?.default !== undefined && cvar.value === cvar.info.default) {
+          if (cmpMode && cvar.compareValue !== undefined && cvar.compareValue !== cvar.info.default) {
+            // Keep — compare value is non-default
+          } else {
+            return false;
+          }
+        }
       }
+
       // Search
       if (q) {
-        const nameMatch = name.toLowerCase().includes(q) || name.toLowerCase().replace(/_/g, "").includes(q);
-        const descMatch = info?.description?.toLowerCase().includes(q) ?? false;
+        const nameMatch = cvar.name.toLowerCase().includes(q) || cvar.name.toLowerCase().replace(/_/g, "").includes(q);
+        const descMatch = cvar.info?.description?.toLowerCase().includes(q) ?? false;
         if (!nameMatch && !descMatch) return false;
       }
       return true;
@@ -118,9 +205,27 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   function toggleCvar(name: string) {
     setExpandedCvar(prev => prev === name ? null : name);
+    setHoveredCvar(null);
+    setTooltipTarget(null);
   }
 
-  // No config loaded state
+  function startCompare() {
+    setShowPasteUI(true);
+  }
+
+  function applyCompare() {
+    if (compareText().trim()) {
+      setCompareActive(true);
+      setShowPasteUI(false);
+    }
+  }
+
+  function clearCompare() {
+    setCompareActive(false);
+    setCompareText("");
+    setCompareFilter("all");
+  }
+
   if (!props.config) {
     return (
       <div class="flex flex-col items-center justify-center h-full gap-3 text-[var(--sg-text-dim)]">
@@ -135,14 +240,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   return (
     <Switch>
-      <Match when={viewMode() === "compare"}>
-        <ConfigCompare
-          config={props.config}
-          configName={props.configName}
-          initialCompareText={compareText()}
-          onBack={() => setViewMode("list")}
-        />
-      </Match>
       <Match when={viewMode() === "convert"}>
         <ConfigConverter
           config={props.config}
@@ -154,7 +251,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         <div class="flex flex-col h-full overflow-hidden">
           {/* ── Top bar ── */}
           <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 flex-wrap">
-            {/* Config tree toggle */}
             <button
               class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
               onClick={() => setConfigExpanded(v => !v)}
@@ -165,7 +261,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               <span class="font-mono">{props.configName ?? "config.cfg"}</span>
             </button>
 
-            {/* Stats */}
             <span class="text-xs text-[var(--sg-section-label)]">
               {enrichedCvars().length} cvars
             </span>
@@ -177,21 +272,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
             <div class="flex-1" />
 
-            {/* Action buttons */}
-            <button
-              class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
-              onClick={() => setViewMode("compare")}
-              title="Compare with another config file"
-            >
-              Compare
-            </button>
-            <button
-              class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
-              title="Drop another config here (paste text)"
-              onClick={() => setViewMode("compare")}
-            >
-              + Drop
-            </button>
+            <Show when={!isCompareMode()}>
+              <button
+                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                onClick={startCompare}
+              >
+                Compare
+              </button>
+            </Show>
+            <Show when={isCompareMode()}>
+              <button
+                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                onClick={clearCompare}
+              >
+                Clear compare
+              </button>
+            </Show>
             <button
               class="btn btn-primary btn-xs"
               onClick={() => setViewMode("convert")}
@@ -224,14 +320,38 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             </div>
           </Show>
 
-          {/* ── Filter bar ── */}
+          {/* ── Paste UI (shown when entering compare mode) ── */}
+          <Show when={showPasteUI()}>
+            <div class="flex flex-col gap-3 p-4 border-b border-[var(--sg-stat-border)] flex-shrink-0">
+              <p class="text-sm text-[var(--sg-text-dim)]">
+                Paste a config file to compare with <span class="font-mono text-[var(--sg-text-bright)]">{props.configName ?? "config.cfg"}</span>:
+              </p>
+              <textarea
+                class="textarea textarea-bordered font-mono text-xs h-32 w-full"
+                placeholder={`sensitivity "3"\ncl_maxfps "500"\n...`}
+                value={compareText()}
+                onInput={(e) => setCompareText(e.currentTarget.value)}
+              />
+              <div class="flex gap-2">
+                <button
+                  class="btn btn-primary btn-sm"
+                  disabled={!compareText().trim()}
+                  onClick={applyCompare}
+                >
+                  Compare
+                </button>
+                <button class="btn btn-ghost btn-sm" onClick={() => setShowPasteUI(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </Show>
+
+          {/* ── Category filter bar ── */}
           <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 overflow-x-auto">
-            {/* Category pills (multi-select toggles) */}
             <button
               class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-                isAllSelected()
-                  ? "badge-primary"
-                  : "badge-ghost hover:badge-outline"
+                isAllSelected() ? "badge-primary" : "badge-ghost hover:badge-outline"
               }`}
               onClick={toggleAll}
             >
@@ -254,7 +374,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
             <div class="flex-1" />
 
-            {/* Hide defaults */}
             <label class="flex items-center gap-1.5 text-xs text-[var(--sg-text-dim)] flex-shrink-0 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -264,8 +383,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               />
               Hide defaults
             </label>
-
-            {/* Search */}
             <input
               type="text"
               class="input input-xs w-40 font-mono"
@@ -275,8 +392,47 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             />
           </div>
 
+          {/* ── Compare filter bar (shown only when compare is active) ── */}
+          <Show when={isCompareMode()}>
+            <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
+              <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
+              <For each={[
+                { id: "all" as CompareFilter, label: `All (${enrichedCvars().length})` },
+                { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
+                { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
+                { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
+                { id: "only_right" as CompareFilter, label: `Only theirs (${compareCounts().onlyRight})` },
+              ]}>
+                {(f) => (
+                  <button
+                    class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+                      compareFilter() === f.id ? "badge-primary" : "badge-ghost hover:badge-outline"
+                    }`}
+                    onClick={() => setCompareFilter(f.id)}
+                  >
+                    {f.label}
+                  </button>
+                )}
+              </For>
+            </div>
+          </Show>
+
+          {/* ── Column headers ── */}
+          <div
+            class="grid px-4 py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]"
+            style={{
+              "grid-template-columns": isCompareMode() ? "240px 1fr 1fr" : "280px 1fr",
+            }}
+          >
+            <span>Cvar</span>
+            <span class="px-3">{isCompareMode() ? "Your config" : "Value"}</span>
+            <Show when={isCompareMode()}>
+              <span class="px-3 border-l border-[var(--sg-stat-border)]">Comparison</span>
+            </Show>
+          </div>
+
           {/* ── Cvar list ── */}
-          <div class="flex-1 overflow-y-auto">
+          <div class="flex-1 overflow-y-auto relative">
             <Show
               when={filteredCvars().length > 0}
               fallback={
@@ -286,19 +442,40 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               }
             >
               <For each={filteredCvars()}>
-                {({ name, value, info }) => (
-                  <>
+                {(cvar) => (
+                  <div class="relative">
                     <CvarRow
-                      name={name}
-                      value={value}
-                      info={info}
-                      isExpanded={expandedCvar() === name}
-                      onToggle={() => toggleCvar(name)}
+                      name={cvar.name}
+                      value={cvar.value}
+                      compareValue={cvar.compareValue}
+                      info={cvar.info}
+                      isExpanded={expandedCvar() === cvar.name}
+                      isCompareMode={isCompareMode()}
+                      onToggle={() => toggleCvar(cvar.name)}
+                      onMouseEnter={(e) => handleMouseEnter(cvar.name, e)}
+                      onMouseLeave={handleMouseLeave}
                     />
-                    <Show when={expandedCvar() === name}>
-                      <CvarDetail name={name} value={value} info={info} />
+                    {/* Tooltip on hover */}
+                    <Show when={hoveredCvar() === cvar.name && expandedCvar() !== cvar.name}>
+                      <CvarTooltip
+                        name={cvar.name}
+                        value={cvar.value}
+                        compareValue={cvar.compareValue}
+                        info={cvar.info}
+                        mode="tooltip"
+                      />
                     </Show>
-                  </>
+                    {/* Expanded detail on click */}
+                    <Show when={expandedCvar() === cvar.name}>
+                      <CvarTooltip
+                        name={cvar.name}
+                        value={cvar.value}
+                        compareValue={cvar.compareValue}
+                        info={cvar.info}
+                        mode="expanded"
+                      />
+                    </Show>
+                  </div>
                 )}
               </For>
             </Show>
