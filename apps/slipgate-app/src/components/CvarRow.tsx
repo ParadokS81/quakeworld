@@ -16,11 +16,20 @@ interface CvarRowProps {
 export default function CvarRow(props: CvarRowProps) {
   const isChanged = () => {
     if (!props.info?.default) return false;
+    // Numeric-aware: "1.0" equals "1"
+    const na = Number(props.value);
+    const nd = Number(props.info.default);
+    if (!Number.isNaN(na) && !Number.isNaN(nd)) return na !== nd;
     return props.value !== props.info.default;
   };
 
-  const isDiff = () =>
-    props.compareValue !== undefined && props.value !== props.compareValue;
+  const isDiff = () => {
+    if (props.compareValue === undefined) return false;
+    const na = Number(props.value);
+    const nb = Number(props.compareValue);
+    if (!Number.isNaN(na) && !Number.isNaN(nb)) return na !== nb;
+    return props.value !== props.compareValue;
+  };
 
   const isOnlyLeft = () => props.isCompareMode && props.compareValue === undefined;
 

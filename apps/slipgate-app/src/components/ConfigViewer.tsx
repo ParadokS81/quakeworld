@@ -14,6 +14,22 @@ interface ConfigViewerProps {
 type ViewMode = "list" | "convert";
 type CompareFilter = "all" | "diff" | "same" | "only_left" | "only_right";
 
+/** Normalize a cvar value for comparison: trim, and if both parse as numbers, compare numerically.
+ *  "1.0" equals "1", "0.000" equals "0", but "red" stays "red". */
+function valuesEqual(a: string, b: string): boolean {
+  if (a === b) return true;
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isNaN(na) && !Number.isNaN(nb)) return na === nb;
+  return false;
+}
+
+/** Check if a value matches the documented default (numeric-aware). */
+function isDefaultValue(value: string | undefined, defaultVal: string | undefined): boolean {
+  if (value === undefined || defaultVal === undefined) return false;
+  return valuesEqual(value, defaultVal);
+}
+
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
   const [activeCategories, setActiveCategories] = createSignal<Set<string>>(new Set(["__all__"]));
@@ -65,19 +81,29 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     const leftKeys = Object.keys(props.config.raw_cvars);
     const rightKeys = isCompareMode() ? Array.from(compareCvars().keys()) : [];
     const allKeys = Array.from(new Set([...leftKeys, ...rightKeys])).sort();
+    const cmpMode = isCompareMode();
 
     return allKeys.map((name) => {
       const info = lookupCvar(name);
       const value = props.config!.raw_cvars[name] ?? undefined;
-      const compareValue = isCompareMode() ? compareCvars().get(name) : undefined;
-      return { name, value: value ?? "", info, hasLeft: value !== undefined, compareValue };
+      const compareValue = cmpMode ? compareCvars().get(name) : undefined;
+      const leftIsDefault = isDefaultValue(value, info?.default);
+      const rightIsDefault = isDefaultValue(compareValue, info?.default);
+      return { name, value: value ?? "", info, hasLeft: value !== undefined, compareValue, leftIsDefault, rightIsDefault };
     });
   });
 
-  // Category counts
+  // In compare mode, filter out rows where both sides are at default (noise reduction)
+  const relevantCvars = createMemo(() => {
+    const cvars = enrichedCvars();
+    if (!isCompareMode()) return cvars;
+    return cvars.filter(c => !c.leftIsDefault || !c.rightIsDefault || !c.hasLeft || c.compareValue === undefined);
+  });
+
+  // Category counts (from relevant cvars, not the full bloated list)
   const categories = createMemo(() => {
     const counts = new Map<string, number>();
-    for (const { info } of enrichedCvars()) {
+    for (const { info } of relevantCvars()) {
       const cat = info?.category ?? "Unknown";
       counts.set(cat, (counts.get(cat) ?? 0) + 1);
     }
@@ -118,14 +144,14 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
   }
 
-  // Compare filter counts
+  // Compare filter counts (from relevant cvars — excludes both-at-default noise)
   const compareCounts = createMemo(() => {
     if (!isCompareMode()) return { diff: 0, same: 0, onlyLeft: 0, onlyRight: 0 };
-    const cvars = enrichedCvars();
+    const cvars = relevantCvars();
     let diff = 0, same = 0, onlyLeft = 0, onlyRight = 0;
     for (const c of cvars) {
       if (c.hasLeft && c.compareValue !== undefined) {
-        if (c.value !== c.compareValue) diff++;
+        if (!valuesEqual(c.value, c.compareValue)) diff++;
         else same++;
       } else if (c.hasLeft && c.compareValue === undefined) {
         onlyLeft++;
@@ -144,7 +170,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     const cmpFilter = compareFilter();
     const cmpMode = isCompareMode();
 
-    return enrichedCvars().filter((cvar) => {
+    return relevantCvars().filter((cvar) => {
       // Category filter
       if (!showAll && active.size > 0) {
         const cat = cvar.info?.category ?? "Unknown";
@@ -152,16 +178,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       }
       if (active.size === 0) return false;
 
-      // Compare filter
+      // Compare filter (uses numeric-aware comparison)
       if (cmpMode && cmpFilter !== "all") {
         const hasLeft = cvar.hasLeft;
         const hasRight = cvar.compareValue !== undefined;
         switch (cmpFilter) {
           case "diff":
-            if (!hasLeft || !hasRight || cvar.value === cvar.compareValue) return false;
+            if (!hasLeft || !hasRight || valuesEqual(cvar.value, cvar.compareValue!)) return false;
             break;
           case "same":
-            if (!hasLeft || !hasRight || cvar.value !== cvar.compareValue) return false;
+            if (!hasLeft || !hasRight || !valuesEqual(cvar.value, cvar.compareValue!)) return false;
             break;
           case "only_left":
             if (hasRight) return false;
@@ -172,10 +198,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         }
       }
 
-      // Hide defaults
+      // Hide defaults (uses numeric-aware comparison)
       if (hideDefaults()) {
-        if (cvar.info?.default !== undefined && cvar.value === cvar.info.default) {
-          if (cmpMode && cvar.compareValue !== undefined && cvar.compareValue !== cvar.info.default) {
+        if (cvar.leftIsDefault) {
+          if (cmpMode && cvar.compareValue !== undefined && !cvar.rightIsDefault) {
             // Keep — compare value is non-default
           } else {
             return false;
@@ -194,8 +220,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const changedCount = createMemo(() =>
-    enrichedCvars().filter(({ value, info }) =>
-      info?.default !== undefined && value !== info.default
+    relevantCvars().filter(({ value, info }) =>
+      info?.default !== undefined && !isDefaultValue(value, info.default)
     ).length
   );
 
@@ -257,7 +283,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             </button>
 
             <span class="text-xs text-[var(--sg-section-label)]">
-              {enrichedCvars().length} cvars
+              {relevantCvars().length} cvars
             </span>
             <Show when={changedCount() > 0}>
               <span class="text-xs text-[var(--color-primary)]">
@@ -390,9 +416,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
           {/* ── Compare filter bar (shown only when compare is active) ── */}
           <Show when={isCompareMode()}>
             <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
+              <button
+                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1"
+                onClick={clearCompare}
+                title="Exit compare mode"
+              >
+                ✕
+              </button>
               <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
               <For each={[
-                { id: "all" as CompareFilter, label: `All (${enrichedCvars().length})` },
+                { id: "all" as CompareFilter, label: `All (${relevantCvars().length})` },
                 { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
                 { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
                 { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
