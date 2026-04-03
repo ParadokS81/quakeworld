@@ -11,6 +11,7 @@
   "scripts": {
     "test": "bun test",
     "extract-fte": "bun run scripts/extract-fte-cvars.ts",
+    "extract-ezquake": "bun run scripts/extract-ezquake-cvars.ts",
     "assemble-qwcl": "bun run scripts/assemble-qwcl.ts"
   },
   "devDependencies": {

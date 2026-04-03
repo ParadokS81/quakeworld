@@ -21,6 +21,8 @@ interface RawVar {
   default?: string;
   remarks?: string;
   values?: RawVarValue[];
+  "server-only"?: boolean;
+  "in-source"?: boolean;
 }
 
 interface RawVariablesData {
@@ -56,13 +58,19 @@ export function loadEzQuakeCvars(): Map<string, CvarInfo> {
       group: "Other",
     };
 
+    // Help-only entries (not in source) get treated as Obsolete
+    const isInSource = raw["in-source"] !== false;
+    const effectiveCategory = isInSource ? meta.category : "Obsolete";
+
     const cvar: CvarInfo = {
       name,
       description: raw.desc ?? "",
       type: raw.type,
-      category: meta.category,
+      category: effectiveCategory,
       group: meta.group,
       client: "ezquake",
+      serverOnly: raw["server-only"] ?? false,
+      inSource: isInSource,
     };
 
     if (raw.default !== undefined) {

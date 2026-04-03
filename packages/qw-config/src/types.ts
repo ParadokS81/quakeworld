@@ -25,6 +25,10 @@ export interface CvarInfo {
   group: string;
   /** Which client this info comes from */
   client: ClientId;
+  /** True if defined in sv_*.c (server-only cvar) */
+  serverOnly?: boolean;
+  /** False if only in help docs, not in current source code */
+  inSource?: boolean;
 }
 
 export interface CvarEnumValue {
