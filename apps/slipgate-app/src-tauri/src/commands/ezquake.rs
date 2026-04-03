@@ -1461,7 +1461,7 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
 
 /// Given the path to ezquake.exe, derive the config directory.
 /// ezQuake stores configs in `<exe_dir>/ezquake/configs/`
-fn config_dir_from_exe(exe_path: &Path) -> PathBuf {
+pub fn config_dir_from_exe(exe_path: &Path) -> PathBuf {
     exe_path.parent().unwrap_or(Path::new(".")).join("ezquake").join("configs")
 }
 

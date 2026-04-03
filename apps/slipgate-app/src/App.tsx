@@ -1,7 +1,8 @@
-import { createSignal, Match, onMount, Switch } from "solid-js";
+import { createSignal, Match, onMount, onCleanup, Switch } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { currentMonitor, availableMonitors } from "@tauri-apps/api/window";
-import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation } from "./types";
+import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation, ConfigChain } from "./types";
 import type { ProfileData, SetupHardware, ClientInfo } from "./store";
 import { loadProfile, updatePrimaryClient, updatePrimaryHardware, getPrimarySetup } from "./store";
 import SideNav from "./components/SideNav";
@@ -18,7 +19,40 @@ function App() {
   const [monitor, setMonitor] = createSignal<MonitorInfo | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [ezConfig, setEzConfig] = createSignal<EzQuakeConfig | null>(null);
+  const [configChain, setConfigChain] = createSignal<ConfigChain | null>(null);
   const [profile, setProfile] = createSignal<ProfileData | null>(null);
+
+  // ─── Config file watcher ───────────────────────────────────────────────
+  let unlistenConfigChanged: (() => void) | null = null;
+  (async () => {
+    unlistenConfigChanged = await listen<{ exe_path: string; config_name: string }>(
+      "config-changed",
+      async (event) => {
+        const { exe_path, config_name } = event.payload;
+        const prof = profile();
+        if (!prof) return;
+        const setup = getPrimarySetup(prof);
+        if (setup.client.exe_path !== exe_path) return;
+
+        console.log(`Config changed on disk: ${config_name}, reloading...`);
+        try {
+          const cfg = await invoke<EzQuakeConfig>("read_ezquake_config", {
+            exePath: exe_path,
+            configName: config_name,
+          });
+          setEzConfig(cfg);
+          const chain = await invoke<ConfigChain>("read_config_chain", {
+            exePath: exe_path,
+            configName: config_name,
+          });
+          setConfigChain(chain);
+        } catch (e) {
+          console.error("Failed to reload config after file change:", e);
+        }
+      },
+    );
+  })();
+  onCleanup(() => unlistenConfigChanged?.());
 
   async function loadSpecs() {
     try {
@@ -66,6 +100,14 @@ function App() {
           configName: cfgName,
         });
         setEzConfig(cfg);
+        // Fetch config chain and start file watcher
+        try {
+          const chain = await invoke<ConfigChain>("read_config_chain", { exePath, configName: cfgName });
+          setConfigChain(chain);
+          await invoke("start_config_watch", { exePath, configName: cfgName });
+        } catch (e) {
+          console.error("Failed to load config chain:", e);
+        }
         const m = cfg.movement;
         console.log("=== MOVEMENT ===");
         console.log(`  ↑${m.forward}  ←${m.moveleft}  ↓${m.back}  →${m.moveright}  jump:${m.jump}`);
@@ -110,6 +152,14 @@ function App() {
       version,
     });
     setProfile(updated);
+    // Fetch config chain and start file watcher
+    try {
+      const chain = await invoke<ConfigChain>("read_config_chain", { exePath, configName });
+      setConfigChain(chain);
+      await invoke("start_config_watch", { exePath, configName });
+    } catch (e) {
+      console.error("Failed to load config chain:", e);
+    }
   }
 
   /** Called by ProfileTab/ClientsTab to update hardware in the store */
@@ -160,6 +210,7 @@ function App() {
             <Match when={activeTab() === "myquake"}>
               <MyQuakeTab
                 config={ezConfig()}
+                configChain={configChain()}
                 exePath={profile() ? getPrimarySetup(profile()!).client.exe_path ?? null : null}
                 configName={profile() ? getPrimarySetup(profile()!).client.config_name ?? null : null}
               />

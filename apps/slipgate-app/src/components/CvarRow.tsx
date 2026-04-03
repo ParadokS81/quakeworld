@@ -17,7 +17,7 @@ interface CvarRowProps {
 
 export default function CvarRow(props: CvarRowProps) {
   const isChanged = () => {
-    if (!props.info?.default) return false;
+    if (props.info?.default === undefined || props.info?.default === null) return false;
     // Numeric-aware: "1.0" equals "1"
     const na = Number(props.value);
     const nd = Number(props.info.default);

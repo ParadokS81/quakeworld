@@ -30,7 +30,10 @@ pub fn run() {
             commands::updater::check_client_running,
             commands::updater::get_release_changelog,
             commands::screenshot::capture_screenshot,
+            commands::watcher::start_config_watch,
+            commands::watcher::stop_config_watch,
         ])
+        .manage(commands::watcher::ConfigWatcherState::new())
         .setup(|app| {
             // Build the right-click context menu
             let menu = MenuBuilder::new(app)

@@ -1563,3 +1563,72 @@ input[type="number"] {
   color: var(--sg-text-dim);
   white-space: nowrap;
 }
+
+/* ─── ConfigViewer: bind/alias badge color ──────────────────────────── */
+.badge-binds {
+  background: oklch(0.55 0.12 180);
+  color: oklch(0.98 0.01 180);
+  border-color: oklch(0.45 0.1 180);
+}
+
+/* ─── ConfigViewer: section separator headers ───────────────────────── */
+.sg-config-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sg-section-label);
+  font-weight: 600;
+}
+.sg-config-section-header::before,
+.sg-config-section-header::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--sg-stat-border);
+}
+
+/* ─── ConfigViewer: category bar labels ─────────────────────────────── */
+.sg-category-row-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sg-section-label);
+  font-weight: 600;
+}
+.sg-category-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--sg-stat-border);
+  flex-shrink: 0;
+}
+
+/* ─── ConfigViewer: bind list rows ──────────────────────────────────── */
+.sg-bind-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 80px 120px;
+  align-items: center;
+  padding: 4px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sg-stat-border);
+  transition: background 0.1s;
+}
+.sg-bind-row:hover {
+  background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
+}
+
+/* ─── ConfigViewer: alias list rows ─────────────────────────────────── */
+.sg-alias-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px;
+  align-items: center;
+  padding: 4px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sg-stat-border);
+  transition: background 0.1s;
+}
+.sg-alias-row:hover {
+  background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
+}

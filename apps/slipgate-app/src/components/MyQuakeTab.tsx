@@ -1,9 +1,10 @@
 import { createSignal, Switch, Match } from "solid-js";
-import type { EzQuakeConfig } from "../types";
+import type { EzQuakeConfig, ConfigChain } from "../types";
 import ConfigViewer from "./ConfigViewer";
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
+  configChain: ConfigChain | null;
   exePath: string | null;
   configName: string | null;
 }
@@ -57,6 +58,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
           <Match when={subTab() === "config"}>
             <ConfigViewer
               config={props.config}
+              configChain={props.configChain}
               exePath={props.exePath}
               configName={props.configName}
             />
