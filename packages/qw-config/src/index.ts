@@ -15,6 +15,7 @@ export type {
 
 export { loadDatabase, lookupCvar, findEquivalent } from "./loaders/index.js";
 export { loadEzQuakeCvars, getEzQuakeCategories } from "./loaders/ezquake.js";
+export { loadDomainTags, getCvarDomains } from "./loaders/domains.js";
 export { loadFteCvars } from "./loaders/fte.js";
 export { loadQwclCvars } from "./loaders/qwcl.js";
 export { parseConfig } from "./parser/config-parser.js";

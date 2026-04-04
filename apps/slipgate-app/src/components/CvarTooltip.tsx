@@ -119,7 +119,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
             <div class="flex flex-col gap-0.5">
               {props.info!.values!.map((v) => (
                 <div class="flex gap-2">
-                  <span class={`font-mono w-8 flex-shrink-0 ${props.value === v.name ? "text-[var(--color-primary)] font-bold" : "text-[var(--sg-text-dim)]"}`}>
+                  <span class={`font-mono flex-shrink-0 ${props.value === v.name ? "text-[var(--color-primary)] font-bold" : "text-[var(--sg-text-dim)]"}`}>
                     {v.name}{props.value === v.name ? " ✓" : ""}
                   </span>
                   <span class="text-[var(--sg-text-dim)]">{v.description}</span>

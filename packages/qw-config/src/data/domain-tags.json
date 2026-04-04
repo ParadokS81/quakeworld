@@ -1,0 +1,62 @@
+{
+  "domains": {
+    "weapons": {
+      "description": "Weapon rendering, behavior, and statistics",
+      "groups": [
+        "Weapon View Model Settings"
+      ],
+      "cvars": [
+        "b_switch",
+        "cl_fakeshaft",
+        "cl_fakeshaft_extra_updates",
+        "cl_muzzleflash",
+        "cl_r2g",
+        "cl_weaponforgetorder",
+        "cl_weaponhide",
+        "cl_weaponhide_axe",
+        "cl_weaponpreselect",
+        "gl_custom_spike_color",
+        "gl_custom_spike_fullbright",
+        "gl_lightning",
+        "gl_lightning_color",
+        "gl_lightning_size",
+        "gl_lightning_sparks",
+        "gl_lightning_sparks_size",
+        "gl_nailtrail",
+        "gl_nailtrail_plasma",
+        "gl_nailtrail_turb",
+        "gl_part_gunshots",
+        "gl_part_spikes",
+        "gl_particle_gunshots",
+        "gl_particle_gunshots_type",
+        "gl_particle_muzzleflash",
+        "gl_particle_spikes",
+        "gl_particle_spikes_type",
+        "gl_shaftlight",
+        "gl_texturemode_viewmodels",
+        "r_lerpmuzzlehack",
+        "r_lgbloodColor",
+        "r_rocketLight",
+        "r_rocketLightColor",
+        "r_rocketTrail",
+        "r_shaftalpha",
+        "r_tracker_inconsole_colored_weapon",
+        "r_tracker_weapon_first",
+        "scr_autoid_weaponicon",
+        "scr_autoid_weapons",
+        "scr_teaminfo_weapon_style",
+        "scr_weaponstats",
+        "scr_weaponstats_align_right",
+        "scr_weaponstats_frame_color",
+        "scr_weaponstats_order",
+        "scr_weaponstats_scale",
+        "scr_weaponstats_x",
+        "scr_weaponstats_y",
+        "tp_name_weapon",
+        "tp_need_weapon",
+        "tp_weapon_order",
+        "w_switch"
+      ]
+    }
+  }
+}

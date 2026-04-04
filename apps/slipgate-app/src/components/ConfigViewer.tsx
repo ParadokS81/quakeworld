@@ -34,6 +34,9 @@ function isDefaultValue(value: string | undefined, defaultVal: string | undefine
   return valuesEqual(value, defaultVal);
 }
 
+/** Categories that belong in row 2 (conceptually separate from general settings) */
+const ROW2_CVAR_CATS = new Set(["HUD", "Teamplay", "Server"]);
+
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
   const [configExpanded, setConfigExpanded] = createSignal(false);
@@ -57,10 +60,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
   });
 
-  // ── Settings category state ──
-  const [activeCategories, setActiveCategories] = createSignal<Set<string>>(new Set(["__all__"]));
+  // ── Row 1: Settings category state (excludes HUD/Teamplay/Server) ──
+  const [activeRow1, setActiveRow1] = createSignal<Set<string>>(new Set(["__all__"]));
 
-  // ── Bind/Alias category state ──
+  // ── Row 2: Specialized cvar categories + Binds + Aliases ──
+  const [activeRow2Cats, setActiveRow2Cats] = createSignal<Set<string>>(new Set());
   const [activeBindCats, setActiveBindCats] = createSignal<Set<string>>(new Set());
   const [aliasesActive, setAliasesActive] = createSignal(false);
 
@@ -148,8 +152,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return cvars.filter((c) => !c.leftIsDefault || !c.rightIsDefault);
   });
 
-  // ── Settings category counts ──
-  const categories = createMemo(() => {
+  // ── Category counts (all categories, then split into rows) ──
+  const allCategories = createMemo(() => {
     const counts = new Map<string, number>();
     for (const { info } of relevantCvars()) {
       const cat = info?.category ?? "Unknown";
@@ -158,19 +162,43 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
   });
 
-  const allCategoryNames = createMemo(() => categories().map(([cat]) => cat));
+  const row1Categories = createMemo(() =>
+    allCategories().filter(([cat]) => !ROW2_CVAR_CATS.has(cat)),
+  );
+  const row2CvarCategories = createMemo(() =>
+    allCategories().filter(([cat]) => ROW2_CVAR_CATS.has(cat)),
+  );
 
-  const isAllSelected = createMemo(() => {
-    const active = activeCategories();
-    return active.has("__all__") || allCategoryNames().every((c) => active.has(c));
+  const row1CatNames = createMemo(() => row1Categories().map(([cat]) => cat));
+  const row2CvarCatNames = createMemo(() => row2CvarCategories().map(([cat]) => cat));
+
+  const row1Total = createMemo(() =>
+    row1Categories().reduce((sum, [_, count]) => sum + count, 0),
+  );
+
+  const isAllRow1 = createMemo(() => {
+    const active = activeRow1();
+    return active.has("__all__") || row1CatNames().every((c) => active.has(c));
   });
 
-  function toggleCategory(cat: string) {
-    setActiveCategories((prev) => {
+  const isAllRow2 = createMemo(() => {
+    const cats = activeRow2Cats();
+    const binds = activeBindCats();
+    const r2Names = row2CvarCatNames();
+    const allCvarsOn = r2Names.length > 0 && r2Names.every((c) => cats.has(c));
+    const allBindsOn = ["weapons", "teamsay", "misc"].every((b) => binds.has(b));
+    return allCvarsOn && allBindsOn && aliasesActive();
+  });
+
+  function toggleRow1Cat(cat: string) {
+    // Capture outside setter to avoid stale reads during batch updates
+    const allNames = row1CatNames();
+    if (allNames.length === 0) return;
+    setActiveRow1((prev) => {
       const next = new Set(prev);
       if (next.has("__all__")) {
         next.delete("__all__");
-        for (const c of allCategoryNames()) next.add(c);
+        for (const c of allNames) next.add(c);
         next.delete(cat);
         return next;
       }
@@ -178,17 +206,38 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         next.delete(cat);
       } else {
         next.add(cat);
-        if (allCategoryNames().every((c) => next.has(c))) next.add("__all__");
+        if (allNames.every((c) => next.has(c))) next.add("__all__");
       }
       return next;
     });
   }
 
-  function toggleAll() {
-    if (isAllSelected()) {
-      setActiveCategories(new Set<string>());
+  function toggleAllRow1() {
+    if (isAllRow1()) {
+      setActiveRow1(new Set<string>());
     } else {
-      setActiveCategories(new Set<string>(["__all__"]));
+      setActiveRow1(new Set<string>(["__all__"]));
+    }
+  }
+
+  function toggleRow2Cat(cat: string) {
+    setActiveRow2Cats((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+  }
+
+  function toggleAllRow2() {
+    if (isAllRow2()) {
+      setActiveRow2Cats(new Set<string>());
+      setActiveBindCats(new Set<string>());
+      setAliasesActive(false);
+    } else {
+      setActiveRow2Cats(new Set(row2CvarCatNames()));
+      setActiveBindCats(new Set(["weapons", "teamsay", "misc"]));
+      setAliasesActive(true);
     }
   }
 
@@ -222,17 +271,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Filtered cvar list ──
   const filteredCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
-    const active = activeCategories();
-    const showAll = active.has("__all__");
+    const row1 = activeRow1();
+    const row2 = activeRow2Cats();
+    const showAllRow1 = row1.has("__all__");
     const cmpFilter = compareFilter();
     const cmpMode = isCompareMode();
 
     return relevantCvars().filter((cvar) => {
-      if (!showAll && active.size > 0) {
-        const cat = cvar.info?.category ?? "Unknown";
-        if (!active.has(cat)) return false;
+      const cat = cvar.info?.category ?? "Unknown";
+      if (ROW2_CVAR_CATS.has(cat)) {
+        if (!row2.has(cat)) return false;
+      } else if (showAllRow1) {
+        // pass — show all row 1 cats
+      } else if (row1.size > 0) {
+        if (!row1.has(cat)) return false;
+      } else {
+        return false;
       }
-      if (active.size === 0) return false;
 
       if (cmpMode && cmpFilter !== "all") {
         const hasLeft = cvar.hasLeft;
@@ -305,6 +360,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     };
   });
 
+  const bindTotal = createMemo(() => {
+    const bc = bindCounts();
+    return bc.weapons + bc.teamsay + bc.misc;
+  });
+
   // ── Aliases data ──
   const enrichedAliases = createMemo(() => {
     if (!props.configChain) return [];
@@ -322,8 +382,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Section visibility ──
   const showSettingsSection = createMemo(() => {
-    const active = activeCategories();
-    return active.size > 0;
+    return activeRow1().size > 0 || activeRow2Cats().size > 0;
   });
 
   const showBindsSection = createMemo(() => activeBindCats().size > 0);
@@ -446,18 +505,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
           {/* ── Category bars (two rows) ── */}
           <ConfigCategoryBar
-            settingsCategories={categories()}
-            activeSettings={activeCategories()}
-            isAllSettingsSelected={isAllSelected()}
-            allSettingsCount={enrichedCvars().length}
-            onToggleSettingsCat={toggleCategory}
-            onToggleAllSettings={toggleAll}
-            bindCounts={bindCounts()}
+            row1Categories={row1Categories()}
+            activeRow1={activeRow1()}
+            isAllRow1={isAllRow1()}
+            row1Total={row1Total()}
+            onToggleRow1Cat={toggleRow1Cat}
+            onToggleAllRow1={toggleAllRow1}
+            row2CvarCats={row2CvarCategories()}
+            activeRow2Cats={activeRow2Cats()}
+            onToggleRow2Cat={toggleRow2Cat}
+            bindTotal={bindTotal()}
             activeBinds={activeBindCats()}
             onToggleBindCat={toggleBindCat}
-            aliasCount={enrichedAliases().length}
             aliasesActive={aliasesActive()}
             onToggleAliases={() => setAliasesActive((v) => !v)}
+            isAllRow2={isAllRow2()}
+            onToggleAllRow2={toggleAllRow2}
             hideDefaults={hideDefaults()}
             onHideDefaultsChange={setHideDefaults}
             search={search()}

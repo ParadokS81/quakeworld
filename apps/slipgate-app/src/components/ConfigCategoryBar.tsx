@@ -1,23 +1,25 @@
 import { For } from "solid-js";
 
 interface ConfigCategoryBarProps {
-  // Settings (Row 1)
-  settingsCategories: [string, number][];
-  activeSettings: Set<string>;
-  isAllSettingsSelected: boolean;
-  allSettingsCount: number;
-  onToggleSettingsCat: (cat: string) => void;
-  onToggleAllSettings: () => void;
+  // Row 1 — Settings
+  row1Categories: [string, number][];
+  activeRow1: Set<string>;
+  isAllRow1: boolean;
+  row1Total: number;
+  onToggleRow1Cat: (cat: string) => void;
+  onToggleAllRow1: () => void;
 
-  // Binds (Row 2 left)
-  bindCounts: { weapons: number; teamsay: number; misc: number };
+  // Row 2 — Specialized cvar categories + Binds + Aliases
+  row2CvarCats: [string, number][];
+  activeRow2Cats: Set<string>;
+  onToggleRow2Cat: (cat: string) => void;
+  bindTotal: number;
   activeBinds: Set<string>;
   onToggleBindCat: (cat: string) => void;
-
-  // Aliases (Row 2 right)
-  aliasCount: number;
   aliasesActive: boolean;
   onToggleAliases: () => void;
+  isAllRow2: boolean;
+  onToggleAllRow2: () => void;
 
   // Shared controls
   hideDefaults: boolean;
@@ -29,27 +31,30 @@ interface ConfigCategoryBarProps {
 export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
   return (
     <div class="border-b border-[var(--sg-stat-border)] flex-shrink-0">
-      {/* ── Row 1: Settings categories ── */}
+      {/* ── Row 1: All + Settings categories ── */}
       <div class="flex items-center gap-2 px-4 py-2 overflow-x-auto">
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-            props.isAllSettingsSelected ? "badge-primary" : "badge-ghost hover:badge-outline"
+            props.isAllRow1 ? "badge-primary" : "badge-ghost hover:badge-outline"
           }`}
-          onClick={props.onToggleAllSettings}
+          onClick={props.onToggleAllRow1}
         >
-          All ({props.allSettingsCount})
+          All
         </button>
-        <For each={props.settingsCategories}>
-          {([cat, count]) => (
+        <span class="sg-category-row-label flex-shrink-0">
+          Settings ({props.row1Total})
+        </span>
+        <For each={props.row1Categories}>
+          {([cat]) => (
             <button
               class={`badge cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors ${
-                props.activeSettings.has(cat) || props.activeSettings.has("__all__")
+                props.activeRow1.has(cat) || props.activeRow1.has("__all__")
                   ? "badge-primary"
                   : "badge-ghost hover:badge-outline"
               }`}
-              onClick={() => props.onToggleSettingsCat(cat)}
+              onClick={() => props.onToggleRow1Cat(cat)}
             >
-              {cat} ({count})
+              {cat}
             </button>
           )}
         </For>
@@ -74,16 +79,43 @@ export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
         />
       </div>
 
-      {/* ── Row 2: Binds + Aliases ── */}
+      {/* ── Row 2: All + HUD/Teamplay/Server + Binds + Aliases ── */}
       <div class="flex items-center gap-2 px-4 py-1.5 overflow-x-auto border-t border-[var(--sg-stat-border)]">
-        <span class="sg-category-row-label flex-shrink-0">Binds</span>
+        <button
+          class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+            props.isAllRow2 ? "badge-primary" : "badge-ghost hover:badge-outline"
+          }`}
+          onClick={props.onToggleAllRow2}
+        >
+          All
+        </button>
+        <For each={props.row2CvarCats}>
+          {([cat]) => (
+            <button
+              class={`badge cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors ${
+                props.activeRow2Cats.has(cat)
+                  ? "badge-primary"
+                  : "badge-ghost hover:badge-outline"
+              }`}
+              onClick={() => props.onToggleRow2Cat(cat)}
+            >
+              {cat}
+            </button>
+          )}
+        </For>
+
+        <div class="sg-category-separator" />
+
+        <span class="sg-category-row-label flex-shrink-0">
+          Binds ({props.bindTotal})
+        </span>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
             props.activeBinds.has("weapons") ? "badge-binds" : "badge-ghost hover:badge-outline"
           }`}
           onClick={() => props.onToggleBindCat("weapons")}
         >
-          Weapons ({props.bindCounts.weapons})
+          Weapons
         </button>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
@@ -91,7 +123,7 @@ export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
           }`}
           onClick={() => props.onToggleBindCat("teamsay")}
         >
-          Teamsay ({props.bindCounts.teamsay})
+          Teamsay
         </button>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
@@ -99,19 +131,18 @@ export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
           }`}
           onClick={() => props.onToggleBindCat("misc")}
         >
-          Misc ({props.bindCounts.misc})
+          Misc
         </button>
 
         <div class="sg-category-separator" />
 
-        <span class="sg-category-row-label flex-shrink-0">Aliases</span>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
             props.aliasesActive ? "badge-binds" : "badge-ghost hover:badge-outline"
           }`}
           onClick={props.onToggleAliases}
         >
-          All ({props.aliasCount})
+          Aliases
         </button>
       </div>
     </div>

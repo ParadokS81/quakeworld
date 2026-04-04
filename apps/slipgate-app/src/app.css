@@ -1590,6 +1590,34 @@ input[type="number"] {
   border-top: 1px solid var(--sg-stat-border);
 }
 
+/* ─── ConfigViewer: category group headers (within content area) ───── */
+.sg-category-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 6px;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: oklch(0.55 0.02 260);
+  font-weight: 700;
+}
+.sg-category-group-header::before,
+.sg-category-group-header::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid oklch(0.55 0.02 260 / 0.3);
+}
+
+/* ─── ConfigViewer: sub-group headers (within category groups) ──────── */
+.sg-subgroup-header {
+  padding: 14px 16px 4px 296px;
+  font-size: 20px;
+  color: var(--sg-text-dim);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 /* ─── ConfigViewer: category bar labels ─────────────────────────────── */
 .sg-category-row-label {
   font-size: 10px;

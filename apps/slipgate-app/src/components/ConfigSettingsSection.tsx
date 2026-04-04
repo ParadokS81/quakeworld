@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import type { CvarInfo } from "qw-config";
 import CvarRow from "./CvarRow";
 import CvarTooltip from "./CvarTooltip";
@@ -25,7 +25,37 @@ interface ConfigSettingsSectionProps {
   onMouseLeave: () => void;
 }
 
+interface CategoryGroup {
+  category: string;
+  totalCount: number;
+  subGroups: { name: string; cvars: EnrichedCvar[] }[];
+}
+
 export default function ConfigSettingsSection(props: ConfigSettingsSectionProps) {
+  // Group cvars by category → sub-group, sorted by size descending
+  const groupedCvars = createMemo((): CategoryGroup[] => {
+    const categories = new Map<string, Map<string, EnrichedCvar[]>>();
+    for (const cvar of props.cvars) {
+      const cat = cvar.info?.category ?? "Unknown";
+      const group = cvar.info?.group ?? "";
+      if (!categories.has(cat)) categories.set(cat, new Map());
+      const catGroups = categories.get(cat)!;
+      if (!catGroups.has(group)) catGroups.set(group, []);
+      catGroups.get(group)!.push(cvar);
+    }
+    return Array.from(categories.entries())
+      .map(([cat, groups]) => ({
+        category: cat,
+        totalCount: Array.from(groups.values()).reduce((sum, g) => sum + g.length, 0),
+        subGroups: Array.from(groups.entries())
+          .sort((a, b) => b[1].length - a[1].length)
+          .map(([name, cvars]) => ({ name, cvars })),
+      }))
+      .sort((a, b) => b.totalCount - a.totalCount);
+  });
+
+  const showCategoryHeaders = () => groupedCvars().length > 1;
+
   return (
     <div>
       {/* Section header */}
@@ -47,7 +77,7 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
         </Show>
       </div>
 
-      {/* Cvar list */}
+      {/* Cvar list, grouped by category → sub-group */}
       <Show
         when={props.cvars.length > 0}
         fallback={
@@ -56,41 +86,63 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
           </div>
         }
       >
-        <For each={props.cvars}>
-          {(cvar) => (
-            <div class="relative">
-              <CvarRow
-                name={cvar.name}
-                value={cvar.value}
-                compareValue={cvar.compareValue}
-                info={cvar.info}
-                isExpanded={props.expandedCvar === cvar.name}
-                isCompareMode={props.isCompareMode}
-                isObsolete={cvar.isObsolete}
-                isUnknown={cvar.isUnknown}
-                onToggle={() => props.onToggleCvar(cvar.name)}
-                onMouseEnter={(e) => props.onMouseEnter(cvar.name, e)}
-                onMouseLeave={props.onMouseLeave}
-              />
-              <Show when={props.hoveredCvar === cvar.name && props.expandedCvar !== cvar.name}>
-                <CvarTooltip
-                  name={cvar.name}
-                  value={cvar.value}
-                  compareValue={cvar.compareValue}
-                  info={cvar.info}
-                  mode="tooltip"
-                />
+        <For each={groupedCvars()}>
+          {(catGroup) => (
+            <>
+              <Show when={showCategoryHeaders()}>
+                <div class="sg-category-group-header">
+                  {catGroup.category} <span class="opacity-40">{catGroup.totalCount}</span>
+                </div>
               </Show>
-              <Show when={props.expandedCvar === cvar.name}>
-                <CvarTooltip
-                  name={cvar.name}
-                  value={cvar.value}
-                  compareValue={cvar.compareValue}
-                  info={cvar.info}
-                  mode="expanded"
-                />
-              </Show>
-            </div>
+              <For each={catGroup.subGroups}>
+                {(subGroup) => (
+                  <>
+                    <Show when={subGroup.name && catGroup.subGroups.length > 1}>
+                      <div class="sg-subgroup-header">
+                        {subGroup.name} <span class="opacity-40">{subGroup.cvars.length}</span>
+                      </div>
+                    </Show>
+                    <For each={subGroup.cvars}>
+                      {(cvar) => (
+                        <div class="relative">
+                          <CvarRow
+                            name={cvar.name}
+                            value={cvar.value}
+                            compareValue={cvar.compareValue}
+                            info={cvar.info}
+                            isExpanded={props.expandedCvar === cvar.name}
+                            isCompareMode={props.isCompareMode}
+                            isObsolete={cvar.isObsolete}
+                            isUnknown={cvar.isUnknown}
+                            onToggle={() => props.onToggleCvar(cvar.name)}
+                            onMouseEnter={(e) => props.onMouseEnter(cvar.name, e)}
+                            onMouseLeave={props.onMouseLeave}
+                          />
+                          <Show when={props.hoveredCvar === cvar.name && props.expandedCvar !== cvar.name}>
+                            <CvarTooltip
+                              name={cvar.name}
+                              value={cvar.value}
+                              compareValue={cvar.compareValue}
+                              info={cvar.info}
+                              mode="tooltip"
+                            />
+                          </Show>
+                          <Show when={props.expandedCvar === cvar.name}>
+                            <CvarTooltip
+                              name={cvar.name}
+                              value={cvar.value}
+                              compareValue={cvar.compareValue}
+                              info={cvar.info}
+                              mode="expanded"
+                            />
+                          </Show>
+                        </div>
+                      )}
+                    </For>
+                  </>
+                )}
+              </For>
+            </>
           )}
         </For>
       </Show>
