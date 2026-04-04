@@ -9,13 +9,9 @@ interface ConfigCategoryBarProps {
   onToggleRow1Cat: (cat: string) => void;
   onToggleAllRow1: () => void;
 
-  // Row 2 — Specialized cvar categories + Binds + Aliases
-  row2CvarCats: [string, number][];
-  activeRow2Cats: Set<string>;
-  onToggleRow2Cat: (cat: string) => void;
-  bindTotal: number;
-  activeBinds: Set<string>;
-  onToggleBindCat: (cat: string) => void;
+  // Row 2 — Domains
+  activeRow2: Set<string>;
+  onToggleRow2Pill: (key: string) => void;
   aliasesActive: boolean;
   onToggleAliases: () => void;
   isAllRow2: boolean;
@@ -79,7 +75,7 @@ export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
         />
       </div>
 
-      {/* ── Row 2: All + HUD/Teamplay/Server + Binds + Aliases ── */}
+      {/* ── Row 2: All + Domain sub-pills + Aliases ── */}
       <div class="flex items-center gap-2 px-4 py-1.5 overflow-x-auto border-t border-[var(--sg-stat-border)]">
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
@@ -89,53 +85,63 @@ export default function ConfigCategoryBar(props: ConfigCategoryBarProps) {
         >
           All
         </button>
-        <For each={props.row2CvarCats}>
-          {([cat]) => (
-            <button
-              class={`badge cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors ${
-                props.activeRow2Cats.has(cat)
-                  ? "badge-primary"
-                  : "badge-ghost hover:badge-outline"
-              }`}
-              onClick={() => props.onToggleRow2Cat(cat)}
-            >
-              {cat}
-            </button>
-          )}
-        </For>
 
-        <div class="sg-category-separator" />
-
-        <span class="sg-category-row-label flex-shrink-0">
-          Binds ({props.bindTotal})
-        </span>
+        {/* Teamplay domain */}
+        <span class="sg-category-row-label flex-shrink-0">Teamplay</span>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-            props.activeBinds.has("weapons") ? "badge-binds" : "badge-ghost hover:badge-outline"
+            props.activeRow2.has("teamplay:settings") ? "badge-primary" : "badge-ghost hover:badge-outline"
           }`}
-          onClick={() => props.onToggleBindCat("weapons")}
+          onClick={() => props.onToggleRow2Pill("teamplay:settings")}
         >
-          Weapons
+          Settings
         </button>
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-            props.activeBinds.has("teamsay") ? "badge-binds" : "badge-ghost hover:badge-outline"
+            props.activeRow2.has("teamplay:binds") ? "badge-binds" : "badge-ghost hover:badge-outline"
           }`}
-          onClick={() => props.onToggleBindCat("teamsay")}
+          onClick={() => props.onToggleRow2Pill("teamplay:binds")}
         >
-          Teamsay
-        </button>
-        <button
-          class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-            props.activeBinds.has("misc") ? "badge-binds" : "badge-ghost hover:badge-outline"
-          }`}
-          onClick={() => props.onToggleBindCat("misc")}
-        >
-          Misc
+          Binds
         </button>
 
         <div class="sg-category-separator" />
 
+        {/* Weapons domain */}
+        <span class="sg-category-row-label flex-shrink-0">Weapons</span>
+        <button
+          class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+            props.activeRow2.has("weapons:settings") ? "badge-primary" : "badge-ghost hover:badge-outline"
+          }`}
+          onClick={() => props.onToggleRow2Pill("weapons:settings")}
+        >
+          Settings
+        </button>
+        <button
+          class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+            props.activeRow2.has("weapons:binds") ? "badge-binds" : "badge-ghost hover:badge-outline"
+          }`}
+          onClick={() => props.onToggleRow2Pill("weapons:binds")}
+        >
+          Binds
+        </button>
+
+        <div class="sg-category-separator" />
+
+        {/* Misc domain */}
+        <span class="sg-category-row-label flex-shrink-0">Misc</span>
+        <button
+          class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+            props.activeRow2.has("misc:binds") ? "badge-binds" : "badge-ghost hover:badge-outline"
+          }`}
+          onClick={() => props.onToggleRow2Pill("misc:binds")}
+        >
+          Binds
+        </button>
+
+        <div class="sg-category-separator" />
+
+        {/* Aliases (standalone) */}
         <button
           class={`badge cursor-pointer flex-shrink-0 transition-colors ${
             props.aliasesActive ? "badge-binds" : "badge-ghost hover:badge-outline"

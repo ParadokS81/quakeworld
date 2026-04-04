@@ -102,8 +102,9 @@ export function categorizeBinds(
   for (const [key, command] of rawBinds) {
     const keyUpper = key.toUpperCase();
 
-    // Skip movement keys
+    // Skip movement keys and empty binds (bind key "" = effectively unbound)
     if (movementKeys.has(keyUpper)) continue;
+    if (!command.trim()) continue;
 
     const wb = weaponByKey.get(keyUpper);
     const tb = teamsayByKey.get(keyUpper);

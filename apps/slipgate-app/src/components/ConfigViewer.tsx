@@ -1,5 +1,5 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
-import { lookupCvar, loadDatabase, parseConfig } from "qw-config";
+import { lookupCvar, loadDatabase, parseConfig, loadDomainTags } from "qw-config";
 import type { EzQuakeConfig, ConfigChain } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigCategoryBar from "./ConfigCategoryBar";
@@ -34,8 +34,11 @@ function isDefaultValue(value: string | undefined, defaultVal: string | undefine
   return valuesEqual(value, defaultVal);
 }
 
-/** Categories that belong in row 2 (conceptually separate from general settings) */
-const ROW2_CVAR_CATS = new Set(["HUD", "Teamplay", "Server"]);
+/** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
+const DOMAIN_CATEGORIES = new Set(["Teamplay"]);
+
+/** All domain sub-pill keys */
+const ALL_ROW2_PILLS = ["teamplay:settings", "teamplay:binds", "weapons:settings", "weapons:binds", "misc:binds"];
 
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
@@ -63,9 +66,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Row 1: Settings category state (excludes HUD/Teamplay/Server) ──
   const [activeRow1, setActiveRow1] = createSignal<Set<string>>(new Set(["__all__"]));
 
-  // ── Row 2: Specialized cvar categories + Binds + Aliases ──
-  const [activeRow2Cats, setActiveRow2Cats] = createSignal<Set<string>>(new Set());
-  const [activeBindCats, setActiveBindCats] = createSignal<Set<string>>(new Set());
+  // ── Row 2: Domain sub-pills (e.g. "teamplay:settings", "weapons:binds") + Aliases ──
+  const [activeRow2, setActiveRow2] = createSignal<Set<string>>(new Set());
   const [aliasesActive, setAliasesActive] = createSignal(false);
 
   // ── Compare state ──
@@ -163,14 +165,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const row1Categories = createMemo(() =>
-    allCategories().filter(([cat]) => !ROW2_CVAR_CATS.has(cat)),
-  );
-  const row2CvarCategories = createMemo(() =>
-    allCategories().filter(([cat]) => ROW2_CVAR_CATS.has(cat)),
+    allCategories().filter(([cat]) => !DOMAIN_CATEGORIES.has(cat)),
   );
 
   const row1CatNames = createMemo(() => row1Categories().map(([cat]) => cat));
-  const row2CvarCatNames = createMemo(() => row2CvarCategories().map(([cat]) => cat));
 
   const row1Total = createMemo(() =>
     row1Categories().reduce((sum, [_, count]) => sum + count, 0),
@@ -182,16 +180,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const isAllRow2 = createMemo(() => {
-    const cats = activeRow2Cats();
-    const binds = activeBindCats();
-    const r2Names = row2CvarCatNames();
-    const allCvarsOn = r2Names.length > 0 && r2Names.every((c) => cats.has(c));
-    const allBindsOn = ["weapons", "teamsay", "misc"].every((b) => binds.has(b));
-    return allCvarsOn && allBindsOn && aliasesActive();
+    const active = activeRow2();
+    return ALL_ROW2_PILLS.every((p) => active.has(p)) && aliasesActive();
   });
 
   function toggleRow1Cat(cat: string) {
-    // Capture outside setter to avoid stale reads during batch updates
     const allNames = row1CatNames();
     if (allNames.length === 0) return;
     setActiveRow1((prev) => {
@@ -220,34 +213,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
   }
 
-  function toggleRow2Cat(cat: string) {
-    setActiveRow2Cats((prev) => {
+  function toggleRow2Pill(key: string) {
+    setActiveRow2((prev) => {
       const next = new Set(prev);
-      if (next.has(cat)) next.delete(cat);
-      else next.add(cat);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   }
 
   function toggleAllRow2() {
     if (isAllRow2()) {
-      setActiveRow2Cats(new Set<string>());
-      setActiveBindCats(new Set<string>());
+      setActiveRow2(new Set<string>());
       setAliasesActive(false);
     } else {
-      setActiveRow2Cats(new Set(row2CvarCatNames()));
-      setActiveBindCats(new Set(["weapons", "teamsay", "misc"]));
+      setActiveRow2(new Set(ALL_ROW2_PILLS));
       setAliasesActive(true);
     }
-  }
-
-  function toggleBindCat(cat: string) {
-    setActiveBindCats((prev) => {
-      const next = new Set(prev);
-      if (next.has(cat)) next.delete(cat);
-      else next.add(cat);
-      return next;
-    });
   }
 
   // ── Compare filter counts ──
@@ -268,26 +250,33 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return { diff, same, onlyLeft, onlyRight };
   });
 
+  // ── Weapons domain cvar set (loaded once) ──
+  const weaponCvarSet = createMemo(() => loadDomainTags().get("weapons") ?? new Set<string>());
+
   // ── Filtered cvar list ──
   const filteredCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
     const row1 = activeRow1();
-    const row2 = activeRow2Cats();
+    const row2 = activeRow2();
     const showAllRow1 = row1.has("__all__");
     const cmpFilter = compareFilter();
     const cmpMode = isCompareMode();
+    const weaponCvars = weaponCvarSet();
 
     return relevantCvars().filter((cvar) => {
       const cat = cvar.info?.category ?? "Unknown";
-      if (ROW2_CVAR_CATS.has(cat)) {
-        if (!row2.has(cat)) return false;
-      } else if (showAllRow1) {
-        // pass — show all row 1 cats
-      } else if (row1.size > 0) {
-        if (!row1.has(cat)) return false;
-      } else {
-        return false;
-      }
+
+      // Check row 1 categories
+      let passRow1 = false;
+      if (showAllRow1) passRow1 = true;
+      else if (row1.size > 0 && row1.has(cat)) passRow1 = true;
+
+      // Check row 2 domain settings
+      let passRow2 = false;
+      if (row2.has("teamplay:settings") && cat === "Teamplay") passRow2 = true;
+      if (row2.has("weapons:settings") && weaponCvars.has(cvar.name)) passRow2 = true;
+
+      if (!passRow1 && !passRow2) return false;
 
       if (cmpMode && cmpFilter !== "all") {
         const hasLeft = cvar.hasLeft;
@@ -341,28 +330,20 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const filteredBinds = createMemo(() => {
-    const active = activeBindCats();
-    if (active.size === 0) return [];
+    const active = activeRow2();
+    // Map domain sub-pills to bind categories
+    const activeCats = new Set<string>();
+    if (active.has("teamplay:binds")) activeCats.add("teamsay");
+    if (active.has("weapons:binds")) activeCats.add("weapons");
+    if (active.has("misc:binds")) activeCats.add("misc");
+
+    if (activeCats.size === 0) return [];
     const q = search().trim().toLowerCase();
     return enrichedBinds().filter((b) => {
-      if (!active.has(b.category)) return false;
+      if (!activeCats.has(b.category)) return false;
       if (q && !b.key.toLowerCase().includes(q) && !b.command.toLowerCase().includes(q) && !b.label.toLowerCase().includes(q)) return false;
       return true;
     });
-  });
-
-  const bindCounts = createMemo(() => {
-    const all = enrichedBinds();
-    return {
-      weapons: all.filter((b) => b.category === "weapons").length,
-      teamsay: all.filter((b) => b.category === "teamsay").length,
-      misc: all.filter((b) => b.category === "misc").length,
-    };
-  });
-
-  const bindTotal = createMemo(() => {
-    const bc = bindCounts();
-    return bc.weapons + bc.teamsay + bc.misc;
   });
 
   // ── Aliases data ──
@@ -382,10 +363,14 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Section visibility ──
   const showSettingsSection = createMemo(() => {
-    return activeRow1().size > 0 || activeRow2Cats().size > 0;
+    const row2 = activeRow2();
+    return activeRow1().size > 0 || row2.has("teamplay:settings") || row2.has("weapons:settings");
   });
 
-  const showBindsSection = createMemo(() => activeBindCats().size > 0);
+  const showBindsSection = createMemo(() => {
+    const active = activeRow2();
+    return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds");
+  });
   const showAliasesSection = createMemo(() => aliasesActive());
 
   // ── Actions ──
@@ -511,12 +496,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             row1Total={row1Total()}
             onToggleRow1Cat={toggleRow1Cat}
             onToggleAllRow1={toggleAllRow1}
-            row2CvarCats={row2CvarCategories()}
-            activeRow2Cats={activeRow2Cats()}
-            onToggleRow2Cat={toggleRow2Cat}
-            bindTotal={bindTotal()}
-            activeBinds={activeBindCats()}
-            onToggleBindCat={toggleBindCat}
+            activeRow2={activeRow2()}
+            onToggleRow2Pill={toggleRow2Pill}
             aliasesActive={aliasesActive()}
             onToggleAliases={() => setAliasesActive((v) => !v)}
             isAllRow2={isAllRow2()}
