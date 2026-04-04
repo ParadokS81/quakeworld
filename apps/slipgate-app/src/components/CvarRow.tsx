@@ -53,7 +53,7 @@ export default function CvarRow(props: CvarRowProps) {
     >
       {/* Cvar name + status badges */}
       <span
-        class={`px-4 py-1.5 font-mono truncate flex items-center gap-1.5 ${
+        class={`pl-12 pr-4 py-1.5 font-mono truncate flex items-center gap-1.5 ${
           props.isObsolete
             ? "text-[var(--sg-section-label)] line-through"
             : isChanged()

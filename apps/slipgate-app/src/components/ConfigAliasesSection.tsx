@@ -8,10 +8,8 @@ interface ConfigAliasesSectionProps {
 export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
   return (
     <div>
-      {/* Section header */}
-      <div class="sg-config-section-header">
-        Aliases ({props.aliases.length})
-      </div>
+      {/* Category header (matches settings style) */}
+      <div class="sg-category-group-header">Aliases</div>
 
       {/* Column headers */}
       <div class="sg-alias-row text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">

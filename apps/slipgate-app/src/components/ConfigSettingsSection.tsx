@@ -58,19 +58,14 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
 
   return (
     <div>
-      {/* Section header */}
-      <div class="sg-config-section-header">
-        Settings ({props.cvars.length})
-      </div>
-
       {/* Column headers */}
       <div
-        class="grid px-4 py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]"
+        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]"
         style={{
           "grid-template-columns": props.isCompareMode ? "240px 1fr 1fr" : "280px 1fr",
         }}
       >
-        <span>Cvar</span>
+        <span class="pl-12 pr-4">Cvar</span>
         <span class="px-3">{props.isCompareMode ? "Your config" : "Value"}</span>
         <Show when={props.isCompareMode}>
           <span class="px-3 border-l border-[var(--sg-stat-border)]">Comparison</span>
@@ -90,17 +85,13 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
           {(catGroup) => (
             <>
               <Show when={showCategoryHeaders()}>
-                <div class="sg-category-group-header">
-                  {catGroup.category} <span class="opacity-40">{catGroup.totalCount}</span>
-                </div>
+                <div class="sg-category-group-header">{catGroup.category}</div>
               </Show>
               <For each={catGroup.subGroups}>
                 {(subGroup) => (
                   <>
                     <Show when={subGroup.name && catGroup.subGroups.length > 1}>
-                      <div class="sg-subgroup-header">
-                        {subGroup.name} <span class="opacity-40">{subGroup.cvars.length}</span>
-                      </div>
+                      <div class="sg-subgroup-header">{subGroup.name}</div>
                     </Show>
                     <For each={subGroup.cvars}>
                       {(cvar) => (

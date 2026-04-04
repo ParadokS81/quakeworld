@@ -2,7 +2,7 @@ import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "s
 import { lookupCvar, loadDatabase, parseConfig, loadDomainTags } from "qw-config";
 import type { EzQuakeConfig, ConfigChain } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
-import ConfigCategoryBar from "./ConfigCategoryBar";
+import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
 import ConfigBindsSection from "./ConfigBindsSection";
 import ConfigAliasesSection from "./ConfigAliasesSection";
@@ -36,9 +36,6 @@ function isDefaultValue(value: string | undefined, defaultVal: string | undefine
 
 /** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
 const DOMAIN_CATEGORIES = new Set(["Teamplay"]);
-
-/** All domain sub-pill keys */
-const ALL_ROW2_PILLS = ["teamplay:settings", "teamplay:binds", "weapons:settings", "weapons:binds", "misc:binds"];
 
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
@@ -179,11 +176,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("__all__") || row1CatNames().every((c) => active.has(c));
   });
 
-  const isAllRow2 = createMemo(() => {
-    const active = activeRow2();
-    return ALL_ROW2_PILLS.every((p) => active.has(p)) && aliasesActive();
-  });
-
   function toggleRow1Cat(cat: string) {
     const allNames = row1CatNames();
     if (allNames.length === 0) return;
@@ -220,16 +212,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       else next.add(key);
       return next;
     });
-  }
-
-  function toggleAllRow2() {
-    if (isAllRow2()) {
-      setActiveRow2(new Set<string>());
-      setAliasesActive(false);
-    } else {
-      setActiveRow2(new Set(ALL_ROW2_PILLS));
-      setAliasesActive(true);
-    }
   }
 
   // ── Compare filter counts ──
@@ -488,81 +470,83 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             </div>
           </Show>
 
-          {/* ── Category bars (two rows) ── */}
-          <ConfigCategoryBar
-            row1Categories={row1Categories()}
-            activeRow1={activeRow1()}
-            isAllRow1={isAllRow1()}
-            row1Total={row1Total()}
-            onToggleRow1Cat={toggleRow1Cat}
-            onToggleAllRow1={toggleAllRow1}
-            activeRow2={activeRow2()}
-            onToggleRow2Pill={toggleRow2Pill}
-            aliasesActive={aliasesActive()}
-            onToggleAliases={() => setAliasesActive((v) => !v)}
-            isAllRow2={isAllRow2()}
-            onToggleAllRow2={toggleAllRow2}
-            hideDefaults={hideDefaults()}
-            onHideDefaultsChange={setHideDefaults}
-            search={search()}
-            onSearchChange={setSearch}
-          />
+          {/* ── Sidebar + Content (horizontal layout) ── */}
+          <div class="flex-1 flex overflow-hidden">
+            <ConfigSidebar
+              row1Categories={row1Categories()}
+              activeRow1={activeRow1()}
+              isAllRow1={isAllRow1()}
+              row1Total={row1Total()}
+              onToggleRow1Cat={toggleRow1Cat}
+              onToggleAllRow1={toggleAllRow1}
+              activeRow2={activeRow2()}
+              onToggleRow2Pill={toggleRow2Pill}
+              aliasesActive={aliasesActive()}
+              onToggleAliases={() => setAliasesActive((v) => !v)}
+              hideDefaults={hideDefaults()}
+              onHideDefaultsChange={setHideDefaults}
+              search={search()}
+              onSearchChange={setSearch}
+            />
 
-          {/* ── Compare filter bar ── */}
-          <Show when={isCompareMode()}>
-            <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
-              <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1" onClick={clearCompare} title="Exit compare mode">
-                ✕
-              </button>
-              <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
-              <For each={[
-                { id: "all" as CompareFilter, label: `All (${relevantCvars().length})` },
-                { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
-                { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
-                { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
-                { id: "only_right" as CompareFilter, label: `Only theirs (${compareCounts().onlyRight})` },
-              ]}>
-                {(f) => (
-                  <button
-                    class={`badge cursor-pointer flex-shrink-0 transition-colors ${
-                      compareFilter() === f.id ? "badge-primary" : "badge-ghost hover:badge-outline"
-                    }`}
-                    onClick={() => setCompareFilter(f.id)}
-                  >
-                    {f.label}
+            <div class="flex-1 flex flex-col overflow-hidden">
+              {/* ── Compare filter bar ── */}
+              <Show when={isCompareMode()}>
+                <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
+                  <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1" onClick={clearCompare} title="Exit compare mode">
+                    ✕
                   </button>
-                )}
-              </For>
-            </div>
-          </Show>
+                  <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
+                  <For each={[
+                    { id: "all" as CompareFilter, label: `All (${relevantCvars().length})` },
+                    { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
+                    { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
+                    { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
+                    { id: "only_right" as CompareFilter, label: `Only theirs (${compareCounts().onlyRight})` },
+                  ]}>
+                    {(f) => (
+                      <button
+                        class={`badge cursor-pointer flex-shrink-0 transition-colors ${
+                          compareFilter() === f.id ? "badge-primary" : "badge-ghost hover:badge-outline"
+                        }`}
+                        onClick={() => setCompareFilter(f.id)}
+                      >
+                        {f.label}
+                      </button>
+                    )}
+                  </For>
+                </div>
+              </Show>
 
-          {/* ── Content sections ── */}
-          <div class="flex-1 overflow-y-auto relative">
-            <Show when={showSettingsSection()}>
-              <ConfigSettingsSection
-                cvars={filteredCvars()}
-                isCompareMode={isCompareMode()}
-                expandedCvar={expandedCvar()}
-                hoveredCvar={hoveredCvar()}
-                onToggleCvar={toggleCvar}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              />
-            </Show>
+              {/* ── Content sections ── */}
+              <div class="flex-1 overflow-y-auto relative">
+                <Show when={showSettingsSection()}>
+                  <ConfigSettingsSection
+                    cvars={filteredCvars()}
+                    isCompareMode={isCompareMode()}
+                    expandedCvar={expandedCvar()}
+                    hoveredCvar={hoveredCvar()}
+                    onToggleCvar={toggleCvar}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  />
+                </Show>
 
-            <Show when={showBindsSection()}>
-              <ConfigBindsSection binds={filteredBinds()} />
-            </Show>
+                <Show when={showBindsSection()}>
+                  <ConfigBindsSection binds={filteredBinds()} />
+                </Show>
 
-            <Show when={showAliasesSection()}>
-              <ConfigAliasesSection aliases={filteredAliases()} />
-            </Show>
+                <Show when={showAliasesSection()}>
+                  <ConfigAliasesSection aliases={filteredAliases()} />
+                </Show>
 
-            <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection()}>
-              <div class="flex items-center justify-center h-20 text-xs text-[var(--sg-section-label)]">
-                Select a category to view settings, binds, or aliases
+                <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection()}>
+                  <div class="flex items-center justify-center h-20 text-xs text-[var(--sg-section-label)]">
+                    Select a category to view settings, binds, or aliases
+                  </div>
+                </Show>
               </div>
-            </Show>
+            </div>
           </div>
         </div>
       </Match>

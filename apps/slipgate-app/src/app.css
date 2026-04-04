@@ -107,6 +107,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   padding: 12px 0;
   gap: 4px;
   flex-shrink: 0;
@@ -1592,30 +1593,55 @@ input[type="number"] {
 
 /* ─── ConfigViewer: category group headers (within content area) ───── */
 .sg-category-group-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 16px 6px;
-  font-size: 20px;
+  padding: 10px 16px 6px;
+  font-size: 18px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: oklch(0.55 0.02 260);
+  letter-spacing: 0.5px;
+  color: var(--sg-text-bright);
   font-weight: 700;
+  background: color-mix(in oklch, var(--sg-stat-border) 35%, transparent);
+  margin-top: 16px;
 }
-.sg-category-group-header::before,
-.sg-category-group-header::after {
-  content: "";
-  flex: 1;
-  border-top: 1px solid oklch(0.55 0.02 260 / 0.3);
+.sg-category-group-header:first-child {
+  margin-top: 0;
 }
 
 /* ─── ConfigViewer: sub-group headers (within category groups) ──────── */
 .sg-subgroup-header {
-  padding: 14px 16px 4px 296px;
-  font-size: 20px;
+  padding: 10px 16px 3px 32px;
+  font-size: 13px;
   color: var(--sg-text-dim);
   font-weight: 600;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+}
+
+/* ─── ConfigViewer: filter sidebar ──────────────────────────────────── */
+.sg-config-sidebar {
+  width: 160px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--sg-stat-border);
+  overflow-y: auto;
+  padding: 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sg-config-sidebar-section-label {
+  padding: 0 2px 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--sg-section-label);
+  font-weight: 600;
+}
+.sg-config-sidebar-domain-label {
+  padding: 4px 2px 2px;
+  font-size: 11px;
+  color: var(--sg-text-dim);
+  font-weight: 600;
+}
+.sg-config-sidebar-nested {
+  padding-left: 10px;
 }
 
 /* ─── ConfigViewer: category bar labels ─────────────────────────────── */

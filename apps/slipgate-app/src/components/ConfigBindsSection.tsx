@@ -14,10 +14,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
   return (
     <div>
-      {/* Section header */}
-      <div class="sg-config-section-header">
-        Binds ({props.binds.length})
-      </div>
+      {/* Category header (matches settings style) */}
+      <div class="sg-category-group-header">Binds</div>
 
       {/* Column headers */}
       <div class="sg-bind-row text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
