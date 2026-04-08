@@ -1,6 +1,6 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
-import { lookupCvar, loadDatabase, parseConfig, loadDomainTags } from "qw-config";
-import type { EzQuakeConfig, ConfigChain } from "../types";
+import { lookupCvar, loadDatabase, loadDomainTags } from "qw-config";
+import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
@@ -14,6 +14,11 @@ interface ConfigViewerProps {
   configChain: ConfigChain | null;
   exePath: string | null;
   configName: string | null;
+  compareSource?: ConfigSourceBundle | null;
+  onClearCompare?: () => void;
+  isDragOver?: boolean;
+  dropError?: string | null;
+  availableConfigs?: Array<{ filename: string; relative_path: string; size: number; location: { type: string; pak_name?: string } }>;
 }
 
 type ViewMode = "list" | "convert";
@@ -68,9 +73,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [aliasesActive, setAliasesActive] = createSignal(false);
 
   // ── Compare state ──
-  const [compareText, setCompareText] = createSignal("");
-  const [compareActive, setCompareActive] = createSignal(false);
-  const [showPasteUI, setShowPasteUI] = createSignal(false);
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
 
   // ── Tooltip hover state ──
@@ -100,16 +102,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     mergedData()?.cvars ?? props.config?.raw_cvars ?? {},
   );
 
-  // ── Compare config parsing ──
+  // ── Compare config from source bundle ──
   const compareCvars = createMemo((): Map<string, string> => {
-    if (!compareActive()) return new Map();
-    const text = compareText().trim();
-    if (!text) return new Map();
-    const parsed = parseConfig(text);
-    return new Map(parsed.cvars);
+    const source = props.compareSource;
+    if (!source?.primary_chain) return new Map();
+    // Merge all files from the compare chain
+    const allIndices = new Set(source.primary_chain.files.map((_: any, i: number) => i));
+    const merged = mergeSelectedFiles(source.primary_chain, allIndices);
+    return new Map(Object.entries(merged.cvars));
   });
 
-  const isCompareMode = () => compareActive() && compareCvars().size > 0;
+  const isCompareMode = () => compareCvars().size > 0;
 
   // ── Enriched cvar list (database + user values) ──
   const enrichedCvars = createMemo(() => {
@@ -370,19 +373,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     });
   }
 
-  function startCompare() { setShowPasteUI(true); }
-
-  function applyCompare() {
-    if (compareText().trim()) {
-      setCompareActive(true);
-      setShowPasteUI(false);
-    }
-  }
-
   function clearCompare() {
-    setCompareActive(false);
-    setCompareText("");
     setCompareFilter("all");
+    props.onClearCompare?.();
   }
 
   // ── Render ──
@@ -408,7 +401,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         />
       </Match>
       <Match when={viewMode() === "list"}>
-        <div class="flex flex-col h-full overflow-hidden">
+        <div class="flex flex-col h-full overflow-hidden relative">
           {/* ── Top bar ── */}
           <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 flex-wrap">
             <button
@@ -423,15 +416,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
             <div class="flex-1" />
 
-            <Show when={!isCompareMode()}>
-              <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={startCompare}>
-                Compare
-              </button>
-            </Show>
             <Show when={isCompareMode()}>
-              <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
-                Clear compare
-              </button>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="font-mono text-xs text-[var(--sg-text-dim)]">{props.compareSource?.label}</span>
+                <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
+                  ✕
+                </button>
+              </div>
             </Show>
             <button class="btn btn-primary btn-xs" onClick={() => setViewMode("convert")}>
               Convert to FTE
@@ -445,29 +436,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               selectedFiles={selectedFiles()}
               onToggleFile={toggleFile}
             />
-          </Show>
-
-          {/* ── Paste UI (compare mode) ── */}
-          <Show when={showPasteUI()}>
-            <div class="flex flex-col gap-3 p-4 border-b border-[var(--sg-stat-border)] flex-shrink-0">
-              <p class="text-sm text-[var(--sg-text-dim)]">
-                Paste a config file to compare with <span class="font-mono text-[var(--sg-text-bright)]">{props.configName ?? "config.cfg"}</span>:
-              </p>
-              <textarea
-                class="textarea textarea-bordered font-mono text-xs h-32 w-full"
-                placeholder={`sensitivity "3"\ncl_maxfps "500"\n...`}
-                value={compareText()}
-                onInput={(e) => setCompareText(e.currentTarget.value)}
-              />
-              <div class="flex gap-2">
-                <button class="btn btn-primary btn-sm" disabled={!compareText().trim()} onClick={applyCompare}>
-                  Compare
-                </button>
-                <button class="btn btn-ghost btn-sm" onClick={() => setShowPasteUI(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
           </Show>
 
           {/* ── Sidebar + Content (horizontal layout) ── */}
@@ -487,6 +455,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onHideDefaultsChange={setHideDefaults}
               search={search()}
               onSearchChange={setSearch}
+              isCompareMode={isCompareMode()}
             />
 
             <div class="flex-1 flex flex-col overflow-hidden">
@@ -548,6 +517,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               </div>
             </div>
           </div>
+
+          {/* Drop zone overlay */}
+          <Show when={props.isDragOver}>
+            <div class="absolute inset-0 z-50 flex items-center justify-center bg-black/50 border-2 border-dashed border-[var(--color-primary)] rounded">
+              <div class="text-center">
+                <p class="text-lg text-[var(--color-primary)] font-semibold">Drop to compare</p>
+                <p class="text-xs text-[var(--sg-text-dim)]">.cfg, .zip, .pak, .pk3</p>
+              </div>
+            </div>
+          </Show>
+
+          {/* Drop error toast */}
+          <Show when={props.dropError}>
+            <div class="absolute top-2 right-2 z-50 bg-error/90 text-error-content text-xs px-3 py-1.5 rounded">
+              {props.dropError}
+            </div>
+          </Show>
         </div>
       </Match>
     </Switch>
