@@ -58,9 +58,12 @@ export function loadEzQuakeCvars(): Map<string, CvarInfo> {
       group: "Other",
     };
 
-    // Help-only entries (not in source) get treated as Obsolete
+    // Trust help JSON's own category. `in-source: false` means our C-source
+    // parser didn't find the cvar (runtime-created, macro-hidden, etc.), not
+    // that it's obsolete. The help JSON already has a proper Obsolete group
+    // for truly removed cvars.
     const isInSource = raw["in-source"] !== false;
-    const effectiveCategory = isInSource ? meta.category : "Obsolete";
+    const effectiveCategory = meta.category;
 
     const cvar: CvarInfo = {
       name,
