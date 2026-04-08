@@ -6,6 +6,7 @@ import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
 import ConfigBindsSection from "./ConfigBindsSection";
+import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection } from "./ConfigDomainBinds";
 import ConfigAliasesSection from "./ConfigAliasesSection";
 import ConfigConverter from "./ConfigConverter";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases } from "./configMerger";
@@ -374,32 +375,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     );
   });
 
-  const filteredBinds = createMemo(() => {
-    const active = activeRow2();
-    // Map domain sub-pills to bind categories
-    const activeCats = new Set<string>();
-    if (active.has("teamplay:binds")) activeCats.add("teamsay");
-    if (active.has("weapons:binds")) activeCats.add("weapons");
-    if (active.has("misc:binds")) activeCats.add("misc");
-
-    if (activeCats.size === 0) return [];
-    const q = search().trim().toLowerCase();
-    const cmpFilter = isCompareMode() ? compareFilter() : "all";
-    return enrichedBinds().filter((b) => {
-      // Category filter — check both primary and compare category
-      if (!activeCats.has(b.category) && !(b.compareCategory && activeCats.has(b.compareCategory))) return false;
-      // Compare filter
-      if (cmpFilter === "diff" && b.hasLeft && b.hasRight && b.label === b.compareLabel) return false;
-      if (cmpFilter === "same" && (b.label !== b.compareLabel || !b.hasLeft || !b.hasRight)) return false;
-      if (cmpFilter === "only_left" && !(!b.hasRight && b.hasLeft)) return false;
-      if (cmpFilter === "only_right" && !(b.hasRight && !b.hasLeft)) return false;
-      // Search
-      if (q && !b.key.toLowerCase().includes(q) && !b.command.toLowerCase().includes(q) && !b.label.toLowerCase().includes(q)
-        && !(b.compareLabel?.toLowerCase().includes(q))) return false;
-      return true;
-    });
-  });
-
   // ── Aliases data ──
   const enrichedAliases = createMemo(() => {
     if (!effectiveChain()) return [];
@@ -424,6 +399,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const showBindsSection = createMemo(() => {
     const active = activeRow2();
     return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds");
+  });
+  // Misc-only filtered binds (exclude weapon/teamsay since those use domain components)
+  const filteredMiscBinds = createMemo(() => {
+    if (!activeRow2().has("misc:binds")) return [];
+    const q = search().trim().toLowerCase();
+    return enrichedBinds().filter((b) => {
+      if (b.category !== "misc") return false;
+      if (q && !b.key.toLowerCase().includes(q) && !b.command.toLowerCase().includes(q)) return false;
+      return true;
+    });
   });
   const showAliasesSection = createMemo(() => aliasesActive());
 
@@ -660,8 +645,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   />
                 </Show>
 
-                <Show when={showBindsSection()}>
-                  <ConfigBindsSection binds={filteredBinds()} isCompareMode={isCompareMode()} />
+                <Show when={activeRow2().has("weapons:binds")}>
+                  <ConfigWeaponBindsSection
+                    primaryBinds={props.config?.weapon_binds ?? []}
+                    compareBinds={compareBinds()?.weapon_binds}
+                  />
+                </Show>
+
+                <Show when={activeRow2().has("teamplay:binds")}>
+                  <ConfigTeamsayBindsSection
+                    primaryBinds={props.config?.teamsay_binds ?? []}
+                    compareBinds={compareBinds()?.teamsay_binds}
+                  />
+                </Show>
+
+                <Show when={activeRow2().has("misc:binds")}>
+                  <ConfigBindsSection binds={filteredMiscBinds()} isCompareMode={isCompareMode()} />
                 </Show>
 
                 <Show when={showAliasesSection()}>
