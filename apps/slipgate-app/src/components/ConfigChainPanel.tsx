@@ -1,10 +1,12 @@
-import { For, Show } from "solid-js";
-import type { ConfigChain } from "../types";
+import { For, Show, createSignal } from "solid-js";
+import type { ConfigChain, ConfigEntry } from "../types";
 
 interface ConfigChainPanelProps {
   configChain: ConfigChain;
   selectedFiles: Set<number>;
   onToggleFile: (index: number) => void;
+  availableConfigs?: ConfigEntry[];
+  onLoadConfig?: (entry: ConfigEntry) => void;
 }
 
 export default function ConfigChainPanel(props: ConfigChainPanelProps) {
@@ -80,6 +82,49 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
             )}
           </For>
         </div>
+      </Show>
+
+      {/* Other available configs */}
+      <Show when={props.availableConfigs && props.availableConfigs.length > 0}>
+        {(() => {
+          const [expanded, setExpanded] = createSignal(false);
+          const configs = () => props.availableConfigs!;
+          const visible = () => expanded() ? configs() : configs().slice(0, 3);
+          const hasMore = () => configs().length > 3;
+
+          return (
+            <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
+              <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                Other configs ({configs().length})
+              </span>
+              <div class="mt-1 font-mono">
+                <For each={visible()}>
+                  {(entry) => (
+                    <div
+                      class="flex items-center gap-2 py-0.5 cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                      onClick={() => props.onLoadConfig?.(entry)}
+                    >
+                      <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
+                      <Show when={entry.location.type === "inside_pak"}>
+                        <span class="text-[10px] text-[var(--sg-section-label)]">
+                          ({(entry.location as { type: "inside_pak"; pak_name: string }).pak_name})
+                        </span>
+                      </Show>
+                    </div>
+                  )}
+                </For>
+                <Show when={hasMore()}>
+                  <button
+                    class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--sg-text-dim)] cursor-pointer mt-1"
+                    onClick={() => setExpanded((v) => !v)}
+                  >
+                    {expanded() ? "Show less" : `▸ ${configs().length - 3} more...`}
+                  </button>
+                </Show>
+              </div>
+            </div>
+          );
+        })()}
       </Show>
     </div>
   );
