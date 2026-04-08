@@ -40,6 +40,7 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
         >
           All
         </button>
+        <div class="h-1" />
         <For each={props.row1Categories}>
           {([cat]) => (
             <>
