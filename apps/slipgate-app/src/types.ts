@@ -233,3 +233,31 @@ export interface ConfigChain {
   unresolved: UnresolvedExec[];
   other_cfgs: OtherConfig[];
 }
+
+// ── Config source scanner types ─────────────────────────────────────────
+
+export type SourceOriginType = "local_install" | "dropped_files" | "archive";
+
+export interface SourceOrigin {
+  type: SourceOriginType;
+  exe_path?: string;
+  gamedir?: string;
+  filenames?: string[];
+  path?: string;
+  format?: string;
+}
+
+export interface ConfigEntry {
+  filename: string;
+  relative_path: string;
+  size: number;
+  location: { type: "loose" } | { type: "inside_pak"; pak_name: string };
+}
+
+export interface ConfigSourceBundle {
+  origin: SourceOrigin;
+  primary_chain: ConfigChain | null;
+  available_configs: ConfigEntry[];
+  detected_client: string | null;
+  label: string;
+}
