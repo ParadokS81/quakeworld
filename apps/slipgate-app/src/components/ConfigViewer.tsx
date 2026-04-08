@@ -467,18 +467,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             </button>
           </div>
 
-          {/* ── Config chain panel (expandable) ── */}
-          <Show when={configExpanded() && effectiveChain()}>
-            <ConfigChainPanel
-              configChain={effectiveChain()!}
-              selectedFiles={selectedFiles()}
-              onToggleFile={toggleFile}
-              availableConfigs={props.availableConfigs}
-              onCompareConfig={props.onCompareConfig}
-              onViewConfig={(entry) => handleViewAsPrimary(entry)}
-            />
-          </Show>
-
           {/* ── Sidebar + Content (horizontal layout) ── */}
           <div class="flex-1 flex overflow-hidden">
             <ConfigSidebar
@@ -500,6 +488,42 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             />
 
             <div class="flex-1 flex flex-col overflow-hidden max-w-4xl">
+              {/* ── Config chain panel (expandable, inside content column) ── */}
+              <Show when={configExpanded() && effectiveChain()}>
+                <div class={`flex-shrink-0 border-b border-[var(--sg-stat-border)] ${isCompareMode() ? "flex" : ""}`}>
+                  <div class={isCompareMode() ? "flex-1" : ""}>
+                    <ConfigChainPanel
+                      configChain={effectiveChain()!}
+                      selectedFiles={selectedFiles()}
+                      onToggleFile={toggleFile}
+                      availableConfigs={props.availableConfigs}
+                      onCompareConfig={props.onCompareConfig}
+                      onViewConfig={(entry) => handleViewAsPrimary(entry)}
+                    />
+                  </div>
+                  <Show when={isCompareMode() && props.compareSource?.primary_chain}>
+                    <div class="flex-1 px-4 py-2 bg-[var(--sg-stat-bg)] text-xs text-[var(--sg-text-dim)] border-l border-[var(--sg-stat-border)]">
+                      <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                        Compare chain ({props.compareSource!.primary_chain!.files.length} file{props.compareSource!.primary_chain!.files.length !== 1 ? "s" : ""})
+                      </span>
+                      <div class="mt-1 font-mono">
+                        <For each={props.compareSource!.primary_chain!.files}>
+                          {(file, i) => (
+                            <div class="flex items-center gap-2 py-0.5">
+                              <span class="text-[var(--sg-section-label)] select-none w-4">
+                                {i() === props.compareSource!.primary_chain!.files.length - 1 ? "└─" : "├─"}
+                              </span>
+                              <span class="text-[var(--sg-text-bright)]">{file.relative_path}</span>
+                              <span class="text-[var(--sg-section-label)]">{file.line_count} lines</span>
+                            </div>
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  </Show>
+                </div>
+              </Show>
+
               {/* ── Compare filter bar ── */}
               <Show when={isCompareMode()}>
                 <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
