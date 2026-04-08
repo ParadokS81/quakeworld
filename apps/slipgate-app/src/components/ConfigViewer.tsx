@@ -536,6 +536,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                           </div>
                         </div>
                       </Show>
+                      <Show when={props.compareSource!.available_configs.length > 0}>
+                        <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
+                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                            Other configs ({props.compareSource!.available_configs.length})
+                          </span>
+                          <div class="mt-1 font-mono">
+                            <For each={props.compareSource!.available_configs}>
+                              {(entry) => (
+                                <div class="flex items-center gap-1.5 py-0.5">
+                                  <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
+                                </div>
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
                     </div>
                   </Show>
                 </div>
