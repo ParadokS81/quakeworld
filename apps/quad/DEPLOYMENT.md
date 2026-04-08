@@ -28,6 +28,8 @@ Note: The health endpoint is only accessible from inside the server (port 3000 i
 
 Wait for the recording to finish, then re-check before proceeding.
 
+**Automated enforcement:** A Claude Code hook (`scripts/check-quad-recording.sh`) runs automatically before any Bash command that deploys to pinnaclepowerhouse. It checks the health endpoint and blocks the deploy if a recording is active.
+
 ### SSH Access
 
 ```bash
@@ -141,16 +143,21 @@ The monorepo source code at `/srv/qwvoice/quad/` is no longer needed after migra
 Build stage (node:22-slim):
   npm ci -> tsc -> produces dist/ + node_modules/
 
-Python deps stage (node:22-slim):
-  python3-venv + faster-whisper + CUDA libs + zeroc-ice
-
-Runtime stage (node:22-slim):
-  ffmpeg + Python venv from python-deps stage
-  dist/ + node_modules/ from build stage
-  knowledge YAMLs + scripts + fonts
+Runtime stage (ghcr.io/paradoks81/quad-base:latest):
+  Pre-built: node:22-slim + ffmpeg + python3 + faster-whisper + CUDA libs + zeroc-ice
+  Copies dist/ + node_modules/ from build stage
+  + knowledge YAMLs + scripts + fonts
 ```
 
 Images are built by GitHub Actions and published to `ghcr.io/paradoks81/quad`.
+
+### Base image
+
+The heavy Python/CUDA dependencies are pre-built into a separate base image (`ghcr.io/paradoks81/quad-base`) to keep code-only deploys fast (~2-3 min instead of 15-30 min).
+
+- **Base image definition:** `Dockerfile.base`
+- **Rebuild base:** `gh workflow run quad-base-docker.yml` (manual trigger, only when Python deps or system packages change)
+- **Main Dockerfile** uses `FROM ghcr.io/paradoks81/quad-base:latest` for the runtime stage
 
 ### What's in the container
 

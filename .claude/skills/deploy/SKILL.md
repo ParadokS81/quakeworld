@@ -45,13 +45,8 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 ## Quad (SSH + Docker)
 
-**SAFETY CHECK — do this FIRST:**
-```bash
-ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
-```
-If `recording.active === true` → **STOP. Do not deploy.** A team is currently recording. Wait for the session to end or coordinate with the user. Deploying would interrupt their recording.
-
-Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
+**SAFETY CHECK — enforced by hook:**
+A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the health endpoint before any deploy command to pinnaclepowerhouse. If a recording is active, the command is blocked. No manual check needed — the hook handles it.
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
