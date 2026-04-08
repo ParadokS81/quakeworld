@@ -146,7 +146,6 @@ pub fn detect_gamedir(paths: &[&str]) -> Option<GamedirInfo> {
     let mut autoexec_dirs: Vec<String> = Vec::new();
 
     for path in &normalized {
-        let lower = path.to_lowercase();
         let filename = path.rsplit('/').next().unwrap_or(path);
         let filename_lower = filename.to_lowercase();
         let parent = get_parent_prefix(path);
@@ -156,7 +155,6 @@ pub fn detect_gamedir(paths: &[&str]) -> Option<GamedirInfo> {
                 config_dirs.push(parent);
             }
         } else if filename_lower == "autoexec.cfg" {
-            let _ = lower; // used above via filename_lower
             if !autoexec_dirs.contains(&parent) {
                 autoexec_dirs.push(parent);
             }
@@ -229,25 +227,6 @@ fn detect_client(normalized_paths: &[String]) -> Option<String> {
         }
     }
     None
-}
-
-/// Collect unique parent prefixes from a list of normalized paths that match a filename predicate.
-#[allow(dead_code)]
-fn collect_dirs_by_filename<F>(normalized_paths: &[String], predicate: F) -> Vec<String>
-where
-    F: Fn(&str) -> bool,
-{
-    let mut dirs: Vec<String> = Vec::new();
-    for path in normalized_paths {
-        let filename = path.rsplit('/').next().unwrap_or(path);
-        if predicate(filename) {
-            let parent = get_parent_prefix(path);
-            if !dirs.contains(&parent) {
-                dirs.push(parent);
-            }
-        }
-    }
-    dirs
 }
 
 // ---------------------------------------------------------------------------

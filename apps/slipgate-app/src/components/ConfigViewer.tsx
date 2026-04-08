@@ -18,7 +18,7 @@ interface ConfigViewerProps {
   onClearCompare?: () => void;
   isDragOver?: boolean;
   dropError?: string | null;
-  availableConfigs?: Array<{ filename: string; relative_path: string; size: number; location: { type: string; pak_name?: string } }>;
+  availableConfigs?: import("../types").ConfigEntry[];
 }
 
 type ViewMode = "list" | "convert";
