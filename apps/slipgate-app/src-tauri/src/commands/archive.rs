@@ -1,4 +1,7 @@
+use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
+use std::path::Path;
+use zip::ZipArchive;
 
 /// An entry in a PAK or ZIP/PK3 archive.
 #[derive(Debug, Clone)]
@@ -91,6 +94,146 @@ pub fn read_pak_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Resu
         io::ErrorKind::NotFound,
         format!("file not found in PAK: {filename}"),
     ))
+}
+
+/// Read the file index from a ZIP/PK3 archive. Returns all non-directory entries.
+pub fn read_zip_index<R: Read + Seek>(reader: &mut R) -> io::Result<Vec<ArchiveEntry>> {
+    let mut archive = ZipArchive::new(reader)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
+
+    let mut entries = Vec::new();
+    for i in 0..archive.len() {
+        let entry = archive.by_index_raw(i)
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
+        if entry.is_dir() {
+            continue;
+        }
+        entries.push(ArchiveEntry {
+            name: entry.name().to_string(),
+            size: entry.size(),
+        });
+    }
+
+    Ok(entries)
+}
+
+/// Extract the content of a specific file from a ZIP/PK3 archive by name.
+pub fn read_zip_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Result<Vec<u8>> {
+    let mut archive = ZipArchive::new(reader)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
+
+    let mut entry = archive.by_name(filename).map_err(|e| match e {
+        zip::result::ZipError::FileNotFound => {
+            io::Error::new(io::ErrorKind::NotFound, format!("file not found in ZIP: {filename}"))
+        }
+        other => io::Error::new(io::ErrorKind::InvalidData, other.to_string()),
+    })?;
+
+    let mut buf = Vec::new();
+    entry.read_to_end(&mut buf)?;
+    Ok(buf)
+}
+
+// ---------------------------------------------------------------------------
+// Unified archive API
+// ---------------------------------------------------------------------------
+
+/// Detected archive format.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ArchiveFormat {
+    Pak,
+    Zip, // covers .zip and .pk3
+}
+
+/// Detect archive format from file extension. Returns None for unsupported types.
+pub fn detect_format(path: &Path) -> Option<ArchiveFormat> {
+    let ext = path.extension()?.to_str()?.to_lowercase();
+    match ext.as_str() {
+        "pak" => Some(ArchiveFormat::Pak),
+        "zip" | "pk3" => Some(ArchiveFormat::Zip),
+        _ => None,
+    }
+}
+
+/// Scan an archive file and return all entries.
+pub fn scan_archive(path: &Path) -> io::Result<(ArchiveFormat, Vec<ArchiveEntry>)> {
+    let format = detect_format(path).ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("unsupported archive format: {}", path.display()),
+        )
+    })?;
+
+    let mut file = File::open(path)?;
+    let entries = match format {
+        ArchiveFormat::Pak => read_pak_index(&mut file)?,
+        ArchiveFormat::Zip => read_zip_index(&mut file)?,
+    };
+
+    Ok((format, entries))
+}
+
+/// Extract a specific file from an archive.
+pub fn extract_file(path: &Path, filename: &str) -> io::Result<Vec<u8>> {
+    let format = detect_format(path).ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("unsupported archive format: {}", path.display()),
+        )
+    })?;
+
+    let mut file = File::open(path)?;
+    match format {
+        ArchiveFormat::Pak => read_pak_file(&mut file, filename),
+        ArchiveFormat::Zip => read_zip_file(&mut file, filename),
+    }
+}
+
+/// Extract all .cfg files from an archive. Returns (filename, content_string) pairs.
+pub fn extract_all_configs(path: &Path) -> io::Result<Vec<(String, String)>> {
+    let format = detect_format(path).ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("unsupported archive format: {}", path.display()),
+        )
+    })?;
+
+    let mut file = File::open(path)?;
+    let mut results = Vec::new();
+
+    match format {
+        ArchiveFormat::Pak => {
+            // Get index first, then seek back to extract each matching file.
+            let entries = read_pak_index(&mut file)?;
+            for entry in entries {
+                if entry.name.to_lowercase().ends_with(".cfg") {
+                    file.seek(SeekFrom::Start(0))?;
+                    let content = read_pak_file(&mut file, &entry.name)?;
+                    results.push((entry.name, String::from_utf8_lossy(&content).to_string()));
+                }
+            }
+        }
+        ArchiveFormat::Zip => {
+            // Iterate all entries in one pass — ZipArchive takes ownership of the reader.
+            let mut archive = ZipArchive::new(&mut file)
+                .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
+            for i in 0..archive.len() {
+                let mut entry = archive
+                    .by_index(i)
+                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
+                if entry.is_dir() {
+                    continue;
+                }
+                if entry.name().to_lowercase().ends_with(".cfg") {
+                    let mut content = Vec::new();
+                    entry.read_to_end(&mut content)?;
+                    results.push((entry.name().to_string(), String::from_utf8_lossy(&content).to_string()));
+                }
+            }
+        }
+    }
+
+    Ok(results)
 }
 
 #[cfg(test)]
@@ -211,5 +354,74 @@ mod tests {
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+    }
+
+    // -----------------------------------------------------------------------
+    // ZIP helpers and tests
+    // -----------------------------------------------------------------------
+
+    /// Build a ZIP archive in memory from a list of (name, data) pairs.
+    fn make_test_zip(files: &[(&str, &[u8])]) -> Vec<u8> {
+        use std::io::Write;
+        let buf = Vec::new();
+        let cursor = Cursor::new(buf);
+        let mut writer = zip::ZipWriter::new(cursor);
+        let options = zip::write::SimpleFileOptions::default()
+            .compression_method(zip::CompressionMethod::Stored);
+        for (name, content) in files {
+            writer.start_file(*name, options).unwrap();
+            writer.write_all(content).unwrap();
+        }
+        writer.finish().unwrap().into_inner()
+    }
+
+    #[test]
+    fn test_read_zip_index() {
+        let files: &[(&str, &[u8])] = &[
+            ("maps/e1m1.bsp", b"binary map data"),
+            ("config/autoexec.cfg", b"bind a attack"),
+        ];
+
+        let zip_data = make_test_zip(files);
+        let mut reader = Cursor::new(zip_data);
+        let entries = read_zip_index(&mut reader).expect("should parse zip index");
+
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].name, "maps/e1m1.bsp");
+        assert_eq!(entries[0].size, b"binary map data".len() as u64);
+        assert_eq!(entries[1].name, "config/autoexec.cfg");
+        assert_eq!(entries[1].size, b"bind a attack".len() as u64);
+    }
+
+    #[test]
+    fn test_read_zip_file() {
+        let files: &[(&str, &[u8])] = &[
+            ("maps/e1m1.bsp", b"binary map data"),
+            ("config/autoexec.cfg", b"bind a attack"),
+        ];
+
+        let zip_data = make_test_zip(files);
+        let mut reader = Cursor::new(zip_data);
+
+        let content =
+            read_zip_file(&mut reader, "config/autoexec.cfg").expect("should extract file");
+
+        assert_eq!(content, b"bind a attack");
+    }
+
+    #[test]
+    fn test_detect_format() {
+        use std::path::Path;
+
+        assert_eq!(detect_format(Path::new("pak0.pak")), Some(ArchiveFormat::Pak));
+        assert_eq!(detect_format(Path::new("data.zip")), Some(ArchiveFormat::Zip));
+        assert_eq!(detect_format(Path::new("qw.pk3")), Some(ArchiveFormat::Zip));
+        // Case-insensitive
+        assert_eq!(detect_format(Path::new("qw.PK3")), Some(ArchiveFormat::Zip));
+        assert_eq!(detect_format(Path::new("PAK0.PAK")), Some(ArchiveFormat::Pak));
+        // Unsupported
+        assert_eq!(detect_format(Path::new("autoexec.cfg")), None);
+        assert_eq!(detect_format(Path::new("readme.txt")), None);
+        assert_eq!(detect_format(Path::new("no_extension")), None);
     }
 }
