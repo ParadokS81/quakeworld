@@ -63,10 +63,8 @@ export default function CvarTooltip(props: CvarTooltipProps) {
           </p>
         </Show>
 
-        {/* Metadata grid */}
-        <div class="grid gap-x-4 gap-y-1 border-t border-[var(--sg-stat-border)] pt-2 mt-1"
-          style={{ "grid-template-columns": props.compareValue !== undefined ? "1fr 1fr 1fr" : "1fr 1fr" }}
-        >
+        {/* Values — stacked vertically for readability with long values */}
+        <div class="flex flex-col gap-1 border-t border-[var(--sg-stat-border)] pt-2 mt-1">
           <div>
             <span class="text-[var(--sg-section-label)]">Yours</span>
             <span class={`font-mono ml-2 ${isChanged() ? "text-[var(--sg-text-bright)] font-semibold" : "text-[var(--sg-text-dim)]"}`}>
@@ -89,7 +87,10 @@ export default function CvarTooltip(props: CvarTooltipProps) {
               {displayVal(props.info?.default)}
             </span>
           </div>
+        </div>
 
+        {/* Type + equivalents */}
+        <div class="grid gap-x-4 gap-y-1 pt-1" style={{ "grid-template-columns": "1fr 1fr" }}>
           <div>
             <span class="text-[var(--sg-section-label)]">Type</span>
             <span class="ml-2 text-[var(--sg-text-dim)]">

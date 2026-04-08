@@ -45,7 +45,7 @@ export default function CvarRow(props: CvarRowProps) {
         ${isOnlyLeft() ? "opacity-60" : ""}
       `}
       style={{
-        "grid-template-columns": props.isCompareMode ? "240px 1fr 1fr" : "280px 1fr",
+        "grid-template-columns": props.isCompareMode ? "300px 1fr 1fr" : "320px 1fr",
       }}
       onClick={props.onToggle}
       onMouseEnter={props.onMouseEnter}
