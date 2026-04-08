@@ -275,19 +275,16 @@
     "_vid_default_mode": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the default video mode that the client uses."
     },
     "_vid_default_mode_win": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the default video mode that the client uses when windowed."
     },
     "_windowed_mouse": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "values": [
         {
           "description": "Disable windowed mouse support so you can use the mouse in other applications.",
@@ -334,7 +331,6 @@
     "allow_download_gfx": {
       "type": "boolean",
       "group-id": "43",
-      "in-source": false,
       "desc": "Enables downloading files from the server from the gfx directory.",
       "remarks": "Server-side.",
       "values": [
@@ -503,13 +499,11 @@
     "auth_timeout": {
       "type": "float",
       "group-id": "43",
-      "in-source": false,
       "desc": "Not currently used."
     },
     "auth_validate": {
       "type": "boolean",
       "group-id": "27",
-      "in-source": false,
       "remarks": "If you have 'auth_warninvalid 1' and someone gives a dirty hash in a version response (because they are using a hacked client that can't work out the right response), the client will print something like\n'Warning Invalid Client: playername (userid)' in your console ('auth_warninvalid 0' is default).",
       "values": [
         {
@@ -525,7 +519,6 @@
     "auth_viewcrc": {
       "type": "boolean",
       "group-id": "27",
-      "in-source": false,
       "values": [
         {
           "description": "the client hides the authentication CRC in f_version responses.",
@@ -540,7 +533,6 @@
     "auth_warninvalid": {
       "type": "float",
       "group-id": "27",
-      "in-source": false,
       "desc": "Check auth_validate."
     },
     "b_switch": {
@@ -601,7 +593,6 @@
     "block_switch": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not block task-switching",
@@ -784,25 +775,21 @@
     "cfg_browser_democolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the demo entries in the cfg browser."
     },
     "cfg_browser_dircolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the dir entries in the cfg browser."
     },
     "cfg_browser_interline": {
       "type": "integer",
       "group-id": "25",
-      "in-source": false,
       "desc": "Size of the space between entries in the cfg browser."
     },
     "cfg_browser_scrollnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle scrolling of the filenames in the cfg browser.",
       "values": [
         {
@@ -818,13 +805,11 @@
     "cfg_browser_selectedcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the selected entries in the cfg browser."
     },
     "cfg_browser_showdate": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the date column in the cfg browser.",
       "values": [
         {
@@ -840,7 +825,6 @@
     "cfg_browser_showsize": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the file size column in the cfg browser.",
       "values": [
         {
@@ -856,7 +840,6 @@
     "cfg_browser_showstatus": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the display of the status bar in the cfg browser.",
       "values": [
         {
@@ -872,7 +855,6 @@
     "cfg_browser_showtime": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the time column in the cfg browse.",
       "values": [
         {
@@ -888,13 +870,11 @@
     "cfg_browser_sortmode": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Sorting mode in the cfg browser. Each number represents one column. Their order represents the priority of the sorting."
     },
     "cfg_browser_stripnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle stripping of the filenames in the cfg browser.",
       "values": [
         {
@@ -910,7 +890,6 @@
     "cfg_browser_zipcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the zip entries in the cfg browser."
     },
     "cfg_legacy_exec": {
@@ -1518,7 +1497,6 @@
     "cl_debug_weapon_send": {
       "type": "boolean",
       "group-id": "21",
-      "in-source": false,
       "desc": "Sends information about client-side weapon selection, which is stored in .mvd on supported servers.",
       "default": "0"
     },
@@ -2801,7 +2779,6 @@
     "cl_remote_capabilities": {
       "type": "string",
       "group-id": "9",
-      "in-source": false,
       "desc": "This variable controls which commands and variables a server is allowed to execute or set on the client. Input a comma-separated list of commands and variables to toggle access. The default values are adapted for KTX use.",
       "default": "+attack,-attack,alias,bf,changing,cmd,color,download,exec,fullserverinfo,impulse,infoset,ktx_infoset,ktx_sinfoset,nextul,on_admin,on_connect,on_connect_ctf,on_connect_ffa,on_enter,on_enter_ctf,on_enter_ffa,on_matchend,on_matchstart,on_observe,on_observe_ctf,on_observe_ffa,on_spec_enter,on_spec_enter_ctf,on_spec_enter_ffa,on_spec_matchend,on_spec_matchstart,on_unadmin,packet,play,rate,reconnect,say,sinfoset,skin,skins,team,tempalias,track,wait"
     },
@@ -3128,7 +3105,6 @@
     "cl_voip_capturingvol ": {
       "type": "integer",
       "group-id": "32",
-      "in-source": false,
       "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others."
     },
     "cl_voip_demorecord": {
@@ -3261,7 +3237,6 @@
     "cl_weaponforgetondeath": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "0"
     },
     "cl_weaponforgetorder": {
@@ -4033,7 +4008,6 @@
     "d_mipcap": {
       "type": "enum",
       "group-id": "30",
-      "in-source": false,
       "values": [
         {
           "description": "High texture detail.",
@@ -4056,7 +4030,6 @@
     "d_mipscale": {
       "type": "enum",
       "group-id": "30",
-      "in-source": false,
       "values": [
         {
           "description": "Full object detail",
@@ -4079,7 +4052,6 @@
     "d_subdiv16": {
       "type": "boolean",
       "group-id": "30",
-      "in-source": false,
       "values": [
         {
           "description": "Precise texture mapping (slower, more accurate).",
@@ -4163,25 +4135,21 @@
     "demo_browser_democolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the demo entries in the demo browser."
     },
     "demo_browser_dircolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the dir entries in the demo browser."
     },
     "demo_browser_interline": {
       "type": "integer",
       "group-id": "25",
-      "in-source": false,
       "desc": "Size of the space between entries in the demo browser."
     },
     "demo_browser_scrollnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle scrolling of the filenames in the demo browser.",
       "values": [
         {
@@ -4197,13 +4165,11 @@
     "demo_browser_selectedcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the selected entries in the demo browser."
     },
     "demo_browser_showdate": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the date column in the demo browser.",
       "values": [
         {
@@ -4219,7 +4185,6 @@
     "demo_browser_showsize": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the file size column in the demo browser.",
       "values": [
         {
@@ -4235,7 +4200,6 @@
     "demo_browser_showstatus": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the display of the status bar in the demo browser.",
       "values": [
         {
@@ -4251,7 +4215,6 @@
     "demo_browser_showtime": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the time column in the demo browser.",
       "values": [
         {
@@ -4267,13 +4230,11 @@
     "demo_browser_sortmode": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Sorting mode in the demo browser. Each number represents one column. Their order represents the priority of the sorting."
     },
     "demo_browser_stripnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle stripping of the filenames in the demo browser.",
       "values": [
         {
@@ -4289,7 +4250,6 @@
     "demo_browser_zipcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the zip entries in the demo browser."
     },
     "demo_capture_background_threads": {
@@ -4348,7 +4308,6 @@
     "demo_capture_quiet": {
       "type": "boolean",
       "group-id": "7",
-      "in-source": false,
       "desc": "Stops sound being played during demo capture."
     },
     "demo_capture_steadycam": {
@@ -4846,7 +4805,6 @@
     "floodprotmsg": {
       "type": "float",
       "group-id": "33",
-      "in-source": false,
       "desc": "Sets the message displayed after flood protection is invoked.\nExample: floodprotmsg \"Shut up whiner!\""
     },
     "font_capitalize": {
@@ -5196,7 +5154,6 @@
     "gl_custom_grenade_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Allows color of grenades to be set without requiring a texture change.",
       "default": "",
       "remarks": "Leave blank to disable.\nSee gl_custom_grenade_fullbright."
@@ -5204,7 +5161,6 @@
     "gl_custom_grenade_fullbright": {
       "type": "boolean",
       "group-id": "35",
-      "in-source": false,
       "desc": "Determines if gl_custom_grenade_color refers to a fullbright color or standard.",
       "default": "1",
       "remarks": "Has no effect if gl_custom_grenade_color is blank."
@@ -5219,7 +5175,6 @@
     "gl_custom_lg_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Allows color of lightning shaft to be set without requiring a texture change.",
       "default": "",
       "remarks": "Leave blank to disable.\nHas no effect if particle shaft is enabled."
@@ -5227,7 +5182,6 @@
     "gl_custom_lg_fullbright": {
       "type": "boolean",
       "group-id": "35",
-      "in-source": false,
       "desc": "Determines if gl_custom_lg_color refers to a fullbright color or standard.",
       "default": "1",
       "remarks": "Has no effect if gl_custom_lg_color is blank."
@@ -5235,7 +5189,6 @@
     "gl_custom_lgpack_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Color lightning gun backpacks with this value.",
       "default": "64 64 255",
       "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only."
@@ -5243,7 +5196,6 @@
     "gl_custom_rlpack_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Tints rocket launcher backpacks with this value.",
       "default": "255 64 64",
       "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only."
@@ -5251,7 +5203,6 @@
     "gl_custom_rocket_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Allows color of rockets to be set without requiring a texture change.",
       "default": "",
       "remarks": "Leave blank to disable.\nSee gl_custom_rocket_fullbright."
@@ -5259,7 +5210,6 @@
     "gl_custom_rocket_fullbright": {
       "type": "boolean",
       "group-id": "35",
-      "in-source": false,
       "desc": "Determines if gl_custom_rocket_color refers to a fullbright color or standard.",
       "default": "1",
       "remarks": "Has no effect if gl_custom_rocket_color is blank."
@@ -5267,7 +5217,6 @@
     "gl_custom_spike_color": {
       "type": "string",
       "group-id": "35",
-      "in-source": false,
       "desc": "Allows color of spikes/nails to be set without requiring a texture change.",
       "default": "",
       "remarks": "Leave blank to disable.\nSee gl_custom_spike_fullbright."
@@ -5275,7 +5224,6 @@
     "gl_custom_spike_fullbright": {
       "type": "boolean",
       "group-id": "35",
-      "in-source": false,
       "desc": "Determines if gl_custom_spike_color refers to a fullbright color or standard.",
       "default": "1",
       "remarks": "Has no effect if gl_custom_spike_color is blank."
@@ -5604,35 +5552,30 @@
     "gl_motion_blur": {
       "type": "boolean",
       "group-id": "8",
-      "in-source": false,
       "desc": "Enables motion blur effect (set gl_motion_blur_* variables to configure)",
       "default": "0"
     },
     "gl_motion_blur_dead": {
       "type": "float",
       "group-id": "8",
-      "in-source": false,
       "desc": "Level of blending of current scene with previous, when the player is dead.",
       "default": "0.5"
     },
     "gl_motion_blur_fps": {
       "type": "integer",
       "group-id": "8",
-      "in-source": false,
       "desc": "How often to copy the current frame to apply motion blur effect. Defaults to 77.",
       "default": "77"
     },
     "gl_motion_blur_hurt": {
       "type": "float",
       "group-id": "8",
-      "in-source": false,
       "desc": "Level of blending of current scene with previous, when the player has recently been hurt.",
       "default": "0.5"
     },
     "gl_motion_blur_norm": {
       "type": "float",
       "group-id": "8",
-      "in-source": false,
       "desc": "Level of blending of current scene with previous, when the player is alive and not recently hurt.",
       "default": "0.5"
     },
@@ -6059,7 +6002,6 @@
     "gl_particle_fasttrails": {
       "type": "float",
       "group-id": "36",
-      "in-source": false,
       "desc": "Changes particle trails indicating motion.",
       "default": "0"
     },
@@ -6325,7 +6267,6 @@
     "gl_powerupshells_size": {
       "type": "integer",
       "group-id": "8",
-      "in-source": false,
       "desc": "Size of the powerupshells effect layer.",
       "default": "5"
     },
@@ -6767,7 +6708,6 @@
     "help_files_dircolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "The RGB color of directories in the help browser.",
       "values": [
         {
@@ -6779,7 +6719,6 @@
     "help_files_filecolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "The RGB color for files in the help browser.",
       "values": [
         {
@@ -6791,13 +6730,11 @@
     "help_files_interline": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Adjust interlining of file list in /help filebrowser."
     },
     "help_files_scrollnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Should the filenames in the help browser get scrolled if they don't fit when the file is selected?",
       "values": [
         {
@@ -6813,7 +6750,6 @@
     "help_files_selectedcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "The RGB color of a selected file in the help browser.",
       "values": [
         {
@@ -6825,37 +6761,31 @@
     "help_files_showdate": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Shows column displaying file last modification date in /help file browser."
     },
     "help_files_showsize": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Shows column displaying file size in /help file browser."
     },
     "help_files_showstatus": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Show quick info about selected help file in /help file browser."
     },
     "help_files_showtime": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Shows column displaying file last modification time in /help file browser."
     },
     "help_files_sortmode": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Switches sorting methods of files /help file browser."
     },
     "help_files_stripnames": {
       "type": "float",
       "group-id": "25",
-      "in-source": false,
       "desc": "Strips filenames of help files."
     },
     "hostname": {
@@ -6977,13 +6907,11 @@
     "hud_ammo1_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo1_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo2_align": {
@@ -7098,13 +7026,11 @@
     "hud_ammo2_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo2_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo3_align": {
@@ -7219,13 +7145,11 @@
     "hud_ammo3_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo3_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo4_align": {
@@ -7340,13 +7264,11 @@
     "hud_ammo4_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo4_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo_align": {
@@ -8693,7 +8615,6 @@
     "hud_fps_decimals": {
       "type": "integer",
       "group-id": "29",
-      "in-source": false,
       "desc": "How many decimal number should the FPS HUD element contain.",
       "remarks": "Code says always three decimals."
     },
@@ -9818,19 +9739,16 @@
     "hud_group1_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group1 HUD element."
     },
     "hud_group1_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group1_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 1."
     },
     "hud_group1_place": {
@@ -9932,19 +9850,16 @@
     "hud_group2_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group2 HUD element."
     },
     "hud_group2_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group2_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 2."
     },
     "hud_group2_place": {
@@ -10046,19 +9961,16 @@
     "hud_group3_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group3 HUD element."
     },
     "hud_group3_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group3_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 3."
     },
     "hud_group3_place": {
@@ -10160,19 +10072,16 @@
     "hud_group4_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group4 HUD element."
     },
     "hud_group4_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group4_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 4."
     },
     "hud_group4_place": {
@@ -10274,19 +10183,16 @@
     "hud_group5_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group5 HUD element."
     },
     "hud_group5_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group5_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 5."
     },
     "hud_group5_place": {
@@ -10388,19 +10294,16 @@
     "hud_group6_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group6 HUD element."
     },
     "hud_group6_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group6_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 6."
     },
     "hud_group6_place": {
@@ -10502,19 +10405,16 @@
     "hud_group7_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group7 HUD element."
     },
     "hud_group7_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group7_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 7."
     },
     "hud_group7_place": {
@@ -10616,19 +10516,16 @@
     "hud_group8_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group8 HUD element."
     },
     "hud_group8_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group8_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 8."
     },
     "hud_group8_place": {
@@ -10730,19 +10627,16 @@
     "hud_group9_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "in-source": false,
       "desc": "Transparency level of the background image of the group9 HUD element."
     },
     "hud_group9_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group9_picture": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Sets background picture of grouping object 9."
     },
     "hud_group9_place": {
@@ -12763,7 +12657,6 @@
     "hud_itemsclock_filter": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Space-separated list of items to NOT be shown.",
       "remarks": "Options are: gl, rl, lg, quad, pent, ring, suit, mh, ga, ya, ra.",
       "values": [
@@ -13105,55 +12998,46 @@
     "hud_mouserate_align_x": {
       "type": "string",
       "group-id": "28",
-      "in-source": false,
       "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info."
     },
     "hud_mouserate_align_y": {
       "type": "string",
       "group-id": "28",
-      "in-source": false,
       "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info."
     },
     "hud_mouserate_frame": {
       "type": "float",
       "group-id": "28",
-      "in-source": false,
       "desc": "Opacity of the background of the mouserate HUD element."
     },
     "hud_mouserate_frame_color": {
       "type": "string",
       "group-id": "28",
-      "in-source": false,
       "desc": "Defines the color of the background of the mouserate HUD element. See HUD manual for more info."
     },
     "hud_mouserate_order": {
       "type": "integer",
       "group-id": "28",
-      "in-source": false,
       "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info."
     },
     "hud_mouserate_place": {
       "type": "string",
       "group-id": "28",
-      "in-source": false,
       "desc": "Placement of the mouserate HUD element. HUD elements can be place into various screen areas or other elements. See HUD manual for more info."
     },
     "hud_mouserate_pos_x": {
       "type": "integer",
       "group-id": "28",
-      "in-source": false,
       "desc": "Horizontal relative position of the mouserate HUD element."
     },
     "hud_mouserate_pos_y": {
       "type": "integer",
       "group-id": "28",
-      "in-source": false,
       "desc": "Vertical relative position of the mouserate HUD element."
     },
     "hud_mouserate_show": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "desc": "Visibility of the mouserate HUD element.",
       "values": [
         {
@@ -14600,7 +14484,6 @@
     "hud_score_bar_fixed_order": {
       "type": "boolean",
       "group-id": "19",
-      "in-source": false,
       "desc": "If set, order of player names is fixed, irrespective of who is currently being tracked.",
       "values": [
         {
@@ -14624,14 +14507,12 @@
     "hud_score_bar_format_reversed_big": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_big will be used instead.",
       "remarks": "See hud_score_bar_format_big for format codes."
     },
     "hud_score_bar_format_reversed_small": {
       "type": "string",
       "group-id": "19",
-      "in-source": false,
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_reversed_small will be used instead.",
       "remarks": "See hud_score_bar_format_reversed_small for format codes."
     },
@@ -14646,7 +14527,6 @@
     "hud_score_bar_frag_length": {
       "type": "integer",
       "group-id": "19",
-      "in-source": false,
       "desc": "Minimum number of characters to use when displaying frags."
     },
     "hud_score_bar_frame": {
@@ -17372,8 +17252,7 @@
     },
     "hud_teaminfo_place": {
       "type": "string",
-      "group-id": "19",
-      "in-source": false
+      "group-id": "19"
     },
     "hud_teaminfo_pos_x": {
       "type": "",
@@ -18246,7 +18125,6 @@
     "in_di_buffered": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "desc": "Direct Input: Use Immedia data instead of buffered mode of reading.",
       "remarks": "This setting has been added only because Direct Input allows such mode of use. It is not going to decrease input lag, make the mouse responsiveness better, or anything like that. Read the official documentation on Direct Input to know the difference between buffered and immediate mode of use.",
       "values": [
@@ -18263,14 +18141,12 @@
     "in_di_bufsize": {
       "type": "integer",
       "group-id": "28",
-      "in-source": false,
       "desc": "Size of the direct input buffer.",
       "remarks": "On some circumstances the default size does not have to be sufficient."
     },
     "in_evdevice": {
       "type": "string",
       "group-id": "28",
-      "in-source": false,
       "desc": "Specify device for evdev mouse.\nShould be absolute path like /dev/input/event0.\nUse in_evdevlist command to get lost of devices.",
       "remarks": "You should have read access to your device.\nsudo chmod 644 /dev/input/event* should help you if you have trouble.",
       "values": [
@@ -18326,7 +18202,6 @@
     "in_m_os_parameters": {
       "type": "enum",
       "group-id": "28",
-      "in-source": false,
       "desc": "Allows you to use your system mouse settings in the client.",
       "values": [
         {
@@ -18350,7 +18225,6 @@
     "in_m_smooth": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "desc": "Enables advanced mouse smoothing.\nYou have to be using Direct Input for this to work.",
       "values": [
         {
@@ -18366,7 +18240,6 @@
     "in_mmt": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "desc": "Multithreaded mouse.\nFor most users in_mmt 1 + evdev gives the most smooth input.",
       "remarks": "Linux only and evdev (in_mouse 3) only.",
       "values": [
@@ -18383,7 +18256,6 @@
     "in_mouse": {
       "type": "enum",
       "group-id": "28",
-      "in-source": false,
       "desc": "Different types of mouse input\n[OBSOLETE in ezQuake 3.0]",
       "remarks": "Linux: You have to set in_evdevice to proper value (/dev/input/eventX). Use command in_evdevlist to get the lost of proper values. Also in_mmt makes your mouse more smooth.",
       "values": [
@@ -18426,7 +18298,6 @@
     "in_raw_allbuttons": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "desc": "Forces RAW Input handler to treat more incoming signals as mouse buttons.\nHelps if you cannot get some mouse buttons working in the game.",
       "values": [
         {
@@ -18801,7 +18672,6 @@
     "m_forcewheel": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "values": [
         {
           "description": "Disable.",
@@ -18830,13 +18700,11 @@
     "m_rate": {
       "type": "float",
       "group-id": "28",
-      "in-source": false,
       "desc": "This variable should be set to your mouse rate (in Hz).\nNote: need -m_smooth and -dinput to commandline."
     },
     "m_showrate": {
       "type": "boolean",
       "group-id": "28",
-      "in-source": false,
       "remarks": "Note: need -m_smooth and -dinput to commandline.",
       "values": [
         {
@@ -19407,7 +19275,6 @@
     "mumble_enabled": {
       "type": "boolean",
       "group-id": "32",
-      "in-source": false,
       "desc": "Turn on mumble positional audio support.",
       "remarks": "Requires mumble to be loaded before toggling this on.",
       "values": [
@@ -19742,7 +19609,6 @@
     "mvd_pc_view_1": {
       "type": "enum",
       "group-id": "20",
-      "in-source": false,
       "desc": "Sets the powerup camera for viewport 1.",
       "default": "",
       "values": [
@@ -19779,7 +19645,6 @@
     "mvd_pc_view_2": {
       "type": "enum",
       "group-id": "20",
-      "in-source": false,
       "desc": "Sets the powerup camera for viewport 2.",
       "default": "",
       "values": [
@@ -19816,7 +19681,6 @@
     "mvd_pc_view_3": {
       "type": "enum",
       "group-id": "20",
-      "in-source": false,
       "desc": "Sets the powerup camera for viewport 3.",
       "default": "",
       "values": [
@@ -19853,7 +19717,6 @@
     "mvd_pc_view_4": {
       "type": "enum",
       "group-id": "20",
-      "in-source": false,
       "desc": "Sets the powerup camera for viewport 4.",
       "default": "",
       "values": [
@@ -19945,7 +19808,6 @@
     "mvd_write_xml": {
       "type": "boolean",
       "group-id": "24",
-      "in-source": false,
       "desc": "Enables dumping of XML stats from a MVD.",
       "values": [
         {
@@ -20013,7 +19875,6 @@
     "not_auth_timeout": {
       "type": "integer",
       "group-id": "43",
-      "in-source": false,
       "desc": "Not currently used."
     },
     "password": {
@@ -20407,103 +20268,86 @@
     "qwm_builddate": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_buildnum": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_fullname": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_homepage": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_name": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_platform": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qwm_version": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "qws_builddate": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "Jun 10 2025, 22:10:07"
     },
     "qws_buildnum": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "unknown"
     },
     "qws_fullname": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "MVDSV: MultiView Demo SerVer"
     },
     "qws_homepage": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "https://mvdsv.deurk.net"
     },
     "qws_name": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "EZQUAKE"
     },
     "qws_platform": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "w"
     },
     "qws_version": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": "0.34-beta"
     },
     "r_aliastransadj": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller."
     },
     "r_aliastransbase": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller."
     },
     "r_ambient": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable controls the amount of ambient lighting on the map.\nWhen this variable is increased the map will become brighter and all walls and objects will be rendered in a lighter color.\nIt was removed in QWCL and has been re-introduced in this client, however it can only be used when the server is running with cheats enabled (for example \"qwsv -cheats\"), because it could be used as a cheat by making it easier to see players in dark corners when no fullbright skins are used."
     },
     "r_bloom": {
@@ -20592,7 +20436,6 @@
     "r_clearcolor": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable changes the color of the areas outside the map, commonly seen when free floating as a spectator."
     },
     "r_damagestats": {
@@ -20776,7 +20619,6 @@
     "r_dspeeds": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not display renderer speed statistics.",
@@ -21202,14 +21044,12 @@
     "r_glstats": {
       "type": "float",
       "group-id": "40",
-      "in-source": false,
       "desc": "When enabled, it creates a window in the top right of the screen showing the number of particles and etc. in use.",
       "default": "0"
     },
     "r_graphheight": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable used to set the number of lines displayed in the \"r_timegraph\" command."
     },
     "r_grenadeTrail": {
@@ -21422,7 +21262,6 @@
     "r_max_size_1": {
       "type": "enum",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Off.",
@@ -21441,13 +21280,11 @@
     "r_maxedges": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout."
     },
     "r_maxsurfs": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout."
     },
     "r_nearclip": {
@@ -21513,7 +21350,6 @@
     "r_numedges": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not print information about the number of edges.",
@@ -21528,7 +21364,6 @@
     "r_numsurfs": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not print information about the number of surfaces.",
@@ -21557,7 +21392,6 @@
     "r_polymodelstats": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not print polygon model statistics.",
@@ -21672,7 +21506,6 @@
     "r_reportedgeout": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not report when running out of edges.",
@@ -21687,7 +21520,6 @@
     "r_reportsurfout": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode."
     },
     "r_rlbloodColor_big": {
@@ -22057,7 +21889,6 @@
     "r_timegraph": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not display the timegraph.",
@@ -22418,7 +22249,6 @@
     "r_turbwarp": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "remarks": "SW only!\nThis variable has the same effect as r_waterwarp in other quake clients.",
       "values": [
         {
@@ -22505,7 +22335,6 @@
     "r_zgraph": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "values": [
         {
           "description": "Do not display the z-graph.",
@@ -22587,63 +22416,53 @@
     "re_trigger_match_0": {
       "type": "string",
       "group-id": "22",
-      "in-source": false,
       "desc": "Whole matched pattern of the regular expression match.",
       "default": ""
     },
     "re_trigger_match_1": {
       "type": "string",
       "group-id": "22",
-      "in-source": false,
       "desc": "First matched subpattern of the regexp match.",
       "default": ""
     },
     "re_trigger_match_2": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_3": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_4": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_5": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_6": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_7": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_8": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "re_trigger_match_9": {
       "type": "string",
       "group-id": "0",
-      "in-source": false,
       "default": ""
     },
     "registered": {
@@ -22663,20 +22482,17 @@
     "s_alsa_device": {
       "type": "string",
       "group-id": "26",
-      "in-source": false,
       "desc": "Sets which device ALSA will be trying to open (when s_driver is set to alsa).\nIf \"default\" fails it will try \"hw\" and if that fails too, \"plug:hw\" will be tried.",
       "default": "default"
     },
     "s_alsa_latency": {
       "type": "float",
       "group-id": "26",
-      "in-source": false,
       "desc": "Specifies latency for ALSA.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value."
     },
     "s_alsa_noworkaround": {
       "type": "enum",
       "group-id": "26",
-      "in-source": false,
       "desc": "If you are having problems with ALSA you can try to set this var to 1 before you try legacy drivers.",
       "remarks": "Linux/FreeBSD only.",
       "values": [
@@ -22714,7 +22530,6 @@
     "s_bits": {
       "type": "enum",
       "group-id": "26",
-      "in-source": false,
       "desc": "This defines how many sampling bits should be used, when using 16 bits the interpolation quality will be better.",
       "remarks": "Linux only.\nUse s_restart after you change it.",
       "values": [
@@ -22760,7 +22575,6 @@
     "s_device": {
       "type": "string",
       "group-id": "26",
-      "in-source": false,
       "desc": "Allows you to choose from multiple sound devices.",
       "remarks": "Linux only.\nUse s_restart after you change it.\n\nFor OSS you should use \"/dev/dsp\", \"/dev/dsp0\", \"/dev/dsp1\", etc.\nFor ALSA use \"default\", \"dmix\", etc.",
       "values": [
@@ -22773,7 +22587,6 @@
     "s_driver": {
       "type": "enum",
       "group-id": "26",
-      "in-source": false,
       "desc": "Specifices which sounddriver to use: ALSA/OSS or experimental Pulseaudio.",
       "values": [
         {
@@ -22862,7 +22675,6 @@
     "s_mixahead": {
       "type": "float",
       "group-id": "26",
-      "in-source": false,
       "desc": "Only affects OSS and legacy ALSA:\n\nThis variable defines the delay time for sounds. How low you can set your sound mixahead depends on your FPS, when you set it too low, your sound will start crackling.\nGenerally, with 72 FPS you should be able to use a delay of 0.06 seconds."
     },
     "s_mm1_file": {
@@ -22896,7 +22708,6 @@
     "s_noalsa": {
       "type": "enum",
       "group-id": "26",
-      "in-source": false,
       "desc": "Determinates sound output for linux clients: ALSA or OSS.",
       "remarks": "If you don't know what is ALSA and OSS - leave it at the default value.",
       "values": [
@@ -22913,7 +22724,6 @@
     "s_noextraupdate": {
       "type": "boolean",
       "group-id": "45",
-      "in-source": false,
       "values": [
         {
           "description": "Makes Quake update its sound buffers more often to avoid choppy sound when your fps is really low (20 or worse)",
@@ -22944,7 +22754,6 @@
     "s_oss_device": {
       "type": "string",
       "group-id": "26",
-      "in-source": false,
       "desc": "Specifies which device OSS will try to open.",
       "default": "/dev/dsp"
     },
@@ -22981,7 +22790,6 @@
     "s_pulseaudio_latency": {
       "type": "float",
       "group-id": "26",
-      "in-source": false,
       "desc": "Specifies latency for Pulseaudio.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value."
     },
     "s_raw_volume": {
@@ -23037,7 +22845,6 @@
     "s_stereo": {
       "type": "boolean",
       "group-id": "26",
-      "in-source": false,
       "desc": "Use stereo or mono sound.",
       "remarks": "Linux only.\nUse s_restart after you change it.",
       "values": [
@@ -23060,7 +22867,6 @@
     "s_uselegacydrivers": {
       "type": "enum",
       "group-id": "26",
-      "in-source": false,
       "desc": "If you are having problems with the new ALSA/OSS drivers you can enable this to be able to use legacy sound drivers, as in the ones used before v2.1.",
       "remarks": "Linux/FreeBSD only.",
       "values": [
@@ -23415,7 +23221,6 @@
     "sb_showcounters": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "desc": "This toggles whether ezQuake should display the number of servers or players in the status line.",
       "values": [
         {
@@ -23683,7 +23488,6 @@
     "scr_autoid_drawname": {
       "type": "boolean",
       "group-id": "31",
-      "in-source": false,
       "desc": "Shows player names when using autoID.",
       "values": [
         {
@@ -25225,7 +25029,6 @@
     "scr_weaponstats": {
       "type": "boolean",
       "group-id": "40",
-      "in-source": false,
       "desc": "Displays weapons stats on server that support it.",
       "values": [
         {
@@ -25241,7 +25044,6 @@
     "scr_weaponstats_align_right": {
       "type": "boolean",
       "group-id": "40",
-      "in-source": false,
       "values": [
         {
           "description": "Displays weapon stats on the left hand side of the screen.",
@@ -25256,31 +25058,26 @@
     "scr_weaponstats_frame_color": {
       "type": "string",
       "group-id": "40",
-      "in-source": false,
       "desc": "Sets the color of the frame around scr_weaponstats display."
     },
     "scr_weaponstats_order": {
       "type": "string",
       "group-id": "40",
-      "in-source": false,
       "desc": "Accept next tokens %1 %2 %3 ... %8 which expands in to weapons accuracy, %1 - axe, %2 - sg ... %8 - lg.\n\nBut, for axe accuracy is useless, so better use direct hits instead, for that you must use it like #1.\n\nUnrecognized tokens printed as-is, so for axe order will looks like \"axe: #1\" - that means print string \"axe: \" and axe hits.\n\nAlso variable supports ezquake color sequences."
     },
     "scr_weaponstats_scale": {
       "type": "float",
       "group-id": "40",
-      "in-source": false,
       "desc": "Controls size of scr_weaponstats display.\n1 - Normal text size."
     },
     "scr_weaponstats_x": {
       "type": "integer",
       "group-id": "40",
-      "in-source": false,
       "desc": "Horizontal placement of the weapon stats table."
     },
     "scr_weaponstats_y": {
       "type": "integer",
       "group-id": "40",
-      "in-source": false,
       "desc": "Vertical placement of the weapon stats table."
     },
     "sensitivity": {
@@ -25454,7 +25251,6 @@
     "showram": {
       "type": "boolean",
       "group-id": "40",
-      "in-source": false,
       "values": [
         {
           "description": "Never display the ram icon.",
@@ -25507,25 +25303,21 @@
     "skin_browser_democolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the demo entries in the skin browser."
     },
     "skin_browser_dircolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the dir entries in the skin browser."
     },
     "skin_browser_interline": {
       "type": "integer",
       "group-id": "25",
-      "in-source": false,
       "desc": "Size of the space between entries in the skin browser."
     },
     "skin_browser_scrollnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle scrolling of the filenames in the skin browser.",
       "values": [
         {
@@ -25541,13 +25333,11 @@
     "skin_browser_selectedcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the selected entries in the skin browser."
     },
     "skin_browser_showdate": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the date column in the skin browser.",
       "values": [
         {
@@ -25563,7 +25353,6 @@
     "skin_browser_showsize": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the file size column in the skin browser.",
       "values": [
         {
@@ -25579,7 +25368,6 @@
     "skin_browser_showstatus": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the display of the status bar in the skin browser.",
       "values": [
         {
@@ -25595,7 +25383,6 @@
     "skin_browser_showtime": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle the time column in the skin browser.",
       "values": [
         {
@@ -25611,13 +25398,11 @@
     "skin_browser_sortmode": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Sorting mode in the skin browser.\nEach number represents one column. Their order represents the priority of the sorting."
     },
     "skin_browser_stripnames": {
       "type": "boolean",
       "group-id": "25",
-      "in-source": false,
       "desc": "Toggle stripping of the filenames in the skin browser.",
       "values": [
         {
@@ -25633,7 +25418,6 @@
     "skin_browser_zipcolor": {
       "type": "string",
       "group-id": "25",
-      "in-source": false,
       "desc": "Color of the zip entries in the skin browser."
     },
     "spectator": {
@@ -25686,7 +25470,6 @@
     "sshot_format": {
       "type": "string",
       "group-id": "41",
-      "in-source": false,
       "desc": "File format used when saving screenshots.",
       "default": "png",
       "values": [
@@ -25724,7 +25507,6 @@
     "sv_aim": {
       "type": "float",
       "group-id": "43",
-      "in-source": false,
       "desc": "Sets the value for auto-aiming leniency."
     },
     "sv_airaccelerate": {
@@ -25788,8 +25570,7 @@
     },
     "sv_cpserver": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_crypt_rcon": {
       "type": "",
@@ -25799,8 +25580,7 @@
     },
     "sv_cullentities": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_debug_antilag": {
       "type": "boolean",
@@ -25906,8 +25686,7 @@
     },
     "sv_demonovis": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_demopings": {
       "type": "",
@@ -25937,8 +25716,7 @@
     },
     "sv_enableprofile": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_extlimits": {
       "type": "integer",
@@ -25949,7 +25727,6 @@
     "sv_fastconnect": {
       "type": "float",
       "group-id": "43",
-      "in-source": false,
       "desc": "actually no help."
     },
     "sv_forcenick": {
@@ -26010,7 +25787,6 @@
     "sv_highchars": {
       "type": "boolean",
       "group-id": "43",
-      "in-source": false,
       "values": [
         {
           "description": "Disable.",
@@ -26042,8 +25818,7 @@
     },
     "sv_ktpro_mode": {
       "type": "string",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_loadentfiles": {
       "type": "boolean",
@@ -26310,8 +26085,7 @@
     },
     "sv_qwfwd_port": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_rconlim": {
       "type": "",
@@ -26436,7 +26210,6 @@
     "sv_timeout": {
       "type": "float",
       "group-id": "43",
-      "in-source": false,
       "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet."
     },
     "sv_timestamplen": {
@@ -26459,8 +26232,7 @@
     },
     "sv_use_internal_cmd_dl": {
       "type": "",
-      "group-id": "43",
-      "in-source": false
+      "group-id": "43"
     },
     "sv_voip": {
       "type": "boolean",
@@ -26515,13 +26287,11 @@
     "sw_contrast": {
       "type": "float",
       "group-id": "30",
-      "in-source": false,
       "desc": "Change contrast."
     },
     "sw_gamma": {
       "type": "float",
       "group-id": "30",
-      "in-source": false,
       "desc": "Change gamma."
     },
     "sys_command_line": {
@@ -26973,7 +26743,6 @@
     "telnet_password": {
       "type": "string",
       "group-id": "43",
-      "in-source": false,
       "desc": "Password for login via telnet.\nNot currently used."
     },
     "timelimit": {
@@ -27610,7 +27379,6 @@
     "userdir": {
       "type": "enum",
       "group-id": "33",
-      "in-source": false,
       "desc": "userdir [dir [type]]\nAddition of the given directory to the list searched files.",
       "values": [
         {
@@ -27858,7 +27626,6 @@
     "vid_conaspect": {
       "type": "string",
       "group-id": "52",
-      "in-source": false,
       "desc": "Keep the screen proportions to given aspect ratio.",
       "remarks": "Always changes vid_conheight when you change vid_conwidth.",
       "values": [
@@ -27871,13 +27638,11 @@
     "vid_config_x": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"640\"."
     },
     "vid_config_y": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"400\""
     },
     "vid_conheight": {
@@ -27906,21 +27671,18 @@
     "vid_customheight": {
       "type": "integer",
       "group-id": "52",
-      "in-source": false,
       "desc": "Screen resolution width for custom screen mode.",
       "remarks": "vid_mode must be -1."
     },
     "vid_customwidth": {
       "type": "integer",
       "group-id": "52",
-      "in-source": false,
       "desc": "Screen resolution height for custom screen mode.",
       "remarks": "vid_mode must be -1."
     },
     "vid_depthbits": {
       "type": "",
-      "group-id": "31",
-      "in-source": false
+      "group-id": "31"
     },
     "vid_displayfrequency": {
       "type": "integer",
@@ -27947,7 +27709,6 @@
     "vid_forcerestoregamma": {
       "type": "boolean",
       "group-id": "52",
-      "in-source": false,
       "desc": "Force restore gamma after returning to minimized application.",
       "remarks": "Might be usefull if you have ATI card.",
       "values": [
@@ -28224,7 +27985,6 @@
     "vid_fullscreen_mode": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the full screen video mode that the game will switch to when the \"vid_fullscreen\" command is executed."
     },
     "vid_gamma_workaround": {
@@ -28330,20 +28090,17 @@
     "vid_minimize_on_focus_loss": {
       "type": "boolean",
       "group-id": "52",
-      "in-source": false,
       "desc": "If set, ezQuake will minimise when running in fullscreen mode and it loses focus (e.g. alt-tab).",
       "default": "1"
     },
     "vid_mode": {
       "type": "float",
       "group-id": "23",
-      "in-source": false,
       "desc": "This variables sets the next video mode to be used.\nAny change of this variable will cause the video mode to be changed immediately."
     },
     "vid_nopageflip": {
       "type": "float",
       "group-id": "23",
-      "in-source": false,
       "desc": "This variable toggles the use of page-flipping during supported video modes.\nBy default the game will allow for page-flipping for video modes that support this feature.\nFor example if a given VESA mode can support page flipping, then it defaults to page-flipped operation.\nA VESA mode can be forced to non-page-flipped operation by setting the \"vid_nopageflip\" variable to \"1\", then setting the mode (note that \"vid_nopageflip\" takes operation on the next, not the current video mode, and note that it then stays in effect permanently, even when the client is exited and restarted, unless it is manually set back to \"0\").\nIf there is not enough memory for two pages in a VESA mode, or if the adapter doesn't support page flipping, then the mode will automatically be nnon-page-flipped.\n\nPage-flipping works by drawing multiple virtual game screens at the same time in the video memory and then switching among them to display the current gamescreen. Page-flipped modes thus use less system memory than non-page-flipped modes, but require more video memory.\nWhen using page-flipping, visual quality may be higher, but performance of the game can change to better or worse, depending on the graphics adapter and other hardware (see the discussion of the Pentium Pro below, for a discussion of why page flipping can be faster but is sometimes much slower on that processor). However in most cases the performance (and thus frame rate) will be increased, but for people with hardware that has problems with page-flipping \"vid_nopageflip 1\" may help.\nThe Pentium Pro is an example for such a hardware: it is an okay client platform (sniff!), but it has one weak spot, it is by default very slow on writes to video memory.\nThis means that in default hardware configurations, you are usually much better off setting \"vid_nopageflip\" to \"1\" if you use VESA modes, so drawing is done to system memory instead of to video memory.\nRemember that you must set the mode after setting \"vid_nopageflip\" to \"1\" in order to get \"vid_nopageflip\" to take effect. \"vid_nopageflip 1\" can sometimes be faster on a Pentium too, but not by nearly as much in general, and it's often slower."
     },
     "vid_reload_auto": {
@@ -28373,7 +28130,6 @@
     "vid_resetonswitch": {
       "type": "boolean",
       "group-id": "23",
-      "in-source": false,
       "remarks": "This is a workaround for the bug in some NVidia drivers, when you alt-tab out of ezQuake and the screen gets garbaged.\nWhen enabled, the client will reset your Windows video mode every time you press alt-tab. Note that some NVidia drivers lock up your system completely when you alt-tab: vid_resetonswitch will not help in this case (try starting ezQuake with -dibonly).",
       "values": [
         {
@@ -28412,13 +28168,11 @@
     },
     "vid_stencilbits": {
       "type": "",
-      "group-id": "31",
-      "in-source": false
+      "group-id": "31"
     },
     "vid_stretch_by_2": {
       "type": "boolean",
       "group-id": "23",
-      "in-source": false,
       "remarks": "This variable toggles whether in \"vid_mode 2\" the picture should be rendered at half-resolution in each direction and stretched up to the specified size.",
       "values": [
         {
@@ -28481,7 +28235,6 @@
     "vid_wideaspect": {
       "type": "boolean",
       "group-id": "52",
-      "in-source": false,
       "desc": "Recalculates screen proportions so that they suit wide-screen displays.\nIf you toggle this variable from 0 to 1, it will recalculate your field of view (fov) and screen proportions (conwidth/conheight ratio) so that the resulting image looks similar on a 16:10 screen as it did on 4:3 screen.",
       "remarks": "The effect of the variable is only changing values of \"fov\" and \"vid_conheight\" variables when you toggle the value of this variable. The algorithm used to get resulting values is described in the QuakeWorld wiki.",
       "values": [
@@ -28559,19 +28312,16 @@
     "vid_window_x": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the x-axis location of the top left corner of the game window on the desktop."
     },
     "vid_window_y": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the y-axis location of the top left corner of the game window on the desktop."
     },
     "vid_windowed_mode": {
       "type": "float",
       "group-id": "31",
-      "in-source": false,
       "desc": "This variable sets the windowed video mode that the game will switch to when the \"vid_windowed\" command is executed."
     },
     "vid_xpos": {

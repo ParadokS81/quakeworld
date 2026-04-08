@@ -425,7 +425,6 @@ function buildOutput(extracted: ExtractedCvar[], help: HelpData) {
     vars[name] = {
       type: helpEntry.type ?? "string",
       "group-id": helpEntry["group-id"] ?? "0",
-      "in-source": false,
       ...(helpEntry.desc ? { desc: helpEntry.desc } : {}),
       ...(helpEntry.default !== undefined ? { default: helpEntry.default } : {}),
       ...(helpEntry.remarks ? { remarks: helpEntry.remarks } : {}),
