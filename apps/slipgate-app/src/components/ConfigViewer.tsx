@@ -21,6 +21,7 @@ interface ConfigViewerProps {
   dropError?: string | null;
   availableConfigs?: ConfigEntry[];
   onCompareConfig?: (entry: ConfigEntry) => void;
+  onSwapCompareConfig?: (entry: ConfigEntry) => void;
 }
 
 type ViewMode = "list" | "convert";
@@ -544,7 +545,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                           <div class="mt-1 font-mono">
                             <For each={props.compareSource!.available_configs}>
                               {(entry) => (
-                                <div class="flex items-center gap-1.5 py-0.5">
+                                <div
+                                  class="flex items-center gap-1.5 py-0.5 cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                                  onClick={() => props.onSwapCompareConfig?.(entry)}
+                                >
                                   <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
                                 </div>
                               )}

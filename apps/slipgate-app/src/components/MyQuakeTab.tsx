@@ -102,6 +102,55 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     }
   }
 
+  async function handleSwapCompareConfig(entry: ConfigEntry) {
+    const source = compareSource();
+    if (!source) return;
+
+    try {
+      // Determine how to load based on origin type
+      let sourceType: string;
+      let contextPath: string;
+
+      if (source.origin.type === "archive" && source.origin.path) {
+        sourceType = "archive";
+        contextPath = source.origin.path;
+      } else if (source.origin.type === "local_install" && source.origin.exe_path) {
+        sourceType = "local_install";
+        contextPath = source.origin.exe_path;
+      } else {
+        console.warn("Cannot swap compare config: unknown origin type or missing path");
+        return;
+      }
+
+      const chain = await invoke<ConfigChain>("load_config_from_source", {
+        sourceType,
+        configPath: entry.relative_path,
+        contextPath,
+      });
+
+      // Rebuild available_configs: old primary goes back, clicked entry leaves
+      const oldPrimaryFiles = source.primary_chain?.files ?? [];
+      const newAvailable: ConfigEntry[] = [
+        ...oldPrimaryFiles.map((f) => ({
+          filename: f.name,
+          relative_path: f.relative_path,
+          size: f.line_count as number,
+          location: { type: "loose" as const },
+        })),
+        ...source.available_configs.filter((c) => c.relative_path !== entry.relative_path),
+      ];
+
+      setCompareSource({
+        ...source,
+        primary_chain: chain,
+        available_configs: newAvailable,
+        label: entry.filename,
+      });
+    } catch (e) {
+      console.error("Failed to swap compare config:", e);
+    }
+  }
+
   function clearCompare() {
     setCompareSource(null);
     setPendingDrop(null);
@@ -174,6 +223,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               dropError={dropError()}
               availableConfigs={props.configSource?.available_configs}
               onCompareConfig={handleCompareConfig}
+              onSwapCompareConfig={handleSwapCompareConfig}
             />
           </Match>
           <Match when={subTab() === "visuals"}>

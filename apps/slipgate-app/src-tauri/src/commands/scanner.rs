@@ -478,22 +478,32 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
     // -----------------------------------------------------------------------
     // Origin
     // -----------------------------------------------------------------------
-    let filenames: Vec<String> = paths.iter().map(|p| {
-        PathBuf::from(p)
-            .file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string()
-    }).collect();
-
     let chain = ConfigChain {
         files: chain_files,
         unresolved: unresolved_refs,
         other_cfgs: Vec::new(),
     };
 
+    // Use Archive origin when a single archive was dropped (enables re-extraction for swapping)
+    let origin = if classified.archives.len() == 1 && classified.cfg_files.is_empty() {
+        let archive_path = classified.archives[0].to_string_lossy().to_string();
+        let format = archive::detect_format(&classified.archives[0])
+            .map(|f| format!("{:?}", f).to_lowercase())
+            .unwrap_or_else(|| "unknown".to_string());
+        SourceOrigin::Archive { path: archive_path, format }
+    } else {
+        let filenames: Vec<String> = paths.iter().map(|p| {
+            PathBuf::from(p)
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string()
+        }).collect();
+        SourceOrigin::DroppedFiles { filenames }
+    };
+
     Ok(ConfigSourceBundle {
-        origin: SourceOrigin::DroppedFiles { filenames },
+        origin,
         primary_chain: Some(chain),
         available_configs,
         detected_client: None,
