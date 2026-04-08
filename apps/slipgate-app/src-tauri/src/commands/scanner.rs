@@ -509,6 +509,55 @@ pub fn scan_dropped_input(paths: Vec<String>) -> Result<ConfigSourceBundle, Stri
     scan_dropped_input_internal(&paths)
 }
 
+/// Load a specific config file and return it as a minimal ConfigChain (single file).
+/// Used when user clicks an item in the "Other Configs" list.
+///
+/// source_type: "local_install" or "archive" or "inside_pak"
+/// config_path: for local_install = relative path from gamedir; for archive = entry name in archive
+/// context_path: for local_install = exe_path; for archive = archive file path
+#[tauri::command]
+pub fn load_config_from_source(source_type: String, config_path: String, context_path: String) -> Result<ConfigChain, String> {
+    let content = match source_type.as_str() {
+        "local_install" => {
+            let exe_path = PathBuf::from(&context_path);
+            let cfg_dir = ezquake::config_dir_from_exe(&exe_path);
+            let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
+            let full_path = game_dir.join(&config_path);
+            std::fs::read(&full_path)
+                .map_err(|e| format!("Failed to read {}: {}", full_path.display(), e))?
+        }
+        "archive" | "inside_pak" => {
+            archive::extract_file(std::path::Path::new(&context_path), &config_path)
+                .map_err(|e| format!("Failed to extract {} from {}: {}", config_path, context_path, e))?
+        }
+        _ => return Err(format!("Unknown source type: {}", source_type)),
+    };
+
+    let text = String::from_utf8_lossy(&content).to_string();
+    let parsed = ezquake::parse_config(&text);
+    let line_count = text.lines().count() as u32;
+    let filename = std::path::Path::new(&config_path).file_name()
+        .unwrap_or_default().to_string_lossy().to_string();
+
+    let file = ConfigFile {
+        name: filename,
+        relative_path: config_path,
+        source: ChainEntrySource::Primary,
+        referenced_by: None,
+        cvars: parsed.cvars,
+        binds: parsed.bindings,
+        aliases: parsed.aliases,
+        exec_refs: parsed.exec_refs,
+        line_count,
+    };
+
+    Ok(ConfigChain {
+        files: vec![file],
+        unresolved: Vec::new(),
+        other_cfgs: Vec::new(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

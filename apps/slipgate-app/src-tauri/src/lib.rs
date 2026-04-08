@@ -34,6 +34,7 @@ pub fn run() {
             commands::watcher::stop_config_watch,
             commands::scanner::scan_local_install,
             commands::scanner::scan_dropped_input,
+            commands::scanner::load_config_from_source,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .setup(|app| {
