@@ -101,15 +101,16 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
               <div class="mt-1 font-mono">
                 <For each={visible()}>
                   {(entry) => (
-                    <div class="flex items-center gap-1.5 py-0.5">
-                      <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
-                      <Show when={entry.location.type === "inside_pak"}>
-                        <span class="text-[10px] text-[var(--sg-section-label)]">
-                          ({(entry.location as { type: "inside_pak"; pak_name: string }).pak_name})
-                        </span>
-                      </Show>
+                    <div class="flex items-center py-0.5">
+                      <span class="text-[var(--sg-text-dim)] min-w-[200px]">{entry.filename}
+                        <Show when={entry.location.type === "inside_pak"}>
+                          <span class="text-[10px] text-[var(--sg-section-label)] ml-1">
+                            ({(entry.location as { type: "inside_pak"; pak_name: string }).pak_name})
+                          </span>
+                        </Show>
+                      </span>
                       <button
-                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer ml-2"
+                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer mr-2"
                         onClick={() => props.onViewConfig?.(entry)}
                         title="View as primary"
                       >
