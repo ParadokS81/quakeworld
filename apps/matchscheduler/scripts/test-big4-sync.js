@@ -47,8 +47,16 @@ function fetchBig4Games() {
 
 function big4ToUtcDate(scheduledDate, scheduledTime) {
     const [hours, minutes] = scheduledTime.split(':').map(Number);
-    const date = new Date(scheduledDate);
-    date.setUTCHours(hours - 1, minutes, 0, 0);
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+
+    const probe = new Date(`${scheduledDate}T${hh}:${mm}:00Z`);
+    const cetMs = new Date(probe.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
+    const utcMs = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+    const offsetHours = Math.round((cetMs - utcMs) / 3600000);
+
+    const date = new Date(`${scheduledDate}T00:00:00Z`);
+    date.setUTCHours(hours - offsetHours, minutes, 0, 0);
     return date;
 }
 

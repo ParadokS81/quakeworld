@@ -1,13 +1,18 @@
 /**
  * CET↔UTC conversion and week utilities for the availability module.
  *
- * CET = UTC+1 (hardcoded for v1, matching the scheduler module and QW community convention).
- * The QW community universally says "CET" year-round even during summer.
+ * The QW community universally says "CET" year-round even during summer,
+ * but the displayed time must match the local clock (UTC+1 in winter, UTC+2 in summer).
  *
  * Slot IDs are stored and transmitted in UTC: "mon_1900" = Monday 19:00 UTC.
  */
 
-const CET_OFFSET = 1;
+/** Get the current Europe/Stockholm offset (1 for CET, 2 for CEST) */
+export function getCetOffset(date: Date = new Date()): number {
+    const cetMs = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
+    const utcMs = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+    return Math.round((cetMs - utcMs) / 3600000);
+}
 
 export const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const DAY_LABELS: Record<string, string> = {
@@ -19,15 +24,16 @@ const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 // CET 19:00-23:00 in 30-minute increments (9 slots per day)
 export const CET_SLOT_TIMES = ['1900', '1930', '2000', '2030', '2100', '2130', '2200', '2230', '2300'];
 
-/** Convert UTC slot ID to CET display. "mon_1900" → { day: "mon", time: "20:00" } */
+/** Convert UTC slot ID to CET display. "mon_1900" → { day: "mon", time: "20:00" } (or "21:00" during CEST) */
 export function utcToCet(utcSlotId: string): { day: string; time: string } {
     const [day, time] = utcSlotId.split('_');
     if (!time) return { day, time: '' };
 
     const utcHour = parseInt(time.slice(0, 2), 10);
     const min = time.slice(2);
+    const offset = getCetOffset();
 
-    let cetHour = utcHour + CET_OFFSET;
+    let cetHour = utcHour + offset;
     let cetDay = day;
 
     if (cetHour >= 24) {
@@ -46,8 +52,9 @@ export function utcToCet(utcSlotId: string): { day: string; time: string } {
 export function cetToUtcSlotId(cetDay: string, cetTime: string): string {
     const cetHour = parseInt(cetTime.slice(0, 2), 10);
     const min = cetTime.slice(2);
+    const offset = getCetOffset();
 
-    let utcHour = cetHour - CET_OFFSET;
+    let utcHour = cetHour - offset;
     let utcDay = cetDay;
 
     if (utcHour < 0) {
