@@ -393,6 +393,8 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
     let mut chained_indices: std::collections::HashSet<usize> = std::collections::HashSet::new();
     chained_indices.insert(primary_idx);
 
+    let mut unresolved_refs: Vec<ezquake::UnresolvedExec> = Vec::new();
+
     for exec_ref in &primary_parsed.exec_refs {
         // Match on the bare filename of the exec ref.
         let ref_filename = std::path::Path::new(exec_ref.as_str())
@@ -424,6 +426,15 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
                 aliases: ref_parsed.aliases,
                 exec_refs: ref_parsed.exec_refs,
                 line_count: ref_line_count,
+            });
+        } else if !ezquake::is_dynamic_ref(exec_ref) {
+            // Exec ref not found among dropped files — flag as missing
+            unresolved_refs.push(ezquake::UnresolvedExec {
+                raw_ref: exec_ref.clone(),
+                referenced_by: ExecReference {
+                    file: primary_name.clone(),
+                    context: "exec (missing file)".to_string(),
+                },
             });
         }
     }
@@ -477,7 +488,7 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
 
     let chain = ConfigChain {
         files: chain_files,
-        unresolved: Vec::new(),
+        unresolved: unresolved_refs,
         other_cfgs: Vec::new(),
     };
 

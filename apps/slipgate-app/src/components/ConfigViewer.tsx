@@ -519,6 +519,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                           )}
                         </For>
                       </div>
+                      <Show when={props.compareSource!.primary_chain!.unresolved.length > 0}>
+                        <div class="mt-2">
+                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                            Missing files ({props.compareSource!.primary_chain!.unresolved.length})
+                          </span>
+                          <div class="mt-1 font-mono">
+                            <For each={props.compareSource!.primary_chain!.unresolved}>
+                              {(u) => (
+                                <div class="flex items-center gap-2 py-0.5 text-yellow-500">
+                                  <span class="select-none w-4">⚠</span>
+                                  <span>{u.raw_ref}</span>
+                                </div>
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
                     </div>
                   </Show>
                 </div>
