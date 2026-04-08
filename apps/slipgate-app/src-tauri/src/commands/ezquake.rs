@@ -47,7 +47,7 @@ pub(crate) struct ParsedConfig {
 // Config chain discovery
 // ============================================================
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum ChainEntrySource {
     Primary,
@@ -58,13 +58,13 @@ pub enum ChainEntrySource {
     AliasExec,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ExecReference {
     pub file: String,
     pub context: String,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigFile {
     pub name: String,
     pub relative_path: String,
@@ -77,20 +77,20 @@ pub struct ConfigFile {
     pub line_count: u32,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct UnresolvedExec {
     pub raw_ref: String,
     pub referenced_by: ExecReference,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct OtherConfig {
     pub name: String,
     pub relative_path: String,
     pub size_bytes: u64,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigChain {
     pub files: Vec<ConfigFile>,
     pub unresolved: Vec<UnresolvedExec>,
@@ -1941,6 +1941,53 @@ pub fn launch_ezquake(options: LaunchOptions) -> Result<(), String> {
 
     cmd.spawn().map_err(|e| format!("Failed to launch ezQuake: {}", e))?;
     Ok(())
+}
+
+// ============================================================
+// Bind classification from a config chain
+// ============================================================
+
+/// Classified binds extracted from a config chain.
+#[derive(Serialize, Clone, Debug)]
+pub struct ChainBindClassification {
+    pub weapon_binds: Vec<WeaponBind>,
+    pub teamsay_binds: Vec<TeamsayBind>,
+    pub movement: MovementKeys,
+}
+
+/// Classify binds from a config chain without needing a full EzQuakeConfig.
+/// Merges all files in the chain (last-write-wins), then runs weapon/teamsay analysis.
+#[tauri::command]
+pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
+    // Merge binds and aliases from all files in order (last-write-wins)
+    let mut bindings: Vec<(String, String)> = Vec::new();
+    let mut aliases: HashMap<String, String> = HashMap::new();
+
+    for file in &chain.files {
+        for (key, cmd) in &file.binds {
+            bindings.push((key.clone(), cmd.clone()));
+        }
+        for (name, cmd) in &file.aliases {
+            aliases.insert(name.clone(), cmd.clone());
+        }
+    }
+
+    let movement = MovementKeys {
+        forward: find_bind(&bindings, "+forward"),
+        back: find_bind(&bindings, "+back"),
+        moveleft: find_bind(&bindings, "+moveleft"),
+        moveright: find_bind(&bindings, "+moveright"),
+        jump: find_bind(&bindings, "+jump"),
+    };
+
+    let weapon_binds = analyze_weapon_binds(&bindings, &aliases);
+    let teamsay_binds = analyze_teamsay_binds(&bindings, &aliases);
+
+    ChainBindClassification {
+        weapon_binds,
+        teamsay_binds,
+        movement,
+    }
 }
 
 // ============================================================

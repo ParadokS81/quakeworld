@@ -138,6 +138,12 @@ export interface EzQuakeConfig {
   raw_cvars: Record<string, string>;
 }
 
+export interface ChainBindClassification {
+  weapon_binds: WeaponBind[];
+  teamsay_binds: TeamsayBind[];
+  movement: MovementKeys;
+}
+
 // ─── Client updater types ───────────────────────────────────────────────────
 
 export interface ReleaseNote {

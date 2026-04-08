@@ -1,4 +1,4 @@
-import type { ConfigChain, WeaponBind, TeamsayBind, MovementKeys } from "../types";
+import type { ConfigChain, WeaponBind, TeamsayBind, MovementKeys, ChainBindClassification } from "../types";
 
 /** Merged result from selected chain files */
 export interface MergedConfigData {
@@ -15,6 +15,13 @@ export interface EnrichedBind {
   label: string;
   description: string;
   sourceFile: string;
+  // Comparison data (populated when compare config is loaded)
+  hasLeft: boolean;
+  hasRight: boolean;
+  compareCommand?: string;
+  compareCategory?: "weapons" | "teamsay" | "misc";
+  compareLabel?: string;
+  compareDescription?: string;
 }
 
 /** A single alias entry for display */
@@ -62,6 +69,8 @@ export function mergeSelectedFiles(
 /**
  * Cross-reference raw binds against categorized weapon/teamsay binds from EzQuakeConfig.
  * Movement keys are excluded from the list (they're shown contextually).
+ * When compareClassification is provided, merges comparison data into each bind entry
+ * and adds right-only binds.
  */
 export function categorizeBinds(
   rawBinds: [string, string][],
@@ -70,6 +79,7 @@ export function categorizeBinds(
   movement: MovementKeys,
   chain: ConfigChain,
   selectedIndices: Set<number>,
+  compareClassification?: ChainBindClassification | null,
 ): EnrichedBind[] {
   // Build lookup maps
   const weaponByKey = new Map<string, WeaponBind>();
@@ -82,12 +92,18 @@ export function categorizeBinds(
     teamsayByKey.set(tb.key.toUpperCase(), tb);
   }
 
-  // Movement keys to exclude from bind list
+  // Movement keys to exclude from bind list (from both configs)
   const movementKeys = new Set(
     [movement.forward, movement.back, movement.moveleft, movement.moveright, movement.jump]
       .filter(Boolean)
       .map((k) => k.toUpperCase()),
   );
+  if (compareClassification) {
+    const cm = compareClassification.movement;
+    for (const k of [cm.forward, cm.back, cm.moveleft, cm.moveright, cm.jump]) {
+      if (k) movementKeys.add(k.toUpperCase());
+    }
+  }
 
   // Build source file lookup: for each key, which selected file last defined it
   const sourceFileByKey = new Map<string, string>();
@@ -98,44 +114,87 @@ export function categorizeBinds(
     }
   }
 
+  // Build compare lookup maps
+  const cmpWeaponByKey = new Map<string, WeaponBind>();
+  const cmpTeamsayByKey = new Map<string, TeamsayBind>();
+  const cmpAllKeys = new Set<string>();
+  if (compareClassification) {
+    for (const wb of compareClassification.weapon_binds) {
+      cmpWeaponByKey.set(wb.key.toUpperCase(), wb);
+      cmpAllKeys.add(wb.key.toUpperCase());
+    }
+    for (const tb of compareClassification.teamsay_binds) {
+      cmpTeamsayByKey.set(tb.key.toUpperCase(), tb);
+      cmpAllKeys.add(tb.key.toUpperCase());
+    }
+  }
+
+  const seenKeys = new Set<string>();
   const result: EnrichedBind[] = [];
+
+  // Process primary binds
   for (const [key, command] of rawBinds) {
     const keyUpper = key.toUpperCase();
-
-    // Skip movement keys and empty binds (bind key "" = effectively unbound)
     if (movementKeys.has(keyUpper)) continue;
     if (!command.trim()) continue;
+    seenKeys.add(keyUpper);
 
     const wb = weaponByKey.get(keyUpper);
     const tb = teamsayByKey.get(keyUpper);
     const sourceFile = sourceFileByKey.get(keyUpper) ?? "";
 
+    // Compare data for this key
+    const cmpWb = cmpWeaponByKey.get(keyUpper);
+    const cmpTb = cmpTeamsayByKey.get(keyUpper);
+    const hasRight = cmpWb != null || cmpTb != null;
+    const compareData = cmpWb
+      ? { compareCategory: "weapons" as const, compareLabel: cmpWb.weapon.toUpperCase(), compareDescription: cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}` }
+      : cmpTb
+        ? { compareCategory: "teamsay" as const, compareLabel: cmpTb.label, compareDescription: cmpTb.description }
+        : {};
+
     if (wb) {
       result.push({
-        key: wb.key,
-        command,
-        category: "weapons",
+        key: wb.key, command, category: "weapons",
         label: wb.weapon.toUpperCase(),
         description: wb.method === "quickfire" ? `${wb.weapon} quickfire` : `${wb.weapon} manual → ${wb.fire_key}`,
-        sourceFile,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
       });
     } else if (tb) {
       result.push({
-        key: tb.key,
-        command,
-        category: "teamsay",
-        label: tb.label,
-        description: tb.description,
-        sourceFile,
+        key: tb.key, command, category: "teamsay",
+        label: tb.label, description: tb.description,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
       });
     } else {
       result.push({
-        key,
-        command,
-        category: "misc",
+        key, command, category: "misc",
         label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
         description: command,
-        sourceFile,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
+      });
+    }
+  }
+
+  // Add right-only binds (exist in compare but not in primary)
+  if (compareClassification) {
+    for (const keyUpper of cmpAllKeys) {
+      if (seenKeys.has(keyUpper) || movementKeys.has(keyUpper)) continue;
+
+      const cmpWb = cmpWeaponByKey.get(keyUpper);
+      const cmpTb = cmpTeamsayByKey.get(keyUpper);
+      const cat = cmpWb ? "weapons" as const : cmpTb ? "teamsay" as const : "misc" as const;
+      const label = cmpWb ? cmpWb.weapon.toUpperCase() : cmpTb ? cmpTb.label : "";
+      const desc = cmpWb
+        ? (cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}`)
+        : cmpTb ? cmpTb.description : "";
+      const displayKey = cmpWb?.key ?? cmpTb?.key ?? keyUpper;
+
+      result.push({
+        key: displayKey, command: "", category: cat,
+        label: "", description: "",
+        sourceFile: "", hasLeft: false, hasRight: true,
+        compareCategory: cat, compareLabel: label, compareDescription: desc,
       });
     }
   }

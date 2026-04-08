@@ -24,6 +24,7 @@ pub fn run() {
             commands::ezquake::read_ezquake_config,
             commands::ezquake::read_config_chain,
             commands::ezquake::launch_ezquake,
+            commands::ezquake::classify_chain_binds,
             commands::auth::await_oauth_callback,
             commands::updater::check_for_update,
             commands::updater::download_and_install_update,

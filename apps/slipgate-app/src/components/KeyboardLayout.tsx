@@ -276,22 +276,41 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
               class={keyClass(k.id)}
               style={keyStyle(k.id)}
             />
-            <text
-              x={k.x * KU + (k.w * KU) / 2}
-              y={rowY(k.row) + ROW_H / 2 + 4}
-              class={labelClass(k.id)}
-              style={labelStyle(k.id)}
-              font-size={(() => {
-                const label = props.keyLabels?.get(k.id);
-                if (!label) return undefined;
+            {(() => {
+              const label = props.keyLabels?.get(k.id) ?? k.label;
+              const cx = k.x * KU + (k.w * KU) / 2;
+              const cy = rowY(k.row) + ROW_H / 2;
+              const cls = labelClass(k.id);
+              const sty = labelStyle(k.id);
+
+              // Stack two-word labels vertically on narrow keys
+              const words = label.split(" ");
+              if (words.length >= 2 && k.w <= 1) {
+                const fs = Math.min(6, 40 / Math.max(words[0].length, words[1].length));
+                const lineH = fs + 1.5;
+                return (
+                  <text x={cx} y={cy - lineH / 2 + 3} class={cls} style={sty} font-size={String(fs)}>
+                    <tspan x={cx} dy="0">{words[0]}</tspan>
+                    <tspan x={cx} dy={lineH}>{words.slice(1).join(" ")}</tspan>
+                  </text>
+                );
+              }
+
+              // Single-word or wide key — original sizing
+              const fontSize = (() => {
+                if (!props.keyLabels?.has(k.id)) return undefined;
                 if (label.length > 7) return "5.5";
                 if (label.length > 4) return "6.5";
                 if (label.length > 3) return "7";
                 return undefined;
-              })()}
-            >
-              {props.keyLabels?.get(k.id) ?? k.label}
-            </text>
+              })();
+
+              return (
+                <text x={cx} y={cy + 4} class={cls} style={sty} font-size={fontSize}>
+                  {label}
+                </text>
+              );
+            })()}
           </g>
         ))}
       </svg>

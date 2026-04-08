@@ -3,6 +3,7 @@ import type { EnrichedBind } from "./configMerger";
 
 interface ConfigBindsSectionProps {
   binds: EnrichedBind[];
+  isCompareMode?: boolean;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -18,12 +19,23 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
       <div class="sg-category-group-header">Binds</div>
 
       {/* Column headers */}
-      <div class="sg-bind-row text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
-        <span>Key</span>
-        <span>Command</span>
-        <span>Type</span>
-        <span>Source</span>
-      </div>
+      <Show
+        when={props.isCompareMode}
+        fallback={
+          <div class="sg-cv-bind-row text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+            <span>Key</span>
+            <span>Command</span>
+            <span>Type</span>
+            <span>Source</span>
+          </div>
+        }
+      >
+        <div class="sg-cv-bind-row-cmp text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+          <span>Key</span>
+          <span>Your Config</span>
+          <span>Comparison</span>
+        </div>
+      </Show>
 
       {/* Bind list */}
       <Show
@@ -36,29 +48,91 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
       >
         <For each={props.binds}>
           {(bind) => (
-            <div class="sg-bind-row" title={bind.description}>
-              <span
-                class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center"
-                style={{
-                  background: "color-mix(in oklch, var(--sg-stat-border) 40%, transparent)",
-                  color: "var(--sg-text-bright)",
+            <Show
+              when={props.isCompareMode}
+              fallback={
+                <div class="sg-cv-bind-row" title={bind.description}>
+                  <span
+                    class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center"
+                    style={{
+                      background: "color-mix(in oklch, var(--sg-stat-border) 40%, transparent)",
+                      color: "var(--sg-text-bright)",
+                    }}
+                  >
+                    {bind.key}
+                  </span>
+                  <span class="font-mono text-xs text-[var(--sg-text-dim)] truncate" title={bind.command}>
+                    {bind.command}
+                  </span>
+                  <span
+                    class="text-[10px] font-semibold uppercase tracking-wide"
+                    style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
+                  >
+                    {bind.category === "weapons" ? bind.label : bind.category}
+                  </span>
+                  <span class="text-[10px] text-[var(--sg-section-label)] truncate">
+                    {bind.sourceFile}
+                  </span>
+                </div>
+              }
+            >
+              <div
+                class="sg-cv-bind-row-cmp"
+                classList={{
+                  "sg-cv-bind-only-left": bind.hasLeft && !bind.hasRight,
+                  "sg-cv-bind-only-right": !bind.hasLeft && bind.hasRight,
+                  "sg-cv-bind-diff": bind.hasLeft && bind.hasRight && bind.label !== bind.compareLabel,
                 }}
+                title={bind.description || bind.compareDescription}
               >
-                {bind.key}
-              </span>
-              <span class="font-mono text-xs text-[var(--sg-text-dim)] truncate" title={bind.command}>
-                {bind.command}
-              </span>
-              <span
-                class="text-[10px] font-semibold uppercase tracking-wide"
-                style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
-              >
-                {bind.category === "weapons" ? bind.label : bind.category}
-              </span>
-              <span class="text-[10px] text-[var(--sg-section-label)] truncate">
-                {bind.sourceFile}
-              </span>
-            </div>
+                {/* Key column */}
+                <span
+                  class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center"
+                  style={{
+                    background: "color-mix(in oklch, var(--sg-stat-border) 40%, transparent)",
+                    color: "var(--sg-text-bright)",
+                  }}
+                >
+                  {bind.key}
+                </span>
+
+                {/* Primary bind */}
+                <div class="flex items-center gap-2 min-w-0">
+                  <Show when={bind.hasLeft}>
+                    <span
+                      class="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+                      style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
+                    >
+                      {bind.label}
+                    </span>
+                    <span class="font-mono text-[10px] text-[var(--sg-text-dim)] truncate">
+                      {bind.command}
+                    </span>
+                  </Show>
+                  <Show when={!bind.hasLeft}>
+                    <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                  </Show>
+                </div>
+
+                {/* Compare bind */}
+                <div class="flex items-center gap-2 min-w-0">
+                  <Show when={bind.hasRight}>
+                    <span
+                      class="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+                      style={{ color: CATEGORY_COLORS[bind.compareCategory ?? "misc"] ?? "var(--sg-text-dim)" }}
+                    >
+                      {bind.compareLabel}
+                    </span>
+                    <span class="font-mono text-[10px] text-[var(--sg-text-dim)] truncate">
+                      {bind.compareDescription}
+                    </span>
+                  </Show>
+                  <Show when={!bind.hasRight}>
+                    <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                  </Show>
+                </div>
+              </div>
+            </Show>
           )}
         </For>
       </Show>
