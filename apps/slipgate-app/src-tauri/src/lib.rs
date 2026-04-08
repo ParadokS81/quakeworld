@@ -32,6 +32,8 @@ pub fn run() {
             commands::screenshot::capture_screenshot,
             commands::watcher::start_config_watch,
             commands::watcher::stop_config_watch,
+            commands::scanner::scan_local_install,
+            commands::scanner::scan_dropped_input,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .setup(|app| {
