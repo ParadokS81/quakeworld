@@ -1,5 +1,7 @@
-import { createSignal, Switch, Match } from "solid-js";
-import type { EzQuakeConfig, ConfigChain } from "../types";
+import { createSignal, Switch, Match, onCleanup } from "solid-js";
+import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle } from "../types";
 import ConfigViewer from "./ConfigViewer";
 
 interface MyQuakeTabProps {
@@ -13,6 +15,51 @@ type SubTab = "config" | "visuals" | "matches";
 
 export default function MyQuakeTab(props: MyQuakeTabProps) {
   const [subTab, setSubTab] = createSignal<SubTab>("config");
+  const [compareSource, setCompareSource] = createSignal<ConfigSourceBundle | null>(null);
+  const [isDragOver, setIsDragOver] = createSignal(false);
+  const [dropError, setDropError] = createSignal<string | null>(null);
+
+  let unlisten: (() => void) | null = null;
+  (async () => {
+    const appWindow = getCurrentWindow();
+    unlisten = await appWindow.onDragDropEvent((event) => {
+      if (event.payload.type === "over") {
+        setIsDragOver(true);
+      } else if (event.payload.type === "leave" || event.payload.type === "cancel") {
+        setIsDragOver(false);
+      } else if (event.payload.type === "drop") {
+        setIsDragOver(false);
+        handleDrop(event.payload.paths);
+      }
+    });
+  })();
+  onCleanup(() => unlisten?.());
+
+  async function handleDrop(paths: string[]) {
+    const supported = paths.filter((p) => {
+      const ext = p.split(".").pop()?.toLowerCase();
+      return ext === "cfg" || ext === "zip" || ext === "pak" || ext === "pk3";
+    });
+
+    if (supported.length === 0) {
+      setDropError("No .cfg, .zip, .pak, or .pk3 files found");
+      setTimeout(() => setDropError(null), 3000);
+      return;
+    }
+
+    try {
+      const source = await invoke<ConfigSourceBundle>("scan_dropped_input", { paths: supported });
+      setCompareSource(source);
+      setDropError(null);
+    } catch (e) {
+      setDropError(String(e));
+      setTimeout(() => setDropError(null), 5000);
+    }
+  }
+
+  function clearCompare() {
+    setCompareSource(null);
+  }
 
   return (
     <div class="flex flex-col h-full">
@@ -61,6 +108,10 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               configChain={props.configChain}
               exePath={props.exePath}
               configName={props.configName}
+              compareSource={compareSource()}
+              onClearCompare={clearCompare}
+              isDragOver={isDragOver()}
+              dropError={dropError()}
             />
           </Match>
           <Match when={subTab() === "visuals"}>
