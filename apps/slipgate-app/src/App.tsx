@@ -2,7 +2,7 @@ import { createSignal, Match, onMount, onCleanup, Switch } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { currentMonitor, availableMonitors } from "@tauri-apps/api/window";
-import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation, ConfigChain } from "./types";
+import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation, ConfigSourceBundle } from "./types";
 import type { ProfileData, SetupHardware, ClientInfo } from "./store";
 import { loadProfile, updatePrimaryClient, updatePrimaryHardware, getPrimarySetup } from "./store";
 import SideNav from "./components/SideNav";
@@ -19,7 +19,7 @@ function App() {
   const [monitor, setMonitor] = createSignal<MonitorInfo | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [ezConfig, setEzConfig] = createSignal<EzQuakeConfig | null>(null);
-  const [configChain, setConfigChain] = createSignal<ConfigChain | null>(null);
+  const [configSource, setConfigSource] = createSignal<ConfigSourceBundle | null>(null);
   const [profile, setProfile] = createSignal<ProfileData | null>(null);
 
   // ─── Config file watcher ───────────────────────────────────────────────
@@ -41,11 +41,11 @@ function App() {
             configName: config_name,
           });
           setEzConfig(cfg);
-          const chain = await invoke<ConfigChain>("read_config_chain", {
+          const source = await invoke<ConfigSourceBundle>("scan_local_install", {
             exePath: exe_path,
             configName: config_name,
           });
-          setConfigChain(chain);
+          setConfigSource(source);
         } catch (e) {
           console.error("Failed to reload config after file change:", e);
         }
@@ -102,8 +102,8 @@ function App() {
         setEzConfig(cfg);
         // Fetch config chain and start file watcher
         try {
-          const chain = await invoke<ConfigChain>("read_config_chain", { exePath, configName: cfgName });
-          setConfigChain(chain);
+          const source = await invoke<ConfigSourceBundle>("scan_local_install", { exePath, configName: cfgName });
+          setConfigSource(source);
           await invoke("start_config_watch", { exePath, configName: cfgName });
         } catch (e) {
           console.error("Failed to load config chain:", e);
@@ -154,8 +154,8 @@ function App() {
     setProfile(updated);
     // Fetch config chain and start file watcher
     try {
-      const chain = await invoke<ConfigChain>("read_config_chain", { exePath, configName });
-      setConfigChain(chain);
+      const source = await invoke<ConfigSourceBundle>("scan_local_install", { exePath, configName });
+      setConfigSource(source);
       await invoke("start_config_watch", { exePath, configName });
     } catch (e) {
       console.error("Failed to load config chain:", e);
@@ -210,7 +210,7 @@ function App() {
             <Match when={activeTab() === "myquake"}>
               <MyQuakeTab
                 config={ezConfig()}
-                configChain={configChain()}
+                configSource={configSource()}
                 exePath={profile() ? getPrimarySetup(profile()!).client.exe_path ?? null : null}
                 configName={profile() ? getPrimarySetup(profile()!).client.config_name ?? null : null}
               />

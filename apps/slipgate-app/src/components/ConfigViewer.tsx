@@ -435,6 +435,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               configChain={props.configChain!}
               selectedFiles={selectedFiles()}
               onToggleFile={toggleFile}
+              availableConfigs={props.availableConfigs}
+              onLoadConfig={(entry) => console.log("Load config:", entry)}
             />
           </Show>
 

@@ -1,12 +1,12 @@
 import { createSignal, Switch, Match, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle } from "../types";
+import type { EzQuakeConfig, ConfigSourceBundle } from "../types";
 import ConfigViewer from "./ConfigViewer";
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
-  configChain: ConfigChain | null;
+  configSource: ConfigSourceBundle | null;
   exePath: string | null;
   configName: string | null;
 }
@@ -105,13 +105,14 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
           <Match when={subTab() === "config"}>
             <ConfigViewer
               config={props.config}
-              configChain={props.configChain}
+              configChain={props.configSource?.primary_chain ?? null}
               exePath={props.exePath}
               configName={props.configName}
               compareSource={compareSource()}
               onClearCompare={clearCompare}
               isDragOver={isDragOver()}
               dropError={dropError()}
+              availableConfigs={props.configSource?.available_configs}
             />
           </Match>
           <Match when={subTab() === "visuals"}>
