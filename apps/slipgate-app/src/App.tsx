@@ -20,6 +20,7 @@ function App() {
   const [loading, setLoading] = createSignal(true);
   const [ezConfig, setEzConfig] = createSignal<EzQuakeConfig | null>(null);
   const [configSource, setConfigSource] = createSignal<ConfigSourceBundle | null>(null);
+  const [compareSource, setCompareSource] = createSignal<ConfigSourceBundle | null>(null);
   const [profile, setProfile] = createSignal<ProfileData | null>(null);
 
   // ─── Config file watcher ───────────────────────────────────────────────
@@ -213,6 +214,8 @@ function App() {
                 configSource={configSource()}
                 exePath={profile() ? getPrimarySetup(profile()!).client.exe_path ?? null : null}
                 configName={profile() ? getPrimarySetup(profile()!).client.config_name ?? null : null}
+                compareSource={compareSource()}
+                onCompareSourceChange={setCompareSource}
               />
             </Match>
             <Match when={activeTab() === "settings"}>

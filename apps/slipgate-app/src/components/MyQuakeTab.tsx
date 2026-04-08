@@ -9,13 +9,14 @@ interface MyQuakeTabProps {
   configSource: ConfigSourceBundle | null;
   exePath: string | null;
   configName: string | null;
+  compareSource: ConfigSourceBundle | null;
+  onCompareSourceChange: (source: ConfigSourceBundle | null) => void;
 }
 
 type SubTab = "config" | "visuals" | "matches";
 
 export default function MyQuakeTab(props: MyQuakeTabProps) {
   const [subTab, setSubTab] = createSignal<SubTab>("config");
-  const [compareSource, setCompareSource] = createSignal<ConfigSourceBundle | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [dropError, setDropError] = createSignal<string | null>(null);
   const [pendingDrop, setPendingDrop] = createSignal<string[] | null>(null);
@@ -49,7 +50,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     }
 
     // If right side already has content, ask user
-    if (compareSource()) {
+    if (props.compareSource) {
       setPendingDrop(supported);
       return;
     }
@@ -60,7 +61,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   async function loadDroppedFiles(paths: string[]) {
     try {
       const source = await invoke<ConfigSourceBundle>("scan_dropped_input", { paths });
-      setCompareSource(source);
+      props.onCompareSourceChange(source);
       setDropError(null);
       setPendingDrop(null);
     } catch (e) {
@@ -90,7 +91,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
         configPath: entry.relative_path,
         contextPath: props.exePath ?? "",
       });
-      setCompareSource({
+      props.onCompareSourceChange({
         origin: { type: "dropped_files", filenames: [entry.filename] },
         primary_chain: chain,
         available_configs: [],
@@ -103,7 +104,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   }
 
   async function handleSwapCompareConfig(entry: ConfigEntry) {
-    const source = compareSource();
+    const source = props.compareSource;
     if (!source) return;
 
     try {
@@ -140,7 +141,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
         ...source.available_configs.filter((c) => c.relative_path !== entry.relative_path),
       ];
 
-      setCompareSource({
+      props.onCompareSourceChange({
         ...source,
         primary_chain: chain,
         available_configs: newAvailable,
@@ -152,7 +153,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   }
 
   function clearCompare() {
-    setCompareSource(null);
+    props.onCompareSourceChange(null);
     setPendingDrop(null);
   }
 
@@ -217,7 +218,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               configChain={props.configSource?.primary_chain ?? null}
               exePath={props.exePath}
               configName={props.configName}
-              compareSource={compareSource()}
+              compareSource={props.compareSource}
               onClearCompare={clearCompare}
               isDragOver={isDragOver()}
               dropError={dropError()}
