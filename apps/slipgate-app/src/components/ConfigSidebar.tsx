@@ -8,6 +8,7 @@ interface ConfigSidebarProps {
   row1Total: number;
   onToggleRow1Cat: (cat: string) => void;
   onToggleAllRow1: () => void;
+  categoryGaps?: Set<string>;
 
   // Row 2 — Domains
   activeRow2: Set<string>;
@@ -20,6 +21,7 @@ interface ConfigSidebarProps {
   onHideDefaultsChange: (val: boolean) => void;
   search: string;
   onSearchChange: (val: string) => void;
+  isCompareMode: boolean;
 }
 
 export default function ConfigSidebar(props: ConfigSidebarProps) {
@@ -40,12 +42,15 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
         </button>
         <For each={props.row1Categories}>
           {([cat]) => (
-            <button
-              class={`badge cursor-pointer ${isRow1Active(cat) ? "badge-primary" : "badge-ghost"}`}
-              onClick={() => props.onToggleRow1Cat(cat)}
-            >
-              {cat}
-            </button>
+            <>
+              <button
+                class={`badge cursor-pointer ${isRow1Active(cat) ? "badge-primary" : "badge-ghost"}`}
+                onClick={() => props.onToggleRow1Cat(cat)}
+              >
+                {cat}
+              </button>
+              {props.categoryGaps?.has(cat) && <div class="h-1" />}
+            </>
           )}
         </For>
       </div>

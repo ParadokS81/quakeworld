@@ -45,6 +45,31 @@ function isDefaultValue(value: string | undefined, defaultVal: string | undefine
 /** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
 const DOMAIN_CATEGORIES = new Set(["Teamplay"]);
 
+/**
+ * Fixed category display order grouped by relevance.
+ * Categories not listed here appear at the end alphabetically.
+ * Group boundaries (marked with `gap: true`) get visual spacing in the sidebar.
+ */
+const CATEGORY_ORDER: { name: string; gap?: boolean }[] = [
+  // Visual
+  { name: "HUD" },
+  { name: "Graphics" },
+  { name: "Sound" },
+  { name: "Input", gap: true },
+  // Gameplay
+  { name: "Multiplayer", gap: true },
+  // Reference
+  { name: "Miscellaneous" },
+  { name: "Demos" },
+  { name: "Server", gap: true },
+  // Catch-all
+  { name: "Unknown" },
+  { name: "Obsolete" },
+];
+
+const CATEGORY_PRIORITY = new Map(CATEGORY_ORDER.map((c, i) => [c.name, i]));
+const CATEGORY_GAPS = new Set(CATEGORY_ORDER.filter((c) => c.gap).map((c) => c.name));
+
 export default function ConfigViewer(props: ConfigViewerProps) {
   const [viewMode, setViewMode] = createSignal<ViewMode>("list");
   const [configExpanded, setConfigExpanded] = createSignal(false);
@@ -174,7 +199,12 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       const cat = info?.category ?? "Unknown";
       counts.set(cat, (counts.get(cat) ?? 0) + 1);
     }
-    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+    return Array.from(counts.entries()).sort((a, b) => {
+      const pa = CATEGORY_PRIORITY.get(a[0]) ?? 999;
+      const pb = CATEGORY_PRIORITY.get(b[0]) ?? 999;
+      if (pa !== pb) return pa - pb;
+      return a[0].localeCompare(b[0]); // alphabetical fallback for unlisted
+    });
   });
 
   const row1Categories = createMemo(() =>
@@ -477,6 +507,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               row1Total={row1Total()}
               onToggleRow1Cat={toggleRow1Cat}
               onToggleAllRow1={toggleAllRow1}
+              categoryGaps={CATEGORY_GAPS}
               activeRow2={activeRow2()}
               onToggleRow2Pill={toggleRow2Pill}
               aliasesActive={aliasesActive()}
