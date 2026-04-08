@@ -16,33 +16,10 @@ COPY src/ src/
 
 RUN npx tsc
 
-# ---- Python deps stage (compile zeroc-ice + install faster-whisper) ----
-# Needs g++ and python3-dev to compile zeroc-ice from source (no pre-built wheel available).
-# Build here then copy the finished venv to the runtime stage — keeps g++ out of the final image.
-FROM node:22-slim AS python-deps
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv python3-dev g++ libbz2-dev libssl-dev libexpat1-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m venv /opt/whisper-venv
-ENV PATH="/opt/whisper-venv/bin:$PATH"
-
-RUN pip install --no-cache-dir faster-whisper nvidia-cublas-cu12 nvidia-cudnn-cu12 zeroc-ice
-
 # ---- Runtime stage ----
-FROM node:22-slim
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg python3 libfontconfig1 ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy pre-built Python venv (includes zeroc-ice + faster-whisper compiled in python-deps stage)
-COPY --from=python-deps /opt/whisper-venv /opt/whisper-venv
-ENV PATH="/opt/whisper-venv/bin:$PATH"
-
-# CUDA runtime libs installed by pip need to be on LD_LIBRARY_PATH for CTranslate2
-ENV LD_LIBRARY_PATH="/opt/whisper-venv/lib/python3.11/site-packages/nvidia/cublas/lib:/opt/whisper-venv/lib/python3.11/site-packages/nvidia/cudnn/lib:${LD_LIBRARY_PATH}"
+# Base image includes: node:22-slim + ffmpeg + python3 + faster-whisper + CUDA libs + zeroc-ice
+# Rebuild base with: gh workflow run quad-base-docker.yml (see Dockerfile.base)
+FROM ghcr.io/paradoks81/quad-base:latest
 
 WORKDIR /app
 
