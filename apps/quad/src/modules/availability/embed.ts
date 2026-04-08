@@ -6,7 +6,7 @@
  */
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { getWeekDates, utcToCet } from './time.js';
+import { getCetOffset, getWeekDates, utcToCet } from './time.js';
 
 const DAY_LABELS: Record<string, string> = {
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu',
@@ -39,7 +39,8 @@ export function formatScheduledDate(slotId: string, weekId: string): string {
 
     // "TONIGHT 21:30" when match is today (CET)
     const now = new Date();
-    const cetNow = new Date(now.getTime() + 1 * 3600_000); // UTC+1
+    const offset = getCetOffset();
+    const cetNow = new Date(now.getTime() + offset * 3600_000);
     const slotFullDate = cetDay !== utcDay
         ? new Date(dateInfo.fullDate.getTime() + 86400_000)
         : dateInfo.fullDate;

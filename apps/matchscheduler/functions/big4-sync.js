@@ -49,14 +49,23 @@ function fetchBig4Games() {
 }
 
 /**
- * Convert Big4 CET time to UTC Date.
- * Big4 API returns scheduled_date as ISO string and scheduled_time as "HH:MM:SS".
- * CET = UTC+1 (Big4 season is Feb-Apr, all winter time).
+ * Convert Big4 CET/CEST time to UTC Date.
+ * Big4 API returns scheduled_date as ISO string and scheduled_time as "HH:MM:SS"
+ * in Swedish local time (Europe/Stockholm): CET (UTC+1) in winter, CEST (UTC+2) in summer.
  */
 function big4ToUtcDate(scheduledDate, scheduledTime) {
     const [hours, minutes] = scheduledTime.split(':').map(Number);
-    const date = new Date(scheduledDate);
-    date.setUTCHours(hours - 1, minutes, 0, 0); // CET → UTC = subtract 1 hour
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+
+    // Probe the CET/CEST offset for this date (1 for CET, 2 for CEST)
+    const probe = new Date(`${scheduledDate}T${hh}:${mm}:00Z`);
+    const cetMs = new Date(probe.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
+    const utcMs = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+    const offsetHours = Math.round((cetMs - utcMs) / 3600000);
+
+    const date = new Date(`${scheduledDate}T00:00:00Z`);
+    date.setUTCHours(hours - offsetHours, minutes, 0, 0);
     return date;
 }
 

@@ -17,12 +17,11 @@ const DAYS: Record<string, string> = {
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 /**
- * Convert a UTC slot ID to CET (UTC+1) display string.
+ * Convert a UTC slot ID to CET/CEST display string.
  * Slot IDs are UTC (e.g., "sun_2130" = Sunday 21:30 UTC).
  *
- * CET = UTC+1 year-round in v1 — the QW community universally says "CET" even during summer.
- *
- * Returns e.g., "Sun 22:30" (for "sun_2130" + 1 hour)
+ * The QW community says "CET" year-round, but the displayed hour
+ * must match the local clock (UTC+1 winter, UTC+2 summer).
  */
 function formatSlotForCET(slotId: string): string {
   const [day, time] = slotId.split('_');
@@ -31,8 +30,8 @@ function formatSlotForCET(slotId: string): string {
   const utcHour = parseInt(time.slice(0, 2), 10);
   const utcMin = time.slice(2);
 
-  // Add 1 hour for CET
-  let cetHour = utcHour + 1;
+  const offset = getCetOffset();
+  let cetHour = utcHour + offset;
   let displayDay = day;
 
   if (cetHour >= 24) {
@@ -42,6 +41,14 @@ function formatSlotForCET(slotId: string): string {
   }
 
   return `${DAYS[displayDay] || displayDay} ${String(cetHour).padStart(2, '0')}:${utcMin}`;
+}
+
+/** Get the current Europe/Stockholm offset (1 for CET, 2 for CEST) */
+function getCetOffset(): number {
+  const now = new Date();
+  const cetMs = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
+  const utcMs = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+  return Math.round((cetMs - utcMs) / 3600000);
 }
 
 /**

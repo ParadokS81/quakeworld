@@ -32,17 +32,23 @@ function fetchBig4() {
     });
 }
 
-// Convert CET time to UTC slotId format (e.g. "21:00:00" on "2026-02-24" -> "tue_2000")
+// Convert CET/CEST time to UTC slotId format (e.g. "21:00:00" on "2026-04-08" -> "tue_1900")
 function big4ToSlotId(scheduledDate, scheduledTime) {
-    const date = new Date(scheduledDate);
     const [hours, minutes] = scheduledTime.split(':').map(Number);
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
 
-    // CET = UTC+1 (CEST = UTC+2, but Feb is CET)
-    let utcHours = hours - 1;
+    // Determine CET (UTC+1) or CEST (UTC+2) offset for this date
+    const probe = new Date(`${scheduledDate}T${hh}:${mm}:00Z`);
+    const cetMs = new Date(probe.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
+    const utcMs = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+    const offsetHours = Math.round((cetMs - utcMs) / 3600000);
+
+    let utcHours = hours - offsetHours;
     let dayOffset = 0;
     if (utcHours < 0) { utcHours += 24; dayOffset = -1; }
 
-    // Get day of week from the date + potential offset
+    const date = new Date(scheduledDate);
     const adjustedDate = new Date(date);
     adjustedDate.setDate(adjustedDate.getDate() + dayOffset);
     const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
