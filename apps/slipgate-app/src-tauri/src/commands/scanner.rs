@@ -1,4 +1,123 @@
-use std::collections::HashMap;
+use std::path::PathBuf;
+use serde::Serialize;
+use super::ezquake::{self, ConfigChain};
+use super::archive;
+
+/// Where a config source originated.
+#[derive(Serialize, Clone, Debug)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SourceOrigin {
+    LocalInstall { exe_path: String, gamedir: String },
+    DroppedFiles { filenames: Vec<String> },
+    Archive { path: String, format: String },
+}
+
+/// A config file found during scanning that is NOT part of the primary chain.
+#[derive(Serialize, Clone, Debug)]
+pub struct ConfigEntry {
+    pub filename: String,
+    pub relative_path: String,
+    pub size: u64,
+    pub location: ConfigLocation,
+}
+
+#[derive(Serialize, Clone, Debug)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ConfigLocation {
+    Loose,
+    InsidePak { pak_name: String },
+}
+
+/// A complete config source: origin, resolved chain, and inventory of other configs.
+#[derive(Serialize, Clone, Debug)]
+pub struct ConfigSourceBundle {
+    pub origin: SourceOrigin,
+    pub primary_chain: Option<ConfigChain>,
+    pub available_configs: Vec<ConfigEntry>,
+    pub detected_client: Option<String>,
+    pub label: String,
+}
+
+/// Scan a local ezQuake/FTE installation and return a ConfigSourceBundle.
+pub fn scan_local_install_internal(exe_path: &str, config_name: &str) -> Result<ConfigSourceBundle, String> {
+    let path = PathBuf::from(exe_path);
+    let cfg_dir = ezquake::config_dir_from_exe(&path);
+    let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
+
+    // Get the primary chain using existing logic
+    let chain = ezquake::read_config_chain_internal(&path, config_name)?;
+
+    // Collect paths already in the chain (to avoid duplicates)
+    let chain_paths: std::collections::HashSet<String> = chain.files.iter()
+        .map(|f| f.relative_path.clone())
+        .collect();
+
+    // Build available_configs from chain's other_cfgs (loose files already found)
+    let mut available: Vec<ConfigEntry> = chain.other_cfgs.iter()
+        .map(|oc| ConfigEntry {
+            filename: oc.name.clone(),
+            relative_path: oc.relative_path.clone(),
+            size: oc.size_bytes,
+            location: ConfigLocation::Loose,
+        })
+        .collect();
+
+    // Also scan pak/pk3 files in game_dir for .cfg files
+    if let Ok(entries) = std::fs::read_dir(&game_dir) {
+        for entry in entries.flatten() {
+            let entry_path = entry.path();
+            if !entry_path.is_file() { continue; }
+            if archive::detect_format(&entry_path).is_none() { continue; }
+
+            let pak_name = entry_path.file_name()
+                .unwrap_or_default().to_string_lossy().to_string();
+
+            if let Ok((_, archive_entries)) = archive::scan_archive(&entry_path) {
+                for ae in &archive_entries {
+                    if ae.name.to_lowercase().ends_with(".cfg") {
+                        let rel = ae.name.clone();
+                        if !chain_paths.contains(&rel) {
+                            available.push(ConfigEntry {
+                                filename: std::path::Path::new(&ae.name)
+                                    .file_name()
+                                    .unwrap_or_default()
+                                    .to_string_lossy()
+                                    .to_string(),
+                                relative_path: rel,
+                                size: ae.size,
+                                location: ConfigLocation::InsidePak {
+                                    pak_name: pak_name.clone(),
+                                },
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    available.sort_by(|a, b| a.filename.cmp(&b.filename));
+    // Deduplicate by relative_path
+    available.dedup_by(|a, b| a.relative_path == b.relative_path);
+
+    let label = format!("ezQuake › {}", config_name);
+
+    Ok(ConfigSourceBundle {
+        origin: SourceOrigin::LocalInstall {
+            exe_path: exe_path.to_string(),
+            gamedir: game_dir.to_string_lossy().to_string(),
+        },
+        primary_chain: Some(chain),
+        available_configs: available,
+        detected_client: Some("ezquake".to_string()),
+        label,
+    })
+}
+
+#[tauri::command]
+pub fn scan_local_install(exe_path: String, config_name: String) -> Result<ConfigSourceBundle, String> {
+    scan_local_install_internal(&exe_path, &config_name)
+}
 
 /// Detected gamedir info from an archive or directory scan.
 #[derive(Debug, Clone)]
