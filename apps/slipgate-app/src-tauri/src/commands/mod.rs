@@ -4,3 +4,4 @@ pub mod auth;
 pub mod updater;
 pub mod screenshot;
 pub mod watcher;
+pub mod archive;

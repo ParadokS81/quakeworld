@@ -1,0 +1,215 @@
+use std::io::{self, Read, Seek, SeekFrom};
+
+/// An entry in a PAK or ZIP/PK3 archive.
+#[derive(Debug, Clone)]
+pub struct ArchiveEntry {
+    pub name: String,
+    pub size: u64,
+}
+
+/// Read the file index from a PAK archive. Returns all entries.
+pub fn read_pak_index<R: Read + Seek>(reader: &mut R) -> io::Result<Vec<ArchiveEntry>> {
+    // Read 12-byte header
+    let mut header = [0u8; 12];
+    reader.read_exact(&mut header)?;
+
+    // Verify magic "PACK"
+    if &header[0..4] != b"PACK" {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "invalid PAK magic: expected \"PACK\"",
+        ));
+    }
+
+    let table_offset = u32::from_le_bytes(header[4..8].try_into().unwrap()) as u64;
+    let table_size = u32::from_le_bytes(header[8..12].try_into().unwrap()) as u64;
+    let entry_count = table_size / 64;
+
+    reader.seek(SeekFrom::Start(table_offset))?;
+
+    let mut entries = Vec::with_capacity(entry_count as usize);
+
+    for _ in 0..entry_count {
+        let mut entry_buf = [0u8; 64];
+        reader.read_exact(&mut entry_buf)?;
+
+        // Filename: first 56 bytes, null-terminated
+        let name_bytes = &entry_buf[0..56];
+        let name_len = name_bytes.iter().position(|&b| b == 0).unwrap_or(56);
+        let name = String::from_utf8_lossy(&name_bytes[..name_len]).into_owned();
+
+        let size = u32::from_le_bytes(entry_buf[60..64].try_into().unwrap()) as u64;
+
+        entries.push(ArchiveEntry { name, size });
+    }
+
+    Ok(entries)
+}
+
+/// Extract the content of a specific file from a PAK archive by name.
+pub fn read_pak_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Result<Vec<u8>> {
+    // Read 12-byte header
+    let mut header = [0u8; 12];
+    reader.read_exact(&mut header)?;
+
+    // Verify magic "PACK"
+    if &header[0..4] != b"PACK" {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "invalid PAK magic: expected \"PACK\"",
+        ));
+    }
+
+    let table_offset = u32::from_le_bytes(header[4..8].try_into().unwrap()) as u64;
+    let table_size = u32::from_le_bytes(header[8..12].try_into().unwrap()) as u64;
+    let entry_count = table_size / 64;
+
+    reader.seek(SeekFrom::Start(table_offset))?;
+
+    for _ in 0..entry_count {
+        let mut entry_buf = [0u8; 64];
+        reader.read_exact(&mut entry_buf)?;
+
+        let name_bytes = &entry_buf[0..56];
+        let name_len = name_bytes.iter().position(|&b| b == 0).unwrap_or(56);
+        let name = String::from_utf8_lossy(&name_bytes[..name_len]);
+
+        if name == filename {
+            let data_offset =
+                u32::from_le_bytes(entry_buf[56..60].try_into().unwrap()) as u64;
+            let data_size =
+                u32::from_le_bytes(entry_buf[60..64].try_into().unwrap()) as usize;
+
+            reader.seek(SeekFrom::Start(data_offset))?;
+            let mut buf = vec![0u8; data_size];
+            reader.read_exact(&mut buf)?;
+            return Ok(buf);
+        }
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::NotFound,
+        format!("file not found in PAK: {filename}"),
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    /// Build a PAK archive in memory from a list of (name, data) pairs.
+    fn make_test_pak(files: &[(&str, &[u8])]) -> Vec<u8> {
+        let entry_count = files.len() as u32;
+        let table_size = entry_count * 64;
+
+        // File data starts immediately after the 12-byte header.
+        // Compute offsets for each file's data.
+        let data_start = 12u32;
+        let mut data_offsets = Vec::with_capacity(files.len());
+        let mut cursor = data_start;
+        for (_, data) in files {
+            data_offsets.push(cursor);
+            cursor += data.len() as u32;
+        }
+
+        // The file table follows all the file data.
+        let table_offset = cursor;
+
+        // --- Build the binary ---
+        let mut pak = Vec::new();
+
+        // Header
+        pak.extend_from_slice(b"PACK");
+        pak.extend_from_slice(&table_offset.to_le_bytes());
+        pak.extend_from_slice(&table_size.to_le_bytes());
+
+        // File data blobs
+        for (_, data) in files {
+            pak.extend_from_slice(data);
+        }
+
+        // File table entries
+        for (i, (name, data)) in files.iter().enumerate() {
+            let mut name_buf = [0u8; 56];
+            let name_bytes = name.as_bytes();
+            let copy_len = name_bytes.len().min(55); // keep a null terminator
+            name_buf[..copy_len].copy_from_slice(&name_bytes[..copy_len]);
+
+            pak.extend_from_slice(&name_buf);
+            pak.extend_from_slice(&data_offsets[i].to_le_bytes());
+            pak.extend_from_slice(&(data.len() as u32).to_le_bytes());
+        }
+
+        pak
+    }
+
+    #[test]
+    fn test_read_pak_index() {
+        let files: &[(&str, &[u8])] = &[
+            ("maps/e1m1.bsp", b"binary map data"),
+            ("sound/player/death.wav", b"audio bytes"),
+            ("progs/player.mdl", b"model data here"),
+        ];
+
+        let pak_data = make_test_pak(files);
+        let mut reader = Cursor::new(pak_data);
+        let entries = read_pak_index(&mut reader).expect("should parse index");
+
+        assert_eq!(entries.len(), 3);
+
+        assert_eq!(entries[0].name, "maps/e1m1.bsp");
+        assert_eq!(entries[0].size, b"binary map data".len() as u64);
+
+        assert_eq!(entries[1].name, "sound/player/death.wav");
+        assert_eq!(entries[1].size, b"audio bytes".len() as u64);
+
+        assert_eq!(entries[2].name, "progs/player.mdl");
+        assert_eq!(entries[2].size, b"model data here".len() as u64);
+    }
+
+    #[test]
+    fn test_read_pak_file() {
+        let files: &[(&str, &[u8])] = &[
+            ("maps/e1m1.bsp", b"binary map data"),
+            ("sound/player/death.wav", b"audio bytes"),
+            ("progs/player.mdl", b"model data here"),
+        ];
+
+        let pak_data = make_test_pak(files);
+        let mut reader = Cursor::new(pak_data);
+
+        let content =
+            read_pak_file(&mut reader, "sound/player/death.wav").expect("should extract file");
+
+        assert_eq!(content, b"audio bytes");
+    }
+
+    #[test]
+    fn test_read_pak_file_not_found() {
+        let files: &[(&str, &[u8])] = &[("maps/e1m1.bsp", b"data")];
+
+        let pak_data = make_test_pak(files);
+        let mut reader = Cursor::new(pak_data);
+
+        let result = read_pak_file(&mut reader, "does/not/exist.txt");
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn test_invalid_pak_magic() {
+        // Deliberately corrupt magic bytes
+        let mut bad_header = vec![0u8; 12];
+        bad_header[0..4].copy_from_slice(b"JUNK");
+
+        let mut reader = Cursor::new(bad_header);
+        let result = read_pak_index(&mut reader);
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+    }
+}
