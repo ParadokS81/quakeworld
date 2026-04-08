@@ -1,4 +1,4 @@
-import { createSignal, Switch, Match, onCleanup } from "solid-js";
+import { createSignal, Switch, Match, Show, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { EzQuakeConfig, ConfigSourceBundle } from "../types";
@@ -18,6 +18,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   const [compareSource, setCompareSource] = createSignal<ConfigSourceBundle | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [dropError, setDropError] = createSignal<string | null>(null);
+  const [pendingDrop, setPendingDrop] = createSignal<string[] | null>(null);
 
   let unlisten: (() => void) | null = null;
   (async () => {
@@ -47,18 +48,40 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
       return;
     }
 
+    // If right side already has content, ask user
+    if (compareSource()) {
+      setPendingDrop(supported);
+      return;
+    }
+
+    await loadDroppedFiles(supported);
+  }
+
+  async function loadDroppedFiles(paths: string[]) {
     try {
-      const source = await invoke<ConfigSourceBundle>("scan_dropped_input", { paths: supported });
+      const source = await invoke<ConfigSourceBundle>("scan_dropped_input", { paths });
       setCompareSource(source);
       setDropError(null);
+      setPendingDrop(null);
     } catch (e) {
       setDropError(String(e));
       setTimeout(() => setDropError(null), 5000);
+      setPendingDrop(null);
     }
+  }
+
+  function handleReplace() {
+    const paths = pendingDrop();
+    if (paths) loadDroppedFiles(paths);
+  }
+
+  function dismissPendingDrop() {
+    setPendingDrop(null);
   }
 
   function clearCompare() {
     setCompareSource(null);
+    setPendingDrop(null);
   }
 
   return (
@@ -103,6 +126,16 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
       <div class="flex-1 overflow-hidden">
         <Switch>
           <Match when={subTab() === "config"}>
+            {/* Re-drop prompt */}
+            <Show when={pendingDrop()}>
+              <div class="flex items-center gap-2 px-4 py-2 bg-[color-mix(in_oklch,var(--color-primary)_15%,transparent)] border-b border-[var(--color-primary)] text-sm flex-shrink-0">
+                <span class="text-[var(--sg-text-bright)]">
+                  {pendingDrop()!.length} file{pendingDrop()!.length > 1 ? "s" : ""} dropped.
+                </span>
+                <button class="btn btn-primary btn-xs" onClick={handleReplace}>Replace</button>
+                <button class="btn btn-ghost btn-xs" onClick={dismissPendingDrop}>Cancel</button>
+              </div>
+            </Show>
             <ConfigViewer
               config={props.config}
               configChain={props.configSource?.primary_chain ?? null}
