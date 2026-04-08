@@ -547,7 +547,7 @@ fn hex_digit(b: u8) -> Option<u8> {
 }
 
 /// Movement key bindings extracted from config.
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 pub struct MovementKeys {
     pub forward: String,
     pub back: String,
