@@ -453,8 +453,15 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
             .to_string_lossy()
             .to_string();
         format!("Dropped: {}", archive_name)
+    } else if classified.cfg_files.len() == 1 && classified.archives.is_empty() {
+        let cfg_name = classified.cfg_files[0]
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+        cfg_name
     } else {
-        format!("Dropped: {} file{}", paths.len(), if paths.len() == 1 { "" } else { "s" })
+        format!("Dropped: {} files", paths.len())
     };
 
     // -----------------------------------------------------------------------

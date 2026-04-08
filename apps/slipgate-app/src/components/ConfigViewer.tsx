@@ -499,7 +499,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               isCompareMode={isCompareMode()}
             />
 
-            <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="flex-1 flex flex-col overflow-hidden max-w-4xl">
               {/* ── Compare filter bar ── */}
               <Show when={isCompareMode()}>
                 <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">

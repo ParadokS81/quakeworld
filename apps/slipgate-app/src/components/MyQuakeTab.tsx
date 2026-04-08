@@ -149,14 +149,18 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
       <div class="flex-1 overflow-hidden">
         <Switch>
           <Match when={subTab() === "config"}>
-            {/* Re-drop prompt */}
+            {/* Re-drop modal */}
             <Show when={pendingDrop()}>
-              <div class="flex items-center gap-2 px-4 py-2 bg-[color-mix(in_oklch,var(--color-primary)_15%,transparent)] border-b border-[var(--color-primary)] text-sm flex-shrink-0">
-                <span class="text-[var(--sg-text-bright)]">
-                  {pendingDrop()!.length} file{pendingDrop()!.length > 1 ? "s" : ""} dropped.
-                </span>
-                <button class="btn btn-primary btn-xs" onClick={handleReplace}>Replace</button>
-                <button class="btn btn-ghost btn-xs" onClick={dismissPendingDrop}>Cancel</button>
+              <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60">
+                <div class="bg-base-200 rounded-lg shadow-xl p-6 max-w-sm mx-4 border border-[var(--sg-stat-border)]">
+                  <p class="text-sm text-[var(--sg-text-bright)] mb-4">
+                    {pendingDrop()!.length} file{pendingDrop()!.length > 1 ? "s" : ""} dropped. Replace current comparison?
+                  </p>
+                  <div class="flex gap-2 justify-end">
+                    <button class="btn btn-ghost btn-sm" onClick={dismissPendingDrop}>Cancel</button>
+                    <button class="btn btn-primary btn-sm" onClick={handleReplace}>Replace</button>
+                  </div>
+                </div>
               </div>
             </Show>
             <ConfigViewer
