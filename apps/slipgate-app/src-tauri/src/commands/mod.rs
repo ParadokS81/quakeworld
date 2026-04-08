@@ -5,3 +5,4 @@ pub mod updater;
 pub mod screenshot;
 pub mod watcher;
 pub mod archive;
+pub mod scanner;
