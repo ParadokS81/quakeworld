@@ -36,11 +36,11 @@ fn default_cvars() -> HashMap<&'static str, &'static str> {
 }
 
 /// Parsed config data — cvars, key bindings, aliases, and exec references.
-struct ParsedConfig {
-    cvars: HashMap<String, String>,
-    bindings: Vec<(String, String)>,          // ordered list of (key, command)
-    aliases: HashMap<String, String>,         // alias name → command string
-    exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
+pub(crate) struct ParsedConfig {
+    pub(crate) cvars: HashMap<String, String>,
+    pub(crate) bindings: Vec<(String, String)>,          // ordered list of (key, command)
+    pub(crate) aliases: HashMap<String, String>,         // alias name → command string
+    pub(crate) exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
 }
 
 // ============================================================
@@ -49,7 +49,7 @@ struct ParsedConfig {
 
 #[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "snake_case")]
-pub enum ConfigSource {
+pub enum ChainEntrySource {
     Primary,
     Exec,
     AutoExec,
@@ -68,7 +68,7 @@ pub struct ExecReference {
 pub struct ConfigFile {
     pub name: String,
     pub relative_path: String,
-    pub source: ConfigSource,
+    pub source: ChainEntrySource,
     pub referenced_by: Option<ExecReference>,
     pub cvars: HashMap<String, String>,
     pub binds: Vec<(String, String)>,
@@ -99,7 +99,7 @@ pub struct ConfigChain {
 
 /// Extract exec file references from a command string.
 /// Handles semicolon-separated commands like "echo loading; exec tp.cfg; exec msg.cfg".
-fn extract_exec_refs(command: &str) -> Vec<String> {
+pub(crate) fn extract_exec_refs(command: &str) -> Vec<String> {
     let mut refs = Vec::new();
     for segment in command.split(';') {
         let trimmed = segment.trim();
@@ -114,7 +114,7 @@ fn extract_exec_refs(command: &str) -> Vec<String> {
 }
 
 /// Check if an exec reference contains variable substitution (unresolvable).
-fn is_dynamic_ref(exec_ref: &str) -> bool {
+pub(crate) fn is_dynamic_ref(exec_ref: &str) -> bool {
     exec_ref.contains('$') || exec_ref.contains('%')
 }
 
@@ -145,9 +145,9 @@ fn resolve_exec_path(exec_ref: &str, game_dir: &Path, cfg_dir: &Path) -> Option<
 
 /// Recursively discover and parse config files starting from exec refs.
 /// Adds discovered files to `chain` and tracks seen paths to prevent cycles.
-fn walk_exec_refs(
+pub(crate) fn walk_exec_refs(
     exec_refs: &[String],
-    source: ConfigSource,
+    source: ChainEntrySource,
     parent_file: &str,
     context_prefix: &str,
     game_dir: &Path,
@@ -211,7 +211,7 @@ fn walk_exec_refs(
         // Recurse into this file's own exec refs
         walk_exec_refs(
             &exec_refs_clone,
-            ConfigSource::Exec,
+            ChainEntrySource::Exec,
             &rel_path,
             "exec",
             game_dir, cfg_dir, seen, chain, unresolved,
@@ -220,7 +220,7 @@ fn walk_exec_refs(
 }
 
 /// Parse an ezQuake config file into cvars and key bindings.
-fn parse_config(content: &str) -> ParsedConfig {
+pub(crate) fn parse_config(content: &str) -> ParsedConfig {
     let mut cvars = HashMap::new();
     let mut bindings = Vec::new();
     let mut aliases = HashMap::new();
@@ -1648,11 +1648,9 @@ pub fn read_ezquake_config(exe_path: String, config_name: String) -> Result<EzQu
     Ok(build_config(parsed))
 }
 
-/// Discover and return the full config file chain starting from a primary config.
-#[tauri::command]
-pub fn read_config_chain(exe_path: String, config_name: String) -> Result<ConfigChain, String> {
-    let path = PathBuf::from(&exe_path);
-    let cfg_dir = config_dir_from_exe(&path);
+/// Core logic for discovering and returning the full config file chain starting from a primary config.
+pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> Result<ConfigChain, String> {
+    let cfg_dir = config_dir_from_exe(exe_path);
     let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
 
     let primary_path = cfg_dir.join(&config_name);
@@ -1690,9 +1688,9 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
         .collect();
 
     chain.push(ConfigFile {
-        name: config_name.clone(),
+        name: config_name.to_string(),
         relative_path: primary_rel.clone(),
-        source: ConfigSource::Primary,
+        source: ChainEntrySource::Primary,
         referenced_by: None,
         cvars: parsed.cvars,
         binds: parsed.bindings,
@@ -1704,7 +1702,7 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
     // Phase 2: Follow inline exec refs from primary config (excludes cl_onload refs)
     walk_exec_refs(
         &top_level_exec_refs,
-        ConfigSource::Exec,
+        ChainEntrySource::Exec,
         &primary_rel,
         "exec",
         &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
@@ -1725,7 +1723,7 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
                 chain.push(ConfigFile {
                     name: "autoexec.cfg".to_string(),
                     relative_path: "autoexec.cfg".to_string(),
-                    source: ConfigSource::AutoExec,
+                    source: ChainEntrySource::AutoExec,
                     referenced_by: Some(ExecReference {
                         file: primary_rel.clone(),
                         context: "engine (loaded after config.cfg)".to_string(),
@@ -1739,7 +1737,7 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
 
                 walk_exec_refs(
                     &autoexec_refs,
-                    ConfigSource::Exec,
+                    ChainEntrySource::Exec,
                     "autoexec.cfg",
                     "exec",
                     &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
@@ -1753,7 +1751,7 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
         let onload_refs = extract_exec_refs(&onload);
         walk_exec_refs(
             &onload_refs,
-            ConfigSource::ClOnload,
+            ChainEntrySource::ClOnload,
             &primary_rel,
             "cl_onload",
             &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
@@ -1801,9 +1799,9 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
                     .unwrap_or_default().to_string_lossy().to_string();
 
                 let source = if context.starts_with("bind") {
-                    ConfigSource::BoundExec
+                    ChainEntrySource::BoundExec
                 } else {
-                    ConfigSource::AliasExec
+                    ChainEntrySource::AliasExec
                 };
 
                 let sub_refs = parsed.exec_refs.clone();
@@ -1825,7 +1823,7 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
 
                 walk_exec_refs(
                     &sub_refs,
-                    ConfigSource::Exec,
+                    ChainEntrySource::Exec,
                     &rel_path,
                     "exec",
                     &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
@@ -1893,6 +1891,12 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
         unresolved,
         other_cfgs,
     })
+}
+
+/// Discover and return the full config file chain starting from a primary config.
+#[tauri::command]
+pub fn read_config_chain(exe_path: String, config_name: String) -> Result<ConfigChain, String> {
+    read_config_chain_internal(&PathBuf::from(&exe_path), &config_name)
 }
 
 /// Launch ezQuake with optional parameters.

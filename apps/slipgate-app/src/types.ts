@@ -192,7 +192,7 @@ export interface UpdateResult {
 
 // ── Config chain discovery ────────────────────────────────────────────────
 
-export type ConfigSource =
+export type ChainEntrySource =
   | "primary"
   | "exec"
   | "auto_exec"
@@ -208,7 +208,7 @@ export interface ExecReference {
 export interface ConfigFile {
   name: string;
   relative_path: string;
-  source: ConfigSource;
+  source: ChainEntrySource;
   referenced_by: ExecReference | null;
   cvars: Record<string, string>;
   binds: [string, string][];
