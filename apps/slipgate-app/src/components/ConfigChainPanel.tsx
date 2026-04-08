@@ -6,7 +6,8 @@ interface ConfigChainPanelProps {
   selectedFiles: Set<number>;
   onToggleFile: (index: number) => void;
   availableConfigs?: ConfigEntry[];
-  onLoadConfig?: (entry: ConfigEntry) => void;
+  onCompareConfig?: (entry: ConfigEntry) => void;
+  onViewConfig?: (entry: ConfigEntry) => void;
 }
 
 export default function ConfigChainPanel(props: ConfigChainPanelProps) {
@@ -100,16 +101,27 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
               <div class="mt-1 font-mono">
                 <For each={visible()}>
                   {(entry) => (
-                    <div
-                      class="flex items-center gap-2 py-0.5 cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-                      onClick={() => props.onLoadConfig?.(entry)}
-                    >
-                      <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
+                    <div class="flex items-center gap-2 py-0.5">
+                      <span class="text-[var(--sg-text-dim)] flex-1">{entry.filename}</span>
                       <Show when={entry.location.type === "inside_pak"}>
                         <span class="text-[10px] text-[var(--sg-section-label)]">
                           ({(entry.location as { type: "inside_pak"; pak_name: string }).pak_name})
                         </span>
                       </Show>
+                      <button
+                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer"
+                        onClick={() => props.onCompareConfig?.(entry)}
+                        title="Compare against current"
+                      >
+                        ⇄
+                      </button>
+                      <button
+                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer"
+                        onClick={() => props.onViewConfig?.(entry)}
+                        title="View as primary"
+                      >
+                        →
+                      </button>
                     </div>
                   )}
                 </For>

@@ -1,7 +1,7 @@
 import { createSignal, Switch, Match, Show, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { EzQuakeConfig, ConfigSourceBundle } from "../types";
+import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry } from "../types";
 import ConfigViewer from "./ConfigViewer";
 
 interface MyQuakeTabProps {
@@ -79,6 +79,29 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     setPendingDrop(null);
   }
 
+  async function handleCompareConfig(entry: ConfigEntry) {
+    if (entry.location.type === "inside_pak") {
+      console.warn("Compare not yet supported for configs inside paks");
+      return;
+    }
+    try {
+      const chain = await invoke<ConfigChain>("load_config_from_source", {
+        sourceType: "local_install",
+        configPath: entry.relative_path,
+        contextPath: props.exePath ?? "",
+      });
+      setCompareSource({
+        origin: { type: "dropped_files", filenames: [entry.filename] },
+        primary_chain: chain,
+        available_configs: [],
+        detected_client: null,
+        label: entry.filename,
+      });
+    } catch (e) {
+      console.error("Failed to load config for compare:", e);
+    }
+  }
+
   function clearCompare() {
     setCompareSource(null);
     setPendingDrop(null);
@@ -146,6 +169,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               isDragOver={isDragOver()}
               dropError={dropError()}
               availableConfigs={props.configSource?.available_configs}
+              onCompareConfig={handleCompareConfig}
             />
           </Match>
           <Match when={subTab() === "visuals"}>

@@ -1,6 +1,7 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onCleanup } from "solid-js";
+import { invoke } from "@tauri-apps/api/core";
 import { lookupCvar, loadDatabase, loadDomainTags } from "qw-config";
-import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle } from "../types";
+import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
@@ -18,7 +19,8 @@ interface ConfigViewerProps {
   onClearCompare?: () => void;
   isDragOver?: boolean;
   dropError?: string | null;
-  availableConfigs?: import("../types").ConfigEntry[];
+  availableConfigs?: ConfigEntry[];
+  onCompareConfig?: (entry: ConfigEntry) => void;
 }
 
 type ViewMode = "list" | "convert";
@@ -49,19 +51,29 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [hideDefaults, setHideDefaults] = createSignal(false);
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
 
+  // ── Primary override (View as Primary) ──
+  const [primaryOverride, setPrimaryOverride] = createSignal<ConfigChain | null>(null);
+
+  const effectiveChain = createMemo(() => primaryOverride() ?? props.configChain);
+  const effectiveConfigName = createMemo(() => {
+    const override = primaryOverride();
+    if (override && override.files.length > 0) return override.files[0].name;
+    return props.configName;
+  });
+
   // ── File selection (all selected by default) ──
   const [selectedFiles, setSelectedFiles] = createSignal<Set<number>>(
-    new Set(props.configChain?.files.map((_, i) => i) ?? []),
+    new Set(effectiveChain()?.files.map((_, i) => i) ?? []),
   );
 
   // Reset selection when chain changes
-  const chainKey = () => props.configChain?.files.map((f) => f.relative_path).join("|") ?? "";
+  const chainKey = () => effectiveChain()?.files.map((f) => f.relative_path).join("|") ?? "";
   let lastChainKey = chainKey();
   createMemo(() => {
     const key = chainKey();
     if (key !== lastChainKey) {
       lastChainKey = key;
-      setSelectedFiles(new Set(props.configChain?.files.map((_, i) => i) ?? []));
+      setSelectedFiles(new Set(effectiveChain()?.files.map((_, i) => i) ?? []));
     }
   });
 
@@ -94,8 +106,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Per-file merged data ──
   const mergedData = createMemo(() => {
-    if (!props.configChain) return null;
-    return mergeSelectedFiles(props.configChain, selectedFiles());
+    if (!effectiveChain()) return null;
+    return mergeSelectedFiles(effectiveChain()!, selectedFiles());
   });
 
   const effectiveCvars = createMemo(() =>
@@ -309,7 +321,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       props.config.weapon_binds,
       props.config.teamsay_binds,
       props.config.movement,
-      props.configChain!,
+      effectiveChain()!,
       selectedFiles(),
     );
   });
@@ -333,8 +345,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Aliases data ──
   const enrichedAliases = createMemo(() => {
-    if (!props.configChain) return [];
-    return mergeAliases(props.configChain, selectedFiles());
+    if (!effectiveChain()) return [];
+    return mergeAliases(effectiveChain()!, selectedFiles());
   });
 
   const filteredAliases = createMemo(() => {
@@ -378,6 +390,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     props.onClearCompare?.();
   }
 
+  async function handleViewAsPrimary(entry: ConfigEntry) {
+    if (entry.location.type === "inside_pak") {
+      console.warn("View as Primary not yet supported for configs inside paks");
+      return;
+    }
+    try {
+      const chain = await invoke<ConfigChain>("load_config_from_source", {
+        sourceType: "local_install",
+        configPath: entry.relative_path,
+        contextPath: props.exePath ?? "",
+      });
+      setPrimaryOverride(chain);
+    } catch (e) {
+      console.error("Failed to load config:", e);
+    }
+  }
+
   // ── Render ──
   if (!props.config) {
     return (
@@ -411,8 +440,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               <span class="text-xs">{configExpanded() ? "▼" : "▶"}</span>
               <span class="badge badge-primary text-xs px-1.5 h-5">ezQuake</span>
               <span class="text-[var(--sg-text-dim)]">›</span>
-              <span class="font-mono">{props.configName ?? "config.cfg"}</span>
+              <span class="font-mono">{effectiveConfigName() ?? "config.cfg"}</span>
             </button>
+
+            <Show when={primaryOverride()}>
+              <button
+                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                onClick={() => setPrimaryOverride(null)}
+              >
+                ↩ Reset to default
+              </button>
+            </Show>
 
             <div class="flex-1" />
 
@@ -430,13 +468,14 @@ export default function ConfigViewer(props: ConfigViewerProps) {
           </div>
 
           {/* ── Config chain panel (expandable) ── */}
-          <Show when={configExpanded() && props.configChain}>
+          <Show when={configExpanded() && effectiveChain()}>
             <ConfigChainPanel
-              configChain={props.configChain!}
+              configChain={effectiveChain()!}
               selectedFiles={selectedFiles()}
               onToggleFile={toggleFile}
               availableConfigs={props.availableConfigs}
-              onLoadConfig={(entry) => console.log("Load config:", entry)}
+              onCompareConfig={props.onCompareConfig}
+              onViewConfig={(entry) => handleViewAsPrimary(entry)}
             />
           </Show>
 
