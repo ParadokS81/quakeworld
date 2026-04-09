@@ -153,6 +153,34 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   const isCompareMode = () => compareCvars().size > 0;
 
+  // ── Alias + bind command maps for chain expansion ──
+  const primaryAliases = createMemo((): Record<string, string> =>
+    mergedData()?.aliases ?? {},
+  );
+  const primaryBindCommands = createMemo((): Record<string, string> => {
+    const map: Record<string, string> = {};
+    for (const [key, cmd] of mergedData()?.binds ?? []) {
+      map[key.toUpperCase()] = cmd;
+    }
+    return map;
+  });
+  const compareMerged = createMemo(() => {
+    const source = props.compareSource;
+    if (!source?.primary_chain) return null;
+    const allIndices = new Set(source.primary_chain.files.map((_: any, i: number) => i));
+    return mergeSelectedFiles(source.primary_chain, allIndices);
+  });
+  const compareAliases = createMemo((): Record<string, string> =>
+    compareMerged()?.aliases ?? {},
+  );
+  const compareBindCommands = createMemo((): Record<string, string> => {
+    const map: Record<string, string> = {};
+    for (const [key, cmd] of compareMerged()?.binds ?? []) {
+      map[key.toUpperCase()] = cmd;
+    }
+    return map;
+  });
+
   // ── Compare bind classification (runs Rust classifier on compare chain) ──
   const [compareBinds, setCompareBinds] = createSignal<ChainBindClassification | null>(null);
   createEffect(() => {
@@ -649,6 +677,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={props.config?.weapon_binds ?? []}
                     compareBinds={compareBinds()?.weapon_binds}
+                    primaryAliases={primaryAliases()}
+                    compareAliases={compareAliases()}
+                    primaryBindCommands={primaryBindCommands()}
+                    compareBindCommands={compareBindCommands()}
                   />
                 </Show>
 
@@ -656,6 +688,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigTeamsayBindsSection
                     primaryBinds={props.config?.teamsay_binds ?? []}
                     compareBinds={compareBinds()?.teamsay_binds}
+                    primaryAliases={primaryAliases()}
+                    compareAliases={compareAliases()}
+                    primaryBindCommands={primaryBindCommands()}
+                    compareBindCommands={compareBindCommands()}
                   />
                 </Show>
 

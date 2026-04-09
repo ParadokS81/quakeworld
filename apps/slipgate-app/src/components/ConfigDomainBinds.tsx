@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import type { WeaponBind, TeamsayBind } from "../types";
 
 /* ─── Shared colors ──────────────────────────────────────────────── */
@@ -26,6 +26,71 @@ const TEAMSAY_COLORS: Record<string, string> = {
   custom: "oklch(0.6 0.08 0)",
 };
 
+/* ─── Alias chain resolver ───────────────────────────────────────── */
+
+interface AliasChainEntry {
+  name: string;
+  command: string;
+  depth: number;
+}
+
+/**
+ * Resolve a bind command into its alias chain.
+ * Traces each token in the command through the alias map recursively.
+ * Returns a flat list with depth for indented display.
+ */
+function resolveAliasChain(
+  command: string,
+  aliases: Record<string, string>,
+  maxDepth = 8,
+): AliasChainEntry[] {
+  const result: AliasChainEntry[] = [];
+  const visited = new Set<string>();
+
+  function resolve(cmd: string, depth: number) {
+    // Split on semicolons to handle compound commands
+    const parts = cmd.split(";").map((s) => s.trim()).filter(Boolean);
+
+    for (const part of parts) {
+      // Extract the first word — potential alias name
+      const firstWord = part.split(/\s+/)[0];
+      const aliasBody = aliases[firstWord] ?? aliases[firstWord.toLowerCase()];
+
+      if (aliasBody && !visited.has(firstWord) && depth < maxDepth) {
+        visited.add(firstWord);
+        result.push({ name: firstWord, command: aliasBody, depth });
+        resolve(aliasBody, depth + 1);
+        visited.delete(firstWord);
+      }
+    }
+  }
+
+  resolve(command, 0);
+  return result;
+}
+
+/** Render an expanded alias chain */
+function AliasChainView(props: { chain: AliasChainEntry[]; label: string }) {
+  return (
+    <Show when={props.chain.length > 0}>
+      <div class="sg-alias-chain">
+        <div class="sg-alias-chain-label">{props.label}</div>
+        <For each={props.chain}>
+          {(entry) => (
+            <div
+              class="sg-alias-chain-entry"
+              style={{ "padding-left": `${12 + entry.depth * 16}px` }}
+            >
+              <span class="sg-alias-chain-name">{entry.name}</span>
+              <span class="sg-alias-chain-cmd">{entry.command}</span>
+            </div>
+          )}
+        </For>
+      </div>
+    </Show>
+  );
+}
+
 /* ─── Weapons ────────────────────────────────────────────────────── */
 
 const WEAPON_ORDER = ["rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"];
@@ -43,12 +108,16 @@ function formatMethod(wb: WeaponBind): string {
 interface WeaponBindsProps {
   primaryBinds: WeaponBind[];
   compareBinds?: WeaponBind[];
+  primaryAliases: Record<string, string>;
+  compareAliases: Record<string, string>;
+  primaryBindCommands: Record<string, string>;
+  compareBindCommands: Record<string, string>;
 }
 
 export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
   const isCompare = () => (props.compareBinds?.length ?? 0) > 0;
+  const [expanded, setExpanded] = createSignal<string | null>(null);
 
-  // Build lookup: weapon → WeaponBind[] (can have multiple binds per weapon)
   const primaryByWeapon = () => {
     const map = new Map<string, WeaponBind[]>();
     for (const wb of props.primaryBinds) {
@@ -69,11 +138,20 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
     return map;
   };
 
+  function toggleExpand(weapon: string) {
+    setExpanded((prev) => (prev === weapon ? null : weapon));
+  }
+
+  function getChain(key: string, bindCommands: Record<string, string>, aliases: Record<string, string>): AliasChainEntry[] {
+    const cmd = bindCommands[key.toUpperCase()];
+    if (!cmd) return [];
+    return resolveAliasChain(cmd, aliases);
+  }
+
   return (
     <div>
       <div class="sg-category-group-header">Weapon Binds</div>
 
-      {/* Column headers */}
       <div
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
@@ -94,55 +172,39 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
           const hasPrimary = () => (primary()?.length ?? 0) > 0;
           const hasCompare = () => (compare()?.length ?? 0) > 0;
           const color = WEAPON_COLORS[weapon] ?? "var(--sg-text-dim)";
+          const isExpanded = () => expanded() === weapon;
+          const hasContent = () => hasPrimary() || hasCompare();
 
           return (
-            <div
-              class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
-              classList={{
-                "sg-cv-bind-only-left": isCompare() && hasPrimary() && !hasCompare(),
-                "sg-cv-bind-only-right": isCompare() && !hasPrimary() && hasCompare(),
-                "sg-cv-bind-diff": isCompare() && hasPrimary() && hasCompare() &&
-                  primary()![0].key !== compare()![0].key,
-              }}
-            >
-              {/* Weapon name */}
-              <div class="flex items-center gap-2">
-                <span
-                  class="font-mono text-xs font-bold uppercase"
-                  style={{ color }}
-                >
-                  {weapon.toUpperCase()}
-                </span>
-                <span class="text-[10px] text-[var(--sg-section-label)]">
-                  {WEAPON_LABELS[weapon]}
-                </span>
-              </div>
+            <>
+              <div
+                class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
+                classList={{
+                  "sg-cv-bind-only-left": isCompare() && hasPrimary() && !hasCompare(),
+                  "sg-cv-bind-only-right": isCompare() && !hasPrimary() && hasCompare(),
+                  "sg-cv-bind-diff": isCompare() && hasPrimary() && hasCompare() &&
+                    primary()![0].key !== compare()![0].key,
+                  "cursor-pointer": hasContent(),
+                }}
+                onClick={() => hasContent() && toggleExpand(weapon)}
+              >
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-[var(--sg-section-label)] w-3">
+                    {hasContent() ? (isExpanded() ? "▾" : "▸") : ""}
+                  </span>
+                  <span class="font-mono text-xs font-bold uppercase" style={{ color }}>
+                    {weapon.toUpperCase()}
+                  </span>
+                  <span class="text-[10px] text-[var(--sg-section-label)]">
+                    {WEAPON_LABELS[weapon]}
+                  </span>
+                </div>
 
-              {/* Primary bind(s) */}
-              <div class="flex flex-wrap items-center gap-1.5">
-                <Show when={hasPrimary()} fallback={
-                  <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
-                }>
-                  <For each={primary()!}>
-                    {(wb) => (
-                      <span class="flex items-center gap-1">
-                        <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                          {wb.key}
-                        </span>
-                        <span class="text-[10px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
-                      </span>
-                    )}
-                  </For>
-                </Show>
-              </div>
-
-              {/* Compare bind(s) */}
-              <Show when={isCompare()}>
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <Show when={hasCompare()} fallback={
+                  <Show when={hasPrimary()} fallback={
                     <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
                   }>
-                    <For each={compare()!}>
+                    <For each={primary()!}>
                       {(wb) => (
                         <span class="flex items-center gap-1">
                           <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
@@ -154,8 +216,72 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     </For>
                   </Show>
                 </div>
+
+                <Show when={isCompare()}>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <Show when={hasCompare()} fallback={
+                      <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                    }>
+                      <For each={compare()!}>
+                        {(wb) => (
+                          <span class="flex items-center gap-1">
+                            <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
+                              {wb.key}
+                            </span>
+                            <span class="text-[10px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
+                          </span>
+                        )}
+                      </For>
+                    </Show>
+                  </div>
+                </Show>
+              </div>
+
+              {/* Expanded alias chain */}
+              <Show when={isExpanded()}>
+                <div class="sg-domain-bind-expanded">
+                  <For each={primary() ?? []}>
+                    {(wb) => (
+                      <AliasChainView
+                        chain={getChain(wb.key, props.primaryBindCommands, props.primaryAliases)}
+                        label={`${wb.key} — your config`}
+                      />
+                    )}
+                  </For>
+                  <Show when={isCompare()}>
+                    <For each={compare() ?? []}>
+                      {(wb) => (
+                        <AliasChainView
+                          chain={getChain(wb.key, props.compareBindCommands, props.compareAliases)}
+                          label={`${wb.key} — comparison`}
+                        />
+                      )}
+                    </For>
+                  </Show>
+                  {/* Show raw command if no alias chain */}
+                  <Show when={
+                    (primary() ?? []).every((wb) => getChain(wb.key, props.primaryBindCommands, props.primaryAliases).length === 0) &&
+                    (compare() ?? []).every((wb) => getChain(wb.key, props.compareBindCommands, props.compareAliases).length === 0)
+                  }>
+                    <For each={primary() ?? []}>
+                      {(wb) => {
+                        const cmd = () => props.primaryBindCommands[wb.key.toUpperCase()];
+                        return (
+                          <Show when={cmd()}>
+                            <div class="sg-alias-chain">
+                              <div class="sg-alias-chain-entry" style="padding-left: 12px">
+                                <span class="sg-alias-chain-name">{wb.key}</span>
+                                <span class="sg-alias-chain-cmd">{cmd()}</span>
+                              </div>
+                            </div>
+                          </Show>
+                        );
+                      }}
+                    </For>
+                  </Show>
+                </div>
               </Show>
-            </div>
+            </>
           );
         }}
       </For>
@@ -182,12 +308,16 @@ interface TeamsayAction {
 interface TeamsayBindsProps {
   primaryBinds: TeamsayBind[];
   compareBinds?: TeamsayBind[];
+  primaryAliases: Record<string, string>;
+  compareAliases: Record<string, string>;
+  primaryBindCommands: Record<string, string>;
+  compareBindCommands: Record<string, string>;
 }
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
   const isCompare = () => (props.compareBinds?.length ?? 0) > 0;
+  const [expanded, setExpanded] = createSignal<string | null>(null);
 
-  // Merge both configs into action-centric rows
   const actions = (): TeamsayAction[] => {
     const map = new Map<string, TeamsayAction>();
 
@@ -216,7 +346,6 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
       }
     }
 
-    // Sort by category order, then alphabetically by label
     return Array.from(map.values()).sort((a, b) => {
       const catA = CATEGORY_ORDER.indexOf(a.category);
       const catB = CATEGORY_ORDER.indexOf(b.category);
@@ -225,7 +354,6 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
     });
   };
 
-  // Group actions by category for rendering with headers
   const groupedActions = () => {
     const groups: { category: string; actions: TeamsayAction[] }[] = [];
     let currentCat = "";
@@ -247,11 +375,21 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
     return groups;
   };
 
+  function toggleExpand(actionKey: string) {
+    setExpanded((prev) => (prev === actionKey ? null : actionKey));
+  }
+
+  function getChain(key: string | undefined, bindCommands: Record<string, string>, aliases: Record<string, string>): AliasChainEntry[] {
+    if (!key) return [];
+    const cmd = bindCommands[key.toUpperCase()];
+    if (!cmd) return [];
+    return resolveAliasChain(cmd, aliases);
+  }
+
   return (
     <div>
       <div class="sg-category-group-header">Teamplay Binds</div>
 
-      {/* Column headers */}
       <div
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
@@ -270,51 +408,116 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
           const color = TEAMSAY_COLORS[group.category] ?? "var(--sg-text-dim)";
           return (
             <>
-              {/* Category sub-header */}
               <div class="sg-domain-bind-category" style={{ color }}>
                 {CATEGORY_LABELS[group.category] ?? group.category}
               </div>
 
               <For each={group.actions}>
-                {(action) => (
-                  <div
-                    class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
-                    classList={{
-                      "sg-cv-bind-only-left": isCompare() && !!action.primaryKey && !action.compareKey,
-                      "sg-cv-bind-only-right": isCompare() && !action.primaryKey && !!action.compareKey,
-                    }}
-                    title={action.description}
-                  >
-                    {/* Action label */}
-                    <span class="text-xs font-semibold capitalize" style={{ color }}>
-                      {action.label}
-                    </span>
+                {(action) => {
+                  const actionKey = `${action.category}:${action.label}`;
+                  const isExpanded = () => expanded() === actionKey;
+                  const hasAnyKey = () => !!action.primaryKey || !!action.compareKey;
 
-                    {/* Primary key */}
-                    <div>
-                      <Show when={action.primaryKey} fallback={
-                        <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
-                      }>
-                        <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                          {action.primaryKey}
-                        </span>
-                      </Show>
-                    </div>
-
-                    {/* Compare key */}
-                    <Show when={isCompare()}>
-                      <div>
-                        <Show when={action.compareKey} fallback={
-                          <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
-                        }>
-                          <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                            {action.compareKey}
+                  return (
+                    <>
+                      <div
+                        class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
+                        classList={{
+                          "sg-cv-bind-only-left": isCompare() && !!action.primaryKey && !action.compareKey,
+                          "sg-cv-bind-only-right": isCompare() && !action.primaryKey && !!action.compareKey,
+                          "cursor-pointer": hasAnyKey(),
+                        }}
+                        title={action.description}
+                        onClick={() => hasAnyKey() && toggleExpand(actionKey)}
+                      >
+                        <div class="flex items-center gap-1">
+                          <span class="text-[10px] text-[var(--sg-section-label)] w-3">
+                            {hasAnyKey() ? (isExpanded() ? "▾" : "▸") : ""}
                           </span>
+                          <span class="text-xs font-semibold capitalize" style={{ color }}>
+                            {action.label}
+                          </span>
+                        </div>
+
+                        <div>
+                          <Show when={action.primaryKey} fallback={
+                            <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                          }>
+                            <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
+                              {action.primaryKey}
+                            </span>
+                          </Show>
+                        </div>
+
+                        <Show when={isCompare()}>
+                          <div>
+                            <Show when={action.compareKey} fallback={
+                              <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                            }>
+                              <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
+                                {action.compareKey}
+                              </span>
+                            </Show>
+                          </div>
                         </Show>
                       </div>
-                    </Show>
-                  </div>
-                )}
+
+                      {/* Expanded alias chain */}
+                      <Show when={isExpanded()}>
+                        <div class="sg-domain-bind-expanded">
+                          <Show when={action.primaryKey}>
+                            {(key) => {
+                              const chain = () => getChain(key(), props.primaryBindCommands, props.primaryAliases);
+                              const rawCmd = () => props.primaryBindCommands[key().toUpperCase()];
+                              return (
+                                <>
+                                  <Show when={chain().length > 0}>
+                                    <AliasChainView
+                                      chain={chain()}
+                                      label={`${key()} — your config`}
+                                    />
+                                  </Show>
+                                  <Show when={chain().length === 0 && rawCmd()}>
+                                    <div class="sg-alias-chain">
+                                      <div class="sg-alias-chain-label">{key()} — your config</div>
+                                      <div class="sg-alias-chain-entry" style="padding-left: 12px">
+                                        <span class="sg-alias-chain-cmd">{rawCmd()}</span>
+                                      </div>
+                                    </div>
+                                  </Show>
+                                </>
+                              );
+                            }}
+                          </Show>
+                          <Show when={isCompare() && action.compareKey}>
+                            {(key) => {
+                              const chain = () => getChain(key(), props.compareBindCommands, props.compareAliases);
+                              const rawCmd = () => props.compareBindCommands[key().toUpperCase()];
+                              return (
+                                <>
+                                  <Show when={chain().length > 0}>
+                                    <AliasChainView
+                                      chain={chain()}
+                                      label={`${key()} — comparison`}
+                                    />
+                                  </Show>
+                                  <Show when={chain().length === 0 && rawCmd()}>
+                                    <div class="sg-alias-chain">
+                                      <div class="sg-alias-chain-label">{key()} — comparison</div>
+                                      <div class="sg-alias-chain-entry" style="padding-left: 12px">
+                                        <span class="sg-alias-chain-cmd">{rawCmd()}</span>
+                                      </div>
+                                    </div>
+                                  </Show>
+                                </>
+                              );
+                            }}
+                          </Show>
+                        </div>
+                      </Show>
+                    </>
+                  );
+                }}
               </For>
             </>
           );
