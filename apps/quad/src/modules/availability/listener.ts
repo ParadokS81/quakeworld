@@ -5,7 +5,7 @@
  * and starts per-team listeners. Each team gets:
  * - Two availability document listeners (current week + next week, debounced re-render)
  * - A registration document listener (detects channel changes, teardown)
- * - A scheduled matches poll (every 5 minutes, both weeks)
+ * - Two scheduled match listeners (current week + next week, real-time)
  *
  * On each render: weekly rollover check, team info refresh, canvas render for
  * both weeks, and Discord message post/update.
@@ -47,6 +47,8 @@ interface TeamState {
     nextWeekMatches: ScheduledMatchDisplay[];
     // Proposals (real-time subscription)
     proposalUnsub: () => void;
+    // Scheduled matches (real-time subscription)
+    matchUnsub: () => void;
     // Shared
     registrationUnsub: () => void;
     pollTimer: ReturnType<typeof setInterval> | null;
@@ -332,6 +334,8 @@ export async function startTeamListener(
         nextWeekMatches: [],
         // Proposals
         proposalUnsub: () => {},
+        // Scheduled matches
+        matchUnsub: () => {},
         // Shared
         registrationUnsub: () => {},
         pollTimer: null,
@@ -366,11 +370,13 @@ export async function startTeamListener(
     // Subscribe to registration config changes
     state.registrationUnsub = subscribeRegistration(teamId);
 
-    // Poll scheduled matches immediately + every 5 minutes
-    await pollScheduledMatches(teamId);
+    // Subscribe to scheduled matches (real-time add/edit/cancel detection)
+    state.matchUnsub = subscribeScheduledMatches(teamId);
+
+    // Poll for week rollover + proposal keepalive every 5 minutes
     state.pollTimer = setInterval(() => {
-        pollScheduledMatches(teamId).catch(err => {
-            logger.warn('Scheduled matches poll failed', {
+        pollKeepAlive(teamId).catch(err => {
+            logger.warn('Keep-alive poll failed', {
                 teamId, error: err instanceof Error ? err.message : String(err),
             });
         });
@@ -386,6 +392,7 @@ function teardownTeam(teamId: string): void {
     state.availabilityUnsub();
     state.nextWeekUnsub();
     state.proposalUnsub();
+    state.matchUnsub();
     state.registrationUnsub();
     if (state.debounceTimer) clearTimeout(state.debounceTimer);
     if (state.pollTimer) clearInterval(state.pollTimer);
@@ -617,11 +624,6 @@ async function refreshProposals(
     state.activeProposals = activeProposals;
 
     if (activeProposals.length !== prevCount) {
-        if (activeProposals.length < prevCount) {
-            // Proposal sealed or cancelled — poll for new scheduled match immediately
-            // so the match card appears in the same render (not after 5-min delay).
-            await pollScheduledMatches(teamId);
-        }
         scheduleRender(teamId);
     }
 }
@@ -678,9 +680,10 @@ async function renderAndUpdateMessage(teamId: string): Promise<void> {
         logger.info('Week rollover detected', {
             teamId, oldWeek: state.weekId, newWeek: currentWeekId,
         });
-        // Current week rolled — resubscribe both
+        // Current week rolled — resubscribe availability + matches
         state.availabilityUnsub();
         state.nextWeekUnsub();
+        state.matchUnsub();
         state.weekId = currentWeekId;
         state.nextWeekId = nextWeekId;
         state.lastAvailability = null;
@@ -689,6 +692,7 @@ async function renderAndUpdateMessage(teamId: string): Promise<void> {
         // — it will be updated with the new next-week data on next render
         state.availabilityUnsub = subscribeAvailability(teamId, currentWeekId, 'current');
         state.nextWeekUnsub = subscribeAvailability(teamId, nextWeekId, 'next');
+        state.matchUnsub = subscribeScheduledMatches(teamId);
         // New snapshots will trigger another render
         return;
     }
@@ -696,9 +700,11 @@ async function renderAndUpdateMessage(teamId: string): Promise<void> {
     // Next week ID might change without current week rolling (edge case at year boundary)
     if (nextWeekId !== state.nextWeekId) {
         state.nextWeekUnsub();
+        state.matchUnsub();
         state.nextWeekId = nextWeekId;
         state.nextWeekAvailability = null;
         state.nextWeekUnsub = subscribeAvailability(teamId, nextWeekId, 'next');
+        state.matchUnsub = subscribeScheduledMatches(teamId);
         return;
     }
 
@@ -1120,104 +1126,171 @@ async function fetchTeamInfo(teamId: string): Promise<TeamInfo | null> {
     }
 }
 
+// ── Scheduled matches subscription ──────────────────────────────────────────
+
 /**
- * Poll scheduled matches for a team (current week + next week).
- * Proposals are handled separately via subscribeProposals (real-time).
+ * Subscribe to scheduled matches for a team (current week + next week).
+ * Fires immediately on load and on any add/edit/cancel — same pattern as proposals.
  */
-async function pollScheduledMatches(teamId: string): Promise<void> {
+function subscribeScheduledMatches(teamId: string): () => void {
+    if (!firestoreDb) return () => {};
+
+    const state = activeTeams.get(teamId);
+    if (!state) return () => {};
+
+    let currentWeekDocs: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+    let nextWeekDocs: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+    let debounce: ReturnType<typeof setTimeout> | null = null;
+
+    function scheduleRefresh() {
+        if (debounce) clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            debounce = null;
+            refreshScheduledMatches(teamId, currentWeekDocs, nextWeekDocs).catch(err => {
+                logger.warn('Failed to refresh scheduled matches', {
+                    teamId, error: err instanceof Error ? err.message : String(err),
+                });
+            });
+        }, 1000);
+    }
+
+    const unsub1 = firestoreDb.collection('scheduledMatches')
+        .where('blockedTeams', 'array-contains', teamId)
+        .where('status', '==', 'upcoming')
+        .where('weekId', '==', state.weekId)
+        .onSnapshot(
+            (snap) => {
+                currentWeekDocs = snap.docs;
+                scheduleRefresh();
+            },
+            (err) => logger.error('Match subscription error (current week)', {
+                teamId, error: err instanceof Error ? err.message : String(err),
+            }),
+        );
+
+    const unsub2 = firestoreDb.collection('scheduledMatches')
+        .where('blockedTeams', 'array-contains', teamId)
+        .where('status', '==', 'upcoming')
+        .where('weekId', '==', state.nextWeekId)
+        .onSnapshot(
+            (snap) => {
+                nextWeekDocs = snap.docs;
+                scheduleRefresh();
+            },
+            (err) => logger.error('Match subscription error (next week)', {
+                teamId, error: err instanceof Error ? err.message : String(err),
+            }),
+        );
+
+    return () => {
+        if (debounce) clearTimeout(debounce);
+        unsub1();
+        unsub2();
+    };
+}
+
+/**
+ * Rebuild match state from snapshot docs.
+ * Fetches opponent logos, sorts, and triggers a re-render if anything changed.
+ */
+async function refreshScheduledMatches(
+    teamId: string,
+    currentWeekDocs: FirebaseFirestore.QueryDocumentSnapshot[],
+    nextWeekDocs: FirebaseFirestore.QueryDocumentSnapshot[],
+): Promise<void> {
     const state = activeTeams.get(teamId);
     if (!state || !firestoreDb) return;
 
-    // If week has rolled since last render, trigger a render which will handle resubscription.
-    // This is the only active rollover detector — Firestore snapshots alone won't fire if
-    // nobody updates availability right after midnight.
+    const prevMatchCount = state.scheduledMatches.length + state.nextWeekMatches.length;
+    const opponentTeamIds = new Set<string>();
+
+    function buildMatchList(
+        docs: FirebaseFirestore.QueryDocumentSnapshot[],
+        weekId: string,
+    ): ScheduledMatchDisplay[] {
+        const matches: ScheduledMatchDisplay[] = [];
+        for (const doc of docs) {
+            const data = doc.data();
+            const isTeamA = data.teamAId === teamId;
+            const opponentId = isTeamA ? String(data.teamBId ?? '') : String(data.teamAId ?? '');
+            if (opponentId) opponentTeamIds.add(opponentId);
+
+            if (data.slotId) {
+                matches.push({
+                    slotId: String(data.slotId),
+                    opponentTag: isTeamA ? String(data.teamBTag ?? '?') : String(data.teamATag ?? '?'),
+                    opponentId,
+                    opponentName: isTeamA ? String(data.teamBName ?? '') : String(data.teamAName ?? ''),
+                    gameType: (data.gameType as 'official' | 'practice') ?? 'practice',
+                    opponentLogoUrl: null,
+                    scheduledDate: formatScheduledDate(String(data.slotId), weekId),
+                });
+            }
+        }
+        return matches;
+    }
+
+    const scheduledMatches = buildMatchList(currentWeekDocs, state.weekId);
+    const nextWeekMatches = buildMatchList(nextWeekDocs, state.nextWeekId);
+
+    // Batch-fetch opponent logos
+    if (opponentTeamIds.size > 0) {
+        const teamDocs = await Promise.all(
+            [...opponentTeamIds].map(id => firestoreDb!.collection('teams').doc(id).get()),
+        );
+        const logoUrls = new Map<string, string | null>();
+        for (const doc of teamDocs) {
+            if (doc.exists) logoUrls.set(doc.id, doc.data()!.activeLogo?.urls?.small ?? null);
+        }
+        for (const m of [...scheduledMatches, ...nextWeekMatches]) {
+            m.opponentLogoUrl = logoUrls.get(m.opponentId) ?? null;
+        }
+    }
+
+    // Sort chronologically
+    const dayOrder: Record<string, number> = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
+    const sortMatches = (list: ScheduledMatchDisplay[]) => {
+        list.sort((a, b) => {
+            const [dayA, timeA = ''] = a.slotId.split('_');
+            const [dayB, timeB = ''] = b.slotId.split('_');
+            const dayCmp = (dayOrder[dayA] ?? 9) - (dayOrder[dayB] ?? 9);
+            return dayCmp !== 0 ? dayCmp : timeA.localeCompare(timeB);
+        });
+    };
+    sortMatches(scheduledMatches);
+    sortMatches(nextWeekMatches);
+
+    state.scheduledMatches = scheduledMatches;
+    state.nextWeekMatches = nextWeekMatches;
+
+    const newMatchCount = scheduledMatches.length + nextWeekMatches.length;
+    const newMatchKeys = new Set(
+        [...scheduledMatches, ...nextWeekMatches].map(m => `${m.slotId}:${m.opponentId}`),
+    );
+    const keysChanged = newMatchKeys.size !== state.prevMatchKeys.size
+        || [...newMatchKeys].some(k => !state.prevMatchKeys.has(k));
+
+    if (newMatchCount !== prevMatchCount || keysChanged) {
+        scheduleRender(teamId);
+    }
+}
+
+/**
+ * Periodic keep-alive: week rollover detection + proposal subscription health check.
+ * Match data is handled by real-time subscriptions; this only handles edge cases.
+ */
+async function pollKeepAlive(teamId: string): Promise<void> {
+    const state = activeTeams.get(teamId);
+    if (!state || !firestoreDb) return;
+
+    // Week rollover — Firestore snapshots alone won't fire if nobody updates
+    // availability right after midnight.
     if (getCurrentWeekId() !== state.weekId) {
         scheduleRender(teamId);
         return;
     }
 
     try {
-        // Scheduled matches for both weeks
-        const [currentMatchesSnap, nextMatchesSnap] = await Promise.all([
-            firestoreDb.collection('scheduledMatches')
-                .where('blockedTeams', 'array-contains', teamId)
-                .where('status', '==', 'upcoming')
-                .where('weekId', '==', state.weekId)
-                .get(),
-            firestoreDb.collection('scheduledMatches')
-                .where('blockedTeams', 'array-contains', teamId)
-                .where('status', '==', 'upcoming')
-                .where('weekId', '==', state.nextWeekId)
-                .get(),
-        ]);
-
-        const prevMatchCount = state.scheduledMatches.length + state.nextWeekMatches.length;
-        const opponentTeamIds = new Set<string>();
-
-        function buildMatchList(
-            snap: FirebaseFirestore.QuerySnapshot,
-            weekId: string,
-        ): ScheduledMatchDisplay[] {
-            const matches: ScheduledMatchDisplay[] = [];
-            for (const doc of snap.docs) {
-                const data = doc.data();
-                const isTeamA = data.teamAId === teamId;
-                const opponentId = isTeamA ? String(data.teamBId ?? '') : String(data.teamAId ?? '');
-                if (opponentId) opponentTeamIds.add(opponentId);
-
-                if (data.slotId) {
-                    matches.push({
-                        slotId: String(data.slotId),
-                        opponentTag: isTeamA ? String(data.teamBTag ?? '?') : String(data.teamATag ?? '?'),
-                        opponentId,
-                        opponentName: isTeamA ? String(data.teamBName ?? '') : String(data.teamAName ?? ''),
-                        gameType: (data.gameType as 'official' | 'practice') ?? 'practice',
-                        opponentLogoUrl: null,
-                        scheduledDate: formatScheduledDate(String(data.slotId), weekId),
-                    });
-                }
-            }
-            return matches;
-        }
-
-        const scheduledMatches = buildMatchList(currentMatchesSnap, state.weekId);
-        const nextWeekMatches = buildMatchList(nextMatchesSnap, state.nextWeekId);
-
-        // Batch-fetch opponent logos
-        if (opponentTeamIds.size > 0) {
-            const teamDocs = await Promise.all(
-                [...opponentTeamIds].map(id => firestoreDb!.collection('teams').doc(id).get()),
-            );
-            const logoUrls = new Map<string, string | null>();
-            for (const doc of teamDocs) {
-                if (doc.exists) logoUrls.set(doc.id, doc.data()!.activeLogo?.urls?.small ?? null);
-            }
-            for (const m of [...scheduledMatches, ...nextWeekMatches]) {
-                m.opponentLogoUrl = logoUrls.get(m.opponentId) ?? null;
-            }
-        }
-
-        // Sort chronologically
-        const dayOrder: Record<string, number> = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
-        const sortMatches = (list: ScheduledMatchDisplay[]) => {
-            list.sort((a, b) => {
-                const [dayA, timeA = ''] = a.slotId.split('_');
-                const [dayB, timeB = ''] = b.slotId.split('_');
-                const dayCmp = (dayOrder[dayA] ?? 9) - (dayOrder[dayB] ?? 9);
-                return dayCmp !== 0 ? dayCmp : timeA.localeCompare(timeB);
-            });
-        };
-        sortMatches(scheduledMatches);
-        sortMatches(nextWeekMatches);
-
-        state.scheduledMatches = scheduledMatches;
-        state.nextWeekMatches = nextWeekMatches;
-
-        const newMatchCount = scheduledMatches.length + nextWeekMatches.length;
-        if (newMatchCount !== prevMatchCount) {
-            scheduleRender(teamId);
-        }
-
         // Proposals keepalive — Firestore onSnapshot listeners can silently die after
         // prolonged idle. Do a one-shot query every poll cycle to catch missed updates.
         const [proposerSnap, opponentSnap] = await Promise.all([
@@ -1245,7 +1318,7 @@ async function pollScheduledMatches(teamId: string): Promise<void> {
             state.proposalUnsub = subscribeProposals(teamId);
         }
     } catch (err) {
-        logger.warn('Failed to poll scheduled matches', {
+        logger.warn('Keep-alive poll failed', {
             teamId, error: err instanceof Error ? err.message : String(err),
         });
     }
