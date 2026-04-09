@@ -2,6 +2,14 @@ import { Show } from "solid-js";
 import { findEquivalent } from "qw-config";
 import type { CvarInfo } from "qw-config";
 
+const TYPE_LABELS: Record<string, string> = {
+  string: "string — text value (words, names, color codes)",
+  boolean: "boolean — on/off toggle (0 = off, 1 = on)",
+  float: "float — decimal number (e.g. 0.5, 2.0, 100)",
+  integer: "integer — whole number (e.g. 0, 1, 50, 120)",
+  enum: "enum — one of the values listed below",
+};
+
 /** Display a cvar value — show empty strings as a visible marker */
 function displayVal(val: string | undefined): string {
   if (val === undefined) return "—";
@@ -94,7 +102,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
           <div>
             <span class="text-[var(--sg-section-label)]">Type</span>
             <span class="ml-2 text-[var(--sg-text-dim)]">
-              {props.info?.type ?? "—"}
+              {TYPE_LABELS[props.info?.type ?? ""] ?? props.info?.type ?? "—"}
             </span>
           </div>
 

@@ -734,11 +734,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 </Show>
 
                 <Show when={activeRow2().has("misc:binds")}>
-                  <ConfigBindsSection binds={allBinds()} isCompareMode={isCompareMode()} />
+                  <ConfigBindsSection
+                    binds={allBinds()}
+                    isCompareMode={isCompareMode()}
+                    primaryAliases={primaryAliases()}
+                    compareAliases={isCompareMode() ? compareAliases() : undefined}
+                  />
                 </Show>
 
                 <Show when={showAliasesSection()}>
-                  <ConfigAliasesSection aliases={filteredAliases()} />
+                  <ConfigAliasesSection aliases={filteredAliases()} allAliases={primaryAliases()} />
                 </Show>
 
                 <Show when={showMacrosSection()}>

@@ -1,5 +1,7 @@
 import { createSignal, For, Show } from "solid-js";
 import type { WeaponBind, TeamsayBind } from "../types";
+import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainEntry } from "./AliasChainResolver";
 
 /* ─── Shared colors ──────────────────────────────────────────────── */
 
@@ -25,78 +27,6 @@ const TEAMSAY_COLORS: Record<string, string> = {
   confirm: "oklch(0.65 0.1 250)",
   custom: "oklch(0.6 0.08 0)",
 };
-
-/* ─── Alias chain resolver ───────────────────────────────────────── */
-
-interface AliasChainEntry {
-  name: string;
-  command: string;
-  depth: number;
-}
-
-/**
- * Resolve a bind command into its alias chain.
- * Traces each token in the command through the alias map recursively.
- * Returns a flat list with depth for indented display.
- */
-function resolveAliasChain(
-  command: string,
-  aliases: Record<string, string>,
-  maxDepth = 8,
-): AliasChainEntry[] {
-  const result: AliasChainEntry[] = [];
-  const visited = new Set<string>();
-
-  function resolve(cmd: string, depth: number) {
-    if (depth >= maxDepth) return;
-
-    // Scan every token in the command for alias references.
-    // This catches aliases inside if/then/else, compound commands, etc.
-    const tokens = cmd.split(/[\s;]+/).filter(Boolean);
-    const seen = new Set<string>(); // dedupe within same command
-
-    for (const token of tokens) {
-      // Skip quoted strings, variables, operators, numbers
-      if (token.startsWith("'") || token.startsWith("$") || token.startsWith("%")) continue;
-      if (token === "if" || token === "then" || token === "else" || token === "AND" || token === "OR") continue;
-      if (/^[<>=!]+$/.test(token) || /^\d+$/.test(token)) continue;
-
-      const aliasBody = aliases[token] ?? aliases[token.toLowerCase()];
-      if (aliasBody && !visited.has(token) && !seen.has(token)) {
-        seen.add(token);
-        visited.add(token);
-        result.push({ name: token, command: aliasBody, depth });
-        resolve(aliasBody, depth + 1);
-        visited.delete(token);
-      }
-    }
-  }
-
-  resolve(command, 0);
-  return result;
-}
-
-/** Render an expanded alias chain */
-function AliasChainView(props: { chain: AliasChainEntry[]; label: string }) {
-  return (
-    <Show when={props.chain.length > 0}>
-      <div class="sg-alias-chain">
-        <div class="sg-alias-chain-label">{props.label}</div>
-        <For each={props.chain}>
-          {(entry) => (
-            <div
-              class="sg-alias-chain-entry"
-              style={{ "padding-left": `${12 + entry.depth * 16}px` }}
-            >
-              <span class="sg-alias-chain-name">{entry.name}</span>
-              <span class="sg-alias-chain-cmd">{entry.command}</span>
-            </div>
-          )}
-        </For>
-      </div>
-    </Show>
-  );
-}
 
 /* ─── Weapons ────────────────────────────────────────────────────── */
 
