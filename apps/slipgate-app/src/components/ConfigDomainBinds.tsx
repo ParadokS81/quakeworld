@@ -48,19 +48,26 @@ function resolveAliasChain(
   const visited = new Set<string>();
 
   function resolve(cmd: string, depth: number) {
-    // Split on semicolons to handle compound commands
-    const parts = cmd.split(";").map((s) => s.trim()).filter(Boolean);
+    if (depth >= maxDepth) return;
 
-    for (const part of parts) {
-      // Extract the first word — potential alias name
-      const firstWord = part.split(/\s+/)[0];
-      const aliasBody = aliases[firstWord] ?? aliases[firstWord.toLowerCase()];
+    // Scan every token in the command for alias references.
+    // This catches aliases inside if/then/else, compound commands, etc.
+    const tokens = cmd.split(/[\s;]+/).filter(Boolean);
+    const seen = new Set<string>(); // dedupe within same command
 
-      if (aliasBody && !visited.has(firstWord) && depth < maxDepth) {
-        visited.add(firstWord);
-        result.push({ name: firstWord, command: aliasBody, depth });
+    for (const token of tokens) {
+      // Skip quoted strings, variables, operators, numbers
+      if (token.startsWith("'") || token.startsWith("$") || token.startsWith("%")) continue;
+      if (token === "if" || token === "then" || token === "else" || token === "AND" || token === "OR") continue;
+      if (/^[<>=!]+$/.test(token) || /^\d+$/.test(token)) continue;
+
+      const aliasBody = aliases[token] ?? aliases[token.toLowerCase()];
+      if (aliasBody && !visited.has(token) && !seen.has(token)) {
+        seen.add(token);
+        visited.add(token);
+        result.push({ name: token, command: aliasBody, depth });
         resolve(aliasBody, depth + 1);
-        visited.delete(firstWord);
+        visited.delete(token);
       }
     }
   }
