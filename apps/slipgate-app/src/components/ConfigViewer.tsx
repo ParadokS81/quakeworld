@@ -9,6 +9,7 @@ import ConfigBindsSection from "./ConfigBindsSection";
 import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection } from "./ConfigDomainBinds";
 import ConfigAliasesSection from "./ConfigAliasesSection";
 import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
+import ConfigMacrosSection from "./ConfigMacrosSection";
 import ConfigConverter from "./ConfigConverter";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases } from "./configMerger";
 
@@ -111,6 +112,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Row 2: Domain sub-pills (e.g. "teamplay:settings", "weapons:binds") + Aliases ──
   const [activeRow2, setActiveRow2] = createSignal<Set<string>>(new Set());
   const [aliasesActive, setAliasesActive] = createSignal(false);
+  const [macrosActive, setMacrosActive] = createSignal(false);
 
   // ── Compare state ──
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
@@ -442,6 +444,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       .sort((a, b) => (CAT_SORT[a.category] ?? 9) - (CAT_SORT[b.category] ?? 9));
   });
   const showAliasesSection = createMemo(() => aliasesActive());
+  const showMacrosSection = createMemo(() => macrosActive());
 
   // ── Teamsay alias names (for macros extraction) ──
   const teamsayAliasNames = createMemo((): Set<string> => {
@@ -574,6 +577,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onToggleRow2Pill={toggleRow2Pill}
               aliasesActive={aliasesActive()}
               onToggleAliases={() => setAliasesActive((v) => !v)}
+              macrosActive={macrosActive()}
+              onToggleMacros={() => setMacrosActive((v) => !v)}
               hideDefaults={hideDefaults()}
               onHideDefaultsChange={setHideDefaults}
               search={search()}
@@ -736,7 +741,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigAliasesSection aliases={filteredAliases()} />
                 </Show>
 
-                <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection()}>
+                <Show when={showMacrosSection()}>
+                  <ConfigMacrosSection
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? compareCvars() : undefined}
+                    hideDefaults={hideDefaults()}
+                    isCompareMode={isCompareMode()}
+                    search={search()}
+                  />
+                </Show>
+
+                <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection() && !showMacrosSection()}>
                   <div class="flex items-center justify-center h-20 text-xs text-[var(--sg-section-label)]">
                     Select a category to view settings, binds, or aliases
                   </div>

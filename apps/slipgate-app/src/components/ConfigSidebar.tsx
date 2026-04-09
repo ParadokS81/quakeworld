@@ -15,6 +15,8 @@ interface ConfigSidebarProps {
   onToggleRow2Pill: (key: string) => void;
   aliasesActive: boolean;
   onToggleAliases: () => void;
+  macrosActive: boolean;
+  onToggleMacros: () => void;
 
   // Shared controls
   hideDefaults: boolean;
@@ -68,6 +70,12 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
           onClick={props.onToggleAliases}
         >
           Aliases
+        </button>
+        <button
+          class={`badge cursor-pointer ${props.macrosActive ? "badge-binds" : "badge-ghost"}`}
+          onClick={props.onToggleMacros}
+        >
+          Macros
         </button>
       </div>
 
