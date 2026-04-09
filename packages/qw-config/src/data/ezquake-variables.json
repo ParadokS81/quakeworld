@@ -3110,7 +3110,8 @@
     "cl_voip_capturingvol ": {
       "type": "integer",
       "group-id": "32",
-      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others."
+      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others.",
+      "default": "0.5"
     },
     "cl_voip_demorecord": {
       "type": "boolean",
@@ -6912,12 +6913,14 @@
     "hud_ammo1_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo1_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo2_align": {
       "type": "string",
@@ -7031,12 +7034,14 @@
     "hud_ammo2_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo2_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo3_align": {
       "type": "string",
@@ -7150,12 +7155,14 @@
     "hud_ammo3_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo3_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo4_align": {
       "type": "string",
@@ -7269,12 +7276,14 @@
     "hud_ammo4_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo4_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+      "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
+      "default": ""
     },
     "hud_ammo_align": {
       "type": "string",
@@ -9744,17 +9753,20 @@
     "hud_group1_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group1 HUD element."
+      "desc": "Transparency level of the background image of the group1 HUD element.",
+      "default": "1.0"
     },
     "hud_group1_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group1_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 1."
+      "desc": "Sets background picture of grouping object 1.",
+      "default": ""
     },
     "hud_group1_place": {
       "type": "string",
@@ -9855,17 +9867,20 @@
     "hud_group2_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group2 HUD element."
+      "desc": "Transparency level of the background image of the group2 HUD element.",
+      "default": "1.0"
     },
     "hud_group2_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group2_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 2."
+      "desc": "Sets background picture of grouping object 2.",
+      "default": ""
     },
     "hud_group2_place": {
       "type": "string",
@@ -9966,17 +9981,20 @@
     "hud_group3_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group3 HUD element."
+      "desc": "Transparency level of the background image of the group3 HUD element.",
+      "default": "1.0"
     },
     "hud_group3_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group3_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 3."
+      "desc": "Sets background picture of grouping object 3.",
+      "default": ""
     },
     "hud_group3_place": {
       "type": "string",
@@ -10077,17 +10095,20 @@
     "hud_group4_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group4 HUD element."
+      "desc": "Transparency level of the background image of the group4 HUD element.",
+      "default": "1.0"
     },
     "hud_group4_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group4_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 4."
+      "desc": "Sets background picture of grouping object 4.",
+      "default": ""
     },
     "hud_group4_place": {
       "type": "string",
@@ -10188,17 +10209,20 @@
     "hud_group5_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group5 HUD element."
+      "desc": "Transparency level of the background image of the group5 HUD element.",
+      "default": "1.0"
     },
     "hud_group5_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group5_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 5."
+      "desc": "Sets background picture of grouping object 5.",
+      "default": ""
     },
     "hud_group5_place": {
       "type": "string",
@@ -10299,17 +10323,20 @@
     "hud_group6_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group6 HUD element."
+      "desc": "Transparency level of the background image of the group6 HUD element.",
+      "default": "1.0"
     },
     "hud_group6_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group6_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 6."
+      "desc": "Sets background picture of grouping object 6.",
+      "default": ""
     },
     "hud_group6_place": {
       "type": "string",
@@ -10410,17 +10437,20 @@
     "hud_group7_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group7 HUD element."
+      "desc": "Transparency level of the background image of the group7 HUD element.",
+      "default": "1.0"
     },
     "hud_group7_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group7_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 7."
+      "desc": "Sets background picture of grouping object 7.",
+      "default": ""
     },
     "hud_group7_place": {
       "type": "string",
@@ -10521,17 +10551,20 @@
     "hud_group8_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group8 HUD element."
+      "desc": "Transparency level of the background image of the group8 HUD element.",
+      "default": "1.0"
     },
     "hud_group8_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group8_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 8."
+      "desc": "Sets background picture of grouping object 8.",
+      "default": ""
     },
     "hud_group8_place": {
       "type": "string",
@@ -10632,17 +10665,20 @@
     "hud_group9_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group9 HUD element."
+      "desc": "Transparency level of the background image of the group9 HUD element.",
+      "default": "1.0"
     },
     "hud_group9_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+      "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
+      "default": "0"
     },
     "hud_group9_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 9."
+      "desc": "Sets background picture of grouping object 9.",
+      "default": ""
     },
     "hud_group9_place": {
       "type": "string",
@@ -12669,7 +12705,8 @@
           "description": "hide grenade launcher, green armor & suit from items list",
           "name": "gl ga suit"
         }
-      ]
+      ],
+      "default": ""
     },
     "hud_itemsclock_frame": {
       "type": "",
@@ -14513,13 +14550,15 @@
       "type": "string",
       "group-id": "19",
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_big will be used instead.",
-      "remarks": "See hud_score_bar_format_big for format codes."
+      "remarks": "See hud_score_bar_format_big for format codes.",
+      "default": ""
     },
     "hud_score_bar_format_reversed_small": {
       "type": "string",
       "group-id": "19",
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_reversed_small will be used instead.",
-      "remarks": "See hud_score_bar_format_reversed_small for format codes."
+      "remarks": "See hud_score_bar_format_reversed_small for format codes.",
+      "default": ""
     },
     "hud_score_bar_format_small": {
       "type": "string",
@@ -14532,7 +14571,8 @@
     "hud_score_bar_frag_length": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Minimum number of characters to use when displaying frags."
+      "desc": "Minimum number of characters to use when displaying frags.",
+      "default": "0"
     },
     "hud_score_bar_frame": {
       "type": "float",
@@ -17257,7 +17297,8 @@
     },
     "hud_teaminfo_place": {
       "type": "string",
-      "group-id": "19"
+      "group-id": "19",
+      "default": ""
     },
     "hud_teaminfo_pos_x": {
       "type": "",
@@ -25906,7 +25947,8 @@
           "description": "Enable high character color names for players.",
           "name": "true"
         }
-      ]
+      ],
+      "default": "1"
     },
     "sv_kicktop": {
       "type": "",
