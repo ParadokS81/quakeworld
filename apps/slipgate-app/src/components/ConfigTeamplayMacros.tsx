@@ -140,9 +140,8 @@ export default function ConfigTeamplayMacros(props: ConfigTeamplayMacrosProps) {
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
         <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Default</span>
         <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
-          {isCompare() ? "Your Value" : "Value"}
+          {isCompare() ? "Your Config" : "Value"}
         </span>
         <Show when={isCompare()}>
           <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
@@ -164,16 +163,15 @@ export default function ConfigTeamplayMacros(props: ConfigTeamplayMacrosProps) {
               classList={{
                 "sg-macro-customized": macro.isCustomized || macro.compareIsCustomized,
               }}
-              title={lookupCvar(macro.name)?.description ?? ""}
+              title={(() => {
+                const info = lookupCvar(macro.name);
+                const parts = [info?.description ?? ""];
+                if (macro.defaultValue) parts.push(`Default: ${macro.defaultValue}`);
+                return parts.filter(Boolean).join("\n");
+              })()}
             >
-              {/* Macro name */}
               <span class="font-mono text-[11px] text-[var(--sg-text-bright)]">
                 {macro.name}
-              </span>
-
-              {/* Default value */}
-              <span class="font-mono text-[11px] text-[var(--sg-section-label)]">
-                {macro.defaultValue || "—"}
               </span>
 
               {/* User value */}

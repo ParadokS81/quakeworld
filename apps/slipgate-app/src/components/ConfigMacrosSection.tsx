@@ -1,8 +1,17 @@
 import { createMemo, For, Show } from "solid-js";
 import { loadDatabase } from "qw-config";
 
+const TYPE_LABELS: Record<string, string> = {
+  string: "Text value (words, names, color codes)",
+  boolean: "On/off toggle (0 = off, 1 = on)",
+  float: "Decimal number (e.g. 0.5, 2.0, 100)",
+  integer: "Whole number (e.g. 0, 1, 50, 120)",
+  enum: "One of a set of predefined values",
+};
+
 interface MacroEntry {
   name: string;
+  type: string;
   group: string;
   defaultValue: string;
   description: string;
@@ -25,6 +34,14 @@ interface ConfigMacrosSectionProps {
 /** Group display order */
 const GROUP_ORDER = ["Item Names", "Item Need Amounts", "Location Names", "Teamplay Communications"];
 
+function buildTooltip(macro: MacroEntry): string {
+  const parts = [macro.description];
+  if (macro.defaultValue) parts.push(`Default: ${macro.defaultValue}`);
+  const typeLabel = TYPE_LABELS[macro.type];
+  if (typeLabel) parts.push(`Type: ${macro.type} — ${typeLabel}`);
+  return parts.filter(Boolean).join("\n");
+}
+
 export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
   const macros = createMemo((): MacroEntry[] => {
     const db = loadDatabase();
@@ -43,6 +60,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
 
       entries.push({
         name,
+        type: info.type ?? "string",
         group: info.group ?? "",
         defaultValue,
         description: info.description ?? "",
@@ -62,14 +80,12 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
     const q = props.search.trim().toLowerCase();
 
     return macros().filter((m) => {
-      // Hide defaults: skip entries where user hasn't set it or value matches default
       if (props.hideDefaults) {
         const leftIsDefault = !m.isSet || !m.isCustomized;
         const rightIsDefault = !props.isCompareMode || !m.compareIsSet || !m.compareIsCustomized;
         if (leftIsDefault && rightIsDefault) return false;
       }
 
-      // Search filter
       if (q && !m.name.includes(q) && !m.defaultValue.toLowerCase().includes(q)
         && !(m.userValue?.toLowerCase().includes(q))
         && !(m.compareValue?.toLowerCase().includes(q))) return false;
@@ -78,7 +94,6 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
     });
   });
 
-  // Group by sub-group for display
   const grouped = createMemo(() => {
     const groups = new Map<string, MacroEntry[]>();
     for (const m of filtered()) {
@@ -87,7 +102,6 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
       groups.set(m.group, arr);
     }
 
-    // Sort groups by defined order
     return GROUP_ORDER
       .filter((g) => groups.has(g))
       .map((g) => ({ group: g, entries: groups.get(g)! }))
@@ -116,10 +130,9 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
         class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Name</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Default</span>
+        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
         <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
-          {props.isCompareMode ? "Your Value" : "Value"}
+          {props.isCompareMode ? "Your Config" : "Value"}
         </span>
         <Show when={props.isCompareMode}>
           <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
@@ -145,14 +158,10 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
                   <div
                     class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
                     classList={{ "sg-macro-customized": macro.isCustomized || macro.compareIsCustomized }}
-                    title={macro.description}
+                    title={buildTooltip(macro)}
                   >
                     <span class="font-mono text-[11px] text-[var(--sg-text-bright)]">
                       {macro.name}
-                    </span>
-
-                    <span class="font-mono text-[11px] text-[var(--sg-section-label)]">
-                      {macro.defaultValue || "—"}
                     </span>
 
                     <span

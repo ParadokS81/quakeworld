@@ -1749,7 +1749,7 @@ input[type="number"] {
 /* ─── Teamplay macros ──────────────────────────────────────────────── */
 .sg-macro-row {
   display: grid;
-  grid-template-columns: 200px 1fr 1fr;
+  grid-template-columns: 200px 1fr;
   align-items: center;
   padding: 3px 16px;
   font-size: 13px;
@@ -1758,7 +1758,7 @@ input[type="number"] {
 }
 .sg-macro-row-cmp {
   display: grid;
-  grid-template-columns: 200px 1fr 1fr 1fr;
+  grid-template-columns: 200px 1fr 1fr;
   align-items: center;
   padding: 3px 16px;
   font-size: 13px;
