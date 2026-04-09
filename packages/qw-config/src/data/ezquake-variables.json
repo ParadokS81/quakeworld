@@ -269,6 +269,11 @@
       "id": "54",
       "major-group": "Graphics",
       "name": "Weapon View Model Settings"
+    },
+    {
+      "id": "55",
+      "major-group": "Teamplay",
+      "name": "Location Names"
     }
   ],
   "vars": {
@@ -18608,6 +18613,111 @@
       "group-id": "5",
       "default": "1",
       "server-only": false
+    },
+    "loc_name_ga": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ga",
+      "server-only": false,
+      "desc": "Location file macro for Green Armor."
+    },
+    "loc_name_gl": {
+      "type": "string",
+      "group-id": "55",
+      "default": "gl",
+      "server-only": false,
+      "desc": "Location file macro for Grenade Launcher."
+    },
+    "loc_name_lg": {
+      "type": "string",
+      "group-id": "55",
+      "default": "lg",
+      "server-only": false,
+      "desc": "Location file macro for Lightning Gun."
+    },
+    "loc_name_mh": {
+      "type": "string",
+      "group-id": "55",
+      "default": "mega",
+      "server-only": false,
+      "desc": "Location file macro for Mega Health."
+    },
+    "loc_name_ng": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ng",
+      "server-only": false,
+      "desc": "Location file macro for Nailgun."
+    },
+    "loc_name_pent": {
+      "type": "string",
+      "group-id": "55",
+      "default": "pent",
+      "server-only": false,
+      "desc": "Location file macro for Pentagram of Protection."
+    },
+    "loc_name_quad": {
+      "type": "string",
+      "group-id": "55",
+      "default": "quad",
+      "server-only": false,
+      "desc": "Location file macro for Quad Damage."
+    },
+    "loc_name_ra": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ra",
+      "server-only": false,
+      "desc": "Location file macro for Red Armor."
+    },
+    "loc_name_ring": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ring",
+      "server-only": false,
+      "desc": "Location file macro for Ring of Shadows."
+    },
+    "loc_name_rl": {
+      "type": "string",
+      "group-id": "55",
+      "default": "rl",
+      "server-only": false,
+      "desc": "Location file macro for Rocket Launcher."
+    },
+    "loc_name_separator": {
+      "type": "string",
+      "group-id": "55",
+      "default": "-",
+      "server-only": false,
+      "desc": "Location file macro separator character."
+    },
+    "loc_name_sng": {
+      "type": "string",
+      "group-id": "55",
+      "default": "sng",
+      "server-only": false,
+      "desc": "Location file macro for Super Nailgun."
+    },
+    "loc_name_ssg": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ssg",
+      "server-only": false,
+      "desc": "Location file macro for Super Shotgun."
+    },
+    "loc_name_suit": {
+      "type": "string",
+      "group-id": "55",
+      "default": "suit",
+      "server-only": false,
+      "desc": "Location file macro for Biosuit."
+    },
+    "loc_name_ya": {
+      "type": "string",
+      "group-id": "55",
+      "default": "ya",
+      "server-only": false,
+      "desc": "Location file macro for Yellow Armor."
     },
     "lookspring": {
       "type": "boolean",

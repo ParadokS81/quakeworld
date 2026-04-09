@@ -63,12 +63,12 @@ function extractTeamMacros(
     const body = aliases[name];
     if (!body) continue;
 
-    // Match $tp_name_*, $tp_need_*, $tp_weapon_order, etc.
+    // Match $tp_name_*, $tp_need_*, $loc_name_*, etc.
     const refs = body.matchAll(/\$(\w+)/g);
     for (const match of refs) {
       const varName = match[1];
-      // Only include tp_* cvars (the teamplay macros)
-      if (varName.startsWith("tp_")) {
+      // Include tp_* and loc_name_* cvars (teamplay macros)
+      if (varName.startsWith("tp_") || varName.startsWith("loc_name_")) {
         macros.add(varName);
       }
     }
