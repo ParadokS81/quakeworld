@@ -1,7 +1,7 @@
 import { For } from "solid-js";
 
 interface ConfigSidebarProps {
-  // Row 1 — Settings
+  // Row 1 — Settings categories
   row1Categories: [string, number][];
   activeRow1: Set<string>;
   isAllRow1: boolean;
@@ -10,7 +10,7 @@ interface ConfigSidebarProps {
   onToggleAllRow1: () => void;
   categoryGaps?: Set<string>;
 
-  // Row 2 — Domains
+  // Row 2 — Domains + misc
   activeRow2: Set<string>;
   onToggleRow2Pill: (key: string) => void;
   aliasesActive: boolean;
@@ -31,7 +31,7 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
 
   return (
     <div class="sg-config-sidebar">
-      {/* ── Settings ── */}
+      {/* ── Settings — all raw config data ── */}
       <div class="flex flex-col items-start gap-1">
         <div class="sg-config-sidebar-section-label">Settings</div>
         <button
@@ -54,9 +54,27 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
             </>
           )}
         </For>
+
+        {/* Binds + Aliases — raw config data, not domain-curated */}
+        <div class="h-1" />
+        <button
+          class={`badge cursor-pointer ${props.activeRow2.has("misc:binds") ? "badge-binds" : "badge-ghost"}`}
+          onClick={() => props.onToggleRow2Pill("misc:binds")}
+        >
+          Binds
+        </button>
+        <button
+          class={`badge cursor-pointer ${props.aliasesActive ? "badge-binds" : "badge-ghost"}`}
+          onClick={props.onToggleAliases}
+        >
+          Aliases
+        </button>
       </div>
 
-      {/* ── Domains ── */}
+      {/* ── Separator ── */}
+      <div class="sg-config-sidebar-divider" />
+
+      {/* ── Domains — curated, action-centric views ── */}
       <div class="flex flex-col items-start gap-1">
         <div class="sg-config-sidebar-section-label">Domains</div>
 
@@ -91,23 +109,6 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
             Binds
           </button>
         </div>
-
-        <div class="sg-config-sidebar-domain-label">Misc</div>
-        <div class="sg-config-sidebar-nested flex flex-col items-start gap-1">
-          <button
-            class={`badge cursor-pointer ${props.activeRow2.has("misc:binds") ? "badge-binds" : "badge-ghost"}`}
-            onClick={() => props.onToggleRow2Pill("misc:binds")}
-          >
-            Binds
-          </button>
-        </div>
-
-        <button
-          class={`badge cursor-pointer mt-1 ${props.aliasesActive ? "badge-binds" : "badge-ghost"}`}
-          onClick={props.onToggleAliases}
-        >
-          Aliases
-        </button>
       </div>
 
       {/* ── Options ── */}

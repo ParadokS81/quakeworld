@@ -1643,6 +1643,11 @@ input[type="number"] {
 .sg-config-sidebar-nested {
   padding-left: 10px;
 }
+.sg-config-sidebar-divider {
+  height: 1px;
+  background: var(--sg-stat-border);
+  margin: 2px 0;
+}
 
 /* ─── ConfigViewer: category bar labels ─────────────────────────────── */
 .sg-category-row-label {
