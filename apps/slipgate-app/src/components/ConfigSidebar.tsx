@@ -92,6 +92,12 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
           >
             Binds
           </button>
+          <button
+            class={`badge cursor-pointer ${props.activeRow2.has("teamplay:macros") ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => props.onToggleRow2Pill("teamplay:macros")}
+          >
+            Macros
+          </button>
         </div>
 
         <div class="sg-config-sidebar-domain-label">Weapons</div>

@@ -8,6 +8,7 @@ import ConfigSettingsSection from "./ConfigSettingsSection";
 import ConfigBindsSection from "./ConfigBindsSection";
 import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection } from "./ConfigDomainBinds";
 import ConfigAliasesSection from "./ConfigAliasesSection";
+import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
 import ConfigConverter from "./ConfigConverter";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases } from "./configMerger";
 
@@ -426,7 +427,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   const showBindsSection = createMemo(() => {
     const active = activeRow2();
-    return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds");
+    return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds") || active.has("teamplay:macros");
   });
   // All binds — unfiltered raw bind list for Settings > Binds, sorted by category
   const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, misc: 3 };
@@ -441,6 +442,26 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       .sort((a, b) => (CAT_SORT[a.category] ?? 9) - (CAT_SORT[b.category] ?? 9));
   });
   const showAliasesSection = createMemo(() => aliasesActive());
+
+  // ── Teamsay alias names (for macros extraction) ──
+  const teamsayAliasNames = createMemo((): Set<string> => {
+    const names = new Set<string>();
+    const binds = props.config?.teamsay_binds ?? [];
+    const bindCmds = primaryBindCommands();
+    for (const tb of binds) {
+      const cmd = bindCmds[tb.key.toUpperCase()];
+      if (cmd) {
+        // Extract alias names from the bind command
+        for (const part of cmd.split(";")) {
+          const token = part.trim().split(/\s+/)[0];
+          if (token && !token.startsWith("+") && !token.startsWith("-")) {
+            names.add(token);
+          }
+        }
+      }
+    }
+    return names;
+  });
 
   // ── Actions ──
   function toggleCvar(name: string) {
@@ -694,6 +715,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
                     compareBindCommands={compareBindCommands()}
+                  />
+                </Show>
+
+                <Show when={activeRow2().has("teamplay:macros")}>
+                  <ConfigTeamplayMacros
+                    primaryAliases={primaryAliases()}
+                    compareAliases={isCompareMode() ? compareAliases() : undefined}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? compareCvars() : undefined}
+                    teamsayAliasNames={teamsayAliasNames()}
                   />
                 </Show>
 
