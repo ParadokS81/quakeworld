@@ -17,6 +17,8 @@ interface ConfigSidebarProps {
   onToggleAliases: () => void;
   macrosActive: boolean;
   onToggleMacros: () => void;
+  triggersActive: boolean;
+  onToggleTriggers: () => void;
 
   // Shared controls
   hideDefaults: boolean;
@@ -76,6 +78,12 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
           onClick={props.onToggleMacros}
         >
           Macros
+        </button>
+        <button
+          class={`badge cursor-pointer ${props.triggersActive ? "badge-binds" : "badge-ghost"}`}
+          onClick={props.onToggleTriggers}
+        >
+          Triggers
         </button>
       </div>
 

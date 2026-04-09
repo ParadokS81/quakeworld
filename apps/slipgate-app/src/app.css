@@ -1773,6 +1773,33 @@ input[type="number"] {
   background: color-mix(in oklch, oklch(0.6 0.1 60) 6%, transparent);
 }
 
+/* ─── ConfigViewer: trigger rows ────────────────────────────────────── */
+.sg-trigger-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: center;
+  padding: 3px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sg-stat-border);
+  transition: background 0.1s;
+}
+.sg-trigger-row-cmp {
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr;
+  align-items: center;
+  padding: 3px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sg-stat-border);
+  transition: background 0.1s;
+}
+.sg-trigger-row:hover,
+.sg-trigger-row-cmp:hover {
+  background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
+}
+.sg-trigger-defined {
+  background: color-mix(in oklch, oklch(0.6 0.1 145) 6%, transparent);
+}
+
 /* ─── Domain bind expanded alias chain ──────────────────────────────── */
 .sg-domain-bind-expanded {
   background: color-mix(in oklch, var(--sg-stat-border) 15%, transparent);
