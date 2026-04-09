@@ -7,9 +7,7 @@ interface TriggerDef {
   name: string;
   description: string;
   restricted?: boolean;
-  /** For on_triggers: event value for cmd info ev */
   eventValue?: number;
-  /** True if enabled by default (no infoset needed) */
   defaultEnabled?: boolean;
 }
 
@@ -86,7 +84,6 @@ function parseInfosetValue(command: string): number | null {
 /* ─── Component ──────────────────────────────────────────────────── */
 
 interface ConfigTriggersSectionProps {
-  /** All aliases from the config (to find trigger definitions) */
   aliases: Record<string, string>;
   compareAliases?: Record<string, string>;
   search: string;
@@ -108,7 +105,6 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
     setExpanded((prev) => (prev === name ? null : name));
   }
 
-  // Look up alias by trigger name (case-insensitive)
   function findAlias(name: string, aliases: Record<string, string>): string | undefined {
     return aliases[name] ?? aliases[name.toLowerCase()];
   }
@@ -116,17 +112,13 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
   const fTriggerRows = createMemo((): TriggerRow[] => {
     const q = props.search.trim().toLowerCase();
     return F_TRIGGERS
-      .map((def) => {
-        const userCommand = findAlias(def.name, props.aliases);
-        const compareCommand = props.compareAliases ? findAlias(def.name, props.compareAliases) : undefined;
-        return {
-          def,
-          userCommand,
-          compareCommand,
-          isDefined: userCommand !== undefined,
-          compareDefined: compareCommand !== undefined,
-        };
-      })
+      .map((def) => ({
+        def,
+        userCommand: findAlias(def.name, props.aliases),
+        compareCommand: props.compareAliases ? findAlias(def.name, props.compareAliases) : undefined,
+        isDefined: findAlias(def.name, props.aliases) !== undefined,
+        compareDefined: props.compareAliases ? findAlias(def.name, props.compareAliases) !== undefined : false,
+      }))
       .filter((row) => {
         if (q && !row.def.name.includes(q) && !row.def.description.toLowerCase().includes(q)) return false;
         return true;
@@ -136,24 +128,19 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
   const onTriggerRows = createMemo((): TriggerRow[] => {
     const q = props.search.trim().toLowerCase();
     return ON_TRIGGERS
-      .map((def) => {
-        const userCommand = findAlias(def.name, props.aliases);
-        const compareCommand = props.compareAliases ? findAlias(def.name, props.compareAliases) : undefined;
-        return {
-          def,
-          userCommand,
-          compareCommand,
-          isDefined: userCommand !== undefined,
-          compareDefined: compareCommand !== undefined,
-        };
-      })
+      .map((def) => ({
+        def,
+        userCommand: findAlias(def.name, props.aliases),
+        compareCommand: props.compareAliases ? findAlias(def.name, props.compareAliases) : undefined,
+        isDefined: findAlias(def.name, props.aliases) !== undefined,
+        compareDefined: props.compareAliases ? findAlias(def.name, props.compareAliases) !== undefined : false,
+      }))
       .filter((row) => {
         if (q && !row.def.name.includes(q) && !row.def.description.toLowerCase().includes(q)) return false;
         return true;
       });
   });
 
-  // Decode infoset if present
   const infosetAlias = () => findAlias("infoset", props.aliases);
   const infosetValue = () => {
     const cmd = infosetAlias();
@@ -188,31 +175,38 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
           onClick={() => row.isDefined && toggleExpand(row.def.name)}
           title={row.def.description}
         >
-          {/* Trigger name */}
-          <div class="flex items-center gap-1">
-            <span class="text-[10px] text-[var(--sg-section-label)] w-3">
+          {/* Trigger name + restricted badge */}
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-[var(--sg-section-label)] w-3 flex-shrink-0">
               {row.isDefined ? (isExp() ? "▾" : "▸") : ""}
             </span>
             <span
-              class="font-mono text-[11px]"
+              class="font-mono text-sm truncate"
               classList={{
-                "text-[var(--sg-text-bright)] font-semibold": row.isDefined || row.compareDefined,
-                "text-[var(--sg-section-label)]": !row.isDefined && !row.compareDefined,
+                "text-[var(--color-primary)] font-semibold": row.isDefined || row.compareDefined,
+                "text-[var(--sg-text-dim)]": !row.isDefined && !row.compareDefined,
               }}
             >
               {row.def.name}
             </span>
+            <span class="flex-1" />
             <Show when={row.def.restricted}>
-              <span class="text-[9px] text-[var(--color-warning)] uppercase tracking-wide">restricted</span>
+              <span class="text-[9px] text-[var(--color-warning)] uppercase tracking-wide flex-shrink-0">restricted</span>
+            </Show>
+            <Show when={row.def.defaultEnabled}>
+              <span class="text-[9px] text-[var(--color-success)] uppercase tracking-wide flex-shrink-0">default</span>
+            </Show>
+            <Show when={row.def.eventValue !== undefined && !row.def.defaultEnabled}>
+              <span class="text-[9px] text-[var(--sg-section-label)] uppercase tracking-wide flex-shrink-0">ev {row.def.eventValue}</span>
             </Show>
           </div>
 
-          {/* Status / command preview */}
+          {/* Command preview */}
           <div class="min-w-0">
             <Show when={row.isDefined} fallback={
-              <span class="text-[10px] text-[var(--sg-section-label)] italic">not defined</span>
+              <span class="text-xs text-[var(--sg-section-label)] italic">not defined</span>
             }>
-              <span class="font-mono text-[11px] text-[var(--sg-text-dim)] truncate block">
+              <span class="font-mono text-sm text-[var(--sg-text-dim)] truncate block">
                 {row.userCommand}
               </span>
             </Show>
@@ -222,9 +216,9 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
           <Show when={isCompare()}>
             <div class="min-w-0">
               <Show when={row.compareDefined} fallback={
-                <span class="text-[10px] text-[var(--sg-section-label)] italic">not defined</span>
+                <span class="text-xs text-[var(--sg-section-label)] italic">not defined</span>
               }>
-                <span class="font-mono text-[11px] text-[var(--sg-text-dim)] truncate block">
+                <span class="font-mono text-sm text-[var(--sg-text-dim)] truncate block">
                   {row.compareCommand}
                 </span>
               </Show>
@@ -243,7 +237,7 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
               </div>
             </div>
             <AliasChainView chain={chain()} label="Alias chain" />
-            <div class="px-4 py-1 text-[10px] text-[var(--sg-section-label)]">
+            <div class="px-4 py-1 text-xs text-[var(--sg-section-label)]">
               {row.def.description}
             </div>
           </div>
@@ -263,47 +257,71 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
 
       {/* Expandable info guide */}
       <div
-        class="flex items-center gap-1 px-4 py-1.5 border-b border-[var(--sg-stat-border)] cursor-pointer select-none"
+        class="flex items-center gap-1.5 px-4 py-2 border-b border-[var(--sg-stat-border)] cursor-pointer select-none"
         onClick={() => setShowGuide((v) => !v)}
       >
-        <span class="text-[10px] text-[var(--sg-section-label)]">
+        <span class="text-xs text-[var(--sg-section-label)]">
           {showGuide() ? "▾" : "▸"}
         </span>
-        <span class="text-[10px] text-[var(--color-primary)]">
+        <span class="text-xs text-[var(--color-primary)] font-semibold">
           How triggers work
         </span>
       </div>
       <Show when={showGuide()}>
-        <div class="px-4 py-3 border-b border-[var(--sg-stat-border)] text-[11px] text-[var(--sg-text-dim)] leading-relaxed" style="background: color-mix(in oklch, var(--sg-stat-border) 10%, transparent)">
-          <p class="mb-2">
-            <strong class="text-[var(--sg-text-bright)]">f_triggers</strong> fire on client-side game events (death, spawn, map load, etc.).
-            Define them as aliases: <code class="text-[var(--color-primary)]">alias f_death "echo I died"</code>
+        <div class="sg-trigger-guide">
+          <p>
+            <strong>f_triggers</strong> fire on client-side game events (death, spawn, map load, etc.).
+            Define them as aliases:
           </p>
-          <p class="mb-2">
-            <strong class="text-[var(--sg-text-bright)]">on_triggers</strong> fire on server events (connect, match start/end, etc.).
-            Some are enabled by default, others need activation via <code class="text-[var(--color-primary)]">cmd info ev &lt;value&gt;</code>.
+          <ul>
+            <li><code>alias f_newmap "exec configs/dm3.cfg"</code></li>
+            <li><code>alias f_death "play sounds/death.wav"</code></li>
+          </ul>
+
+          <p>
+            <strong>on_triggers</strong> fire on server connection events (join, match start/end, etc.).
+            <code>on_enter</code>, <code>on_spec_enter</code>, <code>on_enter_ctf</code>, <code>on_enter_ffa</code> are enabled by default.
+            Others need activation via <code>cmd info ev x</code> where <code>x</code> is the sum of event values.
           </p>
-          <p class="mb-2">
-            Define an <code class="text-[var(--color-primary)]">infoset</code> alias to auto-enable on_triggers:
-            <code class="text-[var(--color-primary)] ml-1">alias infoset "cmd info ev 413"</code> (enables all)
+
+          <p>
+            Define an <code>infoset</code> alias to auto-enable on_triggers:
           </p>
-          <p class="mb-1">
-            <strong class="text-[var(--sg-text-bright)]">Event values:</strong> 1=connect, 4=matchstart, 8=matchend, 16=matchbreak, 128=admin, 256=unadmin.
+          <ul>
+            <li><code>alias infoset "cmd info ev 413"</code> — enable all</li>
+            <li><code>alias infoset "cmd info ev 8"</code> — enable on_matchend only</li>
+          </ul>
+
+          <p>
+            <strong>Event values:</strong> 1 = connect, 4 = matchstart, 8 = matchend, 16 = matchbreak, 128 = admin, 256 = unadmin.
             Sum the values you want (e.g. 413 = all).
           </p>
-          <p class="text-[10px]">
-            <strong class="text-[var(--color-warning)]">Restricted</strong> triggers cannot use teamplay macros ($armor, $location, etc.).
+
+          <p>
+            Enabling certain triggers auto-enables variants:
+          </p>
+          <ul>
+            <li><code>on_connect</code> also enables <code>on_connect_ctf</code> <code>on_connect_ffa</code> <code>on_observe</code> <code>on_observe_ctf</code> <code>on_observe_ffa</code></li>
+            <li><code>on_matchstart</code> also enables <code>on_spec_matchstart</code></li>
+            <li><code>on_matchend</code> also enables <code>on_spec_matchend</code></li>
+            <li><code>on_matchbreak</code> also enables <code>on_spec_matchbreak</code></li>
+          </ul>
+
+          <p>
+            <strong>Restricted</strong> triggers (marked with <span style="color: var(--color-warning)">restricted</span>) cannot use teamplay macros
+            (<code>$armor</code>, <code>$health</code>, <code>$location</code>, <code>$powerups</code>, <code>$bestweapon</code>, etc.)
+            under competitive rulesets. This prevents automated reporting on events like item pickups or deaths.
           </p>
         </div>
       </Show>
 
       {/* Infoset status */}
       <Show when={infosetAlias()}>
-        <div class="px-4 py-2 border-b border-[var(--sg-stat-border)] flex items-center gap-2 text-[11px]">
-          <span class="font-mono text-[var(--color-primary)] font-semibold">infoset</span>
-          <span class="font-mono text-[var(--sg-text-dim)]">{infosetAlias()}</span>
+        <div class="px-4 py-2 border-b border-[var(--sg-stat-border)] flex items-center gap-2">
+          <span class="font-mono text-sm text-[var(--color-primary)] font-semibold">infoset</span>
+          <span class="font-mono text-sm text-[var(--sg-text-dim)]">{infosetAlias()}</span>
           <Show when={infosetValue() !== null}>
-            <span class="text-[10px] text-[var(--sg-section-label)]">
+            <span class="text-xs text-[var(--sg-section-label)]">
               → enables: {enabledEvents().join(", ")}
             </span>
           </Show>
