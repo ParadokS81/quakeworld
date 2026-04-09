@@ -7,6 +7,7 @@ interface ConfigBindsSectionProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
+  movement: "oklch(0.7 0.15 220)",  // blue
   weapons: "oklch(0.7 0.15 30)",    // warm orange
   teamsay: "oklch(0.65 0.15 180)",  // teal
   misc: "oklch(0.6 0.03 260)",      // neutral grey-blue

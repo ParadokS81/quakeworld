@@ -429,7 +429,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds");
   });
   // All binds — unfiltered raw bind list for Settings > Binds, sorted by category
-  const CAT_SORT: Record<string, number> = { weapons: 0, teamsay: 1, misc: 2 };
+  const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, misc: 3 };
   const allBinds = createMemo(() => {
     if (!activeRow2().has("misc:binds")) return [];
     const q = search().trim().toLowerCase();

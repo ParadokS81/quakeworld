@@ -11,7 +11,7 @@ export interface MergedConfigData {
 export interface EnrichedBind {
   key: string;
   command: string;
-  category: "weapons" | "teamsay" | "misc";
+  category: "movement" | "weapons" | "teamsay" | "misc";
   label: string;
   description: string;
   sourceFile: string;
@@ -19,7 +19,7 @@ export interface EnrichedBind {
   hasLeft: boolean;
   hasRight: boolean;
   compareCommand?: string;
-  compareCategory?: "weapons" | "teamsay" | "misc";
+  compareCategory?: "movement" | "weapons" | "teamsay" | "misc";
   compareLabel?: string;
   compareDescription?: string;
 }
@@ -76,7 +76,7 @@ export function categorizeBinds(
   rawBinds: [string, string][],
   weaponBinds: WeaponBind[],
   teamsayBinds: TeamsayBind[],
-  _movement: MovementKeys,
+  movement: MovementKeys,
   chain: ConfigChain,
   selectedIndices: Set<number>,
   compareClassification?: ChainBindClassification | null,
@@ -91,6 +91,18 @@ export function categorizeBinds(
   for (const tb of teamsayBinds) {
     teamsayByKey.set(tb.key.toUpperCase(), tb);
   }
+
+  // Movement keys lookup
+  const MOVE_LABELS: Record<string, string> = {
+    "+forward": "↑ forward", "+back": "↓ back",
+    "+moveleft": "← strafe left", "+moveright": "→ strafe right",
+    "+jump": "jump",
+  };
+  const movementKeys = new Set(
+    [movement.forward, movement.back, movement.moveleft, movement.moveright, movement.jump]
+      .filter(Boolean)
+      .map((k) => k.toUpperCase()),
+  );
 
   // Build source file lookup: for each key, which selected file last defined it
   const sourceFileByKey = new Map<string, string>();
@@ -150,6 +162,13 @@ export function categorizeBinds(
       result.push({
         key: tb.key, command, category: "teamsay",
         label: tb.label, description: tb.description,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
+      });
+    } else if (movementKeys.has(keyUpper)) {
+      const moveLabel = MOVE_LABELS[command.trim().toLowerCase()] ?? command;
+      result.push({
+        key, command, category: "movement",
+        label: moveLabel, description: command,
         sourceFile, hasLeft: true, hasRight, ...compareData,
       });
     } else {
