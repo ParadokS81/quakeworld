@@ -68,7 +68,7 @@ export function mergeSelectedFiles(
 
 /**
  * Cross-reference raw binds against categorized weapon/teamsay binds from EzQuakeConfig.
- * Movement keys are excluded from the list (they're shown contextually).
+ * All binds are included — movement, weapon, teamsay, and misc.
  * When compareClassification is provided, merges comparison data into each bind entry
  * and adds right-only binds.
  */
@@ -76,7 +76,7 @@ export function categorizeBinds(
   rawBinds: [string, string][],
   weaponBinds: WeaponBind[],
   teamsayBinds: TeamsayBind[],
-  movement: MovementKeys,
+  _movement: MovementKeys,
   chain: ConfigChain,
   selectedIndices: Set<number>,
   compareClassification?: ChainBindClassification | null,
@@ -90,19 +90,6 @@ export function categorizeBinds(
   const teamsayByKey = new Map<string, TeamsayBind>();
   for (const tb of teamsayBinds) {
     teamsayByKey.set(tb.key.toUpperCase(), tb);
-  }
-
-  // Movement keys to exclude from bind list (from both configs)
-  const movementKeys = new Set(
-    [movement.forward, movement.back, movement.moveleft, movement.moveright, movement.jump]
-      .filter(Boolean)
-      .map((k) => k.toUpperCase()),
-  );
-  if (compareClassification) {
-    const cm = compareClassification.movement;
-    for (const k of [cm.forward, cm.back, cm.moveleft, cm.moveright, cm.jump]) {
-      if (k) movementKeys.add(k.toUpperCase());
-    }
   }
 
   // Build source file lookup: for each key, which selected file last defined it
@@ -135,7 +122,6 @@ export function categorizeBinds(
   // Process primary binds
   for (const [key, command] of rawBinds) {
     const keyUpper = key.toUpperCase();
-    if (movementKeys.has(keyUpper)) continue;
     if (!command.trim()) continue;
     seenKeys.add(keyUpper);
 
@@ -179,7 +165,7 @@ export function categorizeBinds(
   // Add right-only binds (exist in compare but not in primary)
   if (compareClassification) {
     for (const keyUpper of cmpAllKeys) {
-      if (seenKeys.has(keyUpper) || movementKeys.has(keyUpper)) continue;
+      if (seenKeys.has(keyUpper)) continue;
 
       const cmpWb = cmpWeaponByKey.get(keyUpper);
       const cmpTb = cmpTeamsayByKey.get(keyUpper);

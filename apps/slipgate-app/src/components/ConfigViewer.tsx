@@ -428,15 +428,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     const active = activeRow2();
     return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds");
   });
-  // Misc-only filtered binds (exclude weapon/teamsay since those use domain components)
-  const filteredMiscBinds = createMemo(() => {
+  // All binds — unfiltered raw bind list for Settings > Binds, sorted by category
+  const CAT_SORT: Record<string, number> = { weapons: 0, teamsay: 1, misc: 2 };
+  const allBinds = createMemo(() => {
     if (!activeRow2().has("misc:binds")) return [];
     const q = search().trim().toLowerCase();
-    return enrichedBinds().filter((b) => {
-      if (b.category !== "misc") return false;
-      if (q && !b.key.toLowerCase().includes(q) && !b.command.toLowerCase().includes(q)) return false;
-      return true;
-    });
+    return enrichedBinds()
+      .filter((b) => {
+        if (q && !b.key.toLowerCase().includes(q) && !b.command.toLowerCase().includes(q) && !b.label.toLowerCase().includes(q)) return false;
+        return true;
+      })
+      .sort((a, b) => (CAT_SORT[a.category] ?? 9) - (CAT_SORT[b.category] ?? 9));
   });
   const showAliasesSection = createMemo(() => aliasesActive());
 
@@ -696,7 +698,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 </Show>
 
                 <Show when={activeRow2().has("misc:binds")}>
-                  <ConfigBindsSection binds={filteredMiscBinds()} isCompareMode={isCompareMode()} />
+                  <ConfigBindsSection binds={allBinds()} isCompareMode={isCompareMode()} />
                 </Show>
 
                 <Show when={showAliasesSection()}>
