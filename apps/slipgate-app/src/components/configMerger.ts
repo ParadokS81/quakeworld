@@ -3,6 +3,8 @@ import type { ConfigChain, WeaponBind, TeamsayBind, MovementKeys, ChainBindClass
 /** Merged result from selected chain files */
 export interface MergedConfigData {
   cvars: Record<string, string>;
+  /** Set of cvar names that were user-created via `set` in any file in the chain */
+  userCreated: Set<string>;
   binds: [string, string][];
   aliases: Record<string, string>;
 }
@@ -22,6 +24,9 @@ export interface EnrichedBind {
   compareCategory?: "movement" | "weapons" | "teamsay" | "misc";
   compareLabel?: string;
   compareDescription?: string;
+  // Set on virtual modifier-combo entries, e.g. "+keychange" — lets the UI
+  // show the press/release alias bodies on expand instead of the base command's chain
+  modifierAlias?: string;
 }
 
 /** A single alias entry for display */
@@ -40,6 +45,7 @@ export function mergeSelectedFiles(
   selectedIndices: Set<number>,
 ): MergedConfigData {
   const cvars: Record<string, string> = {};
+  const userCreated = new Set<string>();
   const bindMap = new Map<string, [string, string]>();
   const aliases: Record<string, string> = {};
 
@@ -49,6 +55,11 @@ export function mergeSelectedFiles(
 
     // Cvars: later file overwrites
     Object.assign(cvars, file.cvars);
+
+    // User-created cvars: union across files
+    for (const name of file.user_created ?? []) {
+      userCreated.add(name);
+    }
 
     // Binds: last-write-wins per key
     for (const [key, cmd] of file.binds) {
@@ -61,6 +72,7 @@ export function mergeSelectedFiles(
 
   return {
     cvars,
+    userCreated,
     binds: Array.from(bindMap.values()),
     aliases,
   };
@@ -80,6 +92,7 @@ export function categorizeBinds(
   chain: ConfigChain,
   selectedIndices: Set<number>,
   compareClassification?: ChainBindClassification | null,
+  compareRawCommands?: Record<string, string>,
 ): EnrichedBind[] {
   // Build lookup maps
   const weaponByKey = new Map<string, WeaponBind>();
@@ -145,10 +158,11 @@ export function categorizeBinds(
     const cmpWb = cmpWeaponByKey.get(keyUpper);
     const cmpTb = cmpTeamsayByKey.get(keyUpper);
     const hasRight = cmpWb != null || cmpTb != null;
+    const cmpRawCmd = compareRawCommands?.[keyUpper];
     const compareData = cmpWb
-      ? { compareCategory: "weapons" as const, compareLabel: cmpWb.weapon.toUpperCase(), compareDescription: cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}` }
+      ? { compareCommand: cmpRawCmd, compareCategory: "weapons" as const, compareLabel: cmpWb.weapon.toUpperCase(), compareDescription: cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}` }
       : cmpTb
-        ? { compareCategory: "teamsay" as const, compareLabel: cmpTb.label, compareDescription: cmpTb.description }
+        ? { compareCommand: cmpRawCmd, compareCategory: "teamsay" as const, compareLabel: cmpTb.label, compareDescription: cmpTb.description }
         : {};
 
     if (wb) {
@@ -199,12 +213,254 @@ export function categorizeBinds(
         key: displayKey, command: "", category: cat,
         label: "", description: "",
         sourceFile: "", hasLeft: false, hasRight: true,
+        compareCommand: compareRawCommands?.[keyUpper],
         compareCategory: cat, compareLabel: label, compareDescription: desc,
       });
     }
   }
 
+  // Synthesize modifier combos: when a key is bound to a "+xxxx" alias that
+  // contains "bind <target> <cmd>" commands, generate virtual "MODKEY+TARGET"
+  // rows so the user sees the held-state mapping as first-class bind entries.
+  const modifierCombos = synthesizeModifierCombos(rawBinds, aliasMap(chain, selectedIndices));
+  for (const combo of modifierCombos) {
+    result.push(combo);
+  }
+
+  // Sort so modifier combos appear alongside their base key:
+  //   R, CTRL+R, SHIFT+R, S, T, ...
+  result.sort((a, b) => {
+    const baseA = a.key.split("+").pop() ?? a.key;
+    const baseB = b.key.split("+").pop() ?? b.key;
+    if (baseA !== baseB) return baseA.localeCompare(baseB);
+    // Same base key: shorter key (no modifier) comes first
+    return a.key.length - b.key.length;
+  });
+
   return result;
+}
+
+/** Merge aliases from selected chain files for modifier-combo lookup. */
+function aliasMap(chain: ConfigChain, selectedIndices: Set<number>): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (let i = 0; i < chain.files.length; i++) {
+    if (!selectedIndices.has(i)) continue;
+    Object.assign(map, chain.files[i].aliases);
+  }
+  return map;
+}
+
+/** Extract `bind <target> <cmd>` commands from an alias body. */
+function extractBindsFromAlias(body: string): { target: string; command: string }[] {
+  const results: { target: string; command: string }[] = [];
+  // Split on `;` but respect quoted strings
+  const parts: string[] = [];
+  let current = "";
+  let inQuote = false;
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i];
+    if (c === '"') inQuote = !inQuote;
+    if (c === ";" && !inQuote) {
+      parts.push(current.trim());
+      current = "";
+    } else {
+      current += c;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
+
+  for (const part of parts) {
+    const match = part.match(/^bind\s+(\S+)\s+(.+)$/i);
+    if (!match) continue;
+    const [, target, cmdRaw] = match;
+    const cmd = cmdRaw.trim().replace(/^"(.*)"$/, "$1");
+    results.push({ target, command: cmd });
+  }
+  return results;
+}
+
+/** Lightweight classification for synthesized modifier-combo commands. */
+function classifyCommand(cmd: string): "movement" | "weapons" | "teamsay" | "misc" {
+  const t = cmd.trim().toLowerCase();
+  if (/^\+(?:forward|back|moveleft|moveright|jump)$/.test(t)) return "movement";
+  if (/^(?:impulse\s+\d+|weapon\s+\d+)/.test(t)) return "weapons";
+  if (/\+attack/.test(t)) return "weapons";
+  if (/^say_team\b/.test(t)) return "teamsay";
+  return "misc";
+}
+
+/** Resolve a command through one level of alias lookup. */
+function resolveCommand(cmd: string, aliases: Record<string, string>): string {
+  const trimmed = cmd.trim();
+  if (aliases[trimmed] !== undefined) return aliases[trimmed];
+  const firstWord = trimmed.split(/\s+/)[0];
+  if (aliases[firstWord] !== undefined) return aliases[firstWord];
+  return trimmed;
+}
+
+/** Impulse number → weapon short name (mirrors the Rust classifier). */
+const IMPULSE_TO_WEAPON: Record<string, string> = {
+  "1": "axe",
+  "2": "sg",
+  "3": "ssg",
+  "4": "ng",
+  "5": "sng",
+  "6": "gl",
+  "7": "rl",
+  "8": "lg",
+};
+
+/** Extract the weapon number from a command, supporting `impulse N` and `weapon N`. */
+function extractWeaponNumber(cmd: string): string | null {
+  const m = cmd.match(/\b(?:impulse|weapon)\s+(\d+)/);
+  return m ? m[1] : null;
+}
+
+/** Whether a command fires (+attack) in any form. */
+function hasAttack(cmd: string): boolean {
+  return /\+attack\b/.test(cmd);
+}
+
+/**
+ * Synthesize modifier-combo WeaponBind entries for the domain view.
+ * Scans `+alias` bodies for `bind <key> <cmd>` where the target command maps
+ * to a known weapon (via impulse/weapon number, one level of alias resolution).
+ */
+export function synthesizeModifierWeaponBinds(
+  rawBinds: [string, string][],
+  aliases: Record<string, string>,
+): WeaponBind[] {
+  const combos: WeaponBind[] = [];
+
+  for (const [key, rawCmd] of rawBinds) {
+    const cmd = rawCmd.trim();
+    if (!cmd.startsWith("+")) continue;
+
+    const aliasName = cmd.split(/\s+/)[0];
+    const body = aliases[aliasName];
+    if (!body) continue;
+
+    const rebinds = extractBindsFromAlias(body);
+    if (rebinds.length === 0) continue;
+
+    const modLabel = key.toUpperCase();
+    for (const { target, command } of rebinds) {
+      // Resolve through one level of alias lookup so `+grenade` → "impulse 6; +attack" works
+      const resolved = resolveCommand(command, aliases);
+      const wnum = extractWeaponNumber(resolved);
+      if (!wnum) continue;
+      const weapon = IMPULSE_TO_WEAPON[wnum];
+      if (!weapon) continue;
+
+      const isQuickfire = hasAttack(resolved) || hasAttack(command);
+      combos.push({
+        weapon,
+        key: `${modLabel}+${target.toUpperCase()}`,
+        method: isQuickfire ? "quickfire" : "manual",
+        fire_key: isQuickfire ? null : "Mouse1",
+        modifier_alias: aliasName,
+      });
+    }
+  }
+
+  return combos;
+}
+
+/**
+ * Synthesize modifier-combo TeamsayBind entries for the domain view.
+ * Uses the existing teamsayBinds classification as a reference: if a combo's
+ * target command matches a command that's already classified as a teamsay bind
+ * (on some other key), reuse that label/category/description.
+ */
+export function synthesizeModifierTeamsayBinds(
+  rawBinds: [string, string][],
+  aliases: Record<string, string>,
+  teamsayBinds: TeamsayBind[],
+): TeamsayBind[] {
+  const combos: TeamsayBind[] = [];
+
+  // Build a lookup: command → existing teamsay bind classification
+  // (use the raw bind list to map target command → classified teamsay bind)
+  const commandToTeamsay = new Map<string, TeamsayBind>();
+  const teamsayByKey = new Map<string, TeamsayBind>();
+  for (const tb of teamsayBinds) {
+    teamsayByKey.set(tb.key.toUpperCase(), tb);
+  }
+  for (const [key, cmd] of rawBinds) {
+    const tb = teamsayByKey.get(key.toUpperCase());
+    if (tb) {
+      commandToTeamsay.set(cmd.trim(), tb);
+    }
+  }
+
+  for (const [key, rawCmd] of rawBinds) {
+    const cmd = rawCmd.trim();
+    if (!cmd.startsWith("+")) continue;
+
+    const aliasName = cmd.split(/\s+/)[0];
+    const body = aliases[aliasName];
+    if (!body) continue;
+
+    const rebinds = extractBindsFromAlias(body);
+    if (rebinds.length === 0) continue;
+
+    const modLabel = key.toUpperCase();
+    for (const { target, command } of rebinds) {
+      const existing = commandToTeamsay.get(command.trim());
+      if (!existing) continue;
+      combos.push({
+        key: `${modLabel}+${target.toUpperCase()}`,
+        category: existing.category,
+        label: existing.label,
+        description: existing.description,
+        modifier_alias: aliasName,
+      });
+    }
+  }
+
+  return combos;
+}
+
+/**
+ * For each bind of the form `key → +aliasname`, parse the alias body for
+ * `bind <target> <cmd>` statements and emit virtual modifier-combo entries.
+ */
+function synthesizeModifierCombos(
+  rawBinds: [string, string][],
+  aliases: Record<string, string>,
+): EnrichedBind[] {
+  const combos: EnrichedBind[] = [];
+
+  for (const [key, rawCmd] of rawBinds) {
+    const cmd = rawCmd.trim();
+    if (!cmd.startsWith("+")) continue;
+
+    // The command might be "+keychange" or "+keychange arg" — use just the first token
+    const aliasName = cmd.split(/\s+/)[0];
+    const body = aliases[aliasName];
+    if (!body) continue;
+
+    const rebinds = extractBindsFromAlias(body);
+    if (rebinds.length === 0) continue;
+
+    const modLabel = key.toUpperCase();
+    for (const { target, command } of rebinds) {
+      const category = classifyCommand(command);
+      combos.push({
+        key: `${modLabel}+${target.toUpperCase()}`,
+        command,
+        category,
+        label: category === "misc" ? "combo" : category,
+        description: command,
+        sourceFile: "",
+        hasLeft: true,
+        hasRight: false,
+        modifierAlias: aliasName,
+      });
+    }
+  }
+
+  return combos;
 }
 
 /**

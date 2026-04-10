@@ -15,34 +15,39 @@ interface CvarRowProps {
   onMouseLeave: () => void;
 }
 
+/** Numeric-aware equality: "1.0" equals "1". */
+function valuesEqual(a: string, b: string): boolean {
+  if (a === b) return true;
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isNaN(na) && !Number.isNaN(nb)) return na === nb;
+  return false;
+}
+
 export default function CvarRow(props: CvarRowProps) {
-  const isChanged = () => {
-    if (props.info?.default === undefined || props.info?.default === null) return false;
-    // Numeric-aware: "1.0" equals "1"
-    const na = Number(props.value);
-    const nd = Number(props.info.default);
-    if (!Number.isNaN(na) && !Number.isNaN(nd)) return na !== nd;
-    return props.value !== props.info.default;
+  // A side is "customized" if its value differs from the documented default.
+  // Unknown defaults + empty string are treated as default (cfg_save artifact).
+  const leftCustomized = () => {
+    const def = props.info?.default;
+    if (def === undefined) return props.value !== "";
+    return !valuesEqual(props.value, def);
   };
 
-  const isDiff = () => {
+  const rightCustomized = () => {
     if (props.compareValue === undefined) return false;
-    const na = Number(props.value);
-    const nb = Number(props.compareValue);
-    if (!Number.isNaN(na) && !Number.isNaN(nb)) return na !== nb;
-    return props.value !== props.compareValue;
+    const def = props.info?.default;
+    if (def === undefined) return props.compareValue !== "";
+    return !valuesEqual(props.compareValue, def);
   };
 
-  const isOnlyLeft = () => props.isCompareMode && props.compareValue === undefined;
+  // Name is colored if either side is customized
+  const anyCustomized = () => leftCustomized() || rightCustomized();
 
   return (
     <div
       class={`grid text-sm cursor-pointer transition-colors border-b border-[var(--sg-stat-border)]
         hover:bg-[color-mix(in_oklch,var(--sg-stat-border)_20%,transparent)]
         ${props.isExpanded ? "bg-[color-mix(in_oklch,var(--color-primary)_8%,transparent)]" : ""}
-        ${isDiff() ? "bg-[color-mix(in_oklch,var(--color-warning)_5%,transparent)]" : ""}
-        ${!isChanged() && props.info ? "opacity-45" : ""}
-        ${isOnlyLeft() ? "opacity-60" : ""}
       `}
       style={{
         "grid-template-columns": props.isCompareMode ? "300px 1fr 1fr" : "320px 1fr",
@@ -56,9 +61,9 @@ export default function CvarRow(props: CvarRowProps) {
         class={`pl-12 pr-4 py-1.5 font-mono truncate flex items-center gap-1.5 ${
           props.isObsolete
             ? "text-[var(--sg-section-label)] line-through"
-            : isChanged()
+            : anyCustomized()
               ? "text-[var(--color-primary)]"
-              : "text-[var(--sg-text-dim)]"
+              : "text-[var(--sg-section-label)]"
         }`}
         title={props.name}
       >
@@ -74,11 +79,9 @@ export default function CvarRow(props: CvarRowProps) {
       {/* Your value */}
       <span
         class={`px-3 py-1.5 font-mono truncate ${
-          isDiff()
-            ? "text-[var(--color-warning)] font-semibold"
-            : isChanged()
-              ? "text-[var(--sg-text-bright)] font-semibold"
-              : "text-[var(--sg-text-dim)]"
+          leftCustomized()
+            ? "text-[var(--sg-text-bright)] font-semibold"
+            : "text-[var(--sg-section-label)]"
         }`}
         title={props.value}
       >
@@ -91,9 +94,9 @@ export default function CvarRow(props: CvarRowProps) {
           class={`px-3 py-1.5 font-mono truncate border-l border-[var(--sg-stat-border)] ${
             props.compareValue === undefined
               ? "text-[var(--sg-section-label)] italic"
-              : isDiff()
-                ? "text-[var(--color-success)] font-semibold"
-                : "text-[var(--sg-text-dim)]"
+              : rightCustomized()
+                ? "text-[var(--sg-text-bright)] font-semibold"
+                : "text-[var(--sg-section-label)]"
           }`}
         >
           {props.compareValue ?? "—"}

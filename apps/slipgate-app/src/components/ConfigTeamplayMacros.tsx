@@ -19,15 +19,23 @@ interface ConfigTeamplayMacrosProps {
   compareCvars?: Map<string, string>;
   /** Teamsay bind keys to identify which aliases are team-related */
   teamsayAliasNames: Set<string>;
+  /** User-created cvar names (declared via `set`) in primary */
+  primaryUserCreated: Set<string>;
+  /** User-created cvar names in compare */
+  compareUserCreated?: Set<string>;
 }
 
 /**
  * Extract variable references ($name) from team-related aliases.
- * Returns the set of tp_* cvar names referenced.
+ * Includes any referenced cvar that is either:
+ *   - a known cvar in the database (built-in, e.g. tp_name_*, loc_name_*)
+ *   - a user-created variable declared via `set`
+ * Typo refs (unknown names that were never declared) are excluded.
  */
 function extractTeamMacros(
   aliases: Record<string, string>,
   teamsayAliasNames: Set<string>,
+  userCreated: Set<string>,
 ): Set<string> {
   const macros = new Set<string>();
 
@@ -63,12 +71,11 @@ function extractTeamMacros(
     const body = aliases[name];
     if (!body) continue;
 
-    // Match $tp_name_*, $tp_need_*, $loc_name_*, etc.
     const refs = body.matchAll(/\$(\w+)/g);
     for (const match of refs) {
       const varName = match[1];
-      // Include tp_* and loc_name_* cvars (teamplay macros)
-      if (varName.startsWith("tp_") || varName.startsWith("loc_name_")) {
+      // Include if it's a known cvar in the database, or user-created via `set`
+      if (userCreated.has(varName) || lookupCvar(varName)) {
         macros.add(varName);
       }
     }
@@ -82,11 +89,19 @@ export default function ConfigTeamplayMacros(props: ConfigTeamplayMacrosProps) {
 
   const macros = createMemo((): MacroEntry[] => {
     // Extract macro names from primary aliases
-    const primaryMacroNames = extractTeamMacros(props.primaryAliases, props.teamsayAliasNames);
+    const primaryMacroNames = extractTeamMacros(
+      props.primaryAliases,
+      props.teamsayAliasNames,
+      props.primaryUserCreated,
+    );
 
     // Also extract from compare aliases if available
     const compareMacroNames = props.compareAliases
-      ? extractTeamMacros(props.compareAliases, props.teamsayAliasNames)
+      ? extractTeamMacros(
+          props.compareAliases,
+          props.teamsayAliasNames,
+          props.compareUserCreated ?? new Set<string>(),
+        )
       : new Set<string>();
 
     // Union of all macro names
@@ -139,12 +154,12 @@ export default function ConfigTeamplayMacros(props: ConfigTeamplayMacrosProps) {
         class={isCompare() ? "sg-macro-row-cmp" : "sg-macro-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Config" : "Value"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -157,48 +172,54 @@ export default function ConfigTeamplayMacros(props: ConfigTeamplayMacrosProps) {
         }
       >
         <For each={macros()}>
-          {(macro) => (
-            <div
-              class={isCompare() ? "sg-macro-row-cmp" : "sg-macro-row"}
-              classList={{
-                "sg-macro-customized": macro.isCustomized || macro.compareIsCustomized,
-              }}
-              title={(() => {
-                const info = lookupCvar(macro.name);
-                const parts = [info?.description ?? ""];
-                if (macro.defaultValue) parts.push(`Default: ${macro.defaultValue}`);
-                return parts.filter(Boolean).join("\n");
-              })()}
-            >
-              <span class="font-mono text-[11px] text-[var(--sg-text-bright)]">
-                {macro.name}
-              </span>
-
-              {/* User value */}
-              <span
-                class="font-mono text-[11px]"
-                classList={{
-                  "text-[var(--color-warning)]": macro.isCustomized,
-                  "text-[var(--sg-text-dim)]": !macro.isCustomized,
-                }}
+          {(macro) => {
+            const anyCustomized = macro.isCustomized || macro.compareIsCustomized;
+            return (
+              <div
+                class={isCompare() ? "sg-macro-row-cmp" : "sg-macro-row"}
+                title={(() => {
+                  const info = lookupCvar(macro.name);
+                  const parts = [info?.description ?? ""];
+                  if (macro.defaultValue) parts.push(`Default: ${macro.defaultValue}`);
+                  return parts.filter(Boolean).join("\n");
+                })()}
               >
-                {macro.userValue ?? (macro.defaultValue || "—")}
-              </span>
-
-              {/* Compare value */}
-              <Show when={isCompare()}>
                 <span
-                  class="font-mono text-[11px]"
-                  classList={{
-                    "text-[var(--color-warning)]": macro.compareIsCustomized,
-                    "text-[var(--sg-text-dim)]": !macro.compareIsCustomized,
-                  }}
+                  class={`text-[13px] ${
+                    anyCustomized
+                      ? "text-[var(--color-warning)]"
+                      : "text-[var(--sg-section-label)]"
+                  }`}
                 >
-                  {macro.compareValue ?? (macro.defaultValue || "—")}
+                  {macro.name}
                 </span>
-              </Show>
-            </div>
-          )}
+
+                {/* User value */}
+                <span
+                  class={`text-[13px] ${
+                    macro.isCustomized
+                      ? "text-[var(--sg-text-bright)] font-semibold"
+                      : "text-[var(--sg-section-label)]"
+                  }`}
+                >
+                  {macro.userValue ?? (macro.defaultValue || "—")}
+                </span>
+
+                {/* Compare value */}
+                <Show when={isCompare()}>
+                  <span
+                    class={`text-[13px] ${
+                      macro.compareIsCustomized
+                        ? "text-[var(--sg-text-bright)] font-semibold"
+                        : "text-[var(--sg-section-label)]"
+                    }`}
+                  >
+                    {macro.compareValue ?? (macro.defaultValue || "—")}
+                  </span>
+                </Show>
+              </div>
+            );
+          }}
         </For>
       </Show>
     </div>

@@ -39,6 +39,8 @@ export interface CvarEnumValue {
 export interface ParsedConfig {
   /** All cvar assignments: name → value */
   cvars: Map<string, string>;
+  /** Cvar names that were explicitly declared with `set` (user-created variables) */
+  userCreated: Set<string>;
   /** All key bindings: key → action string */
   binds: Map<string, string>;
   /** All aliases: name → command string */

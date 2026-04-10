@@ -101,16 +101,20 @@ export interface MovementKeys {
 
 export interface WeaponBind {
   weapon: string;           // "rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"
-  key: string;              // display name of the key
+  key: string;              // display name of the key (may be "MOD+KEY" for modifier combos)
   method: string;           // "quickfire" or "manual"
   fire_key: string | null;  // for manual: which key fires (usually "Mouse1")
+  /** Set for synthesized modifier-combo entries — the `+alias` name driving the combo. */
+  modifier_alias?: string;
 }
 
 export interface TeamsayBind {
-  key: string;           // display name of the key (e.g. "R", "Mouse4")
+  key: string;           // display name of the key (e.g. "R", "Mouse4", or "CTRL+R" for combos)
   category: string;      // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
   label: string;         // short label (e.g. "report", "lost", "safe")
   description: string;   // longer description
+  /** Set for synthesized modifier-combo entries — the `+alias` name driving the combo. */
+  modifier_alias?: string;
 }
 
 export interface EzQuakeConfig {
@@ -217,6 +221,8 @@ export interface ConfigFile {
   source: ChainEntrySource;
   referenced_by: ExecReference | null;
   cvars: Record<string, string>;
+  /** Cvar names declared via `set`/`set_tp`/`set_calc` — user-created variables */
+  user_created: string[];
   binds: [string, string][];
   aliases: Record<string, string>;
   exec_refs: string[];

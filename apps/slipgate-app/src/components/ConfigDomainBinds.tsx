@@ -93,12 +93,12 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Weapon</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Weapon</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Bind" : "Key"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -126,20 +126,20 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 onClick={() => hasContent() && toggleExpand(weapon)}
               >
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-[var(--sg-section-label)] w-3">
+                  <span class="text-[11px] text-[var(--sg-section-label)] w-3">
                     {hasContent() ? (isExpanded() ? "▾" : "▸") : ""}
                   </span>
-                  <span class="font-mono text-xs font-bold uppercase" style={{ color }}>
+                  <span class="text-[13px] font-bold uppercase" style={{ color }}>
                     {weapon.toUpperCase()}
                   </span>
-                  <span class="text-[10px] text-[var(--sg-section-label)]">
+                  <span class="text-[11px] text-[var(--sg-section-label)]">
                     {WEAPON_LABELS[weapon]}
                   </span>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-1.5">
                   <Show when={hasPrimary()} fallback={
-                    <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                    <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
                   }>
                     <For each={primary()!}>
                       {(wb) => (
@@ -147,7 +147,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                           <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                             {wb.key}
                           </span>
-                          <span class="text-[10px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
+                          <span class="text-[11px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
                         </span>
                       )}
                     </For>
@@ -157,7 +157,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 <Show when={isCompare()}>
                   <div class="flex flex-wrap items-center gap-1.5">
                     <Show when={hasCompare()} fallback={
-                      <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                      <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
                     }>
                       <For each={compare()!}>
                         {(wb) => (
@@ -165,7 +165,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                             <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                               {wb.key}
                             </span>
-                            <span class="text-[10px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
+                            <span class="text-[11px] text-[var(--sg-text-dim)]">{formatMethod(wb)}</span>
                           </span>
                         )}
                       </For>
@@ -331,12 +331,12 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Bind" : "Key"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -368,17 +368,17 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         onClick={() => hasAnyKey() && toggleExpand(actionKey)}
                       >
                         <div class="flex items-center gap-1">
-                          <span class="text-[10px] text-[var(--sg-section-label)] w-3">
+                          <span class="text-[11px] text-[var(--sg-section-label)] w-3">
                             {hasAnyKey() ? (isExpanded() ? "▾" : "▸") : ""}
                           </span>
-                          <span class="text-xs font-semibold capitalize" style={{ color }}>
+                          <span class="text-[13px] font-semibold capitalize" style={{ color }}>
                             {action.label}
                           </span>
                         </div>
 
                         <div>
                           <Show when={action.primaryKey} fallback={
-                            <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                            <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
                           }>
                             <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                               {action.primaryKey}
@@ -389,7 +389,7 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         <Show when={isCompare()}>
                           <div>
                             <Show when={action.compareKey} fallback={
-                              <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
+                              <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
                             }>
                               <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                                 {action.compareKey}

@@ -25721,7 +25721,8 @@
     },
     "sv_cpserver": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_crypt_rcon": {
       "type": "",
@@ -25731,7 +25732,8 @@
     },
     "sv_cullentities": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_debug_antilag": {
       "type": "boolean",
@@ -25837,7 +25839,8 @@
     },
     "sv_demonovis": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_demopings": {
       "type": "",
@@ -25867,7 +25870,8 @@
     },
     "sv_enableprofile": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_extlimits": {
       "type": "integer",
@@ -25878,7 +25882,8 @@
     "sv_fastconnect": {
       "type": "float",
       "group-id": "43",
-      "desc": "actually no help."
+      "desc": "actually no help.",
+      "server-only": true
     },
     "sv_forcenick": {
       "type": "",
@@ -25970,7 +25975,8 @@
     },
     "sv_ktpro_mode": {
       "type": "string",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_loadentfiles": {
       "type": "boolean",
@@ -26237,7 +26243,8 @@
     },
     "sv_qwfwd_port": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_rconlim": {
       "type": "",
@@ -26362,7 +26369,8 @@
     "sv_timeout": {
       "type": "float",
       "group-id": "43",
-      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet."
+      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet.",
+      "server-only": true
     },
     "sv_timestamplen": {
       "type": "",
@@ -26384,7 +26392,8 @@
     },
     "sv_use_internal_cmd_dl": {
       "type": "",
-      "group-id": "43"
+      "group-id": "43",
+      "server-only": true
     },
     "sv_voip": {
       "type": "boolean",
@@ -26895,7 +26904,8 @@
     "telnet_password": {
       "type": "string",
       "group-id": "43",
-      "desc": "Password for login via telnet.\nNot currently used."
+      "desc": "Password for login via telnet.\nNot currently used.",
+      "server-only": true
     },
     "timelimit": {
       "type": "integer",

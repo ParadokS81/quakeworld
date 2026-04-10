@@ -26,13 +26,19 @@ interface MacroEntry {
 interface ConfigMacrosSectionProps {
   primaryCvars: Record<string, string>;
   compareCvars?: Map<string, string>;
+  /** Cvar names declared via `set` in primary config (user-created variables) */
+  primaryUserCreated: Set<string>;
+  /** Cvar names declared via `set` in compare config */
+  compareUserCreated?: Set<string>;
   hideDefaults: boolean;
   isCompareMode: boolean;
   search: string;
 }
 
 /** Group display order */
-const GROUP_ORDER = ["Item Names", "Item Need Amounts", "Location Names", "Teamplay Communications"];
+const GROUP_ORDER = ["Item Names", "Item Need Amounts", "Location Names", "Teamplay Communications", "User Created"];
+
+const USER_CREATED_GROUP = "User Created";
 
 function buildTooltip(macro: MacroEntry): string {
   const parts = [macro.description];
@@ -46,9 +52,12 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
   const macros = createMemo((): MacroEntry[] => {
     const db = loadDatabase();
     const entries: MacroEntry[] = [];
+    const seenNames = new Set<string>();
 
+    // Built-in teamplay macros from the database
     for (const [name, info] of db.clients.ezquake.entries()) {
       if (info.category !== "Teamplay") continue;
+      seenNames.add(name);
 
       const defaultValue = info.default ?? "";
       const userValue = props.primaryCvars[name];
@@ -70,6 +79,33 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
         isCustomized,
         compareIsSet,
         compareIsCustomized,
+      });
+    }
+
+    // User-created variables (declared via `set` in the config) — merged from both sides
+    const userCreatedNames = new Set<string>([
+      ...props.primaryUserCreated,
+      ...(props.compareUserCreated ?? []),
+    ]);
+    for (const name of userCreatedNames) {
+      if (seenNames.has(name)) continue;
+      const userValue = props.primaryCvars[name];
+      const compareValue = props.compareCvars?.get(name);
+      const isSet = userValue !== undefined;
+      const compareIsSet = compareValue !== undefined;
+      entries.push({
+        name,
+        type: "string",
+        group: USER_CREATED_GROUP,
+        defaultValue: "",
+        description: "User-created variable (declared via `set`)",
+        userValue,
+        compareValue,
+        isSet,
+        // User-created have no engine default — any value counts as "customized"
+        isCustomized: isSet,
+        compareIsSet,
+        compareIsCustomized: compareIsSet,
       });
     }
 
@@ -120,7 +156,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
     <div>
       <div class="sg-category-group-header">
         Macros
-        <span class="text-[10px] font-normal text-[var(--sg-section-label)] ml-2">
+        <span class="text-[11px] font-normal text-[var(--sg-section-label)] ml-2">
           {customizedCount()} customized / {shownCount()} shown / {totalCount()} total
         </span>
       </div>
@@ -130,12 +166,12 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
         class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
-        <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
           {props.isCompareMode ? "Your Config" : "Value"}
         </span>
         <Show when={props.isCompareMode}>
-          <span class="text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -154,39 +190,47 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
                 {group.group}
               </div>
               <For each={group.entries}>
-                {(macro) => (
-                  <div
-                    class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
-                    classList={{ "sg-macro-customized": macro.isCustomized || macro.compareIsCustomized }}
-                    title={buildTooltip(macro)}
-                  >
-                    <span class="font-mono text-[11px] text-[var(--sg-text-bright)]">
-                      {macro.name}
-                    </span>
-
-                    <span
-                      class="font-mono text-[11px]"
-                      classList={{
-                        "text-[var(--color-warning)]": macro.isCustomized,
-                        "text-[var(--sg-text-dim)]": !macro.isCustomized,
-                      }}
+                {(macro) => {
+                  const anyCustomized = macro.isCustomized || macro.compareIsCustomized;
+                  return (
+                    <div
+                      class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
+                      title={buildTooltip(macro)}
                     >
-                      {macro.isSet ? macro.userValue : (macro.defaultValue || "—")}
-                    </span>
-
-                    <Show when={props.isCompareMode}>
                       <span
-                        class="font-mono text-[11px]"
-                        classList={{
-                          "text-[var(--color-warning)]": macro.compareIsCustomized,
-                          "text-[var(--sg-text-dim)]": !macro.compareIsCustomized,
-                        }}
+                        class={`text-[13px] ${
+                          anyCustomized
+                            ? "text-[var(--color-warning)]"
+                            : "text-[var(--sg-section-label)]"
+                        }`}
                       >
-                        {macro.compareIsSet ? macro.compareValue : (macro.defaultValue || "—")}
+                        {macro.name}
                       </span>
-                    </Show>
-                  </div>
-                )}
+
+                      <span
+                        class={`text-[13px] ${
+                          macro.isCustomized
+                            ? "text-[var(--sg-text-bright)] font-semibold"
+                            : "text-[var(--sg-section-label)]"
+                        }`}
+                      >
+                        {macro.isSet ? macro.userValue : (macro.defaultValue || "—")}
+                      </span>
+
+                      <Show when={props.isCompareMode}>
+                        <span
+                          class={`text-[13px] ${
+                            macro.compareIsCustomized
+                              ? "text-[var(--sg-text-bright)] font-semibold"
+                              : "text-[var(--sg-section-label)]"
+                          }`}
+                        >
+                          {macro.compareIsSet ? macro.compareValue : (macro.defaultValue || "—")}
+                        </span>
+                      </Show>
+                    </div>
+                  );
+                }}
               </For>
             </>
           )}

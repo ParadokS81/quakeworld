@@ -12,7 +12,8 @@ import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
 import ConfigMacrosSection from "./ConfigMacrosSection";
 import ConfigTriggersSection from "./ConfigTriggersSection";
 import ConfigConverter from "./ConfigConverter";
-import { mergeSelectedFiles, categorizeBinds, mergeAliases } from "./configMerger";
+import SectionMinimap from "./SectionMinimap";
+import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierWeaponBinds, synthesizeModifierTeamsayBinds } from "./configMerger";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -44,6 +45,23 @@ function valuesEqual(a: string, b: string): boolean {
 function isDefaultValue(value: string | undefined, defaultVal: string | undefined): boolean {
   if (value === undefined || defaultVal === undefined) return false;
   return valuesEqual(value, defaultVal);
+}
+
+/**
+ * Whether a cvar is effectively at its default from the viewer's perspective.
+ * - Not present in the config → default
+ * - Present and matches the documented default → default
+ * - Present as empty string AND we don't know the default → treated as default
+ *   (matches ezQuake cfg_save behavior, which writes `""` for unset strings)
+ */
+function isEffectivelyDefault(
+  hasValue: boolean,
+  value: string | undefined,
+  defaultVal: string | undefined,
+): boolean {
+  if (!hasValue) return true;
+  if (defaultVal !== undefined) return isDefaultValue(value, defaultVal);
+  return value === "";
 }
 
 /** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
@@ -80,6 +98,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [search, setSearch] = createSignal("");
   const [hideDefaults, setHideDefaults] = createSignal(false);
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
+  const [contentScrollEl, setContentScrollEl] = createSignal<HTMLDivElement | undefined>();
 
   // ── Primary override (View as Primary) ──
   const [primaryOverride, setPrimaryOverride] = createSignal<ConfigChain | null>(null);
@@ -146,6 +165,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     mergedData()?.cvars ?? props.config?.raw_cvars ?? {},
   );
 
+  const userCreatedCvars = createMemo((): Set<string> =>
+    mergedData()?.userCreated ?? new Set<string>(),
+  );
+
   // ── Compare config from source bundle ──
   const compareCvars = createMemo((): Map<string, string> => {
     const source = props.compareSource;
@@ -185,6 +208,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
     return map;
   });
+  const compareUserCreatedCvars = createMemo((): Set<string> =>
+    compareMerged()?.userCreated ?? new Set<string>(),
+  );
 
   // ── Compare bind classification (runs Rust classifier on compare chain) ──
   const [compareBinds, setCompareBinds] = createSignal<ChainBindClassification | null>(null);
@@ -211,13 +237,20 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     const cmpMap = compareCvars();
 
     const dbNames = Array.from(db.clients.ezquake.entries())
-      .filter(([_, info]) => info.category !== "Obsolete")
+      .filter(([_, info]) => info.category !== "Obsolete" && !info.serverOnly)
       .map(([name]) => name);
 
+    const userCreated = userCreatedCvars();
+    const compareUserCreated = compareUserCreatedCvars();
     const dbNameSet = new Set(dbNames);
-    const extraUserKeys = Object.keys(userCvars).filter((k) => !dbNameSet.has(k));
+    // Exclude user-created cvars from Unknown — they belong in the Macros section
+    const extraUserKeys = Object.keys(userCvars).filter(
+      (k) => !dbNameSet.has(k) && !userCreated.has(k),
+    );
     const extraCompareKeys = cmpMode
-      ? Array.from(cmpMap.keys()).filter((k) => !dbNameSet.has(k) && !(k in userCvars))
+      ? Array.from(cmpMap.keys()).filter(
+          (k) => !dbNameSet.has(k) && !(k in userCvars) && !compareUserCreated.has(k),
+        )
       : [];
     const allKeys = [...dbNames, ...extraUserKeys, ...extraCompareKeys].sort();
 
@@ -227,20 +260,18 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       const hasLeft = userValue !== undefined;
       const value = userValue ?? info?.default ?? "";
       const compareValue = cmpMode ? cmpMap.get(name) : undefined;
-      const leftIsDefault = isDefaultValue(value, info?.default);
-      const rightIsDefault = isDefaultValue(compareValue, info?.default);
+      const hasRight = compareValue !== undefined;
+      const leftIsDefault = isEffectivelyDefault(hasLeft, value, info?.default);
+      const rightIsDefault = isEffectivelyDefault(hasRight, compareValue, info?.default);
       const isObsolete = info?.category === "Obsolete";
       const isUnknown = !info;
-      return { name, value, info, hasLeft, compareValue, leftIsDefault, rightIsDefault, isObsolete, isUnknown };
+      return { name, value, info, hasLeft, hasRight, compareValue, leftIsDefault, rightIsDefault, isObsolete, isUnknown };
     });
   });
 
-  // In compare mode, filter out rows where both sides are at default
-  const relevantCvars = createMemo(() => {
-    const cvars = enrichedCvars();
-    if (!isCompareMode()) return cvars;
-    return cvars.filter((c) => !c.leftIsDefault || !c.rightIsDefault);
-  });
+  // "Hide defaults" toggle is the explicit control for hiding at-default rows;
+  // we don't permanently filter them out in compare mode.
+  const relevantCvars = createMemo(() => enrichedCvars());
 
   // ── Category counts (all categories, then split into rows) ──
   const allCategories = createMemo(() => {
@@ -376,13 +407,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       }
 
       if (hideDefaults()) {
-        if (cvar.leftIsDefault) {
-          if (cmpMode && cvar.compareValue !== undefined && !cvar.rightIsDefault) {
-            // Keep — compare value is non-default
-          } else {
-            return false;
-          }
-        }
+        // Hide if both sides are at default (single mode: just left)
+        if (cvar.leftIsDefault && cvar.rightIsDefault) return false;
       }
 
       if (q) {
@@ -405,7 +431,43 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       effectiveChain()!,
       selectedFiles(),
       compareBinds(),
+      compareBindCommands(),
     );
+  });
+
+  // Merge Rust-classified weapon/teamsay binds with modifier-combo synthesized ones
+  // so the domain views show `CTRL+R → ready`, `SHIFT+MOUSE1 → gl`, etc.
+  const primaryWeaponBinds = createMemo(() => {
+    const base = props.config?.weapon_binds ?? [];
+    const combos = synthesizeModifierWeaponBinds(mergedData()?.binds ?? [], primaryAliases());
+    return [...base, ...combos];
+  });
+  const primaryTeamsayBinds = createMemo(() => {
+    const base = props.config?.teamsay_binds ?? [];
+    const combos = synthesizeModifierTeamsayBinds(
+      mergedData()?.binds ?? [],
+      primaryAliases(),
+      base,
+    );
+    return [...base, ...combos];
+  });
+  const compareWeaponBinds = createMemo(() => {
+    const base = compareBinds()?.weapon_binds;
+    if (!base) return undefined;
+    const cmpRaw = Array.from(Object.entries(compareBindCommands())).map(
+      ([k, v]) => [k, v] as [string, string],
+    );
+    const combos = synthesizeModifierWeaponBinds(cmpRaw, compareAliases());
+    return [...base, ...combos];
+  });
+  const compareTeamsayBinds = createMemo(() => {
+    const base = compareBinds()?.teamsay_binds;
+    if (!base) return undefined;
+    const cmpRaw = Array.from(Object.entries(compareBindCommands())).map(
+      ([k, v]) => [k, v] as [string, string],
+    );
+    const combos = synthesizeModifierTeamsayBinds(cmpRaw, compareAliases(), base);
+    return [...base, ...combos];
   });
 
   // ── Aliases data ──
@@ -692,8 +754,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 </div>
               </Show>
 
-              {/* ── Content sections ── */}
-              <div class="flex-1 overflow-y-auto relative">
+              {/* ── Content + minimap ── */}
+              <div class="flex-1 flex overflow-hidden">
+              <div class="sg-content-scroll flex-1 overflow-y-auto relative pt-1" ref={setContentScrollEl}>
                 <Show when={showSettingsSection()}>
                   <ConfigSettingsSection
                     cvars={filteredCvars()}
@@ -708,8 +771,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
                 <Show when={activeRow2().has("weapons:binds")}>
                   <ConfigWeaponBindsSection
-                    primaryBinds={props.config?.weapon_binds ?? []}
-                    compareBinds={compareBinds()?.weapon_binds}
+                    primaryBinds={primaryWeaponBinds()}
+                    compareBinds={compareWeaponBinds()}
                     primaryAliases={primaryAliases()}
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
@@ -719,8 +782,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
                 <Show when={activeRow2().has("teamplay:binds")}>
                   <ConfigTeamsayBindsSection
-                    primaryBinds={props.config?.teamsay_binds ?? []}
-                    compareBinds={compareBinds()?.teamsay_binds}
+                    primaryBinds={primaryTeamsayBinds()}
+                    compareBinds={compareTeamsayBinds()}
                     primaryAliases={primaryAliases()}
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
@@ -735,6 +798,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? compareCvars() : undefined}
                     teamsayAliasNames={teamsayAliasNames()}
+                    primaryUserCreated={userCreatedCvars()}
+                    compareUserCreated={isCompareMode() ? compareUserCreatedCvars() : undefined}
                   />
                 </Show>
 
@@ -755,6 +820,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigMacrosSection
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? compareCvars() : undefined}
+                    primaryUserCreated={userCreatedCvars()}
+                    compareUserCreated={isCompareMode() ? compareUserCreatedCvars() : undefined}
                     hideDefaults={hideDefaults()}
                     isCompareMode={isCompareMode()}
                     search={search()}
@@ -774,6 +841,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     Select a category to view settings, binds, or aliases
                   </div>
                 </Show>
+              </div>
+              <SectionMinimap scrollContainer={contentScrollEl} />
               </div>
             </div>
           </div>

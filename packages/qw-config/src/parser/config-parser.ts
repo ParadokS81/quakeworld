@@ -71,6 +71,7 @@ function tokenize(line: string, maxTokens = 3): string[] {
  */
 export function parseConfig(text: string): ParsedConfig {
   const cvars = new Map<string, string>();
+  const userCreated = new Set<string>();
   const binds = new Map<string, string>();
   const aliases = new Map<string, string>();
   const execs: string[] = [];
@@ -105,7 +106,15 @@ export function parseConfig(text: string): ParsedConfig {
 
     const command = tokens[0].toLowerCase();
 
-    if (command === "bind") {
+    if (command === "set") {
+      // set <cvar> <value> — user-created variable
+      if (tokens.length >= 3) {
+        cvars.set(tokens[1], tokens[2]);
+        userCreated.add(tokens[1]);
+      } else {
+        unparsed.push(line);
+      }
+    } else if (command === "bind") {
       // bind <key> <action>
       if (tokens.length >= 3) {
         binds.set(tokens[1].toLowerCase(), tokens[2]);
@@ -137,5 +146,5 @@ export function parseConfig(text: string): ParsedConfig {
     }
   }
 
-  return { cvars, binds, aliases, execs, unparsed };
+  return { cvars, userCreated, binds, aliases, execs, unparsed };
 }

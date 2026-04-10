@@ -60,7 +60,7 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
     <div>
       {/* Column headers */}
       <div
-        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[10px] uppercase tracking-wide text-[var(--sg-section-label)]"
+        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]"
         style={{
           "grid-template-columns": props.isCompareMode ? "300px 1fr 1fr" : "320px 1fr",
         }}

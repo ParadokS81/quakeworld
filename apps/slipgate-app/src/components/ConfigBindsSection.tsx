@@ -36,15 +36,16 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
       <Show
         when={props.isCompareMode}
         fallback={
-          <div class="sg-cv-bind-row text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+          <div class="sg-cv-bind-row text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+            <span />
             <span>Key</span>
             <span>Command</span>
             <span>Type</span>
-            <span>Source</span>
           </div>
         }
       >
-        <div class="sg-cv-bind-row-cmp text-[10px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+        <div class="sg-cv-bind-row-cmp text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+          <span />
           <span>Key</span>
           <span>Your Config</span>
           <span>Comparison</span>
@@ -63,8 +64,21 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
         <For each={props.binds}>
           {(bind) => {
             const isExpanded = () => expanded() === bind.key;
-            const chain = () => getChain(bind.command, props.primaryAliases);
-            const hasChain = () => chain().length > 0;
+            // For modifier-combo entries, expand to the press/release alias bodies.
+            // For normal binds, expand to the command's alias chain.
+            const chain = () => {
+              if (bind.modifierAlias) {
+                return getChain(bind.modifierAlias, props.primaryAliases);
+              }
+              return getChain(bind.command, props.primaryAliases);
+            };
+            const releaseChain = () => {
+              if (!bind.modifierAlias) return [];
+              const releaseName = "-" + bind.modifierAlias.slice(1);
+              return getChain(releaseName, props.primaryAliases);
+            };
+            const compareChain = () => getChain(bind.compareCommand ?? "", props.compareAliases);
+            const hasChain = () => chain().length > 0 || compareChain().length > 0 || releaseChain().length > 0;
 
             return (
               <>
@@ -77,26 +91,27 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                       title={bind.description}
                       onClick={() => hasChain() && toggleExpand(bind.key)}
                     >
+                      <span class="text-[11px] text-[var(--sg-section-label)]">
+                        {hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
+                      </span>
                       <span
-                        class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center"
+                        class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center border"
                         style={{
                           background: "color-mix(in oklch, var(--sg-stat-border) 40%, transparent)",
-                          color: "var(--sg-text-bright)",
+                          "border-color": `color-mix(in oklch, ${CATEGORY_COLORS[bind.category] ?? "var(--sg-stat-border)"} 50%, var(--sg-stat-border))`,
+                          color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-bright)",
                         }}
                       >
-                        {hasChain() ? (isExpanded() ? "▾ " : "▸ ") : ""}{bind.key}
+                        {bind.key}
                       </span>
-                      <span class="font-mono text-xs text-[var(--sg-text-dim)] truncate" title={bind.command}>
+                      <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate" title={bind.command}>
                         {bind.command}
                       </span>
                       <span
-                        class="text-[10px] font-semibold uppercase tracking-wide"
+                        class="text-[11px] font-semibold uppercase tracking-wide"
                         style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
                       >
                         {bind.category === "weapons" ? bind.label : bind.category}
-                      </span>
-                      <span class="text-[10px] text-[var(--sg-section-label)] truncate">
-                        {bind.sourceFile}
                       </span>
                     </div>
                   }
@@ -104,64 +119,90 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                   <div
                     class="sg-cv-bind-row-cmp"
                     classList={{
-                      "sg-cv-bind-only-left": bind.hasLeft && !bind.hasRight,
-                      "sg-cv-bind-only-right": !bind.hasLeft && bind.hasRight,
-                      "sg-cv-bind-diff": bind.hasLeft && bind.hasRight && bind.label !== bind.compareLabel,
                       "cursor-pointer": hasChain(),
                     }}
                     title={bind.description || bind.compareDescription}
                     onClick={() => hasChain() && toggleExpand(bind.key)}
                   >
+                    <span class="text-[11px] text-[var(--sg-section-label)]">
+                      {hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
+                    </span>
                     <span
-                      class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center"
+                      class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center border"
                       style={{
                         background: "color-mix(in oklch, var(--sg-stat-border) 40%, transparent)",
-                        color: "var(--sg-text-bright)",
+                        "border-color": `color-mix(in oklch, ${CATEGORY_COLORS[bind.category] ?? "var(--sg-stat-border)"} 50%, var(--sg-stat-border))`,
+                        color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-bright)",
                       }}
                     >
-                      {hasChain() ? (isExpanded() ? "▾ " : "▸ ") : ""}{bind.key}
+                      {bind.key}
                     </span>
 
-                    <div class="flex items-center gap-2 min-w-0">
-                      <Show when={bind.hasLeft}>
+                    <div class="grid min-w-0" style={{ "grid-template-columns": "90px 1fr" }}>
+                      <Show when={bind.hasLeft} fallback={
+                        <span class="text-[11px] text-[var(--sg-section-label)] italic col-span-2">—</span>
+                      }>
                         <span
-                          class="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+                          class="text-[11px] font-semibold uppercase tracking-wide"
                           style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
                         >
                           {bind.label}
                         </span>
-                        <span class="font-mono text-[10px] text-[var(--sg-text-dim)] truncate">
+                        <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate">
                           {bind.command}
                         </span>
                       </Show>
-                      <Show when={!bind.hasLeft}>
-                        <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
-                      </Show>
                     </div>
 
-                    <div class="flex items-center gap-2 min-w-0">
-                      <Show when={bind.hasRight}>
+                    <div class="grid min-w-0" style={{ "grid-template-columns": "90px 1fr" }}>
+                      <Show when={bind.hasRight} fallback={
+                        <span class="text-[11px] text-[var(--sg-section-label)] italic col-span-2">—</span>
+                      }>
                         <span
-                          class="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+                          class="text-[11px] font-semibold uppercase tracking-wide"
                           style={{ color: CATEGORY_COLORS[bind.compareCategory ?? "misc"] ?? "var(--sg-text-dim)" }}
                         >
                           {bind.compareLabel}
                         </span>
-                        <span class="font-mono text-[10px] text-[var(--sg-text-dim)] truncate">
+                        <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate">
                           {bind.compareDescription}
                         </span>
-                      </Show>
-                      <Show when={!bind.hasRight}>
-                        <span class="text-[10px] text-[var(--sg-section-label)] italic">—</span>
                       </Show>
                     </div>
                   </div>
                 </Show>
 
-                {/* Expanded alias chain */}
+                {/* Expanded alias chains */}
                 <Show when={isExpanded()}>
                   <div class="sg-domain-bind-expanded">
-                    <AliasChainView chain={chain()} />
+                    <Show when={bind.modifierAlias} fallback={
+                      <>
+                        <Show when={chain().length > 0}>
+                          <Show when={props.isCompareMode}>
+                            <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Your config</div>
+                          </Show>
+                          <AliasChainView chain={chain()} />
+                        </Show>
+                        <Show when={props.isCompareMode && compareChain().length > 0}>
+                          <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Comparison</div>
+                          <AliasChainView chain={compareChain()} />
+                        </Show>
+                      </>
+                    }>
+                      {/* Modifier combo: show press and release alias chains */}
+                      <Show when={chain().length > 0}>
+                        <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
+                          On press ({bind.modifierAlias})
+                        </div>
+                        <AliasChainView chain={chain()} />
+                      </Show>
+                      <Show when={releaseChain().length > 0}>
+                        <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
+                          On release ({"-" + (bind.modifierAlias ?? "").slice(1)})
+                        </div>
+                        <AliasChainView chain={releaseChain()} />
+                      </Show>
+                    </Show>
                   </div>
                 </Show>
               </>

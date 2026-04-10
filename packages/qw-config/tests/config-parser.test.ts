@@ -42,4 +42,18 @@ describe("config parser", () => {
     const result = parseConfig('name "Para dokS [sr]"');
     expect(result.cvars.get("name")).toBe("Para dokS [sr]");
   });
+
+  test("parses set as user-created cvar", () => {
+    const result = parseConfig('set mynick "para"\nset tp_msg_custom "hello team"');
+    expect(result.cvars.get("mynick")).toBe("para");
+    expect(result.cvars.get("tp_msg_custom")).toBe("hello team");
+    expect(result.userCreated.has("mynick")).toBe(true);
+    expect(result.userCreated.has("tp_msg_custom")).toBe(true);
+  });
+
+  test("direct cvar assignment is NOT marked user-created", () => {
+    const result = parseConfig('sensitivity "3.5"');
+    expect(result.cvars.get("sensitivity")).toBe("3.5");
+    expect(result.userCreated.has("sensitivity")).toBe(false);
+  });
 });

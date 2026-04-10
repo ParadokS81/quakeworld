@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 // ============================================================
@@ -38,6 +38,7 @@ fn default_cvars() -> HashMap<&'static str, &'static str> {
 /// Parsed config data — cvars, key bindings, aliases, and exec references.
 pub(crate) struct ParsedConfig {
     pub(crate) cvars: HashMap<String, String>,
+    pub(crate) user_created: HashSet<String>,            // cvars declared via `set`/`set_tp`/`set_calc`
     pub(crate) bindings: Vec<(String, String)>,          // ordered list of (key, command)
     pub(crate) aliases: HashMap<String, String>,         // alias name → command string
     pub(crate) exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
@@ -71,6 +72,7 @@ pub struct ConfigFile {
     pub source: ChainEntrySource,
     pub referenced_by: Option<ExecReference>,
     pub cvars: HashMap<String, String>,
+    pub user_created: HashSet<String>,
     pub binds: Vec<(String, String)>,
     pub aliases: HashMap<String, String>,
     pub exec_refs: Vec<String>,
@@ -202,6 +204,7 @@ pub(crate) fn walk_exec_refs(
                 context: context_prefix.to_string(),
             }),
             cvars: parsed.cvars,
+            user_created: parsed.user_created,
             binds: parsed.bindings,
             aliases: parsed.aliases,
             exec_refs: parsed.exec_refs,
@@ -222,6 +225,7 @@ pub(crate) fn walk_exec_refs(
 /// Parse an ezQuake config file into cvars and key bindings.
 pub(crate) fn parse_config(content: &str) -> ParsedConfig {
     let mut cvars = HashMap::new();
+    let mut user_created = HashSet::new();
     let mut bindings = Vec::new();
     let mut aliases = HashMap::new();
     let mut exec_refs = Vec::new();
@@ -302,7 +306,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
             continue;
         }
 
-        // Parse set/set_tp: "set varname value" → store as cvar
+        // Parse set/set_tp: "set varname value" → store as cvar + mark user-created
         if set_commands.iter().any(|&cmd| key_lower == cmd) {
             if let Some(rest) = parts.next() {
                 let rest = rest.trim();
@@ -315,6 +319,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
                         val
                     };
                     cvars.insert(var_name.to_string(), val.to_string());
+                    user_created.insert(var_name.to_string());
                 }
             }
             continue;
@@ -348,7 +353,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
         }
     }
 
-    ParsedConfig { cvars, bindings, aliases, exec_refs }
+    ParsedConfig { cvars, user_created, bindings, aliases, exec_refs }
 }
 
 // ============================================================
@@ -1693,6 +1698,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
         source: ChainEntrySource::Primary,
         referenced_by: None,
         cvars: parsed.cvars,
+        user_created: parsed.user_created,
         binds: parsed.bindings,
         aliases: parsed.aliases,
         exec_refs: top_level_exec_refs.clone(),
@@ -1729,6 +1735,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                         context: "engine (loaded after config.cfg)".to_string(),
                     }),
                     cvars: parsed.cvars,
+                    user_created: parsed.user_created,
                     binds: parsed.bindings,
                     aliases: parsed.aliases,
                     exec_refs: parsed.exec_refs,
@@ -1815,6 +1822,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                         context: context.clone(),
                     }),
                     cvars: parsed.cvars,
+                    user_created: parsed.user_created,
                     binds: parsed.bindings,
                     aliases: parsed.aliases,
                     exec_refs: parsed.exec_refs,

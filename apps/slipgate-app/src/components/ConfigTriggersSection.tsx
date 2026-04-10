@@ -177,27 +177,28 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
         >
           {/* Trigger name + restricted badge */}
           <div class="flex items-center gap-2">
-            <span class="text-[10px] text-[var(--sg-section-label)] w-3 flex-shrink-0">
+            <span class="text-[11px] text-[var(--sg-section-label)] w-3 flex-shrink-0">
               {row.isDefined ? (isExp() ? "▾" : "▸") : ""}
             </span>
             <span
-              class="font-mono text-sm truncate"
-              classList={{
-                "text-[var(--color-primary)] font-semibold": row.isDefined || row.compareDefined,
-                "text-[var(--sg-text-dim)]": !row.isDefined && !row.compareDefined,
+              class="text-[13px] truncate"
+              style={{
+                color: (row.isDefined || row.compareDefined)
+                  ? "oklch(0.75 0.12 200)"
+                  : "var(--sg-section-label)",
               }}
             >
               {row.def.name}
             </span>
             <span class="flex-1" />
             <Show when={row.def.restricted}>
-              <span class="text-[9px] text-[var(--color-warning)] uppercase tracking-wide flex-shrink-0">restricted</span>
+              <span class="text-[10px] text-[var(--color-warning)] uppercase tracking-wide flex-shrink-0">restricted</span>
             </Show>
             <Show when={row.def.defaultEnabled}>
-              <span class="text-[9px] text-[var(--color-success)] uppercase tracking-wide flex-shrink-0">default</span>
+              <span class="text-[10px] text-[var(--color-success)] uppercase tracking-wide flex-shrink-0">default</span>
             </Show>
             <Show when={row.def.eventValue !== undefined && !row.def.defaultEnabled}>
-              <span class="text-[9px] text-[var(--sg-section-label)] uppercase tracking-wide flex-shrink-0">ev {row.def.eventValue}</span>
+              <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide flex-shrink-0">ev {row.def.eventValue}</span>
             </Show>
           </div>
 
@@ -206,7 +207,7 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
             <Show when={row.isDefined} fallback={
               <span class="text-xs text-[var(--sg-section-label)] italic">not defined</span>
             }>
-              <span class="font-mono text-sm text-[var(--sg-text-dim)] truncate block">
+              <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate block">
                 {row.userCommand}
               </span>
             </Show>
@@ -218,7 +219,7 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
               <Show when={row.compareDefined} fallback={
                 <span class="text-xs text-[var(--sg-section-label)] italic">not defined</span>
               }>
-                <span class="font-mono text-sm text-[var(--sg-text-dim)] truncate block">
+                <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate block">
                   {row.compareCommand}
                 </span>
               </Show>
@@ -250,7 +251,7 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
     <div>
       <div class="sg-category-group-header">
         Triggers
-        <span class="text-[10px] font-normal text-[var(--sg-section-label)] ml-2">
+        <span class="text-[11px] font-normal text-[var(--sg-section-label)] ml-2">
           {definedCount()} defined / {F_TRIGGERS.length + ON_TRIGGERS.length} available
         </span>
       </div>
@@ -318,8 +319,8 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
       {/* Infoset status */}
       <Show when={infosetAlias()}>
         <div class="px-4 py-2 border-b border-[var(--sg-stat-border)] flex items-center gap-2">
-          <span class="font-mono text-sm text-[var(--color-primary)] font-semibold">infoset</span>
-          <span class="font-mono text-sm text-[var(--sg-text-dim)]">{infosetAlias()}</span>
+          <span class="text-[13px] text-[var(--color-primary)] font-semibold">infoset</span>
+          <span class="text-[13px] text-[var(--sg-text-dim)]">{infosetAlias()}</span>
           <Show when={infosetValue() !== null}>
             <span class="text-xs text-[var(--sg-section-label)]">
               → enables: {enabledEvents().join(", ")}
@@ -327,6 +328,20 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
           </Show>
         </div>
       </Show>
+
+      {/* Column headers */}
+      <div
+        class={isCompare() ? "sg-trigger-row-cmp" : "sg-trigger-row"}
+        style="border-bottom: 1px solid var(--sg-stat-border)"
+      >
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Trigger</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+          {isCompare() ? "Your Config" : "Command"}
+        </span>
+        <Show when={isCompare()}>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+        </Show>
+      </div>
 
       {/* F_triggers */}
       <div class="sg-domain-bind-category" style="color: var(--sg-section-label)">
