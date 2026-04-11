@@ -1,205 +1,79 @@
 # Slipgate App — Desktop Companion for QuakeWorld
 
-**Status: Active development.** See `docs/ROADMAP.md` for what's built and what's next.
+> **Doc type: current** — Always-on rules and pointers for Claude. Read this every session; read the other docs on demand. Target: keep this under 150 lines.
 
-A cross-platform system tray application that bridges the QuakeWorld game client, the user's computer, and the Slipgate web hub. Built with Tauri v2 (Rust backend + SolidJS frontend).
+**Status:** Active development. Tauri v2 system tray app that bridges the QuakeWorld game client, the user's computer, and (eventually) the Slipgate web hub. Windows-native in practice.
 
-## Ecosystem Context
+## Where to find things
 
-This project is part of the QuakeWorld monorepo. Source lives in WSL with all other apps, but **builds run on native Windows** because Tauri needs the Windows toolchain for Windows binaries.
+When you need... | Read...
+---|---
+A plain-English map of what's built right now | `docs/OVERVIEW.md`
+Why this project exists, long-term vision | `docs/VISION.md`
+Tech debt, cleanup priorities, known risks (2026-04-10 snapshot) | `docs/HEALTH.md`
+Dev environment setup (WSL+Windows split, rsync hook, troubleshooting) | `docs/DEVELOPMENT.md`
+Design system, OKLCH theming, UI patterns | `docs/DESIGN.md`
+ezQuake config parser architecture (how bind classification / exec chains / macros / triggers work) | `docs/CFG-PARSER.md`
+How ezQuake computes resolution (the absent=default pattern) | `docs/EZQUAKE-RESOLUTION.md`
+Discord OAuth flow as built (+ future GitHub OAuth idea) | `docs/AUTH.md`
+What the hardware scan collects and how | `docs/SYSTEM-SPECS.md`
+EloShapes API reference for the peripheral database | `docs/PERIPHERAL-SELECTOR.md`
+Deploy/release notes | `DEPLOYMENT.md`
 
-See the root `CLAUDE.md` for the full project map, shared infrastructure, and cross-project workflows.
+Start with `OVERVIEW.md` when returning to the project after a break.
 
-Sibling apps in this monorepo:
-- **`apps/matchscheduler/`** — Firebase web app (Auth, availability, match data)
-- **`apps/quad/`** — Discord bot (voice recording, standin flow, Mumble)
-- **`apps/qw-stats/`** — Stats API (Express + PostgreSQL)
-- **`apps/qw-oracle/`** — Community knowledge base (SQLite)
+## Tech stack
 
-**No build-time dependencies on siblings.** All integration is via network (Firebase, HTTP APIs).
+| Layer | Choice |
+|---|---|
+| Desktop framework | Tauri v2 (Rust backend + OS WebView2) |
+| Frontend | SolidJS + TypeScript |
+| Styling | Tailwind CSS 4 + DaisyUI 5 (OKLCH theme system) |
+| Backend | Rust — `sysinfo`, `wmi`, `windows` (SetupAPI), `reqwest`, `notify-debouncer-mini`, `zip` |
+| Auth | Discord OAuth → MatchScheduler cloud function → Firebase custom token |
+| Package manager | Bun |
+| Build | Vite |
+| Linting | Biome |
 
-## What This App Does
+**Platform coverage:** Windows-native only in practice. Non-Windows code paths exist as stubs but aren't supported.
 
-Slipgate App runs quietly in the system tray, providing features that are impossible or impractical from a web browser:
-- Collect system specs (GPU, CPU, RAM, display) for community profiles
-- Detect and interact with ezQuake (configs, demos, process detection)
-- Desktop notifications for matches, standin requests, tournament events
-- Quick actions without opening a browser (availability toggle, server connect)
-- Deep linking via `qw://` protocol handler
+**Sibling apps** in the monorepo (all integration is network-based, no filesystem coupling): `apps/matchscheduler/` (Firebase web), `apps/quad/` (Discord bot), `apps/qw-stats/` (Express + PostgreSQL), `apps/qw-oracle/` (SQLite knowledge base).
 
-## Tech Stack
+## Always-on rules
 
-| Layer | Choice | Why |
-|---|---|---|
-| **Desktop framework** | Tauri v2 | Rust backend, OS webview frontend. ~5-10 MB binary, low memory, cross-platform |
-| **Frontend** | SolidJS + TypeScript | Same as Slipgate web — shared design language |
-| **Styling** | Tailwind CSS 4 + DaisyUI 5 | Same as Slipgate web — shared OKLCH theme system |
-| **Backend** | Rust | System-level operations: sysinfo, file watching, process detection, protocol handlers |
-| **Auth** | Discord OAuth (via Firebase) | Same identity as Slipgate web — localhost redirect flow |
-| **Package manager** | Bun | Same as Slipgate web. Fast installs, built-in test runner |
-| **Build** | Vite | Comes with Tauri template, same as Slipgate web |
-| **Linting** | Biome | Same as Slipgate web. Single tool replacing ESLint + Prettier |
+**Tooling:**
+- **Bun, not npm.** `bun run`, `bun install`, `bun test` for all JS work.
+- **Tauri command naming:** snake_case in Rust (`get_all_specs`), camelCase in TypeScript (`getAllSpecs`).
 
-## Development Environment
+**Code conventions:**
+- **No hardcoded colors.** Use DaisyUI semantic classes (`btn-primary`, `bg-base-200`) or CSS custom properties (`var(--color-primary)`). Never hex/rgb in source.
+- **No hardcoded URLs in component code.** Constants at the top of `auth.ts`, `firebase.ts`, or dedicated config. Ready for future env config swap.
+- **Rust: follow rustfmt + clippy.** Frontend: Biome.
+- **User-facing strings in English.** No localization yet.
 
-**This project is developed on native Windows, not WSL.**
+**Dev workflow:**
+- **Rust sync hook is live.** The monorepo's `PostToolUse` hook auto-rsyncs `src-tauri/` to the Windows build mirror after every edit. No manual sync needed — see `docs/DEVELOPMENT.md` for the details if something breaks.
+- **Branch before editing.** Never work directly on `main`. Feature branches, commit often, merge when it works.
+- **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo — I won't repeat it here.
 
-Tauri builds native desktop apps using the OS's own webview. In WSL it would build Linux binaries; on Windows it builds Windows binaries. Since ~80% of QW players are on Windows, we develop natively on Windows to test what most users experience. Cross-platform builds (Linux, macOS) are handled by GitHub Actions.
+**Things to know about the code:**
+- `src-tauri/src/commands/ezquake.rs` is a 2,124-line monolith with a wide public surface. Adding a second client (FTE) will probably require splitting it. See `docs/HEALTH.md` for the full structural note.
+- The ConfigViewer subsystem (20+ components under `src/components/Config*`) is the biggest feature by far and the main active work area.
+- `configMerger.ts` is pure — no side effects, easy to reason about.
+- `src-tauri/src/commands/screenshot.rs` is marked POC — active goal but fragile timing, not yet production.
 
-Prerequisites (all Windows-native):
-- **Rust** — via `rustup` (installs MSVC toolchain)
-- **Bun** — JavaScript runtime and package manager
-- **Microsoft C++ Build Tools** — "Desktop development with C++" workload
-- **WebView2** — pre-installed on Windows 10/11
+## Known cleanup items (as of 2026-04-11)
 
-See `docs/DEVELOPMENT.md` for full setup instructions.
+Safe deletions identified in the audit today:
+- `greet` command in `src-tauri/src/lib.rs` — Tauri scaffolding leftover
+- `src/components/ConfigCategoryBar.tsx` (156 lines) — imported nowhere
+- `src/components/TabNav.tsx` (29 lines) — imported nowhere, superseded by SideNav
+- `md-5` crate in `Cargo.toml` + `verify_md5` function in `updater.rs:468-485` — defined but never called
+- Debug `console.log` dump in `App.tsx:113-123` — prints on every config load
 
-```bash
-# Install dependencies
-bun install
+Higher-risk fixes flagged:
+- Hardcoded `C:/Users/Administrator/...` path in `ClientsTab.tsx:127` (screenshot POC) — will break on anyone else's machine
+- `saveProfile()` in `store.ts` has no error handling — silent failures on disk issues
+- Discord OAuth missing `state` parameter (low-risk CSRF gap)
 
-# Dev mode (opens Tauri window with hot reload)
-bun run tauri dev
-
-# Build for current platform
-bun run tauri build
-
-# Build for all platforms — GitHub Actions matrix build
-# See .github/workflows/ (auto-builds on push to main)
-```
-
-## Design System
-
-**Shares the Slipgate web design system.** Reference docs in WSL: `\\wsl.localhost\Ubuntu\home\paradoks\projects\quake\slipgate\DESIGN-SYSTEM.md` and `COLOR-PALETTE.md`.
-
-Key rules:
-- Use DaisyUI semantic classes for themed elements (`btn-primary`, `bg-base-200`, `badge-success`)
-- Use OKLCH values via CSS custom properties — never hardcode hex/rgb
-- Theme changes propagate automatically through the ramp system
-- When infiniti's Harmonizer export is ready, both projects consume the same CSS variables
-- Dark theme is the default (gamers expect it)
-
-## Project Structure
-
-```
-slipgate-app/
-├── CLAUDE.md              # This file — project context for Claude
-├── docs/                  # Planning & reference
-│   ├── ROADMAP.md         # Living roadmap: done / planned / ideas
-│   ├── FEATURES.md        # Original feature ideas by tier
-│   ├── PERIPHERAL-SELECTOR.md  # Research for EloShapes-backed selector
-│   ├── SYSTEM-SPECS.md    # What specs to collect and how
-│   ├── AUTH.md            # Discord OAuth in Tauri
-│   ├── DESIGN.md          # Design approach and UI patterns
-│   ├── DEVELOPMENT.md     # Environment setup and dev workflow
-│   └── VISION.md          # What and why
-├── src-tauri/             # Rust backend (Tauri commands)
-│   ├── src/
-│   │   ├── main.rs        # Entry point
-│   │   ├── lib.rs         # Tauri app builder, command registration
-│   │   └── commands/
-│   │       ├── mod.rs
-│   │       └── system.rs  # System specs + peripheral detection
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── src/                   # SolidJS frontend
-│   ├── index.tsx          # SolidJS entry
-│   ├── App.tsx            # Root component (tab router, spec loading)
-│   ├── types.ts           # TypeScript types matching Rust structs
-│   ├── app.css            # Tailwind + DaisyUI theme
-│   └── components/
-│       ├── TabNav.tsx      # Tab navigation bar
-│       ├── ProfileTab.tsx  # System specs + peripherals display
-│       ├── ScheduleTab.tsx # Placeholder
-│       └── SettingsTab.tsx # Placeholder
-├── package.json
-└── vite.config.ts
-```
-
-## Cross-Platform Strategy
-
-Tauri supports Windows, macOS, and Linux from a single codebase.
-
-- **Local development:** Windows (native) — tests the primary platform
-- **CI builds:** GitHub Actions builds all three platforms on every release
-- **Distribution:** GitHub Releases with auto-updater (Tauri updater plugin)
-- **User split:** ~80% Windows, ~15% Linux, ~5% macOS
-
-Platform-specific code is minimal:
-- **ezQuake paths**: `%APPDATA%\ezQuake\` (Windows), `~/.ezquake/` (Linux), `~/Library/Application Support/ezQuake/` (Mac)
-- **GPU/peripherals**: WMI + SetupAPI (Windows), `/proc/` + `lspci` (Linux), `system_profiler` (Mac)
-- **Process names**: `ezquake.exe` vs `ezquake-linux-x86_64` vs `ezQuake.app`
-
-Everything else (tray icon, notifications, autostart, deep links, auto-updater) is handled by Tauri plugins cross-platform.
-
-## Integration Points
-
-All integration is network-based — no filesystem dependencies on sibling projects.
-
-| Target | Mechanism | Data |
-|--------|-----------|------|
-| **MatchScheduler / Slipgate web** | Firebase Auth + Firestore | User profile, availability, match data |
-| **QW Hub API** | HTTP (Supabase) | Live servers, match history |
-| **QW Stats API** | HTTP | Player stats, rankings |
-| **ezQuake** | Local filesystem + process detection | Configs, demos, running state |
-| **Mumble** | `mumble://` protocol | Quick join team channel |
-
-### Firebase Details
-
-- **Project:** `matchscheduler-dev`
-- **Discord Client ID:** `1465332663152808031` (same as MatchScheduler)
-- **Auth Cloud Function:** `discordOAuthExchange` (existing, europe-west3)
-- **Firestore collections used:** `users/{uid}` (profile + system specs), `availability/`, `matches/`
-
-## Git Workflow
-
-### Branch Strategy
-
-- **`main`** — always builds, always runs. This is the stable branch.
-- **`feat/<name>`** — feature branches for each piece of work (e.g. `feat/system-tray`, `feat/tailwind-daisyui`, `feat/system-specs`)
-- Feature names map to FEATURES.md tiers where possible
-- Branches are short-lived: build the feature, verify it works, merge to main
-
-### Rules
-
-1. **Never work directly on `main`** — always create a feature branch first
-2. **Commit often** with clear messages using conventional format: `feat:`, `fix:`, `chore:`, `docs:`
-3. **Each commit should build** — don't commit broken code
-4. **Merge when the feature works** — tested visually via `bun run tauri dev`
-5. **Delete branches after merge** — keep the branch list clean
-6. **Tag releases** when a tier is complete (e.g. `v0.1.0` for Tier 1 MVP)
-
-### Workflow
-
-```
-main ──────────────────●─────────────●──────── (always stable)
-        \             /     \       /
-         feat/tray ──●       feat/specs ──●
-```
-
-1. Start feature: `git checkout -b feat/<name>` from main
-2. Work + commit on the feature branch
-3. When done: merge to main (fast-forward or squash)
-4. Tag if it's a milestone
-
-### Custom Commands
-
-- **`/feature <name>`** — Create a new feature branch and get started
-- **`/checkpoint`** — Commit current progress with a clear message
-- **`/ship`** — Merge current feature to main when it's ready
-
-### When Claude Should Act on Git
-
-- **Auto-checkpoint:** After completing a meaningful unit of work, Claude should proactively suggest or create a commit
-- **Branch guard:** Before editing code, verify we're on a feature branch (not main)
-- **Status updates:** When starting/finishing work, give a brief git status so the user knows what branch we're on and what's changed
-- **Keep user informed:** Always mention branch name and what's being committed in plain language
-
-## Conventions
-
-- Rust code follows standard Rust conventions (rustfmt, clippy)
-- Frontend code follows Slipgate web conventions
-- Tauri commands use snake_case in Rust, camelCase in TypeScript
-- All user-facing strings should be in English
-- No hardcoded URLs — use config/environment for API endpoints
-- Bun for all JS tooling (install, run, test)
+Full context on all of these in `docs/HEALTH.md`.

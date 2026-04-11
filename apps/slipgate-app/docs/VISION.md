@@ -1,5 +1,7 @@
 # Vision — Slipgate App
 
+> **Doc type: future** — The long-term vision and framing for what Slipgate App is. Forward-looking by design; some of what's described here isn't built yet (and some of the infrastructure it references, like "Slipgate web", doesn't exist yet either — see note at the end).
+
 ## The Problem
 
 QuakeWorld players maintain a mental map between three disconnected worlds:
@@ -46,3 +48,13 @@ It's the **glue** — small, focused, connecting things that are currently disco
 | **quad** | Indirectly — standin request notifications originate from quad's DM flow |
 | **ezQuake** | Reads configs, detects process, provides quick-connect and demo management |
 | **Mumble** | Quick-join team channel via `mumble://` deep link |
+
+---
+
+## Status note (2026-04-11)
+
+**Slipgate web doesn't exist yet.** It's in the planning phase, gated on infiniti's OKLCH Harmonizer ramp landing. That's why the app is getting all the attention first — the desktop app is the concrete thing people can use while the web side is still being designed.
+
+Some features being built in the app today may eventually migrate to the web; others will stay desktop-only (anything touching local filesystem, hardware, or ezQuake process). When the web side starts, we'll decide per-feature what lives where. Until then, treat any mention of "Slipgate web" in this doc as aspirational.
+
+For the current reality of what's built in the app, see `OVERVIEW.md`.

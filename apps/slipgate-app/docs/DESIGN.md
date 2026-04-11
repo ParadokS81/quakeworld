@@ -1,5 +1,7 @@
 # Design Approach — Slipgate App UI
 
+> **Doc type: current** — Describes the design system and approach. Some sections (marked inline) describe an earlier vision that was superseded when the app grew into a 6-tab full window instead of a mini tray panel.
+
 ## Core Principle: Share the Slipgate Web Design System
 
 The desktop app's frontend IS web tech (rendered in Tauri's OS webview). This means we use the exact same design stack as Slipgate web:
@@ -16,6 +18,8 @@ Design system reference docs (in WSL): `\\wsl.localhost\Ubuntu\home\paradoks\pro
 ---
 
 ## Desktop App UI Patterns
+
+> ⚠️ **SUPERSEDED — the sections below describe an earlier vision.** The original plan was a small tray-native mini panel (~400×500px) with a compact dashboard feel. The app grew instead into a full 820×560 window with a 6-tab sidebar (Schedule / Profile / Tools / Clients / My Quake / Settings). The "mini panel layout" sketched below never became reality. Keeping this section for historical context — see `OVERVIEW.md` for the actual tab layout that shipped.
 
 A system tray app is NOT a full web app. The UI is different:
 

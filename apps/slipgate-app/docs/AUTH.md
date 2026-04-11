@@ -1,144 +1,132 @@
-# Authentication — Discord OAuth in Tauri
+# Authentication
 
-## Overview
+> **Doc type: current** — Describes the authentication flow as actually built. Also captures a future auth-adjacent feature idea at the bottom.
 
-Slipgate App uses the same Discord OAuth flow as the website, resulting in the same Firebase Auth UID. One identity across web and desktop.
+## What's built today
 
----
+**Discord OAuth via MatchScheduler's cloud function, resulting in a Firebase Auth user.** Same identity as (eventually) the Slipgate web hub — one Discord user → one Firebase UID across desktop and web.
 
-## How It Works
-
-### The Flow
+### The flow
 
 ```
-┌──────────────┐     1. Open browser      ┌──────────────┐
-│  Slipgate    │ ──────────────────────>   │   Browser    │
-│  App (Tauri) │                           │              │
-│              │     2. User logs in       │  Discord     │
-│              │        with Discord       │  OAuth page  │
+┌──────────────┐     1. openUrl()          ┌──────────────┐
+│  Slipgate    │ ────────────────────────> │   Browser    │
+│  App         │                           │              │
+│  (Tauri)     │                           │  Discord     │
+│              │     2. User authorizes    │  OAuth page  │
 │              │                           │              │
 │  localhost   │  <──────────────────────  │  3. Redirect │
-│  :PORT       │     ?code=abc123         │  to callback │
+│  :17420      │     ?code=abc123          │  to callback │
 │  /callback   │                           └──────────────┘
 │              │
-│  4. Exchange code for tokens             ┌──────────────┐
+│  4. Exchange code via cloud function     ┌──────────────┐
 │  ─────────────────────────────────────>  │  Firebase    │
-│                                          │  Auth        │
-│  5. Receive Firebase Auth token   <───── │  (Cloud Fn)  │
-│                                          └──────────────┘
-│  6. Store token securely
-│  (OS keychain via Tauri store plugin)
+│     (MatchScheduler                      │  Cloud Fn    │
+│      discordOAuthExchange)               │              │
+│  5. Receive Firebase custom token   <─── │  → Discord   │
+│                                          │  → Firebase  │
+│  6. signInWithCustomToken()              └──────────────┘
+│     via Firebase JS SDK
 └──────────────┘
 ```
 
-### Step by Step
+### Where the code lives
 
-1. **User clicks "Sign in with Discord"** in the app
-2. **App opens the system browser** (not a webview — better security, user sees real Discord domain) to:
-   ```
-   https://discord.com/api/oauth2/authorize?
-     client_id=YOUR_CLIENT_ID
-     &redirect_uri=http://localhost:{PORT}/callback
-     &response_type=code
-     &scope=identify+guilds
-   ```
-3. **App starts a local HTTP server** on a random available port, listening for the callback
-4. **User authorizes on Discord** — Discord redirects to `http://localhost:{PORT}/callback?code=abc123`
-5. **App catches the redirect**, extracts the auth code, shuts down the local server
-6. **App sends the code to a Firebase Cloud Function** (or handles the token exchange directly):
-   - Option A: Call existing `discordAuth` Cloud Function (already handles code → Firebase custom token)
-   - Option B: Exchange code for Discord token locally, then use Firebase Auth `signInWithCustomToken`
-7. **App receives Firebase Auth token** — stores it securely
-8. **App is now authenticated** with the same UID as the web user
+| Step | File | What |
+|---|---|---|
+| Open Discord URL | `src/auth.ts:22` — `startDiscordAuth()` | Uses `@tauri-apps/plugin-opener` to launch the system browser |
+| Await callback | `src-tauri/src/commands/auth.rs:17` — `await_oauth_callback` | Listens on `127.0.0.1:17420` for 300s, parses the `code` query param, returns `{ code, redirect_uri }` |
+| Exchange code | `src/auth.ts:37-50` | POST to `https://europe-west3-matchscheduler-dev.cloudfunctions.net/discordOAuthExchange` with `{ code, redirectUri }` |
+| Sign in | `src/firebase.ts:20` — `signInWithDiscord(customToken)` | Firebase JS SDK `signInWithCustomToken` |
+| Auth state | `src/firebase.ts:31` — `onAuthChange(callback)` | Subscribe to Firebase Auth state changes |
+| Trigger | `src/components/SettingsTab.tsx:90` | User-facing "Sign in with Discord" button |
 
-### Why This Works
-
-- **Same Discord OAuth app** — same client ID and scopes as the website
-- **Same Firebase project** — `matchscheduler-dev` (or future Slipgate project)
-- **Same UID** — Discord user ID maps to the same Firebase Auth UID everywhere
-- **Redirect URI** — just add `http://localhost` to the allowed redirect URIs in Discord developer portal (wildcard port)
-
----
-
-## Token Storage
-
-### Tauri Store Plugin (Recommended)
-
-Tauri v2's `store` plugin provides encrypted, per-app persistent storage:
-
-```rust
-// Rust side
-use tauri_plugin_store::StoreExt;
-
-app.store("auth.json")?
-    .set("firebase_token", token);
-```
+### Constants (hardcoded today)
 
 ```typescript
-// Frontend side
-import { load } from '@tauri-apps/plugin-store';
-
-const store = await load('auth.json');
-await store.set('firebase_token', token);
-await store.save();
+// src/auth.ts:6-8
+const DISCORD_CLIENT_ID = "1465332663152808031";
+const REDIRECT_URI      = "http://localhost:17420/callback";
+const CLOUD_FUNCTION_URL = "https://europe-west3-matchscheduler-dev.cloudfunctions.net/discordOAuthExchange";
 ```
 
-The store file is saved in the app's data directory:
-- Windows: `%APPDATA%/com.slipgate.app/auth.json`
-- macOS: `~/Library/Application Support/com.slipgate.app/auth.json`
-- Linux: `~/.config/com.slipgate.app/auth.json`
+The Discord client ID is the same one MatchScheduler web uses. The localhost redirect URI must be whitelisted in the Discord developer portal's OAuth2 redirect URIs.
 
-### Token Refresh
+### Why it works
 
-Firebase Auth tokens expire after 1 hour. Options:
-- **Firebase Auth SDK (web)** — handles refresh automatically. Can use the JS SDK in Tauri's webview
-- **Manual refresh** — store the refresh token, call Firebase's token refresh endpoint when needed
-- **Re-auth on expiry** — simplest approach for MVP. If token expired, prompt re-login
+- **System browser, not webview** — the app can't see credentials. User sees the real `discord.com` domain
+- **Fixed localhost port** — registered in the Discord dev portal
+- **Cloud function exchange** — the Discord token never touches the client; the cloud function validates, fetches the Discord profile, creates/finds the Firebase Auth user, and returns only a Firebase custom token
+- **Same Firebase project as MatchScheduler** — `matchscheduler-dev` — so Discord UID → Firebase UID mapping is consistent across all apps that ever auth against this project
 
-For MVP, use the Firebase JS SDK in the frontend — it handles token lifecycle automatically.
+### What the cloud function does
+
+Lives in `MatchScheduler/functions/` as `discordOAuthExchange` (region: `europe-west3`):
+1. Validates the incoming `code` + `redirectUri`
+2. Exchanges the code with Discord for an access token
+3. Fetches the Discord user profile (username, ID, avatar)
+4. Creates or finds a Firebase Auth user for this Discord ID
+5. Handles phantom account claims + email merging (carry-over from MatchScheduler's existing flows)
+6. Returns `{ success: true, customToken, user }` to the caller
+
+The slipgate-app treats this as a black box — it just sends the code and gets back a token + Discord metadata.
+
+### Token lifecycle
+
+Firebase custom tokens turn into session tokens via `signInWithCustomToken`. After that, the Firebase JS SDK handles refresh automatically — the desktop app doesn't have to do anything. Auth state persists across app restarts via Firebase's own persistence layer (stored in IndexedDB inside the WebView2).
 
 ---
 
-## Security Considerations
+## Known issue: no CSRF `state` parameter
 
-- **Open system browser for OAuth**, not an embedded webview — prevents the app from intercepting credentials
-- **Random port** for callback server — prevents port-prediction attacks
-- **PKCE flow** (Proof Key for Code Exchange) — should be used for additional security. Discord supports it
-- **Store tokens encrypted** — Tauri's store plugin handles this
-- **Never store Discord token long-term** — only the Firebase Auth token matters after initial exchange
-- **Redirect URI validation** — Discord validates the redirect URI matches what's registered in the app settings
+The current flow does NOT include an OAuth `state` parameter. The `state` param is the standard CSRF defense — you generate a random value locally, pass it to Discord in the auth URL, and verify it matches when the callback fires. If it doesn't match, someone else started the flow and you bail.
+
+**Practical risk today:** low. Auth is user-initiated from a local desktop app — there's no hidden iframe or remote origin that could trick the user into completing someone else's flow. But it's a best-practice gap that a code auditor would flag.
+
+**Fix:** generate a random state in `auth.ts` before opening the Discord URL, stash it in memory, pass it as `state=` in the URL, and have `await_oauth_callback` either return the received state so the frontend can verify, or verify it Rust-side. ~15 lines of work.
 
 ---
 
-## Existing Infrastructure (MatchScheduler)
+## Future: GitHub OAuth + quake-dir backup
 
-The auth infrastructure already exists in MatchScheduler. Key details:
+**Idea:** add GitHub as a second auth provider and build a "back up your QW setup to a private GitHub repo" feature on top of it.
 
-- **Discord Client ID:** `1465332663152808031` (public, embedded in frontend)
-- **Cloud Function:** `discordOAuthExchange` (in `MatchScheduler/functions/discord-auth.js`)
-  - Validates code & redirect URI
-  - Exchanges code for Discord access token
-  - Fetches Discord profile (username, ID, avatar)
-  - Creates/finds Firebase Auth user + custom token
-  - Handles phantom account claims and email merging
-- **Firebase project:** `matchscheduler-dev`
-- **Functions region:** `europe-west3`
+### The feature concept
 
-### Changes Needed
+One button: "Back up my quake dir to GitHub." The app:
 
-**Discord Developer Portal:**
-- Add `http://localhost` to the OAuth2 redirect URIs (with wildcard port or a few specific ports)
+1. Authenticates to GitHub via OAuth (same pattern as Discord — localhost callback, system browser)
+2. Creates (or links) a repo on the user's account, e.g. `quakeworld-setup-{username}`
+3. Walks the user's ezQuake install directory
+4. Builds a curated include list — **only the minimal viable set of files that define a setup**:
+   - ✅ `configs/*.cfg` — all saved configs
+   - ✅ `autoexec.cfg`, `config.cfg` at the root
+   - ✅ Custom `.pak` / `.pk3` content (anything not in the vanilla distribution)
+   - ✅ Custom textures, skins, HUD overlays, crosshair packs
+   - ✅ Key settings files the user explicitly opts into
+   - ❌ `demos/` — too big, not setup-related
+   - ❌ `screenshots/` — ephemeral
+   - ❌ `qw/sound/` — either vanilla or huge custom soundpacks
+   - ❌ Crash dumps, generated state, `qconsole.log`
+   - ❌ Anything over a size threshold
+5. Commits and pushes
+6. Shows a diff on subsequent syncs ("these files changed since your last backup")
 
-**Cloud Function:**
-- The existing `discordOAuthExchange` function may need a minor update to accept the localhost redirect URI
-- Or create a new endpoint specifically for desktop app auth
+### Why it's worth building
 
-**Firestore Security Rules:**
-- Rules already check `request.auth.uid` — no changes needed
+- **Version history of a player's setup** — rollback a bad config edit, compare your binds from 6 months ago
+- **Portable identity** — set up a new machine in minutes by cloning your own repo
+- **Shareable** — public repos let teammates see your setup directly, or fork it as a starting point
+- **Community engagement** — people can browse each other's curated setups, spark discussions about mouse/kb/config choices
 
-## Open Questions
+### What would need to be built
 
-- [ ] Use existing `discordOAuthExchange` Cloud Function or create a desktop-specific one?
-- [ ] PKCE flow — implement from the start or add later?
-- [ ] How to handle "remember me" / session persistence? (Token refresh vs re-auth)
-- [ ] Should the app also support Google login (like MatchScheduler does)?
+- A second OAuth provider alongside Discord — GitHub app registration, add callback handling to `auth.rs`
+- A "curated file walker" that understands the ezQuake directory structure and applies the include/exclude rules
+- Git operations — either shell out to `git` (requires git installed) or use a Rust git library (`git2`, `gix`) to operate directly
+- A conflict resolution UI for subsequent syncs
+- An opt-in consent flow since uploading any file to a third party needs explicit user action
+
+### Not yet designed
+
+Just an idea parked here so it doesn't get lost. The immediate work is finishing the ConfigViewer FTE converter and making the screenshot POC production-quality. This is a Tier-3 future feature.

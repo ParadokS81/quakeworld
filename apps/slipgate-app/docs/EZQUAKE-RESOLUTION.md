@@ -1,5 +1,7 @@
 # ezQuake Resolution Logic — Source Code Analysis
 
+> **Doc type: reference** — Timeless reference on how ezQuake computes display resolution. Only needs updating if ezQuake itself changes its resolution handling.
+
 **Source:** `ezquake-source/src/vid_sdl2.c` from https://github.com/ezQuake/ezquake-source
 
 ## Resolution Determination Flowchart

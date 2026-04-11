@@ -1,6 +1,10 @@
 # ezQuake Config Parser
 
-The Slipgate app parses ezQuake configuration files to auto-detect player settings, key bindings, and weapon systems. This document covers the parser architecture, supported categories, and known edge cases.
+> **Doc type: current** — Describes the parser as actually built. Updated 2026-04-11 after the audit to reflect reality.
+
+The Slipgate app parses ezQuake configuration files to auto-detect player settings, key bindings, weapon systems, teamplay aliases, macros, and triggers. This document covers the parser architecture, supported categories, and known edge cases.
+
+**Related reference:** `EZQUAKE-RESOLUTION.md` for the "absent = default" pattern and resolution decision logic.
 
 ## Architecture
 
@@ -13,14 +17,14 @@ The parser works in stages:
 3. **Bind extraction** — build ordered list of (key, command) pairs
 4. **Analysis** — derive higher-level data from raw binds/cvars (movement keys, weapon binds, etc.)
 
-### Config loading
+### Config loading — chain discovery
 
 ezQuake configs often reference other files via `exec`:
 ```
 cl_onload "exec configs/slackers_tp.cfg; exec configs/servers.cfg"
 ```
 
-**TODO**: Follow `exec` references to load the complete alias/bind picture. Currently only the main config.cfg is parsed.
+**The parser follows `exec` references recursively** via `walk_exec_refs()` in `src-tauri/src/commands/ezquake.rs` with cycle detection. Entry points tracked: primary config, `autoexec.cfg`, `cl_onload`, `bind`-triggered execs, and alias-triggered execs. The resolver searches in `game_dir`, `cfg_dir`, and `cfg_dir/configs/` for each referenced file. Unresolved refs (files that can't be found, often because they use `$variable` substitution) are tracked as `UnresolvedExec` entries and shown in the viewer as warnings.
 
 ## Knowledge sources
 
@@ -133,20 +137,52 @@ Mouse1 is a universal fire button that gets rebound by other keys. Different key
 **Legacy default binds**:
 Number keys 1-8 with plain `impulse N` — often unchanged from defaults. Skip when custom weapon binds exist elsewhere in config.
 
-### 4. Teambinds (planned)
+### 4. Teamsay binds (implemented)
 
-Team communication binds use `if`/`then`/`else` conditional logic:
-```
-tempalias __kill_me "if ('$bestweapon' = '$tp_name_lg') then __kill_me_lg_check else ..."
-```
+Team communication binds are now classified by category. The `analyze_teamsay_binds()` function in `ezquake.rs` scans binds for commands that invoke teamsay aliases and categorizes them into:
 
-These are easier to parse structurally (clear conditional trees) but harder to display meaningfully. Planning to visualize as decision trees.
+| Category | Examples |
+|---|---|
+| **status** | report armor/health/weapon/ammo |
+| **death** | announce own death, request help |
+| **movement** | "on my way", "coming", "back" |
+| **items** | mega, yellow armor, red armor, pent |
+| **enemy** | spotted, hear them, location |
+| **orders** | teammate commands (attack, defend, hold) |
+| **powerups** | pent/quad pickup announcements |
+| **confirm** | yes/no/ok/gl/gg |
+| **custom** | anything that doesn't fit the above |
 
-### 5. Future categories
+Detection uses substring matching on the command body after alias resolution (e.g., commands containing `tp_name_rl` + `$x5` patterns). `tempalias` with `if`/`then`/`else` conditional logic is NOT resolved — the parser sees the literal conditional command and classifies by the observable substrings.
 
-- **HUD layout** — extract hud_* cvars for HUD visualization
-- **Visual settings** — r_drawflat, gl_picmip, particle settings
-- **Network settings** — rate, cl_c2sdupe, cl_timeout
+### 5. Modifier-combo bind synthesis (implemented)
+
+For binds of the form `key → +mod_alias` where `+mod_alias` itself rebinds other keys (e.g., `+mod` contains `bind F impulse 7`), the parser synthesizes virtual "MOD+TARGET → weapon" entries. This lets the viewer show modifier combos as first-class binds — users see both `R` → modifier and `R+F` → RL, instead of having to trace the alias chain mentally. Implemented in `configMerger.ts` (`synthesizeModifierWeaponBinds`, `synthesizeModifierTeamsayBinds`) on the frontend side, consuming data the backend parser provides.
+
+### 6. Aliases (implemented)
+
+All aliases from the chain are flattened with last-write-wins semantics (later files override earlier ones). Tracked per source file so the viewer can show which config defined each alias.
+
+### 7. Macros (implemented)
+
+Macros here means teamplay-adjacent variables — `tp_name_*`, `tp_need_*`, `loc_*_name`, etc. — plus user-declared variables via `set`, `set_tp`, `set_calc`. The viewer organizes these into groups (Item Names, Item Need Amounts, Location Names, Teamplay Communications, User Created) and tracks which are customized vs at defaults. The `ConfigTeamplayMacros` component additionally extracts `$variable` references from aliases reachable via teamsay binds to show which macros are actually consumed by the user's bind setup.
+
+### 8. Triggers (implemented)
+
+ezQuake has two trigger systems:
+
+| System | Purpose | Examples |
+|---|---|---|
+| **`f_*` (client-side)** | Local events | `f_spawn`, `f_death`, `f_newmap`, `f_reloadstart` |
+| **`on_*` (server-side, gated)** | Server-sent events | `on_enter`, `on_connect`, `on_matchstart`, `on_matchend` |
+
+The viewer shows both groups with expandable guides. It also parses any `infoset` alias found in the config — `infoset` uses `cmd info ev X` where X is a bitmask specifying which `on_*` triggers the server should send to this client, and the viewer decodes the bitmask to show which triggers are active. Some triggers are flagged as "restricted" (can't use teamplay macros under competitive rulesets) — the viewer shows those badges.
+
+### 9. Future categories (still open)
+
+- **HUD layout** — extract `hud_*` cvars for HUD visualization
+- **Visual settings** — `r_drawflat`, `gl_picmip`, particle settings
+- **Network settings** — `rate`, `cl_c2sdupe`, `cl_timeout`
 
 ## Test configs
 

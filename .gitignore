@@ -41,6 +41,10 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude Code / tooling artifacts (per-machine, never committed)
+.claude/projects/
+.superpowers/
+
 # Logs
 *.log
 

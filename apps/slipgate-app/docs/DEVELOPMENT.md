@@ -1,5 +1,7 @@
 # Development Environment — Slipgate App
 
+> **Doc type: current** — Describes the split-process WSL+Windows dev workflow as it actually runs. The rsync hook in the monorepo `.claude/settings.json` is real and working.
+
 ## How Dev Works (Split-Process Model)
 
 Slipgate App uses a split-process workflow: **Vite runs in WSL** (where the source files live), and **Cargo/Tauri runs on Windows** (where the Windows toolchain lives). WSL2's localhost sharing bridges them — the Tauri WebView2 window loads the frontend from WSL's Vite server.
