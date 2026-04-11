@@ -404,7 +404,7 @@ Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 
 **Priority order when Claude next works in a project:**
 
-1. **slipgate-app** (Active): Already has most of the quartet via today's audit (`CLAUDE.md`, `VISION.md`, `OVERVIEW.md`, plus Layer 2 docs). Needs: write `README.md`, verify against this final template, decide on `STATE.md` (open question #5). Minor reconciliation only.
+1. **slipgate-app** (Active): Already has most of the quartet via today's audit (`CLAUDE.md`, `VISION.md`, `OVERVIEW.md`, plus Layer 2 docs). Needs: write `README.md`, add `STATE.md` (SolidJS store + tauri-plugin-store schema migration cross the complexity threshold), verify existing docs against this final template. `DESIGN.md` stays as-is (no rename).
 2. **Monorepo root** (Active): Apply the slim target (root `CLAUDE.md` → <100 lines). Move project map to root `README.md` + `OVERVIEW.md`. Add philosophy skills via `@import`. Add output discipline rules. Write monorepo `VISION.md` and `OVERVIEW.md`.
 3. **quad** (Maintenance): Next session there should produce `README.md` + `VISION.md` + `OVERVIEW.md`. The existing `CLAUDE.md` is healthy. Add `SCHEMA.md` (Firestore collections, currently scattered across phase docs) and `API_CONTRACTS.md` (Discord + Firestore boundary).
 4. **qw-stats** (Paused): When next touched — split the 332-line `CLAUDE.md` into `CLAUDE.md` (lean rules) + `DEVELOPMENT.md` + `HEALTH.md` + `VISION.md`. `API-GUIDE.md` renames to `API_CONTRACTS.md`. Existing `DATABASE-SCHEMA.md` renames to `SCHEMA.md`.
@@ -452,13 +452,15 @@ Before marking this spec implemented, verify:
 
 ---
 
-## Explicitly open questions (decide during implementation)
+## Resolved decisions
 
-- **Where exactly do philosophy skills live?** Proposal: `/.claude/skills/philosophy/` at monorepo root. Alternative: `~/.claude/skills/philosophy/` (user-global). Monorepo-scoped is more portable, user-global is shared across machines. **Recommend monorepo-scoped** so the repo is self-contained.
-- **Are the philosophy skills copied or referenced via symlink into `research/repos/slipgate/llm/skills/`?** Copying is safer (breaks on re-clone otherwise). Copy wins.
-- **Does slipgate-app's existing `DESIGN.md` stay or rename to `DESIGN_SYSTEM.md`?** Stay. `DESIGN.md` is shorter and slipgate-app already uses it. Don't churn for alignment's sake.
-- **Does qw-stats's `API-GUIDE.md` rename to `API_CONTRACTS.md`?** Rename when qw-stats is next touched, for consistency. Low-urgency.
-- **Does slipgate-app need a `STATE.md`?** Probably yes (SolidJS store + schema migration). Decide during the reconciliation pass.
+All previously-open questions were resolved during spec review:
+
+- **Philosophy skills location:** Monorepo-scoped at `/.claude/skills/philosophy/`. Rationale: the repo must be self-contained so a fresh clone on another machine (or a human contributor) works without depending on `~/.claude` user-global state. Environment drift is the bigger risk.
+- **Philosophy skills copy-vs-symlink:** Copied, not symlinked. Symlinks inside monorepos break across OS boundaries (relevant here because of the WSL/Windows split for slipgate-app).
+- **`DESIGN.md` vs `DESIGN_SYSTEM.md`:** Stays `DESIGN.md`. Shorter, zero migration cost, slipgate-app already uses it.
+- **`qw-stats/API-GUIDE.md` rename to `API_CONTRACTS.md`:** Yes, but lazily — next time Claude touches qw-stats. Consistency across monorepo Layer 2 vocabulary is worth the small rename.
+- **Does slipgate-app need `STATE.md`?** Yes. SolidJS stores + `tauri-plugin-store` schema migrations cross the complexity threshold. A cold agent needs to know how the frontend state syncs with the Rust backend without breaking reactivity. Added to the slipgate-app migration step above.
 
 ---
 
