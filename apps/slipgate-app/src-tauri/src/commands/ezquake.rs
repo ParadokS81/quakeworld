@@ -645,10 +645,10 @@ fn format_key_name(key: &str) -> String {
 
     // Shortened display for numpad keys (full names overflow keycap widgets)
     let shortened = match upper.as_str() {
-        "KP_UPARROW" => Some("KP_↑"),
-        "KP_DOWNARROW" => Some("KP_↓"),
-        "KP_LEFTARROW" => Some("KP_←"),
-        "KP_RIGHTARROW" => Some("KP_→"),
+        "KP_UPARROW" => Some("KP_Up"),
+        "KP_DOWNARROW" => Some("KP_Down"),
+        "KP_LEFTARROW" => Some("KP_Left"),
+        "KP_RIGHTARROW" => Some("KP_Right"),
         "KP_HOME" => Some("KP_Home"),
         "KP_END" => Some("KP_End"),
         "KP_PGUP" => Some("KP_PgUp"),
