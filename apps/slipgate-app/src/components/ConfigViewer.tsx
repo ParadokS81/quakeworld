@@ -136,7 +136,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [macrosActive, setMacrosActive] = createSignal(false);
   const [triggersActive, setTriggersActive] = createSignal(false);
   const [commandsActive, setCommandsActive] = createSignal(false);
-  const [activeCommandGroup, setActiveCommandGroup] = createSignal<string | null>(null);
+  // setActiveCommandGroup reserved for future group filter UI
+  // biome-ignore lint/correctness/noUnusedVariables: intentional placeholder
+  const [activeCommandGroup, _setActiveCommandGroup] = createSignal<string | null>(null);
 
   // ── Compare state ──
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
