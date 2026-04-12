@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import { loadDatabase } from "qw-config";
+import { loadDatabase, loadEzQuakeMacros } from "qw-config";
 
 const TYPE_LABELS: Record<string, string> = {
   string: "Text value (words, names, color codes)",
@@ -36,7 +36,7 @@ interface ConfigMacrosSectionProps {
 }
 
 /** Group display order */
-const GROUP_ORDER = ["Item Names", "Item Need Amounts", "Location Names", "Teamplay Communications", "User Created"];
+const GROUP_ORDER = ["Item Names", "Item Need Amounts", "Location Names", "Teamplay Communications", "User Created", "Runtime Macros"];
 
 const USER_CREATED_GROUP = "User Created";
 
@@ -106,6 +106,25 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
         isCustomized: isSet,
         compareIsSet,
         compareIsCustomized: compareIsSet,
+      });
+    }
+
+    // Runtime %-prefix macros (engine-provided expansion tokens)
+    const runtimeMacros = loadEzQuakeMacros();
+    for (const [name, info] of runtimeMacros.macros.entries()) {
+      const displayName = `%${name}`;
+      entries.push({
+        name: displayName,
+        type: "string",
+        group: "Runtime Macros",
+        defaultValue: "",
+        description: info.description || "Engine-provided runtime expansion token",
+        userValue: undefined,
+        compareValue: undefined,
+        isSet: false,
+        isCustomized: false,
+        compareIsSet: false,
+        compareIsCustomized: false,
       });
     }
 
