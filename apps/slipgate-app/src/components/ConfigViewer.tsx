@@ -423,6 +423,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Binds data ──
   const enrichedBinds = createMemo(() => {
     if (!mergedData() || !effectiveConfig()) return [];
+    const db = loadDatabase();
+    const cvarNames = new Set(
+      Array.from(db.clients.ezquake.entries()).map(([name]) => name),
+    );
     return categorizeBinds(
       mergedData()!.binds,
       effectiveConfig()!.weapon_binds,
@@ -431,6 +435,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       effectiveChain()!,
       selectedFiles(),
       primaryAliases(),
+      cvarNames,
       compareBinds(),
       compareBindCommands(),
     );
@@ -497,7 +502,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds") || active.has("teamplay:macros");
   });
   // All binds — unfiltered raw bind list for Settings > Binds, sorted by category
-  const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, misc: 3 };
+  const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, unresolved: 3, misc: 4 };
   const allBinds = createMemo(() => {
     if (!activeRow2().has("misc:binds")) return [];
     const q = search().trim().toLowerCase();
