@@ -102,7 +102,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Primary override (View as Primary) ──
   const [primaryOverride, setPrimaryOverride] = createSignal<ConfigChain | null>(null);
+  const [configOverride, setConfigOverride] = createSignal<EzQuakeConfig | null>(null);
 
+  const effectiveConfig = createMemo(() => configOverride() ?? props.config);
   const effectiveChain = createMemo(() => primaryOverride() ?? props.configChain);
   const effectiveConfigName = createMemo(() => {
     const override = primaryOverride();
@@ -116,15 +118,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   );
 
   // Reset selection when chain changes
-  const chainKey = () => effectiveChain()?.files.map((f) => f.relative_path).join("|") ?? "";
-  let lastChainKey = chainKey();
-  createMemo(() => {
-    const key = chainKey();
-    if (key !== lastChainKey) {
-      lastChainKey = key;
+  createEffect((prev: string) => {
+    const key = effectiveChain()?.files.map((f) => f.relative_path).join("|") ?? "";
+    if (key !== prev) {
       setSelectedFiles(new Set(effectiveChain()?.files.map((_, i) => i) ?? []));
     }
-  });
+    return key;
+  }, "");
 
   // ── Row 1: Settings category state (excludes HUD/Teamplay/Server) ──
   const [activeRow1, setActiveRow1] = createSignal<Set<string>>(new Set(["__all__"]));
@@ -162,7 +162,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const effectiveCvars = createMemo(() =>
-    mergedData()?.cvars ?? props.config?.raw_cvars ?? {},
+    mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {},
   );
 
   const userCreatedCvars = createMemo((): Set<string> =>
@@ -230,7 +230,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Enriched cvar list (database + user values) ──
   const enrichedCvars = createMemo(() => {
-    if (!props.config) return [];
+    if (!effectiveConfig()) return [];
     const db = loadDatabase();
     const userCvars = effectiveCvars();
     const cmpMode = isCompareMode();
@@ -422,12 +422,12 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   // ── Binds data ──
   const enrichedBinds = createMemo(() => {
-    if (!mergedData() || !props.config) return [];
+    if (!mergedData() || !effectiveConfig()) return [];
     return categorizeBinds(
       mergedData()!.binds,
-      props.config.weapon_binds,
-      props.config.teamsay_binds,
-      props.config.movement,
+      effectiveConfig()!.weapon_binds,
+      effectiveConfig()!.teamsay_binds,
+      effectiveConfig()!.movement,
       effectiveChain()!,
       selectedFiles(),
       compareBinds(),
@@ -438,12 +438,12 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // Merge Rust-classified weapon/teamsay binds with modifier-combo synthesized ones
   // so the domain views show `CTRL+R → ready`, `SHIFT+MOUSE1 → gl`, etc.
   const primaryWeaponBinds = createMemo(() => {
-    const base = props.config?.weapon_binds ?? [];
+    const base = effectiveConfig()?.weapon_binds ?? [];
     const combos = synthesizeModifierWeaponBinds(mergedData()?.binds ?? [], primaryAliases());
     return [...base, ...combos];
   });
   const primaryTeamsayBinds = createMemo(() => {
-    const base = props.config?.teamsay_binds ?? [];
+    const base = effectiveConfig()?.teamsay_binds ?? [];
     const combos = synthesizeModifierTeamsayBinds(
       mergedData()?.binds ?? [],
       primaryAliases(),
@@ -514,7 +514,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Teamsay alias names (for macros extraction) ──
   const teamsayAliasNames = createMemo((): Set<string> => {
     const names = new Set<string>();
-    const binds = props.config?.teamsay_binds ?? [];
+    const binds = effectiveConfig()?.teamsay_binds ?? [];
     const bindCmds = primaryBindCommands();
     for (const tb of binds) {
       const cmd = bindCmds[tb.key.toUpperCase()];
@@ -557,19 +557,26 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       return;
     }
     try {
-      const chain = await invoke<ConfigChain>("load_config_from_source", {
-        sourceType: "local_install",
-        configPath: entry.relative_path,
-        contextPath: props.exePath ?? "",
-      });
+      const [chain, cfg] = await Promise.all([
+        invoke<ConfigChain>("load_config_from_source", {
+          sourceType: "local_install",
+          configPath: entry.relative_path,
+          contextPath: props.exePath ?? "",
+        }),
+        invoke<EzQuakeConfig>("read_ezquake_config", {
+          exePath: props.exePath ?? "",
+          configName: entry.relative_path,
+        }),
+      ]);
       setPrimaryOverride(chain);
+      setConfigOverride(cfg);
     } catch (e) {
       console.error("Failed to load config:", e);
     }
   }
 
   // ── Render ──
-  if (!props.config) {
+  if (!effectiveConfig()) {
     return (
       <div class="flex flex-col items-center justify-center h-full gap-3 text-[var(--sg-text-dim)]">
         <span class="text-4xl opacity-20">⚙</span>
@@ -585,7 +592,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     <Switch>
       <Match when={viewMode() === "convert"}>
         <ConfigConverter
-          config={props.config}
+          config={effectiveConfig()!}
           configName={props.configName}
           onBack={() => setViewMode("list")}
         />
@@ -607,7 +614,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             <Show when={primaryOverride()}>
               <button
                 class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
-                onClick={() => setPrimaryOverride(null)}
+                onClick={() => {
+                  setPrimaryOverride(null);
+                  setConfigOverride(null);
+                }}
               >
                 ↩ Reset to default
               </button>
