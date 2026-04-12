@@ -1117,18 +1117,23 @@ fn analyze_weapon_binds(
         }
     }
 
-    // Check if Mouse1 is a "primary fire button" (target of multiple rebinds).
-    // If other keys rebind Mouse1, then Mouse1's own weapon bind is just
-    // the last-saved state, not an intentional weapon bind.
-    let mouse1_rebind_count = weapon_binds.iter()
-        .filter(|wb| wb.fire_key.as_deref() == Some("Mouse1"))
+    // Check if Mouse1 is actually contested by multiple rebind sources.
+    // Only count ACTUAL `bind mouse1 X` rebinds in resolved command bodies —
+    // not assumption-based fire_keys from Priority 2 manual-select binds.
+    // When 2+ keys literally rebind Mouse1, Mouse1's own bind is incidental
+    // (last-saved cfg_save state) and should be filtered.
+    let mouse1_actual_rebind_count = bindings.iter()
+        .filter(|(_, cmd)| {
+            let resolved = resolve_command(cmd, aliases);
+            extract_rebinds(&resolved).iter()
+                .any(|(target, _)| target.to_lowercase() == "mouse1")
+        })
         .count();
-    let mouse1_is_primary_fire = mouse1_rebind_count >= 2;
+    let mouse1_is_contested = mouse1_actual_rebind_count >= 2;
 
-    // Keep all binds per weapon (a player may have multiple binds for the same weapon).
-    // Just filter out Mouse1 if it's a primary fire button.
+    // Filter Mouse1's own bind only when it's genuinely contested.
     let mut result: Vec<WeaponBind> = weapon_binds.into_iter()
-        .filter(|wb| !(mouse1_is_primary_fire && wb.key == "Mouse1"))
+        .filter(|wb| !(mouse1_is_contested && wb.key == "Mouse1"))
         .collect();
 
     // Sort by weapon order: rl, lg, gl, sng, ng, ssg, sg, axe
