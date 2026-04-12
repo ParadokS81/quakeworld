@@ -727,6 +727,18 @@ fn has_attack(cmd: &str) -> bool {
     })
 }
 
+/// Check if a command string contains +jump (rocket jump detection).
+/// Ignores +jump inside a "bind" command.
+fn has_jump(cmd: &str) -> bool {
+    cmd.to_lowercase().split(';').any(|part| {
+        let p = part.trim();
+        if p.starts_with("bind ") {
+            return false;
+        }
+        p.starts_with("+jump")
+    })
+}
+
 /// Check if a command string rebinds mouse1
 fn rebinds_mouse1(cmd: &str) -> bool {
     let lower = cmd.to_lowercase();
@@ -932,6 +944,10 @@ fn analyze_weapon_binds(
                 let rebound_resolved = resolve_command(rebound_cmd, aliases);
                 if let Some(wnum) = extract_weapon_number(&rebound_resolved) {
                     if let Some(wname) = impulse_to_weapon(wnum) {
+                        // Skip if rebind target is a rocket jump
+                        if has_attack(&rebound_resolved) && has_jump(&rebound_resolved) {
+                            continue;
+                        }
                         // If the resolved alias also fires (+attack), it's quickfire
                         let is_quickfire = has_attack(&resolved);
                         has_custom_weapon_binds = true;
@@ -950,6 +966,10 @@ fn analyze_weapon_binds(
             if !found_any {
                 if let Some(wnum) = extract_weapon_number(&resolved) {
                     if let Some(wname) = impulse_to_weapon(wnum) {
+                        // Skip rocket jumps
+                        if has_attack(&resolved) && has_jump(&resolved) {
+                            continue;
+                        }
                         let is_quickfire = has_attack(&resolved);
                         has_custom_weapon_binds = true;
                         weapon_binds.push(WeaponBind {
@@ -978,6 +998,11 @@ fn analyze_weapon_binds(
 
         // Skip default impulse binds on number keys (legacy)
         if is_default_impulse_bind(&key_upper, cmd) {
+            continue;
+        }
+
+        // Skip rocket jumps: weapon + attack + jump = movement, not weapon selection
+        if has_attack(&resolved) && has_jump(&resolved) {
             continue;
         }
 
