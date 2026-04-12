@@ -1,6 +1,4 @@
-# Slipgate App — Desktop Companion for QuakeWorld
-
-> **Doc type: current** — Always-on rules and pointers for Claude. Read this every session; read the other docs on demand. Target: keep this under 150 lines.
+# Slipgate App - Desktop Companion for QuakeWorld
 
 **Status:** Active development. Tauri v2 system tray app that bridges the QuakeWorld game client, the user's computer, and (eventually) the Slipgate web hub. Windows-native in practice.
 
@@ -8,11 +6,14 @@
 
 When you need... | Read...
 ---|---
+Elevator pitch, tech stack, building from source | `README.md`
 A plain-English map of what's built right now | `docs/OVERVIEW.md`
-Why this project exists, long-term vision | `docs/VISION.md`
+Why this project exists, long-term vision, drawing board | `docs/VISION.md`
 Tech debt, cleanup priorities, known risks (2026-04-10 snapshot) | `docs/HEALTH.md`
 Dev environment setup (WSL+Windows split, rsync hook, troubleshooting) | `docs/DEVELOPMENT.md`
-Design system, OKLCH theming, UI patterns | `docs/DESIGN.md`
+Design system, OKLCH theming, UI rules | `docs/DESIGN.md`
+Store shape, SolidJS signals, migration, persistence rules | `docs/STATE.md`
+External API boundaries, IPC contracts, third-party services | `docs/API_CONTRACTS.md`
 ezQuake config parser architecture (how bind classification / exec chains / macros / triggers work) | `docs/CFG-PARSER.md`
 How ezQuake computes resolution (the absent=default pattern) | `docs/EZQUAKE-RESOLUTION.md`
 Discord OAuth flow as built (+ future GitHub OAuth idea) | `docs/AUTH.md`

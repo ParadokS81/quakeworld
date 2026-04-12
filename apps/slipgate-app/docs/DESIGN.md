@@ -1,6 +1,4 @@
-# Design Approach — Slipgate App UI
-
-> **Doc type: current** — Describes the design system and approach. Some sections (marked inline) describe an earlier vision that was superseded when the app grew into a 6-tab full window instead of a mini tray panel.
+# Design Approach - Slipgate App UI
 
 ## Core Principle: Share the Slipgate Web Design System
 
@@ -17,57 +15,16 @@ Design system reference docs (in WSL): `\\wsl.localhost\Ubuntu\home\paradoks\pro
 
 ---
 
-## Desktop App UI Patterns
+## UI Rules
 
-> ⚠️ **SUPERSEDED — the sections below describe an earlier vision.** The original plan was a small tray-native mini panel (~400×500px) with a compact dashboard feel. The app grew instead into a full 820×560 window with a 6-tab sidebar (Schedule / Profile / Tools / Clients / My Quake / Settings). The "mini panel layout" sketched below never became reality. Keeping this section for historical context — see `OVERVIEW.md` for the actual tab layout that shipped.
+The app is an 820x560 window with a 6-tab vertical sidebar. See `OVERVIEW.md` for the tab layout.
 
-A system tray app is NOT a full web app. The UI is different:
-
-### Window Types
-
-| Type | Size | When |
-|------|------|------|
-| **Tray menu** | Native OS menu | Right-click tray icon. Quick actions: availability toggle, settings, quit |
-| **Mini panel** | ~400x500px floating window | Click tray icon. Shows dashboard: specs summary, status, quick actions |
-| **Settings window** | ~600x700px | Opened from menu. Full settings: auth, ezQuake path, notifications, autostart |
-| **Notification** | Native OS toast | Match reminders, standin requests |
-
-### Mini Panel Layout
-
-The primary UI surface. Should feel like a compact dashboard, not a website:
-
-```
-┌─────────────────────────────┐
-│  Slipgate          [─] [×] │  ← Small title bar
-├─────────────────────────────┤
-│  👤 ParadokS (SR)          │  ← Logged in user + team
-│  ● Online                   │
-├─────────────────────────────┤
-│  System        ↻ Refresh    │
-│  ┌────────┐ ┌────────┐     │
-│  │ R7 5800│ │RTX 4070│     │  ← Hardware cards
-│  │ 8C/16T │ │ 12 GB  │     │
-│  └────────┘ └────────┘     │
-│  32 GB DDR4 · 2560x1440    │
-│  [Upload to Profile]       │
-├─────────────────────────────┤
-│  Tonight                    │
-│  ○ Available  ● Not  ○ ?   │  ← Quick availability
-├─────────────────────────────┤
-│  Upcoming                   │
-│  SR vs Av3k  20:00 CET     │  ← Next match
-│  [Connect] [Details →]     │
-└─────────────────────────────┘
-```
-
-### Design Rules for Desktop App
-
-1. **Dense layout** — less whitespace than web. Every pixel matters in a small panel
-2. **System-native feel** — respect OS conventions (close button behavior, tray interaction patterns)
-3. **Dark theme primary** — gamers expect dark UI. Support light mode but dark is default
-4. **Monospace for specs** — CPU model, GPU name, resolution, FPS values in monospace font
-5. **Minimal navigation** — no complex routing. Tabs or sections in a single panel, not pages
-6. **Fast open/close** — panel should appear/disappear instantly. No loading spinners for cached data
+1. **Dense layout** - less whitespace than web. Gamers are used to information-dense UIs.
+2. **System-native feel** - respect OS conventions (close-to-tray behavior, tray interaction patterns).
+3. **Dark theme primary** - gamers expect dark UI. Support light mode but dark is default.
+4. **Monospace for specs** - CPU model, GPU name, resolution, FPS values in monospace font.
+5. **Minimal navigation** - tabs in a single panel, not multi-page routing.
+6. **Fast open/close** - window should appear/disappear instantly. No loading spinners for cached data.
 
 ---
 
@@ -101,7 +58,5 @@ This is exactly why the ramp system is powerful: zero component changes when the
 
 ## Open Questions
 
-- [ ] Should the mini panel be a native window or a frameless Tauri window with custom title bar?
 - [ ] Tray icon: static Slipgate logo or dynamic (color change when in-game, notification badge)?
-- [ ] Do we need a full settings window or can everything fit in the mini panel with a settings section?
 - [ ] Animation/transitions: keep minimal for performance, or add subtle polish?
