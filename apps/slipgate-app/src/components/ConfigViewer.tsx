@@ -593,7 +593,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       <Match when={viewMode() === "convert"}>
         <ConfigConverter
           config={effectiveConfig()!}
-          configName={props.configName}
+          configName={effectiveConfigName()}
           onBack={() => setViewMode("list")}
         />
       </Match>
