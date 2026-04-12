@@ -136,7 +136,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [macrosActive, setMacrosActive] = createSignal(false);
   const [triggersActive, setTriggersActive] = createSignal(false);
   const [commandsActive, setCommandsActive] = createSignal(false);
-  const [activeCommandGroup, setActiveCommandGroup] = createSignal<string | null>(null);
 
   // ── Compare state ──
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
@@ -889,8 +888,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     commands={commandInvocations()}
                     hideDefaults={hideDefaults()}
                     search={search()}
-                    activeGroup={activeCommandGroup()}
-                    onSelectGroup={setActiveCommandGroup}
                   />
                 </Show>
 
