@@ -1967,3 +1967,16 @@ input[type="number"] {
 .sg-alias-row:hover {
   background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
 }
+
+/* --- ConfigViewer: Commands section row layout --- */
+.sg-cv-command-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) 1fr minmax(120px, 180px);
+  gap: 12px;
+  padding: 4px 12px;
+  align-items: center;
+  font-size: 12px;
+}
+.sg-cv-command-row:hover {
+  background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
+}
