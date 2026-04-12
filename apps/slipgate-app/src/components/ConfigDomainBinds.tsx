@@ -151,10 +151,10 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                   <span class="text-[11px] text-[var(--sg-section-label)] w-3">
                     {hasContent ? (isExpanded() ? "▾" : "▸") : ""}
                   </span>
-                  <span class="text-[13px] font-bold uppercase" style={{ color }}>
+                  <span class="text-[13px] font-bold uppercase" style={{ color, opacity: isPlaceholder ? 0.4 : 1 }}>
                     {row.weapon.toUpperCase()}
                   </span>
-                  <span class="text-[11px] text-[var(--sg-section-label)]">
+                  <span class="text-[11px] text-[var(--sg-section-label)]" style={{ opacity: isPlaceholder ? 0.4 : 1 }}>
                     {WEAPON_LABELS[row.weapon]}
                   </span>
                 </div>

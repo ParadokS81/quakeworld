@@ -120,22 +120,24 @@ function isKnownCommand(token: string, aliases: Record<string, string>, cvarSet:
   if (/^-?\d+(\.\d+)?$/.test(token)) return true;
   if (token.startsWith('"') || token.startsWith("'")) return true;
 
+  const lower = token.toLowerCase();
   // Strip +/- prefix for engine command lookup
-  const stripped = token.startsWith("+") || token.startsWith("-") ? token.slice(1) : token;
+  const stripped = lower.startsWith("+") || lower.startsWith("-") ? lower.slice(1) : lower;
   if (KNOWN_ENGINE_COMMANDS.has(stripped)) return true;
-
-  // Also allow the prefixed form directly (e.g. "+attack" without stripping)
-  if (KNOWN_ENGINE_COMMANDS.has(token)) return true;
+  if (KNOWN_ENGINE_COMMANDS.has(lower)) return true;
 
   // tp_ prefix: many tp_ commands exist beyond the listed ones
-  if (token.startsWith("tp_")) return true;
+  if (lower.startsWith("tp_")) return true;
 
-  // User-defined aliases (with and without +/- prefix)
+  // User-defined aliases — check original case and common variants
+  // Alias keys preserve original case from the config file
   if (aliases[token] !== undefined) return true;
-  if (aliases[stripped] !== undefined) return true;
+  const strippedOriginal = token.startsWith("+") || token.startsWith("-") ? token.slice(1) : token;
+  if (aliases["+" + strippedOriginal] !== undefined) return true;
+  if (aliases["-" + strippedOriginal] !== undefined) return true;
 
-  // Cvar database
-  if (cvarSet.has(token)) return true;
+  // Cvar database (case-insensitive)
+  if (cvarSet.has(lower)) return true;
 
   return false;
 }
@@ -156,9 +158,9 @@ function findUnresolvedToken(
   for (const part of parts) {
     const trimmed = part.trim();
     if (!trimmed) continue;
-    const firstToken = trimmed.split(/\s+/)[0].toLowerCase();
+    const firstToken = trimmed.split(/\s+/)[0];
     if (!firstToken) continue;
-    if (STRUCTURAL_KEYWORDS.has(firstToken)) continue;
+    if (STRUCTURAL_KEYWORDS.has(firstToken.toLowerCase())) continue;
     if (!isKnownCommand(firstToken, aliases, cvarSet)) return firstToken;
   }
   return null;
