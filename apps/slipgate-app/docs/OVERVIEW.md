@@ -135,7 +135,7 @@ Click "Convert to FTE" → report view:
 
 ---
 
-## The Rust backend — 17 Tauri commands
+## The Rust backend — Tauri commands
 
 Everything the frontend calls into. Lives in `src-tauri/src/commands/`. Total ~5,200 lines.
 

@@ -62,19 +62,8 @@ Start with `OVERVIEW.md` when returning to the project after a break.
 - The ConfigViewer subsystem (20+ components under `src/components/Config*`) is the biggest feature by far and the main active work area.
 - `configMerger.ts` is pure — no side effects, easy to reason about.
 - `src-tauri/src/commands/screenshot.rs` is marked POC — active goal but fragile timing, not yet production.
+- Adding a new Rust command module requires a `pub mod` declaration in `src-tauri/src/commands/mod.rs` plus registration in the `tauri::generate_handler![]` macro in `src-tauri/src/lib.rs`.
 
-## Known cleanup items (as of 2026-04-11)
+## Known cleanup items
 
-Safe deletions identified in the audit today:
-- `greet` command in `src-tauri/src/lib.rs` — Tauri scaffolding leftover
-- `src/components/ConfigCategoryBar.tsx` (156 lines) — imported nowhere
-- `src/components/TabNav.tsx` (29 lines) — imported nowhere, superseded by SideNav
-- `md-5` crate in `Cargo.toml` + `verify_md5` function in `updater.rs:468-485` — defined but never called
-- Debug `console.log` dump in `App.tsx:113-123` — prints on every config load
-
-Higher-risk fixes flagged:
-- Hardcoded `C:/Users/Administrator/...` path in `ClientsTab.tsx:127` (screenshot POC) — will break on anyone else's machine
-- `saveProfile()` in `store.ts` has no error handling — silent failures on disk issues
-- Discord OAuth missing `state` parameter (low-risk CSRF gap)
-
-Full context on all of these in `docs/HEALTH.md`.
+See `docs/HEALTH.md` for the full list with severity tags and fix priorities. Do not duplicate the list here — HEALTH.md is the single source of truth for tech debt.
