@@ -10,10 +10,11 @@ interface ConfigBindsSectionProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  movement: "oklch(0.7 0.15 220)",  // blue
-  weapons: "oklch(0.7 0.15 30)",    // warm orange
-  teamsay: "oklch(0.65 0.15 180)",  // teal
-  misc: "oklch(0.6 0.03 260)",      // neutral grey-blue
+  movement: "oklch(0.7 0.15 220)",   // blue
+  weapons: "oklch(0.7 0.15 30)",     // warm orange
+  teamsay: "oklch(0.65 0.15 180)",   // teal
+  unresolved: "oklch(0.75 0.18 85)", // yellow
+  misc: "oklch(0.6 0.03 260)",       // neutral grey-blue
 };
 
 export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
@@ -87,12 +88,14 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                   fallback={
                     <div
                       class="sg-cv-bind-row"
-                      classList={{ "cursor-pointer": hasChain() }}
+                      classList={{ "cursor-pointer": hasChain() || bind.category === "unresolved" }}
                       title={bind.description}
-                      onClick={() => hasChain() && toggleExpand(bind.key)}
+                      onClick={() => (hasChain() || bind.category === "unresolved") && toggleExpand(bind.key)}
                     >
                       <span class="text-[11px] text-[var(--sg-section-label)]">
-                        {hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
+                        {bind.category === "unresolved"
+                          ? "⚠"
+                          : hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
                       </span>
                       <span
                         class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center border"
@@ -119,13 +122,15 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                   <div
                     class="sg-cv-bind-row-cmp"
                     classList={{
-                      "cursor-pointer": hasChain(),
+                      "cursor-pointer": hasChain() || bind.category === "unresolved",
                     }}
                     title={bind.description || bind.compareDescription}
-                    onClick={() => hasChain() && toggleExpand(bind.key)}
+                    onClick={() => (hasChain() || bind.category === "unresolved") && toggleExpand(bind.key)}
                   >
                     <span class="text-[11px] text-[var(--sg-section-label)]">
-                      {hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
+                      {bind.category === "unresolved"
+                        ? "⚠"
+                        : hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
                     </span>
                     <span
                       class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded text-center border"
@@ -175,6 +180,18 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                 {/* Expanded alias chains */}
                 <Show when={isExpanded()}>
                   <div class="sg-domain-bind-expanded">
+                    <Show when={bind.category === "unresolved"}>
+                      <div class="text-[11px] px-3 py-1.5 mb-1 rounded"
+                        style={{
+                          background: "color-mix(in oklch, oklch(0.75 0.18 85) 15%, transparent)",
+                          color: "oklch(0.75 0.18 85)",
+                        }}
+                      >
+                        Command <span class="font-mono font-bold">{bind.label}</span> was not found
+                        as an alias in the config chain or as a known engine command. This bind will
+                        likely not work during gameplay.
+                      </div>
+                    </Show>
                     <Show when={bind.modifierAlias} fallback={
                       <>
                         <Show when={chain().length > 0}>
