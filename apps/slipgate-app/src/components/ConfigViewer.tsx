@@ -1,6 +1,6 @@
 import { createSignal, createMemo, createEffect, For, Show, Switch, Match, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
-import { lookupCvar, loadDatabase, loadDomainTags } from "qw-config";
+import { lookupCvar, loadDatabase, loadDomainTags, loadEzQuakeCommands, loadKtxCommands } from "qw-config";
 import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
@@ -425,7 +425,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     if (!mergedData() || !effectiveConfig()) return [];
     const db = loadDatabase();
     const cvarNames = new Set(
-      Array.from(db.clients.ezquake.entries()).map(([name]) => name),
+      Array.from(db.clients.ezquake.entries()).map(([name]) => name.toLowerCase()),
+    );
+    const ezquakeCommandSet = new Set(
+      Array.from(loadEzQuakeCommands().commands.keys()).map((n) => n.toLowerCase()),
+    );
+    const ktxCommandSet = new Set(
+      Array.from(loadKtxCommands().commands.keys()).map((n) => n.toLowerCase()),
     );
     return categorizeBinds(
       mergedData()!.binds,
@@ -436,6 +442,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       selectedFiles(),
       primaryAliases(),
       cvarNames,
+      ezquakeCommandSet,
+      ktxCommandSet,
       compareBinds(),
       compareBindCommands(),
     );
