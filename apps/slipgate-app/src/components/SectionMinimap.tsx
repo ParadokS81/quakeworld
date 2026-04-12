@@ -116,7 +116,7 @@ export default function SectionMinimap(props: SectionMinimapProps) {
   };
 
   return (
-    <Show when={hasOverflow() && sections().length > 1}>
+    <Show when={hasOverflow()}>
       <div class="sg-section-minimap">
         <div class="sg-section-minimap-track">
           {/* Track line */}
