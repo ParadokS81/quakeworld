@@ -1,60 +1,99 @@
-# Vision — Slipgate App
+# Vision - Slipgate App
 
-> **Doc type: future** — The long-term vision and framing for what Slipgate App is. Forward-looking by design; some of what's described here isn't built yet (and some of the infrastructure it references, like "Slipgate web", doesn't exist yet either — see note at the end).
-
-## The Problem
+## The problem
 
 QuakeWorld players maintain a mental map between three disconnected worlds:
-1. **The game** — ezQuake client, servers, demos, configs
-2. **Their computer** — system specs, display settings, peripherals
-3. **The web** — community hub, match scheduling, stats, voice recordings
 
-There's no bridge between them. Want to share your system specs on your profile? Manually type them. Want to jump into a server from the website? Copy-paste the IP. Want to know when your match starts? Keep checking the site. The browser can't reach into your system, and the game client doesn't know about the community platform.
+1. **The game** - ezQuake client, servers, demos, configs
+2. **Their computer** - system specs, display settings, peripherals
+3. **The web** - community hub, match scheduling, stats, voice recordings
 
-## The Solution
+There is limited bridging between them. The hub website has click-to-play (ezQuake supports URL-based connect), and the web can display match stats. But the gap shows up when you want to do anything involving your local machine: share your system specs on your profile? Manually type them. Compare your config with a teammate's? Manually diff text files. See what custom textures you have installed? Dig through nested folders in Windows Explorer. The browser cannot reach into your filesystem or query your hardware.
 
-**Slipgate App** is a lightweight desktop companion that sits in the system tray and connects these three worlds. It's the piece that makes the QuakeWorld ecosystem feel integrated rather than fragmented.
+## What this aims to be
 
-It runs quietly in the background, doing things a browser never could:
-- Reading your hardware specs and uploading them to your profile
-- Detecting when ezQuake is running and what server you're on
-- Sending desktop notifications for matches and standin requests
-- Letting you click a link on the hub to instantly connect to a server
-- Managing your ezQuake configs across machines
+Slipgate App is a lightweight desktop companion that sits in the system tray and closes those gaps. It is the piece that makes the QuakeWorld ecosystem feel integrated rather than fragmented - not a replacement for any of the existing pieces, just the glue between them.
 
-## Design Philosophy
+The app's core advantage is direct local access: it can scan your hardware, read your quake directory, parse your configs, and manage your client install without requiring you to upload anything first. A web interface could theoretically do most of the same things with a headless helper or file uploads, but the desktop app makes it frictionless. Where the data gets *displayed and manipulated* (desktop app vs web interface) is a design question the team has different opinions on - vikpe leans toward keeping features in the web, ParadokS and infiniti see value in the app being a front for some of them. Regardless of that debate, the local-access utility is undisputed.
 
-- **Invisible until needed** — system tray, not a full window app. Opens mini panels for quick actions
-- **Zero mandatory configuration** — useful out of the box, power features unlock progressively
-- **Shared identity** — same Discord login as the website, one community identity everywhere
-- **Lightweight** — Tauri keeps it at ~5-10 MB installed, minimal RAM usage. Gamers care about resources
-- **Cross-platform** — Windows, macOS, Linux. The QW community is on all three
+Some of the intended capabilities exist today (hardware scan, config parsing, client updater). Others are on the drawing board lower in this doc. For the current state of what is actually built, see `OVERVIEW.md`.
 
-## What This Is NOT
+## Who it's for
 
-- Not a game launcher (ezQuake handles that)
-- Not a replacement for the website (Slipgate web is the full experience)
-- Not a voice chat client (Mumble/Discord handle that)
-- Not a server browser (the hub handles that, though we can trigger quick-connect from it)
+All QuakeWorld players, but written from the perspective of a competitive player - the author plays 4on4 seriously and builds what he would want to have first. That keeps the feature direction grounded rather than speculative: every feature is chosen because the author, in a specific real-world situation, wanted it. The assumption is that other competitive players will want most of the same things, and that casual players get value from whatever subset applies to them.
 
-It's the **glue** — small, focused, connecting things that are currently disconnected.
+This is a public repo inside the QuakeWorld monorepo workshop. Contributions, issues, and opinions are welcome even while the app is being actively shaped.
 
-## Relationship to Other Projects
+## Design intent
+
+- **Invisible until needed.** A system tray app respects that gamers are in-game most of the time; a full-window companion would compete with their attention. Opens mini panels for quick actions when you need them.
+- **Zero mandatory configuration.** Useful out of the box; power features unlock progressively. Onboarding friction kills experimentation - if it is not valuable in the first minute, most people will never reach the features that need setup.
+- **Shared identity.** Same Discord login as the community web side. One community identity across desktop and web, so your setup data, matches, and profile come together without duplication.
+- **Lightweight.** Tauri keeps the binary around 5-10 MB installed with minimal RAM usage. Gamers care about resource headroom; a 100 MB Electron companion would be a non-starter when the user is trying to hit 250+ FPS.
+- **Cross-platform intent.** Windows, macOS, Linux. Windows-native in practice today - non-Windows code paths exist as stubs but are not yet supported. Cross-platform is the intent, not the current reality.
+
+## What this is NOT
+
+- **Not a game launcher.** ezQuake handles that. The app can launch ezQuake with arguments, but it does not try to replace the client.
+- **Not a replacement for the website.** The (eventual) slipgate web hub is the full community experience; this app is the desktop extension of it.
+- **Not a voice chat client.** Mumble and Discord handle that. The app integrates with both (via deep links and via Discord OAuth) but does not compete.
+- **Not a server browser.** QW Hub handles that; the app may trigger quick-connect from the hub, but it is not the place you go to discover servers.
+
+The app is glue: small, focused, connecting things that are currently disconnected.
+
+## On the drawing board
+
+The feature set today is not the app's final shape. Here is what is on the author's mind for where it goes next, and why each idea matters.
+
+### Config converter (ezQuake to FTE)
+
+The ConfigViewer already knows how to parse an ezQuake config. The next step is translating that config into FTE's cvar format, with a per-cvar mapping report showing what transferred, what was mapped to an equivalent, what has no equivalent, and which binds came across cleanly.
+
+*Why it matters:* ezQuake is dominant in 4on4 but some players use FTE for other formats or personal preference. Today, moving a config between clients is a manual chore. A converter removes the friction and makes it trivial to experiment with other clients without losing a painstakingly-built setup.
+
+### Asset browser
+
+A better explorer for your quake dir than Windows Explorer. Browse the custom things you have under `/qw/`: skins, conchars, crosshairs, weapon textures, custom paks. Preview them visually. See what is overriding what.
+
+*Why it matters:* quake dirs accumulate custom content over years and most of it becomes invisible - you forget what you installed, what is being used, and what is overriding the vanilla assets. An asset browser turns the dir into a managed collection instead of a mystery pile, and helps players who want to share or clean up their setup.
+
+### Match browser
+
+Parse your `/qw/matches/` folder for the demos and screenshots normally recorded there. Show per-match stats, let you browse games you played, cross-reference with QW Hub and qw-stats for opponents and outcomes.
+
+*Why it matters:* every QW player has a pile of demos they never revisit because there is no way to quickly see what is in them. A viewer turns that pile into a history players can actually use - review your own games, find that match where you pulled off something memorable, compare performance over time.
+
+### GitHub-backed QW backup
+
+Log in with GitHub (as a second auth provider alongside Discord), auto-create a `quakeworld-setup-{username}` repo, and upload the minimal viable set of files that define a setup (configs, key bindings, custom textures, HUD overlays, crosshair packs). Exclude the heavy and ephemeral stuff (custom maps, recorded demos, generated state, crash dumps). Show diffs on subsequent syncs.
+
+*Why it matters:* three distinct use cases stack into the same feature, and any one of them would justify building it:
+
+- **Disaster recovery.** Rolling back a bad config edit, comparing your binds from 6 months ago, restoring a setup you accidentally broke.
+- **Portability.** Setting up a new machine (or a LAN rig) in minutes by cloning your own repo instead of hand-copying files.
+- **Shareable.** Public repos let teammates see each other's setups directly or fork them as a starting point. Community value: browsing how top players configure their game, sparking discussions about mouse / keyboard / config choices.
+
+The interesting engineering piece is the "minimal viable set" - deciding what actually defines a setup versus what is ephemeral clutter.
+
+## Intended relationships with other projects
+
+Not all of these relationships are built yet. Marked *(built)* where the integration exists today and *(planned)* where it is intent.
 
 | Project | Slipgate App's role |
-|---------|---------------------|
-| **Slipgate web** | Desktop extension of the web hub. Same auth, same data, different capabilities |
-| **MatchScheduler** | Receives notifications, provides quick availability toggle |
-| **quad** | Indirectly — standin request notifications originate from quad's DM flow |
-| **ezQuake** | Reads configs, detects process, provides quick-connect and demo management |
-| **Mumble** | Quick-join team channel via `mumble://` deep link |
+|---|---|
+| **Slipgate web** | Desktop extension of the web hub. Same auth, same data, different capabilities. *(Planned - slipgate web does not exist yet.)* |
+| **matchscheduler** | Shared Firebase project for auth today. Eventually: receive match notifications, quick availability toggle. *(Partial: auth built, notifications planned.)* |
+| **quad** | No direct integration planned today; both projects live in the same monorepo for cross-app context but slipgate-app does not talk to the Discord bot. |
+| **ezQuake** | Reads configs, detects version, manages install, launches with args, screenshot puppet via mailslot IPC. *(Built.)* |
+| **Mumble** | Eventually quick-join team channel via `mumble://` deep link. *(Planned.)* |
+| **GitHub** | Eventually second auth provider for the backup feature above. *(Planned.)* |
 
 ---
 
 ## Status note (2026-04-11)
 
-**Slipgate web doesn't exist yet.** It's in the planning phase, gated on infiniti's OKLCH Harmonizer ramp landing. That's why the app is getting all the attention first — the desktop app is the concrete thing people can use while the web side is still being designed.
+**Slipgate web does not exist yet.** It is in the planning phase, gated on infiniti's OKLCH Harmonizer ramp landing. That is why the desktop app is getting all the attention first - the desktop app is the concrete thing people can use while the web side is still being designed.
 
-Some features being built in the app today may eventually migrate to the web; others will stay desktop-only (anything touching local filesystem, hardware, or ezQuake process). When the web side starts, we'll decide per-feature what lives where. Until then, treat any mention of "Slipgate web" in this doc as aspirational.
+Some features being built in the app today may eventually migrate to the web; others will stay desktop-only (anything touching local filesystem, hardware, or ezQuake process). When the web side starts, each feature will be placed where it naturally belongs. Until then, treat any mention of "Slipgate web" in this doc as aspirational.
 
-For the current reality of what's built in the app, see `OVERVIEW.md`.
+For the current reality of what is built in the app, see `OVERVIEW.md`.
