@@ -91,6 +91,7 @@ export function categorizeBinds(
   movement: MovementKeys,
   chain: ConfigChain,
   selectedIndices: Set<number>,
+  aliases: Record<string, string>,
   compareClassification?: ChainBindClassification | null,
   compareRawCommands?: Record<string, string>,
 ): EnrichedBind[] {
@@ -110,9 +111,10 @@ export function categorizeBinds(
     "+forward": "↑ forward", "+back": "↓ back",
     "+moveleft": "← strafe left", "+moveright": "→ strafe right",
     "+jump": "jump",
+    "+moveup": "↑ swim up", "+movedown": "↓ swim down",
   };
   const movementKeys = new Set(
-    [movement.forward, movement.back, movement.moveleft, movement.moveright, movement.jump]
+    [movement.forward, movement.back, movement.moveleft, movement.moveright, movement.jump, movement.moveup, movement.movedown]
       .filter(Boolean)
       .map((k) => k.toUpperCase()),
   );
@@ -183,6 +185,12 @@ export function categorizeBinds(
       result.push({
         key, command, category: "movement",
         label: moveLabel, description: command,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
+      });
+    } else if (isRocketJump(command, aliases)) {
+      result.push({
+        key, command, category: "movement",
+        label: "rocket jump", description: command,
         sourceFile, hasLeft: true, hasRight, ...compareData,
       });
     } else {
@@ -279,10 +287,21 @@ function extractBindsFromAlias(body: string): { target: string; command: string 
   return results;
 }
 
+/** Check if a command (or its alias resolution) is a rocket jump: +attack and +jump together. */
+function isRocketJump(cmd: string, aliases: Record<string, string>): boolean {
+  const resolved = resolveCommand(cmd, aliases);
+  const lower = resolved.toLowerCase();
+  const parts = lower.split(";").map((s) => s.trim()).filter((s) => !s.startsWith("bind "));
+  const hasAttack = parts.some((p) => p.startsWith("+attack") || p.startsWith("+fire ") || p.startsWith("+fire_ar "));
+  const hasJump = parts.some((p) => p.startsWith("+jump"));
+  return hasAttack && hasJump;
+}
+
 /** Lightweight classification for synthesized modifier-combo commands. */
-function classifyCommand(cmd: string): "movement" | "weapons" | "teamsay" | "misc" {
+function classifyCommand(cmd: string, aliases?: Record<string, string>): "movement" | "weapons" | "teamsay" | "misc" {
   const t = cmd.trim().toLowerCase();
-  if (/^\+(?:forward|back|moveleft|moveright|jump)$/.test(t)) return "movement";
+  if (/^\+(?:forward|back|moveleft|moveright|jump|moveup|movedown)$/.test(t)) return "movement";
+  if (aliases && isRocketJump(cmd, aliases)) return "movement";
   if (/^(?:impulse\s+\d+|weapon\s+\d+)/.test(t)) return "weapons";
   if (/\+attack/.test(t)) return "weapons";
   if (/^say_team\b/.test(t)) return "teamsay";

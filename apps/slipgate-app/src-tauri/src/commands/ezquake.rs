@@ -559,6 +559,8 @@ pub struct MovementKeys {
     pub moveleft: String,
     pub moveright: String,
     pub jump: String,
+    pub moveup: String,
+    pub movedown: String,
 }
 
 /// Parsed ezQuake settings that we care about.
@@ -1454,6 +1456,8 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         moveleft: find_bind(&bindings, "+moveleft"),
         moveright: find_bind(&bindings, "+moveright"),
         jump: find_bind(&bindings, "+jump"),
+        moveup: find_bind(&bindings, "+moveup"),
+        movedown: find_bind(&bindings, "+movedown"),
     };
 
     let weapon_binds = analyze_weapon_binds(&bindings, &aliases);
@@ -2011,6 +2015,8 @@ pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
         moveleft: find_bind(&bindings, "+moveleft"),
         moveright: find_bind(&bindings, "+moveright"),
         jump: find_bind(&bindings, "+jump"),
+        moveup: find_bind(&bindings, "+moveup"),
+        movedown: find_bind(&bindings, "+movedown"),
     };
 
     let weapon_binds = analyze_weapon_binds(&bindings, &aliases);

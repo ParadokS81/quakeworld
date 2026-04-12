@@ -430,6 +430,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       effectiveConfig()!.movement,
       effectiveChain()!,
       selectedFiles(),
+      primaryAliases(),
       compareBinds(),
       compareBindCommands(),
     );

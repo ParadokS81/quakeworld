@@ -97,6 +97,8 @@ export interface MovementKeys {
   moveleft: string;
   moveright: string;
   jump: string;
+  moveup: string;
+  movedown: string;
 }
 
 export interface WeaponBind {
