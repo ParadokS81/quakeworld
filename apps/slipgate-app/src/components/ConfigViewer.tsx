@@ -565,7 +565,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         }),
         invoke<EzQuakeConfig>("read_ezquake_config", {
           exePath: props.exePath ?? "",
-          configName: entry.relative_path,
+          configName: entry.filename,
         }),
       ]);
       setPrimaryOverride(chain);
