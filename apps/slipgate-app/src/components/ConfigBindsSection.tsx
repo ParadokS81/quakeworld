@@ -13,7 +13,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   movement: "oklch(0.7 0.15 220)",   // blue
   weapons: "oklch(0.7 0.15 30)",     // warm orange
   teamsay: "oklch(0.65 0.15 180)",   // teal
-  unresolved: "oklch(0.75 0.18 85)", // yellow
+  ktx: "oklch(0.7 0.15 310)",        // purple-magenta
+  unresolved: "oklch(0.75 0.18 85)", // yellow warning
   misc: "oklch(0.6 0.03 260)",       // neutral grey-blue
 };
 
@@ -88,13 +89,14 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                   fallback={
                     <div
                       class="sg-cv-bind-row"
-                      classList={{ "cursor-pointer": hasChain() || bind.category === "unresolved" }}
+                      classList={{ "cursor-pointer": hasChain() || bind.category === "unresolved" || bind.category === "ktx" }}
                       title={bind.description}
-                      onClick={() => (hasChain() || bind.category === "unresolved") && toggleExpand(bind.key)}
+                      onClick={() => (hasChain() || bind.category === "unresolved" || bind.category === "ktx") && toggleExpand(bind.key)}
                     >
                       <span class="text-[11px] text-[var(--sg-section-label)]">
                         {bind.category === "unresolved"
                           ? "⚠"
+                          : bind.category === "ktx" ? (isExpanded() ? "▾" : "▸")
                           : hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
                       </span>
                       <span
@@ -122,14 +124,15 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                   <div
                     class="sg-cv-bind-row-cmp"
                     classList={{
-                      "cursor-pointer": hasChain() || bind.category === "unresolved",
+                      "cursor-pointer": hasChain() || bind.category === "unresolved" || bind.category === "ktx",
                     }}
                     title={bind.description || bind.compareDescription}
-                    onClick={() => (hasChain() || bind.category === "unresolved") && toggleExpand(bind.key)}
+                    onClick={() => (hasChain() || bind.category === "unresolved" || bind.category === "ktx") && toggleExpand(bind.key)}
                   >
                     <span class="text-[11px] text-[var(--sg-section-label)]">
                       {bind.category === "unresolved"
                         ? "⚠"
+                        : bind.category === "ktx" ? (isExpanded() ? "▾" : "▸")
                         : hasChain() ? (isExpanded() ? "▾" : "▸") : ""}
                     </span>
                     <span
@@ -190,6 +193,18 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                         Command <span class="font-mono font-bold">{bind.label}</span> was not found
                         as an alias in the config chain or as a known engine command. This bind will
                         likely not work during gameplay.
+                      </div>
+                    </Show>
+                    <Show when={bind.category === "ktx"}>
+                      <div class="text-[11px] px-3 py-1.5 mb-1 rounded"
+                        style={{
+                          background: "color-mix(in oklch, oklch(0.7 0.15 310) 15%, transparent)",
+                          color: "oklch(0.7 0.15 310)",
+                        }}
+                      >
+                        Command <span class="font-mono font-bold">{bind.command.split(";")[0].split(/\s+/)[0]}</span> is
+                        a KTX server mod command. It is injected by the server on connect and only works when playing
+                        on a KTX server.
                       </div>
                     </Show>
                     <Show when={bind.modifierAlias} fallback={
