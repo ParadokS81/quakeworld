@@ -1,0 +1,27 @@
+{
+  "defaults": [
+    { "name": "-moveup", "args": "" },
+    { "name": "-movedown", "args": "" },
+    { "name": "-left", "args": "" },
+    { "name": "-right", "args": "" },
+    { "name": "-forward", "args": "" },
+    { "name": "-back", "args": "" },
+    { "name": "-lookup", "args": "" },
+    { "name": "-lookdown", "args": "" },
+    { "name": "-strafe", "args": "" },
+    { "name": "-moveleft", "args": "" },
+    { "name": "-moveright", "args": "" },
+    { "name": "-speed", "args": "" },
+    { "name": "-attack", "args": "" },
+    { "name": "-use", "args": "" },
+    { "name": "-jump", "args": "" },
+    { "name": "-klook", "args": "" },
+    { "name": "-mlook", "args": "" },
+    { "name": "-showscores", "args": "" },
+    { "name": "-showteamscores", "args": "" },
+    { "name": "mapgroup", "args": "clear" },
+    { "name": "skygroup", "args": "clear" },
+    { "name": "floodprot", "args": "4 4 10" },
+    { "name": "hud_recalculate", "args": "" }
+  ]
+}
