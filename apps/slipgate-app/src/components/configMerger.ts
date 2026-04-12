@@ -13,7 +13,7 @@ export interface MergedConfigData {
 export interface EnrichedBind {
   key: string;
   command: string;
-  category: "movement" | "weapons" | "teamsay" | "misc";
+  category: "movement" | "weapons" | "teamsay" | "unresolved" | "misc";
   label: string;
   description: string;
   sourceFile: string;
@@ -21,7 +21,7 @@ export interface EnrichedBind {
   hasLeft: boolean;
   hasRight: boolean;
   compareCommand?: string;
-  compareCategory?: "movement" | "weapons" | "teamsay" | "misc";
+  compareCategory?: "movement" | "weapons" | "teamsay" | "unresolved" | "misc";
   compareLabel?: string;
   compareDescription?: string;
   // Set on virtual modifier-combo entries, e.g. "+keychange" — lets the UI
@@ -78,6 +78,92 @@ export function mergeSelectedFiles(
   };
 }
 
+// Built-in ezQuake engine commands. Stored WITHOUT +/- prefix; the prefix is stripped before lookup.
+const KNOWN_ENGINE_COMMANDS = new Set([
+  // Movement / action
+  "forward", "back", "moveleft", "moveright", "jump", "moveup", "movedown",
+  "attack", "speed", "strafe", "mlook", "klook", "use", "hook",
+  "left", "right", "lookup", "lookdown",
+  // Weapon
+  "impulse", "weapon", "fire", "fire_ar",
+  // Communication
+  "say", "say_team", "messagemode", "messagemode2",
+  // Meta / config
+  "bind", "unbind", "unbindall", "alias", "unalias", "unalias_re",
+  "set", "unset", "seta", "exec", "echo", "if", "wait", "toggle", "inc", "dec",
+  "reset", "resetall", "cfg_save",
+  // Client
+  "quit", "disconnect", "reconnect", "connect", "join", "observe",
+  "ready", "break", "noready", "toggleconsole", "clear", "cmdlist", "cvarlist",
+  "apropos", "color", "name", "team", "dns", "packet", "rcon",
+  // Demo
+  "record", "stop", "playdemo", "timedemo", "demo_jump", "demo_setspeed",
+  "easyrecord", "stopdemo",
+  // Visual
+  "screenshot", "vid_restart", "bf", "r_restart", "hud_262_load",
+  "loadcharset", "loadloc",
+  // Team play
+  "tp_msgsound", "tp_msgpoint", "tp_msg", "tp_took", "tp_pickup",
+  "tp_point", "tp_report",
+  // Misc
+  "menu_main", "menu_options", "menu_keys", "togglemenu", "pause",
+  "status", "serverinfo", "ping", "notify", "kill", "god", "fly",
+  "noclip", "give", "timerefresh", "changing", "skins", "skinselect",
+  "cl_weapon", "cl_weaponhide", "hud_editor", "hud_planmode",
+  "volume", "showscores",
+]);
+
+/** Check whether a single command token is known (engine built-in, alias, or cvar). */
+function isKnownCommand(token: string, aliases: Record<string, string>, cvarSet: Set<string>): boolean {
+  if (!token) return true;
+  // Numeric literals and quoted strings are always valid arguments, not commands
+  if (/^-?\d+(\.\d+)?$/.test(token)) return true;
+  if (token.startsWith('"') || token.startsWith("'")) return true;
+
+  // Strip +/- prefix for engine command lookup
+  const stripped = token.startsWith("+") || token.startsWith("-") ? token.slice(1) : token;
+  if (KNOWN_ENGINE_COMMANDS.has(stripped)) return true;
+
+  // Also allow the prefixed form directly (e.g. "+attack" without stripping)
+  if (KNOWN_ENGINE_COMMANDS.has(token)) return true;
+
+  // tp_ prefix: many tp_ commands exist beyond the listed ones
+  if (token.startsWith("tp_")) return true;
+
+  // User-defined aliases (with and without +/- prefix)
+  if (aliases[token] !== undefined) return true;
+  if (aliases[stripped] !== undefined) return true;
+
+  // Cvar database
+  if (cvarSet.has(token)) return true;
+
+  return false;
+}
+
+// Structural keywords that appear between commands and should not be treated as command tokens
+const STRUCTURAL_KEYWORDS = new Set(["if", "then", "else", "and", "or", "not"]);
+
+/**
+ * Split a compound command on `;` and check the first token of each part.
+ * Returns the first unrecognized token, or null if all are known.
+ */
+function findUnresolvedToken(
+  command: string,
+  aliases: Record<string, string>,
+  cvarSet: Set<string>,
+): string | null {
+  const parts = command.split(";");
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const firstToken = trimmed.split(/\s+/)[0].toLowerCase();
+    if (!firstToken) continue;
+    if (STRUCTURAL_KEYWORDS.has(firstToken)) continue;
+    if (!isKnownCommand(firstToken, aliases, cvarSet)) return firstToken;
+  }
+  return null;
+}
+
 /**
  * Cross-reference raw binds against categorized weapon/teamsay binds from EzQuakeConfig.
  * All binds are included — movement, weapon, teamsay, and misc.
@@ -92,6 +178,7 @@ export function categorizeBinds(
   chain: ConfigChain,
   selectedIndices: Set<number>,
   aliases: Record<string, string>,
+  cvarSet: Set<string>,
   compareClassification?: ChainBindClassification | null,
   compareRawCommands?: Record<string, string>,
 ): EnrichedBind[] {
@@ -194,12 +281,22 @@ export function categorizeBinds(
         sourceFile, hasLeft: true, hasRight, ...compareData,
       });
     } else {
-      result.push({
-        key, command, category: "misc",
-        label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
-        description: command,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
+      const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet);
+      if (unresolvedToken) {
+        result.push({
+          key, command, category: "unresolved",
+          label: unresolvedToken,
+          description: `${unresolvedToken} not found in config chain or engine`,
+          sourceFile, hasLeft: true, hasRight, ...compareData,
+        });
+      } else {
+        result.push({
+          key, command, category: "misc",
+          label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
+          description: command,
+          sourceFile, hasLeft: true, hasRight, ...compareData,
+        });
+      }
     }
   }
 
