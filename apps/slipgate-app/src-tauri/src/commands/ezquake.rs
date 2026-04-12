@@ -616,6 +616,7 @@ pub struct EzQuakeConfig {
     pub weapon_binds: Vec<WeaponBind>,
     pub teamsay_binds: Vec<TeamsayBind>,
     pub raw_cvars: HashMap<String, String>,
+    pub command_invocations: Vec<CommandInvocation>,
 }
 
 fn get_cvar<'a>(parsed: &'a HashMap<String, String>, defaults: &'a HashMap<&str, &str>, key: &str) -> &'a str {
@@ -1387,6 +1388,7 @@ fn analyze_teamsay_binds(
 fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
     let bindings = parsed.bindings;
     let aliases = parsed.aliases;
+    let command_invocations = parsed.command_invocations;
     let parsed = parsed.cvars;
     let defaults = default_cvars();
 
@@ -1514,6 +1516,7 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         weapon_binds,
         teamsay_binds,
         raw_cvars: parsed,
+        command_invocations,
     }
 }
 
