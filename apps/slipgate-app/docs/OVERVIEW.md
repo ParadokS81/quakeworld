@@ -110,13 +110,14 @@ Curated sections beyond the raw cvar dump:
 - **Teamplay Binds** — teamsay keys (F1 → report armor, Mouse4 → enemy, etc.) categorized (status/death/movement/items/enemy/orders/powerups/confirm/custom), expandable to alias chains
 - **Teamplay Macros** — `$armor`, `$location`, `$health` etc. variable references extracted by scanning aliases reachable from teamsay binds, plus `set`-declared user variables
 - **Weapons Settings** — weapon-related cvars
-- **Weapons Binds** — grouped by weapon (RL/LG/GL/SNG/NG/SSG/SG/Axe) with **quickfire** vs **manual** classification and modifier-combo synthesis (if `R → +mod` and `+mod` contains `bind F impulse 7`, the viewer shows a virtual `R+F → RL` entry)
+- **Weapons Binds** — **per-key rows** (one row per key-weapon pair, not grouped) with **quickfire** vs **manual** classification, modifier-combo synthesis, and a filter that excludes rocket jumps (`+attack`+`+jump` patterns) and moveup/movedown as movement rather than weapon binds. Unbound weapons show as dimmed placeholder rows. See `2026-04-13-weapon-bind-classifier-rewrite-handoff.md` for known edge cases and the classifier rewrite plan.
 
 ### Raw sections
-- **Binds** — every key with category color coding (movement/weapons/teamsay/misc), alias chain expansion up to 8 levels deep
+- **Binds** — every key with category color coding (movement/weapons/teamsay/**ktx**/**unresolved**/misc), alias chain expansion up to 8 levels deep. KTX binds (commands like `rpickup`, `autotrack`, `scores` injected by the KTX server mod on connect) show with a purple banner explaining they only work on KTX servers. Unresolved binds (commands not found in aliases, ezQuake commands, or cvars) show with a yellow warning triangle and explanation.
 - **Aliases** — all aliases as Name | Command | Source File
-- **Macros** — built-in teamplay cvars + user-created `set` variables, grouped, tracks customized count
+- **Macros** — built-in teamplay cvars + user-created `set` variables + **runtime `%`-prefix macros reference** (the 68 engine-provided tokens like `%health`, `%ammo`, `%location` used in say/say_team messages, loaded from `qw-config/src/data/ezquake-macros.json`)
 - **Triggers** — `f_*` (client-side) and `on_*` (server-side) triggers with inline guide on how they work, "restricted under competitive rulesets" badges, and an **infoset event decoder** (parses `cmd info ev X` bitmasks to show which on_triggers are active)
+- **Commands** — stateful command invocations captured from configs (e.g. `floodprot 4 4 10`, `mapgroup clear`, `hud_recalculate`, `-moveup`/`-movedown` release block). Grouped into 14 sub-groups (Press/Release Actions, Teamplay, HUD, Video, Stateful State, Game Actions, Config Management, etc.). Default invocations marked with a "default" badge and hidden when "Hide Defaults" is on. Uses the same typography and grid as the Settings section.
 
 ### FTE converter
 Click "Convert to FTE" → report view:

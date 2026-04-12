@@ -132,6 +132,14 @@ You have rich test assets (`assets/sae.cfg`, `ibsen.cfg`, `peppe.cfg`, `bps.cfg`
 
 Not urgent, but it's the cheapest insurance policy in the codebase.
 
+### Weapon bind classifier correctness gaps (new 2026-04-13)
+**Where:** `src-tauri/src/commands/ezquake.rs` — `analyze_weapon_binds`
+**Context:** The weapon bind classifier has a correct rebind path (Priority 1) and a mostly-correct direct-select path (Priority 2) but uses an assumption-based fire_key heuristic for manual selects. Edge cases (HangTime's `Mouse1 → +rocket` weapon-specific quickfire, weapon-preselect configs, teamsay-dominant binds that also select a weapon) produce wrong classifications. A bug fix on 2026-04-13 replaced the `mouse1_is_primary_fire` filter with an actual-rebind counter, but the deeper model — "what does it actually mean for a key to be a weapon bind?" — needs a rewrite.
+
+**Handoff:** `docs/superpowers/specs/2026-04-13-weapon-bind-classifier-rewrite-handoff.md` documents the current state, known issues, the user's mental model, the weapon-preselect research task, and a phased approach for a fresh session to tackle this properly.
+
+**Related:** the `stateful_commands` list in the Rust parser duplicates a tiny subset of the authoritative ezQuake commands database in `qw-config`. The long-term fix is plumbing the database through to Rust, but that's a bigger refactor.
+
 ### No logging infrastructure — `println!` / `eprintln!` scattered
 **Files:**
 - `watcher.rs:118, 132-139` — config watcher prints state to stdout

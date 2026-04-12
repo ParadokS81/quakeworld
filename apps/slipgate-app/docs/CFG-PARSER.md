@@ -178,11 +178,28 @@ ezQuake has two trigger systems:
 
 The viewer shows both groups with expandable guides. It also parses any `infoset` alias found in the config — `infoset` uses `cmd info ev X` where X is a bitmask specifying which `on_*` triggers the server should send to this client, and the viewer decodes the bitmask to show which triggers are active. Some triggers are flagged as "restricted" (can't use teamplay macros under competitive rulesets) — the viewer shows those badges.
 
-### 9. Future categories (still open)
+### 9. Command invocations (implemented 2026-04-12/13)
+
+Command invocations are a first-class parsed category alongside cvars, aliases, and binds. Previously the parser discarded them via a `skip_commands` list; now it captures them into `ParsedConfig.command_invocations` and propagates through `ConfigFile` and `EzQuakeConfig`.
+
+**What counts as a command invocation:**
+- Lines beginning with `+` or `-` (press/release action commands like `-moveup`, `+attack`)
+- Lines whose first token is in the hardcoded `stateful_commands` list: `floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`
+
+**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `packages/qw-config/src/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional — plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
+
+**The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from qw-config. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
+
+### 10. Rocket jump detection
+
+A bind whose resolved command contains both `+attack` AND `+jump` is a rocket jump (weapon+attack+jump = movement, not weapon selection). Filtered out of weapon binds in all three classification paths (direct, rebind, rebind-fallback) via the `has_jump()` helper.
+
+### 11. Future categories (still open)
 
 - **HUD layout** — extract `hud_*` cvars for HUD visualization
 - **Visual settings** — `r_drawflat`, `gl_picmip`, particle settings
 - **Network settings** — `rate`, `cl_c2sdupe`, `cl_timeout`
+- **Weapon preselect system** — new ezQuake feature not yet accounted for in the classifier. See weapon bind classifier rewrite handoff.
 
 ## Test configs
 
