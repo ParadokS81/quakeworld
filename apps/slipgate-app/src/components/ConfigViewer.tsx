@@ -11,6 +11,7 @@ import ConfigAliasesSection from "./ConfigAliasesSection";
 import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
 import ConfigMacrosSection from "./ConfigMacrosSection";
 import ConfigTriggersSection from "./ConfigTriggersSection";
+import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierWeaponBinds, synthesizeModifierTeamsayBinds } from "./configMerger";
@@ -134,6 +135,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [aliasesActive, setAliasesActive] = createSignal(false);
   const [macrosActive, setMacrosActive] = createSignal(false);
   const [triggersActive, setTriggersActive] = createSignal(false);
+  const [commandsActive, setCommandsActive] = createSignal(false);
+  const [activeCommandGroup, setActiveCommandGroup] = createSignal<string | null>(null);
 
   // ── Compare state ──
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
@@ -490,6 +493,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return mergeAliases(effectiveChain()!, selectedFiles());
   });
 
+  // ── Command invocations ──
+  const commandInvocations = createMemo(() => effectiveConfig()?.command_invocations ?? []);
+
   const filteredAliases = createMemo(() => {
     if (!aliasesActive()) return [];
     const q = search().trim().toLowerCase();
@@ -524,6 +530,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const showAliasesSection = createMemo(() => aliasesActive());
   const showMacrosSection = createMemo(() => macrosActive());
   const showTriggersSection = createMemo(() => triggersActive());
+  const showCommandsSection = createMemo(() => commandsActive());
 
   // ── Teamsay alias names (for macros extraction) ──
   const teamsayAliasNames = createMemo((): Set<string> => {
@@ -670,6 +677,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onToggleMacros={() => setMacrosActive((v) => !v)}
               triggersActive={triggersActive()}
               onToggleTriggers={() => setTriggersActive((v) => !v)}
+              commandsActive={commandsActive()}
+              onToggleCommands={() => setCommandsActive((v) => !v)}
               hideDefaults={hideDefaults()}
               onHideDefaultsChange={setHideDefaults}
               search={search()}
@@ -860,7 +869,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   />
                 </Show>
 
-                <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection() && !showMacrosSection() && !showTriggersSection()}>
+                <Show when={showCommandsSection()}>
+                  <ConfigCommandsSection
+                    commands={commandInvocations()}
+                    hideDefaults={hideDefaults()}
+                    search={search()}
+                    activeGroup={activeCommandGroup()}
+                  />
+                </Show>
+
+                <Show when={!showSettingsSection() && !showBindsSection() && !showAliasesSection() && !showMacrosSection() && !showTriggersSection() && !showCommandsSection()}>
                   <div class="flex items-center justify-center h-20 text-xs text-[var(--sg-section-label)]">
                     Select a category to view settings, binds, or aliases
                   </div>
