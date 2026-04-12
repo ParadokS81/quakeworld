@@ -135,10 +135,14 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
     const q = props.search.trim().toLowerCase();
 
     return macros().filter((m) => {
-      if (props.hideDefaults) {
-        const leftIsDefault = !m.isSet || !m.isCustomized;
-        const rightIsDefault = !props.isCompareMode || !m.compareIsSet || !m.compareIsCustomized;
-        if (leftIsDefault && rightIsDefault) return false;
+      // Runtime macros are a reference catalog — always visible regardless of hideDefaults,
+      // because they have no user value to customize (isSet is always false).
+      if (m.group !== "Runtime Macros") {
+        if (props.hideDefaults) {
+          const leftIsDefault = !m.isSet || !m.isCustomized;
+          const rightIsDefault = !props.isCompareMode || !m.compareIsSet || !m.compareIsCustomized;
+          if (leftIsDefault && rightIsDefault) return false;
+        }
       }
 
       if (q && !m.name.includes(q) && !m.defaultValue.toLowerCase().includes(q)

@@ -264,27 +264,32 @@ export function categorizeBinds(
         label: "rocket jump", description: command,
         sourceFile, hasLeft: true, hasRight, ...compareData,
       });
-    } else if (isKtxCommand(command, ktxCommandSet)) {
-      result.push({
-        key, command, category: "ktx",
-        label: "KTX",
-        description: `${command} (KTX server command)`,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
     } else {
+      // Check ezQuake known first. If unknown, check KTX. If neither, unresolved.
+      // This prevents native commands like `kill` from being misclassified as KTX.
       const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet, ezquakeCommandSet);
-      if (unresolvedToken) {
-        result.push({
-          key, command, category: "unresolved",
-          label: unresolvedToken,
-          description: `${unresolvedToken} not found in config chain or engine`,
-          sourceFile, hasLeft: true, hasRight, ...compareData,
-        });
-      } else {
+      if (!unresolvedToken) {
+        // All tokens are known ezQuake/alias/cvar
         result.push({
           key, command, category: "misc",
           label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
           description: command,
+          sourceFile, hasLeft: true, hasRight, ...compareData,
+        });
+      } else if (isKtxCommand(command, ktxCommandSet)) {
+        // Some token is unknown to ezQuake, but it matches the KTX command set
+        result.push({
+          key, command, category: "ktx",
+          label: "KTX",
+          description: `${command} (KTX server command)`,
+          sourceFile, hasLeft: true, hasRight, ...compareData,
+        });
+      } else {
+        // Truly unresolved — not in ezQuake or KTX
+        result.push({
+          key, command, category: "unresolved",
+          label: unresolvedToken,
+          description: `${unresolvedToken} not found in config chain or engine`,
           sourceFile, hasLeft: true, hasRight, ...compareData,
         });
       }

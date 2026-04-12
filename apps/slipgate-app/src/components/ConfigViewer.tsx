@@ -136,9 +136,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [macrosActive, setMacrosActive] = createSignal(false);
   const [triggersActive, setTriggersActive] = createSignal(false);
   const [commandsActive, setCommandsActive] = createSignal(false);
-  // setActiveCommandGroup reserved for future group filter UI
-  // biome-ignore lint/correctness/noUnusedVariables: intentional placeholder
-  const [activeCommandGroup, _setActiveCommandGroup] = createSignal<string | null>(null);
+  const [activeCommandGroup, setActiveCommandGroup] = createSignal<string | null>(null);
 
   // ── Compare state ──
   const [compareFilter, setCompareFilter] = createSignal<CompareFilter>("all");
@@ -496,7 +494,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   // ── Command invocations ──
-  const commandInvocations = createMemo(() => effectiveConfig()?.command_invocations ?? []);
+  // Aggregate across all selected chain files so that commands in autoexec.cfg etc. are included.
+  // Source file is carried with each entry so the UI can show where each command came from.
+  const commandInvocations = createMemo(() => {
+    const chain = effectiveChain();
+    if (!chain) return [];
+    const selected = selectedFiles();
+    const result: Array<{ name: string; args: string; sourceFile: string }> = [];
+    for (let i = 0; i < chain.files.length; i++) {
+      if (!selected.has(i)) continue;
+      const file = chain.files[i];
+      for (const ci of file.command_invocations ?? []) {
+        result.push({ name: ci.name, args: ci.args, sourceFile: file.name });
+      }
+    }
+    return result;
+  });
 
   const filteredAliases = createMemo(() => {
     if (!aliasesActive()) return [];
@@ -518,7 +531,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("teamplay:binds") || active.has("weapons:binds") || active.has("misc:binds") || active.has("teamplay:macros");
   });
   // All binds — unfiltered raw bind list for Settings > Binds, sorted by category
-  const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, unresolved: 3, misc: 4 };
+  const CAT_SORT: Record<string, number> = { movement: 0, weapons: 1, teamsay: 2, ktx: 3, unresolved: 4, misc: 5 };
   const allBinds = createMemo(() => {
     if (!activeRow2().has("misc:binds")) return [];
     const q = search().trim().toLowerCase();
@@ -877,6 +890,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     hideDefaults={hideDefaults()}
                     search={search()}
                     activeGroup={activeCommandGroup()}
+                    onSelectGroup={setActiveCommandGroup}
                   />
                 </Show>
 
