@@ -12,6 +12,10 @@
     "test": "bun test",
     "extract-fte": "bun run scripts/extract-fte-cvars.ts",
     "extract-ezquake": "bun run scripts/extract-ezquake-cvars.ts",
+    "extract-ezquake-commands": "bun run scripts/extract-ezquake-commands.ts",
+    "extract-ezquake-macros": "bun run scripts/extract-ezquake-macros.ts",
+    "extract-ezquake-cmdline": "bun run scripts/extract-ezquake-cmdline.ts",
+    "extract-ktx-commands": "bun run scripts/extract-ktx-commands.ts",
     "assemble-qwcl": "bun run scripts/assemble-qwcl.ts"
   },
   "devDependencies": {
