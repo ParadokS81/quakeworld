@@ -91,6 +91,11 @@ export interface QwStyledChar {
   color: "w" | "b" | "g"; // white, brown, gold
 }
 
+export interface CommandInvocation {
+  name: string;
+  args: string;
+}
+
 export interface MovementKeys {
   forward: string;
   back: string;
@@ -142,6 +147,7 @@ export interface EzQuakeConfig {
   weapon_binds: WeaponBind[];
   teamsay_binds: TeamsayBind[];
   raw_cvars: Record<string, string>;
+  command_invocations: CommandInvocation[];
 }
 
 export interface ChainBindClassification {
@@ -229,6 +235,7 @@ export interface ConfigFile {
   aliases: Record<string, string>;
   exec_refs: string[];
   line_count: number;
+  command_invocations: CommandInvocation[];
 }
 
 export interface UnresolvedExec {
