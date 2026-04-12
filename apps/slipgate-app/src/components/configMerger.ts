@@ -13,7 +13,7 @@ export interface MergedConfigData {
 export interface EnrichedBind {
   key: string;
   command: string;
-  category: "movement" | "weapons" | "teamsay" | "unresolved" | "misc";
+  category: "movement" | "weapons" | "teamsay" | "ktx" | "unresolved" | "misc";
   label: string;
   description: string;
   sourceFile: string;
@@ -21,7 +21,7 @@ export interface EnrichedBind {
   hasLeft: boolean;
   hasRight: boolean;
   compareCommand?: string;
-  compareCategory?: "movement" | "weapons" | "teamsay" | "unresolved" | "misc";
+  compareCategory?: "movement" | "weapons" | "teamsay" | "ktx" | "unresolved" | "misc";
   compareLabel?: string;
   compareDescription?: string;
   // Set on virtual modifier-combo entries, e.g. "+keychange" — lets the UI
@@ -78,72 +78,49 @@ export function mergeSelectedFiles(
   };
 }
 
-// Built-in ezQuake engine commands. Stored WITHOUT +/- prefix; the prefix is stripped before lookup.
-const KNOWN_ENGINE_COMMANDS = new Set([
-  // Movement / action
-  "forward", "back", "moveleft", "moveright", "jump", "moveup", "movedown",
-  "attack", "speed", "strafe", "mlook", "klook", "use", "hook",
-  "left", "right", "lookup", "lookdown",
-  // Weapon
-  "impulse", "weapon", "fire", "fire_ar",
-  // Communication
-  "say", "say_team", "messagemode", "messagemode2",
-  // Meta / config
-  "bind", "unbind", "unbindall", "alias", "unalias", "unalias_re",
-  "set", "unset", "seta", "exec", "echo", "if", "wait", "toggle", "inc", "dec",
-  "reset", "resetall", "cfg_save",
-  // Client
-  "quit", "disconnect", "reconnect", "connect", "join", "observe",
-  "ready", "break", "noready", "toggleconsole", "clear", "cmdlist", "cvarlist",
-  "apropos", "color", "name", "team", "dns", "packet", "rcon",
-  // Demo
-  "record", "stop", "playdemo", "timedemo", "demo_jump", "demo_setspeed",
-  "easyrecord", "stopdemo",
-  // Visual
-  "screenshot", "vid_restart", "bf", "r_restart", "hud_262_load",
-  "loadcharset", "loadloc",
-  // Team play
-  "tp_msgsound", "tp_msgpoint", "tp_msg", "tp_took", "tp_pickup",
-  "tp_point", "tp_report",
-  // Misc
-  "menu_main", "menu_options", "menu_keys", "togglemenu", "pause",
-  "status", "serverinfo", "ping", "notify", "kill", "god", "fly",
-  "noclip", "give", "timerefresh", "changing", "skins", "skinselect",
-  "cl_weapon", "cl_weaponhide", "hud_editor", "hud_planmode",
-  "volume", "showscores",
-]);
+// Structural keywords skipped when checking commands
+const STRUCTURAL_KEYWORDS = new Set(["if", "then", "else", "and", "or", "not"]);
 
-/** Check whether a single command token is known (engine built-in, alias, or cvar). */
-function isKnownCommand(token: string, aliases: Record<string, string>, cvarSet: Set<string>): boolean {
+/** Check if a single command token is a known ezQuake command, alias, or cvar. */
+function isKnownEzQuakeToken(
+  token: string,
+  aliases: Record<string, string>,
+  cvarSet: Set<string>,
+  ezquakeCommandSet: Set<string>,
+): boolean {
   if (!token) return true;
-  // Numeric literals and quoted strings are always valid arguments, not commands
   if (/^-?\d+(\.\d+)?$/.test(token)) return true;
   if (token.startsWith('"') || token.startsWith("'")) return true;
 
-  const lower = token.toLowerCase();
-  // Strip +/- prefix for engine command lookup
-  const stripped = lower.startsWith("+") || lower.startsWith("-") ? lower.slice(1) : lower;
-  if (KNOWN_ENGINE_COMMANDS.has(stripped)) return true;
-  if (KNOWN_ENGINE_COMMANDS.has(lower)) return true;
-
-  // tp_ prefix: many tp_ commands exist beyond the listed ones
-  if (lower.startsWith("tp_")) return true;
-
-  // User-defined aliases — check original case and common variants
-  // Alias keys preserve original case from the config file
+  // Aliases preserve original case
   if (aliases[token] !== undefined) return true;
-  const strippedOriginal = token.startsWith("+") || token.startsWith("-") ? token.slice(1) : token;
-  if (aliases["+" + strippedOriginal] !== undefined) return true;
-  if (aliases["-" + strippedOriginal] !== undefined) return true;
+  const strippedOrig = token.startsWith("+") || token.startsWith("-") ? token.slice(1) : token;
+  if (aliases["+" + strippedOrig] !== undefined) return true;
+  if (aliases["-" + strippedOrig] !== undefined) return true;
 
-  // Cvar database (case-insensitive)
+  // Authoritative ezQuake command set (lowercase keys)
+  const lower = token.toLowerCase();
+  if (ezquakeCommandSet.has(lower)) return true;
+
+  // Cvar database (lowercase keys)
   if (cvarSet.has(lower)) return true;
 
   return false;
 }
 
-// Structural keywords that appear between commands and should not be treated as command tokens
-const STRUCTURAL_KEYWORDS = new Set(["if", "then", "else", "and", "or", "not"]);
+/** Returns true if any token in the compound command is a KTX command. */
+function isKtxCommand(command: string, ktxCommandSet: Set<string>): boolean {
+  const parts = command.split(";");
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const firstToken = trimmed.split(/\s+/)[0];
+    if (!firstToken) continue;
+    if (STRUCTURAL_KEYWORDS.has(firstToken.toLowerCase())) continue;
+    if (ktxCommandSet.has(firstToken.toLowerCase())) return true;
+  }
+  return false;
+}
 
 /**
  * Split a compound command on `;` and check the first token of each part.
@@ -153,6 +130,7 @@ function findUnresolvedToken(
   command: string,
   aliases: Record<string, string>,
   cvarSet: Set<string>,
+  ezquakeCommandSet: Set<string>,
 ): string | null {
   const parts = command.split(";");
   for (const part of parts) {
@@ -161,7 +139,9 @@ function findUnresolvedToken(
     const firstToken = trimmed.split(/\s+/)[0];
     if (!firstToken) continue;
     if (STRUCTURAL_KEYWORDS.has(firstToken.toLowerCase())) continue;
-    if (!isKnownCommand(firstToken, aliases, cvarSet)) return firstToken;
+    if (!isKnownEzQuakeToken(firstToken, aliases, cvarSet, ezquakeCommandSet)) {
+      return firstToken;
+    }
   }
   return null;
 }
@@ -181,6 +161,8 @@ export function categorizeBinds(
   selectedIndices: Set<number>,
   aliases: Record<string, string>,
   cvarSet: Set<string>,
+  ezquakeCommandSet: Set<string>,
+  ktxCommandSet: Set<string>,
   compareClassification?: ChainBindClassification | null,
   compareRawCommands?: Record<string, string>,
 ): EnrichedBind[] {
@@ -282,8 +264,15 @@ export function categorizeBinds(
         label: "rocket jump", description: command,
         sourceFile, hasLeft: true, hasRight, ...compareData,
       });
+    } else if (isKtxCommand(command, ktxCommandSet)) {
+      result.push({
+        key, command, category: "ktx",
+        label: "KTX",
+        description: `${command} (KTX server command)`,
+        sourceFile, hasLeft: true, hasRight, ...compareData,
+      });
     } else {
-      const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet);
+      const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet, ezquakeCommandSet);
       if (unresolvedToken) {
         result.push({
           key, command, category: "unresolved",
