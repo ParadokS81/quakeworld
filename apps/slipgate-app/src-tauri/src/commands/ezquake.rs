@@ -641,6 +641,32 @@ fn find_bind(bindings: &[(String, String)], command: &str) -> String {
 
 /// Format a key name for display (e.g. "MOUSE2" → "Mouse2", "SPACE" → "Space")
 fn format_key_name(key: &str) -> String {
+    let upper = key.to_uppercase();
+
+    // Shortened display for numpad keys (full names overflow keycap widgets)
+    let shortened = match upper.as_str() {
+        "KP_UPARROW" => Some("KP_↑"),
+        "KP_DOWNARROW" => Some("KP_↓"),
+        "KP_LEFTARROW" => Some("KP_←"),
+        "KP_RIGHTARROW" => Some("KP_→"),
+        "KP_HOME" => Some("KP_Home"),
+        "KP_END" => Some("KP_End"),
+        "KP_PGUP" => Some("KP_PgUp"),
+        "KP_PGDN" => Some("KP_PgDn"),
+        "KP_INS" => Some("KP_Ins"),
+        "KP_DEL" => Some("KP_Del"),
+        "KP_ENTER" => Some("KP_Enter"),
+        "KP_PLUS" => Some("KP_+"),
+        "KP_MINUS" => Some("KP_-"),
+        "KP_STAR" => Some("KP_*"),
+        "KP_SLASH" => Some("KP_/"),
+        _ => None,
+    };
+
+    if let Some(s) = shortened {
+        return s.to_string();
+    }
+
     match key {
         "MOUSE1" => "Mouse1".to_string(),
         "MOUSE2" => "Mouse2".to_string(),
