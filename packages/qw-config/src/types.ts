@@ -153,3 +153,47 @@ export interface CategoryGroup {
   /** Sub-groups */
   groups: string[];
 }
+
+// ── Command / macro / cmdline types ──
+
+export interface CommandInfo {
+  name: string;
+  groupId: string;
+  groupName: string;
+  description: string;
+  remarks?: string;
+}
+
+export interface EzQuakeCommandDatabase {
+  groups: Array<{ id: string; name: string }>;
+  commands: Map<string, CommandInfo>;
+}
+
+export interface MacroInfo {
+  name: string;
+  description: string;
+  remarks?: string;
+}
+
+export interface EzQuakeMacroDatabase {
+  macros: Map<string, MacroInfo>;
+}
+
+export interface CmdlineParamInfo {
+  name: string;
+  description: string;
+  remarks?: string;
+}
+
+export interface EzQuakeCmdlineDatabase {
+  params: Map<string, CmdlineParamInfo>;
+}
+
+export interface KtxCommandInfo {
+  name: string;
+  description: string;
+}
+
+export interface KtxCommandDatabase {
+  commands: Map<string, KtxCommandInfo>;
+}

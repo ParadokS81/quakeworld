@@ -112,3 +112,128 @@ export function getEzQuakeCategories(): CategoryGroup[] {
 export function getEzQuakeVarCount(): number {
   return Object.keys(data.vars).length;
 }
+
+// ── Command / macro / cmdline loaders ──
+
+import ezquakeCommandsData from "../data/ezquake-commands.json" with { type: "json" };
+import ezquakeMacrosData from "../data/ezquake-macros.json" with { type: "json" };
+import ezquakeCmdlineData from "../data/ezquake-cmdline-params.json" with { type: "json" };
+import ezquakeDefaultsData from "../data/ezquake-default-commands.json" with { type: "json" };
+import type {
+  EzQuakeCommandDatabase,
+  EzQuakeMacroDatabase,
+  EzQuakeCmdlineDatabase,
+  CommandInfo,
+  MacroInfo,
+  CmdlineParamInfo,
+} from "../types.js";
+
+interface RawCommand {
+  "group-id": string;
+  desc: string;
+  remarks?: string;
+}
+
+interface RawCommandsData {
+  groups: Array<{ id: string; name: string }>;
+  commands: Record<string, RawCommand>;
+}
+
+interface RawMacro {
+  desc: string;
+  remarks?: string;
+}
+
+interface RawMacrosData {
+  macros: Record<string, RawMacro>;
+}
+
+interface RawCmdlineData {
+  params: Record<string, RawMacro>;
+}
+
+interface RawDefault {
+  name: string;
+  args: string;
+}
+
+interface RawDefaultsData {
+  defaults: RawDefault[];
+}
+
+let _commandsCache: EzQuakeCommandDatabase | null = null;
+let _macrosCache: EzQuakeMacroDatabase | null = null;
+let _cmdlineCache: EzQuakeCmdlineDatabase | null = null;
+let _defaultCommandsCache: Set<string> | null = null;
+
+export function loadEzQuakeCommands(): EzQuakeCommandDatabase {
+  if (_commandsCache) return _commandsCache;
+
+  const raw = ezquakeCommandsData as unknown as RawCommandsData;
+  const groupNameById = new Map(raw.groups.map((g) => [g.id, g.name]));
+
+  const commands = new Map<string, CommandInfo>();
+  for (const [name, entry] of Object.entries(raw.commands)) {
+    commands.set(name, {
+      name,
+      groupId: entry["group-id"],
+      groupName: groupNameById.get(entry["group-id"]) ?? "Miscellaneous",
+      description: entry.desc,
+      ...(entry.remarks !== undefined ? { remarks: entry.remarks } : {}),
+    });
+  }
+
+  _commandsCache = { groups: raw.groups, commands };
+  return _commandsCache;
+}
+
+export function loadEzQuakeMacros(): EzQuakeMacroDatabase {
+  if (_macrosCache) return _macrosCache;
+
+  const raw = ezquakeMacrosData as unknown as RawMacrosData;
+  const macros = new Map<string, MacroInfo>();
+  for (const [name, entry] of Object.entries(raw.macros)) {
+    macros.set(name, {
+      name,
+      description: entry.desc,
+      ...(entry.remarks !== undefined ? { remarks: entry.remarks } : {}),
+    });
+  }
+
+  _macrosCache = { macros };
+  return _macrosCache;
+}
+
+export function loadEzQuakeCmdlineParams(): EzQuakeCmdlineDatabase {
+  if (_cmdlineCache) return _cmdlineCache;
+
+  const raw = ezquakeCmdlineData as unknown as RawCmdlineData;
+  const params = new Map<string, CmdlineParamInfo>();
+  for (const [name, entry] of Object.entries(raw.params)) {
+    params.set(name, {
+      name,
+      description: entry.desc,
+      ...(entry.remarks !== undefined ? { remarks: entry.remarks } : {}),
+    });
+  }
+
+  _cmdlineCache = { params };
+  return _cmdlineCache;
+}
+
+/**
+ * Returns a Set of "name||args" strings for fast default-matching.
+ * A command invocation is a default if `${name}||${args}` is in this set.
+ */
+export function loadEzQuakeDefaultCommands(): Set<string> {
+  if (_defaultCommandsCache) return _defaultCommandsCache;
+
+  const raw = ezquakeDefaultsData as unknown as RawDefaultsData;
+  const set = new Set<string>();
+  for (const d of raw.defaults) {
+    set.add(`${d.name}||${d.args}`);
+  }
+
+  _defaultCommandsCache = set;
+  return _defaultCommandsCache;
+}

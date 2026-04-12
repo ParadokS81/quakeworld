@@ -11,13 +11,29 @@ export type {
   CvarDatabase,
   CvarMapping,
   CategoryGroup,
+  CommandInfo,
+  EzQuakeCommandDatabase,
+  MacroInfo,
+  EzQuakeMacroDatabase,
+  CmdlineParamInfo,
+  EzQuakeCmdlineDatabase,
+  KtxCommandInfo,
+  KtxCommandDatabase,
 } from "./types.js";
 
 export { loadDatabase, lookupCvar, findEquivalent } from "./loaders/index.js";
-export { loadEzQuakeCvars, getEzQuakeCategories } from "./loaders/ezquake.js";
+export {
+  loadEzQuakeCvars,
+  getEzQuakeCategories,
+  loadEzQuakeCommands,
+  loadEzQuakeMacros,
+  loadEzQuakeCmdlineParams,
+  loadEzQuakeDefaultCommands,
+} from "./loaders/ezquake.js";
 export { loadDomainTags, getCvarDomains } from "./loaders/domains.js";
 export { loadFteCvars } from "./loaders/fte.js";
 export { loadQwclCvars } from "./loaders/qwcl.js";
+export { loadKtxCommands } from "./loaders/ktx.js";
 export { parseConfig } from "./parser/config-parser.js";
 export { convertConfig } from "./converter/converter.js";
 export type { ConversionResult } from "./converter/converter.js";
