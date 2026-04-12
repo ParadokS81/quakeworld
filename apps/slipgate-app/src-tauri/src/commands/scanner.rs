@@ -386,6 +386,7 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
         aliases: primary_parsed.aliases,
         exec_refs: primary_parsed.exec_refs.clone(),
         line_count: primary_line_count,
+        command_invocations: primary_parsed.command_invocations,
     };
 
     // Resolve exec refs from the primary that point to other dropped files.
@@ -428,6 +429,7 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
                 aliases: ref_parsed.aliases,
                 exec_refs: ref_parsed.exec_refs,
                 line_count: ref_line_count,
+                command_invocations: ref_parsed.command_invocations,
             });
         } else if !ezquake::is_dynamic_ref(exec_ref) {
             // Exec ref not found among dropped files — flag as missing
@@ -559,6 +561,7 @@ pub fn load_config_from_source(source_type: String, config_path: String, context
         aliases: parsed.aliases,
         exec_refs: parsed.exec_refs,
         line_count,
+        command_invocations: parsed.command_invocations,
     };
 
     Ok(ConfigChain {

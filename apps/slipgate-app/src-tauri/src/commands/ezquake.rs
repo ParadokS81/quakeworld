@@ -35,13 +35,22 @@ fn default_cvars() -> HashMap<&'static str, &'static str> {
     ])
 }
 
-/// Parsed config data — cvars, key bindings, aliases, and exec references.
+/// A command invocation captured from the config (e.g. "floodprot 4 4 10").
+/// Excludes cvar assignments, binds, aliases, set/exec.
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct CommandInvocation {
+    pub name: String,
+    pub args: String,
+}
+
+/// Parsed config data — cvars, key bindings, aliases, exec references, and command invocations.
 pub(crate) struct ParsedConfig {
     pub(crate) cvars: HashMap<String, String>,
     pub(crate) user_created: HashSet<String>,            // cvars declared via `set`/`set_tp`/`set_calc`
     pub(crate) bindings: Vec<(String, String)>,          // ordered list of (key, command)
     pub(crate) aliases: HashMap<String, String>,         // alias name → command string
     pub(crate) exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
+    pub(crate) command_invocations: Vec<CommandInvocation>, // stateful commands captured instead of discarded
 }
 
 // ============================================================
@@ -77,6 +86,7 @@ pub struct ConfigFile {
     pub aliases: HashMap<String, String>,
     pub exec_refs: Vec<String>,
     pub line_count: u32,
+    pub command_invocations: Vec<CommandInvocation>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -209,6 +219,7 @@ pub(crate) fn walk_exec_refs(
             aliases: parsed.aliases,
             exec_refs: parsed.exec_refs,
             line_count,
+            command_invocations: parsed.command_invocations,
         });
 
         // Recurse into this file's own exec refs
@@ -229,12 +240,18 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
     let mut bindings = Vec::new();
     let mut aliases = HashMap::new();
     let mut exec_refs = Vec::new();
+    let mut command_invocations: Vec<CommandInvocation> = Vec::new();
 
-    let skip_commands = [
+    // Commands that are known to be stateful invocations (not cvar assignments).
+    // Captured into command_invocations instead of being discarded.
+    // Small subset used only by the Rust parser to disambiguate cvar-like syntax
+    // ("name value") from command invocations. The TypeScript side has the full
+    // authoritative command database.
+    let stateful_commands: &[&str] = &[
+        "floodprot", "mapgroup", "skygroup", "filter",
+        "hud_recalculate", "sb_sourcemark", "sb_sourceunmarkall",
         "unbind", "unbindall", "unaliasall",
         "tp_pickup", "tp_took", "tp_point",
-        "filter", "mapgroup", "skygroup", "floodprot",
-        "hud_recalculate", "sb_sourceunmarkall", "sb_sourcemark",
     ];
 
     // Parse "set NAME value" and "set_tp NAME value" as user variables → store as cvars.
@@ -246,7 +263,12 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
         if trimmed.is_empty() || trimmed.starts_with("//") || trimmed.starts_with("////") {
             continue;
         }
+        // Press/release action commands (e.g. "-moveup", "+attack")
         if trimmed.starts_with('+') || trimmed.starts_with('-') {
+            let mut action_parts = trimmed.splitn(2, char::is_whitespace);
+            let name = action_parts.next().unwrap_or("").to_string();
+            let args = action_parts.next().unwrap_or("").trim().to_string();
+            command_invocations.push(CommandInvocation { name, args });
             continue;
         }
 
@@ -325,7 +347,13 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
             continue;
         }
 
-        if skip_commands.iter().any(|&cmd| key_lower == cmd) {
+        // Stateful command invocations — capture instead of dropping
+        if stateful_commands.iter().any(|&cmd| key_lower == cmd) {
+            let args = parts.next().unwrap_or("").trim().to_string();
+            command_invocations.push(CommandInvocation {
+                name: key.to_string(),
+                args,
+            });
             continue;
         }
 
@@ -353,7 +381,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
         }
     }
 
-    ParsedConfig { cvars, user_created, bindings, aliases, exec_refs }
+    ParsedConfig { cvars, user_created, bindings, aliases, exec_refs, command_invocations }
 }
 
 // ============================================================
@@ -1732,6 +1760,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
         aliases: parsed.aliases,
         exec_refs: top_level_exec_refs.clone(),
         line_count,
+        command_invocations: parsed.command_invocations,
     });
 
     // Phase 2: Follow inline exec refs from primary config (excludes cl_onload refs)
@@ -1769,6 +1798,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                     aliases: parsed.aliases,
                     exec_refs: parsed.exec_refs,
                     line_count,
+                    command_invocations: parsed.command_invocations,
                 });
 
                 walk_exec_refs(
@@ -1856,6 +1886,7 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                     aliases: parsed.aliases,
                     exec_refs: parsed.exec_refs,
                     line_count: lc,
+                    command_invocations: parsed.command_invocations,
                 });
 
                 walk_exec_refs(
