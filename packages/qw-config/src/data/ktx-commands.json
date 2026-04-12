@@ -1,0 +1,982 @@
+{
+  "commands": {
+    "-scores": {
+      "desc": "no desc"
+    },
+    "-wp_stats": {
+      "desc": "no desc"
+    },
+    "+scores": {
+      "desc": "show match time and score"
+    },
+    "+wp_stats": {
+      "desc": "start print weapon stats"
+    },
+    "10fav_go": {
+      "desc": "no desc"
+    },
+    "10on10": {
+      "desc": "10 on 10 settings"
+    },
+    "11fav_go": {
+      "desc": "no desc"
+    },
+    "12fav_go": {
+      "desc": "no desc"
+    },
+    "13fav_go": {
+      "desc": "no desc"
+    },
+    "14fav_go": {
+      "desc": "no desc"
+    },
+    "15fav_go": {
+      "desc": "no desc"
+    },
+    "16fav_go": {
+      "desc": "no desc"
+    },
+    "17fav_go": {
+      "desc": "no desc"
+    },
+    "18fav_go": {
+      "desc": "no desc"
+    },
+    "19fav_go": {
+      "desc": "set pov to slot 19"
+    },
+    "1fav_go": {
+      "desc": "set pov to slot  1"
+    },
+    "1on1": {
+      "desc": "duel settings"
+    },
+    "20fav_go": {
+      "desc": "set pov to slot 20"
+    },
+    "2fav_go": {
+      "desc": "set pov to slot  2"
+    },
+    "2on2": {
+      "desc": "2 on 2 settings"
+    },
+    "2on2on2": {
+      "desc": "2 on 2 on 2 settings"
+    },
+    "3fav_go": {
+      "desc": ".......etc........"
+    },
+    "3on3": {
+      "desc": "3 on 3 settings"
+    },
+    "3on3on3": {
+      "desc": "3 on 3 on 3 settings"
+    },
+    "4fav_go": {
+      "desc": "no desc"
+    },
+    "4on4": {
+      "desc": "4 on 4 settings"
+    },
+    "4on4on4": {
+      "desc": "4 on 4 on 4 settings"
+    },
+    "5fav_go": {
+      "desc": "no desc"
+    },
+    "6fav_go": {
+      "desc": "no desc"
+    },
+    "7fav_go": {
+      "desc": "no desc"
+    },
+    "8fav_go": {
+      "desc": "no desc"
+    },
+    "9fav_go": {
+      "desc": "no desc"
+    },
+    "about": {
+      "desc": "mod's info"
+    },
+    "admin": {
+      "desc": "toggle admin-mode"
+    },
+    "agree": {
+      "desc": "agree on last map vote"
+    },
+    "airstep": {
+      "desc": "toggle airstep"
+    },
+    "antilag": {
+      "desc": "toggle antilag"
+    },
+    "arena": {
+      "desc": "toggle rocket arena"
+    },
+    "auto_pow": {
+      "desc": "auto tracking powerups"
+    },
+    "autotrack": {
+      "desc": "auto tracking"
+    },
+    "autotrackktx": {
+      "desc": "auto tracking, ktx version"
+    },
+    "ban": {
+      "desc": "timed ban by uid/nick"
+    },
+    "banip": {
+      "desc": "timed ban by ip"
+    },
+    "banrem": {
+      "desc": "remove ban / banlist"
+    },
+    "berzerk": {
+      "desc": "berzerk settings"
+    },
+    "blitz2v2": {
+      "desc": "Blitz 2v2"
+    },
+    "blitz4v4": {
+      "desc": "Blitz 4v4"
+    },
+    "bloodfest": {
+      "desc": "blood fest mode (coop/single only)"
+    },
+    "botcmd": {
+      "desc": "bot configuration"
+    },
+    "break": {
+      "desc": "unready / vote matchend"
+    },
+    "callalias": {
+      "desc": "call alias after few secs"
+    },
+    "cam": {
+      "desc": "camera help text"
+    },
+    "captain": {
+      "desc": "toggle captain election"
+    },
+    "carena": {
+      "desc": "toggle clan arena"
+    },
+    "check": {
+      "desc": "better f_checks handle"
+    },
+    "cm": {
+      "desc": "no desc"
+    },
+    "cmdslist_dl": {
+      "desc": "no desc"
+    },
+    "coach": {
+      "desc": "toggle coach election"
+    },
+    "colorforce": {
+      "desc": "color forcing"
+    },
+    "commands": {
+      "desc": "show commands list"
+    },
+    "coop_nm_pu": {
+      "desc": "new nightmare mode (pu drops) on/off"
+    },
+    "ctf": {
+      "desc": "CTF settings"
+    },
+    "ctfbasedspawn": {
+      "desc": "spawn players on the base (CTF)"
+    },
+    "demomark": {
+      "desc": "put mark in the demo"
+    },
+    "dinfo": {
+      "desc": "show demo info"
+    },
+    "discharge": {
+      "desc": "underwater discharges"
+    },
+    "dlist": {
+      "desc": "show demo list"
+    },
+    "dm": {
+      "desc": "show deathmatch mode"
+    },
+    "dmgfrags": {
+      "desc": "toggle damage frags"
+    },
+    "dmm1": {
+      "desc": "set deathmatch mode 1"
+    },
+    "dmm2": {
+      "desc": "set deathmatch mode 2"
+    },
+    "dmm3": {
+      "desc": "set deathmatch mode 3"
+    },
+    "dmm4": {
+      "desc": "set deathmatch mode 4"
+    },
+    "dmm5": {
+      "desc": "set deathmatch mode 5"
+    },
+    "downplayers": {
+      "desc": "decrease maxclients"
+    },
+    "downspecs": {
+      "desc": "decrease maxspectators"
+    },
+    "dropitem": {
+      "desc": "no desc"
+    },
+    "droppack": {
+      "desc": "drop pack when killed"
+    },
+    "dropquad": {
+      "desc": "drop quad when killed"
+    },
+    "dropring": {
+      "desc": "drop ring when killed"
+    },
+    "dumpent": {
+      "desc": "no desc"
+    },
+    "effi": {
+      "desc": "show player efficiencies"
+    },
+    "elect": {
+      "desc": "toggle admin election"
+    },
+    "exclusive": {
+      "desc": "toggle exclusive mode"
+    },
+    "fairpacks": {
+      "desc": "best/last weapon dropped"
+    },
+    "fallbunny": {
+      "desc": "toggle fallbunny"
+    },
+    "fav_add": {
+      "desc": "add player to fav list"
+    },
+    "fav_all_del": {
+      "desc": "clear fav list"
+    },
+    "fav_del": {
+      "desc": "remove player from fav list"
+    },
+    "fav_next": {
+      "desc": "set pov to next fav"
+    },
+    "fav_show": {
+      "desc": "show fav list"
+    },
+    "fav1_add": {
+      "desc": "add player to slot  1"
+    },
+    "fav10_add": {
+      "desc": "no desc"
+    },
+    "fav11_add": {
+      "desc": "no desc"
+    },
+    "fav12_add": {
+      "desc": "no desc"
+    },
+    "fav13_add": {
+      "desc": "no desc"
+    },
+    "fav14_add": {
+      "desc": "no desc"
+    },
+    "fav15_add": {
+      "desc": "no desc"
+    },
+    "fav16_add": {
+      "desc": "no desc"
+    },
+    "fav17_add": {
+      "desc": "no desc"
+    },
+    "fav18_add": {
+      "desc": "no desc"
+    },
+    "fav19_add": {
+      "desc": "add player to slot 19"
+    },
+    "fav2_add": {
+      "desc": "add player to slot  2"
+    },
+    "fav20_add": {
+      "desc": "add player to slot 20"
+    },
+    "fav3_add": {
+      "desc": "........etc.........."
+    },
+    "fav4_add": {
+      "desc": "no desc"
+    },
+    "fav5_add": {
+      "desc": "no desc"
+    },
+    "fav6_add": {
+      "desc": "no desc"
+    },
+    "fav7_add": {
+      "desc": "no desc"
+    },
+    "fav8_add": {
+      "desc": "no desc"
+    },
+    "fav9_add": {
+      "desc": "no desc"
+    },
+    "ffa": {
+      "desc": "FFA settings"
+    },
+    "flagstatus": {
+      "desc": "show flags status (CTF)"
+    },
+    "force_spec": {
+      "desc": "force spec players"
+    },
+    "forcebreak": {
+      "desc": "force match to end"
+    },
+    "forcemap": {
+      "desc": "force change of map"
+    },
+    "forcestart": {
+      "desc": "force match to start"
+    },
+    "fp": {
+      "desc": "change floodprot level for players"
+    },
+    "fp_spec": {
+      "desc": "change floodprot level for specs"
+    },
+    "fpslist": {
+      "desc": "fps list"
+    },
+    "fragsdown": {
+      "desc": "-10 fraglimit"
+    },
+    "fragsup": {
+      "desc": "+10 fraglimit"
+    },
+    "freeze": {
+      "desc": "(un)freeze the map"
+    },
+    "fresh": {
+      "desc": "freshteams dmm1 settings"
+    },
+    "freshguns": {
+      "desc": "limit ammo when sweeping weapons"
+    },
+    "freshpacks": {
+      "desc": "limit ammo in backpacks"
+    },
+    "freshtime": {
+      "desc": "toggle weapon time in freshteams"
+    },
+    "gamemodes": {
+      "desc": "list available game modes"
+    },
+    "giveme": {
+      "desc": "no desc"
+    },
+    "gren_mode": {
+      "desc": "grenades mode"
+    },
+    "handicap": {
+      "desc": "toggle handicap level"
+    },
+    "hdptoggle": {
+      "desc": "toggle allow handicap"
+    },
+    "hook_classic": {
+      "desc": "switch Hook style settings: Classic Hook (CTF)"
+    },
+    "hook_crhook": {
+      "desc": "switch Hook style settings: crhook (CTF)"
+    },
+    "hook_fast": {
+      "desc": "switch Hook style settings: Fast Hook (CTF)"
+    },
+    "hook_smooth": {
+      "desc": "switch Hook style settings: Smooth Hook (CTF)"
+    },
+    "hoonymode": {
+      "desc": "HoonyMode settings"
+    },
+    "info": {
+      "desc": "no desc"
+    },
+    "infolock": {
+      "desc": "toggle specinfo perms"
+    },
+    "infospec": {
+      "desc": "toggle spectator infos"
+    },
+    "instagib": {
+      "desc": "instagib settings"
+    },
+    "instagib_coilgun_kickback": {
+      "desc": "toggle coilgun kickback in instagib"
+    },
+    "iplist": {
+      "desc": "list clients ips"
+    },
+    "kick": {
+      "desc": "toggle kick mode"
+    },
+    "kill": {
+      "desc": "invoke suicide"
+    },
+    "killer": {
+      "desc": "message to killer"
+    },
+    "killquad": {
+      "desc": "kill the quad mode"
+    },
+    "kinfo": {
+      "desc": "set self params for mod"
+    },
+    "klist": {
+      "desc": "mod's list of users"
+    },
+    "ksound1": {
+      "desc": "no desc"
+    },
+    "ksound2": {
+      "desc": "no desc"
+    },
+    "ksound3": {
+      "desc": "no desc"
+    },
+    "ksound4": {
+      "desc": "no desc"
+    },
+    "ksound5": {
+      "desc": "no desc"
+    },
+    "ksound6": {
+      "desc": "no desc"
+    },
+    "kuinfo": {
+      "desc": "examine someone params"
+    },
+    "lastscores": {
+      "desc": "print last games scores"
+    },
+    "lastscoresktx": {
+      "desc": "print last games scores"
+    },
+    "laststats": {
+      "desc": "show endgame stats"
+    },
+    "latejoin": {
+      "desc": "join a team after the game started"
+    },
+    "lgcmode": {
+      "desc": "lgc mode"
+    },
+    "list": {
+      "desc": "whonot to everyone"
+    },
+    "lock": {
+      "desc": "temporary lock server"
+    },
+    "lockmap": {
+      "desc": "(un)lock current map"
+    },
+    "lockmode": {
+      "desc": "change locking mode"
+    },
+    "mapcycle": {
+      "desc": "list map cycle"
+    },
+    "maps": {
+      "desc": "list custom maps"
+    },
+    "mapslist_dl": {
+      "desc": "no desc"
+    },
+    "mctf": {
+      "desc": "disable hook+runes (CTF)"
+    },
+    "messages": {
+      "desc": "fun message commands"
+    },
+    "midair": {
+      "desc": "turn midair mode on/off"
+    },
+    "midair_minheight": {
+      "desc": "midair minimum frag height"
+    },
+    "mkick": {
+      "desc": "multi kick"
+    },
+    "mmode": {
+      "desc": "switch message mode"
+    },
+    "moreinfo": {
+      "desc": "receiving more info"
+    },
+    "motd": {
+      "desc": "show motd"
+    },
+    "multi": {
+      "desc": "change/print multi set"
+    },
+    "n": {
+      "desc": "don't kick"
+    },
+    "newcomer": {
+      "desc": "message to last player joined"
+    },
+    "next_best": {
+      "desc": "set pov to next best player"
+    },
+    "next_map": {
+      "desc": "vote for next map"
+    },
+    "next_pow": {
+      "desc": "set pov to next powerup"
+    },
+    "no": {
+      "desc": "withdraws vote"
+    },
+    "no_gl": {
+      "desc": "alias for /noweapon gl"
+    },
+    "no_lg": {
+      "desc": "alias for /noweapon lg"
+    },
+    "noga": {
+      "desc": "toggle green armor on spawn (CTF)"
+    },
+    "nohook": {
+      "desc": "toggle hook (CTF)"
+    },
+    "noitems": {
+      "desc": "allow/disallow items in game"
+    },
+    "norunes": {
+      "desc": "toggle runes (CTF)"
+    },
+    "nospecs": {
+      "desc": "allow/disallow spectators"
+    },
+    "nosweep": {
+      "desc": "restrict players from sweeping weapons"
+    },
+    "noweapon": {
+      "desc": "toggle allow any weapon"
+    },
+    "options": {
+      "desc": "match control commands"
+    },
+    "overtime": {
+      "desc": "toggle overtime mode"
+    },
+    "overtimeup": {
+      "desc": "change overtime length"
+    },
+    "pause": {
+      "desc": "toggle pause"
+    },
+    "pickspawn": {
+      "desc": "nominate hoonymode spawn"
+    },
+    "pickup": {
+      "desc": "vote for pickup game"
+    },
+    "pitchsl": {
+      "desc": "pitch speed limiting"
+    },
+    "pos_angles": {
+      "desc": "set position angles"
+    },
+    "pos_move": {
+      "desc": "move to saved position"
+    },
+    "pos_origin": {
+      "desc": "set position origin"
+    },
+    "pos_save": {
+      "desc": "save current position"
+    },
+    "pos_show": {
+      "desc": "info about saved position"
+    },
+    "pos_velocity": {
+      "desc": "set position velocity"
+    },
+    "powerups": {
+      "desc": "quad, \\230\\230\\230, ring & suit"
+    },
+    "powerups_pickup": {
+      "desc": "change powerups pickup policy"
+    },
+    "practice": {
+      "desc": "toggle practice mode"
+    },
+    "prewar": {
+      "desc": "playerfire before game"
+    },
+    "qenemy": {
+      "desc": "enemy vicinity reporting"
+    },
+    "qizmo": {
+      "desc": "qizmo related commands"
+    },
+    "qlag": {
+      "desc": "lag settings"
+    },
+    "qpoint": {
+      "desc": "point function"
+    },
+    "ra_break": {
+      "desc": "toggle RA line status"
+    },
+    "ra_pos": {
+      "desc": "RA line position"
+    },
+    "race": {
+      "desc": "toggle race mode"
+    },
+    "race_break": {
+      "desc": "not ready for race"
+    },
+    "race_break_all": {
+      "desc": "force all racers to break"
+    },
+    "race_cancel": {
+      "desc": "cancel current race, for racer"
+    },
+    "race_chasecam": {
+      "desc": "toggle chasecam status"
+    },
+    "race_chasecam_freelook": {
+      "desc": "toggle chasecam freelook"
+    },
+    "race_chasecam_view": {
+      "desc": "cycle between chasecam views"
+    },
+    "race_countdown_down": {
+      "desc": "-1 sec race cowntdown time"
+    },
+    "race_countdown_up": {
+      "desc": "+1 sec race cowntdown time"
+    },
+    "race_del_checkpoint": {
+      "desc": "remove race current checkpoint"
+    },
+    "race_dl_record_demo": {
+      "desc": "download demo for a record"
+    },
+    "race_hide_players": {
+      "desc": "toggle visible players during race"
+    },
+    "race_match": {
+      "desc": "toggle race match mode"
+    },
+    "race_pacemaker": {
+      "desc": "set pacemaker"
+    },
+    "race_ready": {
+      "desc": "ready for race"
+    },
+    "race_route_clear": {
+      "desc": "clear current route completely"
+    },
+    "race_route_switch": {
+      "desc": "load predefined routes for map"
+    },
+    "race_scoring": {
+      "desc": "toggle between scoring systems"
+    },
+    "race_set_checkpoint": {
+      "desc": "set race checkpoint"
+    },
+    "race_set_falsestart": {
+      "desc": "set race starting mode"
+    },
+    "race_set_finish": {
+      "desc": "set race end checkpoint"
+    },
+    "race_set_start": {
+      "desc": "set race start checkpoint"
+    },
+    "race_set_timeout": {
+      "desc": "set race timeout"
+    },
+    "race_set_weapon_mode": {
+      "desc": "set race weapon mode"
+    },
+    "race_show_lineup": {
+      "desc": "show current race line-up"
+    },
+    "race_show_record_details": {
+      "desc": "show details about a record"
+    },
+    "race_show_route": {
+      "desc": "show race route info"
+    },
+    "race_show_toptimes": {
+      "desc": "show top race times for current map"
+    },
+    "race_simultaneous": {
+      "desc": "toggle simultaneous racing"
+    },
+    "race_toggle": {
+      "desc": "toggle ready status for race"
+    },
+    "ready": {
+      "desc": "when you feel ready"
+    },
+    "removeitem": {
+      "desc": "no desc"
+    },
+    "report": {
+      "desc": "simple teamplay report"
+    },
+    "rnd": {
+      "desc": "select random value"
+    },
+    "roundsdown": {
+      "desc": "decrease rounds in match"
+    },
+    "roundsup": {
+      "desc": "increase rounds in match"
+    },
+    "rpickup": {
+      "desc": "vote random team pickup"
+    },
+    "rules": {
+      "desc": "show game rules"
+    },
+    "s-l": {
+      "desc": "continue last s-p u done"
+    },
+    "s-m": {
+      "desc": "multi say"
+    },
+    "s-p": {
+      "desc": "direct player say"
+    },
+    "s-r": {
+      "desc": "reply to last s-p u got"
+    },
+    "s-t": {
+      "desc": "say to group of players"
+    },
+    "scores": {
+      "desc": "print match time/scores"
+    },
+    "sct_hex": {
+      "desc": "Show hexadecimal charset table"
+    },
+    "sct_oct": {
+      "desc": "Show octal charset table"
+    },
+    "sh_speed": {
+      "desc": "toggle use show speed"
+    },
+    "shownick": {
+      "desc": "pointed player's info"
+    },
+    "silence": {
+      "desc": "toggle spectator talk"
+    },
+    "skinforce": {
+      "desc": "skin forcing"
+    },
+    "slowready": {
+      "desc": "like ready, but don't activate the idlebot"
+    },
+    "socd": {
+      "desc": "cycle between SOCD detection modes"
+    },
+    "spawn": {
+      "desc": "toggle spawn modes"
+    },
+    "spawn_show": {
+      "desc": "toggle visible spawn points"
+    },
+    "spawn666time": {
+      "desc": "set spawn pent time (dmm4 atm)"
+    },
+    "spawnicide": {
+      "desc": "toggle spawnicide"
+    },
+    "speed": {
+      "desc": "toggle sv_maxspeed"
+    },
+    "stats": {
+      "desc": "show player stats"
+    },
+    "status1": {
+      "desc": "show server settings"
+    },
+    "status2": {
+      "desc": "more server settings"
+    },
+    "suggestcolor": {
+      "desc": "toggle suggest color vote"
+    },
+    "swapall": {
+      "desc": "swap teams for ctf"
+    },
+    "teamoverlay": {
+      "desc": "allow/disallow teamoverlay"
+    },
+    "teleportcap": {
+      "desc": "set teleport cap (yawn)"
+    },
+    "teleteam": {
+      "desc": "team telefrag behaviour"
+    },
+    "time": {
+      "desc": "show server time"
+    },
+    "time10": {
+      "desc": "set timelimit to 10 mins"
+    },
+    "time15": {
+      "desc": "set timelimit to 15 mins"
+    },
+    "time20": {
+      "desc": "set timelimit to 20 mins"
+    },
+    "time25": {
+      "desc": "set timelimit to 25 mins"
+    },
+    "time30": {
+      "desc": "set timelimit to 30 mins"
+    },
+    "time5": {
+      "desc": "set timelimit to 5 mins"
+    },
+    "timedown": {
+      "desc": "-5 mins match time"
+    },
+    "timedown1": {
+      "desc": "-1 mins match time"
+    },
+    "timeup": {
+      "desc": "+5 mins match time"
+    },
+    "timeup1": {
+      "desc": "+1 mins match time"
+    },
+    "tkfjump": {
+      "desc": "toggle allow kfjump"
+    },
+    "tkrjump": {
+      "desc": "toggle allow krjump"
+    },
+    "toggleklist": {
+      "desc": "trackers list"
+    },
+    "toggleready": {
+      "desc": "just toggle ready"
+    },
+    "toggletracklist": {
+      "desc": "trackers list"
+    },
+    "tossflag": {
+      "desc": "drop flag (CTF)"
+    },
+    "tossrune": {
+      "desc": "drop rune (CTF)"
+    },
+    "tot": {
+      "desc": "toggle Tribe of Tjernobyl mode"
+    },
+    "totmode": {
+      "desc": "toggle Tribe of Tjernobyl mode"
+    },
+    "tp": {
+      "desc": "change teamplay mode"
+    },
+    "tpmsg": {
+      "desc": "teamplay messages"
+    },
+    "tracklist": {
+      "desc": "trackers list"
+    },
+    "trx_play": {
+      "desc": "trick tmp playback"
+    },
+    "trx_rec": {
+      "desc": "trick tmp record"
+    },
+    "trx_stop": {
+      "desc": "stop playback/recording"
+    },
+    "uinfo": {
+      "desc": "no desc"
+    },
+    "upplayers": {
+      "desc": "increase maxclients"
+    },
+    "upspecs": {
+      "desc": "increase maxspectators"
+    },
+    "victim": {
+      "desc": "message to victim"
+    },
+    "votecoop": {
+      "desc": "vote for coop on/off"
+    },
+    "votemap": {
+      "desc": "alternative map vote system"
+    },
+    "voteprivate": {
+      "desc": "private game (logged in users only)"
+    },
+    "vwep": {
+      "desc": "toggle vweps"
+    },
+    "who": {
+      "desc": "player teamlist"
+    },
+    "whonot": {
+      "desc": "players not ready"
+    },
+    "whoskin": {
+      "desc": "player skinlist"
+    },
+    "whovote": {
+      "desc": "info on received votes"
+    },
+    "wipeout": {
+      "desc": "toggle wipeout"
+    },
+    "wp_reset": {
+      "desc": "clear weapon stats"
+    },
+    "wreg": {
+      "desc": "register reliable wpns"
+    },
+    "XonX": {
+      "desc": "X on X settings"
+    },
+    "y": {
+      "desc": "yes kick"
+    },
+    "yawnmode": {
+      "desc": "toggle yawnmode"
+    },
+    "yawsl": {
+      "desc": "yaw speed limiting"
+    },
+    "yes": {
+      "desc": "give vote"
+    }
+  }
+}
