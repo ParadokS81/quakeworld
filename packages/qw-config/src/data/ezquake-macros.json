@@ -1,0 +1,288 @@
+{
+  "macros": {
+    "ammo": {
+      "desc": "returns amount of ammo held for currently selected weapon",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "armor": {
+      "desc": "returns current armor value",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "armortype": {
+      "desc": "returns current armor type",
+      "type": "string",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_name_armortype_ga",
+        "tp_name_armortype_ya",
+        "tp_name_armortype_ra",
+        "tp_name_armortype_none"
+      ]
+    },
+    "bestammo": {
+      "desc": "returns ammo held for the 'best' weapon",
+      "type": "integer",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_weapon_order"
+      ]
+    },
+    "bestweapon": {
+      "desc": "returns name of best weapon in inventory",
+      "type": "string",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_weapon_order",
+        "tp_name_sg",
+        "tp_name_ssg",
+        "tp_name_ng",
+        "tp_name_sng",
+        "tp_name_gl",
+        "tp_name_rl",
+        "tp_name_lg"
+      ]
+    },
+    "cam_angles": {
+      "desc": "returns current camera angles, in format that can be passed to /cam_angles command.",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "cam_angles_pitch": {
+      "desc": "returns current camera pitch (vertical angle).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_angles_roll": {
+      "desc": "returns current camera roll (not used).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_angles_yaw": {
+      "desc": "returns current camera yaw (horizontal angle).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos": {
+      "desc": "returns current camera position, in format that can be passed to /cam_pos command.",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "cam_pos_x": {
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos_y": {
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos_z": {
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cells": {
+      "desc": "returns number of cells held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "colored_armor": {
+      "desc": "returns $armor, surrounded by color codes so it is displayed in &c0b0red&r, &cff0yellow&r, &e00green&r or &cfffwhite&r",
+      "type": "string",
+      "teamplay-restricted": false
+    },
+    "colored_powerups": {
+      "teamplay-restricted": false
+    },
+    "colored_short_powerups": {
+      "teamplay-restricted": false
+    },
+    "conheight": {
+      "teamplay-restricted": true
+    },
+    "connectiontype": {
+      "desc": "returns the current type of the connection",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "conwidth": {
+      "teamplay-restricted": true
+    },
+    "date": {
+      "desc": "returns the current date in the format <day>.<month>.<year>",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "dateiso": {
+      "teamplay-restricted": true
+    },
+    "deathloc": {
+      "teamplay-restricted": false
+    },
+    "demolength": {
+      "desc": "returns the expected length of the current demo, in seconds",
+      "type": "integer",
+      "teamplay-restricted": true
+    },
+    "demoname": {
+      "desc": "returns the name of the current demo, minus extension",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "demoplayback": {
+      "desc": "returns whether or not the client is current watching a demo",
+      "type": "boolean",
+      "teamplay-restricted": true
+    },
+    "demotime": {
+      "teamplay-restricted": true
+    },
+    "droploc": {
+      "desc": "returns the name of the location where the last backpack was dropped by the current player.",
+      "type": "string",
+      "teamplay-restricted": false
+    },
+    "droptime": {
+      "desc": "returns the number of seconds since the last backpack was dropped by the current player.",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "gamedir": {
+      "desc": "returns the current gamedir, which is often set when a server is running a mod.\ne.g: 'fortress' for Team Fortress mods",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "health": {
+      "desc": "the current player's health (0 - 250)",
+      "teamplay-restricted": false
+    },
+    "lastip": {
+      "teamplay-restricted": true
+    },
+    "lastloc": {
+      "teamplay-restricted": false
+    },
+    "lastpowerup": {
+      "teamplay-restricted": false
+    },
+    "latency": {
+      "teamplay-restricted": true
+    },
+    "ledpoint": {
+      "teamplay-restricted": false
+    },
+    "ledstatus": {
+      "teamplay-restricted": false
+    },
+    "location": {
+      "teamplay-restricted": false
+    },
+    "matchname": {
+      "teamplay-restricted": true
+    },
+    "matchstatus": {
+      "teamplay-restricted": true
+    },
+    "matchtype": {
+      "teamplay-restricted": true
+    },
+    "mp3_volume": {
+      "teamplay-restricted": false
+    },
+    "mp3info": {
+      "teamplay-restricted": false
+    },
+    "nails": {
+      "desc": "returns number of nails held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "need": {
+      "teamplay-restricted": false
+    },
+    "ping": {
+      "teamplay-restricted": true
+    },
+    "point": {
+      "teamplay-restricted": false
+    },
+    "pointatloc": {
+      "teamplay-restricted": false
+    },
+    "pointloc": {
+      "teamplay-restricted": false
+    },
+    "powerups": {
+      "teamplay-restricted": false
+    },
+    "qt": {
+      "desc": "returns \" - useful to clear cvars in scripts",
+      "teamplay-restricted": true
+    },
+    "rand": {
+      "teamplay-restricted": true
+    },
+    "rockets": {
+      "desc": "returns number of rockets held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "serverip": {
+      "teamplay-restricted": true
+    },
+    "shells": {
+      "desc": "returns number of shells held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "team1": {
+      "teamplay-restricted": true
+    },
+    "team2": {
+      "teamplay-restricted": true
+    },
+    "tf_skin": {
+      "teamplay-restricted": true
+    },
+    "time": {
+      "desc": "returns the local time in the format <hours>:<minutes>",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "timestamp": {
+      "teamplay-restricted": true
+    },
+    "took": {
+      "teamplay-restricted": false
+    },
+    "tookatloc": {
+      "teamplay-restricted": false
+    },
+    "tookloc": {
+      "teamplay-restricted": false
+    },
+    "tp_powerups": {
+      "desc": "$colored_powerups or $colored_short_powerups, depending on value of tp_poweruptextstyle",
+      "type": "boolean",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_poweruptextstyle"
+      ]
+    },
+    "triggermatch": {
+      "teamplay-restricted": true
+    },
+    "weapon": {
+      "teamplay-restricted": true
+    },
+    "weaponnum": {
+      "teamplay-restricted": true
+    },
+    "weapons": {
+      "teamplay-restricted": false
+    }
+  }
+}
