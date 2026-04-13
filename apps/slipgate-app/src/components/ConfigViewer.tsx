@@ -14,7 +14,7 @@ import ConfigTriggersSection from "./ConfigTriggersSection";
 import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
-import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierWeaponBinds, synthesizeModifierTeamsayBinds } from "./configMerger";
+import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -451,13 +451,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     );
   });
 
-  // Merge Rust-classified weapon/teamsay binds with modifier-combo synthesized ones
-  // so the domain views show `CTRL+R → ready`, `SHIFT+MOUSE1 → gl`, etc.
-  const primaryWeaponBinds = createMemo(() => {
-    const base = effectiveConfig()?.weapon_binds ?? [];
-    const combos = synthesizeModifierWeaponBinds(mergedData()?.binds ?? [], primaryAliases());
-    return [...base, ...combos];
-  });
+  const primaryWeaponBinds = createMemo(() =>
+    effectiveConfig()?.weapon_binds ?? []
+  );
   const primaryTeamsayBinds = createMemo(() => {
     const base = effectiveConfig()?.teamsay_binds ?? [];
     const combos = synthesizeModifierTeamsayBinds(
@@ -467,15 +463,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     );
     return [...base, ...combos];
   });
-  const compareWeaponBinds = createMemo(() => {
-    const base = compareBinds()?.weapon_binds;
-    if (!base) return undefined;
-    const cmpRaw = Array.from(Object.entries(compareBindCommands())).map(
-      ([k, v]) => [k, v] as [string, string],
-    );
-    const combos = synthesizeModifierWeaponBinds(cmpRaw, compareAliases());
-    return [...base, ...combos];
-  });
+  const compareWeaponBinds = createMemo(() =>
+    compareBinds()?.weapon_binds ?? []
+  );
   const compareTeamsayBinds = createMemo(() => {
     const base = compareBinds()?.teamsay_binds;
     if (!base) return undefined;

@@ -106,14 +106,28 @@ export interface MovementKeys {
   movedown: string;
 }
 
-export interface WeaponBind {
-  weapon: string;           // "rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"
-  key: string;              // display name of the key (may be "MOD+KEY" for modifier combos)
-  method: string;           // "quickfire" or "manual"
-  fire_key: string | null;  // for manual: which key fires (usually "Mouse1")
-  /** Set for synthesized modifier-combo entries — the `+alias` name driving the combo. */
-  modifier_alias?: string;
+export type Weapon = "axe" | "sg" | "ssg" | "ng" | "sng" | "gl" | "rl" | "lg";
+export type Method = "quickfire" | "manual";
+export type ManualFlavor = "select" | "hold";
+export type PathSource = "explicit" | "engine_default";
+export type Mechanism =
+  | "plus_fire" | "plus_fire_ar" | "weapon_attack" | "impulse_attack"
+  | "preselect_weapon" | "preselect_impulse" | "rebind_fire_key"
+  | "hold_modifier_rebind" | "generic_fire_key";
+
+export interface FiringPath {
+  weapon: Weapon;
+  method: Method;
+  flavor: ManualFlavor | null;
+  trigger_key: string;
+  fire_key: string | null;
+  source: PathSource;
+  mechanism: Mechanism;
+  origin_alias_chain: string[];
 }
+
+// Backward-compat alias: 6 files reference WeaponBind; rename in place after Tasks 20-21.
+export type WeaponBind = FiringPath;
 
 export interface TeamsayBind {
   key: string;           // display name of the key (e.g. "R", "Mouse4", or "CTRL+R" for combos)
@@ -144,14 +158,14 @@ export interface EzQuakeConfig {
   vid_displayfrequency: number;
   cl_maxfps: number;
   movement: MovementKeys;
-  weapon_binds: WeaponBind[];
+  weapon_binds: FiringPath[];
   teamsay_binds: TeamsayBind[];
   raw_cvars: Record<string, string>;
   command_invocations: CommandInvocation[];
 }
 
 export interface ChainBindClassification {
-  weapon_binds: WeaponBind[];
+  weapon_binds: FiringPath[];
   teamsay_binds: TeamsayBind[];
   movement: MovementKeys;
 }
