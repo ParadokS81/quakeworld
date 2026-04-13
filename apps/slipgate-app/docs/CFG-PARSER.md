@@ -60,26 +60,50 @@ Extracted from binds:
 - `+forward`, `+back`, `+moveleft`, `+moveright`, `+jump`
 - Last bind wins (ezQuake processes top-to-bottom)
 
-### 3. Weapon Binds (implemented, refining)
+### 3. Weapon Binds (implemented, v2 classifier)
 
-#### The two weapon mechanisms
+Weapon-bind analysis tells the viewer "which keys fire which weapons, and how". Per weapon, the user may see multiple firing paths (a dedicated quickfire key plus a manual-select rebind plus the engine default 1-8 fallback). The classifier emits a flat `Vec<FiringPath>` and the UI groups by weapon at render time.
 
-| Mechanism | How it works | Detection |
-|-----------|-------------|-----------|
-| **Quickfire** | One key selects AND fires the weapon | Alias contains `impulse/weapon N` + `+attack` |
-| **Manual** | One key selects, another key fires | Alias rebinds mouse1 or just selects weapon, no `+attack` |
+**Implementation:** `src-tauri/src/commands/weapon_classifier.rs`. Public entry point `classify_firing_paths(bindings, aliases, cvars) -> Vec<FiringPath>`. The module-level doc comment points at the design spec and the shared domain-knowledge reference below.
+
+**Domain knowledge source of truth:** `packages/qw-knowledge/weapon-scripts/README.md`. That doc defines generic vs weapon-specific fire keys, the `+fire` / `+fire_ar` commands, priority-chain semantics, and the non-combat pattern catalogue. This section summarizes only what the parser needs; the README is the reference.
+
+**Design spec:** `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` is authoritative for rule numbering and terminology.
+
+#### Firing path shapes
+
+A `FiringPath` names one weapon plus one of three shapes:
+
+| Shape | When emitted | Player experience |
+|---|---|---|
+| **Quickfire** | Press body both selects a weapon AND fires (`+attack` / `+fire` / `+fire_ar`, inline or via alias) | One keypress, weapon fires |
+| **Manual-select** | Press body persistently rebinds a fire key to a weapon-specific fire, OR selects a weapon without firing while a generic fire key exists | Two keypresses. Select sticks until overridden |
+| **Manual-hold** | `+alias` / `-alias` pair where the press body rebinds a fire key and the release body rebinds the same target (reverting it) | Two keypresses. Select is valid only while the trigger is held |
+
+Data model (see the source file for the full types):
+
+- `Method` = `Quickfire | Manual`
+- `ManualFlavor` = `Select | Hold` (set only when `method == Manual`)
+- `PathSource` = `Explicit | EngineDefault` (UI dims the engine defaults)
+- `Mechanism` = `PlusFire | PlusFireAr | WeaponAttack | ImpulseAttack | PreselectWeapon | PreselectImpulse | RebindFireKey | HoldModifierRebind | GenericFireKey`
+- `trigger_key` is the key the player physically presses first. `fire_key` is set only for manual paths.
+- `origin_alias_chain` records the resolve trace for tooltips and regression-diff snapshots.
 
 #### ezQuake weapon commands
 
-**`weapon N [N2 N3...]`** — Select weapon with priority fallback. Required for `cl_weaponpreselect` to work.
+**`weapon N [N2 N3...]`** - Select weapon with priority fallback. Respects `cl_weaponpreselect`.
 ```
 weapon 7 3 2    // Try RL, then SSG, then SG
 ```
 
-**`impulse N`** — Immediately select weapon N. Old-school, no fallback, no preselect support.
+**`impulse N`** - Immediately select weapon N. Old-school, no fallback, no preselect support.
 ```
 impulse 7       // Select RL
 ```
+
+**`+fire N [N2 ...]` / `+fire_ar N [N2 ...]`** - Quickfire: select and fire in one action. `+fire_ar` is the anti-rollover variant. See `packages/qw-knowledge/weapon-scripts/README.md` for the behavioral difference.
+
+**Priority chains anchor to the first weapon.** `bind q "weapon 7 5 3 2 1"` is classified as selecting RL; the rest are cascade fallbacks (runtime engine behavior, not player choice) and do not produce separate firing paths. The full chain is preserved in `origin_alias_chain` for the expanded row.
 
 **Impulse → weapon mapping:**
 ```
@@ -90,52 +114,47 @@ impulse 7       // Select RL
 
 | Cvar | Default | Effect on parser |
 |------|---------|-----------------|
-| `cl_weaponpreselect` | 0 | 1+ = weapon selection is virtual until fire. Doesn't change quickfire/manual classification. |
-| `cl_weaponhide` | 0 | 1+ = auto-switch to SG/axe after firing. Affects which weapon is "held" but not bind classification. |
+| `cl_weaponpreselect` | 0 | 1+ tags bare `weapon N` binds with `Mechanism::PreselectWeapon` in Rule 4. Does not change quickfire/manual classification. |
+| `cl_weaponhide` | 0 | 1+ = auto-switch to SG/axe after firing. Affects which weapon is "held" but not classification. |
 | `cl_weaponhide_axe` | 0 | Use axe instead of SG for hide. |
 | `cl_weaponforgetorder` | 0 | 1 = weapon command picks best at time of command, not best-available tracking. |
 | `w_switch` | 8 | Auto-switch threshold on weapon pickup. 2 = don't auto-switch to anything above SG. |
 | `b_switch` | 8 | Auto-switch threshold on backpack pickup. |
 
-These cvars affect gameplay behavior but **do not change the quickfire/manual classification**. They should be noted in the profile as context (e.g., "uses weaponpreselect" or "weaponhide active").
+Only `cl_weaponpreselect` flows into the classifier output (via the mechanism tag). The rest are gameplay context the profile surfaces separately.
 
-#### Detection algorithm
+#### Architecture
 
-```
-For each bind (key, command):
-  1. Skip empty binds
-  2. Resolve command through alias map (one level)
-  3. If resolved command rebinds mouse1:
-     a. Extract what mouse1 gets rebound to
-     b. Resolve that alias
-     c. If resolved alias has +attack → quickfire
-     d. If no +attack → manual (select key, fire on mouse1)
-  4. If resolved command has weapon/impulse number:
-     a. Skip if 4+ numbers (pack-drop chain)
-     b. Skip if default impulse on number key (legacy)
-     c. If has +attack → quickfire
-     d. If rebinds mouse1 → manual
-     e. Otherwise → manual select (non-number keys only)
-  5. Mouse1 itself: if it appears as the target of multiple rebinds,
-     classify as "primary fire button", not a weapon bind
-```
+`classify_firing_paths` runs four passes:
+
+1. **`classify_fire_keys`** - walk every bind, resolve the press body, and partition keys into `generic_fire_keys` (bare `+attack` / `+fire` / `+fire_ar`, no weapon selection) and `weapon_specific_fire_keys` (both select and fire, e.g. `bind mouse1 +rocket`). This distinction drives Rule 4: a select-only bind has no functional manual path if the config has no generic fire key.
+2. **Per-bind rule dispatch** - `extract_paths_from_resolved` applies rules 1 through 6 to each resolved binding after running the exclusion gates. Rule 1 emits quickfire paths. Rule 2 emits manual-select / manual-hold via inline `bind` rebinds inside the press body, with Rule 3 picking Hold when the release body also rebinds the same target. Rule 4 emits manual-select for bare select-only binds paired against each generic fire key, with Rule 5 tagging the mechanism as `PreselectWeapon` when `cl_weaponpreselect != 0` and the body is a bare `weapon N ...`. Rule 6 (weapon-specific fire keys as standalone quickfires) falls out of Rule 1 naturally via alias resolution.
+3. **`emit_engine_defaults`** - Rule 7. For every number key 1-8 not explicitly bound and every generic fire key that exists, emit a Manual-Select path with `source = EngineDefault`. Skipped entirely if no generic fire key exists.
+4. **`suppress_contested_quickfires`** (post-pass) - count manual-select paths per `fire_key` (case-insensitive). For any fire key rebound by 2+ manual-select paths, drop any standalone Quickfire path whose `trigger_key` is that key. Rationale: with 2+ persistent rebinds the key's at-rest state is whichever trigger cfg_save happened to save last, not a deliberate quickfire. N=1 is left alone (coherent "default + one contextual override"). Manual-hold rebinds revert on release and do not contribute to contention.
+
+#### Exclusion gates
+
+Applied before per-bind rule dispatch. Rule 2 additionally re-runs the rocket-jump and kill-me gates on the rebind destination so mode-toggle patterns (e.g. hangtime's `enablerj` flipping mouse1 between `+rocket` and `+jumprocket`, where the outer body has no `+jump` but the destination does) do not slip past:
+
+| Gate | Predicate | Drops |
+|---|---|---|
+| **Rocket jump** | `is_rocket_jump` - body contains fire AND `+jump` | Movement scripts like `bind shift "weapon 7;+attack;+jump"` |
+| **E1 Kill-me name** | `matches_killme_name` - any step in `origin_chain` contains `kill_me` / `killme` / `kill.me` | `__kill_me`, `.msg.kill.me.rl`, etc. |
+| **E2 Kill-me text** | `contains_killme_text` - one-level alias walk reaches a `say` / `say_team` whose message contains "kill me" (after stripping QW color codes) | Teamsay announcements with literal "kill me" text |
+| **E3 Announce without fire** | `is_announce_without_fire` - selects a weapon, reaches `say` / `say_team`, has no fire path and no rebind | Location-announce binds that happen to select a weapon |
+| **E4 Long impulse scan** | `is_long_impulse_scan` - 4+ sequential `impulse N` / `weapon N` numbers with no fire | Pack-drop scans like `impulse 7 8 6 5 3 5 4` |
 
 #### Known patterns
 
-**Mouse1 rebind system** (ParadokS, Mazer):
-Mouse1 is a universal fire button that gets rebound by other keys. Different keys switch what Mouse1 fires. The keys that trigger the rebind are the real weapon binds.
+**Mouse1 rebind system** (ParadokS, Mazer): Mouse1 is a universal fire button that multiple triggers rebind. With 2+ rebinds, the post-pass `suppress_contested_quickfires` correctly drops the spurious "MOUSE1 is a quickfire for whatever cfg_save left behind" path and the real firing paths show up on each rebinding trigger.
 
-**Quickfire with rebind** (ParadokS's C/V):
-`+boom = "weapon 2; +attack; bind mouse1 +boom"` — fires immediately (quickfire) AND rebinds mouse1 for continued firing. Classified as quickfire because the key initiates fire.
+**Quickfire with rebind** (ParadokS's C/V hybrid): `+boom = "weapon 2;+attack;bind mouse1 +boom"` fires immediately (Rule 1 emits Quickfire) AND persistently rebinds Mouse1 for continued firing (Rule 2 emits Manual-Select with `fire_key = mouse1`). Both paths appear under SSG in the UI.
 
-**at-system** (Mazer):
-`at7 = "impulse 7; bind mouse1 +go7"` — selects weapon AND rebinds mouse1 to quickfire it. Classified as manual because the at-key itself doesn't fire.
+**at-system** (Mazer): `at7 = "impulse 7;bind mouse1 +go7"` is a specific case of Rule 2 manual-select via persistent rebind - the at-key itself does not fire, so no Quickfire path is emitted.
 
-**Pack-drop binds**:
-`impulse 7 8 6 5 3 5 4` — long impulse chain to select best weapon for dropping. Not a combat bind. Filter by chain length ≥ 4.
+**Pack-drop scans** are handled by exclusion gate E4 (long impulse scan), independent of alias name.
 
-**Legacy default binds**:
-Number keys 1-8 with plain `impulse N` — often unchanged from defaults. Skip when custom weapon binds exist elsewhere in config.
+**Legacy default number-key binds** are handled by Rule 7 (`emit_engine_defaults`) rather than being filtered in the classifier - an explicit `bind 7 "impulse 7"` written by the player is Rule 4 Explicit, the engine fallback is Rule 7 EngineDefault, and the UI can dim or collapse the latter.
 
 ### 4. Teamsay binds (implemented)
 
@@ -155,9 +174,9 @@ Team communication binds are now classified by category. The `analyze_teamsay_bi
 
 Detection uses substring matching on the command body after alias resolution (e.g., commands containing `tp_name_rl` + `$x5` patterns). `tempalias` with `if`/`then`/`else` conditional logic is NOT resolved — the parser sees the literal conditional command and classifies by the observable substrings.
 
-### 5. Modifier-combo bind synthesis (implemented)
+### 5. Modifier-combo bind synthesis (moved to Rust)
 
-For binds of the form `key → +mod_alias` where `+mod_alias` itself rebinds other keys (e.g., `+mod` contains `bind F impulse 7`), the parser synthesizes virtual "MOD+TARGET → weapon" entries. This lets the viewer show modifier combos as first-class binds — users see both `R` → modifier and `R+F` → RL, instead of having to trace the alias chain mentally. Implemented in `configMerger.ts` (`synthesizeModifierWeaponBinds`, `synthesizeModifierTeamsayBinds`) on the frontend side, consuming data the backend parser provides.
+Modifier-combo handling used to live on the frontend as `synthesizeModifierWeaponBinds` / `synthesizeModifierTeamsayBinds` helpers in `configMerger.ts`. Those were deleted when the v2 weapon classifier landed. Modifier combos are now emitted natively by Rule 2 (inline-rebind detection) in `weapon_classifier.rs`, which traces `+alias` / `-alias` press and release bodies to distinguish manual-select from manual-hold. See `extract_paths_from_resolved` for the detail.
 
 ### 6. Aliases (implemented)
 
