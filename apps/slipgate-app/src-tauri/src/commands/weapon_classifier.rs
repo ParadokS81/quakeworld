@@ -176,6 +176,92 @@ fn resolve_plain_chain(
     body
 }
 
+/// Outcome of Pass 2: which keys fire something.
+#[derive(Debug, Default)]
+pub(crate) struct FireKeyClasses {
+    /// Keys whose resolved press body is bare `+attack` / `+fire` / `+fire_ar`
+    /// with NO weapon selection. These fire whatever is currently selected.
+    pub generic_fire_keys: Vec<String>,
+    /// Keys that both select a weapon AND fire. Maps key name to the weapon it fires.
+    pub weapon_specific_fire_keys: HashMap<String, Weapon>,
+}
+
+pub(crate) fn classify_fire_keys(
+    bindings: &[(String, String)],
+    aliases: &HashMap<String, String>,
+) -> FireKeyClasses {
+    let mut classes = FireKeyClasses::default();
+    for (key, command) in bindings {
+        let resolved = resolve_bind_chain(key, command, aliases, 10);
+        let body = resolved.press_body.trim();
+        let has_fire = body_contains_fire(body);
+        if !has_fire {
+            continue;
+        }
+        match extract_first_weapon(body) {
+            Some(weapon) => {
+                classes
+                    .weapon_specific_fire_keys
+                    .insert(key.clone(), weapon);
+            }
+            None => {
+                classes.generic_fire_keys.push(key.clone());
+            }
+        }
+    }
+    classes
+}
+
+/// True if the body contains a top-level fire command.
+pub(crate) fn body_contains_fire(body: &str) -> bool {
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if t == "+attack" || t == "+fire" || t == "+fire_ar" {
+            return true;
+        }
+        if t.starts_with("+fire ") || t.starts_with("+fire_ar ") {
+            return true;
+        }
+    }
+    false
+}
+
+/// Extract the first weapon referenced by any selection command in the body.
+/// Returns None if no specific weapon is selected (e.g., bare `+attack`).
+pub(crate) fn extract_first_weapon(body: &str) -> Option<Weapon> {
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if let Some(rest) = t.strip_prefix("impulse ") {
+            if let Some(n) = rest.split_whitespace().next() {
+                if let Ok(num) = n.parse::<u8>() {
+                    if let Some(w) = Weapon::from_impulse(num) {
+                        return Some(w);
+                    }
+                }
+            }
+        }
+        if let Some(rest) = t.strip_prefix("weapon ") {
+            if let Some(n) = rest.split_whitespace().next() {
+                if let Ok(num) = n.parse::<u8>() {
+                    if let Some(w) = Weapon::from_impulse(num) {
+                        return Some(w);
+                    }
+                }
+            }
+        }
+        if let Some(rest) = t.strip_prefix("+fire ").or_else(|| t.strip_prefix("+fire_ar ")) {
+            if let Some(n) = rest.split_whitespace().next() {
+                if let Ok(num) = n.parse::<u8>() {
+                    if let Some(w) = Weapon::from_impulse(num) {
+                        return Some(w);
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
 /// Classify a merged config chain into firing paths.
 ///
 /// `bindings` is the ordered list of `(key, command)` pairs as parsed.
@@ -345,5 +431,44 @@ mod tests {
         assert_eq!(bindings[0], ("q".to_string(), "+rock".to_string()));
         assert_eq!(bindings[1], ("mouse1".to_string(), "+attack".to_string()));
         assert_eq!(aliases.get("+rock"), Some(&"weapon 7;+attack".to_string()));
+    }
+
+    #[test]
+    fn classify_fire_keys_finds_generic_mouse1() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind q "weapon 7"
+        "#);
+        let classes = classify_fire_keys(&bindings, &aliases);
+        assert_eq!(classes.generic_fire_keys, vec!["mouse1".to_string()]);
+        assert!(classes.weapon_specific_fire_keys.is_empty());
+    }
+
+    #[test]
+    fn classify_fire_keys_recognizes_weapon_specific_mouse1() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias +rocket "weapon 7;+attack"
+            alias -rocket "-attack"
+            bind mouse1 +rocket
+            bind q "weapon 8"
+        "#);
+        let classes = classify_fire_keys(&bindings, &aliases);
+        assert!(classes.generic_fire_keys.is_empty());
+        assert_eq!(
+            classes.weapon_specific_fire_keys.get("mouse1"),
+            Some(&Weapon::Rl)
+        );
+    }
+
+    #[test]
+    fn classify_fire_keys_allows_multiple_generic_keys() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind enter +attack
+        "#);
+        let classes = classify_fire_keys(&bindings, &aliases);
+        assert_eq!(classes.generic_fire_keys.len(), 2);
+        assert!(classes.generic_fire_keys.contains(&"mouse1".to_string()));
+        assert!(classes.generic_fire_keys.contains(&"enter".to_string()));
     }
 }
