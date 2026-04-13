@@ -355,6 +355,15 @@ fn extract_paths_from_resolved(
     if matches_killme_name(&resolved.origin_chain) {
         return;
     }
+    if contains_killme_text(body, aliases) {
+        return;
+    }
+    if is_announce_without_fire(body, aliases) {
+        return;
+    }
+    if is_long_impulse_scan(body) {
+        return;
+    }
 
     // Rule 1: Quickfire from inline fire.
     if body_contains_fire(body) {
@@ -482,6 +491,108 @@ pub(crate) fn extract_inline_rebinds(body: &str) -> Vec<InlineRebind> {
         }
     }
     out
+}
+
+pub(crate) fn contains_killme_text(body: &str, aliases: &HashMap<String, String>) -> bool {
+    // Walk the body and any referenced aliases one level deep, collect say_team message text.
+    let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut queue: Vec<String> = vec![body.to_string()];
+    while let Some(current) = queue.pop() {
+        for segment in current.split(|c: char| c == ';' || c == '\n') {
+            let t = segment.trim();
+            if let Some(msg) = t.strip_prefix("say_team ").or_else(|| t.strip_prefix("say ")) {
+                let stripped = strip_qw_color_codes(msg);
+                if stripped.to_lowercase().contains("kill me") {
+                    return true;
+                }
+            } else if let Some(body) = aliases.get(t) {
+                if visited.insert(t.to_string()) {
+                    queue.push(body.clone());
+                }
+            }
+        }
+    }
+    false
+}
+
+fn strip_qw_color_codes(s: &str) -> String {
+    // Strip `{&c...&cfff}` / `{&cfff...&cfff}` style color blocks by removing any `{...}` segment
+    // that begins with `&c`.
+    let mut out = String::new();
+    let mut chars = s.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '{' {
+            let rest: String = chars.clone().collect();
+            if rest.starts_with("&c") {
+                // Consume until matching `}`.
+                for next in chars.by_ref() {
+                    if next == '}' {
+                        break;
+                    }
+                }
+                continue;
+            }
+        }
+        // Also strip standalone `&cXYZ` sequences that appear without braces.
+        if c == '&' && chars.peek() == Some(&'c') {
+            chars.next();
+            for _ in 0..3 {
+                chars.next();
+            }
+            continue;
+        }
+        out.push(c);
+    }
+    out
+}
+
+pub(crate) fn is_announce_without_fire(body: &str, aliases: &HashMap<String, String>) -> bool {
+    // Has weapon selection, reaches a say/say_team, has no fire path.
+    if body_contains_fire(body) {
+        return false;
+    }
+    if !extract_inline_rebinds(body).is_empty() {
+        return false; // rebind path counts as "reachable fire"
+    }
+    if extract_first_weapon(body).is_none() {
+        return false;
+    }
+    reaches_say(body, aliases)
+}
+
+fn reaches_say(body: &str, aliases: &HashMap<String, String>) -> bool {
+    let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut queue: Vec<String> = vec![body.to_string()];
+    while let Some(current) = queue.pop() {
+        for segment in current.split(|c: char| c == ';' || c == '\n') {
+            let t = segment.trim();
+            if t.starts_with("say_team") || t.starts_with("say ") || t == "say" {
+                return true;
+            }
+            if let Some(body) = aliases.get(t) {
+                if visited.insert(t.to_string()) {
+                    queue.push(body.clone());
+                }
+            }
+        }
+    }
+    false
+}
+
+pub(crate) fn is_long_impulse_scan(body: &str) -> bool {
+    if body_contains_fire(body) {
+        return false;
+    }
+    let mut count = 0;
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if let Some(rest) = t.strip_prefix("impulse ") {
+            count += rest.split_whitespace().filter(|tok| tok.parse::<u8>().is_ok()).count();
+        } else if let Some(rest) = t.strip_prefix("weapon ") {
+            count += rest.split_whitespace().filter(|tok| tok.parse::<u8>().is_ok()).count();
+        }
+    }
+    count >= 4
 }
 
 pub(crate) fn tokenize_line(line: &str) -> Vec<String> {
@@ -877,5 +988,51 @@ mod tests {
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let x_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "x").collect();
         assert!(x_paths.is_empty(), "kill-me alias name must exclude the bind");
+    }
+
+    #[test]
+    fn killme_text_in_say_team_excludes_the_bind() {
+        // Alias name doesn't match, but the message text contains "kill me".
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias .msg "say_team {&cb1akill me&cfff} $tp_name_rl"
+            bind mouse1 +attack
+            bind x ".msg; impulse 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(paths.iter().all(|p| p.trigger_key != "x"));
+    }
+
+    #[test]
+    fn announce_without_fire_is_excluded() {
+        // Bind selects a weapon and says something, no fire path.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind x "weapon 7; say_team need help"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(paths.iter().all(|p| p.trigger_key != "x"));
+    }
+
+    #[test]
+    fn long_impulse_scan_without_fire_is_excluded() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind x "impulse 7 8 6 5 3 5 4"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(paths.iter().all(|p| p.trigger_key != "x"));
+    }
+
+    #[test]
+    fn combat_bind_with_commentary_is_kept() {
+        // Quickfire RL that also says something - NOT excluded.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind q "weapon 7;+attack;say_team enemy rl"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 1);
+        assert_eq!(q_paths[0].method, Method::Quickfire);
     }
 }
