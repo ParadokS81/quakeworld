@@ -311,7 +311,12 @@ fn extract_paths_from_resolved(
     // Rule 2: Manual-Select via persistent rebind.
     // A press body that rebinds a fire key to a weapon-specific fire creates a
     // persistent manual path for that weapon.
-    let is_temporary = !resolved.release_body.is_empty();
+    //
+    // Hold vs Select is decided per-rebind: a rebind is temporary (Hold) only
+    // if the release body ALSO rebinds the same target key. A +alias/-alias
+    // trigger whose -alias only does `-attack` (without reverting the mouse1
+    // rebind) still leaves the rebind persistent — that's Select, not Hold.
+    let release_rebinds = extract_inline_rebinds(&resolved.release_body);
     for rebind in extract_inline_rebinds(body) {
         // Resolve the new body to see if it fires a specific weapon.
         let rebind_resolved = resolve_bind_chain(&rebind.target_key, &rebind.new_body, aliases, 10);
@@ -319,6 +324,7 @@ fn extract_paths_from_resolved(
             continue;
         }
         let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else { continue };
+        let is_temporary = release_rebinds.iter().any(|rr| rr.target_key == rebind.target_key);
         let flavor = if is_temporary {
             ManualFlavor::Hold
         } else {
