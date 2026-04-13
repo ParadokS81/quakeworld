@@ -413,6 +413,19 @@ fn extract_paths_from_resolved(
         if !body_contains_fire(&rebind_resolved.press_body) {
             continue;
         }
+        // Exclusion gate applies to the rebind destination too. A mode-toggle
+        // bind (e.g. `enablerj` flipping mouse1 between +rocket and +jumprocket)
+        // would otherwise emit a spurious manual-select path for a weapon the
+        // user never actually fires through that trigger.
+        if is_rocket_jump(&rebind_resolved.press_body) {
+            continue;
+        }
+        if matches_killme_name(&rebind_resolved.origin_chain) {
+            continue;
+        }
+        if contains_killme_text(&rebind_resolved.press_body, aliases) {
+            continue;
+        }
         let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else {
             continue;
         };
@@ -1255,6 +1268,26 @@ mod tests {
             .any(|p| p.trigger_key.to_lowercase() == "kp_uparrow"
                 && p.weapon == Weapon::Lg
                 && p.method == Method::Manual));
+    }
+
+    #[test]
+    fn fixture_hangtime_mouse5_enablerj_emits_no_paths() {
+        // MOUSE5 is bound to `enablerj`, a mode-toggle alias that rebinds
+        // mouse1 to +jumprocket (a rocket-jump alias). The outer body
+        // ("bind mouse1 +jumprocket;...") contains no +jump, so the outer
+        // RJ gate misses it. The fix applies the RJ/killme exclusions to
+        // the rebind destination body as well — pressing MOUSE5 is not a
+        // weapon firing action and must not appear in the weapons domain.
+        let paths = classify_fixture("hangtime.cfg");
+        let mouse5_paths: Vec<_> = paths
+            .iter()
+            .filter(|p| p.trigger_key.to_lowercase() == "mouse5")
+            .collect();
+        assert!(
+            mouse5_paths.is_empty(),
+            "MOUSE5 -> enablerj is a mode-toggle into rocket-jump mode and must not emit weapon paths, got: {:?}",
+            mouse5_paths
+        );
     }
 
     #[test]
