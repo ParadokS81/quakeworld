@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
+use crate::commands::weapon_classifier::{classify_firing_paths, FiringPath};
+
 // ============================================================
 // Config parser
 // ============================================================
@@ -2052,7 +2054,7 @@ pub fn launch_ezquake(options: LaunchOptions) -> Result<(), String> {
 /// Classified binds extracted from a config chain.
 #[derive(Serialize, Clone, Debug)]
 pub struct ChainBindClassification {
-    pub weapon_binds: Vec<WeaponBind>,
+    pub weapon_binds: Vec<FiringPath>,
     pub teamsay_binds: Vec<TeamsayBind>,
     pub movement: MovementKeys,
 }
@@ -2061,9 +2063,10 @@ pub struct ChainBindClassification {
 /// Merges all files in the chain (last-write-wins), then runs weapon/teamsay analysis.
 #[tauri::command]
 pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
-    // Merge binds and aliases from all files in order (last-write-wins)
+    // Merge binds, aliases, and cvars from all files in order (last-write-wins)
     let mut bindings: Vec<(String, String)> = Vec::new();
     let mut aliases: HashMap<String, String> = HashMap::new();
+    let mut cvars: HashMap<String, String> = HashMap::new();
 
     for file in &chain.files {
         for (key, cmd) in &file.binds {
@@ -2071,6 +2074,9 @@ pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
         }
         for (name, cmd) in &file.aliases {
             aliases.insert(name.clone(), cmd.clone());
+        }
+        for (name, val) in &file.cvars {
+            cvars.insert(name.clone(), val.clone());
         }
     }
 
@@ -2084,7 +2090,7 @@ pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
         movedown: find_bind(&bindings, "+movedown"),
     };
 
-    let weapon_binds = analyze_weapon_binds(&bindings, &aliases);
+    let weapon_binds = classify_firing_paths(&bindings, &aliases, &cvars);
     let teamsay_binds = analyze_teamsay_binds(&bindings, &aliases);
 
     ChainBindClassification {

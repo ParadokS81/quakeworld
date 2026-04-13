@@ -1038,4 +1038,16 @@ mod tests {
         assert_eq!(q_paths.len(), 1);
         assert_eq!(q_paths[0].method, Method::Quickfire);
     }
+
+    #[test]
+    fn weapon_10_rotate_next_produces_no_paths() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind mwheelup "weapon 10"
+            bind mwheeldown "weapon 12"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(paths.iter().all(|p| p.trigger_key != "mwheelup"));
+        assert!(paths.iter().all(|p| p.trigger_key != "mwheeldown"));
+    }
 }
