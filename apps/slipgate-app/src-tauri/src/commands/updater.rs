@@ -486,10 +486,8 @@ fn verify_md5(file_path: &Path, expected_hex: &str) -> Result<bool, String> {
 
 /// Extract the exe from a zip file
 fn extract_exe_from_zip(zip_path: &Path, exe_name: &str, dest: &Path) -> Result<(), String> {
-    let file =
-        std::fs::File::open(zip_path).map_err(|e| format!("Cannot open zip: {}", e))?;
-    let mut archive =
-        zip::ZipArchive::new(file).map_err(|e| format!("Invalid zip file: {}", e))?;
+    let file = std::fs::File::open(zip_path).map_err(|e| format!("Cannot open zip: {}", e))?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("Invalid zip file: {}", e))?;
 
     for i in 0..archive.len() {
         let mut entry = archive
@@ -498,8 +496,7 @@ fn extract_exe_from_zip(zip_path: &Path, exe_name: &str, dest: &Path) -> Result<
         if entry.name().eq_ignore_ascii_case(exe_name) {
             let mut out = std::fs::File::create(dest)
                 .map_err(|e| format!("Cannot create {}: {}", dest.display(), e))?;
-            std::io::copy(&mut entry, &mut out)
-                .map_err(|e| format!("Extract error: {}", e))?;
+            std::io::copy(&mut entry, &mut out).map_err(|e| format!("Extract error: {}", e))?;
             return Ok(());
         }
     }
@@ -543,10 +540,7 @@ fn backup_exe(exe_path: &Path, version: &str) -> Result<PathBuf, String> {
 /// Check if a process with the given exe name is running
 fn is_process_running(exe_name: &str) -> bool {
     let mut sys = System::new();
-    sys.refresh_processes(
-        sysinfo::ProcessesToUpdate::All,
-        true,
-    );
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
     let target = exe_name.to_lowercase();
     sys.processes().values().any(|p| {
         p.name()
@@ -603,10 +597,7 @@ pub async fn check_for_update(
             })?;
 
         // Find checksums.txt URL
-        let checksums_asset = latest
-            .assets
-            .iter()
-            .find(|a| a.name == "checksums.txt");
+        let checksums_asset = latest.assets.iter().find(|a| a.name == "checksums.txt");
 
         // Determine if update is available
         let update_available = match &current_semver {
@@ -618,16 +609,10 @@ pub async fn check_for_update(
         let mut release_notes = Vec::new();
         for release in &releases {
             if let Some(rv) = parse_version_lenient(&release.tag_name) {
-                let is_newer = current_semver
-                    .as_ref()
-                    .map(|c| rv > *c)
-                    .unwrap_or(true);
+                let is_newer = current_semver.as_ref().map(|c| rv > *c).unwrap_or(true);
                 release_notes.push(ReleaseNote {
                     version: release.tag_name.clone(),
-                    published_at: release
-                        .published_at
-                        .clone()
-                        .unwrap_or_default(),
+                    published_at: release.published_at.clone().unwrap_or_default(),
                     body: release.body.clone().unwrap_or_default(),
                     is_newer,
                 });
@@ -638,7 +623,9 @@ pub async fn check_for_update(
         let snapshot = if client.snapshot_url.is_some() {
             let stable_date = latest.published_at.as_deref();
             let stable_tag = Some(latest.tag_name.as_str());
-            fetch_latest_snapshot(client, stable_date, stable_tag).await.ok()
+            fetch_latest_snapshot(client, stable_date, stable_tag)
+                .await
+                .ok()
         } else {
             None
         };
@@ -683,9 +670,7 @@ pub async fn download_and_install_update(
 ) -> Result<UpdateResult, String> {
     let client_def = get_client_def(&client_name)?;
     let exe = Path::new(&exe_path);
-    let exe_dir = exe
-        .parent()
-        .ok_or("Cannot determine exe directory")?;
+    let exe_dir = exe.parent().ok_or("Cannot determine exe directory")?;
 
     // 1. Check if running
     if is_process_running(client_def.exe_name) {
@@ -861,17 +846,12 @@ pub async fn get_release_changelog(
     let client = get_client_def(&client_name)?;
     let releases = fetch_github_releases(client).await?;
 
-    let from_semver = from_version
-        .as_ref()
-        .and_then(|v| parse_version_lenient(v));
+    let from_semver = from_version.as_ref().and_then(|v| parse_version_lenient(v));
 
     let mut notes = Vec::new();
     for release in &releases {
         if let Some(rv) = parse_version_lenient(&release.tag_name) {
-            let dominated = from_semver
-                .as_ref()
-                .map(|from| rv > *from)
-                .unwrap_or(true);
+            let dominated = from_semver.as_ref().map(|from| rv > *from).unwrap_or(true);
             if dominated {
                 notes.push(ReleaseNote {
                     version: release.tag_name.clone(),

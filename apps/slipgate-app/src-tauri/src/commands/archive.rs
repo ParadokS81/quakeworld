@@ -78,10 +78,8 @@ pub fn read_pak_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Resu
         let name = String::from_utf8_lossy(&name_bytes[..name_len]);
 
         if name == filename {
-            let data_offset =
-                u32::from_le_bytes(entry_buf[56..60].try_into().unwrap()) as u64;
-            let data_size =
-                u32::from_le_bytes(entry_buf[60..64].try_into().unwrap()) as usize;
+            let data_offset = u32::from_le_bytes(entry_buf[56..60].try_into().unwrap()) as u64;
+            let data_size = u32::from_le_bytes(entry_buf[60..64].try_into().unwrap()) as usize;
 
             reader.seek(SeekFrom::Start(data_offset))?;
             let mut buf = vec![0u8; data_size];
@@ -103,7 +101,8 @@ pub fn read_zip_index<R: Read + Seek>(reader: &mut R) -> io::Result<Vec<ArchiveE
 
     let mut entries = Vec::new();
     for i in 0..archive.len() {
-        let entry = archive.by_index_raw(i)
+        let entry = archive
+            .by_index_raw(i)
             .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
         if entry.is_dir() {
             continue;
@@ -123,9 +122,10 @@ pub fn read_zip_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Resu
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
 
     let mut entry = archive.by_name(filename).map_err(|e| match e {
-        zip::result::ZipError::FileNotFound => {
-            io::Error::new(io::ErrorKind::NotFound, format!("file not found in ZIP: {filename}"))
-        }
+        zip::result::ZipError::FileNotFound => io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("file not found in ZIP: {filename}"),
+        ),
         other => io::Error::new(io::ErrorKind::InvalidData, other.to_string()),
     })?;
 
@@ -227,7 +227,10 @@ pub fn extract_all_configs(path: &Path) -> io::Result<Vec<(String, String)>> {
                 if entry.name().to_lowercase().ends_with(".cfg") {
                     let mut content = Vec::new();
                     entry.read_to_end(&mut content)?;
-                    results.push((entry.name().to_string(), String::from_utf8_lossy(&content).to_string()));
+                    results.push((
+                        entry.name().to_string(),
+                        String::from_utf8_lossy(&content).to_string(),
+                    ));
                 }
             }
         }
@@ -413,12 +416,21 @@ mod tests {
     fn test_detect_format() {
         use std::path::Path;
 
-        assert_eq!(detect_format(Path::new("pak0.pak")), Some(ArchiveFormat::Pak));
-        assert_eq!(detect_format(Path::new("data.zip")), Some(ArchiveFormat::Zip));
+        assert_eq!(
+            detect_format(Path::new("pak0.pak")),
+            Some(ArchiveFormat::Pak)
+        );
+        assert_eq!(
+            detect_format(Path::new("data.zip")),
+            Some(ArchiveFormat::Zip)
+        );
         assert_eq!(detect_format(Path::new("qw.pk3")), Some(ArchiveFormat::Zip));
         // Case-insensitive
         assert_eq!(detect_format(Path::new("qw.PK3")), Some(ArchiveFormat::Zip));
-        assert_eq!(detect_format(Path::new("PAK0.PAK")), Some(ArchiveFormat::Pak));
+        assert_eq!(
+            detect_format(Path::new("PAK0.PAK")),
+            Some(ArchiveFormat::Pak)
+        );
         // Unsupported
         assert_eq!(detect_format(Path::new("autoexec.cfg")), None);
         assert_eq!(detect_format(Path::new("readme.txt")), None);

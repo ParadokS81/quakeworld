@@ -77,7 +77,11 @@ pub fn get_all_specs() -> AllSpecs {
         let model = clean_cpu_model(&raw_model);
         let threads = cpus.len();
         let cores = sys.physical_core_count().unwrap_or(threads);
-        CpuInfo { model, cores, threads }
+        CpuInfo {
+            model,
+            cores,
+            threads,
+        }
     };
 
     let ram_total_gb = (sys.total_memory() as f64) / 1_073_741_824.0;
@@ -112,8 +116,18 @@ pub fn get_all_specs() -> AllSpecs {
 // ============================================================
 
 #[cfg(target_os = "windows")]
-fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<HidDevice>, Option<String>) {
-    let empty_display = DisplayInfo { refresh_hz: None, monitor_name: None, manufacturer: None };
+fn get_platform_specs() -> (
+    Option<GpuInfo>,
+    DisplayInfo,
+    Vec<AudioDevice>,
+    Vec<HidDevice>,
+    Option<String>,
+) {
+    let empty_display = DisplayInfo {
+        refresh_hz: None,
+        monitor_name: None,
+        manufacturer: None,
+    };
 
     // Tauri's thread pool already initializes COM (MTA mode).
     // COMLibrary::new() would fail with RPC_E_CHANGED_MODE.
@@ -135,7 +149,9 @@ fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<
     }
 
     let gpus: Vec<GpuRow> = conn
-        .raw_query("SELECT Name, AdapterRAM, DriverVersion, CurrentRefreshRate FROM Win32_VideoController")
+        .raw_query(
+            "SELECT Name, AdapterRAM, DriverVersion, CurrentRefreshRate FROM Win32_VideoController",
+        )
         .unwrap_or_default();
     let best_gpu = gpus.into_iter().max_by_key(|g| g.AdapterRAM.unwrap_or(0));
 
@@ -163,24 +179,44 @@ fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<
                 .raw_query("SELECT UserFriendlyName, ManufacturerName FROM WmiMonitorID")
                 .unwrap_or_default();
             monitors.into_iter().next().map(|m| {
-                let name = m.UserFriendlyName.map(|bytes| {
-                    bytes.iter().filter(|&&b| b != 0).map(|&b| char::from(b as u8)).collect::<String>()
-                }).filter(|s| !s.is_empty());
-                let mfr_code = m.ManufacturerName.map(|bytes| {
-                    bytes.iter().filter(|&&b| b != 0).map(|&b| char::from(b as u8)).collect::<String>()
-                }).filter(|s| !s.is_empty());
+                let name = m
+                    .UserFriendlyName
+                    .map(|bytes| {
+                        bytes
+                            .iter()
+                            .filter(|&&b| b != 0)
+                            .map(|&b| char::from(b as u8))
+                            .collect::<String>()
+                    })
+                    .filter(|s| !s.is_empty());
+                let mfr_code = m
+                    .ManufacturerName
+                    .map(|bytes| {
+                        bytes
+                            .iter()
+                            .filter(|&&b| b != 0)
+                            .map(|&b| char::from(b as u8))
+                            .collect::<String>()
+                    })
+                    .filter(|s| !s.is_empty());
                 let mfr = mfr_code.and_then(|code| edid_manufacturer(&code));
                 (name, mfr)
             })
         })
         .unwrap_or((None, None));
 
-    let display = DisplayInfo { refresh_hz, monitor_name, manufacturer };
+    let display = DisplayInfo {
+        refresh_hz,
+        monitor_name,
+        manufacturer,
+    };
 
     // --- Audio endpoints (native WMI — good names) ---
     #[allow(non_snake_case)]
     #[derive(serde::Deserialize)]
-    struct NameOnly { Name: Option<String> }
+    struct NameOnly {
+        Name: Option<String>,
+    }
 
     let endpoints: Vec<NameOnly> = conn
         .raw_query("SELECT Name FROM Win32_PnPEntity WHERE PNPClass = 'AudioEndpoint'")
@@ -193,14 +229,23 @@ fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<
             _ => continue,
         };
         let lower = name.to_lowercase();
-        if lower.contains("voicemeeter") || lower.contains("vb-audio")
-            || lower.contains("steam streaming") || lower.contains("virtual")
+        if lower.contains("voicemeeter")
+            || lower.contains("vb-audio")
+            || lower.contains("steam streaming")
+            || lower.contains("virtual")
         {
             continue;
         }
-        let device_type = if lower.contains("microphone") || lower.contains("mic") { "input" } else { "output" };
+        let device_type = if lower.contains("microphone") || lower.contains("mic") {
+            "input"
+        } else {
+            "output"
+        };
         let short_name = extract_device_name(name);
-        audio_devices.push(AudioDevice { name: short_name, device_type: device_type.into() });
+        audio_devices.push(AudioDevice {
+            name: short_name,
+            device_type: device_type.into(),
+        });
     }
 
     // --- USB HID devices (native SetupAPI — fast, no PowerShell) ---
@@ -209,7 +254,9 @@ fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<
     // --- DDR generation (WMI Win32_PhysicalMemory) ---
     #[allow(non_snake_case)]
     #[derive(serde::Deserialize)]
-    struct MemRow { SMBIOSMemoryType: Option<u32> }
+    struct MemRow {
+        SMBIOSMemoryType: Option<u32>,
+    }
 
     let ddr_generation = conn
         .raw_query::<MemRow>("SELECT SMBIOSMemoryType FROM Win32_PhysicalMemory")
@@ -249,12 +296,8 @@ fn get_usb_hid_devices() -> Vec<HidDevice> {
 
     for (class_guid, hid_type) in &classes {
         unsafe {
-            let dev_info = match SetupDiGetClassDevsW(
-                Some(*class_guid),
-                None,
-                None,
-                DIGCF_PRESENT,
-            ) {
+            let dev_info = match SetupDiGetClassDevsW(Some(*class_guid), None, None, DIGCF_PRESENT)
+            {
                 Ok(h) => h,
                 Err(_) => continue,
             };
@@ -385,8 +428,24 @@ unsafe fn get_devnode_string_property(
 // ============================================================
 
 #[cfg(not(target_os = "windows"))]
-fn get_platform_specs() -> (Option<GpuInfo>, DisplayInfo, Vec<AudioDevice>, Vec<HidDevice>, Option<String>) {
-    (None, DisplayInfo { refresh_hz: None, monitor_name: None, manufacturer: None }, Vec::new(), Vec::new(), None)
+fn get_platform_specs() -> (
+    Option<GpuInfo>,
+    DisplayInfo,
+    Vec<AudioDevice>,
+    Vec<HidDevice>,
+    Option<String>,
+) {
+    (
+        None,
+        DisplayInfo {
+            refresh_hz: None,
+            monitor_name: None,
+            manufacturer: None,
+        },
+        Vec::new(),
+        Vec::new(),
+        None,
+    )
 }
 
 // ============================================================

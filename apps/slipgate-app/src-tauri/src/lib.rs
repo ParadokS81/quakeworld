@@ -1,9 +1,9 @@
 pub mod commands;
 
 use tauri::{
-    Manager,
-    menu::{MenuBuilder},
+    menu::MenuBuilder,
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Manager,
 };
 
 #[tauri::command]

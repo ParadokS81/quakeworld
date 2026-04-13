@@ -1,9 +1,9 @@
-pub mod system;
-pub mod ezquake;
-pub mod auth;
-pub mod updater;
-pub mod screenshot;
-pub mod watcher;
 pub mod archive;
+pub mod auth;
+pub mod ezquake;
 pub mod scanner;
+pub mod screenshot;
+pub mod system;
+pub mod updater;
+pub mod watcher;
 pub mod weapon_classifier;

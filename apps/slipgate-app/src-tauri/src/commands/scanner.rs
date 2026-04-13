@@ -1,7 +1,7 @@
-use std::path::PathBuf;
-use serde::Serialize;
-use super::ezquake::{self, ConfigChain, ConfigFile, ChainEntrySource, ExecReference};
 use super::archive;
+use super::ezquake::{self, ChainEntrySource, ConfigChain, ConfigFile, ExecReference};
+use serde::Serialize;
+use std::path::PathBuf;
 
 /// Where a config source originated.
 #[derive(Serialize, Clone, Debug)]
@@ -39,7 +39,10 @@ pub struct ConfigSourceBundle {
 }
 
 /// Scan a local ezQuake/FTE installation and return a ConfigSourceBundle.
-pub fn scan_local_install_internal(exe_path: &str, config_name: &str) -> Result<ConfigSourceBundle, String> {
+pub fn scan_local_install_internal(
+    exe_path: &str,
+    config_name: &str,
+) -> Result<ConfigSourceBundle, String> {
     let path = PathBuf::from(exe_path);
     let cfg_dir = ezquake::config_dir_from_exe(&path);
     let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
@@ -48,12 +51,16 @@ pub fn scan_local_install_internal(exe_path: &str, config_name: &str) -> Result<
     let chain = ezquake::read_config_chain_internal(&path, config_name)?;
 
     // Collect paths already in the chain (to avoid duplicates)
-    let chain_paths: std::collections::HashSet<String> = chain.files.iter()
+    let chain_paths: std::collections::HashSet<String> = chain
+        .files
+        .iter()
         .map(|f| f.relative_path.clone())
         .collect();
 
     // Build available_configs from chain's other_cfgs (loose files already found)
-    let mut available: Vec<ConfigEntry> = chain.other_cfgs.iter()
+    let mut available: Vec<ConfigEntry> = chain
+        .other_cfgs
+        .iter()
         .map(|oc| ConfigEntry {
             filename: oc.name.clone(),
             relative_path: oc.relative_path.clone(),
@@ -66,11 +73,18 @@ pub fn scan_local_install_internal(exe_path: &str, config_name: &str) -> Result<
     if let Ok(entries) = std::fs::read_dir(&game_dir) {
         for entry in entries.flatten() {
             let entry_path = entry.path();
-            if !entry_path.is_file() { continue; }
-            if archive::detect_format(&entry_path).is_none() { continue; }
+            if !entry_path.is_file() {
+                continue;
+            }
+            if archive::detect_format(&entry_path).is_none() {
+                continue;
+            }
 
-            let pak_name = entry_path.file_name()
-                .unwrap_or_default().to_string_lossy().to_string();
+            let pak_name = entry_path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
 
             if let Ok((_, archive_entries)) = archive::scan_archive(&entry_path) {
                 for ae in &archive_entries {
@@ -115,7 +129,10 @@ pub fn scan_local_install_internal(exe_path: &str, config_name: &str) -> Result<
 }
 
 #[tauri::command]
-pub fn scan_local_install(exe_path: String, config_name: String) -> Result<ConfigSourceBundle, String> {
+pub fn scan_local_install(
+    exe_path: String,
+    config_name: String,
+) -> Result<ConfigSourceBundle, String> {
     scan_local_install_internal(&exe_path, &config_name)
 }
 
@@ -133,10 +150,7 @@ pub struct GamedirInfo {
 /// Priority: qw/ > id1/ > ezquake/ > root level ("") > any dir with config.cfg > any dir with autoexec.cfg
 pub fn detect_gamedir(paths: &[&str]) -> Option<GamedirInfo> {
     // Normalize all paths: replace backslashes with forward slashes
-    let normalized: Vec<String> = paths
-        .iter()
-        .map(|p| p.replace('\\', "/"))
-        .collect();
+    let normalized: Vec<String> = paths.iter().map(|p| p.replace('\\', "/")).collect();
 
     // Detect client from executable names
     let client = detect_client(&normalized);
@@ -247,7 +261,8 @@ fn classify_dropped_paths(paths: &[&str]) -> DroppedClassification {
 
     for &p in paths {
         let path = PathBuf::from(p);
-        let ext = path.extension()
+        let ext = path
+            .extension()
             .and_then(|e| e.to_str())
             .map(|e| e.to_lowercase())
             .unwrap_or_default();
@@ -259,7 +274,10 @@ fn classify_dropped_paths(paths: &[&str]) -> DroppedClassification {
         }
     }
 
-    DroppedClassification { cfg_files, archives }
+    DroppedClassification {
+        cfg_files,
+        archives,
+    }
 }
 
 /// Internal implementation of scan_dropped_input.
@@ -309,12 +327,18 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
                     all_configs.push((
                         name,
                         content,
-                        ConfigLocation::InsidePak { pak_name: pak_name.clone() },
+                        ConfigLocation::InsidePak {
+                            pak_name: pak_name.clone(),
+                        },
                     ));
                 }
             }
             Err(e) => {
-                eprintln!("scan_dropped_input: skipping archive {}: {}", archive_path.display(), e);
+                eprintln!(
+                    "scan_dropped_input: skipping archive {}: {}",
+                    archive_path.display(),
+                    e
+                );
             }
         }
     }
@@ -347,18 +371,22 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
 
         for (i, (_, content, _)) in all_configs.iter().enumerate() {
             let parsed = ezquake::parse_config(content);
-            let score = parsed.exec_refs.iter().filter(|r| {
-                let ref_filename = std::path::Path::new(r.as_str())
-                    .file_name()
-                    .unwrap_or_default()
-                    .to_string_lossy()
-                    .to_lowercase();
-                name_index.contains_key(&ref_filename) && {
-                    // Don't count self-references.
-                    let self_name = all_configs[i].0.to_lowercase();
-                    ref_filename != self_name
-                }
-            }).count();
+            let score = parsed
+                .exec_refs
+                .iter()
+                .filter(|r| {
+                    let ref_filename = std::path::Path::new(r.as_str())
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_lowercase();
+                    name_index.contains_key(&ref_filename) && {
+                        // Don't count self-references.
+                        let self_name = all_configs[i].0.to_lowercase();
+                        ref_filename != self_name
+                    }
+                })
+                .count();
 
             if score > best_score {
                 best_score = score;
@@ -494,15 +522,21 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
         let format = archive::detect_format(&classified.archives[0])
             .map(|f| format!("{:?}", f).to_lowercase())
             .unwrap_or_else(|| "unknown".to_string());
-        SourceOrigin::Archive { path: archive_path, format }
+        SourceOrigin::Archive {
+            path: archive_path,
+            format,
+        }
     } else {
-        let filenames: Vec<String> = paths.iter().map(|p| {
-            PathBuf::from(p)
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string()
-        }).collect();
+        let filenames: Vec<String> = paths
+            .iter()
+            .map(|p| {
+                PathBuf::from(p)
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string()
+            })
+            .collect();
         SourceOrigin::DroppedFiles { filenames }
     };
 
@@ -527,7 +561,11 @@ pub fn scan_dropped_input(paths: Vec<String>) -> Result<ConfigSourceBundle, Stri
 /// config_path: for local_install = relative path from gamedir; for archive = entry name in archive
 /// context_path: for local_install = exe_path; for archive = archive file path
 #[tauri::command]
-pub fn load_config_from_source(source_type: String, config_path: String, context_path: String) -> Result<ConfigChain, String> {
+pub fn load_config_from_source(
+    source_type: String,
+    config_path: String,
+    context_path: String,
+) -> Result<ConfigChain, String> {
     let content = match source_type.as_str() {
         "local_install" => {
             let exe_path = PathBuf::from(&context_path);
@@ -538,8 +576,14 @@ pub fn load_config_from_source(source_type: String, config_path: String, context
                 .map_err(|e| format!("Failed to read {}: {}", full_path.display(), e))?
         }
         "archive" | "inside_pak" => {
-            archive::extract_file(std::path::Path::new(&context_path), &config_path)
-                .map_err(|e| format!("Failed to extract {} from {}: {}", config_path, context_path, e))?
+            archive::extract_file(std::path::Path::new(&context_path), &config_path).map_err(
+                |e| {
+                    format!(
+                        "Failed to extract {} from {}: {}",
+                        config_path, context_path, e
+                    )
+                },
+            )?
         }
         _ => return Err(format!("Unknown source type: {}", source_type)),
     };
@@ -547,8 +591,11 @@ pub fn load_config_from_source(source_type: String, config_path: String, context
     let text = String::from_utf8_lossy(&content).to_string();
     let parsed = ezquake::parse_config(&text);
     let line_count = text.lines().count() as u32;
-    let filename = std::path::Path::new(&config_path).file_name()
-        .unwrap_or_default().to_string_lossy().to_string();
+    let filename = std::path::Path::new(&config_path)
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
 
     let file = ConfigFile {
         name: filename,
@@ -577,42 +624,28 @@ mod tests {
 
     #[test]
     fn test_detect_gamedir_qw_dir() {
-        let paths = &[
-            "qw/config.cfg",
-            "qw/pak0.pak",
-            "id1/pak0.pak",
-        ];
+        let paths = &["qw/config.cfg", "qw/pak0.pak", "id1/pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.prefix, "qw/");
     }
 
     #[test]
     fn test_detect_gamedir_id1_fallback() {
-        let paths = &[
-            "id1/config.cfg",
-            "id1/pak0.pak",
-        ];
+        let paths = &["id1/config.cfg", "id1/pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.prefix, "id1/");
     }
 
     #[test]
     fn test_detect_gamedir_root_level() {
-        let paths = &[
-            "config.cfg",
-            "autoexec.cfg",
-            "pak0.pak",
-        ];
+        let paths = &["config.cfg", "autoexec.cfg", "pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.prefix, "");
     }
 
     #[test]
     fn test_detect_gamedir_nested_configs_dir() {
-        let paths = &[
-            "ezquake/configs/config.cfg",
-            "ezquake/pak0.pak",
-        ];
+        let paths = &["ezquake/configs/config.cfg", "ezquake/pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         // Direct parent of config.cfg is "ezquake/configs/"
         assert_eq!(result.prefix, "ezquake/configs/");
@@ -620,11 +653,7 @@ mod tests {
 
     #[test]
     fn test_detect_gamedir_no_configs() {
-        let paths = &[
-            "id1/pak0.pak",
-            "qw/pak0.pak",
-            "somefile.txt",
-        ];
+        let paths = &["id1/pak0.pak", "qw/pak0.pak", "somefile.txt"];
         let result = detect_gamedir(paths);
         assert!(result.is_none());
     }
@@ -643,69 +672,49 @@ mod tests {
 
     #[test]
     fn test_detect_ezquake_client() {
-        let paths = &[
-            "ezquake.exe",
-            "qw/config.cfg",
-            "id1/pak0.pak",
-        ];
+        let paths = &["ezquake.exe", "qw/config.cfg", "id1/pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.client, Some("ezquake".to_string()));
     }
 
     #[test]
     fn test_detect_fte_client() {
-        let paths = &[
-            "fteqw64.exe",
-            "qw/autoexec.cfg",
-        ];
+        let paths = &["fteqw64.exe", "qw/autoexec.cfg"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.client, Some("fte".to_string()));
     }
 
     #[test]
     fn test_detect_gamedir_backslash_paths() {
-        let paths = &[
-            r"qw\config.cfg",
-            r"id1\pak0.pak",
-        ];
+        let paths = &[r"qw\config.cfg", r"id1\pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.prefix, "qw/");
     }
 
     #[test]
     fn test_detect_gamedir_case_insensitive_filename() {
-        let paths = &[
-            "qw/Config.CFG",
-        ];
+        let paths = &["qw/Config.CFG"];
         let result = detect_gamedir(paths).expect("should detect gamedir even with mixed case");
         assert_eq!(result.prefix, "qw/");
     }
 
     #[test]
     fn test_detect_gamedir_autoexec_only() {
-        let paths = &[
-            "qw/autoexec.cfg",
-            "id1/pak0.pak",
-        ];
+        let paths = &["qw/autoexec.cfg", "id1/pak0.pak"];
         let result = detect_gamedir(paths).expect("should detect gamedir from autoexec");
         assert_eq!(result.prefix, "qw/");
     }
 
     #[test]
     fn test_detect_gamedir_no_client() {
-        let paths = &[
-            "qw/config.cfg",
-        ];
+        let paths = &["qw/config.cfg"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.client, None);
     }
 
     #[test]
     fn test_detect_gamedir_ezquake_dir_priority_over_unknown() {
-        let paths = &[
-            "ezquake/config.cfg",
-            "somedir/config.cfg",
-        ];
+        let paths = &["ezquake/config.cfg", "somedir/config.cfg"];
         let result = detect_gamedir(paths).expect("should detect gamedir");
         assert_eq!(result.prefix, "ezquake/");
     }

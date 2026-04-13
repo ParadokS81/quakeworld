@@ -10,11 +10,9 @@ use std::path::PathBuf;
 #[cfg(windows)]
 fn send_ipc_command(command: &str) -> Result<(), String> {
     use std::ffi::CString;
-    use windows::Win32::Storage::FileSystem::{
-        CreateFileA, OPEN_EXISTING, FILE_SHARE_READ,
-    };
-    use windows::Win32::Foundation::{GENERIC_WRITE, CloseHandle};
     use windows::core::PCSTR;
+    use windows::Win32::Foundation::{CloseHandle, GENERIC_WRITE};
+    use windows::Win32::Storage::FileSystem::{CreateFileA, FILE_SHARE_READ, OPEN_EXISTING};
 
     let mailslot_path = CString::new(r"\\.\mailslot\ezquake")
         .map_err(|e| format!("Invalid mailslot path: {}", e))?;
@@ -29,7 +27,13 @@ fn send_ipc_command(command: &str) -> Result<(), String> {
             Default::default(),
             None,
         )
-    }.map_err(|e| format!("Failed to open ezQuake mailslot: {} — is ezQuake running?", e))?;
+    }
+    .map_err(|e| {
+        format!(
+            "Failed to open ezQuake mailslot: {} — is ezQuake running?",
+            e
+        )
+    })?;
 
     let msg = format!("{}\n", command);
     let bytes = msg.as_bytes();
@@ -44,7 +48,9 @@ fn send_ipc_command(command: &str) -> Result<(), String> {
         )
     };
 
-    unsafe { let _ = CloseHandle(handle); }
+    unsafe {
+        let _ = CloseHandle(handle);
+    }
 
     result.map_err(|e| format!("Failed to write to ezQuake mailslot: {}", e))?;
     Ok(())
@@ -77,7 +83,11 @@ pub struct CaptureResult {
 
 /// Copy demo and map files to ezQuake's directories.
 /// Returns the demo filename for use in the playdemo command.
-fn prepare_assets(exe_path: &str, demo_source: &str, map_source: Option<&str>) -> Result<String, String> {
+fn prepare_assets(
+    exe_path: &str,
+    demo_source: &str,
+    map_source: Option<&str>,
+) -> Result<String, String> {
     let exe = PathBuf::from(exe_path);
     let exe_dir = exe.parent().ok_or("Invalid ezQuake path")?;
     let qw_dir = exe_dir.join("qw");
@@ -125,11 +135,11 @@ fn prepare_assets(exe_path: &str, demo_source: &str, map_source: Option<&str>) -
 /// cfg_save_onquit is handled via startup args, not here — so these
 /// in-memory changes never persist regardless of user's config.
 const BASELINE_COMMANDS: &[&str] = &[
-    "gl_gamma 1",           // Normalize brightness curve (monitor compensation)
-    "gl_contrast 1",        // Normalize contrast (monitor compensation)
-    "gl_polyblend 0",       // Disable screen tints (damage flash, pickup glow, powerup)
-    "v_dlightcshift 0",     // No dynamic light screen tint
-    "gl_cshiftpercent 0",   // Zero out color shift intensity
+    "gl_gamma 1",         // Normalize brightness curve (monitor compensation)
+    "gl_contrast 1",      // Normalize contrast (monitor compensation)
+    "gl_polyblend 0",     // Disable screen tints (damage flash, pickup glow, powerup)
+    "v_dlightcshift 0",   // No dynamic light screen tint
+    "gl_cshiftpercent 0", // Zero out color shift intensity
 ];
 
 /// POC: Launch ezQuake, play a demo, take a screenshot, quit.
@@ -175,14 +185,19 @@ pub async fn capture_screenshot(options: CaptureOptions) -> Result<CaptureResult
     cmd.args([
         "-nosound",
         "-allowmultiple",
-        "+cfg_save_onquit", "0",
-        "+cl_demospeed", "0",
-        "+sshot_dir", "slipgate_captures",
-        "+sshot_format", "png",
+        "+cfg_save_onquit",
+        "0",
+        "+cl_demospeed",
+        "0",
+        "+sshot_dir",
+        "slipgate_captures",
+        "+sshot_format",
+        "png",
         &format!("+playdemo {}", demo_filename),
     ]);
 
-    let child = cmd.spawn()
+    let child = cmd
+        .spawn()
         .map_err(|e| format!("Failed to launch ezQuake: {}", e))?;
     let child_id = child.id();
 
