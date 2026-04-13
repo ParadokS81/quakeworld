@@ -116,7 +116,7 @@ function App() {
           console.log("=== WEAPON BINDS ===");
           for (const wb of cfg.weapon_binds) {
             const method = wb.method === "quickfire" ? "⚡ quickfire" : `🎯 manual → ${wb.fire_key}`;
-            console.log(`  ${wb.weapon.toUpperCase().padEnd(4)} ${wb.key.padEnd(10)} ${method}`);
+            console.log(`  ${wb.weapon.toUpperCase().padEnd(4)} ${wb.trigger_key.padEnd(10)} ${method}`);
           }
         }
         if (cfg.lg_sensitivity) {

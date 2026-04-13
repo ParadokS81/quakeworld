@@ -2,19 +2,7 @@ import { createSignal, For, Show } from "solid-js";
 import type { FiringPath, ManualFlavor, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry } from "./AliasChainResolver";
-
-/* ─── Shared colors ──────────────────────────────────────────────── */
-
-const WEAPON_COLORS: Record<string, string> = {
-  rl: "oklch(0.7 0.2 30)",
-  lg: "oklch(0.75 0.15 80)",
-  gl: "oklch(0.65 0.15 145)",
-  sng: "oklch(0.6 0.1 260)",
-  ng: "oklch(0.55 0.08 260)",
-  ssg: "oklch(0.65 0.12 50)",
-  sg: "oklch(0.55 0.08 50)",
-  axe: "oklch(0.5 0.05 30)",
-};
+import { WEAPON_COLORS } from "./WeaponBindViz";
 
 const TEAMSAY_COLORS: Record<string, string> = {
   status: "oklch(0.7 0.12 200)",
@@ -30,7 +18,7 @@ const TEAMSAY_COLORS: Record<string, string> = {
 
 /* ─── Weapons ────────────────────────────────────────────────────── */
 
-const WEAPON_ORDER = ["rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"];
+const WEAPON_ORDER: Weapon[] = ["rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"];
 const WEAPON_LABELS: Record<string, string> = {
   rl: "Rocket Launcher", lg: "Lightning Gun", gl: "Grenade Launcher",
   sng: "Super Nailgun", ng: "Nailgun", ssg: "Super Shotgun",

@@ -316,6 +316,7 @@ pub fn classify_firing_paths(
     paths
 }
 
+// Rule 7: emit manual-select paths for number keys 1-8 not explicitly bound.
 fn emit_engine_defaults(
     bindings: &[(String, String)],
     fire_keys: &FireKeyClasses,
@@ -380,6 +381,7 @@ fn extract_paths_from_resolved(
     }
 
     // Rule 1: Quickfire from inline fire.
+    // Rule 6 (weapon-specific fire-key quickfires) is handled by Rule 1 via alias resolution.
     if body_contains_fire(body) {
         if let Some(weapon) = extract_first_weapon(body) {
             let mechanism = detect_quickfire_mechanism(body);
@@ -414,6 +416,7 @@ fn extract_paths_from_resolved(
         let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else {
             continue;
         };
+        // Rule 3: manual-hold flavor when release body rebinds the same target
         let is_temporary = release_rebinds
             .iter()
             .any(|rr| rr.target_key == rebind.target_key);
@@ -447,6 +450,7 @@ fn extract_paths_from_resolved(
     let weapon_selected = extract_first_weapon(body);
     if !has_fire && !has_inline_rebind {
         if let Some(weapon) = weapon_selected {
+            // Rule 5: tag with PreselectWeapon mechanism when cl_weaponpreselect is on
             let preselect_enabled = cvars
                 .get("cl_weaponpreselect")
                 .map(|v| v != "0")
@@ -696,7 +700,7 @@ mod tests {
                     // Normalize bind keys to lowercase; real configs use mixed case.
                     bindings.push((tokens[1].to_lowercase(), tokens[2..].join(" ")));
                 }
-                "alias" if tokens.len() >= 3 => {
+                "alias" | "tempalias" if tokens.len() >= 3 => {
                     aliases.insert(tokens[1].clone(), tokens[2..].join(" "));
                 }
                 _ if tokens.len() == 2 => {

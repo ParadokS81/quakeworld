@@ -169,7 +169,7 @@ export function categorizeBinds(
   // Build lookup maps
   const weaponByKey = new Map<string, WeaponBind>();
   for (const wb of weaponBinds) {
-    weaponByKey.set(wb.key.toUpperCase(), wb);
+    weaponByKey.set(wb.trigger_key.toUpperCase(), wb);
   }
 
   const teamsayByKey = new Map<string, TeamsayBind>();
@@ -205,8 +205,8 @@ export function categorizeBinds(
   const cmpAllKeys = new Set<string>();
   if (compareClassification) {
     for (const wb of compareClassification.weapon_binds) {
-      cmpWeaponByKey.set(wb.key.toUpperCase(), wb);
-      cmpAllKeys.add(wb.key.toUpperCase());
+      cmpWeaponByKey.set(wb.trigger_key.toUpperCase(), wb);
+      cmpAllKeys.add(wb.trigger_key.toUpperCase());
     }
     for (const tb of compareClassification.teamsay_binds) {
       cmpTeamsayByKey.set(tb.key.toUpperCase(), tb);
@@ -240,7 +240,7 @@ export function categorizeBinds(
 
     if (wb) {
       result.push({
-        key: wb.key, command, category: "weapons",
+        key: wb.trigger_key, command, category: "weapons",
         label: wb.weapon.toUpperCase(),
         description: wb.method === "quickfire" ? `${wb.weapon} quickfire` : `${wb.weapon} manual → ${wb.fire_key}`,
         sourceFile, hasLeft: true, hasRight, ...compareData,
@@ -308,7 +308,7 @@ export function categorizeBinds(
       const desc = cmpWb
         ? (cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}`)
         : cmpTb ? cmpTb.description : "";
-      const displayKey = cmpWb?.key ?? cmpTb?.key ?? keyUpper;
+      const displayKey = cmpWb?.trigger_key ?? cmpTb?.key ?? keyUpper;
 
       result.push({
         key: displayKey, command: "", category: cat,

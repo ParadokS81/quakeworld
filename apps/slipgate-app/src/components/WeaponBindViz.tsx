@@ -129,7 +129,7 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
                 {/* One row per firing path when bound */}
                 <Show when={bound()}>
                   <For each={paths()}>
-                    {(path, i) => {
+                    {(path) => {
                       const isDefault = path.source === "engine_default";
                       const methodLabel = path.method === "quickfire"
                         ? "quickfire"
