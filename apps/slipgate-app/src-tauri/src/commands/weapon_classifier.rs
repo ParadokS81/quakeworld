@@ -110,22 +110,70 @@ pub(crate) fn resolve_bind_chain(
     max_depth: usize,
 ) -> ResolvedBinding {
     let mut chain: Vec<String> = vec![key.to_string()];
-    let mut current = command.trim().trim_matches('"').to_string();
+    let raw = command.trim().trim_matches('"').to_string();
+    chain.push(raw.clone());
+
+    // If the trigger command is `+alias_name`, resolve both +alias_name and -alias_name.
+    if let Some(alias_name) = raw.strip_prefix('+') {
+        if aliases.contains_key(&format!("+{}", alias_name)) || aliases.contains_key(alias_name) {
+            let press = resolve_alias_body(&format!("+{}", alias_name), aliases, max_depth, &mut chain);
+            let release = {
+                let mut release_chain = Vec::new();
+                resolve_alias_body(&format!("-{}", alias_name), aliases, max_depth, &mut release_chain)
+            };
+            return ResolvedBinding {
+                press_body: press,
+                release_body: release,
+                origin_chain: chain,
+            };
+        }
+    }
+
+    // Plain alias or inline command - resolve single-body chain.
+    let press = resolve_plain_chain(&raw, aliases, max_depth, &mut chain);
+    ResolvedBinding {
+        press_body: press,
+        release_body: String::new(),
+        origin_chain: chain,
+    }
+}
+
+fn resolve_alias_body(
+    name: &str,
+    aliases: &HashMap<String, String>,
+    max_depth: usize,
+    chain: &mut Vec<String>,
+) -> String {
+    match aliases.get(name) {
+        Some(body) => {
+            let raw = body.trim().trim_matches('"').to_string();
+            chain.push(raw.clone());
+            resolve_plain_chain(&raw, aliases, max_depth.saturating_sub(1), chain)
+        }
+        None => String::new(),
+    }
+}
+
+fn resolve_plain_chain(
+    current: &str,
+    aliases: &HashMap<String, String>,
+    max_depth: usize,
+    chain: &mut Vec<String>,
+) -> String {
+    let mut body = current.to_string();
     for _ in 0..max_depth {
-        chain.push(current.clone());
-        let trimmed = current.trim();
-        // Single-token alias reference?
-        if let Some(body) = aliases.get(trimmed).or_else(|| aliases.get(trimmed.trim_start_matches('+'))) {
-            current = body.trim().trim_matches('"').to_string();
+        let trimmed = body.trim();
+        if let Some(next) = aliases
+            .get(trimmed)
+            .or_else(|| aliases.get(trimmed.trim_start_matches('+')))
+        {
+            body = next.trim().trim_matches('"').to_string();
+            chain.push(body.clone());
             continue;
         }
         break;
     }
-    ResolvedBinding {
-        press_body: current,
-        release_body: String::new(),
-        origin_chain: chain,
-    }
+    body
 }
 
 /// Classify a merged config chain into firing paths.
@@ -260,7 +308,30 @@ mod tests {
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         // Depth-limited resolution returns the last reached body rather than panicking.
         assert!(resolved.press_body == "a" || resolved.press_body == "b");
-        assert!(resolved.origin_chain.len() <= 11); // 1 key + 10 depth
+        assert!(resolved.origin_chain.len() <= 12); // 1 key + 1 raw push + 10 depth
+    }
+
+    #[test]
+    fn plus_alias_resolves_press_and_release_bodies() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias +rock "bind mouse1 +firerocket"
+            alias -rock "bind mouse1 +attack"
+            bind shift +rock
+        "#);
+        let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
+        assert_eq!(resolved.press_body, "bind mouse1 +firerocket");
+        assert_eq!(resolved.release_body, "bind mouse1 +attack");
+    }
+
+    #[test]
+    fn plain_alias_has_empty_release_body() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias rock "weapon 7;+attack"
+            bind q rock
+        "#);
+        let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
+        assert_eq!(resolved.press_body, "weapon 7;+attack");
+        assert!(resolved.release_body.is_empty());
     }
 
     #[test]
