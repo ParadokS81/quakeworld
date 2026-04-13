@@ -87,6 +87,47 @@ pub struct FiringPath {
     pub origin_alias_chain: Vec<String>,
 }
 
+/// The result of resolving a bind's command into its underlying firing behavior.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct ResolvedBinding {
+    /// The fully-resolved press-side command body (after following aliases).
+    pub press_body: String,
+    /// The fully-resolved release-side command body (for `+alias`/`-alias` pairs).
+    /// Empty when the trigger is not a `+alias`.
+    pub release_body: String,
+    /// Ordered chain of names/bodies traversed during resolution. First entry is
+    /// the key name; subsequent entries are alias names and/or resolved bodies.
+    pub origin_chain: Vec<String>,
+}
+
+/// Resolve a bind's command by following alias references up to `max_depth` levels.
+///
+/// Depth-limited to prevent infinite recursion on mutually-referencing aliases.
+pub(crate) fn resolve_bind_chain(
+    key: &str,
+    command: &str,
+    aliases: &HashMap<String, String>,
+    max_depth: usize,
+) -> ResolvedBinding {
+    let mut chain: Vec<String> = vec![key.to_string()];
+    let mut current = command.trim().trim_matches('"').to_string();
+    for _ in 0..max_depth {
+        chain.push(current.clone());
+        let trimmed = current.trim();
+        // Single-token alias reference?
+        if let Some(body) = aliases.get(trimmed).or_else(|| aliases.get(trimmed.trim_start_matches('+'))) {
+            current = body.trim().trim_matches('"').to_string();
+            continue;
+        }
+        break;
+    }
+    ResolvedBinding {
+        press_body: current,
+        release_body: String::new(),
+        origin_chain: chain,
+    }
+}
+
 /// Classify a merged config chain into firing paths.
 ///
 /// `bindings` is the ordered list of `(key, command)` pairs as parsed.
@@ -181,6 +222,45 @@ mod tests {
             tokens.push(current);
         }
         tokens
+    }
+
+    #[test]
+    fn resolves_simple_alias_reference() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias +rock "weapon 7;+attack"
+            bind q "+rock"
+        "#);
+        let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
+        assert_eq!(resolved.press_body, "weapon 7;+attack");
+        assert_eq!(resolved.origin_chain, vec![
+            "q".to_string(),
+            "+rock".to_string(),
+            "weapon 7;+attack".to_string(),
+        ]);
+    }
+
+    #[test]
+    fn resolves_nested_alias_chain() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias fire_rl "weapon 7;+attack"
+            alias +rock fire_rl
+            bind q "+rock"
+        "#);
+        let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
+        assert_eq!(resolved.press_body, "weapon 7;+attack");
+    }
+
+    #[test]
+    fn depth_limit_prevents_infinite_loop() {
+        let (bindings, aliases, _) = parse_test_config(r#"
+            alias a b
+            alias b a
+            bind q a
+        "#);
+        let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
+        // Depth-limited resolution returns the last reached body rather than panicking.
+        assert!(resolved.press_body == "a" || resolved.press_body == "b");
+        assert!(resolved.origin_chain.len() <= 11); // 1 key + 10 depth
     }
 
     #[test]
