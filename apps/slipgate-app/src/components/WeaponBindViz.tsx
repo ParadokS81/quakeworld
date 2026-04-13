@@ -45,6 +45,20 @@ function groupByWeapon(paths: FiringPath[]): Map<Weapon, FiringPath[]> {
   return map;
 }
 
+/**
+ * Profile view shows one firing path per weapon. When a weapon has multiple
+ * paths (e.g., a hybrid quickfire + manual-select), pick the most representative:
+ * quickfire over manual-select over manual-hold, and explicit over engine_default.
+ * Tiebreak by classifier emission order (stable via reduce).
+ */
+function pickPrimaryPath(paths: FiringPath[] | undefined): FiringPath | undefined {
+  if (!paths || paths.length === 0) return undefined;
+  const score = (p: FiringPath) =>
+    (p.method === "quickfire" ? 0 : p.flavor === "select" ? 10 : 20) +
+    (p.source === "explicit" ? 0 : 100);
+  return paths.reduce((best, cur) => (score(cur) < score(best) ? cur : best));
+}
+
 interface WeaponBindVizProps {
   firingPaths: FiringPath[];
   movement?: MovementKeys;
@@ -105,8 +119,8 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
       <div class="sg-weapon-grid">
         <For each={ALL_WEAPONS}>
           {(weapon) => {
-            const paths = () => pathsByWeapon().get(weapon as Weapon);
-            const bound = () => !!paths()?.length;
+            const primary = () => pickPrimaryPath(pathsByWeapon().get(weapon as Weapon));
+            const bound = () => !!primary();
             const color = WEAPON_COLORS[weapon] ?? "oklch(0.5 0.05 0)";
 
             return (
@@ -126,46 +140,40 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
                     class="sg-weapon-cell-icon"
                   />
                 </Show>
-                {/* One row per firing path when bound */}
-                <Show when={bound()}>
-                  <For each={paths()}>
-                    {(path) => {
-                      const isDefault = path.source === "engine_default";
-                      const methodLabel = path.method === "quickfire"
-                        ? "quickfire"
-                        : `manual-${path.flavor}`;
-                      return (
-                        <div
-                          class="sg-firing-path-row"
-                          classList={{ "opacity-50": isDefault }}
-                          title={path.origin_alias_chain.length > 0
-                            ? path.origin_alias_chain.join(" -> ")
-                            : undefined}
+                {/* Summary: one path per weapon. Label first, keys second. */}
+                <Show when={primary()}>
+                  {(p) => {
+                    const isManual = p().method === "manual";
+                    const isDefault = p().source === "engine_default";
+                    return (
+                      <div
+                        classList={{ "opacity-50": isDefault }}
+                        title={p().origin_alias_chain.length > 0
+                          ? p().origin_alias_chain.join(" -> ")
+                          : undefined}
+                      >
+                        <span
+                          class="sg-weapon-cell-method"
+                          classList={{
+                            "sg-weapon-bind-quickfire": !isManual,
+                            "sg-weapon-bind-manual": isManual,
+                          }}
                         >
-                          <span class="sg-weapon-cell-bind">
-                            <span class="sg-keycap">{path.trigger_key}</span>
-                            <Show when={path.method === "manual" && path.fire_key}>
-                              <span class="sg-weapon-cell-arrow">&rarr;</span>
-                              <span class="sg-keycap">{path.fire_key}</span>
-                            </Show>
-                          </span>
-                          <span
-                            class="badge badge-sm sg-weapon-cell-method"
-                            classList={{
-                              "badge-primary": path.method === "quickfire",
-                              "badge-secondary": path.method === "manual" && path.flavor === "select",
-                              "badge-accent": path.method === "manual" && path.flavor === "hold",
-                            }}
-                          >
-                            {methodLabel}
-                          </span>
-                          <Show when={isDefault}>
-                            <span class="text-xs italic opacity-60">(default)</span>
+                          {isManual ? "manual" : "quickfire"}
+                        </span>
+                        <span class="sg-weapon-cell-bind">
+                          <span class="sg-keycap">{p().trigger_key}</span>
+                          <Show when={isManual && p().fire_key}>
+                            <span class="sg-weapon-cell-arrow">&rarr;</span>
+                            <span class="sg-keycap">{p().fire_key}</span>
                           </Show>
-                        </div>
-                      );
-                    }}
-                  </For>
+                        </span>
+                        <Show when={isDefault}>
+                          <span class="text-xs italic opacity-60">(default)</span>
+                        </Show>
+                      </div>
+                    );
+                  }}
                 </Show>
               </div>
             );
