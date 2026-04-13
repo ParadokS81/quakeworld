@@ -116,10 +116,16 @@ pub(crate) fn resolve_bind_chain(
     // If the trigger command is `+alias_name`, resolve both +alias_name and -alias_name.
     if let Some(alias_name) = raw.strip_prefix('+') {
         if aliases.contains_key(&format!("+{}", alias_name)) || aliases.contains_key(alias_name) {
-            let press = resolve_alias_body(&format!("+{}", alias_name), aliases, max_depth, &mut chain);
+            let press =
+                resolve_alias_body(&format!("+{}", alias_name), aliases, max_depth, &mut chain);
             let release = {
                 let mut release_chain = Vec::new();
-                resolve_alias_body(&format!("-{}", alias_name), aliases, max_depth, &mut release_chain)
+                resolve_alias_body(
+                    &format!("-{}", alias_name),
+                    aliases,
+                    max_depth,
+                    &mut release_chain,
+                )
             };
             return ResolvedBinding {
                 press_body: press,
@@ -214,7 +220,7 @@ pub(crate) fn classify_fire_keys(
 
 /// True if the body contains a top-level fire command.
 pub(crate) fn body_contains_fire(body: &str) -> bool {
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
         if t == "+attack" || t == "+fire" || t == "+fire_ar" {
             return true;
@@ -229,7 +235,7 @@ pub(crate) fn body_contains_fire(body: &str) -> bool {
 /// Extract the first weapon referenced by any selection command in the body.
 /// Returns None if no specific weapon is selected (e.g., bare `+attack`).
 pub(crate) fn extract_first_weapon(body: &str) -> Option<Weapon> {
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
         if let Some(rest) = t.strip_prefix("impulse ") {
             if let Some(n) = rest.split_whitespace().next() {
@@ -249,7 +255,10 @@ pub(crate) fn extract_first_weapon(body: &str) -> Option<Weapon> {
                 }
             }
         }
-        if let Some(rest) = t.strip_prefix("+fire ").or_else(|| t.strip_prefix("+fire_ar ")) {
+        if let Some(rest) = t
+            .strip_prefix("+fire ")
+            .or_else(|| t.strip_prefix("+fire_ar "))
+        {
             if let Some(n) = rest.split_whitespace().next() {
                 if let Ok(num) = n.parse::<u8>() {
                     if let Some(w) = Weapon::from_impulse(num) {
@@ -267,7 +276,7 @@ pub(crate) fn is_rocket_jump(body: &str) -> bool {
 }
 
 pub(crate) fn body_contains_jump(body: &str) -> bool {
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
         if t == "+jump" || t == "jump" {
             return true;
@@ -322,7 +331,9 @@ fn emit_engine_defaults(
         if explicitly_bound.contains(key.as_str()) {
             continue;
         }
-        let Some(weapon) = Weapon::from_impulse(n) else { continue };
+        let Some(weapon) = Weapon::from_impulse(n) else {
+            continue;
+        };
         for fire_key in &fire_keys.generic_fire_keys {
             out.push(FiringPath {
                 weapon,
@@ -332,7 +343,10 @@ fn emit_engine_defaults(
                 fire_key: Some(fire_key.clone()),
                 source: PathSource::EngineDefault,
                 mechanism: Mechanism::GenericFireKey,
-                origin_alias_chain: vec![format!("bind {} \"impulse {}\" (engine default)", key, n)],
+                origin_alias_chain: vec![format!(
+                    "bind {} \"impulse {}\" (engine default)",
+                    key, n
+                )],
             });
         }
     }
@@ -397,8 +411,12 @@ fn extract_paths_from_resolved(
         if !body_contains_fire(&rebind_resolved.press_body) {
             continue;
         }
-        let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else { continue };
-        let is_temporary = release_rebinds.iter().any(|rr| rr.target_key == rebind.target_key);
+        let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else {
+            continue;
+        };
+        let is_temporary = release_rebinds
+            .iter()
+            .any(|rr| rr.target_key == rebind.target_key);
         let flavor = if is_temporary {
             ManualFlavor::Hold
         } else {
@@ -459,12 +477,20 @@ fn extract_paths_from_resolved(
 }
 
 fn detect_quickfire_mechanism(body: &str) -> Mechanism {
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
-        if t.starts_with("+fire_ar") { return Mechanism::PlusFireAr; }
-        if t.starts_with("+fire ") || t == "+fire" { return Mechanism::PlusFire; }
-        if t.starts_with("weapon ") { return Mechanism::WeaponAttack; }
-        if t.starts_with("impulse ") { return Mechanism::ImpulseAttack; }
+        if t.starts_with("+fire_ar") {
+            return Mechanism::PlusFireAr;
+        }
+        if t.starts_with("+fire ") || t == "+fire" {
+            return Mechanism::PlusFire;
+        }
+        if t.starts_with("weapon ") {
+            return Mechanism::WeaponAttack;
+        }
+        if t.starts_with("impulse ") {
+            return Mechanism::ImpulseAttack;
+        }
     }
     Mechanism::WeaponAttack
 }
@@ -478,7 +504,7 @@ pub(crate) struct InlineRebind {
 
 pub(crate) fn extract_inline_rebinds(body: &str) -> Vec<InlineRebind> {
     let mut out = Vec::new();
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
         if let Some(rest) = t.strip_prefix("bind ") {
             let tokens = tokenize_line(rest);
@@ -498,9 +524,12 @@ pub(crate) fn contains_killme_text(body: &str, aliases: &HashMap<String, String>
     let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut queue: Vec<String> = vec![body.to_string()];
     while let Some(current) = queue.pop() {
-        for segment in current.split(|c: char| c == ';' || c == '\n') {
+        for segment in current.split([';', '\n']) {
             let t = segment.trim();
-            if let Some(msg) = t.strip_prefix("say_team ").or_else(|| t.strip_prefix("say ")) {
+            if let Some(msg) = t
+                .strip_prefix("say_team ")
+                .or_else(|| t.strip_prefix("say "))
+            {
                 let stripped = strip_qw_color_codes(msg);
                 if stripped.to_lowercase().contains("kill me") {
                     return true;
@@ -552,7 +581,7 @@ fn reaches_say(body: &str, aliases: &HashMap<String, String>) -> bool {
     let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut queue: Vec<String> = vec![body.to_string()];
     while let Some(current) = queue.pop() {
-        for segment in current.split(|c: char| c == ';' || c == '\n') {
+        for segment in current.split([';', '\n']) {
             let t = segment.trim();
             if t.starts_with("say_team") || t.starts_with("say ") || t == "say" {
                 return true;
@@ -572,12 +601,18 @@ pub(crate) fn is_long_impulse_scan(body: &str) -> bool {
         return false;
     }
     let mut count = 0;
-    for segment in body.split(|c: char| c == ';' || c == '\n') {
+    for segment in body.split([';', '\n']) {
         let t = segment.trim();
         if let Some(rest) = t.strip_prefix("impulse ") {
-            count += rest.split_whitespace().filter(|tok| tok.parse::<u8>().is_ok()).count();
+            count += rest
+                .split_whitespace()
+                .filter(|tok| tok.parse::<u8>().is_ok())
+                .count();
         } else if let Some(rest) = t.strip_prefix("weapon ") {
-            count += rest.split_whitespace().filter(|tok| tok.parse::<u8>().is_ok()).count();
+            count += rest
+                .split_whitespace()
+                .filter(|tok| tok.parse::<u8>().is_ok())
+                .count();
         }
     }
     count >= 4
@@ -634,7 +669,13 @@ mod tests {
     ///
     /// Supports only `bind`, `alias`, and cvar assignments - sufficient for the classifier's
     /// input without pulling in the full config parser.
-    fn parse_test_config(src: &str) -> (Vec<(String, String)>, HashMap<String, String>, HashMap<String, String>) {
+    fn parse_test_config(
+        src: &str,
+    ) -> (
+        Vec<(String, String)>,
+        HashMap<String, String>,
+        HashMap<String, String>,
+    ) {
         let mut bindings = Vec::new();
         let mut aliases = HashMap::new();
         let mut cvars = HashMap::new();
@@ -669,37 +710,46 @@ mod tests {
 
     #[test]
     fn resolves_simple_alias_reference() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias +rock "weapon 7;+attack"
             bind q "+rock"
-        "#);
+        "#,
+        );
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         assert_eq!(resolved.press_body, "weapon 7;+attack");
-        assert_eq!(resolved.origin_chain, vec![
-            "q".to_string(),
-            "+rock".to_string(),
-            "weapon 7;+attack".to_string(),
-        ]);
+        assert_eq!(
+            resolved.origin_chain,
+            vec![
+                "q".to_string(),
+                "+rock".to_string(),
+                "weapon 7;+attack".to_string(),
+            ]
+        );
     }
 
     #[test]
     fn resolves_nested_alias_chain() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias fire_rl "weapon 7;+attack"
             alias +rock fire_rl
             bind q "+rock"
-        "#);
+        "#,
+        );
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         assert_eq!(resolved.press_body, "weapon 7;+attack");
     }
 
     #[test]
     fn depth_limit_prevents_infinite_loop() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias a b
             alias b a
             bind q a
-        "#);
+        "#,
+        );
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         // Depth-limited resolution returns the last reached body rather than panicking.
         assert!(resolved.press_body == "a" || resolved.press_body == "b");
@@ -708,11 +758,13 @@ mod tests {
 
     #[test]
     fn plus_alias_resolves_press_and_release_bodies() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias +rock "bind mouse1 +firerocket"
             alias -rock "bind mouse1 +attack"
             bind shift +rock
-        "#);
+        "#,
+        );
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         assert_eq!(resolved.press_body, "bind mouse1 +firerocket");
         assert_eq!(resolved.release_body, "bind mouse1 +attack");
@@ -720,10 +772,12 @@ mod tests {
 
     #[test]
     fn plain_alias_has_empty_release_body() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias rock "weapon 7;+attack"
             bind q rock
-        "#);
+        "#,
+        );
         let resolved = resolve_bind_chain(&bindings[0].0, &bindings[0].1, &aliases, 10);
         assert_eq!(resolved.press_body, "weapon 7;+attack");
         assert!(resolved.release_body.is_empty());
@@ -731,11 +785,13 @@ mod tests {
 
     #[test]
     fn parse_test_config_handles_quoted_bind_body() {
-        let (bindings, aliases, _cvars) = parse_test_config(r#"
+        let (bindings, aliases, _cvars) = parse_test_config(
+            r#"
             alias +rock "weapon 7;+attack"
             bind q "+rock"
             bind mouse1 +attack
-        "#);
+        "#,
+        );
         assert_eq!(bindings.len(), 2);
         assert_eq!(bindings[0], ("q".to_string(), "+rock".to_string()));
         assert_eq!(bindings[1], ("mouse1".to_string(), "+attack".to_string()));
@@ -744,10 +800,12 @@ mod tests {
 
     #[test]
     fn classify_fire_keys_finds_generic_mouse1() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind q "weapon 7"
-        "#);
+        "#,
+        );
         let classes = classify_fire_keys(&bindings, &aliases);
         assert_eq!(classes.generic_fire_keys, vec!["mouse1".to_string()]);
         assert!(classes.weapon_specific_fire_keys.is_empty());
@@ -755,12 +813,14 @@ mod tests {
 
     #[test]
     fn classify_fire_keys_recognizes_weapon_specific_mouse1() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             alias +rocket "weapon 7;+attack"
             alias -rocket "-attack"
             bind mouse1 +rocket
             bind q "weapon 8"
-        "#);
+        "#,
+        );
         let classes = classify_fire_keys(&bindings, &aliases);
         assert!(classes.generic_fire_keys.is_empty());
         assert_eq!(
@@ -771,10 +831,12 @@ mod tests {
 
     #[test]
     fn classify_fire_keys_allows_multiple_generic_keys() {
-        let (bindings, aliases, _) = parse_test_config(r#"
+        let (bindings, aliases, _) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind enter +attack
-        "#);
+        "#,
+        );
         let classes = classify_fire_keys(&bindings, &aliases);
         assert_eq!(classes.generic_fire_keys.len(), 2);
         assert!(classes.generic_fire_keys.contains(&"mouse1".to_string()));
@@ -783,12 +845,14 @@ mod tests {
 
     #[test]
     fn extracts_quickfire_from_weapon_attack_body() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +rock "weapon 7;+attack"
             alias -rock "-attack"
             bind mouse1 +attack
             bind q +rock
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 1);
@@ -800,10 +864,12 @@ mod tests {
 
     #[test]
     fn extracts_quickfire_from_plus_fire_body() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind q "+fire 7 6 5"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 1);
@@ -815,21 +881,26 @@ mod tests {
     #[test]
     fn extracts_manual_select_from_persistent_rebind() {
         // Press Shift rebinds Mouse1 persistently to fire RL. Manual-Select path.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +firerocket "weapon 7;+attack"
             alias -firerocket "-attack"
             alias select_rl "bind mouse1 +firerocket"
             bind mouse1 +attack
             bind shift select_rl
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let shift_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "shift").collect();
-        let rl_manual = shift_paths.iter().find(|p|
+        let rl_manual = shift_paths.iter().find(|p| {
             p.weapon == Weapon::Rl
                 && p.method == Method::Manual
                 && p.flavor == Some(ManualFlavor::Select)
+        });
+        assert!(
+            rl_manual.is_some(),
+            "expected manual-select RL on shift via persistent rebind"
         );
-        assert!(rl_manual.is_some(), "expected manual-select RL on shift via persistent rebind");
         assert_eq!(rl_manual.unwrap().fire_key.as_deref(), Some("mouse1"));
         assert_eq!(rl_manual.unwrap().mechanism, Mechanism::RebindFireKey);
     }
@@ -837,16 +908,19 @@ mod tests {
     #[test]
     fn extracts_manual_hold_from_plus_minus_alias_rebind() {
         // Hold Shift rebinds Mouse1 temporarily. Manual-Hold path.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +firerocket "weapon 7;+attack"
             alias -firerocket "-attack"
             alias +hold_rl "bind mouse1 +firerocket"
             alias -hold_rl "bind mouse1 +attack"
             bind mouse1 +attack
             bind shift +hold_rl
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
-        let shift_hold: Vec<_> = paths.iter()
+        let shift_hold: Vec<_> = paths
+            .iter()
             .filter(|p| p.trigger_key == "shift" && p.flavor == Some(ManualFlavor::Hold))
             .collect();
         assert_eq!(shift_hold.len(), 1);
@@ -856,10 +930,12 @@ mod tests {
 
     #[test]
     fn select_only_bind_with_generic_fire_key_emits_manual_select() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind q "weapon 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 1);
@@ -873,24 +949,31 @@ mod tests {
     fn select_only_bind_without_generic_fire_key_emits_nothing() {
         // Mouse1 is a weapon-specific quickfire, not generic. Q's select-only bind has
         // no valid manual fire key.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +rocket "weapon 7;+attack"
             alias -rocket "-attack"
             bind mouse1 +rocket
             bind q "weapon 8"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
-        assert!(q_paths.is_empty(), "expected no paths for Q when Mouse1 is weapon-specific");
+        assert!(
+            q_paths.is_empty(),
+            "expected no paths for Q when Mouse1 is weapon-specific"
+        );
     }
 
     #[test]
     fn select_only_bind_emits_one_path_per_generic_fire_key() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind enter +attack
             bind q "weapon 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 2);
@@ -901,11 +984,13 @@ mod tests {
 
     #[test]
     fn preselect_bare_weapon_is_manual_select_with_preselect_mechanism() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             cl_weaponpreselect 1
             bind mouse1 +attack
             bind q "weapon 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 1);
@@ -916,11 +1001,13 @@ mod tests {
 
     #[test]
     fn weapon_specific_fire_key_emits_quickfire_path() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +rocket "weapon 7;+attack"
             alias -rocket "-attack"
             bind mouse1 +rocket
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let mouse1_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "mouse1").collect();
         assert_eq!(mouse1_paths.len(), 1);
@@ -930,15 +1017,23 @@ mod tests {
 
     #[test]
     fn engine_default_number_keys_emit_paths_when_unbound() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind q "weapon 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         // Number keys 1-8 are not explicitly bound; expect 8 engine-default manual paths.
-        let defaults: Vec<_> = paths.iter().filter(|p| p.source == PathSource::EngineDefault).collect();
+        let defaults: Vec<_> = paths
+            .iter()
+            .filter(|p| p.source == PathSource::EngineDefault)
+            .collect();
         assert_eq!(defaults.len(), 8);
-        let weapons: HashMap<&str, Weapon> = defaults.iter().map(|p| (p.trigger_key.as_str(), p.weapon)).collect();
+        let weapons: HashMap<&str, Weapon> = defaults
+            .iter()
+            .map(|p| (p.trigger_key.as_str(), p.weapon))
+            .collect();
         assert_eq!(weapons.get("1"), Some(&Weapon::Axe));
         assert_eq!(weapons.get("7"), Some(&Weapon::Rl));
         assert_eq!(weapons.get("8"), Some(&Weapon::Lg));
@@ -946,10 +1041,12 @@ mod tests {
 
     #[test]
     fn explicit_number_key_bind_overrides_engine_default() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind 7 "impulse 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let seven_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "7").collect();
         assert_eq!(seven_paths.len(), 1);
@@ -958,27 +1055,37 @@ mod tests {
 
     #[test]
     fn rocket_jump_produces_no_weapon_paths() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias +rj "weapon 7;+attack;+jump"
             alias -rj "-attack;-jump"
             bind mouse1 +attack
             bind mouse2 +rj
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let mouse2_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "mouse2").collect();
-        assert!(mouse2_paths.is_empty(), "rocket jump must not emit weapon paths");
+        assert!(
+            mouse2_paths.is_empty(),
+            "rocket jump must not emit weapon paths"
+        );
     }
 
     #[test]
     fn killme_alias_name_excludes_the_bind() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias __kill_me "say_team need help"
             bind mouse1 +attack
             bind x "__kill_me; impulse 7 8 6 5"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let x_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "x").collect();
-        assert!(x_paths.is_empty(), "kill-me alias name must exclude the bind");
+        assert!(
+            x_paths.is_empty(),
+            "kill-me alias name must exclude the bind"
+        );
     }
 
     #[test]
@@ -987,23 +1094,29 @@ mod tests {
         // Uses QW color codes in say_team so strip_qw_color_codes must preserve
         // the "kill me" text for the substring match to fire.
         // Only E2 can catch this.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind x "weapon 7;+attack; say_team {&cb1akill me&cfff} rl"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
-        assert!(paths.iter().all(|p| p.trigger_key != "x"),
-            "E2 should exclude binds with colored 'kill me' text even when they also have +attack");
+        assert!(
+            paths.iter().all(|p| p.trigger_key != "x"),
+            "E2 should exclude binds with colored 'kill me' text even when they also have +attack"
+        );
     }
 
     #[test]
     fn killme_text_in_say_team_excludes_the_bind() {
         // Alias name doesn't match, but the message text contains "kill me".
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             alias .msg "say_team {&cb1akill me&cfff} $tp_name_rl"
             bind mouse1 +attack
             bind x ".msg; impulse 7"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         assert!(paths.iter().all(|p| p.trigger_key != "x"));
     }
@@ -1011,20 +1124,24 @@ mod tests {
     #[test]
     fn announce_without_fire_is_excluded() {
         // Bind selects a weapon and says something, no fire path.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind x "weapon 7; say_team need help"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         assert!(paths.iter().all(|p| p.trigger_key != "x"));
     }
 
     #[test]
     fn long_impulse_scan_without_fire_is_excluded() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind x "impulse 7 8 6 5 3 5 4"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         assert!(paths.iter().all(|p| p.trigger_key != "x"));
     }
@@ -1032,10 +1149,12 @@ mod tests {
     #[test]
     fn combat_bind_with_commentary_is_kept() {
         // Quickfire RL that also says something - NOT excluded.
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind q "weapon 7;+attack;say_team enemy rl"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
         assert_eq!(q_paths.len(), 1);
@@ -1044,11 +1163,13 @@ mod tests {
 
     #[test]
     fn weapon_10_rotate_next_produces_no_paths() {
-        let (bindings, aliases, cvars) = parse_test_config(r#"
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
             bind mouse1 +attack
             bind mwheelup "weapon 10"
             bind mwheeldown "weapon 12"
-        "#);
+        "#,
+        );
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         assert!(paths.iter().all(|p| p.trigger_key != "mwheelup"));
         assert!(paths.iter().all(|p| p.trigger_key != "mwheeldown"));
@@ -1057,10 +1178,13 @@ mod tests {
     /// Integration: load a fixture config file, parse it with the test parser,
     /// and return its firing paths.
     fn classify_fixture(name: &str) -> Vec<FiringPath> {
-        let path = format!("{}/../assets/weapon-fixtures/{}", env!("CARGO_MANIFEST_DIR"), name);
-        let content = std::fs::read_to_string(&path).unwrap_or_else(|e|
-            panic!("failed to read fixture {}: {}", path, e)
+        let path = format!(
+            "{}/../assets/weapon-fixtures/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            name
         );
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("failed to read fixture {}: {}", path, e));
         let (bindings, aliases, cvars) = parse_test_config(&content);
         classify_firing_paths(&bindings, &aliases, &cvars)
     }
@@ -1070,7 +1194,10 @@ mod tests {
         let paths = classify_fixture("vanilla.cfg");
         // All 8 number keys are explicit in vanilla.cfg (bind 7 "impulse 7" etc),
         // so they are Explicit, not EngineDefault.
-        let manual_paths: Vec<_> = paths.iter().filter(|p| p.method == Method::Manual).collect();
+        let manual_paths: Vec<_> = paths
+            .iter()
+            .filter(|p| p.method == Method::Manual)
+            .collect();
         assert_eq!(manual_paths.len(), 8);
         for p in &manual_paths {
             assert_eq!(p.source, PathSource::Explicit);
@@ -1082,36 +1209,36 @@ mod tests {
     fn fixture_paradoks_hybrid_c_has_quickfire_and_manual_ssg() {
         let paths = classify_fixture("paradoks_hybrid.cfg");
         let c_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "c").collect();
-        assert!(c_paths.iter().any(|p|
-            p.weapon == Weapon::Ssg && p.method == Method::Quickfire
-        ), "C should have quickfire SSG");
-        assert!(c_paths.iter().any(|p|
-            p.weapon == Weapon::Ssg
+        assert!(
+            c_paths
+                .iter()
+                .any(|p| p.weapon == Weapon::Ssg && p.method == Method::Quickfire),
+            "C should have quickfire SSG"
+        );
+        assert!(
+            c_paths.iter().any(|p| p.weapon == Weapon::Ssg
                 && p.method == Method::Manual
                 && p.flavor == Some(ManualFlavor::Select)
-                && p.fire_key.as_deref() == Some("mouse1")
-        ), "C should have manual-select SSG via Mouse1 rebind");
+                && p.fire_key.as_deref() == Some("mouse1")),
+            "C should have manual-select SSG via Mouse1 rebind"
+        );
     }
 
     #[test]
     fn fixture_paradoks_hybrid_shift_has_manual_select_rl() {
         let paths = classify_fixture("paradoks_hybrid.cfg");
         let shift_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "shift").collect();
-        assert!(shift_paths.iter().any(|p|
-            p.weapon == Weapon::Rl
-                && p.method == Method::Manual
-                && p.flavor == Some(ManualFlavor::Select)
-        ));
+        assert!(shift_paths.iter().any(|p| p.weapon == Weapon::Rl
+            && p.method == Method::Manual
+            && p.flavor == Some(ManualFlavor::Select)));
     }
 
     #[test]
     fn fixture_hangtime_mouse1_is_rl_quickfire() {
         let paths = classify_fixture("hangtime.cfg");
-        assert!(paths.iter().any(|p|
-            p.trigger_key == "mouse1"
-                && p.weapon == Weapon::Rl
-                && p.method == Method::Quickfire
-        ));
+        assert!(paths.iter().any(|p| p.trigger_key == "mouse1"
+            && p.weapon == Weapon::Rl
+            && p.method == Method::Quickfire));
     }
 
     #[test]
@@ -1119,16 +1246,20 @@ mod tests {
         let paths = classify_fixture("hangtime.cfg");
         // Mouse1 is weapon-specific (+rocket), so no generic fire key exists.
         // KP_UPARROW's weapon select should NOT produce a manual LG path.
-        assert!(!paths.iter().any(|p|
-            p.trigger_key.to_lowercase() == "kp_uparrow"
+        assert!(!paths
+            .iter()
+            .any(|p| p.trigger_key.to_lowercase() == "kp_uparrow"
                 && p.weapon == Weapon::Lg
-                && p.method == Method::Manual
-        ));
+                && p.method == Method::Manual));
     }
 
     #[test]
     fn fixture_killme_variants_are_all_excluded() {
-        for name in &["killme_paradoks.cfg", "killme_hangtime.cfg", "killme_vikpe.cfg"] {
+        for name in &[
+            "killme_paradoks.cfg",
+            "killme_hangtime.cfg",
+            "killme_vikpe.cfg",
+        ] {
             let paths = classify_fixture(name);
             let kill_me_keys = ["x", "kp_home", "kp_end"];
             for p in &paths {
@@ -1146,16 +1277,22 @@ mod tests {
     fn fixture_preselect_style_tags_mechanism() {
         let paths = classify_fixture("preselect_style.cfg");
         let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
-        assert!(q_paths.iter().any(|p| p.mechanism == Mechanism::PreselectWeapon));
+        assert!(q_paths
+            .iter()
+            .any(|p| p.mechanism == Mechanism::PreselectWeapon));
     }
 
     #[test]
     fn fixture_oldschool_hold_classifies_shift_as_hold() {
         let paths = classify_fixture("oldschool_hold.cfg");
-        let shift_hold: Vec<_> = paths.iter()
+        let shift_hold: Vec<_> = paths
+            .iter()
             .filter(|p| p.trigger_key == "shift" && p.flavor == Some(ManualFlavor::Hold))
             .collect();
-        assert!(!shift_hold.is_empty(), "shift should have hold-modifier path");
+        assert!(
+            !shift_hold.is_empty(),
+            "shift should have hold-modifier path"
+        );
     }
 
     #[test]

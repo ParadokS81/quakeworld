@@ -48,10 +48,10 @@ pub struct CommandInvocation {
 /// Parsed config data — cvars, key bindings, aliases, exec references, and command invocations.
 pub(crate) struct ParsedConfig {
     pub(crate) cvars: HashMap<String, String>,
-    pub(crate) user_created: HashSet<String>,            // cvars declared via `set`/`set_tp`/`set_calc`
-    pub(crate) bindings: Vec<(String, String)>,          // ordered list of (key, command)
-    pub(crate) aliases: HashMap<String, String>,         // alias name → command string
-    pub(crate) exec_refs: Vec<String>,                   // referenced config files (from exec and cl_onload)
+    pub(crate) user_created: HashSet<String>, // cvars declared via `set`/`set_tp`/`set_calc`
+    pub(crate) bindings: Vec<(String, String)>, // ordered list of (key, command)
+    pub(crate) aliases: HashMap<String, String>, // alias name → command string
+    pub(crate) exec_refs: Vec<String>,        // referenced config files (from exec and cl_onload)
     pub(crate) command_invocations: Vec<CommandInvocation>, // stateful commands captured instead of discarded
 }
 
@@ -117,7 +117,10 @@ pub(crate) fn extract_exec_refs(command: &str) -> Vec<String> {
     let mut refs = Vec::new();
     for segment in command.split(';') {
         let trimmed = segment.trim();
-        if let Some(rest) = trimmed.strip_prefix("exec ").or_else(|| trimmed.strip_prefix("exec\t")) {
+        if let Some(rest) = trimmed
+            .strip_prefix("exec ")
+            .or_else(|| trimmed.strip_prefix("exec\t"))
+        {
             let path = rest.trim().trim_matches('"');
             if !path.is_empty() {
                 refs.push(path.to_string());
@@ -143,9 +146,12 @@ fn resolve_exec_path(exec_ref: &str, game_dir: &Path, cfg_dir: &Path) -> Option<
     ];
     for candidate in &candidates {
         if candidate.exists() && candidate.is_file() {
-            if let (Ok(canonical), Ok(game_canonical)) = (candidate.canonicalize(), game_dir.canonicalize()) {
+            if let (Ok(canonical), Ok(game_canonical)) =
+                (candidate.canonicalize(), game_dir.canonicalize())
+            {
                 if canonical.starts_with(&game_canonical) {
-                    let rel = canonical.strip_prefix(&game_canonical)
+                    let rel = canonical
+                        .strip_prefix(&game_canonical)
                         .unwrap_or(&canonical)
                         .to_string_lossy()
                         .replace('\\', "/");
@@ -200,7 +206,8 @@ pub(crate) fn walk_exec_refs(
 
         let parsed = parse_config(&content);
         let line_count = content.lines().count() as u32;
-        let name = canonical.file_name()
+        let name = canonical
+            .file_name()
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
@@ -230,7 +237,11 @@ pub(crate) fn walk_exec_refs(
             ChainEntrySource::Exec,
             &rel_path,
             "exec",
-            game_dir, cfg_dir, seen, chain, unresolved,
+            game_dir,
+            cfg_dir,
+            seen,
+            chain,
+            unresolved,
         );
     }
 }
@@ -250,10 +261,19 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
     // ("name value") from command invocations. The TypeScript side has the full
     // authoritative command database.
     let stateful_commands: &[&str] = &[
-        "floodprot", "mapgroup", "skygroup", "filter",
-        "hud_recalculate", "sb_sourcemark", "sb_sourceunmarkall",
-        "unbind", "unbindall", "unaliasall",
-        "tp_pickup", "tp_took", "tp_point",
+        "floodprot",
+        "mapgroup",
+        "skygroup",
+        "filter",
+        "hud_recalculate",
+        "sb_sourcemark",
+        "sb_sourceunmarkall",
+        "unbind",
+        "unbindall",
+        "unaliasall",
+        "tp_pickup",
+        "tp_took",
+        "tp_point",
     ];
 
     // Parse "set NAME value" and "set_tp NAME value" as user variables → store as cvars.
@@ -306,7 +326,9 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
             if let Some(rest) = parts.next() {
                 let rest = rest.trim();
                 let mut alias_parts = rest.splitn(2, char::is_whitespace);
-                if let (Some(alias_name), Some(alias_cmd)) = (alias_parts.next(), alias_parts.next()) {
+                if let (Some(alias_name), Some(alias_cmd)) =
+                    (alias_parts.next(), alias_parts.next())
+                {
                     let cmd = alias_cmd.trim();
                     let cmd = if cmd.starts_with('"') && cmd.ends_with('"') && cmd.len() >= 2 {
                         &cmd[1..cmd.len() - 1]
@@ -383,7 +405,14 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
         }
     }
 
-    ParsedConfig { cvars, user_created, bindings, aliases, exec_refs, command_invocations }
+    ParsedConfig {
+        cvars,
+        user_created,
+        bindings,
+        aliases,
+        exec_refs,
+        command_invocations,
+    }
 }
 
 // ============================================================
@@ -416,24 +445,24 @@ fn expand_dollar_code(c: char) -> Option<u8> {
         '7' => Some(0x19),
         '8' => Some(0x1A),
         '9' => Some(0x1B),
-        ',' => Some(0x1C),  // white bullet dot
-        '.' => Some(0x9C),  // brown/red middle dot
-        '<' => Some(0x1D),  // small left bracket
-        '-' => Some(0x1E),  // small dash
-        '>' => Some(0x1F),  // small right bracket
-        '(' => Some(0x80),  // big left bracket (brown)
-        '=' => Some(0x81),  // big equal sign (brown)
-        ')' => Some(0x82),  // big right bracket (brown)
-        'a' => Some(0x83),  // big grey block
-        'W' => Some(0x84),  // white LED
-        'G' => Some(0x86),  // green LED
-        'R' => Some(0x87),  // red LED
-        'Y' => Some(0x88),  // yellow LED
-        'B' => Some(0x89),  // blue LED
-        'b' => Some(0x8B),  // filled red block
+        ',' => Some(0x1C),       // white bullet dot
+        '.' => Some(0x9C),       // brown/red middle dot
+        '<' => Some(0x1D),       // small left bracket
+        '-' => Some(0x1E),       // small dash
+        '>' => Some(0x1F),       // small right bracket
+        '(' => Some(0x80),       // big left bracket (brown)
+        '=' => Some(0x81),       // big equal sign (brown)
+        ')' => Some(0x82),       // big right bracket (brown)
+        'a' => Some(0x83),       // big grey block
+        'W' => Some(0x84),       // white LED
+        'G' => Some(0x86),       // green LED
+        'R' => Some(0x87),       // red LED
+        'Y' => Some(0x88),       // yellow LED
+        'B' => Some(0x89),       // blue LED
+        'b' => Some(0x8B),       // filled red block
         'c' | 'd' => Some(0x8D), // right-pointing red arrow
-        '$' => Some(0x24),  // literal $
-        '^' => Some(0x5E),  // literal ^
+        '$' => Some(0x24),       // literal $
+        '^' => Some(0x5E),       // literal ^
         _ => None,
     }
 }
@@ -444,25 +473,25 @@ fn qw_byte_to_char(byte: u8) -> char {
     let base = byte & 0x7F;
     match base {
         // Control characters / special glyphs → Unicode approximations
-        0x00 => ' ',        // null → space
+        0x00 => ' ', // null → space
         0x01 => ' ',
         0x02 => ' ',
         0x03 => ' ',
         0x04 => ' ',
-        0x05 => '•',        // bullet
+        0x05 => '•', // bullet
         0x06 => ' ',
         0x07 => ' ',
         0x08 => ' ',
         0x09 => ' ',
-        0x0A => ' ',        // newline
+        0x0A => ' ', // newline
         0x0B => ' ',
         0x0C => ' ',
-        0x0D => ' ',        // carriage return
-        0x0E => '·',        // middle dot
+        0x0D => ' ', // carriage return
+        0x0E => '·', // middle dot
         0x0F => ' ',
-        0x10 => '[',        // gold left bracket
-        0x11 => ']',        // gold right bracket
-        0x12 => '0',        // gold digits
+        0x10 => '[', // gold left bracket
+        0x11 => ']', // gold right bracket
+        0x12 => '0', // gold digits
         0x13 => '1',
         0x14 => '2',
         0x15 => '3',
@@ -472,24 +501,24 @@ fn qw_byte_to_char(byte: u8) -> char {
         0x19 => '7',
         0x1A => '8',
         0x1B => '9',
-        0x1C => '•',        // bullet dot (the one ParadokS uses)
-        0x1D => '‹',        // small left bracket
-        0x1E => '—',        // small dash
-        0x1F => '›',        // small right bracket
+        0x1C => '•', // bullet dot (the one ParadokS uses)
+        0x1D => '‹', // small left bracket
+        0x1E => '—', // small dash
+        0x1F => '›', // small right bracket
         // Standard printable ASCII range (0x20-0x7E)
         0x20..=0x7E => base as char,
-        0x7F => ' ',        // DEL
-        _ => ' ',           // shouldn't happen after masking
+        0x7F => ' ', // DEL
+        _ => ' ',    // shouldn't happen after masking
     }
 }
 
 /// Determine the color class for a QW byte.
 fn qw_byte_color(byte: u8) -> &'static str {
     match byte {
-        0x10..=0x1B => "g",         // gold range (brackets + digits)
-        0x90..=0x9B => "g",         // gold range (brown variants still render gold)
-        0x80..=0xFF => "b",         // brown/high-bit range
-        _ => "w",                    // white/normal
+        0x10..=0x1B => "g", // gold range (brackets + digits)
+        0x90..=0x9B => "g", // gold range (brown variants still render gold)
+        0x80..=0xFF => "b", // brown/high-bit range
+        _ => "w",           // white/normal
     }
 }
 
@@ -532,7 +561,10 @@ fn expand_qw_name(raw: &str) -> Vec<QwStyledChar> {
                 continue;
             }
             // Unknown $ code — emit literal $
-            result.push(QwStyledChar { ch: "$".to_string(), color: "w".to_string() });
+            result.push(QwStyledChar {
+                ch: "$".to_string(),
+                color: "w".to_string(),
+            });
             i += 1;
             continue;
         }
@@ -603,7 +635,7 @@ pub struct EzQuakeConfig {
     pub topcolor: u8,
     pub bottomcolor: u8,
     pub sensitivity: f64,
-    pub lg_sensitivity: Option<f64>,  // different sensitivity for LG (shaft), if detected
+    pub lg_sensitivity: Option<f64>, // different sensitivity for LG (shaft), if detected
     pub m_yaw: f64,
     pub m_pitch: f64,
     pub m_accel: f64,
@@ -621,8 +653,15 @@ pub struct EzQuakeConfig {
     pub command_invocations: Vec<CommandInvocation>,
 }
 
-fn get_cvar<'a>(parsed: &'a HashMap<String, String>, defaults: &'a HashMap<&str, &str>, key: &str) -> &'a str {
-    parsed.get(key).map(|s| s.as_str()).unwrap_or_else(|| defaults.get(key).copied().unwrap_or(""))
+fn get_cvar<'a>(
+    parsed: &'a HashMap<String, String>,
+    defaults: &'a HashMap<&str, &str>,
+    key: &str,
+) -> &'a str {
+    parsed
+        .get(key)
+        .map(|s| s.as_str())
+        .unwrap_or_else(|| defaults.get(key).copied().unwrap_or(""))
 }
 
 /// Find which key is bound to a given command (e.g. "+forward").
@@ -631,7 +670,10 @@ fn get_cvar<'a>(parsed: &'a HashMap<String, String>, defaults: &'a HashMap<&str,
 fn find_bind(bindings: &[(String, String)], command: &str) -> String {
     let mut last_match: Option<&str> = None;
     for (key, cmd) in bindings {
-        if cmd == command || cmd.starts_with(&format!("{};", command)) || cmd.starts_with(&format!("{}; ", command)) {
+        if cmd == command
+            || cmd.starts_with(&format!("{};", command))
+            || cmd.starts_with(&format!("{}; ", command))
+        {
             last_match = Some(key);
         }
     }
@@ -714,11 +756,7 @@ fn resolve_command(cmd: &str, aliases: &HashMap<String, String>) -> String {
 /// Resolve a command through alias chains recursively (depth-limited).
 /// Follows semicolon-separated commands and if/then/else branches.
 /// Returns all terminal commands found at the end of all branches.
-fn resolve_command_deep(
-    cmd: &str,
-    aliases: &HashMap<String, String>,
-    depth: u8,
-) -> Vec<String> {
+fn resolve_command_deep(cmd: &str, aliases: &HashMap<String, String>, depth: u8) -> Vec<String> {
     if depth > 10 {
         return vec![cmd.to_string()];
     }
@@ -761,7 +799,8 @@ fn resolve_command_deep(
                 let prefix = &first_word[..dollar_pos];
                 if !prefix.is_empty() {
                     // Find the first alias matching this prefix that we can resolve
-                    let match_found = aliases.keys()
+                    let match_found = aliases
+                        .keys()
                         .find(|k| k.starts_with(prefix) && !k.contains('$'))
                         .cloned();
                     if let Some(matched_alias) = match_found {
@@ -849,16 +888,20 @@ fn find_else(s: &str) -> Option<usize> {
 /// A detected teamsay bind.
 #[derive(Serialize, Clone, Debug)]
 pub struct TeamsayBind {
-    pub key: String,           // display name of the key (e.g. "R", "Mouse4")
-    pub category: String,      // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
-    pub label: String,         // short human-readable label (e.g. "report", "lost", "safe")
-    pub description: String,   // longer description of what this bind does
+    pub key: String,         // display name of the key (e.g. "R", "Mouse4")
+    pub category: String, // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
+    pub label: String,    // short human-readable label (e.g. "report", "lost", "safe")
+    pub description: String, // longer description of what this bind does
 }
 
 /// Map a tp_msg* command to (category, label, description).
 fn classify_tp_msg(cmd: &str) -> Option<(&'static str, &'static str, &'static str)> {
     match cmd {
-        "tp_msgreport" => Some(("status", "report", "Report status: health, armor, weapon, location")),
+        "tp_msgreport" => Some((
+            "status",
+            "report",
+            "Report status: health, armor, weapon, location",
+        )),
         "tp_msglost" => Some(("death", "lost", "Report death location and dropped weapon")),
         "tp_msgcoming" => Some(("movement", "coming", "Announce coming from location")),
         "tp_msgsafe" => Some(("movement", "safe", "Report location is safe")),
@@ -887,7 +930,8 @@ fn classify_tp_msg(cmd: &str) -> Option<(&'static str, &'static str, &'static st
 /// Classify a say_team message by looking at keywords in the resolved terminal commands.
 fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str, &'static str)> {
     // Collect all terminal text into one string for keyword matching
-    let combined: String = terminals.iter()
+    let combined: String = terminals
+        .iter()
         .filter(|t| t.to_lowercase().starts_with("say_team"))
         .map(|t| t.to_lowercase())
         .collect::<Vec<_>>()
@@ -899,17 +943,33 @@ fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str
 
     // Match by keywords in the message templates
     // Order matters — more specific patterns first
-    if combined.contains("kill me") { return Some(("orders", "kill me", "Ask team to kill you for pack")); }
-    if combined.contains("dropped") || combined.contains("lost") || combined.contains("pack at") { return Some(("death", "lost", "Report death / dropped weapon")); }
-    if combined.contains("safe") { return Some(("movement", "safe", "Report location is safe")); }
-    if combined.contains("help") || combined.contains("ajudem") { return Some(("orders", "help", "Request help at location")); }
-    if combined.contains("coming") { return Some(("movement", "coming", "Announce coming from location")); }
-    if combined.contains("replace") { return Some(("orders", "replace", "Request replacement")); }
+    if combined.contains("kill me") {
+        return Some(("orders", "kill me", "Ask team to kill you for pack"));
+    }
+    if combined.contains("dropped") || combined.contains("lost") || combined.contains("pack at") {
+        return Some(("death", "lost", "Report death / dropped weapon"));
+    }
+    if combined.contains("safe") {
+        return Some(("movement", "safe", "Report location is safe"));
+    }
+    if combined.contains("help") || combined.contains("ajudem") {
+        return Some(("orders", "help", "Request help at location"));
+    }
+    if combined.contains("coming") {
+        return Some(("movement", "coming", "Announce coming from location"));
+    }
+    if combined.contains("replace") {
+        return Some(("orders", "replace", "Request replacement"));
+    }
     if combined.contains("took") || combined.contains("team") && combined.contains("%p") {
         return Some(("items", "took", "Report item pickup / team powerup"));
     }
-    if combined.contains("get") && combined.contains("quad") { return Some(("powerups", "get quad", "Tell team to get quad")); }
-    if combined.contains("get") && combined.contains("pent") { return Some(("powerups", "get pent", "Tell team to get pent")); }
+    if combined.contains("get") && combined.contains("quad") {
+        return Some(("powerups", "get quad", "Tell team to get quad"));
+    }
+    if combined.contains("get") && combined.contains("pent") {
+        return Some(("powerups", "get pent", "Tell team to get pent"));
+    }
     if combined.contains("quad") && (combined.contains("over") || combined.contains("dead")) {
         return Some(("powerups", "quad dead", "Quad is dead/over"));
     }
@@ -925,21 +985,36 @@ fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str
     if combined.contains("need %u") || combined.contains("need") && combined.contains("%l") {
         return Some(("status", "need", "Report what you need"));
     }
-    if combined.contains("report") || (combined.contains("colored_armor") && combined.contains("%h")) || combined.contains("%a") && combined.contains("bestweapon") {
+    if combined.contains("report")
+        || (combined.contains("colored_armor") && combined.contains("%h"))
+        || combined.contains("%a") && combined.contains("bestweapon")
+    {
         return Some(("status", "report", "Report status"));
     }
-    if combined.contains("trick") { return Some(("orders", "trick", "Request trick at location")); }
-    if combined.contains("waiting") || combined.contains("awaiting") { return Some(("movement", "waiting", "Waiting at location")); }
+    if combined.contains("trick") {
+        return Some(("orders", "trick", "Request trick at location"));
+    }
+    if combined.contains("waiting") || combined.contains("awaiting") {
+        return Some(("movement", "waiting", "Waiting at location"));
+    }
     if combined.contains("yes") || combined.contains("ok") && !combined.contains("kill") {
         return Some(("confirm", "yes/ok", "Confirm"));
     }
-    if combined.contains("no/") || combined.contains("cancel") { return Some(("confirm", "no/cancel", "Deny or cancel")); }
+    if combined.contains("no/") || combined.contains("cancel") {
+        return Some(("confirm", "no/cancel", "Deny or cancel"));
+    }
     if combined.contains("point") || combined.contains("%x") && combined.contains("%y") {
         return Some(("items", "point", "Report what you're pointing at"));
     }
-    if combined.contains("attack") { return Some(("orders", "attack", "Attack order")); }
-    if combined.contains("soon") { return Some(("items", "item soon", "Item respawning soon")); }
-    if combined.contains("camping") { return Some(("movement", "camping", "Camping at location")); }
+    if combined.contains("attack") {
+        return Some(("orders", "attack", "Attack order"));
+    }
+    if combined.contains("soon") {
+        return Some(("items", "item soon", "Item respawning soon"));
+    }
+    if combined.contains("camping") {
+        return Some(("movement", "camping", "Camping at location"));
+    }
 
     Some(("custom", "say_team", "Custom team message"))
 }
@@ -947,80 +1022,192 @@ fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str
 /// Try to classify a bind based on its alias name (when terminal resolution is ambiguous).
 fn classify_by_alias_name(name: &str) -> Option<(&'static str, &'static str, &'static str)> {
     let lower = name.to_lowercase();
-    let lower = lower.trim_start_matches('_').trim_start_matches('+').trim_start_matches('.');
+    let lower = lower
+        .trim_start_matches('_')
+        .trim_start_matches('+')
+        .trim_start_matches('.');
 
     // Most specific patterns first — order matters!
     // Compound/ambiguous patterns must come before their individual parts.
 
     // Compound patterns
-    if lower.contains("need") && lower.contains("powerup") { return Some(("status", "need/pwr", "Report needs or team powerup")); }
-    if lower.contains("enemy") && lower.contains("powerup") { return Some(("enemy", "enemy pwr", "Enemy powerup")); }
-    if lower.contains("attack") && lower.contains("lost") { return Some(("orders", "attack", "Attack lost position")); }
-    if lower.contains("ask") && lower.contains("status") { return Some(("orders", "status?", "Ask team for status")); }
+    if lower.contains("need") && lower.contains("powerup") {
+        return Some(("status", "need/pwr", "Report needs or team powerup"));
+    }
+    if lower.contains("enemy") && lower.contains("powerup") {
+        return Some(("enemy", "enemy pwr", "Enemy powerup"));
+    }
+    if lower.contains("attack") && lower.contains("lost") {
+        return Some(("orders", "attack", "Attack lost position"));
+    }
+    if lower.contains("ask") && lower.contains("status") {
+        return Some(("orders", "status?", "Ask team for status"));
+    }
 
     // Area status queries (statusra, statusya — NOT self-report)
-    if lower.contains("statusra") { return Some(("orders", "ra status?", "Ask RA area status")); }
-    if lower.contains("statusya") { return Some(("orders", "ya status?", "Ask YA area status")); }
-    if lower.contains("statusquad") { return Some(("orders", "quad status?", "Ask quad status")); }
-    if lower.contains("statuspent") { return Some(("orders", "pent status?", "Ask pent status")); }
+    if lower.contains("statusra") {
+        return Some(("orders", "ra status?", "Ask RA area status"));
+    }
+    if lower.contains("statusya") {
+        return Some(("orders", "ya status?", "Ask YA area status"));
+    }
+    if lower.contains("statusquad") {
+        return Some(("orders", "quad status?", "Ask quad status"));
+    }
+    if lower.contains("statuspent") {
+        return Some(("orders", "pent status?", "Ask pent status"));
+    }
 
     // Enemy weapon/kill reports (before generic "kill" / "enemy")
-    if lower.contains("rlkilled") || lower.contains("rl_killed") || lower.contains("rldied") || lower.contains("rl_died")
-        || lower.contains("rldead") || lower.contains("rl_dead") { return Some(("enemy", "rl dead", "Enemy RL died")); }
-    if lower.contains("weak_rl") || lower.contains("weakrl") { return Some(("enemy", "weak rl", "Enemy RL low")); }
-    if lower.contains("enemy_rl") || lower.contains("rl-nme") || lower.contains("rl_nme") { return Some(("enemy", "enemy rl", "Enemy has RL")); }
+    if lower.contains("rlkilled")
+        || lower.contains("rl_killed")
+        || lower.contains("rldied")
+        || lower.contains("rl_died")
+        || lower.contains("rldead")
+        || lower.contains("rl_dead")
+    {
+        return Some(("enemy", "rl dead", "Enemy RL died"));
+    }
+    if lower.contains("weak_rl") || lower.contains("weakrl") {
+        return Some(("enemy", "weak rl", "Enemy RL low"));
+    }
+    if lower.contains("enemy_rl") || lower.contains("rl-nme") || lower.contains("rl_nme") {
+        return Some(("enemy", "enemy rl", "Enemy has RL"));
+    }
 
     // Pack reports (before generic "lost")
-    if lower.contains("mypack") || lower.contains("my_pack") || lower.contains("borepack") { return Some(("death", "dropped", "Dropped pack at location")); }
-    if lower.contains("left_pack") || lower.contains("lostpack") || lower.contains("rlpack") { return Some(("death", "pack left", "Pack left at location")); }
+    if lower.contains("mypack") || lower.contains("my_pack") || lower.contains("borepack") {
+        return Some(("death", "dropped", "Dropped pack at location"));
+    }
+    if lower.contains("left_pack") || lower.contains("lostpack") || lower.contains("rlpack") {
+        return Some(("death", "pack left", "Pack left at location"));
+    }
 
     // Kill me (specific, before generic "kill")
-    if lower.contains("kill_me") || lower.contains("killme") || lower.contains("kill_my") { return Some(("orders", "kill me", "Kill me for pack")); }
+    if lower.contains("kill_me") || lower.contains("killme") || lower.contains("kill_my") {
+        return Some(("orders", "kill me", "Kill me for pack"));
+    }
 
     // Status / report
-    if lower.contains("status_report") || lower.contains("report") { return Some(("status", "report", "Report status")); }
+    if lower.contains("status_report") || lower.contains("report") {
+        return Some(("status", "report", "Report status"));
+    }
 
     // Get item orders (before generic patterns)
-    if lower.contains("get_mega") || lower.contains("getmega") { return Some(("items", "get mega", "Get mega health")); }
-    if lower.contains("getquad") || lower.contains("get_quad") { return Some(("powerups", "get quad", "Get quad")); }
-    if lower.contains("getpent") || lower.contains("get_pent") { return Some(("powerups", "get pent", "Get pent")); }
-    if lower.starts_with("getrl") || lower.starts_with("get_rl") { return Some(("orders", "get rl", "Get RL")); }
-    if lower.starts_with("getlg") || lower.starts_with("get_lg") { return Some(("orders", "get lg", "Get LG")); }
-    if lower.starts_with("getra") || lower.starts_with("get_ra") { return Some(("orders", "get ra", "Get RA")); }
-    if lower.starts_with("getya") || lower.starts_with("get_ya") { return Some(("orders", "get ya", "Get YA")); }
-    if lower.starts_with("getga") || lower.starts_with("get_ga") { return Some(("orders", "get ga", "Get GA")); }
-    if lower.starts_with("geth") && lower.contains("rl") { return Some(("orders", "get rl", "Get RL (high/low)")); }
+    if lower.contains("get_mega") || lower.contains("getmega") {
+        return Some(("items", "get mega", "Get mega health"));
+    }
+    if lower.contains("getquad") || lower.contains("get_quad") {
+        return Some(("powerups", "get quad", "Get quad"));
+    }
+    if lower.contains("getpent") || lower.contains("get_pent") {
+        return Some(("powerups", "get pent", "Get pent"));
+    }
+    if lower.starts_with("getrl") || lower.starts_with("get_rl") {
+        return Some(("orders", "get rl", "Get RL"));
+    }
+    if lower.starts_with("getlg") || lower.starts_with("get_lg") {
+        return Some(("orders", "get lg", "Get LG"));
+    }
+    if lower.starts_with("getra") || lower.starts_with("get_ra") {
+        return Some(("orders", "get ra", "Get RA"));
+    }
+    if lower.starts_with("getya") || lower.starts_with("get_ya") {
+        return Some(("orders", "get ya", "Get YA"));
+    }
+    if lower.starts_with("getga") || lower.starts_with("get_ga") {
+        return Some(("orders", "get ga", "Get GA"));
+    }
+    if lower.starts_with("geth") && lower.contains("rl") {
+        return Some(("orders", "get rl", "Get RL (high/low)"));
+    }
 
     // Standard patterns
-    if lower.contains("lost") { return Some(("death", "lost", "Report death")); }
-    if lower.contains("safe") { return Some(("movement", "safe", "Location safe")); }
-    if lower.contains("coming") { return Some(("movement", "coming", "Coming from location")); }
-    if lower.contains("help") { return Some(("orders", "help", "Request help")); }
-    if lower.contains("replace") { return Some(("orders", "replace", "Request replacement")); }
-    if lower.contains("took") { return Some(("items", "took", "Item pickup")); }
-    if lower.contains("need") { return Some(("status", "need", "Report needs")); }
-    if lower.contains("point") { return Some(("items", "point", "Point at item")); }
-    if lower.contains("quadover") || lower.contains("quad_over") { return Some(("powerups", "quad dead", "Quad over")); }
-    if lower.contains("slipped") { return Some(("enemy", "slipped", "Enemy slipped")); }
-    if lower.contains("enemy") { return Some(("enemy", "enemy", "Enemy report")); }
-    if lower.contains("yesok") || lower == "ok" { return Some(("confirm", "yes/ok", "Confirm")); }
-    if lower.contains("nocancel") || lower.contains("cancel") { return Some(("confirm", "no/cancel", "Cancel")); }
-    if lower.contains("trick") { return Some(("orders", "trick", "Trick")); }
-    if lower.contains("waiting") || lower.contains("wait") { return Some(("movement", "waiting", "Waiting")); }
-    if lower.contains("attack") { return Some(("orders", "attack", "Attack")); }
-    if lower.contains("camping") || lower.contains("camp") { return Some(("movement", "camping", "Camping")); }
-    if lower == "dont" || lower == "don't" { return Some(("orders", "don't", "Don't come / stay away")); }
-    if lower.contains("focus") { return Some(("orders", "focus", "Focus / shut up")); }
-    if lower.contains("timer") && lower.contains("say") { return Some(("items", "timer", "Item timer callout")); }
-    if lower.contains("sync") { return Some(("orders", "sync", "Sync attack")); }
-    if lower.contains("get_my_stuff") || lower.contains("giveaway") { return Some(("orders", "give wpn", "Give away weapon/ammo")); }
-    if lower.contains("itemsoon") || lower.contains("item_soon") || lower == "soon" { return Some(("items", "item soon", "Item respawning soon")); }
-    if lower.contains("youtake") || lower.contains("you_take") || lower == "take" { return Some(("orders", "you take", "Tell teammate to take location")); }
-    if lower.contains("quad_tid") || lower.contains("quad_time") { return Some(("powerups", "quad time?", "Ask quad timing")); }
-    if lower.contains("quad_on") { return Some(("powerups", "quad on", "Quad on [time]")); }
-    if lower.contains("teamquad") || lower.contains("team_quad") { return Some(("powerups", "team quad", "Team has quad")); }
+    if lower.contains("lost") {
+        return Some(("death", "lost", "Report death"));
+    }
+    if lower.contains("safe") {
+        return Some(("movement", "safe", "Location safe"));
+    }
+    if lower.contains("coming") {
+        return Some(("movement", "coming", "Coming from location"));
+    }
+    if lower.contains("help") {
+        return Some(("orders", "help", "Request help"));
+    }
+    if lower.contains("replace") {
+        return Some(("orders", "replace", "Request replacement"));
+    }
+    if lower.contains("took") {
+        return Some(("items", "took", "Item pickup"));
+    }
+    if lower.contains("need") {
+        return Some(("status", "need", "Report needs"));
+    }
+    if lower.contains("point") {
+        return Some(("items", "point", "Point at item"));
+    }
+    if lower.contains("quadover") || lower.contains("quad_over") {
+        return Some(("powerups", "quad dead", "Quad over"));
+    }
+    if lower.contains("slipped") {
+        return Some(("enemy", "slipped", "Enemy slipped"));
+    }
+    if lower.contains("enemy") {
+        return Some(("enemy", "enemy", "Enemy report"));
+    }
+    if lower.contains("yesok") || lower == "ok" {
+        return Some(("confirm", "yes/ok", "Confirm"));
+    }
+    if lower.contains("nocancel") || lower.contains("cancel") {
+        return Some(("confirm", "no/cancel", "Cancel"));
+    }
+    if lower.contains("trick") {
+        return Some(("orders", "trick", "Trick"));
+    }
+    if lower.contains("waiting") || lower.contains("wait") {
+        return Some(("movement", "waiting", "Waiting"));
+    }
+    if lower.contains("attack") {
+        return Some(("orders", "attack", "Attack"));
+    }
+    if lower.contains("camping") || lower.contains("camp") {
+        return Some(("movement", "camping", "Camping"));
+    }
+    if lower == "dont" || lower == "don't" {
+        return Some(("orders", "don't", "Don't come / stay away"));
+    }
+    if lower.contains("focus") {
+        return Some(("orders", "focus", "Focus / shut up"));
+    }
+    if lower.contains("timer") && lower.contains("say") {
+        return Some(("items", "timer", "Item timer callout"));
+    }
+    if lower.contains("sync") {
+        return Some(("orders", "sync", "Sync attack"));
+    }
+    if lower.contains("get_my_stuff") || lower.contains("giveaway") {
+        return Some(("orders", "give wpn", "Give away weapon/ammo"));
+    }
+    if lower.contains("itemsoon") || lower.contains("item_soon") || lower == "soon" {
+        return Some(("items", "item soon", "Item respawning soon"));
+    }
+    if lower.contains("youtake") || lower.contains("you_take") || lower == "take" {
+        return Some(("orders", "you take", "Tell teammate to take location"));
+    }
+    if lower.contains("quad_tid") || lower.contains("quad_time") {
+        return Some(("powerups", "quad time?", "Ask quad timing"));
+    }
+    if lower.contains("quad_on") {
+        return Some(("powerups", "quad on", "Quad on [time]"));
+    }
+    if lower.contains("teamquad") || lower.contains("team_quad") {
+        return Some(("powerups", "team quad", "Team has quad"));
+    }
     // "_status" alone (no ra/ya/report suffix) = asking team to report
-    if lower == "status" { return Some(("orders", "report!", "Ask team to report")); }
+    if lower == "status" {
+        return Some(("orders", "report!", "Ask team to report"));
+    }
 
     None
 }
@@ -1060,26 +1247,39 @@ fn analyze_teamsay_binds(
             }
             // Check 2: direct say_team command
             else if part.to_lowercase().starts_with("say_team ") {
-                classification = classify_say_team(&[part.to_string()])
-                    .or(Some(("custom", "say_team", "Custom team message")));
+                classification = classify_say_team(&[part.to_string()]).or(Some((
+                    "custom",
+                    "say_team",
+                    "Custom team message",
+                )));
             }
             // Check 3: resolve through alias chains
             else {
                 let terminals = resolve_command_deep(part, aliases, 0);
-                let has_say_team = terminals.iter().any(|t| t.to_lowercase().starts_with("say_team"));
-                let has_tp_msg = terminals.iter().any(|t| t.to_lowercase().starts_with("tp_msg"));
+                let has_say_team = terminals
+                    .iter()
+                    .any(|t| t.to_lowercase().starts_with("say_team"));
+                let has_tp_msg = terminals
+                    .iter()
+                    .any(|t| t.to_lowercase().starts_with("tp_msg"));
 
                 if has_say_team || has_tp_msg {
                     let by_name = classify_by_alias_name(first_word);
-                    let by_tp_msg = terminals.iter()
+                    let by_tp_msg = terminals
+                        .iter()
                         .filter_map(|t| classify_tp_msg(t.split_whitespace().next().unwrap_or(t)))
                         .next();
-                    let by_content = if has_say_team { classify_say_team(&terminals) } else { None };
+                    let by_content = if has_say_team {
+                        classify_say_team(&terminals)
+                    } else {
+                        None
+                    };
 
-                    classification = Some(by_name
-                        .or(by_tp_msg)
-                        .or(by_content)
-                        .unwrap_or(("custom", "say_team", "Team communication")));
+                    classification = Some(by_name.or(by_tp_msg).or(by_content).unwrap_or((
+                        "custom",
+                        "say_team",
+                        "Team communication",
+                    )));
                 } else {
                     classification = None;
                 }
@@ -1105,10 +1305,18 @@ fn analyze_teamsay_binds(
     }
 
     // Sort by category, then by label
-    let cat_order = ["status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"];
+    let cat_order = [
+        "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom",
+    ];
     teamsay_binds.sort_by(|a, b| {
-        let a_pos = cat_order.iter().position(|&c| c == a.category).unwrap_or(99);
-        let b_pos = cat_order.iter().position(|&c| c == b.category).unwrap_or(99);
+        let a_pos = cat_order
+            .iter()
+            .position(|&c| c == a.category)
+            .unwrap_or(99);
+        let b_pos = cat_order
+            .iter()
+            .position(|&c| c == b.category)
+            .unwrap_or(99);
         a_pos.cmp(&b_pos).then(a.label.cmp(&b.label))
     });
 
@@ -1122,10 +1330,18 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
     let parsed = parsed.cvars;
     let defaults = default_cvars();
 
-    let sensitivity = get_cvar(&parsed, &defaults, "sensitivity").parse::<f64>().unwrap_or(12.0);
-    let m_yaw = get_cvar(&parsed, &defaults, "m_yaw").parse::<f64>().unwrap_or(0.022);
-    let m_pitch = get_cvar(&parsed, &defaults, "m_pitch").parse::<f64>().unwrap_or(0.022);
-    let m_accel = get_cvar(&parsed, &defaults, "m_accel").parse::<f64>().unwrap_or(0.0);
+    let sensitivity = get_cvar(&parsed, &defaults, "sensitivity")
+        .parse::<f64>()
+        .unwrap_or(12.0);
+    let m_yaw = get_cvar(&parsed, &defaults, "m_yaw")
+        .parse::<f64>()
+        .unwrap_or(0.022);
+    let m_pitch = get_cvar(&parsed, &defaults, "m_pitch")
+        .parse::<f64>()
+        .unwrap_or(0.022);
+    let m_accel = get_cvar(&parsed, &defaults, "m_accel")
+        .parse::<f64>()
+        .unwrap_or(0.0);
 
     // Detect LG-specific sensitivity: scan aliases/binds for sensitivity changes
     // tied to LG (weapon 8). Common patterns:
@@ -1136,8 +1352,10 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         // Check all aliases that reference weapon 8 / LG
         for (_name, cmd) in &aliases {
             let lower = cmd.to_lowercase();
-            let has_lg = lower.contains("impulse 8") || lower.contains("weapon 8")
-                || lower.contains("+fire 8") || lower.contains("+fire_ar 8");
+            let has_lg = lower.contains("impulse 8")
+                || lower.contains("weapon 8")
+                || lower.contains("+fire 8")
+                || lower.contains("+fire_ar 8");
             if has_lg {
                 // Look for "sensitivity X" in the same alias
                 for part in lower.split(';') {
@@ -1188,26 +1406,40 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
     //   (ezQuake auto-sets them even when vid_usedesktopres=1)
     // Windowed: vid_win_width/vid_win_height are the window dimensions
     let (vid_width, vid_height) = if vid_fullscreen {
-        let w = get_cvar(&parsed, &defaults, "vid_width").parse::<u32>().unwrap_or(0);
-        let h = get_cvar(&parsed, &defaults, "vid_height").parse::<u32>().unwrap_or(0);
+        let w = get_cvar(&parsed, &defaults, "vid_width")
+            .parse::<u32>()
+            .unwrap_or(0);
+        let h = get_cvar(&parsed, &defaults, "vid_height")
+            .parse::<u32>()
+            .unwrap_or(0);
         (w, h) // 0,0 means desktop res (frontend falls back to detected desktop res)
     } else {
-        let w = get_cvar(&parsed, &defaults, "vid_win_width").parse::<u32>().unwrap_or(0);
-        let h = get_cvar(&parsed, &defaults, "vid_win_height").parse::<u32>().unwrap_or(0);
+        let w = get_cvar(&parsed, &defaults, "vid_win_width")
+            .parse::<u32>()
+            .unwrap_or(0);
+        let h = get_cvar(&parsed, &defaults, "vid_win_height")
+            .parse::<u32>()
+            .unwrap_or(0);
         (w, h)
     };
 
     let vid_displayfrequency = get_cvar(&parsed, &defaults, "vid_displayfrequency")
-        .parse::<u32>().unwrap_or(0);
+        .parse::<u32>()
+        .unwrap_or(0);
     let cl_maxfps = get_cvar(&parsed, &defaults, "cl_maxfps")
-        .parse::<u32>().unwrap_or(0);
+        .parse::<u32>()
+        .unwrap_or(0);
 
     let player_name = get_cvar(&parsed, &defaults, "name").to_string();
     let player_name_qw = expand_qw_name(&player_name);
     let team = get_cvar(&parsed, &defaults, "team").to_string();
     let team_qw = expand_qw_name(&team);
-    let topcolor = get_cvar(&parsed, &defaults, "topcolor").parse::<u8>().unwrap_or(0);
-    let bottomcolor = get_cvar(&parsed, &defaults, "bottomcolor").parse::<u8>().unwrap_or(0);
+    let topcolor = get_cvar(&parsed, &defaults, "topcolor")
+        .parse::<u8>()
+        .unwrap_or(0);
+    let bottomcolor = get_cvar(&parsed, &defaults, "bottomcolor")
+        .parse::<u8>()
+        .unwrap_or(0);
 
     // Extract movement key bindings
     let movement = MovementKeys {
@@ -1257,7 +1489,11 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
 /// Given the path to ezquake.exe, derive the config directory.
 /// ezQuake stores configs in `<exe_dir>/ezquake/configs/`
 pub fn config_dir_from_exe(exe_path: &Path) -> PathBuf {
-    exe_path.parent().unwrap_or(Path::new(".")).join("ezquake").join("configs")
+    exe_path
+        .parent()
+        .unwrap_or(Path::new("."))
+        .join("ezquake")
+        .join("configs")
 }
 
 /// Validate that a path points to a real ezQuake executable.
@@ -1265,7 +1501,11 @@ fn validate_exe(path: &Path) -> bool {
     if !path.exists() || !path.is_file() {
         return false;
     }
-    let name = path.file_name().unwrap_or_default().to_string_lossy().to_lowercase();
+    let name = path
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase();
     name.contains("ezquake") || name.contains("fteqw")
 }
 
@@ -1404,8 +1644,7 @@ pub fn read_ezquake_config(exe_path: String, config_name: String) -> Result<EzQu
 
     // Read as bytes and convert lossy — ezQuake configs may contain
     // non-UTF-8 bytes (QW color codes in player names, etc.)
-    let bytes = std::fs::read(&cfg_path)
-        .map_err(|e| format!("Failed to read config: {}", e))?;
+    let bytes = std::fs::read(&cfg_path).map_err(|e| format!("Failed to read config: {}", e))?;
     let content = String::from_utf8_lossy(&bytes).to_string();
 
     let mut parsed = parse_config(&content);
@@ -1444,7 +1683,10 @@ pub fn read_ezquake_config(exe_path: String, config_name: String) -> Result<EzQu
 }
 
 /// Core logic for discovering and returning the full config file chain starting from a primary config.
-pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> Result<ConfigChain, String> {
+pub(crate) fn read_config_chain_internal(
+    exe_path: &Path,
+    config_name: &str,
+) -> Result<ConfigChain, String> {
     let cfg_dir = config_dir_from_exe(exe_path);
     let game_dir = cfg_dir.parent().unwrap_or(&cfg_dir).to_path_buf();
 
@@ -1464,7 +1706,8 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
     let parsed = parse_config(&content);
     let line_count = content.lines().count() as u32;
 
-    let canonical = primary_path.canonicalize()
+    let canonical = primary_path
+        .canonicalize()
         .unwrap_or_else(|_| primary_path.clone());
     seen.insert(canonical);
 
@@ -1473,11 +1716,15 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
 
     // parse_config appends cl_onload exec refs into exec_refs — separate them
     // so Phase 2 only walks top-level execs and Phase 4 handles cl_onload independently.
-    let cl_onload_refs: Vec<String> = cl_onload.as_ref()
+    let cl_onload_refs: Vec<String> = cl_onload
+        .as_ref()
         .map(|v| extract_exec_refs(v))
         .unwrap_or_default();
-    let cl_onload_set: std::collections::HashSet<&str> = cl_onload_refs.iter().map(|s| s.as_str()).collect();
-    let top_level_exec_refs: Vec<String> = parsed.exec_refs.iter()
+    let cl_onload_set: std::collections::HashSet<&str> =
+        cl_onload_refs.iter().map(|s| s.as_str()).collect();
+    let top_level_exec_refs: Vec<String> = parsed
+        .exec_refs
+        .iter()
         .filter(|r| !cl_onload_set.contains(r.as_str()))
         .cloned()
         .collect();
@@ -1502,13 +1749,19 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
         ChainEntrySource::Exec,
         &primary_rel,
         "exec",
-        &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+        &game_dir,
+        &cfg_dir,
+        &mut seen,
+        &mut chain,
+        &mut unresolved,
     );
 
     // Phase 3: Check for autoexec.cfg
     let autoexec_path = game_dir.join("autoexec.cfg");
     if autoexec_path.exists() {
-        let canonical = autoexec_path.canonicalize().unwrap_or_else(|_| autoexec_path.clone());
+        let canonical = autoexec_path
+            .canonicalize()
+            .unwrap_or_else(|_| autoexec_path.clone());
         if !seen.contains(&canonical) {
             seen.insert(canonical);
             if let Ok(bytes) = std::fs::read(&autoexec_path) {
@@ -1539,7 +1792,11 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                     ChainEntrySource::Exec,
                     "autoexec.cfg",
                     "exec",
-                    &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+                    &game_dir,
+                    &cfg_dir,
+                    &mut seen,
+                    &mut chain,
+                    &mut unresolved,
                 );
             }
         }
@@ -1553,7 +1810,11 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
             ChainEntrySource::ClOnload,
             &primary_rel,
             "cl_onload",
-            &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+            &game_dir,
+            &cfg_dir,
+            &mut seen,
+            &mut chain,
+            &mut unresolved,
         );
     }
 
@@ -1562,12 +1823,20 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
     for file in &chain {
         for (key, cmd) in &file.binds {
             for exec_ref in extract_exec_refs(cmd) {
-                bound_refs.push((exec_ref, file.relative_path.clone(), format!("bind {}", key)));
+                bound_refs.push((
+                    exec_ref,
+                    file.relative_path.clone(),
+                    format!("bind {}", key),
+                ));
             }
         }
         for (alias_name, cmd) in &file.aliases {
             for exec_ref in extract_exec_refs(cmd) {
-                bound_refs.push((exec_ref, file.relative_path.clone(), format!("alias {}", alias_name)));
+                bound_refs.push((
+                    exec_ref,
+                    file.relative_path.clone(),
+                    format!("alias {}", alias_name),
+                ));
             }
         }
     }
@@ -1594,8 +1863,11 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                 let content = String::from_utf8_lossy(&bytes).to_string();
                 let parsed = parse_config(&content);
                 let lc = content.lines().count() as u32;
-                let name = canonical.file_name()
-                    .unwrap_or_default().to_string_lossy().to_string();
+                let name = canonical
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
 
                 let source = if context.starts_with("bind") {
                     ChainEntrySource::BoundExec
@@ -1627,7 +1899,11 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                     ChainEntrySource::Exec,
                     &rel_path,
                     "exec",
-                    &game_dir, &cfg_dir, &mut seen, &mut chain, &mut unresolved,
+                    &game_dir,
+                    &cfg_dir,
+                    &mut seen,
+                    &mut chain,
+                    &mut unresolved,
                 );
             }
         }
@@ -1644,9 +1920,13 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
                     if let Ok(canonical) = path.canonicalize() {
                         if !seen.contains(&canonical) {
                             seen.insert(canonical);
-                            let name = path.file_name()
-                                .unwrap_or_default().to_string_lossy().to_string();
-                            let rel = path.strip_prefix(&game_dir)
+                            let name = path
+                                .file_name()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .to_string();
+                            let rel = path
+                                .strip_prefix(&game_dir)
                                 .unwrap_or(&path)
                                 .to_string_lossy()
                                 .replace('\\', "/");
@@ -1672,7 +1952,8 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
             Some(r) => format!(" <- {} ({})", r.file, r.context),
             None => String::new(),
         };
-        println!("  {}. [{:?}] {} - {} cvars, {} binds, {} aliases{}",
+        println!(
+            "  {}. [{:?}] {} - {} cvars, {} binds, {} aliases{}",
             i + 1,
             f.source,
             f.relative_path,
@@ -1683,7 +1964,10 @@ pub(crate) fn read_config_chain_internal(exe_path: &Path, config_name: &str) -> 
         );
     }
     if !unresolved.is_empty() {
-        println!("  Unresolved: {:?}", unresolved.iter().map(|u| &u.raw_ref).collect::<Vec<_>>());
+        println!(
+            "  Unresolved: {:?}",
+            unresolved.iter().map(|u| &u.raw_ref).collect::<Vec<_>>()
+        );
     }
     println!("  Other cfgs: {}", other_cfgs.len());
 
@@ -1704,8 +1988,8 @@ pub fn read_config_chain(exe_path: String, config_name: String) -> Result<Config
 #[derive(Deserialize)]
 pub struct LaunchOptions {
     pub exe_path: String,
-    pub action: Option<String>,    // "connect", "observe", "join"
-    pub server: Option<String>,    // "ip:port"
+    pub action: Option<String>, // "connect", "observe", "join"
+    pub server: Option<String>, // "ip:port"
     pub extra_args: Option<Vec<String>>,
 }
 
@@ -1726,9 +2010,15 @@ pub fn launch_ezquake(options: LaunchOptions) -> Result<(), String> {
     // Add server connection args
     if let (Some(action), Some(server)) = (&options.action, &options.server) {
         match action.as_str() {
-            "connect" => { cmd.arg(format!("+connect {}", server)); }
-            "observe" => { cmd.arg(format!("+observe {}", server)); }
-            "join" => { cmd.arg(format!("+join {}", server)); }
+            "connect" => {
+                cmd.arg(format!("+connect {}", server));
+            }
+            "observe" => {
+                cmd.arg(format!("+observe {}", server));
+            }
+            "join" => {
+                cmd.arg(format!("+join {}", server));
+            }
             _ => {}
         }
     }
@@ -1740,7 +2030,8 @@ pub fn launch_ezquake(options: LaunchOptions) -> Result<(), String> {
         }
     }
 
-    cmd.spawn().map_err(|e| format!("Failed to launch ezQuake: {}", e))?;
+    cmd.spawn()
+        .map_err(|e| format!("Failed to launch ezQuake: {}", e))?;
     Ok(())
 }
 
@@ -1857,7 +2148,10 @@ mod tests {
                         for binding in sub_parsed.bindings {
                             parsed.bindings.push(binding);
                         }
-                        println!("  [OK] {} → {} aliases, {} binds", exec_path, alias_count, bind_count);
+                        println!(
+                            "  [OK] {} → {} aliases, {} binds",
+                            exec_path, alias_count, bind_count
+                        );
                     }
                     found = true;
                     break;
@@ -1873,7 +2167,14 @@ mod tests {
         // Player info
         println!("\n--- PLAYER ---");
         println!("  Name: {}", config.player_name);
-        println!("  Team: {}", if config.team.is_empty() { "(none)" } else { &config.team });
+        println!(
+            "  Team: {}",
+            if config.team.is_empty() {
+                "(none)"
+            } else {
+                &config.team
+            }
+        );
 
         // Movement
         println!("\n--- MOVEMENT ---");
@@ -1899,21 +2200,33 @@ mod tests {
 
         // Weapon binds
         println!("\n--- WEAPON BINDS ({}) ---", config.weapon_binds.len());
-        println!("  {:<8} {:<12} {:<10} {}", "WEAPON", "KEY", "METHOD", "FIRE KEY");
+        println!(
+            "  {:<8} {:<12} {:<10} {}",
+            "WEAPON", "KEY", "METHOD", "FIRE KEY"
+        );
         println!("  {}", "-".repeat(45));
         for wb in &config.weapon_binds {
-            println!("  {:<8} {:<12} {:<10} {}",
-                format!("{:?}", wb.weapon), wb.trigger_key, format!("{:?}", wb.method),
-                wb.fire_key.as_deref().unwrap_or(""));
+            println!(
+                "  {:<8} {:<12} {:<10} {}",
+                format!("{:?}", wb.weapon),
+                wb.trigger_key,
+                format!("{:?}", wb.method),
+                wb.fire_key.as_deref().unwrap_or("")
+            );
         }
 
         // Teamsay binds
         println!("\n--- TEAMSAY BINDS ({}) ---", config.teamsay_binds.len());
-        println!("  {:<10} {:<12} {:<12} {}", "CATEGORY", "KEY", "LABEL", "DESCRIPTION");
+        println!(
+            "  {:<10} {:<12} {:<12} {}",
+            "CATEGORY", "KEY", "LABEL", "DESCRIPTION"
+        );
         println!("  {}", "-".repeat(60));
         for tb in &config.teamsay_binds {
-            println!("  {:<10} {:<12} {:<12} {}",
-                tb.category, tb.key, tb.label, tb.description);
+            println!(
+                "  {:<10} {:<12} {:<12} {}",
+                tb.category, tb.key, tb.label, tb.description
+            );
         }
 
         println!("\n{}", "=".repeat(70));
