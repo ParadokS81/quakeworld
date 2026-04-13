@@ -615,7 +615,7 @@ pub struct EzQuakeConfig {
     pub vid_displayfrequency: u32,
     pub cl_maxfps: u32,
     pub movement: MovementKeys,
-    pub weapon_binds: Vec<WeaponBind>,
+    pub weapon_binds: Vec<FiringPath>,
     pub teamsay_binds: Vec<TeamsayBind>,
     pub raw_cvars: HashMap<String, String>,
     pub command_invocations: Vec<CommandInvocation>,
@@ -693,134 +693,6 @@ fn format_key_name(key: &str) -> String {
         k if k.len() == 1 => k.to_uppercase(),
         k => k.to_string(),
     }
-}
-
-// ============================================================
-// Weapon bind analysis
-// ============================================================
-
-/// QW weapon impulse → name mapping
-fn impulse_to_weapon(n: u32) -> Option<&'static str> {
-    match n {
-        1 => Some("axe"),
-        2 => Some("sg"),
-        3 => Some("ssg"),
-        4 => Some("ng"),
-        5 => Some("sng"),
-        6 => Some("gl"),
-        7 => Some("rl"),
-        8 => Some("lg"),
-        _ => None,
-    }
-}
-
-/// A detected weapon bind.
-#[derive(Serialize, Clone, Debug)]
-pub struct WeaponBind {
-    pub weapon: String,         // "rl", "lg", "gl", etc.
-    pub key: String,            // display name of the key
-    pub method: String,         // "quickfire" or "manual"
-    pub fire_key: Option<String>, // for manual: which key fires (usually Mouse1)
-}
-
-/// Default impulse binds on number keys (to detect legacy/unmodified binds)
-fn is_default_impulse_bind(key: &str, cmd: &str) -> bool {
-    matches!(
-        (key, cmd),
-        ("1", "impulse 1") | ("2", "impulse 2") | ("3", "impulse 3") |
-        ("4", "impulse 4") | ("5", "impulse 5") | ("6", "impulse 6") |
-        ("7", "impulse 7") | ("8", "impulse 8")
-    )
-}
-
-/// Extract weapon numbers from a command string.
-/// Handles "impulse 7", "weapon 7 3 2", and "+fire 7 2" / "+fire_ar 7 2" formats.
-/// Returns the primary weapon number (first one listed).
-/// Returns None for long chains (4+ numbers) — those are pack-drop/priority binds.
-fn extract_weapon_number(cmd: &str) -> Option<u32> {
-    let lower = cmd.to_lowercase();
-    for part in lower.split(';') {
-        let part = part.trim();
-        // Match: impulse N, weapon N [N2...], +fire N [N2...], +fire_ar N [N2...]
-        let (after_cmd, is_impulse_only) = if part.starts_with("impulse ") {
-            (Some(&part[8..]), true)
-        } else if part.starts_with("weapon ") {
-            (Some(&part[7..]), false)
-        } else if part.starts_with("+fire_ar ") {
-            (Some(&part[9..]), false)
-        } else if part.starts_with("+fire ") {
-            (Some(&part[6..]), false)
-        } else {
-            (None, false)
-        };
-        if let Some(after) = after_cmd {
-            let numbers: Vec<u32> = after.trim().split_whitespace()
-                .filter_map(|n| n.parse::<u32>().ok())
-                .collect();
-            // 4+ numbers on impulse = pack-drop chain, skip.
-            // But weapon/+fire chains with many fallbacks are legitimate.
-            if is_impulse_only && numbers.len() >= 4 {
-                return None;
-            }
-            if let Some(&num) = numbers.first() {
-                if (1..=8).contains(&num) {
-                    return Some(num);
-                }
-            }
-        }
-    }
-    None
-}
-
-/// Check if a command string contains +attack or +fire/+fire_ar (built-in quickfire).
-/// +fire is an ezQuake built-in that combines weapon select + attack.
-/// Ignores +fire/+attack when they appear inside a "bind" command (rebind setup, not direct fire).
-fn has_attack(cmd: &str) -> bool {
-    cmd.to_lowercase().split(';').any(|part| {
-        let p = part.trim();
-        // Skip if this part is a bind command (e.g. "bind mouse1 +fire 3")
-        if p.starts_with("bind ") {
-            return false;
-        }
-        p.starts_with("+attack") || p.starts_with("+fire ") || p.starts_with("+fire_ar ")
-    })
-}
-
-/// Check if a command string contains +jump (rocket jump detection).
-/// Ignores +jump inside a "bind" command.
-fn has_jump(cmd: &str) -> bool {
-    cmd.to_lowercase().split(';').any(|part| {
-        let p = part.trim();
-        if p.starts_with("bind ") {
-            return false;
-        }
-        p.starts_with("+jump")
-    })
-}
-
-/// Check if a command string rebinds mouse1
-fn rebinds_mouse1(cmd: &str) -> bool {
-    let lower = cmd.to_lowercase();
-    lower.contains("bind mouse1")
-}
-
-/// Extract all key rebinds from a command string.
-/// Returns Vec of (target_key_uppercase, rebound_command).
-/// e.g. "bind MOUSE1 +gl; bind CTRL +sng" → [("MOUSE1", "+gl"), ("CTRL", "+sng")]
-fn extract_rebinds(cmd: &str) -> Vec<(String, String)> {
-    let mut rebinds = Vec::new();
-    let lower = cmd.to_lowercase();
-    for part in lower.split(';') {
-        let part = part.trim();
-        if part.starts_with("bind ") {
-            let after_bind = part[5..].trim();
-            let mut parts = after_bind.splitn(2, char::is_whitespace);
-            if let (Some(key), Some(rebound)) = (parts.next(), parts.next()) {
-                rebinds.push((key.to_uppercase(), rebound.trim().to_string()));
-            }
-        }
-    }
-    rebinds
 }
 
 /// Resolve a command through aliases (one level deep, then check resolved).
@@ -968,181 +840,6 @@ fn find_else(s: &str) -> Option<usize> {
         i += 1;
     }
     None
-}
-
-/// Analyze all key bindings to extract weapon binds.
-fn analyze_weapon_binds(
-    bindings: &[(String, String)],
-    aliases: &HashMap<String, String>,
-) -> Vec<WeaponBind> {
-    let mut weapon_binds = Vec::new();
-    let mut has_custom_weapon_binds = false;
-
-    // First pass: identify all weapon-related binds
-    for (key, cmd) in bindings {
-        let key_upper = key.to_uppercase();
-
-        // Skip empty binds
-        if cmd.is_empty() || cmd == "\"\"" {
-            continue;
-        }
-
-        // Resolve through aliases (one level)
-        let resolved = resolve_command(cmd, aliases);
-
-        // Priority 1: check if this bind rebinds ANY key to a weapon
-        // e.g. "bind mouse1 +rock; weapon 2" or "bind MOUSE1 +gl; bind CTRL +sng; bind MWHEELUP +axe"
-        // If the resolved command ALSO has +attack, it's quickfire (e.g. +boom = "weapon 2; +attack; bind mouse1 +boom")
-        let rebinds = extract_rebinds(&resolved);
-        let raw_rebinds = extract_rebinds(cmd);
-        let all_rebinds = if !rebinds.is_empty() { &rebinds } else { &raw_rebinds };
-
-        if !all_rebinds.is_empty() {
-            let mut found_any = false;
-            for (target_key, rebound_cmd) in all_rebinds {
-                let rebound_resolved = resolve_command(rebound_cmd, aliases);
-                if let Some(wnum) = extract_weapon_number(&rebound_resolved) {
-                    if let Some(wname) = impulse_to_weapon(wnum) {
-                        // Skip if rebind target is a rocket jump
-                        if has_attack(&rebound_resolved) && has_jump(&rebound_resolved) {
-                            continue;
-                        }
-                        // If the resolved alias also fires (+attack), it's quickfire
-                        let is_quickfire = has_attack(&resolved);
-                        has_custom_weapon_binds = true;
-                        found_any = true;
-                        weapon_binds.push(WeaponBind {
-                            weapon: wname.to_string(),
-                            key: format_key_name(&key_upper),
-                            method: if is_quickfire { "quickfire".to_string() } else { "manual".to_string() },
-                            fire_key: if is_quickfire { None } else { Some(format_key_name(target_key)) },
-                        });
-                    }
-                }
-            }
-            // Also check for a direct weapon in the resolved command
-            // e.g. +boom resolves to "weapon 2; +attack; bind mouse1 +boom"
-            if !found_any {
-                if let Some(wnum) = extract_weapon_number(&resolved) {
-                    if let Some(wname) = impulse_to_weapon(wnum) {
-                        // Skip rocket jumps
-                        if has_attack(&resolved) && has_jump(&resolved) {
-                            continue;
-                        }
-                        let is_quickfire = has_attack(&resolved);
-                        has_custom_weapon_binds = true;
-                        weapon_binds.push(WeaponBind {
-                            weapon: wname.to_string(),
-                            key: format_key_name(&key_upper),
-                            method: if is_quickfire { "quickfire".to_string() } else { "manual".to_string() },
-                            fire_key: if is_quickfire { None } else { Some("Mouse1".to_string()) },
-                        });
-                    }
-                }
-            }
-            continue;
-        }
-
-        // Priority 2: check if this command directly involves a weapon
-        let weapon_num = extract_weapon_number(&resolved);
-        if weapon_num.is_none() {
-            continue;
-        }
-
-        let weapon_num = weapon_num.unwrap();
-        let weapon_name = match impulse_to_weapon(weapon_num) {
-            Some(name) => name,
-            None => continue,
-        };
-
-        // Skip default impulse binds on number keys (legacy)
-        if is_default_impulse_bind(&key_upper, cmd) {
-            continue;
-        }
-
-        // Skip rocket jumps: weapon + attack + jump = movement, not weapon selection
-        if has_attack(&resolved) && has_jump(&resolved) {
-            continue;
-        }
-
-        // Classify: quickfire vs manual
-        if has_attack(&resolved) {
-            // Has +attack in the resolved command → quickfire
-            has_custom_weapon_binds = true;
-            weapon_binds.push(WeaponBind {
-                weapon: weapon_name.to_string(),
-                key: format_key_name(&key_upper),
-                method: "quickfire".to_string(),
-                fire_key: None,
-            });
-        } else if rebinds_mouse1(&resolved) {
-            // Rebinds mouse1 but no +attack → manual select
-            has_custom_weapon_binds = true;
-            weapon_binds.push(WeaponBind {
-                weapon: weapon_name.to_string(),
-                key: format_key_name(&key_upper),
-                method: "manual".to_string(),
-                fire_key: Some("Mouse1".to_string()),
-            });
-        } else {
-            // Just impulse/weapon select, no attack, no rebind
-            // Could be legacy or a select-only bind
-            // Only include if it's NOT a default number key bind
-            let is_number_key = key_upper.len() == 1 && key_upper.chars().next().map_or(false, |c| c.is_ascii_digit());
-            if !is_number_key {
-                has_custom_weapon_binds = true;
-                weapon_binds.push(WeaponBind {
-                    weapon: weapon_name.to_string(),
-                    key: format_key_name(&key_upper),
-                    method: "manual".to_string(),
-                    fire_key: Some("Mouse1".to_string()),
-                });
-            }
-        }
-    }
-
-    // If no custom weapon binds found, include number key binds as manual
-    if !has_custom_weapon_binds {
-        for (key, cmd) in bindings {
-            let key_upper = key.to_uppercase();
-            let resolved = resolve_command(cmd, aliases);
-            if let Some(wnum) = extract_weapon_number(&resolved) {
-                if let Some(wname) = impulse_to_weapon(wnum) {
-                    weapon_binds.push(WeaponBind {
-                        weapon: wname.to_string(),
-                        key: format_key_name(&key_upper),
-                        method: "manual".to_string(),
-                        fire_key: Some("Mouse1".to_string()),
-                    });
-                }
-            }
-        }
-    }
-
-    // Check if Mouse1 is actually contested by multiple rebind sources.
-    // Only count ACTUAL `bind mouse1 X` rebinds in resolved command bodies —
-    // not assumption-based fire_keys from Priority 2 manual-select binds.
-    // When 2+ keys literally rebind Mouse1, Mouse1's own bind is incidental
-    // (last-saved cfg_save state) and should be filtered.
-    let mouse1_actual_rebind_count = bindings.iter()
-        .filter(|(_, cmd)| {
-            let resolved = resolve_command(cmd, aliases);
-            extract_rebinds(&resolved).iter()
-                .any(|(target, _)| target.to_lowercase() == "mouse1")
-        })
-        .count();
-    let mouse1_is_contested = mouse1_actual_rebind_count >= 2;
-
-    // Filter Mouse1's own bind only when it's genuinely contested.
-    let mut result: Vec<WeaponBind> = weapon_binds.into_iter()
-        .filter(|wb| !(mouse1_is_contested && wb.key == "Mouse1"))
-        .collect();
-
-    // Sort by weapon order: rl, lg, gl, sng, ng, ssg, sg, axe
-    let order = ["rl", "lg", "gl", "sng", "ng", "ssg", "sg", "axe"];
-    result.sort_by_key(|wb| order.iter().position(|&w| w == wb.weapon).unwrap_or(99));
-
-    result
 }
 
 // ============================================================
@@ -1523,7 +1220,7 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         movedown: find_bind(&bindings, "+movedown"),
     };
 
-    let weapon_binds = analyze_weapon_binds(&bindings, &aliases);
+    let weapon_binds = classify_firing_paths(&bindings, &aliases, &parsed);
     let teamsay_binds = analyze_teamsay_binds(&bindings, &aliases);
 
     EzQuakeConfig {
@@ -2206,7 +1903,7 @@ mod tests {
         println!("  {}", "-".repeat(45));
         for wb in &config.weapon_binds {
             println!("  {:<8} {:<12} {:<10} {}",
-                wb.weapon, wb.key, wb.method,
+                format!("{:?}", wb.weapon), wb.trigger_key, format!("{:?}", wb.method),
                 wb.fire_key.as_deref().unwrap_or(""));
         }
 
