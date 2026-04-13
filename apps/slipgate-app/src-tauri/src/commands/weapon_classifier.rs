@@ -347,8 +347,31 @@ fn extract_paths_from_resolved(
         });
     }
 
-    // Rules 4-7 land in later tasks.
-    let _ = fire_keys;
+    // Rule 4: Manual-Select via select-only bind + generic fire key.
+    // If the body selects a weapon without firing and without rebinding a fire key,
+    // the weapon is firable via any generic fire key that exists.
+    let has_fire = body_contains_fire(body);
+    let has_inline_rebind = !extract_inline_rebinds(body).is_empty();
+    let weapon_selected = extract_first_weapon(body);
+    if !has_fire && !has_inline_rebind {
+        if let Some(weapon) = weapon_selected {
+            for fire_key in &fire_keys.generic_fire_keys {
+                if fire_key == trigger_key {
+                    continue;
+                }
+                out.push(FiringPath {
+                    weapon,
+                    method: Method::Manual,
+                    flavor: Some(ManualFlavor::Select),
+                    trigger_key: trigger_key.to_string(),
+                    fire_key: Some(fire_key.clone()),
+                    source: PathSource::Explicit,
+                    mechanism: Mechanism::GenericFireKey,
+                    origin_alias_chain: resolved.origin_chain.clone(),
+                });
+            }
+        }
+    }
 }
 
 fn detect_quickfire_mechanism(body: &str) -> Mechanism {
@@ -652,5 +675,50 @@ mod tests {
         assert_eq!(shift_hold.len(), 1);
         assert_eq!(shift_hold[0].weapon, Weapon::Rl);
         assert_eq!(shift_hold[0].mechanism, Mechanism::HoldModifierRebind);
+    }
+
+    #[test]
+    fn select_only_bind_with_generic_fire_key_emits_manual_select() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind q "weapon 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 1);
+        assert_eq!(q_paths[0].weapon, Weapon::Rl);
+        assert_eq!(q_paths[0].method, Method::Manual);
+        assert_eq!(q_paths[0].flavor, Some(ManualFlavor::Select));
+        assert_eq!(q_paths[0].fire_key.as_deref(), Some("mouse1"));
+    }
+
+    #[test]
+    fn select_only_bind_without_generic_fire_key_emits_nothing() {
+        // Mouse1 is a weapon-specific quickfire, not generic. Q's select-only bind has
+        // no valid manual fire key.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +rocket "weapon 7;+attack"
+            alias -rocket "-attack"
+            bind mouse1 +rocket
+            bind q "weapon 8"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert!(q_paths.is_empty(), "expected no paths for Q when Mouse1 is weapon-specific");
+    }
+
+    #[test]
+    fn select_only_bind_emits_one_path_per_generic_fire_key() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind enter +attack
+            bind q "weapon 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 2);
+        let fire_keys: Vec<_> = q_paths.iter().filter_map(|p| p.fire_key.clone()).collect();
+        assert!(fire_keys.contains(&"mouse1".to_string()));
+        assert!(fire_keys.contains(&"enter".to_string()));
     }
 }
