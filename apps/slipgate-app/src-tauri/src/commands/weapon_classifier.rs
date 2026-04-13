@@ -272,9 +272,50 @@ pub fn classify_firing_paths(
     aliases: &HashMap<String, String>,
     cvars: &HashMap<String, String>,
 ) -> Vec<FiringPath> {
-    // Stub implementation - real passes land in later tasks.
-    let _ = (bindings, aliases, cvars);
-    Vec::new()
+    let fire_keys = classify_fire_keys(bindings, aliases);
+    let mut paths = Vec::new();
+    for (key, command) in bindings {
+        let resolved = resolve_bind_chain(key, command, aliases, 10);
+        extract_paths_from_resolved(key, &resolved, &fire_keys, cvars, &mut paths);
+    }
+    paths
+}
+
+fn extract_paths_from_resolved(
+    trigger_key: &str,
+    resolved: &ResolvedBinding,
+    _fire_keys: &FireKeyClasses,
+    _cvars: &HashMap<String, String>,
+    out: &mut Vec<FiringPath>,
+) {
+    let body = &resolved.press_body;
+    // Rule 1: Quickfire from inline weapon+attack / +fire / +fire_ar.
+    if body_contains_fire(body) {
+        if let Some(weapon) = extract_first_weapon(body) {
+            let mechanism = detect_quickfire_mechanism(body);
+            out.push(FiringPath {
+                weapon,
+                method: Method::Quickfire,
+                flavor: None,
+                trigger_key: trigger_key.to_string(),
+                fire_key: None,
+                source: PathSource::Explicit,
+                mechanism,
+                origin_alias_chain: resolved.origin_chain.clone(),
+            });
+        }
+    }
+}
+
+fn detect_quickfire_mechanism(body: &str) -> Mechanism {
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if t.starts_with("+fire_ar") { return Mechanism::PlusFireAr; }
+        if t.starts_with("+fire ") || t == "+fire" { return Mechanism::PlusFire; }
+        if t.starts_with("weapon ") { return Mechanism::WeaponAttack; }
+        if t.starts_with("impulse ") { return Mechanism::ImpulseAttack; }
+    }
+    Mechanism::WeaponAttack
 }
 
 #[cfg(test)]
@@ -470,5 +511,36 @@ mod tests {
         assert_eq!(classes.generic_fire_keys.len(), 2);
         assert!(classes.generic_fire_keys.contains(&"mouse1".to_string()));
         assert!(classes.generic_fire_keys.contains(&"enter".to_string()));
+    }
+
+    #[test]
+    fn extracts_quickfire_from_weapon_attack_body() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +rock "weapon 7;+attack"
+            alias -rock "-attack"
+            bind mouse1 +attack
+            bind q +rock
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 1);
+        assert_eq!(q_paths[0].weapon, Weapon::Rl);
+        assert_eq!(q_paths[0].method, Method::Quickfire);
+        assert_eq!(q_paths[0].flavor, None);
+        assert_eq!(q_paths[0].mechanism, Mechanism::WeaponAttack);
+    }
+
+    #[test]
+    fn extracts_quickfire_from_plus_fire_body() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind q "+fire 7 6 5"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 1);
+        assert_eq!(q_paths[0].weapon, Weapon::Rl);
+        assert_eq!(q_paths[0].method, Method::Quickfire);
+        assert_eq!(q_paths[0].mechanism, Mechanism::PlusFire);
     }
 }
