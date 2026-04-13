@@ -516,24 +516,12 @@ pub(crate) fn contains_killme_text(body: &str, aliases: &HashMap<String, String>
 }
 
 fn strip_qw_color_codes(s: &str) -> String {
-    // Strip `{&c...&cfff}` / `{&cfff...&cfff}` style color blocks by removing any `{...}` segment
-    // that begins with `&c`.
+    // Strip only `&cXXX` color markers (4 chars each). Preserve the text between markers
+    // (and any surrounding braces) so substring matches like "kill me" still fire on
+    // `{&cb1akill me&cfff}`.
     let mut out = String::new();
     let mut chars = s.chars().peekable();
     while let Some(c) = chars.next() {
-        if c == '{' {
-            let rest: String = chars.clone().collect();
-            if rest.starts_with("&c") {
-                // Consume until matching `}`.
-                for next in chars.by_ref() {
-                    if next == '}' {
-                        break;
-                    }
-                }
-                continue;
-            }
-        }
-        // Also strip standalone `&cXYZ` sequences that appear without braces.
         if c == '&' && chars.peek() == Some(&'c') {
             chars.next();
             for _ in 0..3 {
@@ -988,6 +976,21 @@ mod tests {
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         let x_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "x").collect();
         assert!(x_paths.is_empty(), "kill-me alias name must exclude the bind");
+    }
+
+    #[test]
+    fn killme_text_with_inline_fire_is_excluded_via_e2() {
+        // Has inline fire so E3 (announce-without-fire) is not applicable.
+        // Uses QW color codes in say_team so strip_qw_color_codes must preserve
+        // the "kill me" text for the substring match to fire.
+        // Only E2 can catch this.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind x "weapon 7;+attack; say_team {&cb1akill me&cfff} rl"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(paths.iter().all(|p| p.trigger_key != "x"),
+            "E2 should exclude binds with colored 'kill me' text even when they also have +attack");
     }
 
     #[test]
