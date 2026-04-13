@@ -218,6 +218,10 @@ async function extractHudCvars(): Promise<ExtractedCvar[]> {
 
       const elementName = tokens[0]; // "health", "ammo1", etc.
       if (!elementName || elementName === "NULL") continue;
+      // Skip function declarations/definitions. The hud_t * HUD_Register(char *name, ...)
+      // prototype in hud.c/hud.h matches the scanner and produces garbage cvars.
+      // Real element names are plain lowercase identifiers (no spaces or pointer syntax).
+      if (!/^[a-z][a-z0-9_]*$/.test(elementName)) continue;
 
       // Standard args at fixed positions (0-indexed):
       // 0=name, 1=alias, 2=desc, 3=flags, 4=min_state, 5=draw_order, 6=func
@@ -259,8 +263,8 @@ async function extractHudCvars(): Promise<ExtractedCvar[]> {
       for (let i = 16; i + 1 < tokens.length; i += 2) {
         const suffix = tokens[i];
         const defVal = tokens[i + 1];
-        if (!suffix || suffix === "NULL" || !defVal) break;
-        addHudCvar(results, elementName, suffix, defVal === "NULL" ? "" : defVal, fileName);
+        if (!suffix || suffix === "NULL" || defVal === "NULL") break;
+        addHudCvar(results, elementName, suffix, defVal, fileName);
       }
     }
   }
@@ -320,7 +324,11 @@ function parseHudArgs(body: string): string[] {
       }
       tokens.push(val);
     } else {
-      // Unquoted token — scan to next comma or whitespace, respecting parens
+      // Unquoted token — scan to next depth-0 comma. C argument lists are
+      // delimited by commas, not whitespace, so `HUD_PLUSMINUS | HUD_ON_FINALE`
+      // is a single argument and must stay one token. Splitting on whitespace
+      // used to shift all subsequent positions in HUD_Register calls that pass
+      // bitwise-OR flag expressions.
       let val = "";
       let depth = 0;
       while (pos < clean.length) {
@@ -328,11 +336,10 @@ function parseHudArgs(body: string): string[] {
         if (ch === "(") { depth++; val += ch; pos++; }
         else if (ch === ")") { depth--; val += ch; pos++; }
         else if (ch === "," && depth <= 0) break;
-        else if (/\s/.test(ch) && depth <= 0 && val) break;
-        else if (/\s/.test(ch) && !val) { pos++; }
         else { val += ch; pos++; }
       }
-      if (val) tokens.push(val);
+      const trimmed = val.trim();
+      if (trimmed) tokens.push(trimmed);
     }
   }
 

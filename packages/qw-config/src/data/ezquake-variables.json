@@ -269,11 +269,6 @@
       "id": "54",
       "major-group": "Graphics",
       "name": "Weapon View Model Settings"
-    },
-    {
-      "id": "55",
-      "major-group": "Teamplay",
-      "name": "Location Names"
     }
   ],
   "vars": {
@@ -3110,8 +3105,7 @@
     "cl_voip_capturingvol ": {
       "type": "integer",
       "group-id": "32",
-      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others.",
-      "default": "0.5"
+      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others."
     },
     "cl_voip_demorecord": {
       "type": "boolean",
@@ -6913,14 +6907,16 @@
     "hud_ammo1_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo1_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo2_align": {
       "type": "string",
@@ -7034,14 +7030,16 @@
     "hud_ammo2_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo2_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo3_align": {
       "type": "string",
@@ -7155,14 +7153,16 @@
     "hud_ammo3_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo3_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo4_align": {
       "type": "string",
@@ -7276,14 +7276,16 @@
     "hud_ammo4_text_color_low": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo4_text_color_normal": {
       "type": "string",
       "group-id": "19",
-      "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
     },
     "hud_ammo_align": {
       "type": "string",
@@ -7399,6 +7401,18 @@
       "default": "0",
       "server-only": false,
       "desc": "Switches graphical style of current ammo value."
+    },
+    "hud_ammo_text_color_low": {
+      "type": "string",
+      "group-id": "19",
+      "default": "",
+      "server-only": false
+    },
+    "hud_ammo_text_color_normal": {
+      "type": "string",
+      "group-id": "19",
+      "default": "",
+      "server-only": false
     },
     "hud_armor_align": {
       "type": "string",
@@ -7980,22 +7994,16 @@
       "default": "64",
       "server-only": false
     },
-    "hud_centerprint_0 0 0": {
+    "hud_centerprint_align_x": {
       "type": "string",
       "group-id": "19",
-      "default": "",
-      "server-only": false
-    },
-    "hud_centerprint_align_x": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
+      "default": "center",
       "server-only": false
     },
     "hud_centerprint_align_y": {
       "type": "string",
       "group-id": "19",
-      "default": "screen",
+      "default": "center",
       "server-only": false
     },
     "hud_centerprint_draw": {
@@ -8011,15 +8019,15 @@
       "server-only": false
     },
     "hud_centerprint_frame_color": {
-      "type": "boolean",
+      "type": "string",
       "group-id": "19",
-      "default": "0",
+      "default": "0 0 0",
       "server-only": false
     },
     "hud_centerprint_item_opacity": {
       "type": "boolean",
       "group-id": "19",
-      "default": "0",
+      "default": "1",
       "server-only": false
     },
     "hud_centerprint_order": {
@@ -8031,19 +8039,19 @@
     "hud_centerprint_place": {
       "type": "string",
       "group-id": "19",
-      "default": "SCR_HUD_DrawCenterPrint",
+      "default": "screen",
       "server-only": false
     },
     "hud_centerprint_pos_x": {
-      "type": "string",
+      "type": "boolean",
       "group-id": "19",
-      "default": "center",
+      "default": "0",
       "server-only": false
     },
     "hud_centerprint_pos_y": {
-      "type": "string",
+      "type": "boolean",
       "group-id": "19",
-      "default": "center",
+      "default": "0",
       "server-only": false
     },
     "hud_centerprint_proportional": {
@@ -8068,78 +8076,6 @@
       "type": "integer",
       "group-id": "19",
       "default": "8",
-      "server-only": false
-    },
-    "hud_char_align_x": {
-      "type": "string",
-      "group-id": "19",
-      "default": "min_state",
-      "server-only": false
-    },
-    "hud_char_align_y": {
-      "type": "string",
-      "group-id": "19",
-      "default": "int",
-      "server-only": false
-    },
-    "hud_char_char": {
-      "type": "string",
-      "group-id": "19",
-      "default": "*params",
-      "server-only": false
-    },
-    "hud_char_draw": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "server-only": false
-    },
-    "hud_char_frame": {
-      "type": "string",
-      "group-id": "19",
-      "default": "draw_func",
-      "server-only": false
-    },
-    "hud_char_frame_color": {
-      "type": "string",
-      "group-id": "19",
-      "default": "char",
-      "server-only": false
-    },
-    "hud_char_item_opacity": {
-      "type": "string",
-      "group-id": "19",
-      "default": "*show",
-      "server-only": false
-    },
-    "hud_char_order": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "server-only": false
-    },
-    "hud_char_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "cactive_t",
-      "server-only": false
-    },
-    "hud_char_pos_x": {
-      "type": "string",
-      "group-id": "19",
-      "default": "draw_order",
-      "server-only": false
-    },
-    "hud_char_pos_y": {
-      "type": "string",
-      "group-id": "19",
-      "default": "hud_func_type",
-      "server-only": false
-    },
-    "hud_char_show": {
-      "type": "string",
-      "group-id": "19",
-      "default": "flags",
       "server-only": false
     },
     "hud_clock_align_x": {
@@ -9753,20 +9689,23 @@
     "hud_group1_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group1 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group1 HUD element."
     },
     "hud_group1_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group1_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 1.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 1."
     },
     "hud_group1_place": {
       "type": "string",
@@ -9867,20 +9806,23 @@
     "hud_group2_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group2 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group2 HUD element."
     },
     "hud_group2_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group2_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 2.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 2."
     },
     "hud_group2_place": {
       "type": "string",
@@ -9981,20 +9923,23 @@
     "hud_group3_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group3 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group3 HUD element."
     },
     "hud_group3_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group3_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 3.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 3."
     },
     "hud_group3_place": {
       "type": "string",
@@ -10095,20 +10040,23 @@
     "hud_group4_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group4 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group4 HUD element."
     },
     "hud_group4_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group4_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 4.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 4."
     },
     "hud_group4_place": {
       "type": "string",
@@ -10209,20 +10157,23 @@
     "hud_group5_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group5 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group5 HUD element."
     },
     "hud_group5_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group5_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 5.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 5."
     },
     "hud_group5_place": {
       "type": "string",
@@ -10323,20 +10274,23 @@
     "hud_group6_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group6 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group6 HUD element."
     },
     "hud_group6_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group6_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 6.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 6."
     },
     "hud_group6_place": {
       "type": "string",
@@ -10437,20 +10391,23 @@
     "hud_group7_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group7 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group7 HUD element."
     },
     "hud_group7_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group7_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 7.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 7."
     },
     "hud_group7_place": {
       "type": "string",
@@ -10551,20 +10508,23 @@
     "hud_group8_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group8 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group8 HUD element."
     },
     "hud_group8_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group8_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 8.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 8."
     },
     "hud_group8_place": {
       "type": "string",
@@ -10665,20 +10625,23 @@
     "hud_group9_pic_alpha": {
       "type": "float",
       "group-id": "19",
-      "desc": "Transparency level of the background image of the group9 HUD element.",
-      "default": "1.0"
+      "default": "1.0",
+      "server-only": false,
+      "desc": "Transparency level of the background image of the group9 HUD element."
     },
     "hud_group9_pic_scalemode": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
     },
     "hud_group9_picture": {
       "type": "string",
       "group-id": "19",
-      "desc": "Sets background picture of grouping object 9.",
-      "default": ""
+      "default": "",
+      "server-only": false,
+      "desc": "Sets background picture of grouping object 9."
     },
     "hud_group9_place": {
       "type": "string",
@@ -12689,6 +12652,12 @@
       "default": "center",
       "server-only": false
     },
+    "hud_itemsclock_backpacks": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "server-only": false
+    },
     "hud_itemsclock_draw": {
       "type": "boolean",
       "group-id": "19",
@@ -12698,6 +12667,8 @@
     "hud_itemsclock_filter": {
       "type": "integer",
       "group-id": "19",
+      "default": "",
+      "server-only": false,
       "desc": "Space-separated list of items to NOT be shown.",
       "remarks": "Options are: gl, rl, lg, quad, pent, ring, suit, mh, ga, ya, ra.",
       "values": [
@@ -12705,8 +12676,7 @@
           "description": "hide grenade launcher, green armor & suit from items list",
           "name": "gl ga suit"
         }
-      ],
-      "default": ""
+      ]
     },
     "hud_itemsclock_frame": {
       "type": "",
@@ -12746,6 +12716,12 @@
     },
     "hud_itemsclock_pos_y": {
       "type": "",
+      "group-id": "19",
+      "default": "0",
+      "server-only": false
+    },
+    "hud_itemsclock_proportional": {
+      "type": "boolean",
       "group-id": "19",
       "default": "0",
       "server-only": false
@@ -13013,6 +12989,12 @@
       "default": "screen",
       "server-only": false
     },
+    "hud_keys_player": {
+      "type": "string",
+      "group-id": "19",
+      "default": "",
+      "server-only": false
+    },
     "hud_keys_pos_x": {
       "type": "",
       "group-id": "19",
@@ -13194,23 +13176,17 @@
       "server-only": false,
       "desc": "Switches showing of net statistics."
     },
-    "hud_netgraph_0 0 0": {
-      "type": "string",
-      "group-id": "19",
-      "default": "",
-      "server-only": false
-    },
     "hud_netgraph_align_x": {
       "type": "string",
       "group-id": "19",
-      "default": "0",
+      "default": "left",
       "server-only": false,
       "desc": "Sets horizontal align of everything about net."
     },
     "hud_netgraph_align_y": {
       "type": "string",
       "group-id": "19",
-      "default": "top",
+      "default": "bottom",
       "server-only": false,
       "desc": "Sets vertical align of everything about net."
     },
@@ -13237,7 +13213,7 @@
     "hud_netgraph_frame_color": {
       "type": "string",
       "group-id": "19",
-      "default": "0",
+      "default": "0 0 0",
       "server-only": false,
       "desc": "Defines the color of the background of the netgraph HUD element. See HUD manual for more info."
     },
@@ -13258,7 +13234,7 @@
     "hud_netgraph_item_opacity": {
       "type": "float",
       "group-id": "19",
-      "default": "0",
+      "default": "1",
       "server-only": false
     },
     "hud_netgraph_lostscale": {
@@ -13284,7 +13260,7 @@
     "hud_netgraph_place": {
       "type": "string",
       "group-id": "19",
-      "default": "SCR_HUD_Netgraph",
+      "default": "top",
       "server-only": false,
       "desc": "Sets relative positioning for everything about net."
     },
@@ -13298,14 +13274,14 @@
     "hud_netgraph_pos_x": {
       "type": "float",
       "group-id": "19",
-      "default": "left",
+      "default": "0",
       "server-only": false,
       "desc": "Sets horizontal position of everything about net."
     },
     "hud_netgraph_pos_y": {
       "type": "float",
       "group-id": "19",
-      "default": "bottom",
+      "default": "0",
       "server-only": false,
       "desc": "Sets vertical position of everything about net."
     },
@@ -14549,16 +14525,18 @@
     "hud_score_bar_format_reversed_big": {
       "type": "string",
       "group-id": "19",
+      "default": "",
+      "server-only": false,
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_big will be used instead.",
-      "remarks": "See hud_score_bar_format_big for format codes.",
-      "default": ""
+      "remarks": "See hud_score_bar_format_big for format codes."
     },
     "hud_score_bar_format_reversed_small": {
       "type": "string",
       "group-id": "19",
+      "default": "",
+      "server-only": false,
       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_reversed_small will be used instead.",
-      "remarks": "See hud_score_bar_format_reversed_small for format codes.",
-      "default": ""
+      "remarks": "See hud_score_bar_format_reversed_small for format codes."
     },
     "hud_score_bar_format_small": {
       "type": "string",
@@ -14571,8 +14549,9 @@
     "hud_score_bar_frag_length": {
       "type": "integer",
       "group-id": "19",
-      "desc": "Minimum number of characters to use when displaying frags.",
-      "default": "0"
+      "default": "0",
+      "server-only": false,
+      "desc": "Minimum number of characters to use when displaying frags."
     },
     "hud_score_bar_frame": {
       "type": "float",
@@ -14612,6 +14591,12 @@
     },
     "hud_score_bar_pos_y": {
       "type": "",
+      "group-id": "19",
+      "default": "0",
+      "server-only": false
+    },
+    "hud_score_bar_proportional": {
+      "type": "boolean",
       "group-id": "19",
       "default": "0",
       "server-only": false
@@ -15053,37 +15038,19 @@
       "default": "0",
       "server-only": false
     },
-    "hud_scoreclock_-10": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "server-only": false
-    },
-    "hud_scoreclock_0 0 0": {
-      "type": "string",
-      "group-id": "19",
-      "default": "",
-      "server-only": false
-    },
     "hud_scoreclock_align_x": {
       "type": "string",
       "group-id": "19",
-      "default": "HUD_ON_FINALE",
+      "default": "center",
       "server-only": false,
       "desc": "Sets horizontal align of scoreclock."
     },
     "hud_scoreclock_align_y": {
       "type": "string",
       "group-id": "19",
-      "default": "ca_disconnected",
+      "default": "bottom",
       "server-only": false,
       "desc": "Sets vertical align of scoreclock."
-    },
-    "hud_scoreclock_bottom": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "server-only": false
     },
     "hud_scoreclock_draw": {
       "type": "boolean",
@@ -15102,21 +15069,21 @@
     "hud_scoreclock_frame": {
       "type": "float",
       "group-id": "19",
-      "default": "1",
+      "default": "0",
       "server-only": false,
       "desc": "Sets frame visibility and style for scoreclock."
     },
     "hud_scoreclock_frame_color": {
       "type": "string",
       "group-id": "19",
-      "default": "screen",
+      "default": "0 0 0",
       "server-only": false,
       "desc": "Defines the color of the background of the scoreclock HUD element. See HUD manual for more info."
     },
     "hud_scoreclock_item_opacity": {
       "type": "float",
       "group-id": "19",
-      "default": "center",
+      "default": "1",
       "server-only": false
     },
     "hud_scoreclock_order": {
@@ -15129,21 +15096,21 @@
     "hud_scoreclock_place": {
       "type": "string",
       "group-id": "19",
-      "default": "|",
+      "default": "screen",
       "server-only": false,
       "desc": "Sets relative positioning for scoreclock."
     },
     "hud_scoreclock_pos_x": {
       "type": "float",
       "group-id": "19",
-      "default": "8",
+      "default": "0",
       "server-only": false,
       "desc": "Sets horizontal position of scoreclock."
     },
     "hud_scoreclock_pos_y": {
       "type": "float",
       "group-id": "19",
-      "default": "SCR_HUD_DrawScoreClock",
+      "default": "-10",
       "server-only": false,
       "desc": "Sets vertical position of scoreclock."
     },
@@ -15164,41 +15131,23 @@
     "hud_scoreclock_show": {
       "type": "boolean",
       "group-id": "19",
-      "default": "HUD_ON_SCORES",
+      "default": "1",
       "server-only": false,
       "desc": "Toggles whether the scoreclock is displayed. It is only displayed when the scoreboard is open."
-    },
-    "hud_scoremapname_-10": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "server-only": false
-    },
-    "hud_scoremapname_0 0 0": {
-      "type": "string",
-      "group-id": "19",
-      "default": "",
-      "server-only": false
     },
     "hud_scoremapname_align_x": {
       "type": "string",
       "group-id": "19",
-      "default": "HUD_ON_FINALE",
+      "default": "right",
       "server-only": false,
       "desc": "Sets horizontal align of scoremapname."
     },
     "hud_scoremapname_align_y": {
       "type": "string",
       "group-id": "19",
-      "default": "ca_disconnected",
+      "default": "bottom",
       "server-only": false,
       "desc": "Sets vertical align of scoremapname."
-    },
-    "hud_scoremapname_bottom": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "server-only": false
     },
     "hud_scoremapname_draw": {
       "type": "boolean",
@@ -15216,14 +15165,14 @@
     "hud_scoremapname_frame_color": {
       "type": "string",
       "group-id": "19",
-      "default": "screen",
+      "default": "0 0 0",
       "server-only": false,
       "desc": "Defines the color of the background of the scoremapname HUD element. See HUD manual for more info."
     },
     "hud_scoremapname_item_opacity": {
       "type": "float",
       "group-id": "19",
-      "default": "right",
+      "default": "1",
       "server-only": false
     },
     "hud_scoremapname_order": {
@@ -15236,21 +15185,21 @@
     "hud_scoremapname_place": {
       "type": "string",
       "group-id": "19",
-      "default": "|",
+      "default": "screen",
       "server-only": false,
       "desc": "Sets relative positioning for scoremapname."
     },
     "hud_scoremapname_pos_x": {
       "type": "float",
       "group-id": "19",
-      "default": "8",
+      "default": "0",
       "server-only": false,
       "desc": "Sets horizontal position of scoremapname."
     },
     "hud_scoremapname_pos_y": {
       "type": "float",
       "group-id": "19",
-      "default": "SCR_HUD_DrawScoreMapName",
+      "default": "-10",
       "server-only": false,
       "desc": "Sets vertical position of scoremapname."
     },
@@ -15271,7 +15220,7 @@
     "hud_scoremapname_show": {
       "type": "boolean",
       "group-id": "19",
-      "default": "HUD_ON_SCORES",
+      "default": "0",
       "server-only": false,
       "desc": "Toggles whether the scoremapname is displayed. It is only displayed when the scoreboard is open."
     },
@@ -16258,6 +16207,12 @@
       "default": "0",
       "server-only": false
     },
+    "hud_static_text_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "server-only": false
+    },
     "hud_static_text_scale": {
       "type": "boolean",
       "group-id": "19",
@@ -16274,6 +16229,18 @@
       "type": "boolean",
       "group-id": "19",
       "default": "0",
+      "server-only": false
+    },
+    "hud_static_text_text": {
+      "type": "string",
+      "group-id": "19",
+      "default": "",
+      "server-only": false
+    },
+    "hud_static_text_textalign": {
+      "type": "string",
+      "group-id": "19",
+      "default": "left",
       "server-only": false
     },
     "hud_suit_align_x": {
@@ -17297,8 +17264,7 @@
     },
     "hud_teaminfo_place": {
       "type": "string",
-      "group-id": "19",
-      "default": ""
+      "group-id": "19"
     },
     "hud_teaminfo_pos_x": {
       "type": "",
@@ -18654,111 +18620,6 @@
       "group-id": "5",
       "default": "1",
       "server-only": false
-    },
-    "loc_name_ga": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ga",
-      "server-only": false,
-      "desc": "Location file macro for Green Armor."
-    },
-    "loc_name_gl": {
-      "type": "string",
-      "group-id": "55",
-      "default": "gl",
-      "server-only": false,
-      "desc": "Location file macro for Grenade Launcher."
-    },
-    "loc_name_lg": {
-      "type": "string",
-      "group-id": "55",
-      "default": "lg",
-      "server-only": false,
-      "desc": "Location file macro for Lightning Gun."
-    },
-    "loc_name_mh": {
-      "type": "string",
-      "group-id": "55",
-      "default": "mega",
-      "server-only": false,
-      "desc": "Location file macro for Mega Health."
-    },
-    "loc_name_ng": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ng",
-      "server-only": false,
-      "desc": "Location file macro for Nailgun."
-    },
-    "loc_name_pent": {
-      "type": "string",
-      "group-id": "55",
-      "default": "pent",
-      "server-only": false,
-      "desc": "Location file macro for Pentagram of Protection."
-    },
-    "loc_name_quad": {
-      "type": "string",
-      "group-id": "55",
-      "default": "quad",
-      "server-only": false,
-      "desc": "Location file macro for Quad Damage."
-    },
-    "loc_name_ra": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ra",
-      "server-only": false,
-      "desc": "Location file macro for Red Armor."
-    },
-    "loc_name_ring": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ring",
-      "server-only": false,
-      "desc": "Location file macro for Ring of Shadows."
-    },
-    "loc_name_rl": {
-      "type": "string",
-      "group-id": "55",
-      "default": "rl",
-      "server-only": false,
-      "desc": "Location file macro for Rocket Launcher."
-    },
-    "loc_name_separator": {
-      "type": "string",
-      "group-id": "55",
-      "default": "-",
-      "server-only": false,
-      "desc": "Location file macro separator character."
-    },
-    "loc_name_sng": {
-      "type": "string",
-      "group-id": "55",
-      "default": "sng",
-      "server-only": false,
-      "desc": "Location file macro for Super Nailgun."
-    },
-    "loc_name_ssg": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ssg",
-      "server-only": false,
-      "desc": "Location file macro for Super Shotgun."
-    },
-    "loc_name_suit": {
-      "type": "string",
-      "group-id": "55",
-      "default": "suit",
-      "server-only": false,
-      "desc": "Location file macro for Biosuit."
-    },
-    "loc_name_ya": {
-      "type": "string",
-      "group-id": "55",
-      "default": "ya",
-      "server-only": false,
-      "desc": "Location file macro for Yellow Armor."
     },
     "lookspring": {
       "type": "boolean",
@@ -25721,8 +25582,7 @@
     },
     "sv_cpserver": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_crypt_rcon": {
       "type": "",
@@ -25732,8 +25592,7 @@
     },
     "sv_cullentities": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_debug_antilag": {
       "type": "boolean",
@@ -25839,8 +25698,7 @@
     },
     "sv_demonovis": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_demopings": {
       "type": "",
@@ -25870,8 +25728,7 @@
     },
     "sv_enableprofile": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_extlimits": {
       "type": "integer",
@@ -25882,8 +25739,7 @@
     "sv_fastconnect": {
       "type": "float",
       "group-id": "43",
-      "desc": "actually no help.",
-      "server-only": true
+      "desc": "actually no help."
     },
     "sv_forcenick": {
       "type": "",
@@ -25952,8 +25808,7 @@
           "description": "Enable high character color names for players.",
           "name": "true"
         }
-      ],
-      "default": "1"
+      ]
     },
     "sv_kicktop": {
       "type": "",
@@ -25975,8 +25830,7 @@
     },
     "sv_ktpro_mode": {
       "type": "string",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_loadentfiles": {
       "type": "boolean",
@@ -26243,8 +26097,7 @@
     },
     "sv_qwfwd_port": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_rconlim": {
       "type": "",
@@ -26369,8 +26222,7 @@
     "sv_timeout": {
       "type": "float",
       "group-id": "43",
-      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet.",
-      "server-only": true
+      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet."
     },
     "sv_timestamplen": {
       "type": "",
@@ -26392,8 +26244,7 @@
     },
     "sv_use_internal_cmd_dl": {
       "type": "",
-      "group-id": "43",
-      "server-only": true
+      "group-id": "43"
     },
     "sv_voip": {
       "type": "boolean",
@@ -26904,8 +26755,7 @@
     "telnet_password": {
       "type": "string",
       "group-id": "43",
-      "desc": "Password for login via telnet.\nNot currently used.",
-      "server-only": true
+      "desc": "Password for login via telnet.\nNot currently used."
     },
     "timelimit": {
       "type": "integer",
