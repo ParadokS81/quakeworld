@@ -262,6 +262,31 @@ pub(crate) fn extract_first_weapon(body: &str) -> Option<Weapon> {
     None
 }
 
+pub(crate) fn is_rocket_jump(body: &str) -> bool {
+    body_contains_fire(body) && body_contains_jump(body)
+}
+
+pub(crate) fn body_contains_jump(body: &str) -> bool {
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if t == "+jump" || t == "jump" {
+            return true;
+        }
+    }
+    false
+}
+
+pub(crate) fn matches_killme_name(origin_chain: &[String]) -> bool {
+    let re_parts = ["kill_me", "killme", "kill.me"];
+    for step in origin_chain {
+        let lower = step.to_lowercase();
+        if re_parts.iter().any(|p| lower.contains(p)) {
+            return true;
+        }
+    }
+    false
+}
+
 /// Classify a merged config chain into firing paths.
 ///
 /// `bindings` is the ordered list of `(key, command)` pairs as parsed.
@@ -322,6 +347,14 @@ fn extract_paths_from_resolved(
     out: &mut Vec<FiringPath>,
 ) {
     let body = &resolved.press_body;
+
+    // Exclusion gate (applies to everything below).
+    if is_rocket_jump(body) {
+        return;
+    }
+    if matches_killme_name(&resolved.origin_chain) {
+        return;
+    }
 
     // Rule 1: Quickfire from inline fire.
     if body_contains_fire(body) {
@@ -819,5 +852,30 @@ mod tests {
         let seven_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "7").collect();
         assert_eq!(seven_paths.len(), 1);
         assert_eq!(seven_paths[0].source, PathSource::Explicit);
+    }
+
+    #[test]
+    fn rocket_jump_produces_no_weapon_paths() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +rj "weapon 7;+attack;+jump"
+            alias -rj "-attack;-jump"
+            bind mouse1 +attack
+            bind mouse2 +rj
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let mouse2_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "mouse2").collect();
+        assert!(mouse2_paths.is_empty(), "rocket jump must not emit weapon paths");
+    }
+
+    #[test]
+    fn killme_alias_name_excludes_the_bind() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias __kill_me "say_team need help"
+            bind mouse1 +attack
+            bind x "__kill_me; impulse 7 8 6 5"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let x_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "x").collect();
+        assert!(x_paths.is_empty(), "kill-me alias name must exclude the bind");
     }
 }
