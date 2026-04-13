@@ -69,7 +69,7 @@ pub enum Mechanism {
     GenericFireKey,     // used in Quickfire entries where a fire key is bound directly to a weapon script (e.g., Mouse1 = +rocket)
 }
 
-pub enum Weapon { Axe, SG, SSG, NG, SNG, GL, RL, LG }
+pub enum Weapon { Axe, Sg, Ssg, Ng, Sng, Gl, Rl, Lg }
 ```
 
 The classifier returns `Vec<FiringPath>` (flat). UI groups by weapon at render time.
@@ -233,7 +233,7 @@ mod firing_path_tests {
         let content = include_str!("../../../assets/weapon-fixtures/hangtime.cfg");
         let paths = classify_fixture(content);
         assert!(paths.iter().any(|p|
-            p.weapon == Weapon::RL &&
+            p.weapon == Weapon::Rl &&
             p.method == Method::Quickfire &&
             p.trigger_key == "Mouse1"
         ));
@@ -243,7 +243,7 @@ mod firing_path_tests {
     fn paradoks_c_produces_quickfire_and_manual_select_for_ssg() {
         let content = include_str!("../../../assets/weapon-fixtures/paradoks_hybrid.cfg");
         let paths = classify_fixture(content);
-        let ssg_paths: Vec<_> = paths.iter().filter(|p| p.weapon == Weapon::SSG).collect();
+        let ssg_paths: Vec<_> = paths.iter().filter(|p| p.weapon == Weapon::Ssg).collect();
         assert!(ssg_paths.iter().any(|p| p.method == Method::Quickfire && p.trigger_key == "C"));
         assert!(ssg_paths.iter().any(|p|
             p.method == Method::Manual &&
@@ -272,7 +272,7 @@ mod firing_path_tests {
         let content = include_str!("../../../assets/weapon-fixtures/hangtime.cfg");
         let paths = classify_fixture(content);
         assert!(!paths.iter().any(|p|
-            p.weapon == Weapon::LG &&
+            p.weapon == Weapon::Lg &&
             p.method == Method::Manual &&
             p.trigger_key == "KP_UPARROW"
         ));
