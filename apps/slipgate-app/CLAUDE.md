@@ -15,6 +15,7 @@ Design system, OKLCH theming, UI rules | `docs/DESIGN.md`
 Store shape, SolidJS signals, migration, persistence rules | `docs/STATE.md`
 External API boundaries, IPC contracts, third-party services | `docs/API_CONTRACTS.md`
 ezQuake config parser architecture (how bind classification / exec chains / macros / triggers work) | `docs/CFG-PARSER.md`
+QW weapon-script domain knowledge (firing mechanics, kill-me patterns, fire key types) | `packages/qw-knowledge/weapon-scripts/README.md`
 How ezQuake computes resolution (the absent=default pattern) | `docs/EZQUAKE-RESOLUTION.md`
 Discord OAuth flow as built (+ future GitHub OAuth idea) | `docs/AUTH.md`
 What the hardware scan collects and how | `docs/SYSTEM-SPECS.md`
