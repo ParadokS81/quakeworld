@@ -32,6 +32,9 @@ apps/quad/exports/
 # Research repos (cloned, not tracked)
 research/repos/*/
 
+# Demo archives (local-only, too large for git)
+research/assets/demos/*.zip
+
 # OS files
 .DS_Store
 Thumbs.db
