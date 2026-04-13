@@ -313,7 +313,40 @@ pub fn classify_firing_paths(
         extract_paths_from_resolved(key, &resolved, &fire_keys, cvars, aliases, &mut paths);
     }
     emit_engine_defaults(bindings, &fire_keys, &mut paths);
+    suppress_contested_quickfires(&mut paths);
     paths
+}
+
+/// Suppress the standalone quickfire path for a key when that key is a
+/// persistent rebind target of 2+ manual-select paths. In this case the key's
+/// at-rest state is a cfg_save artifact (whichever trigger ran last), not a
+/// deliberate quickfire binding. A single rebind target (N=1) is left alone:
+/// that's a coherent "default + one contextual override" pattern where the
+/// at-rest state is still meaningfully primary. Manual-hold rebinds revert on
+/// release and do not contribute to contention.
+fn suppress_contested_quickfires(paths: &mut Vec<FiringPath>) {
+    let mut rebind_counts: HashMap<String, usize> = HashMap::new();
+    for p in paths.iter() {
+        if p.method == Method::Manual && p.flavor == Some(ManualFlavor::Select) {
+            if let Some(fk) = &p.fire_key {
+                *rebind_counts.entry(fk.to_lowercase()).or_insert(0) += 1;
+            }
+        }
+    }
+    let contested: std::collections::HashSet<String> = rebind_counts
+        .into_iter()
+        .filter(|(_, count)| *count >= 2)
+        .map(|(k, _)| k)
+        .collect();
+    if contested.is_empty() {
+        return;
+    }
+    paths.retain(|p| {
+        if p.method == Method::Quickfire && contested.contains(&p.trigger_key.to_lowercase()) {
+            return false;
+        }
+        true
+    });
 }
 
 // Rule 7: emit manual-select paths for number keys 1-8 not explicitly bound.
@@ -1268,6 +1301,111 @@ mod tests {
             .any(|p| p.trigger_key.to_lowercase() == "kp_uparrow"
                 && p.weapon == Weapon::Lg
                 && p.method == Method::Manual));
+    }
+
+    #[test]
+    fn mouse1_quickfire_is_suppressed_when_two_rebinds_contest_it() {
+        // Two persistent rebinds of mouse1 (via SHIFT and R) make mouse1's
+        // at-rest state a cfg_save artifact, not a deliberate quickfire. The
+        // top-level `bind mouse1 ...` quickfire path must be suppressed.
+        // Inline rebind bodies are single-token alias references so the
+        // semicolon splitter in extract_inline_rebinds doesn't drop the fire.
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
+            alias fire_rl "weapon 7;+attack"
+            alias fire_lg "weapon 8;+attack"
+            alias +mode_rl "bind mouse1 fire_rl"
+            alias -mode_rl "-attack"
+            alias +mode_lg "bind mouse1 fire_lg"
+            alias -mode_lg "-attack"
+            bind mouse1 "weapon 7;+attack"
+            bind shift +mode_rl
+            bind r +mode_lg
+        "#,
+        );
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let mouse1_quickfire: Vec<_> = paths
+            .iter()
+            .filter(|p| {
+                p.trigger_key.to_lowercase() == "mouse1" && p.method == Method::Quickfire
+            })
+            .collect();
+        assert!(
+            mouse1_quickfire.is_empty(),
+            "mouse1 quickfire should be suppressed when 2+ manual-select paths target it, got: {:?}",
+            mouse1_quickfire
+        );
+        // The manual-select paths themselves must still be present.
+        assert!(
+            paths
+                .iter()
+                .any(|p| p.trigger_key.to_lowercase() == "shift"
+                    && p.weapon == Weapon::Rl
+                    && p.method == Method::Manual),
+            "shift manual-select RL path must still be emitted"
+        );
+        assert!(
+            paths
+                .iter()
+                .any(|p| p.trigger_key.to_lowercase() == "r"
+                    && p.weapon == Weapon::Lg
+                    && p.method == Method::Manual),
+            "r manual-select LG path must still be emitted"
+        );
+    }
+
+    #[test]
+    fn mouse1_quickfire_is_preserved_with_single_manual_select_rebind() {
+        // Only one persistent rebind of mouse1 — this is a coherent
+        // "default + one contextual override" pattern. mouse1's at-rest
+        // state is meaningfully RL and must not be suppressed.
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
+            alias fire_lg "weapon 8;+attack"
+            alias +mode_lg "bind mouse1 fire_lg"
+            alias -mode_lg "-attack"
+            bind mouse1 "weapon 7;+attack"
+            bind shift +mode_lg
+        "#,
+        );
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(
+            paths.iter().any(|p| p.trigger_key.to_lowercase() == "mouse1"
+                && p.weapon == Weapon::Rl
+                && p.method == Method::Quickfire),
+            "mouse1 quickfire RL must survive single manual-select rebind"
+        );
+        assert!(
+            paths.iter().any(|p| p.trigger_key.to_lowercase() == "shift"
+                && p.weapon == Weapon::Lg
+                && p.method == Method::Manual),
+            "shift manual-select LG path must also be emitted"
+        );
+    }
+
+    #[test]
+    fn manual_hold_rebinds_do_not_contribute_to_contention() {
+        // Hold-modifier rebinds revert on release, so mouse1's at-rest state
+        // is untouched. Two hold-modifier rebinds should NOT suppress the
+        // mouse1 quickfire path.
+        let (bindings, aliases, cvars) = parse_test_config(
+            r#"
+            alias +hold_lg "bind mouse1 weapon 8;+attack"
+            alias -hold_lg "bind mouse1 weapon 7;+attack"
+            alias +hold_sng "bind mouse1 weapon 5;+attack"
+            alias -hold_sng "bind mouse1 weapon 7;+attack"
+            bind mouse1 "weapon 7;+attack"
+            bind shift +hold_lg
+            bind ctrl +hold_sng
+        "#,
+        );
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        assert!(
+            paths.iter().any(|p| p.trigger_key.to_lowercase() == "mouse1"
+                && p.weapon == Weapon::Rl
+                && p.method == Method::Quickfire),
+            "mouse1 quickfire RL must survive when only hold-modifier rebinds target it"
+        );
     }
 
     #[test]
