@@ -810,10 +810,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
-                    primaryAliases={primaryAliases()}
-                    compareAliases={compareAliases()}
-                    primaryBindCommands={primaryBindCommands()}
-                    compareBindCommands={compareBindCommands()}
                   />
                 </Show>
 
