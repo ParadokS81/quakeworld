@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { currentMonitor, availableMonitors } from "@tauri-apps/api/window";
 import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation, ConfigSourceBundle } from "./types";
-import type { ProfileData, SetupHardware, ClientInfo } from "./store";
+import type { ProfileData, SetupHardware } from "./store";
 import { loadProfile, updatePrimaryClient, updatePrimaryHardware, getPrimarySetup } from "./store";
 import SideNav from "./components/SideNav";
 import ProfileTab from "./components/ProfileTab";

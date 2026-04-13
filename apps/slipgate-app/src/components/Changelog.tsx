@@ -163,7 +163,6 @@ export default function Changelog(props: ChangelogProps) {
 
     // Always show snapshot if available
     if (props.snapshot?.available) {
-      const commitCount = props.snapshot.ahead_by || props.snapshot.commits_since_stable.length;
       const snapshotEntry: ParsedRelease = {
         version: props.snapshot.commit,
         date: (() => {

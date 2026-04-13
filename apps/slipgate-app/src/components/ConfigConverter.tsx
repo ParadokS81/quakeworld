@@ -1,6 +1,6 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { parseConfig, convertConfig, generateReport, writeFteConfig } from "qw-config";
-import type { ConversionReport, ConvertedCvar } from "qw-config";
+import type { ConvertedCvar } from "qw-config";
 import type { EzQuakeConfig } from "../types";
 
 interface ConfigConverterProps {

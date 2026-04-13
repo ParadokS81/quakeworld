@@ -1,6 +1,6 @@
-import { Show, For, createSignal, createEffect, onMount } from "solid-js";
-import { LogIn, LogOut, Flag, MapPin, Image } from "lucide-solid";
-import { startDiscordAuth, logOut, onAuthChange, type User, type AuthResult } from "../auth";
+import { Show, For, createSignal, onMount } from "solid-js";
+import { LogIn, LogOut, Flag, Image } from "lucide-solid";
+import { startDiscordAuth, logOut, onAuthChange, type User } from "../auth";
 import {
   loadProfile,
   updateIdentity as storeUpdateIdentity,

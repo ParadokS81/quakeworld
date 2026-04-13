@@ -6,15 +6,15 @@ const ELOSHAPES_CDN = "https://qyjffrmfirkwcwempawu.supabase.co/storage/v1/objec
 // Map our key names to mouse button IDs
 function getMouseButtonId(key: string): string | null {
   const map: Record<string, string> = {
-    Mouse1: "mouse1",
-    Mouse2: "mouse2",
-    Mouse3: "mouse3",
-    Mouse4: "mouse4",
-    Mouse5: "mouse5",
-    MWheelUp: "mwheel",
-    MWheelDown: "mwheel",
+    MOUSE1: "mouse1",
+    MOUSE2: "mouse2",
+    MOUSE3: "mouse3",
+    MOUSE4: "mouse4",
+    MOUSE5: "mouse5",
+    MWHEELUP: "mwheel",
+    MWHEELDOWN: "mwheel",
   };
-  return map[key] ?? null;
+  return map[key.toUpperCase()] ?? null;
 }
 
 interface MouseCardProps {

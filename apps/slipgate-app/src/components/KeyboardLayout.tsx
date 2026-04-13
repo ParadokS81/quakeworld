@@ -124,37 +124,40 @@ export const KEY_BY_ID = new Map(LAYOUT.map(k => [k.id, k]));
 
 /** Map ezQuake config key names → layout IDs.  Returns null for mouse buttons. */
 export function toLayoutId(key: string): string | null {
-  if (key.startsWith("Mouse") || key.startsWith("MWheel")) return null;
+  // Normalize to uppercase so production parser output (MOUSE1, SHIFT) hits correctly
+  const k = key.toUpperCase();
+
+  if (k.startsWith("MOUSE") || k.startsWith("MWHEEL")) return null;
 
   const map: Record<string, string> = {
-    Space: "Space", Tab: "Tab", CapsLock: "CapsLock",
-    Shift: "Shift", Ctrl: "Ctrl", Alt: "Alt",
-    Enter: "Enter", Backspace: "Backspace",
-    Escape: "Escape", Esc: "Escape",
+    SPACE: "Space", TAB: "Tab", CAPSLOCK: "CapsLock",
+    SHIFT: "Shift", CTRL: "Ctrl", ALT: "Alt",
+    ENTER: "Enter", BACKSPACE: "Backspace",
+    ESCAPE: "Escape", ESC: "Escape",
     // Arrow keys
-    UpArrow: "UpArrow", DownArrow: "DownArrow",
-    LeftArrow: "LeftArrow", RightArrow: "RightArrow",
+    UPARROW: "UpArrow", DOWNARROW: "DownArrow",
+    LEFTARROW: "LeftArrow", RIGHTARROW: "RightArrow",
     // Right-side modifiers
-    RShift: "RShift", RCtrl: "RCtrl", RAlt: "RAlt", RWin: "RWin",
+    RSHIFT: "RShift", RCTRL: "RCtrl", RALT: "RAlt", RWIN: "RWin",
     // F-keys
     F1: "F1", F2: "F2", F3: "F3", F4: "F4",
     F5: "F5", F6: "F6", F7: "F7", F8: "F8",
     F9: "F9", F10: "F10", F11: "F11", F12: "F12",
     // Nav cluster
-    Delete: "Delete", Del: "Delete",
-    Insert: "Insert", Ins: "Insert",
-    Home: "Home", End: "End",
-    PageUp: "PageUp", PgUp: "PageUp",
-    PageDown: "PageDown", PgDn: "PageDown",
-    Fn: "Fn",
+    DELETE: "Delete", DEL: "Delete",
+    INSERT: "Insert", INS: "Insert",
+    HOME: "Home", END: "End",
+    PAGEUP: "PageUp", PGUP: "PageUp",
+    PAGEDOWN: "PageDown", PGDN: "PageDown",
+    FN: "Fn",
   };
-  if (key in map) return map[key];
+  if (k in map) return map[k];
 
-  // Single letter → uppercase to match layout ID
-  if (key.length === 1 && /[a-z]/i.test(key)) return key.toUpperCase();
+  // Single letter → uppercase to match layout ID (k is already uppercased)
+  if (k.length === 1 && /[A-Z]/.test(k)) return k;
 
   // Single character (number, punctuation)
-  if (key.length === 1) return key;
+  if (k.length === 1) return k;
 
   return null;
 }

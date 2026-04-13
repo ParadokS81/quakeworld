@@ -29,11 +29,11 @@ const ALL_WEAPONS = ["axe", "sg", "ssg", "ng", "sng", "gl", "rl", "lg"];
 // Map key name to MouseHighlights key
 function toMouseButton(key: string): keyof MouseHighlights | null {
   const map: Record<string, keyof MouseHighlights> = {
-    Mouse1: "mouse1", Mouse2: "mouse2",
-    Mouse3: "mwheel", Mouse4: "mouse4", Mouse5: "mouse5",
-    MWheelUp: "mwheel", MWheelDown: "mwheel",
+    MOUSE1: "mouse1", MOUSE2: "mouse2",
+    MOUSE3: "mwheel", MOUSE4: "mouse4", MOUSE5: "mouse5",
+    MWHEELUP: "mwheel", MWHEELDOWN: "mwheel",
   };
-  return map[key] ?? null;
+  return map[key.toUpperCase()] ?? null;
 }
 
 function groupByWeapon(paths: FiringPath[]): Map<Weapon, FiringPath[]> {

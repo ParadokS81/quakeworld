@@ -47,8 +47,6 @@ export default function ClientsTab(props: ClientsTabProps) {
   const [ktxNotes, setKtxNotes] = createSignal<ReleaseNote[]>([]);
   const [mvdsvNotes, setMvdsvNotes] = createSignal<ReleaseNote[]>([]);
   const [qwfwdNotes, setQwfwdNotes] = createSignal<ReleaseNote[]>([]);
-  const [isLoadingEcosystem, setIsLoadingEcosystem] = createSignal(false);
-
   // Listen for progress events from Rust backend
   let unlistenProgress: (() => void) | null = null;
   (async () => {

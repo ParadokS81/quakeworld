@@ -133,12 +133,12 @@ export default function ProfileTab(props: ProfileTabProps) {
     const binds = props.ezConfig?.teamsay_binds ?? [];
     const hl: MouseHighlights = {};
     const keyToBtn: Record<string, keyof MouseHighlights> = {
-      Mouse1: "mouse1", Mouse2: "mouse2", Mouse3: "mwheel",
-      Mouse4: "mouse4", Mouse5: "mouse5",
-      MWheelUp: "mwheel", MWheelDown: "mwheel",
+      MOUSE1: "mouse1", MOUSE2: "mouse2", MOUSE3: "mwheel",
+      MOUSE4: "mouse4", MOUSE5: "mouse5",
+      MWHEELUP: "mwheel", MWHEELDOWN: "mwheel",
     };
     for (const tb of binds) {
-      const btn = keyToBtn[tb.key];
+      const btn = keyToBtn[tb.key.toUpperCase()];
       if (btn && !hl[btn]) {
         hl[btn] = TEAMSAY_COLORS[tb.category] ?? "oklch(0.6 0.08 0)";
       }
