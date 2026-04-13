@@ -110,7 +110,7 @@ Curated sections beyond the raw cvar dump:
 - **Teamplay Binds** — teamsay keys (F1 → report armor, Mouse4 → enemy, etc.) categorized (status/death/movement/items/enemy/orders/powerups/confirm/custom), expandable to alias chains
 - **Teamplay Macros** — `$armor`, `$location`, `$health` etc. variable references extracted by scanning aliases reachable from teamsay binds, plus `set`-declared user variables
 - **Weapons Settings** — weapon-related cvars
-- **Weapons Binds** — **per-key rows** (one row per key-weapon pair, not grouped) with **quickfire** vs **manual** classification, modifier-combo synthesis, and a filter that excludes rocket jumps (`+attack`+`+jump` patterns) and moveup/movedown as movement rather than weapon binds. Unbound weapons show as dimmed placeholder rows. See `2026-04-13-weapon-bind-classifier-rewrite-handoff.md` for known edge cases and the classifier rewrite plan.
+- **Weapons Binds** — per-weapon rows with full firing-path classification (quickfire / manual-select / manual-hold) rendered side-by-side across primary and compare configs. Backed by the weapon classifier v2 module (`weapon_classifier.rs`) which emits `FiringPath[]`, supports multiple paths per weapon, distinguishes generic vs weapon-specific fire keys, tags preselect-style binds, and filters rocket jumps, kill-me teamsays, announce-without-fire patterns, and long impulse scans. See `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` and `packages/qw-knowledge/weapon-scripts/README.md` for the full algorithm and domain reference.
 
 ### Raw sections
 - **Binds** — every key with category color coding (movement/weapons/teamsay/**ktx**/**unresolved**/misc), alias chain expansion up to 8 levels deep. KTX binds (commands like `rpickup`, `autotrack`, `scores` injected by the KTX server mod on connect) show with a purple banner explaining they only work on KTX servers. Unresolved binds (commands not found in aliases, ezQuake commands, or cvars) show with a yellow warning triangle and explanation.
@@ -131,7 +131,7 @@ Click "Convert to FTE" → report view:
 - Color scheme uses OKLCH tokens matching the Slipgate web design system
 
 **The two pure-logic files to know:**
-- `configMerger.ts` (484 lines) — the comparison brain. Exports `mergeSelectedFiles`, `categorizeBinds`, `synthesizeModifierWeaponBinds`, `synthesizeModifierTeamsayBinds`, `mergeAliases`. Pure functions, no side effects, easy to test.
+- `configMerger.ts` — the comparison brain. Exports `mergeSelectedFiles`, `categorizeBinds`, `synthesizeModifierTeamsayBinds`, `mergeAliases`. Pure functions, no side effects, easy to test. (Weapon-bind modifier synthesis was moved into the Rust classifier — see `weapon_classifier.rs`.)
 - `AliasChainResolver.tsx` (74 lines) — recursive alias expansion with depth cap.
 
 ---
@@ -145,21 +145,23 @@ Everything the frontend calls into. Lives in `src-tauri/src/commands/`. Total ~5
 - Uses WMI for GPU/RAM/audio/monitor, SetupAPI for USB HID (mice & keyboards by real product name, not "HID-compliant mouse"), sysinfo for CPU/OS/RAM basics
 - Sub-500ms full scan on a decent CPU. Previous PowerShell approach was ~5s — don't regress
 
-### `ezquake.rs` (2,124 lines — the beast) — config parser
+### `ezquake.rs` — config parser
 The largest file in the project. Handles everything ezQuake-related:
 - `validate_ezquake_path(exe_path)` — is this an ezQuake/FTE/unezQuake install? Extract version.
 - `read_ezquake_config(exe_path, config_name)` — parse a single config → structured `EzQuakeConfig`
 - `read_config_chain(exe_path, config_name)` — **follows exec refs recursively** with cycle detection, builds the full file dependency tree
 - `launch_ezquake(options)` — spawn with custom args/configs
-- `classify_chain_binds(chain)` — weapon + teamsay classification across the whole chain
+- `classify_chain_binds(chain)` — delegates to `weapon_classifier.rs` for weapon paths, handles teamsay classification across the whole chain
 
 Knows about:
 - The `absent = default` problem (ezQuake only saves non-default cvars) — `default_cvars()` table fills in what's missing
-- Quickfire vs manual weapon bind detection
 - Teamsay category inference (status/death/movement/items/enemy/orders/powerups/confirm/custom)
 - LG-specific sensitivity (scanning aliases for weapon 8 sens changes)
 - Resolution three-layer resolution model — see `EZQUAKE-RESOLUTION.md` for the full story
 - QW color codes (`$x`, `^x`) → Unicode styled chars
+
+### `weapon_classifier.rs` — weapon bind classifier v2
+Extracted from `ezquake.rs` as its own module on 2026-04-13. Implements a causal-chain 4-pass model (resolve → fire keys → extract paths → exclusions) and emits a flat `Vec<FiringPath>` with three firing flavors (quickfire / manual-select / manual-hold). Distinguishes generic vs weapon-specific fire keys (the HangTime case), tags preselect-style binds, and filters 5 non-combat patterns (rocket jumps, kill-me alias names, kill-me say_team text, announce-without-fire, long-impulse scans). 39 inline unit and fixture tests live in the module. See `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` and the shared domain reference at `packages/qw-knowledge/weapon-scripts/README.md`.
 
 ### `scanner.rs` (709 lines) — config source discovery
 - `scan_local_install(exe_path, config_name)` — primary chain + all other configs in the install
