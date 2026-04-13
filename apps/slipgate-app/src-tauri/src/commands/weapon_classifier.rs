@@ -285,7 +285,7 @@ fn extract_paths_from_resolved(
     trigger_key: &str,
     resolved: &ResolvedBinding,
     fire_keys: &FireKeyClasses,
-    _cvars: &HashMap<String, String>,
+    cvars: &HashMap<String, String>,
     aliases: &HashMap<String, String>,
     out: &mut Vec<FiringPath>,
 ) {
@@ -355,6 +355,16 @@ fn extract_paths_from_resolved(
     let weapon_selected = extract_first_weapon(body);
     if !has_fire && !has_inline_rebind {
         if let Some(weapon) = weapon_selected {
+            let preselect_enabled = cvars
+                .get("cl_weaponpreselect")
+                .map(|v| v != "0")
+                .unwrap_or(false);
+            let is_bare_weapon = body.trim().starts_with("weapon ");
+            let mechanism = if preselect_enabled && is_bare_weapon {
+                Mechanism::PreselectWeapon
+            } else {
+                Mechanism::GenericFireKey
+            };
             for fire_key in &fire_keys.generic_fire_keys {
                 if fire_key == trigger_key {
                     continue;
@@ -366,7 +376,7 @@ fn extract_paths_from_resolved(
                     trigger_key: trigger_key.to_string(),
                     fire_key: Some(fire_key.clone()),
                     source: PathSource::Explicit,
-                    mechanism: Mechanism::GenericFireKey,
+                    mechanism,
                     origin_alias_chain: resolved.origin_chain.clone(),
                 });
             }
@@ -720,5 +730,20 @@ mod tests {
         let fire_keys: Vec<_> = q_paths.iter().filter_map(|p| p.fire_key.clone()).collect();
         assert!(fire_keys.contains(&"mouse1".to_string()));
         assert!(fire_keys.contains(&"enter".to_string()));
+    }
+
+    #[test]
+    fn preselect_bare_weapon_is_manual_select_with_preselect_mechanism() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            cl_weaponpreselect 1
+            bind mouse1 +attack
+            bind q "weapon 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert_eq!(q_paths.len(), 1);
+        assert_eq!(q_paths[0].method, Method::Manual);
+        assert_eq!(q_paths[0].flavor, Some(ManualFlavor::Select));
+        assert_eq!(q_paths[0].mechanism, Mechanism::PreselectWeapon);
     }
 }
