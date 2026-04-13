@@ -12,7 +12,6 @@ export interface EnrichedCvar {
   leftIsDefault: boolean;
   rightIsDefault: boolean;
   isObsolete: boolean;
-  isUnknown: boolean;
 }
 
 interface ConfigSettingsSectionProps {
@@ -104,7 +103,6 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
                             isExpanded={props.expandedCvar === cvar.name}
                             isCompareMode={props.isCompareMode}
                             isObsolete={cvar.isObsolete}
-                            isUnknown={cvar.isUnknown}
                             onToggle={() => props.onToggleCvar(cvar.name)}
                             onMouseEnter={(e) => props.onMouseEnter(cvar.name, e)}
                             onMouseLeave={props.onMouseLeave}

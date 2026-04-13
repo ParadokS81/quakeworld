@@ -9,7 +9,6 @@ interface CvarRowProps {
   isExpanded: boolean;
   isCompareMode: boolean;
   isObsolete?: boolean;
-  isUnknown?: boolean;
   onToggle: () => void;
   onMouseEnter: (e: MouseEvent) => void;
   onMouseLeave: () => void;
@@ -70,9 +69,6 @@ export default function CvarRow(props: CvarRowProps) {
         {props.name}
         <Show when={props.isObsolete}>
           <span class="badge badge-warning text-[9px] h-3.5 px-1 flex-shrink-0 no-underline" style={{ "text-decoration": "none" }}>obsolete</span>
-        </Show>
-        <Show when={props.isUnknown}>
-          <span class="badge badge-ghost text-[9px] h-3.5 px-1 flex-shrink-0">custom</span>
         </Show>
       </span>
 

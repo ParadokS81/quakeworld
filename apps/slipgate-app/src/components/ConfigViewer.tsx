@@ -266,8 +266,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       const leftIsDefault = isEffectivelyDefault(hasLeft, value, info?.default);
       const rightIsDefault = isEffectivelyDefault(hasRight, compareValue, info?.default);
       const isObsolete = info?.category === "Obsolete";
-      const isUnknown = !info;
-      return { name, value, info, hasLeft, hasRight, compareValue, leftIsDefault, rightIsDefault, isObsolete, isUnknown };
+      return { name, value, info, hasLeft, hasRight, compareValue, leftIsDefault, rightIsDefault, isObsolete };
     });
   });
 
