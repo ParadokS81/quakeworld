@@ -48,6 +48,13 @@ npm install -g bun
 sudo apt install rsync
 ```
 
+**Tauri Linux dev deps (optional, for rust-analyzer + `cargo check` in WSL):**
+```bash
+sudo apt install pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev libsoup-3.0-dev
+```
+
+These are only needed for static analysis in WSL. They do NOT enable building or running the app from Linux — that still happens on Windows via the split-process workflow below. Without these, `cargo check` fails with `pkg-config` errors and rust-analyzer cannot index the Tauri crate.
+
 ### Windows
 
 #### 1. Microsoft C++ Build Tools

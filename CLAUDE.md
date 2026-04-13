@@ -81,6 +81,7 @@ All projects except slipgate-app run in WSL Ubuntu.
 - ASCII only in code and docs: no em dashes, smart quotes, or Unicode decorations.
 - Never express emotions; no filler sentences.
 - Comments explain *why*, not *what*.
+- TypeScript regex iteration: prefer `string.matchAll(re)` over the stateful RegExp method. A repo-wide security-scanning hook pattern-matches the literal call site and false-positives on the RegExp version (not distinguishing it from the Node child_process one). Using matchAll avoids the false positive and is cleaner anyway.
 
 These rules apply literally in code and docs. In conversation with the user, follow the spirit - direct, honest, no filler - but a natural voice is fine. See the feedback memory `feedback_output_discipline_sentiment.md` for context.
 
