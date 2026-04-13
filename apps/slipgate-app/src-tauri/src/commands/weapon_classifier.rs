@@ -276,7 +276,7 @@ pub fn classify_firing_paths(
     let mut paths = Vec::new();
     for (key, command) in bindings {
         let resolved = resolve_bind_chain(key, command, aliases, 10);
-        extract_paths_from_resolved(key, &resolved, &fire_keys, cvars, &mut paths);
+        extract_paths_from_resolved(key, &resolved, &fire_keys, cvars, aliases, &mut paths);
     }
     paths
 }
@@ -284,12 +284,14 @@ pub fn classify_firing_paths(
 fn extract_paths_from_resolved(
     trigger_key: &str,
     resolved: &ResolvedBinding,
-    _fire_keys: &FireKeyClasses,
+    fire_keys: &FireKeyClasses,
     _cvars: &HashMap<String, String>,
+    aliases: &HashMap<String, String>,
     out: &mut Vec<FiringPath>,
 ) {
     let body = &resolved.press_body;
-    // Rule 1: Quickfire from inline weapon+attack / +fire / +fire_ar.
+
+    // Rule 1: Quickfire from inline fire.
     if body_contains_fire(body) {
         if let Some(weapon) = extract_first_weapon(body) {
             let mechanism = detect_quickfire_mechanism(body);
@@ -305,6 +307,42 @@ fn extract_paths_from_resolved(
             });
         }
     }
+
+    // Rule 2: Manual-Select via persistent rebind.
+    // A press body that rebinds a fire key to a weapon-specific fire creates a
+    // persistent manual path for that weapon.
+    let is_temporary = !resolved.release_body.is_empty();
+    for rebind in extract_inline_rebinds(body) {
+        // Resolve the new body to see if it fires a specific weapon.
+        let rebind_resolved = resolve_bind_chain(&rebind.target_key, &rebind.new_body, aliases, 10);
+        if !body_contains_fire(&rebind_resolved.press_body) {
+            continue;
+        }
+        let Some(weapon) = extract_first_weapon(&rebind_resolved.press_body) else { continue };
+        let flavor = if is_temporary {
+            ManualFlavor::Hold
+        } else {
+            ManualFlavor::Select
+        };
+        let mechanism = if is_temporary {
+            Mechanism::HoldModifierRebind
+        } else {
+            Mechanism::RebindFireKey
+        };
+        out.push(FiringPath {
+            weapon,
+            method: Method::Manual,
+            flavor: Some(flavor),
+            trigger_key: trigger_key.to_string(),
+            fire_key: Some(rebind.target_key.clone()),
+            source: PathSource::Explicit,
+            mechanism,
+            origin_alias_chain: resolved.origin_chain.clone(),
+        });
+    }
+
+    // Rules 4-7 land in later tasks.
+    let _ = fire_keys;
 }
 
 fn detect_quickfire_mechanism(body: &str) -> Mechanism {
@@ -316,6 +354,53 @@ fn detect_quickfire_mechanism(body: &str) -> Mechanism {
         if t.starts_with("impulse ") { return Mechanism::ImpulseAttack; }
     }
     Mechanism::WeaponAttack
+}
+
+/// A `bind KEY BODY` statement found inside an alias body.
+#[derive(Debug, Clone)]
+pub(crate) struct InlineRebind {
+    pub target_key: String,
+    pub new_body: String,
+}
+
+pub(crate) fn extract_inline_rebinds(body: &str) -> Vec<InlineRebind> {
+    let mut out = Vec::new();
+    for segment in body.split(|c: char| c == ';' || c == '\n') {
+        let t = segment.trim();
+        if let Some(rest) = t.strip_prefix("bind ") {
+            let tokens = tokenize_line(rest);
+            if tokens.len() >= 2 {
+                out.push(InlineRebind {
+                    target_key: tokens[0].clone(),
+                    new_body: tokens[1..].join(" "),
+                });
+            }
+        }
+    }
+    out
+}
+
+pub(crate) fn tokenize_line(line: &str) -> Vec<String> {
+    let mut tokens = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+    for ch in line.chars() {
+        match ch {
+            '"' => {
+                in_quotes = !in_quotes;
+            }
+            c if c.is_whitespace() && !in_quotes => {
+                if !current.is_empty() {
+                    tokens.push(std::mem::take(&mut current));
+                }
+            }
+            c => current.push(c),
+        }
+    }
+    if !current.is_empty() {
+        tokens.push(current);
+    }
+    tokens
 }
 
 #[cfg(test)]
@@ -374,29 +459,6 @@ mod tests {
             }
         }
         (bindings, aliases, cvars)
-    }
-
-    fn tokenize_line(line: &str) -> Vec<String> {
-        let mut tokens = Vec::new();
-        let mut current = String::new();
-        let mut in_quotes = false;
-        for ch in line.chars() {
-            match ch {
-                '"' => {
-                    in_quotes = !in_quotes;
-                }
-                c if c.is_whitespace() && !in_quotes => {
-                    if !current.is_empty() {
-                        tokens.push(std::mem::take(&mut current));
-                    }
-                }
-                c => current.push(c),
-            }
-        }
-        if !current.is_empty() {
-            tokens.push(current);
-        }
-        tokens
     }
 
     #[test]
@@ -542,5 +604,47 @@ mod tests {
         assert_eq!(q_paths[0].weapon, Weapon::Rl);
         assert_eq!(q_paths[0].method, Method::Quickfire);
         assert_eq!(q_paths[0].mechanism, Mechanism::PlusFire);
+    }
+
+    #[test]
+    fn extracts_manual_select_from_persistent_rebind() {
+        // Press Shift rebinds Mouse1 persistently to fire RL. Manual-Select path.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +firerocket "weapon 7;+attack"
+            alias -firerocket "-attack"
+            alias select_rl "bind mouse1 +firerocket"
+            bind mouse1 +attack
+            bind shift select_rl
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let shift_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "shift").collect();
+        let rl_manual = shift_paths.iter().find(|p|
+            p.weapon == Weapon::Rl
+                && p.method == Method::Manual
+                && p.flavor == Some(ManualFlavor::Select)
+        );
+        assert!(rl_manual.is_some(), "expected manual-select RL on shift via persistent rebind");
+        assert_eq!(rl_manual.unwrap().fire_key.as_deref(), Some("mouse1"));
+        assert_eq!(rl_manual.unwrap().mechanism, Mechanism::RebindFireKey);
+    }
+
+    #[test]
+    fn extracts_manual_hold_from_plus_minus_alias_rebind() {
+        // Hold Shift rebinds Mouse1 temporarily. Manual-Hold path.
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +firerocket "weapon 7;+attack"
+            alias -firerocket "-attack"
+            alias +hold_rl "bind mouse1 +firerocket"
+            alias -hold_rl "bind mouse1 +attack"
+            bind mouse1 +attack
+            bind shift +hold_rl
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let shift_hold: Vec<_> = paths.iter()
+            .filter(|p| p.trigger_key == "shift" && p.flavor == Some(ManualFlavor::Hold))
+            .collect();
+        assert_eq!(shift_hold.len(), 1);
+        assert_eq!(shift_hold[0].weapon, Weapon::Rl);
+        assert_eq!(shift_hold[0].mechanism, Mechanism::HoldModifierRebind);
     }
 }
