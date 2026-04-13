@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show, type JSX } from "solid-js";
 import type { FiringPath, ManualFlavor, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry } from "./AliasChainResolver";
@@ -25,9 +25,56 @@ const WEAPON_LABELS: Record<string, string> = {
   sg: "Shotgun", axe: "Axe",
 };
 
-function formatMethod(p: FiringPath): string {
-  if (p.method === "quickfire") return "quickfire";
-  return `manual-${p.flavor ?? "select"}`;
+/**
+ * Renders a firing path as a short sentence with keycap graphics.
+ *   quickfire     -> [KEY] selects and fires
+ *   manual-select -> [TRIGGER] selects and [FIRE] fires
+ *   manual-hold   -> hold [TRIGGER] and [FIRE] fires
+ */
+function formatFiringSentence(p: FiringPath, color: string): JSX.Element {
+  const borderColor = `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))`;
+  const keycap = (key: string) => (
+    <span class="sg-domain-keycap" style={{ "border-color": borderColor }}>
+      {key}
+    </span>
+  );
+  const word = (text: string) => (
+    <span class="text-[11px] text-[var(--sg-text-dim)]">{text}</span>
+  );
+
+  if (p.method === "quickfire") {
+    return (
+      <>
+        {keycap(p.trigger_key)}
+        {word("selects and fires")}
+      </>
+    );
+  }
+
+  // Manual: trigger_key activates, fire_key fires.
+  // fire_key is guaranteed non-null for Manual paths emitted by the classifier.
+  const fireKey = p.fire_key ?? "";
+
+  if (p.flavor === "hold") {
+    return (
+      <>
+        {word("hold")}
+        {keycap(p.trigger_key)}
+        {word("and")}
+        {keycap(fireKey)}
+        {word("fires")}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {keycap(p.trigger_key)}
+      {word("selects and")}
+      {keycap(fireKey)}
+      {word("fires")}
+    </>
+  );
 }
 
 interface WeaponBindsProps {
@@ -169,15 +216,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                   }>
                     {(p) => (
                       <>
-                        <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                          {p().trigger_key}
-                        </span>
-                        <Show when={p().fire_key}>
-                          {(fk) => (
-                            <span class="text-[11px] text-[var(--sg-text-dim)]">+{fk()}</span>
-                          )}
-                        </Show>
-                        <span class="text-[11px] text-[var(--sg-text-dim)]">{formatMethod(p())}</span>
+                        {formatFiringSentence(p(), color)}
                         <Show when={p().source === "engine_default"}>
                           <span class="text-[10px] text-[var(--sg-section-label)] italic">(default)</span>
                         </Show>
@@ -194,15 +233,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     }>
                       {(p) => (
                         <>
-                          <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                            {p().trigger_key}
-                          </span>
-                          <Show when={p().fire_key}>
-                            {(fk) => (
-                              <span class="text-[11px] text-[var(--sg-text-dim)]">+{fk()}</span>
-                            )}
-                          </Show>
-                          <span class="text-[11px] text-[var(--sg-text-dim)]">{formatMethod(p())}</span>
+                          {formatFiringSentence(p(), color)}
                           <Show when={p().source === "engine_default"}>
                             <span class="text-[10px] text-[var(--sg-section-label)] italic">(default)</span>
                           </Show>
