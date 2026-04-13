@@ -648,9 +648,12 @@ mod tests {
             if tokens.is_empty() {
                 continue;
             }
-            match tokens[0].as_str() {
+            // Normalize the command keyword to lowercase for fixture compatibility.
+            let cmd = tokens[0].to_lowercase();
+            match cmd.as_str() {
                 "bind" if tokens.len() >= 3 => {
-                    bindings.push((tokens[1].clone(), tokens[2..].join(" ")));
+                    // Normalize bind keys to lowercase; real configs use mixed case.
+                    bindings.push((tokens[1].to_lowercase(), tokens[2..].join(" ")));
                 }
                 "alias" if tokens.len() >= 3 => {
                     aliases.insert(tokens[1].clone(), tokens[2..].join(" "));
@@ -1049,5 +1052,115 @@ mod tests {
         let paths = classify_firing_paths(&bindings, &aliases, &cvars);
         assert!(paths.iter().all(|p| p.trigger_key != "mwheelup"));
         assert!(paths.iter().all(|p| p.trigger_key != "mwheeldown"));
+    }
+
+    /// Integration: load a fixture config file, parse it with the test parser,
+    /// and return its firing paths.
+    fn classify_fixture(name: &str) -> Vec<FiringPath> {
+        let path = format!("{}/../assets/weapon-fixtures/{}", env!("CARGO_MANIFEST_DIR"), name);
+        let content = std::fs::read_to_string(&path).unwrap_or_else(|e|
+            panic!("failed to read fixture {}: {}", path, e)
+        );
+        let (bindings, aliases, cvars) = parse_test_config(&content);
+        classify_firing_paths(&bindings, &aliases, &cvars)
+    }
+
+    #[test]
+    fn fixture_vanilla_has_eight_engine_default_paths() {
+        let paths = classify_fixture("vanilla.cfg");
+        // All 8 number keys are explicit in vanilla.cfg (bind 7 "impulse 7" etc),
+        // so they are Explicit, not EngineDefault.
+        let manual_paths: Vec<_> = paths.iter().filter(|p| p.method == Method::Manual).collect();
+        assert_eq!(manual_paths.len(), 8);
+        for p in &manual_paths {
+            assert_eq!(p.source, PathSource::Explicit);
+            assert_eq!(p.fire_key.as_deref(), Some("mouse1"));
+        }
+    }
+
+    #[test]
+    fn fixture_paradoks_hybrid_c_has_quickfire_and_manual_ssg() {
+        let paths = classify_fixture("paradoks_hybrid.cfg");
+        let c_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "c").collect();
+        assert!(c_paths.iter().any(|p|
+            p.weapon == Weapon::Ssg && p.method == Method::Quickfire
+        ), "C should have quickfire SSG");
+        assert!(c_paths.iter().any(|p|
+            p.weapon == Weapon::Ssg
+                && p.method == Method::Manual
+                && p.flavor == Some(ManualFlavor::Select)
+                && p.fire_key.as_deref() == Some("mouse1")
+        ), "C should have manual-select SSG via Mouse1 rebind");
+    }
+
+    #[test]
+    fn fixture_paradoks_hybrid_shift_has_manual_select_rl() {
+        let paths = classify_fixture("paradoks_hybrid.cfg");
+        let shift_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "shift").collect();
+        assert!(shift_paths.iter().any(|p|
+            p.weapon == Weapon::Rl
+                && p.method == Method::Manual
+                && p.flavor == Some(ManualFlavor::Select)
+        ));
+    }
+
+    #[test]
+    fn fixture_hangtime_mouse1_is_rl_quickfire() {
+        let paths = classify_fixture("hangtime.cfg");
+        assert!(paths.iter().any(|p|
+            p.trigger_key == "mouse1"
+                && p.weapon == Weapon::Rl
+                && p.method == Method::Quickfire
+        ));
+    }
+
+    #[test]
+    fn fixture_hangtime_kp_uparrow_has_no_lg_manual_path() {
+        let paths = classify_fixture("hangtime.cfg");
+        // Mouse1 is weapon-specific (+rocket), so no generic fire key exists.
+        // KP_UPARROW's weapon select should NOT produce a manual LG path.
+        assert!(!paths.iter().any(|p|
+            p.trigger_key.to_lowercase() == "kp_uparrow"
+                && p.weapon == Weapon::Lg
+                && p.method == Method::Manual
+        ));
+    }
+
+    #[test]
+    fn fixture_killme_variants_are_all_excluded() {
+        for name in &["killme_paradoks.cfg", "killme_hangtime.cfg", "killme_vikpe.cfg"] {
+            let paths = classify_fixture(name);
+            let kill_me_keys = ["x", "kp_home", "kp_end"];
+            for p in &paths {
+                assert!(
+                    !kill_me_keys.contains(&p.trigger_key.to_lowercase().as_str()),
+                    "{}: trigger_key {} should be excluded",
+                    name,
+                    p.trigger_key,
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn fixture_preselect_style_tags_mechanism() {
+        let paths = classify_fixture("preselect_style.cfg");
+        let q_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "q").collect();
+        assert!(q_paths.iter().any(|p| p.mechanism == Mechanism::PreselectWeapon));
+    }
+
+    #[test]
+    fn fixture_oldschool_hold_classifies_shift_as_hold() {
+        let paths = classify_fixture("oldschool_hold.cfg");
+        let shift_hold: Vec<_> = paths.iter()
+            .filter(|p| p.trigger_key == "shift" && p.flavor == Some(ManualFlavor::Hold))
+            .collect();
+        assert!(!shift_hold.is_empty(), "shift should have hold-modifier path");
+    }
+
+    #[test]
+    fn fixture_rocket_jump_produces_no_weapon_paths() {
+        let paths = classify_fixture("rocket_jump.cfg");
+        assert!(paths.iter().all(|p| p.trigger_key != "mouse2"));
     }
 }
