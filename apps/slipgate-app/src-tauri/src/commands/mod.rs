@@ -6,3 +6,4 @@ pub mod screenshot;
 pub mod watcher;
 pub mod archive;
 pub mod scanner;
+pub mod weapon_classifier;
