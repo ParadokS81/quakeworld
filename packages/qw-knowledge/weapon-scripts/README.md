@@ -109,10 +109,9 @@ being auto-switched into holding it when picking up ammo).
 
 ## Classification rules (summary)
 
-The slipgate-app classifier is implemented in
-`apps/slipgate-app/src-tauri/src/commands/weapon_classifier.rs`. It
-resolves alias chains, identifies fire keys, extracts firing paths, and
-filters out non-combat patterns. See the design spec
+The slipgate-app classifier is implemented under
+`apps/slipgate-app/src-tauri/src/commands/` (see `weapon_classifier.rs`
+once the v2 redesign lands, currently in `ezquake.rs`). See the design spec
 `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` for
 the full algorithm and rule set.
 
