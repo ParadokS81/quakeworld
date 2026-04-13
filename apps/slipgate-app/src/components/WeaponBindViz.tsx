@@ -1,9 +1,9 @@
 import { For, Show } from "solid-js";
-import type { WeaponBind, MovementKeys } from "../types";
+import type { FiringPath, Weapon, MovementKeys } from "../types";
 import MouseSvg from "./MouseSvg";
 import type { MouseHighlights } from "./MouseSvg";
 
-/* ─── Weapon color palette (OKLCH) ─────────────────────────────────────── */
+/* --- Weapon color palette (OKLCH) ---------------------------------------- */
 
 export const WEAPON_COLORS: Record<string, string> = {
   rl:  "oklch(0.7 0.2 30)",     // red/orange
@@ -21,10 +21,10 @@ const WEAPON_LABELS: Record<string, string> = {
   ssg: "SSG", sg: "SG", axe: "AXE",
 };
 
-// All 8 weapons in impulse order (1–8)
+// All 8 weapons in impulse order (1-8)
 const ALL_WEAPONS = ["axe", "sg", "ssg", "ng", "sng", "gl", "rl", "lg"];
 
-/* ─── Weapon bind grid (4x2 + mouse) ──────────────────────────────────── */
+/* --- Weapon firing-path grid (4x2 + mouse) -------------------------------- */
 
 // Map key name to MouseHighlights key
 function toMouseButton(key: string): keyof MouseHighlights | null {
@@ -36,8 +36,17 @@ function toMouseButton(key: string): keyof MouseHighlights | null {
   return map[key] ?? null;
 }
 
+function groupByWeapon(paths: FiringPath[]): Map<Weapon, FiringPath[]> {
+  const map = new Map<Weapon, FiringPath[]>();
+  for (const p of paths) {
+    if (!map.has(p.weapon)) map.set(p.weapon, []);
+    map.get(p.weapon)!.push(p);
+  }
+  return map;
+}
+
 interface WeaponBindVizProps {
-  weaponBinds: WeaponBind[];
+  firingPaths: FiringPath[];
   movement?: MovementKeys;
   showMovement?: boolean;
   /** When true, show weapon sprite icons. When false, show large colored acronyms. */
@@ -47,18 +56,10 @@ interface WeaponBindVizProps {
 }
 
 export default function WeaponBindViz(props: WeaponBindVizProps) {
-  // Index weapon binds by weapon name for quick lookup
-  const bindsByWeapon = () => {
-    const map = new Map<string, WeaponBind[]>();
-    for (const wb of props.weaponBinds) {
-      const existing = map.get(wb.weapon) ?? [];
-      existing.push(wb);
-      map.set(wb.weapon, existing);
-    }
-    return map;
-  };
+  // Group firing paths by weapon for the grid
+  const pathsByWeapon = () => groupByWeapon(props.firingPaths);
 
-  // Build mouse button highlights from movement + weapon binds
+  // Build mouse button highlights from movement + firing paths
   const mouseHighlights = (): MouseHighlights => {
     const hl: MouseHighlights = {};
     // Movement highlights (jump, move keys on mouse)
@@ -71,18 +72,18 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
         if (btn) hl[btn] = "oklch(0.76 0.13 235)"; // blue (movement)
       }
     }
-    // Weapon highlights (key itself or fire_key on mouse)
-    for (const wb of props.weaponBinds) {
-      const btn = toMouseButton(wb.key);
-      if (btn) hl[btn] = WEAPON_COLORS[wb.weapon] ?? "oklch(0.5 0.05 0)";
-      if (wb.fire_key) {
-        const fireBtn = toMouseButton(wb.fire_key);
+    // Weapon highlights (trigger key or fire_key on mouse)
+    for (const fp of props.firingPaths) {
+      const btn = toMouseButton(fp.trigger_key);
+      if (btn) hl[btn] = WEAPON_COLORS[fp.weapon] ?? "oklch(0.5 0.05 0)";
+      if (fp.fire_key) {
+        const fireBtn = toMouseButton(fp.fire_key);
         if (fireBtn && !hl[fireBtn]) {
           hl[fireBtn] = "oklch(0.55 0.06 250)"; // neutral fire button
         }
       }
     }
-    // Extra highlights (teamsay etc.) — don't override existing
+    // Extra highlights (teamsay etc.) -- don't override existing
     if (props.extraMouseHighlights) {
       for (const [key, color] of Object.entries(props.extraMouseHighlights)) {
         if (!hl[key as keyof MouseHighlights]) {
@@ -104,11 +105,9 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
       <div class="sg-weapon-grid">
         <For each={ALL_WEAPONS}>
           {(weapon) => {
-            const binds = () => bindsByWeapon().get(weapon);
-            const bound = () => !!binds();
+            const paths = () => pathsByWeapon().get(weapon as Weapon);
+            const bound = () => !!paths()?.length;
             const color = WEAPON_COLORS[weapon] ?? "oklch(0.5 0.05 0)";
-            // Use first bind for display (most players have one per weapon)
-            const primary = () => binds()?.[0];
 
             return (
               <div class="sg-weapon-cell" classList={{ "sg-weapon-cell-unbound": !bound() }}>
@@ -127,28 +126,46 @@ export default function WeaponBindViz(props: WeaponBindVizProps) {
                     class="sg-weapon-cell-icon"
                   />
                 </Show>
-                {/* Bind info (only when bound) */}
-                <Show when={primary()}>
-                  {(wb) => {
-                    const isManual = wb().method === "manual";
-                    return (
-                      <>
-                        <span class="sg-weapon-cell-method" classList={{
-                          "sg-weapon-bind-quickfire": !isManual,
-                          "sg-weapon-bind-manual": isManual,
-                        }}>
-                          {wb().method}
-                        </span>
-                        <span class="sg-weapon-cell-bind">
-                          <span class="sg-keycap">{wb().key}</span>
-                          <Show when={isManual && wb().fire_key}>
-                            <span class="sg-weapon-cell-arrow">&rarr;</span>
-                            <span class="sg-keycap">{wb().fire_key}</span>
+                {/* One row per firing path when bound */}
+                <Show when={bound()}>
+                  <For each={paths()}>
+                    {(path, i) => {
+                      const isDefault = path.source === "engine_default";
+                      const methodLabel = path.method === "quickfire"
+                        ? "quickfire"
+                        : `manual-${path.flavor}`;
+                      return (
+                        <div
+                          class="sg-firing-path-row"
+                          classList={{ "opacity-50": isDefault }}
+                          title={path.origin_alias_chain.length > 0
+                            ? path.origin_alias_chain.join(" -> ")
+                            : undefined}
+                        >
+                          <span class="sg-weapon-cell-bind">
+                            <span class="sg-keycap">{path.trigger_key}</span>
+                            <Show when={path.method === "manual" && path.fire_key}>
+                              <span class="sg-weapon-cell-arrow">&rarr;</span>
+                              <span class="sg-keycap">{path.fire_key}</span>
+                            </Show>
+                          </span>
+                          <span
+                            class="badge badge-sm sg-weapon-cell-method"
+                            classList={{
+                              "badge-primary": path.method === "quickfire",
+                              "badge-secondary": path.method === "manual" && path.flavor === "select",
+                              "badge-accent": path.method === "manual" && path.flavor === "hold",
+                            }}
+                          >
+                            {methodLabel}
+                          </span>
+                          <Show when={isDefault}>
+                            <span class="text-xs italic opacity-60">(default)</span>
                           </Show>
-                        </span>
-                      </>
-                    );
-                  }}
+                        </div>
+                      );
+                    }}
+                  </For>
                 </Show>
               </div>
             );

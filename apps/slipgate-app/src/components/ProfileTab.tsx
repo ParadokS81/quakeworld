@@ -107,7 +107,7 @@ export default function ProfileTab(props: ProfileTabProps) {
     if (showWeapons()) {
       const binds = props.ezConfig?.weapon_binds ?? [];
       for (const wb of binds) {
-        const layoutId = toLayoutId(wb.key);
+        const layoutId = toLayoutId(wb.trigger_key);
         if (layoutId) {
           const color = WEAPON_COLORS[wb.weapon] ?? "oklch(0.5 0.05 0)";
           highlights.set(layoutId, { color });
@@ -173,7 +173,7 @@ export default function ProfileTab(props: ProfileTabProps) {
     // Weapon labels
     if (showWeapons()) {
       for (const wb of cfg.weapon_binds) {
-        const id = toLayoutId(wb.key);
+        const id = toLayoutId(wb.trigger_key);
         if (id) {
           const existing = labels.get(id);
           const wLabel = WEAPON_LABELS[wb.weapon] ?? wb.weapon.toUpperCase();
@@ -590,7 +590,7 @@ export default function ProfileTab(props: ProfileTabProps) {
                 <Show when={bindVizMode()}>
                   <Show when={showWeapons() && (props.ezConfig?.weapon_binds?.length ?? 0) > 0}>
                     <WeaponBindViz
-                      weaponBinds={props.ezConfig!.weapon_binds}
+                      firingPaths={props.ezConfig!.weapon_binds}
                       movement={props.ezConfig!.movement}
                       showMovement={showMovement()}
                       showIcons={showWeaponIcons()}
