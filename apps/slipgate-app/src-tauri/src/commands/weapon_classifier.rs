@@ -278,7 +278,39 @@ pub fn classify_firing_paths(
         let resolved = resolve_bind_chain(key, command, aliases, 10);
         extract_paths_from_resolved(key, &resolved, &fire_keys, cvars, aliases, &mut paths);
     }
+    emit_engine_defaults(bindings, &fire_keys, &mut paths);
     paths
+}
+
+fn emit_engine_defaults(
+    bindings: &[(String, String)],
+    fire_keys: &FireKeyClasses,
+    out: &mut Vec<FiringPath>,
+) {
+    if fire_keys.generic_fire_keys.is_empty() {
+        return;
+    }
+    let explicitly_bound: std::collections::HashSet<&str> =
+        bindings.iter().map(|(k, _)| k.as_str()).collect();
+    for n in 1u8..=8u8 {
+        let key = n.to_string();
+        if explicitly_bound.contains(key.as_str()) {
+            continue;
+        }
+        let Some(weapon) = Weapon::from_impulse(n) else { continue };
+        for fire_key in &fire_keys.generic_fire_keys {
+            out.push(FiringPath {
+                weapon,
+                method: Method::Manual,
+                flavor: Some(ManualFlavor::Select),
+                trigger_key: key.clone(),
+                fire_key: Some(fire_key.clone()),
+                source: PathSource::EngineDefault,
+                mechanism: Mechanism::GenericFireKey,
+                origin_alias_chain: vec![format!("bind {} \"impulse {}\" (engine default)", key, n)],
+            });
+        }
+    }
 }
 
 fn extract_paths_from_resolved(
@@ -745,5 +777,47 @@ mod tests {
         assert_eq!(q_paths[0].method, Method::Manual);
         assert_eq!(q_paths[0].flavor, Some(ManualFlavor::Select));
         assert_eq!(q_paths[0].mechanism, Mechanism::PreselectWeapon);
+    }
+
+    #[test]
+    fn weapon_specific_fire_key_emits_quickfire_path() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            alias +rocket "weapon 7;+attack"
+            alias -rocket "-attack"
+            bind mouse1 +rocket
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let mouse1_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "mouse1").collect();
+        assert_eq!(mouse1_paths.len(), 1);
+        assert_eq!(mouse1_paths[0].weapon, Weapon::Rl);
+        assert_eq!(mouse1_paths[0].method, Method::Quickfire);
+    }
+
+    #[test]
+    fn engine_default_number_keys_emit_paths_when_unbound() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind q "weapon 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        // Number keys 1-8 are not explicitly bound; expect 8 engine-default manual paths.
+        let defaults: Vec<_> = paths.iter().filter(|p| p.source == PathSource::EngineDefault).collect();
+        assert_eq!(defaults.len(), 8);
+        let weapons: HashMap<&str, Weapon> = defaults.iter().map(|p| (p.trigger_key.as_str(), p.weapon)).collect();
+        assert_eq!(weapons.get("1"), Some(&Weapon::Axe));
+        assert_eq!(weapons.get("7"), Some(&Weapon::Rl));
+        assert_eq!(weapons.get("8"), Some(&Weapon::Lg));
+    }
+
+    #[test]
+    fn explicit_number_key_bind_overrides_engine_default() {
+        let (bindings, aliases, cvars) = parse_test_config(r#"
+            bind mouse1 +attack
+            bind 7 "impulse 7"
+        "#);
+        let paths = classify_firing_paths(&bindings, &aliases, &cvars);
+        let seven_paths: Vec<_> = paths.iter().filter(|p| p.trigger_key == "7").collect();
+        assert_eq!(seven_paths.len(), 1);
+        assert_eq!(seven_paths[0].source, PathSource::Explicit);
     }
 }
