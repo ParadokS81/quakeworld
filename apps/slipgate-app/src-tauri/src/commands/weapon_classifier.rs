@@ -125,4 +125,74 @@ mod tests {
         let paths = classify_firing_paths(&[], &HashMap::new(), &HashMap::new());
         assert!(paths.is_empty());
     }
+
+    /// Parse a minimal test config string into `(bindings, aliases, cvars)` for classifier tests.
+    ///
+    /// Supports only `bind`, `alias`, and cvar assignments - sufficient for the classifier's
+    /// input without pulling in the full config parser.
+    fn parse_test_config(src: &str) -> (Vec<(String, String)>, HashMap<String, String>, HashMap<String, String>) {
+        let mut bindings = Vec::new();
+        let mut aliases = HashMap::new();
+        let mut cvars = HashMap::new();
+        for raw in src.lines() {
+            let line = raw.split("//").next().unwrap_or("").trim();
+            if line.is_empty() {
+                continue;
+            }
+            // Tokenize respecting double-quoted strings.
+            let tokens = tokenize_line(line);
+            if tokens.is_empty() {
+                continue;
+            }
+            match tokens[0].as_str() {
+                "bind" if tokens.len() >= 3 => {
+                    bindings.push((tokens[1].clone(), tokens[2..].join(" ")));
+                }
+                "alias" if tokens.len() >= 3 => {
+                    aliases.insert(tokens[1].clone(), tokens[2..].join(" "));
+                }
+                _ if tokens.len() == 2 => {
+                    cvars.insert(tokens[0].clone(), tokens[1].clone());
+                }
+                _ => {}
+            }
+        }
+        (bindings, aliases, cvars)
+    }
+
+    fn tokenize_line(line: &str) -> Vec<String> {
+        let mut tokens = Vec::new();
+        let mut current = String::new();
+        let mut in_quotes = false;
+        for ch in line.chars() {
+            match ch {
+                '"' => {
+                    in_quotes = !in_quotes;
+                }
+                c if c.is_whitespace() && !in_quotes => {
+                    if !current.is_empty() {
+                        tokens.push(std::mem::take(&mut current));
+                    }
+                }
+                c => current.push(c),
+            }
+        }
+        if !current.is_empty() {
+            tokens.push(current);
+        }
+        tokens
+    }
+
+    #[test]
+    fn parse_test_config_handles_quoted_bind_body() {
+        let (bindings, aliases, _cvars) = parse_test_config(r#"
+            alias +rock "weapon 7;+attack"
+            bind q "+rock"
+            bind mouse1 +attack
+        "#);
+        assert_eq!(bindings.len(), 2);
+        assert_eq!(bindings[0], ("q".to_string(), "+rock".to_string()));
+        assert_eq!(bindings[1], ("mouse1".to_string(), "+attack".to_string()));
+        assert_eq!(aliases.get("+rock"), Some(&"weapon 7;+attack".to_string()));
+    }
 }
