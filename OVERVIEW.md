@@ -40,11 +40,14 @@ Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW
 
 ### qw-oracle
 
-**Status:** Paused.
+**Status:** Planning -> POC. Ready for implementation as of 2026-04-14.
 
-Community knowledge base. Node.js + SQLite archive containing 2.66M Discord messages plus structured imports of forum threads, match data, and player profiles. The ambitious vision is a comprehensive queryable QW history. Today it is mostly a large SQLite file with an import pipeline.
+Being repurposed as the **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts from source code / interpreted claims from chat logs / curated concept notes) served over MCP so any LLM client can consume it. The existing 2.66M-message SQLite corpus becomes Layer 2; Layer 1 imports the pre-extracted cvar/command JSON from `packages/qw-config/src/data/` with canonical IDs; Layer 3 is hand-authored markdown with cross-layer references. First consumer is Claude Code via a local MCP, with future outlets planned for Quad (Discord), slipgate web, and the Slipgate helper panel.
 
-Full context: `apps/qw-oracle/CLAUDE.md`.
+Design spec: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`.
+Implementation plan: `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md`.
+
+Full context: `apps/qw-oracle/CLAUDE.md` (still frames the project as chat-corpus-only; the rewrite is the first task of the POC plan).
 
 ## Integration map
 
