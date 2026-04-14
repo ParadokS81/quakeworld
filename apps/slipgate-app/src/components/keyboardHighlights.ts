@@ -45,6 +45,10 @@ export function buildKeyHighlights(
   toggles: HighlightToggles,
 ): Map<string, KeyHighlight> {
   const highlights = new Map<string, KeyHighlight>();
+  // Note: showMovement has no effect here. Movement keys are labeled
+  // (arrow glyphs) in buildKeyLabels but never color-tinted in the
+  // highlight map. The field lives on HighlightToggles because
+  // buildKeyLabels also consumes it.
   if (toggles.showWeapons) {
     for (const wb of input.weapon_binds) {
       const id = toLayoutId(wb.trigger_key);
