@@ -14,6 +14,7 @@ import ConfigTriggersSection from "./ConfigTriggersSection";
 import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
+import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
 
 interface ConfigViewerProps {
@@ -182,6 +183,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const isCompareMode = () => compareCvars().size > 0;
+
+  const isBindsSectionFocused = createMemo(() => {
+    const row2 = activeRow2();
+    return row2.has("weapons:binds") || row2.has("teamplay:binds") || row2.has("movement:binds");
+  });
 
   // ── Alias + bind command maps for chain expansion ──
   const primaryAliases = createMemo((): Record<string, string> =>
@@ -892,6 +898,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   </div>
                 </Show>
               </div>
+              <Show when={isBindsSectionFocused()}>
+                <ConfigKeyboardPanel
+                  primary={effectiveConfig()}
+                  compare={isCompareMode() ? compareBinds() : null}
+                  compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
+                />
+              </Show>
               <SectionMinimap scrollContainer={contentScrollEl} />
               </div>
             </div>
