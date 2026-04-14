@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`
 
-**Branch:** Recommend creating a fresh branch `feature/qw-oracle-poc` from `main` before starting. The current session is on `fix/slipgate-ts-cleanup` which is unrelated. Do not execute this plan on top of unrelated work.
+**Worktree:** This plan runs in the dedicated POC worktree at `/home/paradoks/projects/quakeworld-poc/` on the long-lived `poc` branch. The monorepo uses a worktree-per-terminal model (see `memory/feedback_worktree_per_terminal.md`) — slipgate work stays in the main tree, oracle POC work stays in this worktree. Do NOT cut feature branches inside the worktree; commit directly to `poc`. When the POC stabilizes, the main-tree session merges `poc` → `main`.
 
 **Testing philosophy:** Per monorepo CLAUDE.md, no TDD and no speculative test infrastructure. Each task has a manual-verification step: run the script, query the DB, call the tool, check the output is sensible. Parser-ish tasks use one-shot verification scripts (`scripts/verify-*.mjs`) that print sample rows for visual check, not test suites.
 
@@ -128,16 +128,15 @@ Expected total effort: ~6-10 hours of agentic work, split across 2-4 sessions de
 - Create: `apps/qw-oracle/layers/README.md`
 - Create: `apps/qw-oracle/serve/README.md`
 
-- [ ] **Step 1: Create fresh branch from main**
+- [ ] **Step 1: Verify worktree and branch**
 
 ```bash
-cd /home/paradoks/projects/quakeworld
-git checkout main
-git pull
-git checkout -b feature/qw-oracle-poc
+pwd
+git branch --show-current
+git status
 ```
 
-Expected: on a clean `feature/qw-oracle-poc` branch.
+Expected: `pwd` prints `/home/paradoks/projects/quakeworld-poc`, current branch is `poc`, working tree clean. If any of these are wrong, stop and ask — you are not in the POC worktree.
 
 - [ ] **Step 2: Read the current `apps/qw-oracle/CLAUDE.md`** so you understand what's there before editing. Do not paraphrase from memory — read the file.
 
