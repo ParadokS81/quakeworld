@@ -166,10 +166,16 @@ export function categorizeBinds(
   compareClassification?: ChainBindClassification | null,
   compareRawCommands?: Record<string, string>,
 ): EnrichedBind[] {
-  // Build lookup maps
-  const weaponByKey = new Map<string, WeaponBind>();
+  // Build lookup maps. Weapons are grouped into arrays because a single trigger
+  // key can produce multiple FiringPaths (e.g., a hybrid key that emits both a
+  // quickfire SSG and a manual-select SSG via persistent mouse1 rebind). Teamsay
+  // stays 1-to-1 — one key, at most one teamsay bind.
+  const weaponByKey = new Map<string, WeaponBind[]>();
   for (const wb of weaponBinds) {
-    weaponByKey.set(wb.trigger_key.toUpperCase(), wb);
+    const k = wb.trigger_key.toUpperCase();
+    const arr = weaponByKey.get(k);
+    if (arr) arr.push(wb);
+    else weaponByKey.set(k, [wb]);
   }
 
   const teamsayByKey = new Map<string, TeamsayBind>();
@@ -199,20 +205,23 @@ export function categorizeBinds(
     }
   }
 
-  // Build compare lookup maps
-  const cmpWeaponByKey = new Map<string, WeaponBind>();
+  // Build compare lookup maps. Same grouping pattern as primary.
+  const cmpWeaponByKey = new Map<string, WeaponBind[]>();
   const cmpTeamsayByKey = new Map<string, TeamsayBind>();
-  const cmpAllKeys = new Set<string>();
   if (compareClassification) {
     for (const wb of compareClassification.weapon_binds) {
-      cmpWeaponByKey.set(wb.trigger_key.toUpperCase(), wb);
-      cmpAllKeys.add(wb.trigger_key.toUpperCase());
+      const k = wb.trigger_key.toUpperCase();
+      const arr = cmpWeaponByKey.get(k);
+      if (arr) arr.push(wb);
+      else cmpWeaponByKey.set(k, [wb]);
     }
     for (const tb of compareClassification.teamsay_binds) {
       cmpTeamsayByKey.set(tb.key.toUpperCase(), tb);
-      cmpAllKeys.add(tb.key.toUpperCase());
     }
   }
+  // Track which compare (key, weapon) pairs got paired with a primary row so
+  // the right-only loop below doesn't duplicate them.
+  const matchedCmpWeapons = new Set<string>();
 
   const seenKeys = new Set<string>();
   const result: EnrichedBind[] = [];
@@ -223,29 +232,70 @@ export function categorizeBinds(
     if (!command.trim()) continue;
     seenKeys.add(keyUpper);
 
-    const wb = weaponByKey.get(keyUpper);
+    const wbs = weaponByKey.get(keyUpper) ?? [];
     const tb = teamsayByKey.get(keyUpper);
     const sourceFile = sourceFileByKey.get(keyUpper) ?? "";
-
-    // Compare data for this key
-    const cmpWb = cmpWeaponByKey.get(keyUpper);
+    const cmpWbs = cmpWeaponByKey.get(keyUpper) ?? [];
     const cmpTb = cmpTeamsayByKey.get(keyUpper);
-    const hasRight = cmpWb != null || cmpTb != null;
     const cmpRawCmd = compareRawCommands?.[keyUpper];
-    const compareData = cmpWb
-      ? { compareCommand: cmpRawCmd, compareCategory: "weapons" as const, compareLabel: cmpWb.weapon.toUpperCase(), compareDescription: cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}` }
+
+    // Weapons branch: emit one row per unique weapon on this key. A hybrid key
+    // that produces the same weapon via multiple FiringPaths (e.g., quickfire
+    // SSG + manual-select SSG) collapses to one row — the method/fire_key
+    // detail lives in the Weapons domain section, not in the flat Binds list.
+    if (wbs.length > 0) {
+      const primaryByWeapon = new Map<string, WeaponBind[]>();
+      for (const wb of wbs) {
+        const arr = primaryByWeapon.get(wb.weapon);
+        if (arr) arr.push(wb);
+        else primaryByWeapon.set(wb.weapon, [wb]);
+      }
+      const compareByWeapon = new Map<string, WeaponBind[]>();
+      for (const cmpWb of cmpWbs) {
+        const arr = compareByWeapon.get(cmpWb.weapon);
+        if (arr) arr.push(cmpWb);
+        else compareByWeapon.set(cmpWb.weapon, [cmpWb]);
+      }
+      for (const [weapon, paths] of primaryByWeapon) {
+        const methodDesc = paths
+          .map((p) => p.method === "quickfire" ? `${p.weapon} quickfire` : `${p.weapon} manual → ${p.fire_key}`)
+          .join("; ");
+        const matchedCmpPaths = compareByWeapon.get(weapon) ?? [];
+        if (matchedCmpPaths.length > 0) {
+          matchedCmpWeapons.add(`${keyUpper}|${weapon}`);
+        }
+        const cmpMethodDesc = matchedCmpPaths
+          .map((p) => p.method === "quickfire" ? `${p.weapon} quickfire` : `${p.weapon} manual → ${p.fire_key}`)
+          .join("; ");
+        const rowCompareData = matchedCmpPaths.length > 0
+          ? { compareCommand: cmpRawCmd, compareCategory: "weapons" as const, compareLabel: weapon.toUpperCase(), compareDescription: cmpMethodDesc }
+          : {};
+        result.push({
+          key: paths[0].trigger_key, command, category: "weapons",
+          label: weapon.toUpperCase(),
+          description: methodDesc,
+          sourceFile, hasLeft: true, hasRight: matchedCmpPaths.length > 0, ...rowCompareData,
+        });
+      }
+      continue;
+    }
+
+    // Non-weapon branches use a single compareData derived from cmpWbs[0] (if any)
+    // as a fallback — preserves the pre-multi-path behavior for cross-category
+    // compare display. Mark the fallback weapon as matched so the right-only loop
+    // doesn't emit a duplicate row for it.
+    const cmpWbFallback = cmpWbs[0];
+    if (cmpWbFallback) {
+      matchedCmpWeapons.add(`${keyUpper}|${cmpWbFallback.weapon}`);
+    }
+    const hasRight = cmpWbFallback != null || cmpTb != null;
+    const compareData = cmpWbFallback
+      ? { compareCommand: cmpRawCmd, compareCategory: "weapons" as const, compareLabel: cmpWbFallback.weapon.toUpperCase(), compareDescription: cmpWbFallback.method === "quickfire" ? `${cmpWbFallback.weapon} quickfire` : `${cmpWbFallback.weapon} manual → ${cmpWbFallback.fire_key}` }
       : cmpTb
         ? { compareCommand: cmpRawCmd, compareCategory: "teamsay" as const, compareLabel: cmpTb.label, compareDescription: cmpTb.description }
         : {};
 
-    if (wb) {
-      result.push({
-        key: wb.trigger_key, command, category: "weapons",
-        label: wb.weapon.toUpperCase(),
-        description: wb.method === "quickfire" ? `${wb.weapon} quickfire` : `${wb.weapon} manual → ${wb.fire_key}`,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
-    } else if (tb) {
+    if (tb) {
       result.push({
         key: tb.key, command, category: "teamsay",
         label: tb.label, description: tb.description,
@@ -296,26 +346,38 @@ export function categorizeBinds(
     }
   }
 
-  // Add right-only binds (exist in compare but not in primary)
+  // Add right-only rows — compare classifications not paired with a primary row.
+  // Weapons are path-level (per unique key, weapon) so hybrid compare keys show
+  // all their weapons. Teamsays stay key-level since they're 1-to-1.
   if (compareClassification) {
-    for (const keyUpper of cmpAllKeys) {
-      if (seenKeys.has(keyUpper)) continue;
-
-      const cmpWb = cmpWeaponByKey.get(keyUpper);
-      const cmpTb = cmpTeamsayByKey.get(keyUpper);
-      const cat = cmpWb ? "weapons" as const : cmpTb ? "teamsay" as const : "misc" as const;
-      const label = cmpWb ? cmpWb.weapon.toUpperCase() : cmpTb ? cmpTb.label : "";
-      const desc = cmpWb
-        ? (cmpWb.method === "quickfire" ? `${cmpWb.weapon} quickfire` : `${cmpWb.weapon} manual → ${cmpWb.fire_key}`)
-        : cmpTb ? cmpTb.description : "";
-      const displayKey = cmpWb?.trigger_key ?? cmpTb?.key ?? keyUpper;
-
+    const emittedRightOnlyWeapons = new Set<string>();
+    for (const cmpWb of compareClassification.weapon_binds) {
+      const keyUpper = cmpWb.trigger_key.toUpperCase();
+      const identity = `${keyUpper}|${cmpWb.weapon}`;
+      if (matchedCmpWeapons.has(identity)) continue;
+      if (emittedRightOnlyWeapons.has(identity)) continue;
+      emittedRightOnlyWeapons.add(identity);
+      const paths = (cmpWeaponByKey.get(keyUpper) ?? []).filter((p) => p.weapon === cmpWb.weapon);
+      const desc = paths
+        .map((p) => p.method === "quickfire" ? `${p.weapon} quickfire` : `${p.weapon} manual → ${p.fire_key}`)
+        .join("; ");
       result.push({
-        key: displayKey, command: "", category: cat,
+        key: cmpWb.trigger_key, command: "", category: "weapons",
         label: "", description: "",
         sourceFile: "", hasLeft: false, hasRight: true,
         compareCommand: compareRawCommands?.[keyUpper],
-        compareCategory: cat, compareLabel: label, compareDescription: desc,
+        compareCategory: "weapons", compareLabel: cmpWb.weapon.toUpperCase(), compareDescription: desc,
+      });
+    }
+    for (const cmpTb of compareClassification.teamsay_binds) {
+      const keyUpper = cmpTb.key.toUpperCase();
+      if (seenKeys.has(keyUpper)) continue;
+      result.push({
+        key: cmpTb.key, command: "", category: "teamsay",
+        label: "", description: "",
+        sourceFile: "", hasLeft: false, hasRight: true,
+        compareCommand: compareRawCommands?.[keyUpper],
+        compareCategory: "teamsay", compareLabel: cmpTb.label, compareDescription: cmpTb.description,
       });
     }
   }
