@@ -10,6 +10,7 @@
 | Why this monorepo exists, workshop framing, graduation paths | `VISION.md` |
 | Living map: integration diagram, per-app status, packages, contracts | `OVERVIEW.md` |
 | Cross-project specs index | `contracts/README.md` |
+| Deferred items from prior wrap-ups (todo state, not memory) | `HANDOVER.md` |
 | Always-loaded mindset docs | `.claude/skills/philosophy/` (auto-imported below) |
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |

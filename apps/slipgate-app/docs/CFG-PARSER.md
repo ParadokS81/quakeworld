@@ -209,16 +209,11 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 
 **The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from qw-config. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
 
-### 10. Rocket jump detection
-
-A bind whose resolved command contains both `+attack` AND `+jump` is a rocket jump (weapon+attack+jump = movement, not weapon selection). Filtered out of weapon binds in all three classification paths (direct, rebind, rebind-fallback) via the `has_jump()` helper.
-
-### 11. Future categories (still open)
+### 10. Future categories (still open)
 
 - **HUD layout** — extract `hud_*` cvars for HUD visualization
 - **Visual settings** — `r_drawflat`, `gl_picmip`, particle settings
 - **Network settings** — `rate`, `cl_c2sdupe`, `cl_timeout`
-- **Weapon preselect system** — new ezQuake feature not yet accounted for in the classifier. See weapon bind classifier rewrite handoff.
 
 ## Test configs
 
@@ -230,7 +225,6 @@ A bind whose resolved command contains both `+attack` AND `+jump` is a rocket ju
 
 ## Edge cases and limitations
 
-- **Multi-file configs**: exec references not yet followed
 - **Conditional aliases**: `tempalias` with `if`/`then`/`else` not resolved (used for teamplay, not weapon binds)
 - **Runtime state**: some binds change during gameplay (e.g., mouse1 rebinding). Parser sees config-save-time state.
 - **Custom mods**: TF, CTF, and other mods may have different impulse mappings
