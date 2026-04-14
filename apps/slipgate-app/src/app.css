@@ -1853,8 +1853,11 @@ input[type="number"] {
   background: color-mix(in oklch, var(--color-primary) 25%, transparent);
   border: 1px solid color-mix(in oklch, var(--color-primary) 60%, transparent);
   border-radius: 2px;
-  pointer-events: none;
+  cursor: grab;
   transition: top 0.05s linear;
+}
+.sg-section-minimap-viewport:active {
+  cursor: grabbing;
 }
 
 /* ─── ConfigViewer: trigger rows ────────────────────────────────────── */

@@ -24,6 +24,7 @@ export default function SectionMinimap(props: SectionMinimapProps) {
   const [scrollTop, setScrollTop] = createSignal(0);
   const [scrollHeight, setScrollHeight] = createSignal(0);
   const [clientHeight, setClientHeight] = createSignal(0);
+  let trackEl: HTMLDivElement | undefined;
 
   // Recompute section positions + overflow on scroll/resize/content change
   function recomputeSections() {
@@ -115,10 +116,41 @@ export default function SectionMinimap(props: SectionMinimapProps) {
     return (clientHeight() / sh) * 100;
   };
 
+  // Drag-to-scroll on the viewport thumb. Maps pixel drag on the track to
+  // the content's scrollable range so a full-range thumb drag equals a
+  // full-range scroll — standard scrollbar semantics.
+  function handleViewportMouseDown(e: MouseEvent) {
+    const container = props.scrollContainer();
+    if (!container || !trackEl) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startY = e.clientY;
+    const startScrollTop = container.scrollTop;
+    const trackPx = trackEl.clientHeight;
+    const viewportPx = trackPx * (container.clientHeight / container.scrollHeight);
+    const scrollableTrackPx = trackPx - viewportPx;
+    const scrollableContentPx = container.scrollHeight - container.clientHeight;
+
+    if (scrollableTrackPx <= 0 || scrollableContentPx <= 0) return;
+
+    const onMove = (ev: MouseEvent) => {
+      const deltaY = ev.clientY - startY;
+      const next = startScrollTop + (deltaY / scrollableTrackPx) * scrollableContentPx;
+      container.scrollTop = Math.max(0, Math.min(scrollableContentPx, next));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
   return (
     <Show when={hasOverflow()}>
       <div class="sg-section-minimap">
-        <div class="sg-section-minimap-track">
+        <div class="sg-section-minimap-track" ref={trackEl}>
           {/* Track line */}
           <div class="sg-section-minimap-line" />
           {/* Section ticks + labels */}
@@ -149,6 +181,7 @@ export default function SectionMinimap(props: SectionMinimapProps) {
               top: `${viewportTopPct()}%`,
               height: `${viewportHeightPct()}%`,
             }}
+            onMouseDown={handleViewportMouseDown}
           />
         </div>
       </div>
