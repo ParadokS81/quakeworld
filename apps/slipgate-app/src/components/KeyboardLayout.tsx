@@ -285,7 +285,7 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
               rx={4}
               class={keyClass(k.id)}
               style={keyStyle(k.id)}
-              onClick={props.onKeyClick ? (e) => { e.stopPropagation(); props.onKeyClick!(k.id); } : undefined}
+              onClick={props.onKeyClick ? () => props.onKeyClick!(k.id) : undefined}
               cursor={props.onKeyClick ? "pointer" : undefined}
             />
             {(() => {
