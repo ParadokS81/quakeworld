@@ -27,7 +27,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     unlisten = await appWindow.onDragDropEvent((event) => {
       if (event.payload.type === "over") {
         setIsDragOver(true);
-      } else if (event.payload.type === "leave" || event.payload.type === "cancel") {
+      } else if (event.payload.type === "leave") {
         setIsDragOver(false);
       } else if (event.payload.type === "drop") {
         setIsDragOver(false);

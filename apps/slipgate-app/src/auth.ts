@@ -12,6 +12,11 @@ interface OAuthCallbackResult {
   redirect_uri: string;
 }
 
+export interface AuthResult {
+  user: User;
+  discord: { discordUsername: string; discordUserId: string; discordAvatarHash: string } | null;
+}
+
 /**
  * Full Discord OAuth flow:
  * 1. Open Discord auth in system browser
@@ -19,7 +24,7 @@ interface OAuthCallbackResult {
  * 3. Exchange code via MatchScheduler cloud function → Firebase custom token
  * 4. Sign in to Firebase with the custom token
  */
-export async function startDiscordAuth(): Promise<User> {
+export async function startDiscordAuth(): Promise<AuthResult> {
   // Build Discord OAuth URL
   const discordUrl = new URL("https://discord.com/api/oauth2/authorize");
   discordUrl.searchParams.set("client_id", DISCORD_CLIENT_ID);
@@ -64,11 +69,6 @@ export async function startDiscordAuth(): Promise<User> {
     user,
     discord: data.user ?? null,
   };
-}
-
-export interface AuthResult {
-  user: User;
-  discord: { discordUsername: string; discordUserId: string; discordAvatarHash: string } | null;
 }
 
 export { logOut, onAuthChange };
