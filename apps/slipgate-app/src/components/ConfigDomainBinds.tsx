@@ -1,5 +1,5 @@
 import { createSignal, For, Show, type JSX } from "solid-js";
-import type { FiringPath, ManualFlavor, TeamsayBind, Weapon } from "../types";
+import type { FiringPath, ManualFlavor, MovementKeys, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry } from "./AliasChainResolver";
 import { WEAPON_COLORS } from "./WeaponBindViz";
@@ -520,6 +520,74 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                 }}
               </For>
             </>
+          );
+        }}
+      </For>
+    </div>
+  );
+}
+
+/* ─── Movement Binds ─────────────────────────────────────────────── */
+
+const MOVEMENT_ROWS: { key: keyof MovementKeys; label: string }[] = [
+  { key: "forward",   label: "Forward" },
+  { key: "back",      label: "Back" },
+  { key: "moveleft",  label: "Strafe Left" },
+  { key: "moveright", label: "Strafe Right" },
+  { key: "jump",      label: "Jump" },
+  { key: "moveup",    label: "Swim Up" },
+  { key: "movedown",  label: "Swim Down" },
+];
+
+interface ConfigMovementBindsSectionProps {
+  primary: MovementKeys;
+  compare?: MovementKeys | null;
+}
+
+export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProps) {
+  const isCompare = () => !!props.compare;
+
+  return (
+    <div>
+      <div class="sg-category-group-header">Movement Binds</div>
+
+      <div
+        class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
+        style="border-bottom: 1px solid var(--sg-stat-border)"
+      >
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
+        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+          {isCompare() ? "Your Bind" : "Key"}
+        </span>
+        <Show when={isCompare()}>
+          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+        </Show>
+      </div>
+
+      <For each={MOVEMENT_ROWS}>
+        {(row) => {
+          const yours = () => props.primary[row.key] || "--";
+          const theirs = () => props.compare ? (props.compare[row.key] || "--") : null;
+          return (
+            <div class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}>
+              <span class="text-[13px]">{row.label}</span>
+              <div>
+                <Show when={props.primary[row.key]} fallback={
+                  <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                }>
+                  <span class="sg-domain-keycap">{yours()}</span>
+                </Show>
+              </div>
+              <Show when={isCompare()}>
+                <div>
+                  <Show when={props.compare && props.compare[row.key]} fallback={
+                    <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                  }>
+                    <span class="sg-domain-keycap">{theirs()}</span>
+                  </Show>
+                </div>
+              </Show>
+            </div>
           );
         }}
       </For>

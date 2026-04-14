@@ -6,7 +6,7 @@ import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
 import ConfigBindsSection from "./ConfigBindsSection";
-import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection } from "./ConfigDomainBinds";
+import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection, ConfigMovementBindsSection } from "./ConfigDomainBinds";
 import ConfigAliasesSection from "./ConfigAliasesSection";
 import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
 import ConfigMacrosSection from "./ConfigMacrosSection";
@@ -809,6 +809,16 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
+                  />
+                </Show>
+
+                <Show when={activeRow2().has("movement:binds")}>
+                  <ConfigMovementBindsSection
+                    primary={effectiveConfig()?.movement ?? {
+                      forward: "", back: "", moveleft: "", moveright: "",
+                      jump: "", moveup: "", movedown: "",
+                    }}
+                    compare={isCompareMode() ? (compareBinds()?.movement ?? null) : null}
                   />
                 </Show>
 
