@@ -55,7 +55,7 @@ Start with `OVERVIEW.md` when returning to the project after a break.
 
 **Dev workflow:**
 - **Rust sync hook is live.** The monorepo's `PostToolUse` hook auto-rsyncs `src-tauri/` to the Windows build mirror after every edit. No manual sync needed — see `docs/DEVELOPMENT.md` for the details if something breaks.
-- **Branch before editing.** Never work directly on `main`. Feature branches, commit often, merge when it works.
+- **Commit to main.** Slipgate work happens in the main tree at `/home/paradoks/projects/quakeworld/` on branch `main`. Commit directly to `main` and push at natural checkpoints. Feature branches are for genuinely risky work only (big refactor, throwaway experiment) — otherwise commit on `main`. The `src-tauri/` rsync hook hardcodes the main-tree path, so slipgate must stay in the main tree — do not relocate to a worktree. See root `CLAUDE.md` § Git workflow for the full rules.
 - **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo — I won't repeat it here.
 
 **Things to know about the code:**
