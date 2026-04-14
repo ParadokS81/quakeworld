@@ -1979,3 +1979,47 @@ input[type="number"] {
   background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
 }
 
+.sg-config-kb-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  min-width: 0;
+  overflow: auto;
+}
+
+.sg-config-kb-toggle-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.sg-config-kb-wrap {
+  position: relative;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.sg-config-kb-frame-you {
+  border-color: color-mix(in oklch, oklch(0.65 0.18 230) 40%, transparent);
+  background: color-mix(in oklch, oklch(0.65 0.18 230) 4%, transparent);
+}
+
+.sg-config-kb-frame-them {
+  border-color: color-mix(in oklch, oklch(0.7 0.18 40) 40%, transparent);
+  background: color-mix(in oklch, oklch(0.7 0.18 40) 4%, transparent);
+}
+
+.sg-config-kb-label {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.5rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sg-section-label);
+  z-index: 1;
+}
+
