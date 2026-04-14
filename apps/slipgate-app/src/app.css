@@ -2035,3 +2035,12 @@ input[type="number"] {
   overflow: visible;
 }
 
+/* Shared click-to-pin selection marker used by weapon and teamsay bind rows.
+   Matches the neon frame color so the pin vocabulary stays consistent
+   between the keyboards and the bind list. */
+.sg-domain-bind-row-selected {
+  background: color-mix(in oklch, oklch(0.92 0.18 85) 10%, transparent);
+  border-left: 3px solid oklch(0.92 0.18 85);
+  padding-left: calc(16px - 3px);
+}
+

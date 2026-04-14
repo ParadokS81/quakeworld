@@ -1,18 +1,21 @@
-import { createSignal, createMemo, createEffect, onCleanup, Show } from "solid-js";
+import { createSignal, createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
-import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles, type KeyCommandMatch } from "./keyboardHighlights";
+import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles } from "./keyboardHighlights";
 
 interface ConfigKeyboardPanelProps {
   /** The primary (your) config. Null when no config is loaded. */
   primary: EzQuakeConfig | null;
   /** The compare chain's classified binds, when compare mode is active. */
   compare?: ChainBindClassification | null;
-  /** Filename of the comparison config, used as the label above the bottom keyboard. */
+  /** Filename of the comparison config. */
   compareName?: string | null;
   /** When false, the panel renders only a slim "Show keyboard" button. */
   visible: boolean;
   onToggleVisible: () => void;
+  /** External selection -- when set, keyboards highlight matching keys. */
+  selection: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null;
+  onSelectionChange: (sel: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null) => void;
 }
 
 const DEFAULT_TOGGLES: HighlightToggles = {
@@ -67,70 +70,45 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   const isCompare = () => props.compare != null && props.primary != null;
 
-  // Selection state: which side was clicked and the list of matched commands.
-  // When non-null, both keyboards render selectedKeyIds for those commands.
-  const [selection, setSelection] = createSignal<KeyCommandMatch[] | null>(null);
-
   // Derived: set of layout IDs to mark as selected on the "your" keyboard.
+  // Driven by the lifted selection prop so both keyboards and the bind list
+  // agree on what's pinned.
   const yourSelectedIds = createMemo<Set<string>>(() => {
-    const sel = selection();
+    const sel = props.selection;
     const input = primaryInput();
     if (!sel || !input) return new Set();
-    const ids = new Set<string>();
-    for (const match of sel) {
-      if (match.kind === "weapon" && match.weapon) {
-        for (const id of resolveCommandKeys(input, { kind: "weapon", weapon: match.weapon })) ids.add(id);
-      } else if (match.kind === "teamsay" && match.label) {
-        for (const id of resolveCommandKeys(input, { kind: "teamsay", label: match.label })) ids.add(id);
-      }
-    }
-    return ids;
+    return resolveCommandKeys(input, sel);
   });
 
-  // Derived: same for the "theirs" keyboard.
   const theirSelectedIds = createMemo<Set<string>>(() => {
-    const sel = selection();
+    const sel = props.selection;
     const input = compareInput();
     if (!sel || !input) return new Set();
-    const ids = new Set<string>();
-    for (const match of sel) {
-      if (match.kind === "weapon" && match.weapon) {
-        for (const id of resolveCommandKeys(input, { kind: "weapon", weapon: match.weapon })) ids.add(id);
-      } else if (match.kind === "teamsay" && match.label) {
-        for (const id of resolveCommandKeys(input, { kind: "teamsay", label: match.label })) ids.add(id);
-      }
-    }
-    return ids;
+    return resolveCommandKeys(input, sel);
   });
 
   function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
     if (!sideInput) return;
     const matches = identifyKeyCommands(sideInput, keyId);
     if (matches.length === 0) {
-      // Clicked an unbound key -- clear selection
-      setSelection(null);
+      props.onSelectionChange(null);
       return;
     }
-    // Click-again-to-dismiss: if current selection matches exactly, clear it
-    const current = selection();
-    if (current && current.length === matches.length && current.every((c, i) =>
-      c.kind === matches[i].kind &&
-      c.weapon === matches[i].weapon &&
-      c.label === matches[i].label
-    )) {
-      setSelection(null);
+    // Task 9 picks the first match. Task 10 widens this for multi-bind combos.
+    const first = matches[0];
+    const next = first.kind === "weapon"
+      ? { kind: "weapon" as const, weapon: first.weapon! }
+      : { kind: "teamsay" as const, label: first.label! };
+    // Click-again-to-dismiss
+    const cur = props.selection;
+    if (cur && cur.kind === next.kind &&
+        ((cur.kind === "weapon" && next.kind === "weapon" && cur.weapon === next.weapon) ||
+         (cur.kind === "teamsay" && next.kind === "teamsay" && cur.label === next.label))) {
+      props.onSelectionChange(null);
       return;
     }
-    setSelection(matches);
+    props.onSelectionChange(next);
   }
-
-  createEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelection(null);
-    };
-    window.addEventListener("keydown", handler);
-    onCleanup(() => window.removeEventListener("keydown", handler));
-  });
 
   return (
     <div class="sg-config-kb-panel" classList={{ "sg-config-kb-panel-collapsed": !props.visible }}>

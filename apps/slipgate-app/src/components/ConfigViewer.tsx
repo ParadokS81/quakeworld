@@ -148,6 +148,28 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
   onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
 
+  // Shared selection for click-to-pin linking between keyboard and bind list.
+  // Matched by canonical command identity so both sides agree.
+  type BindSelection = { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null;
+  const [bindSelection, setBindSelection] = createSignal<BindSelection>(null);
+
+  function handleEscSelection(e: KeyboardEvent) {
+    if (e.key === "Escape") setBindSelection(null);
+  }
+  if (typeof window !== "undefined") {
+    window.addEventListener("keydown", handleEscSelection);
+    onCleanup(() => window.removeEventListener("keydown", handleEscSelection));
+  }
+
+  const selectedWeapon = createMemo(() => {
+    const sel = bindSelection();
+    return sel?.kind === "weapon" ? sel.weapon : null;
+  });
+  const selectedLabel = createMemo(() => {
+    const sel = bindSelection();
+    return sel?.kind === "teamsay" ? sel.label : null;
+  });
+
   function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
     if (hoverTimer) clearTimeout(hoverTimer);
@@ -835,6 +857,15 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
+                    selectedWeapon={selectedWeapon()}
+                    onWeaponClick={(w) => {
+                      const cur = bindSelection();
+                      if (cur && cur.kind === "weapon" && cur.weapon === w) {
+                        setBindSelection(null);
+                      } else {
+                        setBindSelection({ kind: "weapon", weapon: w });
+                      }
+                    }}
                   />
                 </Show>
 
@@ -856,6 +887,15 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
                     compareBindCommands={compareBindCommands()}
+                    selectedLabel={selectedLabel()}
+                    onLabelClick={(l) => {
+                      const cur = bindSelection();
+                      if (cur && cur.kind === "teamsay" && cur.label === l) {
+                        setBindSelection(null);
+                      } else {
+                        setBindSelection({ kind: "teamsay", label: l });
+                      }
+                    }}
                   />
                 </Show>
 
@@ -925,6 +965,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
                   visible={keyboardVisible()}
                   onToggleVisible={toggleKeyboardVisible}
+                  selection={bindSelection()}
+                  onSelectionChange={setBindSelection}
                 />
               </Show>
               <SectionMinimap scrollContainer={contentScrollEl} />

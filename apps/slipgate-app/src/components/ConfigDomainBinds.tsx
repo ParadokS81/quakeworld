@@ -80,6 +80,8 @@ function formatFiringSentence(p: FiringPath, color: string): JSX.Element {
 interface WeaponBindsProps {
   primaryBinds: FiringPath[];
   compareBinds?: FiringPath[];
+  selectedWeapon?: string | null;
+  onWeaponClick?: (weapon: string) => void;
 }
 
 interface DiffRow {
@@ -185,6 +187,8 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
           const isExpanded = () => expandedKey() === rk;
           const hasContent = !isPlaceholder;
 
+          const isSelected = () => !isPlaceholder && props.selectedWeapon === row.weapon;
+
           return (
             <>
               <div
@@ -193,8 +197,13 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                   "sg-cv-bind-only-left": isCompare() && !!row.primary && !row.compare,
                   "sg-cv-bind-only-right": isCompare() && !row.primary && !!row.compare,
                   "cursor-pointer": hasContent,
+                  "sg-domain-bind-row-selected": isSelected(),
                 }}
-                onClick={() => hasContent && toggleExpand(rk)}
+                onClick={() => {
+                  if (!hasContent) return;
+                  toggleExpand(rk);
+                  props.onWeaponClick?.(row.weapon);
+                }}
               >
                 {/* Weapon identity: color badge + short name + full name */}
                 <div class="flex items-center gap-2">
@@ -312,6 +321,8 @@ interface TeamsayBindsProps {
   compareAliases: Record<string, string>;
   primaryBindCommands: Record<string, string>;
   compareBindCommands: Record<string, string>;
+  selectedLabel?: string | null;
+  onLabelClick?: (label: string) => void;
 }
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
@@ -418,6 +429,8 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                   const isExpanded = () => expanded() === actionKey;
                   const hasAnyKey = () => !!action.primaryKey || !!action.compareKey;
 
+                  const isSelected = () => props.selectedLabel === action.label;
+
                   return (
                     <>
                       <div
@@ -426,9 +439,14 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                           "sg-cv-bind-only-left": isCompare() && !!action.primaryKey && !action.compareKey,
                           "sg-cv-bind-only-right": isCompare() && !action.primaryKey && !!action.compareKey,
                           "cursor-pointer": hasAnyKey(),
+                          "sg-domain-bind-row-selected": isSelected(),
                         }}
                         title={action.description}
-                        onClick={() => hasAnyKey() && toggleExpand(actionKey)}
+                        onClick={() => {
+                          if (!hasAnyKey()) return;
+                          toggleExpand(actionKey);
+                          props.onLabelClick?.(action.label);
+                        }}
                       >
                         <div class="flex items-center gap-1">
                           <span class="text-[11px] text-[var(--sg-section-label)] w-3">
