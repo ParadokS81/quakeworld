@@ -1,92 +1,135 @@
-# QW Oracle — QuakeWorld Community Knowledge Base
+# QW Oracle — QuakeWorld Knowledge Service
+
+## Status
+
+Active development. POC phase as of 2026-04-14. See spec: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` and plan: `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md`.
 
 ## What This Is
 
-A knowledge base and intelligence system built from 20 years of QuakeWorld community chat history. Ingests IRC logs (2005-2016) and Discord messages (2016-present) to build a searchable, summarizable archive of community knowledge.
+A polyglot knowledge service for QuakeWorld. One foundation with three layers, served over MCP so any LLM client can consume it.
 
-Part of a larger vision: combining chat logs, match data (100k+ matches from QW Hub), tournament history, forum archives, and community articles into a holistic QW knowledge system.
+- **Layer 1 — Extracted facts.** Deterministic ground truth from source code and structured files. Cvars, commands, macros, match records. SQLite. `layers/facts/`
+- **Layer 2 — Interpreted claims.** What the community said, distilled from 2.66M chat messages (IRC + Discord). SQLite + FTS5. `layers/claims/`
+- **Layer 3 — Curated concepts.** Hand-written markdown notes that cross-link Layers 1 and 2. Human expertise, LLM-multiplied. `layers/concepts/`
+- **Serve layer.** MCP server exposing tools over all three layers. `serve/mcp/`
 
-## Current State
+## Three-layer model
 
-- **Data imported**: 2.66 million messages in SQLite (`data/qw.db`)
-  - IRC (QuakeNet): 1.94M messages, 14 channels, 2005-2016
-  - Discord (Quake.World): 717k messages, 4 channels, 2016-2026
-- **Next step**: Build the processing pipeline (cleaning → summarization → newsletter)
-- **No processing code yet** — only import scripts and stats
+| Layer | Nature | Source | Pipeline | Storage |
+|---|---|---|---|---|
+| 1. Facts | Rigid | Source code, APIs | Parser -> normalize -> SQL | SQLite |
+| 2. Claims | Soft | Chat logs, forums | Filter -> session -> LLM summarize | SQLite + FTS5 |
+| 3. Concepts | Curated | Human + LLM | Hand-written | Markdown |
 
-## Data Sources
+## Canonical IDs
 
-### Imported
+Every entity has a stable ID of the form `<project>:<type>:<name>[@<version>]`:
 
-| Source | Platform | Messages | Date Range | Channels |
-|--------|----------|----------|------------|----------|
-| QuakeNet IRC (mIRC logs) | IRC | 1,943,975 | 2005-11 → 2016-06 | 14 channels |
-| Quake.World Discord | Discord | 717,389 | 2016-04 → 2026-02 | 4 channels |
+- `ezquake:cvar:cl_bob`
+- `ezquake:cmd:say_team`
+- `ktx:cmd:k_matchlock`
+- `fte:cvar:cl_rollspeed`
+- `session:2020-10-19-helpdesk-ciscon-001`
+- `concept:ktx_matchstart_injection`
 
-### Future Sources (Not Yet Imported)
-- More Discord channels (archived tournament channels, off-topic, etc.)
-- QW Hub match data (100k+ matches) — API access already working in `../quad/`
-- Forum databases from community sites
-- News articles and match reports from historical QW sites
-- Source code documentation (ezQuake, MVDSV, KTX)
-
-## Tech Stack
-
-- **Node.js 20+** with ES modules
-- **better-sqlite3** — database (data/qw.db, ~1.1 GB)
-- **Ollama** — local LLM inference (planned, not yet set up)
-- No TypeScript yet — plain .mjs scripts for now. Move to TS when the pipeline solidifies.
+Layer 2 and Layer 3 reference Layer 1 IDs in their metadata so cross-layer joins work at query time.
 
 ## Project Structure
 
-```
-qw-oracle/
-├── CLAUDE.md              # This file
-├── package.json
-├── .gitignore
-├── scripts/
-│   ├── db.mjs             # Shared DB setup and schema
-│   ├── import-discord.mjs  # Import Discord JSON exports → SQLite
-│   ├── import-irc.mjs      # Import mIRC log files → SQLite
-│   └── stats.mjs           # Database stats and analytics
-├── data/
-│   └── qw.db              # SQLite database (gitignored)
-├── docs/
-│   └── (see also: ../quad/docs/newsletter-research/ for detailed research)
-│       ├── overview.md         # High-level architecture vision
-│       ├── backfill.md         # Discord backfill strategies
-│       ├── local-llm.md        # 4090 model benchmarks, Ollama setup
-│       └── pipeline.md         # Three-layer processing architecture
-├── output/
-│   ├── daily/             # Future: daily digest markdown
-│   └── weekly/            # Future: weekly rollup markdown
-└── node_modules/
-```
+    qw-oracle/
+    |-- CLAUDE.md                  # This file
+    |-- VISION.md                  # Long-form vision
+    |-- data/
+    |   |-- qw.db                  # SQLite: messages (raw) + Layer 1 tables + Layer 2 tables (~1.1 GB)
+    |-- layers/
+    |   |-- facts/                 # Layer 1: extractors, schema, imports
+    |   |-- claims/                # Layer 2: chat slice selection, summarization, prompts
+    |   |-- concepts/              # Layer 3: hand-written markdown concept notes
+    |-- serve/
+    |   |-- mcp/                   # MCP server (TypeScript) exposing tools over all 3 layers
+    |-- scripts/                   # Legacy imports + new verification scripts
+    |   |-- db.mjs                 # Shared DB connection (legacy, Layer 2)
+    |   |-- import-discord.mjs     # Discord JSON -> messages
+    |   |-- import-irc.mjs         # mIRC logs -> messages
+    |   |-- stats.mjs              # DB stats
+    |   |-- verify-layer1.mjs      # Post-import Layer 1 sanity check
+    |   |-- verify-layer2.mjs      # Post-summarize Layer 2 sanity check
+    |   |-- verify-concepts.mjs    # Lint concept-note frontmatter
+    |-- docs/                      # Research docs + demo script
 
-### Related Projects
-```
-/home/paradoks/projects/quake/
-├── quad/                  # Discord bot — recording + live message ingestion
-│   ├── exports/           # Raw Discord JSON exports + mIRC log archive
-│   │   ├── quakeworld.json      # 387k messages
-│   │   ├── dev-corner.json      # 207k messages
-│   │   ├── helpdesk.json        # 103k messages
-│   │   ├── antilag.json         # 19k messages
-│   │   └── mirc-logs/           # 14 IRC log files
-│   └── scripts/
-│       ├── backfill.mjs         # Fetches Discord history (resumable)
-│       └── list-channels.mjs    # Lists server channels
-├── voice-analysis/        # Voice recording analysis pipeline (Python)
-└── qw-oracle/             # THIS PROJECT
-```
+## Commands
 
-## Database Schema
+    # Existing (Layer 2 raw import)
+    node scripts/import-discord.mjs ../quad/exports
+    node scripts/import-irc.mjs ../quad/exports/mirc-logs
+    node scripts/stats.mjs
 
-### messages table
-The unified table for all chat messages across platforms:
+    # Layer 1: import pre-extracted cvar/command data
+    node layers/facts/import-from-qw-config.mjs
+
+    # Layer 2: summarize the POC chat slice
+    node layers/claims/pick-slice.mjs
+    node layers/claims/summarize-slice.mjs
+
+    # Verification
+    node scripts/verify-layer1.mjs
+    node scripts/verify-layer2.mjs
+    node scripts/verify-concepts.mjs
+
+    # MCP server (see serve/mcp/README.md)
+    cd serve/mcp && bun install && bun run dev
+
+## Non-Negotiable Rules
+
+1. Raw data is immutable - never modify imported messages or imported facts
+2. All processing is regenerable from the raw layer
+3. Tag every generated output with model + prompt version (Layer 2 summaries, MCP tool responses)
+4. Keep it simple - scripts over frameworks, SQLite over Postgres
+5. Local-first processing - minimize API costs, maximize iteration speed
+6. Source citation - every MCP tool response carries canonical IDs pointing to origin
+
+## Tech Stack
+
+- Node.js 20+ with ES modules (Layer 1 importer, Layer 2 summarizer, verification scripts)
+- `better-sqlite3` - DB access for both layers
+- TypeScript + `@modelcontextprotocol/sdk` (MCP server only)
+- `@anthropic-ai/sdk` (Layer 2 summarization pass; model name and prompt version captured in every summary row)
+- Ollama on the RTX 4090 is the future path for Layer 2 bulk processing; not used in the POC
+
+## What's NOT in the POC
+
+FTE/MVDSV/QWCL full extractors beyond imported JSON, processing all 2.66M messages, weighted trust model, identity unification, vector search, correction feedback, web/Discord outlet integration, pretty frontend. See the spec for the deferred roadmap.
+
+Layer 1 data provenance note: The JSON in `packages/qw-config/src/data/` is the output of iterative scrapers, not a proper AST-based extractor. It is known to be incomplete. The POC imports it as-is because it is sufficient to prove the pattern. The extraction pipeline rewrite with real AST tooling is tracked as spec open question #2 and the `project_extraction_pipeline_vision` memory - phase-2 work.
+
+---
+
+## Layer 2 - Chat Corpus (Existing)
+
+The raw material for Layer 2 was imported into `data/qw.db` before this POC started. 20 years of QuakeWorld community chat history. IRC logs (2005-2016) and Discord messages (2016-present), searchable and session-grouped, waiting to be summarized.
+
+### Data sources (imported)
+
+| Source | Platform | Messages | Date Range | Channels |
+|---|---|---|---|---|
+| QuakeNet IRC (mIRC logs) | IRC | 1,943,975 | 2005-11 -> 2016-06 | 14 channels |
+| Quake.World Discord | Discord | 717,389 | 2016-04 -> 2026-02 | 4 channels |
+
+### Key stats (as of 2026-02-11)
+
+- **Total messages**: 2,661,364
+- **Chat messages** (excluding joins/quits/system): ~1,655,520
+- **Date range**: November 2005 -> February 2026 (20 years)
+- **Top channels**: #ibh (393k), #quakeworld-discord (388k), #dev-corner (207k), #ezQuake (195k)
+- **Peak years**: 2006 (442k), 2007 (374k) on IRC; 2017 (104k) on Discord
+- **Database size**: ~1.1 GB
+
+### Existing raw schema
+
+The unified `messages` table stores all chat messages across platforms. New Layer 1 and Layer 2 tables are added additively in later POC tasks (all prefixed `kb_` to keep them clearly separate from the raw corpus).
 
 | Column | Type | Description |
-|--------|------|-------------|
+|---|---|---|
 | id | TEXT PK | Discord snowflake or generated IRC ID |
 | platform | TEXT | 'discord' or 'irc' |
 | network | TEXT | 'quakenet' for IRC, NULL for Discord |
@@ -111,82 +154,23 @@ The unified table for all chat messages across platforms:
 | source_file | TEXT | Original filename |
 | imported_at | TEXT | When imported |
 
-### import_log table
-Tracks what files have been imported (for idempotent re-runs).
+The `import_log` table tracks what files have been imported for idempotent re-runs.
 
-## Key Stats (as of 2026-02-11)
-
-- **Total messages**: 2,661,364
-- **Chat messages** (excluding joins/quits/system): ~1,655,520
-- **Date range**: November 2005 → February 2026 (20 years)
-- **Top channels**: #ibh (393k), #quakeworld-discord (388k), #dev-corner (207k), #ezQuake (195k)
-- **Peak years**: 2006 (442k), 2007 (374k) on IRC; 2017 (104k) on Discord
-- **Database size**: ~1.1 GB
-
-## Pipeline Plan (Not Yet Built)
-
-### Tier 1: Cleaning & Session Grouping
-- Filter noise: joins/quits/nicks/system messages already typed in DB
-- Deterministic rules for chat noise (single-word reactions, bot spam)
-- Group messages into conversation sessions (time-gap based)
-- **Key insight**: Feed a sample to a good LLM first to discover filter rules, then apply deterministically
-
-### Tier 2: Summarization (Local LLM)
-- Per-session summaries via Ollama (Llama 3.1 8B for bulk, 70B for quality)
-- Structured output: topics, entities, sentiment, notable quotes
-- Store summaries in DB linked back to source messages
-
-### Tier 3: Synthesis
-- Daily/weekly newsletter generation
-- Topic tracking across time
-- Cross-channel synthesis
-
-### Hardware for Local LLM
-- RTX 4090 (24 GB VRAM) — Llama 3.1 8B at ~60 tok/s, 70B at ~12 tok/s
-- Multiple machines available for parallel processing
-- Ollama for inference (not yet installed)
-
-## Commands
-
-```bash
-# Import Discord exports (from quad/exports/)
-node scripts/import-discord.mjs ../quad/exports
-
-# Import IRC logs
-node scripts/import-irc.mjs ../quad/exports/mirc-logs
-
-# Show database stats
-node scripts/stats.mjs
-```
-
-## Identity Problem
+### Identity Problem
 
 The same person has different names across IRC and Discord:
+
 - IRC: `Sassa`, `sassa`, `Sassa|away` (nick changes logged)
 - Discord: `sassaking` (new username system)
 - In-game: `sassa` (QW nickname)
 
-Building an identity map is a future goal — other QW community projects are working on this.
-Cross-reference points: QW Hub player profiles, EQL/NQR tournament rosters, Discord↔IRC overlap period (2016).
+Building an identity map is a future goal - other QW community projects are working on this. Cross-reference points: QW Hub player profiles, EQL/NQR tournament rosters, Discord<->IRC overlap period (2016). Out of scope for the POC.
 
-## Development Notes
+### Adding new chat sources
 
-### Fetching More Discord Data
-The backfill script in `../quad/scripts/backfill.mjs` is resumable.
-To add more channels, edit the CHANNELS array and re-run.
-The bot (token in `../quad/.env`) is already in the Quake.World Discord server.
-
-### Adding New Data Sources
 1. Write an import script in `scripts/`
 2. Use the shared `db.mjs` for schema and connection
 3. Set `platform` and `source` fields appropriately
 4. The `import_log` table prevents duplicate imports
 
-## Non-Negotiable Rules
-
-1. Raw data is immutable — never modify imported messages
-2. All processing is regenerable from the raw layer
-3. Tag every generated output with model + prompt version
-4. Keep it simple — scripts over frameworks, SQLite over Postgres
-5. Local-first processing — minimize API costs, maximize iteration speed
-6. Source citation — every summary must trace back to original messages
+The backfill script in `../quad/scripts/backfill.mjs` is resumable. To add more channels, edit the CHANNELS array and re-run. The Quad bot (token in `../quad/.env`) is already in the Quake.World Discord server.

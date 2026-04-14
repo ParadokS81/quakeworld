@@ -6,6 +6,16 @@ QuakeWorld has 30 years of accumulated knowledge -- how to configure clients, ho
 
 When a player has a question -- "how do I fix this rendering artifact?" or "what does this cvar actually do?" or "how did teams handle quad timing in the 2008 era?" -- the answer usually exists somewhere. But finding it means knowing which person to ask, which channel to search, or which source code repo to grep. Most people don't know where to look, so they either ask in Discord and wait for someone knowledgeable to be online, or they give up.
 
+## The three-layer model
+
+The knowledge engine has three layers, each with different truth properties and storage:
+
+- **Layer 1 - Extracted facts.** Deterministic ground truth from source code. Cvars, commands, macros, match records. SQLite tables with canonical IDs (`ezquake:cvar:cl_bob`, `ktx:cmd:rpickup`).
+- **Layer 2 - Interpreted claims.** LLM-summarised community chat, preserving who said what when. "In October 2020, ciscon explained rpickup by saying X." SQLite + FTS5.
+- **Layer 3 - Curated concepts.** Hand-written markdown notes that cross-link Layers 1 and 2. Human expertise, LLM-multiplied across every client that queries the service.
+
+A serve layer (MCP) exposes tools over all three, so any LLM client (Claude Code, the Quad Discord bot, a web chatbot, a local Ollama on donated hardware) can consume the same knowledge foundation. See `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` for the architecture and `CLAUDE.md` for the implementation shape.
+
 ## What this aims to be
 
 A comprehensive QuakeWorld knowledge engine. Not a single product, but a foundation that powers multiple interfaces:
