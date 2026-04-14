@@ -43,10 +43,19 @@ printResponse(
 
 // --- search_solved_issues ---
 printResponse(
-  'search_solved_issues(rpickup, limit=2, max_messages=6)',
+  'search_solved_issues(rpickup AND ready, limit=2, max_messages=6)',
   await client.callTool({
     name: 'search_solved_issues',
-    arguments: { query: 'rpickup', limit: 2, max_messages_per_session: 6 },
+    arguments: { query: 'rpickup AND ready', limit: 2, max_messages_per_session: 6 },
+  }),
+);
+
+// --- get_concept_note ---
+printResponse(
+  'get_concept_note(concept:ktx_matchstart_injection)',
+  await client.callTool({
+    name: 'get_concept_note',
+    arguments: { id: 'concept:ktx_matchstart_injection' },
   }),
 );
 

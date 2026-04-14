@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { loadAllConcepts } from './concept-loader.ts';
 import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchSolvedIssues } from './tools/search-solved-issues.ts';
+import { getConceptNote } from './tools/get-concept-note.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> layers/concepts
@@ -68,6 +69,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
+      name: 'get_concept_note',
+      description:
+        'Retrieve a Layer 3 curated concept note by canonical id (e.g. concept:ktx_matchstart_injection). Concept notes are hand-written markdown that explicitly cross-link Layer 1 facts and Layer 2 chat discussions into human-level explanations. The tool response includes the note body, frontmatter, and all referenced cvar/command/session/concept ids so the outlet LLM can follow them.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'Canonical concept id, e.g. concept:ktx_matchstart_injection.',
+          },
+        },
+        required: ['id'],
+      },
+    },
+    {
       name: 'search_solved_issues',
       description:
         'Full-text search over 128,084 denoised QuakeWorld community chat sessions (IRC 2005-2016 plus Discord 2016-present, category="chat" filtered). Returns ranked session hits with raw chat transcripts so the outlet LLM can read what people actually said. Sessions with fewer than 5 chat messages are excluded to cut pickup-callout noise. Use this to find community discussion about a cvar, command, concept, or gameplay topic. The MCP server does no summarisation -- raw transcripts go straight to you for synthesis.',
@@ -110,6 +126,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const response = searchSolvedIssues(
         args as { query: string; limit?: number; max_messages_per_session?: number },
       );
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'get_concept_note': {
+      const response = getConceptNote(args as { id: string }, conceptStore);
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }
     default:
