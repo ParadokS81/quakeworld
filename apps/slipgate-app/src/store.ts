@@ -58,6 +58,9 @@ export interface ProfileIdentity {
 export interface ProfilePrefs {
   map_backdrop: string;
   config_keyboard_visible: boolean;
+  config_keyboard_show_movement: boolean;
+  config_keyboard_show_weapons: boolean;
+  config_keyboard_show_teamplay: boolean;
 }
 
 export interface ProfileData {
@@ -114,6 +117,9 @@ const DEFAULT_IDENTITY: ProfileIdentity = {
 const DEFAULT_PREFS: ProfilePrefs = {
   map_backdrop: "dm3",
   config_keyboard_visible: true,
+  config_keyboard_show_movement: true,
+  config_keyboard_show_weapons: true,
+  config_keyboard_show_teamplay: true,
 };
 
 function createDefaultProfile(): ProfileData {

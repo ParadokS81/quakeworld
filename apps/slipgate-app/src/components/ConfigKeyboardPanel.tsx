@@ -1,4 +1,4 @@
-import { createSignal, createMemo, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout, { toLayoutId } from "./KeyboardLayout";
 import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles } from "./keyboardHighlights";
@@ -20,24 +20,19 @@ interface ConfigKeyboardPanelProps {
    */
   selection: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null;
   onSelectionChange: (sel: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null) => void;
+  showMovement: boolean;
+  showWeapons: boolean;
+  showTeamplay: boolean;
+  onToggleMovement: () => void;
+  onToggleWeapons: () => void;
+  onToggleTeamplay: () => void;
 }
 
-const DEFAULT_TOGGLES: HighlightToggles = {
-  showMovement: true,
-  showWeapons: true,
-  showTeamplay: true,
-};
-
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
-  // Local toggle state. Task 11 moves this into ProfilePrefs.
-  const [showMovement, setShowMovement] = createSignal(DEFAULT_TOGGLES.showMovement);
-  const [showWeapons, setShowWeapons] = createSignal(DEFAULT_TOGGLES.showWeapons);
-  const [showTeamplay, setShowTeamplay] = createSignal(DEFAULT_TOGGLES.showTeamplay);
-
   const toggles = createMemo<HighlightToggles>(() => ({
-    showMovement: showMovement(),
-    showWeapons: showWeapons(),
-    showTeamplay: showTeamplay(),
+    showMovement: props.showMovement,
+    showWeapons: props.showWeapons,
+    showTeamplay: props.showTeamplay,
   }));
 
   const primaryInput = createMemo<HighlightInput | null>(() => {
@@ -170,20 +165,20 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
       <Show when={props.visible}>
         <div class="sg-config-kb-toggle-bar">
           <button
-            class={`badge cursor-pointer ${showMovement() ? "badge-binds" : "badge-ghost"}`}
-            onClick={() => setShowMovement(v => !v)}
+            class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
+            onClick={props.onToggleMovement}
           >
             Movement
           </button>
           <button
-            class={`badge cursor-pointer ${showWeapons() ? "badge-binds" : "badge-ghost"}`}
-            onClick={() => setShowWeapons(v => !v)}
+            class={`badge cursor-pointer ${props.showWeapons ? "badge-binds" : "badge-ghost"}`}
+            onClick={props.onToggleWeapons}
           >
             Weapons
           </button>
           <button
-            class={`badge cursor-pointer ${showTeamplay() ? "badge-binds" : "badge-ghost"}`}
-            onClick={() => setShowTeamplay(v => !v)}
+            class={`badge cursor-pointer ${props.showTeamplay ? "badge-binds" : "badge-ghost"}`}
+            onClick={props.onToggleTeamplay}
           >
             Teamplay
           </button>
@@ -196,7 +191,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             <KeyboardLayout
               movement={props.primary!.movement}
               highlights={primaryHighlights()}
-              showMovement={showMovement()}
+              showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
               selectedKeyIds={yourSelectedIds()}
             />
@@ -208,7 +203,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             <KeyboardLayout
               movement={props.compare!.movement}
               highlights={compareHighlights()}
-              showMovement={showMovement()}
+              showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(compareInput(), id)}
               selectedKeyIds={theirSelectedIds()}
             />

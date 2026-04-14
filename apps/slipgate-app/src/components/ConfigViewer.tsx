@@ -234,6 +234,42 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     }
   }
 
+  // ── Keyboard panel category toggles (Movement / Weapons / Teamplay) ──
+  const [kbShowMovement, setKbShowMovement] = createSignal<boolean>(
+    props.profile?.prefs.config_keyboard_show_movement ?? true,
+  );
+  const [kbShowWeapons, setKbShowWeapons] = createSignal<boolean>(
+    props.profile?.prefs.config_keyboard_show_weapons ?? true,
+  );
+  const [kbShowTeamplay, setKbShowTeamplay] = createSignal<boolean>(
+    props.profile?.prefs.config_keyboard_show_teamplay ?? true,
+  );
+  createEffect(() => {
+    const p = props.profile?.prefs;
+    if (!p) return;
+    setKbShowMovement(p.config_keyboard_show_movement);
+    setKbShowWeapons(p.config_keyboard_show_weapons);
+    setKbShowTeamplay(p.config_keyboard_show_teamplay);
+  });
+  async function toggleKbMovement() {
+    const next = !kbShowMovement();
+    setKbShowMovement(next);
+    try { await updatePrefs({ config_keyboard_show_movement: next }); }
+    catch (e) { console.error("Failed to persist kb movement toggle:", e); }
+  }
+  async function toggleKbWeapons() {
+    const next = !kbShowWeapons();
+    setKbShowWeapons(next);
+    try { await updatePrefs({ config_keyboard_show_weapons: next }); }
+    catch (e) { console.error("Failed to persist kb weapons toggle:", e); }
+  }
+  async function toggleKbTeamplay() {
+    const next = !kbShowTeamplay();
+    setKbShowTeamplay(next);
+    try { await updatePrefs({ config_keyboard_show_teamplay: next }); }
+    catch (e) { console.error("Failed to persist kb teamplay toggle:", e); }
+  }
+
   // ── Alias + bind command maps for chain expansion ──
   const primaryAliases = createMemo((): Record<string, string> =>
     mergedData()?.aliases ?? {},
@@ -962,6 +998,12 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   onToggleVisible={toggleKeyboardVisible}
                   selection={bindSelection()}
                   onSelectionChange={setBindSelection}
+                  showMovement={kbShowMovement()}
+                  showWeapons={kbShowWeapons()}
+                  showTeamplay={kbShowTeamplay()}
+                  onToggleMovement={toggleKbMovement}
+                  onToggleWeapons={toggleKbWeapons}
+                  onToggleTeamplay={toggleKbTeamplay}
                 />
               </Show>
               <SectionMinimap scrollContainer={contentScrollEl} />
