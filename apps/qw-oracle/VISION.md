@@ -11,10 +11,10 @@ When a player has a question -- "how do I fix this rendering artifact?" or "what
 The knowledge engine has three layers, each with different truth properties and storage:
 
 - **Layer 1 - Extracted facts.** Deterministic ground truth from source code. Cvars, commands, macros, match records. SQLite tables with canonical IDs (`ezquake:cvar:cl_bob`, `ktx:cmd:rpickup`).
-- **Layer 2 - Interpreted claims.** LLM-summarised community chat, preserving who said what when. "In October 2020, ciscon explained rpickup by saying X." SQLite + FTS5.
+- **Layer 2 - Community claims.** 2.66M chat messages from 20 years of IRC and Discord, denoised and grouped into 128K conversation sessions with a live FTS5 index. The MCP returns raw session transcripts at query time; the consumer's LLM does the interpretation. Build-time LLM summarisation is a phase-2 optimisation.
 - **Layer 3 - Curated concepts.** Hand-written markdown notes that cross-link Layers 1 and 2. Human expertise, LLM-multiplied across every client that queries the service.
 
-A serve layer (MCP) exposes tools over all three, so any LLM client (Claude Code, the Quad Discord bot, a web chatbot, a local Ollama on donated hardware) can consume the same knowledge foundation. See `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` for the architecture and `CLAUDE.md` for the implementation shape.
+A serve layer (MCP) exposes tools over all three, so any LLM client (Claude Code, the Quad Discord bot, a web chatbot, a local Ollama on donated hardware) can consume the same knowledge foundation. The POC has no build-time LLM dependency. See `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` for the architecture and `CLAUDE.md` for the implementation shape.
 
 ## What this aims to be
 

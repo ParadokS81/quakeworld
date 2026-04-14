@@ -18,8 +18,10 @@ A polyglot knowledge service for QuakeWorld. One foundation with three layers, s
 | Layer | Nature | Source | Pipeline | Storage |
 |---|---|---|---|---|
 | 1. Facts | Rigid | Source code, APIs | Parser -> normalize -> SQL | SQLite |
-| 2. Claims | Soft | Chat logs, forums | Filter -> session -> LLM summarize | SQLite + FTS5 |
+| 2. Claims | Soft | Chat logs, forums | Denoise -> session group -> FTS5 index | SQLite + FTS5 |
 | 3. Concepts | Curated | Human + LLM | Hand-written | Markdown |
+
+**Layer 2 interpretation happens at query time.** The POC ships Layer 2 as a denoised, session-grouped, full-text-indexed corpus. When a query arrives, the MCP returns the top-matching session transcripts (raw chat text, filtered to category='chat') and the outlet LLM synthesises the answer. Build-time LLM summarisation is a phase-2 cost optimisation for when query volume justifies it (Ollama on the 4090 is the natural home). This means the POC has zero build-time LLM dependency.
 
 ## Canonical IDs
 
@@ -67,9 +69,9 @@ Layer 2 and Layer 3 reference Layer 1 IDs in their metadata so cross-layer joins
     # Layer 1: import pre-extracted cvar/command data
     node layers/facts/import-from-qw-config.mjs
 
-    # Layer 2: summarize the POC chat slice
-    node layers/claims/pick-slice.mjs
-    node layers/claims/summarize-slice.mjs
+    # Layer 2: no build step in the POC. The existing sessions +
+    # message_labels + session_search tables are the corpus.
+    # Phase 2 adds a summariser here (Ollama on the 4090).
 
     # Verification
     node scripts/verify-layer1.mjs
@@ -90,17 +92,18 @@ Layer 2 and Layer 3 reference Layer 1 IDs in their metadata so cross-layer joins
 
 ## Tech Stack
 
-- Node.js 20+ with ES modules (Layer 1 importer, Layer 2 summarizer, verification scripts)
-- `better-sqlite3` - DB access for both layers
+- Node.js 20+ with ES modules (Layer 1 importer, verification scripts)
+- `better-sqlite3` - DB access for all layers
 - TypeScript + `@modelcontextprotocol/sdk` (MCP server only)
-- `@anthropic-ai/sdk` (Layer 2 summarization pass; model name and prompt version captured in every summary row)
-- Ollama on the RTX 4090 is the future path for Layer 2 bulk processing; not used in the POC
+- **No build-time LLM dependency.** Layer 2 is exposed raw to the query-time LLM. Phase 2 may add Ollama on the RTX 4090 for bulk summarisation; not used in the POC.
 
 ## What's NOT in the POC
 
-FTE/MVDSV/QWCL full extractors beyond imported JSON, processing all 2.66M messages, weighted trust model, identity unification, vector search, correction feedback, web/Discord outlet integration, pretty frontend. See the spec for the deferred roadmap.
+FTE/MVDSV/QWCL full extractors beyond imported JSON, build-time LLM summarisation of the chat corpus, weighted trust model, identity unification, vector search, correction feedback, web/Discord outlet integration, pretty frontend. See the spec for the deferred roadmap.
 
 Layer 1 data provenance note: The JSON in `packages/qw-config/src/data/` is the output of iterative scrapers, not a proper AST-based extractor. It is known to be incomplete. The POC imports it as-is because it is sufficient to prove the pattern. The extraction pipeline rewrite with real AST tooling is tracked as spec open question #2 and the `project_extraction_pipeline_vision` memory - phase-2 work.
+
+Layer 2 summarisation note: The existing `sessions` + `session_search` + `message_labels` tables already give us denoised, session-grouped, full-text-indexed chat. A build-time LLM pass that compresses sessions into structured summaries is a phase-2 optimisation, not a POC requirement. The outlet LLM reads raw session transcripts at query time, which is more faithful and zero extra cost.
 
 ---
 

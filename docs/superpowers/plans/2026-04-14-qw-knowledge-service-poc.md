@@ -2,15 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a three-layer QuakeWorld knowledge service (extracted facts + interpreted claims + curated concepts) exposed through a local MCP server, wired into Claude Code, demonstrating end-to-end cross-layer retrieval with a single demo query. Serves as the proof-of-concept for a dev-server presentation to domain experts.
+**Goal:** Build a three-layer QuakeWorld knowledge service (extracted facts + community claims + curated concepts) exposed through a local MCP server, wired into Claude Code, demonstrating end-to-end cross-layer retrieval with a single demo query. Serves as the proof-of-concept for a dev-server presentation to domain experts.
 
-**Architecture:** Polyglot persistence inside `apps/qw-oracle/`. Layer 1 (facts) imports existing pre-extracted JSON from `packages/qw-config/src/data/` into SQLite tables with canonical IDs. Layer 2 (claims) reuses the existing 2.66M-message chat corpus in `qw-oracle/data/qw.db`, summarizes a narrow slice via the Anthropic API into a new session-summary table. Layer 3 (concepts) is 3 hand-authored markdown files. An MCP server written in TypeScript exposes three tools (`lookup_entity`, `search_solved_issues`, `get_concept_note`) that query the three layers and return responses with explicit match-quality signals. Claude Code loads the MCP locally for the demo.
+**Architecture:** Polyglot persistence inside `apps/qw-oracle/`. Layer 1 (facts) imports existing pre-extracted JSON from `packages/qw-config/src/data/` into SQLite tables with canonical IDs. Layer 2 (claims) reuses the existing `sessions` + `session_search` + `message_labels` tables in `qw-oracle/data/qw.db` — 2.66M labelled messages, 128K denoised sessions, FTS5 index — **already built by the earlier qw-oracle POC**. No Layer 2 build step is required; the MCP returns raw session transcripts at query time and the outlet LLM does the interpretation. Layer 3 (concepts) is 3 hand-authored markdown files. An MCP server written in TypeScript exposes three tools (`lookup_entity`, `search_solved_issues`, `get_concept_note`) that query the three layers and return responses with explicit match-quality signals. Claude Code loads the MCP locally for the demo.
 
-**Tech Stack:** Node.js 20+, TypeScript (new for the MCP server), `better-sqlite3`, `@modelcontextprotocol/sdk`, `@anthropic-ai/sdk` (for Layer 2 summarization). Existing qw-oracle scripts remain `.mjs`. No test framework dependency — verification is script-and-query.
+**Tech Stack:** Node.js 20+, TypeScript (new for the MCP server), `better-sqlite3`, `@modelcontextprotocol/sdk`. **No build-time LLM dependency.** Existing qw-oracle scripts remain `.mjs`. No test framework dependency — verification is script-and-query.
 
 **Spec:** `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`
 
-**Branch:** Recommend creating a fresh branch `feature/qw-oracle-poc` from `main` before starting. The current session is on `fix/slipgate-ts-cleanup` which is unrelated. Do not execute this plan on top of unrelated work.
+**Branch:** Execute on the current worktree's branch (`poc` in the dedicated qw-oracle worktree, or `main` if you're in the main tree). Do NOT cut a feature branch. See root `CLAUDE.md § Git workflow` — this project runs on long-lived worktrees, not feature branches.
+
+**Plan revision note (2026-04-14):** The original draft of this plan included a Layer 2 LLM summarisation pass via the Anthropic API (Haiku 4.5). That was dropped after inspecting the existing `qw.db` state: the earlier POC already did denoising, session grouping, and FTS5 indexing. Build-time summarisation is deferred to phase 2 as a cost optimisation (Ollama on the 4090). The POC now has zero build-time LLM dependency. Tasks 4 and 5 were collapsed into a single "Layer 2 query helpers + demo session audit" task. See the "Plan revision log" section at the end of this file for the full diff.
 
 **Testing philosophy:** Per monorepo CLAUDE.md, no TDD and no speculative test infrastructure. Each task has a manual-verification step: run the script, query the DB, call the tool, check the output is sensible. Parser-ish tasks use one-shot verification scripts (`scripts/verify-*.mjs`) that print sample rows for visual check, not test suites.
 
@@ -24,12 +26,21 @@ Read the spec first: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-des
 
 **Current state of `apps/qw-oracle/`** (as of this plan, check for drift before starting):
 
-- `CLAUDE.md` describes qw-oracle as "a knowledge base and intelligence system built from 20 years of QuakeWorld community chat history." Existing scope is Layer 2 only. This plan expands it to all three layers without discarding the existing content.
-- `VISION.md` already describes the broader multi-source vision — it is ahead of the implementation. Light edits needed to promote the three-layer framing.
-- `data/qw.db` is a 1.1 GB SQLite database with 2.66M imported messages (1.94M IRC + 717K Discord), an FTS5 index across 123K conversation sessions, and an `import_log` table tracking idempotent imports.
-- `scripts/` has `.mjs` files: `db.mjs` (schema + connection), `import-discord.mjs`, `import-irc.mjs`, `stats.mjs`. These stay.
+- `CLAUDE.md` describes qw-oracle as a three-layer QuakeWorld knowledge service (updated by Task 1 on 2026-04-14).
+- `VISION.md` describes the broader multi-source vision, now reframed around the three-layer model.
+- `data/qw.db` is a 1.6 GB SQLite database (symlinked into the poc worktree at `apps/qw-oracle/data/qw.db`; actual file lives at `/home/paradoks/projects/quake/qw-oracle/data/qw.db`). Contents:
+  - `messages`: 2,661,364 raw chat messages (1.94M IRC + 717K Discord, 2005-2026).
+  - `sessions`: 128,084 conversation sessions grouped by 15-minute gap, with channel, platform, started_at/ended_at, participant_count, participants_json, chat_message_count.
+  - `message_labels`: every message labelled `chat` (1.49M) / `system` (1.00M) / `reaction` (122K) / `link` (26K) / `bot` (20K). Denoising done.
+  - `session_search`: FTS5 virtual table over session content, `porter unicode61` tokenizer.
+  - `processing_log`: one successful run from 2026-02-11 (v1 classifier, 18 channels, 128K sessions, 2.66M labelled).
+  - `import_log`: tracks Discord/IRC file imports.
+- Layer 1 tables added by Task 2 (2026-04-14): `kb_cvars`, `kb_commands`, `kb_facts_import_log` — 4815 cvars + 849 commands, canonical IDs.
+- `scripts/` has `.mjs` files: `db.mjs`, `import-discord.mjs`, `import-irc.mjs`, `stats.mjs`, `verify-layer1.mjs`. These stay.
 - No TypeScript yet. This plan introduces TypeScript for the MCP server only; existing `.mjs` stays untouched.
 - No MCP server yet.
+
+**What this means for Layer 2:** the hard work is already done. The POC does not need to denoise, session-group, or index anything — that's live. The POC wires the existing tables into the MCP query surface and returns raw transcripts. Build-time LLM summarisation is phase 2.
 
 **External data sources the plan uses:**
 
@@ -41,7 +52,7 @@ Read the spec first: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-des
 
 **Out of scope for this POC (per spec):** FTE/MVDSV/QWCL full imports beyond FTE vars, processing all 2.66M messages, weighted trust model, identity unification, vector/semantic search, correction feedback loop, pretty frontend, Slipgate helper panel UI wiring, Quad bot integration, web chatbot. Do NOT build any of these. If a task feels like it's pulling in one of these, stop and flag it.
 
-**Non-negotiables from `apps/qw-oracle/CLAUDE.md`:** Raw data is immutable (do not modify existing `messages` rows). All processing is regenerable from raw (new tables are populated from import scripts, not hand-edited). Tag every generated output with model + prompt version (Layer 2 summaries carry `summarizer_model` and `summarizer_prompt_version` columns). SQLite over Postgres. Local-first processing. Source citation on every answer.
+**Non-negotiables from `apps/qw-oracle/CLAUDE.md`:** Raw data is immutable (do not modify existing `messages`, `sessions`, or `message_labels` rows — they are live from the earlier POC). All processing is regenerable from raw (new tables are populated from import scripts, not hand-edited). Layer 1 rows carry `extraction_method` + `source_version` so different extractor generations coexist. MCP tool responses carry `match_quality` + `meta.server_version`. SQLite over Postgres. Local-first processing. Source citation on every answer.
 
 ---
 
@@ -56,11 +67,7 @@ apps/qw-oracle/
 |   |   |-- schema.sql                     # Layer 1 SQL schema
 |   |   |-- import-from-qw-config.mjs      # JSON -> SQLite importer
 |   |-- claims/
-|   |   |-- schema.sql                     # Layer 2 SQL schema (additive to existing qw.db)
-|   |   |-- pick-slice.mjs                 # Select the chat slice
-|   |   |-- summarize-slice.mjs            # Call Anthropic API, write summaries
-|   |   |-- prompts/
-|   |       |-- session-summary-v1.md      # The summarization prompt
+|   |   |-- get-session-text.mjs           # Session -> structured chat text helper
 |   |-- concepts/
 |       |-- README.md                      # How concept notes work
 |       |-- _schema.md                     # Frontmatter schema reference
@@ -85,7 +92,7 @@ apps/qw-oracle/
 |   |-- poc-demo-script.md                 # Rehearsed demo query + expected output
 |-- scripts/
     |-- verify-layer1.mjs                  # One-shot SQL verification after import
-    |-- verify-layer2.mjs                  # One-shot SQL verification after summarize
+    |-- verify-layer2.mjs                  # Layer 2 corpus + demo target audit
     |-- verify-concepts.mjs                # Lint concept-note frontmatter
 ```
 
@@ -93,13 +100,17 @@ apps/qw-oracle/
 
 - `apps/qw-oracle/CLAUDE.md` — restructure around three-layer model, existing chat content becomes Layer 2 section
 - `apps/qw-oracle/VISION.md` — promote three-layer framing to top, preserve existing prose
-- `apps/qw-oracle/package.json` — add `@anthropic-ai/sdk` as a runtime dep (for Layer 2 summarization)
 
 **Unchanged (do not touch):**
 
 - `apps/qw-oracle/scripts/db.mjs`, `import-discord.mjs`, `import-irc.mjs`, `stats.mjs`
-- `apps/qw-oracle/data/qw.db` existing tables (`messages`, `import_log`). New tables are added additively.
+- `apps/qw-oracle/data/qw.db` existing tables (`messages`, `sessions`, `message_labels`, `session_search`, `import_log`, `processing_log`). Layer 1 tables are added additively; Layer 2 reuses what's already there.
 - Everything outside `apps/qw-oracle/` except reading from `packages/qw-config/src/data/`
+
+**Removed from the original plan (see revision log):**
+
+- `layers/claims/schema.sql`, `pick-slice.mjs`, `summarize-slice.mjs`, `prompts/session-summary-v1.md` — all dropped when the build-time LLM summarisation pass was cut.
+- `@anthropic-ai/sdk` dependency — no longer needed.
 
 ---
 
@@ -109,12 +120,12 @@ apps/qw-oracle/
 |---|---|---|
 | A. Scaffolding | 1 | Repurpose qw-oracle: CLAUDE.md, VISION.md, directory structure |
 | B. Layer 1 | 2-3 | Schema + import ezQuake/KTX/FTE JSON into SQLite with canonical IDs |
-| C. Layer 2 | 4-5 | Schema + pick slice + summarize chat sessions |
+| C. Layer 2 | 4 | Verify existing session corpus, write query helpers, pick demo sessions |
 | D. Layer 3 | 6 | Concept-note directory + 3 hand-written notes |
 | E. MCP serve | 7-9 | Server skeleton + 3 tools (lookup_entity, search_solved_issues, get_concept_note) |
 | F. Integration | 10-11 | Claude Code MCP config + demo query rehearsal |
 
-Expected total effort: ~6-10 hours of agentic work, split across 2-4 sessions depending on how stable the summarization prompt is on first pass.
+Expected total effort: ~4-6 hours of agentic work, split across 1-3 sessions. (Reduced from the original estimate after dropping the Layer 2 summarisation pass.)
 
 ---
 
@@ -141,7 +152,11 @@ Expected: on a clean `feature/qw-oracle-poc` branch.
 
 - [ ] **Step 2: Read the current `apps/qw-oracle/CLAUDE.md`** so you understand what's there before editing. Do not paraphrase from memory — read the file.
 
-- [ ] **Step 3: Rewrite `apps/qw-oracle/CLAUDE.md`** to reflect the three-layer model. The new structure:
+- [ ] **Step 3: Rewrite `apps/qw-oracle/CLAUDE.md`** to reflect the three-layer model.
+
+> **Revision note 2026-04-14:** Task 1 was executed on 2026-04-14 and the committed `apps/qw-oracle/CLAUDE.md` is now the authoritative version. The template below is retained for historical reference but has drifted from what's on disk (Layer 2 framing was revised in the same session to drop build-time summarisation). If you are re-executing Task 1 from scratch, read the committed file first and use it as your reference rather than the template below.
+
+The new structure:
 
 ```markdown
 # QW Oracle — QuakeWorld Knowledge Service
@@ -744,623 +759,177 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Phase C: Layer 2 — Interpreted claims
+## Phase C: Layer 2 — Community claims (existing corpus)
 
-### Task 4: Layer 2 schema + chat slice selector
+### Task 4: Layer 2 query helpers + demo session audit
+
+**Purpose:** Wire the existing `sessions` + `session_search` + `message_labels` tables into the Layer 2 query path that the MCP server will use. No new schema, no build-time LLM pass, no slice picker. Verify the FTS-to-transcript path for the demo targets and record the best demo sessions.
+
+**Why this task replaces the original Task 4 + Task 5:** The earlier qw-oracle POC already did the hard Layer 2 work — 2.66M messages labelled, 128K sessions grouped, FTS5 index live. The only thing missing was the retrieval code that pulls chat text for a given session. Build-time LLM summarisation was originally planned here but is now deferred to phase 2 (see the plan revision note in the header). The POC reads raw transcripts at query time and lets the outlet LLM synthesise.
 
 **Files:**
-- Create: `apps/qw-oracle/layers/claims/schema.sql`
-- Create: `apps/qw-oracle/layers/claims/pick-slice.mjs`
-- Create: `apps/qw-oracle/scripts/verify-layer2.mjs`
+- Create: `apps/qw-oracle/layers/claims/get-session-text.mjs` (the retrieval helper the MCP calls)
+- Create: `apps/qw-oracle/scripts/verify-layer2.mjs` (sanity check + demo target audit)
+- Modify: `apps/qw-oracle/docs/poc-demo-candidates.md` (append demo session IDs)
 
-- [ ] **Step 1: Write the Layer 2 schema to `apps/qw-oracle/layers/claims/schema.sql`**
+- [ ] **Step 1: Write `apps/qw-oracle/layers/claims/get-session-text.mjs`**
 
-```sql
--- Layer 2: Interpreted claims. LLM-summarized conversation sessions.
--- Added to the existing qw.db alongside the raw `messages` table and Layer 1 kb_* tables.
-
-CREATE TABLE IF NOT EXISTS kb_sessions (
-  id                        TEXT PRIMARY KEY,   -- canonical: 'session:2020-10-19-helpdesk-NNN'
-  platform                  TEXT NOT NULL,       -- 'discord' | 'irc'
-  channel_name              TEXT NOT NULL,       -- '#helpdesk'
-  start_message_id          TEXT NOT NULL,
-  end_message_id            TEXT NOT NULL,
-  start_at                  TEXT NOT NULL,       -- ISO 8601 UTC
-  end_at                    TEXT NOT NULL,
-  message_count             INTEGER NOT NULL,
-  participants_json         TEXT NOT NULL,       -- JSON array of author names
-  topic                     TEXT,                -- short topic (<=100 chars)
-  summary                   TEXT,                -- longer prose summary
-  mentioned_cvar_ids_json   TEXT,                -- JSON array of Layer 1 cvar IDs
-  mentioned_cmd_ids_json    TEXT,                -- JSON array of Layer 1 cmd IDs
-  tags_json                 TEXT,                -- JSON array of free-form tags
-  quality                   TEXT NOT NULL,       -- 'strong' | 'weak' | 'unknown'
-  summarizer_model          TEXT NOT NULL,
-  summarizer_prompt_version TEXT NOT NULL,
-  summarized_at             TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_kb_sessions_channel  ON kb_sessions(channel_name);
-CREATE INDEX IF NOT EXISTS idx_kb_sessions_start_at ON kb_sessions(start_at);
-
--- FTS5 virtual table for full-text search over session topic + summary + tags
-CREATE VIRTUAL TABLE IF NOT EXISTS kb_sessions_fts USING fts5(
-  id UNINDEXED,
-  topic,
-  summary,
-  tags_json,
-  content='kb_sessions',
-  content_rowid='rowid'
-);
-
-CREATE TRIGGER IF NOT EXISTS kb_sessions_ai AFTER INSERT ON kb_sessions BEGIN
-  INSERT INTO kb_sessions_fts(rowid, id, topic, summary, tags_json)
-  VALUES (new.rowid, new.id, new.topic, new.summary, new.tags_json);
-END;
-
-CREATE TRIGGER IF NOT EXISTS kb_sessions_ad AFTER DELETE ON kb_sessions BEGIN
-  INSERT INTO kb_sessions_fts(kb_sessions_fts, rowid, id, topic, summary, tags_json)
-  VALUES ('delete', old.rowid, old.id, old.topic, old.summary, old.tags_json);
-END;
-
-CREATE TRIGGER IF NOT EXISTS kb_sessions_au AFTER UPDATE ON kb_sessions BEGIN
-  INSERT INTO kb_sessions_fts(kb_sessions_fts, rowid, id, topic, summary, tags_json)
-  VALUES ('delete', old.rowid, old.id, old.topic, old.summary, old.tags_json);
-  INSERT INTO kb_sessions_fts(rowid, id, topic, summary, tags_json)
-  VALUES (new.rowid, new.id, new.topic, new.summary, new.tags_json);
-END;
-
--- Table mapping session -> raw messages (so we can retrieve the actual conversation)
-CREATE TABLE IF NOT EXISTS kb_session_messages (
-  session_id  TEXT NOT NULL,
-  message_id  TEXT NOT NULL,
-  ord         INTEGER NOT NULL,    -- position within session (0-indexed)
-  PRIMARY KEY (session_id, message_id),
-  FOREIGN KEY (session_id) REFERENCES kb_sessions(id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_kb_session_messages_session ON kb_session_messages(session_id);
-
--- Idempotent session selection tracking
-CREATE TABLE IF NOT EXISTS kb_session_selection_log (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  slice_name     TEXT NOT NULL,
-  sessions_found INTEGER NOT NULL,
-  params_json    TEXT NOT NULL,
-  created_at     TEXT NOT NULL
-);
-```
-
-- [ ] **Step 2: Write `apps/qw-oracle/layers/claims/pick-slice.mjs`**
+This module is what the MCP `search_solved_issues` tool will call to turn a session_id into a block of structured chat text. It filters to `category='chat'` via `message_labels` so noise drops out automatically.
 
 ```javascript
-// Picks the POC chat slice: ~50 sessions from ezquake/helpdesk channels
-// that mention cvars or commands. Writes session boundaries into kb_sessions
-// as empty stubs (no summary yet — that is the next task).
+// Layer 2 retrieval helper. Given a session_id from the existing `sessions`
+// table, returns a structured representation: metadata + the ordered chat
+// messages (filtered to category='chat' via message_labels).
 //
-// Re-running is safe: existing sessions with the same id are left alone.
+// The MCP `search_solved_issues` tool calls formatSessionForMcp() after
+// matching session_search via FTS5. The return shape is what the outlet
+// LLM consumes.
 
-import Database from 'better-sqlite3';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+const CHAT_SELECT = `
+  SELECT m.id, m.author_name, m.created_at, m.content
+  FROM messages m
+  JOIN message_labels l ON l.message_id = m.id
+  WHERE l.session_id = @sessionId
+    AND l.category = 'chat'
+  ORDER BY m.created_at
+`;
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const QW_ORACLE_ROOT = resolve(__dirname, '..', '..');
-const DB_PATH = resolve(QW_ORACLE_ROOT, 'data', 'qw.db');
-const SCHEMA_PATH = resolve(__dirname, 'schema.sql');
+const META_SELECT = `
+  SELECT id, channel_name, platform, started_at, ended_at,
+         chat_message_count, participant_count, participants_json
+  FROM sessions
+  WHERE id = ?
+`;
 
-const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
-db.exec(readFileSync(SCHEMA_PATH, 'utf8'));
-
-const SLICE_NAME = 'poc-v1';
-const TARGET_SESSION_COUNT = 50;
-const SESSION_GAP_MS = 15 * 60 * 1000; // 15 minutes
-const MIN_SESSION_MESSAGES = 5;
-const CHANNELS = ['#ezquake', '#helpdesk'];
-
-// Build a simple "mentions cvar or command" filter from Layer 1 names
-// (top ~500 most distinctive names, to keep the in-process check manageable).
-const triggerNames = [
-  ...db.prepare(`SELECT name FROM kb_cvars WHERE project = 'ezquake' AND length(name) >= 4 ORDER BY name LIMIT 300`).all().map(r => r.name),
-  ...db.prepare(`SELECT name FROM kb_commands WHERE project = 'ezquake' AND length(name) >= 4 ORDER BY name LIMIT 200`).all().map(r => r.name),
-];
-console.log(`Loaded ${triggerNames.length} Layer 1 names as triggers.`);
-
-const candidateMessages = db.prepare(`
-  SELECT id, channel_name, author_name, content, created_at
-  FROM messages
-  WHERE channel_name IN (${CHANNELS.map(() => '?').join(',')})
-    AND message_type = 'message'
-    AND content IS NOT NULL
-    AND length(content) >= 20
-  ORDER BY channel_name, created_at
-`).all(...CHANNELS);
-
-console.log(`Fetched ${candidateMessages.length} raw candidate messages from ${CHANNELS.join(', ')}.`);
-
-const triggerSet = new Set(triggerNames.map(n => n.toLowerCase()));
-function mentionsTrigger(content) {
-  const lower = content.toLowerCase();
-  for (const t of triggerSet) {
-    if (lower.includes(t)) return true;
-  }
-  return false;
+export function getSessionText(db, sessionId) {
+  return db.prepare(CHAT_SELECT).all({ sessionId }).map((r) => ({
+    author: r.author_name,
+    at: r.created_at,
+    text: r.content,
+  }));
 }
 
-// Group into sessions by channel + 15-minute gap.
-const sessions = [];
-let current = null;
-
-for (const msg of candidateMessages) {
-  const ts = new Date(msg.created_at).getTime();
-  if (!current || current.channel !== msg.channel_name || ts - current.last_ts > SESSION_GAP_MS) {
-    if (current && current.messages.length >= MIN_SESSION_MESSAGES && current.has_trigger) {
-      sessions.push(current);
-    }
-    current = {
-      channel: msg.channel_name,
-      platform: 'discord',
-      messages: [],
-      has_trigger: false,
-      last_ts: ts,
-    };
-  }
-  current.messages.push(msg);
-  current.last_ts = ts;
-  if (!current.has_trigger && mentionsTrigger(msg.content)) {
-    current.has_trigger = true;
-  }
-}
-if (current && current.messages.length >= MIN_SESSION_MESSAGES && current.has_trigger) {
-  sessions.push(current);
+export function getSessionMeta(db, sessionId) {
+  return db.prepare(META_SELECT).get(sessionId);
 }
 
-console.log(`Grouped into ${sessions.length} candidate sessions with trigger mentions.`);
-
-sessions.sort((a, b) => b.last_ts - a.last_ts || b.messages.length - a.messages.length);
-const picked = sessions.slice(0, TARGET_SESSION_COUNT);
-
-console.log(`Picked top ${picked.length} sessions.`);
-
-const insertSession = db.prepare(`
-  INSERT OR IGNORE INTO kb_sessions (
-    id, platform, channel_name, start_message_id, end_message_id,
-    start_at, end_at, message_count, participants_json,
-    topic, summary, mentioned_cvar_ids_json, mentioned_cmd_ids_json, tags_json,
-    quality, summarizer_model, summarizer_prompt_version, summarized_at
-  ) VALUES (
-    @id, @platform, @channel_name, @start_message_id, @end_message_id,
-    @start_at, @end_at, @message_count, @participants_json,
-    NULL, NULL, NULL, NULL, NULL,
-    'unknown', 'pending', 'pending', @created_at
-  )
-`);
-const insertMsgLink = db.prepare(`
-  INSERT OR IGNORE INTO kb_session_messages (session_id, message_id, ord) VALUES (?, ?, ?)
-`);
-
-let wrote = 0;
-const now = new Date().toISOString();
-const txn = db.transaction(() => {
-  for (const s of picked) {
-    const first = s.messages[0];
-    const last = s.messages[s.messages.length - 1];
-    const datePart = first.created_at.slice(0, 10);
-    const channelSlug = s.channel.replace(/^#/, '');
-    const shortHash = first.id.slice(-6);
-    const id = `session:${datePart}-${channelSlug}-${shortHash}`;
-    const participants = [...new Set(s.messages.map(m => m.author_name).filter(Boolean))];
-
-    const result = insertSession.run({
-      id,
-      platform: s.platform,
-      channel_name: s.channel,
-      start_message_id: first.id,
-      end_message_id: last.id,
-      start_at: first.created_at,
-      end_at: last.created_at,
-      message_count: s.messages.length,
-      participants_json: JSON.stringify(participants),
-      created_at: now,
-    });
-    if (result.changes === 0) continue;
-
-    for (let i = 0; i < s.messages.length; i++) {
-      insertMsgLink.run(id, s.messages[i].id, i);
-    }
-    wrote++;
-  }
-});
-txn();
-
-db.prepare(`
-  INSERT INTO kb_session_selection_log (slice_name, sessions_found, params_json, created_at)
-  VALUES (?, ?, ?, ?)
-`).run(SLICE_NAME, wrote, JSON.stringify({
-  channels: CHANNELS,
-  target_count: TARGET_SESSION_COUNT,
-  gap_ms: SESSION_GAP_MS,
-  min_messages: MIN_SESSION_MESSAGES,
-}), now);
-
-console.log(`\nWrote ${wrote} new session stubs (summaries pending).`);
-db.close();
+export function formatSessionForMcp(db, sessionId) {
+  const meta = getSessionMeta(db, sessionId);
+  if (!meta) return null;
+  const messages = getSessionText(db, sessionId);
+  return {
+    // Canonical id used across Layer 2 references.
+    session_id: `session:${meta.platform}:${meta.channel_name}:${meta.started_at}`,
+    numeric_id: meta.id,
+    channel: meta.channel_name,
+    platform: meta.platform,
+    started_at: meta.started_at,
+    ended_at: meta.ended_at,
+    chat_message_count: meta.chat_message_count,
+    participants: JSON.parse(meta.participants_json || '[]'),
+    messages,
+  };
+}
 ```
 
-- [ ] **Step 3: Write `apps/qw-oracle/scripts/verify-layer2.mjs`**
+- [ ] **Step 2: Write `apps/qw-oracle/scripts/verify-layer2.mjs`**
+
+Read-only sanity check. Prints the sessions / label / FTS overview and the first non-trivial session per demo target so you can eyeball whether the corpus has substantive discussion for the demo.
 
 ```javascript
 import Database from 'better-sqlite3';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { formatSessionForMcp } from '../layers/claims/get-session-text.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = resolve(__dirname, '..', 'data', 'qw.db');
 const db = new Database(DB_PATH, { readonly: true });
 
-console.log('=== kb_sessions counts ===');
-const total = db.prepare(`SELECT COUNT(*) AS n FROM kb_sessions`).get();
-console.log(`  total: ${total.n}`);
+console.log('=== sessions overview ===');
+const total = db.prepare(`SELECT COUNT(*) AS n FROM sessions`).get();
+console.log(`  total sessions: ${total.n}`);
 
-const byQuality = db.prepare(`SELECT quality, COUNT(*) AS n FROM kb_sessions GROUP BY quality`).all();
-for (const row of byQuality) console.log(`  quality=${row.quality}: ${row.n}`);
-
-console.log('\n=== kb_sessions by channel ===');
-for (const row of db.prepare(`SELECT channel_name, COUNT(*) AS n FROM kb_sessions GROUP BY channel_name ORDER BY n DESC`).all()) {
-  console.log(`  ${row.channel_name}: ${row.n}`);
+console.log('\n=== message_labels categories ===');
+for (const row of db.prepare(`SELECT category, COUNT(*) AS n FROM message_labels GROUP BY category ORDER BY n DESC`).all()) {
+  console.log(`  ${row.category}: ${row.n}`);
 }
 
-console.log('\n=== sample session (newest) ===');
-const sample = db.prepare(`SELECT id, channel_name, message_count, start_at, substr(topic, 1, 80) AS topic, substr(summary, 1, 120) AS summary FROM kb_sessions ORDER BY start_at DESC LIMIT 1`).get();
-console.log(JSON.stringify(sample, null, 2));
+const TARGETS = ['rpickup', 'break', 'next_map', 'ready', 'scores'];
 
-console.log('\n=== FTS5 smoke test ===');
-try {
-  const hit = db.prepare(`SELECT id, rank FROM kb_sessions_fts WHERE kb_sessions_fts MATCH ? LIMIT 3`).all('cvar');
-  console.log(`  MATCH 'cvar' returned ${hit.length} rows`);
-  for (const h of hit) console.log(`   - ${h.id} (rank ${h.rank})`);
-} catch (err) {
-  console.log(`  FTS5 query failed: ${err.message}`);
+console.log('\n=== FTS5 hit counts per demo target ===');
+for (const target of TARGETS) {
+  const hits = db.prepare(`SELECT COUNT(*) AS n FROM session_search WHERE session_search MATCH ?`).get(target);
+  console.log(`  ${target}: ${hits.n} sessions`);
 }
 
-console.log('\n=== selection log ===');
-for (const row of db.prepare(`SELECT * FROM kb_session_selection_log ORDER BY id DESC LIMIT 3`).all()) {
-  console.log(`  [${row.created_at}] slice=${row.slice_name} found=${row.sessions_found}`);
+console.log('\n=== first non-trivial session per target (chat_message_count desc) ===');
+for (const target of TARGETS) {
+  const row = db.prepare(`
+    SELECT ss.session_id
+    FROM session_search ss
+    JOIN sessions s ON s.id = ss.session_id
+    WHERE session_search MATCH ?
+      AND s.chat_message_count >= 5
+    ORDER BY s.chat_message_count DESC
+    LIMIT 1
+  `).get(target);
+  if (!row) {
+    console.log(`\n  --- ${target}: no non-trivial hit ---`);
+    continue;
+  }
+  const session = formatSessionForMcp(db, row.session_id);
+  console.log(`\n  --- ${target} -> session ${session.numeric_id} (${session.platform} ${session.channel} ${session.started_at}) ---`);
+  console.log(`      participants: ${session.participants.join(', ')}`);
+  console.log(`      chat messages: ${session.chat_message_count}`);
+  for (const msg of session.messages.slice(0, 6)) {
+    console.log(`      ${msg.author}: ${(msg.text || '').substring(0, 100)}`);
+  }
+  if (session.messages.length > 6) console.log(`      ... ${session.messages.length - 6} more`);
 }
 
 db.close();
 ```
 
-- [ ] **Step 4: Run and verify**
+- [ ] **Step 3: Run the verifier**
 
 ```bash
-cd apps/qw-oracle
-node layers/claims/pick-slice.mjs
+cd /home/paradoks/projects/quakeworld-poc/apps/qw-oracle
 node scripts/verify-layer2.mjs
 ```
 
-Expected: `pick-slice.mjs` ends with "Wrote N new session stubs" where N is ~30-50. `verify-layer2.mjs` shows total sessions all with `quality=unknown`, sample row with `topic=null, summary=null`, and an empty FTS5 smoke test (FTS is empty until summaries land, expected).
+Inspect the output. For each demo target, is the top session substantive (two or more people talking about the topic), or is it a one-line callout like "need one more for rpickup"? Substantive hits make the demo. One-liners are the noise gap your earlier POC didn't try to catch — acceptable for POC but note it.
 
-If N == 0, your trigger-matching heuristic is off — inspect candidate messages and adjust `MIN_SESSION_MESSAGES` or the channel list.
+- [ ] **Step 4: Append demo session IDs to `apps/qw-oracle/docs/poc-demo-candidates.md`**
+
+Add a new section `## Demo session hits (Layer 2 audit)` with a subsection per demo target. For each target, record the numeric session_id, the started_at timestamp, the channel, and a one-line summary of what the session discusses. 3-5 rows per target is plenty.
+
+If a target has no substantive hits (rpickup is likely pickup callouts all the way down), flag it and consider moving the primary demo to a target with better Layer 2 coverage (`break`, `ready`, and `next_map` all have wider likely usage). **This is the moment to lock in the final primary demo target** based on what Layer 2 actually contains, not what the Layer 1 audit hoped for.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /home/paradoks/projects/quakeworld
-git add apps/qw-oracle/layers/claims/schema.sql apps/qw-oracle/layers/claims/pick-slice.mjs apps/qw-oracle/scripts/verify-layer2.mjs
-git commit -m "feat(qw-oracle): Layer 2 schema + chat slice picker
+git -C /home/paradoks/projects/quakeworld-poc add \
+  apps/qw-oracle/layers/claims \
+  apps/qw-oracle/scripts/verify-layer2.mjs \
+  apps/qw-oracle/docs/poc-demo-candidates.md
+git -C /home/paradoks/projects/quakeworld-poc commit -m "$(cat <<'EOF'
+feat(qw-oracle): Layer 2 query helpers + demo session audit
 
-Adds kb_sessions + kb_sessions_fts + kb_session_messages + selection log.
-pick-slice.mjs groups messages from #ezquake/#helpdesk into sessions on
-15-minute gaps, keeps those mentioning Layer 1 names, writes stubs with
-quality='unknown' awaiting summarization.
+Wires the existing sessions/session_search/message_labels tables
+into the Layer 2 query path. No new schema, no build-time LLM
+pass -- the earlier qw-oracle POC already did denoising, session
+grouping, and FTS5 indexing. This task adds the retrieval helper
+the MCP server will call to turn session_ids into structured chat
+text and runs an FTS5 audit against the demo targets to lock in
+which sessions get rehearsed.
 
-Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
-```
-
-### Task 5: Layer 2 summarization pass
-
-**Files:**
-- Create: `apps/qw-oracle/layers/claims/prompts/session-summary-v1.md`
-- Create: `apps/qw-oracle/layers/claims/summarize-slice.mjs`
-
-**Prerequisites:** `ANTHROPIC_API_KEY` environment variable set. Cost estimate: 50 sessions at Haiku 4.5 pricing is well under $1. Use `claude-haiku-4-5-20251001` by default.
-
-- [ ] **Step 1: Write the prompt at `apps/qw-oracle/layers/claims/prompts/session-summary-v1.md`**
-
-```markdown
-# Session Summary Prompt v1
-
-You are summarizing a QuakeWorld community chat session for a knowledge base.
-The goal is to produce a compact, citation-ready summary that a downstream
-LLM can use to answer player questions.
-
-## Input
-
-A conversation session from a QuakeWorld Discord channel. Participants discuss
-QuakeWorld gameplay, engine cvars, server commands, configuration, bugs,
-strategy, or community topics. Each message has: author_name, content, created_at.
-
-## Output
-
-Return ONLY a JSON object matching this schema (no prose, no markdown):
-
-    {
-      "topic": "string, <= 100 chars, the central question or theme of the session",
-      "summary": "string, 2-5 sentences, what was discussed and what (if anything) was concluded",
-      "mentioned_cvars": ["array of ezquake or fte cvar names explicitly discussed, without project prefix"],
-      "mentioned_commands": ["array of ezquake or ktx command names explicitly discussed, without project prefix"],
-      "tags": ["array of short free-form tags like 'rendering', 'match-config', 'input', 'debugging'"],
-      "quality": "strong | weak",
-      "quality_reason": "one short sentence explaining why"
-    }
-
-## Quality rubric
-
-- **strong**: The session contains a clear question that was answered, a concrete bug that was diagnosed, or a substantive explanation of how something works. A future reader looking for this information would find it useful.
-- **weak**: Off-topic chatter, banter, greetings, incomplete discussions, or technical content too vague to cite. Still include it in the knowledge base but mark it weak so policy-based outlets can filter it out.
-
-## QuakeWorld glossary
-
-QW players use shorthand and community-specific jargon. Use the glossary
-below only to recognize entities behind slang — do not infer cvar or
-command names that are not literally in the messages.
-
-The glossary is loaded from `packages/qw-knowledge/terminology/qw_glossary.yaml`
-(originally built for voice-replay analysis — voice-first, with some
-entries more relevant to spoken callouts than chat logs, but the core
-weapon/powerup/armor/state vocabulary is the same). For the POC we
-inject it wholesale; a proper chat-tuned glossary is phase-2 work.
-
-```yaml
-{{glossary}}
-```
-
-**Rule:** if a session mentions `LG`, that's a reference to the lightning
-gun family — but only include `lg_*` or other concrete cvar/command names
-in `mentioned_cvars` / `mentioned_commands` if they literally appear in
-the messages. The glossary helps you understand what players are talking
-about; it does NOT license you to invent canonical names from slang.
-
-## Rules
-
-1. Use only information present in the session. Do not add general QuakeWorld knowledge from your training data.
-2. Cvar and command names are lowercase identifiers (e.g. `cl_bob`, `+attack`, `rpickup`). Include them only if they appear literally in the messages.
-3. Authors are participants in the conversation, not sources of ground truth. "X said Y" is acceptable if X clearly asserts Y in the session.
-4. If the session is ambiguous, prefer `weak` with a one-sentence reason.
-5. Return valid JSON only. No preamble, no explanation, no markdown fences.
-
-## Input session
-
-Channel: {{channel}}
-Start: {{start_at}}
-Message count: {{message_count}}
-Participants: {{participants}}
-
-Messages:
-{{messages}}
-```
-
-- [ ] **Step 2: Write `apps/qw-oracle/layers/claims/summarize-slice.mjs`**
-
-```javascript
-// Fills in topic/summary/mentioned_*/tags/quality for every kb_sessions row
-// whose summarizer_model = 'pending'. Uses Anthropic API.
-// Idempotent: only processes rows that are still pending.
-
-import Database from 'better-sqlite3';
-import Anthropic from '@anthropic-ai/sdk';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const QW_ORACLE_ROOT = resolve(__dirname, '..', '..');
-const MONOREPO_ROOT = resolve(QW_ORACLE_ROOT, '..', '..');
-const DB_PATH = resolve(QW_ORACLE_ROOT, 'data', 'qw.db');
-const PROMPT_PATH = resolve(__dirname, 'prompts', 'session-summary-v1.md');
-const GLOSSARY_PATH = resolve(MONOREPO_ROOT, 'packages', 'qw-knowledge', 'terminology', 'qw_glossary.yaml');
-
-const MODEL = 'claude-haiku-4-5-20251001';
-const PROMPT_VERSION = 'v1';
-
-// Load the QW glossary as raw YAML text and inject it into the prompt.
-// The LLM reads YAML fine; no parsing needed on our side. Single source of
-// truth: packages/qw-knowledge/terminology/qw_glossary.yaml. If the file
-// moves or is restructured, this fails loudly at startup instead of
-// silently degrading the summarizer.
-const GLOSSARY_TEXT = readFileSync(GLOSSARY_PATH, 'utf8');
-
-const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
-
-const anthropic = new Anthropic();
-const promptTemplate = readFileSync(PROMPT_PATH, 'utf8');
-
-const pending = db.prepare(`
-  SELECT id, channel_name, start_at, message_count, participants_json
-  FROM kb_sessions
-  WHERE summarizer_model = 'pending'
-  ORDER BY start_at DESC
-`).all();
-
-console.log(`${pending.length} sessions pending summarization.`);
-
-const fetchMessages = db.prepare(`
-  SELECT m.author_name, m.content, m.created_at
-  FROM kb_session_messages sm
-  JOIN messages m ON m.id = sm.message_id
-  WHERE sm.session_id = ?
-  ORDER BY sm.ord
-`);
-
-const update = db.prepare(`
-  UPDATE kb_sessions
-  SET topic = @topic,
-      summary = @summary,
-      mentioned_cvar_ids_json = @mentioned_cvar_ids_json,
-      mentioned_cmd_ids_json  = @mentioned_cmd_ids_json,
-      tags_json = @tags_json,
-      quality = @quality,
-      summarizer_model = @model,
-      summarizer_prompt_version = @prompt_version,
-      summarized_at = @summarized_at
-  WHERE id = @id
-`);
-
-// Helpers to turn bare names into canonical IDs
-const knownCvars = new Map(
-  db.prepare(`SELECT name, id FROM kb_cvars`).all().map(r => [r.name.toLowerCase(), r.id])
-);
-const knownCommands = new Map(
-  db.prepare(`SELECT name, id FROM kb_commands`).all().map(r => [r.name.toLowerCase(), r.id])
-);
-
-function toCanonicalCvars(names) {
-  const out = [];
-  for (const n of names ?? []) {
-    const id = knownCvars.get(String(n).toLowerCase());
-    if (id) out.push(id);
-  }
-  return [...new Set(out)];
-}
-function toCanonicalCommands(names) {
-  const out = [];
-  for (const n of names ?? []) {
-    const id = knownCommands.get(String(n).toLowerCase());
-    if (id) out.push(id);
-  }
-  return [...new Set(out)];
-}
-
-function renderPrompt(session, messages) {
-  const msgBlock = messages
-    .map(m => `[${m.created_at}] ${m.author_name}: ${m.content}`)
-    .join('\n');
-  return promptTemplate
-    .replace('{{glossary}}', GLOSSARY_TEXT)
-    .replace('{{channel}}', session.channel_name)
-    .replace('{{start_at}}', session.start_at)
-    .replace('{{message_count}}', String(session.message_count))
-    .replace('{{participants}}', (JSON.parse(session.participants_json) || []).join(', '))
-    .replace('{{messages}}', msgBlock);
-}
-
-async function summarizeOne(session) {
-  const messages = fetchMessages.all(session.id);
-  const prompt = renderPrompt(session, messages);
-
-  const resp = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 800,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const text = resp.content
-    .filter(b => b.type === 'text')
-    .map(b => b.text)
-    .join('')
-    .trim();
-
-  const cleaned = text.replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
-
-  let parsed;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch (err) {
-    console.error(`  FAIL parse ${session.id}: ${err.message}`);
-    console.error(`  raw: ${text.slice(0, 300)}`);
-    return false;
-  }
-
-  update.run({
-    id: session.id,
-    topic: String(parsed.topic ?? '').slice(0, 200),
-    summary: String(parsed.summary ?? ''),
-    mentioned_cvar_ids_json: JSON.stringify(toCanonicalCvars(parsed.mentioned_cvars)),
-    mentioned_cmd_ids_json: JSON.stringify(toCanonicalCommands(parsed.mentioned_commands)),
-    tags_json: JSON.stringify(Array.isArray(parsed.tags) ? parsed.tags : []),
-    quality: parsed.quality === 'strong' ? 'strong' : 'weak',
-    model: MODEL,
-    prompt_version: PROMPT_VERSION,
-    summarized_at: new Date().toISOString(),
-  });
-
-  return true;
-}
-
-let ok = 0;
-let fail = 0;
-for (const [i, session] of pending.entries()) {
-  process.stdout.write(`[${i + 1}/${pending.length}] ${session.id} ... `);
-  try {
-    const success = await summarizeOne(session);
-    if (success) {
-      ok++;
-      console.log('ok');
-    } else {
-      fail++;
-    }
-  } catch (err) {
-    fail++;
-    console.log(`error: ${err.message}`);
-  }
-}
-
-console.log(`\nDone. ok=${ok} fail=${fail} pending=${pending.length}`);
-db.close();
-```
-
-- [ ] **Step 3: Add dependencies to qw-oracle package.json**
-
-```bash
-cd apps/qw-oracle
-npm install @anthropic-ai/sdk
-```
-
-Verify `@anthropic-ai/sdk` is now in `dependencies` in `package.json`.
-
-- [ ] **Step 4: Run the summarizer**
-
-```bash
-cd apps/qw-oracle
-node layers/claims/summarize-slice.mjs
-```
-
-Expected: progress lines ending with `Done. ok=~48 fail=~2 pending=50`. Some failures are acceptable; failed rows stay `pending` and can be re-run.
-
-If ALL rows fail, stop and debug. Likely causes: bad prompt, missing API key, wrong model name, JSON parse error. Add a `console.log(text)` temporarily to inspect a raw response.
-
-- [ ] **Step 5: Verify**
-
-```bash
-node scripts/verify-layer2.mjs
-```
-
-Expected: totals now include `quality=strong` and `quality=weak` counts. Sample row shows populated topic/summary. FTS5 smoke test for `MATCH 'cvar'` returns >0 rows.
-
-- [ ] **Step 6: Commit**
-
-```bash
-cd /home/paradoks/projects/quakeworld
-git add apps/qw-oracle/layers/claims/prompts apps/qw-oracle/layers/claims/summarize-slice.mjs apps/qw-oracle/package.json apps/qw-oracle/package-lock.json
-git commit -m "feat(qw-oracle): Layer 2 summarization via Anthropic SDK
-
-Summarizes pending kb_sessions rows using session-summary-v1 prompt
-with Claude Haiku 4.5. Loads the voice-replay QW glossary from
-packages/qw-knowledge/terminology/qw_glossary.yaml and injects it
-into the prompt for jargon recognition. Resolves mentioned cvar/
-command names to canonical Layer 1 IDs. Stores topic/summary/quality
-plus provenance (summarizer_model + summarizer_prompt_version).
-Idempotent on retry.
-
-Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+EOF
+)"
 ```
 
 ---
-
 ## Phase D: Layer 3 — Curated concepts
 
 ### Task 6: Write 3 concept notes with canonical cross-links
@@ -1756,10 +1325,25 @@ for (const file of files) {
       errors++;
     }
   }
-  for (const id of refs.sessions ?? []) {
-    const hit = db.prepare(`SELECT 1 FROM kb_sessions WHERE id = ?`).get(id);
+  for (const ref of refs.sessions ?? []) {
+    // Canonical session ids look like `session:<platform>:<channel>:<started_at>`
+    // (see layers/claims/get-session-text.mjs formatSessionForMcp output).
+    // We only sanity-check that the session exists in the live `sessions`
+    // table by parsing the id back into its components.
+    const parts = ref.split(':');
+    if (parts.length < 4 || parts[0] !== 'session') {
+      console.warn(`  WARN ${file}: malformed session reference ${ref}`);
+      warnings++;
+      continue;
+    }
+    const platform = parts[1];
+    const channel = parts[2];
+    const startedAt = parts.slice(3).join(':');
+    const hit = db.prepare(`
+      SELECT 1 FROM sessions WHERE platform = ? AND channel_name = ? AND started_at = ?
+    `).get(platform, channel, startedAt);
     if (!hit) {
-      console.warn(`  WARN ${file}: session reference ${id} not in kb_sessions (slice may not include it)`);
+      console.warn(`  WARN ${file}: session reference ${ref} not found in sessions table`);
       warnings++;
     }
   }
@@ -1809,6 +1393,18 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ---
 
 ## Phase E: Serve layer — MCP server
+
+> **Revision note 2026-04-14:** Tasks 7, 8, and 9 were drafted against the original Layer 2 design that assumed a `kb_sessions` / `kb_session_summaries` table pair populated by a build-time LLM summariser, plus a `kb_sessions_fts` virtual table. That design is obsolete. The actual Layer 2 tables are the pre-existing `sessions`, `message_labels`, and `session_search` (see Task 4 and the live `qw.db` schema). The code blocks in these tasks still compile and still reflect the intended tool shape, but references to `kb_sessions_fts`, `kb_sessions`, `mentioned_cvar_ids_json`, and `mentioned_cmd_ids_json` must be mapped to the live tables before execution:
+>
+> | Stale reference | Live equivalent |
+> |---|---|
+> | `kb_sessions_fts` | `session_search` (FTS5 virtual table, already exists) |
+> | `kb_sessions` | `sessions` (128K rows, from the earlier POC) |
+> | `mentioned_cvar_ids_json` / `mentioned_cmd_ids_json` | **Drop entirely.** There is no build-time entity-mention extraction. `lookup_entity` no longer returns `linked_sessions`; the outlet calls `search_solved_issues` for Layer 2 discovery instead. |
+> | Session retrieval (raw chat text) | Call `formatSessionForMcp(db, sessionId)` from `layers/claims/get-session-text.mjs` (created in Task 4). |
+> | `search_solved_issues` returning `summary` / `topic` / `sentiment` fields | Return the structured session shape produced by `formatSessionForMcp()`: `session_id`, `channel`, `platform`, `started_at`, `participants`, `messages[]`. The outlet LLM reads the raw messages and synthesises. |
+>
+> The code blocks below are retained for historical context and because the type shapes, tool-naming, and response envelopes remain correct. The executing agent should adapt the SQL and TypeScript in each task to the live schema, not rewrite the plan first.
 
 ### Task 7: MCP server skeleton + lookup_entity tool
 
@@ -2778,8 +2374,8 @@ All three tool calls return sensible JSON.
 ```markdown
 ### POC status (2026-04-14)
 
-- Layer 1: N cvars, M commands imported (ezquake + fte + ktx)
-- Layer 2: K sessions summarized from `#ezquake`/`#helpdesk` slice
+- Layer 1: N cvars, M commands imported (ezquake + fte + ktx), tagged extraction_method='scraped-json'
+- Layer 2: existing sessions/session_search/message_labels corpus (2.66M labelled messages, 128K sessions) wired into MCP via `formatSessionForMcp()` helper; no build-time summarisation
 - Layer 3: 3 concept notes (ktx_matchstart_injection, ezquake_cvar_anatomy, qw_command_vs_cvar)
 - Serve: MCP server exposes lookup_entity + search_solved_issues + get_concept_note
 - Consumer: Claude Code via `~/.claude.json` mcpServers entry
@@ -2818,7 +2414,7 @@ Summarize:
 If any of the following feel tempting mid-execution, STOP and flag to the user instead:
 
 - Writing a real AST extractor for ezQuake/FTE/KTX source. JSON import is the POC.
-- Processing more than ~50 selected chat sessions in Layer 2.
+- Adding a build-time LLM summarisation pass over the chat corpus. The POC returns raw session transcripts at query time; summarisation is phase 2.
 - Adding vector/semantic search in addition to FTS5.
 - Building a weighted trust model for Layer 2 claims.
 - Identity unification across IRC/Discord/in-game names.
@@ -2827,5 +2423,38 @@ If any of the following feel tempting mid-execution, STOP and flag to the user i
 - Building any kind of frontend.
 - Processing forum archives, match data, or documentation.
 - Adding tests or test infrastructure.
+- Adding a second-pass semantic noise classifier (telling "need one more for rpickup" callouts apart from substantive rpickup discussions). This is genuine research, phase-2 material.
 
 All of these are on the deferred roadmap and are answered during the dev-server presentation phase.
+
+---
+
+## Plan revision log
+
+### 2026-04-14 — Dropped Layer 2 build-time summarisation
+
+**What changed:** The original plan included a Layer 2 pipeline that picked a slice of chat sessions, ran them through an Anthropic API summariser (Haiku 4.5), and stored structured summaries in a new `kb_session_summaries` table. That whole pass was dropped after inspecting the existing `qw.db` state and finding the earlier qw-oracle POC had already done the hard work: 2.66M messages labelled by category (chat vs system/bot/reaction/link), 128K sessions grouped by 15-minute gap, FTS5 index live. The retrieval gap was just "return the chat text for a given session", which is a 10-line helper.
+
+**Why changed:**
+
+1. Mismatch between plan and reality. Plan was drafted without inspecting the live DB; reality had more pre-built infrastructure than the plan assumed.
+2. BYO-LLM integrity. The original framing promised outlet LLM freedom at query time but backdoor-locked the build phase to Anthropic. Dropping the build-time LLM makes the whole system truly LLM-agnostic — no hidden dependency.
+3. Fidelity. A build-time summary bakes one interpretation per session. Different queries want different things from the same conversation. Returning raw transcripts at query time lets the outlet LLM extract exactly what the query needs.
+4. Cost. Zero build-time LLM cost is better than $0.25 — not because $0.25 matters, but because zero removes a whole "whose API key, which credit card, which billing stream" conversation.
+5. Simplicity. Phase C went from 600+ plan lines (Tasks 4 + 5) to ~170 lines (Task 4 alone). Less surface area, fewer moving parts.
+
+**What stayed identical:**
+
+- The three-layer model as a pitch framing.
+- Layer 1, Layer 3, MCP server structure, demo query.
+- Non-negotiable rules (immutable raw, regenerable processing, source citation).
+- Phase-2 roadmap: Ollama on the 4090 remains the canonical answer for bulk summarisation when query volume justifies it.
+
+**Files changed in the revision pass:**
+
+- This plan: header architecture + tech stack; context-for-executing-agent rewrite to document the live `qw.db` state; file structure block; Task 4 replaced; Task 5 deleted; Phase E revision note mapping stale table names to live equivalents; Task 6 concept-note verifier updated to query the live `sessions` table.
+- `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`: three-layer table row for Layer 2; Layer 2 section rewritten; POC in-scope bullet for Layer 2; effort estimate.
+- `apps/qw-oracle/CLAUDE.md`: three-layer table, Tech Stack, Commands section, Non-Negotiable Rules, new Layer 2 summarisation note.
+- `apps/qw-oracle/VISION.md`: three-layer block.
+
+**Pointer to authoritative content:** When in doubt, the running `apps/qw-oracle/CLAUDE.md` is the source of truth for the live shape. The plan is the execution script. The spec is the architectural rationale. If they disagree, fix whichever one is stale and commit.

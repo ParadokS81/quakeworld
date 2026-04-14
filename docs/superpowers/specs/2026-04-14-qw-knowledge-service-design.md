@@ -89,7 +89,7 @@ This is the central architectural decision. All knowledge in the service falls i
 | Layer | Name | Nature | Source | Pipeline | Storage shape | Trust |
 |---|---|---|---|---|---|---|
 | **1** | **Extracted facts** | Deterministic ground truth | Source code, match APIs, structured files | Parser → normalize → SQL insert | SQL (SQLite) | High — source of truth |
-| **2** | **Interpreted claims** | What the community said, distilled | Chat logs, forums, help channels | Filter → session group → LLM summarize → embed | SQLite + FTS5 + vector | Medium — provenance-tagged, weighted by author/recency |
+| **2** | **Community claims** | What the community said | Chat logs, forums, help channels | Filter → session group → FTS5 index (raw at query time; build-time summarisation is phase 2) | SQLite + FTS5 | Medium — provenance-tagged, weighted by author/recency |
 | **3** | **Curated concepts** | Human-written cross-domain glue | ParadokS + LLM-assisted authoring | Hand-written markdown with canonical IDs | Markdown (Obsidian-compatible) | High — explicitly authored |
 
 ### Layer 1 — Extracted facts (rigid)
@@ -111,22 +111,26 @@ This is the central architectural decision. All knowledge in the service falls i
 
 **Why it's reusable work:** ParadokS is already doing this manually for Slipgate. Doing it inside the knowledge service means the work benefits every consumer, not just Slipgate, and replicates cleanly to FTE, KTX, MVDSV without rewriting the interpretation logic.
 
-### Layer 2 — Interpreted claims (soft)
+### Layer 2 — Community claims (soft)
 
-**What it is:** Distilled knowledge from conversations — what did the community say, when, with what confidence, in what context.
+**What it is:** What the community actually said about QuakeWorld — chat transcripts, forum threads, help channels — denoised, segmented into conversation sessions, and indexed for search. The interpretation of *what it all means* happens at query time, by the outlet LLM reading the returned transcripts.
 
 **Examples:**
 - A session where ciscon walked a new player through fixing a rendering artifact in 2020
 - A debate about quad timing strategies in 2008
 - A recurring pattern of complaints about a specific cvar behavior across multiple years
 
-**Pipeline (soft):** Filter noise (joins, quits, single-word reactions, bot spam) → group messages into conversation sessions based on time gaps and conversational cues → run each session through an LLM summarization pass to produce structured output (topics, entities, sentiment, notable quotes, identified question/answer pairs) → store summaries in SQLite linked back to raw messages → index for FTS5 and (optionally) vector embeddings for semantic search.
+**Pipeline (POC):** Filter noise (joins, quits, single-word reactions, bot spam are already labelled via `message_labels`) → group messages into conversation sessions by time gap → index session content via SQLite FTS5. All three steps were completed in the earlier qw-oracle POC and are live in `qw-oracle/data/qw.db` today: 2.66M labelled messages, 128K sessions, one FTS5 virtual table. No additional Layer 2 build work is required for the POC beyond wiring these tables into the MCP query surface.
 
-**Storage:** SQLite + FTS5 + vector index. The existing `qw-oracle/data/qw.db` already holds the raw messages and an FTS5 layer across 123K sessions.
+**Query path:** When the MCP receives a query, it runs an FTS5 match against `session_search`, joins the top hits to their raw chat text (filtering to `category='chat'` via `message_labels` so noise drops out), and returns session transcripts to the outlet LLM. The outlet LLM reads the transcripts and synthesises the answer. No build-time LLM interpretation, no summary compression, no lost fidelity — the outlet sees exactly what was said.
 
-**Why soft:** The chat log itself is just text. *What it means* is interpretive. An LLM has to read it and extract claims. Those claims are tagged with provenance (who, when, where, how confident) so downstream consumers can reason about trust.
+**Storage:** SQLite + FTS5. Vector embeddings are deferred (FTS5 has proven adequate for the demo-scale queries). The phase-2 upgrade path adds build-time LLM summarisation (Ollama on the 4090) as a cost optimisation for outlets with high query volume — at that point, the outlet can consume either summaries or raw sessions, depending on its token budget.
 
-**Trust model:** Claims carry weights — author expertise in the relevant domain (ciscon on rendering, vikpe on web tooling, nano on servers), recency (old claims about current behavior are lower-trust), corroboration (does this claim agree with other sources). The first version just captures provenance; weighted trust is a phase-2 concern but must be designable on top of this schema.
+**Why soft:** The chat log is just text. *What it means* is interpretive. The difference vs the spec's earlier draft: interpretation happens at **query time** in the outlet LLM, not at build time in a summariser. This is more faithful (the outlet sees the raw words) and simpler (no build-phase LLM dependency). Build-time summarisation is a future optimisation, not a prerequisite.
+
+**Trust model:** Claims carry weights — author expertise in the relevant domain (ciscon on rendering, vikpe on web tooling, nano on servers), recency (old claims about current behavior are lower-trust), corroboration (does this claim agree with other sources). The first version just captures provenance via the existing `sessions` table metadata (participants, started_at, channel); weighted trust is a phase-2 concern but must be designable on top of this schema.
+
+**Acknowledged gap:** The first-pass denoising (system/bot/reaction/link vs chat) catches structural noise but not semantic noise. A message like "need one more for rpickup" is classified as chat but adds little value to a technical-query. A second-pass semantic filter (either a build-time LLM classifier or a query-time heuristic over FTS rank) is phase-2 research work — important but out of scope for the POC.
 
 ### Layer 3 — Curated concepts (glue)
 
@@ -209,7 +213,7 @@ The POC exists for **one purpose**: to make the pitch tangible. A 30-second live
 **In scope:**
 
 - **Layer 1:** ezQuake cvar + command extractor → one SQL schema with populated data. Small KTX companion extractor (or even a hand-curated ~20-row KTX command table if the extractor is too much for the POC) to demonstrate cross-project linking.
-- **Layer 2:** one narrow chat slice — e.g., 50-100 helpdesk or `#ezquake` sessions about cvars. Run the existing qw-oracle session data through a basic LLM summarization pass. Store the summaries with provenance.
+- **Layer 2:** wire the existing qw-oracle session corpus into the MCP query surface. The denoising, session grouping, and FTS5 index are already live in `qw.db` from the earlier POC (2.66M labelled messages, 128K sessions, FTS5 virtual table). No build step; the MCP reads session content raw at query time and the outlet LLM synthesises. Pick 3-5 demo sessions ahead of time during rehearsal to verify the FTS-to-transcript path.
 - **Layer 3:** 3-5 hand-written concept notes. **At least one** must deliberately cross-link an ezQuake cvar to its KTX counterpart to a chat discussion. This is the money shot of the demo.
 - **Serve layer:** A minimal MCP server with 3 tools:
   - `lookup_entity(name, project?, type?)` — unified lookup across Layer 1 cvars AND commands. Returns rows with a `type: 'cvar' | 'command'` discriminator plus any linked Layer 2 sessions and Layer 3 notes. One tool serving both entity kinds keeps the POC at three tools total while supporting demo queries about either a cvar (`cl_bob`) or a KTX-injected command (`rpickup`).
@@ -246,7 +250,7 @@ Not a commitment, just a gut check that the POC is actually small:
 
 - Layer 1 extractor (ezQuake cvars + commands): leveraging existing Slipgate work, ~1 session
 - Layer 1 KTX companion: ~half a session for a hand-curated starter table, more for a real extractor
-- Layer 2 slice processing: ~1 session to pick the slice, run the summarizer, store results
+- Layer 2 query path: ~half a session to write the session-to-chat-text helper, audit FTS results for demo targets (Task 4 in the plan)
 - Layer 3 concept notes: a few hours for 3-5 notes, assuming the cross-link one is the user's existing KTX-injection knowledge
 - MCP server with 3 tools: ~1 session (TypeScript; reuses existing MCP SDK patterns)
 - Demo script and rehearsal: ~half a session
