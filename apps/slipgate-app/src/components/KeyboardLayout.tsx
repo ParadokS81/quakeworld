@@ -192,6 +192,10 @@ interface KeyboardLayoutProps {
   showMovement?: boolean;
   /** Per-key label overrides (key layout ID → display label). Shows bound function instead of physical key. */
   keyLabels?: Map<string, string>;
+  /** Click handler. When set, every key becomes an interactive target. Click events emit the layout ID. */
+  onKeyClick?: (id: string) => void;
+  /** Set of key IDs to render with a bright "neon" selection frame. */
+  selectedKeyIds?: Set<string>;
 }
 
 export default function KeyboardLayout(props: KeyboardLayoutProps) {
@@ -213,15 +217,18 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
   const showMovement = () => props.showMovement !== false; // default true
 
   const keyClass = (id: string) => {
+    const selected = props.selectedKeyIds?.has(id) ?? false;
     // Custom highlights take precedence
-    if (props.highlights?.has(id)) return "sg-kb-key sg-kb-highlight";
+    if (props.highlights?.has(id)) {
+      return selected ? "sg-kb-key sg-kb-highlight sg-kb-key-selected" : "sg-kb-key sg-kb-highlight";
+    }
     // Movement highlights only when showMovement is on
     if (showMovement()) {
       const { moveIds, jumpId } = resolved();
-      if (id === jumpId) return "sg-kb-key sg-kb-jump";
-      if (moveIds.has(id)) return "sg-kb-key sg-kb-move";
+      if (id === jumpId) return selected ? "sg-kb-key sg-kb-jump sg-kb-key-selected" : "sg-kb-key sg-kb-jump";
+      if (moveIds.has(id)) return selected ? "sg-kb-key sg-kb-move sg-kb-key-selected" : "sg-kb-key sg-kb-move";
     }
-    return "sg-kb-key";
+    return selected ? "sg-kb-key sg-kb-key-selected" : "sg-kb-key";
   };
 
   const keyStyle = (id: string): string | undefined => {
@@ -278,6 +285,8 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
               rx={4}
               class={keyClass(k.id)}
               style={keyStyle(k.id)}
+              onClick={props.onKeyClick ? (e) => { e.stopPropagation(); props.onKeyClick!(k.id); } : undefined}
+              cursor={props.onKeyClick ? "pointer" : undefined}
             />
             {(() => {
               const label = props.keyLabels?.get(k.id) ?? k.label;
