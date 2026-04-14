@@ -139,6 +139,16 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
             Binds
           </button>
         </div>
+
+        <div class="sg-config-sidebar-domain-label">Movement</div>
+        <div class="sg-config-sidebar-nested flex flex-col items-start gap-1">
+          <button
+            class={`badge cursor-pointer ${props.activeRow2.has("movement:binds") ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => props.onToggleRow2Pill("movement:binds")}
+          >
+            Binds
+          </button>
+        </div>
       </div>
 
       {/* ── Options ── */}
