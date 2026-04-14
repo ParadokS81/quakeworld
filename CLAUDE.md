@@ -104,6 +104,7 @@ All projects except slipgate-app run in WSL Ubuntu.
 - **SSH keys**: WSL `~/.ssh/` - `id_rsa` (Unraid), `qwvoice_key` (Xerial)
 - **Tailscale**: Required for Unraid access (100.114.81.91)
 - **Firebase emulators**: matchscheduler dev on `localhost:5000`
+- **Reading Windows screenshots from WSL**: Windows paths like `C:\Users\Administrator\Downloads\foo.png` are reachable from WSL as `/mnt/c/Users/Administrator/Downloads/foo.png`. Use Read directly on that path — do not claim the file is unreachable.
 
 ## Output discipline
 
