@@ -126,7 +126,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   createEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selection() !== null) setSelection(null);
+      if (e.key === "Escape") setSelection(null);
     };
     window.addEventListener("keydown", handler);
     onCleanup(() => window.removeEventListener("keydown", handler));
