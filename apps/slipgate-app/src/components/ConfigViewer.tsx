@@ -16,6 +16,7 @@ import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
 import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
+import { updatePrefs, type ProfileData } from "../store";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -29,6 +30,7 @@ interface ConfigViewerProps {
   availableConfigs?: ConfigEntry[];
   onCompareConfig?: (entry: ConfigEntry) => void;
   onSwapCompareConfig?: (entry: ConfigEntry) => void;
+  profile?: ProfileData | null;
 }
 
 type ViewMode = "list" | "convert";
@@ -188,6 +190,24 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     const row2 = activeRow2();
     return row2.has("weapons:binds") || row2.has("teamplay:binds") || row2.has("movement:binds");
   });
+
+  // ── Keyboard panel visibility ──
+  const [keyboardVisible, setKeyboardVisible] = createSignal<boolean>(
+    props.profile?.prefs.config_keyboard_visible ?? true,
+  );
+  createEffect(() => {
+    const p = props.profile?.prefs.config_keyboard_visible;
+    if (p !== undefined) setKeyboardVisible(p);
+  });
+  async function toggleKeyboardVisible() {
+    const next = !keyboardVisible();
+    setKeyboardVisible(next);
+    try {
+      await updatePrefs({ config_keyboard_visible: next });
+    } catch (e) {
+      console.error("Failed to persist keyboard visibility pref:", e);
+    }
+  }
 
   // ── Alias + bind command maps for chain expansion ──
   const primaryAliases = createMemo((): Record<string, string> =>
@@ -903,6 +923,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   primary={effectiveConfig()}
                   compare={isCompareMode() ? compareBinds() : null}
                   compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
+                  visible={keyboardVisible()}
+                  onToggleVisible={toggleKeyboardVisible}
                 />
               </Show>
               <SectionMinimap scrollContainer={contentScrollEl} />

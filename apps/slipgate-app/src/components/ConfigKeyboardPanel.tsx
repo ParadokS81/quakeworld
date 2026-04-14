@@ -10,6 +10,9 @@ interface ConfigKeyboardPanelProps {
   compare?: ChainBindClassification | null;
   /** Filename of the comparison config, used as the label above the bottom keyboard. */
   compareName?: string | null;
+  /** When false, the panel renders only a slim "Show keyboard" button. */
+  visible: boolean;
+  onToggleVisible: () => void;
 }
 
 const DEFAULT_TOGGLES: HighlightToggles = {
@@ -65,53 +68,59 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
   const isCompare = () => props.compare != null && props.primary != null;
 
   return (
-    <div class="sg-config-kb-panel">
-      {/* Toggle bar */}
-      <div class="sg-config-kb-toggle-bar">
+    <div class="sg-config-kb-panel" classList={{ "sg-config-kb-panel-collapsed": !props.visible }}>
+      <div class="sg-config-kb-header">
         <button
-          class={`badge cursor-pointer ${showMovement() ? "badge-binds" : "badge-ghost"}`}
-          onClick={() => setShowMovement(v => !v)}
+          class="btn btn-ghost btn-xs"
+          onClick={props.onToggleVisible}
+          title={props.visible ? "Hide keyboard panel" : "Show keyboard panel"}
         >
-          Movement
-        </button>
-        <button
-          class={`badge cursor-pointer ${showWeapons() ? "badge-binds" : "badge-ghost"}`}
-          onClick={() => setShowWeapons(v => !v)}
-        >
-          Weapons
-        </button>
-        <button
-          class={`badge cursor-pointer ${showTeamplay() ? "badge-binds" : "badge-ghost"}`}
-          onClick={() => setShowTeamplay(v => !v)}
-        >
-          Teamplay
+          {props.visible ? "Hide keyboard" : "Show keyboard"}
         </button>
       </div>
-
-      {/* Primary keyboard */}
-      <Show when={props.primary}>
-        <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
-          <Show when={isCompare()}>
-            <div class="sg-config-kb-label">You</div>
-          </Show>
-          <KeyboardLayout
-            movement={props.primary!.movement}
-            highlights={primaryHighlights()}
-            showMovement={showMovement()}
-          />
+      <Show when={props.visible}>
+        <div class="sg-config-kb-toggle-bar">
+          <button
+            class={`badge cursor-pointer ${showMovement() ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => setShowMovement(v => !v)}
+          >
+            Movement
+          </button>
+          <button
+            class={`badge cursor-pointer ${showWeapons() ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => setShowWeapons(v => !v)}
+          >
+            Weapons
+          </button>
+          <button
+            class={`badge cursor-pointer ${showTeamplay() ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => setShowTeamplay(v => !v)}
+          >
+            Teamplay
+          </button>
         </div>
-      </Show>
-
-      {/* Compare keyboard */}
-      <Show when={isCompare()}>
-        <div class="sg-config-kb-wrap sg-config-kb-frame-them">
-          <div class="sg-config-kb-label">{props.compareName ?? "Comparison"}</div>
-          <KeyboardLayout
-            movement={props.compare!.movement}
-            highlights={compareHighlights()}
-            showMovement={showMovement()}
-          />
-        </div>
+        <Show when={props.primary}>
+          <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
+            <Show when={isCompare()}>
+              <div class="sg-config-kb-label">You</div>
+            </Show>
+            <KeyboardLayout
+              movement={props.primary!.movement}
+              highlights={primaryHighlights()}
+              showMovement={showMovement()}
+            />
+          </div>
+        </Show>
+        <Show when={isCompare()}>
+          <div class="sg-config-kb-wrap sg-config-kb-frame-them">
+            <div class="sg-config-kb-label">{props.compareName ?? "Comparison"}</div>
+            <KeyboardLayout
+              movement={props.compare!.movement}
+              highlights={compareHighlights()}
+              showMovement={showMovement()}
+            />
+          </div>
+        </Show>
       </Show>
     </div>
   );

@@ -2023,3 +2023,15 @@ input[type="number"] {
   z-index: 1;
 }
 
+.sg-config-kb-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.25rem 0;
+}
+
+.sg-config-kb-panel-collapsed {
+  min-width: auto;
+  max-width: 6rem;
+  overflow: visible;
+}
+

@@ -2,6 +2,7 @@ import { createSignal, Switch, Match, Show, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry } from "../types";
+import type { ProfileData } from "../store";
 import ConfigViewer from "./ConfigViewer";
 
 interface MyQuakeTabProps {
@@ -11,6 +12,7 @@ interface MyQuakeTabProps {
   configName: string | null;
   compareSource: ConfigSourceBundle | null;
   onCompareSourceChange: (source: ConfigSourceBundle | null) => void;
+  profile: ProfileData | null;
 }
 
 type SubTab = "config" | "visuals" | "matches";
@@ -225,6 +227,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               availableConfigs={props.configSource?.available_configs}
               onCompareConfig={handleCompareConfig}
               onSwapCompareConfig={handleSwapCompareConfig}
+              profile={props.profile}
             />
           </Match>
           <Match when={subTab() === "visuals"}>

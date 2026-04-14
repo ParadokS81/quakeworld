@@ -216,6 +216,7 @@ function App() {
                 configName={profile() ? getPrimarySetup(profile()!).client.config_name ?? null : null}
                 compareSource={compareSource()}
                 onCompareSourceChange={setCompareSource}
+                profile={profile()}
               />
             </Match>
             <Match when={activeTab() === "settings"}>
