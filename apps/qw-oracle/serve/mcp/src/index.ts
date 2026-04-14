@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { loadAllConcepts } from './concept-loader.ts';
 import { lookupEntity } from './tools/lookup-entity.ts';
+import { searchSolvedIssues } from './tools/search-solved-issues.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> layers/concepts
@@ -66,6 +67,32 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ['name'],
       },
     },
+    {
+      name: 'search_solved_issues',
+      description:
+        'Full-text search over 128,084 denoised QuakeWorld community chat sessions (IRC 2005-2016 plus Discord 2016-present, category="chat" filtered). Returns ranked session hits with raw chat transcripts so the outlet LLM can read what people actually said. Sessions with fewer than 5 chat messages are excluded to cut pickup-callout noise. Use this to find community discussion about a cvar, command, concept, or gameplay topic. The MCP server does no summarisation -- raw transcripts go straight to you for synthesis.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description:
+              'FTS5 query. Supports phrase matching, prefix, AND/OR, NEAR. E.g. "rpickup", "crosshair AND size", "\"weapon priority\"".',
+          },
+          limit: {
+            type: 'number',
+            description:
+              'Max number of session hits to return. Default 3. Raising this past 5 is usually wasteful -- FTS rank drops off fast.',
+          },
+          max_messages_per_session: {
+            type: 'number',
+            description:
+              'Max chat messages to include per session transcript. Default 40. Long sessions get truncated; the outlet LLM still gets enough context to synthesise.',
+          },
+        },
+        required: ['query'],
+      },
+    },
   ],
 }));
 
@@ -76,6 +103,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const response = lookupEntity(
         args as { name: string; project?: string; type?: 'cvar' | 'command' },
         conceptIndex,
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'search_solved_issues': {
+      const response = searchSolvedIssues(
+        args as { query: string; limit?: number; max_messages_per_session?: number },
       );
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }

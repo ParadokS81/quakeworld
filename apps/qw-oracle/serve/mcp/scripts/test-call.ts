@@ -41,4 +41,13 @@ printResponse(
   await client.callTool({ name: 'lookup_entity', arguments: { name: 'rpickup' } }),
 );
 
+// --- search_solved_issues ---
+printResponse(
+  'search_solved_issues(rpickup, limit=2, max_messages=6)',
+  await client.callTool({
+    name: 'search_solved_issues',
+    arguments: { query: 'rpickup', limit: 2, max_messages_per_session: 6 },
+  }),
+);
+
 await client.close();
