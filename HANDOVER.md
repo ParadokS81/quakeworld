@@ -8,42 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [ANTHROPIC_API_KEY hardcoded in ~/.bashrc](#anthropic_api_key-hardcoded-in-bashrc) — security: rotate the key and move to a non-checked-in .env
 - [qw-oracle/CLAUDE.md is 192 lines (over 150 hard ceiling)](#qw-oraclecladuemd-is-192-lines-over-150-hard-ceiling) — split into Layer 2 docs next time qw-oracle gets active work
-
----
-
-## ANTHROPIC_API_KEY hardcoded in ~/.bashrc
-
-**Added:** 2026-04-14
-**Status:** pending, security — needs user action (not something Claude can do unilaterally)
-**Verification first:** `grep ANTHROPIC_API_KEY ~/.bashrc`. If the key is gone or replaced with a loader from a separate file, this item is resolved.
-
-The user's `~/.bashrc` has `ANTHROPIC_API_KEY="sk-ant-api03-..."` hardcoded in plaintext inside the `claude-api` alias definition. This was found incidentally while adding worktree launcher aliases during the 2026-04-14 git-workflow session.
-
-### Risks
-
-- Visible to anyone with shell access, any screen share, any backup of dotfiles.
-- Shell history files can leak the key if the alias is echoed or expanded incorrectly.
-- WSL dotfiles sync to Windows filesystem paths that may be indexed by Windows Search or backed up to OneDrive depending on the user's setup.
-- If the user ever pushes their dotfiles to a git repo (public or private), the key goes with them.
-
-### Fix shape
-
-1. Rotate the key at console.anthropic.com first — assume the current value is compromised.
-2. Move the new key to `~/.env.claude` (or similar, gitignored + chmod 600).
-3. Change the `claude-api` alias to `source ~/.env.claude && claude` or equivalent.
-4. Remove the literal key from `.bashrc`.
-
-### Needs user action because
-
-- Rotating the key requires the user to log into the Anthropic console.
-- The user should confirm which env file location they want (WSL vs. Windows path, shared vs. Claude-specific).
-
-### Related
-
-- The alias block in `~/.bashrc` starting around line ~170 (`claude-api`, `claude-sub`, `claude-clear`).
-- Not a monorepo concern per se, but worth resolving because the repo's security rules say "flag credentials immediately."
 
 ---
 
