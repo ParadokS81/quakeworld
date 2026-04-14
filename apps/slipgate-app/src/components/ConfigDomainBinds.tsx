@@ -1,4 +1,4 @@
-import { createSignal, For, Show, type JSX } from "solid-js";
+import { For, Show, type JSX } from "solid-js";
 import type { FiringPath, ManualFlavor, MovementKeys, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry } from "./AliasChainResolver";
@@ -129,7 +129,6 @@ function pairRows(primary: FiringPath[], compare: FiringPath[] = []): DiffRow[] 
 
 export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
   const isCompare = () => (props.compareBinds?.length ?? 0) > 0;
-  const [expandedKey, setExpandedKey] = createSignal<string | null>(null);
 
   // Build flat list of DiffRows paired by (weapon, trigger_key, fire_key, flavor),
   // sorted by WEAPON_ORDER then trigger_key alpha. Weapons with no paths on either
@@ -151,10 +150,6 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
 
     return result;
   };
-
-  function toggleExpand(key: string) {
-    setExpandedKey((prev) => (prev === key ? null : key));
-  }
 
   return (
     <div>
@@ -178,16 +173,14 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
           const color = WEAPON_COLORS[row.weapon] ?? "var(--sg-text-dim)";
           // Placeholder: trigger_key is empty string sentinel set above.
           const isPlaceholder = !row.primary && !row.compare;
-          // Row identity key for expand state.
-          const rk = row.primary
-            ? rowKey(row.primary)
-            : row.compare
-            ? rowKey(row.compare)
-            : row.weapon;
-          const isExpanded = () => expandedKey() === rk;
           const hasContent = !isPlaceholder;
 
+          // Expansion + pin are a single derived concept: the lifted
+          // selection is the sole source of truth. Row expand state flows
+          // from props.selectedWeapon so a keyboard click that updates the
+          // parent's selection expands the matching row here.
           const isSelected = () => !isPlaceholder && props.selectedWeapon === row.weapon;
+          const isExpanded = isSelected;
 
           return (
             <>
@@ -201,7 +194,6 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 }}
                 onClick={() => {
                   if (!hasContent) return;
-                  toggleExpand(rk);
                   props.onWeaponClick?.(row.weapon);
                 }}
               >
@@ -327,7 +319,6 @@ interface TeamsayBindsProps {
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
   const isCompare = () => (props.compareBinds?.length ?? 0) > 0;
-  const [expanded, setExpanded] = createSignal<string | null>(null);
 
   const actions = (): TeamsayAction[] => {
     const map = new Map<string, TeamsayAction>();
@@ -386,10 +377,6 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
     return groups;
   };
 
-  function toggleExpand(actionKey: string) {
-    setExpanded((prev) => (prev === actionKey ? null : actionKey));
-  }
-
   function getChain(key: string | undefined, bindCommands: Record<string, string>, aliases: Record<string, string>): AliasChainEntry[] {
     if (!key) return [];
     const cmd = bindCommands[key.toUpperCase()];
@@ -425,11 +412,13 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
 
               <For each={group.actions}>
                 {(action) => {
-                  const actionKey = `${action.category}:${action.label}`;
-                  const isExpanded = () => expanded() === actionKey;
                   const hasAnyKey = () => !!action.primaryKey || !!action.compareKey;
 
+                  // Expansion + pin share a single source of truth: the
+                  // lifted selection. Keyboard clicks that update
+                  // props.selectedLabel expand the matching row here.
                   const isSelected = () => props.selectedLabel === action.label;
+                  const isExpanded = isSelected;
 
                   return (
                     <>
@@ -444,7 +433,6 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         title={action.description}
                         onClick={() => {
                           if (!hasAnyKey()) return;
-                          toggleExpand(actionKey);
                           props.onLabelClick?.(action.label);
                         }}
                       >
