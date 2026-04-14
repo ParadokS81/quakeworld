@@ -4,7 +4,7 @@
 
 **Goal:** Build a three-layer QuakeWorld knowledge service (extracted facts + interpreted claims + curated concepts) exposed through a local MCP server, wired into Claude Code, demonstrating end-to-end cross-layer retrieval with a single demo query. Serves as the proof-of-concept for a dev-server presentation to domain experts.
 
-**Architecture:** Polyglot persistence inside `apps/qw-oracle/`. Layer 1 (facts) imports existing pre-extracted JSON from `packages/qw-config/src/data/` into SQLite tables with canonical IDs. Layer 2 (claims) reuses the existing 2.66M-message chat corpus in `qw-oracle/data/qw.db`, summarizes a narrow slice via the Anthropic API into a new session-summary table. Layer 3 (concepts) is 3 hand-authored markdown files. An MCP server written in TypeScript exposes three tools (`lookup_cvar`, `search_solved_issues`, `get_concept_note`) that query the three layers and return responses with explicit match-quality signals. Claude Code loads the MCP locally for the demo.
+**Architecture:** Polyglot persistence inside `apps/qw-oracle/`. Layer 1 (facts) imports existing pre-extracted JSON from `packages/qw-config/src/data/` into SQLite tables with canonical IDs. Layer 2 (claims) reuses the existing 2.66M-message chat corpus in `qw-oracle/data/qw.db`, summarizes a narrow slice via the Anthropic API into a new session-summary table. Layer 3 (concepts) is 3 hand-authored markdown files. An MCP server written in TypeScript exposes three tools (`lookup_entity`, `search_solved_issues`, `get_concept_note`) that query the three layers and return responses with explicit match-quality signals. Claude Code loads the MCP locally for the demo.
 
 **Tech Stack:** Node.js 20+, TypeScript (new for the MCP server), `better-sqlite3`, `@modelcontextprotocol/sdk`, `@anthropic-ai/sdk` (for Layer 2 summarization). Existing qw-oracle scripts remain `.mjs`. No test framework dependency — verification is script-and-query.
 
@@ -76,7 +76,7 @@ apps/qw-oracle/
 |       |   |-- db.ts                      # Shared SQLite connection
 |       |   |-- concept-loader.ts          # Reads layers/concepts/*.md
 |       |   |-- tools/
-|       |   |   |-- lookup-cvar.ts
+|       |   |   |-- lookup-entity.ts
 |       |   |   |-- search-solved-issues.ts
 |       |   |   |-- get-concept-note.ts
 |       |   |-- types.ts                   # Shared response shapes
@@ -111,7 +111,7 @@ apps/qw-oracle/
 | B. Layer 1 | 2-3 | Schema + import ezQuake/KTX/FTE JSON into SQLite with canonical IDs |
 | C. Layer 2 | 4-5 | Schema + pick slice + summarize chat sessions |
 | D. Layer 3 | 6 | Concept-note directory + 3 hand-written notes |
-| E. MCP serve | 7-9 | Server skeleton + 3 tools (lookup_cvar, search_solved_issues, get_concept_note) |
+| E. MCP serve | 7-9 | Server skeleton + 3 tools (lookup_entity, search_solved_issues, get_concept_note) |
 | F. Integration | 10-11 | Claude Code MCP config + demo query rehearsal |
 
 Expected total effort: ~6-10 hours of agentic work, split across 2-4 sessions depending on how stable the summarization prompt is on first pass.
@@ -325,51 +325,56 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 -- the existing raw `messages` and `import_log` tables.
 
 CREATE TABLE IF NOT EXISTS kb_cvars (
-  id              TEXT PRIMARY KEY,   -- canonical: 'ezquake:cvar:cl_bob'
-  project         TEXT NOT NULL,      -- 'ezquake' | 'ktx' | 'fte' | 'mvdsv' | 'qwcl'
-  name            TEXT NOT NULL,      -- 'cl_bob'
-  type            TEXT,               -- 'float' | 'int' | 'string' | 'bool' | NULL
-  group_id        TEXT,               -- upstream group id from source JSON (e.g. '31')
-  group_name      TEXT,               -- resolved human-readable group
-  major_group     TEXT,               -- resolved top-level category
-  default_value   TEXT,               -- raw string default (nullable; source JSON may not provide)
-  description     TEXT,               -- from source comment / docs
-  source_file     TEXT,               -- NULL for POC (JSON does not carry this yet)
-  source_line     INTEGER,            -- NULL for POC
-  source_version  TEXT,               -- 'poc' for now; future: pipeline commit SHA
-  imported_at     TEXT NOT NULL       -- ISO 8601 UTC
+  id                 TEXT PRIMARY KEY,   -- canonical: 'ezquake:cvar:cl_bob'
+  project            TEXT NOT NULL,      -- 'ezquake' | 'ktx' | 'fte' | 'mvdsv' | 'qwcl'
+  name               TEXT NOT NULL,      -- 'cl_bob'
+  type               TEXT,               -- 'float' | 'int' | 'string' | 'bool' | NULL
+  group_id           TEXT,               -- upstream group id from source JSON (e.g. '31')
+  group_name         TEXT,               -- resolved human-readable group
+  major_group        TEXT,               -- resolved top-level category
+  default_value      TEXT,               -- raw string default (nullable; source JSON may not provide)
+  description        TEXT,               -- from source comment / docs
+  source_file        TEXT,               -- NULL for POC (JSON does not carry this yet)
+  source_line        INTEGER,            -- NULL for POC
+  source_version     TEXT,               -- 'poc' for now; future: pipeline commit SHA
+  extraction_method  TEXT NOT NULL,      -- 'scraped-json' | 'ast-extractor' | 'hand-curated' — tells consumers the confidence level of this row
+  imported_at        TEXT NOT NULL       -- ISO 8601 UTC
 );
 
-CREATE INDEX IF NOT EXISTS idx_kb_cvars_name        ON kb_cvars(name);
-CREATE INDEX IF NOT EXISTS idx_kb_cvars_project     ON kb_cvars(project);
-CREATE INDEX IF NOT EXISTS idx_kb_cvars_major_group ON kb_cvars(major_group);
+CREATE INDEX IF NOT EXISTS idx_kb_cvars_name              ON kb_cvars(name);
+CREATE INDEX IF NOT EXISTS idx_kb_cvars_project           ON kb_cvars(project);
+CREATE INDEX IF NOT EXISTS idx_kb_cvars_major_group       ON kb_cvars(major_group);
+CREATE INDEX IF NOT EXISTS idx_kb_cvars_extraction_method ON kb_cvars(extraction_method);
 
 CREATE TABLE IF NOT EXISTS kb_commands (
-  id              TEXT PRIMARY KEY,   -- canonical: 'ezquake:cmd:say_team'
-  project         TEXT NOT NULL,
-  name            TEXT NOT NULL,
-  group_id        TEXT,
-  group_name      TEXT,
-  description     TEXT,
-  source_file     TEXT,
-  source_line     INTEGER,
-  source_version  TEXT,
-  imported_at     TEXT NOT NULL
+  id                 TEXT PRIMARY KEY,   -- canonical: 'ezquake:cmd:say_team'
+  project            TEXT NOT NULL,
+  name               TEXT NOT NULL,
+  group_id           TEXT,
+  group_name         TEXT,
+  description        TEXT,
+  source_file        TEXT,
+  source_line        INTEGER,
+  source_version     TEXT,
+  extraction_method  TEXT NOT NULL,      -- 'scraped-json' | 'ast-extractor' | 'hand-curated'
+  imported_at        TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_kb_commands_name    ON kb_commands(name);
-CREATE INDEX IF NOT EXISTS idx_kb_commands_project ON kb_commands(project);
+CREATE INDEX IF NOT EXISTS idx_kb_commands_name              ON kb_commands(name);
+CREATE INDEX IF NOT EXISTS idx_kb_commands_project           ON kb_commands(project);
+CREATE INDEX IF NOT EXISTS idx_kb_commands_extraction_method ON kb_commands(extraction_method);
 
 -- Track each Layer 1 import so re-running is idempotent
 CREATE TABLE IF NOT EXISTS kb_facts_import_log (
-  id              INTEGER PRIMARY KEY AUTOINCREMENT,
-  project         TEXT NOT NULL,      -- 'ezquake' | 'ktx' | 'fte'
-  entity_type     TEXT NOT NULL,      -- 'cvar' | 'cmd'
-  source_file     TEXT NOT NULL,      -- path to JSON file
-  source_version  TEXT,
-  rows_inserted   INTEGER NOT NULL,
-  rows_updated    INTEGER NOT NULL,
-  imported_at     TEXT NOT NULL
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  project            TEXT NOT NULL,      -- 'ezquake' | 'ktx' | 'fte'
+  entity_type        TEXT NOT NULL,      -- 'cvar' | 'cmd'
+  source_file        TEXT NOT NULL,      -- path to JSON file
+  source_version     TEXT,
+  extraction_method  TEXT NOT NULL,      -- matches the rows it produced
+  rows_inserted      INTEGER NOT NULL,
+  rows_updated       INTEGER NOT NULL,
+  imported_at        TEXT NOT NULL
 );
 ```
 
@@ -401,6 +406,7 @@ const DB_PATH = resolve(QW_ORACLE_ROOT, 'data', 'qw.db');
 const SCHEMA_PATH = resolve(__dirname, 'schema.sql');
 
 const SOURCE_VERSION = 'poc';
+const EXTRACTION_METHOD = 'scraped-json'; // see spec open question #2 and the AST-extractor phase-2 note; this signals row confidence to MCP consumers
 
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
@@ -426,19 +432,20 @@ function importCvars({ project, filePath }) {
   const vars = json.vars ?? {};
 
   const upsert = db.prepare(`
-    INSERT INTO kb_cvars (id, project, name, type, group_id, group_name, major_group, default_value, description, source_file, source_line, source_version, imported_at)
-    VALUES (@id, @project, @name, @type, @group_id, @group_name, @major_group, @default_value, @description, @source_file, @source_line, @source_version, @imported_at)
+    INSERT INTO kb_cvars (id, project, name, type, group_id, group_name, major_group, default_value, description, source_file, source_line, source_version, extraction_method, imported_at)
+    VALUES (@id, @project, @name, @type, @group_id, @group_name, @major_group, @default_value, @description, @source_file, @source_line, @source_version, @extraction_method, @imported_at)
     ON CONFLICT(id) DO UPDATE SET
-      type          = excluded.type,
-      group_id      = excluded.group_id,
-      group_name    = excluded.group_name,
-      major_group   = excluded.major_group,
-      default_value = excluded.default_value,
-      description   = excluded.description,
-      source_file   = excluded.source_file,
-      source_line   = excluded.source_line,
-      source_version= excluded.source_version,
-      imported_at   = excluded.imported_at
+      type             = excluded.type,
+      group_id         = excluded.group_id,
+      group_name       = excluded.group_name,
+      major_group      = excluded.major_group,
+      default_value    = excluded.default_value,
+      description      = excluded.description,
+      source_file      = excluded.source_file,
+      source_line      = excluded.source_line,
+      source_version   = excluded.source_version,
+      extraction_method= excluded.extraction_method,
+      imported_at      = excluded.imported_at
   `);
 
   let inserted = 0;
@@ -464,6 +471,7 @@ function importCvars({ project, filePath }) {
         source_file: null,
         source_line: null,
         source_version: SOURCE_VERSION,
+        extraction_method: EXTRACTION_METHOD,
         imported_at: now(),
       };
       upsert.run(row);
@@ -473,9 +481,9 @@ function importCvars({ project, filePath }) {
   txn();
 
   db.prepare(`
-    INSERT INTO kb_facts_import_log (project, entity_type, source_file, source_version, rows_inserted, rows_updated, imported_at)
-    VALUES (?, 'cvar', ?, ?, ?, ?, ?)
-  `).run(project, filePath, SOURCE_VERSION, inserted, updated, now());
+    INSERT INTO kb_facts_import_log (project, entity_type, source_file, source_version, extraction_method, rows_inserted, rows_updated, imported_at)
+    VALUES (?, 'cvar', ?, ?, ?, ?, ?, ?)
+  `).run(project, filePath, SOURCE_VERSION, EXTRACTION_METHOD, inserted, updated, now());
 
   console.log(`[${project}:cvar] ${inserted} inserted, ${updated} updated (${inserted + updated} total) from ${filePath}`);
 }
@@ -487,16 +495,17 @@ function importCommands({ project, filePath }) {
   const commands = json.commands ?? {};
 
   const upsert = db.prepare(`
-    INSERT INTO kb_commands (id, project, name, group_id, group_name, description, source_file, source_line, source_version, imported_at)
-    VALUES (@id, @project, @name, @group_id, @group_name, @description, @source_file, @source_line, @source_version, @imported_at)
+    INSERT INTO kb_commands (id, project, name, group_id, group_name, description, source_file, source_line, source_version, extraction_method, imported_at)
+    VALUES (@id, @project, @name, @group_id, @group_name, @description, @source_file, @source_line, @source_version, @extraction_method, @imported_at)
     ON CONFLICT(id) DO UPDATE SET
-      group_id      = excluded.group_id,
-      group_name    = excluded.group_name,
-      description   = excluded.description,
-      source_file   = excluded.source_file,
-      source_line   = excluded.source_line,
-      source_version= excluded.source_version,
-      imported_at   = excluded.imported_at
+      group_id         = excluded.group_id,
+      group_name       = excluded.group_name,
+      description      = excluded.description,
+      source_file      = excluded.source_file,
+      source_line      = excluded.source_line,
+      source_version   = excluded.source_version,
+      extraction_method= excluded.extraction_method,
+      imported_at      = excluded.imported_at
   `);
 
   let inserted = 0;
@@ -519,6 +528,7 @@ function importCommands({ project, filePath }) {
         source_file: null,
         source_line: null,
         source_version: SOURCE_VERSION,
+        extraction_method: EXTRACTION_METHOD,
         imported_at: now(),
       };
       upsert.run(row);
@@ -528,9 +538,9 @@ function importCommands({ project, filePath }) {
   txn();
 
   db.prepare(`
-    INSERT INTO kb_facts_import_log (project, entity_type, source_file, source_version, rows_inserted, rows_updated, imported_at)
-    VALUES (?, 'cmd', ?, ?, ?, ?, ?)
-  `).run(project, filePath, SOURCE_VERSION, inserted, updated, now());
+    INSERT INTO kb_facts_import_log (project, entity_type, source_file, source_version, extraction_method, rows_inserted, rows_updated, imported_at)
+    VALUES (?, 'cmd', ?, ?, ?, ?, ?, ?)
+  `).run(project, filePath, SOURCE_VERSION, EXTRACTION_METHOD, inserted, updated, now());
 
   console.log(`[${project}:cmd] ${inserted} inserted, ${updated} updated (${inserted + updated} total) from ${filePath}`);
 }
@@ -633,29 +643,41 @@ incomplete. AST-based extractor rewrite is deferred to phase 2.
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task 3: Quick audit of the imported data for demo-readiness
+### Task 3: Quick audit of the imported data + lock in the demo query
 
-**Purpose:** Before writing Layer 2 and the demo, confirm the Layer 1 data has what the demo query will need. The demo is "ask about a KTX-owned cvar and watch the MCP reveal that it is injected by KTX, not ezQuake." This task verifies that pattern exists in the data.
+**Purpose:** Confirm the Layer 1 data supports the intended demo before building Layers 2 and 3. The demo is "ask about a KTX-injected command and watch the MCP reveal that it's owned by KTX, not ezQuake, with a concept note explaining how it got there." The verified data supports this: `break`, `ready`, `next_map`, `rpickup`, `mapcycle`, `next_best`, `shownick`, `scores`, and roughly 300 other command names live in `ktx-commands.json` and will land in `kb_commands` with `project='ktx'`. These are exactly the names Slipgate's existing `ConfigViewer` already flags as "injected by the server on connect" (see `apps/slipgate-app/src/components/ConfigViewer.tsx:435`).
 
 **Files:**
 - Create: `apps/qw-oracle/docs/poc-demo-candidates.md`
 
-- [ ] **Step 1: Query for the demo pattern candidates**
+- [ ] **Step 1: Verify the KTX-only command set landed correctly**
 
 ```bash
 cd apps/qw-oracle
 sqlite3 data/qw.db <<'SQL'
--- Look for k_* cvars or commands (KTX pattern)
-SELECT id, project, substr(description, 1, 60) AS d FROM kb_cvars WHERE name LIKE 'k\_%' ESCAPE '\' LIMIT 10;
-SELECT id, project, substr(description, 1, 60) AS d FROM kb_commands WHERE name LIKE 'k\_%' ESCAPE '\' LIMIT 10;
+-- Commands that exist in KTX but not in ezQuake (the pure KTX-injected set).
+-- This is the primary demo pattern: these look like normal commands to a player
+-- but have no ezQuake definition.
+SELECT k.id, substr(k.description, 1, 60) AS d
+FROM kb_commands k
+WHERE k.project = 'ktx'
+  AND NOT EXISTS (SELECT 1 FROM kb_commands e WHERE e.project = 'ezquake' AND e.name = k.name)
+  AND k.name IN ('break','ready','next_map','rpickup','mapcycle','next_best','shownick','scores','list','maplist')
+ORDER BY k.name;
 
--- Look for KTX commands that also exist as ezQuake cvars (the cross-project surprise)
-SELECT v.id AS cvar_id, c.id AS cmd_id, v.description
-FROM kb_cvars v
-JOIN kb_commands c ON c.name = v.name AND c.project != v.project
-LIMIT 10;
+-- Cross-project name collisions: same name, command in both ezquake and ktx.
+-- Secondary demo pattern: same name, different behavior depending on who runs it.
+SELECT e.id AS ezquake_id, k.id AS ktx_id
+FROM kb_commands e
+JOIN kb_commands k ON k.name = e.name AND k.project = 'ktx'
+WHERE e.project = 'ezquake'
+ORDER BY e.name;
 SQL
 ```
+
+**Expected result:** the first query returns ~5-10 rows for the KTX-only command set. The second query returns 5 rows (roughly `autotrack`, `kick`, `kill`, `pause`, `speed` — names that exist as ezQuake commands AND as KTX commands, with different semantics).
+
+If the KTX set is empty, the Layer 1 importer didn't hit `ktx-commands.json` — go back and fix Task 2 before proceeding.
 
 - [ ] **Step 2: Record findings in `apps/qw-oracle/docs/poc-demo-candidates.md`**
 
@@ -664,29 +686,58 @@ SQL
 
 Run: 2026-04-14
 
-## KTX commands in ktx-commands.json
-- (paste a few from the query above, with their descriptions)
+## Primary demo pattern: pure KTX-injected commands
 
-## Cross-project collisions (same name, different project)
-- (paste results)
+Commands that exist as `ktx:cmd:*` but have no ezQuake counterpart. Players
+see these in their configs (bound to keys) but cannot find them in ezQuake
+source or docs.
 
-## Chosen demo query
-We will ask: "What does the cvar `k_XXX` do?" where XXX is one of the above
-that demonstrates the cross-project story. The MCP should return:
-  1. A hit in kb_commands (project=ktx)
-  2. Optionally a near-miss in kb_cvars (project=ezquake) if applicable
-  3. A concept note ktx_matchstart_injection.md that explains the injection mechanism
-  4. Ideally a chat session from Layer 2 where this was debugged
+Verified present in kb_commands (fill in real descriptions from Step 1):
+- ktx:cmd:break — (paste desc)
+- ktx:cmd:ready — (paste desc)
+- ktx:cmd:next_map — (paste desc)
+- ktx:cmd:rpickup — (paste desc)
+- ktx:cmd:mapcycle — (paste desc)
+- ktx:cmd:scores — (paste desc)
+- ktx:cmd:next_best — (paste desc)
+
+Pick ONE as the primary demo target. `break` and `next_map` are both strong
+candidates because they sound ambiguous to a player who doesn't know KTX.
+
+## Secondary demo pattern: cross-project name collisions
+
+Same name in both `ezquake:cmd:*` and `ktx:cmd:*`, different semantics.
+Verified from Step 1:
+- ezquake:cmd:autotrack <-> ktx:cmd:autotrack
+- ezquake:cmd:kick     <-> ktx:cmd:kick
+- ezquake:cmd:kill     <-> ktx:cmd:kill
+- ezquake:cmd:pause    <-> ktx:cmd:pause
+- ezquake:cmd:speed    <-> ktx:cmd:speed
+
+Use this as a bonus demo if time allows, or as a fallback if Layer 2 didn't
+catch any sessions about the primary target.
+
+## Chosen primary demo query
+
+"What does the bind `END rpickup` do in my ezquake config, and why can't I
+find `rpickup` in the ezQuake source?"
+
+Expected MCP round-trip:
+  1. lookup_entity(name='rpickup') -> empty on ezquake rows, one hit on ktx:cmd:rpickup with linked_concepts including concept:ktx_matchstart_injection
+  2. get_concept_note(id='concept:ktx_matchstart_injection') -> returns the concept body explaining KTX stuffcmd injection
+  3. Optional search_solved_issues(query='rpickup') -> may or may not hit; POC slice is narrow
+
+Final answer cites: ktx:cmd:rpickup row + concept body + any chat sessions.
+
+Replace `rpickup` with another name from the primary set if preferred.
 ```
-
-If no suitable `k_*` pattern exists, fall back to a demo around the `+attack` / `-attack` action pair or any other cross-reference surfaced by the query. Write down what you picked.
 
 - [ ] **Step 3: Commit the scratch doc**
 
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/docs/poc-demo-candidates.md
-git commit -m "docs(qw-oracle): capture POC demo-query candidates from Layer 1 audit
+git commit -m "docs(qw-oracle): lock in POC demo query from Layer 1 audit
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
@@ -1051,10 +1102,39 @@ Return ONLY a JSON object matching this schema (no prose, no markdown):
 - **strong**: The session contains a clear question that was answered, a concrete bug that was diagnosed, or a substantive explanation of how something works. A future reader looking for this information would find it useful.
 - **weak**: Off-topic chatter, banter, greetings, incomplete discussions, or technical content too vague to cite. Still include it in the knowledge base but mark it weak so policy-based outlets can filter it out.
 
+## QuakeWorld slang glossary
+
+QW players use shorthand in chat. Use this mini-glossary only to recognize
+entities behind jargon — do not infer beyond what the session says:
+
+- `LG` or `lg` = lightning gun
+- `RL` or `rl` = rocket launcher
+- `GL` or `gl` = grenade launcher
+- `SG` or `sg` = super shotgun
+- `SNG` or `sng` = super nailgun
+- `quad` = quad damage (powerup)
+- `pent` = pentagram (invulnerability)
+- `ring` = ring of shadows (invisibility)
+- `MH` or `mh` = mega health
+- `RA` / `YA` / `GA` = red / yellow / green armor
+- `tp` = teamplay
+- `ez` or `ezq` = ezQuake client
+- `fte` = FTE client
+- `ktx` = KTX server mod
+- `mvdsv` = MVDSV server
+- `stuffcmd` = server-injected command pushed to a connected client
+- `cfg` = config file, usually autoexec.cfg or fresh.cfg
+- `bind` = a key binding (keyname -> command or alias)
+
+If a session mentions `LG`, that's a reference to the lightning gun family
+— but only include `lg_*` or other concrete cvar/command names in
+`mentioned_cvars`/`mentioned_commands` if they literally appear in the
+messages. Do not invent canonical names from slang.
+
 ## Rules
 
 1. Use only information present in the session. Do not add general QuakeWorld knowledge from your training data.
-2. Cvar and command names are lowercase identifiers (e.g. `cl_bob`, `+attack`, `k_matchlock`). Include them only if they appear literally in the messages.
+2. Cvar and command names are lowercase identifiers (e.g. `cl_bob`, `+attack`, `rpickup`). Include them only if they appear literally in the messages.
 3. Authors are participants in the conversation, not sources of ground truth. "X said Y" is acceptable if X clearly asserts Y in the session.
 4. If the session is ambiguous, prefer `weak` with a one-sentence reason.
 5. Return valid JSON only. No preamble, no explanation, no markdown fences.
@@ -1287,7 +1367,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - Create: `apps/qw-oracle/layers/concepts/qw_command_vs_cvar.md`
 - Create: `apps/qw-oracle/scripts/verify-concepts.mjs`
 
-The KTX injection note is the demo-anchor. It MUST cross-link a real Layer 1 row. Use the findings from Task 3's `poc-demo-candidates.md` to pick real IDs before committing.
+The KTX injection note is the demo-anchor. It MUST cross-link real Layer 1 rows. Use the findings from Task 3's `poc-demo-candidates.md` — the `ktx:cmd:*` IDs for `break`, `ready`, `next_map`, `rpickup`, `mapcycle`, `next_best`, `shownick`, `scores` are all verified present in `kb_commands`. Reference at least 3-5 of these directly so the concept note's `references.commands` array resolves at startup.
 
 - [ ] **Step 1: Write `layers/concepts/README.md`**
 
@@ -1343,22 +1423,23 @@ script checks that every non-concept id in `references` exists in the
 database and warns on dead links.
 ```
 
-- [ ] **Step 3: Write `layers/concepts/ktx_matchstart_injection.md`**
-
-The example below uses placeholder ids. REPLACE them with ids that actually exist in `kb_cvars` / `kb_commands` before committing. If the KTX pattern did not pan out in Task 3, adapt this note to whatever cross-project story did surface.
+- [ ] **Step 3: Write `layers/concepts/ktx_matchstart_injection.md`** using real canonical IDs from Task 3 findings.
 
 ```markdown
 ---
 id: concept:ktx_matchstart_injection
-title: KTX match-start command injection
-description: How KTX servers push server-owned cvars and commands into connected ezQuake clients at match start, and why this confuses config debugging.
-tags: [ktx, ezquake, match-config, stuffcmd, server]
+title: KTX server-injected commands
+description: How KTX servers register commands on connected clients via stuffcmd, making server-owned actions look like native client commands that users can bind to keys.
+tags: [ktx, ezquake, server, stuffcmd, binds]
 references:
-  cvars:
-    - ezquake:cvar:<REPLACE_WITH_REAL_ID>
+  cvars: []
   commands:
-    - ezquake:cmd:stuffcmd
-    - ktx:cmd:<REPLACE_WITH_REAL_KTX_CMD>
+    - ktx:cmd:break
+    - ktx:cmd:ready
+    - ktx:cmd:next_map
+    - ktx:cmd:rpickup
+    - ktx:cmd:mapcycle
+    - ktx:cmd:scores
   sessions: []
   concepts:
     - concept:qw_command_vs_cvar
@@ -1367,39 +1448,71 @@ authored_at: 2026-04-14
 confidence: high
 ---
 
-# KTX match-start command injection
+# KTX server-injected commands
 
-When you connect to a QuakeWorld server running KTX, many of the cvars that
-appear to belong to ezQuake are actually set by the server. KTX uses the
-`stuffcmd` network command to push arbitrary console commands into every
-connected client, including `set` commands for server-dictated match
-configuration.
+When you connect to a QuakeWorld server running KTX, the server pushes a set
+of named commands onto your client using the `stuffcmd` network primitive.
+From your client's point of view these commands appear as if they were
+built-in: you can bind them to keys, type them in the console, and they work
+the same way a native command does. But they are not in ezQuake's source.
+They live in KTX's `commands.c` and only exist on your client for as long
+as you are connected to a KTX server.
 
-This is why you can see a `k_*` cvar in your ezQuake console that does not
-appear in the ezQuake source and is not listed in ezQuake documentation.
-The cvar was created on your client the moment KTX sent a `stuffcmd set
-k_whatever value`. Your client now has the cvar (because `set` auto-creates
-unknown cvars), but ezQuake has no idea what it means.
+Examples you will see in QW configs:
 
-## Why this matters for debugging
+- `break` — match-mode command: give up / forfeit during an organized match
+- `ready` — signal to the server that you're ready to start the match
+- `next_map` — vote for the next map in the map cycle
+- `rpickup` — random team pickup (used during pickup matches)
+- `mapcycle` / `next_best` — map rotation controls
+- `scores` — bring up the score overlay
+- `shownick` — show the player's nickname on screen
 
-Config debugging in this area is counterintuitive:
+These are bound in many players' configs. Without context, someone cleaning
+up their config sees an unresolved command and has no idea whether it is a
+typo, a deprecated feature, a third-party plugin, or a real thing. It is a
+real thing — owned by KTX, not ezQuake.
 
-- Grepping the ezQuake source for a `k_*` cvar returns nothing even though
-  your client has it set.
-- Running `cvar_list k_*` in ezQuake works because those cvars really exist
-  in your client's cvar table.
-- Restarting without connecting to a KTX server removes many of these
-  cvars: they were never persisted; KTX had to re-inject them on connect.
+## Why this is confusing
 
-The practical rule: if you see a cvar named `k_*` or otherwise unfamiliar
-and you cannot find it in ezQuake, search KTX first.
+Config debugging runs into this regularly:
+
+- Grepping the ezQuake source for `rpickup` returns nothing. The command
+  genuinely does not exist in ezQuake.
+- In the ezQuake console, `rpickup` works when connected to a KTX server
+  and fails otherwise. Its presence is conditional on the server.
+- Config tools that only know ezQuake's command set (like naive config
+  linters) flag these as broken binds. They are not broken; they are
+  server-dependent.
+
+The practical rule: if you see a command in a config that is not in
+ezQuake's source, and the config came from someone who plays on KTX
+servers, try KTX first before assuming it is a typo.
+
+## Where Slipgate already handles this
+
+`apps/slipgate-app/src/components/ConfigViewer.tsx` loads the same
+`ktx-commands.json` file that Layer 1 imports and uses it to classify
+binds in the viewer. A bind to `rpickup` is tagged `KTX` and shown with
+the label "Command is a KTX server mod command. It is injected by the
+server on connect and only works when playing on a KTX server."
+
+This concept note captures that same knowledge in a format an LLM can
+retrieve and cite, independent of the Slipgate UI.
 
 ## Related
 
-See the `qw_command_vs_cvar` concept note for the broader question of why
-cvars and commands live in different tables and how to tell when a name
-refers to one vs the other.
+See the `qw_command_vs_cvar` concept note for why Quake keeps commands
+and cvars in separate namespaces. See also the `kb_commands` table where
+each of the referenced `ktx:cmd:*` rows carries its own short description.
+
+## Known data limitation
+
+Layer 1 imports from `packages/qw-config/src/data/ktx-commands.json`,
+which is produced by a pattern-based scraper of KTX's `commands.c`. Not
+every command registered at runtime via `stuffcmd` is captured this way
+— only those declared in the static `cmds[]` array. Phase-2 AST-based
+extraction will close this gap. See spec open question #2.
 ```
 
 - [ ] **Step 4: Write `layers/concepts/ezquake_cvar_anatomy.md`**
@@ -1691,7 +1804,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ## Phase E: Serve layer — MCP server
 
-### Task 7: MCP server skeleton + lookup_cvar tool
+### Task 7: MCP server skeleton + lookup_entity tool
 
 **Files:**
 - Create: `apps/qw-oracle/serve/mcp/package.json`
@@ -1700,7 +1813,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - Create: `apps/qw-oracle/serve/mcp/src/index.ts`
 - Create: `apps/qw-oracle/serve/mcp/src/db.ts`
 - Create: `apps/qw-oracle/serve/mcp/src/types.ts`
-- Create: `apps/qw-oracle/serve/mcp/src/tools/lookup-cvar.ts`
+- Create: `apps/qw-oracle/serve/mcp/src/tools/lookup-entity.ts`
 - Create: `apps/qw-oracle/serve/mcp/src/concept-loader.ts`
 - Create: `apps/qw-oracle/serve/mcp/README.md`
 
@@ -1779,15 +1892,20 @@ export interface ToolResponse<T = unknown> {
   };
 }
 
-export interface CvarRecord {
+// Unified entity record: a cvar or a command. The `type` discriminator lets
+// consumer LLMs render them differently (cvars have default values, commands
+// don't). Same MCP tool returns both; the demo query often hits one of each.
+export interface EntityRecord {
   id: string;
+  type: 'cvar' | 'command';
   project: string;
   name: string;
-  type: string | null;
-  default_value: string | null;
+  value_type: string | null;       // cvar only: 'float' | 'int' | 'string' | 'bool'
+  default_value: string | null;    // cvar only
   description: string | null;
   group_name: string | null;
-  major_group: string | null;
+  major_group: string | null;      // cvar only (commands don't have a major group in current schema)
+  extraction_method: string;       // 'scraped-json' etc — signals row confidence
   linked_sessions: string[];
   linked_concepts: string[];
 }
@@ -1878,68 +1996,136 @@ export function loadAllConcepts(conceptsDir: string): Map<string, ConceptNote> {
 }
 ```
 
-- [ ] **Step 7: Write `serve/mcp/src/tools/lookup-cvar.ts`**
+- [ ] **Step 7: Write `serve/mcp/src/tools/lookup-entity.ts`**
+
+Unified lookup across both `kb_cvars` and `kb_commands`. The demo query is about a command (`rpickup`), so a cvar-only tool would miss it; an entity tool hits both tables and returns whichever rows exist. Keeps the POC at 3 MCP tools total (per the scope guardrail).
 
 ```typescript
 import { db } from '../db.ts';
-import type { CvarRecord, ToolResponse } from '../types.ts';
+import type { EntityRecord, ToolResponse } from '../types.ts';
 
 const SERVER_VERSION = '0.1.0';
 
-interface LookupCvarArgs {
+interface LookupEntityArgs {
   name: string;
   project?: string;
+  type?: 'cvar' | 'command'; // optional filter; default returns both
 }
 
-type CvarRowBase = Omit<CvarRecord, 'linked_sessions' | 'linked_concepts'>;
-
-const selectByNameAndProject = db.prepare<[string, string], CvarRowBase>(`
-  SELECT id, project, name, type, default_value, description, group_name, major_group
-  FROM kb_cvars
-  WHERE name = ? AND project = ?
-`);
-
-const selectByName = db.prepare<[string], CvarRowBase>(`
-  SELECT id, project, name, type, default_value, description, group_name, major_group
-  FROM kb_cvars
-  WHERE name = ?
-`);
-
-const findLinkedSessions = db.prepare<[string], { id: string }>(`
-  SELECT id FROM kb_sessions
-  WHERE mentioned_cvar_ids_json LIKE ?
-`);
-
-function enrichWithLinks(row: CvarRowBase, conceptIndex: Map<string, string[]>): CvarRecord {
-  const linkedSessions = findLinkedSessions.all(`%"${row.id}"%`).map(r => r.id);
-  const linkedConcepts = conceptIndex.get(row.id) ?? [];
-  return { ...row, linked_sessions: linkedSessions, linked_concepts: linkedConcepts };
+// Row shape returned by the SELECTs below — a common subset of kb_cvars and kb_commands.
+// Unused fields are hydrated to null by the per-query mapping.
+interface RawCvarRow {
+  id: string; project: string; name: string;
+  type: string | null; default_value: string | null;
+  description: string | null; group_name: string | null; major_group: string | null;
+  extraction_method: string;
+}
+interface RawCmdRow {
+  id: string; project: string; name: string;
+  description: string | null; group_name: string | null;
+  extraction_method: string;
 }
 
-export function lookupCvar(args: LookupCvarArgs, conceptIndex: Map<string, string[]>): ToolResponse<CvarRecord> {
-  const rows: CvarRowBase[] = args.project
-    ? (selectByNameAndProject.all(args.name, args.project) as CvarRowBase[])
-    : (selectByName.all(args.name) as CvarRowBase[]);
+const selectCvarsByNameAndProject = db.prepare<[string, string], RawCvarRow>(`
+  SELECT id, project, name, type, default_value, description, group_name, major_group, extraction_method
+  FROM kb_cvars WHERE name = ? AND project = ?
+`);
+const selectCvarsByName = db.prepare<[string], RawCvarRow>(`
+  SELECT id, project, name, type, default_value, description, group_name, major_group, extraction_method
+  FROM kb_cvars WHERE name = ?
+`);
+const selectCmdsByNameAndProject = db.prepare<[string, string], RawCmdRow>(`
+  SELECT id, project, name, description, group_name, extraction_method
+  FROM kb_commands WHERE name = ? AND project = ?
+`);
+const selectCmdsByName = db.prepare<[string], RawCmdRow>(`
+  SELECT id, project, name, description, group_name, extraction_method
+  FROM kb_commands WHERE name = ?
+`);
 
-  const enriched = rows.map(r => enrichWithLinks(r, conceptIndex));
+// NOTE(scaling): this JSON-LIKE pattern is O(n*m) over kb_sessions and will
+// become a bottleneck at phase-2 scale (10K+ summarized sessions). Phase 2
+// should replace this with a junction table kb_entity_mentions(session_id,
+// entity_id) indexed on entity_id. See spec deferred roadmap. For the POC's
+// ~50-session slice this is instant.
+const findLinkedSessionsByCvarJson = db.prepare<[string], { id: string }>(`
+  SELECT id FROM kb_sessions WHERE mentioned_cvar_ids_json LIKE ?
+`);
+const findLinkedSessionsByCmdJson = db.prepare<[string], { id: string }>(`
+  SELECT id FROM kb_sessions WHERE mentioned_cmd_ids_json LIKE ?
+`);
+
+function cvarToEntity(r: RawCvarRow, conceptIndex: Map<string, string[]>): EntityRecord {
+  return {
+    id: r.id,
+    type: 'cvar',
+    project: r.project,
+    name: r.name,
+    value_type: r.type,
+    default_value: r.default_value,
+    description: r.description,
+    group_name: r.group_name,
+    major_group: r.major_group,
+    extraction_method: r.extraction_method,
+    linked_sessions: findLinkedSessionsByCvarJson.all(`%"${r.id}"%`).map(x => x.id),
+    linked_concepts: conceptIndex.get(r.id) ?? [],
+  };
+}
+
+function cmdToEntity(r: RawCmdRow, conceptIndex: Map<string, string[]>): EntityRecord {
+  return {
+    id: r.id,
+    type: 'command',
+    project: r.project,
+    name: r.name,
+    value_type: null,
+    default_value: null,
+    description: r.description,
+    group_name: r.group_name,
+    major_group: null,
+    extraction_method: r.extraction_method,
+    linked_sessions: findLinkedSessionsByCmdJson.all(`%"${r.id}"%`).map(x => x.id),
+    linked_concepts: conceptIndex.get(r.id) ?? [],
+  };
+}
+
+export function lookupEntity(args: LookupEntityArgs, conceptIndex: Map<string, string[]>): ToolResponse<EntityRecord> {
+  const wantCvars = args.type !== 'command';
+  const wantCmds  = args.type !== 'cvar';
+
+  const results: EntityRecord[] = [];
+
+  if (wantCvars) {
+    const cvarRows = args.project
+      ? selectCvarsByNameAndProject.all(args.name, args.project)
+      : selectCvarsByName.all(args.name);
+    for (const r of cvarRows) results.push(cvarToEntity(r, conceptIndex));
+  }
+
+  if (wantCmds) {
+    const cmdRows = args.project
+      ? selectCmdsByNameAndProject.all(args.name, args.project)
+      : selectCmdsByName.all(args.name);
+    for (const r of cmdRows) results.push(cmdToEntity(r, conceptIndex));
+  }
 
   let matchQuality: 'strong' | 'weak' | 'none';
-  if (enriched.length === 0) {
+  if (results.length === 0) {
     matchQuality = 'none';
-  } else if (enriched.some(r => r.description && r.description.length > 20)) {
+  } else if (results.some(r => r.description && r.description.length > 20)) {
     matchQuality = 'strong';
   } else {
     matchQuality = 'weak';
   }
 
   return {
-    results: enriched,
+    results,
     match_quality: matchQuality,
     suggested_fallback: matchQuality === 'none'
-      ? `No cvar named "${args.name}" in Layer 1. Consider searching Layer 2 with search_solved_issues, or asking in the #ezquake Discord channel.`
+      ? `No entity named "${args.name}" in Layer 1 across cvars or commands. Consider search_solved_issues for Layer 2 mentions, or asking in #ezquake on Discord.`
       : null,
     meta: {
-      tool: 'lookup_cvar',
+      tool: 'lookup_entity',
       server_version: SERVER_VERSION,
       queried_at: new Date().toISOString(),
     },
@@ -1958,7 +2144,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadAllConcepts } from './concept-loader.ts';
-import { lookupCvar } from './tools/lookup-cvar.ts';
+import { lookupEntity } from './tools/lookup-entity.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONCEPTS_DIR = resolve(__dirname, '..', '..', '..', 'layers', 'concepts');
@@ -1990,13 +2176,14 @@ const server = new Server(
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
-      name: 'lookup_cvar',
-      description: 'Look up a QuakeWorld cvar by name across all known projects (ezquake, ktx, fte, mvdsv). Returns the Layer 1 fact rows plus linked Layer 2 chat sessions and Layer 3 concept notes.',
+      name: 'lookup_entity',
+      description: 'Look up a QuakeWorld cvar OR command by name across all known projects (ezquake, ktx, fte, mvdsv). Returns Layer 1 rows (cvars and/or commands with type discriminator) plus linked Layer 2 chat sessions and Layer 3 concept notes. Use this when you have a name from a config or a user question and want to know what it is and where it comes from.',
       inputSchema: {
         type: 'object',
         properties: {
-          name: { type: 'string', description: 'Cvar name, e.g. cl_bob. Literal match, case-sensitive.' },
+          name: { type: 'string', description: 'Entity name, e.g. cl_bob or rpickup. Literal match, case-sensitive.' },
           project: { type: 'string', description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv | qwcl.' },
+          type: { type: 'string', enum: ['cvar', 'command'], description: 'Optional. Restrict to cvars only or commands only. Default returns both.' },
         },
         required: ['name'],
       },
@@ -2007,8 +2194,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   switch (name) {
-    case 'lookup_cvar': {
-      const response = lookupCvar(args as { name: string; project?: string }, conceptIndex);
+    case 'lookup_entity': {
+      const response = lookupEntity(args as { name: string; project?: string; type?: 'cvar' | 'command' }, conceptIndex);
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }
     default:
@@ -2031,7 +2218,7 @@ Any MCP-capable LLM client can load it as a tool server.
 
 ## Tools
 
-- `lookup_cvar(name, project?)` — Layer 1 cvar lookup with linked sessions/concepts
+- `lookup_entity(name, project?, type?)` — Layer 1 cvar/command lookup with linked sessions/concepts
 - `search_solved_issues(query)` — Layer 2 FTS5 search across summarized sessions
 - `get_concept_note(id)` — Layer 3 concept note retrieval
 
@@ -2097,9 +2284,19 @@ await client.connect(transport);
 const tools = await client.listTools();
 console.log('tools:', tools.tools.map(t => t.name));
 
-const res = await client.callTool({ name: 'lookup_cvar', arguments: { name: 'cl_bob' } });
-console.log('lookup_cvar(cl_bob):');
+// Cvar case: look up a well-known ezQuake cvar
+const res = await client.callTool({ name: 'lookup_entity', arguments: { name: 'cl_bob' } });
+console.log('lookup_entity(cl_bob):');
 for (const block of res.content ?? []) {
+  if ((block as { type: string }).type === 'text') {
+    console.log((block as { text: string }).text);
+  }
+}
+
+// Command case: look up a KTX-injected command (the demo pattern)
+const resCmd = await client.callTool({ name: 'lookup_entity', arguments: { name: 'rpickup' } });
+console.log('\nlookup_entity(rpickup):');
+for (const block of resCmd.content ?? []) {
   if ((block as { type: string }).type === 'text') {
     console.log((block as { text: string }).text);
   }
@@ -2115,19 +2312,20 @@ cd apps/qw-oracle/serve/mcp
 bun run scripts/test-call.ts
 ```
 
-Expected: `tools: [ 'lookup_cvar' ]` followed by a JSON object with `results` containing the cl_bob cvar row, `match_quality: 'strong'`, `meta.tool: 'lookup_cvar'`.
+Expected: `tools: [ 'lookup_entity' ]` followed by two JSON responses. The cl_bob call returns `{type: 'cvar', project: 'ezquake', ...}` with `match_quality: 'strong'`. The rpickup call returns `{type: 'command', project: 'ktx', ...}` — and if the concept note has already been authored (Task 6 runs before this in the sequence; if executed out of order, `linked_concepts` will be empty until the server restarts with the note in place), `linked_concepts` includes `'concept:ktx_matchstart_injection'`.
 
 - [ ] **Step 12: Commit**
 
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/serve/mcp
-git commit -m "feat(qw-oracle): MCP server skeleton with lookup_cvar tool
+git commit -m "feat(qw-oracle): MCP server skeleton with lookup_entity tool
 
-TypeScript MCP server that exposes Layer 1 cvar lookups with match-quality
-signals and linked-session/linked-concept cross-references. Loads concept
-notes via gray-matter at startup. Includes a test client in
-scripts/test-call.ts for smoke verification outside Claude Code.
+TypeScript MCP server that exposes unified Layer 1 lookups across cvars
+AND commands (single tool, type discriminator in results) with
+match-quality signals and linked-session/linked-concept cross-references.
+Loads concept notes via gray-matter at startup. Includes a test client
+in scripts/test-call.ts for smoke verification outside Claude Code.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
@@ -2265,7 +2463,7 @@ case 'search_solved_issues': {
 }
 ```
 
-- [ ] **Step 3: Extend `scripts/test-call.ts`** — after the existing `lookup_cvar` call, add:
+- [ ] **Step 3: Extend `scripts/test-call.ts`** — after the existing `lookup_entity` calls, add:
 
 ```typescript
 const res2 = await client.callTool({ name: 'search_solved_issues', arguments: { query: 'cvar', limit: 3 } });
@@ -2284,7 +2482,7 @@ cd apps/qw-oracle/serve/mcp
 bun run scripts/test-call.ts
 ```
 
-Expected: lookup_cvar still works; search_solved_issues returns up to 3 `SessionHit` entries. `match_quality` should not be `none` unless Layer 2 is empty.
+Expected: both lookup_entity calls still work; search_solved_issues returns up to 3 `SessionHit` entries. `match_quality` should not be `none` unless Layer 2 is empty.
 
 - [ ] **Step 5: Commit**
 
@@ -2295,7 +2493,7 @@ git commit -m "feat(qw-oracle): MCP search_solved_issues tool over Layer 2 FTS
 
 Adds full-text search over kb_sessions_fts with optional min_quality
 filter and match-quality envelope. Test client exercises it alongside
-lookup_cvar.
+lookup_entity.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
@@ -2398,7 +2596,7 @@ cd apps/qw-oracle/serve/mcp
 bun run scripts/test-call.ts
 ```
 
-Expected: `lookup_cvar` returns cl_bob with any `linked_concepts`; `search_solved_issues` returns session hits; `get_concept_note` returns the KTX note with body populated and `match_quality: 'strong'`.
+Expected: `lookup_entity(cl_bob)` returns a cvar row; `lookup_entity(rpickup)` returns a `type: 'command'` row with `project: 'ktx'` and `linked_concepts: ['concept:ktx_matchstart_injection']`; `search_solved_issues` returns session hits; `get_concept_note` returns the KTX note with body populated and `match_quality: 'strong'`.
 
 - [ ] **Step 5: Commit**
 
@@ -2456,7 +2654,7 @@ In a fresh Claude Code session, run:
 /mcp
 ```
 
-Expected: `qw-oracle` listed with three tools: `lookup_cvar`, `search_solved_issues`, `get_concept_note`.
+Expected: `qw-oracle` listed with three tools: `lookup_entity`, `search_solved_issues`, `get_concept_note`.
 
 Debug path if missing: run `bun run src/index.ts` manually in the mcp dir to see stderr, confirm the path in `~/.claude.json` is absolute, confirm Bun is on PATH.
 
@@ -2480,24 +2678,32 @@ all three layers in a single turn.
 
 Paste this into Claude Code:
 
-> I am looking at an ezQuake config that references `<REAL_K_STAR_CVAR>` and I cannot find it in the ezQuake source. What is it and where does it come from?
+> I am looking at a QuakeWorld config that binds the END key to `rpickup`. I cannot find `rpickup` anywhere in the ezQuake source. What is it and where does it come from?
 
 Expected behavior:
 
 1. Claude Code recognizes this as a QW-specific question and reaches for the `qw-oracle` MCP.
-2. It calls `lookup_cvar` with `name: "<REAL_K_STAR_CVAR>"`.
-3. If the cvar exists in Layer 1 under a non-ezquake project, the response includes `linked_concepts: ["concept:ktx_matchstart_injection"]`.
-4. Claude Code calls `get_concept_note` with that id.
-5. Optionally, Claude Code calls `search_solved_issues` with a query built from the concept note topic.
-6. Claude Code composes an answer citing the Layer 1 row, the concept note body, and any chat sessions.
+2. It calls `lookup_entity` with `name: "rpickup"`.
+3. The response has one result: `{type: 'command', project: 'ktx', id: 'ktx:cmd:rpickup', ...}` with `linked_concepts: ["concept:ktx_matchstart_injection"]` and (if the slice caught it) one or more `linked_sessions`.
+4. Claude Code calls `get_concept_note` with id `concept:ktx_matchstart_injection`. The note body explains KTX stuffcmd injection and references the other KTX commands (`break`, `next_map`, `ready`, etc.) in the same family.
+5. Optionally, Claude Code calls `search_solved_issues` with something like `query: "rpickup"` or `"ktx stuffcmd"`.
+6. Claude Code composes an answer citing: the `ktx:cmd:rpickup` row (with `extraction_method: 'scraped-json'` for honesty), the concept note body, and any chat sessions.
+
+The key moment is when Claude Code says "this command doesn't exist in ezQuake — it's a KTX server mod command, injected into your client at match start" and cites the concept note. That's the librarian feeling.
+
+## Secondary demo query (cross-project collision)
+
+> In QuakeWorld, what does the `kick` command do? Is it a client thing or a server thing?
+
+Expected behavior: `lookup_entity(name: "kick")` returns TWO rows — one `ezquake:cmd:kick` (client) and one `ktx:cmd:kick` (server). Claude Code explains that the name exists in both projects with different semantics. This is the "same name, two meanings" demo — useful if the dev-server audience wants to see cross-project linking without the injection framing.
 
 ## Fallback demo queries
 
-If the primary demo data is weak, use one of these:
+If neither primary nor secondary lands well:
 
-- "What does `cl_bob` do in ezQuake and how does it interact with view setup?"
-- "Give me the concept note on ezquake cvar anatomy."
-- "Search the chat archive for discussions about crosshair settings."
+- "What does `cl_bob` do in ezQuake?" — exercises the cvar path
+- "Give me the concept note on ezquake cvar anatomy." — exercises get_concept_note directly
+- "Search the chat archive for discussions about crosshair settings." — exercises search_solved_issues alone
 
 ## What to say during the pitch
 
@@ -2569,7 +2775,7 @@ All three tool calls return sensible JSON.
 - Layer 1: N cvars, M commands imported (ezquake + fte + ktx)
 - Layer 2: K sessions summarized from `#ezquake`/`#helpdesk` slice
 - Layer 3: 3 concept notes (ktx_matchstart_injection, ezquake_cvar_anatomy, qw_command_vs_cvar)
-- Serve: MCP server exposes lookup_cvar + search_solved_issues + get_concept_note
+- Serve: MCP server exposes lookup_entity + search_solved_issues + get_concept_note
 - Consumer: Claude Code via `~/.claude.json` mcpServers entry
 - Demo: `docs/poc-demo-script.md`
 

@@ -60,7 +60,7 @@ Why this flexibility matters:
 - **Leverage.** The hard work — extraction, curation, cross-domain linking — is done once and benefits every consumer forever, regardless of which LLM they use.
 - **No vendor lock-in.** The protocol is open. Any outlet can switch LLMs (hosted API → self-hosted → different hosted provider → cheaper provider next year) without the foundation changing. As model prices fall or self-hosted gets better, outlet economics improve automatically.
 
-The mechanism is **MCP — Model Context Protocol** — an open standard for LLM tool servers. An MCP server is a "plugin" any modern LLM client can load: it exposes tools like `qw_lookup_cvar`, `qw_search_chat`, `qw_find_concept`. The LLM acts as the librarian; the MCP is the library. Whether that librarian runs on ParadokS's laptop, a community server, or a cloud API is an outlet choice, not a foundation choice.
+The mechanism is **MCP — Model Context Protocol** — an open standard for LLM tool servers. An MCP server is a "plugin" any modern LLM client can load: it exposes tools like `lookup_entity`, `search_solved_issues`, `get_concept_note`. The LLM acts as the librarian; the MCP is the library. Whether that librarian runs on ParadokS's laptop, a community server, or a cloud API is an outlet choice, not a foundation choice.
 
 ---
 
@@ -153,13 +153,13 @@ This is the central architectural decision. All knowledge in the service falls i
 [Sources]             [Ingest pipelines]        [Stores]                  [Serve layer]           [Consumers]
 -------------         -------------------       ----------------------    --------------------    --------------------
 ezQuake repo    -->   AST extractor       -->   SQL (L1: cvars/cmds)      MCP server               Claude Code (CLI/IDE)
-KTX repo        -->   AST extractor       -->   SQL (L1: ktx cmds)         |- lookup_cvar          ChatGPT + MCP
-FTE repo        -->   AST extractor       -->   SQL (L1: fte cvars)        |- lookup_command       Slipgate helper panel
-MVDSV repo      -->   AST extractor       -->   SQL (L1: server cvars)     |- search_chat          Quad Discord bot
-Discord + IRC   -->   session grouper     -->   SQLite + FTS5 + vec (L2)   |- find_concept         Web chatbot (future)
-  logs              + LLM summarizer                                       |- explain_bind         Any QW dev's agent
-QWHub API       -->   fetch + normalize   -->   SQL (L1: matches)          |- get_citation
-Forum archives  -->   parser              -->   SQL + FTS5 (L2)            |- list_sources
+KTX repo        -->   AST extractor       -->   SQL (L1: ktx cmds)         |- lookup_entity         ChatGPT + MCP
+FTE repo        -->   AST extractor       -->   SQL (L1: fte cvars)        |- search_solved_issues  Slipgate helper panel
+MVDSV repo      -->   AST extractor       -->   SQL (L1: server cvars)     |- get_concept_note      Quad Discord bot
+Discord + IRC   -->   session grouper     -->   SQLite + FTS5 + vec (L2)   |- explain_bind (future) Web chatbot (future)
+  logs              + LLM summarizer                                       |- get_citation (future) Any QW dev's agent
+QWHub API       -->   fetch + normalize   -->   SQL (L1: matches)          |- list_sources (future)
+Forum archives  -->   parser              -->   SQL + FTS5 (L2)
 Curated wiki    -->   (hand-written)      -->   Markdown vault (L3)
 ```
 
@@ -212,7 +212,7 @@ The POC exists for **one purpose**: to make the pitch tangible. A 30-second live
 - **Layer 2:** one narrow chat slice — e.g., 50-100 helpdesk or `#ezquake` sessions about cvars. Run the existing qw-oracle session data through a basic LLM summarization pass. Store the summaries with provenance.
 - **Layer 3:** 3-5 hand-written concept notes. **At least one** must deliberately cross-link an ezQuake cvar to its KTX counterpart to a chat discussion. This is the money shot of the demo.
 - **Serve layer:** A minimal MCP server with 3 tools:
-  - `lookup_cvar(name, project?)` — returns the Layer 1 row plus any linked Layer 2 sessions and Layer 3 notes.
+  - `lookup_entity(name, project?, type?)` — unified lookup across Layer 1 cvars AND commands. Returns rows with a `type: 'cvar' | 'command'` discriminator plus any linked Layer 2 sessions and Layer 3 notes. One tool serving both entity kinds keeps the POC at three tools total while supporting demo queries about either a cvar (`cl_bob`) or a KTX-injected command (`rpickup`).
   - `search_solved_issues(query)` — queries Layer 2 FTS and returns matching sessions with provenance.
   - `get_concept_note(id)` — returns a Layer 3 note with all its resolved cross-references.
 - **Tool response shape principle:** Every tool response carries explicit emptiness and confidence signals so consumer-side outlets can implement their own fallback policy. Example shape: `{"results": [...], "match_quality": "strong" | "weak" | "none", "suggested_fallback": "ask in #ezquake" | null}`. This lets a strict outlet say "MCP returned nothing, stop here and tell the user" while a permissive outlet says "MCP was weak, let me combine it with general knowledge" — without either needing to change the MCP. Policy lives at the outlet; the MCP just answers honestly.
@@ -329,6 +329,7 @@ Captured here so nothing is forgotten and nothing is built prematurely. Ordered 
 - Vector / semantic search in addition to FTS5
 - Identity unification across IRC nicks ↔ Discord usernames ↔ in-game names (this is its own hard problem, other QW community projects are working on it)
 - Correction / feedback loop so trusted community members can flag bad answers
+- **Scaling: entity-mentions junction table.** Replace the POC's `LIKE '%"id"%'` pattern in `lookup_entity` (which scans `kb_sessions.mentioned_cvar_ids_json` / `mentioned_cmd_ids_json` as JSON-in-text) with a proper junction table `kb_entity_mentions(session_id, entity_id, PRIMARY KEY(entity_id, session_id))` indexed on `entity_id`. At 10K+ summarized sessions the LIKE scan becomes a hot path; the junction turns it into an O(log n) index lookup. Populated by the Layer 2 summarizer at summarize-time from the same resolved-canonical-IDs the POC already computes.
 
 **Layer 3 expansion:**
 - Grow concept notes from 3-5 to a hundred and beyond
