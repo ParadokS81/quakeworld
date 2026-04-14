@@ -1,7 +1,7 @@
-import { createSignal, createMemo, Show } from "solid-js";
+import { createSignal, createMemo, createEffect, onCleanup, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
-import { buildKeyHighlights, type HighlightInput, type HighlightToggles } from "./keyboardHighlights";
+import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles, type KeyCommandMatch } from "./keyboardHighlights";
 
 interface ConfigKeyboardPanelProps {
   /** The primary (your) config. Null when no config is loaded. */
@@ -67,6 +67,71 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   const isCompare = () => props.compare != null && props.primary != null;
 
+  // Selection state: which side was clicked and the list of matched commands.
+  // When non-null, both keyboards render selectedKeyIds for those commands.
+  const [selection, setSelection] = createSignal<KeyCommandMatch[] | null>(null);
+
+  // Derived: set of layout IDs to mark as selected on the "your" keyboard.
+  const yourSelectedIds = createMemo<Set<string>>(() => {
+    const sel = selection();
+    const input = primaryInput();
+    if (!sel || !input) return new Set();
+    const ids = new Set<string>();
+    for (const match of sel) {
+      if (match.kind === "weapon" && match.weapon) {
+        for (const id of resolveCommandKeys(input, { kind: "weapon", weapon: match.weapon })) ids.add(id);
+      } else if (match.kind === "teamsay" && match.label) {
+        for (const id of resolveCommandKeys(input, { kind: "teamsay", label: match.label })) ids.add(id);
+      }
+    }
+    return ids;
+  });
+
+  // Derived: same for the "theirs" keyboard.
+  const theirSelectedIds = createMemo<Set<string>>(() => {
+    const sel = selection();
+    const input = compareInput();
+    if (!sel || !input) return new Set();
+    const ids = new Set<string>();
+    for (const match of sel) {
+      if (match.kind === "weapon" && match.weapon) {
+        for (const id of resolveCommandKeys(input, { kind: "weapon", weapon: match.weapon })) ids.add(id);
+      } else if (match.kind === "teamsay" && match.label) {
+        for (const id of resolveCommandKeys(input, { kind: "teamsay", label: match.label })) ids.add(id);
+      }
+    }
+    return ids;
+  });
+
+  function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
+    if (!sideInput) return;
+    const matches = identifyKeyCommands(sideInput, keyId);
+    if (matches.length === 0) {
+      // Clicked an unbound key -- clear selection
+      setSelection(null);
+      return;
+    }
+    // Click-again-to-dismiss: if current selection matches exactly, clear it
+    const current = selection();
+    if (current && current.length === matches.length && current.every((c, i) =>
+      c.kind === matches[i].kind &&
+      c.weapon === matches[i].weapon &&
+      c.label === matches[i].label
+    )) {
+      setSelection(null);
+      return;
+    }
+    setSelection(matches);
+  }
+
+  createEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selection() !== null) setSelection(null);
+    };
+    window.addEventListener("keydown", handler);
+    onCleanup(() => window.removeEventListener("keydown", handler));
+  });
+
   return (
     <div class="sg-config-kb-panel" classList={{ "sg-config-kb-panel-collapsed": !props.visible }}>
       <div class="sg-config-kb-header">
@@ -108,6 +173,8 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               movement={props.primary!.movement}
               highlights={primaryHighlights()}
               showMovement={showMovement()}
+              onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
+              selectedKeyIds={yourSelectedIds()}
             />
           </div>
         </Show>
@@ -118,6 +185,8 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               movement={props.compare!.movement}
               highlights={compareHighlights()}
               showMovement={showMovement()}
+              onKeyClick={(id) => handleKeyClick(compareInput(), id)}
+              selectedKeyIds={theirSelectedIds()}
             />
           </div>
         </Show>
