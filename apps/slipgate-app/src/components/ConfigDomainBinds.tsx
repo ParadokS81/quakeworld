@@ -566,8 +566,6 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
 
       <For each={MOVEMENT_ROWS}>
         {(row) => {
-          const yours = () => props.primary[row.key] || "--";
-          const theirs = () => props.compare ? (props.compare[row.key] || "--") : null;
           return (
             <div class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}>
               <span class="text-[13px]">{row.label}</span>
@@ -575,7 +573,7 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
                 <Show when={props.primary[row.key]} fallback={
                   <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
                 }>
-                  <span class="sg-domain-keycap">{yours()}</span>
+                  <span class="sg-domain-keycap">{props.primary[row.key]}</span>
                 </Show>
               </div>
               <Show when={isCompare()}>
@@ -583,7 +581,7 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
                   <Show when={props.compare && props.compare[row.key]} fallback={
                     <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
                   }>
-                    <span class="sg-domain-keycap">{theirs()}</span>
+                    <span class="sg-domain-keycap">{props.compare![row.key]}</span>
                   </Show>
                 </div>
               </Show>
