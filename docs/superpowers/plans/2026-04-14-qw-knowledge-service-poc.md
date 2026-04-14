@@ -1102,34 +1102,27 @@ Return ONLY a JSON object matching this schema (no prose, no markdown):
 - **strong**: The session contains a clear question that was answered, a concrete bug that was diagnosed, or a substantive explanation of how something works. A future reader looking for this information would find it useful.
 - **weak**: Off-topic chatter, banter, greetings, incomplete discussions, or technical content too vague to cite. Still include it in the knowledge base but mark it weak so policy-based outlets can filter it out.
 
-## QuakeWorld slang glossary
+## QuakeWorld glossary
 
-QW players use shorthand in chat. Use this mini-glossary only to recognize
-entities behind jargon — do not infer beyond what the session says:
+QW players use shorthand and community-specific jargon. Use the glossary
+below only to recognize entities behind slang — do not infer cvar or
+command names that are not literally in the messages.
 
-- `LG` or `lg` = lightning gun
-- `RL` or `rl` = rocket launcher
-- `GL` or `gl` = grenade launcher
-- `SG` or `sg` = super shotgun
-- `SNG` or `sng` = super nailgun
-- `quad` = quad damage (powerup)
-- `pent` = pentagram (invulnerability)
-- `ring` = ring of shadows (invisibility)
-- `MH` or `mh` = mega health
-- `RA` / `YA` / `GA` = red / yellow / green armor
-- `tp` = teamplay
-- `ez` or `ezq` = ezQuake client
-- `fte` = FTE client
-- `ktx` = KTX server mod
-- `mvdsv` = MVDSV server
-- `stuffcmd` = server-injected command pushed to a connected client
-- `cfg` = config file, usually autoexec.cfg or fresh.cfg
-- `bind` = a key binding (keyname -> command or alias)
+The glossary is loaded from `packages/qw-knowledge/terminology/qw_glossary.yaml`
+(originally built for voice-replay analysis — voice-first, with some
+entries more relevant to spoken callouts than chat logs, but the core
+weapon/powerup/armor/state vocabulary is the same). For the POC we
+inject it wholesale; a proper chat-tuned glossary is phase-2 work.
 
-If a session mentions `LG`, that's a reference to the lightning gun family
-— but only include `lg_*` or other concrete cvar/command names in
-`mentioned_cvars`/`mentioned_commands` if they literally appear in the
-messages. Do not invent canonical names from slang.
+```yaml
+{{glossary}}
+```
+
+**Rule:** if a session mentions `LG`, that's a reference to the lightning
+gun family — but only include `lg_*` or other concrete cvar/command names
+in `mentioned_cvars` / `mentioned_commands` if they literally appear in
+the messages. The glossary helps you understand what players are talking
+about; it does NOT license you to invent canonical names from slang.
 
 ## Rules
 
@@ -1165,11 +1158,20 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const QW_ORACLE_ROOT = resolve(__dirname, '..', '..');
+const MONOREPO_ROOT = resolve(QW_ORACLE_ROOT, '..', '..');
 const DB_PATH = resolve(QW_ORACLE_ROOT, 'data', 'qw.db');
 const PROMPT_PATH = resolve(__dirname, 'prompts', 'session-summary-v1.md');
+const GLOSSARY_PATH = resolve(MONOREPO_ROOT, 'packages', 'qw-knowledge', 'terminology', 'qw_glossary.yaml');
 
 const MODEL = 'claude-haiku-4-5-20251001';
 const PROMPT_VERSION = 'v1';
+
+// Load the QW glossary as raw YAML text and inject it into the prompt.
+// The LLM reads YAML fine; no parsing needed on our side. Single source of
+// truth: packages/qw-knowledge/terminology/qw_glossary.yaml. If the file
+// moves or is restructured, this fails loudly at startup instead of
+// silently degrading the summarizer.
+const GLOSSARY_TEXT = readFileSync(GLOSSARY_PATH, 'utf8');
 
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
@@ -1238,6 +1240,7 @@ function renderPrompt(session, messages) {
     .map(m => `[${m.created_at}] ${m.author_name}: ${m.content}`)
     .join('\n');
   return promptTemplate
+    .replace('{{glossary}}', GLOSSARY_TEXT)
     .replace('{{channel}}', session.channel_name)
     .replace('{{start_at}}', session.start_at)
     .replace('{{message_count}}', String(session.message_count))
@@ -1346,9 +1349,12 @@ git add apps/qw-oracle/layers/claims/prompts apps/qw-oracle/layers/claims/summar
 git commit -m "feat(qw-oracle): Layer 2 summarization via Anthropic SDK
 
 Summarizes pending kb_sessions rows using session-summary-v1 prompt
-with Claude Haiku 4.5. Resolves mentioned cvar/command names to
-canonical Layer 1 IDs. Stores topic/summary/quality plus provenance
-(summarizer_model + summarizer_prompt_version). Idempotent on retry.
+with Claude Haiku 4.5. Loads the voice-replay QW glossary from
+packages/qw-knowledge/terminology/qw_glossary.yaml and injects it
+into the prompt for jargon recognition. Resolves mentioned cvar/
+command names to canonical Layer 1 IDs. Stores topic/summary/quality
+plus provenance (summarizer_model + summarizer_prompt_version).
+Idempotent on retry.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```

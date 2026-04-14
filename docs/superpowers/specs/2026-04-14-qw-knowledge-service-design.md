@@ -336,6 +336,7 @@ Captured here so nothing is forgotten and nothing is built prematurely. Ordered 
 - LLM-assisted drafting workflow for new notes
 - Consistency checks across notes (do two notes contradict each other?)
 - Notes that reference other notes (concept graph)
+- **Proper curated QW glossary.** The POC reuses `packages/qw-knowledge/terminology/qw_glossary.yaml`, which was originally built for voice-replay analysis and is voice-first — rich on spoken callouts, spoken weapon aliases, map-specific slang. It works well enough for Layer 2 chat-log summarization because the core weapon/powerup/armor vocabulary overlaps, but the timing-pattern and communication-meta sections are less directly useful for text summarization and add tokens. Post-POC, produce a properly curated glossary with clear schema (canonical term + alternates + context + citation), split by usage (voice vs chat vs config), and cross-referenced to Layer 1 canonical IDs where applicable. Likely lives as a structured dataset in `packages/qw-knowledge/` with its own schema doc.
 
 **Serve layer expansion:**
 - More MCP tools: `get_match_report`, `list_community_topics`, `get_bind_explanation`, `who_should_i_ask`
