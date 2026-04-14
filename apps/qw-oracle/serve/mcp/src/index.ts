@@ -1,0 +1,89 @@
+#!/usr/bin/env bun
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { loadAllConcepts } from './concept-loader.ts';
+import { lookupEntity } from './tools/lookup-entity.ts';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> layers/concepts
+const CONCEPTS_DIR = resolve(__dirname, '..', '..', '..', 'layers', 'concepts');
+
+const conceptStore = loadAllConcepts(CONCEPTS_DIR);
+
+// Reverse index: entity_id -> [concept_id, ...]
+// Built once at startup from concept frontmatter. Used by lookup_entity to
+// populate linked_concepts without any runtime SQL.
+const conceptIndex = new Map<string, string[]>();
+for (const [conceptId, note] of conceptStore) {
+  for (const cvarId of note.references.cvars) {
+    const list = conceptIndex.get(cvarId) ?? [];
+    list.push(conceptId);
+    conceptIndex.set(cvarId, list);
+  }
+  for (const cmdId of note.references.commands) {
+    const list = conceptIndex.get(cmdId) ?? [];
+    list.push(conceptId);
+    conceptIndex.set(cmdId, list);
+  }
+}
+
+console.error(
+  `[qw-oracle-mcp] loaded ${conceptStore.size} concept notes, ${conceptIndex.size} cross-ref entries`,
+);
+
+const server = new Server(
+  { name: 'qw-oracle', version: '0.1.0' },
+  { capabilities: { tools: {} } },
+);
+
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: [
+    {
+      name: 'lookup_entity',
+      description:
+        'Look up a QuakeWorld cvar OR command by name across all known projects (ezquake, ktx, fte, mvdsv). Returns Layer 1 rows (cvars and/or commands with a type discriminator) plus any linked Layer 3 concept notes. Use this when you have a name from a config or a user question and want to know what it is and where it comes from. For Layer 2 discussion history about the entity, call search_solved_issues with the entity name afterwards.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'Entity name, e.g. cl_bob or rpickup. Literal match, case-sensitive.',
+          },
+          project: {
+            type: 'string',
+            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv | qwcl.',
+          },
+          type: {
+            type: 'string',
+            enum: ['cvar', 'command'],
+            description: 'Optional. Restrict to cvars only or commands only. Default returns both.',
+          },
+        },
+        required: ['name'],
+      },
+    },
+  ],
+}));
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+  switch (name) {
+    case 'lookup_entity': {
+      const response = lookupEntity(
+        args as { name: string; project?: string; type?: 'cvar' | 'command' },
+        conceptIndex,
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    default:
+      throw new Error(`Unknown tool: ${name}`);
+  }
+});
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+console.error('[qw-oracle-mcp] connected via stdio');
