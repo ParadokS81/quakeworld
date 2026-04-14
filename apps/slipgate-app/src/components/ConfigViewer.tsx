@@ -149,8 +149,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
 
   // Shared selection for click-to-pin linking between keyboard and bind list.
-  // Matched by canonical command identity so both sides agree.
-  type BindSelection = { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null;
+  // Matched by canonical command identity so both sides agree. Task 10 widens
+  // this to an array so a single modifier-combo key click can select multiple
+  // commands at once (e.g. F = safe, Ctrl+F = lost).
+  type BindSelectionItem = { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string };
+  type BindSelection = BindSelectionItem[] | null;
   const [bindSelection, setBindSelection] = createSignal<BindSelection>(null);
 
   function handleEscSelection(e: KeyboardEvent) {
@@ -161,14 +164,14 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     onCleanup(() => window.removeEventListener("keydown", handleEscSelection));
   }
 
-  const selectedWeapon = createMemo(() => {
+  function isWeaponSelected(weapon: string): boolean {
     const sel = bindSelection();
-    return sel?.kind === "weapon" ? sel.weapon : null;
-  });
-  const selectedLabel = createMemo(() => {
+    return !!sel && sel.some((s) => s.kind === "weapon" && s.weapon === weapon);
+  }
+  function isLabelSelected(label: string): boolean {
     const sel = bindSelection();
-    return sel?.kind === "teamsay" ? sel.label : null;
-  });
+    return !!sel && sel.some((s) => s.kind === "teamsay" && s.label === label);
+  }
 
   function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
@@ -857,14 +860,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
-                    selectedWeapon={selectedWeapon()}
+                    isWeaponSelected={isWeaponSelected}
                     onWeaponClick={(w) => {
-                      const cur = bindSelection();
-                      if (cur && cur.kind === "weapon" && cur.weapon === w) {
-                        setBindSelection(null);
-                      } else {
-                        setBindSelection({ kind: "weapon", weapon: w });
-                      }
+                      if (isWeaponSelected(w)) setBindSelection(null);
+                      else setBindSelection([{ kind: "weapon", weapon: w }]);
                     }}
                   />
                 </Show>
@@ -887,14 +886,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
                     compareBindCommands={compareBindCommands()}
-                    selectedLabel={selectedLabel()}
+                    isLabelSelected={isLabelSelected}
                     onLabelClick={(l) => {
-                      const cur = bindSelection();
-                      if (cur && cur.kind === "teamsay" && cur.label === l) {
-                        setBindSelection(null);
-                      } else {
-                        setBindSelection({ kind: "teamsay", label: l });
-                      }
+                      if (isLabelSelected(l)) setBindSelection(null);
+                      else setBindSelection([{ kind: "teamsay", label: l }]);
                     }}
                   />
                 </Show>

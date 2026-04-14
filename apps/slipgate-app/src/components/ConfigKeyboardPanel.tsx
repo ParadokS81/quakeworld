@@ -1,6 +1,6 @@
 import { createSignal, createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
-import KeyboardLayout from "./KeyboardLayout";
+import KeyboardLayout, { toLayoutId } from "./KeyboardLayout";
 import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles } from "./keyboardHighlights";
 
 interface ConfigKeyboardPanelProps {
@@ -13,9 +13,13 @@ interface ConfigKeyboardPanelProps {
   /** When false, the panel renders only a slim "Show keyboard" button. */
   visible: boolean;
   onToggleVisible: () => void;
-  /** External selection -- when set, keyboards highlight matching keys. */
-  selection: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null;
-  onSelectionChange: (sel: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null) => void;
+  /**
+   * External selection -- when set, keyboards highlight matching keys.
+   * Array form supports modifier combos: a single key click can pin
+   * multiple commands at once (e.g. F = safe, Ctrl+F = lost).
+   */
+  selection: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null;
+  onSelectionChange: (sel: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null) => void;
 }
 
 const DEFAULT_TOGGLES: HighlightToggles = {
@@ -72,19 +76,53 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   // Derived: set of layout IDs to mark as selected on the "your" keyboard.
   // Driven by the lifted selection prop so both keyboards and the bind list
-  // agree on what's pinned.
+  // agree on what's pinned. Iterates the selection array and, for teamsay
+  // modifier combos, also tints the modifier keys (Ctrl/Shift/Alt) so the
+  // full combo is visible.
   const yourSelectedIds = createMemo<Set<string>>(() => {
     const sel = props.selection;
     const input = primaryInput();
     if (!sel || !input) return new Set();
-    return resolveCommandKeys(input, sel);
+    const ids = new Set<string>();
+    for (const s of sel) {
+      for (const id of resolveCommandKeys(input, s)) ids.add(id);
+    }
+    for (const s of sel) {
+      if (s.kind !== "teamsay") continue;
+      for (const tb of input.teamsay_binds) {
+        if (tb.label !== s.label) continue;
+        if (!tb.key.includes("+")) continue;
+        const parts = tb.key.split("+").map(p => p.trim());
+        for (const mod of parts.slice(0, -1)) {
+          const layoutId = toLayoutId(mod);
+          if (layoutId) ids.add(layoutId);
+        }
+      }
+    }
+    return ids;
   });
 
   const theirSelectedIds = createMemo<Set<string>>(() => {
     const sel = props.selection;
     const input = compareInput();
     if (!sel || !input) return new Set();
-    return resolveCommandKeys(input, sel);
+    const ids = new Set<string>();
+    for (const s of sel) {
+      for (const id of resolveCommandKeys(input, s)) ids.add(id);
+    }
+    for (const s of sel) {
+      if (s.kind !== "teamsay") continue;
+      for (const tb of input.teamsay_binds) {
+        if (tb.label !== s.label) continue;
+        if (!tb.key.includes("+")) continue;
+        const parts = tb.key.split("+").map(p => p.trim());
+        for (const mod of parts.slice(0, -1)) {
+          const layoutId = toLayoutId(mod);
+          if (layoutId) ids.add(layoutId);
+        }
+      }
+    }
+    return ids;
   });
 
   function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
@@ -94,20 +132,28 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
       props.onSelectionChange(null);
       return;
     }
-    // Task 9 picks the first match. Task 10 widens this for multi-bind combos.
-    const first = matches[0];
-    const next = first.kind === "weapon"
-      ? { kind: "weapon" as const, weapon: first.weapon! }
-      : { kind: "teamsay" as const, label: first.label! };
-    // Click-again-to-dismiss
-    const cur = props.selection;
-    if (cur && cur.kind === next.kind &&
-        ((cur.kind === "weapon" && next.kind === "weapon" && cur.weapon === next.weapon) ||
-         (cur.kind === "teamsay" && next.kind === "teamsay" && cur.label === next.label))) {
+    const normalized: NonNullable<ConfigKeyboardPanelProps["selection"]> = [];
+    for (const m of matches) {
+      if (m.kind === "weapon" && m.weapon) normalized.push({ kind: "weapon", weapon: m.weapon });
+      else if (m.kind === "teamsay" && m.label) normalized.push({ kind: "teamsay", label: m.label });
+    }
+    if (normalized.length === 0) {
       props.onSelectionChange(null);
       return;
     }
-    props.onSelectionChange(next);
+    // Click-again-to-dismiss: current selection must match the new array exactly.
+    const cur = props.selection;
+    if (cur && cur.length === normalized.length && cur.every((c, i) => {
+      const n = normalized[i];
+      if (c.kind !== n.kind) return false;
+      if (c.kind === "weapon" && n.kind === "weapon") return c.weapon === n.weapon;
+      if (c.kind === "teamsay" && n.kind === "teamsay") return c.label === n.label;
+      return false;
+    })) {
+      props.onSelectionChange(null);
+      return;
+    }
+    props.onSelectionChange(normalized);
   }
 
   return (

@@ -80,7 +80,7 @@ function formatFiringSentence(p: FiringPath, color: string): JSX.Element {
 interface WeaponBindsProps {
   primaryBinds: FiringPath[];
   compareBinds?: FiringPath[];
-  selectedWeapon?: string | null;
+  isWeaponSelected?: (weapon: string) => boolean;
   onWeaponClick?: (weapon: string) => void;
 }
 
@@ -177,9 +177,11 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
 
           // Expansion + pin are a single derived concept: the lifted
           // selection is the sole source of truth. Row expand state flows
-          // from props.selectedWeapon so a keyboard click that updates the
-          // parent's selection expands the matching row here.
-          const isSelected = () => !isPlaceholder && props.selectedWeapon === row.weapon;
+          // through the predicate so a keyboard click that updates the
+          // parent's selection expands the matching row here. The predicate
+          // form lets multiple rows be selected simultaneously (modifier
+          // combos).
+          const isSelected = () => !isPlaceholder && (props.isWeaponSelected?.(row.weapon) ?? false);
           const isExpanded = isSelected;
 
           return (
@@ -313,7 +315,7 @@ interface TeamsayBindsProps {
   compareAliases: Record<string, string>;
   primaryBindCommands: Record<string, string>;
   compareBindCommands: Record<string, string>;
-  selectedLabel?: string | null;
+  isLabelSelected?: (label: string) => boolean;
   onLabelClick?: (label: string) => void;
 }
 
@@ -415,9 +417,11 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                   const hasAnyKey = () => !!action.primaryKey || !!action.compareKey;
 
                   // Expansion + pin share a single source of truth: the
-                  // lifted selection. Keyboard clicks that update
-                  // props.selectedLabel expand the matching row here.
-                  const isSelected = () => props.selectedLabel === action.label;
+                  // lifted selection. Keyboard clicks that update the
+                  // parent's selection expand the matching row here. The
+                  // predicate form lets multiple rows be selected
+                  // simultaneously (modifier combos).
+                  const isSelected = () => props.isLabelSelected?.(action.label) ?? false;
                   const isExpanded = isSelected;
 
                   return (
