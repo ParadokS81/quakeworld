@@ -183,6 +183,15 @@ export function categorizeBinds(
     teamsayByKey.set(tb.key.toUpperCase(), tb);
   }
 
+  // Shared-fire-key set: keys referenced as fire_key on any weapon FiringPath.
+  // These are multipurpose fire buttons (e.g. mouse1) reused across weapons
+  // via persistent rebinds — they never appear as a weapon trigger_key
+  // themselves, so without this lookup they'd fall through to MISC.
+  const fireKeySet = new Set<string>();
+  for (const wb of weaponBinds) {
+    if (wb.fire_key) fireKeySet.add(wb.fire_key.toUpperCase());
+  }
+
   // Movement keys lookup
   const MOVE_LABELS: Record<string, string> = {
     "+forward": "↑ forward", "+back": "↓ back",
@@ -295,55 +304,11 @@ export function categorizeBinds(
         ? { compareCommand: cmpRawCmd, compareCategory: "teamsay" as const, compareLabel: cmpTb.label, compareDescription: cmpTb.description }
         : {};
 
-    if (tb) {
-      result.push({
-        key: tb.key, command, category: "teamsay",
-        label: tb.label, description: tb.description,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
-    } else if (movementKeys.has(keyUpper)) {
-      const moveLabel = MOVE_LABELS[command.trim().toLowerCase()] ?? command;
-      result.push({
-        key, command, category: "movement",
-        label: moveLabel, description: command,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
-    } else if (isRocketJump(command, aliases)) {
-      result.push({
-        key, command, category: "movement",
-        label: "rocket jump", description: command,
-        sourceFile, hasLeft: true, hasRight, ...compareData,
-      });
-    } else {
-      // Check ezQuake known first. If unknown, check KTX. If neither, unresolved.
-      // This prevents native commands like `kill` from being misclassified as KTX.
-      const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet, ezquakeCommandSet);
-      if (!unresolvedToken) {
-        // All tokens are known ezQuake/alias/cvar
-        result.push({
-          key, command, category: "misc",
-          label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
-          description: command,
-          sourceFile, hasLeft: true, hasRight, ...compareData,
-        });
-      } else if (isKtxCommand(command, ktxCommandSet)) {
-        // Some token is unknown to ezQuake, but it matches the KTX command set
-        result.push({
-          key, command, category: "ktx",
-          label: "KTX",
-          description: `${command} (KTX server command)`,
-          sourceFile, hasLeft: true, hasRight, ...compareData,
-        });
-      } else {
-        // Truly unresolved — not in ezQuake or KTX
-        result.push({
-          key, command, category: "unresolved",
-          label: unresolvedToken,
-          description: `${unresolvedToken} not found in config chain or engine`,
-          sourceFile, hasLeft: true, hasRight, ...compareData,
-        });
-      }
-    }
+    result.push(classifyNonWeaponBind({
+      key, command, sourceFile, hasRight, compareData,
+      tb, keyUpper, movementKeys, MOVE_LABELS,
+      aliases, cvarSet, ezquakeCommandSet, ktxCommandSet, fireKeySet,
+    }));
   }
 
   // Add right-only rows — compare classifications not paired with a primary row.
@@ -383,11 +348,20 @@ export function categorizeBinds(
   }
 
   // Synthesize modifier combos: when a key is bound to a "+xxxx" alias that
-  // contains "bind <target> <cmd>" commands, generate virtual "MODKEY+TARGET"
-  // rows so the user sees the held-state mapping as first-class bind entries.
-  const modifierCombos = synthesizeModifierCombos(rawBinds, aliasMap(chain, selectedIndices));
-  for (const combo of modifierCombos) {
-    result.push(combo);
+  // contains "bind <target> <cmd>" commands, discover the virtual "MODKEY+TARGET"
+  // pairs and run them through the same classification path as real binds so
+  // KTX/unresolved/movement classification matches what first-class binds get.
+  const discoveredCombos = discoverModifierCombos(rawBinds, aliasMap(chain, selectedIndices));
+  for (const combo of discoveredCombos) {
+    const comboKeyUpper = combo.key.toUpperCase();
+    const comboTb = teamsayByKey.get(comboKeyUpper);
+    result.push(classifyNonWeaponBind({
+      key: combo.key, command: combo.command, sourceFile: "",
+      hasRight: false, compareData: {},
+      tb: comboTb, keyUpper: comboKeyUpper, movementKeys, MOVE_LABELS,
+      aliases, cvarSet, ezquakeCommandSet, ktxCommandSet, fireKeySet,
+      modifierAlias: combo.modifierAlias,
+    }));
   }
 
   // Sort so modifier combos appear alongside their base key:
@@ -452,15 +426,110 @@ function isRocketJump(cmd: string, aliases: Record<string, string>): boolean {
   return hasAttack && hasJump;
 }
 
-/** Lightweight classification for synthesized modifier-combo commands. */
-function classifyCommand(cmd: string, aliases?: Record<string, string>): "movement" | "weapons" | "teamsay" | "misc" {
-  const t = cmd.trim().toLowerCase();
-  if (/^\+(?:forward|back|moveleft|moveright|jump|moveup|movedown)$/.test(t)) return "movement";
-  if (aliases && isRocketJump(cmd, aliases)) return "movement";
-  if (/^(?:impulse\s+\d+|weapon\s+\d+)/.test(t)) return "weapons";
-  if (/\+attack/.test(t)) return "weapons";
-  if (/^say_team\b/.test(t)) return "teamsay";
-  return "misc";
+/**
+ * Shared classification helper used by both real bind rows and synthesized
+ * modifier combos. Runs the teamsay -> movement -> rocket-jump ->
+ * ezQuake-known (misc) -> KTX -> unresolved cascade.
+ */
+function classifyNonWeaponBind(args: {
+  key: string;
+  command: string;
+  sourceFile: string;
+  hasRight: boolean;
+  compareData: Partial<EnrichedBind>;
+  tb: TeamsayBind | undefined;
+  keyUpper: string;
+  movementKeys: Set<string>;
+  MOVE_LABELS: Record<string, string>;
+  aliases: Record<string, string>;
+  cvarSet: Set<string>;
+  ezquakeCommandSet: Set<string>;
+  ktxCommandSet: Set<string>;
+  fireKeySet: Set<string>;
+  modifierAlias?: string;
+}): EnrichedBind {
+  const { key, command, sourceFile, hasRight, compareData, tb, keyUpper,
+    movementKeys, MOVE_LABELS, aliases, cvarSet, ezquakeCommandSet,
+    ktxCommandSet, fireKeySet, modifierAlias } = args;
+  const modExtra = modifierAlias ? { modifierAlias } : {};
+
+  if (tb) {
+    return {
+      key: tb.key, command, category: "teamsay",
+      label: tb.label, description: tb.description,
+      sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+    };
+  }
+  if (movementKeys.has(keyUpper)) {
+    const moveLabel = MOVE_LABELS[command.trim().toLowerCase()] ?? command;
+    return {
+      key, command, category: "movement",
+      label: moveLabel, description: command,
+      sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+    };
+  }
+  if (isRocketJump(command, aliases)) {
+    return {
+      key, command, category: "movement",
+      label: "rocket jump", description: command,
+      sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+    };
+  }
+  // Check ezQuake known first. If unknown, check KTX. If neither, unresolved.
+  // This prevents native commands like `kill` from being misclassified as KTX.
+  const unresolvedToken = findUnresolvedToken(command, aliases, cvarSet, ezquakeCommandSet);
+  if (!unresolvedToken) {
+    // Shared-fire-key promotion: if the base key (stripping any modifier
+    // prefix like "C+") is used as a fire_key on some weapon FiringPath,
+    // this bind is a multipurpose fire button rather than a generic MISC
+    // command. Sits inside the all-tokens-known branch so KTX/unresolved
+    // signals still win — only the would-be-MISC path gets promoted.
+    const baseKey = keyUpper.split("+").pop() ?? keyUpper;
+    if (fireKeySet.has(baseKey)) {
+      return {
+        key, command, category: "weapons",
+        label: "FIRE",
+        description: "primary attack (fires current weapon)",
+        sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+      };
+    }
+    return {
+      key, command, category: "misc",
+      label: command.length > 24 ? `${command.slice(0, 24)}...` : command,
+      description: command,
+      sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+    };
+  }
+  if (isKtxCommand(command, ktxCommandSet)) {
+    return {
+      key, command, category: "ktx",
+      label: "KTX",
+      description: `${command} (KTX server command)`,
+      sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+    };
+  }
+  return {
+    key, command, category: "unresolved",
+    label: unresolvedToken,
+    description: `${unresolvedToken} not found in config chain or engine`,
+    sourceFile, hasLeft: true, hasRight, ...compareData, ...modExtra,
+  };
+}
+
+/**
+ * True if the alias body contains a top-level fire command.
+ * Mirrors `body_contains_fire` in `src-tauri/src/commands/weapon_classifier.rs`
+ * so the frontend agrees with the Rust weapon classifier on what counts as
+ * a firing alias. Used to distinguish quickfire aliases (which may include
+ * a persistent `bind mouse1 ...` side effect) from true modifier aliases.
+ */
+function bodyContainsFire(body: string): boolean {
+  for (const seg of body.split(/[;\n]/)) {
+    const t = seg.trim();
+    if (t === "+attack" || t === "+fire" || t === "+fire_ar") return true;
+    if (t.startsWith("+fire ") || t.startsWith("+fire_ar ")) return true;
+  }
+  return false;
 }
 
 /** Resolve a command through one level of alias lookup. */
@@ -506,6 +575,9 @@ export function synthesizeModifierTeamsayBinds(
     const aliasName = cmd.split(/\s+/)[0];
     const body = aliases[aliasName];
     if (!body) continue;
+    // Quickfire aliases may carry a persistent `bind <firekey> ...` side
+    // effect; they're not modifier chords, so skip them here.
+    if (bodyContainsFire(body)) continue;
 
     const rebinds = extractBindsFromAlias(body);
     if (rebinds.length === 0) continue;
@@ -529,13 +601,14 @@ export function synthesizeModifierTeamsayBinds(
 
 /**
  * For each bind of the form `key → +aliasname`, parse the alias body for
- * `bind <target> <cmd>` statements and emit virtual modifier-combo entries.
+ * `bind <target> <cmd>` statements and return raw discovery tuples. The
+ * caller runs these through the same classifier as real binds.
  */
-function synthesizeModifierCombos(
+function discoverModifierCombos(
   rawBinds: [string, string][],
   aliases: Record<string, string>,
-): EnrichedBind[] {
-  const combos: EnrichedBind[] = [];
+): { key: string; command: string; modifierAlias: string }[] {
+  const combos: { key: string; command: string; modifierAlias: string }[] = [];
 
   for (const [key, rawCmd] of rawBinds) {
     const cmd = rawCmd.trim();
@@ -545,22 +618,21 @@ function synthesizeModifierCombos(
     const aliasName = cmd.split(/\s+/)[0];
     const body = aliases[aliasName];
     if (!body) continue;
+    // Quickfire aliases like `+dubboom` may carry a `bind mouse1 ...` side
+    // effect to make the shared fire key repeat the same weapon. They're
+    // not modifier chords — the weapon classifier already emits a quickfire
+    // FiringPath for the trigger key, so skip them here to avoid spurious
+    // `TRIGGER+MOUSE1` combo rows.
+    if (bodyContainsFire(body)) continue;
 
     const rebinds = extractBindsFromAlias(body);
     if (rebinds.length === 0) continue;
 
     const modLabel = key.toUpperCase();
     for (const { target, command } of rebinds) {
-      const category = classifyCommand(command);
       combos.push({
         key: `${modLabel}+${target.toUpperCase()}`,
         command,
-        category,
-        label: category === "misc" ? "combo" : category,
-        description: command,
-        sourceFile: "",
-        hasLeft: true,
-        hasRight: false,
         modifierAlias: aliasName,
       });
     }
