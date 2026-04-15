@@ -1981,7 +1981,9 @@ input[type="number"] {
 
 .sg-config-kb-panel {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
   min-width: 0;
@@ -2030,6 +2032,8 @@ input[type="number"] {
 }
 
 .sg-config-kb-panel-collapsed {
+  flex: 0 0 auto;
+  align-items: flex-end;
   min-width: auto;
   max-width: 6rem;
   overflow: visible;

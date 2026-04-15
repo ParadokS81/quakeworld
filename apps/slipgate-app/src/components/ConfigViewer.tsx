@@ -998,26 +998,26 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   </div>
                 </Show>
               </div>
-              <Show when={isBindsSectionFocused()}>
-                <ConfigKeyboardPanel
-                  primary={effectiveConfig()}
-                  compare={isCompareMode() ? compareBinds() : null}
-                  compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
-                  visible={keyboardVisible()}
-                  onToggleVisible={toggleKeyboardVisible}
-                  selection={bindSelection()}
-                  onSelectionChange={setBindSelection}
-                  showMovement={kbShowMovement()}
-                  showWeapons={kbShowWeapons()}
-                  showTeamplay={kbShowTeamplay()}
-                  onToggleMovement={toggleKbMovement}
-                  onToggleWeapons={toggleKbWeapons}
-                  onToggleTeamplay={toggleKbTeamplay}
-                />
-              </Show>
               <SectionMinimap scrollContainer={contentScrollEl} />
               </div>
             </div>
+            <Show when={isBindsSectionFocused()}>
+              <ConfigKeyboardPanel
+                primary={effectiveConfig()}
+                compare={isCompareMode() ? compareBinds() : null}
+                compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
+                visible={keyboardVisible()}
+                onToggleVisible={toggleKeyboardVisible}
+                selection={bindSelection()}
+                onSelectionChange={setBindSelection}
+                showMovement={kbShowMovement()}
+                showWeapons={kbShowWeapons()}
+                showTeamplay={kbShowTeamplay()}
+                onToggleMovement={toggleKbMovement}
+                onToggleWeapons={toggleKbWeapons}
+                onToggleTeamplay={toggleKbTeamplay}
+              />
+            </Show>
           </div>
 
           {/* Drop zone overlay */}
