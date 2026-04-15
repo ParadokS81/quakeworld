@@ -596,47 +596,17 @@ input[type="number"] {
    ============================================================ */
 
 .sg-keyboard-container {
-  position: relative;
   width: 100%;
 }
 
-.sg-keyboard-module-toggle-overlay {
-  /* Dedicated slot in the F-row: when a toggle is passed, the brand
-     label starts at x=15.25u instead of 14u, leaving 14u..15.25u
-     (1.25u of TOTAL_W_U=19.5u) free. 14/19.5 = 71.8%, 1.25/19.5 = 6.4%. */
-  position: absolute;
-  top: 2%;
-  left: 71.8%;
-  width: 6.4%;
-  height: 11%;
-  display: flex;
-  gap: 2px;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
+.sg-kb-module-cell {
+  fill: color-mix(in oklch, var(--color-primary) 20%, var(--sg-grad-dark));
+  stroke: color-mix(in oklch, var(--color-primary) 40%, var(--sg-stat-border));
 }
 
-.sg-keyboard-module-toggle-btn {
-  flex: 1;
-  height: 100%;
-  font-size: 0.6rem;
-  background: color-mix(in oklch, var(--sg-grad-dark) 80%, transparent);
-  color: var(--sg-text-dim);
-  border: 1px solid color-mix(in oklch, var(--sg-stat-border) 60%, transparent);
-  border-radius: 3px;
-  cursor: pointer;
-  padding: 0;
-}
-
-.sg-keyboard-module-toggle-btn:hover {
-  color: var(--sg-text-bright);
-  background: color-mix(in oklch, var(--sg-grad-dark) 95%, white 3%);
-}
-
-.sg-keyboard-module-toggle-btn-active {
-  background: color-mix(in oklch, var(--color-primary) 25%, var(--sg-grad-dark));
-  color: var(--color-primary);
-  border-color: color-mix(in oklch, var(--color-primary) 40%, transparent);
+.sg-kb-module-cell-label {
+  fill: var(--color-primary);
+  font-weight: 600;
 }
 
 .sg-keyboard-container svg {

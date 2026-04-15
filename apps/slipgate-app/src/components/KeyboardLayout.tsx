@@ -1,4 +1,4 @@
-import { Show, createMemo, type JSX } from "solid-js";
+import { Show, createMemo } from "solid-js";
 import type { MovementKeys } from "../types";
 import { MODULES, type KeyboardRightModule } from "./keyboardModules";
 
@@ -208,8 +208,13 @@ interface KeyboardLayoutProps {
   selectedKeyIds?: Set<string>;
   /** Which module to render in the right slot. */
   rightModule: KeyboardRightModule;
-  /** Optional overlay rendered absolutely inside the keyboard container. Used by ProfileTab for its nav/numpad toggle. */
-  rightModuleToggle?: JSX.Element;
+  /**
+   * Optional F-row toggle cell. When provided, renders as a single
+   * F-button-shaped SVG cell at x=14u and narrows the brand label
+   * (if any) so it starts at x=15u. Used by ProfileTab for its
+   * nav/numpad cycle toggle.
+   */
+  rightModuleCell?: { label: string; onClick: () => void };
 }
 
 export default function KeyboardLayout(props: KeyboardLayoutProps) {
@@ -269,12 +274,39 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
   return (
     <div class="sg-keyboard-container">
       <svg viewBox={viewBox} xmlns="http://www.w3.org/2000/svg">
-        {/* Keyboard name. Starts at x=15.25u when a module toggle slot is
-            present (1.5u reserved between F12 at 13.75u and the label);
-            otherwise starts at x=14u so the label keeps its original span. */}
+        {/* Optional F-row toggle cell at x=14u, rendered as an F-button. */}
+        <Show when={props.rightModuleCell}>
+          {(() => {
+            const cell = props.rightModuleCell!;
+            return (
+              <g
+                onClick={cell.onClick}
+                cursor="pointer"
+              >
+                <rect
+                  x={14 * KU + PAD}
+                  y={PAD}
+                  width={KU - PAD * 2}
+                  height={ROW_H - PAD * 2}
+                  rx={4}
+                  class="sg-kb-key sg-kb-module-cell"
+                />
+                <text
+                  x={14 * KU + KU / 2}
+                  y={ROW_H / 2 + 4}
+                  class="sg-kb-label sg-kb-module-cell-label"
+                >
+                  {cell.label}
+                </text>
+              </g>
+            );
+          })()}
+        </Show>
+        {/* Keyboard name. Starts at x=15u when a module toggle cell is
+            present (claiming the 14u..15u slot); otherwise at x=14u. */}
         <Show when={props.keyboardName}>
           {(() => {
-            const labelStart = props.rightModuleToggle ? 15.25 : 14;
+            const labelStart = props.rightModuleCell ? 15 : 14;
             const labelSpan = TOTAL_W_U - labelStart;
             return (
               <>
@@ -359,11 +391,6 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
           </g>
         ))}
       </svg>
-      <Show when={props.rightModuleToggle}>
-        <div class="sg-keyboard-module-toggle-overlay">
-          {props.rightModuleToggle}
-        </div>
-      </Show>
     </div>
   );
 }
