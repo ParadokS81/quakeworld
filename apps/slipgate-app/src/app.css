@@ -78,8 +78,6 @@
   --sg-kb-selected: oklch(0.92 0.18 85);
   --sg-kb-owner-you: oklch(0.65 0.18 230);
   --sg-kb-owner-them: oklch(0.7 0.18 40);
-  --sg-kb-mouse-outline: color-mix(in oklch, var(--sg-grad-dark) 70%, white 10%);
-  --sg-kb-wheel-accent: oklch(0.72 0.15 145); /* green, distinct from movement / jump tints */
 }
 
 /* Global styles */
@@ -700,10 +698,6 @@ input[type="number"] {
   font-family: "Geist", system-ui, sans-serif;
   text-anchor: middle;
   dominant-baseline: central;
-}
-
-.sg-kb-mouse-decoration {
-  pointer-events: none;
 }
 
 /* ============================================================

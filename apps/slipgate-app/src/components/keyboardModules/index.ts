@@ -1,4 +1,3 @@
-import type { JSX } from "solid-js";
 import type { KeyDef } from "../KeyboardLayout";
 import { MAIN_BLOCK } from "../KeyboardLayout";
 import { NAV_MODULE } from "./navModule";
@@ -8,27 +7,15 @@ import { MOUSE_MODULE } from "./mouseModule";
 /** Identifier for a swappable right-slot module. */
 export type KeyboardRightModule = "nav" | "numpad" | "mouse";
 
-/** Rendering context passed to a module's decoration function. */
-export interface ModuleDecorationCtx {
-  /** Absolute x of module origin in SVG coordinates (NAV_X * KU). */
-  kuBase: number;
-  /** Row-to-pixel helper shared with the main block (applies F-row gap). */
-  rowY: (row: number) => number;
-  /** Keyboard-unit pixel size (KU constant from KeyboardLayout). */
-  ku: number;
-}
-
 /**
  * A self-contained right-slot keyboard module. Each module owns its own
  * width and the keys (in local 0..widthU coordinate space) that appear in
- * that slot. Optional decoration renders behind the cells (used by the
- * mouse module to draw the silhouette + wheel glyphs).
+ * that slot.
  */
 export interface KeyboardModule {
   id: KeyboardRightModule;
   widthU: number;
   keys: KeyDef[];
-  decoration?: (ctx: ModuleDecorationCtx) => JSX.Element;
 }
 
 /**
