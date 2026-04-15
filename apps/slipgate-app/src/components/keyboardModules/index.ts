@@ -1,5 +1,6 @@
 import type { JSX } from "solid-js";
 import type { KeyDef } from "../KeyboardLayout";
+import { MAIN_BLOCK } from "../KeyboardLayout";
 import { NAV_MODULE } from "./navModule";
 import { NUMPAD_MODULE } from "./numpadModule";
 import { MOUSE_MODULE } from "./mouseModule";
@@ -42,11 +43,20 @@ export const MODULES: Record<KeyboardRightModule, KeyboardModule> = {
   mouse: MOUSE_MODULE,
 };
 
+/** Cached lookup: layout ID -> module that owns it (or "main"). Built once. */
+const moduleOfMap: Map<string, KeyboardRightModule | "main"> = (() => {
+  const m = new Map<string, KeyboardRightModule | "main">();
+  for (const key of MAIN_BLOCK) m.set(key.id, "main");
+  for (const mod of Object.values(MODULES)) {
+    for (const key of mod.keys) m.set(key.id, mod.id);
+  }
+  return m;
+})();
+
 /**
- * Returns which module a layout ID belongs to, or "main" for main-block
- * keys, or null if the ID is unknown. Populated in Task 8 once all modules
- * exist; until then it returns null for non-main IDs.
+ * Returns which module a layout ID belongs to, "main" for main-block
+ * keys, or null if the ID is unknown. Constant-time lookup.
  */
-export function moduleOf(_layoutId: string): KeyboardRightModule | "main" | null {
-  return null;
+export function moduleOf(layoutId: string): KeyboardRightModule | "main" | null {
+  return moduleOfMap.get(layoutId) ?? null;
 }

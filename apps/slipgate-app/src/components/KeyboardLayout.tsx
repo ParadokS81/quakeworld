@@ -18,7 +18,7 @@ const NAV_X = 15.5;
 // Vertical gaps (in row-height fractions)
 const FROW_GAP = 0.4;   // gap between F-row and number row
 
-const MAIN_BLOCK: KeyDef[] = [
+export const MAIN_BLOCK: KeyDef[] = [
   // Row 0 — Function row
   { id: "Escape", label: "Esc", x: 0, w: 1, row: 0 },
   { id: "F1", label: "F1", x: 1.25, w: 1, row: 0 },
