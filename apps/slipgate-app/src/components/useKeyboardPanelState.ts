@@ -1,17 +1,22 @@
 import { createSignal, createMemo, createEffect, onCleanup } from "solid-js";
 import { updatePrefs, type ProfileData } from "../store";
 import type { BindSelection } from "./keyboardHighlights";
+import type { KeyboardRightModule } from "./keyboardModules";
 
 interface UseKeyboardPanelStateInput {
   profile: () => ProfileData | null | undefined;
   activeRow2: () => Set<string>;
+  // NEW - which modules the consumer supports (shapes the toggle row).
+  availableModules: readonly KeyboardRightModule[];
+  // NEW - selects which ProfilePrefs field to read/write.
+  persistKey: "config" | "profile";
 }
 
 /**
  * Owns all state the ConfigKeyboardPanel needs, plus the shared click-to-pin
  * selection used by both the panel and the bind-list sections. Extracted from
  * ConfigViewer so the file stays focused on config merging/rendering and so
- * upcoming panel features (module swap) have a single place to land.
+ * the modular-keyboard feature has a single place to land.
  *
  * Persistence is one-way (local signal mirrors props.profile.prefs via effect;
  * togglers write to the Tauri store). The mirror can be clobbered if another
@@ -19,7 +24,7 @@ interface UseKeyboardPanelStateInput {
  * reactive profile store lands. See the same note in ConfigViewer history.
  */
 export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
-  // ── Shared click-to-pin selection ──
+  // Shared click-to-pin selection
   const [selection, setSelection] = createSignal<BindSelection>(null);
 
   function handleEsc(e: KeyboardEvent) {
@@ -39,13 +44,13 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     return !!sel && sel.some((s) => s.kind === "teamsay" && s.label === label);
   }
 
-  // ── Whether the binds section is the active row-2 pill ──
+  // Whether the binds section is the active row-2 pill
   const isBindsSectionFocused = createMemo(() => {
     const row2 = input.activeRow2();
     return row2.has("weapons:binds") || row2.has("teamplay:binds") || row2.has("movement:binds");
   });
 
-  // ── Panel visibility ──
+  // Panel visibility
   const [visible, setVisible] = createSignal<boolean>(
     input.profile()?.prefs.config_keyboard_visible ?? true,
   );
@@ -63,7 +68,7 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     }
   }
 
-  // ── Category toggles (Movement / Weapons / Teamplay) ──
+  // Category toggles (Movement / Weapons / Teamplay)
   const [showMovement, setShowMovement] = createSignal<boolean>(
     input.profile()?.prefs.config_keyboard_show_movement ?? true,
   );
@@ -99,6 +104,36 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     catch (e) { console.error("Failed to persist kb teamplay toggle:", e); }
   }
 
+  // Right-slot module state
+  const moduleField = input.persistKey === "config"
+    ? "config_keyboard_right_module"
+    : "profile_keyboard_right_module";
+
+  function readPersistedModule(): KeyboardRightModule {
+    const raw = input.profile()?.prefs[moduleField];
+    if (raw && input.availableModules.includes(raw as KeyboardRightModule)) {
+      return raw as KeyboardRightModule;
+    }
+    return "nav";
+  }
+
+  const [rightModule, setRightModuleSignal] = createSignal<KeyboardRightModule>(readPersistedModule());
+
+  createEffect(() => {
+    const next = readPersistedModule();
+    setRightModuleSignal(next);
+  });
+
+  async function setRightModule(m: KeyboardRightModule) {
+    if (!input.availableModules.includes(m)) return;
+    setRightModuleSignal(m);
+    try {
+      await updatePrefs({ [moduleField]: m } as Partial<import("../store").ProfilePrefs>);
+    } catch (e) {
+      console.error("Failed to persist kb module:", e);
+    }
+  }
+
   return {
     selection,
     setSelection,
@@ -113,5 +148,9 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     toggleMovement,
     toggleWeapons,
     toggleTeamplay,
+    // NEW outputs
+    rightModule,
+    setRightModule,
+    availableModules: input.availableModules,
   };
 }

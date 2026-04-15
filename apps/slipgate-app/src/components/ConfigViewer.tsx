@@ -155,6 +155,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const kbState = useKeyboardPanelState({
     profile: () => props.profile,
     activeRow2,
+    availableModules: ["nav", "numpad", "mouse"] as const,
+    persistKey: "config",
   });
 
   function handleMouseEnter(name: string, _e: MouseEvent) {
