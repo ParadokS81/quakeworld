@@ -10,6 +10,7 @@ export interface KeyDef {
   x: number;     // x position in keyboard units (1u = standard key width)
   w: number;     // width in keyboard units
   row: number;   // row index (0 = F-row … 5 = space bar row)
+  h?: number;    // height in row units, defaults to 1; used for numpad + and Enter
 }
 
 // Main block ends at x=15 (backspace 13+2), nav cluster starts at 15.5
@@ -323,7 +324,7 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
               x={k.x * KU + PAD}
               y={rowY(k.row) + PAD}
               width={k.w * KU - PAD * 2}
-              height={ROW_H - PAD * 2}
+              height={ROW_H * (k.h ?? 1) - PAD * 2}
               rx={4}
               class={keyClass(k.id)}
               style={keyStyle(k.id)}
@@ -333,7 +334,7 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
             {(() => {
               const label = props.keyLabels?.get(k.id) ?? k.label;
               const cx = k.x * KU + (k.w * KU) / 2;
-              const cy = rowY(k.row) + ROW_H / 2;
+              const cy = rowY(k.row) + (ROW_H * (k.h ?? 1)) / 2;
               const cls = labelClass(k.id);
               const sty = labelStyle(k.id);
 
