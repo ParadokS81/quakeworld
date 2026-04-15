@@ -2002,6 +2002,8 @@ input[type="number"] {
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid transparent;
+  width: 100%;
+  max-width: 64rem;
 }
 
 .sg-config-kb-frame-you {
@@ -2029,6 +2031,8 @@ input[type="number"] {
   display: flex;
   justify-content: flex-end;
   padding: 0.25rem 0;
+  width: 100%;
+  max-width: 64rem;
 }
 
 .sg-config-kb-panel-collapsed {
