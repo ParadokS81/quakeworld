@@ -603,14 +603,13 @@ input[type="number"] {
 }
 
 .sg-keyboard-module-toggle-overlay {
-  /* Position it over the F-row slot between F12 and the brand label.
-     Percent coordinates scale with the SVG automatically because the
-     SVG uses preserveAspectRatio. */
+  /* Dedicated slot in the F-row: when a toggle is passed, the brand
+     label starts at x=15.25u instead of 14u, leaving 14u..15.25u
+     (1.25u of TOTAL_W_U=19.5u) free. 14/19.5 = 71.8%, 1.25/19.5 = 6.4%. */
   position: absolute;
   top: 2%;
-  /* 14.25u / 19.5u (TOTAL_W_U) ~= 73% - just before where the brand label starts */
-  left: 73%;
-  width: 7%;
+  left: 71.8%;
+  width: 6.4%;
   height: 11%;
   display: flex;
   gap: 2px;

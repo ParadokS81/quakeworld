@@ -268,25 +268,35 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
   return (
     <div class="sg-keyboard-container">
       <svg viewBox={viewBox} xmlns="http://www.w3.org/2000/svg">
-        {/* Keyboard name — same 0.25u gap as between F-key groups */}
+        {/* Keyboard name. Starts at x=15.25u when a module toggle slot is
+            present (1.5u reserved between F12 at 13.75u and the label);
+            otherwise starts at x=14u so the label keeps its original span. */}
         <Show when={props.keyboardName}>
-          <rect
-            x={14 * KU + PAD}
-            y={PAD}
-            width={(TOTAL_W_U - 14) * KU - PAD * 2}
-            height={ROW_H - PAD * 2}
-            rx={4}
-            class="sg-kb-key sg-kb-name-bg"
-          />
-          <text
-            x={(14 + (TOTAL_W_U - 14) / 2) * KU}
-            y={ROW_H / 2}
-            class="sg-kb-name-label"
-            textLength={props.keyboardName!.length > 18 ? (TOTAL_W_U - 14) * KU - PAD * 2 - 16 : undefined}
-            lengthAdjust="spacingAndGlyphs"
-          >
-            {props.keyboardName}
-          </text>
+          {(() => {
+            const labelStart = props.rightModuleToggle ? 15.25 : 14;
+            const labelSpan = TOTAL_W_U - labelStart;
+            return (
+              <>
+                <rect
+                  x={labelStart * KU + PAD}
+                  y={PAD}
+                  width={labelSpan * KU - PAD * 2}
+                  height={ROW_H - PAD * 2}
+                  rx={4}
+                  class="sg-kb-key sg-kb-name-bg"
+                />
+                <text
+                  x={(labelStart + labelSpan / 2) * KU}
+                  y={ROW_H / 2}
+                  class="sg-kb-name-label"
+                  textLength={props.keyboardName!.length > 18 ? labelSpan * KU - PAD * 2 - 16 : undefined}
+                  lengthAdjust="spacingAndGlyphs"
+                >
+                  {props.keyboardName}
+                </text>
+              </>
+            );
+          })()}
         </Show>
         {/* Module decoration - sits behind the keys */}
         {(() => {
