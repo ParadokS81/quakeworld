@@ -286,6 +286,16 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
             {props.keyboardName}
           </text>
         </Show>
+        {/* Module decoration - sits behind the keys */}
+        {(() => {
+          const mod = MODULES[props.rightModule];
+          if (!mod.decoration) return null;
+          return mod.decoration({
+            kuBase: NAV_X * KU,
+            rowY,
+            ku: KU,
+          });
+        })()}
         {(() => {
           const mod = MODULES[props.rightModule];
           if (!mod) {
