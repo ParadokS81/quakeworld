@@ -220,6 +220,12 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [keyboardVisible, setKeyboardVisible] = createSignal<boolean>(
     props.profile?.prefs.config_keyboard_visible ?? true,
   );
+  // Mirror pref -> local signal. Persistence is one-way: toggleKeyboardVisible
+  // writes to the Tauri store via updatePrefs, but does NOT update App.tsx's
+  // profile() signal, so this effect only re-fires when something else in the
+  // session calls setProfile(). In that narrow window the stale profile snapshot
+  // can clobber an in-session toggle change until the next restart reloads from
+  // disk. Accepted trade-off; fixed properly only by a reactive profile store.
   createEffect(() => {
     const p = props.profile?.prefs.config_keyboard_visible;
     if (p !== undefined) setKeyboardVisible(p);
@@ -244,6 +250,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [kbShowTeamplay, setKbShowTeamplay] = createSignal<boolean>(
     props.profile?.prefs.config_keyboard_show_teamplay ?? true,
   );
+  // Same local-mirror trade-off as keyboardVisible above: persistence is one-way,
+  // so an in-session setProfile() in another code path could clobber unsaved
+  // toggle changes. Tauri store stays correct; next app restart reloads cleanly.
   createEffect(() => {
     const p = props.profile?.prefs;
     if (!p) return;
