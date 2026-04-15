@@ -2,6 +2,7 @@ import type { JSX } from "solid-js";
 import type { KeyDef } from "../KeyboardLayout";
 import { NAV_MODULE } from "./navModule";
 import { NUMPAD_MODULE } from "./numpadModule";
+import { MOUSE_MODULE } from "./mouseModule";
 
 /** Identifier for a swappable right-slot module. */
 export type KeyboardRightModule = "nav" | "numpad" | "mouse";
@@ -35,9 +36,10 @@ export interface KeyboardModule {
  * tries to render a missing module - that's intentional; tasks should land
  * in order.
  */
-export const MODULES: Partial<Record<KeyboardRightModule, KeyboardModule>> = {
+export const MODULES: Record<KeyboardRightModule, KeyboardModule> = {
   nav: NAV_MODULE,
   numpad: NUMPAD_MODULE,
+  mouse: MOUSE_MODULE,
 };
 
 /**
