@@ -1,4 +1,5 @@
 import { load, type Store } from "@tauri-apps/plugin-store";
+import type { KeyboardRightModule } from "./components/keyboardModules";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -61,6 +62,10 @@ export interface ProfilePrefs {
   config_keyboard_show_movement: boolean;
   config_keyboard_show_weapons: boolean;
   config_keyboard_show_teamplay: boolean;
+  /** Last-used right-slot module in the ConfigViewer keyboard panel. */
+  config_keyboard_right_module: KeyboardRightModule;
+  /** Last-used right-slot module in the Profile keyboard (nav or numpad only). */
+  profile_keyboard_right_module: "nav" | "numpad";
 }
 
 export interface ProfileData {
@@ -120,6 +125,8 @@ const DEFAULT_PREFS: ProfilePrefs = {
   config_keyboard_show_movement: true,
   config_keyboard_show_weapons: true,
   config_keyboard_show_teamplay: true,
+  config_keyboard_right_module: "nav",
+  profile_keyboard_right_module: "nav",
 };
 
 function createDefaultProfile(): ProfileData {
