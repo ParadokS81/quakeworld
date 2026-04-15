@@ -9,6 +9,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [qw-oracle/CLAUDE.md is 192 lines (over 150 hard ceiling)](#qw-oraclecladuemd-is-192-lines-over-150-hard-ceiling) — split into Layer 2 docs next time qw-oracle gets active work
+- [Execute modular keyboard panel plan](#execute-modular-keyboard-panel-plan) — 16-task plan, fresh session with subagent-driven execution recommended
 
 ---
 
@@ -32,3 +33,28 @@ Don't split preemptively. The POC plan already handles it — Task 1 in `docs/su
 - The doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 - The memory: `project_doc_philosophy.md`
 
+---
+
+## Execute modular keyboard panel plan
+
+**Added:** 2026-04-15
+**Status:** plan committed and ready to execute; expected to need a dedicated fresh session
+**Verification first:** `ls apps/slipgate-app/docs/superpowers/plans/2026-04-15-modular-keyboard-panel.md` (should exist) and `wc -l apps/slipgate-app/src/components/KeyboardLayout.tsx` (should still be ~331 lines — execution hasn't started yet if so).
+
+The 2026-04-15 session produced a full design spec and a 16-task implementation plan for the modular right-slot keyboard feature in slipgate-app. The plan is self-contained: the ezQuake numpad key name table is baked into the plan's reference section (grepped from `apps/slipgate-app/reference/ezquake-source/src/keys.c`) so no further research is needed. Execution does not require any new research.
+
+**Recommended execution path:** fresh session, subagent-driven development (one subagent per task, review between tasks). Per `feedback_fresh_context_for_execution.md`, wrapping the brainstorm and executing in a clean context window is the right shape for non-trivial plans. The 16 tasks are each compilable intermediate states with per-task commits, so batch execution is safe.
+
+**Post-implementation polish not in the plan:** the plan's Task 16 is full manual verification but does not explicitly touch up `apps/slipgate-app/docs/STATE.md` or `apps/slipgate-app/docs/DESIGN.md`. Those two docs will have new facts worth a short addition after the plan ships:
+- `STATE.md`: the two new `ProfilePrefs` fields `config_keyboard_right_module` and `profile_keyboard_right_module`.
+- `DESIGN.md`: the two new semantic color vars (`--sg-kb-mouse-outline`, `--sg-kb-wheel-accent`) and the `.sg-config-kb-module-bar` / `.sg-keyboard-module-toggle-overlay` class patterns.
+
+These doc updates are small enough to fold into the final wrap-up of the execution session rather than a separate task.
+
+### Related
+
+- Spec: `apps/slipgate-app/docs/superpowers/specs/2026-04-15-modular-keyboard-panel-design.md`
+- Plan: `apps/slipgate-app/docs/superpowers/plans/2026-04-15-modular-keyboard-panel.md`
+- Brief (now superseded by spec + plan): `apps/slipgate-app/docs/superpowers/plans/2026-04-15-modular-keyboard-panel-brief.md`
+- Prior keyboard-panel work: `apps/slipgate-app/docs/superpowers/specs/2026-04-14-config-viewer-keyboard-panel-design.md`
+- Relevant memories: `project_slipgate_architecture.md`, `project_config_architecture.md`, `feedback_fresh_context_for_execution.md`
