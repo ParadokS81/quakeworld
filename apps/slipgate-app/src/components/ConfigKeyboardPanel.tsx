@@ -1,4 +1,4 @@
-import { createEffect, createMemo, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, untrack, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
 import { moduleOf, type KeyboardRightModule } from "./keyboardModules";
@@ -88,36 +88,78 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
   const yourSelectedIds = createMemo(() => buildSelectedIds(primaryInput(), props.selection));
   const theirSelectedIds = createMemo(() => buildSelectedIds(compareInput(), props.selection));
 
-  // Auto-reveal effect: when the selection's target keys live in a
-  // non-active module on the primary keyboard, swap the active module
-  // so they become visible. Tie-break: if the current module already
-  // contains at least one of the keys, stay. Otherwise pick the first
-  // module in order nav -> numpad -> mouse that contains a match.
+  // Per-side module state. The segmented control at the top is authoritative:
+  // clicking it forces both sides to the chosen module AND persists to the
+  // pref. Auto-reveal is allowed to drive the two sides apart when the
+  // current selection's target keys live on different modules per side (e.g.
+  // primary binds "kill me" to mouse4, compare binds it to kp_7); the split
+  // state is transient and the next manual click re-syncs.
+  //
+  // The local signals are seeded from props.rightModule (the persisted hook
+  // value) and re-seeded whenever it changes, so profile reloads flow in.
+  const [primaryModule, setPrimaryModule] = createSignal<KeyboardRightModule>(props.rightModule);
+  const [compareModule, setCompareModule] = createSignal<KeyboardRightModule>(props.rightModule);
+
   createEffect(() => {
-    const sel = props.selection;
-    if (!sel) return;
+    const m = props.rightModule;
+    setPrimaryModule(m);
+    setCompareModule(m);
+  });
 
-    const input = primaryInput();
-    if (!input) return;
-
+  function resolveContainingModules(input: HighlightInput | null, sel: BindSelection): Set<KeyboardRightModule> {
+    const containing = new Set<KeyboardRightModule>();
+    if (!input || !sel) return containing;
     const ids = buildSelectedIds(input, sel);
-    if (ids.size === 0) return;
-
-    const containingModules = new Set<KeyboardRightModule>();
     for (const id of ids) {
       const m = moduleOf(id);
-      if (m && m !== "main") containingModules.add(m);
+      if (m && m !== "main") containing.add(m);
     }
+    return containing;
+  }
 
-    if (containingModules.size === 0) return;
-    if (containingModules.has(props.rightModule)) return;
-
+  function pickRevealTarget(
+    current: KeyboardRightModule,
+    containing: Set<KeyboardRightModule>,
+  ): KeyboardRightModule | null {
+    if (containing.size === 0) return null;
+    if (containing.has(current)) return null;
     const order: KeyboardRightModule[] = ["nav", "numpad", "mouse"];
-    const next = order.find((m) => containingModules.has(m));
+    return order.find((m) => containing.has(m)) ?? null;
+  }
+
+  // Primary auto-reveal. Tracks selection + primary input only; reads the
+  // current module via untrack so clicks on the segmented control (which
+  // sync both sides via the mirror effect above, not via selection) do not
+  // retrigger this effect and stomp the user's choice.
+  createEffect(() => {
+    const sel = props.selection;
+    const input = primaryInput();
+    const containing = resolveContainingModules(input, sel);
+    const next = pickRevealTarget(untrack(primaryModule), containing);
     if (next && props.availableModules.includes(next)) {
-      props.setRightModule(next);
+      setPrimaryModule(next);
     }
   });
+
+  // Compare auto-reveal. Same shape, but resolved against compareInput.
+  createEffect(() => {
+    const sel = props.selection;
+    const input = compareInput();
+    const containing = resolveContainingModules(input, sel);
+    const next = pickRevealTarget(untrack(compareModule), containing);
+    if (next && props.availableModules.includes(next)) {
+      setCompareModule(next);
+    }
+  });
+
+  function syncBothModules(m: KeyboardRightModule) {
+    setPrimaryModule(m);
+    setCompareModule(m);
+    props.setRightModule(m);
+  }
+
+  const isModuleSynced = (m: KeyboardRightModule) =>
+    primaryModule() === m && (!isCompare() || compareModule() === m);
 
   function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
     if (!sideInput) return;
@@ -182,7 +224,12 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             Teamplay
           </button>
         </div>
-        {/* Right-slot module segmented control */}
+        {/* Right-slot module segmented control. Clicking a button syncs
+            both keyboards to that module and persists it. A button is
+            marked active only when BOTH sides currently show that module;
+            while the two sides are split (transient auto-reveal state), no
+            button highlights - a visible signal that the next click will
+            re-sync. */}
         <div class="sg-config-kb-module-bar">
           {props.availableModules.map((m) => {
             const labels: Record<KeyboardRightModule, string> = {
@@ -193,8 +240,8 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             return (
               <button
                 class="sg-config-kb-module-btn"
-                classList={{ "sg-config-kb-module-btn-active": props.rightModule === m }}
-                onClick={() => props.setRightModule(m)}
+                classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
+                onClick={() => syncBothModules(m)}
               >
                 {labels[m]}
               </button>
@@ -212,7 +259,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
               selectedKeyIds={yourSelectedIds()}
-              rightModule={props.rightModule}
+              rightModule={primaryModule()}
             />
           </div>
         </Show>
@@ -227,7 +274,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(compareInput(), id)}
               selectedKeyIds={theirSelectedIds()}
-              rightModule={props.rightModule}
+              rightModule={compareModule()}
             />
           </div>
         </Show>
