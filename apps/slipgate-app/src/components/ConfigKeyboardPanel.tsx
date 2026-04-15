@@ -1,6 +1,7 @@
 import { createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
+import type { KeyboardRightModule } from "./keyboardModules";
 import {
   buildKeyHighlights,
   buildSelectedIds,
@@ -35,6 +36,7 @@ interface ConfigKeyboardPanelProps {
   onToggleMovement: () => void;
   onToggleWeapons: () => void;
   onToggleTeamplay: () => void;
+  rightModule: KeyboardRightModule;
 }
 
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
@@ -158,6 +160,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
               selectedKeyIds={yourSelectedIds()}
+              rightModule={props.rightModule}
             />
           </div>
         </Show>
@@ -172,6 +175,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               showMovement={props.showMovement}
               onKeyClick={(id) => handleKeyClick(compareInput(), id)}
               selectedKeyIds={theirSelectedIds()}
+              rightModule={props.rightModule}
             />
           </div>
         </Show>

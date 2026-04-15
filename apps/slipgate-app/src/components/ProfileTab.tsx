@@ -417,6 +417,7 @@ export default function ProfileTab(props: ProfileTabProps) {
                     highlights={weaponKeyHighlights()}
                     showMovement={showMovement()}
                     keyLabels={keyLabels()}
+                    rightModule="nav"
                   />
                 </div>
 

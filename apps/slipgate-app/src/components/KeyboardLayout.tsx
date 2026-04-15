@@ -1,6 +1,6 @@
 import { Show, createMemo } from "solid-js";
 import type { MovementKeys } from "../types";
-import { NAV_MODULE } from "./keyboardModules/navModule";
+import { MODULES, type KeyboardRightModule } from "./keyboardModules";
 
 /* ─── US QWERTY TKL layout data ─────────────────────────────────────── */
 
@@ -185,6 +185,8 @@ interface KeyboardLayoutProps {
   onKeyClick?: (id: string) => void;
   /** Set of key IDs to render with a bright "neon" selection frame. */
   selectedKeyIds?: Set<string>;
+  /** Which module to render in the right slot. */
+  rightModule: KeyboardRightModule;
 }
 
 export default function KeyboardLayout(props: KeyboardLayoutProps) {
@@ -264,10 +266,16 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
             {props.keyboardName}
           </text>
         </Show>
-        {[
-          ...MAIN_BLOCK,
-          ...NAV_MODULE.keys.map(k => ({ ...k, x: k.x + NAV_X })),
-        ].map(k => (
+        {(() => {
+          const mod = MODULES[props.rightModule];
+          if (!mod) {
+            throw new Error(`KeyboardLayout: unknown rightModule ${props.rightModule}`);
+          }
+          return [
+            ...MAIN_BLOCK,
+            ...mod.keys.map(k => ({ ...k, x: k.x + NAV_X })),
+          ];
+        })().map(k => (
           <g>
             <rect
               x={k.x * KU + PAD}
