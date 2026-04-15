@@ -927,8 +927,100 @@ fn classify_tp_msg(cmd: &str) -> Option<(&'static str, &'static str, &'static st
     }
 }
 
+/// Strip leading `$<variable>` tokens (e.g. `$\$nick`, `$nick`) that prefix
+/// most say_team messages as sender identifiers. Returns the remaining body
+/// with leading whitespace trimmed.
+fn strip_leading_variables(text: &str) -> &str {
+    let mut s = text.trim_start();
+    while let Some(rest) = s.strip_prefix('$') {
+        let token_end = rest.find(char::is_whitespace).unwrap_or(rest.len());
+        s = rest[token_end..].trim_start();
+    }
+    s
+}
+
+/// Extract the first non-empty say_team message body from a list of resolved
+/// terminal commands. Strips the `say_team` prefix and any leading sender
+/// variables, returning the readable content (e.g. "quad in 10").
+fn first_say_team_body(terminals: &[String]) -> String {
+    for t in terminals {
+        if !t.to_lowercase().starts_with("say_team") {
+            continue;
+        }
+        // "say_team" is 8 ASCII chars; safe to slice at byte 8
+        let after_cmd = &t[8..];
+        let cleaned = strip_leading_variables(after_cmd.trim_start());
+        if !cleaned.is_empty() {
+            return cleaned.to_string();
+        }
+    }
+    String::new()
+}
+
+/// Truncate a label to `max_chars` characters, appending `...` if truncated.
+/// Uses ASCII dots to comply with project output discipline.
+fn shorten_label(text: &str) -> String {
+    let text = text.trim();
+    const MAX: usize = 40;
+    if text.chars().count() <= MAX {
+        text.to_string()
+    } else {
+        let truncated: String = text.chars().take(MAX).collect();
+        format!("{}...", truncated.trim_end())
+    }
+}
+
+/// Check if any whitespace-separated token in a message matches a powerup
+/// keyword (powerup, quad, pent, penta, ring, eyes). Tokens are compared
+/// case-insensitively with leading/trailing punctuation stripped, but
+/// compound tokens (e.g. `PENT/LIFT`, `RA-PATH`) are NOT split on slashes or
+/// dashes, so callout strings like those stay out of the powerups category.
+fn has_powerup_keyword(message: &str) -> bool {
+    const KEYWORDS: &[&str] = &["powerup", "quad", "pent", "penta", "ring", "eyes"];
+    for token in message.split_whitespace() {
+        let cleaned = token
+            .trim_matches(|c: char| !c.is_alphanumeric())
+            .to_lowercase();
+        if cleaned.is_empty() {
+            continue;
+        }
+        if KEYWORDS.iter().any(|&k| k == cleaned) {
+            return true;
+        }
+    }
+    false
+}
+
+/// Public say_team classifier. First tries canonical keyword patterns; if no
+/// canonical match, derives a per-message label from the content so distinct
+/// custom binds do not collapse into one display row, and runs a whitespace-
+/// tokenized powerup keyword check to promote matching messages from `custom`
+/// to `powerups`.
+fn classify_say_team(terminals: &[String]) -> (String, String, String) {
+    if let Some((cat, label, desc)) = classify_say_team_canonical(terminals) {
+        return (cat.to_string(), label.to_string(), desc.to_string());
+    }
+
+    let body = first_say_team_body(terminals);
+    if body.is_empty() {
+        return (
+            "custom".to_string(),
+            "say_team".to_string(),
+            "Team communication".to_string(),
+        );
+    }
+
+    let label = shorten_label(&body);
+    let category = if has_powerup_keyword(&body) {
+        "powerups".to_string()
+    } else {
+        "custom".to_string()
+    };
+    (category, label, body)
+}
+
 /// Classify a say_team message by looking at keywords in the resolved terminal commands.
-fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str, &'static str)> {
+fn classify_say_team_canonical(terminals: &[String]) -> Option<(&'static str, &'static str, &'static str)> {
     // Collect all terminal text into one string for keyword matching
     let combined: String = terminals
         .iter()
@@ -1016,7 +1108,7 @@ fn classify_say_team(terminals: &[String]) -> Option<(&'static str, &'static str
         return Some(("movement", "camping", "Camping at location"));
     }
 
-    Some(("custom", "say_team", "Custom team message"))
+    None
 }
 
 /// Try to classify a bind based on its alias name (when terminal resolution is ambiguous).
@@ -1238,20 +1330,18 @@ fn analyze_teamsay_binds(
 
             let first_word = part.split_whitespace().next().unwrap_or(part);
 
-            // Classify this bind part
-            let classification: Option<(&str, &str, &str)>;
+            // Classify this bind part. Owned strings throughout so the
+            // fallback path can produce content-derived labels for custom
+            // teamsay binds (distinct per message, not collapsed).
+            let classification: Option<(String, String, String)>;
 
             // Check 1: direct tp_msg* command
-            if let Some(c) = classify_tp_msg(first_word) {
-                classification = Some(c);
+            if let Some((c, l, d)) = classify_tp_msg(first_word) {
+                classification = Some((c.to_string(), l.to_string(), d.to_string()));
             }
             // Check 2: direct say_team command
             else if part.to_lowercase().starts_with("say_team ") {
-                classification = classify_say_team(&[part.to_string()]).or(Some((
-                    "custom",
-                    "say_team",
-                    "Custom team message",
-                )));
+                classification = Some(classify_say_team(&[part.to_string()]));
             }
             // Check 3: resolve through alias chains
             else {
@@ -1264,22 +1354,37 @@ fn analyze_teamsay_binds(
                     .any(|t| t.to_lowercase().starts_with("tp_msg"));
 
                 if has_say_team || has_tp_msg {
-                    let by_name = classify_by_alias_name(first_word);
-                    let by_tp_msg = terminals
+                    let by_name: Option<(String, String, String)> =
+                        classify_by_alias_name(first_word)
+                            .map(|(c, l, d)| (c.to_string(), l.to_string(), d.to_string()));
+                    let by_tp_msg: Option<(String, String, String)> = terminals
                         .iter()
-                        .filter_map(|t| classify_tp_msg(t.split_whitespace().next().unwrap_or(t)))
+                        .filter_map(|t| {
+                            classify_tp_msg(t.split_whitespace().next().unwrap_or(t))
+                        })
+                        .map(|(c, l, d)| (c.to_string(), l.to_string(), d.to_string()))
                         .next();
-                    let by_content = if has_say_team {
-                        classify_say_team(&terminals)
+                    let by_content: Option<(String, String, String)> = if has_say_team {
+                        Some(classify_say_team(&terminals))
                     } else {
                         None
                     };
 
-                    classification = Some(by_name.or(by_tp_msg).or(by_content).unwrap_or((
-                        "custom",
-                        "say_team",
-                        "Team communication",
-                    )));
+                    classification = by_name.or(by_tp_msg).or(by_content).or_else(|| {
+                        // tp_msg alias with no canonical match and no say_team
+                        // terminals — derive a label from the alias name itself
+                        // so the bind is still distinct.
+                        let label = first_word
+                            .trim_start_matches('_')
+                            .trim_start_matches('+')
+                            .trim_start_matches('.')
+                            .to_string();
+                        Some((
+                            "custom".to_string(),
+                            label,
+                            "Team communication".to_string(),
+                        ))
+                    });
                 } else {
                     classification = None;
                 }
@@ -1289,9 +1394,9 @@ fn analyze_teamsay_binds(
                 let key_display = format_key_name(&key_upper);
                 let bind = TeamsayBind {
                     key: key_display.clone(),
-                    category: cat.to_string(),
-                    label: label.to_string(),
-                    description: desc.to_string(),
+                    category: cat,
+                    label,
+                    description: desc,
                 };
                 // Last bind wins (ezQuake processes top-to-bottom)
                 if let Some(&idx) = seen_keys.get(&key_display) {
