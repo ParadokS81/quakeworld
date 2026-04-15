@@ -1,5 +1,6 @@
 import { Show, createMemo } from "solid-js";
 import type { MovementKeys } from "../types";
+import { NAV_MODULE } from "./keyboardModules/navModule";
 
 /* ─── US QWERTY TKL layout data ─────────────────────────────────────── */
 
@@ -13,13 +14,11 @@ export interface KeyDef {
 
 // Main block ends at x=15 (backspace 13+2), nav cluster starts at 15.5
 const NAV_X = 15.5;
-// Arrow cluster: centered under nav, left arrow at NAV_X
-const ARR_X = NAV_X;
 
 // Vertical gaps (in row-height fractions)
 const FROW_GAP = 0.4;   // gap between F-row and number row
 
-const LAYOUT: KeyDef[] = [
+const MAIN_BLOCK: KeyDef[] = [
   // Row 0 — Function row
   { id: "Escape", label: "Esc", x: 0, w: 1, row: 0 },
   { id: "F1", label: "F1", x: 1.25, w: 1, row: 0 },
@@ -50,9 +49,6 @@ const LAYOUT: KeyDef[] = [
   { id: "-", label: "-", x: 11, w: 1, row: 1 },
   { id: "=", label: "=", x: 12, w: 1, row: 1 },
   { id: "Backspace", label: "⌫", x: 13, w: 2, row: 1 },
-  { id: "Insert", label: "Ins", x: NAV_X, w: 1, row: 1 },
-  { id: "Home", label: "Hm", x: NAV_X + 1, w: 1, row: 1 },
-  { id: "PageUp", label: "PU", x: NAV_X + 2, w: 1, row: 1 },
 
   // Row 2 — Top alpha + nav cluster middle
   { id: "Tab", label: "Tab", x: 0, w: 1.5, row: 2 },
@@ -69,9 +65,6 @@ const LAYOUT: KeyDef[] = [
   { id: "[", label: "[", x: 11.5, w: 1, row: 2 },
   { id: "]", label: "]", x: 12.5, w: 1, row: 2 },
   { id: "\\", label: "\\", x: 13.5, w: 1.5, row: 2 },
-  { id: "Delete", label: "Del", x: NAV_X, w: 1, row: 2 },
-  { id: "End", label: "End", x: NAV_X + 1, w: 1, row: 2 },
-  { id: "PageDown", label: "PD", x: NAV_X + 2, w: 1, row: 2 },
 
   // Row 3 — Home row
   { id: "CapsLock", label: "Caps", x: 0, w: 1.75, row: 3 },
@@ -101,7 +94,6 @@ const LAYOUT: KeyDef[] = [
   { id: ".", label: ".", x: 10.25, w: 1, row: 4 },
   { id: "/", label: "/", x: 11.25, w: 1, row: 4 },
   { id: "RShift", label: "Shift", x: 12.25, w: 2.75, row: 4 },
-  { id: "UpArrow", label: "↑", x: ARR_X + 1, w: 1, row: 4 },
 
   // Row 5 — Modifiers + Space + Arrow keys
   { id: "Ctrl", label: "Ctrl", x: 0, w: 1.25, row: 5 },
@@ -112,13 +104,10 @@ const LAYOUT: KeyDef[] = [
   { id: "RWin", label: "Win", x: 11.25, w: 1.25, row: 5 },
   { id: "RCtrl", label: "Ctrl", x: 12.5, w: 1.25, row: 5 },
   { id: "Fn", label: "Fn", x: 13.75, w: 1.25, row: 5 },
-  { id: "LeftArrow", label: "←", x: ARR_X, w: 1, row: 5 },
-  { id: "DownArrow", label: "↓", x: ARR_X + 1, w: 1, row: 5 },
-  { id: "RightArrow", label: "→", x: ARR_X + 2, w: 1, row: 5 },
 ];
 
 // Fast lookup by ID (used by consumers)
-export const KEY_BY_ID = new Map(LAYOUT.map(k => [k.id, k]));
+export const KEY_BY_ID = new Map(MAIN_BLOCK.map(k => [k.id, k]));
 
 /* ─── Key name mapping ──────────────────────────────────────────────────── */
 
@@ -170,7 +159,7 @@ const ROW_H = 40;       // row height in SVG coordinates
 const NUM_ROWS = 6;
 const GAP_PX = FROW_GAP * ROW_H;  // F-row gap in pixels
 const TOTAL_H = NUM_ROWS * ROW_H + GAP_PX;
-const TOTAL_W_U = NAV_X + 3; // TKL width: main block + nav cluster
+const TOTAL_W_U = NAV_X + 4; // Pinned to widest module (numpad / mouse = 4u) so keyboard size stays stable when swapping modules. Nav mode leaves 1u of dead space to the right of the arrow cluster - intentional.
 
 /** Convert row index to Y pixel position, accounting for F-row gap */
 function rowY(row: number): number {
@@ -275,7 +264,10 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
             {props.keyboardName}
           </text>
         </Show>
-        {LAYOUT.map(k => (
+        {[
+          ...MAIN_BLOCK,
+          ...NAV_MODULE.keys.map(k => ({ ...k, x: k.x + NAV_X })),
+        ].map(k => (
           <g>
             <rect
               x={k.x * KU + PAD}

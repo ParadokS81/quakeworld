@@ -1,5 +1,6 @@
 import type { JSX } from "solid-js";
 import type { KeyDef } from "../KeyboardLayout";
+import { NAV_MODULE } from "./navModule";
 
 /** Identifier for a swappable right-slot module. */
 export type KeyboardRightModule = "nav" | "numpad" | "mouse";
@@ -33,8 +34,9 @@ export interface KeyboardModule {
  * tries to render a missing module - that's intentional; tasks should land
  * in order.
  */
-// biome-ignore lint/suspicious/noExplicitAny: registry is built up incrementally across plan tasks
-export const MODULES: Record<KeyboardRightModule, KeyboardModule> = {} as any;
+export const MODULES: Partial<Record<KeyboardRightModule, KeyboardModule>> = {
+  nav: NAV_MODULE,
+};
 
 /**
  * Returns which module a layout ID belongs to, or "main" for main-block
