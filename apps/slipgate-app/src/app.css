@@ -598,7 +598,48 @@ input[type="number"] {
    ============================================================ */
 
 .sg-keyboard-container {
+  position: relative;
   width: 100%;
+}
+
+.sg-keyboard-module-toggle-overlay {
+  /* Position it over the F-row slot between F12 and the brand label.
+     Percent coordinates scale with the SVG automatically because the
+     SVG uses preserveAspectRatio. */
+  position: absolute;
+  top: 2%;
+  /* 14.25u / 19.5u (TOTAL_W_U) ~= 73% - just before where the brand label starts */
+  left: 73%;
+  width: 7%;
+  height: 11%;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.sg-keyboard-module-toggle-btn {
+  flex: 1;
+  height: 100%;
+  font-size: 0.6rem;
+  background: color-mix(in oklch, var(--sg-grad-dark) 80%, transparent);
+  color: var(--sg-text-dim);
+  border: 1px solid color-mix(in oklch, var(--sg-stat-border) 60%, transparent);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sg-keyboard-module-toggle-btn:hover {
+  color: var(--sg-text-bright);
+  background: color-mix(in oklch, var(--sg-grad-dark) 95%, white 3%);
+}
+
+.sg-keyboard-module-toggle-btn-active {
+  background: color-mix(in oklch, var(--color-primary) 25%, var(--sg-grad-dark));
+  color: var(--color-primary);
+  border-color: color-mix(in oklch, var(--color-primary) 40%, transparent);
 }
 
 .sg-keyboard-container svg {

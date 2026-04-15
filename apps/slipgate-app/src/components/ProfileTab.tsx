@@ -430,6 +430,26 @@ export default function ProfileTab(props: ProfileTabProps) {
                     showMovement={showMovement()}
                     keyLabels={keyLabels()}
                     rightModule={profileKbState.rightModule()}
+                    rightModuleToggle={
+                      <>
+                        <button
+                          class="sg-keyboard-module-toggle-btn"
+                          classList={{ "sg-keyboard-module-toggle-btn-active": profileKbState.rightModule() === "nav" }}
+                          onClick={() => profileKbState.setRightModule("nav")}
+                          title="Nav cluster + arrow keys"
+                        >
+                          Nav
+                        </button>
+                        <button
+                          class="sg-keyboard-module-toggle-btn"
+                          classList={{ "sg-keyboard-module-toggle-btn-active": profileKbState.rightModule() === "numpad" }}
+                          onClick={() => profileKbState.setRightModule("numpad")}
+                          title="Numpad"
+                        >
+                          Num
+                        </button>
+                      </>
+                    }
                   />
                 </div>
 

@@ -1,4 +1,4 @@
-import { Show, createMemo } from "solid-js";
+import { Show, createMemo, type JSX } from "solid-js";
 import type { MovementKeys } from "../types";
 import { MODULES, type KeyboardRightModule } from "./keyboardModules";
 
@@ -207,6 +207,8 @@ interface KeyboardLayoutProps {
   selectedKeyIds?: Set<string>;
   /** Which module to render in the right slot. */
   rightModule: KeyboardRightModule;
+  /** Optional overlay rendered absolutely inside the keyboard container. Used by ProfileTab for its nav/numpad toggle. */
+  rightModuleToggle?: JSX.Element;
 }
 
 export default function KeyboardLayout(props: KeyboardLayoutProps) {
@@ -356,6 +358,11 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
           </g>
         ))}
       </svg>
+      <Show when={props.rightModuleToggle}>
+        <div class="sg-keyboard-module-toggle-overlay">
+          {props.rightModuleToggle}
+        </div>
+      </Show>
     </div>
   );
 }
