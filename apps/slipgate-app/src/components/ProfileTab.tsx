@@ -10,6 +10,7 @@ import MouseLayout from "./MouseLayout";
 import WeaponBindViz from "./WeaponBindViz";
 import type { MouseHighlights } from "./MouseSvg";
 import { buildKeyHighlights, buildKeyLabels, TEAMSAY_COLORS } from "./keyboardHighlights";
+import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import miceData from "../data/mice.json";
 import mousepadsData from "../data/mousepads.json";
 import miceSupplement from "../data/mice-supplement.json";
@@ -53,6 +54,17 @@ interface ProfileTabProps {
 }
 
 export default function ProfileTab(props: ProfileTabProps) {
+  // Profile's keyboard panel state - right-slot module only. The hook's
+  // category toggles, visibility, and selection outputs are ignored here;
+  // Profile doesn't use click-to-pin and has its own show-bind-labels
+  // toggle outside this hook. A dummy activeRow2 is fine.
+  const profileKbState = useKeyboardPanelState({
+    profile: () => props.profile,
+    activeRow2: () => new Set<string>(),
+    availableModules: ["nav", "numpad"] as const,
+    persistKey: "profile",
+  });
+
   // Auto-detected peripherals
   const detectedMice = () => props.specs?.hid_devices.filter((d) => d.device_type === "mouse") ?? [];
   const detectedKeyboards = () => props.specs?.hid_devices.filter((d) => d.device_type === "keyboard") ?? [];
@@ -417,7 +429,7 @@ export default function ProfileTab(props: ProfileTabProps) {
                     highlights={weaponKeyHighlights()}
                     showMovement={showMovement()}
                     keyLabels={keyLabels()}
-                    rightModule="nav"
+                    rightModule={profileKbState.rightModule()}
                   />
                 </div>
 
