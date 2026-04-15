@@ -151,6 +151,25 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             Teamplay
           </button>
         </div>
+        {/* Right-slot module segmented control */}
+        <div class="sg-config-kb-module-bar">
+          {props.availableModules.map((m) => {
+            const labels: Record<KeyboardRightModule, string> = {
+              nav: "Nav",
+              numpad: "Numpad",
+              mouse: "Mouse",
+            };
+            return (
+              <button
+                class="sg-config-kb-module-btn"
+                classList={{ "sg-config-kb-module-btn-active": props.rightModule === m }}
+                onClick={() => props.setRightModule(m)}
+              >
+                {labels[m]}
+              </button>
+            );
+          })}
+        </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
             <Show when={props.primaryName}>
