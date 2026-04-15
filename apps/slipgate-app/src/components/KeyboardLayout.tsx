@@ -3,7 +3,7 @@ import type { MovementKeys } from "../types";
 
 /* ─── US QWERTY TKL layout data ─────────────────────────────────────── */
 
-interface KeyDef {
+export interface KeyDef {
   id: string;    // matches ezQuake key name
   label: string; // display label on keycap
   x: number;     // x position in keyboard units (1u = standard key width)
