@@ -1,7 +1,7 @@
-import { createMemo, Show } from "solid-js";
+import { createEffect, createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
-import type { KeyboardRightModule } from "./keyboardModules";
+import { moduleOf, type KeyboardRightModule } from "./keyboardModules";
 import {
   buildKeyHighlights,
   buildSelectedIds,
@@ -87,6 +87,37 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
   // Ctrl/Shift/Alt keys get tinted alongside the letter key for a combo bind.
   const yourSelectedIds = createMemo(() => buildSelectedIds(primaryInput(), props.selection));
   const theirSelectedIds = createMemo(() => buildSelectedIds(compareInput(), props.selection));
+
+  // Auto-reveal effect: when the selection's target keys live in a
+  // non-active module on the primary keyboard, swap the active module
+  // so they become visible. Tie-break: if the current module already
+  // contains at least one of the keys, stay. Otherwise pick the first
+  // module in order nav -> numpad -> mouse that contains a match.
+  createEffect(() => {
+    const sel = props.selection;
+    if (!sel) return;
+
+    const input = primaryInput();
+    if (!input) return;
+
+    const ids = buildSelectedIds(input, sel);
+    if (ids.size === 0) return;
+
+    const containingModules = new Set<KeyboardRightModule>();
+    for (const id of ids) {
+      const m = moduleOf(id);
+      if (m && m !== "main") containingModules.add(m);
+    }
+
+    if (containingModules.size === 0) return;
+    if (containingModules.has(props.rightModule)) return;
+
+    const order: KeyboardRightModule[] = ["nav", "numpad", "mouse"];
+    const next = order.find((m) => containingModules.has(m));
+    if (next && props.availableModules.includes(next)) {
+      props.setRightModule(next);
+    }
+  });
 
   function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
     if (!sideInput) return;
