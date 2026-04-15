@@ -37,6 +37,8 @@ interface ConfigKeyboardPanelProps {
   onToggleWeapons: () => void;
   onToggleTeamplay: () => void;
   rightModule: KeyboardRightModule;
+  setRightModule: (m: KeyboardRightModule) => void;
+  availableModules: readonly KeyboardRightModule[];
 }
 
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {

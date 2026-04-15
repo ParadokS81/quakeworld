@@ -935,7 +935,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 onToggleMovement={kbState.toggleMovement}
                 onToggleWeapons={kbState.toggleWeapons}
                 onToggleTeamplay={kbState.toggleTeamplay}
-                rightModule="nav"
+                rightModule={kbState.rightModule()}
+                setRightModule={kbState.setRightModule}
+                availableModules={kbState.availableModules}
               />
             </Show>
           </div>
