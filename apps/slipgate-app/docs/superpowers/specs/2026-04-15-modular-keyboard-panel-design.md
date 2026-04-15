@@ -189,9 +189,10 @@ interface UseKeyboardPanelStateInput {
   // NEW:
   availableModules: readonly KeyboardRightModule[];  // e.g. ["nav","numpad","mouse"] or ["nav","numpad"]
   persistKey: "config" | "profile";                  // selects which ProfilePrefs field to read/write
-  selection?: () => BindSelection;                   // optional - ConfigViewer passes this, enables auto-reveal
 }
 ```
+
+**Note — auto-reveal does not live in the hook.** See §6 for the corrected placement. The hook owns the selection signal but not the primary config's `HighlightInput`, which is required to resolve a selection into layout IDs. The `HighlightInput` lives in `ConfigKeyboardPanel`, so the auto-reveal `createEffect` lives there as well.
 
 ### 5.2 New outputs
 
@@ -203,32 +204,37 @@ availableModules: readonly KeyboardRightModule[];  // pass-through for the panel
 
 ### 5.3 Behavior
 
-1. **Init:** read the persisted module from `profile()?.prefs.config_keyboard_right_module` (when `persistKey === "config"`) or `profile()?.prefs.profile_keyboard_right_module` (when `persistKey === "profile"`). Fall back to `"nav"`.
+1. **Init:** read the persisted module from `profile()?.prefs.config_keyboard_right_module` (when `persistKey === "config"`) or `profile()?.prefs.profile_keyboard_right_module` (when `persistKey === "profile"`). Fall back to `"nav"`. Validate the stored value against `availableModules` so a Profile instance can never pick up a `"mouse"` value that ConfigViewer stored.
 2. **Mirror effect:** a `createEffect` mirrors the pref back into the local signal when the profile reloads, matching the pattern used by the existing toggle methods. Same one-way-mirror trade-off noted in the existing hook docstring.
-3. **Toggle:** `setRightModule(m)` updates the local signal, then calls `updatePrefs({ [field]: m })` with the appropriate field name. Errors logged via `console.error` with the same wording as existing toggle methods.
-4. **Auto-reveal effect** (gated on `input.selection !== undefined`): see §6 below.
+3. **Toggle:** `setRightModule(m)` validates against `availableModules`, updates the local signal, then calls `updatePrefs({ [field]: m })` with the appropriate field name. Errors logged via `console.error` with the same wording as existing toggle methods.
 
 ### 5.4 Two consumers
 
-- **ConfigViewer** instantiates the hook with `availableModules: ["nav","numpad","mouse"]`, `persistKey: "config"`, and passes its `selection` signal. Auto-reveal is active.
-- **ProfileTab** instantiates a second copy with `availableModules: ["nav","numpad"]`, `persistKey: "profile"`, and no `selection` input. Auto-reveal is inactive. ProfileTab ignores the hook outputs it doesn't use (category toggles, visibility, selection) - minor wasted surface, but simpler than splitting the hook into two.
+- **ConfigViewer** instantiates the hook with `availableModules: ["nav","numpad","mouse"]` and `persistKey: "config"`.
+- **ProfileTab** instantiates a second copy with `availableModules: ["nav","numpad"]` and `persistKey: "profile"`. ProfileTab ignores the hook outputs it doesn't use (category toggles, visibility, selection) - minor wasted surface, but simpler than splitting the hook into two.
 
 ## 6. Auto-reveal logic
 
-### 6.1 When it runs
+### 6.1 Where it lives
 
-Only in the ConfigViewer instance of the hook, gated on `input.selection !== undefined`. Profile's instance never activates the effect.
+The `createEffect` lives in `ConfigKeyboardPanel`, not in `useKeyboardPanelState`. Reason: the effect has to resolve the current selection into layout IDs via `buildSelectedIds(primaryInput, selection)`, and `primaryInput` is a config-specific `HighlightInput` built from the primary `EzQuakeConfig` prop. That data is local to the panel — the hook doesn't know about it.
+
+ProfileTab does not render `ConfigKeyboardPanel` (Profile has its own keyboard rendering path that doesn't use click-to-pin), so Profile automatically gets no auto-reveal. No gating is needed.
 
 ### 6.2 Algorithm
 
-```
+```ts
+// Inside ConfigKeyboardPanel, after primaryInput / primaryHighlights memos.
 createEffect(() => {
-  const sel = input.selection();
+  const sel = props.selection;
   if (!sel) return;
 
-  // Resolve selected IDs on the primary keyboard only.
-  // (Compare side follows the sync rule in §4.2 - same module for both.)
-  const ids = buildSelectedIds(primaryInput(), sel);
+  const input = primaryInput();
+  if (!input) return;
+
+  const ids = buildSelectedIds(input, sel);
+  if (ids.size === 0) return;
+
   const containingModules = new Set<KeyboardRightModule>();
   for (const id of ids) {
     const m = moduleOf(id);
@@ -236,12 +242,14 @@ createEffect(() => {
   }
 
   if (containingModules.size === 0) return;          // only main-block keys, no switch needed
-  if (containingModules.has(rightModule())) return;  // current module already works - stay
+  if (containingModules.has(props.rightModule)) return;  // current module already works - stay
 
   // Tie-break: prefer first module in fixed order.
   const order: KeyboardRightModule[] = ["nav", "numpad", "mouse"];
   const next = order.find(m => containingModules.has(m));
-  if (next) setRightModule(next);
+  if (next && props.availableModules.includes(next)) {
+    props.setRightModule(next);
+  }
 });
 ```
 
