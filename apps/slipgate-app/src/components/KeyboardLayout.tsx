@@ -111,12 +111,10 @@ export const KEY_BY_ID = new Map(MAIN_BLOCK.map(k => [k.id, k]));
 
 /* ─── Key name mapping ──────────────────────────────────────────────────── */
 
-/** Map ezQuake config key names → layout IDs.  Returns null for mouse buttons. */
+/** Map ezQuake config key names → layout IDs. */
 export function toLayoutId(key: string): string | null {
   // Normalize to uppercase so production parser output (MOUSE1, SHIFT) hits correctly
   const k = key.toUpperCase();
-
-  if (k.startsWith("MOUSE") || k.startsWith("MWHEEL")) return null;
 
   const map: Record<string, string> = {
     SPACE: "Space", TAB: "Tab", CAPSLOCK: "CapsLock",
@@ -139,6 +137,28 @@ export function toLayoutId(key: string): string | null {
     PAGEUP: "PageUp", PGUP: "PageUp",
     PAGEDOWN: "PageDown", PGDN: "PageDown",
     FN: "Fn",
+    // Mouse buttons and wheel
+    MOUSE1: "Mouse1", MOUSE2: "Mouse2", MOUSE3: "Mouse3",
+    MOUSE4: "Mouse4", MOUSE5: "Mouse5", MOUSE6: "Mouse6",
+    MWHEELUP: "MWheelUp", MWHEELDOWN: "MWheelDown",
+    // Numpad cluster - many ezQuake inputs collapse to the same cell
+    // (Num Lock on/off dual naming; see plan reference data)
+    NUMLOCK: "Kp_Num", KP_NUMLCK: "Kp_Num", KP_NUMLOCK: "Kp_Num",
+    KP_SLASH: "Kp_Slash", KP_DIVIDE: "Kp_Slash",
+    KP_STAR: "Kp_Star", KP_MULTIPLY: "Kp_Star",
+    KP_MINUS: "Kp_Minus", KP_PLUS: "Kp_Plus",
+    KP_7: "Kp_7", KP_HOME: "Kp_7",
+    KP_8: "Kp_8", KP_UPARROW: "Kp_8",
+    KP_9: "Kp_9", KP_PGUP: "Kp_9",
+    KP_4: "Kp_4", KP_LEFTARROW: "Kp_4",
+    KP_5: "Kp_5",
+    KP_6: "Kp_6", KP_RIGHTARROW: "Kp_6",
+    KP_1: "Kp_1", KP_END: "Kp_1",
+    KP_2: "Kp_2", KP_DOWNARROW: "Kp_2",
+    KP_3: "Kp_3", KP_PGDN: "Kp_3",
+    KP_0: "Kp_0", KP_INS: "Kp_0",
+    KP_DEL: "Kp_Dot",
+    KP_ENTER: "Kp_Enter",
   };
   if (k in map) return map[k];
 
