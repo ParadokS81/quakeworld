@@ -43,20 +43,27 @@ export const MODULES: Record<KeyboardRightModule, KeyboardModule> = {
   mouse: MOUSE_MODULE,
 };
 
-/** Cached lookup: layout ID -> module that owns it (or "main"). Built once. */
-const moduleOfMap: Map<string, KeyboardRightModule | "main"> = (() => {
-  const m = new Map<string, KeyboardRightModule | "main">();
-  for (const key of MAIN_BLOCK) m.set(key.id, "main");
-  for (const mod of Object.values(MODULES)) {
-    for (const key of mod.keys) m.set(key.id, mod.id);
-  }
-  return m;
-})();
+// Lazy lookup: layout ID -> module that owns it (or "main"). Built on
+// first call rather than at module load. The MAIN_BLOCK import
+// participates in a circular dependency with KeyboardLayout.tsx (KL
+// imports MODULES from this file); accessing MAIN_BLOCK at top level
+// while KL is still evaluating would hit a TDZ ReferenceError. By the
+// time anything calls moduleOf(), module load is finished and both
+// sides of the cycle are fully initialized.
+let moduleOfMap: Map<string, KeyboardRightModule | "main"> | null = null;
 
 /**
  * Returns which module a layout ID belongs to, "main" for main-block
- * keys, or null if the ID is unknown. Constant-time lookup.
+ * keys, or null if the ID is unknown. Constant-time lookup after the
+ * first call.
  */
 export function moduleOf(layoutId: string): KeyboardRightModule | "main" | null {
+  if (moduleOfMap === null) {
+    moduleOfMap = new Map<string, KeyboardRightModule | "main">();
+    for (const key of MAIN_BLOCK) moduleOfMap.set(key.id, "main");
+    for (const mod of Object.values(MODULES)) {
+      for (const key of mod.keys) moduleOfMap.set(key.id, mod.id);
+    }
+  }
   return moduleOfMap.get(layoutId) ?? null;
 }
