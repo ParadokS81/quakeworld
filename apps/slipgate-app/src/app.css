@@ -71,6 +71,13 @@
   --sg-tab-hover-text: #a5aab4;
   --sg-hsep-top: #48545c3a;
   --sg-hsep-bottom: #252a30;
+
+  /* Keyboard panel semantic colors. Used by both ConfigKeyboardPanel
+     frames (you/them owner tint) and the selected-key outline shared
+     between the keyboard layout and the bind-row highlight. */
+  --sg-kb-selected: oklch(0.92 0.18 85);
+  --sg-kb-owner-you: oklch(0.65 0.18 230);
+  --sg-kb-owner-them: oklch(0.7 0.18 40);
 }
 
 /* Global styles */
@@ -1353,9 +1360,9 @@ input[type="number"] {
 }
 
 .sg-kb-key-selected {
-  stroke: oklch(0.92 0.18 85);
+  stroke: var(--sg-kb-selected);
   stroke-width: 2.5px;
-  filter: drop-shadow(0 0 4px oklch(0.92 0.18 85 / 0.7));
+  filter: drop-shadow(0 0 4px color-mix(in oklch, var(--sg-kb-selected) 70%, transparent));
 }
 
 /* ============================================================
@@ -2007,13 +2014,13 @@ input[type="number"] {
 }
 
 .sg-config-kb-frame-you {
-  border-color: color-mix(in oklch, oklch(0.65 0.18 230) 40%, transparent);
-  background: color-mix(in oklch, oklch(0.65 0.18 230) 4%, transparent);
+  border-color: color-mix(in oklch, var(--sg-kb-owner-you) 40%, transparent);
+  background: color-mix(in oklch, var(--sg-kb-owner-you) 4%, transparent);
 }
 
 .sg-config-kb-frame-them {
-  border-color: color-mix(in oklch, oklch(0.7 0.18 40) 40%, transparent);
-  background: color-mix(in oklch, oklch(0.7 0.18 40) 4%, transparent);
+  border-color: color-mix(in oklch, var(--sg-kb-owner-them) 40%, transparent);
+  background: color-mix(in oklch, var(--sg-kb-owner-them) 4%, transparent);
 }
 
 .sg-config-kb-label {
@@ -2046,8 +2053,8 @@ input[type="number"] {
    Matches the neon frame color so the pin vocabulary stays consistent
    between the keyboards and the bind list. */
 .sg-domain-bind-row-selected {
-  background: color-mix(in oklch, oklch(0.92 0.18 85) 10%, transparent);
-  border-left: 3px solid oklch(0.92 0.18 85);
+  background: color-mix(in oklch, var(--sg-kb-selected) 10%, transparent);
+  border-left: 3px solid var(--sg-kb-selected);
   padding-left: calc(16px - 3px);
 }
 
