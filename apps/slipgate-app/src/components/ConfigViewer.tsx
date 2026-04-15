@@ -15,8 +15,9 @@ import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
 import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
+import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
-import { updatePrefs, type ProfileData } from "../store";
+import type { ProfileData } from "../store";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -148,30 +149,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
   onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
 
-  // Shared selection for click-to-pin linking between keyboard and bind list.
-  // Matched by canonical command identity so both sides agree. Task 10 widens
-  // this to an array so a single modifier-combo key click can select multiple
-  // commands at once (e.g. F = safe, Ctrl+F = lost).
-  type BindSelectionItem = { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string };
-  type BindSelection = BindSelectionItem[] | null;
-  const [bindSelection, setBindSelection] = createSignal<BindSelection>(null);
-
-  function handleEscSelection(e: KeyboardEvent) {
-    if (e.key === "Escape") setBindSelection(null);
-  }
-  if (typeof window !== "undefined") {
-    window.addEventListener("keydown", handleEscSelection);
-    onCleanup(() => window.removeEventListener("keydown", handleEscSelection));
-  }
-
-  function isWeaponSelected(weapon: string): boolean {
-    const sel = bindSelection();
-    return !!sel && sel.some((s) => s.kind === "weapon" && s.weapon === weapon);
-  }
-  function isLabelSelected(label: string): boolean {
-    const sel = bindSelection();
-    return !!sel && sel.some((s) => s.kind === "teamsay" && s.label === label);
-  }
+  // Keyboard panel state (selection, visibility, category toggles, section
+  // focus predicate). Extracted to useKeyboardPanelState so ConfigViewer stays
+  // focused on config merging and rendering.
+  const kbState = useKeyboardPanelState({
+    profile: () => props.profile,
+    activeRow2,
+  });
 
   function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
@@ -210,74 +194,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   });
 
   const isCompareMode = () => compareCvars().size > 0;
-
-  const isBindsSectionFocused = createMemo(() => {
-    const row2 = activeRow2();
-    return row2.has("weapons:binds") || row2.has("teamplay:binds") || row2.has("movement:binds");
-  });
-
-  // ── Keyboard panel visibility ──
-  const [keyboardVisible, setKeyboardVisible] = createSignal<boolean>(
-    props.profile?.prefs.config_keyboard_visible ?? true,
-  );
-  // Mirror pref -> local signal. Persistence is one-way: toggleKeyboardVisible
-  // writes to the Tauri store via updatePrefs, but does NOT update App.tsx's
-  // profile() signal, so this effect only re-fires when something else in the
-  // session calls setProfile(). In that narrow window the stale profile snapshot
-  // can clobber an in-session toggle change until the next restart reloads from
-  // disk. Accepted trade-off; fixed properly only by a reactive profile store.
-  createEffect(() => {
-    const p = props.profile?.prefs.config_keyboard_visible;
-    if (p !== undefined) setKeyboardVisible(p);
-  });
-  async function toggleKeyboardVisible() {
-    const next = !keyboardVisible();
-    setKeyboardVisible(next);
-    try {
-      await updatePrefs({ config_keyboard_visible: next });
-    } catch (e) {
-      console.error("Failed to persist keyboard visibility pref:", e);
-    }
-  }
-
-  // ── Keyboard panel category toggles (Movement / Weapons / Teamplay) ──
-  const [kbShowMovement, setKbShowMovement] = createSignal<boolean>(
-    props.profile?.prefs.config_keyboard_show_movement ?? true,
-  );
-  const [kbShowWeapons, setKbShowWeapons] = createSignal<boolean>(
-    props.profile?.prefs.config_keyboard_show_weapons ?? true,
-  );
-  const [kbShowTeamplay, setKbShowTeamplay] = createSignal<boolean>(
-    props.profile?.prefs.config_keyboard_show_teamplay ?? true,
-  );
-  // Same local-mirror trade-off as keyboardVisible above: persistence is one-way,
-  // so an in-session setProfile() in another code path could clobber unsaved
-  // toggle changes. Tauri store stays correct; next app restart reloads cleanly.
-  createEffect(() => {
-    const p = props.profile?.prefs;
-    if (!p) return;
-    setKbShowMovement(p.config_keyboard_show_movement);
-    setKbShowWeapons(p.config_keyboard_show_weapons);
-    setKbShowTeamplay(p.config_keyboard_show_teamplay);
-  });
-  async function toggleKbMovement() {
-    const next = !kbShowMovement();
-    setKbShowMovement(next);
-    try { await updatePrefs({ config_keyboard_show_movement: next }); }
-    catch (e) { console.error("Failed to persist kb movement toggle:", e); }
-  }
-  async function toggleKbWeapons() {
-    const next = !kbShowWeapons();
-    setKbShowWeapons(next);
-    try { await updatePrefs({ config_keyboard_show_weapons: next }); }
-    catch (e) { console.error("Failed to persist kb weapons toggle:", e); }
-  }
-  async function toggleKbTeamplay() {
-    const next = !kbShowTeamplay();
-    setKbShowTeamplay(next);
-    try { await updatePrefs({ config_keyboard_show_teamplay: next }); }
-    catch (e) { console.error("Failed to persist kb teamplay toggle:", e); }
-  }
 
   // ── Alias + bind command maps for chain expansion ──
   const primaryAliases = createMemo((): Record<string, string> =>
@@ -905,10 +821,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
-                    isWeaponSelected={isWeaponSelected}
+                    isWeaponSelected={kbState.isWeaponSelected}
                     onWeaponClick={(w) => {
-                      if (isWeaponSelected(w)) setBindSelection(null);
-                      else setBindSelection([{ kind: "weapon", weapon: w }]);
+                      if (kbState.isWeaponSelected(w)) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "weapon", weapon: w }]);
                     }}
                   />
                 </Show>
@@ -931,10 +847,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
                     compareBindCommands={compareBindCommands()}
-                    isLabelSelected={isLabelSelected}
+                    isLabelSelected={kbState.isLabelSelected}
                     onLabelClick={(l) => {
-                      if (isLabelSelected(l)) setBindSelection(null);
-                      else setBindSelection([{ kind: "teamsay", label: l }]);
+                      if (kbState.isLabelSelected(l)) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "teamsay", label: l }]);
                     }}
                   />
                 </Show>
@@ -1001,22 +917,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               <SectionMinimap scrollContainer={contentScrollEl} />
               </div>
             </div>
-            <Show when={isBindsSectionFocused()}>
+            <Show when={kbState.isBindsSectionFocused()}>
               <ConfigKeyboardPanel
                 primary={effectiveConfig()}
                 primaryName={effectiveChain()?.files[0]?.relative_path ?? null}
                 compare={isCompareMode() ? compareBinds() : null}
                 compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.relative_path ?? null : null}
-                visible={keyboardVisible()}
-                onToggleVisible={toggleKeyboardVisible}
-                selection={bindSelection()}
-                onSelectionChange={setBindSelection}
-                showMovement={kbShowMovement()}
-                showWeapons={kbShowWeapons()}
-                showTeamplay={kbShowTeamplay()}
-                onToggleMovement={toggleKbMovement}
-                onToggleWeapons={toggleKbWeapons}
-                onToggleTeamplay={toggleKbTeamplay}
+                visible={kbState.visible()}
+                onToggleVisible={kbState.toggleVisible}
+                selection={kbState.selection()}
+                onSelectionChange={kbState.setSelection}
+                showMovement={kbState.showMovement()}
+                showWeapons={kbState.showWeapons()}
+                showTeamplay={kbState.showTeamplay()}
+                onToggleMovement={kbState.toggleMovement}
+                onToggleWeapons={kbState.toggleWeapons}
+                onToggleTeamplay={kbState.toggleTeamplay}
               />
             </Show>
           </div>
