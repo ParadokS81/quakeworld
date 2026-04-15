@@ -1,8 +1,32 @@
-import { For, Show, type JSX } from "solid-js";
+import { For, Show, createEffect, type JSX } from "solid-js";
 import type { FiringPath, ManualFlavor, MovementKeys, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry } from "./AliasChainResolver";
 import { WEAPON_COLORS } from "./WeaponBindViz";
+
+/**
+ * When a bind row becomes selected (via keyboard click or row click), scroll
+ * the nearest preceding category header into view so the user sees the row in
+ * its group context rather than being parachuted onto an orphan row.
+ * Walks backwards through sibling DOM nodes because the teamsay section renders
+ * category headers as flat siblings of the rows, not as ancestors.
+ */
+function scrollSelectionIntoView(rowEl: HTMLElement | undefined) {
+  if (!rowEl) return;
+  let target: Element = rowEl;
+  let sib: Element | null = rowEl.previousElementSibling;
+  while (sib) {
+    if (
+      sib.classList.contains("sg-domain-bind-category") ||
+      sib.classList.contains("sg-category-group-header")
+    ) {
+      target = sib;
+      break;
+    }
+    sib = sib.previousElementSibling;
+  }
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 const TEAMSAY_COLORS: Record<string, string> = {
   status: "oklch(0.7 0.12 200)",
@@ -184,9 +208,15 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
           const isSelected = () => !isPlaceholder && (props.isWeaponSelected?.(row.weapon) ?? false);
           const isExpanded = isSelected;
 
+          let rowEl: HTMLDivElement | undefined;
+          createEffect(() => {
+            if (isSelected()) scrollSelectionIntoView(rowEl);
+          });
+
           return (
             <>
               <div
+                ref={rowEl}
                 class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
                 classList={{
                   "sg-cv-bind-only-left": isCompare() && !!row.primary && !row.compare,
@@ -424,9 +454,15 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                   const isSelected = () => props.isLabelSelected?.(action.label) ?? false;
                   const isExpanded = isSelected;
 
+                  let rowEl: HTMLDivElement | undefined;
+                  createEffect(() => {
+                    if (isSelected()) scrollSelectionIntoView(rowEl);
+                  });
+
                   return (
                     <>
                       <div
+                        ref={rowEl}
                         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
                         classList={{
                           "sg-cv-bind-only-left": isCompare() && !!action.primaryKey && !action.compareKey,

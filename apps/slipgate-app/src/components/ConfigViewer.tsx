@@ -1004,8 +1004,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             <Show when={isBindsSectionFocused()}>
               <ConfigKeyboardPanel
                 primary={effectiveConfig()}
+                primaryName={effectiveChain()?.files[0]?.relative_path ?? null}
                 compare={isCompareMode() ? compareBinds() : null}
-                compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.name ?? null : null}
+                compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.relative_path ?? null : null}
                 visible={keyboardVisible()}
                 onToggleVisible={toggleKeyboardVisible}
                 selection={bindSelection()}

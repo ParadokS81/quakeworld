@@ -6,9 +6,11 @@ import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type Highl
 interface ConfigKeyboardPanelProps {
   /** The primary (your) config. Null when no config is loaded. */
   primary: EzQuakeConfig | null;
+  /** Relative path of the primary config file, shown as a label above its keyboard. */
+  primaryName?: string | null;
   /** The compare chain's classified binds, when compare mode is active. */
   compare?: ChainBindClassification | null;
-  /** Filename of the comparison config. */
+  /** Relative path of the comparison config file, shown as a label above its keyboard. */
   compareName?: string | null;
   /** When false, the panel renders only a slim "Show keyboard" button. */
   visible: boolean;
@@ -185,8 +187,8 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
         </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
-            <Show when={isCompare()}>
-              <div class="sg-config-kb-label">You</div>
+            <Show when={props.primaryName}>
+              <div class="sg-config-kb-label">{props.primaryName}</div>
             </Show>
             <KeyboardLayout
               movement={props.primary!.movement}
@@ -199,7 +201,9 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
         </Show>
         <Show when={isCompare()}>
           <div class="sg-config-kb-wrap sg-config-kb-frame-them">
-            <div class="sg-config-kb-label">{props.compareName ?? "Comparison"}</div>
+            <Show when={props.compareName}>
+              <div class="sg-config-kb-label">{props.compareName}</div>
+            </Show>
             <KeyboardLayout
               movement={props.compare!.movement}
               highlights={compareHighlights()}
