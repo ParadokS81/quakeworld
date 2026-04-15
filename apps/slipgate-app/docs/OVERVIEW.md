@@ -127,6 +127,7 @@ Click "Convert to FTE" → report view:
 
 ### UX helpers
 - **Scroll minimap** on the right edge — vertical track with section labels, viewport indicator, click to smooth-scroll
+- **Keyboard panel** in the right rail — when a Weapons/Teamplay/Movement Binds section is focused, renders the bound config as a full TKL keyboard SVG (one in single view, two stacked in compare mode with owner-frame tints and a relative-path label above each). Three independent Movement/Weapons/Teamplay toggles persist to `ProfilePrefs`. Click-to-pin is bidirectional: clicking a key lights up the matching command on both keyboards, scrolls the matching row's category header into view, and expands the row. Clicking a row does the same in reverse. Multi-bind modifier combos (e.g. `F`=safe + `Ctrl+F`=lost) select both rows and light both keys. Esc clears selection. "Hide keyboard" toggle collapses the panel to reclaim space at 1080p.
 - Drag-drop overlay with error toasts
 - Color scheme uses OKLCH tokens matching the Slipgate web design system
 

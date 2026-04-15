@@ -33,7 +33,8 @@ ProfileData {
   identity:     ProfileIdentity    // discord, qw_name, team, nationality, colors
   setups:       Setup[]            // currently only setups[0] used
   equipment_history: EquipmentEntry[]  // parked, not wired to UI yet
-  prefs:        ProfilePrefs       // map_backdrop only
+  prefs:        ProfilePrefs       // map_backdrop + 4 ConfigKeyboardPanel toggles
+                                   //   (visible, show_movement, show_weapons, show_teamplay)
 }
 
 Setup {

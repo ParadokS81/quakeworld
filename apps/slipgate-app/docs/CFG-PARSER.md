@@ -174,6 +174,10 @@ Team communication binds are now classified by category. The `analyze_teamsay_bi
 
 Detection uses substring matching on the command body after alias resolution (e.g., commands containing `tp_name_rl` + `$x5` patterns). `tempalias` with `if`/`then`/`else` conditional logic is NOT resolved — the parser sees the literal conditional command and classifies by the observable substrings.
 
+**Custom fallback with content-derived labels.** When a bind does not match any canonical pattern, it previously collapsed under a single `(custom, say_team)` row. Now `classify_say_team()` falls through to `first_say_team_body()` which extracts the readable message content (stripping the `say_team` prefix and leading `$<var>` sender tokens) and uses it as a per-bind label, truncated to 40 chars with `...` suffix if needed. This prevents 8 distinct custom binds from collapsing into one display row.
+
+**Powerup keyword heuristic.** Before falling through to `custom`, the fallback path runs `has_powerup_keyword()` which whitespace-tokenizes the message, strips leading/trailing punctuation from each token, and case-insensitively compares against `{powerup, quad, pent, penta, ring, eyes}`. If any token matches exactly, the bind is promoted from `custom` to `powerups` with the same content-derived label. The whitespace tokenization is deliberate — it keeps compound callouts like `PENT/LIFT` and `RA-PATH` out of the match (the slash-joined tokens never compare equal to the bare keywords), so path/order callouts correctly stay in `custom`.
+
 ### 5. Modifier-combo bind synthesis (moved to Rust)
 
 Modifier-combo handling used to live on the frontend as `synthesizeModifierWeaponBinds` / `synthesizeModifierTeamsayBinds` helpers in `configMerger.ts`. Those were deleted when the v2 weapon classifier landed. Modifier combos are now emitted natively by Rule 2 (inline-rebind detection) in `weapon_classifier.rs`, which traces `+alias` / `-alias` press and release bodies to distinguish manual-select from manual-hold. See `extract_paths_from_resolved` for the detail.
