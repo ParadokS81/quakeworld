@@ -1,7 +1,14 @@
 import { createMemo, Show } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
-import KeyboardLayout, { toLayoutId } from "./KeyboardLayout";
-import { buildKeyHighlights, resolveCommandKeys, identifyKeyCommands, type HighlightInput, type HighlightToggles } from "./keyboardHighlights";
+import KeyboardLayout from "./KeyboardLayout";
+import {
+  buildKeyHighlights,
+  buildSelectedIds,
+  identifyKeyCommands,
+  type BindSelection,
+  type HighlightInput,
+  type HighlightToggles,
+} from "./keyboardHighlights";
 
 interface ConfigKeyboardPanelProps {
   /** The primary (your) config. Null when no config is loaded. */
@@ -20,8 +27,8 @@ interface ConfigKeyboardPanelProps {
    * Array form supports modifier combos: a single key click can pin
    * multiple commands at once (e.g. F = safe, Ctrl+F = lost).
    */
-  selection: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null;
-  onSelectionChange: (sel: Array<{ kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string }> | null) => void;
+  selection: BindSelection;
+  onSelectionChange: (sel: BindSelection) => void;
   showMovement: boolean;
   showWeapons: boolean;
   showTeamplay: boolean;
@@ -71,56 +78,11 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   const isCompare = () => props.compare != null && props.primary != null;
 
-  // Derived: set of layout IDs to mark as selected on the "your" keyboard.
-  // Driven by the lifted selection prop so both keyboards and the bind list
-  // agree on what's pinned. Iterates the selection array and, for teamsay
-  // modifier combos, also tints the modifier keys (Ctrl/Shift/Alt) so the
-  // full combo is visible.
-  const yourSelectedIds = createMemo<Set<string>>(() => {
-    const sel = props.selection;
-    const input = primaryInput();
-    if (!sel || !input) return new Set();
-    const ids = new Set<string>();
-    for (const s of sel) {
-      for (const id of resolveCommandKeys(input, s)) ids.add(id);
-    }
-    for (const s of sel) {
-      if (s.kind !== "teamsay") continue;
-      for (const tb of input.teamsay_binds) {
-        if (tb.label !== s.label) continue;
-        if (!tb.key.includes("+")) continue;
-        const parts = tb.key.split("+").map(p => p.trim());
-        for (const mod of parts.slice(0, -1)) {
-          const layoutId = toLayoutId(mod);
-          if (layoutId) ids.add(layoutId);
-        }
-      }
-    }
-    return ids;
-  });
-
-  const theirSelectedIds = createMemo<Set<string>>(() => {
-    const sel = props.selection;
-    const input = compareInput();
-    if (!sel || !input) return new Set();
-    const ids = new Set<string>();
-    for (const s of sel) {
-      for (const id of resolveCommandKeys(input, s)) ids.add(id);
-    }
-    for (const s of sel) {
-      if (s.kind !== "teamsay") continue;
-      for (const tb of input.teamsay_binds) {
-        if (tb.label !== s.label) continue;
-        if (!tb.key.includes("+")) continue;
-        const parts = tb.key.split("+").map(p => p.trim());
-        for (const mod of parts.slice(0, -1)) {
-          const layoutId = toLayoutId(mod);
-          if (layoutId) ids.add(layoutId);
-        }
-      }
-    }
-    return ids;
-  });
+  // Lifted selection drives which keys are marked as "pinned" on each side.
+  // buildSelectedIds handles the teamsay modifier-combo expansion so the
+  // Ctrl/Shift/Alt keys get tinted alongside the letter key for a combo bind.
+  const yourSelectedIds = createMemo(() => buildSelectedIds(primaryInput(), props.selection));
+  const theirSelectedIds = createMemo(() => buildSelectedIds(compareInput(), props.selection));
 
   function handleKeyClick(sideInput: HighlightInput | null, keyId: string) {
     if (!sideInput) return;

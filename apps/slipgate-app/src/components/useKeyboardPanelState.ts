@@ -1,10 +1,6 @@
 import { createSignal, createMemo, createEffect, onCleanup } from "solid-js";
 import { updatePrefs, type ProfileData } from "../store";
-
-export type BindSelectionItem =
-  | { kind: "weapon"; weapon: string }
-  | { kind: "teamsay"; label: string };
-export type BindSelection = BindSelectionItem[] | null;
+import type { BindSelection } from "./keyboardHighlights";
 
 interface UseKeyboardPanelStateInput {
   profile: () => ProfileData | null | undefined;

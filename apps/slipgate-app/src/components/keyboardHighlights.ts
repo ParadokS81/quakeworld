@@ -110,6 +110,16 @@ export function buildKeyLabels(
 }
 
 /**
+ * Canonical selection item: either a weapon (matched by name) or a teamsay
+ * label. Shared by the click-to-pin flow across the keyboard panel, the bind
+ * list, and useKeyboardPanelState.
+ */
+export type BindSelectionItem =
+  | { kind: "weapon"; weapon: string }
+  | { kind: "teamsay"; label: string };
+export type BindSelection = BindSelectionItem[] | null;
+
+/**
  * Given a parsed config and a canonical command identifier (weapon name like
  * "rl" / "sg" or a teamsay label like "safe" / "lost"), return the set of
  * layout key IDs bound to that command. Used by click-to-pin to find the
@@ -117,7 +127,7 @@ export function buildKeyLabels(
  */
 export function resolveCommandKeys(
   input: HighlightInput,
-  command: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string },
+  command: BindSelectionItem,
 ): Set<string> {
   const ids = new Set<string>();
   if (command.kind === "weapon") {
@@ -149,6 +159,39 @@ export interface KeyCommandMatch {
   label?: string;
   category?: string;
   modifierKey?: string;
+}
+
+/**
+ * Build the set of layout key IDs to mark as "selected" on a keyboard for a
+ * given selection. Mirrors what resolveCommandKeys would return for each
+ * selection item, plus the extra modifier keys for teamsay combos (Ctrl+F,
+ * Shift+G) so the full combo is tinted on the layout.
+ *
+ * Used by ConfigKeyboardPanel for both the primary ("your") and compare
+ * ("their") keyboards so the highlighting stays consistent across sides.
+ */
+export function buildSelectedIds(
+  input: HighlightInput | null,
+  selection: BindSelection,
+): Set<string> {
+  if (!selection || !input) return new Set();
+  const ids = new Set<string>();
+  for (const s of selection) {
+    for (const id of resolveCommandKeys(input, s)) ids.add(id);
+  }
+  for (const s of selection) {
+    if (s.kind !== "teamsay") continue;
+    for (const tb of input.teamsay_binds) {
+      if (tb.label !== s.label) continue;
+      if (!tb.key.includes("+")) continue;
+      const parts = tb.key.split("+").map((p) => p.trim());
+      for (const mod of parts.slice(0, -1)) {
+        const layoutId = toLayoutId(mod);
+        if (layoutId) ids.add(layoutId);
+      }
+    }
+  }
+  return ids;
 }
 
 export function identifyKeyCommands(
