@@ -1965,6 +1965,12 @@ input[type="number"] {
   color: var(--sg-section-label);
   padding: 2px 12px 4px;
 }
+.sg-alias-chain-you .sg-alias-chain-label {
+  color: var(--sg-kb-owner-you);
+}
+.sg-alias-chain-them .sg-alias-chain-label {
+  color: var(--sg-kb-owner-them);
+}
 .sg-alias-chain-entry {
   display: flex;
   gap: 8px;

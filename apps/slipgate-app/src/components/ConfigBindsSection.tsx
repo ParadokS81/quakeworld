@@ -213,11 +213,11 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           <Show when={props.isCompareMode}>
                             <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Your config</div>
                           </Show>
-                          <AliasChainView chain={chain()} />
+                          <AliasChainView chain={chain()} ownerClass="sg-alias-chain-you" />
                         </Show>
                         <Show when={props.isCompareMode && compareChain().length > 0}>
                           <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Comparison</div>
-                          <AliasChainView chain={compareChain()} />
+                          <AliasChainView chain={compareChain()} ownerClass="sg-alias-chain-them" />
                         </Show>
                       </>
                     }>

@@ -49,10 +49,10 @@ export function resolveAliasChain(
 
 /* ─── Shared alias chain display ─────────────────────────────────── */
 
-export function AliasChainView(props: { chain: AliasChainEntry[]; label?: string }) {
+export function AliasChainView(props: { chain: AliasChainEntry[]; label?: string; ownerClass?: string }) {
   return (
     <Show when={props.chain.length > 0}>
-      <div class="sg-alias-chain">
+      <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
         <Show when={props.label}>
           <div class="sg-alias-chain-label">{props.label}</div>
         </Show>
