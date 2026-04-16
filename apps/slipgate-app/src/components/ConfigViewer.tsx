@@ -553,26 +553,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const showTriggersSection = createMemo(() => triggersActive());
   const showCommandsSection = createMemo(() => commandsActive());
 
-  // ── Teamsay alias names (for macros extraction) ──
-  const teamsayAliasNames = createMemo((): Set<string> => {
-    const names = new Set<string>();
-    const binds = effectiveConfig()?.teamsay_binds ?? [];
-    const bindCmds = primaryBindCommands();
-    for (const tb of binds) {
-      const cmd = bindCmds[tb.key.toUpperCase()];
-      if (cmd) {
-        // Extract alias names from the bind command
-        for (const part of cmd.split(";")) {
-          const token = part.trim().split(/\s+/)[0];
-          if (token && !token.startsWith("+") && !token.startsWith("-")) {
-            names.add(token);
-          }
-        }
-      }
-    }
-    return names;
-  });
-
   // ── Actions ──
   function toggleCvar(name: string) {
     setExpandedCvar((prev) => (prev === name ? null : name));
@@ -863,13 +843,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
                 <Show when={activeRow2().has("teamplay:macros")}>
                   <ConfigTeamplayMacros
-                    primaryAliases={primaryAliases()}
-                    compareAliases={isCompareMode() ? compareAliases() : undefined}
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? compareCvars() : undefined}
-                    teamsayAliasNames={teamsayAliasNames()}
                     primaryUserCreated={userCreatedCvars()}
                     compareUserCreated={isCompareMode() ? compareUserCreatedCvars() : undefined}
+                    hideDefaults={hideDefaults()}
+                    isCompareMode={isCompareMode()}
+                    search={search()}
                   />
                 </Show>
 
