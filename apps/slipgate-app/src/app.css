@@ -1965,6 +1965,9 @@ input[type="number"] {
 .sg-alias-chain {
   padding: 2px 16px;
 }
+.sg-alias-chain + .sg-alias-chain {
+  margin-top: 8px;
+}
 .sg-alias-chain-label {
   font-size: 10px;
   font-weight: 600;
@@ -1996,6 +1999,9 @@ input[type="number"] {
 }
 .sg-alias-chain-them .sg-alias-chain-name {
   color: var(--sg-kb-owner-them);
+}
+.sg-alias-chain-name-dim {
+  opacity: 0.5;
 }
 .sg-alias-chain-cmd {
   font-family: "Geist Mono", monospace;

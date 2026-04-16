@@ -137,11 +137,9 @@ export function AliasChainView(props: {
                 return (
                   <div class="sg-macro-row" title={tooltip}>
                     <span
-                      class={
-                        dep.isCustomized
-                          ? "text-[var(--color-warning)]"
-                          : "text-[var(--sg-section-label)]"
-                      }
+                      class={`sg-alias-chain-name ${
+                        dep.isCustomized ? "" : "sg-alias-chain-name-dim"
+                      }`}
                     >
                       {dep.name}
                     </span>
