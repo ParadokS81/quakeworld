@@ -9,8 +9,10 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
-- [ConfigViewer domain vs settings overlap and compare tab counts](#configviewer-domain-vs-settings-overlap-and-compare-tab-counts) — compare counts are global, domain sections show fewer items than raw settings
+- [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
+- [Weapon bind path pairing in compare mode](#weapon-bind-path-pairing-in-compare-mode) — merge weapon bind rows across configs instead of duplicating weapon identity
+- [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering for readable teamsay output
 
 ---
 
@@ -36,26 +38,19 @@ Don't split preemptively. The POC plan already handles it — Task 1 in `docs/su
 
 ---
 
-## ConfigViewer domain vs settings overlap and compare tab counts
+## ConfigViewer compare tab counts are global
 
 **Added:** 2026-04-16
-**Status:** needs investigation in a dedicated session
-**Verification first:** open ConfigViewer in compare mode, click "All" under Settings, then check Domains > Teamplay > Macros. If Teamplay Macros shows far fewer items than the tp_* macros visible in the Settings > Macros raw view, the issue persists.
+**Status:** open
+**Verification first:** open ConfigViewer in compare mode, click Domains > Teamplay > Binds. If the compare bar still shows "All (2748)" etc., the issue persists.
 
-Two related issues surfaced during 2026-04-15/16 keyboard panel verification:
+The "All (2748) / Different (331) / Same (191) / Only yours (0) / Only theirs (2112)" counts at the top of ConfigViewer always show the total across ALL cvars, regardless of which section/domain the user is viewing. When viewing Teamplay Binds, seeing "2748" is confusing because that's cvar rows, not teamsay rows. Scoping the counts to the active section requires knowing which section type is active (cvars vs weapon binds vs teamsay vs aliases) and computing counts per type.
 
-1. **Compare tab counts are global, not section-scoped.** The "All (2748) / Different (331) / Same (191) / Only yours (0) / Only theirs (2112)" counts at the top of ConfigViewer always show the total across ALL cvars, regardless of which section/domain the user is viewing. When viewing Teamplay Binds, seeing "2748" is confusing because that's cvar rows, not teamsay rows. Scoping the counts to the active section requires knowing which section type is active (cvars vs weapon binds vs teamsay vs aliases) and computing counts per type.
-
-2. **Domain Teamplay Macros shows far fewer items than raw Settings Macros.** The user observed that Domains > Teamplay > Macros shows only a handful of macros, but Settings > Macros shows many tp_*-related macros. This suggests the domain curation filter is too narrow. Investigation needed: what filter does ConfigTeamplayMacros use to select its items, and why does it miss macros that the raw Settings > Macros section includes?
-
-These are the same underlying question: how do Settings (raw, exhaustive) and Domains (curated, focused) relate to each other, and how should overlapping content be presented to the user. The user's mental model: Settings = "show me everything", Domains = "show me a curated subset organized by purpose". The counts and curation filters need to reflect this.
+Note: the related issue of Domain Teamplay Macros showing fewer items than Settings Macros was resolved in 2026-04-16 session (switched from alias-chain extraction to database-category sourcing).
 
 ### Related
 
-- `apps/slipgate-app/src/components/ConfigViewer.tsx` lines 363-378 (compareCounts memo)
-- `apps/slipgate-app/src/components/ConfigTeamplayMacros.tsx` (domain macros filter)
-- `apps/slipgate-app/src/components/ConfigMacrosSection.tsx` (raw macros section)
-- Prior fix this session: `a55e7f9` added Teamplay pill to settings sidebar
+- `apps/slipgate-app/src/components/ConfigViewer.tsx` (compareCounts memo)
 
 ---
 
@@ -73,3 +68,48 @@ The current VISION.md (light-edited 2026-04-14 to add three-layer block) still f
 4. **ezquake.com docs conversion pipeline.** The existing curated guides (weapon-scripts.html, scripting.html, etc.) are the natural input for Layer 3. Each page gets adapted into 1-3 concept notes with canonical ID references.
 
 All four points are captured in `project_qw_oracle_product_vision.md` memory, but VISION.md itself (the file other devs would read) does not reflect them yet. Low urgency — the memory carries the knowledge across sessions, and the VISION.md rewrite is best done alongside the presentation prep when the framing is most fresh.
+
+---
+
+## Weapon bind path pairing in compare mode
+
+**Added:** 2026-04-16
+**Status:** discussed, needs brainstorm + spec
+**Verification first:** open ConfigViewer in compare mode, look at Weapon Binds. If each weapon shows duplicate rows (one per config side), the issue persists.
+
+Currently weapon binds in compare mode create separate rows for each side's bind path, even for the same weapon. This leads to "RL Rocket Launcher" appearing 2-3 times. The proposed fix: pair paths across configs into shared rows.
+
+Pairing hierarchy:
+1. Both sides have 1 path: merge into same row
+2. One side has 2 paths, other has 1: match by path type (quickfire, manual select, manual hold)
+3. Path types don't match exactly: pair closest types together (manual select + manual hold)
+
+This is a data structure change in `pairRows()` and `DiffRow` in `ConfigDomainBinds.tsx`, not a CSS fix. Affects row rendering, expansion, and keyboard panel selection.
+
+### Related
+
+- `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` (`pairRows`, `DiffRow`, `ConfigWeaponBindsSection`)
+- Spec for weapon classifier: `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md`
+
+---
+
+## Alias chain pretty view
+
+**Added:** 2026-04-16
+**Status:** discussed, needs research + brainstorm
+**Verification first:** n/a — new feature, not a fix
+
+An alternative rendering mode for alias chain expansion that replaces raw code with readable output. Three parsing layers:
+
+1. **Variable substitution** — replace `$tp_name_rl` with its resolved value (e.g. `rl`) inline, colored to indicate it's a variable
+2. **Color code rendering** — interpret ezQuake `&cRGB` codes and `{}` brace scoping as actual colored text
+3. **Runtime token labeling** — `%location`, `%health` etc. shown as labeled placeholders since they resolve at game time
+
+The macro ref extraction built in the 2026-04-16 session (regex-based `$variable` collection in `AliasChainResolver.tsx`) provides the foundation for layer 1. Layers 2-3 need research into ezQuake's color syntax rules.
+
+Toggle between "raw" (current view) and "pretty" (resolved) modes. Lays foundation for future teamsay creator feature.
+
+### Related
+
+- `apps/slipgate-app/src/components/AliasChainResolver.tsx` (existing macro ref extraction)
+- ezQuake color code syntax (needs research)

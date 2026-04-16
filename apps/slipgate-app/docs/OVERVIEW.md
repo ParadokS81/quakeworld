@@ -108,7 +108,7 @@ This is the **biggest feature in the app** by far — 20+ components, ~3,000 lin
 Curated sections beyond the raw cvar dump:
 - **Teamplay Settings** — `tp_*`, `loc_*` cvars
 - **Teamplay Binds** — teamsay keys (F1 → report armor, Mouse4 → enemy, etc.) categorized (status/death/movement/items/enemy/orders/powerups/confirm/custom), expandable to alias chains
-- **Teamplay Macros** — `$armor`, `$location`, `$health` etc. variable references extracted by scanning aliases reachable from teamsay binds, plus `set`-declared user variables
+- **Teamplay Macros** — all Teamplay-category cvars from the database (Item Names, Item Need Amounts, Location Names, Teamplay Communications) plus `set`-declared user variables. Same data source as Settings > Macros, minus Runtime Macros.
 - **Weapons Settings** — weapon-related cvars
 - **Weapons Binds** — per-weapon rows with full firing-path classification (quickfire / manual-select / manual-hold) rendered side-by-side across primary and compare configs. Backed by the weapon classifier v2 module (`weapon_classifier.rs`) which emits `FiringPath[]`, supports multiple paths per weapon, distinguishes generic vs weapon-specific fire keys, tags preselect-style binds, and filters rocket jumps, kill-me teamsays, announce-without-fire patterns, and long impulse scans. See `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` and `packages/qw-knowledge/weapon-scripts/README.md` for the full algorithm and domain reference.
 
@@ -133,7 +133,7 @@ Click "Convert to FTE" → report view:
 
 **The two pure-logic files to know:**
 - `configMerger.ts` — the comparison brain. Exports `mergeSelectedFiles`, `categorizeBinds`, `synthesizeModifierTeamsayBinds`, `mergeAliases`. Pure functions, no side effects, easy to test. (Weapon-bind modifier synthesis was moved into the Rust classifier — see `weapon_classifier.rs`.)
-- `AliasChainResolver.tsx` (74 lines) — recursive alias expansion with depth cap.
+- `AliasChainResolver.tsx` (~160 lines) — recursive alias expansion with depth cap, `$variable` macro ref extraction via regex, and inline macro dependency rendering (shows referenced cvars with resolved values below each expanded alias chain).
 
 ---
 
