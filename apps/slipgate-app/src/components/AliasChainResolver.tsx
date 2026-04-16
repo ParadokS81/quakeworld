@@ -31,15 +31,16 @@ export function resolveAliasChain(
   function resolve(cmd: string, depth: number) {
     if (depth >= maxDepth) return;
 
+    // Extract $variable refs via regex -- handles embedded refs like $\$tpname, {&cf00$var&cfff}
+    for (const match of cmd.matchAll(/\$(\w+)/g)) {
+      macroRefs.add(match[1]);
+    }
+
     const tokens = cmd.split(/[\s;]+/).filter(Boolean);
     const seen = new Set<string>();
 
     for (const token of tokens) {
-      if (token.startsWith("'") || token.startsWith("%")) continue;
-      if (token.startsWith("$")) {
-        macroRefs.add(token.slice(1));
-        continue;
-      }
+      if (token.startsWith("'") || token.startsWith("%") || token.startsWith("$")) continue;
       if (token === "if" || token === "then" || token === "else" || token === "AND" || token === "OR") continue;
       if (/^[<>=!]+$/.test(token) || /^\d+$/.test(token)) continue;
 
@@ -63,6 +64,7 @@ export function resolveAliasChain(
 interface MacroDepEntry {
   name: string;
   defaultValue: string | undefined;
+  description: string | undefined;
   userValue: string | undefined;
   isCustomized: boolean;
 }
@@ -81,13 +83,18 @@ export function AliasChainView(props: {
     const entries: MacroDepEntry[] = [];
     for (const name of props.macroRefs) {
       const info = lookupCvar(name);
-      const defaultValue = info?.default;
       const userValue = props.primaryCvars[name];
+
+      // Only show refs that are known cvars or exist in the user's config
+      if (!info && userValue === undefined) continue;
+
+      const defaultValue = info?.default;
+      const description = info?.description;
       const isCustomized = userValue !== undefined && userValue !== defaultValue;
 
       if (props.hideDefaults && !isCustomized) continue;
 
-      entries.push({ name, defaultValue, userValue, isCustomized });
+      entries.push({ name, defaultValue, description, userValue, isCustomized });
     }
 
     entries.sort((a, b) => {
@@ -139,7 +146,9 @@ export function AliasChainView(props: {
                         : "text-[var(--sg-section-label)]"
                     }
                   >
-                    {dep.userValue ?? dep.defaultValue ?? "\u2014"}
+                    {dep.isCustomized
+                      ? dep.userValue
+                      : (dep.description || dep.defaultValue || "\u2014")}
                   </span>
                 </div>
               )}
