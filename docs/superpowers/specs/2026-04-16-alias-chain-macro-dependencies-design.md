@@ -54,21 +54,20 @@ interface AliasChainViewProps {
   // New optional props for macro dependencies
   macroRefs?: Set<string>;
   primaryCvars?: Record<string, string>;
-  compareCvars?: Map<string, string>;
-  isCompareMode?: boolean;
   hideDefaults?: boolean;
 }
 ```
 
-When `macroRefs` is provided and non-empty, render a "Macro Dependencies" section after the chain entries, inside the same `sg-alias-chain` container. For each macro ref:
+When `macroRefs` is provided and non-empty, render a "Macro Dependencies" section after the chain entries, inside the same `sg-alias-chain` container. Each chain shows its own config's macro values (single column). In compare mode, the primary chain shows primary cvar values and the compare chain shows compare cvar values -- each AliasChainView instance gets its own config's cvars as `primaryCvars`.
+
+For each macro ref:
 
 - Look up default value via `lookupCvar(name)`
 - Look up user value from `primaryCvars[name]`
-- Look up compare value from `compareCvars?.get(name)`
-- Determine if customized (same logic as ConfigTeamplayMacros)
-- If `hideDefaults` is on, skip entries where neither side is customized
+- Determine if customized (user value differs from default)
+- If `hideDefaults` is on, skip entries where value is not customized
 
-Render using `sg-macro-row` / `sg-macro-row-cmp` classes for consistency with the macros sections. Section header: "Macro Dependencies (N)" using a small label style inside the chain container.
+Render using `sg-macro-row` class for consistency with the macros sections. Section header: "Macro Dependencies (N)" using a small label style inside the chain container.
 
 ### Call site updates
 
