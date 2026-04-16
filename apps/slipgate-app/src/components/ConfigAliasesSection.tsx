@@ -1,10 +1,13 @@
 import { createSignal, For, Show } from "solid-js";
 import type { EnrichedAlias } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
 
 interface ConfigAliasesSectionProps {
   aliases: EnrichedAlias[];
   allAliases?: Record<string, string>;
+  primaryCvars?: Record<string, string>;
+  hideDefaults?: boolean;
 }
 
 export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
@@ -14,8 +17,8 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
     setExpanded((prev) => (prev === name ? null : name));
   }
 
-  function getChain(command: string) {
-    if (!props.allAliases) return [];
+  function getChain(command: string): AliasChainResult {
+    if (!props.allAliases) return { chain: [], macroRefs: new Set() };
     return resolveAliasChain(command, props.allAliases);
   }
 
@@ -42,7 +45,7 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
             const isExpanded = () => expanded() === alias.name;
             const chain = () => getChain(alias.command);
             // Show expand toggle if command is long or has sub-aliases
-            const isExpandable = () => alias.command.length > 60 || chain().length > 0;
+            const isExpandable = () => alias.command.length > 60 || chain().chain.length > 0;
 
             return (
               <>
@@ -76,7 +79,13 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                       </div>
                     </div>
                     {/* Sub-alias chain */}
-                    <AliasChainView chain={chain()} label="Alias chain" />
+                    <AliasChainView
+                      chain={chain().chain}
+                      macroRefs={chain().macroRefs}
+                      primaryCvars={props.primaryCvars}
+                      hideDefaults={props.hideDefaults}
+                      label="Alias chain"
+                    />
                   </div>
                 </Show>
               </>

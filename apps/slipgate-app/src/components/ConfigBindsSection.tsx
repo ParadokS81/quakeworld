@@ -1,12 +1,16 @@
 import { createSignal, For, Show } from "solid-js";
 import type { EnrichedBind } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
 
 interface ConfigBindsSectionProps {
   binds: EnrichedBind[];
   isCompareMode?: boolean;
   primaryAliases?: Record<string, string>;
   compareAliases?: Record<string, string>;
+  primaryCvars?: Record<string, string>;
+  compareCvars?: Record<string, string>;
+  hideDefaults?: boolean;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -25,8 +29,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
     setExpanded((prev) => (prev === key ? null : key));
   }
 
-  function getChain(command: string, aliases?: Record<string, string>) {
-    if (!aliases || !command) return [];
+  function getChain(command: string, aliases?: Record<string, string>): AliasChainResult {
+    if (!aliases || !command) return { chain: [], macroRefs: new Set() };
     return resolveAliasChain(command, aliases);
   }
 
@@ -75,12 +79,12 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
               return getChain(bind.command, props.primaryAliases);
             };
             const releaseChain = () => {
-              if (!bind.modifierAlias) return [];
+              if (!bind.modifierAlias) return { chain: [], macroRefs: new Set<string>() };
               const releaseName = "-" + bind.modifierAlias.slice(1);
               return getChain(releaseName, props.primaryAliases);
             };
             const compareChain = () => getChain(bind.compareCommand ?? "", props.compareAliases);
-            const hasChain = () => chain().length > 0 || compareChain().length > 0 || releaseChain().length > 0;
+            const hasChain = () => chain().chain.length > 0 || compareChain().chain.length > 0 || releaseChain().chain.length > 0;
 
             return (
               <>
@@ -209,30 +213,52 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                     </Show>
                     <Show when={bind.modifierAlias} fallback={
                       <>
-                        <Show when={chain().length > 0}>
+                        <Show when={chain().chain.length > 0}>
                           <Show when={props.isCompareMode}>
                             <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Your config</div>
                           </Show>
-                          <AliasChainView chain={chain()} ownerClass="sg-alias-chain-you" />
+                          <AliasChainView
+                            chain={chain().chain}
+                            macroRefs={chain().macroRefs}
+                            primaryCvars={props.primaryCvars}
+                            hideDefaults={props.hideDefaults}
+                            ownerClass="sg-alias-chain-you"
+                          />
                         </Show>
-                        <Show when={props.isCompareMode && compareChain().length > 0}>
+                        <Show when={props.isCompareMode && compareChain().chain.length > 0}>
                           <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Comparison</div>
-                          <AliasChainView chain={compareChain()} ownerClass="sg-alias-chain-them" />
+                          <AliasChainView
+                            chain={compareChain().chain}
+                            macroRefs={compareChain().macroRefs}
+                            primaryCvars={props.compareCvars}
+                            hideDefaults={props.hideDefaults}
+                            ownerClass="sg-alias-chain-them"
+                          />
                         </Show>
                       </>
                     }>
                       {/* Modifier combo: show press and release alias chains */}
-                      <Show when={chain().length > 0}>
+                      <Show when={chain().chain.length > 0}>
                         <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
                           On press ({bind.modifierAlias})
                         </div>
-                        <AliasChainView chain={chain()} />
+                        <AliasChainView
+                          chain={chain().chain}
+                          macroRefs={chain().macroRefs}
+                          primaryCvars={props.primaryCvars}
+                          hideDefaults={props.hideDefaults}
+                        />
                       </Show>
-                      <Show when={releaseChain().length > 0}>
+                      <Show when={releaseChain().chain.length > 0}>
                         <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
                           On release ({"-" + (bind.modifierAlias ?? "").slice(1)})
                         </div>
-                        <AliasChainView chain={releaseChain()} />
+                        <AliasChainView
+                          chain={releaseChain().chain}
+                          macroRefs={releaseChain().macroRefs}
+                          primaryCvars={props.primaryCvars}
+                          hideDefaults={props.hideDefaults}
+                        />
                       </Show>
                     </Show>
                   </div>

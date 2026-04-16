@@ -1,7 +1,7 @@
 import { For, Show, createEffect, type JSX } from "solid-js";
 import type { FiringPath, ManualFlavor, MovementKeys, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
-import type { AliasChainEntry } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
 import { WEAPON_COLORS } from "./WeaponBindViz";
 
 /**
@@ -347,6 +347,9 @@ interface TeamsayBindsProps {
   compareBindCommands: Record<string, string>;
   isLabelSelected?: (label: string) => boolean;
   onLabelClick?: (label: string) => void;
+  primaryCvars?: Record<string, string>;
+  compareCvars?: Record<string, string>;
+  hideDefaults?: boolean;
 }
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
@@ -409,10 +412,10 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
     return groups;
   };
 
-  function getChain(key: string | undefined, bindCommands: Record<string, string>, aliases: Record<string, string>): AliasChainEntry[] {
-    if (!key) return [];
+  function getChain(key: string | undefined, bindCommands: Record<string, string>, aliases: Record<string, string>): AliasChainResult {
+    if (!key) return { chain: [], macroRefs: new Set() };
     const cmd = bindCommands[key.toUpperCase()];
-    if (!cmd) return [];
+    if (!cmd) return { chain: [], macroRefs: new Set() };
     return resolveAliasChain(cmd, aliases);
   }
 
@@ -513,18 +516,21 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         <div class="sg-domain-bind-expanded">
                           <Show when={action.primaryKey}>
                             {(key) => {
-                              const chain = () => getChain(key(), props.primaryBindCommands, props.primaryAliases);
+                              const result = () => getChain(key(), props.primaryBindCommands, props.primaryAliases);
                               const rawCmd = () => props.primaryBindCommands[key().toUpperCase()];
                               return (
                                 <>
-                                  <Show when={chain().length > 0}>
+                                  <Show when={result().chain.length > 0}>
                                     <AliasChainView
-                                      chain={chain()}
+                                      chain={result().chain}
+                                      macroRefs={result().macroRefs}
+                                      primaryCvars={props.primaryCvars}
+                                      hideDefaults={props.hideDefaults}
                                       label={`${key()} — your config`}
                                       ownerClass="sg-alias-chain-you"
                                     />
                                   </Show>
-                                  <Show when={chain().length === 0 && rawCmd()}>
+                                  <Show when={result().chain.length === 0 && rawCmd()}>
                                     <div class="sg-alias-chain sg-alias-chain-you">
                                       <div class="sg-alias-chain-label">{key()} — your config</div>
                                       <div class="sg-alias-chain-entry" style="padding-left: 12px">
@@ -538,18 +544,21 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                           </Show>
                           <Show when={isCompare() && action.compareKey}>
                             {(key) => {
-                              const chain = () => getChain(key(), props.compareBindCommands, props.compareAliases);
+                              const result = () => getChain(key(), props.compareBindCommands, props.compareAliases);
                               const rawCmd = () => props.compareBindCommands[key().toUpperCase()];
                               return (
                                 <>
-                                  <Show when={chain().length > 0}>
+                                  <Show when={result().chain.length > 0}>
                                     <AliasChainView
-                                      chain={chain()}
+                                      chain={result().chain}
+                                      macroRefs={result().macroRefs}
+                                      primaryCvars={props.compareCvars}
+                                      hideDefaults={props.hideDefaults}
                                       label={`${key()} — comparison`}
                                       ownerClass="sg-alias-chain-them"
                                     />
                                   </Show>
-                                  <Show when={chain().length === 0 && rawCmd()}>
+                                  <Show when={result().chain.length === 0 && rawCmd()}>
                                     <div class="sg-alias-chain sg-alias-chain-them">
                                       <div class="sg-alias-chain-label">{key()} — comparison</div>
                                       <div class="sg-alias-chain-entry" style="padding-left: 12px">

@@ -1,5 +1,6 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
 
 /* ─── Trigger definitions from ezQuake source ────────────────────── */
 
@@ -87,6 +88,8 @@ interface ConfigTriggersSectionProps {
   aliases: Record<string, string>;
   compareAliases?: Record<string, string>;
   search: string;
+  primaryCvars?: Record<string, string>;
+  hideDefaults?: boolean;
 }
 
 interface TriggerRow {
@@ -156,13 +159,13 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
     fTriggerRows().filter((r) => r.isDefined).length +
     onTriggerRows().filter((r) => r.isDefined).length;
 
-  function getChain(command: string) {
+  function getChain(command: string): AliasChainResult {
     return resolveAliasChain(command, props.aliases);
   }
 
   function renderRow(row: TriggerRow) {
     const isExp = () => expanded() === row.def.name;
-    const chain = () => row.userCommand ? getChain(row.userCommand) : [];
+    const chain = () => row.userCommand ? getChain(row.userCommand) : { chain: [], macroRefs: new Set<string>() };
 
     return (
       <>
@@ -237,7 +240,13 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
                 </span>
               </div>
             </div>
-            <AliasChainView chain={chain()} label="Alias chain" />
+            <AliasChainView
+              chain={chain().chain}
+              macroRefs={chain().macroRefs}
+              primaryCvars={props.primaryCvars}
+              hideDefaults={props.hideDefaults}
+              label="Alias chain"
+            />
             <div class="px-4 py-1 text-xs text-[var(--sg-section-label)]">
               {row.def.description}
             </div>

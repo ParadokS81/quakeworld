@@ -838,6 +838,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       if (kbState.isLabelSelected(l)) kbState.setSelection(null);
                       else kbState.setSelection([{ kind: "teamsay", label: l }]);
                     }}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    hideDefaults={hideDefaults()}
                   />
                 </Show>
 
@@ -859,11 +862,19 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     isCompareMode={isCompareMode()}
                     primaryAliases={primaryAliases()}
                     compareAliases={isCompareMode() ? compareAliases() : undefined}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    hideDefaults={hideDefaults()}
                   />
                 </Show>
 
                 <Show when={showAliasesSection()}>
-                  <ConfigAliasesSection aliases={filteredAliases()} allAliases={primaryAliases()} />
+                  <ConfigAliasesSection
+                    aliases={filteredAliases()}
+                    allAliases={primaryAliases()}
+                    primaryCvars={effectiveCvars()}
+                    hideDefaults={hideDefaults()}
+                  />
                 </Show>
 
                 <Show when={showMacrosSection()}>
@@ -883,6 +894,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     aliases={primaryAliases()}
                     compareAliases={isCompareMode() ? compareAliases() : undefined}
                     search={search()}
+                    primaryCvars={effectiveCvars()}
+                    hideDefaults={hideDefaults()}
                   />
                 </Show>
 
