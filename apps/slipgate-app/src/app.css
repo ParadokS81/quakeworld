@@ -2019,9 +2019,9 @@ input[type="number"] {
 
 .sg-config-kb-toolbar {
   display: grid;
-  grid-template-columns: 15fr 0.5fr 4fr;
+  grid-template-columns: 15.5fr 4fr;
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .sg-config-kb-toolbar-main {
