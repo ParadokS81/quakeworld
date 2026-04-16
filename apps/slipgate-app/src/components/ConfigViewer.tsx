@@ -94,7 +94,7 @@ const CATEGORY_ORDER: { name: string; gap?: boolean }[] = [
   { name: "Obsolete" },
 ];
 
-const CATEGORY_PRIORITY = new Map(CATEGORY_ORDER.map((c, i) => [c.name, i]));
+export const CATEGORY_PRIORITY = new Map(CATEGORY_ORDER.map((c, i) => [c.name, i]));
 const CATEGORY_GAPS = new Set(CATEGORY_ORDER.filter((c) => c.gap).map((c) => c.name));
 
 export default function ConfigViewer(props: ConfigViewerProps) {
