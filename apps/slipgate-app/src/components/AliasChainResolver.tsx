@@ -128,30 +128,35 @@ export function AliasChainView(props: {
               Macro Dependencies ({macroDeps().length})
             </div>
             <For each={macroDeps()}>
-              {(dep) => (
-                <div class="sg-macro-row">
-                  <span
-                    class={
-                      dep.isCustomized
-                        ? "text-[var(--color-warning)]"
-                        : "text-[var(--sg-section-label)]"
-                    }
-                  >
-                    {dep.name}
-                  </span>
-                  <span
-                    class={
-                      dep.isCustomized
-                        ? "text-[var(--sg-text-bright)] font-semibold"
-                        : "text-[var(--sg-section-label)]"
-                    }
-                  >
-                    {dep.isCustomized
-                      ? dep.userValue
-                      : (dep.description || dep.defaultValue || "\u2014")}
-                  </span>
-                </div>
-              )}
+              {(dep) => {
+                const displayValue = dep.isCustomized
+                  ? dep.userValue
+                  : (dep.defaultValue || dep.description || "\u2014");
+                const tooltip = [dep.description, dep.defaultValue ? `Default: ${dep.defaultValue}` : ""]
+                  .filter(Boolean).join("\n");
+                return (
+                  <div class="sg-macro-row" title={tooltip}>
+                    <span
+                      class={
+                        dep.isCustomized
+                          ? "text-[var(--color-warning)]"
+                          : "text-[var(--sg-section-label)]"
+                      }
+                    >
+                      {dep.name}
+                    </span>
+                    <span
+                      class={
+                        dep.isCustomized
+                          ? "text-[var(--sg-text-bright)] font-semibold"
+                          : "text-[var(--sg-section-label)]"
+                      }
+                    >
+                      {displayValue}
+                    </span>
+                  </div>
+                );
+              }}
             </For>
           </div>
         </Show>
