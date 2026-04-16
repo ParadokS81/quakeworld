@@ -34,7 +34,7 @@ The app opens to a 6-tab vertical sidebar (`SideNav.tsx`). What you see in each 
 ### 2. Profile 👤 — *fully functional, richest tab*
 `ProfileTab.tsx` (874 lines).
 - **WHO banner** — QW scoreboard-style identity header with mapshot backdrop, jersey colors from your `topcolor`/`bottomcolor`, player name with real QW color codes
-- **Input visualization** — a full TKL keyboard layout with your movement/weapon/teamsay binds colored and labeled, plus a mouse SVG overlay showing your movement keys and weapon rebinds
+- **Input visualization** — a full TKL keyboard with a swappable right-slot module (nav cluster, numpad, or mouse diagram), movement/weapon/teamsay binds colored and labeled, plus a mouse SVG overlay in the gear grid showing your movement keys and weapon rebinds. Profile has a single F-row toggle cell cycling nav/numpad
 - **Gear grid** — real product photos of your mouse (from EloShapes CDN), mousepad card, grip-style + aim-style illustrations
 - **Mouse data row** — brand/model/weight/wireless, cm/360 calculated from DPI + sens + m_yaw, LG-specific sensitivity, inverted-Y + accel flags
 - **System specs cards** — CPU/GPU/RAM/OS, monitor & resolution, DPI/sens inputs, m_yaw override
@@ -127,7 +127,7 @@ Click "Convert to FTE" → report view:
 
 ### UX helpers
 - **Scroll minimap** on the right edge — vertical track with section labels, viewport indicator, click to smooth-scroll
-- **Keyboard panel** in the right rail — when a Weapons/Teamplay/Movement Binds section is focused, renders the bound config as a full TKL keyboard SVG (one in single view, two stacked in compare mode with owner-frame tints and a relative-path label above each). Three independent Movement/Weapons/Teamplay toggles persist to `ProfilePrefs`. Click-to-pin is bidirectional: clicking a key lights up the matching command on both keyboards, scrolls the matching row's category header into view, and expands the row. Clicking a row does the same in reverse. Multi-bind modifier combos (e.g. `F`=safe + `Ctrl+F`=lost) select both rows and light both keys. Esc clears selection. "Hide keyboard" toggle collapses the panel to reclaim space at 1080p.
+- **Keyboard panel** in the right rail — when a Weapons/Teamplay/Movement Binds section is focused, renders the bound config as a full TKL keyboard SVG with a swappable right-slot module (nav cluster, numpad with double-height + and Enter, or mouse diagram). One keyboard in single view, two stacked in compare mode with owner-frame tints (teal/orange). Each side can auto-reveal a different module when the selected bind lives on different modules per config (e.g. primary binds kill-me to mouse4, compare to kp_7). Segmented control (Nav/Numpad/Mouse) at top syncs both; auto-reveal split is transient. Bind-labels toggle shows weapon/teamsay names on keycaps (quickfire priority, long teamsay names fall back to category). Movement/Weapons/Teamplay toggles persist to `ProfilePrefs`. Click-to-pin is bidirectional: clicking a key lights up the matching command on both keyboards, scrolls the matching row's category header into view, and expands the row. Clicking a row does the same in reverse. Alias chains in expanded rows are color-coded by owner (teal for primary, orange for compare). Multi-bind modifier combos (e.g. `F`=safe + `Ctrl+F`=lost) select both rows and light both keys. Esc clears selection. "Hide keyboard" toggle collapses the panel.
 - Drag-drop overlay with error toasts
 - Color scheme uses OKLCH tokens matching the Slipgate web design system
 
