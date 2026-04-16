@@ -219,59 +219,59 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
         </button>
       </div>
       <Show when={props.visible}>
+        <div class="sg-config-kb-toolbar">
+          <div class="sg-config-kb-toolbar-main">
+            <div class="sg-config-kb-toggle-bar">
+              <button
+                class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
+                onClick={props.onToggleMovement}
+              >
+                Movement
+              </button>
+              <button
+                class={`badge cursor-pointer ${props.showWeapons ? "badge-binds" : "badge-ghost"}`}
+                onClick={props.onToggleWeapons}
+              >
+                Weapons
+              </button>
+              <button
+                class={`badge cursor-pointer ${props.showTeamplay ? "badge-binds" : "badge-ghost"}`}
+                onClick={props.onToggleTeamplay}
+              >
+                Teamplay
+              </button>
+              <button
+                class={`badge cursor-pointer ${props.showBindLabels ? "badge-binds" : "badge-ghost"}`}
+                onClick={props.onToggleBindLabels}
+              >
+                Binds
+              </button>
+            </div>
+          </div>
+          <div class="sg-config-kb-toolbar-module">
+            {props.availableModules.map((m) => {
+              const labels: Record<KeyboardRightModule, string> = {
+                nav: "Nav",
+                numpad: "Numpad",
+                mouse: "Mouse",
+              };
+              return (
+                <button
+                  class="sg-config-kb-module-btn"
+                  classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
+                  onClick={() => syncBothModules(m)}
+                >
+                  {labels[m]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
-            <div class="sg-config-kb-toolbar">
-              <div class="sg-config-kb-toolbar-main">
-                <Show when={props.primaryName}>
-                  <span class="sg-config-kb-path">{props.primaryName}</span>
-                </Show>
-                <div class="sg-config-kb-toggle-bar">
-                  <button
-                    class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
-                    onClick={props.onToggleMovement}
-                  >
-                    Movement
-                  </button>
-                  <button
-                    class={`badge cursor-pointer ${props.showWeapons ? "badge-binds" : "badge-ghost"}`}
-                    onClick={props.onToggleWeapons}
-                  >
-                    Weapons
-                  </button>
-                  <button
-                    class={`badge cursor-pointer ${props.showTeamplay ? "badge-binds" : "badge-ghost"}`}
-                    onClick={props.onToggleTeamplay}
-                  >
-                    Teamplay
-                  </button>
-                  <button
-                    class={`badge cursor-pointer ${props.showBindLabels ? "badge-binds" : "badge-ghost"}`}
-                    onClick={props.onToggleBindLabels}
-                  >
-                    Binds
-                  </button>
-                </div>
-              </div>
-              <div class="sg-config-kb-toolbar-module">
-                {props.availableModules.map((m) => {
-                  const labels: Record<KeyboardRightModule, string> = {
-                    nav: "Nav",
-                    numpad: "Numpad",
-                    mouse: "Mouse",
-                  };
-                  return (
-                    <button
-                      class="sg-config-kb-module-btn"
-                      classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
-                      onClick={() => syncBothModules(m)}
-                    >
-                      {labels[m]}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <Show when={props.primaryName}>
+              <div class="sg-config-kb-label">{props.primaryName}</div>
+            </Show>
             <KeyboardLayout
               movement={props.primary!.movement}
               highlights={primaryHighlights()}
