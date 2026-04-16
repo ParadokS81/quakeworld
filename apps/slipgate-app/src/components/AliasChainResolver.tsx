@@ -1,11 +1,17 @@
 import { For, Show } from "solid-js";
+import { lookupCvar } from "qw-config";
 
-/* ─── Alias chain resolution ─────────────────────────────────────── */
+/* --- Alias chain resolution --- */
 
 export interface AliasChainEntry {
   name: string;
   command: string;
   depth: number;
+}
+
+export interface AliasChainResult {
+  chain: AliasChainEntry[];
+  macroRefs: Set<string>;
 }
 
 /**
@@ -17,9 +23,10 @@ export function resolveAliasChain(
   command: string,
   aliases: Record<string, string>,
   maxDepth = 8,
-): AliasChainEntry[] {
+): AliasChainResult {
   const result: AliasChainEntry[] = [];
   const visited = new Set<string>();
+  const macroRefs = new Set<string>();
 
   function resolve(cmd: string, depth: number) {
     if (depth >= maxDepth) return;
@@ -28,7 +35,11 @@ export function resolveAliasChain(
     const seen = new Set<string>();
 
     for (const token of tokens) {
-      if (token.startsWith("'") || token.startsWith("$") || token.startsWith("%")) continue;
+      if (token.startsWith("'") || token.startsWith("%")) continue;
+      if (token.startsWith("$")) {
+        macroRefs.add(token.slice(1));
+        continue;
+      }
       if (token === "if" || token === "then" || token === "else" || token === "AND" || token === "OR") continue;
       if (/^[<>=!]+$/.test(token) || /^\d+$/.test(token)) continue;
 
@@ -44,12 +55,49 @@ export function resolveAliasChain(
   }
 
   resolve(command, 0);
-  return result;
+  return { chain: result, macroRefs };
 }
 
-/* ─── Shared alias chain display ─────────────────────────────────── */
+/* --- Shared alias chain display --- */
 
-export function AliasChainView(props: { chain: AliasChainEntry[]; label?: string; ownerClass?: string }) {
+interface MacroDepEntry {
+  name: string;
+  defaultValue: string | undefined;
+  userValue: string | undefined;
+  isCustomized: boolean;
+}
+
+export function AliasChainView(props: {
+  chain: AliasChainEntry[];
+  label?: string;
+  ownerClass?: string;
+  macroRefs?: Set<string>;
+  primaryCvars?: Record<string, string>;
+  hideDefaults?: boolean;
+}) {
+  function macroDeps(): MacroDepEntry[] {
+    if (!props.macroRefs || !props.primaryCvars) return [];
+
+    const entries: MacroDepEntry[] = [];
+    for (const name of props.macroRefs) {
+      const info = lookupCvar(name);
+      const defaultValue = info?.default;
+      const userValue = props.primaryCvars[name];
+      const isCustomized = userValue !== undefined && userValue !== defaultValue;
+
+      if (props.hideDefaults && !isCustomized) continue;
+
+      entries.push({ name, defaultValue, userValue, isCustomized });
+    }
+
+    entries.sort((a, b) => {
+      if (a.isCustomized !== b.isCustomized) return a.isCustomized ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return entries;
+  }
+
   return (
     <Show when={props.chain.length > 0}>
       <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
@@ -67,6 +115,37 @@ export function AliasChainView(props: { chain: AliasChainEntry[]; label?: string
             </div>
           )}
         </For>
+        <Show when={macroDeps().length > 0}>
+          <div class="sg-alias-chain-macro-deps">
+            <div class="sg-alias-chain-macro-deps-label">
+              Macro Dependencies ({macroDeps().length})
+            </div>
+            <For each={macroDeps()}>
+              {(dep) => (
+                <div class="sg-macro-row">
+                  <span
+                    class={
+                      dep.isCustomized
+                        ? "text-[var(--color-warning)]"
+                        : "text-[var(--sg-section-label)]"
+                    }
+                  >
+                    {dep.name}
+                  </span>
+                  <span
+                    class={
+                      dep.isCustomized
+                        ? "text-[var(--sg-text-bright)] font-semibold"
+                        : "text-[var(--sg-section-label)]"
+                    }
+                  >
+                    {dep.userValue ?? dep.defaultValue ?? "\u2014"}
+                  </span>
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
       </div>
     </Show>
   );

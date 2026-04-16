@@ -1999,6 +1999,18 @@ input[type="number"] {
   color: var(--sg-text-dim);
   word-break: break-all;
 }
+.sg-alias-chain-macro-deps {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--sg-stat-border);
+}
+.sg-alias-chain-macro-deps-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sg-section-label);
+  padding: 2px 12px;
+}
 
 /* ─── ConfigViewer: alias list rows ─────────────────────────────────── */
 .sg-alias-row {
