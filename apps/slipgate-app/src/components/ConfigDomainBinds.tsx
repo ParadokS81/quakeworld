@@ -70,7 +70,7 @@ function formatFiringSentence(p: FiringPath, color: string): JSX.Element {
     return (
       <>
         {keycap(p.trigger_key)}
-        {word("selects and fires")}
+        {word("quickfires")}
       </>
     );
   }
@@ -181,47 +181,24 @@ interface WeaponChainBlock {
   macroRefs: Set<string>;
 }
 
-// Extract the post-rebind body for the fire key from the classifier's origin chain.
-// Looks for "bind <fire_key> <body>" (or quoted form) and captures body up to next `;`.
-function extractRebindBody(chain: string[], fireKey: string): string | null {
-  const keyRe = fireKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`bind\\s+${keyRe}\\s+(?:"([^"]+)"|([^;]+))`, "i");
-  for (let i = chain.length - 1; i >= 0; i--) {
-    const m = chain[i].match(re);
-    if (m) return (m[1] ?? m[2] ?? "").trim();
-  }
-  return null;
-}
-
+// Build the bind+alias chain blocks for one firing path. For manual paths the
+// rebind of the fire key is already visible inside the trigger's alias walk
+// (e.g. `shaftbind: bind mouse1 +shaft` then `+shaft: weapon 8 3 2; +attack`),
+// so a second block keyed on the fire key is pure duplication and is dropped.
 function buildChainBlocks(
   p: FiringPath | undefined,
   bindCmds: Record<string, string>,
   aliases: Record<string, string>,
 ): WeaponChainBlock[] {
   if (!p) return [];
-  const blocks: WeaponChainBlock[] = [];
   const triggerBody = bindCmds[p.trigger_key.toUpperCase()] ?? "";
   const triggerResolved = resolveAliasChain(triggerBody, aliases);
-  blocks.push({
+  return [{
     keyLabel: p.trigger_key,
     body: triggerBody,
     chain: triggerResolved.chain,
     macroRefs: triggerResolved.macroRefs,
-  });
-
-  if (p.method === "manual" && p.fire_key && p.fire_key !== p.trigger_key) {
-    const rebindBody = extractRebindBody(p.origin_alias_chain, p.fire_key);
-    if (rebindBody) {
-      const fireResolved = resolveAliasChain(rebindBody, aliases);
-      blocks.push({
-        keyLabel: p.fire_key,
-        body: rebindBody,
-        chain: fireResolved.chain,
-        macroRefs: fireResolved.macroRefs,
-      });
-    }
-  }
-  return blocks;
+  }];
 }
 
 function WeaponChainStack(props: {
@@ -248,7 +225,7 @@ function WeaponChainStack(props: {
                   class="sg-alias-chain-entry"
                   style={{ "padding-left": `${28 + entry.depth * 16}px` }}
                 >
-                  <span class="sg-alias-chain-name">{entry.name}</span>
+                  <span class="sg-alias-chain-name">alias {entry.name}</span>
                   <span class="sg-alias-chain-cmd">{entry.command}</span>
                 </div>
               )}
