@@ -8,16 +8,17 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [qw-oracle/CLAUDE.md is 192 lines (over 150 hard ceiling)](#qw-oraclecladuemd-is-192-lines-over-150-hard-ceiling) — split into Layer 2 docs next time qw-oracle gets active work
+- [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
 - [ConfigViewer domain vs settings overlap and compare tab counts](#configviewer-domain-vs-settings-overlap-and-compare-tab-counts) — compare counts are global, domain sections show fewer items than raw settings
+- [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
 
 ---
 
-## qw-oracle/CLAUDE.md is 192 lines (over 150 hard ceiling)
+## qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)
 
-**Added:** 2026-04-14
-**Status:** pending, expect to address when qw-oracle gets its next active session
-**Verification first:** `wc -l apps/qw-oracle/CLAUDE.md`. If under 150, this item is resolved (someone already split it or trimmed it).
+**Added:** 2026-04-14, **Updated:** 2026-04-16
+**Status:** improved by Task 1 rewrite (192 -> 179), still 29 lines over hard ceiling
+**Verification first:** `wc -l /home/paradoks/projects/quakeworld-poc/apps/qw-oracle/CLAUDE.md`. If under 150, resolved.
 
 The monorepo doc philosophy puts a soft ceiling at 120 lines and a hard ceiling at 150 lines on any `CLAUDE.md`. Bloat is diagnostic: the cause is almost always a missing Layer 2 doc that should be holding the overflow content. `apps/qw-oracle/CLAUDE.md` is currently 192 lines, 28% over the hard ceiling.
 
@@ -55,3 +56,20 @@ These are the same underlying question: how do Settings (raw, exhaustive) and Do
 - `apps/slipgate-app/src/components/ConfigTeamplayMacros.tsx` (domain macros filter)
 - `apps/slipgate-app/src/components/ConfigMacrosSection.tsx` (raw macros section)
 - Prior fix this session: `a55e7f9` added Teamplay pill to settings sidebar
+
+---
+
+## qw-oracle VISION.md needs active-assistance reframe
+
+**Added:** 2026-04-16
+**Status:** pending, next qw-oracle session
+**Verification first:** read `apps/qw-oracle/VISION.md` in the poc worktree. If it mentions "active assistance" / "constructive queries" / "version-aware retrieval", this is resolved.
+
+The current VISION.md (light-edited 2026-04-14 to add three-layer block) still frames the project around the original three paths: Oracle Bot, Digest, Time Machine. The 2026-04-15 conversation with ParadokS crystallized a broader vision:
+
+1. **Active assistance, not just retrieval.** The end product is a system that can *construct* configs (weapon priority chains, teamsay macros, hybrid binds) from Layer 3 pattern guides, not just look up cvars. This is a qualitative shift from "smart search" to "domain copilot."
+2. **Version-aware retrieval.** Once the AST extractor version-walk ships, every cvar/command carries first_seen_version/last_seen_version. Cross-referencing Layer 2 session dates against those ranges gives temporal relevance filtering: "this advice predates the 3.6 rewrite."
+3. **Layer 2 as FAQ signal for Layer 3.** Chat is not primarily a direct answer source — it's a compass for what concept notes to write. Mine the chat for frequent questions, author targeted Layer 3 notes for the top topics, link back into the sessions.
+4. **ezquake.com docs conversion pipeline.** The existing curated guides (weapon-scripts.html, scripting.html, etc.) are the natural input for Layer 3. Each page gets adapted into 1-3 concept notes with canonical ID references.
+
+All four points are captured in `project_qw_oracle_product_vision.md` memory, but VISION.md itself (the file other devs would read) does not reflect them yet. Low urgency — the memory carries the knowledge across sessions, and the VISION.md rewrite is best done alongside the presentation prep when the framing is most fresh.
