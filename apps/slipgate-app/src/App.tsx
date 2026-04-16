@@ -120,7 +120,8 @@ function App() {
           }
         }
         if (cfg.lg_sensitivity) {
-          console.log(`=== LG SENSITIVITY === ${cfg.lg_sensitivity} (base: ${cfg.sensitivity})`);
+          const base = cfg.sensitivity_baseline ?? cfg.sensitivity;
+          console.log(`=== LG SENSITIVITY === ${cfg.lg_sensitivity} (base: ${base})`);
         }
       }
     } catch (e) {

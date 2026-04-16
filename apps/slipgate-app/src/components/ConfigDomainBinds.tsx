@@ -1,7 +1,8 @@
 import { For, Show, createEffect, type JSX } from "solid-js";
-import type { FiringPath, MovementKeys, TeamsayBind, Weapon } from "../types";
+import type { FiringPath, MovementKeys, TeamsayBind, Weapon, WeaponChangeDispatch } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry, AliasChainResult } from "./AliasChainResolver";
+import { lookupCvar } from "qw-config";
 import { WEAPON_COLORS } from "./WeaponBindViz";
 
 /**
@@ -112,6 +113,10 @@ interface WeaponBindsProps {
   compareBindCommands?: Record<string, string>;
   primaryCvars?: Record<string, string>;
   compareCvars?: Record<string, string>;
+  primaryDispatch?: WeaponChangeDispatch | null;
+  compareDispatch?: WeaponChangeDispatch | null;
+  primarySensBaseline?: number | null;
+  compareSensBaseline?: number | null;
   hideDefaults?: boolean;
 }
 
@@ -181,10 +186,15 @@ interface WeaponChainBlock {
   macroRefs: Set<string>;
 }
 
-// Build the bind+alias chain blocks for one firing path. For manual paths the
-// rebind of the fire key is already visible inside the trigger's alias walk
-// (e.g. `shaftbind: bind mouse1 +shaft` then `+shaft: weapon 8 3 2; +attack`),
-// so a second block keyed on the fire key is pure duplication and is dropped.
+// Build the bind+alias chain block for one firing path. Manual paths' rebind
+// of the fire key is already visible inside the trigger's alias walk (e.g.
+// `bind mouse1 +shaft` then `+shaft: weapon 8 3 2; +attack`), so a second
+// block keyed on the fire key is pure duplication and is dropped.
+//
+// When a `+X` alias appears in the chain and a matching `-X` release alias
+// exists, `-X` is inlined right after `+X`'s subtree so press/release read as
+// a pair. Pairing runs at any depth (top-level bind body AND aliases nested
+// inside other aliases).
 function buildChainBlocks(
   p: FiringPath | undefined,
   bindCmds: Record<string, string>,
@@ -193,25 +203,175 @@ function buildChainBlocks(
   if (!p) return [];
   const triggerBody = bindCmds[p.trigger_key.toUpperCase()] ?? "";
   const triggerResolved = resolveAliasChain(triggerBody, aliases);
+
+  const pairedChain: AliasChainEntry[] = [];
+  const pairedMacroRefs = new Set<string>(triggerResolved.macroRefs);
+  const injected = new Set<string>();
+  const chain = triggerResolved.chain;
+
+  for (let i = 0; i < chain.length; i++) {
+    const entry = chain[i];
+    pairedChain.push(entry);
+
+    const canPair = entry.name.startsWith("+") && entry.name.length >= 2;
+    if (!canPair) continue;
+    const releaseName = "-" + entry.name.slice(1);
+    if (injected.has(releaseName)) continue;
+    const releaseBody =
+      aliases[releaseName] ?? aliases[releaseName.toLowerCase()];
+    if (releaseBody === undefined) continue;
+    injected.add(releaseName);
+
+    // Flush all descendants of `+X` first, then inject `-X` at the same depth
+    // so the pair reads as siblings with their own subtrees underneath.
+    let j = i + 1;
+    while (j < chain.length && chain[j].depth > entry.depth) {
+      pairedChain.push(chain[j]);
+      j++;
+    }
+    i = j - 1;
+
+    pairedChain.push({
+      name: releaseName,
+      command: releaseBody,
+      depth: entry.depth,
+    });
+    const nested = resolveAliasChain(releaseBody, aliases);
+    for (const n of nested.chain) {
+      pairedChain.push({ ...n, depth: n.depth + entry.depth + 1 });
+    }
+    for (const r of nested.macroRefs) pairedMacroRefs.add(r);
+  }
+
   return [{
     keyLabel: p.trigger_key,
     body: triggerBody,
-    chain: triggerResolved.chain,
-    macroRefs: triggerResolved.macroRefs,
+    chain: pairedChain,
+    macroRefs: pairedMacroRefs,
   }];
 }
 
+interface CvarOverride {
+  cvar: string;
+  value: string;
+  sourceAlias: string;
+  isSensitivity: boolean;
+}
+
+interface ModifierBlock {
+  weapon: Weapon;
+  dispatchedAlias: string;
+  chain: AliasChainEntry[];
+  macroRefs: Set<string>;
+  overrides: CvarOverride[];
+}
+
+// Walk the dispatched alias body (and nested alias calls) collecting every
+// `cvar value` statement where the first token resolves to a known cvar.
+// Mirrors the chain expansion used by the bind view.
+function extractCvarOverrides(
+  aliasName: string,
+  aliases: Record<string, string>,
+  maxDepth = 8,
+): CvarOverride[] {
+  const result: CvarOverride[] = [];
+  const visited = new Set<string>();
+
+  function walk(name: string, depth: number) {
+    if (depth >= maxDepth || visited.has(name)) return;
+    visited.add(name);
+    const body = aliases[name] ?? aliases[name.toLowerCase()];
+    if (!body) return;
+
+    for (const stmt of body.split(";")) {
+      const trimmed = stmt.trim();
+      if (!trimmed) continue;
+      const firstSpace = trimmed.search(/\s/);
+      if (firstSpace === -1) {
+        // Lone token — could be another alias to recurse into.
+        if (aliases[trimmed] !== undefined) walk(trimmed, depth + 1);
+        continue;
+      }
+      const cvarName = trimmed.slice(0, firstSpace);
+      const value = trimmed.slice(firstSpace + 1).trim();
+      if (lookupCvar(cvarName)) {
+        result.push({
+          cvar: cvarName,
+          value,
+          sourceAlias: name,
+          isSensitivity: cvarName.toLowerCase() === "sensitivity",
+        });
+      }
+    }
+  }
+
+  walk(aliasName, 0);
+  return result;
+}
+
+function buildModifierBlock(
+  weapon: Weapon,
+  dispatch: WeaponChangeDispatch | null | undefined,
+  aliases: Record<string, string>,
+): ModifierBlock | null {
+  if (!dispatch) return null;
+  const dispatched = dispatch.per_weapon?.[weapon];
+  if (!dispatched) return null;
+  // Skip the block when the weapon's dispatch alias matches the else-branch —
+  // no deviation from baseline, nothing worth surfacing.
+  if (dispatch.else_alias && dispatched === dispatch.else_alias) return null;
+
+  const resolved = resolveAliasChain(dispatched, aliases);
+  const overrides = extractCvarOverrides(dispatched, aliases);
+  return {
+    weapon,
+    dispatchedAlias: dispatched,
+    chain: resolved.chain,
+    macroRefs: resolved.macroRefs,
+    overrides,
+  };
+}
+
+function formatSensDisplay(
+  value: string,
+  sensBaseline: number | null | undefined,
+  cvars: Record<string, string> | undefined,
+): string {
+  const baseline =
+    sensBaseline !== null && sensBaseline !== undefined
+      ? sensBaseline
+      : (() => {
+          const raw = cvars?.sensitivity;
+          const parsed = raw !== undefined ? parseFloat(raw) : NaN;
+          return Number.isFinite(parsed) ? parsed : null;
+        })();
+  if (baseline === null) return value;
+  return `${value} (base ${baseline})`;
+}
+
 function WeaponChainStack(props: {
+  weapon: Weapon;
   path: FiringPath | undefined;
   bindCmds: Record<string, string>;
   aliases: Record<string, string>;
   cvars?: Record<string, string>;
+  dispatch?: WeaponChangeDispatch | null;
+  sensBaseline?: number | null;
   hideDefaults?: boolean;
   ownerClass: string;
 }) {
   const blocks = () => buildChainBlocks(props.path, props.bindCmds, props.aliases);
+  const modifier = () => buildModifierBlock(props.weapon, props.dispatch, props.aliases);
+  const hasAnyContent = () => blocks().length > 0 || modifier() !== null;
+  const mergedMacroRefs = () => {
+    const refs = new Set<string>();
+    for (const b of blocks()) for (const r of b.macroRefs) refs.add(r);
+    const m = modifier();
+    if (m) for (const r of m.macroRefs) refs.add(r);
+    return refs;
+  };
   return (
-    <Show when={blocks().length > 0}>
+    <Show when={hasAnyContent()}>
       <For each={blocks()}>
         {(block) => (
           <div class={`sg-alias-chain ${props.ownerClass}`}>
@@ -233,10 +393,52 @@ function WeaponChainStack(props: {
           </div>
         )}
       </For>
-      {/* Macro-deps panel: union of refs across all blocks for this side. */}
+      <Show when={modifier()}>
+        {(m) => (
+          <div class={`sg-alias-chain ${props.ownerClass}`}>
+            <div class="sg-alias-chain-entry" style="padding-left: 12px">
+              <span class="sg-alias-chain-name">
+                when {m().weapon.toUpperCase()} active
+              </span>
+              <span class="sg-alias-chain-cmd">{m().dispatchedAlias}</span>
+            </div>
+            <Show when={m().overrides.length > 0}>
+              <div class="sg-alias-chain-macro-deps">
+                <div class="sg-alias-chain-macro-deps-label">
+                  Overrides ({m().overrides.length})
+                </div>
+                <For each={m().overrides}>
+                  {(ov) => (
+                    <div class="sg-macro-row">
+                      <span class="sg-alias-chain-name">{ov.cvar}</span>
+                      <span class="text-[var(--sg-text-bright)] font-semibold">
+                        {ov.isSensitivity
+                          ? formatSensDisplay(ov.value, props.sensBaseline, props.cvars)
+                          : ov.value}
+                      </span>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Show>
+            <For each={m().chain}>
+              {(entry) => (
+                <div
+                  class="sg-alias-chain-entry"
+                  style={{ "padding-left": `${28 + entry.depth * 16}px` }}
+                >
+                  <span class="sg-alias-chain-name">alias {entry.name}</span>
+                  <span class="sg-alias-chain-cmd">{entry.command}</span>
+                </div>
+              )}
+            </For>
+          </div>
+        )}
+      </Show>
+      {/* Macro-deps panel: union of refs across bind chain + modifier chain. */}
       <AliasChainView
         chain={[]}
-        macroRefs={new Set(blocks().flatMap((b) => Array.from(b.macroRefs)))}
+        macroRefs={mergedMacroRefs()}
         primaryCvars={props.cvars}
         hideDefaults={props.hideDefaults}
         ownerClass={props.ownerClass}
@@ -373,19 +575,25 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
               <Show when={isExpanded() && hasContent}>
                 <div class="sg-domain-bind-expanded">
                   <WeaponChainStack
+                    weapon={row.weapon}
                     path={row.primary}
                     bindCmds={props.primaryBindCommands ?? {}}
                     aliases={props.primaryAliases ?? {}}
                     cvars={props.primaryCvars}
+                    dispatch={props.primaryDispatch}
+                    sensBaseline={props.primarySensBaseline}
                     hideDefaults={props.hideDefaults}
                     ownerClass="sg-alias-chain-you"
                   />
                   <Show when={isCompare()}>
                     <WeaponChainStack
+                      weapon={row.weapon}
                       path={row.compare}
                       bindCmds={props.compareBindCommands ?? {}}
                       aliases={props.compareAliases ?? {}}
                       cvars={props.compareCvars}
+                      dispatch={props.compareDispatch}
+                      sensBaseline={props.compareSensBaseline}
                       hideDefaults={props.hideDefaults}
                       ownerClass="sg-alias-chain-them"
                     />

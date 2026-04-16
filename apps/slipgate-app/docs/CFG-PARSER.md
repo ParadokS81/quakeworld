@@ -156,6 +156,25 @@ Applied before per-bind rule dispatch. Rule 2 additionally re-runs the rocket-ju
 
 **Legacy default number-key binds** are handled by Rule 7 (`emit_engine_defaults`) rather than being filtered in the classifier - an explicit `bind 7 "impulse 7"` written by the player is Rule 4 Explicit, the engine fallback is Rule 7 EngineDefault, and the UI can dim or collapse the latter.
 
+#### Per-weapon modifier triggers (implemented 2026-04-16)
+
+Modifier cvars that change when the active weapon changes can be applied two ways, and the parser catches both:
+
+1. **Oldschool inline injection** - `alias +shaft "weapon 8; sensitivity 0.8; +attack"` sets sens as part of the bind alias chain. Visible from walking the press body, so the Config Viewer's chain expansion already shows it. The `-shaft` release body (paired automatically - see below) typically restores the baseline.
+2. **Engine-triggered dispatch** - `alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"` is an ezQuake trigger alias the engine runs on every weapon change. The dispatched alias (`__lg_settings`) sets modifier cvars. Invisible to bind-chain walking - a separate parser handles it.
+
+**Implementation:** `src-tauri/src/commands/weapon_triggers.rs`. `parse_weapon_change_dispatch(&aliases)` returns `WeaponChangeDispatch { per_weapon: HashMap<String, String>, else_alias: Option<String> }` - weapon-name → dispatched alias, plus the fallback branch. Handles binary `if N == $weaponnum then A else B`, chained `else if`, operand reversal, and `if` without `else`. `extract_sensitivity_from_alias(name, &aliases)` recursively walks the dispatched body (depth-limited, visit-guarded) to pull `sensitivity N` out of nested alias calls.
+
+**Exposed fields** (on both `EzQuakeConfig` and `ChainBindClassification`):
+- `weapon_change_dispatch: Option<WeaponChangeDispatch>` - raw parse, consumed by the Config Viewer's "When {WEAPON} active" modifier block per weapon row.
+- `sensitivity_baseline: Option<f64>` - pulled from the else-branch's alias when it sets sensitivity. Supersedes the top-level `sensitivity` cvar as the baseline for the LG-vs-base comparison in the profile tooltip and the modifier block. When both top-level cvar and else-branch sens exist and disagree, the else-branch value wins because it's what actually runs for every non-specific weapon.
+
+**LG sensitivity detection** on `EzQuakeConfig.lg_sensitivity` runs both paths: the oldschool scan (lines ~1455 of `ezquake.rs`) finds `sensitivity N` in alias bodies that also reference `weapon 8` / `+fire 8`; the trigger-dispatch fallback (via `weapon_triggers`) catches Xantom-style configs where the LG sens lives inside `__lg_settings` dispatched by `f_weaponchange`. The two are complementary - oldschool covers inline injection, trigger-dispatch covers hidden dispatch.
+
+#### `+alias` / `-alias` pair rendering (frontend)
+
+When the Config Viewer's weapon-binds expanded view walks an alias chain and encounters a `+X` alias at any depth, it automatically pairs `-X` (when defined) right after `+X`'s subtree at the same indent depth. This surfaces release-side cvar restoration (e.g. `-shaft` reverting sensitivity to 1) that would otherwise be invisible because only the press alias is reachable from the bind body. Implemented in `buildChainBlocks` in `ConfigDomainBinds.tsx`.
+
 ### 4. Teamsay binds (implemented)
 
 Team communication binds are now classified by category. The `analyze_teamsay_binds()` function in `ezquake.rs` scans binds for commands that invoke teamsay aliases and categorizes them into:

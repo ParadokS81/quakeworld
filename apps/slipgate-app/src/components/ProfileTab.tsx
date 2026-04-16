@@ -532,11 +532,17 @@ export default function ProfileTab(props: ProfileTabProps) {
                     {cm360() && (
                       <span class="sg-mouse-data-tag sg-mouse-data-highlight">{cm360()} cm/360</span>
                     )}
-                    {lgCm360() && (
-                      <span class="sg-mouse-data-tag sg-mouse-data-highlight" title={`LG sensitivity: ${props.ezConfig?.lg_sensitivity}`}>
-                        LG {lgCm360()} cm/360
-                      </span>
-                    )}
+                    {lgCm360() && (() => {
+                      const baseline = props.ezConfig?.sensitivity_baseline ?? props.ezConfig?.sensitivity;
+                      const tip = baseline != null
+                        ? `LG sensitivity: ${props.ezConfig?.lg_sensitivity} (base ${baseline})`
+                        : `LG sensitivity: ${props.ezConfig?.lg_sensitivity}`;
+                      return (
+                        <span class="sg-mouse-data-tag sg-mouse-data-highlight" title={tip}>
+                          LG {lgCm360()} cm/360
+                        </span>
+                      );
+                    })()}
                     {invertY() !== null && (
                       <span class="sg-sens-tag" classList={{ "sg-sens-active": invertY()! }}>
                         invert {invertY() ? "ON" : "OFF"}

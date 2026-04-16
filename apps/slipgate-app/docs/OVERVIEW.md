@@ -157,9 +157,12 @@ The largest file in the project. Handles everything ezQuake-related:
 Knows about:
 - The `absent = default` problem (ezQuake only saves non-default cvars) — `default_cvars()` table fills in what's missing
 - Teamsay category inference (status/death/movement/items/enemy/orders/powerups/confirm/custom)
-- LG-specific sensitivity (scanning aliases for weapon 8 sens changes)
+- Per-weapon sensitivity modifiers — oldschool inline injection AND engine-triggered dispatch via `f_weaponchange` (see `weapon_triggers.rs` below). Feeds `lg_sensitivity` (LG is the detected weapon surfaced in the profile) and `sensitivity_baseline`
 - Resolution three-layer resolution model — see `EZQUAKE-RESOLUTION.md` for the full story
 - QW color codes (`$x`, `^x`) → Unicode styled chars
+
+### `weapon_triggers.rs` — f_weaponchange parser
+Added 2026-04-16. Parses ezQuake's `f_weaponchange` trigger alias — the engine runs this on every weapon change, and the Xantom pattern dispatches per-weapon modifier aliases (`if 8 == $weaponnum then __lg_settings else __default_settings`). Exposes `WeaponChangeDispatch { per_weapon, else_alias }` on both `EzQuakeConfig` and `ChainBindClassification`. The Config Viewer's "When {WEAPON} active" modifier block consumes this to surface every dispatched cvar override with baseline comparison. See `docs/CFG-PARSER.md` §3 "Per-weapon modifier triggers" for the full story.
 
 ### `weapon_classifier.rs` — weapon bind classifier v2
 Extracted from `ezquake.rs` as its own module on 2026-04-13. Implements a causal-chain 4-pass model (resolve → fire keys → extract paths → exclusions) and emits a flat `Vec<FiringPath>` with three firing flavors (quickfire / manual-select / manual-hold). Distinguishes generic vs weapon-specific fire keys (the HangTime case), tags preselect-style binds, and filters 5 non-combat patterns (rocket jumps, kill-me alias names, kill-me say_team text, announce-without-fire, long-impulse scans). 39 inline unit and fixture tests live in the module. See `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md` and the shared domain reference at `packages/qw-knowledge/weapon-scripts/README.md`.

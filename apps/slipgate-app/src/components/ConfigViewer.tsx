@@ -818,6 +818,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareBindCommands={compareBindCommands()}
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    primaryDispatch={effectiveConfig()?.weapon_change_dispatch ?? null}
+                    compareDispatch={isCompareMode() ? (compareBinds()?.weapon_change_dispatch ?? null) : null}
+                    primarySensBaseline={effectiveConfig()?.sensitivity_baseline ?? null}
+                    compareSensBaseline={isCompareMode() ? (compareBinds()?.sensitivity_baseline ?? null) : null}
                     hideDefaults={hideDefaults()}
                   />
                 </Show>

@@ -7,3 +7,4 @@ pub mod system;
 pub mod updater;
 pub mod watcher;
 pub mod weapon_classifier;
+pub mod weapon_triggers;

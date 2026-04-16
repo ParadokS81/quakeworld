@@ -138,6 +138,13 @@ export interface TeamsayBind {
   modifier_alias?: string;
 }
 
+export interface WeaponChangeDispatch {
+  /** Weapon lowercase ("lg", "rl", ...) → dispatched alias name. */
+  per_weapon: Record<string, string>;
+  /** Fallback alias when no specific branch matches. */
+  else_alias: string | null;
+}
+
 export interface EzQuakeConfig {
   player_name: string;
   player_name_qw: QwStyledChar[];
@@ -147,6 +154,8 @@ export interface EzQuakeConfig {
   bottomcolor: number;
   sensitivity: number;
   lg_sensitivity: number | null;  // different sensitivity for LG, if detected
+  sensitivity_baseline: number | null;  // else-branch sens if f_weaponchange sets it
+  weapon_change_dispatch: WeaponChangeDispatch | null;
   m_yaw: number;
   m_pitch: number;
   m_accel: number;
@@ -168,6 +177,8 @@ export interface ChainBindClassification {
   weapon_binds: FiringPath[];
   teamsay_binds: TeamsayBind[];
   movement: MovementKeys;
+  weapon_change_dispatch: WeaponChangeDispatch | null;
+  sensitivity_baseline: number | null;
 }
 
 // ─── Client updater types ───────────────────────────────────────────────────

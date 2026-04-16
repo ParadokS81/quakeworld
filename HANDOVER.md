@@ -12,7 +12,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
 - [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering for readable teamsay output
-- [Weapon classifier: weapon-change triggers + per-weapon modifiers](#weapon-classifier-weapon-change-triggers--per-weapon-modifiers) — Xantom-style `f_weaponchange` trigger parsing + general per-weapon cvar modifiers (sens, crosshair)
 
 ---
 
@@ -94,29 +93,3 @@ Toggle between "raw" (current view) and "pretty" (resolved) modes. Lays foundati
 
 ---
 
-## Weapon classifier: weapon-change triggers + per-weapon modifiers
-
-**Added:** 2026-04-16
-**Status:** discussed, needs brainstorm + spec
-**Verification first:** load Xantom's config (has `alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"`). If the LG weapon-bind expanded view or the profile's LG sens readout reflects `sensitivity 2.5` + `crosshairimage xantom_lg`, resolved. Today it doesn't.
-
-The weapon classifier walks bind commands + alias bodies but doesn't scan ezQuake trigger aliases (`f_weaponchange`, `f_death`, etc.). Trigger-based weapon scripts — the Xantom pattern of dispatching `__lg_settings` / `__default_settings` on weapon change — are invisible to our pipeline. Related: the existing LG sensitivity heuristic at `src-tauri/src/commands/ezquake.rs:1438-1493` catches some patterns (sae's `+lgsens`) because it scans aliases for `weapon 8` literal + `sensitivity X` in same body, but misses Xantom because his `__lg_settings` body doesn't reference `weapon 8` — the dispatch is via `$weaponnum` in the trigger.
-
-### Scope sketch
-
-1. **Trigger parsing.** Detect `alias f_weaponchange` (and other `f_*` triggers) and parse their bodies. Handle `if N == $weaponnum then ALIAS_A else ALIAS_B` patterns to bind aliases to weapon numbers.
-2. **Per-weapon modifier extraction.** For each weapon, union the cvar/command changes from: (a) any quickfire/manual path's alias chain (existing heuristic's territory), (b) trigger-dispatched aliases tied to `$weaponnum`. Emit a structured `weapon_modifiers: Record<Weapon, CvarOverride[]>` field.
-3. **UI surfacing.** The weapon-bind expanded view already has a `chains[]` data model from the 2026-04-16 refactor — append a third chain block per row for "When this weapon is active" showing the modifier cvars. Profile view should also broaden from LG-only to all weapons.
-4. **Unify with existing LG heuristic.** Delete the narrow `lg_sensitivity` block once the general system replaces it.
-
-### Related
-
-- `apps/slipgate-app/src-tauri/src/commands/weapon_classifier.rs`
-- `apps/slipgate-app/src-tauri/src/commands/ezquake.rs:1438-1493` (existing LG sens heuristic)
-- Xantom fixture pattern:
-  ```
-  alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"
-  alias __default_settings "sensitivity 4; crosshairimage xantom_default; ..."
-  alias __lg_settings      "sensitivity 2.5; crosshairimage xantom_lg; ..."
-  ```
-- Spec for weapon classifier: `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md`

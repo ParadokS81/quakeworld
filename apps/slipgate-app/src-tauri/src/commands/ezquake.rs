@@ -636,6 +636,13 @@ pub struct EzQuakeConfig {
     pub bottomcolor: u8,
     pub sensitivity: f64,
     pub lg_sensitivity: Option<f64>, // different sensitivity for LG (shaft), if detected
+    /// Baseline sensitivity that f_weaponchange's else-branch applies (when it
+    /// sets sensitivity). Differs from `sensitivity` only when the config runs
+    /// a different sens through the else-branch than the top-level cvar.
+    pub sensitivity_baseline: Option<f64>,
+    /// Parsed f_weaponchange dispatch — per-weapon modifier aliases that the
+    /// engine runs on weapon switch. Invisible to bind-chain analysis.
+    pub weapon_change_dispatch: Option<crate::commands::weapon_triggers::WeaponChangeDispatch>,
     pub m_yaw: f64,
     pub m_pitch: f64,
     pub m_accel: f64,
@@ -1492,6 +1499,25 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         lg_sens
     };
 
+    // Parse f_weaponchange trigger dispatch (Xantom-style per-weapon modifiers).
+    let weapon_change_dispatch =
+        crate::commands::weapon_triggers::parse_weapon_change_dispatch(&aliases);
+
+    // If the oldschool scan didn't find an LG sens but f_weaponchange dispatches
+    // weapon 8 to an alias that sets sensitivity, use that. Engine-triggered.
+    let lg_sensitivity = lg_sensitivity.or_else(|| {
+        let d = weapon_change_dispatch.as_ref()?;
+        let lg_alias = d.per_weapon.get("lg")?;
+        crate::commands::weapon_triggers::extract_sensitivity_from_alias(lg_alias, &aliases)
+    });
+
+    // Baseline = sensitivity that the else-branch applies. When set, it
+    // supersedes the top-level cvar as "what actually runs for other weapons".
+    let sensitivity_baseline = weapon_change_dispatch.as_ref().and_then(|d| {
+        let else_alias = d.else_alias.as_ref()?;
+        crate::commands::weapon_triggers::extract_sensitivity_from_alias(else_alias, &aliases)
+    });
+
     // fov: prefer default_fov if set (it's the "real" fov), fall back to fov
     let fov_str = if parsed.contains_key("default_fov") {
         get_cvar(&parsed, &defaults, "default_fov")
@@ -1569,6 +1595,8 @@ fn build_config(parsed: ParsedConfig) -> EzQuakeConfig {
         bottomcolor,
         sensitivity,
         lg_sensitivity,
+        sensitivity_baseline,
+        weapon_change_dispatch,
         m_yaw,
         m_pitch,
         m_accel,
@@ -2150,6 +2178,9 @@ pub struct ChainBindClassification {
     pub weapon_binds: Vec<FiringPath>,
     pub teamsay_binds: Vec<TeamsayBind>,
     pub movement: MovementKeys,
+    pub weapon_change_dispatch:
+        Option<crate::commands::weapon_triggers::WeaponChangeDispatch>,
+    pub sensitivity_baseline: Option<f64>,
 }
 
 /// Classify binds from a config chain without needing a full EzQuakeConfig.
@@ -2186,10 +2217,19 @@ pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
     let weapon_binds = classify_firing_paths(&bindings, &aliases, &cvars);
     let teamsay_binds = analyze_teamsay_binds(&bindings, &aliases);
 
+    let weapon_change_dispatch =
+        crate::commands::weapon_triggers::parse_weapon_change_dispatch(&aliases);
+    let sensitivity_baseline = weapon_change_dispatch.as_ref().and_then(|d| {
+        let else_alias = d.else_alias.as_ref()?;
+        crate::commands::weapon_triggers::extract_sensitivity_from_alias(else_alias, &aliases)
+    });
+
     ChainBindClassification {
         weapon_binds,
         teamsay_binds,
         movement,
+        weapon_change_dispatch,
+        sensitivity_baseline,
     }
 }
 
