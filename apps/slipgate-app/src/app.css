@@ -2018,9 +2018,9 @@ input[type="number"] {
 }
 
 .sg-config-kb-toolbar {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding: 0.25rem 0;
 }
@@ -2032,6 +2032,8 @@ input[type="number"] {
 }
 
 .sg-config-kb-module-bar {
+  position: absolute;
+  right: 0;
   display: flex;
   gap: 0.25rem;
 }

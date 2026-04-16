@@ -73,14 +73,25 @@ export function buildKeyHighlights(
 /** Build the per-key label override map when label mode is on. */
 const MAX_KEYCAP_CHARS = 6;
 
+const CATEGORY_WRAP: Record<string, string> = {
+  powerups: "Power -ups",
+  confirm: "Con- firm",
+  movement: "Move- ment",
+  custom: "Cus- tom",
+};
+
+function cleanLabel(s: string): string {
+  return s.replace(/[{}$%]/g, "").trim();
+}
+
 function fitTeamsayLabel(label: string, category: string): string {
-  if (label.length <= MAX_KEYCAP_CHARS) return label;
-  if (label.includes(" ") && label.length <= MAX_KEYCAP_CHARS * 2) return label;
+  const clean = cleanLabel(label);
+  if (clean.length <= MAX_KEYCAP_CHARS) return clean;
+  if (clean.includes(" ") && clean.length <= MAX_KEYCAP_CHARS * 2) return clean;
+  if (CATEGORY_WRAP[category]) return CATEGORY_WRAP[category];
   const cat = category.charAt(0).toUpperCase() + category.slice(1);
   if (cat.length <= MAX_KEYCAP_CHARS) return cat;
-  if (cat.includes(" ")) return cat;
-  const mid = Math.ceil(cat.length / 2);
-  return cat.slice(0, mid) + "- " + cat.slice(mid);
+  return cat;
 }
 
 export function buildKeyLabels(
