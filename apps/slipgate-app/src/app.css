@@ -2018,10 +2018,27 @@ input[type="number"] {
 }
 
 .sg-config-kb-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 15fr 0.5fr 4fr;
   align-items: center;
-  gap: 1rem;
-  padding: 0.25rem 0;
+  margin-bottom: 0.25rem;
+}
+
+.sg-config-kb-toolbar-main {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+.sg-config-kb-path {
+  position: absolute;
+  left: 0;
+  font-size: 10px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+  color: var(--sg-section-label);
 }
 
 .sg-config-kb-toggle-bar {
@@ -2030,9 +2047,10 @@ input[type="number"] {
   align-items: center;
 }
 
-.sg-config-kb-module-bar {
-  margin-left: auto;
+.sg-config-kb-toolbar-module {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 0.25rem;
 }
 
