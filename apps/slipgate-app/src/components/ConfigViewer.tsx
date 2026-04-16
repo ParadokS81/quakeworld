@@ -70,7 +70,7 @@ function isEffectivelyDefault(
 }
 
 /** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
-const DOMAIN_CATEGORIES = new Set(["Teamplay"]);
+const DOMAIN_CATEGORIES = new Set<string>();
 
 /**
  * Fixed category display order grouped by relevance.
@@ -84,7 +84,8 @@ const CATEGORY_ORDER: { name: string; gap?: boolean }[] = [
   { name: "Sound" },
   { name: "Input", gap: true },
   // Gameplay
-  { name: "Multiplayer", gap: true },
+  { name: "Multiplayer" },
+  { name: "Teamplay", gap: true },
   // Reference
   { name: "Miscellaneous" },
   { name: "Demos" },
