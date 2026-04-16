@@ -204,49 +204,45 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
         </button>
       </div>
       <Show when={props.visible}>
-        <div class="sg-config-kb-toggle-bar">
-          <button
-            class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
-            onClick={props.onToggleMovement}
-          >
-            Movement
-          </button>
-          <button
-            class={`badge cursor-pointer ${props.showWeapons ? "badge-binds" : "badge-ghost"}`}
-            onClick={props.onToggleWeapons}
-          >
-            Weapons
-          </button>
-          <button
-            class={`badge cursor-pointer ${props.showTeamplay ? "badge-binds" : "badge-ghost"}`}
-            onClick={props.onToggleTeamplay}
-          >
-            Teamplay
-          </button>
-        </div>
-        {/* Right-slot module segmented control. Clicking a button syncs
-            both keyboards to that module and persists it. A button is
-            marked active only when BOTH sides currently show that module;
-            while the two sides are split (transient auto-reveal state), no
-            button highlights - a visible signal that the next click will
-            re-sync. */}
-        <div class="sg-config-kb-module-bar">
-          {props.availableModules.map((m) => {
-            const labels: Record<KeyboardRightModule, string> = {
-              nav: "Nav",
-              numpad: "Numpad",
-              mouse: "Mouse",
-            };
-            return (
-              <button
-                class="sg-config-kb-module-btn"
-                classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
-                onClick={() => syncBothModules(m)}
-              >
-                {labels[m]}
-              </button>
-            );
-          })}
+        <div class="sg-config-kb-toolbar">
+          <div class="sg-config-kb-module-bar">
+            {props.availableModules.map((m) => {
+              const labels: Record<KeyboardRightModule, string> = {
+                nav: "Nav",
+                numpad: "Numpad",
+                mouse: "Mouse",
+              };
+              return (
+                <button
+                  class="sg-config-kb-module-btn"
+                  classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
+                  onClick={() => syncBothModules(m)}
+                >
+                  {labels[m]}
+                </button>
+              );
+            })}
+          </div>
+          <div class="sg-config-kb-toggle-bar">
+            <button
+              class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
+              onClick={props.onToggleMovement}
+            >
+              Movement
+            </button>
+            <button
+              class={`badge cursor-pointer ${props.showWeapons ? "badge-binds" : "badge-ghost"}`}
+              onClick={props.onToggleWeapons}
+            >
+              Weapons
+            </button>
+            <button
+              class={`badge cursor-pointer ${props.showTeamplay ? "badge-binds" : "badge-ghost"}`}
+              onClick={props.onToggleTeamplay}
+            >
+              Teamplay
+            </button>
+          </div>
         </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
