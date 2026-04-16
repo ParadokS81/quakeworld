@@ -173,6 +173,12 @@ export function toLayoutId(key: string): string | null {
   return null;
 }
 
+const MOUSE_INDICATORS: Record<string, string> = {
+  Mouse1: "1", Mouse2: "2", Mouse3: "3",
+  Mouse4: "4", Mouse5: "5",
+  MWheelUp: "\u2191", MWheelDown: "\u2193",
+};
+
 /* ─── SVG constants ─────────────────────────────────────────────────────── */
 
 const KU = 40;          // 1 keyboard unit in SVG coordinates
@@ -386,6 +392,19 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
               return (
                 <text x={cx} y={cy + 4} class={cls} style={sty} font-size={fontSize}>
                   {label}
+                </text>
+              );
+            })()}
+            {(() => {
+              const ind = MOUSE_INDICATORS[k.id];
+              if (!ind || !props.keyLabels?.has(k.id)) return null;
+              return (
+                <text
+                  x={k.x * KU + PAD + 5}
+                  y={rowY(k.row) + PAD + 8}
+                  class="sg-kb-mouse-indicator"
+                >
+                  {ind}
                 </text>
               );
             })()}

@@ -654,6 +654,14 @@ input[type="number"] {
   font-weight: 700;
 }
 
+.sg-kb-mouse-indicator {
+  font-size: 6px;
+  fill: var(--sg-text-dim);
+  text-anchor: start;
+  dominant-baseline: auto;
+  opacity: 0.7;
+}
+
 /* Keyboard name badge in the F-row top-right */
 .sg-kb-name-bg {
   fill: oklch(0.2 0.01 250);
