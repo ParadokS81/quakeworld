@@ -1,6 +1,7 @@
 import { Show, createMemo } from "solid-js";
 import type { MovementKeys } from "../types";
 import { MODULES, type KeyboardRightModule } from "./keyboardModules";
+import MouseDiagram from "./keyboardModules/mouseDiagram";
 
 /* ─── US QWERTY TKL layout data ─────────────────────────────────────── */
 
@@ -390,6 +391,15 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
             })()}
           </g>
         ))}
+        <Show when={props.rightModule === "mouse"}>
+          <MouseDiagram
+            x={NAV_X * KU + PAD}
+            y={rowY(2)}
+            width={2 * KU - PAD * 2}
+            height={3 * ROW_H}
+            highlights={props.highlights}
+          />
+        </Show>
       </svg>
     </div>
   );

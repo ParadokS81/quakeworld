@@ -1417,6 +1417,10 @@ input[type="number"] {
   transition: fill 0.2s;
 }
 
+.sg-kb-mouse-diagram {
+  pointer-events: none;
+}
+
 /* 4x2 weapon grid */
 .sg-weapon-grid {
   flex: 1;
