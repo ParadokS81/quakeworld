@@ -284,7 +284,6 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     {(p) => (
                       <Show when={p().origin_alias_chain.length > 0}>
                         <div class="sg-alias-chain sg-alias-chain-you">
-                          <div class="sg-alias-chain-label">{p().trigger_key} — your config</div>
                           <For each={p().origin_alias_chain}>
                             {(step) => (
                               <div class="sg-alias-chain-entry" style="padding-left: 12px">
@@ -300,7 +299,6 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     {(p) => (
                       <Show when={p().origin_alias_chain.length > 0}>
                         <div class="sg-alias-chain sg-alias-chain-them">
-                          <div class="sg-alias-chain-label">{p().trigger_key} — comparison</div>
                           <For each={p().origin_alias_chain}>
                             {(step) => (
                               <div class="sg-alias-chain-entry" style="padding-left: 12px">
@@ -526,13 +524,11 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       macroRefs={result().macroRefs}
                                       primaryCvars={props.primaryCvars}
                                       hideDefaults={props.hideDefaults}
-                                      label={`${key()} — your config`}
                                       ownerClass="sg-alias-chain-you"
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>
                                     <div class="sg-alias-chain sg-alias-chain-you">
-                                      <div class="sg-alias-chain-label">{key()} — your config</div>
                                       <div class="sg-alias-chain-entry" style="padding-left: 12px">
                                         <span class="sg-alias-chain-cmd">{rawCmd()}</span>
                                       </div>
@@ -554,13 +550,11 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       macroRefs={result().macroRefs}
                                       primaryCvars={props.compareCvars}
                                       hideDefaults={props.hideDefaults}
-                                      label={`${key()} — comparison`}
                                       ownerClass="sg-alias-chain-them"
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>
                                     <div class="sg-alias-chain sg-alias-chain-them">
-                                      <div class="sg-alias-chain-label">{key()} — comparison</div>
                                       <div class="sg-alias-chain-entry" style="padding-left: 12px">
                                         <span class="sg-alias-chain-cmd">{rawCmd()}</span>
                                       </div>

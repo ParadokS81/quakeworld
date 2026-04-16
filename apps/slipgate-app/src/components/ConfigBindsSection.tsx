@@ -214,9 +214,6 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                     <Show when={bind.modifierAlias} fallback={
                       <>
                         <Show when={chain().chain.length > 0}>
-                          <Show when={props.isCompareMode}>
-                            <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Your config</div>
-                          </Show>
                           <AliasChainView
                             chain={chain().chain}
                             macroRefs={chain().macroRefs}
@@ -226,7 +223,6 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           />
                         </Show>
                         <Show when={props.isCompareMode && compareChain().chain.length > 0}>
-                          <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Comparison</div>
                           <AliasChainView
                             chain={compareChain().chain}
                             macroRefs={compareChain().macroRefs}

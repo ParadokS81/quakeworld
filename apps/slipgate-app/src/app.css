@@ -1990,9 +1990,12 @@ input[type="number"] {
 .sg-alias-chain-name {
   font-family: "Geist Mono", monospace;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--sg-kb-owner-you);
   white-space: nowrap;
   flex-shrink: 0;
+}
+.sg-alias-chain-them .sg-alias-chain-name {
+  color: var(--sg-kb-owner-them);
 }
 .sg-alias-chain-cmd {
   font-family: "Geist Mono", monospace;
