@@ -394,7 +394,7 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
         <Show when={props.rightModule === "mouse"}>
           <MouseDiagram
             x={NAV_X * KU + PAD}
-            y={rowY(2)}
+            y={rowY(1.3)}
             width={2 * KU - PAD * 2}
             height={3 * ROW_H}
             highlights={props.highlights}
