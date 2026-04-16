@@ -89,13 +89,29 @@ export function buildKeyLabels(
     if (jumpId) labels.set(jumpId, "jump");
   }
   if (toggles.showWeapons) {
+    // Quickfire paths take priority: if a key has both quickfire and
+    // manual for the same weapon, showing both produces noisy labels
+    // like "SSG/SSG". Collect quickfire first, then only add manual
+    // paths whose weapon isn't already represented on that key.
+    const quickfireByKey = new Map<string, Set<string>>();
     for (const wb of input.weapon_binds) {
+      if (wb.method !== "quickfire") continue;
       const id = toLayoutId(wb.trigger_key);
-      if (id) {
-        const existing = labels.get(id);
-        const wLabel = WEAPON_LABELS[wb.weapon] ?? wb.weapon.toUpperCase();
-        labels.set(id, existing ? `${existing}/${wLabel}` : wLabel);
-      }
+      if (!id) continue;
+      if (!quickfireByKey.has(id)) quickfireByKey.set(id, new Set());
+      quickfireByKey.get(id)!.add(wb.weapon);
+      const existing = labels.get(id);
+      const wLabel = WEAPON_LABELS[wb.weapon] ?? wb.weapon.toUpperCase();
+      labels.set(id, existing ? `${existing}/${wLabel}` : wLabel);
+    }
+    for (const wb of input.weapon_binds) {
+      if (wb.method === "quickfire") continue;
+      const id = toLayoutId(wb.trigger_key);
+      if (!id) continue;
+      if (quickfireByKey.get(id)?.has(wb.weapon)) continue;
+      const existing = labels.get(id);
+      const wLabel = WEAPON_LABELS[wb.weapon] ?? wb.weapon.toUpperCase();
+      labels.set(id, existing ? `${existing}/${wLabel}` : wLabel);
     }
   }
   if (toggles.showTeamplay) {
