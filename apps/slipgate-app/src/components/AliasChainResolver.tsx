@@ -106,7 +106,7 @@ export function AliasChainView(props: {
   }
 
   return (
-    <Show when={props.chain.length > 0}>
+    <Show when={props.chain.length > 0 || macroDeps().length > 0}>
       <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
         <Show when={props.label}>
           <div class="sg-alias-chain-label">{props.label}</div>

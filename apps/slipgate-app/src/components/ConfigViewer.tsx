@@ -812,6 +812,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       if (kbState.isWeaponSelected(w)) kbState.setSelection(null);
                       else kbState.setSelection([{ kind: "weapon", weapon: w }]);
                     }}
+                    primaryAliases={primaryAliases()}
+                    compareAliases={compareAliases()}
+                    primaryBindCommands={primaryBindCommands()}
+                    compareBindCommands={compareBindCommands()}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    hideDefaults={hideDefaults()}
                   />
                 </Show>
 

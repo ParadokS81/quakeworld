@@ -11,8 +11,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
 - [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
-- [Weapon bind path pairing in compare mode](#weapon-bind-path-pairing-in-compare-mode) — merge weapon bind rows across configs instead of duplicating weapon identity
 - [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering for readable teamsay output
+- [Weapon classifier: weapon-change triggers + per-weapon modifiers](#weapon-classifier-weapon-change-triggers--per-weapon-modifiers) — Xantom-style `f_weaponchange` trigger parsing + general per-weapon cvar modifiers (sens, crosshair)
 
 ---
 
@@ -71,28 +71,6 @@ All four points are captured in `project_qw_oracle_product_vision.md` memory, bu
 
 ---
 
-## Weapon bind path pairing in compare mode
-
-**Added:** 2026-04-16
-**Status:** discussed, needs brainstorm + spec
-**Verification first:** open ConfigViewer in compare mode, look at Weapon Binds. If each weapon shows duplicate rows (one per config side), the issue persists.
-
-Currently weapon binds in compare mode create separate rows for each side's bind path, even for the same weapon. This leads to "RL Rocket Launcher" appearing 2-3 times. The proposed fix: pair paths across configs into shared rows.
-
-Pairing hierarchy:
-1. Both sides have 1 path: merge into same row
-2. One side has 2 paths, other has 1: match by path type (quickfire, manual select, manual hold)
-3. Path types don't match exactly: pair closest types together (manual select + manual hold)
-
-This is a data structure change in `pairRows()` and `DiffRow` in `ConfigDomainBinds.tsx`, not a CSS fix. Affects row rendering, expansion, and keyboard panel selection.
-
-### Related
-
-- `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` (`pairRows`, `DiffRow`, `ConfigWeaponBindsSection`)
-- Spec for weapon classifier: `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md`
-
----
-
 ## Alias chain pretty view
 
 **Added:** 2026-04-16
@@ -113,3 +91,32 @@ Toggle between "raw" (current view) and "pretty" (resolved) modes. Lays foundati
 
 - `apps/slipgate-app/src/components/AliasChainResolver.tsx` (existing macro ref extraction)
 - ezQuake color code syntax (needs research)
+
+---
+
+## Weapon classifier: weapon-change triggers + per-weapon modifiers
+
+**Added:** 2026-04-16
+**Status:** discussed, needs brainstorm + spec
+**Verification first:** load Xantom's config (has `alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"`). If the LG weapon-bind expanded view or the profile's LG sens readout reflects `sensitivity 2.5` + `crosshairimage xantom_lg`, resolved. Today it doesn't.
+
+The weapon classifier walks bind commands + alias bodies but doesn't scan ezQuake trigger aliases (`f_weaponchange`, `f_death`, etc.). Trigger-based weapon scripts — the Xantom pattern of dispatching `__lg_settings` / `__default_settings` on weapon change — are invisible to our pipeline. Related: the existing LG sensitivity heuristic at `src-tauri/src/commands/ezquake.rs:1438-1493` catches some patterns (sae's `+lgsens`) because it scans aliases for `weapon 8` literal + `sensitivity X` in same body, but misses Xantom because his `__lg_settings` body doesn't reference `weapon 8` — the dispatch is via `$weaponnum` in the trigger.
+
+### Scope sketch
+
+1. **Trigger parsing.** Detect `alias f_weaponchange` (and other `f_*` triggers) and parse their bodies. Handle `if N == $weaponnum then ALIAS_A else ALIAS_B` patterns to bind aliases to weapon numbers.
+2. **Per-weapon modifier extraction.** For each weapon, union the cvar/command changes from: (a) any quickfire/manual path's alias chain (existing heuristic's territory), (b) trigger-dispatched aliases tied to `$weaponnum`. Emit a structured `weapon_modifiers: Record<Weapon, CvarOverride[]>` field.
+3. **UI surfacing.** The weapon-bind expanded view already has a `chains[]` data model from the 2026-04-16 refactor — append a third chain block per row for "When this weapon is active" showing the modifier cvars. Profile view should also broaden from LG-only to all weapons.
+4. **Unify with existing LG heuristic.** Delete the narrow `lg_sensitivity` block once the general system replaces it.
+
+### Related
+
+- `apps/slipgate-app/src-tauri/src/commands/weapon_classifier.rs`
+- `apps/slipgate-app/src-tauri/src/commands/ezquake.rs:1438-1493` (existing LG sens heuristic)
+- Xantom fixture pattern:
+  ```
+  alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"
+  alias __default_settings "sensitivity 4; crosshairimage xantom_default; ..."
+  alias __lg_settings      "sensitivity 2.5; crosshairimage xantom_lg; ..."
+  ```
+- Spec for weapon classifier: `docs/superpowers/specs/2026-04-13-weapon-classifier-v2-design.md`

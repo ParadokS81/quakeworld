@@ -1,7 +1,7 @@
 import { For, Show, createEffect, type JSX } from "solid-js";
-import type { FiringPath, ManualFlavor, MovementKeys, TeamsayBind, Weapon } from "../types";
+import type { FiringPath, MovementKeys, TeamsayBind, Weapon } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
-import type { AliasChainResult } from "./AliasChainResolver";
+import type { AliasChainEntry, AliasChainResult } from "./AliasChainResolver";
 import { WEAPON_COLORS } from "./WeaponBindViz";
 
 /**
@@ -106,72 +106,186 @@ interface WeaponBindsProps {
   compareBinds?: FiringPath[];
   isWeaponSelected?: (weapon: string) => boolean;
   onWeaponClick?: (weapon: string) => void;
+  primaryAliases?: Record<string, string>;
+  compareAliases?: Record<string, string>;
+  primaryBindCommands?: Record<string, string>;
+  compareBindCommands?: Record<string, string>;
+  primaryCvars?: Record<string, string>;
+  compareCvars?: Record<string, string>;
+  hideDefaults?: boolean;
 }
 
 interface DiffRow {
   weapon: Weapon;
-  trigger_key: string;
-  fire_key: string | null;
-  flavor: ManualFlavor | null;
   primary?: FiringPath;
   compare?: FiringPath;
 }
 
-function rowKey(p: FiringPath): string {
-  return `${p.weapon}|${p.trigger_key}|${p.fire_key ?? ""}|${p.flavor ?? ""}`;
+type PathType = "quickfire" | "select" | "hold";
+
+function pathType(p: FiringPath): PathType {
+  if (p.method === "quickfire") return "quickfire";
+  return p.flavor === "hold" ? "hold" : "select";
 }
 
-function pairRows(primary: FiringPath[], compare: FiringPath[] = []): DiffRow[] {
-  const byKey = new Map<string, DiffRow>();
-  for (const p of primary) {
-    const key = rowKey(p);
-    byKey.set(key, {
-      weapon: p.weapon,
-      trigger_key: p.trigger_key,
-      fire_key: p.fire_key,
-      flavor: p.flavor,
-      primary: p,
-    });
+// Per-weapon bipartite pairing with type-preference fallback.
+// Per HANDOVER.md 2026-04-16 design:
+//   select  pairs: select -> hold -> quickfire
+//   hold    pairs: hold -> select -> quickfire
+//   quickfire: quickfire -> (hold or select, either)
+// Special case: both sides have exactly 1 path -> always pair regardless of type.
+const TYPE_PREFERENCE: Record<PathType, PathType[]> = {
+  quickfire: ["quickfire", "select", "hold"],
+  select: ["select", "hold", "quickfire"],
+  hold: ["hold", "select", "quickfire"],
+};
+
+function pairWeaponPaths(primary: FiringPath[], compare: FiringPath[], weapon: Weapon): DiffRow[] {
+  if (primary.length === 0 && compare.length === 0) return [];
+  if (primary.length === 1 && compare.length === 1) {
+    return [{ weapon, primary: primary[0], compare: compare[0] }];
   }
-  for (const c of compare) {
-    const key = rowKey(c);
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.compare = c;
+  const rows: DiffRow[] = [];
+  const remaining = [...compare];
+  for (const p of primary) {
+    const prefs = TYPE_PREFERENCE[pathType(p)];
+    let matchIdx = -1;
+    for (const pref of prefs) {
+      matchIdx = remaining.findIndex((c) => pathType(c) === pref);
+      if (matchIdx !== -1) break;
+    }
+    if (matchIdx !== -1) {
+      rows.push({ weapon, primary: p, compare: remaining[matchIdx] });
+      remaining.splice(matchIdx, 1);
     } else {
-      byKey.set(key, {
-        weapon: c.weapon,
-        trigger_key: c.trigger_key,
-        fire_key: c.fire_key,
-        flavor: c.flavor,
-        compare: c,
+      rows.push({ weapon, primary: p });
+    }
+  }
+  for (const c of remaining) {
+    rows.push({ weapon, compare: c });
+  }
+  return rows;
+}
+
+const PATH_TYPE_ORDER: Record<PathType, number> = { quickfire: 0, select: 1, hold: 2 };
+
+function rowSortKey(row: DiffRow): number {
+  const ref = row.primary ?? row.compare;
+  return ref ? PATH_TYPE_ORDER[pathType(ref)] : 99;
+}
+
+interface WeaponChainBlock {
+  keyLabel: string;
+  body: string;
+  chain: AliasChainEntry[];
+  macroRefs: Set<string>;
+}
+
+// Extract the post-rebind body for the fire key from the classifier's origin chain.
+// Looks for "bind <fire_key> <body>" (or quoted form) and captures body up to next `;`.
+function extractRebindBody(chain: string[], fireKey: string): string | null {
+  const keyRe = fireKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`bind\\s+${keyRe}\\s+(?:"([^"]+)"|([^;]+))`, "i");
+  for (let i = chain.length - 1; i >= 0; i--) {
+    const m = chain[i].match(re);
+    if (m) return (m[1] ?? m[2] ?? "").trim();
+  }
+  return null;
+}
+
+function buildChainBlocks(
+  p: FiringPath | undefined,
+  bindCmds: Record<string, string>,
+  aliases: Record<string, string>,
+): WeaponChainBlock[] {
+  if (!p) return [];
+  const blocks: WeaponChainBlock[] = [];
+  const triggerBody = bindCmds[p.trigger_key.toUpperCase()] ?? "";
+  const triggerResolved = resolveAliasChain(triggerBody, aliases);
+  blocks.push({
+    keyLabel: p.trigger_key,
+    body: triggerBody,
+    chain: triggerResolved.chain,
+    macroRefs: triggerResolved.macroRefs,
+  });
+
+  if (p.method === "manual" && p.fire_key && p.fire_key !== p.trigger_key) {
+    const rebindBody = extractRebindBody(p.origin_alias_chain, p.fire_key);
+    if (rebindBody) {
+      const fireResolved = resolveAliasChain(rebindBody, aliases);
+      blocks.push({
+        keyLabel: p.fire_key,
+        body: rebindBody,
+        chain: fireResolved.chain,
+        macroRefs: fireResolved.macroRefs,
       });
     }
   }
-  return Array.from(byKey.values());
+  return blocks;
+}
+
+function WeaponChainStack(props: {
+  path: FiringPath | undefined;
+  bindCmds: Record<string, string>;
+  aliases: Record<string, string>;
+  cvars?: Record<string, string>;
+  hideDefaults?: boolean;
+  ownerClass: string;
+}) {
+  const blocks = () => buildChainBlocks(props.path, props.bindCmds, props.aliases);
+  return (
+    <Show when={blocks().length > 0}>
+      <For each={blocks()}>
+        {(block) => (
+          <div class={`sg-alias-chain ${props.ownerClass}`}>
+            <div class="sg-alias-chain-entry" style="padding-left: 12px">
+              <span class="sg-alias-chain-name">bind {block.keyLabel.toUpperCase()}</span>
+              <span class="sg-alias-chain-cmd">{block.body || "<missing>"}</span>
+            </div>
+            <For each={block.chain}>
+              {(entry) => (
+                <div
+                  class="sg-alias-chain-entry"
+                  style={{ "padding-left": `${28 + entry.depth * 16}px` }}
+                >
+                  <span class="sg-alias-chain-name">{entry.name}</span>
+                  <span class="sg-alias-chain-cmd">{entry.command}</span>
+                </div>
+              )}
+            </For>
+          </div>
+        )}
+      </For>
+      {/* Macro-deps panel: union of refs across all blocks for this side. */}
+      <AliasChainView
+        chain={[]}
+        macroRefs={new Set(blocks().flatMap((b) => Array.from(b.macroRefs)))}
+        primaryCvars={props.cvars}
+        hideDefaults={props.hideDefaults}
+        ownerClass={props.ownerClass}
+      />
+    </Show>
+  );
 }
 
 export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
   const isCompare = () => (props.compareBinds?.length ?? 0) > 0;
 
-  // Build flat list of DiffRows paired by (weapon, trigger_key, fire_key, flavor),
-  // sorted by WEAPON_ORDER then trigger_key alpha. Weapons with no paths on either
-  // side get a placeholder row so every weapon is always represented.
+  // Per-weapon pairing via type-preference matching. Weapons with no paths on
+  // either side get a placeholder row so every weapon is always represented.
   const rows = (): DiffRow[] => {
-    const paired = pairRows(props.primaryBinds, props.compareBinds ?? []);
     const result: DiffRow[] = [];
-
     for (const weapon of WEAPON_ORDER) {
-      const forWeapon = paired.filter((r) => r.weapon === weapon);
-      if (forWeapon.length === 0) {
-        // Placeholder: no paths at all for this weapon.
-        result.push({ weapon, trigger_key: "", fire_key: null, flavor: null });
+      const pForW = props.primaryBinds.filter((p) => p.weapon === weapon);
+      const cForW = (props.compareBinds ?? []).filter((p) => p.weapon === weapon);
+      const paired = pairWeaponPaths(pForW, cForW, weapon);
+      if (paired.length === 0) {
+        result.push({ weapon });
       } else {
-        forWeapon.sort((a, b) => a.trigger_key.localeCompare(b.trigger_key));
-        result.push(...forWeapon);
+        paired.sort((a, b) => rowSortKey(a) - rowSortKey(b));
+        result.push(...paired);
       }
     }
-
     return result;
   };
 
@@ -195,7 +309,6 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
       <For each={rows()}>
         {(row) => {
           const color = WEAPON_COLORS[row.weapon] ?? "var(--sg-text-dim)";
-          // Placeholder: trigger_key is empty string sentinel set above.
           const isPlaceholder = !row.primary && !row.compare;
           const hasContent = !isPlaceholder;
 
@@ -277,38 +390,28 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 </Show>
               </div>
 
-              {/* Expanded: show origin_alias_chain for debugging */}
+              {/* Expanded view: bind + alias chain for each firing path, with
+                  teal (yours) / orange (theirs) color coding. Manual paths get
+                  two blocks: the trigger bind + the effective fire-key bind. */}
               <Show when={isExpanded() && hasContent}>
                 <div class="sg-domain-bind-expanded">
-                  <Show when={row.primary}>
-                    {(p) => (
-                      <Show when={p().origin_alias_chain.length > 0}>
-                        <div class="sg-alias-chain sg-alias-chain-you">
-                          <For each={p().origin_alias_chain}>
-                            {(step) => (
-                              <div class="sg-alias-chain-entry" style="padding-left: 12px">
-                                <span class="sg-alias-chain-cmd">{step}</span>
-                              </div>
-                            )}
-                          </For>
-                        </div>
-                      </Show>
-                    )}
-                  </Show>
-                  <Show when={isCompare() && row.compare}>
-                    {(p) => (
-                      <Show when={p().origin_alias_chain.length > 0}>
-                        <div class="sg-alias-chain sg-alias-chain-them">
-                          <For each={p().origin_alias_chain}>
-                            {(step) => (
-                              <div class="sg-alias-chain-entry" style="padding-left: 12px">
-                                <span class="sg-alias-chain-cmd">{step}</span>
-                              </div>
-                            )}
-                          </For>
-                        </div>
-                      </Show>
-                    )}
+                  <WeaponChainStack
+                    path={row.primary}
+                    bindCmds={props.primaryBindCommands ?? {}}
+                    aliases={props.primaryAliases ?? {}}
+                    cvars={props.primaryCvars}
+                    hideDefaults={props.hideDefaults}
+                    ownerClass="sg-alias-chain-you"
+                  />
+                  <Show when={isCompare()}>
+                    <WeaponChainStack
+                      path={row.compare}
+                      bindCmds={props.compareBindCommands ?? {}}
+                      aliases={props.compareAliases ?? {}}
+                      cvars={props.compareCvars}
+                      hideDefaults={props.hideDefaults}
+                      ownerClass="sg-alias-chain-them"
+                    />
                   </Show>
                 </div>
               </Show>
