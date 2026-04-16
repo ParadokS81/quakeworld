@@ -71,6 +71,18 @@ export function buildKeyHighlights(
 }
 
 /** Build the per-key label override map when label mode is on. */
+const MAX_KEYCAP_CHARS = 6;
+
+function fitTeamsayLabel(label: string, category: string): string {
+  if (label.length <= MAX_KEYCAP_CHARS) return label;
+  if (label.includes(" ") && label.length <= MAX_KEYCAP_CHARS * 2) return label;
+  const cat = category.charAt(0).toUpperCase() + category.slice(1);
+  if (cat.length <= MAX_KEYCAP_CHARS) return cat;
+  if (cat.includes(" ")) return cat;
+  const mid = Math.ceil(cat.length / 2);
+  return cat.slice(0, mid) + "- " + cat.slice(mid);
+}
+
 export function buildKeyLabels(
   input: HighlightInput,
   toggles: HighlightToggles,
@@ -118,7 +130,7 @@ export function buildKeyLabels(
     for (const tb of input.teamsay_binds) {
       const id = toLayoutId(tb.key);
       if (id && !labels.has(id)) {
-        labels.set(id, tb.label);
+        labels.set(id, fitTeamsayLabel(tb.label, tb.category));
       }
     }
   }

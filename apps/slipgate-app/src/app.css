@@ -2020,7 +2020,7 @@ input[type="number"] {
 .sg-config-kb-toolbar {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1rem;
   padding: 0.25rem 0;
 }

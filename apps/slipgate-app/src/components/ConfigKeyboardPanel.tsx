@@ -220,24 +220,6 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
       </div>
       <Show when={props.visible}>
         <div class="sg-config-kb-toolbar">
-          <div class="sg-config-kb-module-bar">
-            {props.availableModules.map((m) => {
-              const labels: Record<KeyboardRightModule, string> = {
-                nav: "Nav",
-                numpad: "Numpad",
-                mouse: "Mouse",
-              };
-              return (
-                <button
-                  class="sg-config-kb-module-btn"
-                  classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
-                  onClick={() => syncBothModules(m)}
-                >
-                  {labels[m]}
-                </button>
-              );
-            })}
-          </div>
           <div class="sg-config-kb-toggle-bar">
             <button
               class={`badge cursor-pointer ${props.showMovement ? "badge-binds" : "badge-ghost"}`}
@@ -257,13 +239,31 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             >
               Teamplay
             </button>
+            <button
+              class={`badge cursor-pointer ${props.showBindLabels ? "badge-binds" : "badge-ghost"}`}
+              onClick={props.onToggleBindLabels}
+            >
+              Binds
+            </button>
           </div>
-          <button
-            class={`badge cursor-pointer ${props.showBindLabels ? "badge-binds" : "badge-ghost"}`}
-            onClick={props.onToggleBindLabels}
-          >
-            Binds
-          </button>
+          <div class="sg-config-kb-module-bar">
+            {props.availableModules.map((m) => {
+              const labels: Record<KeyboardRightModule, string> = {
+                nav: "Nav",
+                numpad: "Numpad",
+                mouse: "Mouse",
+              };
+              return (
+                <button
+                  class="sg-config-kb-module-btn"
+                  classList={{ "sg-config-kb-module-btn-active": isModuleSynced(m) }}
+                  onClick={() => syncBothModules(m)}
+                >
+                  {labels[m]}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
