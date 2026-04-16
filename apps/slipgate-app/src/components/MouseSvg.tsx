@@ -17,7 +17,7 @@ export default function MouseSvg(props: MouseSvgProps) {
   const fill = (btn: keyof MouseHighlights) => {
     const color = props.highlights?.[btn];
     if (!color) return undefined;
-    return `fill: color-mix(in oklch, ${color} 35%, oklch(0.18 0.01 250));`;
+    return `fill: color-mix(in oklch, ${color} 35%, var(--sg-grad-dark));`;
   };
 
   const cls = (btn: keyof MouseHighlights) =>
