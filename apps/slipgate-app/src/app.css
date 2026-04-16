@@ -2084,6 +2084,7 @@ input[type="number"] {
 }
 
 .sg-config-kb-frame-them {
+  margin-top: 0.75rem;
   border-color: color-mix(in oklch, var(--sg-kb-owner-them) 40%, transparent);
   background: color-mix(in oklch, var(--sg-kb-owner-them) 4%, transparent);
 }
