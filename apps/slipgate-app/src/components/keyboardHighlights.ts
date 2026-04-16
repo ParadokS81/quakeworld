@@ -39,16 +39,15 @@ export interface HighlightInput {
   movement: MovementKeys;
 }
 
+const MOVE_COLOR = "oklch(76.1% 0.129 235)";
+const JUMP_COLOR = "oklch(65% 0.18 145)";
+
 /** Build the per-key color map based on which categories are enabled. */
 export function buildKeyHighlights(
   input: HighlightInput,
   toggles: HighlightToggles,
 ): Map<string, KeyHighlight> {
   const highlights = new Map<string, KeyHighlight>();
-  // Note: showMovement has no effect here. Movement keys are labeled
-  // (arrow glyphs) in buildKeyLabels but never color-tinted in the
-  // highlight map. The field lives on HighlightToggles because
-  // buildKeyLabels also consumes it.
   if (toggles.showWeapons) {
     for (const wb of input.weapon_binds) {
       const id = toLayoutId(wb.trigger_key);
@@ -66,6 +65,15 @@ export function buildKeyHighlights(
         highlights.set(id, { color });
       }
     }
+  }
+  if (toggles.showMovement) {
+    const m = input.movement;
+    for (const key of [m.forward, m.back, m.moveleft, m.moveright]) {
+      const id = toLayoutId(key);
+      if (id && !highlights.has(id)) highlights.set(id, { color: MOVE_COLOR });
+    }
+    const jumpId = toLayoutId(m.jump);
+    if (jumpId && !highlights.has(jumpId)) highlights.set(jumpId, { color: JUMP_COLOR });
   }
   return highlights;
 }
