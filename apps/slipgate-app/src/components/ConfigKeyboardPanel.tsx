@@ -4,6 +4,7 @@ import KeyboardLayout from "./KeyboardLayout";
 import { moduleOf, type KeyboardRightModule } from "./keyboardModules";
 import {
   buildKeyHighlights,
+  buildKeyLabels,
   buildSelectedIds,
   identifyKeyCommands,
   type BindSelection,
@@ -39,6 +40,8 @@ interface ConfigKeyboardPanelProps {
   rightModule: KeyboardRightModule;
   setRightModule: (m: KeyboardRightModule) => void;
   availableModules: readonly KeyboardRightModule[];
+  showBindLabels: boolean;
+  onToggleBindLabels: () => void;
 }
 
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
@@ -78,6 +81,18 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
     const input = compareInput();
     if (!input) return new Map();
     return buildKeyHighlights(input, toggles());
+  });
+
+  const primaryKeyLabels = createMemo(() => {
+    const input = primaryInput();
+    if (!input) return undefined;
+    return buildKeyLabels(input, toggles(), props.showBindLabels);
+  });
+
+  const compareKeyLabels = createMemo(() => {
+    const input = compareInput();
+    if (!input) return undefined;
+    return buildKeyLabels(input, toggles(), props.showBindLabels);
   });
 
   const isCompare = () => props.compare != null && props.primary != null;
@@ -243,6 +258,12 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               Teamplay
             </button>
           </div>
+          <button
+            class={`badge cursor-pointer ${props.showBindLabels ? "badge-binds" : "badge-ghost"}`}
+            onClick={props.onToggleBindLabels}
+          >
+            Binds
+          </button>
         </div>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
@@ -256,6 +277,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
               selectedKeyIds={yourSelectedIds()}
               rightModule={primaryModule()}
+              keyLabels={primaryKeyLabels()}
             />
           </div>
         </Show>
@@ -271,6 +293,7 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               onKeyClick={(id) => handleKeyClick(compareInput(), id)}
               selectedKeyIds={theirSelectedIds()}
               rightModule={compareModule()}
+              keyLabels={compareKeyLabels()}
             />
           </div>
         </Show>

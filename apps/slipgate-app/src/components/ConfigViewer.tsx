@@ -159,6 +159,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     persistKey: "config",
   });
 
+  const [showBindLabels, setShowBindLabels] = createSignal(false);
+  function toggleBindLabels() { setShowBindLabels(!showBindLabels()); }
+
   function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
     if (hoverTimer) clearTimeout(hoverTimer);
@@ -938,6 +941,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 rightModule={kbState.rightModule()}
                 setRightModule={kbState.setRightModule}
                 availableModules={kbState.availableModules}
+                showBindLabels={showBindLabels()}
+                onToggleBindLabels={toggleBindLabels}
               />
             </Show>
           </div>
