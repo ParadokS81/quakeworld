@@ -6,7 +6,10 @@ const SHORT_FORM_ALIASES: Record<string, string> = {
   w: "weapon", b: "bestweapon",
   c: "cells", r: "rockets", n: "nails", s: "shells",
   p: "powerups", d: "deathloc", t: "took",
-  x: "ammo", y: "weaponnum",
+  // %x is the item being pointed at, %y is that item's location.
+  // ezQuake sets $point / $pointloc internally via the teamplay pointing
+  // system before firing point messages.
+  x: "point", y: "pointloc",
   u: "need",
 };
 
@@ -35,8 +38,8 @@ const LABELS: Record<string, { display: string; description: string }> = {
   matchtype: { display: "match type", description: "match type" },
   ledpoint: { display: "LED point", description: "LED point color" },
   ledstatus: { display: "LED status", description: "LED status color" },
-  point: { display: "pointed", description: "pointed-at player name" },
-  pointloc: { display: "pointed location", description: "location of pointed-at player" },
+  point: { display: "item", description: "item currently being pointed at (crosshair target)" },
+  pointloc: { display: "item location", description: "location of item being pointed at" },
   took: { display: "took", description: "last item taken" },
   tookloc: { display: "took location", description: "where item was taken" },
   droploc: { display: "drop location", description: "last backpack drop location" },

@@ -80,6 +80,20 @@ function cvarMap(rec?: Record<string, string>): Map<string, string> {
   return m;
 }
 
+/**
+ * Strip one level of surrounding double-quote wrapping. Some configs parse
+ * alias bodies with their outer `"..."` preserved (when the alias was declared
+ * `alias X "body..."`), which confuses the evaluator's head-token match. We
+ * compare and match on the stripped form.
+ */
+function stripOuterQuotes(s: string): string {
+  const t = s.trim();
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    return t.slice(1, -1);
+  }
+  return t;
+}
+
 function colorStyle(c: SpanColor): { class?: string; style?: Record<string, string> } {
   if (c.kind === "qw") return { class: c.class };
   if (c.kind === "hex") return { style: { color: c.value } };
@@ -196,8 +210,10 @@ export function AliasChainView(props: {
     // state and the `.msg.need` branch never fires in the trace.
     cvars.set("need", deriveNeed(props.playerState, cvars));
     const aliases = new Map<string, string>();
-    for (const e of props.chain) aliases.set(e.name, e.command);
-    return evaluateTeamsay(root.command, props.playerState, cvars, aliases).trace;
+    for (const e of props.chain) aliases.set(e.name, stripOuterQuotes(e.command));
+    return evaluateTeamsay(
+      stripOuterQuotes(root.command), props.playerState, cvars, aliases,
+    ).trace;
   });
 
   const activeBranches = createMemo(() => {
@@ -229,7 +245,9 @@ export function AliasChainView(props: {
         </Show>
         <For each={props.chain}>
           {(entry) => {
-            const isActive = () => activeLeafCommands().has(entry.command.trim());
+            // Match on the stripped form because the evaluator sees the
+            // alias body without its outer quote wrapping.
+            const isActive = () => activeLeafCommands().has(stripOuterQuotes(entry.command));
             return (
               <div
                 class={`sg-alias-chain-entry ${isActive() ? "sg-alias-chain-entry-active" : ""}`}

@@ -18,9 +18,11 @@ const SHORT_FORM_ALIASES: Record<string, string> = {
   w: "weapon", b: "bestweapon",
   c: "cells", r: "rockets", n: "nails", s: "shells",
   p: "powerups", d: "deathloc", t: "took",
-  x: "ammo", y: "weaponnum",
-  // %u and %need are engine-derived: they compute a space-joined list of
-  // items currently under their tp_need_* threshold, NOT the $need cvar.
+  // %x -> item being pointed at, %y -> that item's location. ezQuake sets
+  // $point / $pointloc via the teamplay pointing system before tp_msg_point.
+  x: "point", y: "pointloc",
+  // %u and %need are engine-derived: they compute a separator-joined list
+  // of items currently under their tp_need_* threshold, NOT the $need cvar.
   // No short-form alias -- "u" dispatches as its own token in the expander.
 };
 
