@@ -1,5 +1,6 @@
-import { For } from "solid-js";
+import { For, Show, createSignal, createMemo } from "solid-js";
 import type { JSX } from "solid-js";
+import type { SimulatorTemplate } from "../store";
 import type {
   PlayerState, Weapon, Powerup, ArmorClass, MatchStatus, LedColor,
 } from "../lib/simulator";
@@ -12,7 +13,12 @@ import {
 interface StatePanelProps {
   state: PlayerState;
   cvars: Map<string, string>;
+  templates: SimulatorTemplate[];
   onChange: (next: PlayerState) => void;
+  onSaveAs: (name: string) => void;
+  onLoadTemplate: (id: string) => void;
+  onDeleteTemplate: (id: string) => void;
+  onReset: () => void;
 }
 
 const WEAPONS: Weapon[] = ["axe", "sg", "ssg", "ng", "sng", "gl", "rl", "lg"];
@@ -22,6 +28,20 @@ const MATCH_STATUSES: MatchStatus[] = ["standby", "countdown", "live", "overtime
 const LED_COLORS: LedColor[] = ["none", "green", "red", "yellow"];
 
 export default function StatePanel(props: StatePanelProps) {
+  const [saveMode, setSaveMode] = createSignal(false);
+  const [saveName, setSaveName] = createSignal("");
+  function beginSaveAs() { setSaveMode(true); setSaveName(""); }
+  function cancelSaveAs() { setSaveMode(false); setSaveName(""); }
+  function commitSaveAs() {
+    const name = saveName().trim();
+    if (name.length === 0) return;
+    props.onSaveAs(name);
+    cancelSaveAs();
+  }
+  const sortedTemplates = createMemo(() =>
+    [...props.templates].sort((a, b) => b.createdAt - a.createdAt),
+  );
+
   function update<K extends keyof PlayerState>(key: K, value: PlayerState[K]) {
     props.onChange({ ...props.state, [key]: value });
   }
@@ -38,6 +58,50 @@ export default function StatePanel(props: StatePanelProps) {
 
   return (
     <div class="sg-state-panel">
+      <div class="sg-state-header">
+        <select
+          class="select select-xs"
+          disabled={props.templates.length === 0}
+          onChange={(e) => {
+            const id = e.currentTarget.value;
+            if (id) props.onLoadTemplate(id);
+            e.currentTarget.value = ""; // reset so re-selecting same template works
+          }}
+        >
+          <option value="">
+            {props.templates.length === 0 ? "No templates" : "Load template..."}
+          </option>
+          <For each={sortedTemplates()}>{(t) => (
+            <option value={t.id}>{t.name}</option>
+          )}</For>
+        </select>
+        <Show
+          when={saveMode()}
+          fallback={<button class="btn btn-ghost btn-xs" onClick={beginSaveAs}>Save as...</button>}
+        >
+          <input class="input input-xs w-32" autofocus
+            value={saveName()}
+            onInput={(e) => setSaveName(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commitSaveAs();
+              if (e.key === "Escape") cancelSaveAs();
+            }} />
+          <button class="btn btn-primary btn-xs" onClick={commitSaveAs}>Save</button>
+          <button class="btn btn-ghost btn-xs" onClick={cancelSaveAs}>Cancel</button>
+        </Show>
+        <button class="btn btn-ghost btn-xs" onClick={props.onReset}>Reset</button>
+        <Show when={sortedTemplates().length > 0}>
+          <div class="sg-state-templates-manage">
+            <For each={sortedTemplates()}>{(t) => (
+              <span class="sg-state-template-chip">
+                {t.name}
+                <button class="sg-state-template-delete" title={`Delete ${t.name}`}
+                  onClick={() => props.onDeleteTemplate(t.id)}>x</button>
+              </span>
+            )}</For>
+          </div>
+        </Show>
+      </div>
       <Section title="Vitals">
         <Row label="Health">
           <NumInput value={props.state.health} min={0} max={250}
