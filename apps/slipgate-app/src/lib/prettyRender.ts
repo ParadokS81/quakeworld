@@ -21,12 +21,15 @@ export interface PrettySpan {
   origin: SpanOrigin;
   rawToken?: string;
   tooltip?: string;
+  branchInactive?: boolean;
 }
 
 export interface BuildContext {
   state: PlayerState;
   cvars: Map<string, string>;
   resolver: RuntimeResolver | null;
+  /** Map condition-expression text -> active branch for dimming. Tier 3. */
+  activeBranches?: Map<string, "then" | "else">;
 }
 
 export interface BuildResult {
@@ -43,6 +46,56 @@ function expandHex12(hex: string): string {
   return "#" + hex.split("").map((c) => c + c).join("");
 }
 
+function findKeyword(text: string, keyword: string): number {
+  let depth = 0;
+  let inQuote: string | null = null;
+  for (let i = 0; i <= text.length - keyword.length; i++) {
+    const c = text[i];
+    if (inQuote) { if (c === inQuote) inQuote = null; continue; }
+    if (c === "'" || c === '"') { inQuote = c; continue; }
+    if (c === "(") { depth++; continue; }
+    if (c === ")") { depth--; continue; }
+    if (depth > 0) continue;
+    if (text.substring(i, i + keyword.length) === keyword) {
+      const prev = i > 0 ? text[i - 1] : " ";
+      const next = i + keyword.length < text.length ? text[i + keyword.length] : " ";
+      if (!/\w/.test(prev) && !/\w/.test(next)) return i;
+    }
+  }
+  return -1;
+}
+
+interface IfSplit {
+  before: string;
+  cond: string;
+  thenBody: string;
+  elseBody: string;
+  after: string;
+}
+
+function splitTopLevelIf(input: string): IfSplit | null {
+  const ifIdx = findKeyword(input, "if");
+  if (ifIdx < 0) return null;
+  const before = input.slice(0, ifIdx);
+  const afterIf = input.slice(ifIdx + 2);
+  const thenIdx = findKeyword(afterIf, "then");
+  if (thenIdx < 0) return null;
+  const cond = afterIf.slice(0, thenIdx).trim();
+  const afterThen = afterIf.slice(thenIdx + 4);
+  const elseIdx = findKeyword(afterThen, "else");
+  if (elseIdx < 0) {
+    return { before, cond, thenBody: afterThen.trim(), elseBody: "", after: "" };
+  }
+  const thenBody = afterThen.slice(0, elseIdx).trim();
+  const elseBody = afterThen.slice(elseIdx + 4).trim();
+  return { before, cond, thenBody, elseBody, after: "" };
+}
+
+function literalSpan(text: string, stack: Frame[]): PrettySpan {
+  const top = stack[stack.length - 1];
+  return { text, color: top.current, origin: "literal" };
+}
+
 export function buildSpanTree(input: string, ctx: BuildContext): BuildResult {
   if (input.length === 0) return { spans: [], issues: [] };
   const issues: Issue[] = [];
@@ -50,6 +103,25 @@ export function buildSpanTree(input: string, ctx: BuildContext): BuildResult {
     defaultColor: { kind: "default" },
     current: { kind: "default" },
   }];
+  const split = splitTopLevelIf(input);
+  if (split) {
+    const spans: PrettySpan[] = [];
+    spans.push(...runParser(split.before, stack, ctx, issues));
+    spans.push(literalSpan("if ", stack));
+    spans.push(...runParser(split.cond, stack, ctx, issues));
+    spans.push(literalSpan(" then ", stack));
+    const active = ctx.activeBranches?.get(split.cond.trim());
+    const thenSpans = runParser(split.thenBody, stack, ctx, issues);
+    if (active === "else") thenSpans.forEach((s) => { s.branchInactive = true; });
+    spans.push(...thenSpans);
+    if (split.elseBody) {
+      spans.push(literalSpan(" else ", stack));
+      const elseSpans = runParser(split.elseBody, stack, ctx, issues);
+      if (active === "then") elseSpans.forEach((s) => { s.branchInactive = true; });
+      spans.push(...elseSpans);
+    }
+    return { spans, issues };
+  }
   const spans = runParser(input, stack, ctx, issues);
   return { spans, issues };
 }

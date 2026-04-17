@@ -92,9 +92,13 @@ function PrettyCmd(props: {
   cvars: Map<string, string>;
   resolver: RuntimeResolver | null;
   trace?: TraceStep[];
+  activeBranches?: Map<string, "then" | "else">;
 }) {
   const result = () => buildSpanTree(props.cmd, {
-    state: props.state, cvars: props.cvars, resolver: props.resolver,
+    state: props.state,
+    cvars: props.cvars,
+    resolver: props.resolver,
+    activeBranches: props.activeBranches,
   });
   return (
     <span class="sg-alias-chain-cmd">
@@ -164,6 +168,16 @@ export function AliasChainView(props: {
     return evaluateTeamsay(body, props.playerState, cvars, aliases).trace;
   });
 
+  const activeBranches = createMemo(() => {
+    const m = new Map<string, "then" | "else">();
+    for (const step of trace()) {
+      if (step.kind === "condition" && step.activeBranch) {
+        m.set(step.text.trim(), step.activeBranch);
+      }
+    }
+    return m;
+  });
+
   return (
     <Show when={props.chain.length > 0 || macroDeps().length > 0}>
       <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
@@ -187,6 +201,7 @@ export function AliasChainView(props: {
                   cvars={cvarMap(props.primaryCvars)}
                   resolver={props.resolver ?? null}
                   trace={trace()}
+                  activeBranches={activeBranches()}
                 />
               </Show>
             </div>

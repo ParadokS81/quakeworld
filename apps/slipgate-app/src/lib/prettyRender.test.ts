@@ -160,3 +160,36 @@ describe("%token resolution via RuntimeResolver", () => {
     expect(r.spans[0].text).toBe("%a");
   });
 });
+
+describe("tier 3: if/then/else active-branch dimming", () => {
+  const state = createDefaultPlayerState();
+  test("active=then marks else spans as branchInactive", () => {
+    const r = buildSpanTree("if $health < 1 then a else b", {
+      state, cvars: new Map(), resolver: null,
+      activeBranches: new Map([["$health < 1", "then"]]),
+    });
+    const a = r.spans.find((s) => s.text === "a");
+    const b = r.spans.find((s) => s.text === "b");
+    expect(a?.branchInactive).toBeFalsy();
+    expect(b?.branchInactive).toBe(true);
+  });
+  test("active=else marks then spans as branchInactive", () => {
+    const r = buildSpanTree("if $health < 1 then a else b", {
+      state, cvars: new Map(), resolver: null,
+      activeBranches: new Map([["$health < 1", "else"]]),
+    });
+    const a = r.spans.find((s) => s.text === "a");
+    const b = r.spans.find((s) => s.text === "b");
+    expect(a?.branchInactive).toBe(true);
+    expect(b?.branchInactive).toBeFalsy();
+  });
+  test("no activeBranches entry leaves both branches unmarked", () => {
+    const r = buildSpanTree("if $health < 1 then a else b", {
+      state, cvars: new Map(), resolver: null,
+    });
+    const a = r.spans.find((s) => s.text === "a");
+    const b = r.spans.find((s) => s.text === "b");
+    expect(a?.branchInactive).toBeFalsy();
+    expect(b?.branchInactive).toBeFalsy();
+  });
+});
