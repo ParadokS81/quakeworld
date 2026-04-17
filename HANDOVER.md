@@ -11,7 +11,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
 - [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
-- [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering for readable teamsay output
+- [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering; spec exists + simulator dep shipped, implementation not started
+- [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 
 ---
 
@@ -72,24 +73,59 @@ All four points are captured in `project_qw_oracle_product_vision.md` memory, bu
 
 ## Alias chain pretty view
 
-**Added:** 2026-04-16
-**Status:** discussed, needs research + brainstorm
-**Verification first:** n/a — new feature, not a fix
+**Added:** 2026-04-16, **Updated:** 2026-04-17
+**Status:** spec written, simulator dependency shipped, implementation not started
+**Verification first:** check `apps/slipgate-app/src/components/AliasChainResolver.tsx` — if it has a `mode: "pretty" | "raw"` prop or similar, implementation has started.
 
-An alternative rendering mode for alias chain expansion that replaces raw code with readable output. Three parsing layers:
+An alternative rendering mode for alias chain expansion that replaces raw code with readable output. Full design shipped 2026-04-16 at `apps/slipgate-app/docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md`. Three parsing layers per the spec:
 
-1. **Variable substitution** — replace `$tp_name_rl` with its resolved value (e.g. `rl`) inline, colored to indicate it's a variable
-2. **Color code rendering** — interpret ezQuake `&cRGB` codes and `{}` brace scoping as actual colored text
-3. **Runtime token labeling** — `%location`, `%health` etc. shown as labeled placeholders since they resolve at game time
+1. **Variable substitution** — replace `$tp_name_rl` with its resolved value inline, colored to indicate it's a variable.
+2. **Color code rendering** — interpret ezQuake `&cRGB` codes and `{}` brace scoping as actual colored text.
+3. **Runtime token labeling** — `%location`, `%health` etc. shown as labeled placeholders by default; when the Simulator mode toggle is active, resolved to real values via the `SimulatorResolver` (see Player State Simulator in the slipgate OVERVIEW map).
 
-The macro ref extraction built in the 2026-04-16 session (regex-based `$variable` collection in `AliasChainResolver.tsx`) provides the foundation for layer 1. Layers 2-3 need research into ezQuake's color syntax rules.
+The spec's section 3.5 defines a `RuntimeResolver` interface with two implementations:
+- **LabelResolver** (default) — maps tokens to human-readable labels from `ezquake-macros.json`.
+- **SimulatorResolver** (ready to plug in) — `createSimulatorResolver` from `apps/slipgate-app/src/lib/simulator/resolver.ts`. Ships PlayerState + condition evaluator + teamsay walker. Integration is literally one import and one line of mode-toggle wiring.
 
-Toggle between "raw" (current view) and "pretty" (resolved) modes. Lays foundation for future teamsay creator feature.
+When picking this up:
+- Start by reading the spec. It is fully fleshed, tiers 1 + 2 are specified, tier 3 (conditional collapsing) is outlined.
+- The 92 simulator tests at `apps/slipgate-app/src/lib/simulator/*.test.ts` exercise the full surface the pretty-view will consume.
+- Tier 3 work (which-branch-is-active rendering) benefits directly from `evaluateTeamsay`'s trace output — each TraceStep carries `activeBranch: "then" | "else"` for conditions.
 
 ### Related
 
-- `apps/slipgate-app/src/components/AliasChainResolver.tsx` (existing macro ref extraction)
-- ezQuake color code syntax (needs research)
+- Spec: `apps/slipgate-app/docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md`
+- Simulator module: `apps/slipgate-app/src/lib/simulator/` (shipped 2026-04-17)
+- Integration point: `apps/slipgate-app/src/components/AliasChainResolver.tsx` (existing macro ref extraction stays as-is; the pretty view lives alongside it)
+
+---
+
+## Player state simulator -- follow-ups
+
+**Added:** 2026-04-17
+**Status:** v1 shipped; polish and extension items parked
+**Verification first:** `bun test src/lib/simulator` from `apps/slipgate-app/` — expect 92 pass. `src/components/StatePanel.tsx` exists. Right-rail toolbar has `[Keyboard] [State]` buttons on the far left.
+
+The Player State Simulator (PlayerState model + ezQuake `if` evaluator + `evaluateTeamsay` walker + StatePanel UI + persistence) shipped 2026-04-17 across ~25 commits. OVERVIEW.md has the full feature description. This handover item captures deferred polish and extensions that didn't make v1.
+
+### Sub-groups
+
+**1. `.loc`-driven location dropdowns.** Currently all location fields in StatePanel are free-form text inputs. Real utility comes from scanning the user's `qw/locs/` directory, parsing each `.loc` file (plain-text `x y z name` per line), and building `{ map → [location names] }`. Replace the free-form `location` / `mapname` / `lastloc` / `deathloc` / `pointloc` / `tookloc` / `droploc` text inputs with linked dropdowns: map picker filters the location dropdown. Keep a fallback free-form text input on each so users can test unlisted locations or work without loc files. Requires a small Rust-side `.loc` scanner + Tauri command (adjacent to the existing scanner at `src-tauri/src/commands/scanner.rs`). Probably 3-4 tasks worth of work.
+
+**2. Visual polish per the HUD sketch.** User has a rough sketch (weapon ring with 8 weapon circles around the top, central figure with HP box, armor pips RA/YA/GA, powerup stack PENT/QUAD/RING/BIOSUIT, ammo indicators). v1 is text-based on purpose — polish should wait until the pretty-view integration lands and real use patterns surface what the visual actually needs to communicate. Then redesign from an informed position rather than guessing.
+
+**3. Minor carry-overs from v1 code review.**
+- `useKeyboardPanelState.ts` error log messages: some use "Failed to X:" prefix, others use "X:" (the new simulator handlers are shorter-form). Cosmetic, 3-min fix. Files `apps/slipgate-app/src/components/useKeyboardPanelState.ts` lines 159/180/186/193/199/205.
+- `resolveWeaponName` export from `src/lib/simulator/derivations.ts` is unused externally — safe to un-export (Task 4 implementer exported it unnecessarily during implementation). Minor API-surface cleanup.
+- `useKeyboardPanelState.ts` is now ~236 lines. Not a problem but worth an eye if simulator features grow; may be worth extracting a `useSimulatorState` hook in future.
+
+**4. Input behavior polish.** Debouncing, tab order, focus behavior in StatePanel form controls. Surface specific issues when using it in anger.
+
+### Related
+
+- Spec: `apps/slipgate-app/docs/superpowers/specs/2026-04-17-player-state-simulator-design.md`
+- Plan: `apps/slipgate-app/docs/superpowers/plans/2026-04-17-player-state-simulator.md`
+- OVERVIEW.md has the full feature description and Code landmarks pointers.
 
 ---
 

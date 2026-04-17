@@ -127,13 +127,39 @@ Click "Convert to FTE" → report view:
 
 ### UX helpers
 - **Scroll minimap** on the right edge — vertical track with section labels, viewport indicator, click to smooth-scroll
-- **Keyboard panel** in the right rail — when a Weapons/Teamplay/Movement Binds section is focused, renders the bound config as a full TKL keyboard SVG with a swappable right-slot module (nav cluster, numpad with double-height + and Enter, or mouse diagram). One keyboard in single view, two stacked in compare mode with owner-frame tints (teal/orange). Each side can auto-reveal a different module when the selected bind lives on different modules per config (e.g. primary binds kill-me to mouse4, compare to kp_7). Segmented control (Nav/Numpad/Mouse) at top syncs both; auto-reveal split is transient. Bind-labels toggle shows weapon/teamsay names on keycaps (quickfire priority, long teamsay names fall back to category). Movement/Weapons/Teamplay toggles persist to `ProfilePrefs`. Click-to-pin is bidirectional: clicking a key lights up the matching command on both keyboards, scrolls the matching row's category header into view, and expands the row. Clicking a row does the same in reverse. Alias chains in expanded rows are color-coded by owner (teal for primary, orange for compare). Multi-bind modifier combos (e.g. `F`=safe + `Ctrl+F`=lost) select both rows and light both keys. Esc clears selection. "Hide keyboard" toggle collapses the panel.
+- **Right-rail panel** with a `Keyboard | State` mode toggle — tri-state: click an active button to hide everything, click an inactive button to switch to that view. Replaces the separate Hide/Show keyboard button. Persists mode + visibility to `ProfilePrefs`.
+  - **Keyboard view** — when a Weapons/Teamplay/Movement Binds section is focused, renders the bound config as a full TKL keyboard SVG with a swappable right-slot module (nav cluster, numpad with double-height + and Enter, or mouse diagram). One keyboard in single view, two stacked in compare mode with owner-frame tints (teal/orange). Each side can auto-reveal a different module when the selected bind lives on different modules per config (e.g. primary binds kill-me to mouse4, compare to kp_7). Segmented control (Nav/Numpad/Mouse) at top syncs both; auto-reveal split is transient. Bind-labels toggle shows weapon/teamsay names on keycaps (quickfire priority, long teamsay names fall back to category). Movement/Weapons/Teamplay toggles persist to `ProfilePrefs`. Click-to-pin is bidirectional: clicking a key lights up the matching command on both keyboards, scrolls the matching row's category header into view, and expands the row. Clicking a row does the same in reverse. Alias chains in expanded rows are color-coded by owner (teal for primary, orange for compare). Multi-bind modifier combos (e.g. `F`=safe + `Ctrl+F`=lost) select both rows and light both keys. Esc clears selection.
+  - **State view** — Player State Simulator panel (see Player State Simulator subsection below). Editable PlayerState (health, armor, weapons, ammo, powerups, location, match, LEDs, recent events) with live-derived readouts per section (`$bestweapon`, `$weapons`, `$powerups`, `$armortype`, `$colored_armor`, ...), inline `tp_need_*` threshold hints, influencing-cvar rows showing default vs user-config side-by-side, and a templates header (Save as... / Load / Delete / Reset).
 - Drag-drop overlay with error toasts
 - Color scheme uses OKLCH tokens matching the Slipgate web design system
 
 **The two pure-logic files to know:**
 - `configMerger.ts` — the comparison brain. Exports `mergeSelectedFiles`, `categorizeBinds`, `synthesizeModifierTeamsayBinds`, `mergeAliases`. Pure functions, no side effects, easy to test. (Weapon-bind modifier synthesis was moved into the Rust classifier — see `weapon_classifier.rs`.)
 - `AliasChainResolver.tsx` (~160 lines) — recursive alias expansion with depth cap, `$variable` macro ref extraction via regex, and inline macro dependency rendering (shows referenced cvars with resolved values below each expanded alias chain).
+
+---
+
+## Player State Simulator
+
+A pure-TS module at `src/lib/simulator/` that models a QuakeWorld player's in-game state and evaluates ezQuake `if` condition expressions against it. Two consumers today: the `StatePanel` in the ConfigViewer's right rail (interactive state editor), and any code that wants to ask "given this state, what does this bind actually emit?" Lives entirely in the webview — no Rust. Shipped 2026-04-17 across ~25 commits.
+
+**Module layout** (`src/lib/simulator/`):
+- `types.ts` — `PlayerState` interface (27 raw fields: health / armor / armorClass / ownedWeapons / currentWeapon / ammo counts / activePowerups / location / mapname / match* / leds / recent events), supporting union types (Weapon, Powerup, ArmorClass, MatchStatus, LedColor), and Issue / TraceStep / EvaluateTeamsayResult types.
+- `defaults.ts` — `createDefaultPlayerState()` spawn-defaults factory (health 100, axe + sg, 25 shells, everything else zero).
+- `derivations.ts` — pure functions computing ezQuake-equivalent derived tokens: `deriveWeaponsString`, `deriveBestWeapon` (walks `tp_weapon_order`, handles both space-separated and contiguous-digit formats), `derivePowerupsString`, `deriveArmortype`, `deriveColoredArmor` (health-band thresholds), `deriveWeaponNum`, `deriveAmmo`, `deriveBestAmmo`.
+- `expander.ts` — `expandVars(text, state, cvars, positionalArgs?)` substitutes `$var` references using priority derived > raw > cvar, with recursion + depth cap 8 + `$qt` → `"` + `%1`..`%9` positional args + unresolved-var issue emission.
+- `evaluator.ts` — `tokenize()` + recursive-descent parser + `evaluateExpression()`. Implements ezQuake's `Expr_Eval` grammar (parens, arithmetic `+-*/`, comparison `== = != <> < <= > >=`, `isin`/`!isin` substring, `&&`/`||`/`and`/`or`/`AND`/`OR` with short-circuit) minus regex `=~`/`!~` (flagged as unsupported-regex issue rather than silently failing). Matches `Cmd_If_Old` / `Cmd_If_New` dispatch in ezquake-source cmd.c.
+- `resolver.ts` — three public entry points: (a) `createSimulatorResolver(state, cvars)` returns a `RuntimeResolver` shape (from the pretty-view spec section 3.5) with short-form token aliases (`%a` → armor etc.); (b) `evaluateCondition(expr, state, cvars)` returns `{result, issues}`; (c) `evaluateTeamsay(rawText, state, cvars, aliases)` walks `if/then/else` chains + recurses into alias bodies + skips side-effect commands (set/set_tp/inc/wait/alias/bind) + collects a trace with branch-active markers + caps depth at 8.
+- `index.ts` — barrel. Consumers import from `@/lib/simulator`.
+- Tests — colocated `*.test.ts` files under `bun test`. 92 tests across 7 files: unit (expander, evaluator, derivations, resolver, smoke), fixture-driven flip cases against `assets/teamsays/{bps,hangtime,locktar}.cfg`, and synthetic issue-kind tests. Fixture tests caught three real parser bugs during development (contiguous-digit tp_weapon_order, tokenizer discarding color-code braces, a test-regex style mismatch) all fixed in `f1d5e87`.
+
+**UI consumer** — `src/components/StatePanel.tsx` renders PlayerState as a form with 31 controls across 8 sections (Vitals, Weapons, Ammo, Powerups, Location, Match, LEDs, Recent events). Each section with derived outputs displays a Derived block (monospace `$token | value` rows) and an Influencing-cvars block (user-value vs engine-default side-by-side, dim when default, bright when customized). Ammo and vital inputs show inline `tp_need_*` threshold hints using the same dim/bright convention. Templates header at top: `Templates ▼ | Save as... | Reset` with inline-confirm delete chips.
+
+**Persistence** — ProfilePrefs gained `simulator: { version, currentState, templates }` plus `config_right_panel_mode: keyboard | state`. Template CRUD helpers in store.ts. Set↔Array serialization shims wrap PlayerState writes/reads since `JSON.stringify` can't round-trip Sets. See STATE.md.
+
+**Integration target** — the simulator's `createSimulatorResolver` exists specifically to plug into the pretty-view workstream (spec at `docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md` section 3.5's `RuntimeResolver` interface). That workstream is not yet implemented. When it ships, the pretty-view can swap its LabelResolver for the SimulatorResolver and render teamsay outputs with resolved values instead of placeholder labels. The simulator does NOT depend on any pretty-view file — clean boundary in both directions.
+
+**Design & planning docs** — spec at `docs/superpowers/specs/2026-04-17-player-state-simulator-design.md`, implementation plan at `docs/superpowers/plans/2026-04-17-player-state-simulator.md`.
 
 ---
 
@@ -352,6 +378,10 @@ Things that exist in the codebase but aren't fully alive:
 
 **"I want to change how ezQuake is launched"** → `launch_ezquake` in `ezquake.rs`
 
+**"I want to change how teamsay conditions are evaluated or tokens resolve"** → `src/lib/simulator/` (the six modules plus barrel). Pure TS, no Rust. Fixture tests in `src/lib/simulator/fixtures.test.ts` are the golden source of expected behavior across real configs.
+
+**"I want to change the state editor panel"** → `src/components/StatePanel.tsx` (form controls, derived readouts, influencing-cvars rows, templates header). Styles under `sg-state-*` in `app.css`. Wired into the right-rail toggle via `useKeyboardPanelState.ts` and `ConfigKeyboardPanel.tsx`.
+
 **"I want to fix something on Discord auth"** → `src/auth.ts` (frontend flow) + `src-tauri/src/commands/auth.rs` (localhost listener)
 
 ---
@@ -366,4 +396,4 @@ Things that exist in the codebase but aren't fully alive:
 
 ---
 
-*Last synthesized: 2026-04-10. Update this doc when you ship something new that changes the map above.*
+*Last synthesized: 2026-04-17 (Player State Simulator added, right-rail toggle behavior updated). Update this doc when you ship something new that changes the map above.*
