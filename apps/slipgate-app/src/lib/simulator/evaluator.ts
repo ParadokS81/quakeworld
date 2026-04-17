@@ -68,6 +68,15 @@ export function tokenize(input: string): Token[] {
       continue;
     }
 
+    // ezQuake color-code token: {&cRRGGBB} or similar -- read to closing }.
+    if (c === "{") {
+      const start = i;
+      while (i < n && input[i] !== "}") i++;
+      if (i < n) i++; // consume the closing }
+      tokens.push({ kind: "string", value: input.slice(start, i) });
+      continue;
+    }
+
     if (/[\w]/.test(c)) {
       const start = i;
       while (i < n && /[\w\-_.]/.test(input[i])) i++;

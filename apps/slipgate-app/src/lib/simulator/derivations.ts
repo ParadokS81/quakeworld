@@ -57,12 +57,23 @@ function hasAmmoFor(w: Weapon, state: PlayerState): boolean {
   return state[f] > 0;
 }
 
+// Real user configs store tp_weapon_order as contiguous digits ("78564321"),
+// while the engine default is space-separated ("8 7 5 3 4 6 2 1"). Both must work.
+function tokenizeWeaponOrder(raw: string): string[] {
+  const spaceSplit = raw.split(/\s+/).filter((t) => t.length > 0);
+  // Single multi-char all-digit token -> per-character split (contiguous format).
+  if (spaceSplit.length === 1 && spaceSplit[0].length > 1 && /^\d+$/.test(spaceSplit[0])) {
+    return spaceSplit[0].split("");
+  }
+  return spaceSplit;
+}
+
 export function deriveBestWeapon(
   state: PlayerState,
   cvars: Map<string, string>
 ): string {
   const orderStr = cvars.get("tp_weapon_order") ?? DEFAULT_TP_WEAPON_ORDER;
-  const tokens = orderStr.split(/\s+/).filter((t) => t.length > 0);
+  const tokens = tokenizeWeaponOrder(orderStr);
   for (const tok of tokens) {
     const w = IMPULSE_TO_WEAPON[tok];
     if (!w || !state.ownedWeapons.has(w) || !hasAmmoFor(w, state)) continue;

@@ -74,6 +74,15 @@ describe("deriveBestWeapon", () => {
     s.shells = 0;
     expect(deriveBestWeapon(s, new Map())).toBe("sg");
   });
+
+  test("accepts contiguous-digit tp_weapon_order (real user format)", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg", "rl"]);
+    s.rockets = 5;
+    s.shells = 25;
+    const cvars = new Map([["tp_weapon_order", "78564321"]]);
+    expect(deriveBestWeapon(s, cvars)).toBe("rl");
+  });
 });
 
 describe("derivePowerupsString", () => {
