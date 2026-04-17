@@ -2,6 +2,8 @@ import { createSignal, For, Show } from "solid-js";
 import type { EnrichedAlias } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainResult } from "./AliasChainResolver";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigAliasesSectionProps {
   aliases: EnrichedAlias[];
@@ -9,6 +11,8 @@ interface ConfigAliasesSectionProps {
   primaryCvars?: Record<string, string>;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
@@ -87,6 +91,8 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                       hideDefaults={props.hideDefaults}
                       label="Alias chain"
                       mode={props.aliasChainMode}
+                      resolver={props.resolver ?? null}
+                      playerState={props.playerState}
                     />
                   </div>
                 </Show>

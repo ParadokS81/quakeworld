@@ -1,6 +1,8 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainResult } from "./AliasChainResolver";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 /* ─── Trigger definitions from ezQuake source ────────────────────── */
 
@@ -91,6 +93,8 @@ interface ConfigTriggersSectionProps {
   primaryCvars?: Record<string, string>;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 interface TriggerRow {
@@ -248,6 +252,8 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
               hideDefaults={props.hideDefaults}
               label="Alias chain"
               mode={props.aliasChainMode}
+              resolver={props.resolver ?? null}
+              playerState={props.playerState}
             />
             <div class="px-4 py-1 text-xs text-[var(--sg-section-label)]">
               {row.def.description}

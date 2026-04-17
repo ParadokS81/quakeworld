@@ -2,6 +2,8 @@ import { createSignal, For, Show } from "solid-js";
 import type { EnrichedBind } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainResult } from "./AliasChainResolver";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigBindsSectionProps {
   binds: EnrichedBind[];
@@ -12,6 +14,8 @@ interface ConfigBindsSectionProps {
   compareCvars?: Record<string, string>;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -222,6 +226,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                             hideDefaults={props.hideDefaults}
                             ownerClass="sg-alias-chain-you"
                             mode={props.aliasChainMode}
+                            resolver={props.resolver ?? null}
+                            playerState={props.playerState}
                           />
                         </Show>
                         <Show when={props.isCompareMode && compareChain().chain.length > 0}>
@@ -232,6 +238,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                             hideDefaults={props.hideDefaults}
                             ownerClass="sg-alias-chain-them"
                             mode={props.aliasChainMode}
+                            resolver={props.resolver ?? null}
+                            playerState={props.playerState}
                           />
                         </Show>
                       </>
@@ -247,6 +255,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           primaryCvars={props.primaryCvars}
                           hideDefaults={props.hideDefaults}
                           mode={props.aliasChainMode}
+                          resolver={props.resolver ?? null}
+                          playerState={props.playerState}
                         />
                       </Show>
                       <Show when={releaseChain().chain.length > 0}>
@@ -259,6 +269,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           primaryCvars={props.primaryCvars}
                           hideDefaults={props.hideDefaults}
                           mode={props.aliasChainMode}
+                          resolver={props.resolver ?? null}
+                          playerState={props.playerState}
                         />
                       </Show>
                     </Show>

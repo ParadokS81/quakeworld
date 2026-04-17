@@ -20,6 +20,10 @@ import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
 import { updatePrefs } from "../store";
 import type { ProfileData } from "../store";
+import { createLabelResolver } from "../lib/runtimeResolver";
+import { createSimulatorResolver } from "../lib/simulator/index.js";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -116,6 +120,19 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       });
     }
   });
+
+  const [aliasChainResolver, setAliasChainResolver] = createSignal<"label" | "simulator">(
+    props.profile?.prefs.alias_chain_resolver ?? "label",
+  );
+  createEffect(() => {
+    const resolver = aliasChainResolver();
+    if (props.profile) {
+      updatePrefs({ alias_chain_resolver: resolver }).catch((err) => {
+        console.error("failed to persist alias_chain_resolver:", err);
+      });
+    }
+  });
+
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
   const [contentScrollEl, setContentScrollEl] = createSignal<HTMLDivElement | undefined>();
 
@@ -197,6 +214,22 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const effectiveCvars = createMemo(() =>
     mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {},
   );
+
+  // Resolver for %token expansion in Pretty mode. Simulator mode falls back to
+  // LabelResolver when no currentState is available.
+  const resolver = createMemo((): RuntimeResolver => {
+    if (aliasChainResolver() === "simulator") {
+      const state = props.profile?.prefs.simulator.currentState;
+      if (state) {
+        const cvars = new Map(Object.entries(effectiveCvars()));
+        return createSimulatorResolver(state, cvars);
+      }
+    }
+    return createLabelResolver();
+  });
+
+  const playerState = (): PlayerState | undefined =>
+    props.profile?.prefs.simulator.currentState;
 
   const userCreatedCvars = createMemo((): Set<string> =>
     mergedData()?.userCreated ?? new Set<string>(),
@@ -697,6 +730,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onHideDefaultsChange={setHideDefaults}
               aliasChainMode={aliasChainMode()}
               onAliasChainModeChange={setAliasChainMode}
+              aliasChainResolver={aliasChainResolver()}
+              onAliasChainResolverChange={setAliasChainResolver}
               search={search()}
               onSearchChange={setSearch}
               isCompareMode={isCompareMode()}
@@ -839,6 +874,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareSensBaseline={isCompareMode() ? (compareBinds()?.sensitivity_baseline ?? null) : null}
                     hideDefaults={hideDefaults()}
                     aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
@@ -869,6 +906,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
                     hideDefaults={hideDefaults()}
                     aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
@@ -894,6 +933,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
                     hideDefaults={hideDefaults()}
                     aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
@@ -904,6 +945,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primaryCvars={effectiveCvars()}
                     hideDefaults={hideDefaults()}
                     aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
@@ -927,6 +970,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primaryCvars={effectiveCvars()}
                     hideDefaults={hideDefaults()}
                     aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 

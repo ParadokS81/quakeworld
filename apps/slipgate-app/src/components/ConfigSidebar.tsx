@@ -27,6 +27,8 @@ interface ConfigSidebarProps {
   onHideDefaultsChange: (val: boolean) => void;
   aliasChainMode: "pretty" | "raw";
   onAliasChainModeChange: (val: "pretty" | "raw") => void;
+  aliasChainResolver: "label" | "simulator";
+  onAliasChainResolverChange: (val: "label" | "simulator") => void;
   search: string;
   onSearchChange: (val: string) => void;
   isCompareMode: boolean;
@@ -176,6 +178,19 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
               class={`join-item btn btn-xs ${props.aliasChainMode === "raw" ? "btn-primary" : "btn-ghost"}`}
               onClick={() => props.onAliasChainModeChange("raw")}
             >Raw</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 text-xs">
+          <span class="text-[var(--sg-section-label)]">Tokens:</span>
+          <div class="join">
+            <button
+              class={`join-item btn btn-xs ${props.aliasChainResolver === "label" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => props.onAliasChainResolverChange("label")}
+            >Label</button>
+            <button
+              class={`join-item btn btn-xs ${props.aliasChainResolver === "simulator" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => props.onAliasChainResolverChange("simulator")}
+            >Simulator</button>
           </div>
         </div>
         <input

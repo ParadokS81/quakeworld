@@ -4,6 +4,8 @@ import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry, AliasChainResult } from "./AliasChainResolver";
 import { lookupCvar } from "qw-config";
 import { WEAPON_COLORS } from "./WeaponBindViz";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 /**
  * When a bind row becomes selected (via keyboard click or row click), scroll
@@ -119,6 +121,8 @@ interface WeaponBindsProps {
   compareSensBaseline?: number | null;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 interface DiffRow {
@@ -360,6 +364,8 @@ function WeaponChainStack(props: {
   sensBaseline?: number | null;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
   ownerClass: string;
 }) {
   const blocks = () => buildChainBlocks(props.path, props.bindCmds, props.aliases);
@@ -445,6 +451,8 @@ function WeaponChainStack(props: {
         hideDefaults={props.hideDefaults}
         ownerClass={props.ownerClass}
         mode={props.aliasChainMode}
+        resolver={props.resolver ?? null}
+        playerState={props.playerState}
       />
     </Show>
   );
@@ -587,6 +595,8 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     sensBaseline={props.primarySensBaseline}
                     hideDefaults={props.hideDefaults}
                     aliasChainMode={props.aliasChainMode}
+                    resolver={props.resolver ?? null}
+                    playerState={props.playerState}
                     ownerClass="sg-alias-chain-you"
                   />
                   <Show when={isCompare()}>
@@ -600,6 +610,8 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                       sensBaseline={props.compareSensBaseline}
                       hideDefaults={props.hideDefaults}
                       aliasChainMode={props.aliasChainMode}
+                      resolver={props.resolver ?? null}
+                      playerState={props.playerState}
                       ownerClass="sg-alias-chain-them"
                     />
                   </Show>
@@ -642,6 +654,8 @@ interface TeamsayBindsProps {
   compareCvars?: Record<string, string>;
   hideDefaults?: boolean;
   aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
@@ -820,6 +834,8 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       hideDefaults={props.hideDefaults}
                                       ownerClass="sg-alias-chain-you"
                                       mode={props.aliasChainMode}
+                                      resolver={props.resolver ?? null}
+                                      playerState={props.playerState}
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>
@@ -847,6 +863,8 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       hideDefaults={props.hideDefaults}
                                       ownerClass="sg-alias-chain-them"
                                       mode={props.aliasChainMode}
+                                      resolver={props.resolver ?? null}
+                                      playerState={props.playerState}
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>

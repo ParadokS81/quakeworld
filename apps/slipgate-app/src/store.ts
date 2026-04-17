@@ -85,6 +85,8 @@ export interface ProfilePrefs {
   config_right_panel_mode: "keyboard" | "state";
   /** Pretty-render mode for expanded alias chains. */
   alias_chain_mode: "pretty" | "raw";
+  /** Which %token resolver to use in Pretty mode. */
+  alias_chain_resolver: "label" | "simulator";
   /** Simulator state + templates. */
   simulator: SimulatorPrefs;
 }
@@ -150,6 +152,7 @@ const DEFAULT_PREFS: ProfilePrefs = {
   profile_keyboard_right_module: "nav",
   config_right_panel_mode: "keyboard",
   alias_chain_mode: "pretty",
+  alias_chain_resolver: "label",
   simulator: {
     version: 1,
     currentState: createDefaultPlayerState(),
