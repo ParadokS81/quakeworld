@@ -8,7 +8,7 @@ export { createDefaultPlayerState } from "./defaults.js";
 export {
   deriveWeaponsString, deriveBestWeapon, deriveBestAmmo,
   derivePowerupsString, deriveArmortype, deriveColoredArmor,
-  deriveWeaponNum, deriveAmmo,
+  deriveWeaponNum, deriveAmmo, deriveNeed,
 } from "./derivations.js";
 
 export { expandVars } from "./expander.js";

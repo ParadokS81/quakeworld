@@ -1,7 +1,7 @@
 import { createMemo, For, Show } from "solid-js";
 import { lookupCvar } from "qw-config";
 import type { PlayerState, TraceStep } from "../lib/simulator/index.js";
-import { createDefaultPlayerState, evaluateTeamsay } from "../lib/simulator/index.js";
+import { createDefaultPlayerState, deriveNeed, evaluateTeamsay } from "../lib/simulator/index.js";
 import { buildSpanTree, type SpanColor } from "../lib/prettyRender.js";
 import type { RuntimeResolver } from "../lib/runtimeResolver.js";
 
@@ -189,6 +189,12 @@ export function AliasChainView(props: {
     // aliases map; the evaluator follows them from the root.
     const root = props.chain.find((e) => e.depth === 0) ?? props.chain[0];
     const cvars = cvarMap(props.primaryCvars);
+    // Pre-populate $need with the live-derived under-threshold list, matching
+    // ezQuake's tp_msg_need which sets the $need cvar internally before
+    // executing the need-message alias chain. Without this, the common
+    // `if ('$need' == '$tp_name_nothing')` guard evaluates true under default
+    // state and the `.msg.need` branch never fires in the trace.
+    cvars.set("need", deriveNeed(props.playerState, cvars));
     const aliases = new Map<string, string>();
     for (const e of props.chain) aliases.set(e.name, e.command);
     return evaluateTeamsay(root.command, props.playerState, cvars, aliases).trace;

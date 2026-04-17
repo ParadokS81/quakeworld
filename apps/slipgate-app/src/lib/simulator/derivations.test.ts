@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   deriveWeaponsString, deriveBestWeapon,
   derivePowerupsString, deriveArmortype, deriveColoredArmor,
-  deriveWeaponNum, deriveAmmo, deriveBestAmmo,
+  deriveWeaponNum, deriveAmmo, deriveBestAmmo, deriveNeed,
 } from "./derivations.js";
 import { createDefaultPlayerState } from "./defaults.js";
 
@@ -152,5 +152,77 @@ describe("deriveAmmo / deriveBestAmmo", () => {
     s.ownedWeapons = new Set(["sg", "rl"]);
     s.rockets = 9; s.shells = 25;
     expect(deriveBestAmmo(s, new Map())).toBe(9);
+  });
+});
+
+describe("deriveNeed", () => {
+  test("no weapons, 100hp, no armor -> armor + rl + lg (weapon needs)", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set();
+    s.health = 100;
+    s.armor = 0;
+    s.armorClass = "none";
+    s.rockets = 0;
+    s.cells = 0;
+    s.shells = 0;
+    s.nails = 0;
+    // Default thresholds: armor 50, health 50, rockets 5, cells 30.
+    // Defaults: tp_need_rl=1, tp_need_lg=1.
+    // Expected: armor (< 50), rl, lg. Ammo NOT listed (no weapon uses them).
+    expect(deriveNeed(s, new Map())).toBe("armor/rl/lg");
+  });
+
+  test("has rl+lg, low cells + rockets -> rockets + cells listed", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg", "rl", "lg"]);
+    s.health = 100;
+    s.armor = 100;
+    s.armorClass = "ra";
+    s.rockets = 0;
+    s.cells = 0;
+    // Owns rl, lg -> no weapon need. Ammo below threshold AND owns using
+    // weapons -> rockets (rl) and cells (lg) listed.
+    expect(deriveNeed(s, new Map())).toBe("rockets/cells");
+  });
+
+  test("has sg only, low rockets -> rockets NOT listed (no rl/gl owned)", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg"]);
+    s.health = 100;
+    s.armor = 100;
+    s.armorClass = "ra";
+    s.rockets = 0;
+    // Weapon-need defaults: rl=1, lg=1 -> both listed. rockets NOT listed
+    // (no rl/gl owned, no point asking for ammo with no weapon to fire).
+    expect(deriveNeed(s, new Map())).toBe("rl/lg");
+  });
+
+  test("custom separator applies", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set();
+    s.armor = 0;
+    const cvars = new Map([["tp_name_separator", ", "]]);
+    expect(deriveNeed(s, cvars)).toBe("armor, rl, lg");
+  });
+
+  test("nothing below threshold -> empty string", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["axe", "sg", "ssg", "ng", "sng", "gl", "rl", "lg"]);
+    s.health = 100;
+    s.armor = 100;
+    s.armorClass = "ra";
+    s.rockets = 20; s.cells = 100; s.shells = 100; s.nails = 100;
+    expect(deriveNeed(s, new Map())).toBe("");
+  });
+
+  test("custom tp_need_* cvar overrides default", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["rl", "lg"]);
+    s.rockets = 10; s.cells = 100;
+    // Push rockets threshold above current 10 -> should now include rockets.
+    // cells is above default threshold so should not list; armor+health full.
+    const cvars = new Map([["tp_need_rockets", "15"]]);
+    s.health = 100; s.armor = 100; s.armorClass = "ra";
+    expect(deriveNeed(s, cvars)).toBe("rockets");
   });
 });

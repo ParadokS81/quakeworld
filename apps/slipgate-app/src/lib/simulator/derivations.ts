@@ -162,13 +162,41 @@ function needThreshold(cvars: Map<string, string>, cvarName: string): number {
   return NEED_DEFAULTS[cvarName] ?? 0;
 }
 
+// Default weapon-need flags: ezQuake defaults tp_need_rl and tp_need_lg to 1,
+// all others to 0. When the flag is 1 and the player does not own that
+// weapon, %u includes the weapon's name.
+const WEAPON_NEED_DEFAULTS: Record<string, number> = {
+  tp_need_rl: 1,
+  tp_need_lg: 1,
+  tp_need_gl: 0,
+  tp_need_ng: 0,
+  tp_need_sng: 0,
+  tp_need_ssg: 0,
+  tp_need_sg: 0,
+};
+
+function weaponNeedFlag(cvars: Map<string, string>, cvarName: string): number {
+  const raw = cvars.get(cvarName);
+  if (raw !== undefined) {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+  return WEAPON_NEED_DEFAULTS[cvarName] ?? 0;
+}
+
 /**
  * Derive %u / %need -- list of items currently under their tp_need_*
- * threshold, joined by `tp_name_separator` (ezQuake default "/"). Categories
- * with a threshold of 0 are skipped. Item names come from tp_name_* cvars
- * when set, else sensible defaults. Armor uses tp_name_armor regardless of
- * class -- ezQuake itself does not distinguish armor type in %u output.
- * Ordering matches ezQuake's teamplay.c: armor, health, weapons, ammo.
+ * threshold, joined by `tp_name_separator` (ezQuake default "/"). Matches
+ * ezQuake's TP_MSG_NEED ordering: armor, health, weapons, ammo.
+ *
+ * - Armor / health: under threshold triggers inclusion.
+ * - Weapons (rl, lg, gl, ng, sng, ssg, sg): if `tp_need_<weapon>` == 1 and
+ *   the player does NOT own it, include the tp_name_<weapon> value. ezQuake
+ *   defaults tp_need_rl and tp_need_lg to 1; all others 0.
+ * - Ammo (rockets, cells, shells, nails): under threshold AND player owns
+ *   at least one weapon that uses that ammo (rockets used by rl/gl, cells
+ *   by lg, shells by sg/ssg, nails by ng/sng). If no weapon uses that ammo,
+ *   listing the ammo would be pointless -- ezQuake skips it.
  */
 export function deriveNeed(state: PlayerState, cvars: Map<string, string>): string {
   const parts: string[] = [];
@@ -184,17 +212,34 @@ export function deriveNeed(state: PlayerState, cvars: Map<string, string>): stri
     parts.push(cvars.get("tp_name_health") ?? "health");
   }
 
-  const ammoChecks: Array<[string, number, string, string]> = [
-    ["tp_need_rockets", state.rockets, "tp_name_rockets", "rockets"],
-    ["tp_need_cells",   state.cells,   "tp_name_cells",   "cells"],
-    ["tp_need_shells",  state.shells,  "tp_name_shells",  "shells"],
-    ["tp_need_nails",   state.nails,   "tp_name_nails",   "nails"],
+  // Ordered list of weapon-need checks. tp_need_<w> == 1 AND not-owned -> list.
+  const weaponChecks: Array<[string, Weapon, string]> = [
+    ["tp_need_rl",  "rl",  "tp_name_rl"],
+    ["tp_need_lg",  "lg",  "tp_name_lg"],
+    ["tp_need_gl",  "gl",  "tp_name_gl"],
+    ["tp_need_sng", "sng", "tp_name_sng"],
+    ["tp_need_ng",  "ng",  "tp_name_ng"],
+    ["tp_need_ssg", "ssg", "tp_name_ssg"],
+    ["tp_need_sg",  "sg",  "tp_name_sg"],
   ];
-  for (const [threshCvar, value, nameCvar, fallback] of ammoChecks) {
+  for (const [flagCvar, weapon, nameCvar] of weaponChecks) {
+    if (weaponNeedFlag(cvars, flagCvar) !== 1) continue;
+    if (state.ownedWeapons.has(weapon)) continue;
+    parts.push(cvars.get(nameCvar) ?? DEFAULT_WEAPON_NAMES[weapon]);
+  }
+
+  // Ammo checks, gated by "do I own any weapon that uses this ammo".
+  const ammoChecks: Array<[string, number, string, string, Weapon[]]> = [
+    ["tp_need_rockets", state.rockets, "tp_name_rockets", "rockets", ["rl", "gl"]],
+    ["tp_need_cells",   state.cells,   "tp_name_cells",   "cells",   ["lg"]],
+    ["tp_need_shells",  state.shells,  "tp_name_shells",  "shells",  ["sg", "ssg"]],
+    ["tp_need_nails",   state.nails,   "tp_name_nails",   "nails",   ["ng", "sng"]],
+  ];
+  for (const [threshCvar, value, nameCvar, fallback, usedBy] of ammoChecks) {
     const t = needThreshold(cvars, threshCvar);
-    if (t > 0 && value < t) {
-      parts.push(cvars.get(nameCvar) ?? fallback);
-    }
+    if (t <= 0 || value >= t) continue;
+    if (!usedBy.some((w) => state.ownedWeapons.has(w))) continue;
+    parts.push(cvars.get(nameCvar) ?? fallback);
   }
 
   return parts.join(separator);
