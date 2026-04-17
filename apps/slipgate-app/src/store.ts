@@ -83,6 +83,8 @@ export interface ProfilePrefs {
   profile_keyboard_right_module: "nav" | "numpad";
   /** Which view the ConfigViewer right panel shows. */
   config_right_panel_mode: "keyboard" | "state";
+  /** Pretty-render mode for expanded alias chains. */
+  alias_chain_mode: "pretty" | "raw";
   /** Simulator state + templates. */
   simulator: SimulatorPrefs;
 }
@@ -147,6 +149,7 @@ const DEFAULT_PREFS: ProfilePrefs = {
   config_keyboard_right_module: "nav",
   profile_keyboard_right_module: "nav",
   config_right_panel_mode: "keyboard",
+  alias_chain_mode: "pretty",
   simulator: {
     version: 1,
     currentState: createDefaultPlayerState(),
