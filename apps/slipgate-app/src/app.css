@@ -2255,3 +2255,10 @@ input[type="number"] {
   /* no margin-left: auto -- mode toggle sits on the LEFT of the toolbar */
 }
 
+.sg-state-need-hint {
+  font-size: 0.7rem;
+  color: var(--sg-text-dim);
+  font-family: monospace;
+  white-space: nowrap;
+}
+

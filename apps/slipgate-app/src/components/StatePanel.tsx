@@ -104,12 +104,18 @@ export default function StatePanel(props: StatePanelProps) {
       </div>
       <Section title="Vitals">
         <Row label="Health">
-          <NumInput value={props.state.health} min={0} max={250}
-            onChange={(v) => update("health", v)} />
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.health} min={0} max={250}
+              onChange={(v) => update("health", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_health" />
+          </div>
         </Row>
         <Row label="Armor">
-          <NumInput value={props.state.armor} min={0} max={200}
-            onChange={(v) => update("armor", v)} />
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.armor} min={0} max={200}
+              onChange={(v) => update("armor", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_armor" />
+          </div>
         </Row>
         <Row label="Armor class">
           <EnumSelect value={props.state.armorClass} options={ARMOR_CLASSES}
@@ -150,10 +156,30 @@ export default function StatePanel(props: StatePanelProps) {
       </Section>
 
       <Section title="Ammo">
-        <Row label="Shells"><NumInput value={props.state.shells} onChange={(v) => update("shells", v)} /></Row>
-        <Row label="Nails"><NumInput value={props.state.nails} onChange={(v) => update("nails", v)} /></Row>
-        <Row label="Rockets"><NumInput value={props.state.rockets} onChange={(v) => update("rockets", v)} /></Row>
-        <Row label="Cells"><NumInput value={props.state.cells} onChange={(v) => update("cells", v)} /></Row>
+        <Row label="Shells">
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.shells} onChange={(v) => update("shells", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_shells" />
+          </div>
+        </Row>
+        <Row label="Nails">
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.nails} onChange={(v) => update("nails", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_nails" />
+          </div>
+        </Row>
+        <Row label="Rockets">
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.rockets} onChange={(v) => update("rockets", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_rockets" />
+          </div>
+        </Row>
+        <Row label="Cells">
+          <div class="flex items-center gap-2">
+            <NumInput value={props.state.cells} onChange={(v) => update("cells", v)} />
+            <NeedHint cvars={props.cvars} cvarName="tp_need_cells" />
+          </div>
+        </Row>
       </Section>
 
       <Section title="Powerups">
@@ -279,6 +305,25 @@ function DerivedBlock(props: { rows: [string, string][] }) {
         </div>
       )}</For>
     </div>
+  );
+}
+
+// ezQuake default thresholds for tp_need_* cvars.
+// 0 means "never considered needed" -- NeedHint hides when value is 0.
+const NEED_DEFAULTS: Record<string, string> = {
+  tp_need_health: "50",
+  tp_need_armor: "50",
+  tp_need_rockets: "5",
+  tp_need_cells: "30",
+  tp_need_shells: "0",
+  tp_need_nails: "0",
+};
+
+function NeedHint(props: { cvars: Map<string, string>; cvarName: string }) {
+  const value = props.cvars.get(props.cvarName) ?? NEED_DEFAULTS[props.cvarName] ?? "";
+  if (value === "0" || value === "") return null;
+  return (
+    <span class="sg-state-need-hint">need &lt; {value}</span>
   );
 }
 
