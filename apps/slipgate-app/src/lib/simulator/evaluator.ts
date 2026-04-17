@@ -146,13 +146,52 @@ function parseComparison(p: ParseState): AstNode {
   return left;
 }
 
+function isLogicalOr(op: string): boolean {
+  return op === "||" || op === "or" || op === "OR";
+}
+
+function isLogicalAnd(op: string): boolean {
+  return op === "&&" || op === "and" || op === "AND";
+}
+
+function parseOr(p: ParseState): AstNode {
+  let left = parseAnd(p);
+  while (true) {
+    const tok = peek(p);
+    if (!tok || tok.kind !== "op" || !isLogicalOr(tok.value)) break;
+    consume(p);
+    const right = parseAnd(p);
+    left = { kind: "binary", op: "||", left, right };
+  }
+  return left;
+}
+
+function parseAnd(p: ParseState): AstNode {
+  let left = parseComparison(p);
+  while (true) {
+    const tok = peek(p);
+    if (!tok || tok.kind !== "op" || !isLogicalAnd(tok.value)) break;
+    consume(p);
+    const right = parseComparison(p);
+    left = { kind: "binary", op: "&&", left, right };
+  }
+  return left;
+}
+
 function parseExpression(p: ParseState): AstNode {
-  return parseComparison(p);
+  return parseOr(p);
 }
 
 function isNumeric(s: string): boolean {
   if (s.length === 0) return false;
   return /^-?\d+(\.\d+)?$/.test(s.trim());
+}
+
+function truthy(v: string): boolean {
+  if (v === "1" || v.toLowerCase() === "true") return true;
+  if (v === "0" || v.toLowerCase() === "false") return false;
+  if (isNumeric(v)) return parseFloat(v) !== 0;
+  return v.length > 0;
 }
 
 function evalNode(node: AstNode, issues: Issue[]): string {
@@ -163,6 +202,16 @@ function evalNode(node: AstNode, issues: Issue[]): string {
     return `-${v}`;
   }
   if (node.kind === "binary") {
+    if (node.op === "&&") {
+      const l = evalNode(node.left, issues);
+      if (!truthy(l)) return "0";
+      return truthy(evalNode(node.right, issues)) ? "1" : "0";
+    }
+    if (node.op === "||") {
+      const l = evalNode(node.left, issues);
+      if (truthy(l)) return "1";
+      return truthy(evalNode(node.right, issues)) ? "1" : "0";
+    }
     const l = evalNode(node.left, issues);
     const r = evalNode(node.right, issues);
     return evalBinary(node.op, l, r, issues);
@@ -182,6 +231,8 @@ function evalBinary(op: string, l: string, r: string, issues: Issue[]): string {
   if (op === ">") return parseFloat(l) > parseFloat(r) ? "1" : "0";
   if (op === "<=") return parseFloat(l) <= parseFloat(r) ? "1" : "0";
   if (op === ">=") return parseFloat(l) >= parseFloat(r) ? "1" : "0";
+  if (op === "isin") return r.indexOf(l) >= 0 ? "1" : "0";
+  if (op === "!isin") return r.indexOf(l) >= 0 ? "0" : "1";
   issues.push({ kind: "unknown-operator", detail: op });
   return "0";
 }

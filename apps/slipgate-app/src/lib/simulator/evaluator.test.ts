@@ -70,3 +70,42 @@ describe("evaluateExpression -- comparison", () => {
     expect(evaluateExpression("5 < 3").result).toBe(false);
   });
 });
+
+describe("evaluateExpression -- isin", () => {
+  test("substring match", () => {
+    expect(evaluateExpression("'rl' isin 'sg ssg rl lg'").result).toBe(true);
+    expect(evaluateExpression("'gl' isin 'sg ssg rl lg'").result).toBe(false);
+  });
+  test("!isin negates", () => {
+    expect(evaluateExpression("'gl' !isin 'sg ssg rl lg'").result).toBe(true);
+    expect(evaluateExpression("'rl' !isin 'sg ssg rl lg'").result).toBe(false);
+  });
+});
+
+describe("evaluateExpression -- logical", () => {
+  test("&& both true", () => {
+    expect(evaluateExpression("1 == 1 && 2 == 2").result).toBe(true);
+    expect(evaluateExpression("1 == 1 && 2 == 3").result).toBe(false);
+  });
+  test("|| either true", () => {
+    expect(evaluateExpression("1 == 1 || 2 == 3").result).toBe(true);
+    expect(evaluateExpression("1 == 2 || 2 == 3").result).toBe(false);
+  });
+  test("keyword variants", () => {
+    expect(evaluateExpression("1 == 1 and 2 == 2").result).toBe(true);
+    expect(evaluateExpression("1 == 1 AND 2 == 2").result).toBe(true);
+    expect(evaluateExpression("1 == 2 or 2 == 2").result).toBe(true);
+    expect(evaluateExpression("1 == 2 OR 2 == 2").result).toBe(true);
+  });
+});
+
+describe("evaluateExpression -- precedence", () => {
+  test("&& binds tighter than ||", () => {
+    // 0 || (1 && 0) == 0
+    expect(evaluateExpression("1 == 2 || 1 == 1 && 1 == 2").result).toBe(false);
+  });
+  test("parens override", () => {
+    expect(evaluateExpression("(1 == 2 || 1 == 1) && 1 == 2").result).toBe(false);
+    expect(evaluateExpression("(1 == 2 || 1 == 1) && 1 == 1").result).toBe(true);
+  });
+});
