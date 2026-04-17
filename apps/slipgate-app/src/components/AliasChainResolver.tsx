@@ -191,7 +191,10 @@ export function AliasChainView(props: {
   }
 
   const trace = createMemo<TraceStep[]>(() => {
-    if ((props.mode ?? "pretty") !== "pretty") return [];
+    // Compute the trace in both Pretty and Raw modes so the active-leaf
+    // highlight (sg-alias-chain-entry-active) applies in either display.
+    // The activeBranches memo below only affects PrettyCmd's inline branch-grey
+    // styling, which is already gated by the Pretty-mode <Show> on the row.
     if (!props.playerState || !props.primaryCvars) return [];
     if (props.chain.length === 0) return [];
     // IMPORTANT: feed the evaluator only the ROOT alias body. Earlier we
