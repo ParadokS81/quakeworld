@@ -3,6 +3,11 @@ import type { JSX } from "solid-js";
 import type {
   PlayerState, Weapon, Powerup, ArmorClass, MatchStatus, LedColor,
 } from "../lib/simulator";
+import {
+  deriveWeaponsString, deriveBestWeapon, deriveBestAmmo,
+  derivePowerupsString, deriveArmortype, deriveColoredArmor,
+  deriveWeaponNum, deriveAmmo,
+} from "../lib/simulator";
 
 interface StatePanelProps {
   state: PlayerState;
@@ -46,6 +51,12 @@ export default function StatePanel(props: StatePanelProps) {
           <EnumSelect value={props.state.armorClass} options={ARMOR_CLASSES}
             onChange={(v) => update("armorClass", v as ArmorClass)} />
         </Row>
+        <DerivedBlock rows={[
+          ["$armortype", deriveArmortype(props.state, props.cvars)],
+          ["$colored_armor", deriveColoredArmor(props.state)],
+        ]} />
+        <InfluencingCvarsBlock cvars={props.cvars}
+          names={["tp_name_armortype_ga","tp_name_armortype_ya","tp_name_armortype_ra","tp_name_armortype_none"]} />
       </Section>
 
       <Section title="Weapons">
@@ -63,6 +74,15 @@ export default function StatePanel(props: StatePanelProps) {
           <EnumSelect value={props.state.currentWeapon} options={WEAPONS}
             onChange={(v) => update("currentWeapon", v as Weapon)} />
         </Row>
+        <DerivedBlock rows={[
+          ["$weapons", deriveWeaponsString(props.state, props.cvars)],
+          ["$bestweapon", deriveBestWeapon(props.state, props.cvars)],
+          ["$bestammo", String(deriveBestAmmo(props.state, props.cvars))],
+          ["$weaponnum", String(deriveWeaponNum(props.state))],
+          ["$ammo", String(deriveAmmo(props.state))],
+        ]} />
+        <InfluencingCvarsBlock cvars={props.cvars}
+          names={["tp_weapon_order","tp_name_sg","tp_name_ssg","tp_name_ng","tp_name_sng","tp_name_gl","tp_name_rl","tp_name_lg"]} />
       </Section>
 
       <Section title="Ammo">
@@ -83,6 +103,11 @@ export default function StatePanel(props: StatePanelProps) {
             )}</For>
           </div>
         </Row>
+        <DerivedBlock rows={[
+          ["$powerups", derivePowerupsString(props.state, props.cvars)],
+        ]} />
+        <InfluencingCvarsBlock cvars={props.cvars}
+          names={["tp_name_quad","tp_name_pent","tp_name_ring","tp_name_biosuit","tp_poweruptextstyle"]} />
       </Section>
 
       <Section title="Location">
@@ -169,5 +194,49 @@ function EnumSelect<T extends string>(props: {
       onChange={(e) => props.onChange(e.currentTarget.value as T)}>
       <For each={props.options}>{(o) => <option value={o}>{o}</option>}</For>
     </select>
+  );
+}
+
+function DerivedBlock(props: { rows: [string, string][] }) {
+  return (
+    <div class="sg-state-derived">
+      <div class="sg-state-block-label">Derived</div>
+      <For each={props.rows}>{([name, value]) => (
+        <div class="sg-state-derived-row">
+          <span class="sg-state-derived-name">{name}</span>
+          <span class="sg-state-derived-value">{value}</span>
+        </div>
+      )}</For>
+    </div>
+  );
+}
+
+// ezQuake defaults for commonly-referenced cvars. Extend as needed.
+const CVAR_DEFAULTS: Record<string, string> = {
+  tp_weapon_order: "8 7 5 3 4 6 2 1",
+  tp_name_sg: "sg", tp_name_ssg: "ssg", tp_name_ng: "ng", tp_name_sng: "sng",
+  tp_name_gl: "gl", tp_name_rl: "rl", tp_name_lg: "lg", tp_name_axe: "axe",
+  tp_name_quad: "quad", tp_name_pent: "pent", tp_name_ring: "eyes", tp_name_biosuit: "biosuit",
+  tp_name_armortype_ga: "g", tp_name_armortype_ya: "y", tp_name_armortype_ra: "r", tp_name_armortype_none: "",
+  tp_poweruptextstyle: "0",
+};
+
+function InfluencingCvarsBlock(props: { cvars: Map<string, string>; names: string[] }) {
+  return (
+    <div class="sg-state-cvars">
+      <div class="sg-state-block-label">Influencing cvars</div>
+      <For each={props.names}>{(name) => {
+        const def = CVAR_DEFAULTS[name] ?? "";
+        const user = props.cvars.get(name);
+        const customized = user !== undefined && user !== def;
+        return (
+          <div class={`sg-state-cvar-row ${customized ? "sg-state-cvar-row-customized" : ""}`}>
+            <span class="sg-state-cvar-name">{name}</span>
+            <span class="sg-state-cvar-default">{def || "(empty)"}</span>
+            <span class="sg-state-cvar-user">{user ?? "(default)"}</span>
+          </div>
+        );
+      }}</For>
+    </div>
   );
 }
