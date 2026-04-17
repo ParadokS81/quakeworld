@@ -102,3 +102,36 @@ describe("$variable substitution", () => {
     expect(white?.origin).toBe("variable");
   });
 });
+
+describe("$X char-code expansion", () => {
+  const state = createDefaultPlayerState();
+  const ctx = { state, cvars: new Map<string, string>(), resolver: null };
+
+  test("$] emits gold right bracket with qw-g class", () => {
+    const r = buildSpanTree("$]", ctx);
+    expect(r.spans.length).toBe(1);
+    expect(r.spans[0].text).toBe("]");
+    expect(r.spans[0].origin).toBe("charcode");
+    expect(r.spans[0].color).toEqual({ kind: "qw", class: "qw-g" });
+    expect(r.spans[0].rawToken).toBe("$]");
+  });
+
+  test("$, emits white bullet with qw-w class", () => {
+    const r = buildSpanTree("$,", ctx);
+    expect(r.spans[0].text).toBe("\u2022");
+    expect(r.spans[0].color).toEqual({ kind: "qw", class: "qw-w" });
+  });
+
+  test("$. emits brown bullet with qw-b class (since 0x9C > 0x9B)", () => {
+    const r = buildSpanTree("$.", ctx);
+    // 0x9C & 0x7F = 0x1C, which maps to bullet \u2022; color is qw-b because 0x9C >= 0x80
+    expect(r.spans[0].text).toBe("\u2022");
+    expect(r.spans[0].color).toEqual({ kind: "qw", class: "qw-b" });
+  });
+
+  test("unknown $X falls through as literal", () => {
+    const r = buildSpanTree("$!x", ctx);
+    const joined = r.spans.map((s) => s.text).join("");
+    expect(joined).toBe("$!x");
+  });
+});

@@ -1,6 +1,7 @@
 import type { PlayerState, Issue } from "./simulator/index.js";
 import { expandVars } from "./simulator/index.js";
 import type { RuntimeResolver } from "./runtimeResolver.js";
+import { expandDollarCode, qwByteToChar, qwByteColor } from "./charCodeTable.js";
 
 export type SpanColor =
   | { kind: "qw"; class: "qw-w" | "qw-g" | "qw-b" }
@@ -113,28 +114,50 @@ function runParser(
         }
       }
     }
-    if (c === "$") {
-      const m = input.slice(i).match(/^\$(\w+)/);
-      if (m) {
-        flush();
-        const name = m[1];
-        const raw = "$" + name;
-        const { text, issues: exIssues } = expandVars(raw, ctx.state, ctx.cvars);
-        issues.push(...exIssues);
-        if (text === raw) {
-          const top = stack[stack.length - 1];
-          out.push({
-            text: raw,
-            color: top.current,
-            origin: "unresolved",
-            rawToken: raw,
-            tooltip: `${raw} - not found in this config or state`,
-          });
-        } else {
-          out.push(...runParser(text, stack, ctx, issues, "variable", raw));
+    if (c === "$" && i + 1 < input.length) {
+      const next = input[i + 1];
+      if (/\w/.test(next)) {
+        const m = input.slice(i).match(/^\$(\w+)/);
+        if (m) {
+          flush();
+          const name = m[1];
+          const raw = "$" + name;
+          const { text, issues: exIssues } = expandVars(raw, ctx.state, ctx.cvars);
+          issues.push(...exIssues);
+          if (text === raw) {
+            const top = stack[stack.length - 1];
+            out.push({
+              text: raw, color: top.current, origin: "unresolved", rawToken: raw,
+              tooltip: `${raw} - not found in this config or state`,
+            });
+          } else {
+            out.push(...runParser(text, stack, ctx, issues, "variable", raw));
+          }
+          i += raw.length;
+          continue;
         }
-        i += raw.length;
-        continue;
+      } else {
+        const byte = expandDollarCode(next);
+        if (byte !== null) {
+          flush();
+          const ch = qwByteToChar(byte);
+          const colorClass = qwByteColor(byte);
+          const top = stack[stack.length - 1];
+          const qwClass: "qw-w" | "qw-g" | "qw-b" =
+            colorClass === "w" ? "qw-w" : colorClass === "g" ? "qw-g" : "qw-b";
+          const color: SpanColor = top.current.kind === "default"
+            ? { kind: "qw", class: qwClass }
+            : top.current;
+          out.push({
+            text: ch,
+            color,
+            origin: "charcode",
+            rawToken: "$" + next,
+            tooltip: `$${next} - QW char code (byte 0x${byte.toString(16).padStart(2, "0")})`,
+          });
+          i += 2;
+          continue;
+        }
       }
     }
 
