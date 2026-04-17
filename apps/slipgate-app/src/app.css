@@ -554,6 +554,11 @@ input[type="number"] {
 .sg-span-branch-inactive {
   opacity: 0.32;
 }
+/* Alias-chain row whose say_team/etc leaf fires under current PlayerState. */
+.sg-alias-chain-entry-active {
+  background: color-mix(in oklch, var(--sg-kb-selected) 10%, transparent);
+  box-shadow: inset 2px 0 0 var(--sg-kb-selected);
+}
 .sg-span-branch-inactive.sg-span-runtime,
 .sg-span-branch-inactive.sg-span-variable {
   text-decoration: none;

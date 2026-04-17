@@ -215,11 +215,13 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {},
   );
 
-  // Resolver for %token expansion in Pretty mode. Simulator mode falls back to
-  // LabelResolver when no currentState is available.
+  // Resolver for %token expansion in Pretty mode. Reads live PlayerState from
+  // kbState.simulatorState() so edits in the right-rail State panel update
+  // pretty output reactively. Simulator mode falls back to LabelResolver when
+  // no state is available.
   const resolver = createMemo((): RuntimeResolver => {
     if (aliasChainResolver() === "simulator") {
-      const state = props.profile?.prefs.simulator.currentState;
+      const state = kbState.simulatorState();
       if (state) {
         const cvars = new Map(Object.entries(effectiveCvars()));
         return createSimulatorResolver(state, cvars);
@@ -228,8 +230,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return createLabelResolver();
   });
 
-  const playerState = (): PlayerState | undefined =>
-    props.profile?.prefs.simulator.currentState;
+  const playerState = (): PlayerState | undefined => kbState.simulatorState();
 
   const userCreatedCvars = createMemo((): Set<string> =>
     mergedData()?.userCreated ?? new Set<string>(),

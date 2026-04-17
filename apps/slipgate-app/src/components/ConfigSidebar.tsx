@@ -167,9 +167,9 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
           />
           Hide defaults
         </label>
-        <div class="flex items-center gap-2 px-3 py-1 text-xs">
-          <span class="text-[var(--sg-section-label)]">Alias chains:</span>
-          <div class="join">
+        <div class="flex flex-col gap-1 py-1 text-xs">
+          <span class="text-[var(--sg-section-label)]">Alias chains</span>
+          <div class="join self-start">
             <button
               class={`join-item btn btn-xs ${props.aliasChainMode === "pretty" ? "btn-primary" : "btn-ghost"}`}
               onClick={() => props.onAliasChainModeChange("pretty")}
@@ -180,9 +180,9 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
             >Raw</button>
           </div>
         </div>
-        <div class="flex items-center gap-2 px-3 py-1 text-xs">
-          <span class="text-[var(--sg-section-label)]">Tokens:</span>
-          <div class="join">
+        <div class="flex flex-col gap-1 py-1 text-xs">
+          <span class="text-[var(--sg-section-label)]">Tokens</span>
+          <div class="join self-start">
             <button
               class={`join-item btn btn-xs ${props.aliasChainResolver === "label" ? "btn-primary" : "btn-ghost"}`}
               onClick={() => props.onAliasChainResolverChange("label")}

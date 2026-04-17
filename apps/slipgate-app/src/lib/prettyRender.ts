@@ -143,7 +143,7 @@ function runParser(
       text: buf,
       color: top.current,
       origin: originOverride ?? "literal",
-      ...(rawTokenOverride ? { rawToken: rawTokenOverride } : {}),
+      ...(rawTokenOverride ? { rawToken: rawTokenOverride, tooltip: rawTokenOverride } : {}),
     });
     buf = "";
   }

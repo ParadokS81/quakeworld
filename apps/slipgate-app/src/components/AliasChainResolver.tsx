@@ -196,6 +196,17 @@ export function AliasChainView(props: {
     return m;
   });
 
+  // Commands (seg text) of say/say_team/tp_msg_* leaves that fired under the
+  // current PlayerState. Used to highlight the alias row that produced the
+  // active chat output.
+  const activeLeafCommands = createMemo(() => {
+    const set = new Set<string>();
+    for (const step of trace()) {
+      if (step.kind === "leaf" && step.text) set.add(step.text.trim());
+    }
+    return set;
+  });
+
   return (
     <Show when={props.chain.length > 0 || macroDeps().length > 0}>
       <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
@@ -203,26 +214,30 @@ export function AliasChainView(props: {
           <div class="sg-alias-chain-label">{props.label}</div>
         </Show>
         <For each={props.chain}>
-          {(entry) => (
-            <div
-              class="sg-alias-chain-entry"
-              style={{ "padding-left": `${12 + entry.depth * 16}px` }}
-            >
-              <span class="sg-alias-chain-name">{entry.name}</span>
-              <Show
-                when={(props.mode ?? "pretty") === "pretty"}
-                fallback={<span class="sg-alias-chain-cmd">{entry.command}</span>}
+          {(entry) => {
+            const isActive = () => activeLeafCommands().has(entry.command.trim());
+            return (
+              <div
+                class={`sg-alias-chain-entry ${isActive() ? "sg-alias-chain-entry-active" : ""}`}
+                style={{ "padding-left": `${12 + entry.depth * 16}px` }}
+                title={isActive() ? "Active output under current player state" : undefined}
               >
-                <PrettyCmd
-                  cmd={entry.command}
-                  state={props.playerState ?? createDefaultPlayerState()}
-                  cvars={cvarMap(props.primaryCvars)}
-                  resolver={props.resolver ?? null}
-                  activeBranches={activeBranches()}
-                />
-              </Show>
-            </div>
-          )}
+                <span class="sg-alias-chain-name">{entry.name}</span>
+                <Show
+                  when={(props.mode ?? "pretty") === "pretty"}
+                  fallback={<span class="sg-alias-chain-cmd">{entry.command}</span>}
+                >
+                  <PrettyCmd
+                    cmd={entry.command}
+                    state={props.playerState ?? createDefaultPlayerState()}
+                    cvars={cvarMap(props.primaryCvars)}
+                    resolver={props.resolver ?? null}
+                    activeBranches={activeBranches()}
+                  />
+                </Show>
+              </div>
+            );
+          }}
         </For>
         <Show when={macroDeps().length > 0}>
           <div class="sg-alias-chain-macro-deps">
