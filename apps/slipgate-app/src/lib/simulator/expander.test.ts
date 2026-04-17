@@ -60,3 +60,46 @@ describe("expandVars -- unresolved", () => {
     expect(r.issues).toHaveLength(2);
   });
 });
+
+describe("expandVars -- recursive", () => {
+  test("cvar value containing $var re-expanded", () => {
+    const s = createDefaultPlayerState(); s.health = 87;
+    const cvars = new Map([["tp_name_rl", "rl $health"]]);
+    expect(expandVars("$tp_name_rl", s, cvars).text).toBe("rl 87");
+  });
+  test("multi-level nesting", () => {
+    const s = createDefaultPlayerState();
+    const cvars = new Map([["level1", "[$level2]"], ["level2", "deep"]]);
+    expect(expandVars("$level1", s, cvars).text).toBe("[deep]");
+  });
+  test("cycle hits depth cap", () => {
+    const s = createDefaultPlayerState();
+    const cvars = new Map([["a", "$b"], ["b", "$a"]]);
+    const r = expandVars("$a", s, cvars);
+    expect(r.issues.some((i) => i.kind === "depth-cap-reached")).toBe(true);
+  });
+});
+
+describe("expandVars -- $qt", () => {
+  test("$qt -> double quote", () => {
+    const s = createDefaultPlayerState();
+    const out = expandVars("$qt$weapons$qt", s, new Map());
+    expect(out.text.startsWith('"')).toBe(true);
+    expect(out.text.endsWith('"')).toBe(true);
+  });
+});
+
+describe("expandVars -- positional args", () => {
+  test("%1 first arg", () => {
+    const s = createDefaultPlayerState();
+    expect(expandVars("hello %1", s, new Map(), ["world"]).text).toBe("hello world");
+  });
+  test("%2 second arg", () => {
+    const s = createDefaultPlayerState();
+    expect(expandVars("%1 %2", s, new Map(), ["foo", "bar"]).text).toBe("foo bar");
+  });
+  test("unused %N preserved", () => {
+    const s = createDefaultPlayerState();
+    expect(expandVars("%1 %2", s, new Map(), ["foo"]).text).toBe("foo %2");
+  });
+});

@@ -60,19 +60,47 @@ function resolveToken(name: string, state: PlayerState, cvars: Map<string, strin
   return null;
 }
 
+const MAX_EXPAND_DEPTH = 8;
+
 export function expandVars(
   text: string,
   state: PlayerState,
   cvars: Map<string, string>,
+  positionalArgs: string[] = [],
 ): ExpandResult {
   const issues: Issue[] = [];
-  const out = text.replace(/\$(\w+)/g, (raw, name) => {
-    const resolved = resolveToken(name, state, cvars);
-    if (resolved === null) {
-      issues.push({ kind: "unresolved-var", detail: `$${name}` });
-      return raw;
+
+  function expand(current: string, depth: number): string {
+    if (depth >= MAX_EXPAND_DEPTH) {
+      issues.push({
+        kind: "depth-cap-reached",
+        detail: `expansion depth cap (${MAX_EXPAND_DEPTH}) in "${current}"`,
+      });
+      return current;
     }
-    return resolved;
-  });
-  return { text: out, issues };
+
+    // Positional args %1..%9.
+    const afterPos = current.replace(/%([1-9])/g, (raw, digit) => {
+      const idx = Number(digit) - 1;
+      return positionalArgs[idx] ?? raw;
+    });
+
+    // $qt -> ".
+    const afterQt = afterPos.replace(/\$qt\b/g, '"');
+
+    // $name references, potentially recursive.
+    return afterQt.replace(/\$(\w+)/g, (raw, name) => {
+      const resolved = resolveToken(name, state, cvars);
+      if (resolved === null) {
+        issues.push({ kind: "unresolved-var", detail: `$${name}` });
+        return raw;
+      }
+      if (/\$\w+|%[1-9]/.test(resolved)) {
+        return expand(resolved, depth + 1);
+      }
+      return resolved;
+    });
+  }
+
+  return { text: expand(text, 0), issues };
 }
