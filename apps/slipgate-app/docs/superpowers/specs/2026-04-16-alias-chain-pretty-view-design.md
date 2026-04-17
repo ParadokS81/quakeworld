@@ -92,13 +92,32 @@ The span tree builder runs four nested passes over the input string:
 
 2. **`$variable` substitution.** For each emitted range, scans for `$(\w+)` patterns. For each match, looks up the variable name in `primaryCvars` + user-`set` vars. If found, the variable's value is recursively re-parsed starting from stage 1 (so nested colors render correctly). If not found, the raw token is emitted with `origin: unresolved`. Depth-capped at 8 (same cap as `resolveAliasChain`).
 
-3. **`%runtime` token labeling.** Scans each range for `%(\w+)` patterns. Looks up the token in a label table seeded from `ezquake-macros.json` (label = pretty name, tooltip = `desc` field). If found, emits with `origin: runtime`. If not found, emits as `unresolved`.
+3. **`%runtime` token resolution.** Scans each range for `%(\w+)` patterns. Each match is passed to a `RuntimeResolver` (see 3.5 below) which returns `{ display, tooltip, origin }`. If the resolver returns `null` (token unknown), the span is emitted as `unresolved`.
 
 4. **`$X` char-code expansion.** Any remaining `$X` sequences (not caught by stage 2 because `X` is a single non-word char like `]`, `,`, `.`, `<`, `>`) are expanded via the single-char dollar code table ported from `ezquake.rs:432-467` (`expand_dollar_code`). Output is a glyph + QW color class via `qw_byte_to_char` + `qw_byte_color` (also ported).
 
 Stages 2-4 operate on each output span from stage 1 independently, preserving the stage-1 color state.
 
-### 3.4 Parser location
+### 3.5 RuntimeResolver interface
+
+Stage 3 delegates `%token` resolution to a pluggable resolver. This is the extension point that lets a future player-state simulator produce real values without changes to the pretty-view internals.
+
+```ts
+interface RuntimeResolver {
+  resolve(token: string): RuntimeResolution | null;
+}
+
+interface RuntimeResolution {
+  display: string;     // what pretty view renders in the span
+  tooltip: string;     // what hover shows
+  origin: "runtime";   // pretty view's origin tag for the span
+  active?: boolean;    // reserved: simulator sets true if this token contributes to an active branch
+}
+```
+
+Tier 2 ships one implementation, `LabelResolver`, which maps each known token to its human label (`%a` -> `armor`) with the `desc` from `ezquake-macros.json` as the tooltip. An independent parallel workstream (see 10 Future directions) is building a `SimulatorResolver` that resolves tokens to values from a `PlayerState` object. When that ships, the viewer gets a mode toggle (`Label | Simulator`) that swaps the resolver injected into the pretty render. Nothing in the tokenizer or span tree changes.
+
+### 3.6 Parser location
 
 Parser lives in the TS frontend (`src/lib/prettyRender.ts` or similar; final filenames resolved during planning). Rationale:
 
@@ -201,7 +220,7 @@ The following components and modules are affected. No file renames or moves. Eac
 - **[tier 1]** `src/components/AliasChainResolver.tsx` - adds Pretty rendering path alongside existing raw output. `AliasChainView` gets a `mode: "pretty" | "raw"` prop with a per-row override toggle in the header. Existing `sg-alias-chain-cmd` spans gain an alternative Pretty render branch.
 - **[tier 1]** `src/lib/prettyRender.ts` (new) - span tree builder, color-stack state machine, variable resolver, charcode expander. Pure functions, no solid-js imports.
 - **[tier 1]** `src/lib/charCodeTable.ts` (new) - TS port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color` from `ezquake.rs:432-523`. Kept small and static.
-- **[tier 2]** `src/lib/runtimeMacroLabels.ts` (new) - label table derived from `ezquake-macros.json`, with curated short-form mappings.
+- **[tier 2]** `src/lib/runtimeResolver.ts` (new) - exports the `RuntimeResolver` interface and the tier-2 `LabelResolver` implementation, backed by a label table derived from `ezquake-macros.json` with curated short-form mappings. The file is the integration contract for the parallel simulator workstream (see 10 Future directions).
 - **[tier 1]** `src/store.ts` + `src/types.ts` - `ProfilePrefs` gains `alias_chain_mode: "pretty" | "raw"`, migrated with default `"pretty"`.
 - **[tier 1]** CSS (existing `sg-alias-chain-*` block) - new classes for origin treatments: `sg-span-literal`, `sg-span-variable`, `sg-span-charcode`, `sg-span-unresolved`, plus color helpers `qw-default`, reused `qw-w` / `qw-g` / `qw-b`. **[tier 2]** adds `sg-span-runtime`.
 
@@ -234,11 +253,11 @@ Strings are short (teamsay bodies rarely exceed a few hundred characters). Alias
 
 These are captured so the design does not accidentally foreclose them. None are implemented in tiers 1-2.
 
-- **Outcome enumeration.** A teamsay bind is a branching program; the interesting question for a user examining a bind is "what are all the possible chat lines this can emit, and what conditions produce each?" Because the span-tree IR keeps conditional branches as siblings (not pre-resolved), an outcome enumerator becomes a tree walker: each root-to-leaf path through the conditional tree yields one possible pretty-rendered chat line. A future view could list all outcomes for a bind with their guards collapsed.
+- **Player state simulator (parallel workstream).** A `PlayerState` model (health, armor+type, owned weapons, ammo per type, powerups, location, team) plus a condition evaluator for ezQuake `if ... then ... else` expressions plus a `SimulatorResolver` implementation of the `RuntimeResolver` interface defined in 3.5. Lets the user tweak simulated state in a side panel and see the pretty-rendered outputs update with real values, with the active conditional branch highlighted through the chain. Developed in a separate terminal as a self-contained module; integrates with the pretty view only through the `RuntimeResolver` contract in `src/lib/runtimeResolver.ts`. When it lands, the viewer gains a `Label | Simulator` mode toggle.
+- **Outcome enumeration.** A teamsay bind is a branching program; the interesting question for a user examining a bind is "what are all the possible chat lines this can emit, and what conditions produce each?" Because the span-tree IR keeps conditional branches as siblings (not pre-resolved), an outcome enumerator becomes a tree walker over the span tree. Each root-to-leaf path yields one possible pretty-rendered chat line. Shares the condition evaluator with the player state simulator.
 - **Teamsay creator.** The span tree IR is also a document model. A rich-text editor that emits spans can serialize back to valid ezQuake cfg syntax (colors to `&c` codes, white scopes to `{...}`, runtime placeholders to `%tokens`). Pretty view and creator share the same primitives.
 - **True conchars fidelity.** For screenshot export or WYSIWYG chat preview, swap Unicode glyphs for an SVG sprite sheet driven by the conchars.png layout. The span tree doesn't change - only the glyph rendering helper.
 - **Cross-config pretty diff.** Render both sides of compare mode in pretty; visual diff by span comparison rather than string comparison.
-- **Editable substitution preview.** Let the user plug in arbitrary values for `%runtime` tokens ("what if health is 15 and armor is 150") and see the pretty render update. Useful for debugging teamsay logic.
 
 ## 11. Open questions
 
