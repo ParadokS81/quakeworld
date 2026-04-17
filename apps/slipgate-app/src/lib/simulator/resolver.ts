@@ -19,7 +19,9 @@ const SHORT_FORM_ALIASES: Record<string, string> = {
   c: "cells", r: "rockets", n: "nails", s: "shells",
   p: "powerups", d: "deathloc", t: "took",
   x: "ammo", y: "weaponnum",
-  u: "need",
+  // %u and %need are engine-derived: they compute a space-joined list of
+  // items currently under their tp_need_* threshold, NOT the $need cvar.
+  // No short-form alias -- "u" dispatches as its own token in the expander.
 };
 
 const TOKEN_DESCRIPTIONS: Record<string, string> = {
@@ -56,7 +58,8 @@ const TOKEN_DESCRIPTIONS: Record<string, string> = {
   droploc: "last backpack drop location",
   droptime: "seconds since last drop",
   lastpowerup: "last powerup taken",
-  need: "current item the player needs (ezQuake teamplay need state; resolves against $need cvar)",
+  u: "space-joined list of items under tp_need_* thresholds (engine-derived)",
+  need: "space-joined list of items under tp_need_* thresholds (engine-derived; alias of %u)",
 };
 
 export function createSimulatorResolver(

@@ -113,12 +113,17 @@ describe("deriveArmortype", () => {
 });
 
 describe("deriveColoredArmor", () => {
-  test("threshold bands", () => {
+  test("color follows armorClass, not value", () => {
     const s = createDefaultPlayerState();
-    s.armor = 15; expect(deriveColoredArmor(s)).toBe("&cf0015&r");
-    s.armor = 40; expect(deriveColoredArmor(s)).toBe("&cff040&r");
-    s.armor = 75; expect(deriveColoredArmor(s)).toBe("&c0f075&r");
-    s.armor = 150; expect(deriveColoredArmor(s)).toBe("&cfff150&r");
+    s.armor = 100;
+    s.armorClass = "ra"; expect(deriveColoredArmor(s)).toBe("&cf00100&r");
+    s.armorClass = "ya"; expect(deriveColoredArmor(s)).toBe("&cff0100&r");
+    s.armorClass = "ga"; expect(deriveColoredArmor(s)).toBe("&c0f0100&r");
+  });
+  test("no armor / none class -> plain value string, no color", () => {
+    const s = createDefaultPlayerState();
+    s.armor = 0;   s.armorClass = "ra"; expect(deriveColoredArmor(s)).toBe("0");
+    s.armor = 50;  s.armorClass = "none"; expect(deriveColoredArmor(s)).toBe("50");
   });
 });
 

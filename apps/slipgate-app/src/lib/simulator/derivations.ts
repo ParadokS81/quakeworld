@@ -106,7 +106,13 @@ export function deriveArmortype(state: PlayerState, cvars: Map<string, string>):
 // Health bands per ezQuake colored_armor: <25 red, 25-49 yellow, 50-100 green, >100 white.
 export function deriveColoredArmor(state: PlayerState): string {
   const a = state.armor;
-  const code = a < 25 ? "f00" : a < 50 ? "ff0" : a <= 100 ? "0f0" : "fff";
+  if (a <= 0 || state.armorClass === "none") return String(a);
+  // Color follows the armor class, matching ezQuake's $colored_armor behavior
+  // (ra -> red, ya -> yellow, ga -> green). Independent of value bands.
+  const code =
+    state.armorClass === "ra" ? "f00" :
+    state.armorClass === "ya" ? "ff0" :
+    state.armorClass === "ga" ? "0f0" : "fff";
   return `&c${code}${a}&r`;
 }
 
@@ -133,4 +139,65 @@ export function deriveBestAmmo(state: PlayerState, cvars: Map<string, string>): 
     }
   }
   return 0;
+}
+
+// ezQuake default thresholds for tp_need_* cvars. A threshold of 0 disables
+// the check for that category (matches StatePanel's NEED_DEFAULTS, keep in
+// sync). Only armor + health default nonzero in a fresh install.
+const NEED_DEFAULTS: Record<string, number> = {
+  tp_need_health: 50,
+  tp_need_armor: 50,
+  tp_need_rockets: 5,
+  tp_need_cells: 30,
+  tp_need_shells: 0,
+  tp_need_nails: 0,
+};
+
+function needThreshold(cvars: Map<string, string>, cvarName: string): number {
+  const raw = cvars.get(cvarName);
+  if (raw !== undefined) {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+  return NEED_DEFAULTS[cvarName] ?? 0;
+}
+
+/**
+ * Derive %u / %need -- space-joined list of items currently under their
+ * tp_need_* threshold. Categories with a threshold of 0 are skipped.
+ * Ordering matches ezQuake's teamplay.c: armor, health, weapons, ammo.
+ * Item names come from tp_name_* cvars when set, else sensible defaults.
+ */
+export function deriveNeed(state: PlayerState, cvars: Map<string, string>): string {
+  const parts: string[] = [];
+
+  const armorThreshold = needThreshold(cvars, "tp_need_armor");
+  if (armorThreshold > 0 && state.armor < armorThreshold) {
+    // Prefer the armortype-specific name (tp_name_armortype_*) so the team
+    // can tell which armor is wanted; fall back to tp_name_armor when the
+    // player has no armor class or the cvar is unset.
+    const typed = cvars.get(`tp_name_armortype_${state.armorClass}`);
+    const generic = cvars.get("tp_name_armor");
+    parts.push((typed && typed.length > 0 ? typed : generic) ?? "armor");
+  }
+
+  const healthThreshold = needThreshold(cvars, "tp_need_health");
+  if (healthThreshold > 0 && state.health < healthThreshold) {
+    parts.push(cvars.get("tp_name_health") ?? "health");
+  }
+
+  const ammoChecks: Array<[string, number, string, string]> = [
+    ["tp_need_rockets", state.rockets, "tp_name_rockets", "rockets"],
+    ["tp_need_cells",   state.cells,   "tp_name_cells",   "cells"],
+    ["tp_need_shells",  state.shells,  "tp_name_shells",  "shells"],
+    ["tp_need_nails",   state.nails,   "tp_name_nails",   "nails"],
+  ];
+  for (const [threshCvar, value, nameCvar, fallback] of ammoChecks) {
+    const t = needThreshold(cvars, threshCvar);
+    if (t > 0 && value < t) {
+      parts.push(cvars.get(nameCvar) ?? fallback);
+    }
+  }
+
+  return parts.join(" ");
 }

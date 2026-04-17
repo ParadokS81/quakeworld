@@ -2,7 +2,7 @@ import type { PlayerState, Issue } from "./types.js";
 import {
   deriveWeaponsString, deriveBestWeapon, deriveBestAmmo,
   derivePowerupsString, deriveArmortype, deriveColoredArmor,
-  deriveWeaponNum, deriveAmmo,
+  deriveWeaponNum, deriveAmmo, deriveNeed,
 } from "./derivations.js";
 
 export interface ExpandResult {
@@ -20,6 +20,14 @@ function resolveDerived(name: string, state: PlayerState, cvars: Map<string, str
     case "colored_armor": return deriveColoredArmor(state);
     case "weaponnum": return String(deriveWeaponNum(state));
     case "ammo": return String(deriveAmmo(state));
+    // %u / %need: derived list of under-threshold items. NOTE: we only
+    // derive when the token name is exactly "u" (the ezQuake short form);
+    // bare "need" still resolves via the $need cvar so conditionals like
+    // `if ('$need' == '$tp_name_nothing')` keep working. The SimulatorResolver
+    // uses a TOKEN_DESCRIPTIONS entry for "u" so %u and %need both surface
+    // as runtime tokens in the pretty view, but the derivation only fires
+    // for the "u" canonical form.
+    case "u": return deriveNeed(state, cvars);
     default: return null;
   }
 }
