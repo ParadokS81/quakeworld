@@ -1,5 +1,9 @@
 import { For, Show } from "solid-js";
 import { lookupCvar } from "qw-config";
+import type { PlayerState } from "../lib/simulator/index.js";
+import { createDefaultPlayerState } from "../lib/simulator/index.js";
+import { buildSpanTree, type SpanColor } from "../lib/prettyRender.js";
+import type { RuntimeResolver } from "../lib/runtimeResolver.js";
 
 /* --- Alias chain resolution --- */
 
@@ -69,6 +73,47 @@ interface MacroDepEntry {
   isCustomized: boolean;
 }
 
+function cvarMap(rec?: Record<string, string>): Map<string, string> {
+  const m = new Map<string, string>();
+  if (!rec) return m;
+  for (const [k, v] of Object.entries(rec)) m.set(k, v);
+  return m;
+}
+
+function colorStyle(c: SpanColor): { class?: string; style?: Record<string, string> } {
+  if (c.kind === "qw") return { class: c.class };
+  if (c.kind === "hex") return { style: { color: c.value } };
+  return { class: "qw-default" };
+}
+
+function PrettyCmd(props: {
+  cmd: string;
+  state: PlayerState;
+  cvars: Map<string, string>;
+  resolver: RuntimeResolver | null;
+}) {
+  const result = () => buildSpanTree(props.cmd, {
+    state: props.state, cvars: props.cvars, resolver: props.resolver,
+  });
+  return (
+    <span class="sg-alias-chain-cmd">
+      <For each={result().spans}>
+        {(s) => {
+          const cs = colorStyle(s.color);
+          const originClass = `sg-span-${s.origin}`;
+          return (
+            <span
+              class={[originClass, cs.class].filter(Boolean).join(" ")}
+              style={cs.style}
+              title={s.tooltip}
+            >{s.text}</span>
+          );
+        }}
+      </For>
+    </span>
+  );
+}
+
 export function AliasChainView(props: {
   chain: AliasChainEntry[];
   label?: string;
@@ -76,6 +121,9 @@ export function AliasChainView(props: {
   macroRefs?: Set<string>;
   primaryCvars?: Record<string, string>;
   hideDefaults?: boolean;
+  mode?: "pretty" | "raw";
+  playerState?: PlayerState;
+  resolver?: RuntimeResolver | null;
 }) {
   function macroDeps(): MacroDepEntry[] {
     if (!props.macroRefs || !props.primaryCvars) return [];
@@ -118,7 +166,17 @@ export function AliasChainView(props: {
               style={{ "padding-left": `${12 + entry.depth * 16}px` }}
             >
               <span class="sg-alias-chain-name">{entry.name}</span>
-              <span class="sg-alias-chain-cmd">{entry.command}</span>
+              <Show
+                when={(props.mode ?? "pretty") === "pretty"}
+                fallback={<span class="sg-alias-chain-cmd">{entry.command}</span>}
+              >
+                <PrettyCmd
+                  cmd={entry.command}
+                  state={props.playerState ?? createDefaultPlayerState()}
+                  cvars={cvarMap(props.primaryCvars)}
+                  resolver={props.resolver ?? null}
+                />
+              </Show>
             </div>
           )}
         </For>
