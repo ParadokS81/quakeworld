@@ -1,7 +1,7 @@
-import { For, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import { lookupCvar } from "qw-config";
-import type { PlayerState } from "../lib/simulator/index.js";
-import { createDefaultPlayerState } from "../lib/simulator/index.js";
+import type { PlayerState, TraceStep } from "../lib/simulator/index.js";
+import { createDefaultPlayerState, evaluateTeamsay } from "../lib/simulator/index.js";
 import { buildSpanTree, type SpanColor } from "../lib/prettyRender.js";
 import type { RuntimeResolver } from "../lib/runtimeResolver.js";
 
@@ -91,6 +91,7 @@ function PrettyCmd(props: {
   state: PlayerState;
   cvars: Map<string, string>;
   resolver: RuntimeResolver | null;
+  trace?: TraceStep[];
 }) {
   const result = () => buildSpanTree(props.cmd, {
     state: props.state, cvars: props.cvars, resolver: props.resolver,
@@ -153,6 +154,16 @@ export function AliasChainView(props: {
     return entries;
   }
 
+  const trace = createMemo<TraceStep[]>(() => {
+    if ((props.mode ?? "pretty") !== "pretty") return [];
+    if (!props.playerState || !props.primaryCvars) return [];
+    const body = props.chain.map((e) => e.command).join("; ");
+    const cvars = cvarMap(props.primaryCvars);
+    const aliases = new Map<string, string>();
+    for (const e of props.chain) aliases.set(e.name, e.command);
+    return evaluateTeamsay(body, props.playerState, cvars, aliases).trace;
+  });
+
   return (
     <Show when={props.chain.length > 0 || macroDeps().length > 0}>
       <div class={`sg-alias-chain ${props.ownerClass ?? ""}`}>
@@ -175,6 +186,7 @@ export function AliasChainView(props: {
                   state={props.playerState ?? createDefaultPlayerState()}
                   cvars={cvarMap(props.primaryCvars)}
                   resolver={props.resolver ?? null}
+                  trace={trace()}
                 />
               </Show>
             </div>
