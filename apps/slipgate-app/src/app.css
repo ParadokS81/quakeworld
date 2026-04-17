@@ -64,6 +64,7 @@
   --sg-section-label: #5c6b75;
   --sg-text-dim: #989da6;
   --sg-text-bright: #c4cacf;
+  --sg-qw-default: #c8a078;
   --sg-header-shadow: #23272f;
   --sg-tab-selected-shadow: #12151a;
   --sg-tab-hover-top: #536672;
@@ -526,6 +527,34 @@ input[type="number"] {
 
 /* Gold — brackets and digits (0x10-0x1B) */
 .qw-g { color: #c89b29; }
+
+/* Pretty-render spans: origin treatments */
+.qw-default { color: var(--sg-qw-default); }
+
+.sg-span-literal {
+  color: var(--sg-text-dim);
+  font-family: "Geist Mono", monospace;
+}
+.sg-span-variable {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--sg-text-dim);
+  cursor: help;
+}
+.sg-span-charcode {
+  cursor: help;
+}
+.sg-span-unresolved {
+  opacity: 0.55;
+  font-weight: 600;
+}
+.sg-span-unresolved::before {
+  content: "\25CF";
+  color: var(--sg-warning, #d97706);
+  margin-right: 2px;
+  font-size: 0.7em;
+  vertical-align: middle;
+}
 
 .qw-name-team {
   font-size: inherit;
