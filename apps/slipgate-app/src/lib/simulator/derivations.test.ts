@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { deriveWeaponsString } from "./derivations.js";
+import { deriveWeaponsString, deriveBestWeapon } from "./derivations.js";
 import { createDefaultPlayerState } from "./defaults.js";
 
 describe("deriveWeaponsString", () => {
@@ -25,5 +25,49 @@ describe("deriveWeaponsString", () => {
     const s = createDefaultPlayerState();
     s.ownedWeapons = new Set(["sg", "rl", "lg"]);
     expect(deriveWeaponsString(s, new Map())).toBe("lg rl sg");
+  });
+});
+
+describe("deriveBestWeapon", () => {
+  test("picks highest-priority owned with ammo (default tp_weapon_order)", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg", "rl"]);
+    s.rockets = 5;
+    s.shells = 25;
+    // Default "8 7 5 3 4 6 2 1" -> rl(7) before sg(2), both qualify.
+    expect(deriveBestWeapon(s, new Map())).toBe("rl");
+  });
+
+  test("skips weapons without ammo", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg", "rl"]);
+    s.rockets = 0;
+    s.shells = 25;
+    expect(deriveBestWeapon(s, new Map())).toBe("sg");
+  });
+
+  test("respects custom tp_weapon_order", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["lg", "rl"]);
+    s.cells = 30;
+    s.rockets = 5;
+    const cvars = new Map([["tp_weapon_order", "7 8 5 3 4 6 2 1"]]);
+    expect(deriveBestWeapon(s, cvars)).toBe("rl");
+  });
+
+  test("uses user tp_name_* value in result", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["rl"]);
+    s.rockets = 5;
+    const cvars = new Map([["tp_name_rl", "{&cf13rl&cfff}"]]);
+    expect(deriveBestWeapon(s, cvars)).toBe("{&cf13rl&cfff}");
+  });
+
+  test("falls back to tp_name_sg default when nothing qualifies", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["rl"]);
+    s.rockets = 0;
+    s.shells = 0;
+    expect(deriveBestWeapon(s, new Map())).toBe("sg");
   });
 });
