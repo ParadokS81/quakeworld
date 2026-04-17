@@ -308,8 +308,9 @@ function DerivedBlock(props: { rows: [string, string][] }) {
   );
 }
 
-// ezQuake default thresholds for tp_need_* cvars.
-// 0 means "never considered needed" -- NeedHint hides when value is 0.
+// ezQuake default thresholds for tp_need_* cvars. 0 means "never considered
+// needed" in practice (shells/nails) but we still render it -- the information
+// is useful and consistent with how influencing cvars render defaults.
 const NEED_DEFAULTS: Record<string, string> = {
   tp_need_health: "50",
   tp_need_armor: "50",
@@ -320,10 +321,14 @@ const NEED_DEFAULTS: Record<string, string> = {
 };
 
 function NeedHint(props: { cvars: Map<string, string>; cvarName: string }) {
-  const value = props.cvars.get(props.cvarName) ?? NEED_DEFAULTS[props.cvarName] ?? "";
-  if (value === "0" || value === "") return null;
+  const def = NEED_DEFAULTS[props.cvarName] ?? "";
+  const user = props.cvars.get(props.cvarName);
+  const customized = user !== undefined && user !== def;
+  const value = user ?? def;
   return (
-    <span class="sg-state-need-hint">need &lt; {value}</span>
+    <span class="sg-state-need-hint" classList={{ "sg-state-need-hint-customized": customized }}>
+      need &lt; {value}
+    </span>
   );
 }
 

@@ -2260,5 +2260,10 @@ input[type="number"] {
   color: var(--sg-text-dim);
   font-family: monospace;
   white-space: nowrap;
+  opacity: 0.75;
+}
+.sg-state-need-hint-customized {
+  color: var(--sg-text-bright);
+  opacity: 1;
 }
 
