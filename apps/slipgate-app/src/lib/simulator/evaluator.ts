@@ -85,3 +85,110 @@ export interface EvaluateResult {
   result: boolean;
   issues: Issue[];
 }
+
+type AstNode =
+  | { kind: "literal"; value: string }
+  | { kind: "binary"; op: string; left: AstNode; right: AstNode }
+  | { kind: "unary"; op: string; arg: AstNode };
+
+interface ParseState {
+  tokens: Token[];
+  pos: number;
+  issues: Issue[];
+}
+
+function peek(p: ParseState): Token | null {
+  return p.pos < p.tokens.length ? p.tokens[p.pos] : null;
+}
+function consume(p: ParseState): Token | null {
+  return p.pos < p.tokens.length ? p.tokens[p.pos++] : null;
+}
+function expectRParen(p: ParseState): void {
+  const tok = consume(p);
+  if (!tok || tok.kind !== "rparen") {
+    p.issues.push({ kind: "malformed-condition", detail: "expected )" });
+  }
+}
+
+function parsePrimary(p: ParseState): AstNode {
+  const tok = consume(p);
+  if (!tok) {
+    p.issues.push({ kind: "malformed-condition", detail: "unexpected end of expression" });
+    return { kind: "literal", value: "" };
+  }
+  if (tok.kind === "number" || tok.kind === "string") {
+    return { kind: "literal", value: tok.value };
+  }
+  if (tok.kind === "lparen") {
+    const inner = parseExpression(p);
+    expectRParen(p);
+    return inner;
+  }
+  if (tok.kind === "op" && tok.value === "-") {
+    return { kind: "unary", op: "-", arg: parsePrimary(p) };
+  }
+  p.issues.push({ kind: "malformed-condition", detail: `unexpected token: ${tok.value}` });
+  return { kind: "literal", value: "" };
+}
+
+const COMPARISON_OPS = new Set([
+  "==", "!=", "<>", "<", "<=", ">", ">=", "=", "isin", "!isin", "=~", "!~",
+]);
+
+function parseComparison(p: ParseState): AstNode {
+  const left = parsePrimary(p);
+  const tok = peek(p);
+  if (tok && tok.kind === "op" && COMPARISON_OPS.has(tok.value)) {
+    consume(p);
+    const right = parsePrimary(p);
+    return { kind: "binary", op: tok.value, left, right };
+  }
+  return left;
+}
+
+function parseExpression(p: ParseState): AstNode {
+  return parseComparison(p);
+}
+
+function isNumeric(s: string): boolean {
+  if (s.length === 0) return false;
+  return /^-?\d+(\.\d+)?$/.test(s.trim());
+}
+
+function evalNode(node: AstNode, issues: Issue[]): string {
+  if (node.kind === "literal") return node.value;
+  if (node.kind === "unary" && node.op === "-") {
+    const v = evalNode(node.arg, issues);
+    if (isNumeric(v)) return String(-parseFloat(v));
+    return `-${v}`;
+  }
+  if (node.kind === "binary") {
+    const l = evalNode(node.left, issues);
+    const r = evalNode(node.right, issues);
+    return evalBinary(node.op, l, r, issues);
+  }
+  return "";
+}
+
+function evalBinary(op: string, l: string, r: string, issues: Issue[]): string {
+  if (op === "==" || op === "=" || op === "!=" || op === "<>") {
+    const equal = isNumeric(l) && isNumeric(r)
+      ? parseFloat(l) === parseFloat(r)
+      : l === r;
+    const inequality = op === "!=" || op === "<>";
+    return (equal !== inequality) ? "1" : "0";
+  }
+  if (op === "<") return parseFloat(l) < parseFloat(r) ? "1" : "0";
+  if (op === ">") return parseFloat(l) > parseFloat(r) ? "1" : "0";
+  if (op === "<=") return parseFloat(l) <= parseFloat(r) ? "1" : "0";
+  if (op === ">=") return parseFloat(l) >= parseFloat(r) ? "1" : "0";
+  issues.push({ kind: "unknown-operator", detail: op });
+  return "0";
+}
+
+export function evaluateExpression(expr: string): EvaluateResult {
+  const p: ParseState = { tokens: tokenize(expr), pos: 0, issues: [] };
+  const ast = parseExpression(p);
+  const value = evalNode(ast, p.issues);
+  return { result: value === "1" || value.toLowerCase() === "true", issues: p.issues };
+}

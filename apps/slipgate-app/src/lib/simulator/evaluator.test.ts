@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { tokenize } from "./evaluator.js";
+import { tokenize, evaluateExpression } from "./evaluator.js";
 
 describe("tokenize", () => {
   test("numbers, strings, ops, parens", () => {
@@ -43,5 +43,30 @@ describe("tokenize", () => {
     for (const op of ["+", "-", "*", "/"]) {
       expect(tokenize(`1 ${op} 1`)[1]).toEqual({ kind: "op", value: op });
     }
+  });
+});
+
+describe("evaluateExpression -- comparison", () => {
+  test("numeric equality", () => {
+    expect(evaluateExpression("5 == 5").result).toBe(true);
+    expect(evaluateExpression("5 = 5").result).toBe(true);
+    expect(evaluateExpression("5 == 6").result).toBe(false);
+  });
+  test("string equality (non-numeric operands)", () => {
+    expect(evaluateExpression("'rl' == 'rl'").result).toBe(true);
+    expect(evaluateExpression("'5' == '5a'").result).toBe(false);
+    expect(evaluateExpression(`"foo" = "foo"`).result).toBe(true);
+  });
+  test("inequality", () => {
+    expect(evaluateExpression("5 != 6").result).toBe(true);
+    expect(evaluateExpression("5 <> 5").result).toBe(false);
+    expect(evaluateExpression("'a' != 'b'").result).toBe(true);
+  });
+  test("numeric ordering", () => {
+    expect(evaluateExpression("3 < 5").result).toBe(true);
+    expect(evaluateExpression("5 > 3").result).toBe(true);
+    expect(evaluateExpression("5 <= 5").result).toBe(true);
+    expect(evaluateExpression("5 >= 5").result).toBe(true);
+    expect(evaluateExpression("5 < 3").result).toBe(false);
   });
 });
