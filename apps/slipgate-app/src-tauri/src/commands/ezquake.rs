@@ -308,12 +308,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
                 let rest = rest.trim();
                 let mut bind_parts = rest.splitn(2, char::is_whitespace);
                 if let (Some(bind_key), Some(bind_cmd)) = (bind_parts.next(), bind_parts.next()) {
-                    let cmd = bind_cmd.trim();
-                    let cmd = if cmd.starts_with('"') && cmd.ends_with('"') && cmd.len() >= 2 {
-                        &cmd[1..cmd.len() - 1]
-                    } else {
-                        cmd
-                    };
+                    let cmd = strip_quote_wrap(bind_cmd.trim());
                     bindings.push((bind_key.to_uppercase(), cmd.to_string()));
                 }
             }
@@ -329,12 +324,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
                 if let (Some(alias_name), Some(alias_cmd)) =
                     (alias_parts.next(), alias_parts.next())
                 {
-                    let cmd = alias_cmd.trim();
-                    let cmd = if cmd.starts_with('"') && cmd.ends_with('"') && cmd.len() >= 2 {
-                        &cmd[1..cmd.len() - 1]
-                    } else {
-                        cmd
-                    };
+                    let cmd = strip_quote_wrap(alias_cmd.trim());
                     aliases.insert(alias_name.to_string(), cmd.to_string());
                 }
             }
@@ -358,12 +348,7 @@ pub(crate) fn parse_config(content: &str) -> ParsedConfig {
                 let rest = rest.trim();
                 let mut var_parts = rest.splitn(2, char::is_whitespace);
                 if let (Some(var_name), Some(var_val)) = (var_parts.next(), var_parts.next()) {
-                    let val = var_val.trim();
-                    let val = if val.starts_with('"') && val.ends_with('"') && val.len() >= 2 {
-                        &val[1..val.len() - 1]
-                    } else {
-                        val
-                    };
+                    let val = strip_quote_wrap(var_val.trim());
                     cvars.insert(var_name.to_string(), val.to_string());
                     user_created.insert(var_name.to_string());
                 }
@@ -742,6 +727,22 @@ fn format_key_name(key: &str) -> String {
         k if k.len() == 1 => k.to_uppercase(),
         k => k.to_string(),
     }
+}
+
+/// Strip surrounding double quotes from a quoted value. Tolerant of the
+/// unterminated-quote typo common in hand-edited configs (e.g. murdoc's
+/// slackers_tp.cfg has three `alias NAME "body` lines with no closing `"`,
+/// which ezQuake itself accepts). Returns a borrowed slice with leading and
+/// trailing `"` removed when present; either one alone is still stripped.
+fn strip_quote_wrap(s: &str) -> &str {
+    let mut out = s;
+    if out.starts_with('"') {
+        out = &out[1..];
+    }
+    if out.ends_with('"') {
+        out = &out[..out.len() - 1];
+    }
+    out
 }
 
 /// Resolve a command through aliases (one level deep, then check resolved).
@@ -2241,6 +2242,50 @@ pub fn classify_chain_binds(chain: ConfigChain) -> ChainBindClassification {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unterminated_quote_strips_leading_quote() {
+        // Three real examples from murdoc's slackers_tp.cfg: lines 137, 204, 207.
+        // The author forgot the closing " and ezQuake accepts them in-game.
+        let content = r#"
+tempalias __need_check                   "if ('$need' == '$tp_name_nothing') then else .msg.need
+tempalias .msg.status.report             "say_team $\$tpname $bestweapon [{%l}] $powerups
+bind x                                   "__status_report
+set myvar                                "somevalue
+"#;
+        let parsed = parse_config(content);
+
+        let need = parsed.aliases.get("__need_check").expect("__need_check parsed");
+        assert!(!need.starts_with('"'), "leading quote not stripped: {:?}", need);
+        assert_eq!(need, "if ('$need' == '$tp_name_nothing') then else .msg.need");
+
+        let report = parsed.aliases.get(".msg.status.report").expect(".msg.status.report parsed");
+        assert!(!report.starts_with('"'), "leading quote not stripped: {:?}", report);
+        assert_eq!(report, "say_team $\\$tpname $bestweapon [{%l}] $powerups");
+
+        // Well-formed quoted bodies still strip both sides.
+        let bind_cmd = &parsed.bindings.iter().find(|(k, _)| k == "X").expect("bind x parsed").1;
+        assert_eq!(bind_cmd, "__status_report");
+
+        let myvar = parsed.cvars.get("myvar").expect("myvar parsed");
+        assert_eq!(myvar, "somevalue");
+    }
+
+    #[test]
+    fn well_formed_quotes_still_strip_both_sides() {
+        let content = r#"
+alias hello                              "say hello world"
+bind y                                   "impulse 7"
+set othervar                             "quoted value"
+"#;
+        let parsed = parse_config(content);
+        assert_eq!(parsed.aliases.get("hello").unwrap(), "say hello world");
+        assert_eq!(
+            parsed.bindings.iter().find(|(k, _)| k == "Y").unwrap().1,
+            "impulse 7"
+        );
+        assert_eq!(parsed.cvars.get("othervar").unwrap(), "quoted value");
+    }
 
     #[test]
     fn test_parse_config() {
