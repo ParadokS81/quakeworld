@@ -951,6 +951,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 onToggleBindLabels={toggleBindLabels}
                 mode={kbState.rightPanelMode()}
                 onModeChange={kbState.setRightPanelMode}
+                onModeToggle={kbState.toggleRightPanel}
                 statePanel={
                   <StatePanel
                     state={kbState.simulatorState()}

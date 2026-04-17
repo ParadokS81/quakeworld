@@ -21,9 +21,14 @@ interface ConfigKeyboardPanelProps {
   compare?: ChainBindClassification | null;
   /** Relative path of the comparison config file, shown as a label above its keyboard. */
   compareName?: string | null;
-  /** When false, the panel renders only a slim "Show keyboard" button. */
+  /** When false, the panel renders only a slim toolbar. */
   visible: boolean;
   onToggleVisible: () => void;
+  /**
+   * Tri-state toggle: clicking the active view hides; clicking the inactive
+   * view switches to it and shows. Replaces the separate Hide/Show button.
+   */
+  onModeToggle: (m: "keyboard" | "state") => void;
   /**
    * External selection -- when set, keyboards highlight matching keys.
    * Array form supports modifier combos: a single key click can pin
@@ -212,17 +217,20 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   return (
     <div class="sg-config-kb-panel" classList={{ "sg-config-kb-panel-collapsed": !props.visible }}>
-      <div class="sg-config-kb-header">
-        <button
-          class="btn btn-ghost btn-xs"
-          onClick={props.onToggleVisible}
-          title={props.visible ? "Hide keyboard panel" : "Show keyboard panel"}
-        >
-          {props.visible ? "Hide keyboard" : "Show keyboard"}
-        </button>
-      </div>
-      <Show when={props.visible}>
-        <div class="sg-config-kb-toolbar">
+      <div class="sg-config-kb-toolbar">
+        <div class="sg-config-kb-mode-toggle">
+          <button
+            class="sg-config-kb-module-btn"
+            classList={{ "sg-config-kb-module-btn-active": props.visible && props.mode === "keyboard" }}
+            onClick={() => props.onModeToggle("keyboard")}
+          >Keyboard</button>
+          <button
+            class="sg-config-kb-module-btn"
+            classList={{ "sg-config-kb-module-btn-active": props.visible && props.mode === "state" }}
+            onClick={() => props.onModeToggle("state")}
+          >State</button>
+        </div>
+        <Show when={props.visible && props.mode === "keyboard"}>
           <div class="sg-config-kb-toolbar-main">
             <div class="sg-config-kb-toggle-bar">
               <button
@@ -251,18 +259,6 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               </button>
             </div>
           </div>
-          <div class="sg-config-kb-mode-toggle">
-            <button
-              class="sg-config-kb-module-btn"
-              classList={{ "sg-config-kb-module-btn-active": props.mode === "keyboard" }}
-              onClick={() => props.onModeChange("keyboard")}
-            >Keyboard</button>
-            <button
-              class="sg-config-kb-module-btn"
-              classList={{ "sg-config-kb-module-btn-active": props.mode === "state" }}
-              onClick={() => props.onModeChange("state")}
-            >State</button>
-          </div>
           <div class="sg-config-kb-toolbar-module">
             {props.availableModules.map((m) => {
               const labels: Record<KeyboardRightModule, string> = {
@@ -281,44 +277,44 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               );
             })}
           </div>
-        </div>
-        <Show when={props.mode === "keyboard"}>
-          <Show when={props.primary}>
-            <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
-              <Show when={props.primaryName}>
-                <div class="sg-config-kb-label">{props.primaryName}</div>
-              </Show>
-              <KeyboardLayout
-                movement={props.primary!.movement}
-                highlights={primaryHighlights()}
-                showMovement={props.showMovement}
-                onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
-                selectedKeyIds={yourSelectedIds()}
-                rightModule={primaryModule()}
-                keyLabels={primaryKeyLabels()}
-              />
-            </div>
-          </Show>
-          <Show when={isCompare()}>
-            <div class="sg-config-kb-wrap sg-config-kb-frame-them">
-              <Show when={props.compareName}>
-                <div class="sg-config-kb-label">{props.compareName}</div>
-              </Show>
-              <KeyboardLayout
-                movement={props.compare!.movement}
-                highlights={compareHighlights()}
-                showMovement={props.showMovement}
-                onKeyClick={(id) => handleKeyClick(compareInput(), id)}
-                selectedKeyIds={theirSelectedIds()}
-                rightModule={compareModule()}
-                keyLabels={compareKeyLabels()}
-              />
-            </div>
-          </Show>
         </Show>
-        <Show when={props.mode === "state"}>
-          {props.statePanel}
+      </div>
+      <Show when={props.visible && props.mode === "keyboard"}>
+        <Show when={props.primary}>
+          <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
+            <Show when={props.primaryName}>
+              <div class="sg-config-kb-label">{props.primaryName}</div>
+            </Show>
+            <KeyboardLayout
+              movement={props.primary!.movement}
+              highlights={primaryHighlights()}
+              showMovement={props.showMovement}
+              onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
+              selectedKeyIds={yourSelectedIds()}
+              rightModule={primaryModule()}
+              keyLabels={primaryKeyLabels()}
+            />
+          </div>
         </Show>
+        <Show when={isCompare()}>
+          <div class="sg-config-kb-wrap sg-config-kb-frame-them">
+            <Show when={props.compareName}>
+              <div class="sg-config-kb-label">{props.compareName}</div>
+            </Show>
+            <KeyboardLayout
+              movement={props.compare!.movement}
+              highlights={compareHighlights()}
+              showMovement={props.showMovement}
+              onKeyClick={(id) => handleKeyClick(compareInput(), id)}
+              selectedKeyIds={theirSelectedIds()}
+              rightModule={compareModule()}
+              keyLabels={compareKeyLabels()}
+            />
+          </div>
+        </Show>
+      </Show>
+      <Show when={props.visible && props.mode === "state"}>
+        {props.statePanel}
       </Show>
     </div>
   );

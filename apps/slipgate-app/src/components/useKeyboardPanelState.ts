@@ -205,6 +205,27 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     } catch (e) { console.error("reset sim state:", e); }
   }
 
+  async function toggleRightPanel(target: "keyboard" | "state") {
+    const currentlyVisible = visible();
+    const currentMode = rightPanelMode();
+    if (currentlyVisible && currentMode === target) {
+      // Same-view click while visible -> hide.
+      setVisible(false);
+      try { await updatePrefs({ config_keyboard_visible: false }); }
+      catch (e) { console.error("persist panel visibility:", e); }
+      return;
+    }
+    // Otherwise show the target view.
+    setVisible(true);
+    setRightPanelModeSignal(target);
+    try {
+      await updatePrefs({
+        config_keyboard_visible: true,
+        config_right_panel_mode: target,
+      });
+    } catch (e) { console.error("persist panel visibility+mode:", e); }
+  }
+
   return {
     selection,
     setSelection,
@@ -225,6 +246,7 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     availableModules: input.availableModules,
     rightPanelMode,
     setRightPanelMode,
+    toggleRightPanel,
     simulatorState,
     updateSimState,
     templates,
