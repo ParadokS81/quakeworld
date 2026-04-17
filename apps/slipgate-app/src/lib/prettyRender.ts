@@ -1,4 +1,5 @@
 import type { PlayerState, Issue } from "./simulator/index.js";
+import { expandVars } from "./simulator/index.js";
 import type { RuntimeResolver } from "./runtimeResolver.js";
 
 export type SpanColor =
@@ -41,19 +42,37 @@ function expandHex12(hex: string): string {
   return "#" + hex.split("").map((c) => c + c).join("");
 }
 
-export function buildSpanTree(input: string, _ctx: BuildContext): BuildResult {
+export function buildSpanTree(input: string, ctx: BuildContext): BuildResult {
   if (input.length === 0) return { spans: [], issues: [] };
-  const spans: PrettySpan[] = [];
+  const issues: Issue[] = [];
   const stack: Frame[] = [{
     defaultColor: { kind: "default" },
     current: { kind: "default" },
   }];
+  const spans = runParser(input, stack, ctx, issues);
+  return { spans, issues };
+}
+
+function runParser(
+  input: string,
+  stack: Frame[],
+  ctx: BuildContext,
+  issues: Issue[],
+  originOverride?: SpanOrigin,
+  rawTokenOverride?: string,
+): PrettySpan[] {
+  const out: PrettySpan[] = [];
   let buf = "";
 
   function flush() {
     if (buf.length === 0) return;
     const top = stack[stack.length - 1];
-    spans.push({ text: buf, color: top.current, origin: "literal" });
+    out.push({
+      text: buf,
+      color: top.current,
+      origin: originOverride ?? "literal",
+      ...(rawTokenOverride ? { rawToken: rawTokenOverride } : {}),
+    });
     buf = "";
   }
 
@@ -94,10 +113,34 @@ export function buildSpanTree(input: string, _ctx: BuildContext): BuildResult {
         }
       }
     }
+    if (c === "$") {
+      const m = input.slice(i).match(/^\$(\w+)/);
+      if (m) {
+        flush();
+        const name = m[1];
+        const raw = "$" + name;
+        const { text, issues: exIssues } = expandVars(raw, ctx.state, ctx.cvars);
+        issues.push(...exIssues);
+        if (text === raw) {
+          const top = stack[stack.length - 1];
+          out.push({
+            text: raw,
+            color: top.current,
+            origin: "unresolved",
+            rawToken: raw,
+            tooltip: `${raw} - not found in this config or state`,
+          });
+        } else {
+          out.push(...runParser(text, stack, ctx, issues, "variable", raw));
+        }
+        i += raw.length;
+        continue;
+      }
+    }
 
     buf += c;
     i++;
   }
   flush();
-  return { spans, issues: [] };
+  return out;
 }

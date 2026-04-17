@@ -74,3 +74,31 @@ describe("color-stack state machine", () => {
     expect(joined).toBe("abc");
   });
 });
+
+describe("$variable substitution", () => {
+  const state = createDefaultPlayerState();
+
+  test("$var resolves via cvars and emits variable-origin span", () => {
+    const cvars = new Map([["tpname", "para"]]);
+    const r = buildSpanTree("hi $tpname", { state, cvars, resolver: null });
+    const varSpan = r.spans.find((s) => s.origin === "variable");
+    expect(varSpan?.text).toBe("para");
+    expect(varSpan?.rawToken).toBe("$tpname");
+  });
+
+  test("unresolved $var emits unresolved-origin span preserving raw token", () => {
+    const r = buildSpanTree("hi $nope there", { state, cvars: new Map(), resolver: null });
+    const bad = r.spans.find((s) => s.origin === "unresolved");
+    expect(bad?.text).toBe("$nope");
+    expect(bad?.rawToken).toBe("$nope");
+  });
+
+  test("nested colors inside substituted value render correctly", () => {
+    const cvars = new Map([["tp_name_rl", "{&cfffrl&cfff}"]]);
+    const r = buildSpanTree("$tp_name_rl", { state, cvars, resolver: null });
+    // Expansion "{&cfffrl&cfff}" produces a white-scope span "rl" then pops.
+    const white = r.spans.find((s) => s.text === "rl");
+    expect(white?.color).toEqual({ kind: "hex", value: "#ffffff" });
+    expect(white?.origin).toBe("variable");
+  });
+});
