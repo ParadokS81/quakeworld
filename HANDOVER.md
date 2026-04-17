@@ -10,6 +10,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [docs-check: session-start git state check](#docs-check-session-start-git-state-check) — mirror Step 9.5 at session start so branch drift is caught before work begins, not just at wrap-up
 - [parallel terminal worktree isolation](#parallel-terminal-worktree-isolation) — two Claude terminals share the monorepo's working directory and HEAD, producing surprises; set up a git worktree for one of them
+- [discord message deep links](#discord-message-deep-links) — add channel_id + guild_id so MCP tool output can include clickable Discord URLs per message
 
 ---
 
@@ -66,3 +67,24 @@ Then the slipgate terminal `cd`s into the worktree. qw-oracle keeps the main wor
 
 - The incident that prompted this: 2026-04-14 session investigation that discovered the oracle commits on the slipgate branch
 - Existing skill: `superpowers:using-git-worktrees` — covers the setup mechanics
+
+---
+
+## discord message deep links
+
+**Added:** 2026-04-17
+**Status:** pending, low effort, high value for bot output
+
+The messages table has Discord snowflake IDs (message primary key) but guild_id is NULL for all 717k Discord messages and channel_id is not stored. The Discord export JSON files at `/home/paradoks/projects/quake/quad/exports/` DO contain `channel_id` per message. All messages come from the single Quake.World Discord server.
+
+To generate clickable `https://discord.com/channels/{guild_id}/{channel_id}/{message_id}` links:
+
+1. Backfill `channel_id` from the export JSON into the messages table (or add a channel_name -> channel_id lookup table; there are only 4 channels)
+2. Hard-code the Quake.World guild_id as a constant (single server)
+3. Add a `discord_url` field to SessionMessage in the MCP tool output for discord-platform messages
+
+IRC messages have no linkable URL -- historical logs only.
+
+### Why it matters
+
+When the oracle's answer is delivered through a Discord bot, linking to the actual community message that informed the answer lets users verify the source and read the surrounding context. Builds trust in the system.
