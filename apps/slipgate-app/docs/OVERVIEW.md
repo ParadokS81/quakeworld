@@ -135,7 +135,23 @@ Click "Convert to FTE" → report view:
 
 **The two pure-logic files to know:**
 - `configMerger.ts` — the comparison brain. Exports `mergeSelectedFiles`, `categorizeBinds`, `synthesizeModifierTeamsayBinds`, `mergeAliases`. Pure functions, no side effects, easy to test. (Weapon-bind modifier synthesis was moved into the Rust classifier — see `weapon_classifier.rs`.)
-- `AliasChainResolver.tsx` (~160 lines) — recursive alias expansion with depth cap, `$variable` macro ref extraction via regex, and inline macro dependency rendering (shows referenced cvars with resolved values below each expanded alias chain).
+- `AliasChainResolver.tsx` — recursive alias expansion with depth cap, `$variable` macro ref extraction via regex, inline macro dependency rendering, and in Pretty mode a span-tree render path plus active-leaf highlighting via the simulator's `evaluateTeamsay` trace (see Alias Chain Pretty View subsystem below).
+
+### Alias Chain Pretty View
+
+A render mode for expanded alias chains that replaces raw ezQuake cfg syntax with a readable, chat-style preview. Shipped 2026-04-17 on top of the Player State Simulator. Two global toggles in the ConfigViewer left sidebar:
+- **Alias chains: Pretty | Raw** — Pretty runs bodies through a span-tree builder (`src/lib/prettyRender.ts`); Raw preserves the pre-pretty display.
+- **Tokens: Label | Simulator** — selects which `RuntimeResolver` resolves `%` runtime macros. Label maps `%a` → "armor" (human label, static). Simulator maps `%a` → the live value from the `PlayerState` signal that `StatePanel` edits, with resolved values re-parsed so color codes baked into tp_name_* cvars render correctly.
+
+**Parser pipeline (`src/lib/prettyRender.ts`, pure TS):** four-stage builder — color-stack state machine for `&cRGB` / `&r` / `{...}` brace scopes → `$variable` substitution delegated to the simulator's `expandVars` → `%token` resolution via injected `RuntimeResolver` → `$X` single-char code expansion from `src/lib/charCodeTable.ts` (TS port of `ezquake.rs:432-523`). Output is a flat array of `PrettySpan` with `{text, color, origin, rawToken, tooltip, branchInactive}`. Rendered span-by-span by `AliasChainResolver.tsx`'s `PrettyCmd` with CSS classes `sg-span-{literal|variable|runtime|charcode|unresolved|branch-inactive}` + `qw-w/g/b/default` for color.
+
+**Active-leaf highlighting:** the trace memo runs `evaluateTeamsay(root, state, cvars, aliases)` against the chain's root body and tints the alias row whose `say_team`-style leaf fires under the current PlayerState (`sg-alias-chain-entry-active`). Before evaluating, `$need` is preset from `deriveNeed(state, cvars)` to mirror ezQuake's `tp_msg_need` pre-exec behavior, outer `"..."` wrapping is stripped from alias bodies (ezQuake's lenient parser keeps those as literal chars in some storage paths, but for evaluation we match the stripped form), and `cl_onload` command chains are simulated via `applyOnloadChain(cvars, aliases)` so team-selector tempaliases (`sr.2` etc) have applied their `set tpname "{&cXXX$nick:&cfff}"` writes before the viewer reads the cvar map.
+
+**Conditional branch dimming (tier 3):** when Simulator mode is on and the chain contains a top-level `if/then/else`, the inactive branch's spans are dimmed (`sg-span-branch-inactive`, 32% opacity). Correlates trace `condition` steps to span tree by condition-expression text.
+
+**LabelResolver** (`src/lib/runtimeResolver.ts`) — static table of `%token` → human label + description. Authored here, no simulator dependency. **SimulatorResolver** — imported as-is from `@/lib/simulator`. Both match the `RuntimeResolver` interface defined in `simulator/resolver.ts`.
+
+**Design / plan:** `docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md` and `docs/superpowers/plans/2026-04-17-alias-chain-pretty-view.md`. Parser and resolver tests colocated at `src/lib/{prettyRender,charCodeTable,runtimeResolver}.test.ts` plus fixture-driven integration at `prettyRender.fixtures.test.ts` against `assets/teamsays/*.cfg`.
 
 ---
 

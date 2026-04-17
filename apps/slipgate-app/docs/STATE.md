@@ -39,6 +39,8 @@ ProfileData {
                                    //   + profile_keyboard_right_module (nav|numpad)
                                    //   + config_right_panel_mode (keyboard|state)
                                    //   + simulator: SimulatorPrefs
+                                   //   + alias_chain_mode (pretty|raw) - default pretty
+                                   //   + alias_chain_resolver (label|simulator) - default label
 }
 
 Setup {

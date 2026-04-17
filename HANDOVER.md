@@ -11,7 +11,9 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
 - [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
-- [Alias chain pretty view](#alias-chain-pretty-view) — inline variable substitution + color code rendering; spec exists + simulator dep shipped, implementation not started
+- [Pretty view status-category highlight bug](#pretty-view-status-category-highlight-bug) — Report + Need/Pwr chains never highlight their active `say_team` leaf despite every other chain working; parallel terminal made progress but needs verification
+- [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
+- [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 
 ---
@@ -71,32 +73,58 @@ All four points are captured in `project_qw_oracle_product_vision.md` memory, bu
 
 ---
 
-## Alias chain pretty view
+## Pretty view status-category highlight bug
 
-**Added:** 2026-04-16, **Updated:** 2026-04-17
-**Status:** spec written, simulator dependency shipped, implementation not started
-**Verification first:** check `apps/slipgate-app/src/components/AliasChainResolver.tsx` — if it has a `mode: "pretty" | "raw"` prop or similar, implementation has started.
+**Added:** 2026-04-17
+**Status:** parallel terminal landed partial fixes (`d0acbd9` parser-side `strip_quote_wrap()` for ezQuake's lenient unterminated-quote handling, `817a72d` trace memo runs in both Pretty and Raw modes), needs live re-verification
+**Verification first:** open ConfigViewer → Teamplay → Binds in Simulator mode. Expand Report (bind `2`) and Need/Pwr (bind `MwheelUp`). If either highlights the active `say_team` leaf under some simulator state (background tint + left border on the row), this is resolved. Expand Safe (F) for the same-state control -- it should always highlight correctly.
 
-An alternative rendering mode for alias chain expansion that replaces raw code with readable output. Full design shipped 2026-04-16 at `apps/slipgate-app/docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md`. Three parsing layers per the spec:
+Two specific bind chains under the STATUS category (Report and Need/Pwr) never highlighted their active leaf through the pretty-view's `evaluateTeamsay`-driven flow. Every other bind chain worked with the same code path. The 2026-04-17 session tried five fixes (root-body-only feed, preset `$need`, strip outer quotes, `%u` derivation, `$colored_armor` by class) -- none cleared these two chains while all other chains kept working.
 
-1. **Variable substitution** — replace `$tp_name_rl` with its resolved value inline, colored to indicate it's a variable.
-2. **Color code rendering** — interpret ezQuake `&cRGB` codes and `{}` brace scoping as actual colored text.
-3. **Runtime token labeling** — `%location`, `%health` etc. shown as labeled placeholders by default; when the Simulator mode toggle is active, resolved to real values via the `SimulatorResolver` (see Player State Simulator in the slipgate OVERVIEW map).
-
-The spec's section 3.5 defines a `RuntimeResolver` interface with two implementations:
-- **LabelResolver** (default) — maps tokens to human-readable labels from `ezquake-macros.json`.
-- **SimulatorResolver** (ready to plug in) — `createSimulatorResolver` from `apps/slipgate-app/src/lib/simulator/resolver.ts`. Ships PlayerState + condition evaluator + teamsay walker. Integration is literally one import and one line of mode-toggle wiring.
-
-When picking this up:
-- Start by reading the spec. It is fully fleshed, tiers 1 + 2 are specified, tier 3 (conditional collapsing) is outlined.
-- The 92 simulator tests at `apps/slipgate-app/src/lib/simulator/*.test.ts` exercise the full surface the pretty-view will consume.
-- Tier 3 work (which-branch-is-active rendering) benefits directly from `evaluateTeamsay`'s trace output — each TraceStep carries `activeBranch: "then" | "else"` for conditions.
+A fresh terminal picked up the issue after the handover prompt was written and landed two commits that may have resolved it. The user did not re-verify before wrapping. When returning to this, start with the repro steps above. If still broken, see the standalone handover at `apps/slipgate-app/docs/superpowers/2026-04-17-pretty-view-status-highlight-handover.md` for the full context of what's been tried and which hypotheses remain open.
 
 ### Related
 
-- Spec: `apps/slipgate-app/docs/superpowers/specs/2026-04-16-alias-chain-pretty-view-design.md`
-- Simulator module: `apps/slipgate-app/src/lib/simulator/` (shipped 2026-04-17)
-- Integration point: `apps/slipgate-app/src/components/AliasChainResolver.tsx` (existing macro ref extraction stays as-is; the pretty view lives alongside it)
+- Handover dossier: `apps/slipgate-app/docs/superpowers/2026-04-17-pretty-view-status-highlight-handover.md`
+- Parser strip helper: `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` (search `strip_quote_wrap`)
+- Matching code: `apps/slipgate-app/src/components/AliasChainResolver.tsx` ~lines 193 (trace memo), 232 (activeLeafCommands), 248 (isActive)
+
+---
+
+## Pretty view + StatePanel visual polish
+
+**Added:** 2026-04-17
+**Status:** deferred by user to tomorrow's session -- "refactoring the visuals on the state machine" and "improvements we can do to visualizations of the pretty mode, it requires a bit of thinking and playing around to see what feels right"
+**Verification first:** ask the user what they landed on before doing anything -- this is intentionally judgment-heavy and needs the user's eye in the loop.
+
+The pretty view and the StatePanel both shipped in their first functional form across 2026-04-17. User has identified that both need visual refinement once real usage surfaces what the display should actually communicate:
+
+- **StatePanel:** v1 is a text-based form with 31 controls across 8 sections. User has a rough HUD-style sketch (weapon ring around a central figure with HP box, armor pips, powerup stack, ammo indicators) but explicitly waited to redesign until real use informed it. Now it has.
+- **Pretty view:** the readability wins are there (colors render, $vars substitute, runtime tokens label or simulate) but the typography/spacing/active-leaf affordance is an early cut. Especially the dotted-underline + hover convention for variable/runtime spans deserves a second look once the user tries it against dense teamsay configs.
+
+Both items are creative / iterative -- not the kind of thing to grind through solo. Pair with the user next session.
+
+### Related
+
+- StatePanel: `apps/slipgate-app/src/components/StatePanel.tsx`
+- Pretty view CSS: `apps/slipgate-app/src/app.css` (search `sg-span-`)
+- Active-leaf tint: `.sg-alias-chain-entry-active` in the same CSS file
+
+---
+
+## Alias chain pretty view cosmetic: duplicate `.msg.point` rows
+
+**Added:** 2026-04-17
+**Status:** known cosmetic limitation, not fixing now
+**Verification first:** open the Point bind's expanded chain in Pretty mode. If `.msg.point` appears twice as separate rows AND both rows highlight when either parent branch reaches `.msg.point`, this issue still holds.
+
+`resolveAliasChain` flattens the alias tree with only per-body dedup (`seen` set per-call scope). When an alias like `.msg.point` is referenced from two different parent branches (e.g. `__point` else AND `__point_powerup` else), it appears twice in the flat chain array. The active-leaf highlight matches on stripped `entry.command` text, so both duplicates highlight identically whenever either path's leaf fires.
+
+Proper fix requires tracking the parent-path to disambiguate -- a non-trivial change that affects the chain visualization data model. Deferred because the user's reaction was "didn't quite understand... is it because 2 different chains end up with that msg" -- the behaviour is internally consistent, just visually redundant. Not blocking anything.
+
+### Related
+
+- `apps/slipgate-app/src/components/AliasChainResolver.tsx` `resolveAliasChain` + `activeLeafCommands` matching
 
 ---
 
