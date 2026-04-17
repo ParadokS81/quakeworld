@@ -70,7 +70,6 @@ interface IfSplit {
   cond: string;
   thenBody: string;
   elseBody: string;
-  after: string;
 }
 
 function splitTopLevelIf(input: string): IfSplit | null {
@@ -84,11 +83,11 @@ function splitTopLevelIf(input: string): IfSplit | null {
   const afterThen = afterIf.slice(thenIdx + 4);
   const elseIdx = findKeyword(afterThen, "else");
   if (elseIdx < 0) {
-    return { before, cond, thenBody: afterThen.trim(), elseBody: "", after: "" };
+    return { before, cond, thenBody: afterThen.trim(), elseBody: "" };
   }
   const thenBody = afterThen.slice(0, elseIdx).trim();
   const elseBody = afterThen.slice(elseIdx + 4).trim();
-  return { before, cond, thenBody, elseBody, after: "" };
+  return { before, cond, thenBody, elseBody };
 }
 
 function literalSpan(text: string, stack: Frame[]): PrettySpan {

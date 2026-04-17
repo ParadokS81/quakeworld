@@ -103,7 +103,6 @@ function PrettyCmd(props: {
   state: PlayerState;
   cvars: Map<string, string>;
   resolver: RuntimeResolver | null;
-  trace?: TraceStep[];
   activeBranches?: Map<string, "then" | "else">;
 }) {
   const result = () => buildSpanTree(props.cmd, {
@@ -219,7 +218,6 @@ export function AliasChainView(props: {
                   state={props.playerState ?? createDefaultPlayerState()}
                   cvars={cvarMap(props.primaryCvars)}
                   resolver={props.resolver ?? null}
-                  trace={trace()}
                   activeBranches={activeBranches()}
                 />
               </Show>
