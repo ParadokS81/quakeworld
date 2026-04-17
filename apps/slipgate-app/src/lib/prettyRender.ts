@@ -202,7 +202,17 @@ function runParser(
               tooltip: `${raw} - not found in this config or state`,
             });
           } else {
-            out.push(...runParser(text, stack, ctx, issues, "variable", raw));
+            // Strip $qt-injected wrapping quotes. The ezQuake idiom
+            // `set X "$qt<body>$qt"` stores the value with embedded outer
+            // quotes so that when `$X` later expands inside `say_team $X`
+            // the engine consumes those quotes as command-arg delimiters.
+            // Our pretty render substitutes as text, so without stripping,
+            // the quotes would show up in chat-style output.
+            let body = text;
+            if (body.length >= 2 && body.startsWith('"') && body.endsWith('"')) {
+              body = body.slice(1, -1);
+            }
+            out.push(...runParser(body, stack, ctx, issues, "variable", raw));
           }
           i += raw.length;
           continue;

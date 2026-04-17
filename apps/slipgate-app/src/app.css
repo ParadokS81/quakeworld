@@ -545,7 +545,6 @@ input[type="number"] {
   cursor: help;
 }
 .sg-span-runtime {
-  font-style: italic;
   text-decoration: underline dotted;
   text-underline-offset: 2px;
   text-decoration-color: var(--sg-text-dim);
