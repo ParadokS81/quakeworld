@@ -113,7 +113,7 @@ export default function StatePanel(props: StatePanelProps) {
         </Row>
         <Row label="Armor class">
           <EnumSelect value={props.state.armorClass} options={ARMOR_CLASSES}
-            onChange={(v) => update("armorClass", v as ArmorClass)} />
+            onChange={(v) => update("armorClass", v as ArmorClass)} width="sm" />
         </Row>
         <DerivedBlock rows={[
           ["$armortype", deriveArmortype(props.state, props.cvars)],
@@ -136,7 +136,7 @@ export default function StatePanel(props: StatePanelProps) {
         </Row>
         <Row label="Current">
           <EnumSelect value={props.state.currentWeapon} options={WEAPONS}
-            onChange={(v) => update("currentWeapon", v as Weapon)} />
+            onChange={(v) => update("currentWeapon", v as Weapon)} width="sm" />
         </Row>
         <DerivedBlock rows={[
           ["$weapons", deriveWeaponsString(props.state, props.cvars)],
@@ -185,7 +185,7 @@ export default function StatePanel(props: StatePanelProps) {
         <Row label="Name"><TextInput value={props.state.matchname} onChange={(v) => update("matchname", v)} /></Row>
         <Row label="Status">
           <EnumSelect value={props.state.matchstatus} options={MATCH_STATUSES}
-            onChange={(v) => update("matchstatus", v as MatchStatus)} />
+            onChange={(v) => update("matchstatus", v as MatchStatus)} width="md" />
         </Row>
         <Row label="Type"><TextInput value={props.state.matchtype} onChange={(v) => update("matchtype", v)} /></Row>
       </Section>
@@ -193,11 +193,11 @@ export default function StatePanel(props: StatePanelProps) {
       <Section title="LEDs & pointing">
         <Row label="Led point">
           <EnumSelect value={props.state.ledpoint} options={LED_COLORS}
-            onChange={(v) => update("ledpoint", v as LedColor)} />
+            onChange={(v) => update("ledpoint", v as LedColor)} width="sm" />
         </Row>
         <Row label="Led status">
           <EnumSelect value={props.state.ledstatus} options={LED_COLORS}
-            onChange={(v) => update("ledstatus", v as LedColor)} />
+            onChange={(v) => update("ledstatus", v as LedColor)} width="sm" />
         </Row>
         <Row label="Point"><TextInput value={props.state.point} onChange={(v) => update("point", v)} /></Row>
         <Row label="Point loc"><TextInput value={props.state.pointloc} onChange={(v) => update("pointloc", v)} /></Row>
@@ -251,10 +251,17 @@ function TextInput(props: { value: string; onChange: (v: string) => void }) {
 }
 
 function EnumSelect<T extends string>(props: {
-  value: T; options: readonly T[]; onChange: (v: T) => void;
+  value: T;
+  options: readonly T[];
+  onChange: (v: T) => void;
+  width?: "sm" | "md" | "lg";
 }) {
+  const widthClass =
+    props.width === "lg" ? "w-32" :
+    props.width === "md" ? "w-24" :
+    "w-20";
   return (
-    <select class="select select-xs" value={props.value}
+    <select class={`select select-xs ${widthClass}`} value={props.value}
       onChange={(e) => props.onChange(e.currentTarget.value as T)}>
       <For each={props.options}>{(o) => <option value={o}>{o}</option>}</For>
     </select>
