@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { deriveWeaponsString, deriveBestWeapon } from "./derivations.js";
+import {
+  deriveWeaponsString, deriveBestWeapon,
+  derivePowerupsString, deriveArmortype, deriveColoredArmor,
+  deriveWeaponNum, deriveAmmo, deriveBestAmmo,
+} from "./derivations.js";
 import { createDefaultPlayerState } from "./defaults.js";
 
 describe("deriveWeaponsString", () => {
@@ -69,5 +73,70 @@ describe("deriveBestWeapon", () => {
     s.rockets = 0;
     s.shells = 0;
     expect(deriveBestWeapon(s, new Map())).toBe("sg");
+  });
+});
+
+describe("derivePowerupsString", () => {
+  test("joins active powerups using tp_name_*", () => {
+    const s = createDefaultPlayerState();
+    s.activePowerups = new Set(["quad", "ring"]);
+    const cvars = new Map([["tp_name_quad", "QUAD"], ["tp_name_ring", "EYES"]]);
+    expect(derivePowerupsString(s, cvars)).toBe("QUAD EYES");
+  });
+  test("empty when no powerups", () => {
+    const s = createDefaultPlayerState();
+    expect(derivePowerupsString(s, new Map())).toBe("");
+  });
+});
+
+describe("deriveArmortype", () => {
+  test("resolves via tp_name_armortype_*", () => {
+    const s = createDefaultPlayerState();
+    s.armorClass = "ga";
+    const cvars = new Map([["tp_name_armortype_ga", "g"]]);
+    expect(deriveArmortype(s, cvars)).toBe("g");
+  });
+  test("defaults when cvar missing", () => {
+    const s = createDefaultPlayerState();
+    s.armorClass = "ra";
+    expect(deriveArmortype(s, new Map())).toBe("r");
+  });
+});
+
+describe("deriveColoredArmor", () => {
+  test("threshold bands", () => {
+    const s = createDefaultPlayerState();
+    s.armor = 15; expect(deriveColoredArmor(s)).toBe("&cf0015&r");
+    s.armor = 40; expect(deriveColoredArmor(s)).toBe("&cff040&r");
+    s.armor = 75; expect(deriveColoredArmor(s)).toBe("&c0f075&r");
+    s.armor = 150; expect(deriveColoredArmor(s)).toBe("&cfff150&r");
+  });
+});
+
+describe("deriveWeaponNum", () => {
+  test("maps weapon to impulse digit", () => {
+    const s = createDefaultPlayerState();
+    s.currentWeapon = "rl"; expect(deriveWeaponNum(s)).toBe(7);
+    s.currentWeapon = "axe"; expect(deriveWeaponNum(s)).toBe(1);
+    s.currentWeapon = "lg"; expect(deriveWeaponNum(s)).toBe(8);
+  });
+});
+
+describe("deriveAmmo / deriveBestAmmo", () => {
+  test("deriveAmmo -> currentWeapon ammo", () => {
+    const s = createDefaultPlayerState();
+    s.currentWeapon = "rl"; s.rockets = 12;
+    expect(deriveAmmo(s)).toBe(12);
+  });
+  test("axe has 0 ammo", () => {
+    const s = createDefaultPlayerState();
+    s.currentWeapon = "axe";
+    expect(deriveAmmo(s)).toBe(0);
+  });
+  test("deriveBestAmmo -> ammo for best weapon", () => {
+    const s = createDefaultPlayerState();
+    s.ownedWeapons = new Set(["sg", "rl"]);
+    s.rockets = 9; s.shells = 25;
+    expect(deriveBestAmmo(s, new Map())).toBe(9);
   });
 });
