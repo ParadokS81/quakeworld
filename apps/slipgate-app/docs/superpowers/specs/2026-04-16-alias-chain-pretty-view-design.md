@@ -90,7 +90,7 @@ The span tree builder runs four nested passes over the input string:
 
 1. **Scope/color state machine.** Walks the string once, maintains the color stack, emits colored text ranges. Brace pairs consumed (produce no output). `&cRGB` and `&r` tokens consumed (update stack, produce no output).
 
-2. **`$variable` substitution.** For each emitted range, scans for `$(\w+)` patterns. For each match, looks up the variable name in `primaryCvars` + user-`set` vars. If found, the variable's value is recursively re-parsed starting from stage 1 (so nested colors render correctly). If not found, the raw token is emitted with `origin: unresolved`. Depth-capped at 8 (same cap as `resolveAliasChain`).
+2. **`$variable` substitution.** Delegated to the shipped simulator module. Each emitted range is passed through `expandVars(text, state, cvars, args)` from `@/lib/simulator` (see `src/lib/simulator/expander.js`). The simulator handles resolution priority (derived tokens > raw state fields > cvars), `$qt` -> `"` escape, `%1`..`%9` positional args, recursion with depth cap 8, and emits `Issue` records for unresolved refs. Nested colors in substituted values flow back through stage 1 on the next recursion pass so they render correctly. Pretty view walks the input token-by-token and correlates each `$(\w+)` match to its simulator resolution so it can tag the resulting span with `origin: variable` (or `unresolved` when `expandVars` leaves the ref literal). In Label mode, `state` is `createDefaultPlayerState()`; in Simulator mode, it is the live `PlayerState` signal from the store.
 
 3. **`%runtime` token resolution.** Scans each range for `%(\w+)` patterns. Each match is passed to a `RuntimeResolver` (see 3.5 below) which returns `{ display, tooltip, origin }`. If the resolver returns `null` (token unknown), the span is emitted as `unresolved`.
 
@@ -115,7 +115,12 @@ interface RuntimeResolution {
 }
 ```
 
-Tier 2 ships one implementation, `LabelResolver`, which maps each known token to its human label (`%a` -> `armor`) with the `desc` from `ezquake-macros.json` as the tooltip. An independent parallel workstream (see 10 Future directions) is building a `SimulatorResolver` that resolves tokens to values from a `PlayerState` object. When that ships, the viewer gets a mode toggle (`Label | Simulator`) that swaps the resolver injected into the pretty render. Nothing in the tokenizer or span tree changes.
+Two implementations coexist in tier 2:
+
+- **`LabelResolver`** (authored here) - maps each known token to its human label (`%a` -> `armor`) with a short description as the tooltip. Static, state-independent, the default mode.
+- **`SimulatorResolver`** (imported from `@/lib/simulator` via `createSimulatorResolver(state, cvars)`) - returns the live value for each token given the current `PlayerState`. Already shipped and matches this interface exactly. Pretty view consumes it as-is, no adaptation.
+
+A `Label | Simulator` mode toggle in the pretty-view header swaps which resolver is injected. Nothing in the tokenizer or span tree changes. The mode toggle is independent of the right-rail `Keyboard | State` toggle (a user may inspect state without switching pretty to Simulator, or vice versa).
 
 ### 3.6 Parser location
 
@@ -186,43 +191,58 @@ Shipped in order. Each tier is a standalone win and doesn't require the next.
 
 - Span-tree IR types.
 - Color-stack state machine (builder stage 1).
-- `$variable` recursive substitution (builder stage 2), reusing depth cap and visited-set logic from the existing `resolveAliasChain`.
-- `$X` single-char code expansion (builder stage 4), port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color`.
+- `$variable` substitution (builder stage 2) - **consumes `expandVars` from `@/lib/simulator`**, does not reimplement. Correlates matches against the simulator's resolution to tag spans as `variable` / `unresolved`.
+- `$X` single-char code expansion (builder stage 4), TS port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color` from `ezquake.rs:432-523`.
 - Per-row Pretty/Raw toggle + global default in `ProfilePrefs`.
 - Visual treatment for origins: literal, variable, charcode, unresolved.
 - Hover tooltips for variables and charcodes.
 - Heuristic-gated scope: only teamsay-vocabulary strings get pretty-rendered.
 
+Tier 1 defaults `state` to `createDefaultPlayerState()`; the resolver pipeline is in place but Simulator mode is dormant until tier 2 wires the mode toggle and live signal.
+
 After tier 1: most of the visual noise from the screenshot in the HANDOVER item is gone. Colors render. `{...}` scopes apply. `$tpname` resolves to `para`. Gold brackets look right. `%a` still displays as literal `%a` but sits inside correctly white-scoped braces.
 
-### Tier 2 - runtime tokens
+### Tier 2 - runtime tokens + resolver modes
 
-- `%token` label table seeded from `ezquake-macros.json` (builder stage 3).
-- Italic treatment for runtime origin.
-- Tooltips for runtime tokens.
-- Label curation: for common single-letter forms (`%a`, `%h`, `%l`, `%y`, `%d`, `%w`) confirm ezQuake's short-to-long mapping (`%a` -> `armor`, etc.) and seed table accordingly. If single-letter forms are not in `ezquake-macros.json` under the short key, extend the data file.
+- `%token` resolution in builder stage 3 via a `RuntimeResolver` injected at the pretty-view root.
+- **`LabelResolver`** (authored here) - static table mapping each known token to a human label + short description for tooltip. Seeded from `ezquake-macros.json` desc fields plus a curated short-form table (`%a` -> `armor`, `%h` -> `health`, etc.) matching the simulator's `SHORT_FORM_ALIASES`.
+- **`SimulatorResolver`** - imported as `createSimulatorResolver(state, cvars)` from `@/lib/simulator`. No adaptation layer.
+- **Pretty-view `Label | Simulator` mode toggle** in the viewer options panel. Independent of the right-rail `Keyboard | State` toggle. Persisted in `ProfilePrefs` alongside the existing Pretty/Raw default.
+- **Live PlayerState subscription** - Simulator-mode pretty rendering reacts to the same signal that `StatePanel` edits, so changing state in the right rail updates pretty output immediately.
+- Italic treatment for runtime origin. Tooltips.
 
-After tier 2: `{%a}/{%h}` reads as "*armor / health*" in white, italicized, hoverable.
+After tier 2: `{%a}/{%h}` reads as "*armor / health*" in Label mode, or "*100 / 100*" (or whatever the current state is) in Simulator mode.
 
-### Tier 3 - conditionals and polish
+### Tier 3 - active-branch highlighting
 
-- `if/then/else` recognized as a `conditional` span-group origin.
-- Collapsible rendering ("when health < 30: X, otherwise: Y").
-- Polish pass on nested variable color inlining edge cases.
-- Optional: prototype sketch of the outcome enumerator (see Future directions).
+With the simulator's `evaluateTeamsay` shipped, conditional handling reduces to a correlation pass:
 
-**Spec coverage:** tiers 1 and 2 are specified in full. Tier 3 is named and outlined but not fully specified - detailed spec revisits happen after tier 1 ships and reality informs the next cut.
+- Call `evaluateTeamsay(chainBody, state, cvars, aliases)` once per expanded chain in Simulator mode.
+- Walk the returned `trace`; for each `TraceStep` with `kind === "condition"` and `activeBranch`, locate the matching condition span in our tree by expression text (fallback: traversal ordinal for duplicates).
+- Dim the inactive branch's subtree; highlight the active branch's path.
+- Surface `issues[]` inline: attach each issue to its originating span (unresolved-var on the variable span, missing-alias on the alias-follow, etc.).
+- Label mode: conditionals render with both branches at equal weight (no evaluation).
+
+**Spec coverage:** tiers 1, 2, and 3 are all specified at implementation fidelity. The correlation question in 11 Open questions is the only item that may require a minor simulator-side extension (stable trace-step id) if text-based matching proves fragile in real fixtures.
 
 ## 7. Component touch points
 
 The following components and modules are affected. No file renames or moves. Each bullet is tagged with the tier it lands in.
 
+**Imported from the shipped simulator module** (`@/lib/simulator`), not re-implemented:
+- `expandVars` - `$var` substitution (consumed in stage 2).
+- `createSimulatorResolver` - `%token` resolution in Simulator mode (consumed in stage 3).
+- `createDefaultPlayerState` - default state for Label mode + tier 1.
+- `evaluateTeamsay` + `TraceStep` - active-branch correlation (consumed in tier 3).
+
+**Authored in this feature:**
+
 - **[tier 1]** `src/components/AliasChainResolver.tsx` - adds Pretty rendering path alongside existing raw output. `AliasChainView` gets a `mode: "pretty" | "raw"` prop with a per-row override toggle in the header. Existing `sg-alias-chain-cmd` spans gain an alternative Pretty render branch.
-- **[tier 1]** `src/lib/prettyRender.ts` (new) - span tree builder, color-stack state machine, variable resolver, charcode expander. Pure functions, no solid-js imports.
+- **[tier 1]** `src/lib/prettyRender.ts` (new) - span tree builder, color-stack state machine, charcode expander. Calls into `@/lib/simulator` for `$var` substitution. Pure functions, no solid-js imports.
 - **[tier 1]** `src/lib/charCodeTable.ts` (new) - TS port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color` from `ezquake.rs:432-523`. Kept small and static.
-- **[tier 2]** `src/lib/runtimeResolver.ts` (new) - exports the `RuntimeResolver` interface and the tier-2 `LabelResolver` implementation, backed by a label table derived from `ezquake-macros.json` with curated short-form mappings. The file is the integration contract for the parallel simulator workstream (see 10 Future directions).
-- **[tier 1]** `src/store.ts` + `src/types.ts` - `ProfilePrefs` gains `alias_chain_mode: "pretty" | "raw"`, migrated with default `"pretty"`.
-- **[tier 1]** CSS (existing `sg-alias-chain-*` block) - new classes for origin treatments: `sg-span-literal`, `sg-span-variable`, `sg-span-charcode`, `sg-span-unresolved`, plus color helpers `qw-default`, reused `qw-w` / `qw-g` / `qw-b`. **[tier 2]** adds `sg-span-runtime`.
+- **[tier 2]** `src/lib/runtimeResolver.ts` (new) - exports the `LabelResolver` implementation only. `SimulatorResolver` is imported from `@/lib/simulator`. The `RuntimeResolver` interface type is re-exported from `@/lib/simulator` (where it is already defined).
+- **[tier 1]** `src/store.ts` + `src/types.ts` - `ProfilePrefs` gains `alias_chain_mode: "pretty" | "raw"` (tier 1) and `alias_chain_resolver: "label" | "simulator"` (tier 2), migrated with defaults `"pretty"` / `"label"`.
+- **[tier 1]** CSS (existing `sg-alias-chain-*` block) - new classes for origin treatments: `sg-span-literal`, `sg-span-variable`, `sg-span-charcode`, `sg-span-unresolved`, plus color helpers `qw-default`, reused `qw-w` / `qw-g` / `qw-b`. **[tier 2]** adds `sg-span-runtime`. **[tier 3]** adds `sg-span-branch-inactive`.
 
 `configMerger.ts` is not touched. `weapon_classifier.rs` is not touched. `ezquake.rs` is not touched. The Rust QW name expander at `ezquake.rs:419-605` stays as-is for name-rendering use cases; the TS renderer duplicates the byte tables intentionally to keep the frontend self-contained. If a third consumer appears later, extract to `packages/qw-knowledge/char-codes`.
 
@@ -251,16 +271,15 @@ Strings are short (teamsay bodies rarely exceed a few hundred characters). Alias
 
 ## 10. Future directions (not in scope for this spec)
 
-These are captured so the design does not accidentally foreclose them. None are implemented in tiers 1-2.
+These are captured so the design does not accidentally foreclose them. None are implemented in tiers 1-3.
 
-- **Player state simulator (parallel workstream).** A `PlayerState` model (health, armor+type, owned weapons, ammo per type, powerups, location, team) plus a condition evaluator for ezQuake `if ... then ... else` expressions plus a `SimulatorResolver` implementation of the `RuntimeResolver` interface defined in 3.5. Lets the user tweak simulated state in a side panel and see the pretty-rendered outputs update with real values, with the active conditional branch highlighted through the chain. Developed in a separate terminal as a self-contained module; integrates with the pretty view only through the `RuntimeResolver` contract in `src/lib/runtimeResolver.ts`. When it lands, the viewer gains a `Label | Simulator` mode toggle.
-- **Outcome enumeration.** A teamsay bind is a branching program; the interesting question for a user examining a bind is "what are all the possible chat lines this can emit, and what conditions produce each?" Because the span-tree IR keeps conditional branches as siblings (not pre-resolved), an outcome enumerator becomes a tree walker over the span tree. Each root-to-leaf path yields one possible pretty-rendered chat line. Shares the condition evaluator with the player state simulator.
+- **Outcome enumeration.** A teamsay bind is a branching program; the interesting question for a user examining a bind is "what are all the possible chat lines this can emit, and what conditions produce each?" Because the span-tree IR keeps conditional branches as siblings (not pre-resolved), an outcome enumerator becomes a tree walker over the span tree. Each root-to-leaf path yields one possible pretty-rendered chat line. The simulator's `evaluateExpression` gives us the condition evaluator this needs; outcome enumeration is a UI pass plus a tree walker on top.
 - **Teamsay creator.** The span tree IR is also a document model. A rich-text editor that emits spans can serialize back to valid ezQuake cfg syntax (colors to `&c` codes, white scopes to `{...}`, runtime placeholders to `%tokens`). Pretty view and creator share the same primitives.
 - **True conchars fidelity.** For screenshot export or WYSIWYG chat preview, swap Unicode glyphs for an SVG sprite sheet driven by the conchars.png layout. The span tree doesn't change - only the glyph rendering helper.
 - **Cross-config pretty diff.** Render both sides of compare mode in pretty; visual diff by span comparison rather than string comparison.
 
 ## 11. Open questions
 
-- Single-letter `%` forms (`%a`, `%h`, `%l`, `%y`, `%d`, `%w`, etc.): are these aliases for the long forms in `ezquake-macros.json` (e.g. `%a` == `%armor`), or separate ezQuake-builtin tokens with their own semantics? Verify during tier 2 implementation by cross-referencing ezQuake source. If they are separate, extend `ezquake-macros.json` to include them; if they are aliases, the label table encodes the alias.
-- Is there a case where `&r` inside an outer (non-brace) context should reset to something other than brown/tan? Observationally in fixtures it always means "back to default chat color," but verify against ezQuake's `Cbuf_ExecuteEx` color handling during implementation.
-- Color rendering of substituted variables: when `$tp_name_rl = "{&cfffrl&cfff}"` is embedded in a red parent scope `&cf00 $tp_name_rl &r`, does ezQuake's runtime honor the inner `&cfff` (white) or fall back to the parent's `&cf00` (red)? This affects whether stage 2 re-enters the stack fresh or inherits. Default assumption: inner colors win (variables are self-contained); verify.
+- **Trace-to-span correlation in tier 3.** `evaluateTeamsay` returns trace steps identified by their condition `text` (the raw expression string). Pretty view needs to map each trace step to the corresponding condition span in its tree to render the active branch. Proposed matching: by expression text first, with traversal-order fallback when the same expression appears twice in a chain. If this proves fragile on real fixtures, the fix is a minor simulator-side extension to add a stable id to each `TraceStep`. Evaluate once tier 3 is in-flight.
+- **Color rendering of substituted variables.** When `$tp_name_rl = "{&cfffrl&cfff}"` is embedded in a red parent scope `&cf00 $tp_name_rl &r`, does ezQuake's runtime honor the inner `&cfff` (white) or fall back to the parent's `&cf00` (red)? This affects whether stage 1 re-enters the stack fresh on the substituted value or inherits the outer color frame. Default assumption: inner colors win (variables are self-contained). Verify against fixtures during tier 1 implementation.
+- **Raw-mode default color outside braces.** Observationally "brown/tan" (say_team default). Confirm against ezQuake's color handling when running pretty view against bps/hangtime fixtures. If it turns out to be theme-dependent or engine-setting-dependent, the color-stack initial-frame default becomes a pretty-view setting rather than a constant.
