@@ -118,6 +118,7 @@ interface WeaponBindsProps {
   primarySensBaseline?: number | null;
   compareSensBaseline?: number | null;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
 }
 
 interface DiffRow {
@@ -358,6 +359,7 @@ function WeaponChainStack(props: {
   dispatch?: WeaponChangeDispatch | null;
   sensBaseline?: number | null;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
   ownerClass: string;
 }) {
   const blocks = () => buildChainBlocks(props.path, props.bindCmds, props.aliases);
@@ -442,6 +444,7 @@ function WeaponChainStack(props: {
         primaryCvars={props.cvars}
         hideDefaults={props.hideDefaults}
         ownerClass={props.ownerClass}
+        mode={props.aliasChainMode}
       />
     </Show>
   );
@@ -583,6 +586,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                     dispatch={props.primaryDispatch}
                     sensBaseline={props.primarySensBaseline}
                     hideDefaults={props.hideDefaults}
+                    aliasChainMode={props.aliasChainMode}
                     ownerClass="sg-alias-chain-you"
                   />
                   <Show when={isCompare()}>
@@ -595,6 +599,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                       dispatch={props.compareDispatch}
                       sensBaseline={props.compareSensBaseline}
                       hideDefaults={props.hideDefaults}
+                      aliasChainMode={props.aliasChainMode}
                       ownerClass="sg-alias-chain-them"
                     />
                   </Show>
@@ -636,6 +641,7 @@ interface TeamsayBindsProps {
   primaryCvars?: Record<string, string>;
   compareCvars?: Record<string, string>;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
 }
 
 export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
@@ -813,6 +819,7 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       primaryCvars={props.primaryCvars}
                                       hideDefaults={props.hideDefaults}
                                       ownerClass="sg-alias-chain-you"
+                                      mode={props.aliasChainMode}
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>
@@ -839,6 +846,7 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                                       primaryCvars={props.compareCvars}
                                       hideDefaults={props.hideDefaults}
                                       ownerClass="sg-alias-chain-them"
+                                      mode={props.aliasChainMode}
                                     />
                                   </Show>
                                   <Show when={result().chain.length === 0 && rawCmd()}>

@@ -18,6 +18,7 @@ import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
 import StatePanel from "./StatePanel";
 import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
+import { updatePrefs } from "../store";
 import type { ProfileData } from "../store";
 
 interface ConfigViewerProps {
@@ -104,6 +105,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [configExpanded, setConfigExpanded] = createSignal(false);
   const [search, setSearch] = createSignal("");
   const [hideDefaults, setHideDefaults] = createSignal(false);
+  const [aliasChainMode, setAliasChainMode] = createSignal<"pretty" | "raw">(
+    props.profile?.prefs.alias_chain_mode ?? "pretty",
+  );
+  createEffect(() => {
+    const mode = aliasChainMode();
+    if (props.profile) {
+      updatePrefs({ alias_chain_mode: mode }).catch((err) => {
+        console.error("failed to persist alias_chain_mode:", err);
+      });
+    }
+  });
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
   const [contentScrollEl, setContentScrollEl] = createSignal<HTMLDivElement | undefined>();
 
@@ -683,6 +695,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onToggleCommands={() => setCommandsActive((v) => !v)}
               hideDefaults={hideDefaults()}
               onHideDefaultsChange={setHideDefaults}
+              aliasChainMode={aliasChainMode()}
+              onAliasChainModeChange={setAliasChainMode}
               search={search()}
               onSearchChange={setSearch}
               isCompareMode={isCompareMode()}
@@ -824,6 +838,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primarySensBaseline={effectiveConfig()?.sensitivity_baseline ?? null}
                     compareSensBaseline={isCompareMode() ? (compareBinds()?.sensitivity_baseline ?? null) : null}
                     hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
                   />
                 </Show>
 
@@ -853,6 +868,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
                     hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
                   />
                 </Show>
 
@@ -877,6 +893,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
                     hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
                   />
                 </Show>
 
@@ -886,6 +903,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     allAliases={primaryAliases()}
                     primaryCvars={effectiveCvars()}
                     hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
                   />
                 </Show>
 
@@ -908,6 +926,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     search={search()}
                     primaryCvars={effectiveCvars()}
                     hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
                   />
                 </Show>
 

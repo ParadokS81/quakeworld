@@ -8,6 +8,7 @@ interface ConfigAliasesSectionProps {
   allAliases?: Record<string, string>;
   primaryCvars?: Record<string, string>;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
 }
 
 export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
@@ -85,6 +86,7 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                       primaryCvars={props.primaryCvars}
                       hideDefaults={props.hideDefaults}
                       label="Alias chain"
+                      mode={props.aliasChainMode}
                     />
                   </div>
                 </Show>

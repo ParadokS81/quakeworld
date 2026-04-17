@@ -25,6 +25,8 @@ interface ConfigSidebarProps {
   // Shared controls
   hideDefaults: boolean;
   onHideDefaultsChange: (val: boolean) => void;
+  aliasChainMode: "pretty" | "raw";
+  onAliasChainModeChange: (val: "pretty" | "raw") => void;
   search: string;
   onSearchChange: (val: string) => void;
   isCompareMode: boolean;
@@ -163,6 +165,19 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
           />
           Hide defaults
         </label>
+        <div class="flex items-center gap-2 px-3 py-1 text-xs">
+          <span class="text-[var(--sg-section-label)]">Alias chains:</span>
+          <div class="join">
+            <button
+              class={`join-item btn btn-xs ${props.aliasChainMode === "pretty" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => props.onAliasChainModeChange("pretty")}
+            >Pretty</button>
+            <button
+              class={`join-item btn btn-xs ${props.aliasChainMode === "raw" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => props.onAliasChainModeChange("raw")}
+            >Raw</button>
+          </div>
+        </div>
         <input
           type="text"
           class="input input-xs font-mono w-full"

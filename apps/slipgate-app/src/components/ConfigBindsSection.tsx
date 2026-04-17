@@ -11,6 +11,7 @@ interface ConfigBindsSectionProps {
   primaryCvars?: Record<string, string>;
   compareCvars?: Record<string, string>;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -220,6 +221,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                             primaryCvars={props.primaryCvars}
                             hideDefaults={props.hideDefaults}
                             ownerClass="sg-alias-chain-you"
+                            mode={props.aliasChainMode}
                           />
                         </Show>
                         <Show when={props.isCompareMode && compareChain().chain.length > 0}>
@@ -229,6 +231,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                             primaryCvars={props.compareCvars}
                             hideDefaults={props.hideDefaults}
                             ownerClass="sg-alias-chain-them"
+                            mode={props.aliasChainMode}
                           />
                         </Show>
                       </>
@@ -243,6 +246,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           macroRefs={chain().macroRefs}
                           primaryCvars={props.primaryCvars}
                           hideDefaults={props.hideDefaults}
+                          mode={props.aliasChainMode}
                         />
                       </Show>
                       <Show when={releaseChain().chain.length > 0}>
@@ -254,6 +258,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                           macroRefs={releaseChain().macroRefs}
                           primaryCvars={props.primaryCvars}
                           hideDefaults={props.hideDefaults}
+                          mode={props.aliasChainMode}
                         />
                       </Show>
                     </Show>

@@ -90,6 +90,7 @@ interface ConfigTriggersSectionProps {
   search: string;
   primaryCvars?: Record<string, string>;
   hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
 }
 
 interface TriggerRow {
@@ -246,6 +247,7 @@ export default function ConfigTriggersSection(props: ConfigTriggersSectionProps)
               primaryCvars={props.primaryCvars}
               hideDefaults={props.hideDefaults}
               label="Alias chain"
+              mode={props.aliasChainMode}
             />
             <div class="px-4 py-1 text-xs text-[var(--sg-section-label)]">
               {row.def.description}
