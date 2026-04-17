@@ -9,6 +9,7 @@ import { loadAllConcepts } from './concept-loader.ts';
 import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchSolvedIssues } from './tools/search-solved-issues.ts';
 import { getConceptNote } from './tools/get-concept-note.ts';
+import { searchEntities } from './tools/search-entities.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> layers/concepts
@@ -84,6 +85,34 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
+      name: 'search_entities',
+      description:
+        'Fuzzy search for QuakeWorld cvars and commands by substring match on name or description. Use this when you have a partial name, a natural-language term (e.g. "frag", "hud", "crosshair"), or want to discover related entities. Returns the same EntityRecord shape as lookup_entity. Name matches rank above description-only matches.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'Substring to search for in entity names and descriptions. Case-insensitive. E.g. "frag", "tracker", "compacthud".',
+          },
+          project: {
+            type: 'string',
+            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv | qwcl.',
+          },
+          type: {
+            type: 'string',
+            enum: ['cvar', 'command'],
+            description: 'Optional. Restrict to cvars only or commands only. Default returns both.',
+          },
+          limit: {
+            type: 'number',
+            description: 'Max results to return. Default 10, max 25.',
+          },
+        },
+        required: ['query'],
+      },
+    },
+    {
       name: 'search_solved_issues',
       description:
         'Full-text search over 128,084 denoised QuakeWorld community chat sessions (IRC 2005-2016 plus Discord 2016-present, category="chat" filtered). Returns ranked session hits with raw chat transcripts so the outlet LLM can read what people actually said. Sessions with fewer than 5 chat messages are excluded to cut pickup-callout noise. Use this to find community discussion about a cvar, command, concept, or gameplay topic. The MCP server does no summarisation -- raw transcripts go straight to you for synthesis.',
@@ -118,6 +147,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'lookup_entity': {
       const response = lookupEntity(
         args as { name: string; project?: string; type?: 'cvar' | 'command' },
+        conceptIndex,
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'search_entities': {
+      const response = searchEntities(
+        args as { query: string; project?: string; type?: 'cvar' | 'command'; limit?: number },
         conceptIndex,
       );
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
