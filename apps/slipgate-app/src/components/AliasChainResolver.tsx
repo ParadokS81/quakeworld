@@ -179,11 +179,19 @@ export function AliasChainView(props: {
   const trace = createMemo<TraceStep[]>(() => {
     if ((props.mode ?? "pretty") !== "pretty") return [];
     if (!props.playerState || !props.primaryCvars) return [];
-    const body = props.chain.map((e) => e.command).join("; ");
+    if (props.chain.length === 0) return [];
+    // IMPORTANT: feed the evaluator only the ROOT alias body. Earlier we
+    // joined every chain entry with "; " which flattened the tree --
+    // evaluateTeamsay walked each entry as a top-level segment, so every
+    // direct say_team leaf body in the chain fired regardless of
+    // conditionals, causing 8-of-9 rows to highlight for conditional
+    // chains like Report. The nested entries are still reachable via the
+    // aliases map; the evaluator follows them from the root.
+    const root = props.chain.find((e) => e.depth === 0) ?? props.chain[0];
     const cvars = cvarMap(props.primaryCvars);
     const aliases = new Map<string, string>();
     for (const e of props.chain) aliases.set(e.name, e.command);
-    return evaluateTeamsay(body, props.playerState, cvars, aliases).trace;
+    return evaluateTeamsay(root.command, props.playerState, cvars, aliases).trace;
   });
 
   const activeBranches = createMemo(() => {
