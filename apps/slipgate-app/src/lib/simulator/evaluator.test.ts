@@ -109,3 +109,37 @@ describe("evaluateExpression -- precedence", () => {
     expect(evaluateExpression("(1 == 2 || 1 == 1) && 1 == 1").result).toBe(true);
   });
 });
+
+describe("evaluateExpression -- arithmetic", () => {
+  test("add and subtract", () => {
+    expect(evaluateExpression("1 + 2 == 3").result).toBe(true);
+    expect(evaluateExpression("5 - 2 == 3").result).toBe(true);
+  });
+  test("multiply and divide", () => {
+    expect(evaluateExpression("4 * 2 == 8").result).toBe(true);
+    expect(evaluateExpression("10 / 2 == 5").result).toBe(true);
+  });
+  test("multiplicative tighter than additive", () => {
+    expect(evaluateExpression("1 + 2 * 3 == 7").result).toBe(true);
+    expect(evaluateExpression("(1 + 2) * 3 == 9").result).toBe(true);
+  });
+  test("string concat with +", () => {
+    expect(evaluateExpression("'foo' + 'bar' == 'foobar'").result).toBe(true);
+  });
+  test("unary minus", () => {
+    expect(evaluateExpression("-5 < 0").result).toBe(true);
+    expect(evaluateExpression("0 - 5 == -5").result).toBe(true);
+  });
+});
+
+describe("evaluateExpression -- issues", () => {
+  test("regex -> unsupported-regex issue, false result", () => {
+    const r = evaluateExpression("'foo' =~ 'f.*'");
+    expect(r.result).toBe(false);
+    expect(r.issues.some((i) => i.kind === "unsupported-regex")).toBe(true);
+  });
+  test("truncated expression -> malformed-condition", () => {
+    const r = evaluateExpression("1 == ");
+    expect(r.issues.some((i) => i.kind === "malformed-condition")).toBe(true);
+  });
+});

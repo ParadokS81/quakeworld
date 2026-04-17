@@ -136,12 +136,36 @@ const COMPARISON_OPS = new Set([
 ]);
 
 function parseComparison(p: ParseState): AstNode {
-  const left = parsePrimary(p);
+  const left = parseAdditive(p);
   const tok = peek(p);
   if (tok && tok.kind === "op" && COMPARISON_OPS.has(tok.value)) {
     consume(p);
-    const right = parsePrimary(p);
+    const right = parseAdditive(p);
     return { kind: "binary", op: tok.value, left, right };
+  }
+  return left;
+}
+
+function parseAdditive(p: ParseState): AstNode {
+  let left = parseMultiplicative(p);
+  while (true) {
+    const tok = peek(p);
+    if (!tok || tok.kind !== "op" || (tok.value !== "+" && tok.value !== "-")) break;
+    consume(p);
+    const right = parseMultiplicative(p);
+    left = { kind: "binary", op: tok.value, left, right };
+  }
+  return left;
+}
+
+function parseMultiplicative(p: ParseState): AstNode {
+  let left = parsePrimary(p);
+  while (true) {
+    const tok = peek(p);
+    if (!tok || tok.kind !== "op" || (tok.value !== "*" && tok.value !== "/")) break;
+    consume(p);
+    const right = parsePrimary(p);
+    left = { kind: "binary", op: tok.value, left, right };
   }
   return left;
 }
@@ -233,6 +257,24 @@ function evalBinary(op: string, l: string, r: string, issues: Issue[]): string {
   if (op === ">=") return parseFloat(l) >= parseFloat(r) ? "1" : "0";
   if (op === "isin") return r.indexOf(l) >= 0 ? "1" : "0";
   if (op === "!isin") return r.indexOf(l) >= 0 ? "0" : "1";
+  if (op === "=~" || op === "!~") {
+    issues.push({ kind: "unsupported-regex", detail: `regex op ${op} not simulated` });
+    return "0";
+  }
+  if (op === "+") {
+    if (isNumeric(l) && isNumeric(r)) return String(parseFloat(l) + parseFloat(r));
+    return l + r;
+  }
+  if (op === "-") return String(parseFloat(l) - parseFloat(r));
+  if (op === "*") return String(parseFloat(l) * parseFloat(r));
+  if (op === "/") {
+    const rv = parseFloat(r);
+    if (rv === 0) {
+      issues.push({ kind: "malformed-condition", detail: "division by zero" });
+      return "0";
+    }
+    return String(parseFloat(l) / rv);
+  }
   issues.push({ kind: "unknown-operator", detail: op });
   return "0";
 }
