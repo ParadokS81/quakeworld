@@ -2153,3 +2153,104 @@ input[type="number"] {
   padding-left: calc(16px - 3px);
 }
 
+.sg-state-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.sg-state-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--sg-stat-border);
+}
+
+.sg-state-templates-manage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.sg-state-template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  background: color-mix(in oklch, var(--color-base-200) 80%, transparent);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.sg-state-template-delete {
+  color: var(--sg-text-dim);
+  cursor: pointer;
+  line-height: 1;
+}
+.sg-state-template-delete:hover {
+  color: var(--color-error);
+}
+
+.sg-state-section { display: flex; flex-direction: column; gap: 0.25rem; }
+.sg-state-section-title { font-weight: 600; font-size: 0.85rem; color: var(--sg-section-label); }
+.sg-state-section-body { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.sg-state-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sg-state-row-label { font-size: 0.75rem; color: var(--sg-text-dim); }
+
+.sg-state-derived {
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  background: var(--color-base-300);
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+.sg-state-derived-row { display: grid; grid-template-columns: 10rem 1fr; gap: 0.5rem; color: var(--sg-text-dim); }
+.sg-state-derived-name { color: var(--sg-text-dim); }
+.sg-state-derived-value { color: var(--sg-text-bright); }
+
+.sg-state-cvars {
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.4rem;
+  font-family: monospace;
+  font-size: 0.7rem;
+}
+.sg-state-cvar-row {
+  display: grid;
+  grid-template-columns: 12rem 7rem 1fr;
+  gap: 0.5rem;
+  color: var(--sg-text-dim);
+  opacity: 0.75;
+}
+.sg-state-cvar-row-customized {
+  opacity: 1;
+  color: var(--sg-text-bright);
+}
+
+.sg-state-block-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sg-section-label);
+  margin-bottom: 0.15rem;
+}
+
+.sg-config-kb-mode-toggle {
+  display: flex;
+  gap: 0.2rem;
+  margin-left: auto;
+}
+
