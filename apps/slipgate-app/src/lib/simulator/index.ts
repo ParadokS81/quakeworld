@@ -17,6 +17,8 @@ export type { ExpandResult } from "./expander.js";
 export { tokenize, evaluateExpression } from "./evaluator.js";
 export type { Token } from "./evaluator.js";
 
+export { applyOnloadChain } from "./onload.js";
+
 export {
   createSimulatorResolver,
   evaluateCondition,

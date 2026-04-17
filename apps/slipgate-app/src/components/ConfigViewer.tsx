@@ -21,7 +21,7 @@ import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTe
 import { updatePrefs } from "../store";
 import type { ProfileData } from "../store";
 import { createLabelResolver } from "../lib/runtimeResolver";
-import { createSimulatorResolver } from "../lib/simulator/index.js";
+import { createSimulatorResolver, applyOnloadChain } from "../lib/simulator/index.js";
 import type { RuntimeResolver } from "../lib/runtimeResolver";
 import type { PlayerState } from "../lib/simulator/index.js";
 
@@ -211,9 +211,20 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return mergeSelectedFiles(effectiveChain()!, selectedFiles());
   });
 
-  const effectiveCvars = createMemo(() =>
-    mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {},
-  );
+  const effectiveCvars = createMemo((): Record<string, string> => {
+    const base = mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {};
+    const aliases = mergedData()?.aliases;
+    if (!aliases || !base.cl_onload) return base;
+    // Simulate cl_onload so team-selector tempaliases (sr.2 style) have
+    // actually applied their `set tpname "{&cXXX$nick:&cfff}"` writes before
+    // the pretty view / resolver / evaluator read the cvar map.
+    const asMap = new Map(Object.entries(base));
+    const aliasMap = aliases instanceof Map
+      ? aliases
+      : new Map(Object.entries(aliases));
+    const augmented = applyOnloadChain(asMap, aliasMap);
+    return Object.fromEntries(augmented);
+  });
 
   // Resolver for %token expansion in Pretty mode. Reads live PlayerState from
   // kbState.simulatorState() so edits in the right-rail State panel update
