@@ -135,3 +135,28 @@ describe("$X char-code expansion", () => {
     expect(joined).toBe("$!x");
   });
 });
+
+describe("%token resolution via RuntimeResolver", () => {
+  const state = createDefaultPlayerState();
+
+  test("LabelResolver: %a renders as 'armor' with runtime origin", async () => {
+    const { createLabelResolver } = await import("./runtimeResolver.js");
+    const r = buildSpanTree("%a", { state, cvars: new Map(), resolver: createLabelResolver() });
+    expect(r.spans[0].text).toBe("armor");
+    expect(r.spans[0].origin).toBe("runtime");
+    expect(r.spans[0].rawToken).toBe("%a");
+  });
+
+  test("Unknown %token with resolver returning null falls through as unresolved", async () => {
+    const { createLabelResolver } = await import("./runtimeResolver.js");
+    const r = buildSpanTree("%nope", { state, cvars: new Map(), resolver: createLabelResolver() });
+    expect(r.spans[0].origin).toBe("unresolved");
+    expect(r.spans[0].text).toBe("%nope");
+  });
+
+  test("No resolver leaves %token as literal text", () => {
+    const r = buildSpanTree("%a", { state, cvars: new Map(), resolver: null });
+    expect(r.spans[0].origin).toBe("literal");
+    expect(r.spans[0].text).toBe("%a");
+  });
+});

@@ -161,6 +161,40 @@ function runParser(
       }
     }
 
+    if (c === "%" && i + 1 < input.length) {
+      const m = input.slice(i).match(/^%(\w+)/);
+      if (m) {
+        const token = m[1];
+        const raw = "%" + token;
+        if (ctx.resolver) {
+          const res = ctx.resolver.resolve(token);
+          flush();
+          const top = stack[stack.length - 1];
+          if (res) {
+            out.push({
+              text: res.display,
+              color: top.current,
+              origin: "runtime",
+              rawToken: raw,
+              tooltip: res.tooltip,
+            });
+          } else {
+            out.push({
+              text: raw,
+              color: top.current,
+              origin: "unresolved",
+              rawToken: raw,
+              tooltip: `${raw} - unknown runtime token`,
+            });
+          }
+          i += raw.length;
+          continue;
+        }
+        // No resolver -> fall through to literal (buf += c below runs once then
+        // loop re-enters, but we want the whole %name as literal, not char-by-char).
+      }
+    }
+
     buf += c;
     i++;
   }
