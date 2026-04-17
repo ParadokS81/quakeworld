@@ -163,22 +163,20 @@ function needThreshold(cvars: Map<string, string>, cvarName: string): number {
 }
 
 /**
- * Derive %u / %need -- space-joined list of items currently under their
- * tp_need_* threshold. Categories with a threshold of 0 are skipped.
+ * Derive %u / %need -- list of items currently under their tp_need_*
+ * threshold, joined by `tp_name_separator` (ezQuake default "/"). Categories
+ * with a threshold of 0 are skipped. Item names come from tp_name_* cvars
+ * when set, else sensible defaults. Armor uses tp_name_armor regardless of
+ * class -- ezQuake itself does not distinguish armor type in %u output.
  * Ordering matches ezQuake's teamplay.c: armor, health, weapons, ammo.
- * Item names come from tp_name_* cvars when set, else sensible defaults.
  */
 export function deriveNeed(state: PlayerState, cvars: Map<string, string>): string {
   const parts: string[] = [];
+  const separator = cvars.get("tp_name_separator") ?? "/";
 
   const armorThreshold = needThreshold(cvars, "tp_need_armor");
   if (armorThreshold > 0 && state.armor < armorThreshold) {
-    // Prefer the armortype-specific name (tp_name_armortype_*) so the team
-    // can tell which armor is wanted; fall back to tp_name_armor when the
-    // player has no armor class or the cvar is unset.
-    const typed = cvars.get(`tp_name_armortype_${state.armorClass}`);
-    const generic = cvars.get("tp_name_armor");
-    parts.push((typed && typed.length > 0 ? typed : generic) ?? "armor");
+    parts.push(cvars.get("tp_name_armor") ?? "armor");
   }
 
   const healthThreshold = needThreshold(cvars, "tp_need_health");
@@ -199,5 +197,5 @@ export function deriveNeed(state: PlayerState, cvars: Map<string, string>): stri
     }
   }
 
-  return parts.join(" ");
+  return parts.join(separator);
 }
