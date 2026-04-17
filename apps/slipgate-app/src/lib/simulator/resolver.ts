@@ -19,6 +19,7 @@ const SHORT_FORM_ALIASES: Record<string, string> = {
   c: "cells", r: "rockets", n: "nails", s: "shells",
   p: "powerups", d: "deathloc", t: "took",
   x: "ammo", y: "weaponnum",
+  u: "need",
 };
 
 const TOKEN_DESCRIPTIONS: Record<string, string> = {
@@ -55,6 +56,7 @@ const TOKEN_DESCRIPTIONS: Record<string, string> = {
   droploc: "last backpack drop location",
   droptime: "seconds since last drop",
   lastpowerup: "last powerup taken",
+  need: "current item the player needs (ezQuake teamplay need state; resolves against $need cvar)",
 };
 
 export function createSimulatorResolver(

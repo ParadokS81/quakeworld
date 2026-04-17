@@ -242,13 +242,16 @@ function runParser(
           flush();
           const top = stack[stack.length - 1];
           if (res) {
-            out.push({
-              text: res.display,
-              color: top.current,
-              origin: "runtime",
-              rawToken: raw,
-              tooltip: res.tooltip,
-            });
+            // Pipe the resolver's display through runParser so any color codes
+            // or nested refs baked into the resolved value (e.g. Simulator mode
+            // returning "{&cf00pent&cfff}" for %p) render correctly. The tooltip
+            // from the resolver is applied to each emitted span so hover still
+            // reveals the canonical token name + description.
+            const sub = runParser(res.display, stack, ctx, issues, "runtime", raw);
+            for (const s of sub) {
+              if (!s.tooltip) s.tooltip = res.tooltip;
+            }
+            out.push(...sub);
           } else {
             out.push({
               text: raw,

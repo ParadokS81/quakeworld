@@ -7,6 +7,7 @@ const SHORT_FORM_ALIASES: Record<string, string> = {
   c: "cells", r: "rockets", n: "nails", s: "shells",
   p: "powerups", d: "deathloc", t: "took",
   x: "ammo", y: "weaponnum",
+  u: "need",
 };
 
 const LABELS: Record<string, { display: string; description: string }> = {
@@ -40,6 +41,7 @@ const LABELS: Record<string, { display: string; description: string }> = {
   tookloc: { display: "took location", description: "where item was taken" },
   droploc: { display: "drop location", description: "last backpack drop location" },
   lastpowerup: { display: "last powerup", description: "last powerup taken" },
+  need: { display: "need", description: "current item the player needs (ezQuake teamplay need state)" },
 };
 
 export function createLabelResolver(): RuntimeResolver {
