@@ -544,6 +544,13 @@ input[type="number"] {
 .sg-span-charcode {
   cursor: help;
 }
+.sg-span-runtime {
+  font-style: italic;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--sg-text-dim);
+  cursor: help;
+}
 .sg-span-unresolved {
   opacity: 0.55;
   font-weight: 600;
