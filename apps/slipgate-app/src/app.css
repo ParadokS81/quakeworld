@@ -551,6 +551,13 @@ input[type="number"] {
   text-decoration-color: var(--sg-text-dim);
   cursor: help;
 }
+.sg-span-branch-inactive {
+  opacity: 0.32;
+}
+.sg-span-branch-inactive.sg-span-runtime,
+.sg-span-branch-inactive.sg-span-variable {
+  text-decoration: none;
+}
 .sg-span-unresolved {
   opacity: 0.55;
   font-weight: 600;

@@ -86,6 +86,18 @@ function colorStyle(c: SpanColor): { class?: string; style?: Record<string, stri
   return { class: "qw-default" };
 }
 
+function buildIssueMap(issues: Array<{ kind: string; detail: string }>): Map<string, string[]> {
+  const m = new Map<string, string[]>();
+  for (const iss of issues) {
+    const match = iss.detail.match(/\$\w+|%\w+/);
+    if (!match) continue;
+    const key = match[0];
+    if (!m.has(key)) m.set(key, []);
+    m.get(key)!.push(`${iss.kind}: ${iss.detail}`);
+  }
+  return m;
+}
+
 function PrettyCmd(props: {
   cmd: string;
   state: PlayerState;
@@ -100,17 +112,24 @@ function PrettyCmd(props: {
     resolver: props.resolver,
     activeBranches: props.activeBranches,
   });
+  const issueMap = () => buildIssueMap(result().issues);
   return (
     <span class="sg-alias-chain-cmd">
       <For each={result().spans}>
         {(s) => {
           const cs = colorStyle(s.color);
-          const originClass = `sg-span-${s.origin}`;
+          const classes = [
+            `sg-span-${s.origin}`,
+            cs.class,
+            s.branchInactive ? "sg-span-branch-inactive" : null,
+          ].filter(Boolean).join(" ");
+          const related = s.rawToken ? issueMap().get(s.rawToken) ?? [] : [];
+          const fullTooltip = [s.tooltip, ...related].filter(Boolean).join("\n");
           return (
             <span
-              class={[originClass, cs.class].filter(Boolean).join(" ")}
+              class={classes}
               style={cs.style}
-              title={s.tooltip}
+              title={fullTooltip || undefined}
             >{s.text}</span>
           );
         }}
