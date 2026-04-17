@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, untrack, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, untrack, Show, type JSX } from "solid-js";
 import type { EzQuakeConfig, ChainBindClassification } from "../types";
 import KeyboardLayout from "./KeyboardLayout";
 import { moduleOf, type KeyboardRightModule } from "./keyboardModules";
@@ -42,6 +42,9 @@ interface ConfigKeyboardPanelProps {
   availableModules: readonly KeyboardRightModule[];
   showBindLabels: boolean;
   onToggleBindLabels: () => void;
+  mode: "keyboard" | "state";
+  onModeChange: (m: "keyboard" | "state") => void;
+  statePanel?: JSX.Element;
 }
 
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
@@ -248,6 +251,18 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               </button>
             </div>
           </div>
+          <div class="sg-config-kb-mode-toggle">
+            <button
+              class="sg-config-kb-module-btn"
+              classList={{ "sg-config-kb-module-btn-active": props.mode === "keyboard" }}
+              onClick={() => props.onModeChange("keyboard")}
+            >Keyboard</button>
+            <button
+              class="sg-config-kb-module-btn"
+              classList={{ "sg-config-kb-module-btn-active": props.mode === "state" }}
+              onClick={() => props.onModeChange("state")}
+            >State</button>
+          </div>
           <div class="sg-config-kb-toolbar-module">
             {props.availableModules.map((m) => {
               const labels: Record<KeyboardRightModule, string> = {
@@ -267,37 +282,42 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             })}
           </div>
         </div>
-        <Show when={props.primary}>
-          <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
-            <Show when={props.primaryName}>
-              <div class="sg-config-kb-label">{props.primaryName}</div>
-            </Show>
-            <KeyboardLayout
-              movement={props.primary!.movement}
-              highlights={primaryHighlights()}
-              showMovement={props.showMovement}
-              onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
-              selectedKeyIds={yourSelectedIds()}
-              rightModule={primaryModule()}
-              keyLabels={primaryKeyLabels()}
-            />
-          </div>
+        <Show when={props.mode === "keyboard"}>
+          <Show when={props.primary}>
+            <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
+              <Show when={props.primaryName}>
+                <div class="sg-config-kb-label">{props.primaryName}</div>
+              </Show>
+              <KeyboardLayout
+                movement={props.primary!.movement}
+                highlights={primaryHighlights()}
+                showMovement={props.showMovement}
+                onKeyClick={(id) => handleKeyClick(primaryInput(), id)}
+                selectedKeyIds={yourSelectedIds()}
+                rightModule={primaryModule()}
+                keyLabels={primaryKeyLabels()}
+              />
+            </div>
+          </Show>
+          <Show when={isCompare()}>
+            <div class="sg-config-kb-wrap sg-config-kb-frame-them">
+              <Show when={props.compareName}>
+                <div class="sg-config-kb-label">{props.compareName}</div>
+              </Show>
+              <KeyboardLayout
+                movement={props.compare!.movement}
+                highlights={compareHighlights()}
+                showMovement={props.showMovement}
+                onKeyClick={(id) => handleKeyClick(compareInput(), id)}
+                selectedKeyIds={theirSelectedIds()}
+                rightModule={compareModule()}
+                keyLabels={compareKeyLabels()}
+              />
+            </div>
+          </Show>
         </Show>
-        <Show when={isCompare()}>
-          <div class="sg-config-kb-wrap sg-config-kb-frame-them">
-            <Show when={props.compareName}>
-              <div class="sg-config-kb-label">{props.compareName}</div>
-            </Show>
-            <KeyboardLayout
-              movement={props.compare!.movement}
-              highlights={compareHighlights()}
-              showMovement={props.showMovement}
-              onKeyClick={(id) => handleKeyClick(compareInput(), id)}
-              selectedKeyIds={theirSelectedIds()}
-              rightModule={compareModule()}
-              keyLabels={compareKeyLabels()}
-            />
-          </div>
+        <Show when={props.mode === "state"}>
+          {props.statePanel}
         </Show>
       </Show>
     </div>

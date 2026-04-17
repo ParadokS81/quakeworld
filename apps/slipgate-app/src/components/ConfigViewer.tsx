@@ -15,6 +15,7 @@ import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
 import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
+import StatePanel from "./StatePanel";
 import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
 import type { ProfileData } from "../store";
@@ -948,6 +949,20 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                 availableModules={kbState.availableModules}
                 showBindLabels={showBindLabels()}
                 onToggleBindLabels={toggleBindLabels}
+                mode={kbState.rightPanelMode()}
+                onModeChange={kbState.setRightPanelMode}
+                statePanel={
+                  <StatePanel
+                    state={kbState.simulatorState()}
+                    cvars={new Map(Object.entries(effectiveCvars()))}
+                    templates={kbState.templates()}
+                    onChange={kbState.updateSimState}
+                    onSaveAs={kbState.saveTemplate}
+                    onLoadTemplate={kbState.loadTemplate}
+                    onDeleteTemplate={kbState.deleteTemplate}
+                    onReset={kbState.resetSimState}
+                  />
+                }
               />
             </Show>
           </div>
