@@ -105,6 +105,12 @@ export async function enrichPrs(options: EnrichOptions): Promise<EnrichResult> {
     enriched += 1;
   }
 
+  // Per spec Section 6 schema_meta keyspace: record this run's completion timestamp.
+  options.db.prepare(`
+    INSERT INTO schema_meta (key, value) VALUES ('last_enrichment_run_at', ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `).run(new Date().toISOString());
+
   return {
     commitsAttempted: attempted,
     commitsEnriched: enriched,
