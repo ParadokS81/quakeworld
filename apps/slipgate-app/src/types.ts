@@ -3,6 +3,18 @@ export interface AudioDevice {
   device_type: "input" | "output";
 }
 
+export interface LocEntry {
+  name: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface LocScanResult {
+  maps: Record<string, LocEntry[]>;
+  source_dirs: string[];
+}
+
 export interface HidDevice {
   name: string;
   device_type: "mouse" | "keyboard" | "other";

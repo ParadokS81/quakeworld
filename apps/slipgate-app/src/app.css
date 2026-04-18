@@ -2314,3 +2314,143 @@ input[type="number"] {
   opacity: 1;
 }
 
+/* ── StatePanel redesign (2026-04-18): vitals grid + weapon-ammo grid
+      + collapsible disclosures. Tier 1/2 stay always-visible; lower
+      tiers collapse to a summary line. ── */
+
+.sg-state-vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: center;
+}
+.sg-state-vitals-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.sg-state-powerup-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.sg-state-weapon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.sg-state-weapon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.3rem 0.4rem;
+  background: color-mix(in oklch, var(--color-base-200) 60%, transparent);
+  border-radius: 0.3rem;
+}
+.sg-state-weapon-row {
+  display: flex;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+.sg-state-weapon-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+.sg-state-weapon-current {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0.6rem;
+}
+.sg-state-weapon-current-dot {
+  display: block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--sg-text-dim);
+  background: transparent;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+.sg-state-weapon-current-active .sg-state-weapon-current-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--color-primary) 25%, transparent);
+}
+.sg-state-ammo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding-left: 0.15rem;
+}
+.sg-state-ammo-label {
+  font-size: 0.7rem;
+  color: var(--sg-text-dim);
+  font-family: monospace;
+}
+
+.sg-state-disclosure {
+  margin-top: 0.3rem;
+}
+.sg-state-disclosure-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sg-section-label);
+}
+.sg-state-disclosure-toggle:hover {
+  color: var(--sg-text-bright);
+}
+.sg-state-disclosure-body {
+  margin-top: 0.25rem;
+}
+
+.sg-state-section-collapsible {
+  border-top: 1px solid color-mix(in oklch, var(--sg-stat-border) 50%, transparent);
+  padding-top: 0.3rem;
+}
+.sg-state-section-title-collapsible {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--sg-section-label);
+  text-align: left;
+}
+.sg-state-section-title-collapsible:hover {
+  color: var(--sg-text-bright);
+}
+.sg-state-section-caret {
+  font-size: 0.65rem;
+  color: var(--sg-text-dim);
+  width: 0.7rem;
+  display: inline-block;
+}
+.sg-state-section-summary {
+  font-size: 0.75rem;
+  color: var(--sg-text-dim);
+  font-weight: 400;
+  font-family: monospace;
+  margin-left: 0.3rem;
+}
+

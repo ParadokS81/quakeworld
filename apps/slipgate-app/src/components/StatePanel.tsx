@@ -1,6 +1,7 @@
 import { For, Show, createSignal, createMemo } from "solid-js";
 import type { JSX } from "solid-js";
 import type { SimulatorTemplate } from "../store";
+import type { LocEntry } from "../types";
 import type {
   PlayerState, Weapon, Powerup, ArmorClass, MatchStatus, LedColor,
 } from "../lib/simulator";
@@ -14,6 +15,9 @@ interface StatePanelProps {
   state: PlayerState;
   cvars: Map<string, string>;
   templates: SimulatorTemplate[];
+  // Map of mapname (lowercased) -> locations parsed from .loc files. Empty
+  // when no exe path is set or no loc dirs are found.
+  locs: Record<string, LocEntry[]>;
   onChange: (next: PlayerState) => void;
   onSaveAs: (name: string) => void;
   onLoadTemplate: (id: string) => void;
@@ -21,7 +25,17 @@ interface StatePanelProps {
   onReset: () => void;
 }
 
-const WEAPONS: Weapon[] = ["axe", "sg", "ssg", "ng", "sng", "gl", "rl", "lg"];
+// Weapon tier layout groups weapons by ammo family so the ammo inputs
+// below can anchor visually to the weapons that consume them. Axe is
+// ammo-less so it sits on its own at the front; cells pair under LG only.
+const WEAPON_GROUPS: { weapons: Weapon[]; ammoKey: keyof PlayerState | null; ammoLabel: string }[] = [
+  { weapons: ["axe"], ammoKey: null, ammoLabel: "" },
+  { weapons: ["sg", "ssg"], ammoKey: "shells", ammoLabel: "shells" },
+  { weapons: ["ng", "sng"], ammoKey: "nails", ammoLabel: "nails" },
+  { weapons: ["gl", "rl"], ammoKey: "rockets", ammoLabel: "rockets" },
+  { weapons: ["lg"], ammoKey: "cells", ammoLabel: "cells" },
+];
+
 const POWERUPS: Powerup[] = ["quad", "pent", "ring", "biosuit"];
 const ARMOR_CLASSES: ArmorClass[] = ["none", "ga", "ya", "ra"];
 const MATCH_STATUSES: MatchStatus[] = ["standby", "countdown", "live", "overtime", "ended"];
@@ -42,6 +56,18 @@ export default function StatePanel(props: StatePanelProps) {
     [...props.templates].sort((a, b) => b.createdAt - a.createdAt),
   );
 
+  // Disclosure state for the secondary tiers. Kept as local component
+  // state — persisting is cheap future work but not needed for v1.
+  const [openDetails, setOpenDetails] = createSignal<Set<string>>(new Set());
+  function toggleDetails(id: string) {
+    setOpenDetails((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  const isOpen = (id: string) => openDetails().has(id);
+
   function update<K extends keyof PlayerState>(key: K, value: PlayerState[K]) {
     props.onChange({ ...props.state, [key]: value });
   }
@@ -50,11 +76,28 @@ export default function StatePanel(props: StatePanelProps) {
     if (next.has(w)) next.delete(w); else next.add(w);
     update("ownedWeapons", next);
   }
+  function setCurrentWeapon(w: Weapon) {
+    // Selecting a weapon as current implies possession — auto-toggle so the
+    // state stays internally consistent (the simulator treats currentWeapon
+    // as authoritative when it conflicts with ownedWeapons).
+    const owned = new Set(props.state.ownedWeapons);
+    owned.add(w);
+    props.onChange({ ...props.state, currentWeapon: w, ownedWeapons: owned });
+  }
   function togglePowerup(p: Powerup) {
     const next = new Set(props.state.activePowerups);
     if (next.has(p)) next.delete(p); else next.add(p);
     update("activePowerups", next);
   }
+
+  // Map dropdown shows all scanned maps; free-text fallback is always
+  // available below it so users can type an unlisted name. Location
+  // dropdown is gated on the selected map having scanned locs.
+  const mapOptions = createMemo(() => Object.keys(props.locs).sort());
+  const locsForCurrentMap = createMemo(() => {
+    const m = props.state.mapname.trim().toLowerCase();
+    return props.locs[m] ?? [];
+  });
 
   return (
     <div class="sg-state-panel">
@@ -65,7 +108,7 @@ export default function StatePanel(props: StatePanelProps) {
           onChange={(e) => {
             const id = e.currentTarget.value;
             if (id) props.onLoadTemplate(id);
-            e.currentTarget.value = ""; // reset so re-selecting same template works
+            e.currentTarget.value = "";
           }}
         >
           <option value="">
@@ -102,89 +145,41 @@ export default function StatePanel(props: StatePanelProps) {
           </div>
         </Show>
       </div>
+
+      {/* ── Tier 1: Vitals + Powerups (always visible) ── */}
       <Section title="Vitals">
-        <Row label="Health">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.health} min={0} max={250}
-              onChange={(v) => update("health", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_health" />
+        <div class="sg-state-vitals-grid">
+          <div class="sg-state-vitals-cell">
+            <label class="sg-state-row-label">HP</label>
+            <div class="flex items-center gap-2">
+              <NumInput value={props.state.health} min={0} max={250} width="xs"
+                onChange={(v) => update("health", v)} />
+              <NeedHint cvars={props.cvars} cvarName="tp_need_health" />
+            </div>
           </div>
-        </Row>
-        <Row label="Armor">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.armor} min={0} max={200}
-              onChange={(v) => update("armor", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_armor" />
+          <div class="sg-state-vitals-cell">
+            <label class="sg-state-row-label">Armor</label>
+            <div class="flex items-center gap-2">
+              <NumInput value={props.state.armor} min={0} max={200} width="xs"
+                onChange={(v) => update("armor", v)} />
+              <NeedHint cvars={props.cvars} cvarName="tp_need_armor" />
+            </div>
           </div>
-        </Row>
-        <Row label="Armor class">
-          <EnumSelect value={props.state.armorClass} options={ARMOR_CLASSES}
-            onChange={(v) => update("armorClass", v as ArmorClass)} width="sm" />
-        </Row>
-        <DerivedBlock rows={[
-          ["$armortype", deriveArmortype(props.state, props.cvars)],
-          ["$colored_armor", deriveColoredArmor(props.state)],
-        ]} />
-        <InfluencingCvarsBlock cvars={props.cvars}
-          names={["tp_name_armortype_ga","tp_name_armortype_ya","tp_name_armortype_ra","tp_name_armortype_none"]} />
-      </Section>
-
-      <Section title="Weapons">
-        <Row label="Owned">
-          <div class="flex flex-wrap gap-1">
-            <For each={WEAPONS}>{(w) => (
-              <button
-                class={`badge cursor-pointer ${props.state.ownedWeapons.has(w) ? "badge-primary" : "badge-ghost"}`}
-                onClick={() => toggleWeapon(w)}
-              >{w}</button>
-            )}</For>
+          <div class="sg-state-vitals-cell">
+            <label class="sg-state-row-label">Class</label>
+            <div class="flex gap-1">
+              <For each={ARMOR_CLASSES}>{(c) => (
+                <button
+                  class={`badge cursor-pointer ${props.state.armorClass === c ? "badge-primary" : "badge-ghost"}`}
+                  onClick={() => update("armorClass", c)}
+                >{c}</button>
+              )}</For>
+            </div>
           </div>
-        </Row>
-        <Row label="Current">
-          <EnumSelect value={props.state.currentWeapon} options={WEAPONS}
-            onChange={(v) => update("currentWeapon", v as Weapon)} width="sm" />
-        </Row>
-        <DerivedBlock rows={[
-          ["$weapons", deriveWeaponsString(props.state, props.cvars)],
-          ["$bestweapon", deriveBestWeapon(props.state, props.cvars)],
-          ["$bestammo", String(deriveBestAmmo(props.state, props.cvars))],
-          ["$weaponnum", String(deriveWeaponNum(props.state))],
-          ["$ammo", String(deriveAmmo(props.state))],
-        ]} />
-        <InfluencingCvarsBlock cvars={props.cvars}
-          names={["tp_weapon_order","tp_name_sg","tp_name_ssg","tp_name_ng","tp_name_sng","tp_name_gl","tp_name_rl","tp_name_lg"]} />
-      </Section>
-
-      <Section title="Ammo">
-        <Row label="Shells">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.shells} onChange={(v) => update("shells", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_shells" />
-          </div>
-        </Row>
-        <Row label="Nails">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.nails} onChange={(v) => update("nails", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_nails" />
-          </div>
-        </Row>
-        <Row label="Rockets">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.rockets} onChange={(v) => update("rockets", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_rockets" />
-          </div>
-        </Row>
-        <Row label="Cells">
-          <div class="flex items-center gap-2">
-            <NumInput value={props.state.cells} onChange={(v) => update("cells", v)} />
-            <NeedHint cvars={props.cvars} cvarName="tp_need_cells" />
-          </div>
-        </Row>
-      </Section>
-
-      <Section title="Powerups">
-        <Row label="Active">
-          <div class="flex flex-wrap gap-1">
+        </div>
+        <div class="sg-state-powerup-row">
+          <label class="sg-state-row-label">Powerups</label>
+          <div class="flex gap-1">
             <For each={POWERUPS}>{(p) => (
               <button
                 class={`badge cursor-pointer ${props.state.activePowerups.has(p) ? "badge-primary" : "badge-ghost"}`}
@@ -192,22 +187,120 @@ export default function StatePanel(props: StatePanelProps) {
               >{p}</button>
             )}</For>
           </div>
-        </Row>
-        <DerivedBlock rows={[
-          ["$powerups", derivePowerupsString(props.state, props.cvars)],
-        ]} />
-        <InfluencingCvarsBlock cvars={props.cvars}
-          names={["tp_name_quad","tp_name_pent","tp_name_ring","tp_name_biosuit","tp_poweruptextstyle"]} />
+        </div>
+        <Disclosure label="Details" open={isOpen("vitals-details")}
+          onToggle={() => toggleDetails("vitals-details")}>
+          <DerivedBlock rows={[
+            ["$armortype", deriveArmortype(props.state, props.cvars)],
+            ["$colored_armor", deriveColoredArmor(props.state)],
+            ["$powerups", derivePowerupsString(props.state, props.cvars)],
+          ]} />
+          <InfluencingCvarsBlock cvars={props.cvars}
+            names={[
+              "tp_name_armortype_ga","tp_name_armortype_ya","tp_name_armortype_ra","tp_name_armortype_none",
+              "tp_name_quad","tp_name_pent","tp_name_ring","tp_name_biosuit","tp_poweruptextstyle",
+            ]} />
+        </Disclosure>
       </Section>
 
-      <Section title="Location">
-        <Row label="Location"><TextInput value={props.state.location} onChange={(v) => update("location", v)} /></Row>
-        <Row label="Map"><TextInput value={props.state.mapname} onChange={(v) => update("mapname", v)} /></Row>
+      {/* ── Tier 2: Weapons + Ammo (always visible) ── */}
+      <Section title="Weapons">
+        <div class="sg-state-weapon-grid">
+          <For each={WEAPON_GROUPS}>{(group) => (
+            <div class="sg-state-weapon-group">
+              <div class="sg-state-weapon-row">
+                <For each={group.weapons}>{(w) => (
+                  <div class="sg-state-weapon-cell">
+                    <button
+                      class="sg-state-weapon-current"
+                      classList={{ "sg-state-weapon-current-active": props.state.currentWeapon === w }}
+                      title={`Set ${w} as current weapon`}
+                      onClick={() => setCurrentWeapon(w)}
+                    >
+                      <span class="sg-state-weapon-current-dot" />
+                    </button>
+                    <button
+                      class={`badge cursor-pointer ${props.state.ownedWeapons.has(w) ? "badge-primary" : "badge-ghost"}`}
+                      onClick={() => toggleWeapon(w)}
+                    >{w}</button>
+                  </div>
+                )}</For>
+              </div>
+              <Show when={group.ammoKey !== null}>
+                <div class="sg-state-ammo-row">
+                  <NumInput
+                    value={props.state[group.ammoKey!] as number}
+                    min={0}
+                    max={200}
+                    width="xs"
+                    onChange={(v) => update(group.ammoKey!, v as PlayerState[typeof group.ammoKey & keyof PlayerState])}
+                  />
+                  <span class="sg-state-ammo-label">{group.ammoLabel}</span>
+                  <NeedHint cvars={props.cvars} cvarName={`tp_need_${group.ammoLabel}`} />
+                </div>
+              </Show>
+            </div>
+          )}</For>
+        </div>
+        <Disclosure label="Details" open={isOpen("weapons-details")}
+          onToggle={() => toggleDetails("weapons-details")}>
+          <DerivedBlock rows={[
+            ["$weapons", deriveWeaponsString(props.state, props.cvars)],
+            ["$bestweapon", deriveBestWeapon(props.state, props.cvars)],
+            ["$bestammo", String(deriveBestAmmo(props.state, props.cvars))],
+            ["$weaponnum", String(deriveWeaponNum(props.state))],
+            ["$ammo", String(deriveAmmo(props.state))],
+          ]} />
+          <InfluencingCvarsBlock cvars={props.cvars}
+            names={["tp_weapon_order","tp_name_sg","tp_name_ssg","tp_name_ng","tp_name_sng","tp_name_gl","tp_name_rl","tp_name_lg"]} />
+        </Disclosure>
+      </Section>
+
+      {/* ── Collapsed tiers ── */}
+      <Section title="Location"
+        summary={props.state.mapname ? `${props.state.mapname}${props.state.location ? " @ " + props.state.location : ""}` : "—"}
+        collapsible
+        open={isOpen("location")}
+        onToggle={() => toggleDetails("location")}
+      >
+        <Row label="Map">
+          <div class="flex items-center gap-2 w-full">
+            <Show when={mapOptions().length > 0}>
+              <select class="select select-xs w-28"
+                value={mapOptions().includes(props.state.mapname.toLowerCase()) ? props.state.mapname.toLowerCase() : ""}
+                onChange={(e) => update("mapname", e.currentTarget.value)}
+              >
+                <option value="">—</option>
+                <For each={mapOptions()}>{(m) => <option value={m}>{m}</option>}</For>
+              </select>
+            </Show>
+            <TextInput value={props.state.mapname} onChange={(v) => update("mapname", v)} />
+          </div>
+        </Row>
+        <Row label="Location">
+          <div class="flex items-center gap-2 w-full">
+            <Show when={locsForCurrentMap().length > 0}>
+              <select class="select select-xs w-32"
+                value={locsForCurrentMap().some((l) => l.name === props.state.location) ? props.state.location : ""}
+                onChange={(e) => update("location", e.currentTarget.value)}
+              >
+                <option value="">—</option>
+                <For each={locsForCurrentMap()}>{(l) => <option value={l.name}>{l.name}</option>}</For>
+              </select>
+            </Show>
+            <TextInput value={props.state.location} onChange={(v) => update("location", v)} />
+          </div>
+        </Row>
         <Row label="Last loc"><TextInput value={props.state.lastloc} onChange={(v) => update("lastloc", v)} /></Row>
         <Row label="Death loc"><TextInput value={props.state.deathloc} onChange={(v) => update("deathloc", v)} /></Row>
       </Section>
 
-      <Section title="Match">
+      <Section title="Match"
+        summary={`${props.state.matchstatus}${props.state.matchname ? " · " + props.state.matchname : ""}`}
+        collapsible
+        open={isOpen("match")}
+        onToggle={() => toggleDetails("match")}
+      >
         <Row label="Name"><TextInput value={props.state.matchname} onChange={(v) => update("matchname", v)} /></Row>
         <Row label="Status">
           <EnumSelect value={props.state.matchstatus} options={MATCH_STATUSES}
@@ -216,7 +309,12 @@ export default function StatePanel(props: StatePanelProps) {
         <Row label="Type"><TextInput value={props.state.matchtype} onChange={(v) => update("matchtype", v)} /></Row>
       </Section>
 
-      <Section title="LEDs & pointing">
+      <Section title="LEDs & pointing"
+        summary={`led: ${props.state.ledstatus}${props.state.point ? " · pointing " + props.state.point : ""}`}
+        collapsible
+        open={isOpen("led")}
+        onToggle={() => toggleDetails("led")}
+      >
         <Row label="Led point">
           <EnumSelect value={props.state.ledpoint} options={LED_COLORS}
             onChange={(v) => update("ledpoint", v as LedColor)} width="sm" />
@@ -230,7 +328,12 @@ export default function StatePanel(props: StatePanelProps) {
         <Row label="Point at loc"><TextInput value={props.state.pointatloc} onChange={(v) => update("pointatloc", v)} /></Row>
       </Section>
 
-      <Section title="Recent events">
+      <Section title="Recent events"
+        summary={props.state.took ? `took ${props.state.took}` : "—"}
+        collapsible
+        open={isOpen("events")}
+        onToggle={() => toggleDetails("events")}
+      >
         <Row label="Took"><TextInput value={props.state.took} onChange={(v) => update("took", v)} /></Row>
         <Row label="Took loc"><TextInput value={props.state.tookloc} onChange={(v) => update("tookloc", v)} /></Row>
         <Row label="Took at loc"><TextInput value={props.state.tookatloc} onChange={(v) => update("tookatloc", v)} /></Row>
@@ -242,11 +345,50 @@ export default function StatePanel(props: StatePanelProps) {
   );
 }
 
-function Section(props: { title: string; children: JSX.Element }) {
+function Section(props: {
+  title: string;
+  children: JSX.Element;
+  summary?: string;
+  collapsible?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
+}) {
+  if (!props.collapsible) {
+    return (
+      <div class="sg-state-section">
+        <div class="sg-state-section-title">{props.title}</div>
+        <div class="sg-state-section-body">{props.children}</div>
+      </div>
+    );
+  }
   return (
-    <div class="sg-state-section">
-      <div class="sg-state-section-title">{props.title}</div>
-      <div class="sg-state-section-body">{props.children}</div>
+    <div class="sg-state-section sg-state-section-collapsible">
+      <button class="sg-state-section-title sg-state-section-title-collapsible"
+        onClick={props.onToggle}
+      >
+        <span class="sg-state-section-caret">{props.open ? "▼" : "▶"}</span>
+        <span>{props.title}</span>
+        <Show when={!props.open && props.summary}>
+          <span class="sg-state-section-summary">{props.summary}</span>
+        </Show>
+      </button>
+      <Show when={props.open}>
+        <div class="sg-state-section-body">{props.children}</div>
+      </Show>
+    </div>
+  );
+}
+
+function Disclosure(props: { label: string; open: boolean; onToggle: () => void; children: JSX.Element }) {
+  return (
+    <div class="sg-state-disclosure">
+      <button class="sg-state-disclosure-toggle" onClick={props.onToggle}>
+        <span class="sg-state-section-caret">{props.open ? "▼" : "▶"}</span>
+        <span>{props.label}</span>
+      </button>
+      <Show when={props.open}>
+        <div class="sg-state-disclosure-body">{props.children}</div>
+      </Show>
     </div>
   );
 }
@@ -260,9 +402,10 @@ function Row(props: { label: string; children: JSX.Element }) {
   );
 }
 
-function NumInput(props: { value: number; min?: number; max?: number; onChange: (v: number) => void }) {
+function NumInput(props: { value: number; min?: number; max?: number; width?: "xs" | "sm"; onChange: (v: number) => void }) {
+  const widthClass = props.width === "xs" ? "w-14" : "w-20";
   return (
-    <input type="number" class="input input-xs w-20"
+    <input type="number" class={`input input-xs ${widthClass}`}
       value={props.value} min={props.min} max={props.max}
       onInput={(e) => props.onChange(Number(e.currentTarget.value))} />
   );
@@ -309,7 +452,7 @@ function DerivedBlock(props: { rows: [string, string][] }) {
 }
 
 // ezQuake default thresholds for tp_need_* cvars. 0 means "never considered
-// needed" in practice (shells/nails) but we still render it -- the information
+// needed" in practice (shells/nails) but we still render it — the information
 // is useful and consistent with how influencing cvars render defaults.
 const NEED_DEFAULTS: Record<string, string> = {
   tp_need_health: "50",
@@ -332,7 +475,6 @@ function NeedHint(props: { cvars: Map<string, string>; cvarName: string }) {
   );
 }
 
-// ezQuake defaults for commonly-referenced cvars. Extend as needed.
 const CVAR_DEFAULTS: Record<string, string> = {
   tp_weapon_order: "8 7 5 3 4 6 2 1",
   tp_name_sg: "sg", tp_name_ssg: "ssg", tp_name_ng: "ng", tp_name_sng: "sng",

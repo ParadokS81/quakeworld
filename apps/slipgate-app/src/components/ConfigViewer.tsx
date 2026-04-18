@@ -1,7 +1,7 @@
-import { createSignal, createMemo, createEffect, For, Show, Switch, Match, onCleanup } from "solid-js";
+import { createSignal, createMemo, createEffect, createResource, For, Show, Switch, Match, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { lookupCvar, loadDatabase, loadDomainTags, loadEzQuakeCommands, loadKtxCommands } from "qw-config";
-import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification } from "../types";
+import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification, LocScanResult } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
@@ -245,6 +245,23 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
   const userCreatedCvars = createMemo((): Set<string> =>
     mergedData()?.userCreated ?? new Set<string>(),
+  );
+
+  // Scan the user's `<exe_dir>/qw/locs/` (and ezquake/locs) for .loc files so
+  // the StatePanel Location dropdowns can be populated. Re-fires whenever
+  // the exe path changes; returns the empty map if no exe is configured or
+  // no locs directory exists.
+  const [locScan] = createResource<LocScanResult | null, string>(
+    () => props.exePath ?? "",
+    async (exe) => {
+      if (!exe) return { maps: {}, source_dirs: [] };
+      try {
+        return await invoke<LocScanResult>("scan_loc_files", { exePath: exe });
+      } catch (e) {
+        console.error("scan_loc_files failed:", e);
+        return { maps: {}, source_dirs: [] };
+      }
+    },
   );
 
   // ── Compare config from source bundle ──
@@ -1071,6 +1088,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     state={kbState.simulatorState()}
                     cvars={new Map(Object.entries(effectiveCvars()))}
                     templates={kbState.templates()}
+                    locs={locScan()?.maps ?? {}}
                     onChange={kbState.updateSimState}
                     onSaveAs={kbState.saveTemplate}
                     onLoadTemplate={kbState.loadTemplate}
