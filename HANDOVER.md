@@ -14,6 +14,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 - [qw-oracle Discord message deep links](#qw-oracle-discord-message-deep-links) — backfill channel_id + guild_id so MCP output can include clickable Discord URLs per message
+- [Phase 2: QW knowledge extraction — schema + full rollout](#phase-2-qw-knowledge-extraction--schema--full-rollout) — AST extractor proven for ezQuake cvars; Phase 2 = schema-first design → SQLite + loader → port remaining extractors → FTE/MVDSV/KTX → historical backfill → MCP upgrades → automation
+- [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
 
 ---
 
@@ -143,6 +145,99 @@ IRC messages have no linkable URL -- historical logs only.
 When the oracle's answer is delivered through a Discord bot, linking to the actual community message that informed the answer lets users verify the source and read the surrounding context. Builds trust in the system.
 
 Mirrors the POC-branch HANDOVER entry so main tree sees it too.
+
+---
+
+## Phase 2: QW knowledge extraction — schema + full rollout
+
+**Added:** 2026-04-18
+**Status:** AST extractor validated for ezQuake cvars (spike complete). Phase 2 = schema design + production rollout. Ready for fresh-session kickoff.
+**Verification first:** `python3 /home/paradoks/projects/quakeworld/packages/qw-config/scripts/extract-ezquake-cvars-clang.py | tail -10`. Should report ~2715 source cvars + ~187 help-only + rich metadata coverage (flags, on_change, source_line). If it errors, re-install: `sudo apt-get install -y libclang-dev python3-clang clang`.
+
+The 2026-04-18 session ran a research spike that validated AST-based extraction (libclang + python3-clang) as the correct replacement for the current regex extractors in `packages/qw-config/scripts/extract-*.ts`. Full results and comparison are in `packages/qw-config/docs/extraction-comparison-report.md`. The spike ships:
+
+- `packages/qw-config/scripts/extract-ezquake-cvars-clang.py` — primary extractor, ~520 lines, produces `src/data/ezquake-variables-ast.json` (~1.96 MB, 2902 entries, 100% parity with the regex output plus 4 new metadata fields).
+- `packages/qw-config/scripts/extract-fte-cvars-clang-check.py` — 170-line validation that libclang expands FTE's `CVARD`/`CVARFD`/`CVARAFCD` macros correctly (confirmed across 5 files, 269 cvars extracted).
+- `packages/qw-config/docs/extraction-comparison-report.md` — the full write-up including the Phase 2 plan at the end.
+
+Neither the regex extractor nor the Slipgate app has been touched. The spike sits alongside the existing pipeline.
+
+### Phase 2 scope (schema-first to minimize rework)
+
+Sequence committed with the user during wrap-up on 2026-04-18:
+
+**2a. Schema design.** A dedicated fresh session — user is launching a new terminal for this. Produce a design spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` covering:
+- Entity tables (cvars, commands, macros, cmdline-params) — column shapes; nullable fields
+- **Versioning baked in from day one** — one row per (entity_canonical_id, version); row-level change tracking
+- Change-event table — commit SHA, commit message, PR number, PR title, PR body, linked issues, enrichment source
+- Canonical ID convention — `<project>:<type>:<name>[@<version>]` per the Oracle design spec, finalized against concrete use cases
+- Provenance columns — source_file, source_line, source_column, extractor_version, extraction_run_timestamp
+- Storage choice — SQLite for Phase 2a/2b; revisit once the data shape is load-tested
+- Loader interface — what the extractor JSON→DB step looks like
+
+The user's mental model from the 2026-04-18 conversation: "We want to map the oldest version, then every version after that with the metadata on what changed, so when a user asks a question the oracle can say 'that was fixed in 3.6.6' or 'your default value changed between 3.6.5 and 3.6.7'." The schema must make that query cheap.
+
+**2b. Loader + ezQuake end-to-end proof.** Write the SQLite writer for the ezQuake cvar JSON. Populate for ONE version (HEAD) to verify schema. Hand-query to confirm.
+
+**2c. Port the remaining ezQuake extractors.** Commands, macros, cmdline-params using the libclang pattern. Feed through the loader. End state: ezQuake is fully in SQL.
+
+**2d. FTE cvars extractor.** Full port of the validated approach.
+
+**2e. MVDSV + KTX extractors.** MVDSV is a small port (189 cvars, same struct form as ezQuake). KTX is a different script (tree-sitter-based call-site extraction — use `py-tree-sitter` Python bindings, NOT the Node `tree-sitter@0.25` binding which segfaulted on WSL/Node 20 during the spike).
+
+**2f. Historical backfill.** Run each extractor against every tag. Diff consecutive tags. For each diff row, run `git blame` → commit SHA → parse PR number from commit message (ezQuake uses `CVAR: ... (#NNNN)` convention) → GitHub API call for PR title/body/linked issues → insert `change_events` rows. Rate-limit safe (<2000 requests per full historical pull).
+
+**2g. MCP tool upgrades.** Add `version` parameter to `lookup_entity` (defaults to "latest"). Add `get_entity_history` tool. Add version/date filters to `search_entities`.
+
+**2h. Automation.** Scheduled job — detect new tags on each research repo's upstream, run delta extraction, enrich, insert.
+
+### Out of scope for Phase 2
+
+- **dusty-ktx QuakeC client module (`qcsrc/`)** — different language, needs its own spike later.
+- **QWFWD** — not yet cloned to `research/repos/`. Add to Phase 2e when cloned.
+- **Slipgate app refactor to consume new data** — deliberately deferred by the user. Phase 2 is about building the solid data foundation first; app consumption comes after the DB is complete.
+- **Layer 2 / Layer 3 Oracle work** (chat log summarization, curated concept notes) — orthogonal track, proceeds independently.
+
+### Key references
+
+- Spike output: `packages/qw-config/src/data/ezquake-variables-ast.json`
+- Spike report: `packages/qw-config/docs/extraction-comparison-report.md`
+- Oracle design spec: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`
+- Memory: `project_qw_oracle_vision.md` (updated 2026-04-18 to reflect spike completion)
+- Memory: `reference_libclang_ezquake_extraction.md` (WSL setup + ezQuake-specific conditional macros)
+
+### Pressure
+
+Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
+
+---
+
+## qw-config package missing Layer 1 quartet
+
+**Added:** 2026-04-18
+**Status:** Pre-existing gap. Not caused by the AST spike but surfaced during wrap-up.
+**Verification first:** `ls /home/paradoks/projects/quakeworld/packages/qw-config/{CLAUDE.md,VISION.md,OVERVIEW.md} 2>&1`. If all three exist, resolved.
+
+The qw-config package has a substantial `README.md` (96 lines, reasonably thorough) but is missing the other three mandatory-quartet files: `CLAUDE.md`, `VISION.md`, `OVERVIEW.md`. Per the doc philosophy (`docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`), every project — including shared packages — has the quartet.
+
+The sibling package `qw-knowledge` has the same gap (only a few files, no README at all). The monorepo OVERVIEW.md explicitly acknowledges both packages are on lazy migration: "Neither has a README today; both will get one when the package is next touched."
+
+### Fix shape
+
+Don't sweep. When Phase 2 work lands and starts adding significantly to `qw-config` (new extractors, SQLite loader, new data format), pause to:
+1. Split `CLAUDE.md` from `README.md` — rules for Claude go in `CLAUDE.md`, product description stays in `README.md`
+2. Write `VISION.md` — why qw-config exists (shared engine-feature database, authoritative-source discipline, consumer-agnostic)
+3. Write `OVERVIEW.md` — the living map: all extractors, all data files, all consumers, with lifecycle status
+
+The README already contains most of the OVERVIEW content; the work is mostly restructuring, not writing from scratch.
+
+Same treatment applies to `qw-knowledge` when it's next touched.
+
+### Related
+
+- Doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
+- Memory: `project_doc_philosophy.md`
+- Monorepo OVERVIEW.md line 106: lazy-migration note
 
 ---
 
