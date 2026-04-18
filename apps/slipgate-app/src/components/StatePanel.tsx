@@ -460,6 +460,15 @@ const LOC_NAME_DEFAULTS: Record<string, string> = {
   loc_name_suit: "suit", loc_name_mh: "mh", loc_name_separator: "-",
 };
 
+// ezQuake single-character `$<punct>` shortcuts. These bypass the cvar
+// identifier scan and map to a specific glyph in the conchar palette.
+// For the loc-dropdown labels we just want a readable ASCII-ish stand-in;
+// the real-colour rendering belongs to the pretty-view layer, not here.
+const SINGLE_CHAR_MACROS: Record<string, string> = {
+  ".": "\u00B7", // yellow dot -> middle dot
+  ",": ".",      // white dot -> period
+};
+
 /**
  * Greedy longest-cvar-prefix expansion for `$name` tokens. ezQuake's own
  * parser picks the longest cvar name starting at `$`, so strings like
@@ -492,10 +501,19 @@ function expandCvarRefs(raw: string, cvars: Map<string, string>): string {
     if (matchedVal !== undefined) {
       out += matchedVal;
       i += 1 + matchedLen;
-    } else {
-      out += raw[i];
-      i++;
+      continue;
     }
+    // No identifier-form cvar matched — fall back to the single-char
+    // shortcut table for $., $,, etc. If the next char isn't a known
+    // shortcut either, leave the `$` as a literal and move on.
+    const nextChar = raw[i + 1];
+    if (nextChar !== undefined && SINGLE_CHAR_MACROS[nextChar] !== undefined) {
+      out += SINGLE_CHAR_MACROS[nextChar];
+      i += 2;
+      continue;
+    }
+    out += raw[i];
+    i++;
   }
   return out;
 }
