@@ -15,6 +15,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
+- [qw-oracle Discord message deep links](#qw-oracle-discord-message-deep-links) — backfill channel_id + guild_id so MCP output can include clickable Discord URLs per message
 
 ---
 
@@ -154,6 +155,30 @@ The Player State Simulator (PlayerState model + ezQuake `if` evaluator + `evalua
 - Spec: `apps/slipgate-app/docs/superpowers/specs/2026-04-17-player-state-simulator-design.md`
 - Plan: `apps/slipgate-app/docs/superpowers/plans/2026-04-17-player-state-simulator.md`
 - OVERVIEW.md has the full feature description and Code landmarks pointers.
+
+---
+
+## qw-oracle Discord message deep links
+
+**Added:** 2026-04-18
+**Status:** pending, low effort, high value for bot output
+**Verification first:** `sqlite3 /home/paradoks/projects/quakeworld-poc/apps/qw-oracle/data/qw.db "SELECT COUNT(*) FROM messages WHERE platform='discord' AND guild_id IS NULL"`. If 0, schema has been backfilled.
+
+The messages table in `qw-oracle/data/qw.db` has Discord snowflake IDs (message primary key) but `guild_id` is NULL for all 717k Discord messages and `channel_id` is not stored. The Discord export JSON files at `/home/paradoks/projects/quake/quad/exports/` DO contain `channel_id` per message. All messages come from the single Quake.World Discord server.
+
+To generate clickable `https://discord.com/channels/{guild_id}/{channel_id}/{message_id}` links:
+
+1. Backfill `channel_id` from the export JSON into the messages table (or add a channel_name -> channel_id lookup table; there are only 4 channels)
+2. Hard-code the Quake.World guild_id as a constant (single server)
+3. Add a `discord_url` field to SessionMessage in the MCP tool output for discord-platform messages
+
+IRC messages have no linkable URL -- historical logs only.
+
+### Why it matters
+
+When the oracle's answer is delivered through a Discord bot, linking to the actual community message that informed the answer lets users verify the source and read the surrounding context. Builds trust in the system.
+
+Mirrors the POC-branch HANDOVER entry so main tree sees it too.
 
 ---
 
