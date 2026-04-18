@@ -90,13 +90,28 @@ export default function StatePanel(props: StatePanelProps) {
     update("activePowerups", next);
   }
 
-  // Map dropdown shows all scanned maps; free-text fallback is always
-  // available below it so users can type an unlisted name. Location
-  // dropdown is gated on the selected map having scanned locs.
+  // Map and location dropdowns use <datalist> rather than <select> so the
+  // input doubles as a free-text field. Typing filters the suggestions;
+  // clicking the dropdown arrow on an empty/focused input shows all.
+  // Location names from .loc files often contain ezQuake macros like
+  // `$loc_name_ra$loc_name_separatorbox`; we resolve those to display
+  // text using the loaded cvars (with hardcoded fallbacks for common
+  // loc_name_* defaults so the dropdown is useful even without a config).
   const mapOptions = createMemo(() => Object.keys(props.locs).sort());
-  const locsForCurrentMap = createMemo(() => {
+  const locOptions = createMemo(() => {
     const m = props.state.mapname.trim().toLowerCase();
-    return props.locs[m] ?? [];
+    const raw = props.locs[m] ?? [];
+    // De-dupe by resolved display name so variants of the same spot
+    // (e.g. multiple `$loc_name_ra` nodes) don't flood the list.
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const entry of raw) {
+      const display = displayLocName(entry.name, props.cvars);
+      if (seen.has(display)) continue;
+      seen.add(display);
+      out.push(display);
+    }
+    return out.sort();
   });
 
   return (
@@ -264,32 +279,20 @@ export default function StatePanel(props: StatePanelProps) {
         onToggle={() => toggleDetails("location")}
       >
         <Row label="Map">
-          <div class="flex items-center gap-2 w-full">
-            <Show when={mapOptions().length > 0}>
-              <select class="select select-xs w-28"
-                value={mapOptions().includes(props.state.mapname.toLowerCase()) ? props.state.mapname.toLowerCase() : ""}
-                onChange={(e) => update("mapname", e.currentTarget.value)}
-              >
-                <option value="">—</option>
-                <For each={mapOptions()}>{(m) => <option value={m}>{m}</option>}</For>
-              </select>
-            </Show>
-            <TextInput value={props.state.mapname} onChange={(v) => update("mapname", v)} />
-          </div>
+          <ComboInput
+            value={props.state.mapname}
+            options={mapOptions()}
+            listId="sg-state-map-options"
+            onChange={(v) => update("mapname", v)}
+          />
         </Row>
         <Row label="Location">
-          <div class="flex items-center gap-2 w-full">
-            <Show when={locsForCurrentMap().length > 0}>
-              <select class="select select-xs w-32"
-                value={locsForCurrentMap().some((l) => l.name === props.state.location) ? props.state.location : ""}
-                onChange={(e) => update("location", e.currentTarget.value)}
-              >
-                <option value="">—</option>
-                <For each={locsForCurrentMap()}>{(l) => <option value={l.name}>{l.name}</option>}</For>
-              </select>
-            </Show>
-            <TextInput value={props.state.location} onChange={(v) => update("location", v)} />
-          </div>
+          <ComboInput
+            value={props.state.location}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("location", v)}
+          />
         </Row>
         <Row label="Last loc"><TextInput value={props.state.lastloc} onChange={(v) => update("lastloc", v)} /></Row>
         <Row label="Death loc"><TextInput value={props.state.deathloc} onChange={(v) => update("deathloc", v)} /></Row>
@@ -417,6 +420,95 @@ function TextInput(props: { value: string; onChange: (v: string) => void }) {
       value={props.value}
       onInput={(e) => props.onChange(e.currentTarget.value)} />
   );
+}
+
+/**
+ * Text input backed by an HTML <datalist>. The browser renders a dropdown
+ * arrow that reveals the full option list on click; typing filters the
+ * list via substring match. Works in WebView2 natively — no custom
+ * open/close state needed.
+ */
+function ComboInput(props: {
+  value: string;
+  options: readonly string[];
+  listId: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <>
+      <input type="text" class="input input-xs w-full"
+        list={props.options.length > 0 ? props.listId : undefined}
+        value={props.value}
+        onInput={(e) => props.onChange(e.currentTarget.value)} />
+      <Show when={props.options.length > 0}>
+        <datalist id={props.listId}>
+          <For each={props.options}>{(o) => <option value={o} />}</For>
+        </datalist>
+      </Show>
+    </>
+  );
+}
+
+// Common `loc_name_*` defaults baked into ezQuake. Used as a fallback for
+// the location-name resolver when the loaded config doesn't override them,
+// so the dropdown remains readable even on a blank config.
+const LOC_NAME_DEFAULTS: Record<string, string> = {
+  loc_name_ra: "ra", loc_name_ya: "ya", loc_name_ga: "ga",
+  loc_name_rl: "rl", loc_name_gl: "gl", loc_name_lg: "lg",
+  loc_name_sng: "sng", loc_name_ng: "ng", loc_name_ssg: "ssg", loc_name_sg: "sg",
+  loc_name_quad: "quad", loc_name_pent: "pent", loc_name_ring: "ring",
+  loc_name_suit: "suit", loc_name_mh: "mh", loc_name_separator: "-",
+};
+
+/**
+ * Greedy longest-cvar-prefix expansion for `$name` tokens. ezQuake's own
+ * parser picks the longest cvar name starting at `$`, so strings like
+ * `$loc_name_separatorgl` resolve as `$loc_name_separator` + `gl` when
+ * no cvar named `loc_name_separatorgl` exists. We emulate that here.
+ */
+function expandCvarRefs(raw: string, cvars: Map<string, string>): string {
+  let out = "";
+  let i = 0;
+  while (i < raw.length) {
+    if (raw[i] !== "$") {
+      out += raw[i];
+      i++;
+      continue;
+    }
+    // Collect the identifier that follows `$`.
+    let j = i + 1;
+    while (j < raw.length && /[a-zA-Z0-9_]/.test(raw[j])) j++;
+    let matchedLen = 0;
+    let matchedVal: string | undefined;
+    for (let len = j - (i + 1); len > 0; len--) {
+      const name = raw.substring(i + 1, i + 1 + len);
+      const val = cvars.get(name) ?? LOC_NAME_DEFAULTS[name];
+      if (val !== undefined) {
+        matchedLen = len;
+        matchedVal = val;
+        break;
+      }
+    }
+    if (matchedVal !== undefined) {
+      out += matchedVal;
+      i += 1 + matchedLen;
+    } else {
+      out += raw[i];
+      i++;
+    }
+  }
+  return out;
+}
+
+// Strip ezQuake color codes (`&cRGB` with 3 hex + `&r` reset) so the
+// dropdown labels are readable. The raw values still travel through the
+// simulator / resolver unchanged wherever needed elsewhere.
+function stripColorCodes(s: string): string {
+  return s.replace(/&c[0-9a-fA-F]{3}/g, "").replace(/&r/g, "");
+}
+
+function displayLocName(raw: string, cvars: Map<string, string>): string {
+  return stripColorCodes(expandCvarRefs(raw, cvars)).trim();
 }
 
 function EnumSelect<T extends string>(props: {
