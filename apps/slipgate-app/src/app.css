@@ -2454,3 +2454,234 @@ input[type="number"] {
   margin-left: 0.3rem;
 }
 
+/* ── StatePanel sprite-slot redesign (2026-04-19): WAD sprites with
+      value-under-sprite layout. Border colours per ammo family keep
+      weapon groupings readable at a glance. Need hints are hover-only
+      unless the underlying tp_need_* cvar is customised. ── */
+
+/* Armor class + ammo family colours. Kept as component-local custom
+   properties so the CLAUDE.md "no hardcoded colours in source" rule
+   applies only through these semantic tokens. */
+:root {
+  --sg-class-ga: oklch(70% 0.18 140);
+  --sg-class-ya: oklch(82% 0.18 90);
+  --sg-class-ra: oklch(62% 0.22 25);
+  --sg-fam-shell: oklch(62% 0.22 25);
+  --sg-fam-nail: oklch(82% 0.18 90);
+  --sg-fam-rox: oklch(70% 0.2 55);
+  --sg-fam-cell: oklch(72% 0.15 220);
+  --sg-fam-none: var(--sg-text-dim);
+}
+
+.sg-state-slot-tier {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.sg-state-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
+  padding: 0.3rem;
+  background: #000;
+  border: 1px solid var(--sg-stat-border);
+  border-radius: 0.3rem;
+}
+.sg-state-slot-dim { opacity: 0.4; }
+.sg-state-slot-active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 35%, transparent);
+  opacity: 1;
+}
+.sg-state-slot-armor-ga.sg-state-slot-active { border-color: var(--sg-class-ga); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ga) 35%, transparent); }
+.sg-state-slot-armor-ya.sg-state-slot-active { border-color: var(--sg-class-ya); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ya) 35%, transparent); }
+.sg-state-slot-armor-ra.sg-state-slot-active { border-color: var(--sg-class-ra); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ra) 35%, transparent); }
+
+.sg-state-slot-sprite {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.sg-state-slot-sprite img {
+  max-width: 72%;
+  max-height: 72%;
+  image-rendering: pixelated;
+}
+.sg-state-slot-text-tile {
+  font-family: monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--sg-text-bright);
+}
+.sg-state-slot-dim .sg-state-slot-text-tile { color: var(--sg-text-dim); }
+
+.sg-state-slot-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.sg-state-slot-input {
+  width: 100%;
+  background: var(--color-base-200);
+  border: 1px solid var(--sg-stat-border);
+  color: var(--sg-text-bright);
+  font-family: monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+.sg-state-slot-input[readonly] {
+  color: var(--sg-text-dim);
+  background: transparent;
+}
+.sg-state-slot-label {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--sg-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sg-state-slot-active .sg-state-slot-label { color: var(--sg-text-bright); }
+
+.sg-state-slot-need {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: var(--sg-class-ya);
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.sg-state-slot:hover .sg-state-slot-need,
+.sg-state-slot-need-customized .sg-state-slot-need {
+  opacity: 1;
+}
+
+/* ── Weapon family cards ── */
+
+.sg-state-weapon-row-2-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.sg-state-weapon-row-2-1-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.sg-state-weapon-family {
+  position: relative;
+  border: 2px solid var(--sg-fam-none);
+  border-radius: 0.4rem;
+  padding: 0.35rem;
+  background: color-mix(in oklch, var(--color-base-200) 60%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.sg-state-fam-shell { border-color: var(--sg-fam-shell); }
+.sg-state-fam-nail  { border-color: var(--sg-fam-nail); }
+.sg-state-fam-rox   { border-color: var(--sg-fam-rox); }
+.sg-state-fam-cell  { border-color: var(--sg-fam-cell); }
+.sg-state-fam-none  { border-color: var(--sg-fam-none); border-style: dashed; }
+
+.sg-state-weapon-family-row {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+}
+.sg-state-weapon-family-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  flex: 1;
+}
+.sg-state-weapon-sprite {
+  width: 100%;
+  aspect-ratio: 2.5 / 1;
+  background: #000;
+  border: 1px solid var(--sg-stat-border);
+  border-radius: 0.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.sg-state-weapon-sprite img {
+  max-width: 85%;
+  max-height: 85%;
+  image-rendering: pixelated;
+}
+.sg-state-weapon-sprite-dim { opacity: 0.3; }
+.sg-state-weapon-sprite-owned {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 30%, transparent);
+}
+.sg-state-weapon-text {
+  font-family: monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--sg-text-dim);
+}
+.sg-state-weapon-sprite-owned .sg-state-weapon-text { color: var(--sg-text-bright); }
+
+.sg-state-family-ammo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.3rem;
+  background: color-mix(in oklch, #000 65%, transparent);
+  border-radius: 0.2rem;
+  position: relative;
+}
+.sg-state-family-ammo-sprite {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
+.sg-state-family-ammo-input {
+  width: 3.2rem;
+  background: transparent;
+  border: 1px solid var(--sg-stat-border);
+  color: var(--sg-text-bright);
+  font-family: monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+.sg-state-family-ammo-need {
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: var(--sg-class-ya);
+  opacity: 0;
+  transition: opacity 0.15s;
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  pointer-events: none;
+}
+.sg-state-weapon-family:hover .sg-state-family-ammo-need,
+.sg-state-weapon-family-need-customized .sg-state-family-ammo-need {
+  opacity: 1;
+}
+

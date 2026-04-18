@@ -25,21 +25,78 @@ interface StatePanelProps {
   onReset: () => void;
 }
 
-// Weapon tier layout groups weapons by ammo family so the ammo inputs
-// below can anchor visually to the weapons that consume them. Axe is
-// ammo-less so it sits on its own at the front; cells pair under LG only.
-const WEAPON_GROUPS: { weapons: Weapon[]; ammoKey: keyof PlayerState | null; ammoLabel: string }[] = [
-  { weapons: ["axe"], ammoKey: null, ammoLabel: "" },
-  { weapons: ["sg", "ssg"], ammoKey: "shells", ammoLabel: "shells" },
-  { weapons: ["ng", "sng"], ammoKey: "nails", ammoLabel: "nails" },
-  { weapons: ["gl", "rl"], ammoKey: "rockets", ammoLabel: "rockets" },
-  { weapons: ["lg"], ammoKey: "cells", ammoLabel: "cells" },
+// Weapon layout: two rows grouping by ammo family. Row 1 holds the two
+// fastest-firing pairs (shells, nails) as 2+2. Row 2 holds the remaining
+// weapons as 2+1+1: rockets pair, cells single, axe single. Each family
+// gets a coloured border keyed to its ammo sprite tint so users can
+// recognise the family at a glance; ammo input renders once per family
+// centered under the weapon cells.
+type WeaponFamily = "shells" | "nails" | "rox" | "cells" | "none";
+interface WeaponGroup {
+  weapons: Weapon[];
+  ammoKey: Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells"> | null;
+  ammoLabel: string;
+  family: WeaponFamily;
+}
+const WEAPON_ROW_1: WeaponGroup[] = [
+  { weapons: ["sg", "ssg"], ammoKey: "shells", ammoLabel: "shells", family: "shells" },
+  { weapons: ["ng", "sng"], ammoKey: "nails", ammoLabel: "nails", family: "nails" },
+];
+const WEAPON_ROW_2: WeaponGroup[] = [
+  { weapons: ["gl", "rl"], ammoKey: "rockets", ammoLabel: "rockets", family: "rox" },
+  { weapons: ["lg"], ammoKey: "cells", ammoLabel: "cells", family: "cells" },
+  { weapons: ["axe"], ammoKey: null, ammoLabel: "", family: "none" },
 ];
 
 const POWERUPS: Powerup[] = ["quad", "pent", "ring", "biosuit"];
-const ARMOR_CLASSES: ArmorClass[] = ["none", "ga", "ya", "ra"];
+const ARMOR_VISIBLE_CLASSES: Exclude<ArmorClass, "none">[] = ["ga", "ya", "ra"];
 const MATCH_STATUSES: MatchStatus[] = ["standby", "countdown", "live", "overtime", "ended"];
 const LED_COLORS: LedColor[] = ["none", "green", "red", "yellow"];
+
+// Sprite paths (served from apps/slipgate-app/public/wad/).
+const ARMOR_SPRITE: Record<Exclude<ArmorClass, "none">, string> = {
+  ga: "/wad/sb_armor1.png",
+  ya: "/wad/sb_armor2.png",
+  ra: "/wad/sb_armor3.png",
+};
+const AMMO_SPRITE: Record<Exclude<WeaponFamily, "none">, string> = {
+  shells: "/wad/sb_shells.png",
+  nails: "/wad/sb_nails.png",
+  rox: "/wad/sb_rocket.png",
+  cells: "/wad/sb_cells.png",
+};
+const WEAPON_SPRITE: Partial<Record<Weapon, string>> = {
+  sg: "/wad/inv_shotgun.png",
+  ssg: "/wad/inv_sshotgun.png",
+  ng: "/wad/inv_nailgun.png",
+  sng: "/wad/inv_snailgun.png",
+  // Q1 WAD conventions: `rlaunch` sprite is the grenade launcher,
+  // `srlaunch` is the rocket launcher. Inverted vs their filename sound.
+  gl: "/wad/inv_rlaunch.png",
+  rl: "/wad/inv_srlaunch.png",
+  lg: "/wad/inv_lightng.png",
+  // axe has no distinct weapon sprite in this WAD set — rendered as text.
+};
+const POWERUP_SPRITE: Partial<Record<Powerup, string>> = {
+  quad: "/wad/face_quad.png",
+  pent: "/wad/face_invul.png",
+  ring: "/wad/face_invis.png",
+  // biosuit has no face sprite — rendered as text tile.
+};
+
+// Face sprite follows ezQuake's statusbar logic: tier by HP band with
+// powerup overrides (quad/pent/ring take precedence).
+function faceSprite(state: PlayerState): string {
+  if (state.activePowerups.has("quad")) return "/wad/face_quad.png";
+  if (state.activePowerups.has("pent")) return "/wad/face_invul.png";
+  if (state.activePowerups.has("ring")) return "/wad/face_invis.png";
+  const hp = state.health;
+  if (hp >= 80) return "/wad/face1.png";
+  if (hp >= 60) return "/wad/face2.png";
+  if (hp >= 40) return "/wad/face3.png";
+  if (hp >= 20) return "/wad/face4.png";
+  return "/wad/face5.png";
+}
 
 export default function StatePanel(props: StatePanelProps) {
   const [saveMode, setSaveMode] = createSignal(false);
@@ -161,100 +218,110 @@ export default function StatePanel(props: StatePanelProps) {
         </Show>
       </div>
 
-      {/* ── Tier 1: Vitals + Powerups (always visible) ── */}
+      {/* ── Tier 1: Vitals — face+HP slot plus GA/YA/RA armor slots ── */}
       <Section title="Vitals">
-        <div class="sg-state-vitals-grid">
-          <div class="sg-state-vitals-cell">
-            <label class="sg-state-row-label">HP</label>
-            <div class="flex items-center gap-2">
-              <NumInput value={props.state.health} min={0} max={250} width="xs"
-                onChange={(v) => update("health", v)} />
-              <NeedHint cvars={props.cvars} cvarName="tp_need_health" />
-            </div>
-          </div>
-          <div class="sg-state-vitals-cell">
-            <label class="sg-state-row-label">Armor</label>
-            <div class="flex items-center gap-2">
-              <NumInput value={props.state.armor} min={0} max={200} width="xs"
-                onChange={(v) => update("armor", v)} />
-              <NeedHint cvars={props.cvars} cvarName="tp_need_armor" />
-            </div>
-          </div>
-          <div class="sg-state-vitals-cell">
-            <label class="sg-state-row-label">Class</label>
-            <div class="flex gap-1">
-              <For each={ARMOR_CLASSES}>{(c) => (
-                <button
-                  class={`badge cursor-pointer ${props.state.armorClass === c ? "badge-primary" : "badge-ghost"}`}
-                  onClick={() => update("armorClass", c)}
-                >{c}</button>
-              )}</For>
-            </div>
-          </div>
-        </div>
-        <div class="sg-state-powerup-row">
-          <label class="sg-state-row-label">Powerups</label>
-          <div class="flex gap-1">
-            <For each={POWERUPS}>{(p) => (
-              <button
-                class={`badge cursor-pointer ${props.state.activePowerups.has(p) ? "badge-primary" : "badge-ghost"}`}
-                onClick={() => togglePowerup(p)}
-              >{p}</button>
-            )}</For>
-          </div>
+        <div class="sg-state-slot-tier">
+          {/* HP slot: face sprite reacts to HP band + powerup overrides. */}
+          <SpriteSlot
+            active
+            sprite={faceSprite(props.state)}
+            label="HP"
+            value={props.state.health}
+            min={0}
+            max={250}
+            onChange={(v) => update("health", v)}
+            need={{ cvars: props.cvars, cvarName: "tp_need_health" }}
+          />
+          {/* Armor class mutex: clicking an inactive class swaps to it.
+              Clicking the active one toggles it back to "none" (cleared). */}
+          <For each={ARMOR_VISIBLE_CLASSES}>{(c) => {
+            const active = () => props.state.armorClass === c;
+            return (
+              <SpriteSlot
+                active={active()}
+                armorClass={c}
+                sprite={ARMOR_SPRITE[c]}
+                label={c.toUpperCase()}
+                value={active() ? props.state.armor : 0}
+                readOnlyValue={!active()}
+                min={0}
+                max={200}
+                onChange={(v) => {
+                  if (active()) update("armor", v);
+                }}
+                onSlotClick={() => {
+                  if (active()) {
+                    props.onChange({ ...props.state, armorClass: "none", armor: 0 });
+                  } else {
+                    update("armorClass", c);
+                  }
+                }}
+                need={{ cvars: props.cvars, cvarName: "tp_need_armor" }}
+              />
+            );
+          }}</For>
         </div>
         <Disclosure label="Details" open={isOpen("vitals-details")}
           onToggle={() => toggleDetails("vitals-details")}>
           <DerivedBlock rows={[
             ["$armortype", deriveArmortype(props.state, props.cvars)],
             ["$colored_armor", deriveColoredArmor(props.state)],
-            ["$powerups", derivePowerupsString(props.state, props.cvars)],
           ]} />
           <InfluencingCvarsBlock cvars={props.cvars}
-            names={[
-              "tp_name_armortype_ga","tp_name_armortype_ya","tp_name_armortype_ra","tp_name_armortype_none",
-              "tp_name_quad","tp_name_pent","tp_name_ring","tp_name_biosuit","tp_poweruptextstyle",
-            ]} />
+            names={["tp_name_armortype_ga","tp_name_armortype_ya","tp_name_armortype_ra","tp_name_armortype_none"]} />
         </Disclosure>
       </Section>
 
-      {/* ── Tier 2: Weapons + Ammo (always visible) ── */}
+      {/* ── Tier 2: Powerups — Q/P/R face sprites + biosuit text tile ── */}
+      <Section title="Powerups">
+        <div class="sg-state-slot-tier">
+          <For each={POWERUPS}>{(p) => {
+            const active = () => props.state.activePowerups.has(p);
+            return (
+              <SpriteSlot
+                active={active()}
+                sprite={POWERUP_SPRITE[p]}
+                textTile={POWERUP_SPRITE[p] ? undefined : p.toUpperCase()}
+                label={p}
+                onSlotClick={() => togglePowerup(p)}
+              />
+            );
+          }}</For>
+        </div>
+        <Disclosure label="Details" open={isOpen("powerups-details")}
+          onToggle={() => toggleDetails("powerups-details")}>
+          <DerivedBlock rows={[
+            ["$powerups", derivePowerupsString(props.state, props.cvars)],
+          ]} />
+          <InfluencingCvarsBlock cvars={props.cvars}
+            names={["tp_name_quad","tp_name_pent","tp_name_ring","tp_name_biosuit","tp_poweruptextstyle"]} />
+        </Disclosure>
+      </Section>
+
+      {/* ── Tier 3: Weapons — 2+2 row then 2+1+1 row, ammo per family ── */}
       <Section title="Weapons">
-        <div class="sg-state-weapon-grid">
-          <For each={WEAPON_GROUPS}>{(group) => (
-            <div class="sg-state-weapon-group">
-              <div class="sg-state-weapon-row">
-                <For each={group.weapons}>{(w) => (
-                  <div class="sg-state-weapon-cell">
-                    <button
-                      class="sg-state-weapon-current"
-                      classList={{ "sg-state-weapon-current-active": props.state.currentWeapon === w }}
-                      title={`Set ${w} as current weapon`}
-                      onClick={() => setCurrentWeapon(w)}
-                    >
-                      <span class="sg-state-weapon-current-dot" />
-                    </button>
-                    <button
-                      class={`badge cursor-pointer ${props.state.ownedWeapons.has(w) ? "badge-primary" : "badge-ghost"}`}
-                      onClick={() => toggleWeapon(w)}
-                    >{w}</button>
-                  </div>
-                )}</For>
-              </div>
-              <Show when={group.ammoKey !== null}>
-                <div class="sg-state-ammo-row">
-                  <NumInput
-                    value={props.state[group.ammoKey!] as number}
-                    min={0}
-                    max={200}
-                    width="xs"
-                    onChange={(v) => update(group.ammoKey!, v as PlayerState[typeof group.ammoKey & keyof PlayerState])}
-                  />
-                  <span class="sg-state-ammo-label">{group.ammoLabel}</span>
-                  <NeedHint cvars={props.cvars} cvarName={`tp_need_${group.ammoLabel}`} />
-                </div>
-              </Show>
-            </div>
+        <div class="sg-state-weapon-row-2-2">
+          <For each={WEAPON_ROW_1}>{(group) => (
+            <WeaponFamilyCell
+              group={group}
+              state={props.state}
+              cvars={props.cvars}
+              onToggleWeapon={toggleWeapon}
+              onSetCurrent={setCurrentWeapon}
+              onAmmoChange={(k, v) => update(k, v)}
+            />
+          )}</For>
+        </div>
+        <div class="sg-state-weapon-row-2-1-1">
+          <For each={WEAPON_ROW_2}>{(group) => (
+            <WeaponFamilyCell
+              group={group}
+              state={props.state}
+              cvars={props.cvars}
+              onToggleWeapon={toggleWeapon}
+              onSetCurrent={setCurrentWeapon}
+              onAmmoChange={(k, v) => update(k, v)}
+            />
           )}</For>
         </div>
         <Disclosure label="Details" open={isOpen("weapons-details")}
@@ -344,6 +411,143 @@ export default function StatePanel(props: StatePanelProps) {
         <Row label="Drop time"><NumInput value={props.state.droptime} onChange={(v) => update("droptime", v)} /></Row>
         <Row label="Last powerup"><TextInput value={props.state.lastpowerup} onChange={(v) => update("lastpowerup", v)} /></Row>
       </Section>
+    </div>
+  );
+}
+
+/**
+ * Sprite slot used by Vitals (face+HP, GA/YA/RA) and Powerups (Q/P/R/B).
+ * Layout: [sprite area] above [value input or text label] so the visual
+ * rhythm matches the WeaponFamilyCell below (sprite on top, number below).
+ * When no value is passed the slot is a pure toggle (powerups).
+ */
+function SpriteSlot(props: {
+  active: boolean;
+  sprite?: string;
+  textTile?: string;
+  label: string;
+  armorClass?: "ga" | "ya" | "ra";
+  value?: number;
+  readOnlyValue?: boolean;
+  min?: number;
+  max?: number;
+  onChange?: (v: number) => void;
+  onSlotClick?: () => void;
+  need?: { cvars: Map<string, string>; cvarName: string };
+}) {
+  const customized = () => {
+    if (!props.need) return false;
+    const def = NEED_DEFAULTS[props.need.cvarName];
+    const user = props.need.cvars.get(props.need.cvarName);
+    return user !== undefined && user !== def;
+  };
+  return (
+    <div class="sg-state-slot" classList={{
+      "sg-state-slot-active": props.active,
+      "sg-state-slot-dim": !props.active,
+      [`sg-state-slot-armor-${props.armorClass ?? ""}`]: !!props.armorClass,
+      "sg-state-slot-need-customized": customized(),
+    }}>
+      <button class="sg-state-slot-sprite"
+        onClick={props.onSlotClick}
+        title={props.label}
+      >
+        <Show when={props.sprite} fallback={<span class="sg-state-slot-text-tile">{props.textTile}</span>}>
+          <img src={props.sprite} alt={props.label} />
+        </Show>
+      </button>
+      <div class="sg-state-slot-footer">
+        <Show when={props.value !== undefined}
+          fallback={<span class="sg-state-slot-label">{props.label}</span>}
+        >
+          <input type="number"
+            class="sg-state-slot-input"
+            value={props.value}
+            min={props.min}
+            max={props.max}
+            readOnly={props.readOnlyValue}
+            onInput={(e) => props.onChange?.(Number(e.currentTarget.value))}
+          />
+        </Show>
+      </div>
+      <Show when={props.need}>
+        <span class="sg-state-slot-need">
+          need &lt; {props.need!.cvars.get(props.need!.cvarName) ?? NEED_DEFAULTS[props.need!.cvarName] ?? ""}
+        </span>
+      </Show>
+    </div>
+  );
+}
+
+/**
+ * Weapon family card: a framed group (border colour keyed to ammo type)
+ * containing one cell per weapon (current-weapon dot above possession
+ * sprite), and a single centered ammo input underneath that applies to
+ * the whole family. Axe family has no ammo input.
+ */
+function WeaponFamilyCell(props: {
+  group: WeaponGroup;
+  state: PlayerState;
+  cvars: Map<string, string>;
+  onToggleWeapon: (w: Weapon) => void;
+  onSetCurrent: (w: Weapon) => void;
+  onAmmoChange: <K extends Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells">>(k: K, v: PlayerState[K]) => void;
+}) {
+  const customized = () => {
+    if (!props.group.ammoLabel) return false;
+    const name = `tp_need_${props.group.ammoLabel}`;
+    const def = NEED_DEFAULTS[name];
+    const user = props.cvars.get(name);
+    return user !== undefined && user !== def;
+  };
+  return (
+    <div class={`sg-state-weapon-family sg-state-fam-${props.group.family}`}
+      classList={{ "sg-state-weapon-family-need-customized": customized() }}
+    >
+      <div class="sg-state-weapon-family-row">
+        <For each={props.group.weapons}>{(w) => (
+          <div class="sg-state-weapon-family-cell">
+            <button
+              class="sg-state-weapon-current"
+              classList={{ "sg-state-weapon-current-active": props.state.currentWeapon === w }}
+              title={`Set ${w} as current weapon`}
+              onClick={() => props.onSetCurrent(w)}
+            >
+              <span class="sg-state-weapon-current-dot" />
+            </button>
+            <button
+              class="sg-state-weapon-sprite"
+              classList={{
+                "sg-state-weapon-sprite-owned": props.state.ownedWeapons.has(w),
+                "sg-state-weapon-sprite-dim": !props.state.ownedWeapons.has(w),
+              }}
+              onClick={() => props.onToggleWeapon(w)}
+              title={w}
+            >
+              <Show when={WEAPON_SPRITE[w]} fallback={<span class="sg-state-weapon-text">{w.toUpperCase()}</span>}>
+                <img src={WEAPON_SPRITE[w]} alt={w} />
+              </Show>
+            </button>
+          </div>
+        )}</For>
+      </div>
+      <Show when={props.group.ammoKey !== null && props.group.family !== "none"}>
+        <div class="sg-state-family-ammo">
+          <img class="sg-state-family-ammo-sprite"
+            src={AMMO_SPRITE[props.group.family as Exclude<WeaponFamily, "none">]}
+            alt={props.group.ammoLabel} />
+          <input type="number"
+            class="sg-state-family-ammo-input"
+            value={props.state[props.group.ammoKey!] as number}
+            min={0}
+            max={200}
+            onInput={(e) => props.onAmmoChange(props.group.ammoKey!, Number(e.currentTarget.value) as never)}
+          />
+          <span class="sg-state-family-ammo-need">
+            need &lt; {props.cvars.get(`tp_need_${props.group.ammoLabel}`) ?? NEED_DEFAULTS[`tp_need_${props.group.ammoLabel}`] ?? ""}
+          </span>
+        </div>
+      </Show>
     </div>
   );
 }
@@ -573,18 +777,6 @@ const NEED_DEFAULTS: Record<string, string> = {
   tp_need_shells: "0",
   tp_need_nails: "0",
 };
-
-function NeedHint(props: { cvars: Map<string, string>; cvarName: string }) {
-  const def = NEED_DEFAULTS[props.cvarName] ?? "";
-  const user = props.cvars.get(props.cvarName);
-  const customized = user !== undefined && user !== def;
-  const value = user ?? def;
-  return (
-    <span class="sg-state-need-hint" classList={{ "sg-state-need-hint-customized": customized }}>
-      need &lt; {value}
-    </span>
-  );
-}
 
 const CVAR_DEFAULTS: Record<string, string> = {
   tp_weapon_order: "8 7 5 3 4 6 2 1",
