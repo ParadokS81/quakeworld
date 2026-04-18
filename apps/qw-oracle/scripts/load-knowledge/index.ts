@@ -20,7 +20,12 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (subcommand === 'diff' || subcommand === 'enrich' || subcommand === 'full') {
+  if (subcommand === 'diff') {
+    await runDiff(rest);
+    return;
+  }
+
+  if (subcommand === 'enrich' || subcommand === 'full') {
     throw new Error(`subcommand '${subcommand}' is implemented in a later task of this plan.`);
   }
 
@@ -76,6 +81,39 @@ async function runLoadVersion(args: string[]): Promise<void> {
       ordinal: Number(values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-cvars@1.0.0',
       forceOverwrite: values.force ?? false,
+    });
+    console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runDiff(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      from: { type: 'string' },
+      to: { type: 'string' },
+      'ezquake-repo': { type: 'string' },
+    },
+  });
+
+  for (const required of ['project', 'from', 'to'] as const) {
+    if (!values[required]) {
+      throw new Error(`--${required} is required`);
+    }
+  }
+
+  const { diffVersions } = await import('./diff-versions.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = diffVersions({
+      db,
+      project: values.project as Project,
+      fromVersion: values.from!,
+      toVersion: values.to!,
+      ezquakeRepoPath: values['ezquake-repo'] ?? '/home/paradoks/projects/quakeworld/research/repos/ezquake-source',
     });
     console.log(JSON.stringify(result, null, 2));
   } finally {
