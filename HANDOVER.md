@@ -9,9 +9,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
-- [ConfigViewer compare tab counts are global](#configviewer-compare-tab-counts-are-global) — counts show total across all cvars regardless of active section
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
-- [Pretty view status-category highlight bug](#pretty-view-status-category-highlight-bug) — Report + Need/Pwr chains never highlight their active `say_team` leaf despite every other chain working; parallel terminal made progress but needs verification
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
@@ -41,22 +39,6 @@ Don't split preemptively. The POC plan already handles it — Task 1 in `docs/su
 
 ---
 
-## ConfigViewer compare tab counts are global
-
-**Added:** 2026-04-16
-**Status:** open
-**Verification first:** open ConfigViewer in compare mode, click Domains > Teamplay > Binds. If the compare bar still shows "All (2748)" etc., the issue persists.
-
-The "All (2748) / Different (331) / Same (191) / Only yours (0) / Only theirs (2112)" counts at the top of ConfigViewer always show the total across ALL cvars, regardless of which section/domain the user is viewing. When viewing Teamplay Binds, seeing "2748" is confusing because that's cvar rows, not teamsay rows. Scoping the counts to the active section requires knowing which section type is active (cvars vs weapon binds vs teamsay vs aliases) and computing counts per type.
-
-Note: the related issue of Domain Teamplay Macros showing fewer items than Settings Macros was resolved in 2026-04-16 session (switched from alias-chain extraction to database-category sourcing).
-
-### Related
-
-- `apps/slipgate-app/src/components/ConfigViewer.tsx` (compareCounts memo)
-
----
-
 ## qw-oracle VISION.md needs active-assistance reframe
 
 **Added:** 2026-04-16
@@ -71,24 +53,6 @@ The current VISION.md (light-edited 2026-04-14 to add three-layer block) still f
 4. **ezquake.com docs conversion pipeline.** The existing curated guides (weapon-scripts.html, scripting.html, etc.) are the natural input for Layer 3. Each page gets adapted into 1-3 concept notes with canonical ID references.
 
 All four points are captured in `project_qw_oracle_product_vision.md` memory, but VISION.md itself (the file other devs would read) does not reflect them yet. Low urgency — the memory carries the knowledge across sessions, and the VISION.md rewrite is best done alongside the presentation prep when the framing is most fresh.
-
----
-
-## Pretty view status-category highlight bug
-
-**Added:** 2026-04-17
-**Status:** parallel terminal landed partial fixes (`d0acbd9` parser-side `strip_quote_wrap()` for ezQuake's lenient unterminated-quote handling, `817a72d` trace memo runs in both Pretty and Raw modes), needs live re-verification
-**Verification first:** open ConfigViewer → Teamplay → Binds in Simulator mode. Expand Report (bind `2`) and Need/Pwr (bind `MwheelUp`). If either highlights the active `say_team` leaf under some simulator state (background tint + left border on the row), this is resolved. Expand Safe (F) for the same-state control -- it should always highlight correctly.
-
-Two specific bind chains under the STATUS category (Report and Need/Pwr) never highlighted their active leaf through the pretty-view's `evaluateTeamsay`-driven flow. Every other bind chain worked with the same code path. The 2026-04-17 session tried five fixes (root-body-only feed, preset `$need`, strip outer quotes, `%u` derivation, `$colored_armor` by class) -- none cleared these two chains while all other chains kept working.
-
-A fresh terminal picked up the issue after the handover prompt was written and landed two commits that may have resolved it. The user did not re-verify before wrapping. When returning to this, start with the repro steps above. If still broken, see the standalone handover at `apps/slipgate-app/docs/superpowers/2026-04-17-pretty-view-status-highlight-handover.md` for the full context of what's been tried and which hypotheses remain open.
-
-### Related
-
-- Handover dossier: `apps/slipgate-app/docs/superpowers/2026-04-17-pretty-view-status-highlight-handover.md`
-- Parser strip helper: `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` (search `strip_quote_wrap`)
-- Matching code: `apps/slipgate-app/src/components/AliasChainResolver.tsx` ~lines 193 (trace memo), 232 (activeLeafCommands), 248 (isActive)
 
 ---
 

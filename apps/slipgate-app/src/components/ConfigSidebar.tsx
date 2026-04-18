@@ -5,9 +5,10 @@ interface ConfigSidebarProps {
   row1Categories: [string, number][];
   activeRow1: Set<string>;
   isAllRow1: boolean;
+  isAll: boolean;
   row1Total: number;
   onToggleRow1Cat: (cat: string) => void;
-  onToggleAllRow1: () => void;
+  onToggleAll: () => void;
   categoryGaps?: Set<string>;
 
   // Row 2 — Domains + misc
@@ -45,8 +46,8 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
       <div class="flex flex-col items-start gap-1">
         <div class="sg-config-sidebar-section-label">Settings</div>
         <button
-          class={`badge cursor-pointer ${props.isAllRow1 ? "badge-primary" : "badge-ghost"}`}
-          onClick={props.onToggleAllRow1}
+          class={`badge cursor-pointer ${props.isAll ? "badge-primary" : "badge-ghost"}`}
+          onClick={props.onToggleAll}
         >
           All
         </button>

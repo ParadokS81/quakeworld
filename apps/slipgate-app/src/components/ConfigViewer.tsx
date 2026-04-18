@@ -380,6 +380,19 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("__all__") || row1CatNames().every((c) => active.has(c));
   });
 
+  // "All" is the master switch covering every config section — cvar
+  // categories plus the five green non-cvar pills (Binds/Aliases/Macros/
+  // Triggers/Commands). A user clicking "All" expects to see their entire
+  // config, not only the cvars.
+  const isAll = createMemo(() =>
+    isAllRow1() &&
+    activeRow2().has("misc:binds") &&
+    aliasesActive() &&
+    macrosActive() &&
+    triggersActive() &&
+    commandsActive()
+  );
+
   function toggleRow1Cat(cat: string) {
     const allNames = row1CatNames();
     if (allNames.length === 0) return;
@@ -401,11 +414,29 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     });
   }
 
-  function toggleAllRow1() {
-    if (isAllRow1()) {
+  function toggleAll() {
+    if (isAll()) {
       setActiveRow1(new Set<string>());
+      setActiveRow2((prev) => {
+        const next = new Set(prev);
+        next.delete("misc:binds");
+        return next;
+      });
+      setAliasesActive(false);
+      setMacrosActive(false);
+      setTriggersActive(false);
+      setCommandsActive(false);
     } else {
       setActiveRow1(new Set<string>(["__all__"]));
+      setActiveRow2((prev) => {
+        const next = new Set(prev);
+        next.add("misc:binds");
+        return next;
+      });
+      setAliasesActive(true);
+      setMacrosActive(true);
+      setTriggersActive(true);
+      setCommandsActive(true);
     }
   }
 
@@ -418,12 +449,15 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     });
   }
 
-  // ── Compare filter counts ──
+  // Compare pill counts reflect the currently visible set (post row1/row2/
+  // search/hideDefaults, pre compareFilter) so the numbers match what the
+  // user is actually looking at. Global-DB counts are not useful here —
+  // when the user filters to "Teamplay > Settings" they want to see how
+  // many teamplay cvars differ, not how many of the 2748 total differ.
   const compareCounts = createMemo(() => {
     if (!isCompareMode()) return { diff: 0, same: 0, onlyLeft: 0, onlyRight: 0 };
-    const cvars = relevantCvars();
     let diff = 0, same = 0, onlyLeft = 0, onlyRight = 0;
-    for (const c of cvars) {
+    for (const c of visibleCvars()) {
       if (c.hasLeft && c.compareValue !== undefined) {
         if (!valuesEqual(c.value, c.compareValue)) diff++;
         else same++;
@@ -439,52 +473,30 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Weapons domain cvar set (loaded once) ──
   const weaponCvarSet = createMemo(() => loadDomainTags().get("weapons") ?? new Set<string>());
 
-  // ── Filtered cvar list ──
-  const filteredCvars = createMemo(() => {
+  // Cvars passing the non-compare filters (row1/row2/search/hideDefaults).
+  // Separating this from the compareFilter pass lets the compare bar count
+  // the visible set without the user's active pill biasing the totals.
+  const visibleCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
     const row1 = activeRow1();
     const row2 = activeRow2();
     const showAllRow1 = row1.has("__all__");
-    const cmpFilter = compareFilter();
-    const cmpMode = isCompareMode();
     const weaponCvars = weaponCvarSet();
 
     return relevantCvars().filter((cvar) => {
       const cat = cvar.info?.category ?? "Unknown";
 
-      // Check row 1 categories
       let passRow1 = false;
       if (showAllRow1) passRow1 = true;
       else if (row1.size > 0 && row1.has(cat)) passRow1 = true;
 
-      // Check row 2 domain settings
       let passRow2 = false;
       if (row2.has("teamplay:settings") && cat === "Teamplay") passRow2 = true;
       if (row2.has("weapons:settings") && weaponCvars.has(cvar.name)) passRow2 = true;
 
       if (!passRow1 && !passRow2) return false;
 
-      if (cmpMode && cmpFilter !== "all") {
-        const hasLeft = cvar.hasLeft;
-        const hasRight = cvar.compareValue !== undefined;
-        switch (cmpFilter) {
-          case "diff":
-            if (!hasLeft || !hasRight || valuesEqual(cvar.value, cvar.compareValue!)) return false;
-            break;
-          case "same":
-            if (!hasLeft || !hasRight || !valuesEqual(cvar.value, cvar.compareValue!)) return false;
-            break;
-          case "only_left":
-            if (hasRight) return false;
-            break;
-          case "only_right":
-            if (hasLeft) return false;
-            break;
-        }
-      }
-
       if (hideDefaults()) {
-        // Hide if both sides are at default (single mode: just left)
         if (cvar.leftIsDefault && cvar.rightIsDefault) return false;
       }
 
@@ -492,6 +504,28 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         const nameMatch = cvar.name.toLowerCase().includes(q) || cvar.name.toLowerCase().replace(/_/g, "").includes(q);
         const descMatch = cvar.info?.description?.toLowerCase().includes(q) ?? false;
         if (!nameMatch && !descMatch) return false;
+      }
+      return true;
+    });
+  });
+
+  // ── Filtered cvar list (visible set narrowed by the active compare pill) ──
+  const filteredCvars = createMemo(() => {
+    const cmpFilter = compareFilter();
+    const cmpMode = isCompareMode();
+    if (!cmpMode || cmpFilter === "all") return visibleCvars();
+    return visibleCvars().filter((cvar) => {
+      const hasLeft = cvar.hasLeft;
+      const hasRight = cvar.compareValue !== undefined;
+      switch (cmpFilter) {
+        case "diff":
+          return hasLeft && hasRight && !valuesEqual(cvar.value, cvar.compareValue!);
+        case "same":
+          return hasLeft && hasRight && valuesEqual(cvar.value, cvar.compareValue!);
+        case "only_left":
+          return !hasRight;
+        case "only_right":
+          return !hasLeft;
       }
       return true;
     });
@@ -724,9 +758,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               row1Categories={row1Categories()}
               activeRow1={activeRow1()}
               isAllRow1={isAllRow1()}
+              isAll={isAll()}
               row1Total={row1Total()}
               onToggleRow1Cat={toggleRow1Cat}
-              onToggleAllRow1={toggleAllRow1}
+              onToggleAll={toggleAll}
               categoryGaps={CATEGORY_GAPS}
               activeRow2={activeRow2()}
               onToggleRow2Pill={toggleRow2Pill}
@@ -823,14 +858,17 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               </Show>
 
               {/* ── Compare filter bar ── */}
-              <Show when={isCompareMode()}>
+              {/* Only shown when the Settings section is visible — the counts
+                  are cvar-specific and become misleading on bind/alias/macro
+                  views that don't use the compare diff model. */}
+              <Show when={isCompareMode() && showSettingsSection()}>
                 <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
                   <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1" onClick={clearCompare} title="Exit compare mode">
                     ✕
                   </button>
                   <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
                   <For each={[
-                    { id: "all" as CompareFilter, label: `All (${relevantCvars().length})` },
+                    { id: "all" as CompareFilter, label: `All (${visibleCvars().length})` },
                     { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
                     { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
                     { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
