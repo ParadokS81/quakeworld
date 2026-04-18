@@ -35,10 +35,19 @@ from clang.cindex import Config, CursorKind, Index, StorageClass, TranslationUni
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent.parent
-EZQ_REPO = REPO_ROOT / "research/repos/ezquake-source"
+# CLI flags: --repo-root <path>    (default: research/repos/ezquake-source under REPO_ROOT)
+#            --output <json-path>  (default: packages/qw-config/src/data/ezquake-variables-ast.json)
+import argparse
+
+_cli = argparse.ArgumentParser(add_help=True)
+_cli.add_argument("--repo-root", default=None)
+_cli.add_argument("--output", default=None)
+_args, _ = _cli.parse_known_args()
+
+EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
 EZQ_SRC = EZQ_REPO / "src"
 HELP_JSON = EZQ_REPO / "help_variables.json"
-OUTPUT_JSON = REPO_ROOT / "packages/qw-config/src/data/ezquake-variables-ast.json"
+OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-variables-ast.json")
 DIAGNOSTICS_LOG = HERE.parent / "docs/ast-spike-diagnostics.log"
 
 Config.set_library_file("libclang-18.so.1")
