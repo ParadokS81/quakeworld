@@ -14,7 +14,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 - [qw-oracle Discord message deep links](#qw-oracle-discord-message-deep-links) — backfill channel_id + guild_id so MCP output can include clickable Discord URLs per message
-- [Phase 2: QW knowledge extraction — schema + full rollout](#phase-2-qw-knowledge-extraction--schema--full-rollout) — AST extractor proven for ezQuake cvars; Phase 2 = schema-first design → SQLite + loader → port remaining extractors → FTE/MVDSV/KTX → historical backfill → MCP upgrades → automation
+- [Phase 2c-2h: remaining QW knowledge rollout](#phase-2c-2h-remaining-qw-knowledge-rollout) — Phase 2a schema + Phase 2b loader both shipped 2026-04-18; remaining: ezQuake commands/macros/cmdline extractors, FTE/MVDSV/KTX extractors, historical backfill, MCP tool upgrades, automation
+- [qw-oracle loader follow-ups from Phase 2b final review](#qw-oracle-loader-follow-ups-from-phase-2b-final-review) — 4 small items flagged for future phases: string-compare on version strings, git blame memoization, per-project src path prefix map, upstream extractor trailing-whitespace bug
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
 
 ---
@@ -148,36 +149,18 @@ Mirrors the POC-branch HANDOVER entry so main tree sees it too.
 
 ---
 
-## Phase 2: QW knowledge extraction — schema + full rollout
+## Phase 2c-2h: remaining QW knowledge rollout
 
-**Added:** 2026-04-18
-**Status:** AST extractor validated for ezQuake cvars (spike complete). Phase 2 = schema design + production rollout. Ready for fresh-session kickoff.
-**Verification first:** `python3 /home/paradoks/projects/quakeworld/packages/qw-config/scripts/extract-ezquake-cvars-clang.py | tail -10`. Should report ~2715 source cvars + ~187 help-only + rich metadata coverage (flags, on_change, source_line). If it errors, re-install: `sudo apt-get install -y libclang-dev python3-clang clang`.
+**Added:** 2026-04-18 (originally as "Phase 2 schema + rollout")
+**Updated:** 2026-04-18 — Phase 2a schema spec + Phase 2b TypeScript loader both shipped. Full pipeline proven end-to-end against ezQuake 3.6.9 -> head (1 change_event captured: cl_fakeshaft default 0->1, PR #1110).
+**Status:** 2a + 2b done. 2c through 2h remaining.
 
-The 2026-04-18 session ran a research spike that validated AST-based extraction (libclang + python3-clang) as the correct replacement for the current regex extractors in `packages/qw-config/scripts/extract-*.ts`. Full results and comparison are in `packages/qw-config/docs/extraction-comparison-report.md`. The spike ships:
+### What shipped (2a + 2b)
 
-- `packages/qw-config/scripts/extract-ezquake-cvars-clang.py` — primary extractor, ~520 lines, produces `src/data/ezquake-variables-ast.json` (~1.96 MB, 2902 entries, 100% parity with the regex output plus 4 new metadata fields).
-- `packages/qw-config/scripts/extract-fte-cvars-clang-check.py` — 170-line validation that libclang expands FTE's `CVARD`/`CVARFD`/`CVARAFCD` macros correctly (confirmed across 5 files, 269 cvars extracted).
-- `packages/qw-config/docs/extraction-comparison-report.md` — the full write-up including the Phase 2 plan at the end.
+- **Schema spec** at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` — 9 tables defined (schema_meta, versions, entities, cvar_versions, command_versions, macro_versions, cmdline_param_versions, change_events, source_state_transitions), canonical ID convention, field-level change events, source-state lifecycle, storage layout, loader interface.
+- **Loader pipeline** at `apps/qw-oracle/scripts/load-knowledge/` — TypeScript + better-sqlite3, three stages wired through a `npm run load-knowledge -- {load-version|diff|enrich}` CLI. Extractor patched with `--repo-root`/`--output` flags. Proven end-to-end against ezQuake 3.6.9 -> head: 2901 entities, `cl_fakeshaft` default 0->1 change event captured with PR #1110 enrichment.
 
-Neither the regex extractor nor the Slipgate app has been touched. The spike sits alongside the existing pipeline.
-
-### Phase 2 scope (schema-first to minimize rework)
-
-Sequence committed with the user during wrap-up on 2026-04-18:
-
-**2a. Schema design.** A dedicated fresh session — user is launching a new terminal for this. Produce a design spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` covering:
-- Entity tables (cvars, commands, macros, cmdline-params) — column shapes; nullable fields
-- **Versioning baked in from day one** — one row per (entity_canonical_id, version); row-level change tracking
-- Change-event table — commit SHA, commit message, PR number, PR title, PR body, linked issues, enrichment source
-- Canonical ID convention — `<project>:<type>:<name>[@<version>]` per the Oracle design spec, finalized against concrete use cases
-- Provenance columns — source_file, source_line, source_column, extractor_version, extraction_run_timestamp
-- Storage choice — SQLite for Phase 2a/2b; revisit once the data shape is load-tested
-- Loader interface — what the extractor JSON→DB step looks like
-
-The user's mental model from the 2026-04-18 conversation: "We want to map the oldest version, then every version after that with the metadata on what changed, so when a user asks a question the oracle can say 'that was fixed in 3.6.6' or 'your default value changed between 3.6.5 and 3.6.7'." The schema must make that query cheap.
-
-**2b. Loader + ezQuake end-to-end proof.** Write the SQLite writer for the ezQuake cvar JSON. Populate for ONE version (HEAD) to verify schema. Hand-query to confirm.
+### Remaining sub-phases
 
 **2c. Port the remaining ezQuake extractors.** Commands, macros, cmdline-params using the libclang pattern. Feed through the loader. End state: ezQuake is fully in SQL.
 
@@ -209,6 +192,26 @@ The user's mental model from the 2026-04-18 conversation: "We want to map the ol
 ### Pressure
 
 Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
+
+---
+
+## qw-oracle loader follow-ups from Phase 2b final review
+
+**Added:** 2026-04-18
+**Status:** Four small items flagged during the Phase 2b final code review. None block merge. Each is best addressed when its context re-enters the conversation rather than swept now.
+
+1. **Version-string comparison in `extendFirstSeenVersion`** (load-version.ts). The path uses JavaScript `>` on version strings, which breaks on multi-tag orderings like `3.10.0 < 3.6.6`. Safe for Phase 2b (only exercised on doc-only backfill match, not hit in the single-version e2e). Before Phase 2f historical backfill touches multiple non-head versions, switch to `ordinal` comparison via the `versions` table. Single query + one comparison change.
+
+2. **`git blame` memoization in `resolveBlame`** (diff-versions.ts). Current implementation runs `git blame` once per *changed field* on a modified entity; should run once per `(source_file, source_line)` per entity. Invisible at the Phase 2b e2e scale (1 change event) but becomes a perf leak at Phase 2f (~32 tags x thousands of cvars). Fix: a `Map<string, BlameResult | null>` cache scoped to a single `diffVersions` call.
+
+3. **Per-project source-path prefix map** (diff-versions.ts:218). `resolveBlame` hardcodes `src/${file}` which matches ezQuake/MVDSV/KTX layout but not FTE (uses `engine/client/...`). When Phase 2d's FTE extractor lands, blames will silently return UNKNOWN without this fix. Add `PROJECT_SRC_PREFIX: Record<Project, string>` alongside the existing `PROJECT_REPOS` map in enrich-prs.ts.
+
+4. **Extractor emits one cvar name with trailing whitespace** (`cl_voip_capturingvol ` - note trailing space). The loader correctly rejects via `/^[a-z0-9_.]+$/` name regex with a visible warning, so 2901 entities load instead of 2902. Fix belongs upstream in `packages/qw-config/scripts/extract-ezquake-cvars-clang.py`, not the loader. File when that script is next touched (Phase 2c).
+
+### Related
+
+- Phase 2b plan: `docs/superpowers/plans/2026-04-18-qw-knowledge-loader-phase-2b.md`
+- Final review captured in the same session transcript that produced commit `389a19b`.
 
 ---
 
