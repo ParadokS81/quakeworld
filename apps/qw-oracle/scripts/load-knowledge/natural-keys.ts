@@ -18,6 +18,9 @@ export function canonicalIdFor(project: Project, type: EntityType, name: string)
   return `${project}:${type}:${name.toLowerCase()}`;
 }
 
+// `extracted_at` semantics: most-recent extraction timestamp for this (project, version).
+// Overwritten on every re-run. If you need first-extraction time, check git history of
+// knowledge.db.
 export function upsertVersion(
   db: Database.Database,
   row: VersionRow,
