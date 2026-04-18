@@ -473,9 +473,14 @@ const SINGLE_CHAR_MACROS: Record<string, string> = {
  * Greedy longest-cvar-prefix expansion for `$name` tokens. ezQuake's own
  * parser picks the longest cvar name starting at `$`, so strings like
  * `$loc_name_separatorgl` resolve as `$loc_name_separator` + `gl` when
- * no cvar named `loc_name_separatorgl` exists. We emulate that here.
+ * no cvar named `loc_name_separatorgl` exists.
+ *
+ * Substituted cvar values are themselves re-expanded (depth-limited) so
+ * configs that set `loc_name_separator "$."` correctly collapse into the
+ * yellow-dot single-char macro rather than leaving `$.` as literal text.
  */
-function expandCvarRefs(raw: string, cvars: Map<string, string>): string {
+function expandCvarRefs(raw: string, cvars: Map<string, string>, depth = 0): string {
+  if (depth > 4) return raw; // safety against recursive cvar refs
   let out = "";
   let i = 0;
   while (i < raw.length) {
@@ -484,7 +489,6 @@ function expandCvarRefs(raw: string, cvars: Map<string, string>): string {
       i++;
       continue;
     }
-    // Collect the identifier that follows `$`.
     let j = i + 1;
     while (j < raw.length && /[a-zA-Z0-9_]/.test(raw[j])) j++;
     let matchedLen = 0;
@@ -499,13 +503,10 @@ function expandCvarRefs(raw: string, cvars: Map<string, string>): string {
       }
     }
     if (matchedVal !== undefined) {
-      out += matchedVal;
+      out += expandCvarRefs(matchedVal, cvars, depth + 1);
       i += 1 + matchedLen;
       continue;
     }
-    // No identifier-form cvar matched — fall back to the single-char
-    // shortcut table for $., $,, etc. If the next char isn't a known
-    // shortcut either, leave the `$` as a literal and move on.
     const nextChar = raw[i + 1];
     if (nextChar !== undefined && SINGLE_CHAR_MACROS[nextChar] !== undefined) {
       out += SINGLE_CHAR_MACROS[nextChar];
