@@ -9,6 +9,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
+- [qw-oracle/CLAUDE.md stale after Phase 2b](#qw-oracle-claudemd-stale-after-phase-2b) — main tree's `apps/qw-oracle/CLAUDE.md` (192 lines) says "No TypeScript yet" and omits the new `scripts/load-knowledge/` loader; rewrite belongs with the POC plan's Task 1 not standalone
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
@@ -39,6 +40,25 @@ Don't split preemptively. The POC plan already handles it — Task 1 in `docs/su
 - The POC plan: `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` Task 1
 - The doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 - The memory: `project_doc_philosophy.md`
+
+---
+
+## qw-oracle CLAUDE.md stale after Phase 2b
+
+**Added:** 2026-04-18
+**Status:** pending
+**Verification first:** `head -30 /home/paradoks/projects/quakeworld/apps/qw-oracle/CLAUDE.md` — if it still says "No TypeScript yet" and does not mention `scripts/load-knowledge/`, the item holds.
+
+The main tree `apps/qw-oracle/CLAUDE.md` (192 lines) was written when the project was chat-corpus-only and Node/.mjs. Phase 2b added a TypeScript loader (`scripts/load-knowledge/`) with its own build toolchain, `knowledge.db` alongside `qw.db`, and new `npm run load-knowledge` commands. The file currently:
+
+- Declares "No TypeScript yet - plain .mjs scripts for now. Move to TS when the pipeline solidifies." (stale)
+- Omits `scripts/load-knowledge/` entirely from the project-structure listing
+- Commands section lists only `import:discord`, `import:irc`, `stats`; missing `typecheck` and `load-knowledge`
+- No mention of the new `knowledge.db` (Layer 1) alongside `qw.db` (Layer 2)
+
+This rewrite is the first task of the POC plan at `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (Task 1: rewrite qw-oracle/CLAUDE.md to the three-layer model). Leave it there. A standalone drive-by fix would need to be redone once the POC plan executes.
+
+Also covers the structural doc-quartet gap: qw-oracle has only CLAUDE.md + VISION.md today, missing README.md and OVERVIEW.md. Per monorepo doc philosophy, those should be written when the project lifecycle warrants it. The CLAUDE.md rewrite in POC Task 1 is a natural moment to also produce README.md (short) and OVERVIEW.md (map of layers + layer files).
 
 ---
 
