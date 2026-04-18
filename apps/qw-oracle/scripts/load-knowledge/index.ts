@@ -25,8 +25,13 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (subcommand === 'enrich' || subcommand === 'full') {
-    throw new Error(`subcommand '${subcommand}' is implemented in a later task of this plan.`);
+  if (subcommand === 'enrich') {
+    await runEnrich(rest);
+    return;
+  }
+
+  if (subcommand === 'full') {
+    throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
 
   usageAndExit();
@@ -114,6 +119,35 @@ async function runDiff(args: string[]): Promise<void> {
       fromVersion: values.from!,
       toVersion: values.to!,
       ezquakeRepoPath: values['ezquake-repo'] ?? '/home/paradoks/projects/quakeworld/research/repos/ezquake-source',
+    });
+    console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runEnrich(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      'github-token': { type: 'string' },
+      limit: { type: 'string' },
+    },
+  });
+
+  const token = values['github-token'] ?? process.env.GITHUB_TOKEN;
+  if (!values.project) throw new Error('--project is required');
+  if (!token) throw new Error('--github-token or GITHUB_TOKEN environment variable is required');
+
+  const { enrichPrs } = await import('./enrich-prs.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = await enrichPrs({
+      db,
+      project: values.project as Project,
+      githubToken: token,
+      limit: values.limit ? Number(values.limit) : undefined,
     });
     console.log(JSON.stringify(result, null, 2));
   } finally {
