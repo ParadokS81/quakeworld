@@ -380,18 +380,20 @@ Expected: exit 0.
 
 - [ ] **Step 3: Manual verification - schema applies cleanly**
 
-Run an inline tsx check:
+`npx tsx -e '<inline>'` does not resolve relative paths correctly. Write a temp file with an absolute-path import instead:
 
 ```bash
-cd /home/paradoks/projects/quakeworld/apps/qw-oracle
-npx tsx -e "
-import { openKnowledgeDb } from './scripts/load-knowledge/db.js';
+cat > /tmp/_verify_db.mjs <<'EOF'
+import { openKnowledgeDb } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledge/db.js';
 const db = openKnowledgeDb({ inMemory: true });
-const tables = db.prepare(\"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name\").all();
+const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all();
 console.log('Tables:', tables.map((t) => t.name).join(', '));
-const v = db.prepare(\"SELECT value FROM schema_meta WHERE key='schema_version'\").get();
+const v = db.prepare("SELECT value FROM schema_meta WHERE key='schema_version'").get();
 console.log('schema_version:', v?.value);
-"
+EOF
+cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+npx tsx /tmp/_verify_db.mjs
+rm /tmp/_verify_db.mjs
 ```
 
 Expected output (tables alphabetical; schema_version=1):
@@ -747,11 +749,12 @@ Expected: exit 0.
 
 - [ ] **Step 3: Manual verification - upsert idempotency smoke test**
 
+Use a temp file with absolute-path imports (inline `tsx -e` does not resolve relative paths):
+
 ```bash
-cd /home/paradoks/projects/quakeworld/apps/qw-oracle
-npx tsx -e "
-import { openKnowledgeDb } from './scripts/load-knowledge/db.js';
-import { upsertVersion, upsertEntity, upsertCvarVersion } from './scripts/load-knowledge/natural-keys.js';
+cat > /tmp/_verify_upsert.mjs <<'EOF'
+import { openKnowledgeDb } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledge/db.js';
+import { upsertVersion, upsertEntity } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledge/natural-keys.js';
 
 const db = openKnowledgeDb({ inMemory: true });
 const now = new Date().toISOString();
@@ -764,7 +767,10 @@ const second = upsertEntity(db, { project: 'ezquake', type: 'cvar', name: 'cl_bo
 console.log('first:', first);
 console.log('second:', second);
 console.log('entity count:', db.prepare('SELECT COUNT(*) AS n FROM entities').get());
-"
+EOF
+cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+npx tsx /tmp/_verify_upsert.mjs
+rm /tmp/_verify_upsert.mjs
 ```
 
 Expected: first.isNew=true, second.isNew=false, entity count=1.
@@ -1352,14 +1358,18 @@ Expected: exit 0.
 
 - [ ] **Step 3: Manual verification - blame a known line**
 
+Use a temp file with absolute-path imports (inline `tsx -e` does not resolve relative paths):
+
 ```bash
-cd /home/paradoks/projects/quakeworld/apps/qw-oracle
-npx tsx -e "
-import { blameLine, headCommit } from './scripts/load-knowledge/git.js';
+cat > /tmp/_verify_blame.mjs <<'EOF'
+import { blameLine, headCommit } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledge/git.js';
 const repo = '/home/paradoks/projects/quakeworld/research/repos/ezquake-source';
 console.log('HEAD:', headCommit(repo));
 console.log('blame cl_view.c line 46:', blameLine(repo, 'HEAD', 'src/cl_view.c', 46));
-"
+EOF
+cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+npx tsx /tmp/_verify_blame.mjs
+rm /tmp/_verify_blame.mjs
 ```
 
 Expected: HEAD prints a 40-char SHA. The blame result prints `{ commit_sha: '...', commit_message_excerpt: '...' }` with a SHA and the first line of the commit that most recently touched `cl_view.c:46` (the cl_bob cvar declaration).
