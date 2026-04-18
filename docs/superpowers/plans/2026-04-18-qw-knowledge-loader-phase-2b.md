@@ -31,11 +31,13 @@ Run from `/home/paradoks/projects/quakeworld/apps/qw-oracle/`:
 
 ```bash
 cd /home/paradoks/projects/quakeworld/apps/qw-oracle
-npm install --save-dev typescript@^5.4.0 tsx@^4.7.0 @types/node@^20.0.0
-npm install ulid@^2.3.0
+npm install --no-workspaces --save-dev typescript@^5.4.0 tsx@^4.7.0 @types/node@^20.0.0
+npm install --no-workspaces ulid@^2.3.0
 ```
 
-Expected: `package.json` gains `typescript`, `tsx`, `@types/node` under `devDependencies` and `ulid` under `dependencies`. `node_modules` populated.
+`--no-workspaces` is required: the monorepo root `package.json` declares workspaces, and `apps/slipgate-app/package.json` uses `"workspace:*"` (bun-native syntax). Plain `npm install` walks up to the root and fails on that protocol. `--no-workspaces` scopes the install to qw-oracle only.
+
+Expected: `package.json` gains `typescript`, `tsx`, `@types/node` under `devDependencies` and `ulid` under `dependencies`. `node_modules` populated. Installed versions may be higher than the `^` floors listed above; that is fine.
 
 - [ ] **Step 2: Create `apps/qw-oracle/tsconfig.json`**
 
@@ -83,16 +85,18 @@ mkdir -p /home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledg
 touch /home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/load-knowledge/.gitkeep
 ```
 
-- [ ] **Step 5: Verify TypeScript compiles an empty project**
+- [ ] **Step 5: Verify tsconfig is syntactically valid**
 
 Run:
 
 ```bash
 cd /home/paradoks/projects/quakeworld/apps/qw-oracle
-npm run typecheck
+npx tsc --showConfig > /dev/null && echo "tsconfig OK"
 ```
 
-Expected: exit code 0, no output (no TS files yet).
+Expected: prints `tsconfig OK`.
+
+Note: `npm run typecheck` itself will fail at this point with TS18003 ("No inputs were found in config file") because the `include` glob points at `scripts/load-knowledge/` which only contains `.gitkeep`. This is not a real error; it self-resolves as soon as Task 2 adds `schema.ts`. Do not try to "fix" it by changing the tsconfig.
 
 - [ ] **Step 6: Commit**
 
