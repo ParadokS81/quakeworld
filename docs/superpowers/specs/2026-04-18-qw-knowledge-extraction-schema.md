@@ -44,6 +44,10 @@ This spec is the foundation for Phase 2b (loader implementation), 2c (remaining 
 | Storage location | `apps/qw-oracle/data/knowledge.db`. Gitignored. Alongside `qw.db`. |
 | Loader language | TypeScript / Node. Inside `apps/qw-oracle/scripts/load-knowledge/`. |
 | Loader stages | Load-version, diff, enrich. Each idempotent, separately rerunnable. |
+| FTE version cadence | Upstream tag when available, monthly synthetic fallback. |
+| Parse-partial policy | Hard fail on regression; soft warn on new-but-stable diagnostics; log-and-continue on third-party-header noise. |
+| schema_meta keyspace | `schema_version`, `extractor_version`, `last_extraction_run_at`, `last_enrichment_run_at`, plus per-project `source_repo_commit` and `source_repo_tag`. |
+| State audit trail | Append-only `source_state_transitions` table logs every `source_state` change. |
 
 ## 1. Version model
 
@@ -56,11 +60,22 @@ A version is a **string** with a per-project convention. The schema does not enf
 | ezQuake | upstream git tags (`3.6.6`, `3.6.9`, ...) + synthetic `head` | ~32 |
 | MVDSV | upstream git tags (`v0.35`, `1.11`, ...) + `head` | ~25 |
 | KTX | upstream git tags (`v1.44`, `1.46`, ...) + `head` | ~14 |
-| FTE | synthetic quarterly (`2024-Q2`, ...) + `head`; revisit when we talk to Spoike | ~89 |
+| FTE | upstream tag when present (`2025-09-27`), monthly synthetic fallback (`2024-06`, `2024-07`, ...) + `head` | ~260 |
 
 **Head pseudo-version.** Every extraction run updates the `head` row for each project to reflect current trunk state. The Oracle treats `head` as "latest development build". If a cvar is present only in `head` and not in any tag, that is accurate reporting - it was added post-last-release.
 
 **Depth policy.** All versions back to project start, best-effort. Rows that fail clean extraction (old tags predating the current cvar declaration style) get marked `parse_state='partial'` and still ingest whatever was captured.
+
+**FTE cadence specifics.** FTE upstream rarely tags (1 tag across 22 years of history). The loader generates synthetic monthly snapshots (`2008-01`, `2008-02`, ...) by picking the last commit of each calendar month. Real upstream tags slot in alongside synthetics; the `ordinal` column mixes both consistently. This gives ~260 rows for FTE versus ~32 for ezQuake, which is fine - SQLite scale tolerance is not the constraint.
+
+**Parse-partial policy.** The `versions.parse_state='partial'` flag is the signal, not the gate. Loader behavior:
+
+| Condition | Action |
+|---|---|
+| Previously-extracted version now produces zero entities (regression) | **Hard fail.** Abort the extraction run. Do not overwrite prior data. |
+| Extractor reports new diagnostics but entity count is stable | Soft warn. Continue. Record diagnostic summary in `versions.notes`. |
+| Third-party-header warnings (known benign, e.g., missing SDL2 headers in libclang) | Log-and-continue. Never raise. |
+| Entity count drops below 50% of prior run without a regression-level zero | Warn loudly, set `parse_state='partial'`, continue; require `--force` to overwrite. |
 
 ### `versions` table
 
@@ -152,54 +167,94 @@ CREATE TABLE cvar_versions (
 CREATE INDEX idx_cvar_versions_source ON cvar_versions(source_file, source_line);
 ```
 
-### `command_versions`, `macro_versions`, `cmdline_param_versions`
+### `command_versions` table
 
-**Sketched, not finalized.** The extractors for these three entity types do not exist yet (Phase 2c). The schema reserves the table-name space and commits to the same pattern: `(entity_id, version)` primary key, type-specific payload columns, nullable fields tolerant of partial data.
-
-Provisional columns:
+Columns derived from `packages/qw-config/src/data/ezquake-commands.json` (523 entries: `desc`, `remarks`, `group-id`) plus AST-derived columns the Phase 2c extractor will populate via `Cmd_AddCommand` call-site walking.
 
 ```sql
 CREATE TABLE command_versions (
   entity_id        INTEGER NOT NULL REFERENCES entities(id),
   version          TEXT NOT NULL,
-  arg_shape        TEXT,             -- free-form arg description from source
-  description      TEXT,
+
+  -- From help / curated JSON
+  help_desc        TEXT,
+  help_remarks     TEXT,
+  help_group_id    TEXT,                  -- e.g. 'config', 'action', 'debug'
+
+  -- From AST (Cmd_AddCommand call-site extractor, Phase 2c)
+  handler_fn       TEXT,                  -- C function name of the command handler
   source_file      TEXT,
   source_line      INTEGER,
   source_column    INTEGER,
-  handler_fn       TEXT,             -- C function name of the command's handler
-  raw_ast_hash     TEXT,
-  extracted_at     TEXT NOT NULL,
-  PRIMARY KEY (entity_id, version)
-);
+  registration_file TEXT,                 -- file where Cmd_AddCommand is called (may differ from handler_fn's file)
 
-CREATE TABLE macro_versions (
-  entity_id        INTEGER NOT NULL REFERENCES entities(id),
-  version          TEXT NOT NULL,
-  body             TEXT,             -- macro expansion or body
-  is_conditional   INTEGER,          -- bool; macro evaluates to something based on client state
-  description      TEXT,
-  source_file      TEXT,
-  source_line      INTEGER,
   raw_ast_hash     TEXT,
   extracted_at     TEXT NOT NULL,
-  PRIMARY KEY (entity_id, version)
-);
 
-CREATE TABLE cmdline_param_versions (
-  entity_id        INTEGER NOT NULL REFERENCES entities(id),
-  version          TEXT NOT NULL,
-  description      TEXT,
-  accepted_values  TEXT,             -- free-form string or JSON
-  source_file      TEXT,
-  source_line      INTEGER,
-  raw_ast_hash     TEXT,
-  extracted_at     TEXT NOT NULL,
   PRIMARY KEY (entity_id, version)
 );
 ```
 
-Column lists get finalized when each extractor ships (Phase 2c for ezQuake's command/macro/cmdline; Phase 2d-2e for FTE/MVDSV/KTX). Adding columns to these tables is an idempotent `ALTER TABLE ADD COLUMN` migration; the pattern is explicitly set up for it.
+### `macro_versions` table
+
+Columns derived from `packages/qw-config/src/data/ezquake-macros.json` (68 entries: `desc`, `type`, `teamplay-restricted`, `related-cvars`) plus AST additions.
+
+Ezquake macros are registered via `Cmd_AddMacro(macro_id, handler_fn)` - the macro name lives in an enum id, and the handler function produces the string at runtime. So "body" is not statically extractable; what we capture is the handler function name and ezQuake's own type classification.
+
+```sql
+CREATE TABLE macro_versions (
+  entity_id            INTEGER NOT NULL REFERENCES entities(id),
+  version              TEXT NOT NULL,
+
+  -- From help / curated JSON
+  help_desc            TEXT,
+  macro_type           TEXT,              -- 'integer', 'string', etc. (ezQuake's own typing)
+  teamplay_restricted  INTEGER NOT NULL DEFAULT 0,   -- bool: registered via Cmd_AddMacroEx with teamplay=1
+  related_cvars_json   TEXT,              -- JSON array of related cvar names
+
+  -- From AST (Cmd_AddMacro[Ex] call-site extractor, Phase 2c)
+  handler_fn           TEXT,              -- C function that returns the expansion at runtime
+  source_file          TEXT,
+  source_line          INTEGER,
+  source_column        INTEGER,
+  registration_file    TEXT,
+
+  raw_ast_hash         TEXT,
+  extracted_at         TEXT NOT NULL,
+
+  PRIMARY KEY (entity_id, version)
+);
+```
+
+### `cmdline_param_versions` table
+
+Columns derived from `packages/qw-config/src/data/ezquake-cmdline-params.json` (71 entries: `desc`, `remarks`, `arguments`, `flags`, `systems`). AST extraction for cmdline params is harder - they are parsed via `COM_CheckParm("-foo")` scattered across source files. Phase 2c extractor will walk those call sites.
+
+```sql
+CREATE TABLE cmdline_param_versions (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+
+  -- From help / curated JSON
+  help_desc        TEXT,
+  help_remarks     TEXT,
+  arguments        TEXT,                  -- expected argument shape, e.g. '<path>', '<integer>'
+  flags_json       TEXT,                  -- JSON array, e.g. ['incomplete']
+  systems_json     TEXT,                  -- JSON array, e.g. ['windows', 'linux']
+
+  -- From AST (COM_CheckParm call-site extractor, Phase 2c)
+  source_file      TEXT,                  -- file where COM_CheckParm("-foo") is called
+  source_line      INTEGER,
+  source_column    INTEGER,
+
+  raw_ast_hash     TEXT,
+  extracted_at     TEXT NOT NULL,
+
+  PRIMARY KEY (entity_id, version)
+);
+```
+
+**Column-add migration posture.** Adding columns to any of these tables is an idempotent `ALTER TABLE ADD COLUMN IF NOT EXISTS`. If the Phase 2c extractors surface fields not anticipated here (e.g. conditional registration behind `#ifdef`), add columns via a v2 migration.
 
 ## 3. Change events (field-level)
 
@@ -325,6 +380,34 @@ SQLite handles this trivially. Indexed queries return in milliseconds.
 4. **Retroactive reclassification.** Historical backfill may turn up older source matches for an entity currently marked `doc_only`. On such match, the loader flips it to `source_backed` and sets `first_seen_version` to the earliest match. This is normal.
 5. **Dynamic registration.** `dynamically_registered` is never set automatically. Manual `UPDATE` only.
 
+**Every transition is logged.** Each of the five rules above writes an append-only row into `source_state_transitions` in the same transaction as the state change. The audit trail is cheap (one row per state change, same volume as change_events creation/deletion rows) and makes Oracle answers that cite state (`"this cvar was retired in 3.6.4 then re-added at head"`) point at durable provenance rather than inferred-from-current-state reasoning.
+
+### `source_state_transitions` table
+
+```sql
+CREATE TABLE source_state_transitions (
+  id                 INTEGER PRIMARY KEY,
+  entity_id          INTEGER NOT NULL REFERENCES entities(id),
+  from_state         TEXT NOT NULL,       -- source_backed | source_retired | doc_only | dynamically_registered | '' for initial
+  to_state           TEXT NOT NULL,
+  reason             TEXT NOT NULL CHECK (reason IN (
+                       'initial_observation',
+                       'removed_from_head',
+                       're_added',
+                       'backfill_match',
+                       'manual_update'
+                     )),
+  version_context    TEXT,                -- the version at which the transition was detected
+  extractor_run_id   TEXT NOT NULL,       -- ULID or UUID, correlates transitions from the same loader run
+  created_at         TEXT NOT NULL
+);
+
+CREATE INDEX idx_sst_entity ON source_state_transitions(entity_id);
+CREATE INDEX idx_sst_run    ON source_state_transitions(extractor_run_id);
+```
+
+Append-only by convention (no UPDATE or DELETE from loader code). Forms a complete history of how each entity's source_state evolved. Trivial to add more `reason` values in a migration if the loader learns new triggers.
+
 ## 5. Canonical IDs and rename handling
 
 ### Format
@@ -367,17 +450,33 @@ UPDATE entities SET predecessor_id = (SELECT id FROM entities WHERE canonical_id
 - Cross-file queries use SQLite's `ATTACH DATABASE` when the Oracle wants to join Layer 1 facts with Layer 2 chat sessions.
 - Target size: 30-50 MB post-backfill. Small enough to ship standalone with Slipgate or distribute as a downloadable snapshot in the future. Phase 2a just keeps that door open.
 
-**Schema versioning.** A `schema_meta` table records the current schema version. The loader checks it on startup and runs idempotent migrations (`ALTER TABLE ADD COLUMN`, etc.) as needed.
+**Schema versioning + meta.** A `schema_meta` key/value table records schema version plus operational metadata the loader and Oracle both care about. The loader checks `schema_version` on startup and runs idempotent migrations (`ALTER TABLE ADD COLUMN`, etc.) as needed.
 
 ```sql
 CREATE TABLE schema_meta (
   key    TEXT PRIMARY KEY,
   value  TEXT NOT NULL
 );
-INSERT INTO schema_meta (key, value) VALUES ('schema_version', '1');
 ```
 
-Phase 2a ships at schema v1. v2+ migrations get designed when the schema first breaks.
+**Committed keyspace for Phase 2a:**
+
+| Key | Value example | Written by |
+|---|---|---|
+| `schema_version` | `1` | migration code |
+| `extractor_version` | `clang-ezquake-cvars@1.0.0` | `load-version` stage on every run |
+| `last_extraction_run_at` | ISO 8601 UTC | `load-version` stage on successful completion |
+| `last_enrichment_run_at` | ISO 8601 UTC | `enrich` stage on successful completion |
+| `ezquake:source_repo_commit` | current git HEAD SHA | `load-version --project ezquake --version head` |
+| `ezquake:source_repo_tag` | e.g. `3.6.9` or empty | same |
+| `fte:source_repo_commit` | ... | per-project analogous keys |
+| `fte:source_repo_tag` | ... |  |
+| `mvdsv:source_repo_commit` / `mvdsv:source_repo_tag` | ... |  |
+| `ktx:source_repo_commit` / `ktx:source_repo_tag` | ... |  |
+
+New keys can be added without migration (the table is schemaless). When the loader adds a previously-unseen key, it just inserts. Readers (Oracle) must tolerate unknown keys.
+
+Phase 2a ships at schema v1. v2+ migrations get designed when the table shape first breaks.
 
 **Extractor-to-loader contract:** the JSON file at `packages/qw-config/src/data/<project>-<type>.json` is the contract. The loader reads it. Any extractor producing compatible JSON can be loaded, regardless of implementation language (Python libclang, tree-sitter, regex fallback, manually authored).
 
@@ -422,11 +521,19 @@ load-knowledge load-version \
 ```
 
 Behavior:
+- Generate a `extractor_run_id` (ULID) that scopes every write in this invocation.
+- Apply parse-partial policy (see Section 1):
+  - If the input JSON has zero entities but a prior run populated `<type>_versions` rows for this (project, version) pair: hard fail. Do not overwrite.
+  - If entity count dropped below 50% of the previous run without going to zero: warn, set `versions.parse_state='partial'`, require `--force` to overwrite.
+  - Otherwise: continue.
 - Read JSON. For each entity record: upsert `entities` row (natural key `project, type, name`) and upsert `<type>_versions` row (natural key `entity_id, version`).
+- On `entities` creation: emit `source_state_transitions` row with `from_state=''`, `to_state='source_backed'` (or `doc_only` if help-only), `reason='initial_observation'`.
+- On `entities` update that retroactively reclassifies from `doc_only` -> `source_backed`: emit a transition row with `reason='backfill_match'`.
 - Update `entities.last_seen_version` if this version is more recent (by ordinal) than the existing value.
-- Set `entities.first_seen_version` on creation; never update after.
+- Set `entities.first_seen_version` on creation; never update after unless a historical backfill finds an earlier match (in which case extend the transition log too).
+- Write `schema_meta` keys: `last_extraction_run_at`, `<project>:source_repo_commit`, `<project>:source_repo_tag`, `extractor_version`.
 - Emits no change events. Use `diff` for that.
-- `INSERT OR REPLACE` on upserts. Safe to re-run.
+- `INSERT OR REPLACE` on entity/version upserts. Safe to re-run.
 
 **2. Diff** - compute change events between two already-loaded versions.
 
@@ -438,10 +545,12 @@ load-knowledge diff \
 ```
 
 Behavior:
+- Generate a new `extractor_run_id` scoping every write.
 - Read `<type>_versions` rows for both versions. Walk them in parallel by `entity_id`.
 - For entities present in both: compare each substantive field. Emit one `change_events` row per differing field with `change_kind='modified'`, populated `old_value`/`new_value`.
-- For entities only in `to`: emit one row with `change_kind='created'`.
-- For entities only in `from`: emit one row with `change_kind='deleted'` and flip `entities.source_state` to `source_retired` (per Section 4 rules).
+- For entities only in `to`: emit one `change_events` row with `change_kind='created'`.
+  - If the entity is currently `source_retired`, flip to `source_backed`, extend `last_seen_version` to `to`, and write a `source_state_transitions` row with `reason='re_added'`.
+- For entities only in `from`: emit one `change_events` row with `change_kind='deleted'`, flip `entities.source_state` to `source_retired`, and write a `source_state_transitions` row with `reason='removed_from_head'`.
 - Git blame the introducing commit for each modification, populate `commit_sha` and `commit_message_excerpt`. `enrichment_source='git'`.
 - Idempotent via natural key `(entity_id, to_version, field_name, change_kind)`.
 
@@ -522,8 +631,7 @@ No FTS5 indexes in Phase 2a. If Oracle MCP tools need full-text search over `hel
 Explicitly captured, deliberately deferred:
 
 - **Running the historical backfill.** Phase 2f. Spec defines the pipeline shape; Phase 2f executes it.
-- **ezQuake command / macro / cmdline-param extractors.** Phase 2c. The schema reserves table space and column patterns; actual extractors do not exist yet.
-- **FTE version-convention final call** (quarterly vs per-protocol-extension-bump). Phase 2d decision when the FTE extractor lands. Schema accepts either - version is just a string.
+- **ezQuake command / macro / cmdline-param extractors.** Phase 2c. The schema fully defines the target tables; the extractor code itself does not exist yet.
 - **FTE/MVDSV/KTX extractors.** Phases 2d, 2e.
 - **Auto-detection of renames** from commit messages. `predecessor_id` stays nullable; manual annotation only.
 - **Cross-project entity linking** ("both ezQuake and FTE have cl_rollspeed"). Layer 3 concept notes territory.
@@ -531,17 +639,8 @@ Explicitly captured, deliberately deferred:
 - **MCP tool upgrades** to consume version history (`get_entity_history`, `version` param on `lookup_entity`). Phase 2g.
 - **Slipgate refactor** to consume the SQL store instead of JSON. User-deferred; separate track.
 - **Schema migration catalog beyond v1.** Written when v2 breaks compatibility.
-- **Full column lists for command_versions / macro_versions / cmdline_param_versions.** Finalized when their extractors land.
 
-## 10. Open questions (Phase 2a review)
-
-None blocking. The following are minor open items the spec calls out explicitly so future implementers know they are known:
-
-1. **FTE version cadence.** Quarterly synthetic snapshots are the working assumption. Per-protocol-extension-bump ("FTE PEXT 2024.1") is a defensible alternative because it tracks what FTE itself cares about. Decision deferred to Phase 2d when the FTE extractor is actually being written.
-2. **Parse-partial threshold.** At what point does `parse_state='partial'` become "too partial to store"? No rule yet. Likely acceptable to store everything the extractor produced, even if patchy, with the state flag as the signal. Revisit if old-tag backfill surfaces rows that are harmful.
-3. **`schema_meta` keyspace.** The table is designed to hold more than just `schema_version` eventually (extraction timestamps, loader version, contract version). No decision on what else it holds until there is a concrete need.
-
-## 11. Next steps
+## 10. Next steps
 
 1. User reviews this spec. Approve, revise, or reject.
 2. On approval: invoke `superpowers:writing-plans` against this spec to produce the Phase 2b implementation plan.
