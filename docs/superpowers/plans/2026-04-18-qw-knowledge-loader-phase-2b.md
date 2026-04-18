@@ -1,4 +1,4 @@
-# QW Knowledge Loader — Phase 2b Implementation Plan
+# QW Knowledge Loader - Phase 2b Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -374,7 +374,7 @@ npm run typecheck
 
 Expected: exit 0.
 
-- [ ] **Step 3: Manual verification — schema applies cleanly**
+- [ ] **Step 3: Manual verification - schema applies cleanly**
 
 Run an inline tsx check:
 
@@ -741,7 +741,7 @@ npm run typecheck
 
 Expected: exit 0.
 
-- [ ] **Step 3: Manual verification — upsert idempotency smoke test**
+- [ ] **Step 3: Manual verification - upsert idempotency smoke test**
 
 ```bash
 cd /home/paradoks/projects/quakeworld/apps/qw-oracle
@@ -1188,7 +1188,7 @@ npm run typecheck
 
 Expected: exit 0.
 
-- [ ] **Step 4: Manual verification — load the HEAD JSON into a fresh DB**
+- [ ] **Step 4: Manual verification - load the HEAD JSON into a fresh DB**
 
 From the qw-oracle directory:
 
@@ -1346,7 +1346,7 @@ npm run typecheck
 
 Expected: exit 0.
 
-- [ ] **Step 3: Manual verification — blame a known line**
+- [ ] **Step 3: Manual verification - blame a known line**
 
 ```bash
 cd /home/paradoks/projects/quakeworld/apps/qw-oracle
@@ -2010,7 +2010,7 @@ git commit -m "feat(qw-oracle): enrich stage - PR metadata from GitHub API"
 
 ---
 
-## Task 12: End-to-end verification — ezQuake 3.6.9 -> head
+## Task 12: End-to-end verification - ezQuake 3.6.9 -> head
 
 Generate a second JSON for tag 3.6.9 (the existing HEAD JSON covers one end of the diff), load both versions, diff them, enrich via GitHub, then hand-verify against known facts from the spike report.
 
@@ -2280,7 +2280,7 @@ Expected: file list includes `e2e-verify.md` and `ezquake-variables-ast-3.6.9.js
 
 ---
 
-## Phase 2b complete — success criteria
+## Phase 2b complete - success criteria
 
 All of the following must be true at the end of Task 12:
 
