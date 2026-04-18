@@ -6,12 +6,18 @@
   "scripts": {
     "import:discord": "node scripts/import-discord.mjs",
     "import:irc": "node scripts/import-irc.mjs",
-    "stats": "node scripts/stats.mjs"
+    "stats": "node scripts/stats.mjs",
+    "typecheck": "tsc --noEmit",
+    "load-knowledge": "tsx scripts/load-knowledge/index.ts"
   },
   "dependencies": {
-    "better-sqlite3": "^11.0.0"
+    "better-sqlite3": "^11.0.0",
+    "ulid": "^2.4.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.0"
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.19.39",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
