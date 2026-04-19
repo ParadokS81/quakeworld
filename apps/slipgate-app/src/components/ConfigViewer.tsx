@@ -775,30 +775,46 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               />
             </div>
 
-            {/* Segment 2 - above main content (flex-1 max-w-4xl) */}
+            {/* Segment 2 - above main content (flex-1 max-w-4xl).
+                Inside: a scroll sub-segment (flex-1, mirrors the scroll
+                container below) + a gutter sub-segment (fixed
+                var(--sg-minimap-width), mirrors the minimap gutter). Both
+                siblings of the minimap use the same CSS variable, so the
+                right edge of Pretty/Raw/Label/Sim auto-tracks the row
+                right edge at any viewport / DPI. */}
             <div class="sg-top-seg-content">
+              <div class="sg-top-seg-content-scroll">
               <div class="sg-top-seg-content-left">
-                <div class="sg-top-source-label">
-                  <span class="sg-top-source-kicker">Source:</span>
-                  <span class="badge badge-primary text-xs px-1.5 h-5">ezQuake</span>
-                </div>
-                <div class="relative">
-                  <button
-                    class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-                    onClick={() => setConfigExpanded((v) => !v)}
-                    title="Show config chain"
-                  >
-                    <span class="text-xs">{configExpanded() ? "▼" : "▶"}</span>
-                    <span class="font-mono">
-                      {effectiveChain()?.files[0]?.relative_path ?? effectiveConfigName() ?? "config.cfg"}
+                <div
+                  class="sg-top-source-card"
+                  classList={{ "sg-top-source-card-open": configExpanded() }}
+                  onClick={() => setConfigExpanded((v) => !v)}
+                  title="Show config chain"
+                >
+                  <img src="/logos/ezquake.png" alt="ezQuake" class="sg-top-source-logo" />
+                  <span class="sg-top-source-path">
+                    {effectiveChain()?.files[0]?.relative_path ?? effectiveConfigName() ?? "config.cfg"}
+                  </span>
+                  <Show when={isCompareMode()}>
+                    <span class="sg-top-source-vs">vs</span>
+                    <span class="sg-top-source-compare" title={props.compareSource?.label}>
+                      {props.compareSource?.label}
                     </span>
-                  </button>
+                    <button
+                      class="sg-top-source-compare-clear"
+                      onClick={(e) => { e.stopPropagation(); clearCompare(); }}
+                      title="Exit compare mode"
+                    >
+                      ✕
+                    </button>
+                  </Show>
 
                   <Show when={configExpanded() && effectiveChain()}>
                 <div
-                  class={`absolute left-0 top-full z-40 mt-1 flex rounded border border-[var(--sg-stat-border)] bg-[var(--sg-stat-bg)] shadow-lg ${
+                  class={`absolute left-0 top-full z-40 mt-1 flex rounded border border-[var(--sg-stat-border)] bg-[var(--sg-stat-bg)] shadow-lg cursor-default ${
                     isCompareMode() ? "min-w-[56rem]" : "min-w-[28rem]"
                   } max-w-[72rem]`}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div class={isCompareMode() ? "flex-1" : "flex-1"}>
                     <ConfigChainPanel
@@ -925,6 +941,8 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   >Simulator</button>
                 </div>
               </div>
+              </div>
+              <div class="sg-top-seg-content-gutter" />
             </div>
 
             {/* Segment 3 - above right panel. Keyboard/State sits at
@@ -944,14 +962,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     classList={{ "sg-config-kb-module-btn-active": kbState.visible() && kbState.rightPanelMode() === "state" }}
                     onClick={() => kbState.toggleRightPanel("state")}
                   >State</button>
-                </div>
-              </Show>
-              <Show when={isCompareMode()}>
-                <div class="flex items-center gap-2 text-sm ml-auto pr-3">
-                  <span class="font-mono text-xs text-[var(--sg-text-dim)]">{props.compareSource?.label}</span>
-                  <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
-                    ✕
-                  </button>
                 </div>
               </Show>
             </div>

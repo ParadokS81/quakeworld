@@ -97,7 +97,7 @@
    root anchor that every other rem resolves against. An earlier script
    converted them to rem, which still worked but was circular; explicit px
    here documents intent. */
-html { font-size: 16px; }
+html { font-size: 16px; --sg-minimap-width: 7.5rem; }
 /* Single bump at the 1440p-native viewport (2560 WQHD). An intermediate
    step at 1601px was tried earlier but pushed 1080p (1920×1080, would
    have tripped the 1601 threshold) past the width its right-panel can
@@ -1888,7 +1888,7 @@ input[type="number"] {
 
 /* ─── ConfigViewer: scroll minimap ──────────────────────────────────── */
 .sg-section-minimap {
-  width: 96px;
+  width: var(--sg-minimap-width);
   flex-shrink: 0;
   position: relative;
   padding: 8px 6px 8px 0;
@@ -1920,7 +1920,7 @@ input[type="number"] {
   cursor: pointer;
   transform: translateY(-50%);
   white-space: nowrap;
-  font-size: 0.5625rem;
+  font-size: 0.5rem;
   font-family: "Geist", system-ui, sans-serif;
   color: var(--sg-section-label);
   transition: color 0.1s;
@@ -1937,12 +1937,13 @@ input[type="number"] {
 }
 .sg-section-minimap-item-active .sg-section-minimap-tick {
   background: var(--sg-text-bright);
-  width: 10px;
+  width: 7px;
 }
 .sg-section-minimap-tick {
   display: inline-block;
-  width: 8px;
+  width: 5px;
   height: 2px;
+  margin-left: 2px;
   background: var(--sg-section-label);
   flex-shrink: 0;
   transition: background 0.1s, width 0.1s;
@@ -2179,9 +2180,34 @@ input[type="number"] {
   flex: 1 1 0;
   max-width: 56rem; /* matches max-w-4xl on the content column below */
   display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+/* Scroll sub-segment — mirrors the scroll container below (flex-1, sibling
+   of the minimap gutter). Holds the source card on the left and the
+   Pretty/Raw/Label/Sim toggles on the right, using the existing -left /
+   -right children. Its right edge always tracks the scroll container's
+   right edge below because both are `flex: 1` siblings of an element sized
+   with var(--sg-minimap-width). */
+.sg-top-seg-content-scroll {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 1rem;
+  /* Right padding (0.25rem) mirrors the scroll container's px-1 below so
+     Pretty/Raw's right edge sits at the same x as the row right edge. Left
+     padding (1rem) gives the source card breathing room from the sidebar
+     divider — the source card doesn't need to pixel-match the scroll
+     content's left edge the way the right-aligned toggles do. */
+  padding: 0 0.25rem 0 1rem;
+}
+/* Gutter spacer — mirrors .sg-section-minimap below by sharing the same
+   --sg-minimap-width variable. */
+.sg-top-seg-content-gutter {
+  width: var(--sg-minimap-width);
+  flex-shrink: 0;
 }
 .sg-top-seg-content-left {
   display: flex;
@@ -2203,8 +2229,9 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 1rem;
-  border-left: 1px solid color-mix(in oklch, var(--sg-stat-border) 50%, transparent);
+  /* Padding mirrors .sg-config-kb-panel's own padding so Keyboard/State
+     buttons anchor to the same x as the banner / StatePanel content below. */
+  padding: 0 0.5rem;
 }
 
 /* Source "label + client badge" block inside segment 2 left. */
@@ -2219,6 +2246,86 @@ input[type="number"] {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--sg-section-label);
+}
+.sg-client-logo {
+  height: 1.1rem;
+  width: auto;
+  flex-shrink: 0;
+  image-rendering: -webkit-optimize-contrast;
+}
+/* Unified source card: logo + primary path + optional compare name + hover-×.
+   The whole card is the click target that opens the expanded chain dropdown.
+   A subtle hover tint reads the card as one object; the × appears only on
+   card hover so it never competes visually when idle. */
+.sg-top-source-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  min-width: 0;
+}
+.sg-top-source-card:hover,
+.sg-top-source-card-open {
+  background: color-mix(in oklch, var(--sg-stat-bg) 60%, transparent);
+  border-color: var(--sg-stat-border);
+}
+.sg-top-source-logo {
+  height: 1.1rem;
+  width: auto;
+  flex-shrink: 0;
+  image-rendering: -webkit-optimize-contrast;
+}
+.sg-top-source-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+  color: var(--sg-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 18rem;
+  min-width: 0;
+}
+.sg-top-source-vs {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sg-section-label);
+  flex-shrink: 0;
+  margin: 0 0.5rem 0 0.75rem;
+}
+.sg-top-source-compare {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+  color: var(--sg-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14rem;
+  min-width: 0;
+}
+.sg-top-source-compare-clear {
+  font-size: 0.7rem;
+  color: var(--sg-text-dim);
+  background: none;
+  border: none;
+  padding: 0 0.25rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+.sg-top-source-card:hover .sg-top-source-compare-clear {
+  opacity: 0.65;
+}
+.sg-top-source-compare-clear:hover {
+  opacity: 1 !important;
+  color: var(--sg-text-bright);
 }
 
 /* Dim state (render toggles when no pretty-view surface active). */
@@ -2473,6 +2580,62 @@ input[type="number"] {
 }
 .sg-state-row-label { font-size: 0.75rem; color: var(--sg-text-dim); }
 
+/* Location / item combo inputs. Custom dropdown (not native datalist) so
+   we own the popup width. Longest canonical location is ~16 chars, longest
+   item label ~18 chars — 9.5rem fits both at monospace 0.8rem. */
+.sg-state-combo-wrap {
+  position: relative;
+  width: 100%;
+  /* Cap on the input width — popup width follows input width. Longest
+     canonical location ~16 chars, longest item label ~18 chars. 11rem fits
+     both at monospace 0.8rem with a little slack. In the map footer fields
+     the cell naturally shrinks below this cap, so it only kicks in inside
+     the wider Recent Events rows. */
+  max-width: 11rem;
+}
+.sg-state-combo-input {
+  width: 100%;
+}
+.sg-state-combo-popup {
+  position: fixed;
+  max-height: 14rem;
+  overflow-y: auto;
+  background: #0c0e13;
+  border: 1px solid var(--sg-stat-border);
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+.sg-state-combo-option {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+  margin: 0;
+  min-height: 1.5rem;
+  line-height: 1.25;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #e5e7eb;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sg-state-combo-option:hover {
+  background: color-mix(in oklch, var(--color-primary) 15%, transparent);
+}
+.sg-state-combo-option-active {
+  background: color-mix(in oklch, var(--color-primary) 25%, transparent);
+}
+
 .sg-state-derived {
   margin-top: 0.4rem;
   padding: 0.3rem 0.4rem;
@@ -2706,7 +2869,12 @@ input[type="number"] {
    trailing space that would widen the secondary column and push the
    disclosures below out of alignment with the Location box above them. */
 .sg-state-slot-tier-2 {
-  grid-template-columns: repeat(2, minmax(4rem, 7rem));
+  /* Wider column cap than the 4-cell weapon tier so the Location box can
+     claim horizontal space that would otherwise sit empty between the
+     right panel and the viewport edge. The map footer fields (Map /
+     Location / Last loc / Death loc) also need more width for the custom
+     combo popup to read comfortably. */
+  grid-template-columns: repeat(2, minmax(5rem, 9rem));
 }
 
 .sg-state-slot {
@@ -2732,27 +2900,43 @@ input[type="number"] {
 
 /* Wide variant used by the Location tier: the slot spans 2 grid cells
    so the sprite area is tall enough for a mapshot backdrop and the
-   footer has room for a 2x2 field grid. */
+   footer has room for a 2x2 field grid. Padding is removed here (unlike
+   the item slots) so the mapshot claims the full slot area instead of
+   sitting inside a black padding ring — the map sprite is contextually
+   different from item sprites, and the box size/aspect already
+   distinguishes it. Footer fields get their own padding below. */
 .sg-state-slot-wide {
   grid-column: span 2;
+  padding: 0;
+  gap: 0;
 }
-.sg-state-slot-map {
+/* Combo selector used so these rules out-specify the .sg-state-slot-sprite
+   defaults (which force a 1:1 aspect + 62% img cap — suitable for item
+   icons, not for a mapshot backdrop). `flex: 1; min-height: 0` lets the
+   sprite grow to fill remaining slot height when the slot is taller than
+   its 16:9 floor; the aspect-ratio acts as a minimum. */
+.sg-state-slot-sprite.sg-state-slot-map {
   aspect-ratio: 16 / 9;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
-.sg-state-slot-map img {
+.sg-state-slot-sprite.sg-state-slot-map img {
   width: 100%;
   height: 100%;
   max-width: none;
   max-height: none;
   object-fit: cover;
   image-rendering: auto;
-  border-radius: 0.15rem;
+  border-radius: 0.15rem 0.15rem 0 0;
 }
 .sg-state-map-footer {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.3rem 0.4rem;
-  padding: 0.1rem;
+  /* Padding moved here (from the parent slot) so the 2x2 field grid keeps
+     breathing room while the mapshot above fills its box edge-to-edge. */
+  padding: 0.35rem;
 }
 .sg-state-map-field {
   display: flex;
@@ -2924,9 +3108,6 @@ input[type="number"] {
   align-items: center;
   justify-content: flex-start;
   gap: 0.25rem;
-  padding: 0.1rem 0.25rem;
-  background: color-mix(in oklch, #000 65%, transparent);
-  border-radius: 0.2rem;
   position: relative;
   height: 1.6rem;
 }
@@ -2934,8 +3115,8 @@ input[type="number"] {
   height: 1.6rem;
 }
 .sg-state-weapon-ammo-sprite {
-  width: 13px;
-  height: 13px;
+  width: 1.4rem;
+  height: 1.4rem;
   image-rendering: pixelated;
   flex-shrink: 0;
 }
@@ -2951,14 +3132,16 @@ input[type="number"] {
   border-radius: 2px;
 }
 .sg-state-weapon-ammo-need {
-  font-size: 0.55rem;
+  font-size: 0.8rem;
   font-family: monospace;
   color: var(--sg-class-ya);
   opacity: 0;
   transition: opacity 0.15s;
   position: absolute;
-  top: 1px;
-  right: 3px;
+  top: 50%;
+  left: calc(100% + 0.35rem);
+  transform: translateY(-50%);
+  white-space: nowrap;
   pointer-events: none;
 }
 .sg-state-weapon-cell:hover .sg-state-weapon-ammo-need {

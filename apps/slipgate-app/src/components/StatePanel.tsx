@@ -1,4 +1,5 @@
-import { For, Show, createSignal, createMemo } from "solid-js";
+import { For, Show, createSignal, createMemo, createEffect, onCleanup } from "solid-js";
+import { Portal } from "solid-js/web";
 import type { JSX } from "solid-js";
 import type { SimulatorTemplate } from "../store";
 import type { LocEntry } from "../types";
@@ -779,10 +780,12 @@ function NumInput(props: { value: number; min?: number; max?: number; width?: "x
 }
 
 /**
- * Text input backed by an HTML <datalist>. The browser renders a dropdown
- * arrow that reveals the full option list on click; typing filters the
- * list via substring match. Works in WebView2 natively — no custom
- * open/close state needed.
+ * Text input + custom dropdown. We own the popup markup so it sizes to the
+ * input width instead of Chromium's native datalist heuristic (which picks
+ * a popup wide enough for the longest option regardless of how narrow the
+ * input is). Typing filters by case-insensitive substring; arrow keys +
+ * Enter pick; Escape or blur closes. `listId` stays in the prop list for
+ * API continuity but is unused.
  */
 function ComboInput(props: {
   value: string;
@@ -790,18 +793,97 @@ function ComboInput(props: {
   listId: string;
   onChange: (v: string) => void;
 }) {
+  const [open, setOpen] = createSignal(false);
+  const [highlight, setHighlight] = createSignal(0);
+  const [rect, setRect] = createSignal<{ left: number; top: number; width: number } | null>(null);
+  let wrapperEl: HTMLDivElement | undefined;
+
+  const filtered = createMemo(() => {
+    const q = props.value.trim().toLowerCase();
+    if (!q) return props.options;
+    return props.options.filter((o) => o.toLowerCase().includes(q));
+  });
+
+  function updateRect() {
+    if (!wrapperEl) return;
+    const r = wrapperEl.getBoundingClientRect();
+    setRect({ left: r.left, top: r.bottom, width: r.width });
+  }
+
+  function openPopup() {
+    updateRect();
+    setOpen(true);
+  }
+
+  createEffect(() => {
+    if (!open()) return;
+    const handler = () => updateRect();
+    window.addEventListener("scroll", handler, true);
+    window.addEventListener("resize", handler);
+    onCleanup(() => {
+      window.removeEventListener("scroll", handler, true);
+      window.removeEventListener("resize", handler);
+    });
+  });
+
+  function pick(v: string) {
+    props.onChange(v);
+    setOpen(false);
+  }
+
+  function onKeyDown(e: KeyboardEvent) {
+    const list = filtered();
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!open()) setOpen(true);
+      setHighlight((h) => Math.min(h + 1, list.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      if (open() && list[highlight()]) {
+        e.preventDefault();
+        pick(list[highlight()]);
+      }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  }
+
   return (
-    <>
-      <input type="text" class="input input-xs w-full"
-        list={props.options.length > 0 ? props.listId : undefined}
+    <div class="sg-state-combo-wrap" ref={wrapperEl}>
+      <input type="text" class="input input-xs sg-state-combo-input"
         value={props.value}
-        onInput={(e) => props.onChange(e.currentTarget.value)} />
-      <Show when={props.options.length > 0}>
-        <datalist id={props.listId}>
-          <For each={props.options}>{(o) => <option value={o} />}</For>
-        </datalist>
+        onFocus={() => { setHighlight(0); openPopup(); }}
+        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        onInput={(e) => { props.onChange(e.currentTarget.value); setHighlight(0); openPopup(); }}
+        onKeyDown={onKeyDown} />
+      <Show when={open() && filtered().length > 0 && rect()}>
+        <Portal>
+          <div
+            class="sg-state-combo-popup"
+            style={{
+              left: `${rect()!.left}px`,
+              top: `${rect()!.top + 2}px`,
+              width: `${rect()!.width}px`,
+            }}
+          >
+            <For each={filtered()}>
+              {(opt, i) => (
+                <button type="button"
+                  class="sg-state-combo-option"
+                  classList={{ "sg-state-combo-option-active": i() === highlight() }}
+                  onMouseEnter={() => setHighlight(i())}
+                  onMouseDown={(e) => { e.preventDefault(); pick(opt); }}
+                >
+                  {opt}
+                </button>
+              )}
+            </For>
+          </div>
+        </Portal>
       </Show>
-    </>
+    </div>
   );
 }
 
@@ -882,8 +964,33 @@ function stripColorCodes(s: string): string {
   return s.replace(/&c[0-9a-fA-F]{3}/g, "").replace(/&r/g, "");
 }
 
+// Maps a handful of QW special-byte codepoints to ASCII stand-ins so that
+// loc names encoded at the byte level (common in older .loc files) render
+// as legible text in dropdowns instead of replacement-char squares.
+const QW_CHAR_LOOKUP: Record<number, string> = {
+  0: "=", 2: "=", 5: "\u00B7", 10: " ", 14: "\u00B7", 15: "\u00B7",
+  16: "[", 17: "]", 18: "0", 19: "1", 20: "2", 21: "3", 22: "4",
+  23: "5", 24: "6", 25: "7", 26: "8", 27: "9", 28: "\u00B7",
+  29: "=", 30: "=", 31: "=",
+};
+
+function qwToAscii(name: string): string {
+  let out = "";
+  for (const ch of name) {
+    let code = ch.charCodeAt(0);
+    if (code >= 128) code -= 128;
+    if (code >= 32) out += String.fromCharCode(code);
+    else out += QW_CHAR_LOOKUP[code] ?? "?";
+  }
+  return out;
+}
+
 function displayLocName(raw: string, cvars: Map<string, string>): string {
-  return stripColorCodes(expandCvarRefs(raw, cvars)).trim();
+  // qwToAscii must run FIRST on the raw byte-level string — it normalises
+  // high-byte QW chars (e.g. 0xB7) back to ASCII. Running it later would
+  // re-encode unicode substitutes introduced by expandCvarRefs (like the
+  // middle dot that `$.` expands to), turning `·` back into `7` etc.
+  return stripColorCodes(expandCvarRefs(qwToAscii(raw), cvars)).trim();
 }
 
 // Shared display helper for `tp_name_*` cvar values surfaced in

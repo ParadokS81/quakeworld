@@ -234,17 +234,10 @@ export default function SectionMinimap(props: SectionMinimapProps) {
   }
 
   return (
-    <Show when={hasOverflow()}>
-      <div class="sg-section-minimap">
+    <div class="sg-section-minimap">
+      <Show when={hasOverflow()}>
         <div class="sg-section-minimap-track" ref={trackEl}>
-          {/* Track line */}
           <div class="sg-section-minimap-line" />
-          {/* Section ticks + labels. Positioned via the piecewise-linear
-              nat→display remap so a dominant section (e.g. HUD) cannot
-              crush smaller sections into an illegible cluster. The
-              viewport thumb uses the same mapping, so thumb and labels
-              stay visually coherent — content scroll speed is what varies
-              per section instead. */}
           <For each={sections()}>
             {(section, i) => {
               const topPct = () => (mapping().dis[i()] ?? 0) * 100;
@@ -264,7 +257,6 @@ export default function SectionMinimap(props: SectionMinimapProps) {
               );
             }}
           </For>
-          {/* Viewport indicator */}
           <div
             class="sg-section-minimap-viewport"
             style={{
@@ -274,7 +266,7 @@ export default function SectionMinimap(props: SectionMinimapProps) {
             onMouseDown={handleViewportMouseDown}
           />
         </div>
-      </div>
-    </Show>
+      </Show>
+    </div>
   );
 }
