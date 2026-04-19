@@ -82,13 +82,13 @@ All four points are captured in `project_qw_oracle_product_vision.md` memory, bu
 ## Pretty view + StatePanel visual polish
 
 **Added:** 2026-04-17
-**Status:** deferred by user to tomorrow's session -- "refactoring the visuals on the state machine" and "improvements we can do to visualizations of the pretty mode, it requires a bit of thinking and playing around to see what feels right"
+**Updated:** 2026-04-19 — StatePanel pass landed (sprite tiers + two-column layout, see OVERVIEW.md). User wants to continue iterating on sizing / spacing / interaction polish in a new terminal focused on UI. Pretty-view visual polish still untouched.
 **Verification first:** ask the user what they landed on before doing anything -- this is intentionally judgment-heavy and needs the user's eye in the loop.
 
 The pretty view and the StatePanel both shipped in their first functional form across 2026-04-17. User has identified that both need visual refinement once real usage surfaces what the display should actually communicate:
 
-- **StatePanel:** v1 is a text-based form with 31 controls across 8 sections. User has a rough HUD-style sketch (weapon ring around a central figure with HP box, armor pips, powerup stack, ammo indicators) but explicitly waited to redesign until real use informed it. Now it has.
-- **Pretty view:** the readability wins are there (colors render, $vars substitute, runtime tokens label or simulate) but the typography/spacing/active-leaf affordance is an early cut. Especially the dotted-underline + hover convention for variable/runtime spans deserves a second look once the user tries it against dense teamsay configs.
+- **StatePanel:** first denoise + sprite-first redesign landed 2026-04-18/19. Vitals tier (face+HP / GA/YA/RA), Powerups tier, Weapons tier (2+2 then 2+1+1 family grid, ammo input per family, in-sprite `EQ` chip). Two-column panel layout claims horizontal space; collapsed disclosures (Location / Match / LEDs / Events) sit in the right column with the templates header. HUD-ring sketch idea explicitly scrapped. Active iteration area: slot / cell sizing, spacing rhythm, EQ chip discoverability, potential use of `anum_*` / `num_*` / `face_p*` sprites.
+- **Pretty view:** untouched this session. The readability wins are there (colors render, $vars substitute, runtime tokens label or simulate) but the typography/spacing/active-leaf affordance is an early cut. Especially the dotted-underline + hover convention for variable/runtime spans deserves a second look once the user tries it against dense teamsay configs.
 
 Both items are creative / iterative -- not the kind of thing to grind through solo. Pair with the user next session.
 
@@ -126,16 +126,12 @@ The Player State Simulator (PlayerState model + ezQuake `if` evaluator + `evalua
 
 ### Sub-groups
 
-**1. `.loc`-driven location dropdowns.** Currently all location fields in StatePanel are free-form text inputs. Real utility comes from scanning the user's `qw/locs/` directory, parsing each `.loc` file (plain-text `x y z name` per line), and building `{ map → [location names] }`. Replace the free-form `location` / `mapname` / `lastloc` / `deathloc` / `pointloc` / `tookloc` / `droploc` text inputs with linked dropdowns: map picker filters the location dropdown. Keep a fallback free-form text input on each so users can test unlisted locations or work without loc files. Requires a small Rust-side `.loc` scanner + Tauri command (adjacent to the existing scanner at `src-tauri/src/commands/scanner.rs`). Probably 3-4 tasks worth of work.
-
-**2. Visual polish per the HUD sketch.** User has a rough sketch (weapon ring with 8 weapon circles around the top, central figure with HP box, armor pips RA/YA/GA, powerup stack PENT/QUAD/RING/BIOSUIT, ammo indicators). v1 is text-based on purpose — polish should wait until the pretty-view integration lands and real use patterns surface what the visual actually needs to communicate. Then redesign from an informed position rather than guessing.
-
-**3. Minor carry-overs from v1 code review.**
+**1. Minor carry-overs from v1 code review.**
 - `useKeyboardPanelState.ts` error log messages: some use "Failed to X:" prefix, others use "X:" (the new simulator handlers are shorter-form). Cosmetic, 3-min fix. Files `apps/slipgate-app/src/components/useKeyboardPanelState.ts` lines 159/180/186/193/199/205.
 - `resolveWeaponName` export from `src/lib/simulator/derivations.ts` is unused externally — safe to un-export (Task 4 implementer exported it unnecessarily during implementation). Minor API-surface cleanup.
 - `useKeyboardPanelState.ts` is now ~236 lines. Not a problem but worth an eye if simulator features grow; may be worth extracting a `useSimulatorState` hook in future.
 
-**4. Input behavior polish.** Debouncing, tab order, focus behavior in StatePanel form controls. Surface specific issues when using it in anger.
+**2. Input behavior polish.** Debouncing, tab order, focus behavior in StatePanel form controls. Surface specific issues when using it in anger.
 
 ### Related
 
