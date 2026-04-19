@@ -1,0 +1,381 @@
+{
+  "token_primitives": {
+    "$$": {
+      "ast": {
+        "suffix_char": "$",
+        "suffix_literal": "$",
+        "byte_value": 36,
+        "category": "literal_escape",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1725
+      }
+    },
+    "$(": {
+      "ast": {
+        "suffix_char": "(",
+        "suffix_literal": "(",
+        "byte_value": 128,
+        "category": "powerup_indicator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1713
+      }
+    },
+    "$)": {
+      "ast": {
+        "suffix_char": ")",
+        "suffix_literal": ")",
+        "byte_value": 130,
+        "category": "powerup_indicator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1715
+      }
+    },
+    "$,": {
+      "ast": {
+        "suffix_char": ",",
+        "suffix_literal": ",",
+        "byte_value": 28,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1720
+      }
+    },
+    "$-": {
+      "ast": {
+        "suffix_char": "-",
+        "suffix_literal": "-",
+        "byte_value": 30,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1718
+      }
+    },
+    "$.": {
+      "ast": {
+        "suffix_char": ".",
+        "suffix_literal": ".",
+        "byte_value": 156,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1721
+      }
+    },
+    "$0": {
+      "ast": {
+        "suffix_char": "0",
+        "suffix_literal": "0",
+        "byte_value": 18,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$1": {
+      "ast": {
+        "suffix_char": "1",
+        "suffix_literal": "1",
+        "byte_value": 19,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$2": {
+      "ast": {
+        "suffix_char": "2",
+        "suffix_literal": "2",
+        "byte_value": 20,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$3": {
+      "ast": {
+        "suffix_char": "3",
+        "suffix_literal": "3",
+        "byte_value": 21,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$4": {
+      "ast": {
+        "suffix_char": "4",
+        "suffix_literal": "4",
+        "byte_value": 22,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$5": {
+      "ast": {
+        "suffix_char": "5",
+        "suffix_literal": "5",
+        "byte_value": 23,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$6": {
+      "ast": {
+        "suffix_char": "6",
+        "suffix_literal": "6",
+        "byte_value": 24,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$7": {
+      "ast": {
+        "suffix_char": "7",
+        "suffix_literal": "7",
+        "byte_value": 25,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$8": {
+      "ast": {
+        "suffix_char": "8",
+        "suffix_literal": "8",
+        "byte_value": 26,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$9": {
+      "ast": {
+        "suffix_char": "9",
+        "suffix_literal": "9",
+        "byte_value": 27,
+        "category": "digit_font",
+        "case_style": "digit_branch",
+        "source_file": "teamplay.c",
+        "source_line": 1728
+      }
+    },
+    "$:": {
+      "ast": {
+        "suffix_char": ":",
+        "suffix_literal": ":",
+        "byte_value": 10,
+        "category": "separator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1705
+      }
+    },
+    "$<": {
+      "ast": {
+        "suffix_char": "<",
+        "suffix_literal": "<",
+        "byte_value": 29,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1717
+      }
+    },
+    "$=": {
+      "ast": {
+        "suffix_char": "=",
+        "suffix_literal": "=",
+        "byte_value": 129,
+        "category": "powerup_indicator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1714
+      }
+    },
+    "$>": {
+      "ast": {
+        "suffix_char": ">",
+        "suffix_literal": ">",
+        "byte_value": 31,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1719
+      }
+    },
+    "$B": {
+      "ast": {
+        "suffix_char": "B",
+        "suffix_literal": "B",
+        "byte_value": 137,
+        "category": "led",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1711
+      }
+    },
+    "$G": {
+      "ast": {
+        "suffix_char": "G",
+        "suffix_literal": "G",
+        "byte_value": 134,
+        "category": "led",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1708
+      }
+    },
+    "$R": {
+      "ast": {
+        "suffix_char": "R",
+        "suffix_literal": "R",
+        "byte_value": 135,
+        "category": "led",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1709
+      }
+    },
+    "$W": {
+      "ast": {
+        "suffix_char": "W",
+        "suffix_literal": "W",
+        "byte_value": 132,
+        "category": "led",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1712
+      }
+    },
+    "$Y": {
+      "ast": {
+        "suffix_char": "Y",
+        "suffix_literal": "Y",
+        "byte_value": 136,
+        "category": "led",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1710
+      }
+    },
+    "$[": {
+      "ast": {
+        "suffix_char": "[",
+        "suffix_literal": "[",
+        "byte_value": 16,
+        "category": "bracket",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1706
+      }
+    },
+    "$\\": {
+      "ast": {
+        "suffix_char": "\\",
+        "suffix_literal": "\\\\",
+        "byte_value": 13,
+        "category": "separator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1704
+      }
+    },
+    "$]": {
+      "ast": {
+        "suffix_char": "]",
+        "suffix_literal": "]",
+        "byte_value": 17,
+        "category": "bracket",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1707
+      }
+    },
+    "$^": {
+      "ast": {
+        "suffix_char": "^",
+        "suffix_literal": "^",
+        "byte_value": 94,
+        "category": "literal_escape",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1726
+      }
+    },
+    "$a": {
+      "ast": {
+        "suffix_char": "a",
+        "suffix_literal": "a",
+        "byte_value": 131,
+        "category": "powerup_indicator",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1716
+      }
+    },
+    "$b": {
+      "ast": {
+        "suffix_char": "b",
+        "suffix_literal": "b",
+        "byte_value": 139,
+        "category": "glyph",
+        "case_style": "single",
+        "source_file": "teamplay.c",
+        "source_line": 1722
+      }
+    },
+    "$c": {
+      "ast": {
+        "suffix_char": "c",
+        "suffix_literal": "c",
+        "byte_value": 141,
+        "category": "glyph",
+        "case_style": "stacked",
+        "source_file": "teamplay.c",
+        "source_line": 1723
+      }
+    },
+    "$d": {
+      "ast": {
+        "suffix_char": "d",
+        "suffix_literal": "d",
+        "byte_value": 141,
+        "category": "glyph",
+        "case_style": "stacked",
+        "source_file": "teamplay.c",
+        "source_line": 1723
+      }
+    }
+  },
+  "_stats": {
+    "total": 33,
+    "switch_entries": 23,
+    "digit_entries": 10,
+    "by_category": {
+      "literal_escape": 2,
+      "powerup_indicator": 4,
+      "glyph": 8,
+      "digit_font": 10,
+      "separator": 2,
+      "led": 5,
+      "bracket": 2
+    }
+  }
+}
