@@ -65,17 +65,20 @@ const AMMO_SPRITE: Record<Exclude<WeaponFamily, "none">, string> = {
   rox: "/wad/sb_rocket.png",
   cells: "/wad/sb_cells.png",
 };
-const WEAPON_SPRITE: Partial<Record<Weapon, string>> = {
-  sg: "/wad/inv_shotgun.png",
-  ssg: "/wad/inv_sshotgun.png",
-  ng: "/wad/inv_nailgun.png",
-  sng: "/wad/inv_snailgun.png",
-  // Q1 WAD conventions: `rlaunch` sprite is the grenade launcher,
-  // `srlaunch` is the rocket launcher. Inverted vs their filename sound.
-  gl: "/wad/inv_rlaunch.png",
-  rl: "/wad/inv_srlaunch.png",
-  lg: "/wad/inv_lightng.png",
-  // axe has no distinct weapon sprite in this WAD set — rendered as text.
+// Bright, colour-preserved weapon sprites — reused from the Profile tab
+// so the two surfaces stay visually consistent. The dim `wad/inv_*` set
+// is what ezQuake renders in-game when a weapon is NOT owned; we style
+// the "not owned" state with opacity instead and always use the bright
+// source image.
+const WEAPON_SPRITE: Record<Weapon, string> = {
+  axe: "/weapons/axe.png",
+  sg:  "/weapons/sg.png",
+  ssg: "/weapons/ssg.png",
+  ng:  "/weapons/ng.png",
+  sng: "/weapons/sng.png",
+  gl:  "/weapons/gl.png",
+  rl:  "/weapons/rl.png",
+  lg:  "/weapons/lg.png",
 };
 const POWERUP_SPRITE: Partial<Record<Powerup, string>> = {
   quad: "/wad/face_quad.png",
@@ -480,10 +483,10 @@ function SpriteSlot(props: {
 }
 
 /**
- * Weapon family card: a framed group (border colour keyed to ammo type)
- * containing one cell per weapon (current-weapon dot above possession
- * sprite), and a single centered ammo input underneath that applies to
- * the whole family. Axe family has no ammo input.
+ * Weapon family card: one cell per weapon (sprite is a possession toggle,
+ * corner chip sets current weapon and shows an `EQ` label when active),
+ * plus a centered ammo input applying to the whole family. No family
+ * border — the ammo sprite underneath is the family indicator.
  */
 function WeaponFamilyCell(props: {
   group: WeaponGroup;
@@ -493,43 +496,40 @@ function WeaponFamilyCell(props: {
   onSetCurrent: (w: Weapon) => void;
   onAmmoChange: <K extends Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells">>(k: K, v: PlayerState[K]) => void;
 }) {
-  const customized = () => {
-    if (!props.group.ammoLabel) return false;
-    const name = `tp_need_${props.group.ammoLabel}`;
-    const def = NEED_DEFAULTS[name];
-    const user = props.cvars.get(name);
-    return user !== undefined && user !== def;
-  };
   return (
-    <div class={`sg-state-weapon-family sg-state-fam-${props.group.family}`}
-      classList={{ "sg-state-weapon-family-need-customized": customized() }}
-    >
+    <div class="sg-state-weapon-family">
       <div class="sg-state-weapon-family-row">
-        <For each={props.group.weapons}>{(w) => (
-          <div class="sg-state-weapon-family-cell">
-            <button
-              class="sg-state-weapon-current"
-              classList={{ "sg-state-weapon-current-active": props.state.currentWeapon === w }}
-              title={`Set ${w} as current weapon`}
-              onClick={() => props.onSetCurrent(w)}
-            >
-              <span class="sg-state-weapon-current-dot" />
-            </button>
-            <button
-              class="sg-state-weapon-sprite"
-              classList={{
-                "sg-state-weapon-sprite-owned": props.state.ownedWeapons.has(w),
-                "sg-state-weapon-sprite-dim": !props.state.ownedWeapons.has(w),
-              }}
-              onClick={() => props.onToggleWeapon(w)}
-              title={w}
-            >
-              <Show when={WEAPON_SPRITE[w]} fallback={<span class="sg-state-weapon-text">{w.toUpperCase()}</span>}>
+        <For each={props.group.weapons}>{(w) => {
+          const owned = () => props.state.ownedWeapons.has(w);
+          const current = () => props.state.currentWeapon === w;
+          return (
+            <div class="sg-state-weapon-family-cell">
+              <button
+                class="sg-state-weapon-sprite"
+                classList={{
+                  "sg-state-weapon-sprite-owned": owned(),
+                  "sg-state-weapon-sprite-dim": !owned(),
+                  "sg-state-weapon-sprite-current": current(),
+                }}
+                onClick={() => props.onToggleWeapon(w)}
+                title={`${w} — click to ${owned() ? "drop" : "pick up"}`}
+              >
                 <img src={WEAPON_SPRITE[w]} alt={w} />
-              </Show>
-            </button>
-          </div>
-        )}</For>
+                <span
+                  class="sg-state-weapon-eq"
+                  classList={{ "sg-state-weapon-eq-on": current() }}
+                  title={current() ? `${w} equipped` : `set ${w} as current`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onSetCurrent(w);
+                  }}
+                >
+                  EQ
+                </span>
+              </button>
+            </div>
+          );
+        }}</For>
       </div>
       <Show when={props.group.ammoKey !== null && props.group.family !== "none"}>
         <div class="sg-state-family-ammo">

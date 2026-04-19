@@ -2476,7 +2476,7 @@ input[type="number"] {
 .sg-state-slot-tier {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .sg-state-slot {
@@ -2484,11 +2484,11 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.2rem;
-  padding: 0.3rem;
+  gap: 0.15rem;
+  padding: 0.2rem;
   background: #000;
   border: 1px solid var(--sg-stat-border);
-  border-radius: 0.3rem;
+  border-radius: 0.25rem;
 }
 .sg-state-slot-dim { opacity: 0.4; }
 .sg-state-slot-active {
@@ -2512,8 +2512,8 @@ input[type="number"] {
   overflow: hidden;
 }
 .sg-state-slot-sprite img {
-  max-width: 72%;
-  max-height: 72%;
+  max-width: 62%;
+  max-height: 62%;
   image-rendering: pixelated;
 }
 .sg-state-slot-text-tile {
@@ -2536,10 +2536,11 @@ input[type="number"] {
   border: 1px solid var(--sg-stat-border);
   color: var(--sg-text-bright);
   font-family: monospace;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   text-align: center;
-  padding: 1px 2px;
+  padding: 0;
   border-radius: 2px;
+  height: 1.1rem;
 }
 .sg-state-slot-input[readonly] {
   color: var(--sg-text-dim);
@@ -2570,51 +2571,45 @@ input[type="number"] {
   opacity: 1;
 }
 
-/* ── Weapon family cards ── */
+/* ── Weapon family cards ──
+   No outer border: the ammo sprite beneath signals the family, the grid
+   columns preserve the 2+2 / 2+1+1 grouping visually, and the sprite
+   itself holds the possession + current-weapon affordances. */
 
 .sg-state-weapon-row-2-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-  margin-bottom: 0.4rem;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
 }
 .sg-state-weapon-row-2-1-1 {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .sg-state-weapon-family {
-  position: relative;
-  border: 2px solid var(--sg-fam-none);
-  border-radius: 0.4rem;
-  padding: 0.35rem;
-  background: color-mix(in oklch, var(--color-base-200) 60%, transparent);
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
-.sg-state-fam-shell { border-color: var(--sg-fam-shell); }
-.sg-state-fam-nail  { border-color: var(--sg-fam-nail); }
-.sg-state-fam-rox   { border-color: var(--sg-fam-rox); }
-.sg-state-fam-cell  { border-color: var(--sg-fam-cell); }
-.sg-state-fam-none  { border-color: var(--sg-fam-none); border-style: dashed; }
 
 .sg-state-weapon-family-row {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.25rem;
   justify-content: center;
 }
 .sg-state-weapon-family-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.1rem;
   flex: 1;
 }
 .sg-state-weapon-sprite {
+  position: relative;
   width: 100%;
-  aspect-ratio: 2.5 / 1;
+  aspect-ratio: 2.2 / 1;
   background: #000;
   border: 1px solid var(--sg-stat-border);
   border-radius: 0.2rem;
@@ -2623,51 +2618,77 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   padding: 0;
+  overflow: hidden;
 }
 .sg-state-weapon-sprite img {
   max-width: 85%;
   max-height: 85%;
   image-rendering: pixelated;
+  transition: opacity 0.12s, filter 0.12s;
 }
-.sg-state-weapon-sprite-dim { opacity: 0.3; }
+.sg-state-weapon-sprite-dim img {
+  opacity: 0.28;
+  filter: grayscale(1);
+}
 .sg-state-weapon-sprite-owned {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 30%, transparent);
+  border-color: color-mix(in oklch, var(--color-primary) 60%, transparent);
 }
-.sg-state-weapon-text {
+.sg-state-weapon-sprite-current {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 35%, transparent);
+}
+
+/* In-sprite "EQ" chip (top-right). Matches the need-hint size/colour so
+   the visual vocabulary stays tight. Subtle hover affordance when not
+   yet current — tooltip explains the action. */
+.sg-state-weapon-eq {
+  position: absolute;
+  top: 2px;
+  right: 3px;
   font-family: monospace;
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--sg-text-dim);
+  color: var(--sg-class-ya);
+  padding: 0 2px;
+  border-radius: 2px;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  line-height: 1.1;
 }
-.sg-state-weapon-sprite-owned .sg-state-weapon-text { color: var(--sg-text-bright); }
+.sg-state-weapon-sprite:hover .sg-state-weapon-eq { opacity: 0.5; }
+.sg-state-weapon-eq.sg-state-weapon-eq-on {
+  opacity: 1;
+  color: var(--sg-class-ya);
+}
 
 .sg-state-family-ammo {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.3rem;
+  gap: 0.25rem;
+  padding: 0.1rem 0.25rem;
   background: color-mix(in oklch, #000 65%, transparent);
   border-radius: 0.2rem;
   position: relative;
 }
 .sg-state-family-ammo-sprite {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   image-rendering: pixelated;
 }
 .sg-state-family-ammo-input {
-  width: 3.2rem;
+  width: 2.6rem;
   background: transparent;
   border: 1px solid var(--sg-stat-border);
   color: var(--sg-text-bright);
   font-family: monospace;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   text-align: center;
-  padding: 1px 2px;
+  padding: 0;
   border-radius: 2px;
+  height: 1.05rem;
 }
 .sg-state-family-ammo-need {
   font-size: 0.55rem;
@@ -2677,11 +2698,10 @@ input[type="number"] {
   transition: opacity 0.15s;
   position: absolute;
   top: 1px;
-  right: 4px;
+  right: 3px;
   pointer-events: none;
 }
-.sg-state-weapon-family:hover .sg-state-family-ammo-need,
-.sg-state-weapon-family-need-customized .sg-state-family-ammo-need {
+.sg-state-weapon-family:hover .sg-state-family-ammo-need {
   opacity: 1;
 }
 
