@@ -42,9 +42,10 @@ function usageAndExit(): never {
 load-knowledge <subcommand> [...args]
 
 Subcommands:
-  load-version  --project <p> --version <v> --type <cvar> --json <path>
-                --commit <sha> --ordinal <n> [--tag-date <iso8601>]
-                [--extractor-version <s>] [--force]
+  load-version  --project <p> --version <v>
+                --type <cvar|command|macro|cmdline_param>
+                --json <path> --commit <sha> --ordinal <n>
+                [--tag-date <iso8601>] [--extractor-version <s>] [--force]
   diff          --project <p> --from <v1> --to <v2>
   enrich        --project <p> --github-token <token> [--limit <n>]
 `.trim());

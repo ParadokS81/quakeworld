@@ -1,36 +1,48 @@
 // apps/qw-oracle/scripts/load-knowledge/load-version.ts
 //
-// Stage 1 of the loader pipeline: ingest one (project, version) pair's
-// JSON output into the knowledge DB.
-//
-// Per spec:
-//   - Upsert versions row
-//   - Upsert entities rows (preserve first_seen_version on creation;
-//     extend last_seen_version to this version if ordinal is later)
-//   - Upsert cvar_versions rows
-//   - Emit source_state_transitions rows on initial observation
-//   - Write schema_meta operational keys
-//   - NO change events - that is the diff stage's job.
+// Stage 1 orchestrator: ingest one (project, version, type) triple into the
+// knowledge DB. Per-type logic lives in load-{cvars,commands,macros,cmdline-params}.ts;
+// this file owns the shared scaffolding (version upsert, entity upsert,
+// transitions, schema_meta, partial-drop guard).
 
 import { readFileSync } from 'fs';
-import { createHash } from 'crypto';
 import Database from 'better-sqlite3';
 import { ulid } from 'ulid';
 import {
   extendFirstSeenVersion,
   setEntitySourceState,
-  upsertCvarVersion,
   upsertEntity,
   upsertVersion,
 } from './natural-keys.js';
 import { logTransition } from './transitions.js';
+import {
+  CVAR_PAYLOAD_FIELD,
+  buildCvarVersionRow,
+  cvarIsSourceBacked,
+  upsertCvarRow,
+} from './load-cvars.js';
+import {
+  COMMAND_PAYLOAD_FIELD,
+  buildCommandVersionRow,
+  commandIsSourceBacked,
+  upsertCommandRow,
+} from './load-commands.js';
+import {
+  MACRO_PAYLOAD_FIELD,
+  buildMacroVersionRow,
+  macroIsSourceBacked,
+  upsertMacroRow,
+} from './load-macros.js';
+import {
+  CMDLINE_PARAM_PAYLOAD_FIELD,
+  buildCmdlineParamVersionRow,
+  cmdlineIsSourceBacked,
+  upsertCmdlineParamRow,
+} from './load-cmdline-params.js';
 import type {
-  CvarVersionRow,
   EntityType,
-  ExtractorOutput,
   Project,
   SourceState,
-  VariableEntry,
 } from './types.js';
 
 export interface LoadVersionOptions {
@@ -59,28 +71,82 @@ export interface LoadVersionResult {
 
 const PARTIAL_DROP_GUARD_RATIO = 0.5;
 
+// Per-type adapter interface. Each type supplies:
+//   - the field name under which entries live in the extractor JSON
+//   - which table the loader should count against for the drop-guard
+//   - an is-source-backed predicate for the initial source_state decision
+//   - a row builder + upsert call
+interface TypeAdapter {
+  payloadField: string;
+  versionsTable: string;
+  isSourceBacked: (entry: any) => boolean;
+  buildRow: (entityId: number, version: string, entry: any, now: string) => any;
+  upsertRow: (db: Database.Database, row: any) => void;
+}
+
+const ADAPTERS: Record<EntityType, TypeAdapter> = {
+  cvar: {
+    payloadField: CVAR_PAYLOAD_FIELD,
+    versionsTable: 'cvar_versions',
+    isSourceBacked: cvarIsSourceBacked,
+    buildRow: buildCvarVersionRow,
+    upsertRow: upsertCvarRow,
+  },
+  command: {
+    payloadField: COMMAND_PAYLOAD_FIELD,
+    versionsTable: 'command_versions',
+    isSourceBacked: commandIsSourceBacked,
+    buildRow: buildCommandVersionRow,
+    upsertRow: upsertCommandRow,
+  },
+  macro: {
+    payloadField: MACRO_PAYLOAD_FIELD,
+    versionsTable: 'macro_versions',
+    isSourceBacked: macroIsSourceBacked,
+    buildRow: buildMacroVersionRow,
+    upsertRow: upsertMacroRow,
+  },
+  cmdline_param: {
+    payloadField: CMDLINE_PARAM_PAYLOAD_FIELD,
+    versionsTable: 'cmdline_param_versions',
+    isSourceBacked: cmdlineIsSourceBacked,
+    buildRow: buildCmdlineParamVersionRow,
+    upsertRow: upsertCmdlineParamRow,
+  },
+};
+
 export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
-  if (options.type !== 'cvar') {
-    throw new Error(`Phase 2b load-version only handles type=cvar; got ${options.type}`);
+  const adapter = ADAPTERS[options.type];
+  if (!adapter) {
+    throw new Error(`Unknown entity type: ${options.type}`);
   }
 
   const extractorRunId = ulid();
   const now = new Date().toISOString();
 
   const raw = readFileSync(options.jsonPath, 'utf-8');
-  const payload = JSON.parse(raw) as ExtractorOutput;
+  const payload = JSON.parse(raw) as Record<string, unknown>;
+  const entries = (payload as any)[adapter.payloadField] as Record<string, any> | undefined;
+  if (!entries || typeof entries !== 'object') {
+    throw new Error(
+      `Extractor JSON at ${options.jsonPath} has no "${adapter.payloadField}" field for type=${options.type}`
+    );
+  }
 
-  const entryCount = Object.keys(payload.vars).length;
+  const entryCount = Object.keys(entries).length;
 
+  // Drop-guard: bound against the same (project, version, type) only. Keying
+  // on the per-type versions table keeps the guard isolated -- loading
+  // commands doesn't compare row counts against cvar rows.
   const priorRowCount = options.db.prepare(`
-    SELECT COUNT(*) AS n FROM cvar_versions cv
+    SELECT COUNT(*) AS n FROM ${adapter.versionsTable} cv
     JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND cv.version = ?
-  `).get(options.project, options.version) as { n: number };
+    WHERE e.project = ? AND e.type = ? AND cv.version = ?
+  `).get(options.project, options.type, options.version) as { n: number };
 
   if (priorRowCount.n > 0 && entryCount === 0 && !options.forceOverwrite) {
     throw new Error(
-      `Regression: prior run populated ${priorRowCount.n} rows for ${options.project}@${options.version}, ` +
+      `Regression: prior run populated ${priorRowCount.n} rows for ${options.project}:${options.type}@${options.version}, ` +
       `current JSON has zero. Aborting. Use --force to override.`
     );
   }
@@ -115,14 +181,18 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     let upserted = 0;
     let transitions = 0;
 
-    for (const [nameRaw, entry] of Object.entries(payload.vars)) {
+    for (const [nameRaw, entry] of Object.entries(entries)) {
       const name = nameRaw.toLowerCase();
-      if (!/^[a-z0-9_.]+$/.test(name)) {
+      // Widened vs cvar-only regex so commands (+attack, -attack) and cmdline
+      // params (-basedir) pass. '?'-prefixed entries are diagnostic display
+      // names from the cmdline extractor for undeclared enum constants --
+      // skip them explicitly rather than pollute the DB.
+      if (!/^[a-z0-9_.+\-]+$/.test(name)) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }
 
-      const sourceBacked = entry.ast !== null;
+      const sourceBacked = adapter.isSourceBacked(entry);
       const initialSourceState: SourceState = sourceBacked ? 'source_backed' : 'doc_only';
 
       const upsertResult = upsertEntity(options.db, {
@@ -162,7 +232,10 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         }
       }
 
-      upsertCvarVersion(options.db, cvarVersionRowFromEntry(upsertResult.id, options.version, entry, now));
+      adapter.upsertRow(
+        options.db,
+        adapter.buildRow(upsertResult.id, options.version, entry, now),
+      );
       upserted += 1;
     }
 
@@ -187,45 +260,5 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     transitionsLogged: transitions,
     entityCount: entryCount,
     parseState: parseStateFinal,
-  };
-}
-
-function cvarVersionRowFromEntry(
-  entityId: number,
-  version: string,
-  entry: VariableEntry,
-  now: string,
-): CvarVersionRow {
-  const ast = entry.ast;
-  const raw_ast_hash = ast
-    ? createHash('sha1').update(JSON.stringify(ast)).digest('hex')
-    : null;
-
-  return {
-    entity_id: entityId,
-    version,
-
-    help_desc: entry.desc ?? null,
-    help_remarks: entry.remarks ?? null,
-    help_values: entry.values == null ? null : JSON.stringify(entry.values),
-    help_group_id: entry['group-id'] ?? null,
-    help_type: entry.type ?? null,
-
-    default_value: entry.default == null ? null : String(entry.default),
-    flags_raw: ast?.flags_raw ?? null,
-    flag_names: ast?.flag_names ? JSON.stringify(ast.flag_names) : null,
-    on_change: ast?.on_change ?? null,
-    min_bound: ast?.min_bound ?? null,
-    max_bound: ast?.max_bound ?? null,
-    source_file: ast?.source_file ?? null,
-    source_line: ast?.source_line ?? null,
-    source_column: ast?.source_column ?? null,
-    storage_class: ast?.storage_class ?? null,
-    group_name_in_source: ast?.group_name_in_source ?? null,
-    trailing_comment: ast?.trailing_comment ?? null,
-    server_only: entry['server-only'] ? 1 : 0,
-
-    raw_ast_hash,
-    extracted_at: now,
   };
 }

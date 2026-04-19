@@ -7,8 +7,11 @@
 
 import type Database from 'better-sqlite3';
 import type {
+  CmdlineParamVersionRow,
+  CommandVersionRow,
   CvarVersionRow,
   EntityType,
+  MacroVersionRow,
   Project,
   SourceState,
   VersionRow,
@@ -132,6 +135,52 @@ export function upsertCvarVersion(db: Database.Database, row: CvarVersionRow): v
       @default_value, @flags_raw, @flag_names, @on_change, @min_bound, @max_bound,
       @source_file, @source_line, @source_column, @storage_class, @group_name_in_source,
       @trailing_comment, @server_only, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertCommandVersion(db: Database.Database, row: CommandVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO command_versions (
+      entity_id, version,
+      help_desc, help_remarks, help_group_id,
+      handler_fn, source_file, source_line, source_column,
+      registration_file, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version,
+      @help_desc, @help_remarks, @help_group_id,
+      @handler_fn, @source_file, @source_line, @source_column,
+      @registration_file, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertMacroVersion(db: Database.Database, row: MacroVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO macro_versions (
+      entity_id, version,
+      help_desc, macro_type, teamplay_restricted, related_cvars_json,
+      handler_fn, source_file, source_line, source_column,
+      registration_file, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version,
+      @help_desc, @macro_type, @teamplay_restricted, @related_cvars_json,
+      @handler_fn, @source_file, @source_line, @source_column,
+      @registration_file, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertCmdlineParamVersion(db: Database.Database, row: CmdlineParamVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO cmdline_param_versions (
+      entity_id, version,
+      help_desc, help_remarks, arguments, flags_json, systems_json,
+      source_file, source_line, source_column, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version,
+      @help_desc, @help_remarks, @arguments, @flags_json, @systems_json,
+      @source_file, @source_line, @source_column, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }
