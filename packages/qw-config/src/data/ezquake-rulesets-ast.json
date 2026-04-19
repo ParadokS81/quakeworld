@@ -1,0 +1,249 @@
+{
+  "rulesets": {
+    "default": {
+      "ast": {
+        "enum_ident": "rs_default",
+        "loader_fn": "Rulesets_Default",
+        "source_file": "rulesets.c",
+        "source_line": 0,
+        "maxfps": 72.0,
+        "restrict_triggers": 0,
+        "restrict_packet": 0,
+        "restrict_particles": 0,
+        "restrict_play": 0,
+        "restrict_logging": 0,
+        "restrict_rollangle": 0,
+        "restrict_ipc": 0,
+        "restrict_exec": 0,
+        "restrict_setcalc": 0,
+        "restrict_seteval": 0,
+        "restrict_setex": 0,
+        "locked_cvars": [],
+        "locked_cvar_count": 0
+      }
+    },
+    "smackdown": {
+      "ast": {
+        "enum_ident": "rs_smackdown",
+        "loader_fn": "Rulesets_Smackdown",
+        "source_file": "rulesets.c",
+        "source_line": 278,
+        "maxfps": 77.0,
+        "restrict_triggers": 1,
+        "restrict_packet": 1,
+        "restrict_particles": 1,
+        "restrict_play": 1,
+        "restrict_logging": 1,
+        "restrict_rollangle": 1,
+        "restrict_ipc": 1,
+        "restrict_exec": 1,
+        "restrict_setcalc": 1,
+        "restrict_seteval": 1,
+        "restrict_setex": 1,
+        "locked_cvars": [
+          {
+            "cvar_ident": "allow_scripts",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_iDrive",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_hud",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_rollalpha",
+            "value": "20"
+          },
+          {
+            "cvar_ident": "r_shiftbeam",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "scr_allowsnap",
+            "value": "1"
+          }
+        ],
+        "locked_cvar_count": 6
+      }
+    },
+    "thunderdome": {
+      "ast": {
+        "enum_ident": "rs_thunderdome",
+        "loader_fn": "Rulesets_Thunderdome",
+        "source_file": "rulesets.c",
+        "source_line": 411,
+        "maxfps": 77.0,
+        "restrict_triggers": 1,
+        "restrict_packet": 1,
+        "restrict_particles": 0,
+        "restrict_play": 1,
+        "restrict_logging": 1,
+        "restrict_rollangle": 1,
+        "restrict_ipc": 1,
+        "restrict_exec": 1,
+        "restrict_setcalc": 1,
+        "restrict_seteval": 1,
+        "restrict_setex": 1,
+        "locked_cvars": [
+          {
+            "cvar_ident": "allow_scripts",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_iDrive",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_hud",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "r_shiftbeam",
+            "value": "0"
+          }
+        ],
+        "locked_cvar_count": 4
+      }
+    },
+    "qcon": {
+      "ast": {
+        "enum_ident": "rs_qcon",
+        "loader_fn": "Rulesets_Qcon",
+        "source_file": "rulesets.c",
+        "source_line": 346,
+        "maxfps": 77.0,
+        "restrict_triggers": 1,
+        "restrict_packet": 1,
+        "restrict_particles": 1,
+        "restrict_play": 1,
+        "restrict_logging": 1,
+        "restrict_rollangle": 1,
+        "restrict_ipc": 1,
+        "restrict_exec": 1,
+        "restrict_setcalc": 1,
+        "restrict_seteval": 1,
+        "restrict_setex": 1,
+        "locked_cvars": [
+          {
+            "cvar_ident": "allow_scripts",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_iDrive",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_hud",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_rollalpha",
+            "value": "20"
+          },
+          {
+            "cvar_ident": "r_shiftbeam",
+            "value": "0"
+          }
+        ],
+        "locked_cvar_count": 5
+      }
+    },
+    "mtfl": {
+      "ast": {
+        "enum_ident": "rs_mtfl",
+        "loader_fn": "Rulesets_MTFL",
+        "source_file": "rulesets.c",
+        "source_line": 474,
+        "maxfps": 72.0,
+        "restrict_triggers": 0,
+        "restrict_packet": 0,
+        "restrict_particles": 0,
+        "restrict_play": 0,
+        "restrict_logging": 0,
+        "restrict_rollangle": 0,
+        "restrict_ipc": 0,
+        "restrict_exec": 0,
+        "restrict_setcalc": 0,
+        "restrict_seteval": 0,
+        "restrict_setex": 0,
+        "locked_cvars": [
+          {
+            "cvar_ident": "r_drawflat",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "amf_detpacklights",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "gl_textureless",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "r_fullbrightSkins",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "vid_hwgammacontrol",
+            "value": "2"
+          },
+          {
+            "cvar_ident": "cl_c2spps",
+            "value": "0"
+          }
+        ],
+        "locked_cvar_count": 6
+      }
+    },
+    "smackdrive": {
+      "ast": {
+        "enum_ident": "rs_smackdrive",
+        "loader_fn": "Rulesets_Smackdrive",
+        "source_file": "rulesets.c",
+        "source_line": 542,
+        "maxfps": 77.0,
+        "restrict_triggers": 1,
+        "restrict_packet": 1,
+        "restrict_particles": 1,
+        "restrict_play": 1,
+        "restrict_logging": 1,
+        "restrict_rollangle": 1,
+        "restrict_ipc": 1,
+        "restrict_exec": 1,
+        "restrict_setcalc": 1,
+        "restrict_seteval": 1,
+        "restrict_setex": 1,
+        "locked_cvars": [
+          {
+            "cvar_ident": "allow_scripts",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_hud",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "cl_rollalpha",
+            "value": "20"
+          },
+          {
+            "cvar_ident": "r_shiftbeam",
+            "value": "0"
+          },
+          {
+            "cvar_ident": "scr_allowsnap",
+            "value": "1"
+          }
+        ],
+        "locked_cvar_count": 5
+      }
+    }
+  },
+  "_stats": {
+    "total": 6,
+    "with_locked_cvars": 5
+  }
+}
