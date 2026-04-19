@@ -17,6 +17,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2c-2h: remaining QW knowledge rollout](#phase-2c-2h-remaining-qw-knowledge-rollout) — Phase 2a schema + Phase 2b loader both shipped 2026-04-18; remaining: ezQuake commands/macros/cmdline extractors, FTE/MVDSV/KTX extractors, historical backfill, MCP tool upgrades, automation
 - [qw-oracle loader follow-ups from Phase 2b final review](#qw-oracle-loader-follow-ups-from-phase-2b-final-review) — 4 small items flagged for future phases: string-compare on version strings, git blame memoization, per-project src path prefix map, upstream extractor trailing-whitespace bug
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
+- [Quake-dir browser vision + oracle prerequisite](#quake-dir-browser-vision--oracle-prerequisite) — two specs landed 2026-04-19; slipgate dir-browser blocked on oracle asset-consumption extraction; executable work is the oracle spec first
 
 ---
 
@@ -232,6 +233,35 @@ Same treatment applies to `qw-knowledge` when it's next touched.
 - Doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 - Memory: `project_doc_philosophy.md`
 - Monorepo OVERVIEW.md line 106: lazy-migration note
+
+---
+
+## Quake-dir browser vision + oracle prerequisite
+
+**Added:** 2026-04-19
+**Status:** Both specs drafted and committed. Oracle spec is the actionable item; slipgate spec is blocked on it.
+**Verification first:** `ls docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md` — both should exist.
+
+Brainstorm session 2026-04-19 identified a new MyQuake feature ("Browse the quake dir") whose success depends on oracle extracting ezQuake filesystem-consumption facts that do not yet exist in `knowledge.db`. User chose to pause slipgate work and build the oracle foundation first, rather than hardcode QW lore into slipgate.
+
+Two specs now exist:
+
+1. **Slipgate vision spec** — `apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md`. Holds the product frame (two-layer browse, wiki + filesystem, loaded-vs-available, hybrid taxonomy, v1 = read-only lens, multi-install deferred, subtab rename deferred). Does **not** progress to writing-plans until oracle side lands.
+2. **Oracle extraction spec** — `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md`. Proposes five new tables (asset_categories, asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites), libclang-based extraction, schema v2 -> v3 bump. Provisionally tagged Phase 2c.6; final numbering is user's call.
+
+### Sequencing
+
+Oracle spec progresses to writing-plans next (independent oracle terminal session). Slipgate spec stays dormant until oracle Phase 2c.6 (or whatever number) ships and `knowledge.db` has the new tables populated. Only then does the slipgate implementation-spec brainstorm happen.
+
+### Key references
+
+- Companion spec cross-links are in each spec's "Related docs" block.
+- Schema spec to bump: `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (v2 -> v3).
+- Phase 2c.5 plan (immediate predecessor): `docs/superpowers/plans/2026-04-19-qw-knowledge-phase-2c5.md`.
+
+### Pressure
+
+No deadline. User explicitly stated "not in a hurry" — willing to fully build the oracle foundation before resuming slipgate work.
 
 ---
 
