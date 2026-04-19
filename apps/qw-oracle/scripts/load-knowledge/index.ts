@@ -43,7 +43,8 @@ load-knowledge <subcommand> [...args]
 
 Subcommands:
   load-version  --project <p> --version <v>
-                --type <cvar|command|macro|cmdline_param>
+                --type <cvar|command|macro|cmdline_param|keyname|
+                        hud_element|ruleset|token_primitive>
                 --json <path> --commit <sha> --ordinal <n>
                 [--tag-date <iso8601>] [--extractor-version <s>] [--force]
   diff          --project <p> --from <v1> --to <v2>

@@ -5,7 +5,15 @@
 // (output: packages/qw-config/src/data/ezquake-variables-ast.json).
 
 export type Project = 'ezquake' | 'fte' | 'mvdsv' | 'ktx';
-export type EntityType = 'cvar' | 'command' | 'macro' | 'cmdline_param';
+export type EntityType =
+  | 'cvar'
+  | 'command'
+  | 'macro'
+  | 'cmdline_param'
+  | 'keyname'
+  | 'hud_element'
+  | 'ruleset'
+  | 'token_primitive';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'
@@ -142,6 +150,84 @@ export interface CmdlineParamExtractorOutput {
   _stats?: Record<string, unknown>;
 }
 
+// --- Phase 2c.5 types -------------------------------------------------------
+
+export interface KeynameAstBlock {
+  key_code: number | null;
+  key_code_ident: string | null;
+  source_file: string;
+  source_line: number;
+  source_column: number;
+  build_variant: string;
+}
+
+export interface KeynameEntry {
+  ast: KeynameAstBlock | null;
+}
+
+export interface HudElementAstBlock {
+  alias: string | null;
+  flags_raw: string;
+  min_state_raw: string;
+  draw_order_raw: string;
+  draw_fn: string | null;
+  owned_cvars: string[];
+  source_file: string;
+  source_line: number;
+  source_column: number;
+  enclosing_function: string | null;
+  build_variant: string;
+}
+
+export interface HudElementEntry {
+  ast: HudElementAstBlock | null;
+  desc?: string;
+}
+
+export interface RulesetLockedCvar {
+  cvar_ident: string;
+  value: string;
+}
+
+export interface RulesetAstBlock {
+  enum_ident: string;
+  loader_fn: string;
+  maxfps: number | null;
+  restrict_triggers: number | null;
+  restrict_packet: number | null;
+  restrict_particles: number | null;
+  restrict_play: number | null;
+  restrict_logging: number | null;
+  restrict_rollangle: number | null;
+  restrict_ipc: number | null;
+  restrict_exec: number | null;
+  restrict_setcalc: number | null;
+  restrict_seteval: number | null;
+  restrict_setex: number | null;
+  locked_cvars: RulesetLockedCvar[];
+  locked_cvar_count: number;
+  source_file: string;
+  source_line: number;
+}
+
+export interface RulesetEntry {
+  ast: RulesetAstBlock | null;
+}
+
+export interface TokenPrimitiveAstBlock {
+  suffix_char: string;
+  suffix_literal: string;
+  byte_value: number;
+  category: string;
+  case_style: string;
+  source_file: string;
+  source_line: number;
+}
+
+export interface TokenPrimitiveEntry {
+  ast: TokenPrimitiveAstBlock | null;
+}
+
 export interface EntityRow {
   project: Project;
   type: EntityType;
@@ -197,6 +283,75 @@ export interface CmdlineParamVersionRow {
   source_file: string | null;
   source_line: number | null;
   source_column: number | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface KeynameVersionRow {
+  entity_id: number;
+  version: string;
+  key_code: number | null;
+  key_code_ident: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  source_column: number | null;
+  build_variant: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface HudElementVersionRow {
+  entity_id: number;
+  version: string;
+  help_desc: string | null;
+  hud_alias: string | null;
+  flags_raw: string | null;
+  min_state_raw: string | null;
+  draw_order_raw: string | null;
+  draw_fn: string | null;
+  enclosing_function: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  source_column: number | null;
+  owned_cvars_json: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface RulesetVersionRow {
+  entity_id: number;
+  version: string;
+  enum_ident: string | null;
+  loader_fn: string | null;
+  maxfps: number | null;
+  restrict_triggers: number | null;
+  restrict_packet: number | null;
+  restrict_particles: number | null;
+  restrict_play: number | null;
+  restrict_logging: number | null;
+  restrict_rollangle: number | null;
+  restrict_ipc: number | null;
+  restrict_exec: number | null;
+  restrict_setcalc: number | null;
+  restrict_seteval: number | null;
+  restrict_setex: number | null;
+  locked_cvars_json: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface TokenPrimitiveVersionRow {
+  entity_id: number;
+  version: string;
+  form: string | null;
+  suffix_char: string | null;
+  byte_value: number | null;
+  category: string | null;
+  case_style: string | null;
+  source_file: string | null;
+  source_line: number | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }

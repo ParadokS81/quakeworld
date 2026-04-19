@@ -11,9 +11,13 @@ import type {
   CommandVersionRow,
   CvarVersionRow,
   EntityType,
+  HudElementVersionRow,
+  KeynameVersionRow,
   MacroVersionRow,
   Project,
+  RulesetVersionRow,
   SourceState,
+  TokenPrimitiveVersionRow,
   VersionRow,
 } from './types.js';
 
@@ -63,14 +67,19 @@ export function upsertEntity(
   db: Database.Database,
   input: UpsertEntityInput,
 ): UpsertEntityResult {
-  const lowercaseName = input.name.toLowerCase();
-  const canonical = canonicalIdFor(input.project, input.type, lowercaseName);
+  // Token primitives are case-sensitive ($G green LED vs $g would be distinct
+  // entities if both existed). All other types canonicalise to lowercase so
+  // ezQuake's case-insensitive cvar/command/keyname matching collapses
+  // aliases.
+  const canonicalName =
+    input.type === 'token_primitive' ? input.name : input.name.toLowerCase();
+  const canonical = canonicalIdFor(input.project, input.type, canonicalName);
   const now = new Date().toISOString();
 
   const existing = db
     .prepare(`SELECT id, source_state, first_seen_version, last_seen_version FROM entities
               WHERE project = ? AND type = ? AND name = ?`)
-    .get(input.project, input.type, lowercaseName) as
+    .get(input.project, input.type, canonicalName) as
       | { id: number; source_state: SourceState; first_seen_version: string; last_seen_version: string }
       | undefined;
 
@@ -91,7 +100,7 @@ export function upsertEntity(
   `).get(
     input.project,
     input.type,
-    lowercaseName,
+    canonicalName,
     canonical,
     input.first_seen_version,
     input.last_seen_version,
@@ -181,6 +190,68 @@ export function upsertCmdlineParamVersion(db: Database.Database, row: CmdlinePar
       @entity_id, @version,
       @help_desc, @help_remarks, @arguments, @flags_json, @systems_json,
       @source_file, @source_line, @source_column, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertKeynameVersion(db: Database.Database, row: KeynameVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO keyname_versions (
+      entity_id, version, key_code, key_code_ident,
+      source_file, source_line, source_column, build_variant,
+      raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @key_code, @key_code_ident,
+      @source_file, @source_line, @source_column, @build_variant,
+      @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertHudElementVersion(db: Database.Database, row: HudElementVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO hud_element_versions (
+      entity_id, version, help_desc, hud_alias,
+      flags_raw, min_state_raw, draw_order_raw, draw_fn,
+      enclosing_function, source_file, source_line, source_column,
+      owned_cvars_json, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @help_desc, @hud_alias,
+      @flags_raw, @min_state_raw, @draw_order_raw, @draw_fn,
+      @enclosing_function, @source_file, @source_line, @source_column,
+      @owned_cvars_json, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertRulesetVersion(db: Database.Database, row: RulesetVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO ruleset_versions (
+      entity_id, version, enum_ident, loader_fn, maxfps,
+      restrict_triggers, restrict_packet, restrict_particles, restrict_play,
+      restrict_logging, restrict_rollangle, restrict_ipc, restrict_exec,
+      restrict_setcalc, restrict_seteval, restrict_setex,
+      locked_cvars_json, source_file, source_line, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @enum_ident, @loader_fn, @maxfps,
+      @restrict_triggers, @restrict_packet, @restrict_particles, @restrict_play,
+      @restrict_logging, @restrict_rollangle, @restrict_ipc, @restrict_exec,
+      @restrict_setcalc, @restrict_seteval, @restrict_setex,
+      @locked_cvars_json, @source_file, @source_line, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertTokenPrimitiveVersion(db: Database.Database, row: TokenPrimitiveVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO token_primitive_versions (
+      entity_id, version, form, suffix_char, byte_value,
+      category, case_style, source_file, source_line,
+      raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @form, @suffix_char, @byte_value,
+      @category, @case_style, @source_file, @source_line,
+      @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }

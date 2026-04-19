@@ -39,6 +39,30 @@ import {
   cmdlineIsSourceBacked,
   upsertCmdlineParamRow,
 } from './load-cmdline-params.js';
+import {
+  KEYNAME_PAYLOAD_FIELD,
+  buildKeynameVersionRow,
+  keynameIsSourceBacked,
+  upsertKeynameRow,
+} from './load-keynames.js';
+import {
+  HUD_ELEMENT_PAYLOAD_FIELD,
+  buildHudElementVersionRow,
+  hudElementIsSourceBacked,
+  upsertHudElementRow,
+} from './load-hud-elements.js';
+import {
+  RULESET_PAYLOAD_FIELD,
+  buildRulesetVersionRow,
+  rulesetIsSourceBacked,
+  upsertRulesetRow,
+} from './load-rulesets.js';
+import {
+  TOKEN_PRIMITIVE_PAYLOAD_FIELD,
+  buildTokenPrimitiveVersionRow,
+  tokenPrimitiveIsSourceBacked,
+  upsertTokenPrimitiveRow,
+} from './load-token-primitives.js';
 import type {
   EntityType,
   Project,
@@ -113,6 +137,34 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     buildRow: buildCmdlineParamVersionRow,
     upsertRow: upsertCmdlineParamRow,
   },
+  keyname: {
+    payloadField: KEYNAME_PAYLOAD_FIELD,
+    versionsTable: 'keyname_versions',
+    isSourceBacked: keynameIsSourceBacked,
+    buildRow: buildKeynameVersionRow,
+    upsertRow: upsertKeynameRow,
+  },
+  hud_element: {
+    payloadField: HUD_ELEMENT_PAYLOAD_FIELD,
+    versionsTable: 'hud_element_versions',
+    isSourceBacked: hudElementIsSourceBacked,
+    buildRow: buildHudElementVersionRow,
+    upsertRow: upsertHudElementRow,
+  },
+  ruleset: {
+    payloadField: RULESET_PAYLOAD_FIELD,
+    versionsTable: 'ruleset_versions',
+    isSourceBacked: rulesetIsSourceBacked,
+    buildRow: buildRulesetVersionRow,
+    upsertRow: upsertRulesetRow,
+  },
+  token_primitive: {
+    payloadField: TOKEN_PRIMITIVE_PAYLOAD_FIELD,
+    versionsTable: 'token_primitive_versions',
+    isSourceBacked: tokenPrimitiveIsSourceBacked,
+    buildRow: buildTokenPrimitiveVersionRow,
+    upsertRow: upsertTokenPrimitiveRow,
+  },
 };
 
 export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
@@ -182,12 +234,17 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     let transitions = 0;
 
     for (const [nameRaw, entry] of Object.entries(entries)) {
-      const name = nameRaw.toLowerCase();
-      // Widened vs cvar-only regex so commands (+attack, -attack) and cmdline
-      // params (-basedir) pass. '?'-prefixed entries are diagnostic display
-      // names from the cmdline extractor for undeclared enum constants --
-      // skip them explicitly rather than pollute the DB.
-      if (!/^[a-z0-9_.+\-]+$/.test(name)) {
+      // Token primitive names ($G vs $g mean different byte values) must
+      // preserve case. All other types use case-insensitive canonical keys.
+      const name = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
+      // Widened regex: commands/cmdline params can start with +, -; token
+      // primitive names start with $ and carry a single suffix char (which
+      // may be any printable glyph including punctuation -- '\', '(', etc.).
+      // For non-token-primitive types we still require the stricter identifier
+      // charset.
+      const validTokenPrimitive = options.type === 'token_primitive' && /^\$.+$/.test(nameRaw);
+      const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
+      if (!validTokenPrimitive && !validIdentifier) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }
