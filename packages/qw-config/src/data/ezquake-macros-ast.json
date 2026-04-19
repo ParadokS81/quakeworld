@@ -1,0 +1,960 @@
+{
+  "macros": {
+    "ammo": {
+      "ast": {
+        "handler_fn": "Macro_Ammo",
+        "source_file": "teamplay.c",
+        "source_line": 1222,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns amount of ammo held for currently selected weapon",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "armor": {
+      "ast": {
+        "handler_fn": "Macro_Armor",
+        "source_file": "teamplay.c",
+        "source_line": 1207,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns current armor value",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "armortype": {
+      "ast": {
+        "handler_fn": "Macro_ArmorType",
+        "source_file": "teamplay.c",
+        "source_line": 1206,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns current armor type",
+      "type": "string",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_name_armortype_ga",
+        "tp_name_armortype_ya",
+        "tp_name_armortype_ra",
+        "tp_name_armortype_none"
+      ]
+    },
+    "bestammo": {
+      "ast": {
+        "handler_fn": "Macro_BestAmmo",
+        "source_file": "teamplay.c",
+        "source_line": 1225,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns ammo held for the 'best' weapon",
+      "type": "integer",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_weapon_order"
+      ]
+    },
+    "bestweapon": {
+      "ast": {
+        "handler_fn": "Macro_BestWeapon",
+        "source_file": "teamplay.c",
+        "source_line": 1224,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns name of best weapon in inventory",
+      "type": "string",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_weapon_order",
+        "tp_name_sg",
+        "tp_name_ssg",
+        "tp_name_ng",
+        "tp_name_sng",
+        "tp_name_gl",
+        "tp_name_rl",
+        "tp_name_lg"
+      ]
+    },
+    "cam_angles": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Angles",
+        "source_file": "cl_cam.c",
+        "source_line": 822,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns current camera angles, in format that can be passed to /cam_angles command.",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "cam_angles_pitch": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Angles_Pitch",
+        "source_file": "cl_cam.c",
+        "source_line": 819,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns current camera pitch (vertical angle).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_angles_roll": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Angles_Roll",
+        "source_file": "cl_cam.c",
+        "source_line": 821,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns current camera roll (not used).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_angles_yaw": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Angles_Yaw",
+        "source_file": "cl_cam.c",
+        "source_line": 820,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns current camera yaw (horizontal angle).",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Pos",
+        "source_file": "cl_cam.c",
+        "source_line": 818,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns current camera position, in format that can be passed to /cam_pos command.",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "cam_pos_x": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Pos_X",
+        "source_file": "cl_cam.c",
+        "source_line": 815,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos_y": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Pos_Y",
+        "source_file": "cl_cam.c",
+        "source_line": 816,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cam_pos_z": {
+      "ast": {
+        "handler_fn": "Macro_Cam_Pos_Z",
+        "source_file": "cl_cam.c",
+        "source_line": 817,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns one component of current camera position.",
+      "type": "float",
+      "teamplay-restricted": true
+    },
+    "cells": {
+      "ast": {
+        "handler_fn": "Macro_Cells",
+        "source_file": "teamplay.c",
+        "source_line": 1216,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns number of cells held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "colored_armor": {
+      "ast": {
+        "handler_fn": "Macro_Colored_Armor_f",
+        "source_file": "teamplay.c",
+        "source_line": 1208,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns $armor, surrounded by color codes so it is displayed in &c0b0red&r, &cff0yellow&r, &e00green&r or &cfffwhite&r",
+      "type": "string",
+      "teamplay-restricted": false
+    },
+    "colored_powerups": {
+      "ast": {
+        "handler_fn": "Macro_Colored_Powerups_f",
+        "source_file": "teamplay.c",
+        "source_line": 1209,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "colored_short_powerups": {
+      "ast": {
+        "handler_fn": "Macro_Colored_Short_Powerups_f",
+        "source_file": "teamplay.c",
+        "source_line": 1210,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "conheight": {
+      "ast": {
+        "handler_fn": "CL_Macro_Conheight",
+        "source_file": "cl_main.c",
+        "source_line": 2028,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "connectiontype": {
+      "ast": {
+        "handler_fn": "CL_Macro_ConnectionType",
+        "source_file": "cl_main.c",
+        "source_line": 2021,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the current type of the connection",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "conwidth": {
+      "ast": {
+        "handler_fn": "CL_Macro_Conwidth",
+        "source_file": "cl_main.c",
+        "source_line": 2027,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "date": {
+      "ast": {
+        "handler_fn": "Macro_Date",
+        "source_file": "teamplay.c",
+        "source_line": 1202,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the current date in the format <day>.<month>.<year>",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "dateiso": {
+      "ast": {
+        "handler_fn": "Macro_DateIso",
+        "source_file": "teamplay.c",
+        "source_line": 1203,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "deathloc": {
+      "ast": {
+        "handler_fn": "Macro_LastDeath",
+        "source_file": "teamplay.c",
+        "source_line": 1230,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "demolength": {
+      "ast": {
+        "handler_fn": "CL_Macro_DemoLength_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5490,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the expected length of the current demo, in seconds",
+      "type": "integer",
+      "teamplay-restricted": true
+    },
+    "demoname": {
+      "ast": {
+        "handler_fn": "CL_Macro_DemoName_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5489,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the name of the current demo, minus extension",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "demoplayback": {
+      "ast": {
+        "handler_fn": "CL_Macro_Demoplayback",
+        "source_file": "cl_main.c",
+        "source_line": 2022,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns whether or not the client is current watching a demo",
+      "type": "boolean",
+      "teamplay-restricted": true
+    },
+    "demotime": {
+      "ast": {
+        "handler_fn": "CL_Macro_Demotime",
+        "source_file": "cl_main.c",
+        "source_line": 2023,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "droploc": {
+      "ast": {
+        "handler_fn": "Macro_LastDrop",
+        "source_file": "teamplay.c",
+        "source_line": 1242,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns the name of the location where the last backpack was dropped by the current player.",
+      "type": "string",
+      "teamplay-restricted": false
+    },
+    "droptime": {
+      "ast": {
+        "handler_fn": "Macro_LastDropTime",
+        "source_file": "teamplay.c",
+        "source_line": 1243,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns the number of seconds since the last backpack was dropped by the current player.",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "gamedir": {
+      "ast": {
+        "handler_fn": "Macro_GameDir",
+        "source_file": "teamplay.c",
+        "source_line": 1246,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the current gamedir, which is often set when a server is running a mod.\ne.g: 'fortress' for Team Fortress mods",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "health": {
+      "ast": {
+        "handler_fn": "Macro_Health",
+        "source_file": "teamplay.c",
+        "source_line": 1205,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "the current player's health (0 - 250)",
+      "teamplay-restricted": false
+    },
+    "lastip": {
+      "ast": {
+        "handler_fn": "Macro_Lastip_f",
+        "source_file": "teamplay.c",
+        "source_line": 1196,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "lastloc": {
+      "ast": {
+        "handler_fn": "Macro_Last_Location",
+        "source_file": "teamplay.c",
+        "source_line": 1252,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "lastpowerup": {
+      "ast": {
+        "handler_fn": "Macro_LastSeenPowerup",
+        "source_file": "teamplay.c",
+        "source_line": 1253,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "latency": {
+      "ast": {
+        "handler_fn": "Macro_Latency",
+        "source_file": "teamplay.c",
+        "source_line": 1198,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "ledpoint": {
+      "ast": {
+        "handler_fn": "Macro_Point_LED",
+        "source_file": "teamplay.c",
+        "source_line": 1249,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "ledstatus": {
+      "ast": {
+        "handler_fn": "Macro_MyStatus_LED",
+        "source_file": "teamplay.c",
+        "source_line": 1250,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "location": {
+      "ast": {
+        "handler_fn": "Macro_Location",
+        "source_file": "teamplay.c",
+        "source_line": 1229,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "matchname": {
+      "ast": {
+        "handler_fn": "Macro_MatchName",
+        "source_file": "match_tools.c",
+        "source_line": 1149,
+        "source_column": 2,
+        "enclosing_function": "MT_Init",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "matchstatus": {
+      "ast": {
+        "handler_fn": "CL_Macro_Serverstatus",
+        "source_file": "cl_main.c",
+        "source_line": 2025,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "matchtype": {
+      "ast": {
+        "handler_fn": "Macro_MatchType",
+        "source_file": "match_tools.c",
+        "source_line": 1150,
+        "source_column": 2,
+        "enclosing_function": "MT_Init",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "mp3_volume": {
+      "ast": null,
+      "teamplay-restricted": false
+    },
+    "mp3info": {
+      "ast": null,
+      "teamplay-restricted": false
+    },
+    "nails": {
+      "ast": {
+        "handler_fn": "Macro_Nails",
+        "source_file": "teamplay.c",
+        "source_line": 1214,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns number of nails held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "need": {
+      "ast": {
+        "handler_fn": "Macro_Need",
+        "source_file": "teamplay.c",
+        "source_line": 1240,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "ping": {
+      "ast": {
+        "handler_fn": "Macro_Latency",
+        "source_file": "teamplay.c",
+        "source_line": 1199,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "point": {
+      "ast": {
+        "handler_fn": "Macro_PointName",
+        "source_file": "teamplay.c",
+        "source_line": 1238,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "pointatloc": {
+      "ast": {
+        "handler_fn": "Macro_PointNameAtLocation",
+        "source_file": "teamplay.c",
+        "source_line": 1236,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "pointloc": {
+      "ast": {
+        "handler_fn": "Macro_PointLocation",
+        "source_file": "teamplay.c",
+        "source_line": 1237,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "powerups": {
+      "ast": {
+        "handler_fn": "Macro_Powerups",
+        "source_file": "teamplay.c",
+        "source_line": 1227,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "qt": {
+      "ast": {
+        "handler_fn": "Macro_Quote_f",
+        "source_file": "teamplay.c",
+        "source_line": 1197,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns \" - useful to clear cvars in scripts",
+      "teamplay-restricted": true
+    },
+    "rand": {
+      "ast": {
+        "handler_fn": "CL_Macro_Rand",
+        "source_file": "cl_main.c",
+        "source_line": 2024,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "rockets": {
+      "ast": {
+        "handler_fn": "Macro_Rockets",
+        "source_file": "teamplay.c",
+        "source_line": 1215,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns number of rockets held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "serverip": {
+      "ast": {
+        "handler_fn": "CL_Macro_ServerIp",
+        "source_file": "cl_main.c",
+        "source_line": 2026,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "shells": {
+      "ast": {
+        "handler_fn": "Macro_Shells",
+        "source_file": "teamplay.c",
+        "source_line": 1213,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "returns number of shells held, regardless of weapon selected",
+      "type": "integer",
+      "teamplay-restricted": false
+    },
+    "team1": {
+      "ast": {
+        "handler_fn": "Macro_Team1",
+        "source_file": "teamplay.c",
+        "source_line": 1255,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "team2": {
+      "ast": {
+        "handler_fn": "Macro_Team2",
+        "source_file": "teamplay.c",
+        "source_line": 1256,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "tf_skin": {
+      "ast": {
+        "handler_fn": "Macro_TF_Skin",
+        "source_file": "teamplay.c",
+        "source_line": 1245,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "time": {
+      "ast": {
+        "handler_fn": "Macro_Time",
+        "source_file": "teamplay.c",
+        "source_line": 1201,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "desc": "returns the local time in the format <hours>:<minutes>",
+      "type": "string",
+      "teamplay-restricted": true
+    },
+    "timestamp": {
+      "ast": {
+        "handler_fn": "Macro_TimeStamp",
+        "source_file": "teamplay.c",
+        "source_line": 1200,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "took": {
+      "ast": {
+        "handler_fn": "Macro_Took",
+        "source_file": "teamplay.c",
+        "source_line": 1234,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "tookatloc": {
+      "ast": {
+        "handler_fn": "Macro_TookAtLoc",
+        "source_file": "teamplay.c",
+        "source_line": 1232,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "tookloc": {
+      "ast": {
+        "handler_fn": "Macro_TookLoc",
+        "source_file": "teamplay.c",
+        "source_line": 1233,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    },
+    "tp_powerups": {
+      "ast": {
+        "handler_fn": "Macro_Teamplay_Powerups_f",
+        "source_file": "teamplay.c",
+        "source_line": 1211,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "desc": "$colored_powerups or $colored_short_powerups, depending on value of tp_poweruptextstyle",
+      "type": "boolean",
+      "teamplay-restricted": false,
+      "related-cvars": [
+        "tp_poweruptextstyle"
+      ]
+    },
+    "triggermatch": {
+      "ast": {
+        "handler_fn": "Macro_LastTrigger_Match",
+        "source_file": "teamplay.c",
+        "source_line": 1248,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "weapon": {
+      "ast": {
+        "handler_fn": "Macro_Weapon",
+        "source_file": "teamplay.c",
+        "source_line": 1220,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "weaponnum": {
+      "ast": {
+        "handler_fn": "Macro_WeaponNum",
+        "source_file": "teamplay.c",
+        "source_line": 1218,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      },
+      "teamplay-restricted": true
+    },
+    "weapons": {
+      "ast": {
+        "handler_fn": "Macro_Weapons",
+        "source_file": "teamplay.c",
+        "source_line": 1219,
+        "source_column": 2,
+        "enclosing_function": "TP_AddMacros",
+        "call_form": "Cmd_AddMacroEx",
+        "teamplay_arg_raw": "teamplay",
+        "build_variant": "client"
+      },
+      "teamplay-restricted": false
+    }
+  },
+  "_stats": {
+    "declared_in_ids_h": 68,
+    "with_registration": 66,
+    "with_handler": 66,
+    "with_teamplay_arg": 31,
+    "declared_not_implemented": 2,
+    "registered_not_declared": 0,
+    "with_help_desc": 30,
+    "help_only": 0
+  }
+}
