@@ -42,6 +42,7 @@ export interface SessionMessage {
   author: string;
   at: string;   // ISO 8601 timestamp
   text: string;
+  discord_url?: string;  // present for platform='discord' messages whose channel is in discord_channels
 }
 
 // A session hit from search_solved_issues. Mirrors the shape of

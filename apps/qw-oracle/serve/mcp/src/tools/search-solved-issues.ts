@@ -34,9 +34,13 @@ interface SessionMetaRow {
 }
 
 interface ChatRow {
+  message_id: string;
   author_name: string;
   created_at: string;
   content: string;
+  platform: string;
+  channel_id: string | null;
+  guild_id: string | null;
 }
 
 // FTS5 bm25 rank is negative (lower = more relevant). We sort ascending.
@@ -60,9 +64,11 @@ const getMeta = db.prepare(`
 `);
 
 const getChatMessages = db.prepare(`
-  SELECT m.author_name, m.created_at, m.content
+  SELECT m.id AS message_id, m.author_name, m.created_at, m.content,
+         m.platform, dc.channel_id, dc.guild_id
   FROM messages m
   JOIN message_labels l ON l.message_id = m.id
+  LEFT JOIN discord_channels dc ON dc.channel_name = m.channel_name
   WHERE l.session_id = ?
     AND l.category = 'chat'
   ORDER BY m.created_at
@@ -77,11 +83,17 @@ function hydrateSession(sessionId: number, maxMessages: number, rank: number): S
   const meta = getMeta.get(sessionId) as SessionMetaRow | undefined;
   if (!meta) return null;
   const rows = getChatMessages.all(sessionId, maxMessages) as unknown as ChatRow[];
-  const messages: SessionMessage[] = rows.map((r) => ({
-    author: r.author_name,
-    at: r.created_at,
-    text: r.content ?? '',
-  }));
+  const messages: SessionMessage[] = rows.map((r) => {
+    const m: SessionMessage = {
+      author: r.author_name,
+      at: r.created_at,
+      text: r.content ?? '',
+    };
+    if (r.platform === 'discord' && r.guild_id && r.channel_id) {
+      m.discord_url = `https://discord.com/channels/${r.guild_id}/${r.channel_id}/${r.message_id}`;
+    }
+    return m;
+  });
   return {
     session_id: canonicalSessionId(meta),
     numeric_id: meta.id,
