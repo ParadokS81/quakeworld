@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -165,7 +165,140 @@ CREATE INDEX IF NOT EXISTS idx_sst_entity ON source_state_transitions(entity_id)
 CREATE INDEX IF NOT EXISTS idx_sst_run    ON source_state_transitions(extractor_run_id);
 `;
 
+// v2 adds four new entity types and their per-type version tables:
+//   keyname, hud_element, ruleset, token_primitive
+// The only structural change on existing tables is widening the
+// entities.type CHECK constraint. SQLite can't ALTER a CHECK in place, so the
+// v1 -> v2 migration rebuilds the entities table with the new constraint.
+
+const SCHEMA_V2_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS keyname_versions (
+  entity_id         INTEGER NOT NULL REFERENCES entities(id),
+  version           TEXT NOT NULL,
+  key_code          INTEGER,
+  key_code_ident    TEXT,
+  source_file       TEXT,
+  source_line       INTEGER,
+  source_column     INTEGER,
+  build_variant     TEXT,
+  raw_ast_hash      TEXT,
+  extracted_at      TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+
+CREATE TABLE IF NOT EXISTS hud_element_versions (
+  entity_id           INTEGER NOT NULL REFERENCES entities(id),
+  version             TEXT NOT NULL,
+  help_desc           TEXT,
+  hud_alias           TEXT,
+  flags_raw           TEXT,
+  min_state_raw       TEXT,
+  draw_order_raw      TEXT,
+  draw_fn             TEXT,
+  enclosing_function  TEXT,
+  source_file         TEXT,
+  source_line         INTEGER,
+  source_column       INTEGER,
+  owned_cvars_json    TEXT,
+  raw_ast_hash        TEXT,
+  extracted_at        TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+
+CREATE TABLE IF NOT EXISTS ruleset_versions (
+  entity_id            INTEGER NOT NULL REFERENCES entities(id),
+  version              TEXT NOT NULL,
+  enum_ident           TEXT,
+  loader_fn            TEXT,
+  maxfps               REAL,
+  restrict_triggers    INTEGER,
+  restrict_packet      INTEGER,
+  restrict_particles   INTEGER,
+  restrict_play        INTEGER,
+  restrict_logging     INTEGER,
+  restrict_rollangle   INTEGER,
+  restrict_ipc         INTEGER,
+  restrict_exec        INTEGER,
+  restrict_setcalc     INTEGER,
+  restrict_seteval     INTEGER,
+  restrict_setex       INTEGER,
+  locked_cvars_json    TEXT,
+  source_file          TEXT,
+  source_line          INTEGER,
+  raw_ast_hash         TEXT,
+  extracted_at         TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+
+CREATE TABLE IF NOT EXISTS token_primitive_versions (
+  entity_id      INTEGER NOT NULL REFERENCES entities(id),
+  version        TEXT NOT NULL,
+  form           TEXT,
+  suffix_char    TEXT,
+  byte_value     INTEGER,
+  category       TEXT,
+  case_style     TEXT,
+  source_file    TEXT,
+  source_line    INTEGER,
+  raw_ast_hash   TEXT,
+  extracted_at   TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+`;
+
+// Entities table rebuild with the widened type CHECK. Preserves all rows,
+// PK ids, and indexes. Wrapped in a transaction by the caller.
+const ENTITIES_V2_MIGRATION_SQL = `
+CREATE TABLE entities_v2 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v2(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v2 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v2 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+`;
+
+function migrateV1ToV2(db: Database.Database): void {
+  // PRAGMA foreign_keys = OFF must be toggled OUTSIDE a transaction --
+  // SQLite silently ignores it mid-transaction. Disable before and restore
+  // after so the rebuild can drop `entities` while other tables FK-reference
+  // it.
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+      `);
+      db.exec(ENTITIES_V2_MIGRATION_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('2');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
+  // Always (idempotently) ensure v1 tables exist; they don't change between
+  // v1 and v2 except for the entities CHECK constraint.
   db.exec(SCHEMA_V1_SQL);
 
   const existing = db
@@ -173,12 +306,22 @@ export function applySchema(db: Database.Database): void {
     .get() as { value: string } | undefined;
 
   if (!existing) {
+    // Fresh DB: stamp the current version.
     db.prepare(
       `INSERT INTO schema_meta (key, value) VALUES ('schema_version', ?)`
     ).run(String(SCHEMA_VERSION));
-  } else if (Number(existing.value) !== SCHEMA_VERSION) {
-    throw new Error(
-      `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
-    );
+  } else {
+    const existingVersion = Number(existing.value);
+    if (existingVersion === 1 && SCHEMA_VERSION === 2) {
+      migrateV1ToV2(db);
+    } else if (existingVersion !== SCHEMA_VERSION) {
+      throw new Error(
+        `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
+      );
+    }
   }
+
+  // v2 additions are idempotent CREATE IF NOT EXISTS -- safe to run on fresh
+  // DBs (where v1 SQL didn't have them) and on migrated DBs.
+  db.exec(SCHEMA_V2_ADDITIONS_SQL);
 }
