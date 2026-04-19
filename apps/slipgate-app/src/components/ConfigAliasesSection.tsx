@@ -31,7 +31,7 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
     <div>
       <div class="sg-category-group-header">Aliases</div>
 
-      <div class="sg-alias-row text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+      <div class="sg-alias-row text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
         <span>Name</span>
         <span>Command</span>
         <span>Source</span>
@@ -59,16 +59,16 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                   classList={{ "cursor-pointer": isExpandable() }}
                   onClick={() => isExpandable() && toggleExpand(alias.name)}
                 >
-                  <span class="text-[13px] flex items-center gap-1" style={{ color: "oklch(0.65 0.15 180)" }}>
-                    <span class="text-[11px] text-[var(--sg-section-label)] w-3">
+                  <span class="text-[0.8125rem] flex items-center gap-1" style={{ color: "oklch(0.65 0.15 180)" }}>
+                    <span class="text-[0.6875rem] text-[var(--sg-section-label)] w-3">
                       {isExpandable() ? (isExpanded() ? "▾" : "▸") : ""}
                     </span>
                     {alias.name}
                   </span>
-                  <span class="text-[13px] text-[var(--sg-text-dim)] truncate" title={alias.command}>
+                  <span class="text-[0.8125rem] text-[var(--sg-text-dim)] truncate" title={alias.command}>
                     {alias.command}
                   </span>
-                  <span class="text-[11px] text-[var(--sg-section-label)] truncate">
+                  <span class="text-[0.6875rem] text-[var(--sg-section-label)] truncate">
                     {alias.sourceFile}
                   </span>
                 </div>

@@ -146,6 +146,8 @@ export interface TeamsayBind {
   category: string;      // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
   label: string;         // short label (e.g. "report", "lost", "safe")
   description: string;   // longer description
+  /** First resolved say_team body — raw text, color codes + macros intact. Empty when bind is tp_msg* with no say_team terminal. */
+  body?: string;
   /** Set for synthesized modifier-combo entries — the `+alias` name driving the combo. */
   modifier_alias?: string;
 }

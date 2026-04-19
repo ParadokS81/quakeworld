@@ -50,6 +50,14 @@ interface ConfigKeyboardPanelProps {
   mode: "keyboard" | "state";
   onModeChange: (m: "keyboard" | "state") => void;
   statePanel?: JSX.Element;
+  /**
+   * Persistent report banner slot — rendered at the very top of the right
+   * panel, above both keyboard and state views, so the player's current
+   * report output is always visible regardless of mode. Function form so
+   * the banner can be mounted in two different stacks (state vs keyboard)
+   * without Solid DOM-reuse conflicts.
+   */
+  reportBanner?: () => JSX.Element;
 }
 
 export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
@@ -217,20 +225,29 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
 
   return (
     <div class="sg-config-kb-panel" classList={{ "sg-config-kb-panel-collapsed": !props.visible }}>
-      <div class="sg-config-kb-toolbar">
-        <div class="sg-config-kb-mode-toggle">
-          <button
-            class="sg-config-kb-module-btn"
-            classList={{ "sg-config-kb-module-btn-active": props.visible && props.mode === "keyboard" }}
-            onClick={() => props.onModeToggle("keyboard")}
-          >Keyboard</button>
-          <button
-            class="sg-config-kb-module-btn"
-            classList={{ "sg-config-kb-module-btn-active": props.visible && props.mode === "state" }}
-            onClick={() => props.onModeToggle("state")}
-          >State</button>
+      {/* State mode: banner + StatePanel live in a shared content-width
+          stack so the banner width locks to the StatePanel's intrinsic width.
+          Without this wrapper the banner would stretch to the full kb-panel
+          cross axis (flex: 1 fills the viewport) and overflow past the
+          Location column on wider monitors. */}
+      <Show when={props.visible && props.mode === "state"}>
+        <div class="sg-config-kb-side-stack">
+          <Show when={props.reportBanner}>{props.reportBanner!()}</Show>
+          {props.statePanel}
         </div>
-        <Show when={props.visible && props.mode === "keyboard"}>
+      </Show>
+      {/* Keyboard/State mode toggle now lives in ConfigViewer's top bar
+          so it holds a single stable position. This panel only renders
+          the mode-specific content below. */}
+      <Show when={props.visible && props.mode === "keyboard"}>
+        {/* Banner in keyboard mode is capped to the same max-width rhythm
+            as the keyboard wrap so it doesn't overflow on wide monitors. */}
+        <Show when={props.reportBanner}>
+          <div class="sg-config-kb-side-stack sg-config-kb-side-stack-kb">
+            {props.reportBanner!()}
+          </div>
+        </Show>
+        <div class="sg-config-kb-toolbar">
           <div class="sg-config-kb-toolbar-main">
             <div class="sg-config-kb-toggle-bar">
               <button
@@ -277,8 +294,8 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
               );
             })}
           </div>
-        </Show>
-      </div>
+        </div>
+      </Show>
       <Show when={props.visible && props.mode === "keyboard"}>
         <Show when={props.primary}>
           <div class="sg-config-kb-wrap" classList={{ "sg-config-kb-frame-you": isCompare() }}>
@@ -312,9 +329,6 @@ export default function ConfigKeyboardPanel(props: ConfigKeyboardPanelProps) {
             />
           </div>
         </Show>
-      </Show>
-      <Show when={props.visible && props.mode === "state"}>
-        {props.statePanel}
       </Show>
     </div>
   );

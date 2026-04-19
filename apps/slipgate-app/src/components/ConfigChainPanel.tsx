@@ -33,7 +33,7 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
 
   return (
     <div class="px-4 py-2 bg-[var(--sg-stat-bg)] border-b border-[var(--sg-stat-border)] text-xs text-[var(--sg-text-dim)] flex-shrink-0">
-      <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+      <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
         Config chain ({props.configChain.files.length} files)
       </span>
       <div class="mt-1 font-mono">
@@ -57,7 +57,7 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
                 >
                   {file.relative_path}
                 </span>
-                <span class={`text-[10px] ${sourceColor(file.source)}`}>{sourceLabel(file.source)}</span>
+                <span class={`text-[0.625rem] ${sourceColor(file.source)}`}>{sourceLabel(file.source)}</span>
                 <span class="text-[var(--sg-section-label)]">{file.line_count} lines</span>
                 <Show when={file.referenced_by && file.source !== "cl_onload" && file.source !== "auto_exec"}>
                   <span class="text-[var(--sg-section-label)]">
@@ -95,7 +95,7 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
 
           return (
             <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
-              <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+              <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
                 Other configs ({configs().length})
               </span>
               <div class="mt-1 font-mono">
@@ -104,20 +104,20 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
                     <div class="flex items-center py-0.5">
                       <span class="text-[var(--sg-text-dim)] min-w-[200px]">{entry.filename}
                         <Show when={entry.location.type === "inside_pak"}>
-                          <span class="text-[10px] text-[var(--sg-section-label)] ml-1">
+                          <span class="text-[0.625rem] text-[var(--sg-section-label)] ml-1">
                             ({(entry.location as { type: "inside_pak"; pak_name: string }).pak_name})
                           </span>
                         </Show>
                       </span>
                       <button
-                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer mr-2"
+                        class="text-[0.625rem] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer mr-2"
                         onClick={() => props.onViewConfig?.(entry)}
                         title="View as primary"
                       >
                         ← primary
                       </button>
                       <button
-                        class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer"
+                        class="text-[0.625rem] text-[var(--sg-section-label)] hover:text-[var(--color-primary)] cursor-pointer"
                         onClick={() => props.onCompareConfig?.(entry)}
                         title="Compare against current"
                       >
@@ -128,7 +128,7 @@ export default function ConfigChainPanel(props: ConfigChainPanelProps) {
                 </For>
                 <Show when={hasMore()}>
                   <button
-                    class="text-[10px] text-[var(--sg-section-label)] hover:text-[var(--sg-text-dim)] cursor-pointer mt-1"
+                    class="text-[0.625rem] text-[var(--sg-section-label)] hover:text-[var(--sg-text-dim)] cursor-pointer mt-1"
                     onClick={() => setExpanded((v) => !v)}
                   >
                     {expanded() ? "Show less" : `▸ ${configs().length - 3} more...`}

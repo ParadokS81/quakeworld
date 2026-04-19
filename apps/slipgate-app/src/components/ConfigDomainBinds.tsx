@@ -66,7 +66,7 @@ function formatFiringSentence(p: FiringPath, color: string): JSX.Element {
     </span>
   );
   const word = (text: string) => (
-    <span class="text-[11px] text-[var(--sg-text-dim)]">{text}</span>
+    <span class="text-[0.6875rem] text-[var(--sg-text-dim)]">{text}</span>
   );
 
   if (p.method === "quickfire") {
@@ -487,12 +487,12 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Weapon</span>
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Weapon</span>
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Bind" : "Key"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -534,13 +534,13 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
               >
                 {/* Weapon identity: color badge + short name + full name */}
                 <div class="flex items-center gap-2">
-                  <span class="text-[11px] text-[var(--sg-section-label)] w-3">
+                  <span class="text-[0.6875rem] text-[var(--sg-section-label)] w-3">
                     {hasContent ? (isExpanded() ? "▾" : "▸") : ""}
                   </span>
-                  <span class="text-[13px] font-bold uppercase" style={{ color, opacity: isPlaceholder ? 0.4 : 1 }}>
+                  <span class="text-[0.8125rem] font-bold uppercase" style={{ color, opacity: isPlaceholder ? 0.4 : 1 }}>
                     {row.weapon.toUpperCase()}
                   </span>
-                  <span class="text-[11px] text-[var(--sg-section-label)]" style={{ opacity: isPlaceholder ? 0.4 : 1 }}>
+                  <span class="text-[0.6875rem] text-[var(--sg-section-label)]" style={{ opacity: isPlaceholder ? 0.4 : 1 }}>
                     {WEAPON_LABELS[row.weapon]}
                   </span>
                 </div>
@@ -548,13 +548,13 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 {/* Primary path cell */}
                 <div class="flex items-center gap-1">
                   <Show when={row.primary} fallback={
-                    <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                    <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">--</span>
                   }>
                     {(p) => (
                       <>
                         {formatFiringSentence(p(), color)}
                         <Show when={p().source === "engine_default"}>
-                          <span class="text-[10px] text-[var(--sg-section-label)] italic">(default)</span>
+                          <span class="text-[0.625rem] text-[var(--sg-section-label)] italic">(default)</span>
                         </Show>
                       </>
                     )}
@@ -565,13 +565,13 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 <Show when={isCompare()}>
                   <div class="flex items-center gap-1">
                     <Show when={row.compare} fallback={
-                      <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                      <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">--</span>
                     }>
                       {(p) => (
                         <>
                           {formatFiringSentence(p(), color)}
                           <Show when={p().source === "engine_default"}>
-                            <span class="text-[10px] text-[var(--sg-section-label)] italic">(default)</span>
+                            <span class="text-[0.625rem] text-[var(--sg-section-label)] italic">(default)</span>
                           </Show>
                         </>
                       )}
@@ -637,8 +637,10 @@ interface TeamsayAction {
   label: string;
   category: string;
   description: string;
-  primaryKey?: string;
-  compareKey?: string;
+  /** All keys in the primary config bound to this label. Some players bind
+      the same teamsay (report, lost) to multiple keys (e.g. `1` + `MwheelUp`). */
+  primaryKeys: string[];
+  compareKeys: string[];
 }
 
 interface TeamsayBindsProps {
@@ -666,25 +668,32 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
 
     for (const tb of props.primaryBinds) {
       const key = `${tb.category}:${tb.label}`;
-      map.set(key, {
-        label: tb.label,
-        category: tb.category,
-        description: tb.description,
-        primaryKey: tb.key,
-      });
+      const existing = map.get(key);
+      if (existing) {
+        if (!existing.primaryKeys.includes(tb.key)) existing.primaryKeys.push(tb.key);
+      } else {
+        map.set(key, {
+          label: tb.label,
+          category: tb.category,
+          description: tb.description,
+          primaryKeys: [tb.key],
+          compareKeys: [],
+        });
+      }
     }
 
     for (const tb of props.compareBinds ?? []) {
       const key = `${tb.category}:${tb.label}`;
       const existing = map.get(key);
       if (existing) {
-        existing.compareKey = tb.key;
+        if (!existing.compareKeys.includes(tb.key)) existing.compareKeys.push(tb.key);
       } else {
         map.set(key, {
           label: tb.label,
           category: tb.category,
           description: tb.description,
-          compareKey: tb.key,
+          primaryKeys: [],
+          compareKeys: [tb.key],
         });
       }
     }
@@ -733,12 +742,12 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Bind" : "Key"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -753,7 +762,9 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
 
               <For each={group.actions}>
                 {(action) => {
-                  const hasAnyKey = () => !!action.primaryKey || !!action.compareKey;
+                  const hasAnyKey = () => action.primaryKeys.length > 0 || action.compareKeys.length > 0;
+                  const primaryKey = () => action.primaryKeys[0];
+                  const compareKey = () => action.compareKeys[0];
 
                   // Expansion + pin share a single source of truth: the
                   // lifted selection. Keyboard clicks that update the
@@ -774,8 +785,8 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         ref={rowEl}
                         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
                         classList={{
-                          "sg-cv-bind-only-left": isCompare() && !!action.primaryKey && !action.compareKey,
-                          "sg-cv-bind-only-right": isCompare() && !action.primaryKey && !!action.compareKey,
+                          "sg-cv-bind-only-left": isCompare() && action.primaryKeys.length > 0 && action.compareKeys.length === 0,
+                          "sg-cv-bind-only-right": isCompare() && action.primaryKeys.length === 0 && action.compareKeys.length > 0,
                           "cursor-pointer": hasAnyKey(),
                           "sg-domain-bind-row-selected": isSelected(),
                         }}
@@ -786,32 +797,40 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                         }}
                       >
                         <div class="flex items-center gap-1">
-                          <span class="text-[11px] text-[var(--sg-section-label)] w-3">
+                          <span class="text-[0.6875rem] text-[var(--sg-section-label)] w-3">
                             {hasAnyKey() ? (isExpanded() ? "▾" : "▸") : ""}
                           </span>
-                          <span class="text-[13px] font-semibold capitalize" style={{ color }}>
+                          <span class="text-[0.8125rem] font-semibold capitalize" style={{ color }}>
                             {action.label}
                           </span>
                         </div>
 
-                        <div>
-                          <Show when={action.primaryKey} fallback={
-                            <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+                        <div class="flex flex-wrap items-center gap-1">
+                          <Show when={action.primaryKeys.length > 0} fallback={
+                            <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">—</span>
                           }>
-                            <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                              {action.primaryKey}
-                            </span>
+                            <For each={action.primaryKeys}>
+                              {(k) => (
+                                <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
+                                  {k}
+                                </span>
+                              )}
+                            </For>
                           </Show>
                         </div>
 
                         <Show when={isCompare()}>
-                          <div>
-                            <Show when={action.compareKey} fallback={
-                              <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+                          <div class="flex flex-wrap items-center gap-1">
+                            <Show when={action.compareKeys.length > 0} fallback={
+                              <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">—</span>
                             }>
-                              <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
-                                {action.compareKey}
-                              </span>
+                              <For each={action.compareKeys}>
+                                {(k) => (
+                                  <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
+                                    {k}
+                                  </span>
+                                )}
+                              </For>
                             </Show>
                           </div>
                         </Show>
@@ -820,7 +839,7 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                       {/* Expanded alias chain */}
                       <Show when={isExpanded()}>
                         <div class="sg-domain-bind-expanded">
-                          <Show when={action.primaryKey}>
+                          <Show when={primaryKey()}>
                             {(key) => {
                               const result = () => getChain(key(), props.primaryBindCommands, props.primaryAliases);
                               const rawCmd = () => props.primaryBindCommands[key().toUpperCase()];
@@ -849,7 +868,7 @@ export function ConfigTeamsayBindsSection(props: TeamsayBindsProps) {
                               );
                             }}
                           </Show>
-                          <Show when={isCompare() && action.compareKey}>
+                          <Show when={isCompare() && compareKey()}>
                             {(key) => {
                               const result = () => getChain(key(), props.compareBindCommands, props.compareAliases);
                               const rawCmd = () => props.compareBindCommands[key().toUpperCase()];
@@ -920,12 +939,12 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
         class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Action</span>
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">
           {isCompare() ? "Your Bind" : "Key"}
         </span>
         <Show when={isCompare()}>
-          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -933,10 +952,10 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
         {(row) => {
           return (
             <div class={isCompare() ? "sg-domain-bind-row-cmp" : "sg-domain-bind-row"}>
-              <span class="text-[13px]">{row.label}</span>
+              <span class="text-[0.8125rem]">{row.label}</span>
               <div>
                 <Show when={props.primary[row.key]} fallback={
-                  <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                  <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">--</span>
                 }>
                   <span class="sg-domain-keycap">{props.primary[row.key]}</span>
                 </Show>
@@ -944,7 +963,7 @@ export function ConfigMovementBindsSection(props: ConfigMovementBindsSectionProp
               <Show when={isCompare()}>
                 <div>
                   <Show when={props.compare && props.compare[row.key]} fallback={
-                    <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
+                    <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic">--</span>
                   }>
                     <span class="sg-domain-keycap">{props.compare![row.key]}</span>
                   </Show>

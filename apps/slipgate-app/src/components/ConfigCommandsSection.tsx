@@ -87,7 +87,7 @@ export default function ConfigCommandsSection(props: ConfigCommandsSectionProps)
 
       {/* Column headers — matches Settings style */}
       <div
-        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]"
+        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]"
         style={{ "grid-template-columns": "320px 1fr" }}
       >
         <span class="pl-12 pr-4">Command</span>

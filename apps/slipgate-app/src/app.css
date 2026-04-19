@@ -81,6 +81,30 @@
   --sg-kb-owner-them: oklch(0.7 0.18 40);
 }
 
+/* ── Viewport scaling ──
+   The root font-size drives every `rem` value in the stylesheet. Bumping
+   it at wider viewports makes the whole UI scale proportionally so high-DPI
+   monitors (1440p+) running at 100% OS scale still feel right-sized.
+   Breakpoints picked to cover common desktop resolutions:
+     default (≤1600px)   → 16px  (1080p native)
+     medium (1601-2159px) → 18px (~12.5% bigger)
+     large  (≥2160px)    → 20px  (1440p native and up)
+   Pixel values elsewhere in the file do NOT scale with this — over time
+   any `Npx` that represents a sized element (not a hairline border) should
+   be converted to rem so it scales too. Hairlines (`1px`, `2px` borders,
+   box-shadow offsets) stay px. */
+/* NOTE: these are the ONE place px is used for font-size on purpose — the
+   root anchor that every other rem resolves against. An earlier script
+   converted them to rem, which still worked but was circular; explicit px
+   here documents intent. */
+html { font-size: 16px; }
+/* Single bump at the 1440p-native viewport (2560 WQHD). An intermediate
+   step at 1601px was tried earlier but pushed 1080p (1920×1080, would
+   have tripped the 1601 threshold) past the width its right-panel can
+   hold, so the intermediate tier is removed. 1080p stays at 16px where
+   the layout fits comfortably. */
+@media (min-width: 2160px) { html { font-size: 20px; } }
+
 /* Global styles */
 html, body, #root {
   height: 100%;
@@ -135,7 +159,7 @@ html, body, #root {
   color: var(--sg-text-dim);
   background: transparent;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 500;
   text-align: center;
   transition: color 0.15s, background 0.15s;
@@ -159,7 +183,7 @@ html, body, #root {
   color: var(--sg-text-dim);
   padding: 4px 16px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-family: inherit;
   transition: border-color 0.15s, color 0.15s;
 }
@@ -206,7 +230,7 @@ html, body, #root {
   width: 96px;
   color: var(--sg-text-dim);
   background: linear-gradient(to bottom, var(--sg-grad-light), var(--sg-grad-dark));
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
@@ -250,7 +274,7 @@ html, body, #root {
 
 .sg-stat-label {
   color: var(--sg-section-label);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 1px;
   margin-bottom: 4px;
@@ -259,14 +283,14 @@ html, body, #root {
 
 .sg-stat-value {
   color: var(--sg-text-dim);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
 }
 
 /* Section heading */
 .sg-section-title {
   color: var(--sg-section-label);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 16px;
   margin: 12px 0 0 8px;
@@ -288,7 +312,7 @@ html, body, #root {
     inset 0 1px 0 #22262c,
     inset 0 -1px 0 #12151a;
   color: var(--sg-text-dim);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 400;
   line-height: 24px;
   padding: 0 0 1px 8px;
@@ -331,7 +355,7 @@ input[type="number"] {
   gap: 8px;
   padding: 10px 72px;
   color: var(--sg-section-label);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -353,7 +377,7 @@ input[type="number"] {
 
 .sg-row-label {
   color: var(--sg-section-label);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   flex-shrink: 0;
   width: 110px;
@@ -364,7 +388,7 @@ input[type="number"] {
 
 .sg-row-value {
   color: var(--sg-text-dim);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   text-align: left;
   overflow: hidden;
@@ -401,7 +425,7 @@ input[type="number"] {
   border-radius: 4px;
   outline: none;
   color: var(--sg-text-dim);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   text-align: left;
   width: 100px;
@@ -421,7 +445,7 @@ input[type="number"] {
 /* "cfg" badge — shown when value comes from ezQuake config */
 .sg-from-cfg {
   display: inline-block;
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -482,7 +506,7 @@ input[type="number"] {
 
 .who-banner-name,
 .who-banner-team {
-  font-size: 26px;
+  font-size: 1.625rem;
   font-weight: 700;
   line-height: 1;
   text-shadow:
@@ -595,7 +619,7 @@ input[type="number"] {
 
 .who-banner-placeholder-text {
   color: var(--sg-section-label);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   opacity: 0.6;
 }
@@ -621,7 +645,7 @@ input[type="number"] {
   border-radius: 4px;
   outline: none;
   color: var(--sg-text-dim);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   padding: 4px 8px;
   min-width: 160px;
@@ -684,7 +708,7 @@ input[type="number"] {
 /* Key labels */
 .sg-kb-label {
   fill: var(--sg-text-dim);
-  font-size: 10px;
+  font-size: 0.625rem;
   font-family: "Geist", system-ui, sans-serif;
   font-weight: 500;
   text-anchor: middle;
@@ -702,7 +726,7 @@ input[type="number"] {
 }
 
 .sg-kb-mouse-indicator {
-  font-size: 8px;
+  font-size: 0.5rem;
   font-weight: 600;
   fill: var(--sg-text-bright);
   text-anchor: start;
@@ -718,7 +742,7 @@ input[type="number"] {
 
 .sg-kb-name-label {
   fill: var(--sg-text-dim);
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 500;
   font-family: "Geist", system-ui, sans-serif;
   text-anchor: middle;
@@ -790,14 +814,14 @@ input[type="number"] {
 }
 
 .sg-pad-info-name {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--sg-text-dim);
   line-height: 1.2;
 }
 
 .sg-pad-info-tags {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 500;
   color: var(--sg-section-label);
   line-height: 1.3;
@@ -866,7 +890,7 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 10px;
+  font-size: 0.625rem;
   font-family: "Geist", system-ui, sans-serif;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -880,7 +904,7 @@ input[type="number"] {
 
 .sg-bind-arrow {
   color: var(--color-primary);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 700;
 }
 
@@ -914,7 +938,7 @@ input[type="number"] {
 }
 
 .sg-bind-row-label {
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -992,7 +1016,7 @@ input[type="number"] {
 }
 
 .sg-gear-card-pad-brand {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: oklch(0.6 0.01 250);
   text-align: center;
@@ -1008,7 +1032,7 @@ input[type="number"] {
 }
 
 .sg-gear-card-pad-tag {
-  font-size: 9px;
+  font-size: 0.5625rem;
   padding: 1px 6px;
   border-radius: 3px;
   background: oklch(0.22 0.01 250);
@@ -1033,7 +1057,7 @@ input[type="number"] {
 }
 
 .sg-gear-card-name {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--sg-text-bright);
   white-space: nowrap;
@@ -1042,7 +1066,7 @@ input[type="number"] {
 }
 
 .sg-gear-card-tags {
-  font-size: 10px;
+  font-size: 0.625rem;
   color: var(--sg-section-label);
   white-space: nowrap;
   overflow: hidden;
@@ -1059,13 +1083,13 @@ input[type="number"] {
 }
 
 .sg-mouse-data-name {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--sg-text-bright);
 }
 
 .sg-mouse-data-tag {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--sg-section-label);
 }
 
@@ -1080,7 +1104,7 @@ input[type="number"] {
 }
 
 .sg-sens-tag {
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1138,17 +1162,17 @@ input[type="number"] {
 
 .sg-changelog-version {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--sg-text-bright);
 }
 
 .sg-changelog-date {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--sg-section-label);
 }
 
 .sg-changelog-summary {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--sg-text-dim);
   margin-left: auto;
 }
@@ -1156,7 +1180,7 @@ input[type="number"] {
 .sg-changelog-body {
   padding: 4px 16px 12px 34px;
   font-family: "Geist", system-ui, sans-serif;
-  font-size: 12.5px;
+  font-size: 0.7812rem;
   font-weight: 450;
   line-height: 1.5;
   color: var(--sg-text-dim);
@@ -1167,7 +1191,7 @@ input[type="number"] {
 /* Markdown rendered elements inside changelog body */
 
 .sg-changelog-body h3 {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--sg-text-bright);
   margin: 10px 0 4px;
@@ -1202,7 +1226,7 @@ input[type="number"] {
 }
 
 .sg-changelog-body code {
-  font-size: 11px;
+  font-size: 0.6875rem;
   background: color-mix(in oklch, var(--sg-stat-border) 25%, transparent);
   padding: 1px 4px;
   border-radius: 2px;
@@ -1232,7 +1256,7 @@ input[type="number"] {
   border: none;
   border-bottom: 2px solid transparent;
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   font-family: "Geist", system-ui, sans-serif;
   color: var(--sg-section-label);
@@ -1292,7 +1316,7 @@ input[type="number"] {
 }
 
 .sg-changelog-channel-badge {
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1333,7 +1357,7 @@ input[type="number"] {
   border: 1px solid var(--sg-stat-border);
   background: color-mix(in oklch, var(--sg-stat-border) 20%, transparent);
   color: var(--sg-section-label);
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   font-family: "Geist", system-ui, sans-serif;
   letter-spacing: 0.3px;
@@ -1394,7 +1418,7 @@ input[type="number"] {
   border: none;
   background: color-mix(in oklch, var(--sg-stat-border) 15%, transparent);
   color: var(--sg-section-label);
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   font-family: "Geist", system-ui, sans-serif;
   letter-spacing: 0.3px;
@@ -1518,7 +1542,7 @@ input[type="number"] {
 
 /* Weapon acronym headline (ABC mode) */
 .sg-weapon-cell-name {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
@@ -1526,7 +1550,7 @@ input[type="number"] {
 
 /* Method badge */
 .sg-weapon-cell-method {
-  font-size: 8px;
+  font-size: 0.5rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1551,7 +1575,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 
 .sg-weapon-cell-key {
@@ -1571,7 +1595,7 @@ input[type="number"] {
   background: color-mix(in oklch, var(--sg-grad-light) 60%, var(--sg-grad-dark));
   border: 1px solid var(--sg-stat-border);
   color: var(--sg-text-dim);
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 600;
   font-family: "Geist", system-ui, sans-serif;
   white-space: nowrap;
@@ -1579,7 +1603,7 @@ input[type="number"] {
 
 .sg-weapon-cell-arrow {
   color: var(--sg-text-dim);
-  font-size: 10px;
+  font-size: 0.625rem;
 }
 
 .sg-weapon-cell-fire {
@@ -1620,7 +1644,7 @@ input[type="number"] {
 }
 
 .sg-teamsay-cat {
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1642,7 +1666,7 @@ input[type="number"] {
 }
 
 .sg-teamsay-label {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--sg-text-dim);
   white-space: nowrap;
 }
@@ -1660,7 +1684,7 @@ input[type="number"] {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  font-size: 10px;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--sg-section-label);
@@ -1676,7 +1700,7 @@ input[type="number"] {
 /* ─── ConfigViewer: category group headers (within content area) ───── */
 .sg-category-group-header {
   padding: 10px 16px 6px;
-  font-size: 18px;
+  font-size: 1.125rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--sg-text-bright);
@@ -1691,7 +1715,7 @@ input[type="number"] {
 /* ─── ConfigViewer: sub-group headers (within category groups) ──────── */
 .sg-subgroup-header {
   padding: 10px 16px 3px 32px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--sg-text-dim);
   font-weight: 600;
   letter-spacing: 0.2px;
@@ -1710,7 +1734,7 @@ input[type="number"] {
 }
 .sg-config-sidebar-section-label {
   padding: 0 2px 4px;
-  font-size: 10px;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--sg-section-label);
@@ -1718,7 +1742,7 @@ input[type="number"] {
 }
 .sg-config-sidebar-domain-label {
   padding: 4px 2px 2px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--sg-text-dim);
   font-weight: 600;
 }
@@ -1733,7 +1757,7 @@ input[type="number"] {
 
 /* ─── ConfigViewer: category bar labels ─────────────────────────────── */
 .sg-category-row-label {
-  font-size: 10px;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--sg-section-label);
@@ -1753,7 +1777,7 @@ input[type="number"] {
   gap: 0 12px;
   align-items: center;
   padding: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1768,7 +1792,7 @@ input[type="number"] {
   gap: 0 12px;
   align-items: center;
   padding: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1791,7 +1815,7 @@ input[type="number"] {
   grid-template-columns: 180px 1fr;
   align-items: center;
   padding: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1803,7 +1827,7 @@ input[type="number"] {
   grid-template-columns: 180px 1fr 1fr;
   align-items: center;
   padding: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1812,7 +1836,7 @@ input[type="number"] {
 }
 .sg-domain-bind-category {
   padding: 6px 16px 2px;
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1821,7 +1845,7 @@ input[type="number"] {
 .sg-domain-keycap {
   display: inline-block;
   font-family: "Geist Mono", monospace;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 3px;
@@ -1836,7 +1860,7 @@ input[type="number"] {
   grid-template-columns: 200px 1fr;
   align-items: center;
   padding: 3px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1845,7 +1869,7 @@ input[type="number"] {
   grid-template-columns: 200px 1fr 1fr;
   align-items: center;
   padding: 3px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -1896,7 +1920,7 @@ input[type="number"] {
   cursor: pointer;
   transform: translateY(-50%);
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-family: "Geist", system-ui, sans-serif;
   color: var(--sg-section-label);
   transition: color 0.1s;
@@ -1974,7 +1998,7 @@ input[type="number"] {
   padding: 12px 16px;
   border-bottom: 1px solid var(--sg-stat-border);
   background: color-mix(in oklch, var(--sg-stat-border) 10%, transparent);
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.7;
   color: var(--sg-text-dim);
 }
@@ -1986,7 +2010,7 @@ input[type="number"] {
 }
 .sg-trigger-guide code {
   font-family: "Geist Mono", monospace;
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--color-primary);
   background: color-mix(in oklch, var(--sg-stat-border) 30%, transparent);
   padding: 1px 5px;
@@ -2016,7 +2040,7 @@ input[type="number"] {
   margin-top: 8px;
 }
 .sg-alias-chain-label {
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -2034,7 +2058,7 @@ input[type="number"] {
   gap: 8px;
   align-items: baseline;
   padding: 1px 0;
-  font-size: 11px;
+  font-size: 0.6875rem;
   line-height: 1.5;
 }
 .sg-alias-chain-name {
@@ -2061,7 +2085,7 @@ input[type="number"] {
   border-top: 1px solid var(--sg-stat-border);
 }
 .sg-alias-chain-macro-deps-label {
-  font-size: 10px;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--sg-section-label);
@@ -2074,7 +2098,7 @@ input[type="number"] {
   grid-template-columns: 160px 1fr 120px;
   align-items: center;
   padding: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border-bottom: 1px solid var(--sg-stat-border);
   transition: background 0.1s;
 }
@@ -2086,12 +2110,39 @@ input[type="number"] {
   display: flex;
   flex: 1;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* flex-start (not center) so the banner and StatePanel share a common
+     left edge at the panel's padding. Keyboard mode restores horizontal
+     centering via align-self on its own wrappers. */
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 1rem;
-  padding: 0.5rem;
+  /* Top padding matches the left content-scroll's pt-4 (1rem) so the banner
+     and the left section header share a visible horizontal anchor line. */
+  padding: 1rem 0.5rem 0.5rem 0.5rem;
   min-width: 0;
   overflow: auto;
+}
+
+/* Shared stack that locks the banner's width to the StatePanel (or the
+   keyboard wrap) underneath. `align-items: stretch` makes the banner fill
+   the stack's cross axis; `width: max-content` shrinks the stack itself to
+   whichever child is widest (usually the StatePanel). Result: banner ends
+   exactly where the Location column ends, regardless of viewport width. */
+.sg-config-kb-side-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  width: max-content;
+  max-width: 100%;
+}
+/* Keyboard-mode variant caps the banner to the same rhythm as the keyboard
+   wrap (64rem) and centers it so it doesn't left-hug while the keyboard
+   is centered. */
+.sg-config-kb-side-stack-kb {
+  width: 100%;
+  max-width: 64rem;
+  align-self: center;
 }
 
 .sg-config-kb-toolbar {
@@ -2100,8 +2151,151 @@ input[type="number"] {
   gap: 0.5rem;
   width: 100%;
   max-width: 64rem;
+  /* kb-panel now uses align-items: flex-start; keep the keyboard toolbar
+     centered by claiming its own cross-axis alignment. */
+  align-self: center;
   padding: 0 calc(0.5rem + 1px);
   margin-bottom: 0.25rem;
+}
+
+/* ConfigViewer top bar segments -------------------------------------
+   Three-segment layout that mirrors the workspace columns below:
+     .sg-top-seg-sidebar (160px, fixed)  -- above sidebar
+     .sg-top-seg-content (flex-1 max-w-4xl)  -- above main content
+     .sg-top-seg-right (flex-1)  -- above right panel
+   Each segment owns a padded region matching its underlying column so
+   controls visually anchor to the workspace they act on. */
+
+.sg-top-seg-sidebar {
+  width: 160px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-right: 1px solid color-mix(in oklch, var(--sg-stat-border) 50%, transparent);
+}
+
+.sg-top-seg-content {
+  flex: 1 1 0;
+  max-width: 56rem; /* matches max-w-4xl on the content column below */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+}
+.sg-top-seg-content-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sg-top-seg-content-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  transition: opacity 0.12s;
+}
+
+.sg-top-seg-right {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  border-left: 1px solid color-mix(in oklch, var(--sg-stat-border) 50%, transparent);
+}
+
+/* Source "label + client badge" block inside segment 2 left. */
+.sg-top-source-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+.sg-top-source-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sg-section-label);
+}
+
+/* Dim state (render toggles when no pretty-view surface active). */
+.sg-top-group-dim {
+  opacity: 0.4;
+}
+.sg-top-group-dim .sg-config-kb-module-btn {
+  cursor: not-allowed;
+}
+
+/* ── Persistent report banner ──
+   Lives at the top of the right panel (above keyboard/state content) so the
+   player's current report output is always visible. Left-aligned with the
+   StatePanel's Vitals column and sized to the 4-weapon-grid width so the
+   two columns below share an obvious vertical anchor. */
+.sg-report-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  /* Stretched by the parent `.sg-config-kb-side-stack` (align-items: stretch).
+     The stack itself shrinks to the StatePanel's content width, so the banner
+     matches Vitals + gap + Location — not the full viewport. */
+  align-self: stretch;
+  width: auto;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--sg-stat-bg);
+  border: 1px solid var(--sg-stat-border);
+  border-radius: 0.3rem;
+  /* Bumped ~75% from the prior 0.95rem per request — the banner is the
+     at-a-glance report view, so it needs to read larger than body text. */
+  font-size: 1.65rem;
+  line-height: 1.35;
+  min-height: 3rem;
+  flex-shrink: 0;
+}
+/* Drop the dotted underlines that the pretty-render adds to variable /
+   runtime spans. The banner is a passive display — clicking it reveals the
+   source chain in the left pane, so per-token hints are noise here. */
+.sg-report-banner .sg-span-variable,
+.sg-report-banner .sg-span-runtime,
+.sg-report-banner .sg-span-unresolved {
+  text-decoration: none;
+}
+.sg-report-banner-clickable {
+  cursor: pointer;
+}
+.sg-report-banner-clickable:hover {
+  border-color: color-mix(in oklch, var(--color-primary) 50%, var(--sg-stat-border));
+}
+.sg-report-banner-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sg-section-label);
+}
+.sg-report-banner-default {
+  color: var(--sg-text-dim);
+  font-weight: 400;
+}
+.sg-report-banner-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: monospace;
+  color: var(--sg-text-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-report-banner-raw {
+  color: var(--sg-text-dim);
+  font-style: italic;
 }
 
 .sg-config-kb-toolbar-main {
@@ -2153,6 +2347,8 @@ input[type="number"] {
   border: 1px solid transparent;
   width: 100%;
   max-width: 64rem;
+  /* Keep the keyboard centered within kb-panel (which now uses flex-start). */
+  align-self: center;
 }
 
 .sg-config-kb-frame-you {
@@ -2169,7 +2365,7 @@ input[type="number"] {
 .sg-config-kb-label {
   display: block;
   margin-bottom: 0.375rem;
-  font-size: 10px;
+  font-size: 0.625rem;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   text-transform: none;
   letter-spacing: 0.02em;
@@ -2203,11 +2399,16 @@ input[type="number"] {
 
 .sg-state-panel {
   display: grid;
-  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  /* Both columns content-sized. Column 1 = Primary tiers' 4*7rem width.
+     Column 2 = Location tier's 2*7rem width (tier overridden via
+     `.sg-state-slot-tier-2`). Disclosures below the Location tier flex
+     to the column's width (~14rem) and no longer balloon. */
+  grid-template-columns: minmax(0, auto) minmax(0, auto);
   gap: 1rem;
   padding: 0.5rem;
-  overflow-y: auto;
-  max-height: 100%;
+  /* No overflow here — the parent kb-panel owns scrolling. An inner BFC
+     would collapse the reported max-content width, which stopped the
+     banner above from sizing to the full (Vitals + Location) row. */
   align-items: start;
 }
 .sg-state-col {
@@ -2492,9 +2693,20 @@ input[type="number"] {
    collapsed sections sit in a sibling column. */
 .sg-state-slot-tier {
   display: grid;
-  grid-template-columns: repeat(4, 7rem);
+  /* Cells shrink from their preferred 7rem down to a floor so the tier
+     compresses when the right panel is narrow (compare mode + expanded
+     chains). Below the floor the tier would be unreadable; instead we
+     accept overflow in that extreme. */
+  grid-template-columns: repeat(4, minmax(4rem, 7rem));
   gap: 0.4rem;
   justify-content: start;
+}
+/* 2-column variant for tiers that only hold a single wide slot (the
+   Location tier). Prevents the default 4-cell grid from reserving empty
+   trailing space that would widen the secondary column and push the
+   disclosures below out of alignment with the Location box above them. */
+.sg-state-slot-tier-2 {
+  grid-template-columns: repeat(2, minmax(4rem, 7rem));
 }
 
 .sg-state-slot {
@@ -2517,6 +2729,47 @@ input[type="number"] {
 .sg-state-slot-armor-ga.sg-state-slot-active { border-color: var(--sg-class-ga); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ga) 35%, transparent); }
 .sg-state-slot-armor-ya.sg-state-slot-active { border-color: var(--sg-class-ya); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ya) 35%, transparent); }
 .sg-state-slot-armor-ra.sg-state-slot-active { border-color: var(--sg-class-ra); box-shadow: 0 0 0 1px color-mix(in oklch, var(--sg-class-ra) 35%, transparent); }
+
+/* Wide variant used by the Location tier: the slot spans 2 grid cells
+   so the sprite area is tall enough for a mapshot backdrop and the
+   footer has room for a 2x2 field grid. */
+.sg-state-slot-wide {
+  grid-column: span 2;
+}
+.sg-state-slot-map {
+  aspect-ratio: 16 / 9;
+}
+.sg-state-slot-map img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  image-rendering: auto;
+  border-radius: 0.15rem;
+}
+.sg-state-map-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 0.4rem;
+  padding: 0.1rem;
+}
+.sg-state-map-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.sg-state-map-label {
+  font-family: monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sg-text-dim);
+}
+.sg-state-map-field .input {
+  font-size: 0.75rem;
+}
 
 .sg-state-slot-sprite {
   background: transparent;
@@ -2588,41 +2841,24 @@ input[type="number"] {
   opacity: 1;
 }
 
-/* ── Weapon family cards ──
-   No outer border: the ammo sprite beneath signals the family, the grid
-   columns preserve the 2+2 / 2+1+1 grouping visually, and the sprite
-   itself holds the possession + current-weapon affordances. */
-
-/* Weapon rows: plain flex, left-aligned. Each family sizes to its
-   content (1 or 2 weapon cells at capped width) rather than stretching
-   to fill the row. The 2+2 / 2+1+1 rhythm comes from the family
-   memberships themselves, not from grid-template columns. */
-.sg-state-weapon-row-2-2,
-.sg-state-weapon-row-2-1-1 {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 0.3rem;
-  align-items: flex-start;
+/* ── Weapon grid (single 4-wide row matching Vitals/Powerups) ──
+   Each cell owns its sprite + optional ammo footer. Cells for weapons
+   that share ammo with a neighbour (ssg, sng, rl) render a placeholder
+   footer so row heights stay aligned across the grid. */
+.sg-state-weapon-grid {
+  display: grid;
+  /* Same shrink floor as the slot tier — 4rem minimum, 7rem preferred. */
+  grid-template-columns: repeat(4, minmax(4rem, 7rem));
+  gap: 0.4rem;
+  justify-content: start;
+  margin-bottom: 0.4rem;
 }
 
-.sg-state-weapon-family {
+.sg-state-weapon-cell {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  flex: 0 0 auto;
-}
-
-.sg-state-weapon-family-row {
-  display: flex;
-  gap: 0.25rem;
-  justify-content: flex-start;
-}
-.sg-state-weapon-family-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-  width: 6rem;
+  min-width: 0;
 }
 .sg-state-weapon-sprite {
   position: relative;
@@ -2630,7 +2866,7 @@ input[type="number"] {
   aspect-ratio: 2.2 / 1;
   background: #000;
   border: 1px solid var(--sg-stat-border);
-  border-radius: 0.2rem;
+  border-radius: 0.25rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2656,9 +2892,8 @@ input[type="number"] {
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 35%, transparent);
 }
 
-/* In-sprite "EQ" chip (top-right). Matches the need-hint size/colour so
-   the visual vocabulary stays tight. Subtle hover affordance when not
-   yet current — tooltip explains the action. */
+/* In-sprite "EQ" chip (top-right). Acts as a toggle: click on non-current
+   equips, click on current unequips (weapon stays in inventory). */
 .sg-state-weapon-eq {
   position: absolute;
   top: 2px;
@@ -2681,22 +2916,30 @@ input[type="number"] {
   color: var(--sg-class-ya);
 }
 
-.sg-state-family-ammo {
+/* Ammo row sits in the cell footer for the "first weapon of a pair"
+   (sg/ng/gl/lg). Left-aligned under that weapon, not centered across
+   the family, so the grid rhythm reads cleanly. */
+.sg-state-weapon-ammo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.25rem;
   padding: 0.1rem 0.25rem;
   background: color-mix(in oklch, #000 65%, transparent);
   border-radius: 0.2rem;
   position: relative;
+  height: 1.6rem;
 }
-.sg-state-family-ammo-sprite {
+.sg-state-weapon-ammo-placeholder {
+  height: 1.6rem;
+}
+.sg-state-weapon-ammo-sprite {
   width: 13px;
   height: 13px;
   image-rendering: pixelated;
+  flex-shrink: 0;
 }
-.sg-state-family-ammo-input {
+.sg-state-weapon-ammo-input {
   width: 2.8rem;
   background: transparent;
   border: 1px solid var(--sg-stat-border);
@@ -2707,7 +2950,7 @@ input[type="number"] {
   padding: 1px 2px;
   border-radius: 2px;
 }
-.sg-state-family-ammo-need {
+.sg-state-weapon-ammo-need {
   font-size: 0.55rem;
   font-family: monospace;
   color: var(--sg-class-ya);
@@ -2718,7 +2961,7 @@ input[type="number"] {
   right: 3px;
   pointer-events: none;
 }
-.sg-state-weapon-family:hover .sg-state-family-ammo-need {
+.sg-state-weapon-cell:hover .sg-state-weapon-ammo-need {
   opacity: 1;
 }
 

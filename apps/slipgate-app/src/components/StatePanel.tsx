@@ -25,32 +25,114 @@ interface StatePanelProps {
   onReset: () => void;
 }
 
-// Weapon layout: two rows grouping by ammo family. Row 1 holds the two
-// fastest-firing pairs (shells, nails) as 2+2. Row 2 holds the remaining
-// weapons as 2+1+1: rockets pair, cells single, axe single. Each family
-// gets a coloured border keyed to its ammo sprite tint so users can
-// recognise the family at a glance; ammo input renders once per family
-// centered under the weapon cells.
+// Weapon layout: 4-wide grid matching Vitals / Powerups. Rows follow the
+// in-game 1-8 key order. Each cell owns its own sprite + ammo footer;
+// the ammo input sits under the FIRST weapon of each shared-ammo pair
+// (sg carries shells for both sg+ssg, ng for ng+sng, gl for gl+rl).
+// Cells without ammo render an invisible footer so heights stay aligned.
 type WeaponFamily = "shells" | "nails" | "rox" | "cells" | "none";
-interface WeaponGroup {
-  weapons: Weapon[];
-  ammoKey: Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells"> | null;
+type AmmoKey = Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells">;
+interface WeaponCellSpec {
+  weapon: Weapon;
+  ammoKey: AmmoKey | null;
   ammoLabel: string;
   family: WeaponFamily;
 }
-const WEAPON_ROW_1: WeaponGroup[] = [
-  { weapons: ["sg", "ssg"], ammoKey: "shells", ammoLabel: "shells", family: "shells" },
-  { weapons: ["ng", "sng"], ammoKey: "nails", ammoLabel: "nails", family: "nails" },
+const WEAPON_ROW_1: WeaponCellSpec[] = [
+  { weapon: "sg",  ammoKey: "shells", ammoLabel: "shells", family: "shells" },
+  { weapon: "ssg", ammoKey: null,     ammoLabel: "",       family: "none"   },
+  { weapon: "ng",  ammoKey: "nails",  ammoLabel: "nails",  family: "nails"  },
+  { weapon: "sng", ammoKey: null,     ammoLabel: "",       family: "none"   },
 ];
-const WEAPON_ROW_2: WeaponGroup[] = [
-  { weapons: ["gl", "rl"], ammoKey: "rockets", ammoLabel: "rockets", family: "rox" },
-  { weapons: ["lg"], ammoKey: "cells", ammoLabel: "cells", family: "cells" },
-  { weapons: ["axe"], ammoKey: null, ammoLabel: "", family: "none" },
+const WEAPON_ROW_2: WeaponCellSpec[] = [
+  { weapon: "gl",  ammoKey: "rockets", ammoLabel: "rockets", family: "rox"   },
+  { weapon: "rl",  ammoKey: null,      ammoLabel: "",        family: "none"  },
+  { weapon: "lg",  ammoKey: "cells",   ammoLabel: "cells",   family: "cells" },
+  { weapon: "axe", ammoKey: null,      ammoLabel: "",        family: "none"  },
 ];
+
+// Priority order for picking a fallback current weapon when the active
+// one is unequipped or dropped. Axe is appended as the universal last
+// resort so the `currentWeapon in ownedWeapons` invariant always holds.
+const WEAPON_FALLBACK_PRIORITY: Weapon[] = ["lg", "rl", "gl", "sng", "ng", "ssg", "sg", "axe"];
+function pickFallbackCurrent(owned: Set<Weapon>, excluding: Weapon): { current: Weapon; owned: Set<Weapon> } {
+  for (const w of WEAPON_FALLBACK_PRIORITY) {
+    if (w !== excluding && owned.has(w)) return { current: w, owned };
+  }
+  // No other weapon remains in inventory -- add axe so current stays owned.
+  const next = new Set(owned);
+  next.add("axe");
+  return { current: "axe", owned: next };
+}
 
 const POWERUPS: Powerup[] = ["quad", "pent", "ring", "biosuit"];
 const ARMOR_VISIBLE_CLASSES: Exclude<ArmorClass, "none">[] = ["ga", "ya", "ra"];
 const MATCH_STATUSES: MatchStatus[] = ["standby", "countdown", "live", "overtime", "ended"];
+// Match types computed client-side by ezQuake in MT_GetMatchType
+// (match_tools.c). Surfaced here as ComboInput options so users can
+// pick a realistic value while still being able to type anything.
+const MATCH_TYPE_OPTIONS: string[] = [
+  "empty", "solo", "coop", "ffa", "race", "arena",
+  "duel", "2on2", "3on3", "4on4", "tdm", "multiteam",
+  "tf_duel", "tf_clanwar", "unknown",
+];
+
+// Symbolic pickup-item names used by ezQuake's tp_took / tp_point /
+// tp_pickup commands (teamplay.c:2093-2097). At runtime `$took` and
+// `$point` carry the RESOLVED `tp_name_<symbol>` string -- the dropdown
+// offers whichever value the loaded config resolves each symbol to,
+// falling back to the symbol itself when the cvar is default/empty.
+const PKITEM_SYMBOLS: string[] = [
+  "quad", "pent", "ring", "suit",
+  "ra", "ya", "ga", "mh", "health",
+  "lg", "rl", "gl", "sng", "ng", "ssg", "pack",
+  "cells", "rockets", "nails", "shells",
+  "flag", "teammate", "enemy", "eyes", "sentry", "disp",
+  "quaded", "pented",
+  "rune1", "rune2", "rune3", "rune4",
+  "resistance", "strength", "haste", "regeneration",
+];
+function resolvedPickupOptions(cvars: Map<string, string>): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const sym of PKITEM_SYMBOLS) {
+    const raw = cvars.get(`tp_name_${sym}`);
+    // Strip ezQuake color codes and expand nested cvar refs so the
+    // dropdown shows plain-text labels (datalist cannot render colour).
+    // Fall back to the symbolic name when the cvar is unset or becomes
+    // empty after stripping.
+    const display = raw !== undefined ? displayColoredCvarValue(raw, cvars) : "";
+    const final = display.length === 0 ? sym : display;
+    if (seen.has(final)) continue;
+    seen.add(final);
+    out.push(final);
+  }
+  return out;
+}
+// Last-enemy-powerup permutations. Macro_LastSeenPowerup joins present
+// powerups with tp_name_separator; we offer each powerup alone plus the
+// common two-/three-way combinations so the dropdown covers realistic
+// live states without the user having to concatenate manually.
+function lastPowerupOptions(cvars: Map<string, string>): string[] {
+  const resolve = (name: string, fallback: string) => {
+    const raw = cvars.get(name);
+    const v = raw !== undefined ? displayColoredCvarValue(raw, cvars) : "";
+    return v.length === 0 ? fallback : v;
+  };
+  const q = resolve("tp_name_quad", "quad");
+  const p = resolve("tp_name_pent", "pent");
+  const r = resolve("tp_name_ring", "ring");
+  const sep = resolve("tp_name_separator", " ");
+  const join = (...parts: string[]) => parts.join(sep);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of [q, p, r, join(q, p), join(q, r), join(p, r), join(q, p, r)]) {
+    if (seen.has(v)) continue;
+    seen.add(v);
+    out.push(v);
+  }
+  return out;
+}
 const LED_COLORS: LedColor[] = ["none", "green", "red", "yellow"];
 
 // Sprite paths (served from apps/slipgate-app/public/wad/).
@@ -87,6 +169,16 @@ const POWERUP_SPRITE: Partial<Record<Powerup, string>> = {
   // biosuit has no face sprite — rendered as text tile.
 };
 
+// QWHub mapshot archive. `lg` tier (~40-100KB each) is sized for use as
+// a backdrop. The fallback image is served at the root of the bucket and
+// substituted in on 404 by the img onError handler.
+const MAPSHOT_FALLBACK = "https://a.quake.world/mapshots/default.jpg";
+function mapshotUrl(mapname: string): string {
+  const m = mapname.trim().toLowerCase();
+  if (!m) return MAPSHOT_FALLBACK;
+  return `https://a.quake.world/mapshots/webp/lg/${encodeURIComponent(m)}.webp`;
+}
+
 // Face sprite follows ezQuake's statusbar logic: tier by HP band with
 // powerup overrides (quad/pent/ring take precedence).
 function faceSprite(state: PlayerState): string {
@@ -102,19 +194,11 @@ function faceSprite(state: PlayerState): string {
 }
 
 export default function StatePanel(props: StatePanelProps) {
-  const [saveMode, setSaveMode] = createSignal(false);
-  const [saveName, setSaveName] = createSignal("");
-  function beginSaveAs() { setSaveMode(true); setSaveName(""); }
-  function cancelSaveAs() { setSaveMode(false); setSaveName(""); }
-  function commitSaveAs() {
-    const name = saveName().trim();
-    if (name.length === 0) return;
-    props.onSaveAs(name);
-    cancelSaveAs();
-  }
-  const sortedTemplates = createMemo(() =>
-    [...props.templates].sort((a, b) => b.createdAt - a.createdAt),
-  );
+  // Template management controls are parked for now -- the feature is
+  // retained through the props contract so saved templates aren't lost,
+  // but the UI is not rendered. The `onSaveAs / onLoadTemplate /
+  // onDeleteTemplate / onReset / templates` props stay wired through
+  // in preparation for bringing the feature back with its own home.
 
   // Disclosure state for the secondary tiers. Kept as local component
   // state — persisting is cheap future work but not needed for v1.
@@ -132,14 +216,30 @@ export default function StatePanel(props: StatePanelProps) {
     props.onChange({ ...props.state, [key]: value });
   }
   function toggleWeapon(w: Weapon) {
-    const next = new Set(props.state.ownedWeapons);
-    if (next.has(w)) next.delete(w); else next.add(w);
-    update("ownedWeapons", next);
+    const nextOwned = new Set(props.state.ownedWeapons);
+    // Dropping the current weapon from inventory also unequips it; the
+    // `currentWeapon in ownedWeapons` invariant is enforced here.
+    if (nextOwned.has(w)) {
+      nextOwned.delete(w);
+      if (props.state.currentWeapon === w) {
+        const fb = pickFallbackCurrent(nextOwned, w);
+        props.onChange({ ...props.state, ownedWeapons: fb.owned, currentWeapon: fb.current });
+        return;
+      }
+    } else {
+      nextOwned.add(w);
+    }
+    props.onChange({ ...props.state, ownedWeapons: nextOwned });
   }
-  function setCurrentWeapon(w: Weapon) {
-    // Selecting a weapon as current implies possession — auto-toggle so the
-    // state stays internally consistent (the simulator treats currentWeapon
-    // as authoritative when it conflicts with ownedWeapons).
+  function toggleEquip(w: Weapon) {
+    // EQ chip click on non-current weapon: equip (auto-add to owned).
+    // EQ chip click on current weapon: unequip, keep in inventory, hand
+    // over to the highest-priority other owned weapon (or axe).
+    if (props.state.currentWeapon === w) {
+      const fb = pickFallbackCurrent(props.state.ownedWeapons, w);
+      props.onChange({ ...props.state, currentWeapon: fb.current, ownedWeapons: fb.owned });
+      return;
+    }
     const owned = new Set(props.state.ownedWeapons);
     owned.add(w);
     props.onChange({ ...props.state, currentWeapon: w, ownedWeapons: owned });
@@ -260,28 +360,28 @@ export default function StatePanel(props: StatePanelProps) {
         </Disclosure>
       </Section>
 
-      {/* ── Tier 3: Weapons — 2+2 row then 2+1+1 row, ammo per family ── */}
+      {/* ── Tier 3: Weapons — 4-wide grid matching Vitals/Powerups ── */}
       <Section title="Weapons">
-        <div class="sg-state-weapon-row-2-2">
-          <For each={WEAPON_ROW_1}>{(group) => (
-            <WeaponFamilyCell
-              group={group}
+        <div class="sg-state-weapon-grid">
+          <For each={WEAPON_ROW_1}>{(cell) => (
+            <WeaponCell
+              spec={cell}
               state={props.state}
               cvars={props.cvars}
               onToggleWeapon={toggleWeapon}
-              onSetCurrent={setCurrentWeapon}
+              onToggleEquip={toggleEquip}
               onAmmoChange={(k, v) => update(k, v)}
             />
           )}</For>
         </div>
-        <div class="sg-state-weapon-row-2-1-1">
-          <For each={WEAPON_ROW_2}>{(group) => (
-            <WeaponFamilyCell
-              group={group}
+        <div class="sg-state-weapon-grid">
+          <For each={WEAPON_ROW_2}>{(cell) => (
+            <WeaponCell
+              spec={cell}
               state={props.state}
               cvars={props.cvars}
               onToggleWeapon={toggleWeapon}
-              onSetCurrent={setCurrentWeapon}
+              onToggleEquip={toggleEquip}
               onAmmoChange={(k, v) => update(k, v)}
             />
           )}</For>
@@ -302,94 +402,91 @@ export default function StatePanel(props: StatePanelProps) {
 
       </div>
 
-      {/* Secondary column: templates header + collapsed disclosures
-          (Location / Match / LEDs / Events). Sits beside the sprite
-          tiers so the whole panel fits within the available workspace
-          without vertical scrolling. */}
+      {/* Secondary column: always-visible Location tier (wide sprite
+          slot with mapshot backdrop + 2x2 field footer, same visual
+          vocabulary as the primary tiers), then collapsed disclosures
+          for Match / LEDs / Events below. Template management is
+          parked for now -- the concept doesn't fit cleanly beside the
+          statemachine fields and needs its own home. */}
       <div class="sg-state-col sg-state-col-secondary">
-      <div class="sg-state-header">
-        <select
-          class="select select-xs"
-          disabled={props.templates.length === 0}
-          onChange={(e) => {
-            const id = e.currentTarget.value;
-            if (id) props.onLoadTemplate(id);
-            e.currentTarget.value = "";
-          }}
-        >
-          <option value="">
-            {props.templates.length === 0 ? "No templates" : "Load template..."}
-          </option>
-          <For each={sortedTemplates()}>{(t) => (
-            <option value={t.id}>{t.name}</option>
-          )}</For>
-        </select>
-        <Show
-          when={saveMode()}
-          fallback={<button class="btn btn-ghost btn-xs" onClick={beginSaveAs}>Save as...</button>}
-        >
-          <input class="input input-xs w-32" autofocus
-            value={saveName()}
-            onInput={(e) => setSaveName(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitSaveAs();
-              if (e.key === "Escape") cancelSaveAs();
-            }} />
-          <button class="btn btn-primary btn-xs" onClick={commitSaveAs}>Save</button>
-          <button class="btn btn-ghost btn-xs" onClick={cancelSaveAs}>Cancel</button>
-        </Show>
-        <button class="btn btn-ghost btn-xs" onClick={props.onReset}>Reset</button>
-        <Show when={sortedTemplates().length > 0}>
-          <div class="sg-state-templates-manage">
-            <For each={sortedTemplates()}>{(t) => (
-              <span class="sg-state-template-chip">
-                {t.name}
-                <button class="sg-state-template-delete" title={`Delete ${t.name}`}
-                  onClick={() => props.onDeleteTemplate(t.id)}>x</button>
-              </span>
-            )}</For>
+      <Section title="Location">
+        {/* Location tier uses 2 columns instead of the default 4 because
+            the only element is the wide map slot (spans 2). Trailing empty
+            cells were reserving grid width that bled into the secondary
+            column and pushed the Match / LEDs / Events disclosures wider
+            than they needed to be. */}
+        <div class="sg-state-slot-tier sg-state-slot-tier-2">
+          <div class="sg-state-slot sg-state-slot-wide sg-state-slot-active">
+            <div class="sg-state-slot-sprite sg-state-slot-map">
+              <img
+                src={mapshotUrl(props.state.mapname)}
+                alt={props.state.mapname || "no map"}
+                onError={(e) => { e.currentTarget.src = MAPSHOT_FALLBACK; }}
+              />
+            </div>
+            <div class="sg-state-map-footer">
+              <div class="sg-state-map-field">
+                <label class="sg-state-map-label">Map</label>
+                <ComboInput
+                  value={props.state.mapname}
+                  options={mapOptions()}
+                  listId="sg-state-map-options"
+                  onChange={(v) => update("mapname", v)}
+                />
+              </div>
+              <div class="sg-state-map-field">
+                <label class="sg-state-map-label">Location</label>
+                <ComboInput
+                  value={props.state.location}
+                  options={locOptions()}
+                  listId="sg-state-loc-options"
+                  onChange={(v) => update("location", v)}
+                />
+              </div>
+              <div class="sg-state-map-field">
+                <label class="sg-state-map-label">Last loc</label>
+                <ComboInput
+                  value={props.state.lastloc}
+                  options={locOptions()}
+                  listId="sg-state-loc-options"
+                  onChange={(v) => update("lastloc", v)}
+                />
+              </div>
+              <div class="sg-state-map-field">
+                <label class="sg-state-map-label">Death loc</label>
+                <ComboInput
+                  value={props.state.deathloc}
+                  options={locOptions()}
+                  listId="sg-state-loc-options"
+                  onChange={(v) => update("deathloc", v)}
+                />
+              </div>
+            </div>
           </div>
-        </Show>
-      </div>
-
-      <Section title="Location"
-        summary={props.state.mapname ? `${props.state.mapname}${props.state.location ? " @ " + props.state.location : ""}` : "—"}
-        collapsible
-        open={isOpen("location")}
-        onToggle={() => toggleDetails("location")}
-      >
-        <Row label="Map">
-          <ComboInput
-            value={props.state.mapname}
-            options={mapOptions()}
-            listId="sg-state-map-options"
-            onChange={(v) => update("mapname", v)}
-          />
-        </Row>
-        <Row label="Location">
-          <ComboInput
-            value={props.state.location}
-            options={locOptions()}
-            listId="sg-state-loc-options"
-            onChange={(v) => update("location", v)}
-          />
-        </Row>
-        <Row label="Last loc"><TextInput value={props.state.lastloc} onChange={(v) => update("lastloc", v)} /></Row>
-        <Row label="Death loc"><TextInput value={props.state.deathloc} onChange={(v) => update("deathloc", v)} /></Row>
+        </div>
       </Section>
-
       <Section title="Match"
-        summary={`${props.state.matchstatus}${props.state.matchname ? " · " + props.state.matchname : ""}`}
+        summary={`${props.state.matchstatus}${props.state.matchtype ? " · " + props.state.matchtype : ""}`}
         collapsible
         open={isOpen("match")}
         onToggle={() => toggleDetails("match")}
       >
-        <Row label="Name"><TextInput value={props.state.matchname} onChange={(v) => update("matchname", v)} /></Row>
+        {/* $matchname is the client-side auto-formatted demo/screenshot
+            description string ("Player vs Enemy - [map]"); not useful
+            for teamsay branching since $matchtype covers mode checks
+            directly. Field is parked from the UI. */}
         <Row label="Status">
           <EnumSelect value={props.state.matchstatus} options={MATCH_STATUSES}
             onChange={(v) => update("matchstatus", v as MatchStatus)} width="md" />
         </Row>
-        <Row label="Type"><TextInput value={props.state.matchtype} onChange={(v) => update("matchtype", v)} /></Row>
+        <Row label="Type">
+          <ComboInput
+            value={props.state.matchtype}
+            options={MATCH_TYPE_OPTIONS}
+            listId="sg-state-matchtype-options"
+            onChange={(v) => update("matchtype", v)}
+          />
+        </Row>
       </Section>
 
       <Section title="LEDs & pointing"
@@ -406,9 +503,30 @@ export default function StatePanel(props: StatePanelProps) {
           <EnumSelect value={props.state.ledstatus} options={LED_COLORS}
             onChange={(v) => update("ledstatus", v as LedColor)} width="sm" />
         </Row>
-        <Row label="Point"><TextInput value={props.state.point} onChange={(v) => update("point", v)} /></Row>
-        <Row label="Point loc"><TextInput value={props.state.pointloc} onChange={(v) => update("pointloc", v)} /></Row>
-        <Row label="Point at loc"><TextInput value={props.state.pointatloc} onChange={(v) => update("pointatloc", v)} /></Row>
+        <Row label="Point item">
+          <ComboInput
+            value={props.state.point}
+            options={resolvedPickupOptions(props.cvars)}
+            listId="sg-state-point-options"
+            onChange={(v) => update("point", v)}
+          />
+        </Row>
+        <Row label="Point loc">
+          <ComboInput
+            value={props.state.pointloc}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("pointloc", v)}
+          />
+        </Row>
+        <Row label="Point at loc">
+          <ComboInput
+            value={props.state.pointatloc}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("pointatloc", v)}
+          />
+        </Row>
       </Section>
 
       <Section title="Recent events"
@@ -417,12 +535,47 @@ export default function StatePanel(props: StatePanelProps) {
         open={isOpen("events")}
         onToggle={() => toggleDetails("events")}
       >
-        <Row label="Took"><TextInput value={props.state.took} onChange={(v) => update("took", v)} /></Row>
-        <Row label="Took loc"><TextInput value={props.state.tookloc} onChange={(v) => update("tookloc", v)} /></Row>
-        <Row label="Took at loc"><TextInput value={props.state.tookatloc} onChange={(v) => update("tookatloc", v)} /></Row>
-        <Row label="Drop loc"><TextInput value={props.state.droploc} onChange={(v) => update("droploc", v)} /></Row>
+        <Row label="Took item">
+          <ComboInput
+            value={props.state.took}
+            options={resolvedPickupOptions(props.cvars)}
+            listId="sg-state-took-options"
+            onChange={(v) => update("took", v)}
+          />
+        </Row>
+        <Row label="Took loc">
+          <ComboInput
+            value={props.state.tookloc}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("tookloc", v)}
+          />
+        </Row>
+        <Row label="Took at loc">
+          <ComboInput
+            value={props.state.tookatloc}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("tookatloc", v)}
+          />
+        </Row>
+        <Row label="Drop loc">
+          <ComboInput
+            value={props.state.droploc}
+            options={locOptions()}
+            listId="sg-state-loc-options"
+            onChange={(v) => update("droploc", v)}
+          />
+        </Row>
         <Row label="Drop time"><NumInput value={props.state.droptime} onChange={(v) => update("droptime", v)} /></Row>
-        <Row label="Last powerup"><TextInput value={props.state.lastpowerup} onChange={(v) => update("lastpowerup", v)} /></Row>
+        <Row label="Last enemy powerup">
+          <ComboInput
+            value={props.state.lastpowerup}
+            options={lastPowerupOptions(props.cvars)}
+            listId="sg-state-lastpowerup-options"
+            onChange={(v) => update("lastpowerup", v)}
+          />
+        </Row>
       </Section>
       </div>
     </div>
@@ -432,7 +585,7 @@ export default function StatePanel(props: StatePanelProps) {
 /**
  * Sprite slot used by Vitals (face+HP, GA/YA/RA) and Powerups (Q/P/R/B).
  * Layout: [sprite area] above [value input or text label] so the visual
- * rhythm matches the WeaponFamilyCell below (sprite on top, number below).
+ * rhythm matches the WeaponCell below (sprite on top, number below).
  * When no value is passed the slot is a pure toggle (powerups).
  */
 function SpriteSlot(props: {
@@ -494,68 +647,64 @@ function SpriteSlot(props: {
 }
 
 /**
- * Weapon family card: one cell per weapon (sprite is a possession toggle,
- * corner chip sets current weapon and shows an `EQ` label when active),
- * plus a centered ammo input applying to the whole family. No family
- * border — the ammo sprite underneath is the family indicator.
+ * Single-weapon grid cell. Sprite is a possession toggle; the `EQ` chip
+ * toggles the current weapon (click again on the active one to unequip
+ * while staying in inventory). Cells for the "first weapon of a shared
+ * ammo pair" also render an ammo input in the footer; the others render
+ * an invisible placeholder so all four cells in a row share the same
+ * height.
  */
-function WeaponFamilyCell(props: {
-  group: WeaponGroup;
+function WeaponCell(props: {
+  spec: WeaponCellSpec;
   state: PlayerState;
   cvars: Map<string, string>;
   onToggleWeapon: (w: Weapon) => void;
-  onSetCurrent: (w: Weapon) => void;
-  onAmmoChange: <K extends Extract<keyof PlayerState, "shells" | "nails" | "rockets" | "cells">>(k: K, v: PlayerState[K]) => void;
+  onToggleEquip: (w: Weapon) => void;
+  onAmmoChange: <K extends AmmoKey>(k: K, v: PlayerState[K]) => void;
 }) {
+  const w = () => props.spec.weapon;
+  const owned = () => props.state.ownedWeapons.has(w());
+  const current = () => props.state.currentWeapon === w();
+  const hasAmmo = () => props.spec.ammoKey !== null && props.spec.family !== "none";
   return (
-    <div class="sg-state-weapon-family">
-      <div class="sg-state-weapon-family-row">
-        <For each={props.group.weapons}>{(w) => {
-          const owned = () => props.state.ownedWeapons.has(w);
-          const current = () => props.state.currentWeapon === w;
-          return (
-            <div class="sg-state-weapon-family-cell">
-              <button
-                class="sg-state-weapon-sprite"
-                classList={{
-                  "sg-state-weapon-sprite-owned": owned(),
-                  "sg-state-weapon-sprite-dim": !owned(),
-                  "sg-state-weapon-sprite-current": current(),
-                }}
-                onClick={() => props.onToggleWeapon(w)}
-                title={`${w} — click to ${owned() ? "drop" : "pick up"}`}
-              >
-                <img src={WEAPON_SPRITE[w]} alt={w} />
-                <span
-                  class="sg-state-weapon-eq"
-                  classList={{ "sg-state-weapon-eq-on": current() }}
-                  title={current() ? `${w} equipped` : `set ${w} as current`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    props.onSetCurrent(w);
-                  }}
-                >
-                  EQ
-                </span>
-              </button>
-            </div>
-          );
-        }}</For>
-      </div>
-      <Show when={props.group.ammoKey !== null && props.group.family !== "none"}>
-        <div class="sg-state-family-ammo">
-          <img class="sg-state-family-ammo-sprite"
-            src={AMMO_SPRITE[props.group.family as Exclude<WeaponFamily, "none">]}
-            alt={props.group.ammoLabel} />
+    <div class="sg-state-weapon-cell">
+      <button
+        class="sg-state-weapon-sprite"
+        classList={{
+          "sg-state-weapon-sprite-owned": owned(),
+          "sg-state-weapon-sprite-dim": !owned(),
+          "sg-state-weapon-sprite-current": current(),
+        }}
+        onClick={() => props.onToggleWeapon(w())}
+        title={`${w()} - click to ${owned() ? "drop" : "pick up"}`}
+      >
+        <img src={WEAPON_SPRITE[w()]} alt={w()} />
+        <span
+          class="sg-state-weapon-eq"
+          classList={{ "sg-state-weapon-eq-on": current() }}
+          title={current() ? `${w()} equipped - click to unequip` : `equip ${w()}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onToggleEquip(w());
+          }}
+        >
+          EQ
+        </span>
+      </button>
+      <Show when={hasAmmo()} fallback={<div class="sg-state-weapon-ammo-placeholder" />}>
+        <div class="sg-state-weapon-ammo">
+          <img class="sg-state-weapon-ammo-sprite"
+            src={AMMO_SPRITE[props.spec.family as Exclude<WeaponFamily, "none">]}
+            alt={props.spec.ammoLabel} />
           <input type="number"
-            class="sg-state-family-ammo-input"
-            value={props.state[props.group.ammoKey!] as number}
+            class="sg-state-weapon-ammo-input"
+            value={props.state[props.spec.ammoKey!] as number}
             min={0}
             max={200}
-            onInput={(e) => props.onAmmoChange(props.group.ammoKey!, Number(e.currentTarget.value) as never)}
+            onInput={(e) => props.onAmmoChange(props.spec.ammoKey!, Number(e.currentTarget.value) as never)}
           />
-          <span class="sg-state-family-ammo-need">
-            need &lt; {props.cvars.get(`tp_need_${props.group.ammoLabel}`) ?? NEED_DEFAULTS[`tp_need_${props.group.ammoLabel}`] ?? ""}
+          <span class="sg-state-weapon-ammo-need">
+            need &lt; {props.cvars.get(`tp_need_${props.spec.ammoLabel}`) ?? NEED_DEFAULTS[`tp_need_${props.spec.ammoLabel}`] ?? ""}
           </span>
         </div>
       </Show>
@@ -626,14 +775,6 @@ function NumInput(props: { value: number; min?: number; max?: number; width?: "x
     <input type="number" class={`input input-xs ${widthClass}`}
       value={props.value} min={props.min} max={props.max}
       onInput={(e) => props.onChange(Number(e.currentTarget.value))} />
-  );
-}
-
-function TextInput(props: { value: string; onChange: (v: string) => void }) {
-  return (
-    <input type="text" class="input input-xs w-full"
-      value={props.value}
-      onInput={(e) => props.onChange(e.currentTarget.value)} />
   );
 }
 
@@ -743,6 +884,17 @@ function stripColorCodes(s: string): string {
 
 function displayLocName(raw: string, cvars: Map<string, string>): string {
   return stripColorCodes(expandCvarRefs(raw, cvars)).trim();
+}
+
+// Shared display helper for `tp_name_*` cvar values surfaced in
+// dropdowns. Expands any `$cvar` refs, strips ezQuake `&cRGB` / `&r`
+// colour codes, removes color-wrap braces `{` `}` (ezQuake uses them to
+// group coloured segments; they are not part of the logical name), and
+// trims. The raw colour-coded value still flows unchanged through the
+// simulator and pretty-view layers where colour rendering belongs.
+function displayColoredCvarValue(raw: string, cvars: Map<string, string>): string {
+  const expanded = stripColorCodes(expandCvarRefs(raw, cvars));
+  return expanded.replace(/[{}]/g, "").trim();
 }
 
 function EnumSelect<T extends string>(props: {

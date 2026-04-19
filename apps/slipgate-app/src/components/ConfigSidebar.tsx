@@ -23,15 +23,11 @@ interface ConfigSidebarProps {
   commandsActive: boolean;
   onToggleCommands: () => void;
 
-  // Shared controls
+  // Settings-row filter (lives here rather than the top bar because
+  // it conceptually narrows the Settings list below it).
   hideDefaults: boolean;
   onHideDefaultsChange: (val: boolean) => void;
-  aliasChainMode: "pretty" | "raw";
-  onAliasChainModeChange: (val: "pretty" | "raw") => void;
-  aliasChainResolver: "label" | "simulator";
-  onAliasChainResolverChange: (val: "label" | "simulator") => void;
-  search: string;
-  onSearchChange: (val: string) => void;
+
   isCompareMode: boolean;
 }
 
@@ -42,6 +38,19 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
 
   return (
     <div class="sg-config-sidebar">
+      {/* Hide-defaults filter sits above the Settings header since it
+          narrows the cvar row set that Settings renders. Kept on its
+          own row so the Settings header stays visually aligned. */}
+      <label class="flex items-center gap-1.5 text-[0.6875rem] text-[var(--sg-text-dim)] cursor-pointer select-none">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-xs"
+          checked={props.hideDefaults}
+          onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
+        />
+        Hide defaults
+      </label>
+
       {/* ── Settings — all raw config data ── */}
       <div class="flex flex-col items-start gap-1">
         <div class="sg-config-sidebar-section-label">Settings</div>
@@ -156,52 +165,6 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
         </div>
       </div>
 
-      {/* ── Options ── */}
-      <div class="flex flex-col items-start gap-2">
-        <div class="sg-config-sidebar-section-label">Options</div>
-        <label class="flex items-center gap-1.5 text-xs text-[var(--sg-text-dim)] cursor-pointer select-none">
-          <input
-            type="checkbox"
-            class="checkbox checkbox-xs"
-            checked={props.hideDefaults}
-            onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
-          />
-          Hide defaults
-        </label>
-        <div class="flex flex-col gap-1 py-1 text-xs">
-          <span class="text-[var(--sg-section-label)]">Alias chains</span>
-          <div class="join self-start">
-            <button
-              class={`join-item btn btn-xs ${props.aliasChainMode === "pretty" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => props.onAliasChainModeChange("pretty")}
-            >Pretty</button>
-            <button
-              class={`join-item btn btn-xs ${props.aliasChainMode === "raw" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => props.onAliasChainModeChange("raw")}
-            >Raw</button>
-          </div>
-        </div>
-        <div class="flex flex-col gap-1 py-1 text-xs">
-          <span class="text-[var(--sg-section-label)]">Tokens</span>
-          <div class="join self-start">
-            <button
-              class={`join-item btn btn-xs ${props.aliasChainResolver === "label" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => props.onAliasChainResolverChange("label")}
-            >Label</button>
-            <button
-              class={`join-item btn btn-xs ${props.aliasChainResolver === "simulator" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => props.onAliasChainResolverChange("simulator")}
-            >Simulator</button>
-          </div>
-        </div>
-        <input
-          type="text"
-          class="input input-xs font-mono w-full"
-          placeholder="Search..."
-          value={props.search}
-          onInput={(e) => props.onSearchChange(e.currentTarget.value)}
-        />
-      </div>
     </div>
   );
 }

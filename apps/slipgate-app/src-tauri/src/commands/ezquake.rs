@@ -900,6 +900,11 @@ pub struct TeamsayBind {
     pub category: String, // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
     pub label: String,    // short human-readable label (e.g. "report", "lost", "safe")
     pub description: String, // longer description of what this bind does
+    /// First resolved say_team body (raw text, colour codes and macros intact,
+    /// leading sender variables like `$\$tpname` stripped). Empty when the
+    /// bind is a tp_msg* command with no say_team terminal to pull from.
+    #[serde(default)]
+    pub body: String,
 }
 
 /// Map a tp_msg* command to (category, label, description).
@@ -935,21 +940,29 @@ fn classify_tp_msg(cmd: &str) -> Option<(&'static str, &'static str, &'static st
     }
 }
 
-/// Strip leading `$<variable>` tokens (e.g. `$\$nick`, `$nick`) that prefix
-/// most say_team messages as sender identifiers. Returns the remaining body
-/// with leading whitespace trimmed.
+/// Strip a single leading `$<variable>` token (e.g. `$\$nick`, `$nick`) that
+/// most say_team bodies use as a sender identifier. Earlier this looped until
+/// no `$`-token remained, which also consumed meaningful macros like
+/// `$bestweapon` or `$powerups` when they landed at the leading position after
+/// the sender strip — report bodies rendered with armor/weapon macros missing.
+/// Only the leading sender token should be removed; content macros stay.
 fn strip_leading_variables(text: &str) -> &str {
-    let mut s = text.trim_start();
-    while let Some(rest) = s.strip_prefix('$') {
+    let s = text.trim_start();
+    if let Some(rest) = s.strip_prefix('$') {
         let token_end = rest.find(char::is_whitespace).unwrap_or(rest.len());
-        s = rest[token_end..].trim_start();
+        rest[token_end..].trim_start()
+    } else {
+        s
     }
-    s
 }
 
 /// Extract the first non-empty say_team message body from a list of resolved
 /// terminal commands. Strips the `say_team` prefix and any leading sender
 /// variables, returning the readable content (e.g. "quad in 10").
+///
+/// Used for deriving a short display LABEL for custom teamsay binds — the
+/// sender prefix is noise in that context. Banner rendering uses
+/// `first_say_team_raw_body` instead so the nick shows in the output.
 fn first_say_team_body(terminals: &[String]) -> String {
     for t in terminals {
         if !t.to_lowercase().starts_with("say_team") {
@@ -960,6 +973,23 @@ fn first_say_team_body(terminals: &[String]) -> String {
         let cleaned = strip_leading_variables(after_cmd.trim_start());
         if !cleaned.is_empty() {
             return cleaned.to_string();
+        }
+    }
+    String::new()
+}
+
+/// Variant of `first_say_team_body` that KEEPS the leading sender variable
+/// (e.g. `$\$tpname`). Used by the report banner: quakers see their nick as
+/// part of the report output and expect it to render.
+fn first_say_team_raw_body(terminals: &[String]) -> String {
+    for t in terminals {
+        if !t.to_lowercase().starts_with("say_team") {
+            continue;
+        }
+        let after_cmd = &t[8..];
+        let trimmed = after_cmd.trim_start();
+        if !trimmed.is_empty() {
+            return trimmed.to_string();
         }
     }
     String::new()
@@ -1027,6 +1057,62 @@ fn classify_say_team(terminals: &[String]) -> (String, String, String) {
     (category, label, body)
 }
 
+/// Score-based report detector. Language-agnostic: a "report" is any say_team
+/// that carries the player's vitals picture — location + health + armor + weapon
+/// + optionally ammo/powerup. Counts distinct signal categories present in the
+/// resolved terminal text; when the shape matches (score >= 3, AND at least one
+/// of weapon/armor, AND at least one of health/location) the bind is a report
+/// regardless of the alias name or language used.
+///
+/// Why: the keyword classifier only catches English words ("report", "status")
+/// and misses clans that name their report alias "current.stack", "estado",
+/// "meldung", etc. The shape check runs before keyword matching specifically
+/// for the report case since report is the most important teamsay to surface.
+fn looks_like_report_by_shape(combined: &str) -> bool {
+    // Location macros: %l (standard), $loc_name, any $loc* variant
+    let has_location = combined.contains("%l") || combined.contains("$loc");
+    // Health macro: %h is the only standard spelling
+    let has_health = combined.contains("%h");
+    // Armor signals: %a, $colored_armor, $armortype
+    let has_armor = combined.contains("%a")
+        || combined.contains("colored_armor")
+        || combined.contains("armortype");
+    // Weapon signals: %w, $bestweapon, $weaponnum, any $tp_name_<weapon>
+    let has_weapon = combined.contains("%w")
+        || combined.contains("bestweapon")
+        || combined.contains("$weaponnum")
+        || combined.contains("tp_name_axe")
+        || combined.contains("tp_name_sg")
+        || combined.contains("tp_name_ssg")
+        || combined.contains("tp_name_ng")
+        || combined.contains("tp_name_sng")
+        || combined.contains("tp_name_gl")
+        || combined.contains("tp_name_rl")
+        || combined.contains("tp_name_lg");
+    // Ammo signals: %r/%c/%s/%n or explicit $rockets/$cells/$shells/$nails
+    let has_ammo = combined.contains("%r")
+        || combined.contains("%c")
+        || combined.contains("%s")
+        || combined.contains("%n")
+        || combined.contains("$rockets")
+        || combined.contains("$cells")
+        || combined.contains("$shells")
+        || combined.contains("$nails");
+    // Powerup signal: $tp_powerups cvar. %p is polysemous (last-pickup in took
+    // context) so we do not score it here to avoid false positives on took.
+    let has_powerup = combined.contains("tp_powerups") || combined.contains("$powerups");
+
+    let score = [has_location, has_health, has_armor, has_weapon, has_ammo, has_powerup]
+        .iter()
+        .filter(|b| **b)
+        .count();
+
+    // Triple requirement prunes lost (loc+weapon=2), took (item=1),
+    // need (need_macro+loc=1-2), point (x/y=1-2) while catching any custom
+    // report chain that emits the full vitals shape.
+    score >= 3 && (has_weapon || has_armor) && (has_health || has_location)
+}
+
 /// Classify a say_team message by looking at keywords in the resolved terminal commands.
 fn classify_say_team_canonical(terminals: &[String]) -> Option<(&'static str, &'static str, &'static str)> {
     // Collect all terminal text into one string for keyword matching
@@ -1039,6 +1125,14 @@ fn classify_say_team_canonical(terminals: &[String]) -> Option<(&'static str, &'
 
     if combined.is_empty() {
         return None;
+    }
+
+    // Shape-based report detection runs first so non-English / custom-named
+    // report chains are caught before the keyword classifier falls back to
+    // "custom". Keyword matching for other categories (lost/safe/need/took)
+    // still runs below.
+    if looks_like_report_by_shape(&combined) {
+        return Some(("status", "report", "Report status"));
     }
 
     // Match by keywords in the message templates
@@ -1342,6 +1436,10 @@ fn analyze_teamsay_binds(
             // fallback path can produce content-derived labels for custom
             // teamsay binds (distinct per message, not collapsed).
             let classification: Option<(String, String, String)>;
+            // Resolved say_team body — populated below when a say_team terminal
+            // is available. Used by the frontend report banner to render the
+            // actual message text.
+            let mut resolved_body: String = String::new();
 
             // Check 1: direct tp_msg* command
             if let Some((c, l, d)) = classify_tp_msg(first_word) {
@@ -1350,6 +1448,7 @@ fn analyze_teamsay_binds(
             // Check 2: direct say_team command
             else if part.to_lowercase().starts_with("say_team ") {
                 classification = Some(classify_say_team(&[part.to_string()]));
+                resolved_body = first_say_team_raw_body(&[part.to_string()]);
             }
             // Check 3: resolve through alias chains
             else {
@@ -1362,6 +1461,9 @@ fn analyze_teamsay_binds(
                     .any(|t| t.to_lowercase().starts_with("tp_msg"));
 
                 if has_say_team || has_tp_msg {
+                    if has_say_team {
+                        resolved_body = first_say_team_raw_body(&terminals);
+                    }
                     let by_name: Option<(String, String, String)> =
                         classify_by_alias_name(first_word)
                             .map(|(c, l, d)| (c.to_string(), l.to_string(), d.to_string()));
@@ -1405,6 +1507,7 @@ fn analyze_teamsay_binds(
                     category: cat,
                     label,
                     description: desc,
+                    body: resolved_body,
                 };
                 // Last bind wins (ezQuake processes top-to-bottom)
                 if let Some(&idx) = seen_keys.get(&key_display) {
@@ -2269,6 +2372,74 @@ set myvar                                "somevalue
 
         let myvar = parsed.cvars.get("myvar").expect("myvar parsed");
         assert_eq!(myvar, "somevalue");
+    }
+
+    #[test]
+    fn first_say_team_body_keeps_content_macros() {
+        // Label-oriented helper: strips one sender variable but keeps content
+        // macros. Regression: a previous loop consumed every leading `$`-token.
+        let terminals = vec![
+            "say_team $\\$tpname $bestweapon [{%l}] $powerups".to_string(),
+        ];
+        let body = first_say_team_body(&terminals);
+        assert_eq!(body, "$bestweapon [{%l}] $powerups");
+    }
+
+    #[test]
+    fn first_say_team_raw_body_keeps_sender_prefix() {
+        // Banner-oriented helper: keeps the sender nick intact because quakers
+        // expect it to render as part of their report identity.
+        let terminals = vec![
+            "say_team $\\$tpname $bestweapon [{%l}] $powerups".to_string(),
+        ];
+        let body = first_say_team_raw_body(&terminals);
+        assert_eq!(body, "$\\$tpname $bestweapon [{%l}] $powerups");
+    }
+
+    #[test]
+    fn shape_detector_catches_non_english_report() {
+        // Non-English / custom-named report alias that the keyword classifier
+        // would have bucketed as "custom": alias name is "estado" (Spanish for
+        // status), body contains no "report"/"status" keyword, but emits the
+        // full vitals shape (location, armor, health, weapon, ammo, powerup).
+        let terminals = vec![
+            "say_team $tp_powerups $colored_armor/%h $bestweapon:$rockets [{%l}]".to_string(),
+        ];
+        let result = classify_say_team_canonical(&terminals);
+        assert_eq!(
+            result,
+            Some(("status", "report", "Report status")),
+            "shape detector should catch custom-named report"
+        );
+    }
+
+    #[test]
+    fn shape_detector_rejects_lost_message() {
+        // "lost" emits location + weapon only (score 2). Shape detector must
+        // NOT promote this to report; keyword classifier then catches "lost".
+        let terminals = vec![
+            "say_team lost $bestweapon at %l".to_string(),
+        ];
+        let result = classify_say_team_canonical(&terminals);
+        assert_eq!(
+            result,
+            Some(("death", "lost", "Report death / dropped weapon")),
+            "lost message must not be promoted to report by shape"
+        );
+    }
+
+    #[test]
+    fn shape_detector_rejects_took_message() {
+        // "took" has no vitals shape — just the pickup item.
+        let terminals = vec![
+            "say_team took %x at %l".to_string(),
+        ];
+        let result = classify_say_team_canonical(&terminals);
+        assert_eq!(
+            result,
+            Some(("items", "took", "Report item pickup / team powerup")),
+            "took message must not be promoted to report by shape"
+        );
     }
 
     #[test]

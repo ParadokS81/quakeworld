@@ -16,6 +16,7 @@ import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
 import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
 import StatePanel from "./StatePanel";
+import ReportBanner from "./ReportBanner";
 import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
 import { updatePrefs } from "../store";
@@ -366,6 +367,24 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // "Hide defaults" toggle is the explicit control for hiding at-default rows;
   // we don't permanently filter them out in compare mode.
   const relevantCvars = createMemo(() => enrichedCvars());
+
+  // A pretty-view surface is any section that actually renders command
+  // chains / resolved tokens (binds, aliases, teamsay macros, triggers).
+  // When none are visible, the Pretty/Raw and Label/Simulator toggles
+  // are no-ops so we dim them in-place rather than hide them -- the
+  // toggle slots must stay at the same top-bar coordinates regardless.
+  const isPrettyViewActive = createMemo(() => {
+    const r2 = activeRow2();
+    return (
+      r2.has("weapons:binds") ||
+      r2.has("teamplay:binds") ||
+      r2.has("teamplay:macros") ||
+      r2.has("movement:binds") ||
+      r2.has("misc:binds") ||
+      aliasesActive() ||
+      triggersActive()
+    );
+  });
 
   // ── Category counts (all categories, then split into rows) ──
   const allCategories = createMemo(() => {
@@ -730,43 +749,212 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       </Match>
       <Match when={viewMode() === "list"}>
         <div class="flex flex-col h-full overflow-hidden relative">
-          {/* ── Top bar ── */}
-          <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 flex-wrap">
-            <button
-              class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-              onClick={() => setConfigExpanded((v) => !v)}
-            >
-              <span class="text-xs">{configExpanded() ? "▼" : "▶"}</span>
-              <span class="badge badge-primary text-xs px-1.5 h-5">ezQuake</span>
-              <span class="text-[var(--sg-text-dim)]">›</span>
-              <span class="font-mono">{effectiveConfigName() ?? "config.cfg"}</span>
-            </button>
+          {/* ── Top bar ──
+              Three-segment layout that mirrors the workspace columns
+              beneath:
+                Segment 1 (above sidebar, 160px): Search + Hide defaults.
+                Segment 2 (above main content, flex-1 max-w-4xl):
+                  left-aligned Source label + path trigger,
+                  right-aligned Pretty/Raw + Label/Simulator render modes.
+                Segment 3 (above right panel, flex-1): Keyboard/State
+                  left-aligned to the right panel's start (only rendered
+                  when a binds section is focused).
+              Compare label rides at the very end when compare mode
+              is active. */}
+          <div class="flex items-stretch gap-0 px-0 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0">
+            {/* Segment 1 - above sidebar. Search only; Hide defaults
+                moved into the sidebar above the Settings header so the
+                top bar stays a single row. */}
+            <div class="sg-top-seg-sidebar">
+              <input
+                type="text"
+                class="input input-xs font-mono w-full"
+                placeholder="Search..."
+                value={search()}
+                onInput={(e) => setSearch(e.currentTarget.value)}
+              />
+            </div>
 
-            <Show when={primaryOverride()}>
-              <button
-                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
-                onClick={() => {
-                  setPrimaryOverride(null);
-                  setConfigOverride(null);
-                }}
-              >
-                ↩ Reset to default
-              </button>
-            </Show>
+            {/* Segment 2 - above main content (flex-1 max-w-4xl) */}
+            <div class="sg-top-seg-content">
+              <div class="sg-top-seg-content-left">
+                <div class="sg-top-source-label">
+                  <span class="sg-top-source-kicker">Source:</span>
+                  <span class="badge badge-primary text-xs px-1.5 h-5">ezQuake</span>
+                </div>
+                <div class="relative">
+                  <button
+                    class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                    onClick={() => setConfigExpanded((v) => !v)}
+                    title="Show config chain"
+                  >
+                    <span class="text-xs">{configExpanded() ? "▼" : "▶"}</span>
+                    <span class="font-mono">
+                      {effectiveChain()?.files[0]?.relative_path ?? effectiveConfigName() ?? "config.cfg"}
+                    </span>
+                  </button>
 
-            <div class="flex-1" />
+                  <Show when={configExpanded() && effectiveChain()}>
+                <div
+                  class={`absolute left-0 top-full z-40 mt-1 flex rounded border border-[var(--sg-stat-border)] bg-[var(--sg-stat-bg)] shadow-lg ${
+                    isCompareMode() ? "min-w-[56rem]" : "min-w-[28rem]"
+                  } max-w-[72rem]`}
+                >
+                  <div class={isCompareMode() ? "flex-1" : "flex-1"}>
+                    <ConfigChainPanel
+                      configChain={effectiveChain()!}
+                      selectedFiles={selectedFiles()}
+                      onToggleFile={toggleFile}
+                      availableConfigs={props.availableConfigs}
+                      onCompareConfig={props.onCompareConfig}
+                      onViewConfig={(entry) => handleViewAsPrimary(entry)}
+                    />
+                    <div class="px-4 py-2 border-t border-[var(--sg-stat-border)] flex justify-end">
+                      <button
+                        class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                        onClick={() => { setConfigExpanded(false); setViewMode("convert"); }}
+                      >
+                        Convert to FTE...
+                      </button>
+                    </div>
+                  </div>
+                  <Show when={isCompareMode() && props.compareSource?.primary_chain}>
+                    <div class="flex-1 px-4 py-2 bg-[var(--sg-stat-bg)] text-xs text-[var(--sg-text-dim)] border-l border-[var(--sg-stat-border)]">
+                      <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
+                        Compare chain ({props.compareSource!.primary_chain!.files.length} file{props.compareSource!.primary_chain!.files.length !== 1 ? "s" : ""})
+                      </span>
+                      <div class="mt-1 font-mono">
+                        <For each={props.compareSource!.primary_chain!.files}>
+                          {(file, i) => (
+                            <div class="flex items-center gap-2 py-0.5">
+                              <span class="text-[var(--sg-section-label)] select-none w-4">
+                                {i() === props.compareSource!.primary_chain!.files.length - 1 ? "└─" : "├─"}
+                              </span>
+                              <span class="text-[var(--sg-text-bright)]">{file.relative_path}</span>
+                              <span class="text-[var(--sg-section-label)]">{file.line_count} lines</span>
+                            </div>
+                          )}
+                        </For>
+                      </div>
+                      <Show when={props.compareSource!.primary_chain!.unresolved.length > 0}>
+                        <div class="mt-2">
+                          <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
+                            Missing files ({props.compareSource!.primary_chain!.unresolved.length})
+                          </span>
+                          <div class="mt-1 font-mono">
+                            <For each={props.compareSource!.primary_chain!.unresolved}>
+                              {(u) => (
+                                <div class="flex items-center gap-2 py-0.5 text-yellow-500">
+                                  <span class="select-none w-4">⚠</span>
+                                  <span>{u.raw_ref}</span>
+                                </div>
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
+                      <Show when={props.compareSource!.available_configs.length > 0}>
+                        <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
+                          <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
+                            Other configs ({props.compareSource!.available_configs.length})
+                          </span>
+                          <div class="mt-1 font-mono">
+                            <For each={props.compareSource!.available_configs}>
+                              {(entry) => (
+                                <div
+                                  class="flex items-center gap-1.5 py-0.5 cursor-pointer hover:text-[var(--color-primary)] transition-colors"
+                                  onClick={() => props.onSwapCompareConfig?.(entry)}
+                                >
+                                  <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
+                                </div>
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
+                    </div>
+                  </Show>
+                </div>
+              </Show>
+            </div>
 
-            <Show when={isCompareMode()}>
-              <div class="flex items-center gap-2 text-sm">
-                <span class="font-mono text-xs text-[var(--sg-text-dim)]">{props.compareSource?.label}</span>
-                <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
-                  ✕
-                </button>
+                <Show when={primaryOverride()}>
+                  <button
+                    class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                    onClick={() => {
+                      setPrimaryOverride(null);
+                      setConfigOverride(null);
+                    }}
+                  >
+                    ↩ Reset to default
+                  </button>
+                </Show>
               </div>
-            </Show>
-            <button class="btn btn-primary btn-xs" onClick={() => setViewMode("convert")}>
-              Convert to FTE
-            </button>
+
+              {/* Segment 2 right: render-mode toggles. Rendering modes
+                  (how rows are drawn) rather than filters. Dimmed when
+                  no pretty-view surface is visible but kept in place so
+                  their coordinates never shift. */}
+              <div class="sg-top-seg-content-right" classList={{ "sg-top-group-dim": !isPrettyViewActive() }}>
+                <div class="sg-config-kb-mode-toggle" title={isPrettyViewActive() ? "Alias chain rendering" : "Only applies to bind/alias/trigger views"}>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainMode() === "pretty" }}
+                    onClick={() => setAliasChainMode("pretty")}
+                    disabled={!isPrettyViewActive()}
+                  >Pretty</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainMode() === "raw" }}
+                    onClick={() => setAliasChainMode("raw")}
+                    disabled={!isPrettyViewActive()}
+                  >Raw</button>
+                </div>
+                <div class="sg-config-kb-mode-toggle" title={isPrettyViewActive() ? "Token resolver" : "Only applies to bind/alias/trigger views"}>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainResolver() === "label" }}
+                    onClick={() => setAliasChainResolver("label")}
+                    disabled={!isPrettyViewActive()}
+                  >Label</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainResolver() === "simulator" }}
+                    onClick={() => setAliasChainResolver("simulator")}
+                    disabled={!isPrettyViewActive()}
+                  >Simulator</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Segment 3 - above right panel. Keyboard/State sits at
+                the LEFT edge of this segment so it aligns with the
+                right-panel column below. Only rendered when a binds
+                section is focused (right panel lifecycle). */}
+            <div class="sg-top-seg-right">
+              <Show when={kbState.isBindsSectionFocused()}>
+                <div class="sg-config-kb-mode-toggle">
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": kbState.visible() && kbState.rightPanelMode() === "keyboard" }}
+                    onClick={() => kbState.toggleRightPanel("keyboard")}
+                  >Keyboard</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": kbState.visible() && kbState.rightPanelMode() === "state" }}
+                    onClick={() => kbState.toggleRightPanel("state")}
+                  >State</button>
+                </div>
+              </Show>
+              <Show when={isCompareMode()}>
+                <div class="flex items-center gap-2 text-sm ml-auto pr-3">
+                  <span class="font-mono text-xs text-[var(--sg-text-dim)]">{props.compareSource?.label}</span>
+                  <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
+                    ✕
+                  </button>
+                </div>
+              </Show>
+            </div>
           </div>
 
           {/* ── Sidebar + Content (horizontal layout) ── */}
@@ -792,88 +980,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               onToggleCommands={() => setCommandsActive((v) => !v)}
               hideDefaults={hideDefaults()}
               onHideDefaultsChange={setHideDefaults}
-              aliasChainMode={aliasChainMode()}
-              onAliasChainModeChange={setAliasChainMode}
-              aliasChainResolver={aliasChainResolver()}
-              onAliasChainResolverChange={setAliasChainResolver}
-              search={search()}
-              onSearchChange={setSearch}
               isCompareMode={isCompareMode()}
             />
 
             <div class="flex-1 flex flex-col overflow-hidden max-w-4xl">
-              {/* ── Config chain panel (expandable, inside content column) ── */}
-              <Show when={configExpanded() && effectiveChain()}>
-                <div class={`flex-shrink-0 border-b border-[var(--sg-stat-border)] ${isCompareMode() ? "flex" : ""}`}>
-                  <div class={isCompareMode() ? "flex-1" : ""}>
-                    <ConfigChainPanel
-                      configChain={effectiveChain()!}
-                      selectedFiles={selectedFiles()}
-                      onToggleFile={toggleFile}
-                      availableConfigs={props.availableConfigs}
-                      onCompareConfig={props.onCompareConfig}
-                      onViewConfig={(entry) => handleViewAsPrimary(entry)}
-                    />
-                  </div>
-                  <Show when={isCompareMode() && props.compareSource?.primary_chain}>
-                    <div class="flex-1 px-4 py-2 bg-[var(--sg-stat-bg)] text-xs text-[var(--sg-text-dim)] border-l border-[var(--sg-stat-border)]">
-                      <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
-                        Compare chain ({props.compareSource!.primary_chain!.files.length} file{props.compareSource!.primary_chain!.files.length !== 1 ? "s" : ""})
-                      </span>
-                      <div class="mt-1 font-mono">
-                        <For each={props.compareSource!.primary_chain!.files}>
-                          {(file, i) => (
-                            <div class="flex items-center gap-2 py-0.5">
-                              <span class="text-[var(--sg-section-label)] select-none w-4">
-                                {i() === props.compareSource!.primary_chain!.files.length - 1 ? "└─" : "├─"}
-                              </span>
-                              <span class="text-[var(--sg-text-bright)]">{file.relative_path}</span>
-                              <span class="text-[var(--sg-section-label)]">{file.line_count} lines</span>
-                            </div>
-                          )}
-                        </For>
-                      </div>
-                      <Show when={props.compareSource!.primary_chain!.unresolved.length > 0}>
-                        <div class="mt-2">
-                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
-                            Missing files ({props.compareSource!.primary_chain!.unresolved.length})
-                          </span>
-                          <div class="mt-1 font-mono">
-                            <For each={props.compareSource!.primary_chain!.unresolved}>
-                              {(u) => (
-                                <div class="flex items-center gap-2 py-0.5 text-yellow-500">
-                                  <span class="select-none w-4">⚠</span>
-                                  <span>{u.raw_ref}</span>
-                                </div>
-                              )}
-                            </For>
-                          </div>
-                        </div>
-                      </Show>
-                      <Show when={props.compareSource!.available_configs.length > 0}>
-                        <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
-                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
-                            Other configs ({props.compareSource!.available_configs.length})
-                          </span>
-                          <div class="mt-1 font-mono">
-                            <For each={props.compareSource!.available_configs}>
-                              {(entry) => (
-                                <div
-                                  class="flex items-center gap-1.5 py-0.5 cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-                                  onClick={() => props.onSwapCompareConfig?.(entry)}
-                                >
-                                  <span class="text-[var(--sg-text-dim)]">{entry.filename}</span>
-                                </div>
-                              )}
-                            </For>
-                          </div>
-                        </div>
-                      </Show>
-                    </div>
-                  </Show>
-                </div>
-              </Show>
-
               {/* ── Compare filter bar ── */}
               {/* Only shown when the Settings section is visible — the counts
                   are cvar-specific and become misleading on bind/alias/macro
@@ -883,7 +993,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1" onClick={clearCompare} title="Exit compare mode">
                     ✕
                   </button>
-                  <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
+                  <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
                   <For each={[
                     { id: "all" as CompareFilter, label: `All (${visibleCvars().length})` },
                     { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
@@ -907,7 +1017,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
               {/* ── Content + minimap ── */}
               <div class="flex-1 flex overflow-hidden">
-              <div class="sg-content-scroll flex-1 overflow-y-auto relative pt-1" ref={setContentScrollEl}>
+              <div class="sg-content-scroll flex-1 overflow-y-auto relative pt-4 px-1" ref={setContentScrollEl}>
                 <Show when={showSettingsSection()}>
                   <ConfigSettingsSection
                     cvars={filteredCvars()}
@@ -1096,6 +1206,24 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     onReset={kbState.resetSimState}
                   />
                 }
+                reportBanner={() => (
+                  <ReportBanner
+                    teamsayBinds={effectiveConfig()?.teamsay_binds}
+                    state={playerState()}
+                    cvars={new Map(Object.entries(effectiveCvars()))}
+                    aliases={primaryAliases()}
+                    bindCommands={primaryBindCommands()}
+                    resolver={resolver()}
+                    onClick={() => {
+                      // Click the banner to select the report label — same
+                      // interaction as clicking the Report row in the teamplay
+                      // list. Activates keyboard highlight + expands the chain
+                      // on the left pane. Toggle off if already selected.
+                      if (kbState.isLabelSelected("report")) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "teamsay", label: "report" }]);
+                    }}
+                  />
+                )}
               />
             </Show>
           </div>
