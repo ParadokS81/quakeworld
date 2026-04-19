@@ -179,7 +179,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
     <div>
       <div class="sg-category-group-header">
         Macros
-        <span class="text-[11px] font-normal text-[var(--sg-section-label)] ml-2">
+        <span class="text-[0.6875rem] font-normal text-[var(--sg-section-label)] ml-2">
           {customizedCount()} customized / {shownCount()} shown / {totalCount()} total
         </span>
       </div>
@@ -189,12 +189,12 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
         class={props.isCompareMode ? "sg-macro-row-cmp" : "sg-macro-row"}
         style="border-bottom: 1px solid var(--sg-stat-border)"
       >
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
-        <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Macro</span>
+        <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">
           {props.isCompareMode ? "Your Config" : "Value"}
         </span>
         <Show when={props.isCompareMode}>
-          <span class="text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
+          <span class="text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]">Comparison</span>
         </Show>
       </div>
 
@@ -221,7 +221,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
                       title={buildTooltip(macro)}
                     >
                       <span
-                        class={`text-[13px] ${
+                        class={`text-[0.8125rem] ${
                           anyCustomized
                             ? "text-[var(--color-warning)]"
                             : "text-[var(--sg-section-label)]"
@@ -231,7 +231,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
                       </span>
 
                       <span
-                        class={`text-[13px] ${
+                        class={`text-[0.8125rem] ${
                           macro.isCustomized
                             ? "text-[var(--sg-text-bright)] font-semibold"
                             : "text-[var(--sg-section-label)]"
@@ -242,7 +242,7 @@ export default function ConfigMacrosSection(props: ConfigMacrosSectionProps) {
 
                       <Show when={props.isCompareMode}>
                         <span
-                          class={`text-[13px] ${
+                          class={`text-[0.8125rem] ${
                             macro.compareIsCustomized
                               ? "text-[var(--sg-text-bright)] font-semibold"
                               : "text-[var(--sg-section-label)]"

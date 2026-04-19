@@ -2,6 +2,7 @@ import { createMemo, For, Show } from "solid-js";
 import type { CvarInfo } from "qw-config";
 import CvarRow from "./CvarRow";
 import CvarTooltip from "./CvarTooltip";
+import { CATEGORY_PRIORITY } from "./ConfigViewer";
 
 export interface EnrichedCvar {
   name: string;
@@ -50,7 +51,7 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
           .sort((a, b) => b[1].length - a[1].length)
           .map(([name, cvars]) => ({ name, cvars })),
       }))
-      .sort((a, b) => b.totalCount - a.totalCount);
+      .sort((a, b) => (CATEGORY_PRIORITY.get(a.category) ?? 99) - (CATEGORY_PRIORITY.get(b.category) ?? 99));
   });
 
   const showCategoryHeaders = () => groupedCvars().length > 1;
@@ -59,7 +60,7 @@ export default function ConfigSettingsSection(props: ConfigSettingsSectionProps)
     <div>
       {/* Column headers */}
       <div
-        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[11px] uppercase tracking-wide text-[var(--sg-section-label)]"
+        class="grid py-1 border-b border-[var(--sg-stat-border)] flex-shrink-0 text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)]"
         style={{
           "grid-template-columns": props.isCompareMode ? "300px 1fr 1fr" : "320px 1fr",
         }}

@@ -26,6 +26,9 @@ apps/qw-stats/data/4on4_full/
 apps/qw-stats/data/*.zip
 apps/qw-stats/data/*.db
 apps/qw-oracle/data/*.db
+apps/qw-oracle/data/*.db-journal
+apps/qw-oracle/data/*.db-wal
+apps/qw-oracle/data/*.db-shm
 apps/quad/recordings/
 apps/quad/exports/
 

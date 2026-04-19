@@ -5,11 +5,12 @@ import type { ProfileData, SetupHardware } from "../store";
 import { getPrimarySetup } from "../store";
 import { MouseSelector, MousepadSelector } from "./GearSelector";
 import WhoBanner from "./WhoBanner";
-import KeyboardLayout, { toLayoutId } from "./KeyboardLayout";
-import type { KeyHighlight } from "./KeyboardLayout";
+import KeyboardLayout from "./KeyboardLayout";
 import MouseLayout from "./MouseLayout";
-import WeaponBindViz, { WEAPON_COLORS } from "./WeaponBindViz";
+import WeaponBindViz from "./WeaponBindViz";
 import type { MouseHighlights } from "./MouseSvg";
+import { buildKeyHighlights, buildKeyLabels, TEAMSAY_COLORS } from "./keyboardHighlights";
+import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import miceData from "../data/mice.json";
 import mousepadsData from "../data/mousepads.json";
 import miceSupplement from "../data/mice-supplement.json";
@@ -53,6 +54,17 @@ interface ProfileTabProps {
 }
 
 export default function ProfileTab(props: ProfileTabProps) {
+  // Profile's keyboard panel state - right-slot module only. The hook's
+  // category toggles, visibility, and selection outputs are ignored here;
+  // Profile doesn't use click-to-pin and has its own show-bind-labels
+  // toggle outside this hook. A dummy activeRow2 is fine.
+  const profileKbState = useKeyboardPanelState({
+    profile: () => props.profile,
+    activeRow2: () => new Set<string>(),
+    availableModules: ["nav", "numpad"] as const,
+    persistKey: "profile",
+  });
+
   // Auto-detected peripherals
   const detectedMice = () => props.specs?.hid_devices.filter((d) => d.device_type === "mouse") ?? [];
   const detectedKeyboards = () => props.specs?.hid_devices.filter((d) => d.device_type === "keyboard") ?? [];
@@ -88,43 +100,22 @@ export default function ProfileTab(props: ProfileTabProps) {
   // Bind visualization mode = any non-movement toggle is active
   const bindVizMode = () => showWeapons() || showTeamplay();
 
-  // Teamsay category colors
-  const TEAMSAY_COLORS: Record<string, string> = {
-    status:   "oklch(0.7 0.15 210)",  // cyan
-    death:    "oklch(0.65 0.2 25)",   // red
-    movement: "oklch(0.7 0.15 145)",  // green
-    items:    "oklch(0.75 0.15 85)",  // yellow
-    enemy:    "oklch(0.65 0.2 30)",   // red-orange
-    orders:   "oklch(0.7 0.15 55)",   // orange
-    powerups: "oklch(0.7 0.18 300)",  // purple
-    confirm:  "oklch(0.65 0.1 250)",  // blue-gray
-    custom:   "oklch(0.6 0.08 0)",    // neutral gray
-  };
-
   // Build keyboard highlights from weapon binds + teamsay binds
   const weaponKeyHighlights = createMemo(() => {
-    const highlights = new Map<string, KeyHighlight>();
-    if (showWeapons()) {
-      const binds = props.ezConfig?.weapon_binds ?? [];
-      for (const wb of binds) {
-        const layoutId = toLayoutId(wb.trigger_key);
-        if (layoutId) {
-          const color = WEAPON_COLORS[wb.weapon] ?? "oklch(0.5 0.05 0)";
-          highlights.set(layoutId, { color });
-        }
-      }
-    }
-    if (showTeamplay()) {
-      const binds = props.ezConfig?.teamsay_binds ?? [];
-      for (const tb of binds) {
-        const layoutId = toLayoutId(tb.key);
-        if (layoutId && !highlights.has(layoutId)) {
-          const color = TEAMSAY_COLORS[tb.category] ?? "oklch(0.6 0.08 0)";
-          highlights.set(layoutId, { color });
-        }
-      }
-    }
-    return highlights;
+    const cfg = props.ezConfig;
+    if (!cfg) return new Map();
+    return buildKeyHighlights(
+      {
+        weapon_binds: cfg.weapon_binds,
+        teamsay_binds: cfg.teamsay_binds,
+        movement: cfg.movement,
+      },
+      {
+        showMovement: showMovement(),
+        showWeapons: showWeapons(),
+        showTeamplay: showTeamplay(),
+      },
+    );
   });
 
   // Build mouse highlights for teamsay binds (MWheelUp, MWheelDown, Mouse4, etc.)
@@ -146,51 +137,22 @@ export default function ProfileTab(props: ProfileTabProps) {
     return hl;
   });
 
-  // Build key label overrides (physical key → bound function)
-  const WEAPON_LABELS: Record<string, string> = {
-    rl: "RL", lg: "LG", gl: "GL", sng: "SNG", ng: "NG",
-    ssg: "SSG", sg: "SG", axe: "AXE",
-  };
-  const MOVE_ARROWS: Record<string, string> = {
-    forward: "↑", back: "↓", moveleft: "←", moveright: "→",
-  };
   const keyLabels = createMemo(() => {
-    if (!showBindLabels()) return undefined;
-    const labels = new Map<string, string>();
     const cfg = props.ezConfig;
     if (!cfg) return undefined;
-    // Movement labels
-    if (showMovement()) {
-      const m = cfg.movement;
-      for (const [dir, arrow] of Object.entries(MOVE_ARROWS)) {
-        const key = m[dir as keyof typeof m];
-        const id = toLayoutId(key);
-        if (id) labels.set(id, arrow);
-      }
-      const jumpId = toLayoutId(m.jump);
-      if (jumpId) labels.set(jumpId, "jump");
-    }
-    // Weapon labels
-    if (showWeapons()) {
-      for (const wb of cfg.weapon_binds) {
-        const id = toLayoutId(wb.trigger_key);
-        if (id) {
-          const existing = labels.get(id);
-          const wLabel = WEAPON_LABELS[wb.weapon] ?? wb.weapon.toUpperCase();
-          labels.set(id, existing ? `${existing}/${wLabel}` : wLabel);
-        }
-      }
-    }
-    // Teamsay labels
-    if (showTeamplay()) {
-      for (const tb of cfg.teamsay_binds) {
-        const id = toLayoutId(tb.key);
-        if (id && !labels.has(id)) {
-          labels.set(id, tb.label);
-        }
-      }
-    }
-    return labels.size > 0 ? labels : undefined;
+    return buildKeyLabels(
+      {
+        weapon_binds: cfg.weapon_binds,
+        teamsay_binds: cfg.teamsay_binds,
+        movement: cfg.movement,
+      },
+      {
+        showMovement: showMovement(),
+        showWeapons: showWeapons(),
+        showTeamplay: showTeamplay(),
+      },
+      showBindLabels(),
+    );
   });
 
   // Restore saved gear from profile store
@@ -467,6 +429,13 @@ export default function ProfileTab(props: ProfileTabProps) {
                     highlights={weaponKeyHighlights()}
                     showMovement={showMovement()}
                     keyLabels={keyLabels()}
+                    rightModule={profileKbState.rightModule()}
+                    rightModuleCell={{
+                      label: profileKbState.rightModule() === "nav" ? "Nav" : "Num",
+                      onClick: () => profileKbState.setRightModule(
+                        profileKbState.rightModule() === "nav" ? "numpad" : "nav",
+                      ),
+                    }}
                   />
                 </div>
 
@@ -563,11 +532,17 @@ export default function ProfileTab(props: ProfileTabProps) {
                     {cm360() && (
                       <span class="sg-mouse-data-tag sg-mouse-data-highlight">{cm360()} cm/360</span>
                     )}
-                    {lgCm360() && (
-                      <span class="sg-mouse-data-tag sg-mouse-data-highlight" title={`LG sensitivity: ${props.ezConfig?.lg_sensitivity}`}>
-                        LG {lgCm360()} cm/360
-                      </span>
-                    )}
+                    {lgCm360() && (() => {
+                      const baseline = props.ezConfig?.sensitivity_baseline ?? props.ezConfig?.sensitivity;
+                      const tip = baseline != null
+                        ? `LG sensitivity: ${props.ezConfig?.lg_sensitivity} (base ${baseline})`
+                        : `LG sensitivity: ${props.ezConfig?.lg_sensitivity}`;
+                      return (
+                        <span class="sg-mouse-data-tag sg-mouse-data-highlight" title={tip}>
+                          LG {lgCm360()} cm/360
+                        </span>
+                      );
+                    })()}
                     {invertY() !== null && (
                       <span class="sg-sens-tag" classList={{ "sg-sens-active": invertY()! }}>
                         invert {invertY() ? "ON" : "OFF"}

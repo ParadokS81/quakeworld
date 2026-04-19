@@ -33,7 +33,14 @@ ProfileData {
   identity:     ProfileIdentity    // discord, qw_name, team, nationality, colors
   setups:       Setup[]            // currently only setups[0] used
   equipment_history: EquipmentEntry[]  // parked, not wired to UI yet
-  prefs:        ProfilePrefs       // map_backdrop only
+  prefs:        ProfilePrefs       // map_backdrop + ConfigKeyboardPanel toggles
+                                   //   (visible, show_movement, show_weapons, show_teamplay)
+                                   //   + config_keyboard_right_module (nav|numpad|mouse)
+                                   //   + profile_keyboard_right_module (nav|numpad)
+                                   //   + config_right_panel_mode (keyboard|state)
+                                   //   + simulator: SimulatorPrefs
+                                   //   + alias_chain_mode (pretty|raw) - default pretty
+                                   //   + alias_chain_resolver (label|simulator) - default label
 }
 
 Setup {
@@ -42,7 +49,24 @@ Setup {
   client: ClientInfo      // exe_path, config_name, version, update_channel
   hardware: SetupHardware // dpi, mouse/mousepad/keyboard, grip/aim, overrides
 }
+
+SimulatorPrefs {
+  version: 1              // schema tag for future migration
+  currentState: PlayerState  // working-copy state for the simulator panel
+  templates: SimulatorTemplate[]  // saved named snapshots of currentState
+}
 ```
+
+`PlayerState` contains `Set<Weapon>` and `Set<Powerup>` fields which do not survive
+`JSON.stringify`. Store.ts's `serializePlayerState` / `deserializePlayerState`
+helpers normalize them to Array on write and back to Set on read. Applies to
+both `currentState` and every template's `state`.
+
+Template CRUD lives alongside the other `updateX` helpers in store.ts:
+`updateSimulatorState`, `saveSimulatorTemplate` (silent overwrite by name),
+`loadSimulatorTemplate`, `deleteSimulatorTemplate`, `resetSimulatorState`.
+Consumers are `useKeyboardPanelState` (state panel signal plumbing) and
+`StatePanel.tsx` (UI).
 
 All fields except `topcolor`/`bottomcolor` (default 0) and `map_backdrop` (default "dm3") start null and fill in progressively as the user interacts.
 

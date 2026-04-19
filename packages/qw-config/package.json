@@ -19,6 +19,8 @@
     "assemble-qwcl": "bun run scripts/assemble-qwcl.ts"
   },
   "devDependencies": {
+    "tree-sitter": "^0.25.0",
+    "tree-sitter-c": "^0.24.1",
     "typescript": "~5.6.2"
   }
 }

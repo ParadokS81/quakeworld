@@ -1,25 +1,26 @@
 import { Show, createMemo } from "solid-js";
 import type { MovementKeys } from "../types";
+import { MODULES, type KeyboardRightModule } from "./keyboardModules";
+import MouseDiagram from "./keyboardModules/mouseDiagram";
 
 /* ─── US QWERTY TKL layout data ─────────────────────────────────────── */
 
-interface KeyDef {
+export interface KeyDef {
   id: string;    // matches ezQuake key name
   label: string; // display label on keycap
   x: number;     // x position in keyboard units (1u = standard key width)
   w: number;     // width in keyboard units
   row: number;   // row index (0 = F-row … 5 = space bar row)
+  h?: number;    // height in row units, defaults to 1; used for numpad + and Enter
 }
 
 // Main block ends at x=15 (backspace 13+2), nav cluster starts at 15.5
 const NAV_X = 15.5;
-// Arrow cluster: centered under nav, left arrow at NAV_X
-const ARR_X = NAV_X;
 
 // Vertical gaps (in row-height fractions)
 const FROW_GAP = 0.4;   // gap between F-row and number row
 
-const LAYOUT: KeyDef[] = [
+export const MAIN_BLOCK: KeyDef[] = [
   // Row 0 — Function row
   { id: "Escape", label: "Esc", x: 0, w: 1, row: 0 },
   { id: "F1", label: "F1", x: 1.25, w: 1, row: 0 },
@@ -50,9 +51,6 @@ const LAYOUT: KeyDef[] = [
   { id: "-", label: "-", x: 11, w: 1, row: 1 },
   { id: "=", label: "=", x: 12, w: 1, row: 1 },
   { id: "Backspace", label: "⌫", x: 13, w: 2, row: 1 },
-  { id: "Insert", label: "Ins", x: NAV_X, w: 1, row: 1 },
-  { id: "Home", label: "Hm", x: NAV_X + 1, w: 1, row: 1 },
-  { id: "PageUp", label: "PU", x: NAV_X + 2, w: 1, row: 1 },
 
   // Row 2 — Top alpha + nav cluster middle
   { id: "Tab", label: "Tab", x: 0, w: 1.5, row: 2 },
@@ -69,9 +67,6 @@ const LAYOUT: KeyDef[] = [
   { id: "[", label: "[", x: 11.5, w: 1, row: 2 },
   { id: "]", label: "]", x: 12.5, w: 1, row: 2 },
   { id: "\\", label: "\\", x: 13.5, w: 1.5, row: 2 },
-  { id: "Delete", label: "Del", x: NAV_X, w: 1, row: 2 },
-  { id: "End", label: "End", x: NAV_X + 1, w: 1, row: 2 },
-  { id: "PageDown", label: "PD", x: NAV_X + 2, w: 1, row: 2 },
 
   // Row 3 — Home row
   { id: "CapsLock", label: "Caps", x: 0, w: 1.75, row: 3 },
@@ -101,7 +96,6 @@ const LAYOUT: KeyDef[] = [
   { id: ".", label: ".", x: 10.25, w: 1, row: 4 },
   { id: "/", label: "/", x: 11.25, w: 1, row: 4 },
   { id: "RShift", label: "Shift", x: 12.25, w: 2.75, row: 4 },
-  { id: "UpArrow", label: "↑", x: ARR_X + 1, w: 1, row: 4 },
 
   // Row 5 — Modifiers + Space + Arrow keys
   { id: "Ctrl", label: "Ctrl", x: 0, w: 1.25, row: 5 },
@@ -112,22 +106,17 @@ const LAYOUT: KeyDef[] = [
   { id: "RWin", label: "Win", x: 11.25, w: 1.25, row: 5 },
   { id: "RCtrl", label: "Ctrl", x: 12.5, w: 1.25, row: 5 },
   { id: "Fn", label: "Fn", x: 13.75, w: 1.25, row: 5 },
-  { id: "LeftArrow", label: "←", x: ARR_X, w: 1, row: 5 },
-  { id: "DownArrow", label: "↓", x: ARR_X + 1, w: 1, row: 5 },
-  { id: "RightArrow", label: "→", x: ARR_X + 2, w: 1, row: 5 },
 ];
 
 // Fast lookup by ID (used by consumers)
-export const KEY_BY_ID = new Map(LAYOUT.map(k => [k.id, k]));
+export const KEY_BY_ID = new Map(MAIN_BLOCK.map(k => [k.id, k]));
 
 /* ─── Key name mapping ──────────────────────────────────────────────────── */
 
-/** Map ezQuake config key names → layout IDs.  Returns null for mouse buttons. */
+/** Map ezQuake config key names → layout IDs. */
 export function toLayoutId(key: string): string | null {
   // Normalize to uppercase so production parser output (MOUSE1, SHIFT) hits correctly
   const k = key.toUpperCase();
-
-  if (k.startsWith("MOUSE") || k.startsWith("MWHEEL")) return null;
 
   const map: Record<string, string> = {
     SPACE: "Space", TAB: "Tab", CAPSLOCK: "CapsLock",
@@ -150,6 +139,28 @@ export function toLayoutId(key: string): string | null {
     PAGEUP: "PageUp", PGUP: "PageUp",
     PAGEDOWN: "PageDown", PGDN: "PageDown",
     FN: "Fn",
+    // Mouse buttons and wheel
+    MOUSE1: "Mouse1", MOUSE2: "Mouse2", MOUSE3: "Mouse3",
+    MOUSE4: "Mouse4", MOUSE5: "Mouse5", MOUSE6: "Mouse6",
+    MWHEELUP: "MWheelUp", MWHEELDOWN: "MWheelDown",
+    // Numpad cluster - many ezQuake inputs collapse to the same cell
+    // (Num Lock on/off dual naming; see plan reference data)
+    NUMLOCK: "Kp_Num", KP_NUMLCK: "Kp_Num", KP_NUMLOCK: "Kp_Num",
+    KP_SLASH: "Kp_Slash", KP_DIVIDE: "Kp_Slash",
+    KP_STAR: "Kp_Star", KP_MULTIPLY: "Kp_Star",
+    KP_MINUS: "Kp_Minus", KP_PLUS: "Kp_Plus",
+    KP_7: "Kp_7", KP_HOME: "Kp_7",
+    KP_8: "Kp_8", KP_UPARROW: "Kp_8",
+    KP_9: "Kp_9", KP_PGUP: "Kp_9",
+    KP_4: "Kp_4", KP_LEFTARROW: "Kp_4",
+    KP_5: "Kp_5",
+    KP_6: "Kp_6", KP_RIGHTARROW: "Kp_6",
+    KP_1: "Kp_1", KP_END: "Kp_1",
+    KP_2: "Kp_2", KP_DOWNARROW: "Kp_2",
+    KP_3: "Kp_3", KP_PGDN: "Kp_3",
+    KP_0: "Kp_0", KP_INS: "Kp_0",
+    KP_DEL: "Kp_Dot",
+    KP_ENTER: "Kp_Enter",
   };
   if (k in map) return map[k];
 
@@ -162,6 +173,12 @@ export function toLayoutId(key: string): string | null {
   return null;
 }
 
+const MOUSE_INDICATORS: Record<string, string> = {
+  Mouse1: "1", Mouse2: "2", Mouse3: "3",
+  Mouse4: "4", Mouse5: "5",
+  MWheelUp: "\u2191", MWheelDown: "\u2193",
+};
+
 /* ─── SVG constants ─────────────────────────────────────────────────────── */
 
 const KU = 40;          // 1 keyboard unit in SVG coordinates
@@ -170,7 +187,7 @@ const ROW_H = 40;       // row height in SVG coordinates
 const NUM_ROWS = 6;
 const GAP_PX = FROW_GAP * ROW_H;  // F-row gap in pixels
 const TOTAL_H = NUM_ROWS * ROW_H + GAP_PX;
-const TOTAL_W_U = NAV_X + 3; // TKL width: main block + nav cluster
+const TOTAL_W_U = NAV_X + 4; // Pinned to widest module (numpad / mouse = 4u) so keyboard size stays stable when swapping modules. Nav mode leaves 1u of dead space to the right of the arrow cluster - intentional.
 
 /** Convert row index to Y pixel position, accounting for F-row gap */
 function rowY(row: number): number {
@@ -192,6 +209,19 @@ interface KeyboardLayoutProps {
   showMovement?: boolean;
   /** Per-key label overrides (key layout ID → display label). Shows bound function instead of physical key. */
   keyLabels?: Map<string, string>;
+  /** Click handler. When set, every key becomes an interactive target. Click events emit the layout ID. */
+  onKeyClick?: (id: string) => void;
+  /** Set of key IDs to render with a bright "neon" selection frame. */
+  selectedKeyIds?: Set<string>;
+  /** Which module to render in the right slot. */
+  rightModule: KeyboardRightModule;
+  /**
+   * Optional F-row toggle cell. When provided, renders as a single
+   * F-button-shaped SVG cell at x=14u and narrows the brand label
+   * (if any) so it starts at x=15u. Used by ProfileTab for its
+   * nav/numpad cycle toggle.
+   */
+  rightModuleCell?: { label: string; onClick: () => void };
 }
 
 export default function KeyboardLayout(props: KeyboardLayoutProps) {
@@ -213,15 +243,18 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
   const showMovement = () => props.showMovement !== false; // default true
 
   const keyClass = (id: string) => {
+    const selected = props.selectedKeyIds?.has(id) ?? false;
     // Custom highlights take precedence
-    if (props.highlights?.has(id)) return "sg-kb-key sg-kb-highlight";
+    if (props.highlights?.has(id)) {
+      return selected ? "sg-kb-key sg-kb-highlight sg-kb-key-selected" : "sg-kb-key sg-kb-highlight";
+    }
     // Movement highlights only when showMovement is on
     if (showMovement()) {
       const { moveIds, jumpId } = resolved();
-      if (id === jumpId) return "sg-kb-key sg-kb-jump";
-      if (moveIds.has(id)) return "sg-kb-key sg-kb-move";
+      if (id === jumpId) return selected ? "sg-kb-key sg-kb-jump sg-kb-key-selected" : "sg-kb-key sg-kb-jump";
+      if (moveIds.has(id)) return selected ? "sg-kb-key sg-kb-move sg-kb-key-selected" : "sg-kb-key sg-kb-move";
     }
-    return "sg-kb-key";
+    return selected ? "sg-kb-key sg-kb-key-selected" : "sg-kb-key";
   };
 
   const keyStyle = (id: string): string | undefined => {
@@ -248,41 +281,89 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
   return (
     <div class="sg-keyboard-container">
       <svg viewBox={viewBox} xmlns="http://www.w3.org/2000/svg">
-        {/* Keyboard name — same 0.25u gap as between F-key groups */}
-        <Show when={props.keyboardName}>
-          <rect
-            x={14 * KU + PAD}
-            y={PAD}
-            width={(TOTAL_W_U - 14) * KU - PAD * 2}
-            height={ROW_H - PAD * 2}
-            rx={4}
-            class="sg-kb-key sg-kb-name-bg"
-          />
-          <text
-            x={(14 + (TOTAL_W_U - 14) / 2) * KU}
-            y={ROW_H / 2}
-            class="sg-kb-name-label"
-            textLength={props.keyboardName!.length > 18 ? (TOTAL_W_U - 14) * KU - PAD * 2 - 16 : undefined}
-            lengthAdjust="spacingAndGlyphs"
-          >
-            {props.keyboardName}
-          </text>
+        {/* Optional F-row toggle cell at x=14u, rendered as an F-button. */}
+        <Show when={props.rightModuleCell}>
+          {(() => {
+            const cell = props.rightModuleCell!;
+            return (
+              <g
+                onClick={cell.onClick}
+                cursor="pointer"
+              >
+                <rect
+                  x={14 * KU + PAD}
+                  y={PAD}
+                  width={KU - PAD * 2}
+                  height={ROW_H - PAD * 2}
+                  rx={4}
+                  class="sg-kb-key sg-kb-module-cell"
+                />
+                <text
+                  x={14 * KU + KU / 2}
+                  y={ROW_H / 2 + 4}
+                  class="sg-kb-label sg-kb-module-cell-label"
+                >
+                  {cell.label}
+                </text>
+              </g>
+            );
+          })()}
         </Show>
-        {LAYOUT.map(k => (
+        {/* Keyboard name. Starts at x=15u when a module toggle cell is
+            present (claiming the 14u..15u slot); otherwise at x=14u. */}
+        <Show when={props.keyboardName}>
+          {(() => {
+            const labelStart = props.rightModuleCell ? 15 : 14;
+            const labelSpan = TOTAL_W_U - labelStart;
+            return (
+              <>
+                <rect
+                  x={labelStart * KU + PAD}
+                  y={PAD}
+                  width={labelSpan * KU - PAD * 2}
+                  height={ROW_H - PAD * 2}
+                  rx={4}
+                  class="sg-kb-key sg-kb-name-bg"
+                />
+                <text
+                  x={(labelStart + labelSpan / 2) * KU}
+                  y={ROW_H / 2}
+                  class="sg-kb-name-label"
+                  textLength={props.keyboardName!.length > 18 ? labelSpan * KU - PAD * 2 - 16 : undefined}
+                  lengthAdjust="spacingAndGlyphs"
+                >
+                  {props.keyboardName}
+                </text>
+              </>
+            );
+          })()}
+        </Show>
+        {(() => {
+          const mod = MODULES[props.rightModule];
+          if (!mod) {
+            throw new Error(`KeyboardLayout: unknown rightModule ${props.rightModule}`);
+          }
+          return [
+            ...MAIN_BLOCK,
+            ...mod.keys.map(k => ({ ...k, x: k.x + NAV_X })),
+          ];
+        })().map(k => (
           <g>
             <rect
               x={k.x * KU + PAD}
               y={rowY(k.row) + PAD}
               width={k.w * KU - PAD * 2}
-              height={ROW_H - PAD * 2}
+              height={ROW_H * (k.h ?? 1) - PAD * 2}
               rx={4}
               class={keyClass(k.id)}
               style={keyStyle(k.id)}
+              onClick={props.onKeyClick ? () => props.onKeyClick!(k.id) : undefined}
+              cursor={props.onKeyClick ? "pointer" : undefined}
             />
             {(() => {
               const label = props.keyLabels?.get(k.id) ?? k.label;
               const cx = k.x * KU + (k.w * KU) / 2;
-              const cy = rowY(k.row) + ROW_H / 2;
+              const cy = rowY(k.row) + (ROW_H * (k.h ?? 1)) / 2;
               const cls = labelClass(k.id);
               const sty = labelStyle(k.id);
 
@@ -314,8 +395,30 @@ export default function KeyboardLayout(props: KeyboardLayoutProps) {
                 </text>
               );
             })()}
+            {(() => {
+              const ind = MOUSE_INDICATORS[k.id];
+              if (!ind || !props.keyLabels?.has(k.id)) return null;
+              return (
+                <text
+                  x={k.x * KU + PAD + 5}
+                  y={rowY(k.row) + PAD + 8}
+                  class="sg-kb-mouse-indicator"
+                >
+                  {ind}
+                </text>
+              );
+            })()}
           </g>
         ))}
+        <Show when={props.rightModule === "mouse"}>
+          <MouseDiagram
+            x={NAV_X * KU + PAD}
+            y={rowY(1.3)}
+            width={2 * KU - PAD * 2}
+            height={3 * ROW_H}
+            highlights={props.highlights}
+          />
+        </Show>
       </svg>
     </div>
   );

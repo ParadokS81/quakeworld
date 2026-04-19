@@ -52,9 +52,39 @@ Compile and build first. Manual verification second. Automated tests only when t
 - If you see credentials in code, flag it immediately - don't wait to be asked
 - Pre-commit scanning is configured - don't bypass it
 
-### Git
+### Git workflow
 
-Commit after each meaningful change, not at the end of a session. Commit messages: what changed and why, one line. Don't push unless asked.
+The user does not touch git. Claude runs all git operations silently — no merge menus, no PR prompts, no branch questions. Git is a tool for Claude, not a UX for the user.
+
+**Layout:**
+- Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. Slipgate work and shared monorepo work happen here.
+- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics).
+- Long-lived worktrees currently in use:
+  - `/home/paradoks/projects/quakeworld-poc/` on branch `poc` (qw-oracle POC work)
+- For matchscheduler, quad, or any new topic: create a worktree ad-hoc when parallel work is actually needed. Delete when the work merges or goes idle.
+- **When adding or removing a worktree, update BOTH this list AND the `case` block in `.claude/scripts/session-start-git-state.sh`** so the session banner continues to label it correctly.
+
+**Session routing:**
+- Plain `claude` always lands in the main tree. That is the default and it is correct.
+- If the user says "let's work on the POC" (or any topic with an existing worktree), work on files in that worktree from the current session via absolute paths. Use `git -C /path/to/worktree <command>` for git operations. No terminal restart needed.
+- Flag a collision ONLY if the user starts a second simultaneous session that would touch the SAME topic. That is the only case that produces HEAD collisions.
+
+**Commits and merges:**
+- Commit after each meaningful change, not at the end of a session. One-line messages, what changed and why.
+- Push to origin at natural checkpoints: end of a feature, end of a session, whenever the history would be useful to look back on. Do not wait to be asked.
+- When a topic branch stabilizes, merge it to `main`. Fast-forward preferred, merge commit otherwise. No PR ceremony, no 4-option menus, no gates.
+- Inside a worktree, cut a fresh feature branch only if the work is genuinely risky (big refactor, throwaway experiment). Otherwise commit directly on the worktree's own branch.
+
+**Superpowers skill overrides:**
+- `superpowers:finishing-a-development-branch` — do NOT present 4-option merge menus. Just merge and push.
+- `superpowers:using-git-worktrees` — skip the baseline-test + auto-setup ceremony. Create worktrees with a plain `git worktree add` when parallelism is actually needed.
+- `superpowers:executing-plans` and `superpowers:subagent-driven-development` worktree pre-steps — do NOT create a fresh worktree per plan. Execute plans in the worktree you are already in.
+- Other superpowers skills (brainstorming, systematic-debugging, writing-plans, verification-before-completion, etc.) are fine — keep using them.
+
+**Safety net:**
+- The `SessionStart` hook at `.claude/scripts/session-start-git-state.sh` prints worktree path, branch, drift vs main, and uncommitted count at every session open. Read the banner first. Loud drift warnings mean investigate, not proceed blindly.
+- The `docs-check` skill's Step 9.5 runs the same 5 checks (plus stale branches and remote-main pull) at session wrap-up. Together SessionStart and docs-check bracket every session so drift gets caught at the start OR at the end, whichever comes first.
+- `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script.
 
 ## Per-app entry points
 
@@ -74,6 +104,7 @@ All projects except slipgate-app run in WSL Ubuntu.
 - **SSH keys**: WSL `~/.ssh/` - `id_rsa` (Unraid), `qwvoice_key` (Xerial)
 - **Tailscale**: Required for Unraid access (100.114.81.91)
 - **Firebase emulators**: matchscheduler dev on `localhost:5000`
+- **Reading Windows screenshots from WSL**: Windows paths like `C:\Users\Administrator\Downloads\foo.png` are reachable from WSL as `/mnt/c/Users/Administrator/Downloads/foo.png`. Use Read directly on that path — do not claim the file is unreachable.
 
 ## Output discipline
 

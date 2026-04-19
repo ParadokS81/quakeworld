@@ -48,7 +48,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
             {props.name}
           </span>
           <Show when={props.info?.category}>
-            <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide whitespace-nowrap flex-shrink-0">
+            <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide whitespace-nowrap flex-shrink-0">
               {props.info!.category}
               <Show when={props.info!.group}>
                 {" "}› {props.info!.group}
@@ -66,7 +66,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
 
         {/* Remarks */}
         <Show when={props.info?.remarks}>
-          <p class="text-[var(--sg-section-label)] leading-relaxed mb-2 text-[11px] whitespace-pre-wrap">
+          <p class="text-[var(--sg-section-label)] leading-relaxed mb-2 text-[0.6875rem] whitespace-pre-wrap">
             {props.info!.remarks}
           </p>
         </Show>
@@ -124,7 +124,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
         {/* Enum values (if present) */}
         <Show when={props.info?.values && props.info!.values!.length > 0}>
           <div class="border-t border-[var(--sg-stat-border)] pt-2 mt-2">
-            <p class="text-[var(--sg-section-label)] font-semibold uppercase tracking-wide mb-1 text-[10px]">Values</p>
+            <p class="text-[var(--sg-section-label)] font-semibold uppercase tracking-wide mb-1 text-[0.625rem]">Values</p>
             <div class="flex flex-col gap-0.5">
               {props.info!.values!.map((v) => (
                 <div class="flex gap-2">

@@ -25,7 +25,12 @@ See feedback memory `feedback_exhaustive_mapping.md` for the full rule and histo
 
 ## Extraction scripts
 
-All extraction scripts live in `scripts/` and use Bun. Each is idempotent: runs scan the source tree, produce the JSON file, and you commit the diff.
+Two extractor families live side-by-side in `scripts/`:
+
+- **Bun/TypeScript extractors (`*.ts`)** — the original regex-based approach. Still the production source for all data files in `src/data/`. Idempotent.
+- **Python/libclang extractors (`*-clang.py`)** — research-spike AST-based approach validated for ezQuake cvars on 2026-04-18. Produces richer output (flags, OnChange callbacks, source line numbers, trailing comments) into `src/data/ezquake-variables-ast.json`, sitting alongside the regex output. See `docs/extraction-comparison-report.md` for the full comparison and Phase 2 plan. Requires system packages `libclang-dev` + `python3-clang` (Ubuntu/WSL: `sudo apt-get install -y libclang-dev python3-clang`).
+
+The TypeScript extractors below remain the production source today. The AST path is scheduled to replace them in Phase 2.
 
 | Script | Regenerates | When to run |
 |---|---|---|
@@ -88,7 +93,7 @@ All loaders cache internally — call as many times as you want.
 
 ## Known gaps
 
-- **Version history**: we only track the current version snapshot. "Which cvar was added in ezQuake 3.5?" cannot be answered. Future: scan git tags, build a timeline.
+- **Version history**: we only track the current version snapshot. "Which cvar was added in ezQuake 3.5?" cannot be answered. Planned for Phase 2 of the AST-extraction refactor via per-tag snapshots + git-blame + GitHub PR enrichment. See `docs/extraction-comparison-report.md`.
 - **FTE commands / macros**: only FTE cvars are extracted. Commands and macros missing.
 - **Servers / proxies / mods**: only KTX is covered. MVDSV, QWFWD, QTV absent.
 - **Default command values**: only 23 are curated. Many stateful commands have default values that would enable a more accurate "hide defaults" experience for the Commands category.

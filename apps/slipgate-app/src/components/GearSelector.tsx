@@ -61,7 +61,7 @@ export default function GearSelector<T>(props: GearSelectorProps<T>) {
             value={query()}
             onInput={(e) => setQuery(e.currentTarget.value)}
           />
-          <div class="text-[10px] opacity-30 mt-1.5">
+          <div class="text-[0.625rem] opacity-30 mt-1.5">
             {total() === props.items.length
               ? `${props.items.length} items`
               : `${total()} of ${props.items.length}`}
@@ -89,7 +89,7 @@ export default function GearSelector<T>(props: GearSelectorProps<T>) {
                   >
                     <span class="text-sm truncate">{display.primary}</span>
                     <Show when={display.secondary}>
-                      <span class="text-[11px] opacity-40 shrink-0">
+                      <span class="text-[0.6875rem] opacity-40 shrink-0">
                         {display.secondary}
                       </span>
                     </Show>

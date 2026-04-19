@@ -40,14 +40,15 @@ Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW
 
 ### qw-oracle
 
-**Status:** Planning -> POC. Ready for implementation as of 2026-04-14.
+**Status:** Active (Phase 2b shipped 2026-04-18; Phase 2c-2h ahead).
 
-Being repurposed as the **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts from source code / interpreted claims from chat logs / curated concept notes) served over MCP so any LLM client can consume it. The existing 2.66M-message SQLite corpus becomes Layer 2; Layer 1 imports the pre-extracted cvar/command JSON from `packages/qw-config/src/data/` with canonical IDs; Layer 3 is hand-authored markdown with cross-layer references. First consumer is Claude Code via a local MCP, with future outlets planned for Quad (Discord), slipgate web, and the Slipgate helper panel.
+Being repurposed as the **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts from source code / interpreted claims from chat logs / curated concept notes) served over MCP so any LLM client can consume it. The existing 2.66M-message SQLite corpus is Layer 2; Layer 1 is the new versioned knowledge DB at `apps/qw-oracle/data/knowledge.db` (gitignored, regenerated from extractor JSON); Layer 3 is hand-authored markdown with cross-layer references. First consumer is Claude Code via a local MCP, with future outlets planned for Quad (Discord), slipgate web, and the Slipgate helper panel.
 
-Design spec: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`.
-Implementation plan: `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md`.
+**Phase 2a + 2b complete:** schema spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md`, TypeScript loader pipeline at `apps/qw-oracle/scripts/load-knowledge/` (`load-version` + `diff` + `enrich` stages via `npm run load-knowledge`). Proven end-to-end against ezQuake 3.6.9 -> head with `cl_fakeshaft` default change captured and enriched via PR #1110. Remaining 2c-2h (commands/macros/cmdline extractors, FTE/MVDSV/KTX, historical backfill, MCP tool upgrades, automation) tracked in `HANDOVER.md`.
 
-Full context: `apps/qw-oracle/CLAUDE.md` (still frames the project as chat-corpus-only; the rewrite is the first task of the POC plan).
+Earlier POC / service design: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` (architecture) and `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (MCP POC, orthogonal track).
+
+Full context: `apps/qw-oracle/CLAUDE.md` (still scoped to the chat-corpus Layer 2 work; CLAUDE.md rewrite deferred to HANDOVER since it belongs with the POC plan's Task 1).
 
 ## Integration map
 
@@ -112,6 +113,8 @@ Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology,
 ### qw-config
 
 Shared cvar definitions database for ezQuake and FTE. Consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. The source of truth for "what does this cvar do" across the ecosystem.
+
+As of 2026-04-18 also home to the AST-based libclang extractor (`scripts/extract-ezquake-cvars-clang.py`, with `--repo-root` / `--output` flags) whose JSON output is the input contract for qw-oracle's knowledge-db loader. Phase 2c will port the regex-based command/macro/cmdline extractors to the same libclang pattern.
 
 ## Contracts and cross-project specs
 

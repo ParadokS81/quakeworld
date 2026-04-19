@@ -68,7 +68,7 @@ export default function CvarRow(props: CvarRowProps) {
       >
         {props.name}
         <Show when={props.isObsolete}>
-          <span class="badge badge-warning text-[9px] h-3.5 px-1 flex-shrink-0 no-underline" style={{ "text-decoration": "none" }}>obsolete</span>
+          <span class="badge badge-warning text-[0.5625rem] h-3.5 px-1 flex-shrink-0 no-underline" style={{ "text-decoration": "none" }}>obsolete</span>
         </Show>
       </span>
 

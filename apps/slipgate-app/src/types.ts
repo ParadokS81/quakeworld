@@ -3,6 +3,18 @@ export interface AudioDevice {
   device_type: "input" | "output";
 }
 
+export interface LocEntry {
+  name: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface LocScanResult {
+  maps: Record<string, LocEntry[]>;
+  source_dirs: string[];
+}
+
 export interface HidDevice {
   name: string;
   device_type: "mouse" | "keyboard" | "other";
@@ -134,8 +146,17 @@ export interface TeamsayBind {
   category: string;      // "status", "death", "movement", "items", "enemy", "orders", "powerups", "confirm", "custom"
   label: string;         // short label (e.g. "report", "lost", "safe")
   description: string;   // longer description
+  /** First resolved say_team body — raw text, color codes + macros intact. Empty when bind is tp_msg* with no say_team terminal. */
+  body?: string;
   /** Set for synthesized modifier-combo entries — the `+alias` name driving the combo. */
   modifier_alias?: string;
+}
+
+export interface WeaponChangeDispatch {
+  /** Weapon lowercase ("lg", "rl", ...) → dispatched alias name. */
+  per_weapon: Record<string, string>;
+  /** Fallback alias when no specific branch matches. */
+  else_alias: string | null;
 }
 
 export interface EzQuakeConfig {
@@ -147,6 +168,8 @@ export interface EzQuakeConfig {
   bottomcolor: number;
   sensitivity: number;
   lg_sensitivity: number | null;  // different sensitivity for LG, if detected
+  sensitivity_baseline: number | null;  // else-branch sens if f_weaponchange sets it
+  weapon_change_dispatch: WeaponChangeDispatch | null;
   m_yaw: number;
   m_pitch: number;
   m_accel: number;
@@ -168,6 +191,8 @@ export interface ChainBindClassification {
   weapon_binds: FiringPath[];
   teamsay_binds: TeamsayBind[];
   movement: MovementKeys;
+  weapon_change_dispatch: WeaponChangeDispatch | null;
+  sensitivity_baseline: number | null;
 }
 
 // ─── Client updater types ───────────────────────────────────────────────────

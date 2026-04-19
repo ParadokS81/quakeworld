@@ -1,9 +1,11 @@
 pub mod archive;
 pub mod auth;
 pub mod ezquake;
+pub mod locs;
 pub mod scanner;
 pub mod screenshot;
 pub mod system;
 pub mod updater;
 pub mod watcher;
 pub mod weapon_classifier;
+pub mod weapon_triggers;

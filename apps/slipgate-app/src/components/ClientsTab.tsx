@@ -338,7 +338,7 @@ export default function ClientsTab(props: ClientsTabProps) {
       <Show when={view() === "list"}>
         <div class="sg-card sg-row-clickable" onClick={handleClientClick}>
           <div class="sg-card-header">
-            <HardDrive size={16} />
+            <img src="/logos/ezquake.png" alt="ezQuake" class="sg-client-logo" />
             <span>ezQuake</span>
           </div>
           <div class="sg-row">

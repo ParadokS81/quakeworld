@@ -130,19 +130,19 @@ export default function ConfigConverter(props: ConfigConverterProps) {
       <div class="flex items-stretch gap-0 border-b border-[var(--sg-stat-border)] flex-shrink-0">
         <div class="flex-1 flex flex-col items-center justify-center py-3 border-r border-[var(--sg-stat-border)]">
           <span class="text-2xl font-bold text-[var(--color-success)]">{stats().transferred}</span>
-          <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">Transferred</span>
+          <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">Transferred</span>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center py-3 border-r border-[var(--sg-stat-border)]">
           <span class="text-2xl font-bold text-[var(--color-warning)]">{stats().mapped}</span>
-          <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">Mapped</span>
+          <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">Mapped</span>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center py-3 border-r border-[var(--sg-stat-border)]">
           <span class="text-2xl font-bold text-[var(--color-error)]">{stats().noEquivalent}</span>
-          <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">No Equivalent</span>
+          <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">No Equivalent</span>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center py-3">
           <span class="text-2xl font-bold text-[var(--sg-text-bright)]">{stats().bindsKept}</span>
-          <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">
+          <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mt-0.5">
             Binds
             <Show when={stats().bindsTotal > 0}>
               <span class="text-[var(--sg-section-label)]"> / {stats().bindsTotal}</span>
@@ -253,13 +253,13 @@ export default function ConfigConverter(props: ConfigConverterProps) {
 
                 {/* Note badge */}
                 <Show when={row.note}>
-                  <span class="badge badge-ghost text-[10px] h-4 px-1.5 flex-shrink-0" title={row.note}>
+                  <span class="badge badge-ghost text-[0.625rem] h-4 px-1.5 flex-shrink-0" title={row.note}>
                     note
                   </span>
                 </Show>
 
                 {/* Status badge */}
-                <span class={`badge text-[10px] h-4 px-1.5 flex-shrink-0 ${statusBadgeClass(row.status)}`}>
+                <span class={`badge text-[0.625rem] h-4 px-1.5 flex-shrink-0 ${statusBadgeClass(row.status)}`}>
                   {row.status === "no_equivalent" ? "none" : row.status}
                 </span>
               </div>

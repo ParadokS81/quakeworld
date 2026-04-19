@@ -1,10 +1,18 @@
 import { createSignal, For, Show } from "solid-js";
 import type { EnrichedAlias } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigAliasesSectionProps {
   aliases: EnrichedAlias[];
   allAliases?: Record<string, string>;
+  primaryCvars?: Record<string, string>;
+  hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
@@ -14,8 +22,8 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
     setExpanded((prev) => (prev === name ? null : name));
   }
 
-  function getChain(command: string) {
-    if (!props.allAliases) return [];
+  function getChain(command: string): AliasChainResult {
+    if (!props.allAliases) return { chain: [], macroRefs: new Set() };
     return resolveAliasChain(command, props.allAliases);
   }
 
@@ -23,7 +31,7 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
     <div>
       <div class="sg-category-group-header">Aliases</div>
 
-      <div class="sg-alias-row text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+      <div class="sg-alias-row text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
         <span>Name</span>
         <span>Command</span>
         <span>Source</span>
@@ -42,7 +50,7 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
             const isExpanded = () => expanded() === alias.name;
             const chain = () => getChain(alias.command);
             // Show expand toggle if command is long or has sub-aliases
-            const isExpandable = () => alias.command.length > 60 || chain().length > 0;
+            const isExpandable = () => alias.command.length > 60 || chain().chain.length > 0;
 
             return (
               <>
@@ -51,16 +59,16 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                   classList={{ "cursor-pointer": isExpandable() }}
                   onClick={() => isExpandable() && toggleExpand(alias.name)}
                 >
-                  <span class="text-[13px] flex items-center gap-1" style={{ color: "oklch(0.65 0.15 180)" }}>
-                    <span class="text-[11px] text-[var(--sg-section-label)] w-3">
+                  <span class="text-[0.8125rem] flex items-center gap-1" style={{ color: "oklch(0.65 0.15 180)" }}>
+                    <span class="text-[0.6875rem] text-[var(--sg-section-label)] w-3">
                       {isExpandable() ? (isExpanded() ? "▾" : "▸") : ""}
                     </span>
                     {alias.name}
                   </span>
-                  <span class="text-[13px] text-[var(--sg-text-dim)] truncate" title={alias.command}>
+                  <span class="text-[0.8125rem] text-[var(--sg-text-dim)] truncate" title={alias.command}>
                     {alias.command}
                   </span>
-                  <span class="text-[11px] text-[var(--sg-section-label)] truncate">
+                  <span class="text-[0.6875rem] text-[var(--sg-section-label)] truncate">
                     {alias.sourceFile}
                   </span>
                 </div>
@@ -76,7 +84,16 @@ export default function ConfigAliasesSection(props: ConfigAliasesSectionProps) {
                       </div>
                     </div>
                     {/* Sub-alias chain */}
-                    <AliasChainView chain={chain()} label="Alias chain" />
+                    <AliasChainView
+                      chain={chain().chain}
+                      macroRefs={chain().macroRefs}
+                      primaryCvars={props.primaryCvars}
+                      hideDefaults={props.hideDefaults}
+                      label="Alias chain"
+                      mode={props.aliasChainMode}
+                      resolver={props.resolver ?? null}
+                      playerState={props.playerState}
+                    />
                   </div>
                 </Show>
               </>

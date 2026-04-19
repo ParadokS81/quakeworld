@@ -1,4 +1,7 @@
 import { load, type Store } from "@tauri-apps/plugin-store";
+import type { KeyboardRightModule } from "./components/keyboardModules";
+import type { PlayerState } from "./lib/simulator/types.js";
+import { createDefaultPlayerState } from "./lib/simulator/defaults.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -55,8 +58,37 @@ export interface ProfileIdentity {
   bottomcolor: number;
 }
 
+export interface SimulatorTemplate {
+  id: string;
+  name: string;
+  createdAt: number;
+  state: PlayerState;
+}
+
+export interface SimulatorPrefs {
+  version: 1;
+  currentState: PlayerState;
+  templates: SimulatorTemplate[];
+}
+
 export interface ProfilePrefs {
   map_backdrop: string;
+  config_keyboard_visible: boolean;
+  config_keyboard_show_movement: boolean;
+  config_keyboard_show_weapons: boolean;
+  config_keyboard_show_teamplay: boolean;
+  /** Last-used right-slot module in the ConfigViewer keyboard panel. */
+  config_keyboard_right_module: KeyboardRightModule;
+  /** Last-used right-slot module in the Profile keyboard (nav or numpad only). */
+  profile_keyboard_right_module: "nav" | "numpad";
+  /** Which view the ConfigViewer right panel shows. */
+  config_right_panel_mode: "keyboard" | "state";
+  /** Pretty-render mode for expanded alias chains. */
+  alias_chain_mode: "pretty" | "raw";
+  /** Which %token resolver to use in Pretty mode. */
+  alias_chain_resolver: "label" | "simulator";
+  /** Simulator state + templates. */
+  simulator: SimulatorPrefs;
 }
 
 export interface ProfileData {
@@ -112,6 +144,20 @@ const DEFAULT_IDENTITY: ProfileIdentity = {
 
 const DEFAULT_PREFS: ProfilePrefs = {
   map_backdrop: "dm3",
+  config_keyboard_visible: true,
+  config_keyboard_show_movement: true,
+  config_keyboard_show_weapons: true,
+  config_keyboard_show_teamplay: true,
+  config_keyboard_right_module: "nav",
+  profile_keyboard_right_module: "nav",
+  config_right_panel_mode: "keyboard",
+  alias_chain_mode: "pretty",
+  alias_chain_resolver: "label",
+  simulator: {
+    version: 1,
+    currentState: createDefaultPlayerState(),
+    templates: [],
+  },
 };
 
 function createDefaultProfile(): ProfileData {
@@ -134,6 +180,68 @@ async function getStore(): Promise<Store> {
   return store;
 }
 
+// ─── Set<->Array serialization shims ────────────────────────────────────────
+
+// Sets don't survive JSON.stringify. Normalize on save and load.
+function serializePlayerState(s: PlayerState): unknown {
+  return {
+    ...s,
+    ownedWeapons: Array.from(s.ownedWeapons),
+    activePowerups: Array.from(s.activePowerups),
+  };
+}
+
+function deserializePlayerState(raw: unknown): PlayerState {
+  const fresh = createDefaultPlayerState();
+  if (!raw || typeof raw !== "object") return fresh;
+  const r = raw as Record<string, unknown>;
+  const ownedArr = Array.isArray(r.ownedWeapons) ? r.ownedWeapons : [];
+  const powerupArr = Array.isArray(r.activePowerups) ? r.activePowerups : [];
+  return {
+    ...fresh,
+    ...r,
+    ownedWeapons: new Set(ownedArr as Array<"axe" | "sg" | "ssg" | "ng" | "sng" | "gl" | "rl" | "lg">),
+    activePowerups: new Set(powerupArr as Array<"quad" | "pent" | "ring" | "biosuit">),
+  } as PlayerState;
+}
+
+function serializeSimulator(s: SimulatorPrefs): unknown {
+  return {
+    version: s.version,
+    currentState: serializePlayerState(s.currentState),
+    templates: s.templates.map((t) => ({
+      ...t,
+      state: serializePlayerState(t.state),
+    })),
+  };
+}
+
+function deserializeSimulator(raw: unknown): SimulatorPrefs {
+  if (!raw || typeof raw !== "object") {
+    return {
+      version: 1,
+      currentState: createDefaultPlayerState(),
+      templates: [],
+    };
+  }
+  const r = raw as Record<string, unknown>;
+  return {
+    version: 1,
+    currentState: deserializePlayerState(r.currentState),
+    templates: Array.isArray(r.templates)
+      ? r.templates.map((t) => {
+          const tr = t as Record<string, unknown>;
+          return {
+            id: typeof tr.id === "string" ? tr.id : crypto.randomUUID(),
+            name: typeof tr.name === "string" ? tr.name : "unnamed",
+            createdAt: typeof tr.createdAt === "number" ? tr.createdAt : Date.now(),
+            state: deserializePlayerState(tr.state),
+          };
+        })
+      : [],
+  };
+}
+
 // ─── Migration from v1 schema ───────────────────────────────────────────────
 
 /** Detect old schema (had top-level `hardware`/`setup` keys) and migrate */
@@ -149,7 +257,11 @@ function migrateProfile(data: any): ProfileData {
         hardware: { ...DEFAULT_HARDWARE, ...s.hardware },
       })),
       equipment_history: data.equipment_history ?? [],
-      prefs: { ...DEFAULT_PREFS, ...data.prefs },
+      prefs: {
+        ...DEFAULT_PREFS,
+        ...data.prefs,
+        simulator: deserializeSimulator(data.prefs?.simulator),
+      },
     };
   }
 
@@ -159,7 +271,11 @@ function migrateProfile(data: any): ProfileData {
     profile.identity = { ...DEFAULT_IDENTITY, ...data.identity };
   }
   if (data.prefs) {
-    profile.prefs = { ...DEFAULT_PREFS, ...data.prefs };
+    profile.prefs = {
+      ...DEFAULT_PREFS,
+      ...data.prefs,
+      simulator: deserializeSimulator(data.prefs.simulator),
+    };
   }
 
   // Migrate old hardware fields if they had values
@@ -208,7 +324,14 @@ export async function loadProfile(): Promise<ProfileData> {
 /** Save the full profile */
 export async function saveProfile(profile: ProfileData): Promise<void> {
   const s = await getStore();
-  await s.set("profile", profile);
+  const persistable = {
+    ...profile,
+    prefs: {
+      ...profile.prefs,
+      simulator: serializeSimulator(profile.prefs.simulator),
+    },
+  };
+  await s.set("profile", persistable);
 }
 
 /** Get the primary setup from a profile */
@@ -266,4 +389,62 @@ export async function addEquipmentHistory(entry: EquipmentEntry): Promise<Profil
 export async function clearStore(): Promise<void> {
   const s = await getStore();
   await s.clear();
+}
+
+/** Update the working-copy simulator state. */
+export async function updateSimulatorState(state: PlayerState): Promise<ProfileData> {
+  const profile = await loadProfile();
+  profile.prefs.simulator.currentState = state;
+  await saveProfile(profile);
+  return profile;
+}
+
+/** Save current working copy as a named template (overwrites same-name silently). */
+export async function saveSimulatorTemplate(name: string): Promise<ProfileData> {
+  const profile = await loadProfile();
+  const sim = profile.prefs.simulator;
+  const existing = sim.templates.find((t) => t.name === name);
+  if (existing) {
+    existing.state = structuredClone(sim.currentState);
+    existing.createdAt = Date.now();
+  } else {
+    sim.templates.push({
+      id: crypto.randomUUID(),
+      name,
+      createdAt: Date.now(),
+      state: structuredClone(sim.currentState),
+    });
+  }
+  await saveProfile(profile);
+  return profile;
+}
+
+/** Load a template into the working copy. Updates template's createdAt for recency ordering. */
+export async function loadSimulatorTemplate(id: string): Promise<ProfileData> {
+  const profile = await loadProfile();
+  const t = profile.prefs.simulator.templates.find((x) => x.id === id);
+  if (t) {
+    profile.prefs.simulator.currentState = structuredClone(t.state);
+    t.createdAt = Date.now();
+    await saveProfile(profile);
+  }
+  return profile;
+}
+
+/** Delete a named template. */
+export async function deleteSimulatorTemplate(id: string): Promise<ProfileData> {
+  const profile = await loadProfile();
+  profile.prefs.simulator.templates = profile.prefs.simulator.templates.filter(
+    (t) => t.id !== id,
+  );
+  await saveProfile(profile);
+  return profile;
+}
+
+/** Reset working copy to spawn defaults. Does not touch templates. */
+export async function resetSimulatorState(): Promise<ProfileData> {
+  const profile = await loadProfile();
+  profile.prefs.simulator.currentState = createDefaultPlayerState();
+  await saveProfile(profile);
+  return profile;
 }

@@ -5,9 +5,10 @@ interface ConfigSidebarProps {
   row1Categories: [string, number][];
   activeRow1: Set<string>;
   isAllRow1: boolean;
+  isAll: boolean;
   row1Total: number;
   onToggleRow1Cat: (cat: string) => void;
-  onToggleAllRow1: () => void;
+  onToggleAll: () => void;
   categoryGaps?: Set<string>;
 
   // Row 2 — Domains + misc
@@ -22,11 +23,11 @@ interface ConfigSidebarProps {
   commandsActive: boolean;
   onToggleCommands: () => void;
 
-  // Shared controls
+  // Settings-row filter (lives here rather than the top bar because
+  // it conceptually narrows the Settings list below it).
   hideDefaults: boolean;
   onHideDefaultsChange: (val: boolean) => void;
-  search: string;
-  onSearchChange: (val: string) => void;
+
   isCompareMode: boolean;
 }
 
@@ -37,12 +38,25 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
 
   return (
     <div class="sg-config-sidebar">
+      {/* Hide-defaults filter sits above the Settings header since it
+          narrows the cvar row set that Settings renders. Kept on its
+          own row so the Settings header stays visually aligned. */}
+      <label class="flex items-center gap-1.5 text-[0.6875rem] text-[var(--sg-text-dim)] cursor-pointer select-none">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-xs"
+          checked={props.hideDefaults}
+          onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
+        />
+        Hide defaults
+      </label>
+
       {/* ── Settings — all raw config data ── */}
       <div class="flex flex-col items-start gap-1">
         <div class="sg-config-sidebar-section-label">Settings</div>
         <button
-          class={`badge cursor-pointer ${props.isAllRow1 ? "badge-primary" : "badge-ghost"}`}
-          onClick={props.onToggleAllRow1}
+          class={`badge cursor-pointer ${props.isAll ? "badge-primary" : "badge-ghost"}`}
+          onClick={props.onToggleAll}
         >
           All
         </button>
@@ -139,28 +153,18 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
             Binds
           </button>
         </div>
+
+        <div class="sg-config-sidebar-domain-label">Movement</div>
+        <div class="sg-config-sidebar-nested flex flex-col items-start gap-1">
+          <button
+            class={`badge cursor-pointer ${props.activeRow2.has("movement:binds") ? "badge-binds" : "badge-ghost"}`}
+            onClick={() => props.onToggleRow2Pill("movement:binds")}
+          >
+            Binds
+          </button>
+        </div>
       </div>
 
-      {/* ── Options ── */}
-      <div class="flex flex-col items-start gap-2">
-        <div class="sg-config-sidebar-section-label">Options</div>
-        <label class="flex items-center gap-1.5 text-xs text-[var(--sg-text-dim)] cursor-pointer select-none">
-          <input
-            type="checkbox"
-            class="checkbox checkbox-xs"
-            checked={props.hideDefaults}
-            onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
-          />
-          Hide defaults
-        </label>
-        <input
-          type="text"
-          class="input input-xs font-mono w-full"
-          placeholder="Search..."
-          value={props.search}
-          onInput={(e) => props.onSearchChange(e.currentTarget.value)}
-        />
-      </div>
     </div>
   );
 }

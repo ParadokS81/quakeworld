@@ -1,12 +1,12 @@
-import { createSignal, createMemo, createEffect, For, Show, Switch, Match, onCleanup } from "solid-js";
+import { createSignal, createMemo, createEffect, createResource, For, Show, Switch, Match, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { lookupCvar, loadDatabase, loadDomainTags, loadEzQuakeCommands, loadKtxCommands } from "qw-config";
-import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification } from "../types";
+import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification, LocScanResult } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";
 import ConfigSettingsSection from "./ConfigSettingsSection";
 import ConfigBindsSection from "./ConfigBindsSection";
-import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection } from "./ConfigDomainBinds";
+import { ConfigWeaponBindsSection, ConfigTeamsayBindsSection, ConfigMovementBindsSection } from "./ConfigDomainBinds";
 import ConfigAliasesSection from "./ConfigAliasesSection";
 import ConfigTeamplayMacros from "./ConfigTeamplayMacros";
 import ConfigMacrosSection from "./ConfigMacrosSection";
@@ -14,7 +14,17 @@ import ConfigTriggersSection from "./ConfigTriggersSection";
 import ConfigCommandsSection from "./ConfigCommandsSection";
 import ConfigConverter from "./ConfigConverter";
 import SectionMinimap from "./SectionMinimap";
+import ConfigKeyboardPanel from "./ConfigKeyboardPanel";
+import StatePanel from "./StatePanel";
+import ReportBanner from "./ReportBanner";
+import { useKeyboardPanelState } from "./useKeyboardPanelState";
 import { mergeSelectedFiles, categorizeBinds, mergeAliases, synthesizeModifierTeamsayBinds } from "./configMerger";
+import { updatePrefs } from "../store";
+import type { ProfileData } from "../store";
+import { createLabelResolver } from "../lib/runtimeResolver";
+import { createSimulatorResolver, applyOnloadChain } from "../lib/simulator/index.js";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigViewerProps {
   config: EzQuakeConfig | null;
@@ -28,6 +38,7 @@ interface ConfigViewerProps {
   availableConfigs?: ConfigEntry[];
   onCompareConfig?: (entry: ConfigEntry) => void;
   onSwapCompareConfig?: (entry: ConfigEntry) => void;
+  profile?: ProfileData | null;
 }
 
 type ViewMode = "list" | "convert";
@@ -66,7 +77,7 @@ function isEffectivelyDefault(
 }
 
 /** Categories that are domain-ized in row 2 (excluded from row 1 pills, but included in row 1 "All") */
-const DOMAIN_CATEGORIES = new Set(["Teamplay"]);
+const DOMAIN_CATEGORIES = new Set<string>();
 
 /**
  * Fixed category display order grouped by relevance.
@@ -80,7 +91,8 @@ const CATEGORY_ORDER: { name: string; gap?: boolean }[] = [
   { name: "Sound" },
   { name: "Input", gap: true },
   // Gameplay
-  { name: "Multiplayer", gap: true },
+  { name: "Multiplayer" },
+  { name: "Teamplay", gap: true },
   // Reference
   { name: "Miscellaneous" },
   { name: "Demos" },
@@ -90,7 +102,7 @@ const CATEGORY_ORDER: { name: string; gap?: boolean }[] = [
   { name: "Obsolete" },
 ];
 
-const CATEGORY_PRIORITY = new Map(CATEGORY_ORDER.map((c, i) => [c.name, i]));
+export const CATEGORY_PRIORITY = new Map(CATEGORY_ORDER.map((c, i) => [c.name, i]));
 const CATEGORY_GAPS = new Set(CATEGORY_ORDER.filter((c) => c.gap).map((c) => c.name));
 
 export default function ConfigViewer(props: ConfigViewerProps) {
@@ -98,6 +110,30 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const [configExpanded, setConfigExpanded] = createSignal(false);
   const [search, setSearch] = createSignal("");
   const [hideDefaults, setHideDefaults] = createSignal(false);
+  const [aliasChainMode, setAliasChainMode] = createSignal<"pretty" | "raw">(
+    props.profile?.prefs.alias_chain_mode ?? "pretty",
+  );
+  createEffect(() => {
+    const mode = aliasChainMode();
+    if (props.profile) {
+      updatePrefs({ alias_chain_mode: mode }).catch((err) => {
+        console.error("failed to persist alias_chain_mode:", err);
+      });
+    }
+  });
+
+  const [aliasChainResolver, setAliasChainResolver] = createSignal<"label" | "simulator">(
+    props.profile?.prefs.alias_chain_resolver ?? "label",
+  );
+  createEffect(() => {
+    const resolver = aliasChainResolver();
+    if (props.profile) {
+      updatePrefs({ alias_chain_resolver: resolver }).catch((err) => {
+        console.error("failed to persist alias_chain_resolver:", err);
+      });
+    }
+  });
+
   const [expandedCvar, setExpandedCvar] = createSignal<string | null>(null);
   const [contentScrollEl, setContentScrollEl] = createSignal<HTMLDivElement | undefined>();
 
@@ -145,6 +181,19 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
   onCleanup(() => { if (hoverTimer) clearTimeout(hoverTimer); });
 
+  // Keyboard panel state (selection, visibility, category toggles, section
+  // focus predicate). Extracted to useKeyboardPanelState so ConfigViewer stays
+  // focused on config merging and rendering.
+  const kbState = useKeyboardPanelState({
+    profile: () => props.profile,
+    activeRow2,
+    availableModules: ["nav", "numpad", "mouse"] as const,
+    persistKey: "config",
+  });
+
+  const [showBindLabels, setShowBindLabels] = createSignal(false);
+  function toggleBindLabels() { setShowBindLabels(!showBindLabels()); }
+
   function handleMouseEnter(name: string, _e: MouseEvent) {
     if (expandedCvar() === name) return;
     if (hoverTimer) clearTimeout(hoverTimer);
@@ -163,12 +212,57 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return mergeSelectedFiles(effectiveChain()!, selectedFiles());
   });
 
-  const effectiveCvars = createMemo(() =>
-    mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {},
-  );
+  const effectiveCvars = createMemo((): Record<string, string> => {
+    const base = mergedData()?.cvars ?? effectiveConfig()?.raw_cvars ?? {};
+    const aliases = mergedData()?.aliases;
+    if (!aliases || !base.cl_onload) return base;
+    // Simulate cl_onload so team-selector tempaliases (sr.2 style) have
+    // actually applied their `set tpname "{&cXXX$nick:&cfff}"` writes before
+    // the pretty view / resolver / evaluator read the cvar map.
+    const asMap = new Map(Object.entries(base));
+    const aliasMap = aliases instanceof Map
+      ? aliases
+      : new Map(Object.entries(aliases));
+    const augmented = applyOnloadChain(asMap, aliasMap);
+    return Object.fromEntries(augmented);
+  });
+
+  // Resolver for %token expansion in Pretty mode. Reads live PlayerState from
+  // kbState.simulatorState() so edits in the right-rail State panel update
+  // pretty output reactively. Simulator mode falls back to LabelResolver when
+  // no state is available.
+  const resolver = createMemo((): RuntimeResolver => {
+    if (aliasChainResolver() === "simulator") {
+      const state = kbState.simulatorState();
+      if (state) {
+        const cvars = new Map(Object.entries(effectiveCvars()));
+        return createSimulatorResolver(state, cvars);
+      }
+    }
+    return createLabelResolver();
+  });
+
+  const playerState = (): PlayerState | undefined => kbState.simulatorState();
 
   const userCreatedCvars = createMemo((): Set<string> =>
     mergedData()?.userCreated ?? new Set<string>(),
+  );
+
+  // Scan the user's `<exe_dir>/qw/locs/` (and ezquake/locs) for .loc files so
+  // the StatePanel Location dropdowns can be populated. Re-fires whenever
+  // the exe path changes; returns the empty map if no exe is configured or
+  // no locs directory exists.
+  const [locScan] = createResource<LocScanResult | null, string>(
+    () => props.exePath ?? "",
+    async (exe) => {
+      if (!exe) return { maps: {}, source_dirs: [] };
+      try {
+        return await invoke<LocScanResult>("scan_loc_files", { exePath: exe });
+      } catch (e) {
+        console.error("scan_loc_files failed:", e);
+        return { maps: {}, source_dirs: [] };
+      }
+    },
   );
 
   // ── Compare config from source bundle ──
@@ -274,6 +368,24 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // we don't permanently filter them out in compare mode.
   const relevantCvars = createMemo(() => enrichedCvars());
 
+  // A pretty-view surface is any section that actually renders command
+  // chains / resolved tokens (binds, aliases, teamsay macros, triggers).
+  // When none are visible, the Pretty/Raw and Label/Simulator toggles
+  // are no-ops so we dim them in-place rather than hide them -- the
+  // toggle slots must stay at the same top-bar coordinates regardless.
+  const isPrettyViewActive = createMemo(() => {
+    const r2 = activeRow2();
+    return (
+      r2.has("weapons:binds") ||
+      r2.has("teamplay:binds") ||
+      r2.has("teamplay:macros") ||
+      r2.has("movement:binds") ||
+      r2.has("misc:binds") ||
+      aliasesActive() ||
+      triggersActive()
+    );
+  });
+
   // ── Category counts (all categories, then split into rows) ──
   const allCategories = createMemo(() => {
     const counts = new Map<string, number>();
@@ -304,6 +416,19 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     return active.has("__all__") || row1CatNames().every((c) => active.has(c));
   });
 
+  // "All" is the master switch covering every config section — cvar
+  // categories plus the five green non-cvar pills (Binds/Aliases/Macros/
+  // Triggers/Commands). A user clicking "All" expects to see their entire
+  // config, not only the cvars.
+  const isAll = createMemo(() =>
+    isAllRow1() &&
+    activeRow2().has("misc:binds") &&
+    aliasesActive() &&
+    macrosActive() &&
+    triggersActive() &&
+    commandsActive()
+  );
+
   function toggleRow1Cat(cat: string) {
     const allNames = row1CatNames();
     if (allNames.length === 0) return;
@@ -325,11 +450,29 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     });
   }
 
-  function toggleAllRow1() {
-    if (isAllRow1()) {
+  function toggleAll() {
+    if (isAll()) {
       setActiveRow1(new Set<string>());
+      setActiveRow2((prev) => {
+        const next = new Set(prev);
+        next.delete("misc:binds");
+        return next;
+      });
+      setAliasesActive(false);
+      setMacrosActive(false);
+      setTriggersActive(false);
+      setCommandsActive(false);
     } else {
       setActiveRow1(new Set<string>(["__all__"]));
+      setActiveRow2((prev) => {
+        const next = new Set(prev);
+        next.add("misc:binds");
+        return next;
+      });
+      setAliasesActive(true);
+      setMacrosActive(true);
+      setTriggersActive(true);
+      setCommandsActive(true);
     }
   }
 
@@ -342,12 +485,15 @@ export default function ConfigViewer(props: ConfigViewerProps) {
     });
   }
 
-  // ── Compare filter counts ──
+  // Compare pill counts reflect the currently visible set (post row1/row2/
+  // search/hideDefaults, pre compareFilter) so the numbers match what the
+  // user is actually looking at. Global-DB counts are not useful here —
+  // when the user filters to "Teamplay > Settings" they want to see how
+  // many teamplay cvars differ, not how many of the 2748 total differ.
   const compareCounts = createMemo(() => {
     if (!isCompareMode()) return { diff: 0, same: 0, onlyLeft: 0, onlyRight: 0 };
-    const cvars = relevantCvars();
     let diff = 0, same = 0, onlyLeft = 0, onlyRight = 0;
-    for (const c of cvars) {
+    for (const c of visibleCvars()) {
       if (c.hasLeft && c.compareValue !== undefined) {
         if (!valuesEqual(c.value, c.compareValue)) diff++;
         else same++;
@@ -363,52 +509,30 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   // ── Weapons domain cvar set (loaded once) ──
   const weaponCvarSet = createMemo(() => loadDomainTags().get("weapons") ?? new Set<string>());
 
-  // ── Filtered cvar list ──
-  const filteredCvars = createMemo(() => {
+  // Cvars passing the non-compare filters (row1/row2/search/hideDefaults).
+  // Separating this from the compareFilter pass lets the compare bar count
+  // the visible set without the user's active pill biasing the totals.
+  const visibleCvars = createMemo(() => {
     const q = search().trim().toLowerCase();
     const row1 = activeRow1();
     const row2 = activeRow2();
     const showAllRow1 = row1.has("__all__");
-    const cmpFilter = compareFilter();
-    const cmpMode = isCompareMode();
     const weaponCvars = weaponCvarSet();
 
     return relevantCvars().filter((cvar) => {
       const cat = cvar.info?.category ?? "Unknown";
 
-      // Check row 1 categories
       let passRow1 = false;
       if (showAllRow1) passRow1 = true;
       else if (row1.size > 0 && row1.has(cat)) passRow1 = true;
 
-      // Check row 2 domain settings
       let passRow2 = false;
       if (row2.has("teamplay:settings") && cat === "Teamplay") passRow2 = true;
       if (row2.has("weapons:settings") && weaponCvars.has(cvar.name)) passRow2 = true;
 
       if (!passRow1 && !passRow2) return false;
 
-      if (cmpMode && cmpFilter !== "all") {
-        const hasLeft = cvar.hasLeft;
-        const hasRight = cvar.compareValue !== undefined;
-        switch (cmpFilter) {
-          case "diff":
-            if (!hasLeft || !hasRight || valuesEqual(cvar.value, cvar.compareValue!)) return false;
-            break;
-          case "same":
-            if (!hasLeft || !hasRight || !valuesEqual(cvar.value, cvar.compareValue!)) return false;
-            break;
-          case "only_left":
-            if (hasRight) return false;
-            break;
-          case "only_right":
-            if (hasLeft) return false;
-            break;
-        }
-      }
-
       if (hideDefaults()) {
-        // Hide if both sides are at default (single mode: just left)
         if (cvar.leftIsDefault && cvar.rightIsDefault) return false;
       }
 
@@ -416,6 +540,28 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         const nameMatch = cvar.name.toLowerCase().includes(q) || cvar.name.toLowerCase().replace(/_/g, "").includes(q);
         const descMatch = cvar.info?.description?.toLowerCase().includes(q) ?? false;
         if (!nameMatch && !descMatch) return false;
+      }
+      return true;
+    });
+  });
+
+  // ── Filtered cvar list (visible set narrowed by the active compare pill) ──
+  const filteredCvars = createMemo(() => {
+    const cmpFilter = compareFilter();
+    const cmpMode = isCompareMode();
+    if (!cmpMode || cmpFilter === "all") return visibleCvars();
+    return visibleCvars().filter((cvar) => {
+      const hasLeft = cvar.hasLeft;
+      const hasRight = cvar.compareValue !== undefined;
+      switch (cmpFilter) {
+        case "diff":
+          return hasLeft && hasRight && !valuesEqual(cvar.value, cvar.compareValue!);
+        case "same":
+          return hasLeft && hasRight && valuesEqual(cvar.value, cvar.compareValue!);
+        case "only_left":
+          return !hasRight;
+        case "only_right":
+          return !hasLeft;
       }
       return true;
     });
@@ -535,26 +681,6 @@ export default function ConfigViewer(props: ConfigViewerProps) {
   const showTriggersSection = createMemo(() => triggersActive());
   const showCommandsSection = createMemo(() => commandsActive());
 
-  // ── Teamsay alias names (for macros extraction) ──
-  const teamsayAliasNames = createMemo((): Set<string> => {
-    const names = new Set<string>();
-    const binds = effectiveConfig()?.teamsay_binds ?? [];
-    const bindCmds = primaryBindCommands();
-    for (const tb of binds) {
-      const cmd = bindCmds[tb.key.toUpperCase()];
-      if (cmd) {
-        // Extract alias names from the bind command
-        for (const part of cmd.split(";")) {
-          const token = part.trim().split(/\s+/)[0];
-          if (token && !token.startsWith("+") && !token.startsWith("-")) {
-            names.add(token);
-          }
-        }
-      }
-    }
-    return names;
-  });
-
   // ── Actions ──
   function toggleCvar(name: string) {
     setExpandedCvar((prev) => (prev === name ? null : name));
@@ -623,77 +749,74 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       </Match>
       <Match when={viewMode() === "list"}>
         <div class="flex flex-col h-full overflow-hidden relative">
-          {/* ── Top bar ── */}
-          <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 flex-wrap">
-            <button
-              class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
-              onClick={() => setConfigExpanded((v) => !v)}
-            >
-              <span class="text-xs">{configExpanded() ? "▼" : "▶"}</span>
-              <span class="badge badge-primary text-xs px-1.5 h-5">ezQuake</span>
-              <span class="text-[var(--sg-text-dim)]">›</span>
-              <span class="font-mono">{effectiveConfigName() ?? "config.cfg"}</span>
-            </button>
+          {/* ── Top bar ──
+              Three-segment layout that mirrors the workspace columns
+              beneath:
+                Segment 1 (above sidebar, 160px): Search + Hide defaults.
+                Segment 2 (above main content, flex-1 max-w-4xl):
+                  left-aligned Source label + path trigger,
+                  right-aligned Pretty/Raw + Label/Simulator render modes.
+                Segment 3 (above right panel, flex-1): Keyboard/State
+                  left-aligned to the right panel's start (only rendered
+                  when a binds section is focused).
+              Compare label rides at the very end when compare mode
+              is active. */}
+          <div class="flex items-stretch gap-0 px-0 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0">
+            {/* Segment 1 - above sidebar. Search only; Hide defaults
+                moved into the sidebar above the Settings header so the
+                top bar stays a single row. */}
+            <div class="sg-top-seg-sidebar">
+              <input
+                type="text"
+                class="input input-xs font-mono w-full"
+                placeholder="Search..."
+                value={search()}
+                onInput={(e) => setSearch(e.currentTarget.value)}
+              />
+            </div>
 
-            <Show when={primaryOverride()}>
-              <button
-                class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
-                onClick={() => {
-                  setPrimaryOverride(null);
-                  setConfigOverride(null);
-                }}
-              >
-                ↩ Reset to default
-              </button>
-            </Show>
+            {/* Segment 2 - above main content (flex-1 max-w-4xl).
+                Inside: a scroll sub-segment (flex-1, mirrors the scroll
+                container below) + a gutter sub-segment (fixed
+                var(--sg-minimap-width), mirrors the minimap gutter). Both
+                siblings of the minimap use the same CSS variable, so the
+                right edge of Pretty/Raw/Label/Sim auto-tracks the row
+                right edge at any viewport / DPI. */}
+            <div class="sg-top-seg-content">
+              <div class="sg-top-seg-content-scroll">
+              <div class="sg-top-seg-content-left">
+                <div
+                  class="sg-top-source-card"
+                  classList={{ "sg-top-source-card-open": configExpanded() }}
+                  onClick={() => setConfigExpanded((v) => !v)}
+                  title="Show config chain"
+                >
+                  <img src="/logos/ezquake.png" alt="ezQuake" class="sg-top-source-logo" />
+                  <span class="sg-top-source-path">
+                    {effectiveChain()?.files[0]?.relative_path ?? effectiveConfigName() ?? "config.cfg"}
+                  </span>
+                  <Show when={isCompareMode()}>
+                    <span class="sg-top-source-vs">vs</span>
+                    <span class="sg-top-source-compare" title={props.compareSource?.label}>
+                      {props.compareSource?.label}
+                    </span>
+                    <button
+                      class="sg-top-source-compare-clear"
+                      onClick={(e) => { e.stopPropagation(); clearCompare(); }}
+                      title="Exit compare mode"
+                    >
+                      ✕
+                    </button>
+                  </Show>
 
-            <div class="flex-1" />
-
-            <Show when={isCompareMode()}>
-              <div class="flex items-center gap-2 text-sm">
-                <span class="font-mono text-xs text-[var(--sg-text-dim)]">{props.compareSource?.label}</span>
-                <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]" onClick={clearCompare}>
-                  ✕
-                </button>
-              </div>
-            </Show>
-            <button class="btn btn-primary btn-xs" onClick={() => setViewMode("convert")}>
-              Convert to FTE
-            </button>
-          </div>
-
-          {/* ── Sidebar + Content (horizontal layout) ── */}
-          <div class="flex-1 flex overflow-hidden">
-            <ConfigSidebar
-              row1Categories={row1Categories()}
-              activeRow1={activeRow1()}
-              isAllRow1={isAllRow1()}
-              row1Total={row1Total()}
-              onToggleRow1Cat={toggleRow1Cat}
-              onToggleAllRow1={toggleAllRow1}
-              categoryGaps={CATEGORY_GAPS}
-              activeRow2={activeRow2()}
-              onToggleRow2Pill={toggleRow2Pill}
-              aliasesActive={aliasesActive()}
-              onToggleAliases={() => setAliasesActive((v) => !v)}
-              macrosActive={macrosActive()}
-              onToggleMacros={() => setMacrosActive((v) => !v)}
-              triggersActive={triggersActive()}
-              onToggleTriggers={() => setTriggersActive((v) => !v)}
-              commandsActive={commandsActive()}
-              onToggleCommands={() => setCommandsActive((v) => !v)}
-              hideDefaults={hideDefaults()}
-              onHideDefaultsChange={setHideDefaults}
-              search={search()}
-              onSearchChange={setSearch}
-              isCompareMode={isCompareMode()}
-            />
-
-            <div class="flex-1 flex flex-col overflow-hidden max-w-4xl">
-              {/* ── Config chain panel (expandable, inside content column) ── */}
-              <Show when={configExpanded() && effectiveChain()}>
-                <div class={`flex-shrink-0 border-b border-[var(--sg-stat-border)] ${isCompareMode() ? "flex" : ""}`}>
-                  <div class={isCompareMode() ? "flex-1" : ""}>
+                  <Show when={configExpanded() && effectiveChain()}>
+                <div
+                  class={`absolute left-0 top-full z-40 mt-1 flex rounded border border-[var(--sg-stat-border)] bg-[var(--sg-stat-bg)] shadow-lg cursor-default ${
+                    isCompareMode() ? "min-w-[56rem]" : "min-w-[28rem]"
+                  } max-w-[72rem]`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div class={isCompareMode() ? "flex-1" : "flex-1"}>
                     <ConfigChainPanel
                       configChain={effectiveChain()!}
                       selectedFiles={selectedFiles()}
@@ -702,10 +825,18 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       onCompareConfig={props.onCompareConfig}
                       onViewConfig={(entry) => handleViewAsPrimary(entry)}
                     />
+                    <div class="px-4 py-2 border-t border-[var(--sg-stat-border)] flex justify-end">
+                      <button
+                        class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                        onClick={() => { setConfigExpanded(false); setViewMode("convert"); }}
+                      >
+                        Convert to FTE...
+                      </button>
+                    </div>
                   </div>
                   <Show when={isCompareMode() && props.compareSource?.primary_chain}>
                     <div class="flex-1 px-4 py-2 bg-[var(--sg-stat-bg)] text-xs text-[var(--sg-text-dim)] border-l border-[var(--sg-stat-border)]">
-                      <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                      <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
                         Compare chain ({props.compareSource!.primary_chain!.files.length} file{props.compareSource!.primary_chain!.files.length !== 1 ? "s" : ""})
                       </span>
                       <div class="mt-1 font-mono">
@@ -723,7 +854,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       </div>
                       <Show when={props.compareSource!.primary_chain!.unresolved.length > 0}>
                         <div class="mt-2">
-                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                          <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
                             Missing files ({props.compareSource!.primary_chain!.unresolved.length})
                           </span>
                           <div class="mt-1 font-mono">
@@ -740,7 +871,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                       </Show>
                       <Show when={props.compareSource!.available_configs.length > 0}>
                         <div class="mt-2 pt-2 border-t border-[var(--sg-stat-border)]">
-                          <span class="text-[var(--sg-section-label)] text-[10px] uppercase tracking-wide">
+                          <span class="text-[var(--sg-section-label)] text-[0.625rem] uppercase tracking-wide">
                             Other configs ({props.compareSource!.available_configs.length})
                           </span>
                           <div class="mt-1 font-mono">
@@ -761,16 +892,120 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   </Show>
                 </div>
               </Show>
+            </div>
 
+                <Show when={primaryOverride()}>
+                  <button
+                    class="btn btn-ghost btn-xs text-[var(--sg-text-dim)]"
+                    onClick={() => {
+                      setPrimaryOverride(null);
+                      setConfigOverride(null);
+                    }}
+                  >
+                    ↩ Reset to default
+                  </button>
+                </Show>
+              </div>
+
+              {/* Segment 2 right: render-mode toggles. Rendering modes
+                  (how rows are drawn) rather than filters. Dimmed when
+                  no pretty-view surface is visible but kept in place so
+                  their coordinates never shift. */}
+              <div class="sg-top-seg-content-right" classList={{ "sg-top-group-dim": !isPrettyViewActive() }}>
+                <div class="sg-config-kb-mode-toggle" title={isPrettyViewActive() ? "Alias chain rendering" : "Only applies to bind/alias/trigger views"}>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainMode() === "pretty" }}
+                    onClick={() => setAliasChainMode("pretty")}
+                    disabled={!isPrettyViewActive()}
+                  >Pretty</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainMode() === "raw" }}
+                    onClick={() => setAliasChainMode("raw")}
+                    disabled={!isPrettyViewActive()}
+                  >Raw</button>
+                </div>
+                <div class="sg-config-kb-mode-toggle" title={isPrettyViewActive() ? "Token resolver" : "Only applies to bind/alias/trigger views"}>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainResolver() === "label" }}
+                    onClick={() => setAliasChainResolver("label")}
+                    disabled={!isPrettyViewActive()}
+                  >Label</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": aliasChainResolver() === "simulator" }}
+                    onClick={() => setAliasChainResolver("simulator")}
+                    disabled={!isPrettyViewActive()}
+                  >Simulator</button>
+                </div>
+              </div>
+              </div>
+              <div class="sg-top-seg-content-gutter" />
+            </div>
+
+            {/* Segment 3 - above right panel. Keyboard/State sits at
+                the LEFT edge of this segment so it aligns with the
+                right-panel column below. Only rendered when a binds
+                section is focused (right panel lifecycle). */}
+            <div class="sg-top-seg-right">
+              <Show when={kbState.isBindsSectionFocused()}>
+                <div class="sg-config-kb-mode-toggle">
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": kbState.visible() && kbState.rightPanelMode() === "keyboard" }}
+                    onClick={() => kbState.toggleRightPanel("keyboard")}
+                  >Keyboard</button>
+                  <button
+                    class="sg-config-kb-module-btn"
+                    classList={{ "sg-config-kb-module-btn-active": kbState.visible() && kbState.rightPanelMode() === "state" }}
+                    onClick={() => kbState.toggleRightPanel("state")}
+                  >State</button>
+                </div>
+              </Show>
+            </div>
+          </div>
+
+          {/* ── Sidebar + Content (horizontal layout) ── */}
+          <div class="flex-1 flex overflow-hidden">
+            <ConfigSidebar
+              row1Categories={row1Categories()}
+              activeRow1={activeRow1()}
+              isAllRow1={isAllRow1()}
+              isAll={isAll()}
+              row1Total={row1Total()}
+              onToggleRow1Cat={toggleRow1Cat}
+              onToggleAll={toggleAll}
+              categoryGaps={CATEGORY_GAPS}
+              activeRow2={activeRow2()}
+              onToggleRow2Pill={toggleRow2Pill}
+              aliasesActive={aliasesActive()}
+              onToggleAliases={() => setAliasesActive((v) => !v)}
+              macrosActive={macrosActive()}
+              onToggleMacros={() => setMacrosActive((v) => !v)}
+              triggersActive={triggersActive()}
+              onToggleTriggers={() => setTriggersActive((v) => !v)}
+              commandsActive={commandsActive()}
+              onToggleCommands={() => setCommandsActive((v) => !v)}
+              hideDefaults={hideDefaults()}
+              onHideDefaultsChange={setHideDefaults}
+              isCompareMode={isCompareMode()}
+            />
+
+            <div class="flex-1 flex flex-col overflow-hidden max-w-4xl">
               {/* ── Compare filter bar ── */}
-              <Show when={isCompareMode()}>
+              {/* Only shown when the Settings section is visible — the counts
+                  are cvar-specific and become misleading on bind/alias/macro
+                  views that don't use the compare diff model. */}
+              <Show when={isCompareMode() && showSettingsSection()}>
                 <div class="flex items-center gap-2 px-4 py-1.5 border-b border-[var(--sg-stat-border)] flex-shrink-0 bg-[color-mix(in_oklch,var(--sg-stat-bg)_50%,transparent)]">
                   <button class="btn btn-ghost btn-xs text-[var(--sg-text-dim)] mr-1" onClick={clearCompare} title="Exit compare mode">
                     ✕
                   </button>
-                  <span class="text-[10px] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
+                  <span class="text-[0.625rem] text-[var(--sg-section-label)] uppercase tracking-wide mr-1">Compare:</span>
                   <For each={[
-                    { id: "all" as CompareFilter, label: `All (${relevantCvars().length})` },
+                    { id: "all" as CompareFilter, label: `All (${visibleCvars().length})` },
                     { id: "diff" as CompareFilter, label: `Different (${compareCounts().diff})` },
                     { id: "same" as CompareFilter, label: `Same (${compareCounts().same})` },
                     { id: "only_left" as CompareFilter, label: `Only yours (${compareCounts().onlyLeft})` },
@@ -792,7 +1027,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
 
               {/* ── Content + minimap ── */}
               <div class="flex-1 flex overflow-hidden">
-              <div class="sg-content-scroll flex-1 overflow-y-auto relative pt-1" ref={setContentScrollEl}>
+              <div class="sg-content-scroll flex-1 overflow-y-auto relative pt-4 px-1" ref={setContentScrollEl}>
                 <Show when={showSettingsSection()}>
                   <ConfigSettingsSection
                     cvars={filteredCvars()}
@@ -809,6 +1044,35 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                   <ConfigWeaponBindsSection
                     primaryBinds={primaryWeaponBinds()}
                     compareBinds={compareWeaponBinds()}
+                    isWeaponSelected={kbState.isWeaponSelected}
+                    onWeaponClick={(w) => {
+                      if (kbState.isWeaponSelected(w)) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "weapon", weapon: w }]);
+                    }}
+                    primaryAliases={primaryAliases()}
+                    compareAliases={compareAliases()}
+                    primaryBindCommands={primaryBindCommands()}
+                    compareBindCommands={compareBindCommands()}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    primaryDispatch={effectiveConfig()?.weapon_change_dispatch ?? null}
+                    compareDispatch={isCompareMode() ? (compareBinds()?.weapon_change_dispatch ?? null) : null}
+                    primarySensBaseline={effectiveConfig()?.sensitivity_baseline ?? null}
+                    compareSensBaseline={isCompareMode() ? (compareBinds()?.sensitivity_baseline ?? null) : null}
+                    hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
+                  />
+                </Show>
+
+                <Show when={activeRow2().has("movement:binds")}>
+                  <ConfigMovementBindsSection
+                    primary={effectiveConfig()?.movement ?? {
+                      forward: "", back: "", moveleft: "", moveright: "",
+                      jump: "", moveup: "", movedown: "",
+                    }}
+                    compare={isCompareMode() ? (compareBinds()?.movement ?? null) : null}
                   />
                 </Show>
 
@@ -820,18 +1084,29 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     compareAliases={compareAliases()}
                     primaryBindCommands={primaryBindCommands()}
                     compareBindCommands={compareBindCommands()}
+                    isLabelSelected={kbState.isLabelSelected}
+                    onLabelClick={(l) => {
+                      if (kbState.isLabelSelected(l)) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "teamsay", label: l }]);
+                    }}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
                 <Show when={activeRow2().has("teamplay:macros")}>
                   <ConfigTeamplayMacros
-                    primaryAliases={primaryAliases()}
-                    compareAliases={isCompareMode() ? compareAliases() : undefined}
                     primaryCvars={effectiveCvars()}
                     compareCvars={isCompareMode() ? compareCvars() : undefined}
-                    teamsayAliasNames={teamsayAliasNames()}
                     primaryUserCreated={userCreatedCvars()}
                     compareUserCreated={isCompareMode() ? compareUserCreatedCvars() : undefined}
+                    hideDefaults={hideDefaults()}
+                    isCompareMode={isCompareMode()}
+                    search={search()}
                   />
                 </Show>
 
@@ -841,11 +1116,25 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     isCompareMode={isCompareMode()}
                     primaryAliases={primaryAliases()}
                     compareAliases={isCompareMode() ? compareAliases() : undefined}
+                    primaryCvars={effectiveCvars()}
+                    compareCvars={isCompareMode() ? Object.fromEntries(compareCvars()) : undefined}
+                    hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
                 <Show when={showAliasesSection()}>
-                  <ConfigAliasesSection aliases={filteredAliases()} allAliases={primaryAliases()} />
+                  <ConfigAliasesSection
+                    aliases={filteredAliases()}
+                    allAliases={primaryAliases()}
+                    primaryCvars={effectiveCvars()}
+                    hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
+                  />
                 </Show>
 
                 <Show when={showMacrosSection()}>
@@ -865,6 +1154,11 @@ export default function ConfigViewer(props: ConfigViewerProps) {
                     aliases={primaryAliases()}
                     compareAliases={isCompareMode() ? compareAliases() : undefined}
                     search={search()}
+                    primaryCvars={effectiveCvars()}
+                    hideDefaults={hideDefaults()}
+                    aliasChainMode={aliasChainMode()}
+                    resolver={resolver()}
+                    playerState={playerState()}
                   />
                 </Show>
 
@@ -885,6 +1179,63 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               <SectionMinimap scrollContainer={contentScrollEl} />
               </div>
             </div>
+            <Show when={kbState.isBindsSectionFocused()}>
+              <ConfigKeyboardPanel
+                primary={effectiveConfig()}
+                primaryName={effectiveChain()?.files[0]?.relative_path ?? null}
+                compare={isCompareMode() ? compareBinds() : null}
+                compareName={isCompareMode() ? props.compareSource?.primary_chain?.files[0]?.relative_path ?? null : null}
+                visible={kbState.visible()}
+                onToggleVisible={kbState.toggleVisible}
+                selection={kbState.selection()}
+                onSelectionChange={kbState.setSelection}
+                showMovement={kbState.showMovement()}
+                showWeapons={kbState.showWeapons()}
+                showTeamplay={kbState.showTeamplay()}
+                onToggleMovement={kbState.toggleMovement}
+                onToggleWeapons={kbState.toggleWeapons}
+                onToggleTeamplay={kbState.toggleTeamplay}
+                rightModule={kbState.rightModule()}
+                setRightModule={kbState.setRightModule}
+                availableModules={kbState.availableModules}
+                showBindLabels={showBindLabels()}
+                onToggleBindLabels={toggleBindLabels}
+                mode={kbState.rightPanelMode()}
+                onModeChange={kbState.setRightPanelMode}
+                onModeToggle={kbState.toggleRightPanel}
+                statePanel={
+                  <StatePanel
+                    state={kbState.simulatorState()}
+                    cvars={new Map(Object.entries(effectiveCvars()))}
+                    templates={kbState.templates()}
+                    locs={locScan()?.maps ?? {}}
+                    onChange={kbState.updateSimState}
+                    onSaveAs={kbState.saveTemplate}
+                    onLoadTemplate={kbState.loadTemplate}
+                    onDeleteTemplate={kbState.deleteTemplate}
+                    onReset={kbState.resetSimState}
+                  />
+                }
+                reportBanner={() => (
+                  <ReportBanner
+                    teamsayBinds={effectiveConfig()?.teamsay_binds}
+                    state={playerState()}
+                    cvars={new Map(Object.entries(effectiveCvars()))}
+                    aliases={primaryAliases()}
+                    bindCommands={primaryBindCommands()}
+                    resolver={resolver()}
+                    onClick={() => {
+                      // Click the banner to select the report label — same
+                      // interaction as clicking the Report row in the teamplay
+                      // list. Activates keyboard highlight + expands the chain
+                      // on the left pane. Toggle off if already selected.
+                      if (kbState.isLabelSelected("report")) kbState.setSelection(null);
+                      else kbState.setSelection([{ kind: "teamsay", label: "report" }]);
+                    }}
+                  />
+                )}
+              />
+            </Show>
           </div>
 
           {/* Drop zone overlay */}

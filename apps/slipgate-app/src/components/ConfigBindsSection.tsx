@@ -1,12 +1,21 @@
 import { createSignal, For, Show } from "solid-js";
 import type { EnrichedBind } from "./configMerger";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
+import type { AliasChainResult } from "./AliasChainResolver";
+import type { RuntimeResolver } from "../lib/runtimeResolver";
+import type { PlayerState } from "../lib/simulator/index.js";
 
 interface ConfigBindsSectionProps {
   binds: EnrichedBind[];
   isCompareMode?: boolean;
   primaryAliases?: Record<string, string>;
   compareAliases?: Record<string, string>;
+  primaryCvars?: Record<string, string>;
+  compareCvars?: Record<string, string>;
+  hideDefaults?: boolean;
+  aliasChainMode?: "pretty" | "raw";
+  resolver?: RuntimeResolver | null;
+  playerState?: PlayerState;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -25,8 +34,8 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
     setExpanded((prev) => (prev === key ? null : key));
   }
 
-  function getChain(command: string, aliases?: Record<string, string>) {
-    if (!aliases || !command) return [];
+  function getChain(command: string, aliases?: Record<string, string>): AliasChainResult {
+    if (!aliases || !command) return { chain: [], macroRefs: new Set() };
     return resolveAliasChain(command, aliases);
   }
 
@@ -38,7 +47,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
       <Show
         when={props.isCompareMode}
         fallback={
-          <div class="sg-cv-bind-row text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+          <div class="sg-cv-bind-row text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
             <span />
             <span>Key</span>
             <span>Command</span>
@@ -46,7 +55,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
           </div>
         }
       >
-        <div class="sg-cv-bind-row-cmp text-[11px] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
+        <div class="sg-cv-bind-row-cmp text-[0.6875rem] uppercase tracking-wide text-[var(--sg-section-label)] border-b border-[var(--sg-stat-border)]">
           <span />
           <span>Key</span>
           <span>Your Config</span>
@@ -75,12 +84,12 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
               return getChain(bind.command, props.primaryAliases);
             };
             const releaseChain = () => {
-              if (!bind.modifierAlias) return [];
+              if (!bind.modifierAlias) return { chain: [], macroRefs: new Set<string>() };
               const releaseName = "-" + bind.modifierAlias.slice(1);
               return getChain(releaseName, props.primaryAliases);
             };
             const compareChain = () => getChain(bind.compareCommand ?? "", props.compareAliases);
-            const hasChain = () => chain().length > 0 || compareChain().length > 0 || releaseChain().length > 0;
+            const hasChain = () => chain().chain.length > 0 || compareChain().chain.length > 0 || releaseChain().chain.length > 0;
 
             return (
               <>
@@ -93,7 +102,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                       title={bind.description}
                       onClick={() => (hasChain() || bind.category === "unresolved" || bind.category === "ktx") && toggleExpand(bind.key)}
                     >
-                      <span class="text-[11px] text-[var(--sg-section-label)]">
+                      <span class="text-[0.6875rem] text-[var(--sg-section-label)]">
                         {bind.category === "unresolved"
                           ? "⚠"
                           : bind.category === "ktx" ? (isExpanded() ? "▾" : "▸")
@@ -109,11 +118,11 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                       >
                         {bind.key}
                       </span>
-                      <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate" title={bind.command}>
+                      <span class="text-[0.8125rem] text-[var(--sg-text-bright)] font-semibold truncate" title={bind.command}>
                         {bind.command}
                       </span>
                       <span
-                        class="text-[11px] font-semibold uppercase tracking-wide"
+                        class="text-[0.6875rem] font-semibold uppercase tracking-wide"
                         style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
                       >
                         {bind.category === "weapons" ? bind.label : bind.category}
@@ -129,7 +138,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                     title={bind.description || bind.compareDescription}
                     onClick={() => (hasChain() || bind.category === "unresolved" || bind.category === "ktx") && toggleExpand(bind.key)}
                   >
-                    <span class="text-[11px] text-[var(--sg-section-label)]">
+                    <span class="text-[0.6875rem] text-[var(--sg-section-label)]">
                       {bind.category === "unresolved"
                         ? "⚠"
                         : bind.category === "ktx" ? (isExpanded() ? "▾" : "▸")
@@ -148,15 +157,15 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
 
                     <div class="grid min-w-0" style={{ "grid-template-columns": "90px 1fr" }}>
                       <Show when={bind.hasLeft} fallback={
-                        <span class="text-[11px] text-[var(--sg-section-label)] italic col-span-2">—</span>
+                        <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic col-span-2">—</span>
                       }>
                         <span
-                          class="text-[11px] font-semibold uppercase tracking-wide"
+                          class="text-[0.6875rem] font-semibold uppercase tracking-wide"
                           style={{ color: CATEGORY_COLORS[bind.category] ?? "var(--sg-text-dim)" }}
                         >
                           {bind.label}
                         </span>
-                        <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate">
+                        <span class="text-[0.8125rem] text-[var(--sg-text-bright)] font-semibold truncate">
                           {bind.command}
                         </span>
                       </Show>
@@ -164,15 +173,15 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
 
                     <div class="grid min-w-0" style={{ "grid-template-columns": "90px 1fr" }}>
                       <Show when={bind.hasRight} fallback={
-                        <span class="text-[11px] text-[var(--sg-section-label)] italic col-span-2">—</span>
+                        <span class="text-[0.6875rem] text-[var(--sg-section-label)] italic col-span-2">—</span>
                       }>
                         <span
-                          class="text-[11px] font-semibold uppercase tracking-wide"
+                          class="text-[0.6875rem] font-semibold uppercase tracking-wide"
                           style={{ color: CATEGORY_COLORS[bind.compareCategory ?? "misc"] ?? "var(--sg-text-dim)" }}
                         >
                           {bind.compareLabel}
                         </span>
-                        <span class="text-[13px] text-[var(--sg-text-bright)] font-semibold truncate">
+                        <span class="text-[0.8125rem] text-[var(--sg-text-bright)] font-semibold truncate">
                           {bind.compareDescription}
                         </span>
                       </Show>
@@ -184,7 +193,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                 <Show when={isExpanded()}>
                   <div class="sg-domain-bind-expanded">
                     <Show when={bind.category === "unresolved"}>
-                      <div class="text-[11px] px-3 py-1.5 mb-1 rounded"
+                      <div class="text-[0.6875rem] px-3 py-1.5 mb-1 rounded"
                         style={{
                           background: "color-mix(in oklch, oklch(0.75 0.18 85) 15%, transparent)",
                           color: "oklch(0.75 0.18 85)",
@@ -196,7 +205,7 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                       </div>
                     </Show>
                     <Show when={bind.category === "ktx"}>
-                      <div class="text-[11px] px-3 py-1.5 mb-1 rounded"
+                      <div class="text-[0.6875rem] px-3 py-1.5 mb-1 rounded"
                         style={{
                           background: "color-mix(in oklch, oklch(0.7 0.15 310) 15%, transparent)",
                           color: "oklch(0.7 0.15 310)",
@@ -209,30 +218,60 @@ export default function ConfigBindsSection(props: ConfigBindsSectionProps) {
                     </Show>
                     <Show when={bind.modifierAlias} fallback={
                       <>
-                        <Show when={chain().length > 0}>
-                          <Show when={props.isCompareMode}>
-                            <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Your config</div>
-                          </Show>
-                          <AliasChainView chain={chain()} />
+                        <Show when={chain().chain.length > 0}>
+                          <AliasChainView
+                            chain={chain().chain}
+                            macroRefs={chain().macroRefs}
+                            primaryCvars={props.primaryCvars}
+                            hideDefaults={props.hideDefaults}
+                            ownerClass="sg-alias-chain-you"
+                            mode={props.aliasChainMode}
+                            resolver={props.resolver ?? null}
+                            playerState={props.playerState}
+                          />
                         </Show>
-                        <Show when={props.isCompareMode && compareChain().length > 0}>
-                          <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">Comparison</div>
-                          <AliasChainView chain={compareChain()} />
+                        <Show when={props.isCompareMode && compareChain().chain.length > 0}>
+                          <AliasChainView
+                            chain={compareChain().chain}
+                            macroRefs={compareChain().macroRefs}
+                            primaryCvars={props.compareCvars}
+                            hideDefaults={props.hideDefaults}
+                            ownerClass="sg-alias-chain-them"
+                            mode={props.aliasChainMode}
+                            resolver={props.resolver ?? null}
+                            playerState={props.playerState}
+                          />
                         </Show>
                       </>
                     }>
                       {/* Modifier combo: show press and release alias chains */}
-                      <Show when={chain().length > 0}>
-                        <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
+                      <Show when={chain().chain.length > 0}>
+                        <div class="text-[0.6875rem] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
                           On press ({bind.modifierAlias})
                         </div>
-                        <AliasChainView chain={chain()} />
+                        <AliasChainView
+                          chain={chain().chain}
+                          macroRefs={chain().macroRefs}
+                          primaryCvars={props.primaryCvars}
+                          hideDefaults={props.hideDefaults}
+                          mode={props.aliasChainMode}
+                          resolver={props.resolver ?? null}
+                          playerState={props.playerState}
+                        />
                       </Show>
-                      <Show when={releaseChain().length > 0}>
-                        <div class="text-[11px] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
+                      <Show when={releaseChain().chain.length > 0}>
+                        <div class="text-[0.6875rem] text-[var(--sg-section-label)] uppercase tracking-wide px-4 pt-2 pb-1">
                           On release ({"-" + (bind.modifierAlias ?? "").slice(1)})
                         </div>
-                        <AliasChainView chain={releaseChain()} />
+                        <AliasChainView
+                          chain={releaseChain().chain}
+                          macroRefs={releaseChain().macroRefs}
+                          primaryCvars={props.primaryCvars}
+                          hideDefaults={props.hideDefaults}
+                          mode={props.aliasChainMode}
+                          resolver={props.resolver ?? null}
+                          playerState={props.playerState}
+                        />
                       </Show>
                     </Show>
                   </div>
