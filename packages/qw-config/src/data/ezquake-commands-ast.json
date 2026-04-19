@@ -1,0 +1,5649 @@
+{
+  "groups": [
+    {
+      "id": "action",
+      "name": "Press/Release Actions"
+    },
+    {
+      "id": "teamplay",
+      "name": "Teamplay"
+    },
+    {
+      "id": "demo",
+      "name": "Demo Recording & Playback"
+    },
+    {
+      "id": "hud",
+      "name": "HUD"
+    },
+    {
+      "id": "video",
+      "name": "Video & Screenshots"
+    },
+    {
+      "id": "menu",
+      "name": "Menus"
+    },
+    {
+      "id": "sb",
+      "name": "Server Browser"
+    },
+    {
+      "id": "stateful",
+      "name": "Stateful / Toggle"
+    },
+    {
+      "id": "game",
+      "name": "In-Game Actions"
+    },
+    {
+      "id": "config",
+      "name": "Config & Scripting"
+    },
+    {
+      "id": "comm",
+      "name": "Communication"
+    },
+    {
+      "id": "dev",
+      "name": "Developer / Diagnostics"
+    },
+    {
+      "id": "deprecated",
+      "name": "Deprecated"
+    },
+    {
+      "id": "misc",
+      "name": "Miscellaneous"
+    }
+  ],
+  "commands": {
+    "+attack": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_AttackDown",
+        "source_file": "cl_input.c",
+        "source_line": 1256,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will fire the weapon he is currently holding.\nThis is the primary command used to make the player fire the gun.\nFor as long as the key that is bound to this command is held down and this command is active the player will keep on firing the gun."
+    },
+    "+attack2": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_Attack2Down",
+        "source_file": "cl_input.c",
+        "source_line": 1262,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "Secondary attack button."
+    },
+    "+back": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_BackDown",
+        "source_file": "cl_input.c",
+        "source_line": 1242,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will move backwards."
+    },
+    "+cl_wp_stats": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "SCR_MvdWeaponStatsOn_f",
+        "source_file": "hud_weapon_stats.c",
+        "source_line": 246,
+        "source_column": 3,
+        "enclosing_function": "WeaponStats_CommandInit",
+        "build_variant": "client"
+      }
+    },
+    "+fire": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_FireDown",
+        "source_file": "cl_input.c",
+        "source_line": 1258,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+fire_ar": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_FireDown",
+        "source_file": "cl_input.c",
+        "source_line": 1260,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+forward": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_ForwardDown",
+        "source_file": "cl_input.c",
+        "source_line": 1240,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will move forward."
+    },
+    "+jump": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_JumpDown",
+        "source_file": "cl_input.c",
+        "source_line": 1266,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will do a single jump. The next jump won't be performed until \"-jump\" has been issued."
+    },
+    "+klook": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_KLookDown",
+        "source_file": "cl_input.c",
+        "source_line": 1270,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active, \"+forward\" and \"+back\" become \"+lookup\" and \"+lookdown\"  respectively.\nThis command is useful if the player needs to look at objects which are above or below him."
+    },
+    "+left": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LeftDown",
+        "source_file": "cl_input.c",
+        "source_line": 1236,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will turn left."
+    },
+    "+lookdown": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LookdownDown",
+        "source_file": "cl_input.c",
+        "source_line": 1246,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will look down."
+    },
+    "+lookup": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LookupDown",
+        "source_file": "cl_input.c",
+        "source_line": 1244,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will look up."
+    },
+    "+mlook": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MLookDown",
+        "source_file": "cl_input.c",
+        "source_line": 1272,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active moving the mouse or joystick forwards and backwards performs \"+lookup\" and \"+lookdown\" respectively.\nThis command is very useful if the player needs to look at objects which are above or below him.\nMost players execute this command and never remove it. This way they can use the keyboard to move the player forward and back and strafe left and right, while using the mouse to turn the player left and right and to make him look up and down.\nIn order to have this command set permanently you will have to create a file called autoexec.cfg in the qw/ directory and put in the line \"+mlook\" into that file.\nBy doing this the game will automatically execute the autoexec.cfg file and it will also active that command.\nAlmost every player uses this command nowadays, because the combination of using mouse and keyboard is widely considered the best."
+    },
+    "+movedown": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_DownDown",
+        "source_file": "cl_input.c",
+        "source_line": 1234,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will swim down when in the water."
+    },
+    "+moveleft": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MoveleftDown",
+        "source_file": "cl_input.c",
+        "source_line": 1250,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will strafe left."
+    },
+    "+moveright": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MoverightDown",
+        "source_file": "cl_input.c",
+        "source_line": 1252,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will strafe right."
+    },
+    "+moveup": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_UpDown",
+        "source_file": "cl_input.c",
+        "source_line": 1232,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will swim up when in the water."
+    },
+    "+qtv_delay": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "QtvStartDelay_f",
+        "source_file": "qtv.c",
+        "source_line": 80,
+        "source_column": 2,
+        "enclosing_function": "QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "+right": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_RightDown",
+        "source_file": "cl_input.c",
+        "source_line": 1238,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will turn right."
+    },
+    "+showscores": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "Sbar_ShowScores",
+        "source_file": "sbar.c",
+        "source_line": 350,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Display scoreboard."
+    },
+    "+showteamscores": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "Sbar_ShowTeamScores",
+        "source_file": "sbar.c",
+        "source_line": 353,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Display team scoreboard."
+    },
+    "+speed": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_SpeedDown",
+        "source_file": "cl_input.c",
+        "source_line": 1254,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active the player will run."
+    },
+    "+strafe": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_StrafeDown",
+        "source_file": "cl_input.c",
+        "source_line": 1248,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When active, \"+left\" and \"+right\" function like \"+moveleft\" and \"+moveright\", strafing in that direction."
+    },
+    "+use": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_UseDown",
+        "source_file": "cl_input.c",
+        "source_line": 1264,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used it will activate objects in the game that have been designed to react at \"+use\""
+    },
+    "+voip": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "S_Voip_Enable_f",
+        "source_file": "snd_voip.c",
+        "source_line": 489,
+        "source_column": 2,
+        "enclosing_function": "S_Voip_RegisterCvars",
+        "build_variant": "client"
+      }
+    },
+    "+zoom": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "SCR_ZoomIn_f",
+        "source_file": "cl_screen.c",
+        "source_line": 1131,
+        "source_column": 3,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "-attack": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_AttackUp",
+        "source_file": "cl_input.c",
+        "source_line": 1257,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop firing the gun if \"+attack\" is active."
+    },
+    "-attack2": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_Attack2Up",
+        "source_file": "cl_input.c",
+        "source_line": 1263,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "Secondary attack button."
+    },
+    "-back": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_BackUp",
+        "source_file": "cl_input.c",
+        "source_line": 1243,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving back if \"+back\" is active."
+    },
+    "-cl_wp_stats": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "SCR_MvdWeaponStatsOff_f",
+        "source_file": "hud_weapon_stats.c",
+        "source_line": 247,
+        "source_column": 3,
+        "enclosing_function": "WeaponStats_CommandInit",
+        "build_variant": "client"
+      }
+    },
+    "-fire": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_FireUp",
+        "source_file": "cl_input.c",
+        "source_line": 1259,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-fire_ar": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_FireUp",
+        "source_file": "cl_input.c",
+        "source_line": 1261,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-forward": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_ForwardUp",
+        "source_file": "cl_input.c",
+        "source_line": 1241,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving forward if \"+forward\" is active."
+    },
+    "-jump": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_JumpUp",
+        "source_file": "cl_input.c",
+        "source_line": 1267,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop jumping if \"+jump\" is active."
+    },
+    "-klook": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_KLookUp",
+        "source_file": "cl_input.c",
+        "source_line": 1271,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the forward and back keys will stop making the player look up and down if \"+klook\" is active."
+    },
+    "-left": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LeftUp",
+        "source_file": "cl_input.c",
+        "source_line": 1237,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop turning left if \"+left\" is active."
+    },
+    "-lookdown": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LookdownUp",
+        "source_file": "cl_input.c",
+        "source_line": 1247,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop looking down if \"+lookdown\" is active."
+    },
+    "-lookup": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_LookupUp",
+        "source_file": "cl_input.c",
+        "source_line": 1245,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop looking up if \"+lookup\" is active."
+    },
+    "-mlook": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MLookUp",
+        "source_file": "cl_input.c",
+        "source_line": 1273,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the mouse forward and back movement will stop making the player look up and down if \"+mlook\" is active."
+    },
+    "-movedown": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_DownUp",
+        "source_file": "cl_input.c",
+        "source_line": 1235,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving down if \"+movedown\" is active."
+    },
+    "-moveleft": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MoveleftUp",
+        "source_file": "cl_input.c",
+        "source_line": 1251,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving left if \"+moveleft\" is active."
+    },
+    "-moveright": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_MoverightUp",
+        "source_file": "cl_input.c",
+        "source_line": 1253,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving right if \"+moveright\" is active."
+    },
+    "-moveup": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_UpUp",
+        "source_file": "cl_input.c",
+        "source_line": 1233,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop moving up if \"+moveup\" is active."
+    },
+    "-qtv_delay": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "QtvEndDelay_f",
+        "source_file": "qtv.c",
+        "source_line": 81,
+        "source_column": 2,
+        "enclosing_function": "QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "-right": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_RightUp",
+        "source_file": "cl_input.c",
+        "source_line": 1239,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will stop turning right if \"+right\" is active."
+    },
+    "-showscores": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "Sbar_DontShowScores",
+        "source_file": "sbar.c",
+        "source_line": 351,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      },
+      "desc": "When used the score screen will disappear if +showscores is active."
+    },
+    "-showteamscores": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "Sbar_DontShowTeamScores",
+        "source_file": "sbar.c",
+        "source_line": 354,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      },
+      "desc": "When used the score screen will disappear if +showteamscores is active."
+    },
+    "-speed": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_SpeedUp",
+        "source_file": "cl_input.c",
+        "source_line": 1255,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the player will walk."
+    },
+    "-strafe": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_StrafeUp",
+        "source_file": "cl_input.c",
+        "source_line": 1249,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used the turn left and turn right keys will once again perform their original functions."
+    },
+    "-use": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "IN_UseUp",
+        "source_file": "cl_input.c",
+        "source_line": 1265,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "When used it will stop activating objects in the game that have been designed to react at \"+use\"."
+    },
+    "-voip": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "S_Voip_Disable_f",
+        "source_file": "snd_voip.c",
+        "source_line": 490,
+        "source_column": 2,
+        "enclosing_function": "S_Voip_RegisterCvars",
+        "build_variant": "client"
+      }
+    },
+    "-zoom": {
+      "group-id": "action",
+      "ast": {
+        "handler_fn": "SCR_ZoomOut_f",
+        "source_file": "cl_screen.c",
+        "source_line": 1132,
+        "source_column": 3,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "acc_block": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_BlockAccount_f",
+        "source_file": "sv_login.c",
+        "source_line": 566,
+        "source_column": 2,
+        "enclosing_function": "Login_Init",
+        "build_variant": "client"
+      }
+    },
+    "acc_create": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_CreateAccount_f",
+        "source_file": "sv_login.c",
+        "source_line": 562,
+        "source_column": 2,
+        "enclosing_function": "Login_Init",
+        "build_variant": "client"
+      }
+    },
+    "acc_list": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ListAccount_f",
+        "source_file": "sv_login.c",
+        "source_line": 564,
+        "source_column": 2,
+        "enclosing_function": "Login_Init",
+        "build_variant": "client"
+      }
+    },
+    "acc_remove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemoveAccount_f",
+        "source_file": "sv_login.c",
+        "source_line": 563,
+        "source_column": 2,
+        "enclosing_function": "Login_Init",
+        "build_variant": "client"
+      }
+    },
+    "acc_unblock": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_UnblockAccount_f",
+        "source_file": "sv_login.c",
+        "source_line": 565,
+        "source_column": 2,
+        "enclosing_function": "Login_Init",
+        "build_variant": "client"
+      }
+    },
+    "addip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_AddIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3539,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Add a single IP or a domain of IPs to the IP list of the server.\nVery useful for banning people or for specifying which IPs only have access to the server.\n\nExamples:\naddip 123.123.123.123\naddip 123.123.123"
+    },
+    "addloc": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Adds a new loc with the specified name at current location."
+    },
+    "addserver": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "AddServer_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3297,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      },
+      "desc": "Server Browser: This allows you to add a server to the UNBOUND source.\nThis can be used to quickly bookmark servers."
+    },
+    "alias": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "cmd.c",
+        "source_line": 2511,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Used to create a reference to a command or list of commands.\nWhen used without parameters, displays all current aliases.",
+      "remarks": "Enclose multiple commands within quotes and separate each command with a semi-colon."
+    },
+    "alias_in": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Alias_In_f",
+        "source_file": "cmd.c",
+        "source_line": 2525,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Inserts contents of variable into alias."
+    },
+    "alias_out": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Alias_Out_f",
+        "source_file": "cmd.c",
+        "source_line": 2526,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "aliasedit": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_AliasEdit_f",
+        "source_file": "cmd.c",
+        "source_line": 2510,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Allows you to edit your alias in console manually."
+    },
+    "aliaslist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_AliasList_f",
+        "source_file": "cmd.c",
+        "source_line": 2509,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints all aliases."
+    },
+    "align": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Align_f",
+        "source_file": "hud.c",
+        "source_line": 820,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "allskins": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skin_AllSkins_f",
+        "source_file": "host.c",
+        "source_line": 547,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Downloads all skins that is currently in use.\nUseful for refreshing skins without exiting the level."
+    },
+    "authenticate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Authenticate_f",
+        "source_file": "cl_main.c",
+        "source_line": 1968,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "autotrack": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Autotrack_f",
+        "source_file": "cl_cam.c",
+        "source_line": 802,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      },
+      "desc": "Toggles auto-tracking.\nAuto-tracking switches views for you when you are a spectator or when you are watching a demo or a broadcasted QTV match.\nIt chooses the best available autotrack - if you are spectator, looks for server-side command autotrack, if you are watching a demo or QTV stream, turns on both demo_autotrack and mvd_autotrack, mvd_autotrack will get turned off as soon as demo_autotrack data are found.\nAs a last resort if all previous autotrack are not available, cl_hightrack will be used."
+    },
+    "bar_armor": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element that displays a bar representing your amount of armor."
+    },
+    "bar_health": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element that displays a bar representing your amount of health."
+    },
+    "batteryinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sys_BatteryInfo_f",
+        "source_file": "sys_sdl2.c",
+        "source_line": 65,
+        "source_column": 2,
+        "enclosing_function": "Sys_CvarInit",
+        "build_variant": "client"
+      }
+    },
+    "bf": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "V_BonusFlash_f",
+        "source_file": "cl_view.c",
+        "source_line": 1129,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command shows a background screen flash that is the same one that is produced when the player picked up an item in the game.\nThis command basically serves no useful function except when people want to use it in scripts to give the user some visual feedback when an aliases is used for example."
+    },
+    "bind": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Key_Bind_f",
+        "source_file": "keys.c",
+        "source_line": 1972,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command binds one or several commands to a key.\nTo bind multiple commands to a key, enclose the commands in double-quotes (\") and separate them with semicolons (;)."
+    },
+    "bindedit": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Key_BindEdit_f",
+        "source_file": "keys.c",
+        "source_line": 1973,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      },
+      "desc": "Allows you to edit your bind in the console."
+    },
+    "bindlist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Key_BindList_f",
+        "source_file": "keys.c",
+        "source_line": 1971,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints all binds."
+    },
+    "cache_print": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cache_Print",
+        "source_file": "zone.c",
+        "source_line": 584,
+        "source_column": 2,
+        "enclosing_function": "Cache_Init_Commands",
+        "build_variant": "server-build"
+      }
+    },
+    "cache_report": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cache_Report",
+        "source_file": "zone.c",
+        "source_line": 585,
+        "source_column": 2,
+        "enclosing_function": "Cache_Init_Commands",
+        "build_variant": "server-build"
+      }
+    },
+    "calc_fov": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "tmp_calc_fov",
+        "source_file": "cl_screen.c",
+        "source_line": 1112,
+        "source_column": 3,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      },
+      "desc": "Converts (ezq2) wide aspect FOV to new FOV."
+    },
+    "calendar": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Calendar_f",
+        "source_file": "console.c",
+        "source_line": 509,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Same as \"date\" but also shows a small calendar of the month. Nice :)"
+    },
+    "cam_angles": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cam_Angles_f",
+        "source_file": "cl_cam.c",
+        "source_line": 814,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      },
+      "desc": "Set new camera angles."
+    },
+    "cam_pos": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cam_Pos_f",
+        "source_file": "cl_cam.c",
+        "source_line": 813,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      },
+      "desc": "Set new camera position."
+    },
+    "cancel": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1925,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "cd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CD_f",
+        "source_file": "cd_linux.c",
+        "source_line": 480,
+        "source_column": 2,
+        "enclosing_function": "CDAudio_Init",
+        "build_variant": "client"
+      },
+      "desc": "cd play 5 plays cd track #5",
+      "remarks": "You need -cdaudio to use this command."
+    },
+    "centerview": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "V_StartPitchDrift",
+        "source_file": "cl_view.c",
+        "source_line": 1130,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      },
+      "desc": "Centers the player's view ahead after +lookup or +lookdown."
+    },
+    "cfg_load": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "LoadConfig_f",
+        "source_file": "config_manager.c",
+        "source_line": 1222,
+        "source_column": 2,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      },
+      "desc": "This will do a cfg_reset and then execute filename.cfg (ezquake/configs)."
+    },
+    "cfg_reset": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "ResetConfigs_f",
+        "source_file": "config_manager.c",
+        "source_line": 1223,
+        "source_column": 2,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will unbind all keys, delete all aliases, msg_triggers, reset all plus commands, teamplay settings and reset all variables.\nUser made variables (created with set/seta) are deleted.\nAfter resetting all the above, it executes default.cfg and then autoexec.cfg."
+    },
+    "cfg_save": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "SaveConfig_f",
+        "source_file": "config_manager.c",
+        "source_line": 1221,
+        "source_column": 2,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will dump all aliases, bindings, plus commands, msg_triggers, teamplay settings and variables to filename.cfg .\nUser made variables (created with set/seta) are saved as well.",
+      "remarks": "Configs saved with cfg_save are saved in quake/ezquake/configs/*.cfg"
+    },
+    "check_maps": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Check_maps_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1834,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "chmod": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ChmodFile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1858,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "cl_messages": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Messages_f",
+        "source_file": "cl_parse.c",
+        "source_line": 175,
+        "source_column": 2,
+        "enclosing_function": "Cl_Messages_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints amount and size of messages sent from server to ezQuake client."
+    },
+    "clear": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_Clear_f",
+        "source_file": "console.c",
+        "source_line": 507,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command clears the console screen of any text."
+    },
+    "clearlocs": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Clear all currently loaded locs."
+    },
+    "clipboard": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Clipboard_f",
+        "source_file": "cmd.c",
+        "source_line": 2523,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Copies all the following arguments to the system clipboard"
+    },
+    "cmd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_ForwardToServer_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 931,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Sends a command directly to the server."
+    },
+    "cmdlist": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Cmd_CmdList_f",
+        "source_file": "cmd.c",
+        "source_line": 2518,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints a list of all available commands into the console."
+    },
+    "cmdlist_re": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_CmdList_re_f",
+        "source_file": "cmd.c",
+        "source_line": 2519,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command same as cmdlist, but supports (perl) regexp matching."
+    },
+    "color": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "CL_Color_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 948,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "This command sets the color for the player's shirt and pants.",
+      "remarks": "If only the shirt color is given, the pant color will match."
+    },
+    "connect": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Connect_f",
+        "source_file": "cl_main.c",
+        "source_line": 1999,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Connects your client to a QuakeWorld server."
+    },
+    "connectbr": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Connect_BestRoute_f",
+        "source_file": "cl_main.c",
+        "source_line": 2000,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Connects to given server via fastest available path (ping-wise)."
+    },
+    "cuff": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Cuff_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1851,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "cvar_in": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Cvar_In_f",
+        "source_file": "cmd.c",
+        "source_line": 2527,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "cvar_out": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Cvar_Out_f",
+        "source_file": "cmd.c",
+        "source_line": 2528,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "cvar_reset": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cvar_Reset_f",
+        "source_file": "cvar.c",
+        "source_line": 1590,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Resets the cvar to default.\n\nExample:\ncvar_reset topcolor\n - sets topcolor to default."
+    },
+    "cvar_reset_re": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Reset_re_f",
+        "source_file": "cvar.c",
+        "source_line": 1591,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Resets cvar(s) matching the regex to default.\n\nExample:\ncvar_reset ^gl_.*\n- resets all gl_ settings to default values."
+    },
+    "cvaredit": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_CvarEdit_f",
+        "source_file": "cvar.c",
+        "source_line": 1575,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      }
+    },
+    "cvarlist": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Cvar_CvarList_f",
+        "source_file": "cvar.c",
+        "source_line": 1574,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Print cvars."
+    },
+    "cvarlist_re": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_CvarList_re_f",
+        "source_file": "cvar.c",
+        "source_line": 1576,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command same as cvarlist, but supports (perl) regexp matching."
+    },
+    "date": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Date_f",
+        "source_file": "console.c",
+        "source_line": 508,
+        "source_column": 5,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Shows current time, date, month and year."
+    },
+    "demo_capture": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "Movie_Demo_Capture_f",
+        "source_file": "movie.c",
+        "source_line": 310,
+        "source_column": 2,
+        "enclosing_function": "Movie_Init",
+        "build_variant": "client"
+      },
+      "desc": "Captures a series of screenshots or an .avi file."
+    },
+    "demo_controls": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "DemoControls_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5471,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "demo_jump": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Demo_Jump_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5467,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Jumps playback to a point in time.\n\nExamples:\ndemo_jump 120\n - Jump playback to 120 seconds from the start of the demo.\ndemo_jump 4:30\n - Jump playback to 4 minutes and 30 seconds from the start of the demo."
+    },
+    "demo_jump_end": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Demo_Jump_End_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5470,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "demo_jump_mark": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Demo_Jump_Mark_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5468,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "demo_jump_status": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Demo_Jump_Status_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5469,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Fast-forward in the demo playback until certain condition holds."
+    },
+    "demo_playlist_clear": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "M_Demo_Playlist_Clear_f",
+        "source_file": "menu_demo.c",
+        "source_line": 881,
+        "source_column": 2,
+        "enclosing_function": "Menu_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Clears the demo playlist."
+    },
+    "demo_playlist_next": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "M_Demo_Playlist_Next_f",
+        "source_file": "menu_demo.c",
+        "source_line": 879,
+        "source_column": 2,
+        "enclosing_function": "Menu_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Goes to the next demo in the playlist."
+    },
+    "demo_playlist_prev": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "M_Demo_Playlist_Prev_f",
+        "source_file": "menu_demo.c",
+        "source_line": 880,
+        "source_column": 2,
+        "enclosing_function": "Menu_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Goes to the previous demo in the playlist."
+    },
+    "demo_playlist_stop": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "M_Demo_Playlist_Stop_f",
+        "source_file": "menu_demo.c",
+        "source_line": 878,
+        "source_column": 2,
+        "enclosing_function": "Menu_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Stops the demo playlist playback."
+    },
+    "demo_setspeed": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Demo_SetSpeed_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5466,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "You can vary the speed of demo playback with the 'demo_setspeed' command.\n'demo_setspeed x' sets the playback speed to x% of normal speed so that 'demo_setspeed 50' is half speed and 'demo_setspeed 300' gives you triple speed."
+    },
+    "describe": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Help_Describe_f",
+        "source_file": "help.c",
+        "source_line": 1091,
+        "source_column": 2,
+        "enclosing_function": "Help_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints manual info about given variable or command into the console."
+    },
+    "dev_cache_print": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "dev_cache_report": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "dev_dump_defaults": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "DumpVariablesDefaults_f",
+        "source_file": "config_manager.c",
+        "source_line": 1226,
+        "source_column": 3,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      }
+    },
+    "dev_gfxbenchmarklightmaps": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "GL_BenchmarkLightmapFormats",
+        "source_file": "cl_main.c",
+        "source_line": 2049,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_gfxtexturedump": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_VidTextureDump",
+        "source_file": "cl_main.c",
+        "source_line": 2033,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_gfxtexturelist": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_TextureList",
+        "source_file": "cl_main.c",
+        "source_line": 2034,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_gfxtrace": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_VidFrameTrace",
+        "source_file": "cl_main.c",
+        "source_line": 2032,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_help_issues": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Help_Issues_f",
+        "source_file": "help.c",
+        "source_line": 1094,
+        "source_column": 3,
+        "enclosing_function": "Help_Init",
+        "build_variant": "client"
+      }
+    },
+    "dev_help_verify_config": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Help_VerifyConfig_f",
+        "source_file": "help.c",
+        "source_line": 1093,
+        "source_column": 3,
+        "enclosing_function": "Help_Init",
+        "build_variant": "client"
+      }
+    },
+    "dev_hunk_print": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "dev_physicsnormalsave": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_PhysicsNormalSave",
+        "source_file": "cl_main.c",
+        "source_line": 2042,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_physicsnormalset": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_PhysicsNormalSet",
+        "source_file": "cl_main.c",
+        "source_line": 2040,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_physicsnormalshow": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "Dev_PhysicsNormalShow",
+        "source_file": "cl_main.c",
+        "source_line": 2041,
+        "source_column": 3,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "dev_pointfile": {
+      "group-id": "dev",
+      "ast": {
+        "handler_fn": "R_ReadPointFile_f",
+        "source_file": "r_rmain.c",
+        "source_line": 609,
+        "source_column": 2,
+        "enclosing_function": "R_Init",
+        "build_variant": "client"
+      },
+      "desc": "The pointfile command will load a .pts file and give a dotted line indicating where the leak(s) are on the level.",
+      "remarks": "If a leak exists in the level, qbsp generates a non-zero .pts file in the maps directory."
+    },
+    "devmap": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1870,
+        "source_column": 3,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Try it in cheats mode, start a map (devmap dm6) and type fly."
+    },
+    "dir": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "disconnect": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Disconnect_f",
+        "source_file": "cl_main.c",
+        "source_line": 1998,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "This command will disconnect you from the server/demo/proxy you are currently connected to."
+    },
+    "dns": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_DNS_f",
+        "source_file": "cl_main.c",
+        "source_line": 2017,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Performs DNS lookups and reverse lookups."
+    },
+    "download": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Download_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 932,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Manually download a quake file from the server.\n\nExample:\ndownload skins/foo.pcx"
+    },
+    "easyrecord": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_EasyRecord_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5464,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "This start recording demo and rename it like you have put with match_* settings."
+    },
+    "echo": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_Echo_f",
+        "source_file": "cmd.c",
+        "source_line": 2508,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will print text to your local console."
+    },
+    "edict": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "ED2_PrintEdict_f",
+        "source_file": "pr2_exec.c",
+        "source_line": 67,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      },
+      "desc": "Reports information on a given edict in the game."
+    },
+    "edictcount": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "ED_Count",
+        "source_file": "pr2_exec.c",
+        "source_line": 69,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      },
+      "desc": "Displays summary information on the edicts in the game."
+    },
+    "edicts": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "ED2_PrintEdicts",
+        "source_file": "pr2_exec.c",
+        "source_line": 68,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      },
+      "desc": "Displays information on all edicts in the game."
+    },
+    "enemycolor": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_EnemyColor_f",
+        "source_file": "teamplay.c",
+        "source_line": 3321,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "This will override enemy color.\n\nExample:\nenemycolor 12 13",
+      "remarks": "If only the shirt color is given, the pant color will match."
+    },
+    "eval": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Eval_f",
+        "source_file": "cmd.c",
+        "source_line": 2522,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Evaluates given expression and prints the result into the console."
+    },
+    "exec": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "cmd.c",
+        "source_line": 2504,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Executes a config file from \\qw, \\id1 or \\ezquake."
+    },
+    "f_modified": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FMod_Response",
+        "source_file": "fmod.c",
+        "source_line": 402,
+        "source_column": 2,
+        "enclosing_function": "FMod_Init",
+        "build_variant": "client"
+      },
+      "desc": "All the usual dm models, sounds, palettes etc are included in the check.\nIn Team Fortress the TF flag, dispensers and sentry guns are also checked. There is also an f_modified command which will print your f_modified response.",
+      "remarks": "You need to install security files."
+    },
+    "f_ruleset": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FChecks_FRuleset_cmd",
+        "source_file": "fchecks.c",
+        "source_line": 379,
+        "source_column": 2,
+        "enclosing_function": "FChecks_Init",
+        "build_variant": "client"
+      }
+    },
+    "f_server": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FChecks_FServerResponse",
+        "source_file": "fchecks.c",
+        "source_line": 378,
+        "source_column": 2,
+        "enclosing_function": "FChecks_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints proxies you are using."
+    },
+    "filter": {
+      "group-id": "stateful",
+      "ast": {
+        "handler_fn": "TP_MsgFilter_f",
+        "source_file": "host.c",
+        "source_line": 537,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Message filtering system. Only team messages are filtered.\nUse filter with no parameters to list current filters and filter clear to remove all filters.\n\nExample:\nfilter #a  say_team i can see this message #a.\nsay_team i can't see this message #d."
+    },
+    "find": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "qtvlist_find_player_cmd",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 632,
+        "source_column": 2,
+        "enclosing_function": "qtvlist_init",
+        "build_variant": "client"
+      },
+      "desc": "Lists all the players on all servers. Based on QTV."
+    },
+    "find_and_follow": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "qtvlist_find_and_follow_player_cmd",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 633,
+        "source_column": 2,
+        "enclosing_function": "qtvlist_init",
+        "build_variant": "client"
+      },
+      "desc": "Find a player by name and connect to the same server. Based on QTV."
+    },
+    "find_update": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "qtvlist_spawn_updater",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 634,
+        "source_column": 2,
+        "enclosing_function": "qtvlist_init",
+        "build_variant": "client"
+      },
+      "desc": "Update the database of the current players on all servers. Based on QTV."
+    },
+    "floodprot": {
+      "group-id": "stateful",
+      "ast": {
+        "handler_fn": "SV_Floodprot_f",
+        "source_file": "host.c",
+        "source_line": 533,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Sets flood protection parameters."
+    },
+    "floodprotmsg": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Floodprotmsg_f",
+        "source_file": "host.c",
+        "source_line": 534,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      }
+    },
+    "flush": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cache_Flush",
+        "source_file": "zone.c",
+        "source_line": 583,
+        "source_column": 2,
+        "enclosing_function": "Cache_Init_Commands",
+        "build_variant": "server-build"
+      },
+      "desc": "This command will clear the current game cache.\nIt is usually used by developers to flush the memory of all game information and objects to test if the mechanism which handles the loading of the necessary files into memory works properly.\nSometimes the game cache can become filled with unnecessary information and may need to be flushed manually. This is usually not necessary since the game automatically flushes all the data between every map."
+    },
+    "fly": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_cmd.c",
+        "source_line": 960,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "You can fly around the map with flymode on.",
+      "remarks": "Needs cheat support by server."
+    },
+    "fontlist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Draw_ListFonts_f",
+        "source_file": "fonts.c",
+        "source_line": 499,
+        "source_column": 2,
+        "enclosing_function": "FontInitialise",
+        "build_variant": "client"
+      },
+      "desc": "Lists TrueType fonts available on the system."
+    },
+    "fontload": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Draw_LoadFont_f",
+        "source_file": "fonts.c",
+        "source_line": 497,
+        "source_column": 2,
+        "enclosing_function": "FontInitialise",
+        "build_variant": "client"
+      },
+      "desc": "Loads specified TrueType font for use where _proportional is set."
+    },
+    "force_centerview": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Force_Centerview_f",
+        "source_file": "cl_view.c",
+        "source_line": 1131,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command centers the player's screen.\nIt was created because the original \"centerview\" command did not work when \"+mlook\" was enabled.\nThis command will center the screen in any mode no matter commands are active."
+    },
+    "fraglogfile": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Enables logging of kills to a file.\nUseful for external frag polling programs.\nThe file name is frag_##.log"
+    },
+    "fs_diff": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_DiffFile_f",
+        "source_file": "fs.c",
+        "source_line": 1957,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_dir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_Dir_f",
+        "source_file": "fs.c",
+        "source_line": 1958,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_loadpak": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_PakAdd_f",
+        "source_file": "fs.c",
+        "source_line": 1950,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_locate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_Locate_f",
+        "source_file": "fs.c",
+        "source_line": 1960,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_path": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_Path_f",
+        "source_file": "fs.c",
+        "source_line": 1954,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_removepak": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_PakRem_f",
+        "source_file": "fs.c",
+        "source_line": 1952,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_restart": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_ReloadPackFiles_f",
+        "source_file": "fs.c",
+        "source_line": 1956,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      }
+    },
+    "fs_search": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "FS_ListFiles_f",
+        "source_file": "fs.c",
+        "source_line": 1962,
+        "source_column": 2,
+        "enclosing_function": "FS_InitModuleFS",
+        "build_variant": "client"
+      },
+      "desc": "Search the filesystem cache by suffix."
+    },
+    "fullinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_FullInfo_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 949,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Used by QuakeSpy and Qlist to set setinfo variables.\n\nExample:\nfullinfo \"\\quote\\I am the only Lamer!\\\"",
+      "remarks": "Use the setinfo command to see the output."
+    },
+    "gamedir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Gamedir_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1898,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Specifies the directory where the QWPROGS.DAT file is found and other additional files such as maps, models, sound, and skins for Quake modifications.",
+      "remarks": "This command can be specified while a game is in progress, after the current map ends this command will take effect."
+    },
+    "gamma": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "You can edit brightness.",
+      "remarks": "This is a shortcut for sw_gamma in vga and gl_gamma in gl."
+    },
+    "give": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_cmd.c",
+        "source_line": 958,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Give user a certain amount of an item.\nItems:\n1 - Axe\n2 - Shotgun\n3 - Double-Barrelled Shotgun\n4 - Nailgun\n5 - Super Nailgun\n6 - Grenade Launcher\n7 - Rocket Launcher\n8 - ThunderBolt\nC - Cells\nH - Health\nN - Nails\nR - Rockets\nS - Shells\n\nExamples:\ngive 1234 R 99\n - gives 99 rockets to user 1234\ngive 1234 7\n - gives the rocket launcher to user 1234",
+      "remarks": "The -cheats parameter must be used to launch the server to use the give command. Also the key and value *cheats ON will be displayed in the serverinfo information."
+    },
+    "gl_checkmodels": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Not well implemented yet. Quickly looks at the pmodel and emodel listed in every player's infokey and reports anything unusual it finds.\nBasically it saves you having to type \"users. user x\" and then comparing the models for everyone."
+    },
+    "gl_inferno": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Clientside (no one else can see it) hard-striking rocket, serves well for your entertainment."
+    },
+    "gl_setmode": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Quickly sets many variables to fit pre-defined scheme.\nTry using \"newtrails\" or \"vultwah\"."
+    },
+    "god": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_cmd.c",
+        "source_line": 957,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "You are immortal with god mode on.",
+      "remarks": "Needs cheats support by server."
+    },
+    "hash": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Hash_f",
+        "source_file": "cl_main.c",
+        "source_line": 2018,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "heartbeat": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Heartbeat_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1875,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Forces a heartbeat to be sent to the master server.\nA heartbeat informs the master server of the server's IP address thus making sure that the master server knows that the server is still alive."
+    },
+    "help": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Help_f",
+        "source_file": "menu.c",
+        "source_line": 1312,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "Enters manual pages. Use arrows, [Page Down], [Page Up], [Tab] and [Enter] for navigation."
+    },
+    "hide": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Hide_f",
+        "source_file": "hud.c",
+        "source_line": 814,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "hud262_add": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Add_f",
+        "source_file": "hud_262.c",
+        "source_line": 688,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Creates or changes a HUD element with hud_name.\nThe following types of HUD elements are available:\ncvar - a value of a variable is displayed; in this case param must be a name of this variable.\nstr - a string defined by param is displayed\nCvar and %macros expansion is performed every time element is shown."
+    },
+    "hud262_alpha": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Alpha_f",
+        "source_file": "hud_262.c",
+        "source_line": 694,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Sets a transparency for strings-HUD element."
+    },
+    "hud262_bg": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Bg_f",
+        "source_file": "hud_262.c",
+        "source_line": 691,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Defines a color of the HUD element background.\n0 - transparent (default)."
+    },
+    "hud262_blink": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Blink_f",
+        "source_file": "hud_262.c",
+        "source_line": 695,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Allows to make blinking strings-HUD elements."
+    },
+    "hud262_bringtofront": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_BringToFront_f",
+        "source_file": "hud_262.c",
+        "source_line": 699,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Transfers all HUD elements created after hud_name element (including) to the end of drawing list, that in short means that they will be displayed above all other elements which could be present on that place already."
+    },
+    "hud262_disable": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Disable_f",
+        "source_file": "hud_262.c",
+        "source_line": 696,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Prohibits to display one or more HUD elements."
+    },
+    "hud262_enable": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Enable_f",
+        "source_file": "hud_262.c",
+        "source_line": 697,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Allows to display one or more HUD elements."
+    },
+    "hud262_list": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_List_f",
+        "source_file": "hud_262.c",
+        "source_line": 698,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints a list of strings-HUD elements."
+    },
+    "hud262_move": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud262_Move_f",
+        "source_file": "hud_262.c",
+        "source_line": 692,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Moves a HUD element.\ndx and dy deviations are measured in symbols."
+    },
+    "hud262_position": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Position_f",
+        "source_file": "hud_262.c",
+        "source_line": 690,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Indicates position of a HUD element on the screen."
+    },
+    "hud262_remove": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Remove_f",
+        "source_file": "hud_262.c",
+        "source_line": 689,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Kills a HUD element."
+    },
+    "hud262_width": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Hud_Width_f",
+        "source_file": "hud_262.c",
+        "source_line": 693,
+        "source_column": 2,
+        "enclosing_function": "Hud_262Init",
+        "build_variant": "client"
+      },
+      "desc": "Forces a HUD element width and cuts undesired space or adds it when needed."
+    },
+    "hud_editor": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "HUD_Editor_Toggle_f",
+        "source_file": "hud_editor.c",
+        "source_line": 2795,
+        "source_column": 2,
+        "enclosing_function": "HUD_Editor_Init",
+        "build_variant": "client"
+      },
+      "desc": "Toggles the HUD editor on or off."
+    },
+    "hud_export": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "DumpHUD_f",
+        "source_file": "config_manager.c",
+        "source_line": 1224,
+        "source_column": 2,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      },
+      "desc": "Saves setup of your HUD (scr_newHUD 1) into a separate .cfg file."
+    },
+    "hud_fps_min_reset": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Cl_Reset_Min_fps_f",
+        "source_file": "cl_main.c",
+        "source_line": 2011,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "hud_recalculate": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "HUD_Recalculate_f",
+        "source_file": "hud.c",
+        "source_line": 821,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      },
+      "desc": "Refresh the positions of your HUD elements."
+    },
+    "hunk_print": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Hunk_Print_f",
+        "source_file": "zone.c",
+        "source_line": 696,
+        "source_column": 2,
+        "enclosing_function": "Memory_Init",
+        "build_variant": "client"
+      }
+    },
+    "if": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_If_f",
+        "source_file": "cmd.c",
+        "source_line": 2520,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Condition clause."
+    },
+    "if_exists": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_If_Exists_f",
+        "source_file": "cmd.c",
+        "source_line": 2521,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "If an object <name> of a type <type> exists, a command <cmd1> will be issued, or a command <cmd2> if such object could not be found.\nThe type of the object can be either cvar, alias, trigger or HUD."
+    },
+    "ignore": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Ignore_f",
+        "source_file": "ignore.c",
+        "source_line": 521,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "You can give ignore either a player's name (name completion is useful for this) or a user ID (ignore <name|userid>).\nIgnore without any command line parameters displays your ignore list."
+    },
+    "ignore_id": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Ignore_ID_f",
+        "source_file": "ignore.c",
+        "source_line": 529,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Identical to ignore, except it only accepts user IDs (only useful if there is a player whose name is the user ID of someone you want to ignore)."
+    },
+    "ignore_team": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Ignoreteam_f",
+        "source_file": "ignore.c",
+        "source_line": 524,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Ignores a team instead of players.\n\nExample:\nignore_team nine\n - ignores whole clan nine."
+    },
+    "ignore_voip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VIgnore_f",
+        "source_file": "ignore.c",
+        "source_line": 518,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      }
+    },
+    "ignorelist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IgnoreList_f",
+        "source_file": "ignore.c",
+        "source_line": 522,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints ignore list."
+    },
+    "impulse": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_Impulse",
+        "source_file": "cl_input.c",
+        "source_line": 1268,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "This command calls a game function or QuakeC function.\nOften impulses are used by the mod by defining aliases for game functions like \"ready\" and \"break\" that call certain impulses."
+    },
+    "in_evdevlist": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Prints list of evdev devices.\nIf the list is empty, you probably don't have access rights to /dev/input/eventX\nsudo chmod 644 /dev/input/event* should help you."
+    },
+    "in_restart": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_Restart_f",
+        "source_file": "in_sdl2.c",
+        "source_line": 560,
+        "source_column": 3,
+        "enclosing_function": "IN_Init",
+        "build_variant": "client"
+      }
+    },
+    "inc": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cvar_Inc_f",
+        "source_file": "cvar.c",
+        "source_line": 1579,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Increments a variable by one or adds to it the optional second argument.\nThere are no 'add' or 'dec' commands because 'inc' can handle both addition and subtraction.\n\nExample:\ninc sensitivity -2\n - subtracts 2 from sensitivity."
+    },
+    "irc": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IRC_irc_f",
+        "source_file": "irc.c",
+        "source_line": 679,
+        "source_column": 2,
+        "enclosing_function": "IRC_Init",
+        "build_variant": "client"
+      }
+    },
+    "itemsclock": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element displaying items that will spawn soon in the game. Works only in MVD and QTV playback."
+    },
+    "join": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Join_f",
+        "source_file": "cl_main.c",
+        "source_line": 2006,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Joins a specified server as player.\nIf no address is specified, join will reconnect to the last visited server as a player.\n\nExample:\njoin 123.124.125.126"
+    },
+    "joyadvancedupdate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Joy_AdvancedUpdate_f",
+        "source_file": "in_sdl2.c",
+        "source_line": 502,
+        "source_column": 3,
+        "enclosing_function": "IN_StartupJoystick",
+        "build_variant": "client"
+      },
+      "desc": "This command must be run to apply changes made to the joyadvaxis[xyzruv] or joyindex cvars."
+    },
+    "kick": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Kick_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1837,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Removes a user from the server. Use the status command to receive the user's id.\n\nExample:\nkick 1234"
+    },
+    "kill": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_cmd.c",
+        "source_line": 956,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Suicide. (-2 frags on ktpro/kteam servers)"
+    },
+    "legacyquake": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Command that turns off new features added to the client that may confuse experienced users who don't like new features :-)"
+    },
+    "listip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ListIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3541,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Prints out the current list of IPs on the server list. Not to be confused with the status command which prints out the list of the IPs of the connected players."
+    },
+    "load": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_LoadGame_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1877,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Load 123 loads saved game 123."
+    },
+    "loadFragfile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Load_FragFile_f",
+        "source_file": "fragstats.c",
+        "source_line": 861,
+        "source_column": 2,
+        "enclosing_function": "Stats_Init",
+        "build_variant": "client"
+      }
+    },
+    "loadcharset": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "Draw_LoadCharset_f",
+        "source_file": "r_draw_charset.c",
+        "source_line": 682,
+        "source_column": 3,
+        "enclosing_function": "Draw_Charset_Init",
+        "build_variant": "client"
+      },
+      "desc": "You can change your console font from within ezQuake. Put all your charset images in qw/textures/charsets/*.png (and *.tga) and use /loadcharset XXX to load XXX.png (or tga).\n\"/loadcharset original\" will restore the 8bit font in your gfx.wad (this is default).",
+      "remarks": "This command is just a 'shortcut' for the new gl_consolefont variable."
+    },
+    "loadfont": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "loadfragfile": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Loads the specified fragfile."
+    },
+    "loadloc": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Loads a loc file (must be located in id1/locs, qw/locs, or ezquake/locs.\nThe \".loc\" extension is optional, for example, \"loadloc dm6\"; if the file name has no extension, use its explicit name (\"loadloc dm6.\")."
+    },
+    "loadpak": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "loadsky": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "R_LoadSky_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 537,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Loads your skybox (qw\\env).\n\nExample:\nloadsky snow"
+    },
+    "localcommand": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_LocalCommand_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1862,
+        "source_column": 3,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "localinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Localinfo_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1891,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Shows or sets localinfo variables. Useful for mod programmers who need to allow the admin to change settings.\nThis is an alternative storage space to the serverinfo space for mod variables. The variables stored in this space are not broadcast on the network.\nThis space also has a 32-kilobyte limit which is much greater then the 512-byte limit on the serverinfo space.\nSpecial Keys: (current map) (next map) - Using this combination will allow the creation of a custom map cycle without editing code.\n\nExamples:\nlocalinfo dm2 dm4\nlocalinfo dm4 dm6\nlocalinfo dm6 dm2"
+    },
+    "locate": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "locations_add": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_AddLoc_f",
+        "source_file": "teamplay_locfiles.c",
+        "source_line": 536,
+        "source_column": 2,
+        "enclosing_function": "TP_LocFiles_Init",
+        "build_variant": "client"
+      }
+    },
+    "locations_clearall": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_ClearLocs_f",
+        "source_file": "teamplay_locfiles.c",
+        "source_line": 540,
+        "source_column": 2,
+        "enclosing_function": "TP_LocFiles_Init",
+        "build_variant": "client"
+      }
+    },
+    "locations_loadfile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_LoadLocFile_f",
+        "source_file": "teamplay_locfiles.c",
+        "source_line": 532,
+        "source_column": 2,
+        "enclosing_function": "TP_LocFiles_Init",
+        "build_variant": "client"
+      }
+    },
+    "locations_remove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_RemoveLoc_f",
+        "source_file": "teamplay_locfiles.c",
+        "source_line": 538,
+        "source_column": 2,
+        "enclosing_function": "TP_LocFiles_Init",
+        "build_variant": "client"
+      }
+    },
+    "locations_savefile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_SaveLocFile_f",
+        "source_file": "teamplay_locfiles.c",
+        "source_line": 534,
+        "source_column": 2,
+        "enclosing_function": "TP_LocFiles_Init",
+        "build_variant": "client"
+      }
+    },
+    "locname": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Create a new location in the current spot."
+    },
+    "log": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Log_log_f",
+        "source_file": "logging.c",
+        "source_line": 176,
+        "source_column": 2,
+        "enclosing_function": "Log_Init",
+        "build_variant": "client"
+      },
+      "desc": "If you type \"log filename\" it will log console to filename.log in your gamedir.\nIt overwrites logs without asking."
+    },
+    "logerrors": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "logfile": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "logplayers": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "logrcon": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "logtelnet": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "ls": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ListFiles_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1847,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "macrolist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_MacroList_f",
+        "source_file": "cmd.c",
+        "source_line": 2537,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints a list of all available macros."
+    },
+    "map": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1865,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Loads a map and starts a game.\n\nExample:\nmap e1m1"
+    },
+    "mapgroup": {
+      "group-id": "stateful",
+      "ast": {
+        "handler_fn": "MT_MapGroup_f",
+        "source_file": "host.c",
+        "source_line": 543,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "mapgroup 2fort5r 2fort5: will make 2fort5r and 2fort5 use the 2fort5r textures, locs and etc..."
+    },
+    "master_rcon_password": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MasterPassword_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1907,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "match_forcestart": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MT_Match_ForceStart_f",
+        "source_file": "match_tools.c",
+        "source_line": 1153,
+        "source_column": 2,
+        "enclosing_function": "MT_Init",
+        "build_variant": "client"
+      },
+      "desc": "Simulates the start of a match (so that auto recording etc is triggered).\nUseful if you join a ktpro server after countdown has started, or you are playing a mode that doesn't have a proper countdown (eg race mode).\nMost importantly this is useful for TF servers, since you can use a msg_trigger to execute match_forcestart on \"MATCH BEGINS NOW\"."
+    },
+    "match_format_macrolist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MT_Macrolist_f",
+        "source_file": "match_tools.c",
+        "source_line": 1152,
+        "source_column": 2,
+        "enclosing_function": "MT_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prints a list of the macros and their meaning for autorecording and autoscreenshots."
+    },
+    "match_save": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MT_SaveMatch_f",
+        "source_file": "match_tools.c",
+        "source_line": 1154,
+        "source_column": 2,
+        "enclosing_function": "MT_Init",
+        "build_variant": "client"
+      },
+      "desc": "If you are using 'match_auto_record 1' then a temp demo will be recorded to c:\\quake\\ezquake\\temp\\_!_temp_!_.qwd each time a map starts.\nThis temp demo will be overwritten when the next match starts.\nIf you want to keep the temp demo, use the \"match_save\" command. This will move the demo to the same folder and filename that easyrecord would have used."
+    },
+    "menu_demos": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Demos_f",
+        "source_file": "menu.c",
+        "source_line": 1310,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the demos menu."
+    },
+    "menu_fps": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the fps menu."
+    },
+    "menu_help": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Help_f",
+        "source_file": "menu.c",
+        "source_line": 1313,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the help menu."
+    },
+    "menu_keys": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the keys menu."
+    },
+    "menu_load": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Load_f",
+        "source_file": "menu.c",
+        "source_line": 1305,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the singleplayer load menu."
+    },
+    "menu_main": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Main_f",
+        "source_file": "menu.c",
+        "source_line": 1302,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the main menu."
+    },
+    "menu_mp3_control": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the mp3 menu."
+    },
+    "menu_mp3_playlist": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the mp3 playlist menu."
+    },
+    "menu_multiplayer": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_MultiPlayer_f",
+        "source_file": "menu.c",
+        "source_line": 1308,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the multiplayer menu."
+    },
+    "menu_options": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Options_f",
+        "source_file": "menu.c",
+        "source_line": 1311,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the options menu."
+    },
+    "menu_quit": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Quit_f",
+        "source_file": "menu.c",
+        "source_line": 1314,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the quit menu."
+    },
+    "menu_save": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Save_f",
+        "source_file": "menu.c",
+        "source_line": 1306,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the singleplayer save menu."
+    },
+    "menu_setup": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the setup menu."
+    },
+    "menu_singleplayer": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_SinglePlayer_f",
+        "source_file": "menu.c",
+        "source_line": 1304,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the singleplayer menu."
+    },
+    "menu_slist": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_Menu_Browser_f",
+        "source_file": "menu.c",
+        "source_line": 1309,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will display the server browser."
+    },
+    "menu_video": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will display the video menu."
+    },
+    "messagemode": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "Con_MessageMode_f",
+        "source_file": "console.c",
+        "source_line": 501,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prompts for string to broadcast to all other players."
+    },
+    "messagemode2": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "Con_MessageMode2_f",
+        "source_file": "console.c",
+        "source_line": 502,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Prompts for string to broadcast to team members."
+    },
+    "messagemodeirc": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_MessageModeIRC_f",
+        "source_file": "console.c",
+        "source_line": 504,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "messagemodeqtvtogame": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_MessageModeQTVtoGAME_f",
+        "source_file": "console.c",
+        "source_line": 506,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Go into message mode for chatting in the QTV chat."
+    },
+    "mod": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "PR2_GameConsoleCommand",
+        "source_file": "pr2_exec.c",
+        "source_line": 71,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      }
+    },
+    "modfraglogfile": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "move": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Move_f",
+        "source_file": "hud.c",
+        "source_line": 815,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "mp3_fadeout": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Like stop but fades out."
+    },
+    "mp3_fforward": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Fast forward 5seconds."
+    },
+    "mp3_loadplaylist": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Loads the playlist filename.m3u\n\nExample:\nmp3_loadplaylist top10\n - loads top10.m3u."
+    },
+    "mp3_next": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Next song."
+    },
+    "mp3_pause": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Pause mp3."
+    },
+    "mp3_play": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Play mp3."
+    },
+    "mp3_playlist": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Displays playlist. Currently playing track is highlighted."
+    },
+    "mp3_playtrack": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Play track number #num from playlist.\n\nExample:\nmp3_playtrack 5\n - plays track 5 from playlist."
+    },
+    "mp3_prev": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Previous song."
+    },
+    "mp3_repeat": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Repeat playlist."
+    },
+    "mp3_rewind": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Rewind 5seconds."
+    },
+    "mp3_shuffle": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Shuffle mp3s."
+    },
+    "mp3_songinfo": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Displays song title and other info like time elapsed, total time, and whether paused, stopped or playing."
+    },
+    "mp3_startwinamp": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Starts winamp if it is not running."
+    },
+    "mp3_stop": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Stop mp3."
+    },
+    "mp3_volume": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "msg_trigger": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_MsgTrigger_f",
+        "source_file": "host.c",
+        "source_line": 536,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Allows you to set rules that will automatically execute actions when a certain message is sent from a server.\nThis is very useful in Team Fortress, in deathmatch it can be used for example for auto-reporting \"quad in 30\" when you receive \"Quad Damage is wearing out\" message.",
+      "remarks": "Only some server messages can be triggered. Usually no pickup messages nor your teammates text is triggered."
+    },
+    "mute": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Mute_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1850,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "mutesound": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_MuteSound_f",
+        "source_file": "snd_main.c",
+        "source_line": 450,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      }
+    },
+    "mvd_dumpstats": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MVD_Status_Xml",
+        "source_file": "mvd_xmlstats.c",
+        "source_line": 281,
+        "source_column": 2,
+        "enclosing_function": "MVD_XMLStats_Init",
+        "build_variant": "client"
+      },
+      "desc": "Dumps statistics gathered from a MVD demo into a \"stats.xml\" file in the current working directory."
+    },
+    "mvd_list_items": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MVDAnnouncer_ListItems",
+        "source_file": "mvd_utils.c",
+        "source_line": 2262,
+        "source_column": 2,
+        "enclosing_function": "MVD_Utils_Init",
+        "build_variant": "client"
+      }
+    },
+    "mvd_name_item": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MVDAnnouncer_NameItem",
+        "source_file": "mvd_utils.c",
+        "source_line": 2260,
+        "source_column": 2,
+        "enclosing_function": "MVD_Utils_Init",
+        "build_variant": "client"
+      }
+    },
+    "mvd_remove_item": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "MVDAnnouncer_RemoveItem",
+        "source_file": "mvd_utils.c",
+        "source_line": 2261,
+        "source_column": 2,
+        "enclosing_function": "MVD_Utils_Init",
+        "build_variant": "client"
+      }
+    },
+    "mvdrecord": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RecordMvd_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5476,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "mvdstop": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_StopMvd_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5477,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "netproblem": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element - icon displayed when network traffic is experiencing problems like lost packets, large delay, etc."
+    },
+    "noclip": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_cmd.c",
+        "source_line": 959,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "You can fly and go thru objects free mode as spectator",
+      "remarks": "Needs cheats support by server."
+    },
+    "nslookup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Nslookup_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1832,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "observe": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Observe_f",
+        "source_file": "cl_main.c",
+        "source_line": 2007,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Connects you to a server as a spectator. If no address is specified, observe will reconnect to the last visited server as a spectator.\n\nExample:\nobserve 123.124.125.126"
+    },
+    "observebr": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Observe_BestRoute_f",
+        "source_file": "cl_main.c",
+        "source_line": 2008,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Connects to given server as spectator via fastest available path (ping-wise)."
+    },
+    "observeqtv": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "QTVList_Observeqtv_f",
+        "source_file": "EX_browser_qtvlist.c",
+        "source_line": 587,
+        "source_column": 2,
+        "enclosing_function": "QTVList_Init",
+        "build_variant": "client"
+      }
+    },
+    "order": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Order_f",
+        "source_file": "hud.c",
+        "source_line": 818,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "packet": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Packet_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 934,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Sends a packet with specified contents to the destination.\n\nExample:\npacket 123.123.123.123:27500 \"status\""
+    },
+    "password": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Set the password to enter a password protected server."
+    },
+    "path": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Shows what paths ezQuake is using."
+    },
+    "pause": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Pause_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 936,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Pauses a game.",
+      "remarks": "Servers must support pausing."
+    },
+    "penaltylist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ListPenalty_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1853,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "penaltyremove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemovePenalty_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1854,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "place": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Place_f",
+        "source_file": "hud.c",
+        "source_line": 816,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "play": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_Play_f",
+        "source_file": "snd_main.c",
+        "source_line": 451,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      },
+      "desc": "Plays a sound effect.\n\nExample:\nplay misc/runekey.wav"
+    },
+    "playdemo": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Play_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5461,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Plays a recorded demo.\n\nExample:\nplaydemo thresh.qwd"
+    },
+    "playvol": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_Play_f",
+        "source_file": "snd_main.c",
+        "source_line": 452,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      },
+      "desc": "Plays a sound at a given volume.\n\nExamples:\nplayvol items/protect.wav .5\nplayvol items/protect.wav 2"
+    },
+    "profile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "PR2_Profile_f",
+        "source_file": "pr2_exec.c",
+        "source_line": 70,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      },
+      "desc": "Reports information about QuakeC stuff."
+    },
+    "qstat": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QStat_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 933,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      }
+    },
+    "qtv": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "qtvlist_qtv_cmd",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 631,
+        "source_column": 2,
+        "enclosing_function": "qtvlist_init",
+        "build_variant": "client"
+      },
+      "desc": "Connects you to internet QTV broadcasting some action, using your local proxy.\nStarts local QTV proxy, tells it what broadcasting proxy it should connect to and by connecting to it you'll see the action broadcasted on the IP you've specified."
+    },
+    "qtv_close": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Qtv_Close_f",
+        "source_file": "sv_demo_qtv.c",
+        "source_line": 1465,
+        "source_column": 2,
+        "enclosing_function": "SV_QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_fixuser": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QTVFixUser_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5486,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_list": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Qtv_List_f",
+        "source_file": "sv_demo_qtv.c",
+        "source_line": 1464,
+        "source_column": 2,
+        "enclosing_function": "SV_QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_query_demolist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QTVList_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5484,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_query_sourcelist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QTVList_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5483,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_reconnect": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Reconnect to last QTV server the client was connected to."
+    },
+    "qtv_status": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Qtv_Status_f",
+        "source_file": "sv_demo_qtv.c",
+        "source_line": 1466,
+        "source_column": 2,
+        "enclosing_function": "SV_QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtv_update": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "qtvlist_spawn_updater",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 636,
+        "source_column": 2,
+        "enclosing_function": "qtvlist_init",
+        "build_variant": "client"
+      }
+    },
+    "qtvplay": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QTVPlay_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5482,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtvreconnect": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QTVReconnect_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5485,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "qtvusers": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Qtvusers_f",
+        "source_file": "qtv.c",
+        "source_line": 79,
+        "source_column": 2,
+        "enclosing_function": "QTV_Init",
+        "build_variant": "client"
+      }
+    },
+    "quit": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Quit_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 937,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Exit - disconnects from the server and closes the client."
+    },
+    "qwurl": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_QWURL_f",
+        "source_file": "cl_main.c",
+        "source_line": 2002,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "radar": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element showing a map overview."
+    },
+    "rcon": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "CL_Rcon_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 935,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Issue the set of commands to the server you are currently connected to or have set in rcon_address.\nYou must know the rcon password for that specific server."
+    },
+    "re_trigger": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 895,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "When used w/o parameter, prints a list of all triggers.\nWhen regexp is not defined prints options set for rt_name trigger; otherwise creates or changes rt_name trigger."
+    },
+    "re_trigger_delete": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_Delete_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 897,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "Deletes the corresponding trigger."
+    },
+    "re_trigger_disable": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_Disable_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 899,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "Disables activation of one or more triggers."
+    },
+    "re_trigger_enable": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_Enable_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 898,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "Enables activation of one or more triggers."
+    },
+    "re_trigger_match": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_Match_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 900,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "Allows to direct a <string> to a trigger <trigger_name>. If this string match regexp, then a corresponding alias is activated."
+    },
+    "re_trigger_options": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_RE_Trigger_Options_f",
+        "source_file": "tp_triggers.c",
+        "source_line": 896,
+        "source_column": 2,
+        "enclosing_function": "TP_InitTriggers",
+        "build_variant": "client"
+      },
+      "desc": "Changes options for a corresponding trigger."
+    },
+    "reconnect": {
+      "group-id": "game",
+      "ast": {
+        "handler_fn": "CL_Reconnect_f",
+        "source_file": "cl_main.c",
+        "source_line": 2019,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Reconnects to the last server/proxy."
+    },
+    "record": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Record_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5457,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Records a demo.\n\nExample:\nrecord test\n - records test.qwd to qw folder"
+    },
+    "recordqwd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Record_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5458,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "register_qwurl_protocol": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sys_RegisterQWURLProtocol_f",
+        "source_file": "cl_main.c",
+        "source_line": 2014,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "removeip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemoveIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3540,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Removes an IP address from the server IP list.\n\nExamples:\nremoveip 123.123.123.123\nremoveip 123.123.123"
+    },
+    "removeloc": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Remove the closest location (use teamsay to see which)."
+    },
+    "removepak": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "reset": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "HUD_Reset_f",
+        "source_file": "hud.c",
+        "source_line": 817,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "restart": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Restart_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1882,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "rm": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemoveFile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1846,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "rmdir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemoveDirectory_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1845,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "server-build"
+      }
+    },
+    "rotate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Rotate_f",
+        "source_file": "cl_input.c",
+        "source_line": 1274,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "Rotates the player by x degrees.\n\nExample: \"rotate 180\"\n - rotates your POV by 180 degrees.",
+      "remarks": "Negative values can also be used for the desired angle."
+    },
+    "s_audiodevicelist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_ListAudioDevices",
+        "source_file": "snd_main.c",
+        "source_line": 460,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      }
+    },
+    "s_listdrivers": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_ListDrivers",
+        "source_file": "snd_main.c",
+        "source_line": 457,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      }
+    },
+    "s_restart": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_Restart_f",
+        "source_file": "snd_main.c",
+        "source_line": 449,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      }
+    },
+    "save": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_SaveGame_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1876,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Saves a game in singleplayer.\n\nExample:\nsave 123"
+    },
+    "saveloc": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Saves the current locs in memory to the specified file."
+    },
+    "say": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "CL_Say_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 938,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Broadcasts a string to all other players.\n\nExample:\nsay ezQuake rules!"
+    },
+    "say_team": {
+      "group-id": "comm",
+      "ast": {
+        "handler_fn": "CL_Say_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 939,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Broadcasts a string to teammates.\n\nExample:\nsay_team stop boring!"
+    },
+    "sb_buildpingtree": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_PingTree_Build",
+        "source_file": "EX_browser.c",
+        "source_line": 3302,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      }
+    },
+    "sb_pingsdump": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_PingsDump_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3299,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      },
+      "desc": "Dumps a list of pairs (IP address, ping) into the console based on the current content of the Server Browser list."
+    },
+    "sb_proxygetpings": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_ProxyGetPings_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3303,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      }
+    },
+    "sb_refresh": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "GetServerPingsAndInfos_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3298,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      },
+      "desc": "Causes Server Browser refresh ping and status info for all servers."
+    },
+    "sb_sourceadd": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_Source_Add_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3300,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      },
+      "desc": "Adds new server list source."
+    },
+    "sb_sourcemark": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_SourceMark",
+        "source_file": "host.c",
+        "source_line": 550,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Marks \"source-name\" as selected server source list."
+    },
+    "sb_sourcesupdate": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_Sources_Update_f",
+        "source_file": "EX_browser.c",
+        "source_line": 3301,
+        "source_column": 2,
+        "enclosing_function": "Browser_Init",
+        "build_variant": "client"
+      },
+      "desc": "Reload server lists from all marked server sources."
+    },
+    "sb_sourceunmarkall": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SB_SourceUnmarkAll",
+        "source_file": "host.c",
+        "source_line": 549,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Unmarks all servers sources."
+    },
+    "score_difference": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element which displays the frag difference between you (your team) and your enemy (enemy team)."
+    },
+    "score_enemy": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element which displays amount of frags made by all the enemies."
+    },
+    "score_own": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element which display your (or the person's you are observing) amount of frags."
+    },
+    "score_position": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "HUD element which displays your position on the frag leaders board."
+    },
+    "screenshot": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_f",
+        "source_file": "cl_screenshot.c",
+        "source_line": 487,
+        "source_column": 3,
+        "enclosing_function": "SShot_RegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Saves a still picture of current screen to your hard drive."
+    },
+    "script": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Script_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1941,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "server-build"
+      }
+    },
+    "serverexec": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "cmd.c",
+        "source_line": 2506,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "serverinfo": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "CL_Serverinfo_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 940,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Reports the current server info."
+    },
+    "serverstatus": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Prints the status of the ezQuake server."
+    },
+    "set": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cvar_Set_f",
+        "source_file": "cvar.c",
+        "source_line": 1578,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Sets a variable to a given value."
+    },
+    "set_alias_str": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_Alias_Str_f",
+        "source_file": "cvar.c",
+        "source_line": 1585,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Assigns variable a value which contains an indicated alias."
+    },
+    "set_bind_str": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_Bind_Str_f",
+        "source_file": "cvar.c",
+        "source_line": 1586,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Assigns variable a value which contains anything bound to an indicated key."
+    },
+    "set_calc": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_Calc_f",
+        "source_file": "cvar.c",
+        "source_line": 1592,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Advanced variables customization."
+    },
+    "set_eval": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_Eval_f",
+        "source_file": "cvar.c",
+        "source_line": 1593,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      }
+    },
+    "set_ex": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_ex_f",
+        "source_file": "cvar.c",
+        "source_line": 1583,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Assigns a new value to a variable, expansion of %macros and variables is performed even in case if a parameter is inside the dual quotation marks."
+    },
+    "set_ex2": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_ex_f",
+        "source_file": "cvar.c",
+        "source_line": 1584,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      }
+    },
+    "set_tp": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Set_tp_f",
+        "source_file": "cvar.c",
+        "source_line": 1582,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      }
+    },
+    "setinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_SetInfo_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 950,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Sets information about your FuhWorld user.\nUsed without a key it will list all of your current settings. Specifying a non-existent key and a value will create the new key."
+    },
+    "setmaster": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_SetMaster_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1873,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Lists the server with up to eight masters.\nWhen a server is listed with a master, the master is aware of the server's IP address and port and it is added to the list of current server connected to a master. A heartbeat is sent to the master from the server to indicated that the server is still running and alive.\n\nExamples:\nsetmaster 192.246.40.12:27002\nsetmaster 192.246.40.12:27002 192.246.40.12:27004"
+    },
+    "show": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Show_f",
+        "source_file": "hud.c",
+        "source_line": 813,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "showskins": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skin_ShowSkins_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 942,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      }
+    },
+    "sizedown": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "SCR_SizeDown_f",
+        "source_file": "cl_screen.c",
+        "source_line": 1130,
+        "source_column": 3,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      },
+      "desc": "Reduces the screen size."
+    },
+    "sizeup": {
+      "group-id": "hud",
+      "ast": {
+        "handler_fn": "SCR_SizeUp_f",
+        "source_file": "cl_screen.c",
+        "source_line": 1129,
+        "source_column": 3,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      },
+      "desc": "Increases the screen size."
+    },
+    "skins": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skin_Skins_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 941,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Refreshes skin settings.",
+      "remarks": "If you have set noskins to 0 and do this it will download all skins that players are using on server."
+    },
+    "skygroup": {
+      "group-id": "stateful",
+      "ast": {
+        "handler_fn": "MT_SkyGroup_f",
+        "source_file": "host.c",
+        "source_line": 546,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "In basics works same as mapgroup."
+    },
+    "skywind": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skywind_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 538,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Sets the animation parameters of the skybox. Requires a skybox with some level of transparency."
+    },
+    "skywind_load": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skywind_Load_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 540,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Loads the skywind config for the loaded skymap. The file is expected to contain: skywind [distance] [yaw] [period] [pitch]."
+    },
+    "skywind_lookdir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skywind_LookDir_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 541,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Updates the skywind direction to current point of view with optional overrides of period and distance."
+    },
+    "skywind_rotate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skywind_Rotate_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 542,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Updates the skywind direction with yaw (horizontal) and pitch (vertical) adjustment."
+    },
+    "skywind_save": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skywind_Save_f",
+        "source_file": "r_brushmodel_sky.c",
+        "source_line": 539,
+        "source_column": 2,
+        "enclosing_function": "R_SkyRegisterCvars",
+        "build_variant": "client"
+      },
+      "desc": "Saves the current skywind configuration as gfx/env/$skybox_wind.cfg."
+    },
+    "snap": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Snap_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1835,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Remote screenshot from a player.\n\nExample:\nsnap 1234\n - server requests remote screenshot from user 1234"
+    },
+    "snapall": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_SnapAll_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1836,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Remote screenshots from all players."
+    },
+    "soundinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_SoundInfo_f",
+        "source_file": "snd_main.c",
+        "source_line": 456,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      },
+      "desc": "Reports information on the sound system."
+    },
+    "soundlist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_SoundList_f",
+        "source_file": "snd_main.c",
+        "source_line": 455,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      },
+      "desc": "Reports a list of sounds in the cache."
+    },
+    "spectator_password": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Sets spectator password to ezQuake local server.",
+      "remarks": "Spectators must use \"spectator <password>\" to connect to a server with a spectator password."
+    },
+    "speed": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Shows your current movement speed."
+    },
+    "speed2": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "An alternative speed-o-meter that is drawn as a half-circle."
+    },
+    "status": {
+      "group-id": "sb",
+      "ast": {
+        "handler_fn": "SV_Status_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1840,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Reports information on the current connected clients and the server."
+    },
+    "stop": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_Stop_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5459,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "Stops demo recording."
+    },
+    "stopqwd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Stop_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5460,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "stopsound": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_StopAllSounds_f",
+        "source_file": "snd_main.c",
+        "source_line": 453,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      },
+      "desc": "Stops all sounds currently being played."
+    },
+    "stopsound_script": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_StopSoundScript_f",
+        "source_file": "snd_main.c",
+        "source_line": 454,
+        "source_column": 2,
+        "enclosing_function": "S_Register_RegularCvarsAndCommands",
+        "build_variant": "client"
+      }
+    },
+    "sv_democancel": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1927,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoeasyrecord": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDEasyRecord_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1921,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoembedinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDEmbedInfo_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1938,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDInfo_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1937,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinfoadd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDInfoAdd_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1935,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinforemove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDInfoRemove_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1936,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demolist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_DemoList_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1930,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demolistr": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_DemoListRegex_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1931,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demolistregex": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_DemoListRegex_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1932,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demonumremove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDRemoveNum_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1934,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demorecord": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVD_Record_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1920,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demoremove": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDRemove_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1933,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_demostop": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_MVDStop_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1922,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_gamedir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Gamedir",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1899,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      },
+      "desc": "Displays or determines the value of the serverinfo *gamedir variable.\nThis is the directory clients will use.\n\nExamples:\ngamedir tf2_5; sv_gamedir fortress\ngamedir ctf4_2; sv_gamedir ctf\ngamedir ktffa; sv_gamedir qw  // FFA servers should use default *gamedir",
+      "remarks": "Useful when the physical gamedir directory has a different name than the widely accepted gamedir directory."
+    },
+    "sv_lastscores": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_LastScores_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1929,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_status": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Status_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 1841,
+        "source_column": 2,
+        "enclosing_function": "SV_InitOperatorCommands",
+        "build_variant": "client"
+      }
+    },
+    "sv_usercmdtrace": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_UserCmdTrace_f",
+        "source_file": "sv_demo.c",
+        "source_line": 1944,
+        "source_column": 2,
+        "enclosing_function": "SV_MVDInit",
+        "build_variant": "client"
+      }
+    },
+    "sv_web_get": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Web_GetRequest_f",
+        "source_file": "central.c",
+        "source_line": 715,
+        "source_column": 3,
+        "enclosing_function": "Central_Init",
+        "build_variant": "client"
+      }
+    },
+    "sv_web_post": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Web_PostRequest_f",
+        "source_file": "central.c",
+        "source_line": 716,
+        "source_column": 3,
+        "enclosing_function": "Central_Init",
+        "build_variant": "client"
+      }
+    },
+    "sv_web_postfile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Web_PostFileRequest_f",
+        "source_file": "central.c",
+        "source_line": 717,
+        "source_column": 3,
+        "enclosing_function": "Central_Init",
+        "build_variant": "client"
+      }
+    },
+    "svadmin": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Admin_f",
+        "source_file": "sv_main.c",
+        "source_line": 3536,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "sys_forget_sandbox": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Clears the currently selected sandbox directory. On the next restart, ezQuake will prompt you to select a directory again.",
+      "remarks": "macOS only"
+    },
+    "tcl_eval": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Execute <string> as Tcl code."
+    },
+    "tcl_exec": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Execute a config as Tcl script."
+    },
+    "tcl_proc": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Execute a Tcl procedure <name> with parameters <parameters>. Procedure must be defined before thru tcl_eval or tcl_exec commands."
+    },
+    "tcpconnect": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TCPConnect_f",
+        "source_file": "cl_main.c",
+        "source_line": 2004,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Connects your client to a QuakeWorld server via TCP."
+    },
+    "teamcolor": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "TP_TeamColor_f",
+        "source_file": "teamplay.c",
+        "source_line": 3320,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "This will override team color.\n\nExample:\nteamcolor 12 13",
+      "remarks": "If only the shirt color is given, the pant color will match."
+    },
+    "teamholdbar": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Displays overall map control per team when watching multiview demo."
+    },
+    "teamholdinfo": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "Displays items possession stats per team when watching multiview demo."
+    },
+    "tempalias": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "cmd.c",
+        "source_line": 2512,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Sets a temporary alias.\nTempaliases will not save to your config."
+    },
+    "timedemo": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "CL_TimeDemo_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5462,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will load and play a demo at full speed. It will then divide the total number of frames in the demo by the total time it took finish, and calculate the average frames-per-second rate.\n\nExample:\ntimedemo demoname"
+    },
+    "timedemo2": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TimeDemo_f",
+        "source_file": "cl_demo.c",
+        "source_line": 5463,
+        "source_column": 2,
+        "enclosing_function": "CL_Demo_Init",
+        "build_variant": "client"
+      }
+    },
+    "timerefresh": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "R_TimeRefresh_f",
+        "source_file": "r_rmain.c",
+        "source_line": 607,
+        "source_column": 2,
+        "enclosing_function": "R_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command will perform a 360 degree turn and calculate the frames-per-second rate."
+    },
+    "toggle": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cvar_Toggle_f",
+        "source_file": "cvar.c",
+        "source_line": 1577,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "You can turn off/on cvars.\n\nExample:\ntoggle sensitivity turns off sensitivity and toggle sensitivity again turns on."
+    },
+    "toggle_re": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_Toggle_re_f",
+        "source_file": "cvar.c",
+        "source_line": 1589,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "You can turn variable values ON and OFF.\n\nExample:\ntoggle ^gl_part.* - turns all particle effects on/off."
+    },
+    "toggleconsole": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_ToggleConsole_f",
+        "source_file": "console.c",
+        "source_line": 500,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      },
+      "desc": "Brings the console up and down."
+    },
+    "togglehud": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "HUD_Toggle_f",
+        "source_file": "hud.c",
+        "source_line": 819,
+        "source_column": 2,
+        "enclosing_function": "HUD_Init",
+        "build_variant": "client"
+      }
+    },
+    "togglemenu": {
+      "group-id": "menu",
+      "ast": {
+        "handler_fn": "M_ToggleMenu_f",
+        "source_file": "menu.c",
+        "source_line": 1299,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      },
+      "desc": "Displays the menu screens."
+    },
+    "toggleproxymenu": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_ToggleProxyMenu_f",
+        "source_file": "menu.c",
+        "source_line": 1300,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "togglespec": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cl_ToggleSpec_f",
+        "source_file": "cl_main.c",
+        "source_line": 2009,
+        "source_column": 2,
+        "enclosing_function": "CL_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgcoming": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Coming_f",
+        "source_file": "teamplay.c",
+        "source_line": 3324,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Will send a message to your teammates telling them where you are coming from, and what your status is.\nDoubles as tp_lost when you are dead (because you can't be coming from somewhere if you're dead)."
+    },
+    "tp_msgenemypwr": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_EnemyPowerup_f",
+        "source_file": "teamplay.c",
+        "source_line": 3326,
+        "source_column": 5,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "This command could be used for all cases involving players with powerup.\nIf you, a teammate, or enemy has powerup, this bind will report it.\nIf eyes is in your point, we assume enemy only because this is tp_ENEMYpwr, otherwise there is no way to tell if a player with ring is enemy or teammate."
+    },
+    "tp_msggetpent": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_GetPent_f",
+        "source_file": "teamplay.c",
+        "source_line": 3332,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Informs your teammates to get the pent.\nWill print enemy/team pent if you, teammate, or enemy has pent and they're in your point.\nWill print nothing if eyes is in point."
+    },
+    "tp_msggetquad": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_GetQuad_f",
+        "source_file": "teamplay.c",
+        "source_line": 3331,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Informs your teammates to get the quad.\nReports team/enemy quad if you, a teammate, or an enemy has quad and they are in your point.\nReports nothing if eyes is in your point."
+    },
+    "tp_msghelp": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Help_f",
+        "source_file": "teamplay.c",
+        "source_line": 3330,
+        "source_column": 5,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Requests help at a location. Also gives your status."
+    },
+    "tp_msgitemsoon": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_ItemSoon_f",
+        "source_file": "teamplay.c",
+        "source_line": 3341,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgkillme": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_KillMe_f",
+        "source_file": "teamplay.c",
+        "source_line": 3329,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msglost": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Lost_f",
+        "source_file": "teamplay.c",
+        "source_line": 3325,
+        "source_column": 5,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Will send a message to your teammates telling them you died at a location.\nAlso tells them how many enemies are there, and what weapon (if any) you dropped."
+    },
+    "tp_msgneed": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Need_f",
+        "source_file": "teamplay.c",
+        "source_line": 3337,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Equivalent of %u (need macro).\nWill display what you need (health/armor/ammo)."
+    },
+    "tp_msgnocancel": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_NoCancel_f",
+        "source_file": "teamplay.c",
+        "source_line": 3339,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgpoint": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Point_f",
+        "source_file": "teamplay.c",
+        "source_line": 3333,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Will report to your team item you see in your point at its location.\nWill report team/enemy powerup if you, a teammate, or an enemy has a powerup and are in your point.",
+      "remarks": "Note that tp_pointpriorities defaults to 1 and it is strongly suggested to keep this value. You can alter the priorities of this bind by altering tp_point."
+    },
+    "tp_msgquaddead": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_QuadDead_f",
+        "source_file": "teamplay.c",
+        "source_line": 3327,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Reports quad is dead. Will print enemy/team powerup if you, a teammate, or an enemy have quad and are in your point."
+    },
+    "tp_msgreplace": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Replace_f",
+        "source_file": "teamplay.c",
+        "source_line": 3336,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Requests a teammate to replace you at your location."
+    },
+    "tp_msgreport": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Report_f",
+        "source_file": "teamplay.c",
+        "source_line": 3323,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Will send a message to your teammates about your current status: health, armor, location, powerups, weapon.\nDoubles as tp_lost when you are dead."
+    },
+    "tp_msgsafe": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Safe_f",
+        "source_file": "teamplay.c",
+        "source_line": 3328,
+        "source_column": 5,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Will send a message to your teammates informing them your current location is safe.\nWill print nothing if there is enemy in your point.\nAlso reports your status."
+    },
+    "tp_msgslipped": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Slipped_f",
+        "source_file": "teamplay.c",
+        "source_line": 3343,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgtfconced": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_TFConced_f",
+        "source_file": "teamplay.c",
+        "source_line": 3345,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgtook": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Took_f",
+        "source_file": "teamplay.c",
+        "source_line": 3334,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Informs your team of the last item you took.\nSaves each item in memory for 15 seconds."
+    },
+    "tp_msgtrick": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Trick_f",
+        "source_file": "teamplay.c",
+        "source_line": 3335,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      },
+      "desc": "Requests a trick at a location.\nBest for cases like dm2 when you need a teammate to help you get quad from stairs."
+    },
+    "tp_msgutake": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_YouTake_f",
+        "source_file": "teamplay.c",
+        "source_line": 3340,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgwaiting": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_Waiting_f",
+        "source_file": "teamplay.c",
+        "source_line": 3342,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_msgyesok": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Msg_YesOk_f",
+        "source_file": "teamplay.c",
+        "source_line": 3338,
+        "source_column": 2,
+        "enclosing_function": "TP_Init",
+        "build_variant": "client"
+      }
+    },
+    "tp_pickup": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Pickup_f",
+        "source_file": "host.c",
+        "source_line": 539,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Item can be: quad, pent, ring, suit, ra, ya, ga, mh, health, lg, rl, gl, sng, ng, ssg, pack, cells, rockets, nails, shells, flag, armor, weapons, powerups, ammo, all, default, none"
+    },
+    "tp_point": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Point_f",
+        "source_file": "host.c",
+        "source_line": 540,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Specifies which items will be used in point (%x or $point) macro.\nIf you point at an item and such item is not listed here, your message will be tp_name_nothing (default: \"nothing\").\nSupported items: powerups, quad, pent, ring, armor, ra, ya, ga, weapons, lg, rl, gl, sng, ng, ssg, ammo, cells, rockets, nails, shells, players, eyes, teammate, enemy, mh, health, pack, flag, all, default, none, suit\nItem names can be customized with tp_name_item."
+    },
+    "tp_took": {
+      "group-id": "teamplay",
+      "ast": {
+        "handler_fn": "TP_Took_f",
+        "source_file": "host.c",
+        "source_line": 538,
+        "source_column": 2,
+        "enclosing_function": "Commands_For_Configs_Init",
+        "build_variant": "client"
+      },
+      "desc": "Specifies which items will be included in the took (%X or $took) macro.\nIf you took an item and it's not listed in tp_took list, %X and $took macro will display tp_name_nothing (default: \"nothing\").\nSupported items: quad, pent, ring, suit, ra, ya, ga, mh, health, lg, rl, gl, sng, ng, ssg, pack, cells, rockets, nails, shells, flag, armor, weapons, powerups, ammo, all, default, none\nItem names can be customized with tp_name_item."
+    },
+    "track": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Track_f",
+        "source_file": "cl_cam.c",
+        "source_line": 801,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      }
+    },
+    "track-": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This means when you are spectating or watching an mvd, keys will automatically be assigned to track certain players.\nSo in a 4v4 8 keys are needed, the first 4 make you track the 4 players in the first team and the last 4 make you track the second team."
+    },
+    "track1": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TrackMV1_f",
+        "source_file": "cl_cam.c",
+        "source_line": 806,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      }
+    },
+    "track2": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TrackMV2_f",
+        "source_file": "cl_cam.c",
+        "source_line": 807,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      }
+    },
+    "track3": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TrackMV3_f",
+        "source_file": "cl_cam.c",
+        "source_line": 808,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      }
+    },
+    "track4": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TrackMV4_f",
+        "source_file": "cl_cam.c",
+        "source_line": 809,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      }
+    },
+    "trackkiller": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Trackkiller_f",
+        "source_file": "cl_cam.c",
+        "source_line": 803,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      },
+      "desc": "Will switch view to the player who killed the player we are tracking at the moment."
+    },
+    "trackteam": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TrackTeam_f",
+        "source_file": "cl_cam.c",
+        "source_line": 810,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCam",
+        "build_variant": "client"
+      },
+      "desc": "When using MultiView, allows you to assign all available points of view to a desired team."
+    },
+    "troubleshoot": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Config_TroubleShoot_f",
+        "source_file": "config_manager.c",
+        "source_line": 1228,
+        "source_column": 2,
+        "enclosing_function": "ConfigManager_Init",
+        "build_variant": "client"
+      },
+      "desc": "Performs a check on client settings and displays possible sources of issues."
+    },
+    "unalias": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_UnAlias_f",
+        "source_file": "cmd.c",
+        "source_line": 2515,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Example:\nunalias myreport\n - removes myreport alias."
+    },
+    "unalias_re": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_UnAlias_re_f",
+        "source_file": "cmd.c",
+        "source_line": 2516,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Deletes given alias(es).\n\nExample:\nunalias ^_zoom.\n - removes all aliases beginning with '_zoom', e.g. _zoom_in, _zoom_out"
+    },
+    "unaliasall": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_UnAliasAll_f",
+        "source_file": "cmd.c",
+        "source_line": 2514,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes all aliases."
+    },
+    "unbind": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Key_Unbind_f",
+        "source_file": "keys.c",
+        "source_line": 1974,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      },
+      "desc": "Example: unbind x delete strings on x button."
+    },
+    "unbindall": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Key_Unbindall_f",
+        "source_file": "keys.c",
+        "source_line": 1975,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes all keyboard bindings."
+    },
+    "unignore": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Unignore_f",
+        "source_file": "ignore.c",
+        "source_line": 523,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes name or user ID number from ignore list."
+    },
+    "unignoreAll": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "UnignoreAll_f",
+        "source_file": "ignore.c",
+        "source_line": 526,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes all users from ignore list."
+    },
+    "unignoreAll_team": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "UnignoreteamAll_f",
+        "source_file": "ignore.c",
+        "source_line": 527,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes all ignored teams from ignore list."
+    },
+    "unignore_id": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Unignore_ID_f",
+        "source_file": "ignore.c",
+        "source_line": 528,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes userid from ignore list."
+    },
+    "unignore_team": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Unignoreteam_f",
+        "source_file": "ignore.c",
+        "source_line": 525,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes team from ignore list."
+    },
+    "unignore_voip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VUnignore_f",
+        "source_file": "ignore.c",
+        "source_line": 519,
+        "source_column": 2,
+        "enclosing_function": "Ignore_Init",
+        "build_variant": "client"
+      }
+    },
+    "unset": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cvar_UnSet_f",
+        "source_file": "cvar.c",
+        "source_line": 1587,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes user-created variable."
+    },
+    "unset_re": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cvar_UnSet_re_f",
+        "source_file": "cvar.c",
+        "source_line": 1588,
+        "source_column": 2,
+        "enclosing_function": "Cvar_Init",
+        "build_variant": "client"
+      },
+      "desc": "Removes user-created variable."
+    },
+    "user": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_User_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 943,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "This command queries the user for his setinfo information."
+    },
+    "userdir": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Userdir_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 953,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "A userdir command can be used for addition of directories to the list searched for files by the client (configs, sounds, models, etc.).\nReal handy when several players with their own configs files play Quake on a single computer.\nWhen issuing this command after reconnection to a server or parameter is not defined, a current userdir is printed in the console."
+    },
+    "userinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_UserInfo_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 951,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Prints your user settings."
+    },
+    "users": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Users_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 944,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Reports information on connected players and retrieve user IDs."
+    },
+    "v_cshift": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "V_cshift_f",
+        "source_file": "cl_view.c",
+        "source_line": 1128,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      },
+      "desc": "This adjusts all of the colors currently being displayed.\nUsed when you are underwater, hit, have the Ring of Shadows, or Quad Damage.\n\nExample:\nv_cshift 16 32 64\n"
+    },
+    "validate_clients": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This shows authed ezQuake users, non-authed and non-ezQuake users."
+    },
+    "version": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Version_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 945,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Prints client version number and date into the console."
+    },
+    "vid_displaylist": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "VID_DisplayList_f",
+        "source_file": "vid_sdl2.c",
+        "source_line": 1874,
+        "source_column": 3,
+        "enclosing_function": "VID_RegisterCommands",
+        "build_variant": "client"
+      }
+    },
+    "vid_forcemode": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will force ezQuake to use a certain video mode."
+    },
+    "vid_fullscreen": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will switch to a fullscreen video mode specified in the \"vid_fullscreen_mode\" variable."
+    },
+    "vid_gfxinfo": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "VID_GfxInfo_f",
+        "source_file": "vid_sdl2.c",
+        "source_line": 1871,
+        "source_column": 3,
+        "enclosing_function": "VID_RegisterCommands",
+        "build_variant": "client"
+      },
+      "desc": "This command will print out useful information about your video card, GL version, and refresh rate, video mode (width/height resolution and color depth) to console.\nUseful to make sure everything is right, and also to screenshot to show other people."
+    },
+    "vid_minimize": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will minimize the windowed game screen.\nIt was made available because the game takes control over the mouse when it is moved onto the game window thus prohibiting the normal minimization of the game window."
+    },
+    "vid_modelist": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "VID_ModeList_f",
+        "source_file": "vid_sdl2.c",
+        "source_line": 1875,
+        "source_column": 3,
+        "enclosing_function": "VID_RegisterCommands",
+        "build_variant": "client"
+      },
+      "desc": "Prints all supported video modes."
+    },
+    "vid_reload": {
+      "group-id": "deprecated",
+      "ast": null,
+      "system_generated": true
+    },
+    "vid_restart": {
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "VID_Restart_f",
+        "source_file": "vid_sdl2.c",
+        "source_line": 1872,
+        "source_column": 3,
+        "enclosing_function": "VID_RegisterCommands",
+        "build_variant": "client"
+      },
+      "desc": "Will restart your video renderer. Needed for some changes to take affect."
+    },
+    "vid_testmode": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will switch to the specified video mode for 5-seconds in order to test it."
+    },
+    "vid_windowed": {
+      "group-id": "deprecated",
+      "ast": null,
+      "desc": "This command will switch the a windowed video mode specified in the \"vid_windowed_mode\" variable."
+    },
+    "viewalias": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Viewalias_f",
+        "source_file": "cmd.c",
+        "source_line": 2513,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Example:\nviewalias mystatus\n - prints mystatus alias."
+    },
+    "vip_addip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_AddIPVIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3543,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "vip_listip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ListIPVIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3545,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "vip_removeip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RemoveIPVIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3544,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "vip_writeip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_WriteIPVIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3546,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      }
+    },
+    "vminfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VM_VmInfo_f",
+        "source_file": "pr2_exec.c",
+        "source_line": 73,
+        "source_column": 2,
+        "enclosing_function": "PR2_Init",
+        "build_variant": "client"
+      }
+    },
+    "wait": {
+      "group-id": "config",
+      "ast": {
+        "handler_fn": "Cmd_Wait_f",
+        "source_file": "cmd.c",
+        "source_line": 2517,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      },
+      "desc": "Adds one wait frame."
+    },
+    "weapon": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_Weapon",
+        "source_file": "cl_input.c",
+        "source_line": 1269,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      },
+      "desc": "Weapon selection command.\nWill select the best available weapon according to the sequence you choose."
+    },
+    "windows": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_Minimize",
+        "source_file": "cl_cmd.c",
+        "source_line": 963,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      },
+      "desc": "Switches away from client and back to the Windows OS."
+    },
+    "writeip": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_WriteIP_f",
+        "source_file": "sv_main.c",
+        "source_line": 3542,
+        "source_column": 2,
+        "enclosing_function": "SV_InitLocal",
+        "build_variant": "client"
+      },
+      "desc": "Records all IP addresses on the server IP list. The file name is listip.cfg."
+    },
+    "z_ext_list": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Z_Ext_List_f",
+        "source_file": "cl_cmd.c",
+        "source_line": 965,
+        "source_column": 2,
+        "enclosing_function": "CL_InitCommands",
+        "build_variant": "client"
+      }
+    }
+  },
+  "_stats": {
+    "source_total": 443,
+    "with_handler": 438,
+    "with_help_desc": 282,
+    "server_build_only": 11,
+    "help_only": 80,
+    "help_only_system_generated": 16
+  }
+}
