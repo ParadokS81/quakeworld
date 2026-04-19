@@ -1,0 +1,1490 @@
+{
+  "keynames": {
+    "ACUTE": {
+      "ast": {
+        "key_code": 186,
+        "key_code_ident": "K_ACUTE",
+        "source_file": "keys.c",
+        "source_line": 294,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ADIAERESIS": {
+      "ast": {
+        "key_code": 189,
+        "key_code_ident": "K_ADIAERESIS",
+        "source_file": "keys.c",
+        "source_line": 297,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ALT": {
+      "ast": {
+        "key_code": 136,
+        "key_code_ident": "K_ALT",
+        "source_file": "keys.c",
+        "source_line": 153,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ALTCHAR": {
+      "ast": {
+        "key_code": 138,
+        "key_code_ident": "K_RALT",
+        "source_file": "keys.c",
+        "source_line": 158,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ALTGR": {
+      "ast": {
+        "key_code": 138,
+        "key_code_ident": "K_RALT",
+        "source_file": "keys.c",
+        "source_line": 157,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ARING": {
+      "ast": {
+        "key_code": 188,
+        "key_code_ident": "K_ARING",
+        "source_file": "keys.c",
+        "source_line": 296,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX1": {
+      "ast": {
+        "key_code": 216,
+        "key_code_ident": "K_AUX1",
+        "source_file": "keys.c",
+        "source_line": 259,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX10": {
+      "ast": {
+        "key_code": 225,
+        "key_code_ident": "K_AUX10",
+        "source_file": "keys.c",
+        "source_line": 268,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX11": {
+      "ast": {
+        "key_code": 226,
+        "key_code_ident": "K_AUX11",
+        "source_file": "keys.c",
+        "source_line": 269,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX12": {
+      "ast": {
+        "key_code": 227,
+        "key_code_ident": "K_AUX12",
+        "source_file": "keys.c",
+        "source_line": 270,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX13": {
+      "ast": {
+        "key_code": 228,
+        "key_code_ident": "K_AUX13",
+        "source_file": "keys.c",
+        "source_line": 271,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX14": {
+      "ast": {
+        "key_code": 229,
+        "key_code_ident": "K_AUX14",
+        "source_file": "keys.c",
+        "source_line": 272,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX15": {
+      "ast": {
+        "key_code": 230,
+        "key_code_ident": "K_AUX15",
+        "source_file": "keys.c",
+        "source_line": 273,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX16": {
+      "ast": {
+        "key_code": 231,
+        "key_code_ident": "K_AUX16",
+        "source_file": "keys.c",
+        "source_line": 274,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX17": {
+      "ast": {
+        "key_code": 232,
+        "key_code_ident": "K_AUX17",
+        "source_file": "keys.c",
+        "source_line": 275,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX18": {
+      "ast": {
+        "key_code": 233,
+        "key_code_ident": "K_AUX18",
+        "source_file": "keys.c",
+        "source_line": 276,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX19": {
+      "ast": {
+        "key_code": 234,
+        "key_code_ident": "K_AUX19",
+        "source_file": "keys.c",
+        "source_line": 277,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX2": {
+      "ast": {
+        "key_code": 217,
+        "key_code_ident": "K_AUX2",
+        "source_file": "keys.c",
+        "source_line": 260,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX20": {
+      "ast": {
+        "key_code": 235,
+        "key_code_ident": "K_AUX20",
+        "source_file": "keys.c",
+        "source_line": 278,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX21": {
+      "ast": {
+        "key_code": 236,
+        "key_code_ident": "K_AUX21",
+        "source_file": "keys.c",
+        "source_line": 279,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX22": {
+      "ast": {
+        "key_code": 237,
+        "key_code_ident": "K_AUX22",
+        "source_file": "keys.c",
+        "source_line": 280,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX23": {
+      "ast": {
+        "key_code": 238,
+        "key_code_ident": "K_AUX23",
+        "source_file": "keys.c",
+        "source_line": 281,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX24": {
+      "ast": {
+        "key_code": 239,
+        "key_code_ident": "K_AUX24",
+        "source_file": "keys.c",
+        "source_line": 282,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX25": {
+      "ast": {
+        "key_code": 240,
+        "key_code_ident": "K_AUX25",
+        "source_file": "keys.c",
+        "source_line": 283,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX26": {
+      "ast": {
+        "key_code": 241,
+        "key_code_ident": "K_AUX26",
+        "source_file": "keys.c",
+        "source_line": 284,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX27": {
+      "ast": {
+        "key_code": 242,
+        "key_code_ident": "K_AUX27",
+        "source_file": "keys.c",
+        "source_line": 285,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX28": {
+      "ast": {
+        "key_code": 243,
+        "key_code_ident": "K_AUX28",
+        "source_file": "keys.c",
+        "source_line": 286,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX3": {
+      "ast": {
+        "key_code": 218,
+        "key_code_ident": "K_AUX3",
+        "source_file": "keys.c",
+        "source_line": 261,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX4": {
+      "ast": {
+        "key_code": 219,
+        "key_code_ident": "K_AUX4",
+        "source_file": "keys.c",
+        "source_line": 262,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX5": {
+      "ast": {
+        "key_code": 220,
+        "key_code_ident": "K_AUX5",
+        "source_file": "keys.c",
+        "source_line": 263,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX6": {
+      "ast": {
+        "key_code": 221,
+        "key_code_ident": "K_AUX6",
+        "source_file": "keys.c",
+        "source_line": 264,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX7": {
+      "ast": {
+        "key_code": 222,
+        "key_code_ident": "K_AUX7",
+        "source_file": "keys.c",
+        "source_line": 265,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX8": {
+      "ast": {
+        "key_code": 223,
+        "key_code_ident": "K_AUX8",
+        "source_file": "keys.c",
+        "source_line": 266,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "AUX9": {
+      "ast": {
+        "key_code": 224,
+        "key_code_ident": "K_AUX9",
+        "source_file": "keys.c",
+        "source_line": 267,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "BACKSPACE": {
+      "ast": {
+        "key_code": 127,
+        "key_code_ident": "K_BACKSPACE",
+        "source_file": "keys.c",
+        "source_line": 127,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "CAPSLOCK": {
+      "ast": {
+        "key_code": 128,
+        "key_code_ident": "K_CAPSLOCK",
+        "source_file": "keys.c",
+        "source_line": 129,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "COMMAND": {
+      "ast": {
+        "key_code": 145,
+        "key_code_ident": "K_CMD",
+        "source_file": "keys.c",
+        "source_line": 138,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "CTRL": {
+      "ast": {
+        "key_code": 139,
+        "key_code_ident": "K_CTRL",
+        "source_file": "keys.c",
+        "source_line": 160,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "DEL": {
+      "ast": {
+        "key_code": 158,
+        "key_code_ident": "K_DEL",
+        "source_file": "keys.c",
+        "source_line": 234,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "DIAERESIS": {
+      "ast": {
+        "key_code": 187,
+        "key_code_ident": "K_DIAERESIS",
+        "source_file": "keys.c",
+        "source_line": 295,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "DOWNARROW": {
+      "ast": {
+        "key_code": 133,
+        "key_code_ident": "K_DOWNARROW",
+        "source_file": "keys.c",
+        "source_line": 149,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "END": {
+      "ast": {
+        "key_code": 162,
+        "key_code_ident": "K_END",
+        "source_file": "keys.c",
+        "source_line": 238,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ENTER": {
+      "ast": {
+        "key_code": 13,
+        "key_code_ident": "K_ENTER",
+        "source_file": "keys.c",
+        "source_line": 124,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ESCAPE": {
+      "ast": {
+        "key_code": 27,
+        "key_code_ident": "K_ESCAPE",
+        "source_file": "keys.c",
+        "source_line": 125,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F1": {
+      "ast": {
+        "key_code": 145,
+        "key_code_ident": "K_F1",
+        "source_file": "keys.c",
+        "source_line": 220,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F10": {
+      "ast": {
+        "key_code": 154,
+        "key_code_ident": "K_F10",
+        "source_file": "keys.c",
+        "source_line": 229,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F11": {
+      "ast": {
+        "key_code": 155,
+        "key_code_ident": "K_F11",
+        "source_file": "keys.c",
+        "source_line": 230,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F12": {
+      "ast": {
+        "key_code": 156,
+        "key_code_ident": "K_F12",
+        "source_file": "keys.c",
+        "source_line": 231,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F13": {
+      "ast": {
+        "key_code": 159,
+        "key_code_ident": "K_F13",
+        "source_file": "keys.c",
+        "source_line": 140,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "F14": {
+      "ast": {
+        "key_code": 160,
+        "key_code_ident": "K_F14",
+        "source_file": "keys.c",
+        "source_line": 141,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "F15": {
+      "ast": {
+        "key_code": 161,
+        "key_code_ident": "K_F15",
+        "source_file": "keys.c",
+        "source_line": 142,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "F2": {
+      "ast": {
+        "key_code": 146,
+        "key_code_ident": "K_F2",
+        "source_file": "keys.c",
+        "source_line": 221,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F3": {
+      "ast": {
+        "key_code": 147,
+        "key_code_ident": "K_F3",
+        "source_file": "keys.c",
+        "source_line": 222,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F4": {
+      "ast": {
+        "key_code": 148,
+        "key_code_ident": "K_F4",
+        "source_file": "keys.c",
+        "source_line": 223,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F5": {
+      "ast": {
+        "key_code": 149,
+        "key_code_ident": "K_F5",
+        "source_file": "keys.c",
+        "source_line": 224,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F6": {
+      "ast": {
+        "key_code": 150,
+        "key_code_ident": "K_F6",
+        "source_file": "keys.c",
+        "source_line": 225,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F7": {
+      "ast": {
+        "key_code": 151,
+        "key_code_ident": "K_F7",
+        "source_file": "keys.c",
+        "source_line": 226,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F8": {
+      "ast": {
+        "key_code": 152,
+        "key_code_ident": "K_F8",
+        "source_file": "keys.c",
+        "source_line": 227,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "F9": {
+      "ast": {
+        "key_code": 153,
+        "key_code_ident": "K_F9",
+        "source_file": "keys.c",
+        "source_line": 228,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "HOME": {
+      "ast": {
+        "key_code": 161,
+        "key_code_ident": "K_HOME",
+        "source_file": "keys.c",
+        "source_line": 237,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "INS": {
+      "ast": {
+        "key_code": 157,
+        "key_code_ident": "K_INS",
+        "source_file": "keys.c",
+        "source_line": 233,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ISO": {
+      "ast": {
+        "key_code": 167,
+        "key_code_ident": "K_ISO",
+        "source_file": "keys.c",
+        "source_line": 180,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOY1": {
+      "ast": {
+        "key_code": 208,
+        "key_code_ident": "K_JOY1",
+        "source_file": "keys.c",
+        "source_line": 249,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOY2": {
+      "ast": {
+        "key_code": 209,
+        "key_code_ident": "K_JOY2",
+        "source_file": "keys.c",
+        "source_line": 250,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOY3": {
+      "ast": {
+        "key_code": 210,
+        "key_code_ident": "K_JOY3",
+        "source_file": "keys.c",
+        "source_line": 251,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOY4": {
+      "ast": {
+        "key_code": 211,
+        "key_code_ident": "K_JOY4",
+        "source_file": "keys.c",
+        "source_line": 252,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOYPOVDN": {
+      "ast": {
+        "key_code": 214,
+        "key_code_ident": "K_JOYPOVDN",
+        "source_file": "keys.c",
+        "source_line": 256,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOYPOVLT": {
+      "ast": {
+        "key_code": 215,
+        "key_code_ident": "K_JOYPOVLT",
+        "source_file": "keys.c",
+        "source_line": 257,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOYPOVRT": {
+      "ast": {
+        "key_code": 213,
+        "key_code_ident": "K_JOYPOVRT",
+        "source_file": "keys.c",
+        "source_line": 255,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "JOYPOVUP": {
+      "ast": {
+        "key_code": 212,
+        "key_code_ident": "K_JOYPOVUP",
+        "source_file": "keys.c",
+        "source_line": 254,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_0": {
+      "ast": {
+        "key_code": 182,
+        "key_code_ident": "KP_INS",
+        "source_file": "keys.c",
+        "source_line": 216,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_1": {
+      "ast": {
+        "key_code": 179,
+        "key_code_ident": "KP_END",
+        "source_file": "keys.c",
+        "source_line": 209,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_2": {
+      "ast": {
+        "key_code": 180,
+        "key_code_ident": "KP_DOWNARROW",
+        "source_file": "keys.c",
+        "source_line": 211,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_3": {
+      "ast": {
+        "key_code": 181,
+        "key_code_ident": "KP_PGDN",
+        "source_file": "keys.c",
+        "source_line": 213,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_4": {
+      "ast": {
+        "key_code": 175,
+        "key_code_ident": "KP_LEFTARROW",
+        "source_file": "keys.c",
+        "source_line": 203,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_5": {
+      "ast": {
+        "key_code": 176,
+        "key_code_ident": "KP_5",
+        "source_file": "keys.c",
+        "source_line": 204,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_6": {
+      "ast": {
+        "key_code": 177,
+        "key_code_ident": "KP_RIGHTARROW",
+        "source_file": "keys.c",
+        "source_line": 206,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_7": {
+      "ast": {
+        "key_code": 171,
+        "key_code_ident": "KP_HOME",
+        "source_file": "keys.c",
+        "source_line": 195,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_8": {
+      "ast": {
+        "key_code": 172,
+        "key_code_ident": "KP_UPARROW",
+        "source_file": "keys.c",
+        "source_line": 197,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_9": {
+      "ast": {
+        "key_code": 173,
+        "key_code_ident": "KP_PGUP",
+        "source_file": "keys.c",
+        "source_line": 199,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_DEL": {
+      "ast": {
+        "key_code": 183,
+        "key_code_ident": "KP_DEL",
+        "source_file": "keys.c",
+        "source_line": 217,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_DIVIDE": {
+      "ast": {
+        "key_code": 169,
+        "key_code_ident": "KP_SLASH",
+        "source_file": "keys.c",
+        "source_line": 188,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_DOWNARROW": {
+      "ast": {
+        "key_code": 180,
+        "key_code_ident": "KP_DOWNARROW",
+        "source_file": "keys.c",
+        "source_line": 210,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_END": {
+      "ast": {
+        "key_code": 179,
+        "key_code_ident": "KP_END",
+        "source_file": "keys.c",
+        "source_line": 208,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_ENTER": {
+      "ast": {
+        "key_code": 184,
+        "key_code_ident": "KP_ENTER",
+        "source_file": "keys.c",
+        "source_line": 218,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_EQUAL": {
+      "ast": {
+        "key_code": 190,
+        "key_code_ident": "KP_EQUAL",
+        "source_file": "keys.c",
+        "source_line": 143,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "KP_HOME": {
+      "ast": {
+        "key_code": 171,
+        "key_code_ident": "KP_HOME",
+        "source_file": "keys.c",
+        "source_line": 194,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_INS": {
+      "ast": {
+        "key_code": 182,
+        "key_code_ident": "KP_INS",
+        "source_file": "keys.c",
+        "source_line": 215,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_LEFTARROW": {
+      "ast": {
+        "key_code": 175,
+        "key_code_ident": "KP_LEFTARROW",
+        "source_file": "keys.c",
+        "source_line": 202,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_MINUS": {
+      "ast": {
+        "key_code": 174,
+        "key_code_ident": "KP_MINUS",
+        "source_file": "keys.c",
+        "source_line": 192,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_MULTIPLY": {
+      "ast": {
+        "key_code": 170,
+        "key_code_ident": "KP_STAR",
+        "source_file": "keys.c",
+        "source_line": 190,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_NUMLCK": {
+      "ast": {
+        "key_code": 168,
+        "key_code_ident": "KP_NUMLOCK",
+        "source_file": "keys.c",
+        "source_line": 185,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_NUMLOCK": {
+      "ast": {
+        "key_code": 168,
+        "key_code_ident": "KP_NUMLOCK",
+        "source_file": "keys.c",
+        "source_line": 186,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_PGDN": {
+      "ast": {
+        "key_code": 181,
+        "key_code_ident": "KP_PGDN",
+        "source_file": "keys.c",
+        "source_line": 212,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_PGUP": {
+      "ast": {
+        "key_code": 173,
+        "key_code_ident": "KP_PGUP",
+        "source_file": "keys.c",
+        "source_line": 198,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_PLUS": {
+      "ast": {
+        "key_code": 178,
+        "key_code_ident": "KP_PLUS",
+        "source_file": "keys.c",
+        "source_line": 200,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_RIGHTARROW": {
+      "ast": {
+        "key_code": 177,
+        "key_code_ident": "KP_RIGHTARROW",
+        "source_file": "keys.c",
+        "source_line": 205,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_SLASH": {
+      "ast": {
+        "key_code": 169,
+        "key_code_ident": "KP_SLASH",
+        "source_file": "keys.c",
+        "source_line": 187,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_STAR": {
+      "ast": {
+        "key_code": 170,
+        "key_code_ident": "KP_STAR",
+        "source_file": "keys.c",
+        "source_line": 189,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "KP_UPARROW": {
+      "ast": {
+        "key_code": 172,
+        "key_code_ident": "KP_UPARROW",
+        "source_file": "keys.c",
+        "source_line": 196,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LALT": {
+      "ast": {
+        "key_code": 137,
+        "key_code_ident": "K_LALT",
+        "source_file": "keys.c",
+        "source_line": 154,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LCTRL": {
+      "ast": {
+        "key_code": 140,
+        "key_code_ident": "K_LCTRL",
+        "source_file": "keys.c",
+        "source_line": 161,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LEFTARROW": {
+      "ast": {
+        "key_code": 134,
+        "key_code_ident": "K_LEFTARROW",
+        "source_file": "keys.c",
+        "source_line": 150,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LSHIFT": {
+      "ast": {
+        "key_code": 143,
+        "key_code_ident": "K_LSHIFT",
+        "source_file": "keys.c",
+        "source_line": 164,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LSUPER": {
+      "ast": {
+        "key_code": 164,
+        "key_code_ident": "K_LWIN",
+        "source_file": "keys.c",
+        "source_line": 177,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LWIN": {
+      "ast": {
+        "key_code": 164,
+        "key_code_ident": "K_LWIN",
+        "source_file": "keys.c",
+        "source_line": 174,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "LWINKEY": {
+      "ast": {
+        "key_code": 164,
+        "key_code_ident": "K_LWIN",
+        "source_file": "keys.c",
+        "source_line": 168,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MENU": {
+      "ast": {
+        "key_code": 166,
+        "key_code_ident": "K_MENU",
+        "source_file": "keys.c",
+        "source_line": 179,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE1": {
+      "ast": {
+        "key_code": 200,
+        "key_code_ident": "K_MOUSE1",
+        "source_file": "keys.c",
+        "source_line": 240,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE2": {
+      "ast": {
+        "key_code": 201,
+        "key_code_ident": "K_MOUSE2",
+        "source_file": "keys.c",
+        "source_line": 241,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE3": {
+      "ast": {
+        "key_code": 202,
+        "key_code_ident": "K_MOUSE3",
+        "source_file": "keys.c",
+        "source_line": 242,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE4": {
+      "ast": {
+        "key_code": 203,
+        "key_code_ident": "K_MOUSE4",
+        "source_file": "keys.c",
+        "source_line": 243,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE5": {
+      "ast": {
+        "key_code": 204,
+        "key_code_ident": "K_MOUSE5",
+        "source_file": "keys.c",
+        "source_line": 244,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE6": {
+      "ast": {
+        "key_code": 205,
+        "key_code_ident": "K_MOUSE6",
+        "source_file": "keys.c",
+        "source_line": 245,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE7": {
+      "ast": {
+        "key_code": 206,
+        "key_code_ident": "K_MOUSE7",
+        "source_file": "keys.c",
+        "source_line": 246,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MOUSE8": {
+      "ast": {
+        "key_code": 207,
+        "key_code_ident": "K_MOUSE8",
+        "source_file": "keys.c",
+        "source_line": 247,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MWHEELDOWN": {
+      "ast": {
+        "key_code": 245,
+        "key_code_ident": "K_MWHEELDOWN",
+        "source_file": "keys.c",
+        "source_line": 289,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "MWHEELUP": {
+      "ast": {
+        "key_code": 244,
+        "key_code_ident": "K_MWHEELUP",
+        "source_file": "keys.c",
+        "source_line": 288,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "NUMLOCK": {
+      "ast": {
+        "key_code": 168,
+        "key_code_ident": "KP_NUMLOCK",
+        "source_file": "keys.c",
+        "source_line": 184,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "ODIAERESIS": {
+      "ast": {
+        "key_code": 190,
+        "key_code_ident": "K_ODIAERESIS",
+        "source_file": "keys.c",
+        "source_line": 298,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PARA": {
+      "ast": {
+        "key_code": 146,
+        "key_code_ident": "K_PARA",
+        "source_file": "keys.c",
+        "source_line": 139,
+        "source_column": 2,
+        "build_variant": "apple"
+      }
+    },
+    "PAUSE": {
+      "ast": {
+        "key_code": 131,
+        "key_code_ident": "K_PAUSE",
+        "source_file": "keys.c",
+        "source_line": 146,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PGDN": {
+      "ast": {
+        "key_code": 159,
+        "key_code_ident": "K_PGDN",
+        "source_file": "keys.c",
+        "source_line": 235,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PGUP": {
+      "ast": {
+        "key_code": 160,
+        "key_code_ident": "K_PGUP",
+        "source_file": "keys.c",
+        "source_line": 236,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "POPUPMENU": {
+      "ast": {
+        "key_code": 166,
+        "key_code_ident": "K_MENU",
+        "source_file": "keys.c",
+        "source_line": 170,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PRINTSCR": {
+      "ast": {
+        "key_code": 129,
+        "key_code_ident": "K_PRINTSCR",
+        "source_file": "keys.c",
+        "source_line": 130,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PRINTSCREEN": {
+      "ast": {
+        "key_code": 129,
+        "key_code_ident": "K_PRINTSCR",
+        "source_file": "keys.c",
+        "source_line": 132,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "PRINTSCRN": {
+      "ast": {
+        "key_code": 129,
+        "key_code_ident": "K_PRINTSCR",
+        "source_file": "keys.c",
+        "source_line": 131,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RALT": {
+      "ast": {
+        "key_code": 138,
+        "key_code_ident": "K_RALT",
+        "source_file": "keys.c",
+        "source_line": 155,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RCTRL": {
+      "ast": {
+        "key_code": 141,
+        "key_code_ident": "K_RCTRL",
+        "source_file": "keys.c",
+        "source_line": 162,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RIGHTARROW": {
+      "ast": {
+        "key_code": 135,
+        "key_code_ident": "K_RIGHTARROW",
+        "source_file": "keys.c",
+        "source_line": 151,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RSHIFT": {
+      "ast": {
+        "key_code": 144,
+        "key_code_ident": "K_RSHIFT",
+        "source_file": "keys.c",
+        "source_line": 165,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RSUPER": {
+      "ast": {
+        "key_code": 165,
+        "key_code_ident": "K_RWIN",
+        "source_file": "keys.c",
+        "source_line": 178,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RWIN": {
+      "ast": {
+        "key_code": 165,
+        "key_code_ident": "K_RWIN",
+        "source_file": "keys.c",
+        "source_line": 175,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "RWINKEY": {
+      "ast": {
+        "key_code": 165,
+        "key_code_ident": "K_RWIN",
+        "source_file": "keys.c",
+        "source_line": 169,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SCRLCK": {
+      "ast": {
+        "key_code": 130,
+        "key_code_ident": "K_SCRLCK",
+        "source_file": "keys.c",
+        "source_line": 133,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SCROLLLOCK": {
+      "ast": {
+        "key_code": 130,
+        "key_code_ident": "K_SCRLCK",
+        "source_file": "keys.c",
+        "source_line": 134,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SCROLLOCK": {
+      "ast": {
+        "key_code": 130,
+        "key_code_ident": "K_SCRLCK",
+        "source_file": "keys.c",
+        "source_line": 135,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SECTION": {
+      "ast": {
+        "key_code": 185,
+        "key_code_ident": "K_SECTION",
+        "source_file": "keys.c",
+        "source_line": 293,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SEMICOLON": {
+      "ast": {
+        "key_code": 59,
+        "key_code_ident": "';'",
+        "source_file": "keys.c",
+        "source_line": 291,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SHIFT": {
+      "ast": {
+        "key_code": 142,
+        "key_code_ident": "K_SHIFT",
+        "source_file": "keys.c",
+        "source_line": 163,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SPACE": {
+      "ast": {
+        "key_code": 32,
+        "key_code_ident": "K_SPACE",
+        "source_file": "keys.c",
+        "source_line": 126,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "SUPER": {
+      "ast": {
+        "key_code": 163,
+        "key_code_ident": "K_WIN",
+        "source_file": "keys.c",
+        "source_line": 176,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "TAB": {
+      "ast": {
+        "key_code": 9,
+        "key_code_ident": "K_TAB",
+        "source_file": "keys.c",
+        "source_line": 123,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "UPARROW": {
+      "ast": {
+        "key_code": 132,
+        "key_code_ident": "K_UPARROW",
+        "source_file": "keys.c",
+        "source_line": 148,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "WAKE_UP": {
+      "ast": {
+        "key_code": 191,
+        "key_code_ident": "K_WAKE_UP",
+        "source_file": "keys.c",
+        "source_line": 299,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "WIN": {
+      "ast": {
+        "key_code": 163,
+        "key_code_ident": "K_WIN",
+        "source_file": "keys.c",
+        "source_line": 173,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    },
+    "WINKEY": {
+      "ast": {
+        "key_code": 163,
+        "key_code_ident": "K_WIN",
+        "source_file": "keys.c",
+        "source_line": 167,
+        "source_column": 2,
+        "build_variant": "default"
+      }
+    }
+  },
+  "_stats": {
+    "total_entries": 148,
+    "with_numeric_resolved": 148,
+    "apple_only": 6,
+    "unique_key_codes": 116
+  }
+}
