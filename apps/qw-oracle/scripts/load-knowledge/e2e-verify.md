@@ -157,3 +157,99 @@ moving to AST-backed extraction:
 - **8 cmdline params declared in `cmdline_params_ids.h` but with zero `COM_CheckParm` usage:** e.g., `-showliberrors`, `-gl_ext`. Declared-but-never-consulted.
 - **1 source-only undeclared cmdline param:** `-noerrormsgbox` in `sv_sys_win.c` is checked but missing from the manifest.
 - **Case-duplicate help entries** (`loadFragfile`/`loadfragfile`, `-forceTextureReload`/`-forcetexturereload`): the lowercase canonical key collapses them, which is the right call -- QuakeWorld command names are case-insensitive.
+
+---
+
+# E2E verification - Phase 2c.5 (eight-type ezQuake load)
+
+Phase 2c.5 extends the loader to `keyname`, `hud_element`, `ruleset`, and
+`token_primitive` types. Schema bumped to v2. After all eight `load-version`
+calls against ezQuake head the DB contains the full engine-feature surface.
+
+## Commands used (ezQuake head, 2026-04-19)
+
+```bash
+# Extract (from packages/qw-config/)
+python3 scripts/extract-ezquake-cvars-clang.py
+python3 scripts/extract-ezquake-commands-clang.py
+python3 scripts/extract-ezquake-macros-clang.py
+python3 scripts/extract-ezquake-cmdline-clang.py
+python3 scripts/extract-ezquake-keynames-clang.py
+python3 scripts/extract-ezquake-hud-elements-clang.py
+python3 scripts/extract-ezquake-rulesets-clang.py
+python3 scripts/extract-ezquake-token-primitives-clang.py
+
+# Load (from apps/qw-oracle/)
+HEAD_SHA=$(git -C ../../research/repos/ezquake-source rev-parse HEAD)
+for T in \
+    cvar:ezquake-variables-ast.json \
+    command:ezquake-commands-ast.json \
+    macro:ezquake-macros-ast.json \
+    cmdline_param:ezquake-cmdline-params-ast.json \
+    keyname:ezquake-keynames-ast.json \
+    hud_element:ezquake-hud-elements-ast.json \
+    ruleset:ezquake-rulesets-ast.json \
+    token_primitive:ezquake-token-primitives-ast.json ; do
+  TYPE=${T%:*}; JSON=${T#*:}
+  npm run load-knowledge -- load-version \
+    --project ezquake --version head --type $TYPE \
+    --json ../../packages/qw-config/src/data/$JSON \
+    --commit $HEAD_SHA --ordinal 2
+done
+```
+
+## Per-type counts
+
+```sql
+SELECT project, type, COUNT(*) FROM entities GROUP BY project, type;
+```
+
+Expected at head:
+- ezquake / cvar: **2901**
+- ezquake / command: **522**
+- ezquake / macro: **68**
+- ezquake / cmdline_param: **71**
+- ezquake / keyname: **148**
+- ezquake / hud_element: **83**
+- ezquake / ruleset: **6**
+- ezquake / token_primitive: **33**
+- **Total: 3832 ezQuake entities.**
+
+## Spot-check queries (Phase 2c.5 types)
+
+```sql
+-- Keyname
+SELECT kv.key_code, kv.key_code_ident FROM keyname_versions kv
+JOIN entities e ON e.id = kv.entity_id
+WHERE e.canonical_id = 'ezquake:keyname:f1';
+-- Expected: 145 | K_F1
+
+-- HUD element (parent -> owned cvars linkage)
+SELECT hv.draw_fn, hv.source_file, hv.owned_cvars_json FROM hud_element_versions hv
+JOIN entities e ON e.id = hv.entity_id
+WHERE e.canonical_id = 'ezquake:hud_element:fps';
+-- Expected: SCR_HUD_DrawFPS | hud_performance.c | JSON array of hud_fps_* cvars
+
+-- Ruleset policy bundle
+SELECT rv.maxfps, rv.restrict_triggers, rv.restrict_exec, rv.locked_cvars_json FROM ruleset_versions rv
+JOIN entities e ON e.id = rv.entity_id
+WHERE e.canonical_id = 'ezquake:ruleset:smackdown';
+-- Expected: 77.0 | 1 | 1 | [{"cvar_ident":"allow_scripts","value":"0"}, ...]
+
+-- Token primitive case-sensitivity ($B blue LED != $b glyph)
+SELECT e.canonical_id, tv.byte_value, tv.category FROM token_primitive_versions tv
+JOIN entities e ON e.id = tv.entity_id
+WHERE e.canonical_id IN ('ezquake:token_primitive:$B', 'ezquake:token_primitive:$b')
+ORDER BY e.canonical_id;
+-- Expected:
+--   ezquake:token_primitive:$B | 137 | led
+--   ezquake:token_primitive:$b | 139 | glyph
+```
+
+## Data-quality signals surfaced by Phase 2c.5
+
+- **6 keynames Apple-only** (COMMAND, PARA, F13-F15, KP_EQUAL) tagged with `build_variant="apple"`. They only materialise in `-D__APPLE__` builds.
+- **Keyname aliases preserved with correct codes**: SCROLLLOCK / SCROLLOCK / SCRLCK all map to 130.
+- **83 HUD elements own 1404 synthesized hud_\* cvars** between them (parent->child linkage via `owned_cvars_json`).
+- **All 6 rulesets resolved with full policy bundles.** Locked-cvar counts: default 0, smackdown 6, qcon 5, thunderdome 4, mtfl 6, smackdrive 5.
+- **Case-sensitive token primitives preserved** at the entity level (`canonical_id` retains raw case for `token_primitive` only). Enables `$B`=blue LED (byte 137) vs `$b`=glyph (byte 139) to coexist as distinct entities.

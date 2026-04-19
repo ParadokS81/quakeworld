@@ -22,7 +22,9 @@ import type {
 } from './types.js';
 
 export function canonicalIdFor(project: Project, type: EntityType, name: string): string {
-  return `${project}:${type}:${name.toLowerCase()}`;
+  // Token primitives are case-sensitive ($B blue LED vs $b glyph).
+  const canonical = type === 'token_primitive' ? name : name.toLowerCase();
+  return `${project}:${type}:${canonical}`;
 }
 
 // `extracted_at` semantics: most-recent extraction timestamp for this (project, version).
