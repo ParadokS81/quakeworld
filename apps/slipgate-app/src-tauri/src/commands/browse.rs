@@ -378,6 +378,30 @@ pub fn pick_lifo_winners(candidates: &[(String, Container)]) -> Vec<bool> {
         .collect()
 }
 
+/// Return canonical_ids of loader sites whose path_literal matches this virtual_path.
+/// Match semantics: case-insensitive, literal substring match on the last 2 path segments.
+/// path_literals are typically file-stems without extension (e.g. "textures/conback")
+/// so we match against virtual_path with its extension stripped.
+pub fn match_loader_sites(virtual_path: &str, sites: &[BundleLoaderSite]) -> Vec<String> {
+    let vp_lower = virtual_path.to_lowercase();
+    let vp_no_ext = match vp_lower.rfind('.') {
+        Some(i) => &vp_lower[..i],
+        None => &vp_lower,
+    };
+
+    sites
+        .iter()
+        .filter_map(|s| {
+            let lit = s.path_literal.as_ref()?.to_lowercase();
+            if vp_no_ext.ends_with(&lit) || vp_no_ext.contains(&format!("/{}", lit)) {
+                Some(s.canonical_id.clone())
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -509,5 +533,49 @@ mod tests {
         ];
         let winners = pick_lifo_winners(&candidates);
         assert_eq!(winners, vec![true]);
+    }
+
+    #[test]
+    fn loader_site_literal_matches_virtual_path() {
+        let sites = vec![
+            BundleLoaderSite {
+                canonical_id: "ezquake:loader_site:Draw_LoadConback".into(),
+                function_name: "Draw_CachePicSafe".into(),
+                source_file: "gl_draw.c".into(),
+                source_line: 281,
+                enclosing_function: "Draw_Init".into(),
+                reads_category_id: Some("ezquake:asset_category:hud_overlay".into()),
+                load_trigger: "startup".into(),
+                path_source: "literal".into(),
+                path_literal: Some("textures/conback".into()),
+                path_cvar_id: None,
+                confidence: "certain".into(),
+                dev_only: 0,
+            },
+        ];
+
+        let matches = match_loader_sites("qw/textures/conback.tga", &sites);
+        assert_eq!(matches, vec!["ezquake:loader_site:Draw_LoadConback".to_string()]);
+    }
+
+    #[test]
+    fn loader_site_no_match_when_path_different() {
+        let sites = vec![
+            BundleLoaderSite {
+                canonical_id: "ezquake:loader_site:test".into(),
+                function_name: "X".into(),
+                source_file: "f.c".into(),
+                source_line: 1,
+                enclosing_function: "g".into(),
+                reads_category_id: None,
+                load_trigger: "startup".into(),
+                path_source: "literal".into(),
+                path_literal: Some("skins/specific".into()),
+                path_cvar_id: None,
+                confidence: "certain".into(),
+                dev_only: 0,
+            },
+        ];
+        assert!(match_loader_sites("qw/textures/wall.tga", &sites).is_empty());
     }
 }
