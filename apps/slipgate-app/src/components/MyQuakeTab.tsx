@@ -1,9 +1,11 @@
-import { createSignal, Switch, Match, Show, onCleanup } from "solid-js";
+import { createSignal, createEffect, Switch, Match, Show, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry } from "../types";
+import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry, BrowseModeName, BrowseDomainName } from "../types";
 import type { ProfileData } from "../store";
+import { updatePrefs } from "../store";
 import ConfigViewer from "./ConfigViewer";
+import BrowseView from "./BrowseView";
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
@@ -13,15 +15,32 @@ interface MyQuakeTabProps {
   compareSource: ConfigSourceBundle | null;
   onCompareSourceChange: (source: ConfigSourceBundle | null) => void;
   profile: ProfileData | null;
+  onSwitchToTab: (tab: string) => void;
 }
 
-type SubTab = "config" | "visuals" | "matches";
-
 export default function MyQuakeTab(props: MyQuakeTabProps) {
-  const [subTab, setSubTab] = createSignal<SubTab>("config");
+  const [mode, setMode] = createSignal<BrowseModeName>(
+    props.profile?.prefs.my_quake_mode ?? "domains"
+  );
+  const [domain, setDomain] = createSignal<BrowseDomainName>(
+    props.profile?.prefs.my_quake_domain ?? "configs"
+  );
+  const [hideDefaults, setHideDefaults] = createSignal<boolean>(
+    props.profile?.prefs.browse_hide_defaults ?? false
+  );
+
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [dropError, setDropError] = createSignal<string | null>(null);
   const [pendingDrop, setPendingDrop] = createSignal<string[] | null>(null);
+
+  // Persist prefs whenever any of the three signals change
+  createEffect(() => {
+    updatePrefs({
+      my_quake_mode: mode(),
+      my_quake_domain: domain(),
+      browse_hide_defaults: hideDefaults(),
+    }).catch((e) => console.error("Failed to persist MyQuake prefs:", e));
+  });
 
   let unlisten: (() => void) | null = null;
   (async () => {
@@ -159,48 +178,120 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     setPendingDrop(null);
   }
 
+  async function handleOpenConfigFromBrowse(virtualPath: string) {
+    setMode("domains");
+    setDomain("configs");
+    const leaf = virtualPath.split("/").pop() ?? virtualPath;
+    try {
+      const chain = await invoke<ConfigChain>("load_config_from_source", {
+        sourceType: "local_install",
+        configPath: virtualPath,
+        contextPath: props.exePath ?? "",
+      });
+      const bundle: ConfigSourceBundle = {
+        origin: { type: "dropped_files", filenames: [leaf] },
+        primary_chain: chain,
+        available_configs: [],
+        detected_client: null,
+        label: leaf,
+      };
+      props.onCompareSourceChange(bundle);
+    } catch (e) {
+      console.error("Failed to open config from browse:", e);
+    }
+  }
+
   return (
     <div class="flex flex-col h-full">
-      {/* Horizontal sub-tab bar */}
-      <div class="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-[var(--sg-stat-border)]">
-        <button
-          class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
-            subTab() === "config"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-              : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
-          }`}
-          onClick={() => setSubTab("config")}
-        >
-          Config
-        </button>
-        <button
-          class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer opacity-40 cursor-not-allowed ${
-            subTab() === "visuals"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-              : "border-transparent text-[var(--sg-text-dim)]"
-          }`}
-          disabled
-          title="Coming soon"
-        >
-          Visuals
-        </button>
-        <button
-          class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer opacity-40 cursor-not-allowed ${
-            subTab() === "matches"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-              : "border-transparent text-[var(--sg-text-dim)]"
-          }`}
-          disabled
-          title="Coming soon"
-        >
-          Matches
-        </button>
+      {/* Top bar: mode toggle + hide-defaults checkbox */}
+      <div class="flex items-center px-4 pt-3 pb-2 border-b border-[var(--sg-stat-border)]">
+        <div class="flex gap-1 bg-base-200 rounded-md p-1">
+          <button
+            class={`px-3 py-1 text-sm font-semibold rounded transition-colors cursor-pointer ${
+              mode() === "browse"
+                ? "bg-base-100 text-[var(--color-primary)] shadow-sm"
+                : "text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
+            }`}
+            onClick={() => setMode("browse")}
+          >
+            Browse
+          </button>
+          <button
+            class={`px-3 py-1 text-sm font-semibold rounded transition-colors cursor-pointer ${
+              mode() === "domains"
+                ? "bg-base-100 text-[var(--color-primary)] shadow-sm"
+                : "text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
+            }`}
+            onClick={() => setMode("domains")}
+          >
+            Domains
+          </button>
+        </div>
+
+        <Show when={mode() === "browse"}>
+          <label class="ml-auto flex items-center gap-2 text-sm text-[var(--sg-text-dim)] cursor-pointer select-none">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-xs"
+              checked={hideDefaults()}
+              onChange={(e) => setHideDefaults(e.currentTarget.checked)}
+            />
+            Show only custom
+          </label>
+        </Show>
       </div>
 
-      {/* Sub-tab content */}
+      {/* Domains sub-nav — visible only in domains mode */}
+      <Show when={mode() === "domains"}>
+        <div class="flex items-center gap-1 px-4 pt-2 pb-0 border-b border-[var(--sg-stat-border)]">
+          <button
+            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
+              domain() === "configs"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
+                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
+            }`}
+            onClick={() => setDomain("configs")}
+          >
+            Configs
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
+            disabled
+            title="Coming soon"
+          >
+            Maps
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
+            disabled
+            title="Coming soon"
+          >
+            Matches
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
+            disabled
+            title="Coming soon"
+          >
+            Assets
+          </button>
+        </div>
+      </Show>
+
+      {/* Content pane */}
       <div class="flex-1 overflow-hidden">
         <Switch>
-          <Match when={subTab() === "config"}>
+          <Match when={mode() === "browse"}>
+            <BrowseView
+              exePath={props.exePath}
+              mergedCvars={mergedCvarsFromConfig(props.config)}
+              profile={props.profile}
+              hideDefaults={hideDefaults()}
+              onOpenInConfigs={handleOpenConfigFromBrowse}
+              onSwitchToClientsTab={() => props.onSwitchToTab("clients")}
+            />
+          </Match>
+          <Match when={mode() === "domains" && domain() === "configs"}>
             {/* Re-drop modal */}
             <Show when={pendingDrop()}>
               <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60">
@@ -230,18 +321,13 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               profile={props.profile}
             />
           </Match>
-          <Match when={subTab() === "visuals"}>
-            <div class="flex items-center justify-center h-full text-[var(--sg-text-dim)] text-sm">
-              Visuals — coming soon
-            </div>
-          </Match>
-          <Match when={subTab() === "matches"}>
-            <div class="flex items-center justify-center h-full text-[var(--sg-text-dim)] text-sm">
-              Matches — coming soon
-            </div>
-          </Match>
         </Switch>
       </div>
     </div>
   );
+}
+
+function mergedCvarsFromConfig(cfg: EzQuakeConfig | null): Record<string, string> {
+  if (!cfg) return {};
+  return cfg.raw_cvars ?? {};
 }

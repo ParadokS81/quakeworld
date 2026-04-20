@@ -218,6 +218,7 @@ function App() {
                 compareSource={compareSource()}
                 onCompareSourceChange={setCompareSource}
                 profile={profile()}
+                onSwitchToTab={setActiveTab}
               />
             </Match>
             <Match when={activeTab() === "settings"}>
