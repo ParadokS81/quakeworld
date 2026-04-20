@@ -241,7 +241,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
         </Show>
       </div>
 
-      {/* Domains sub-nav — visible only in domains mode */}
+      {/* Domains sub-nav - visible only in domains mode */}
       <Show when={mode() === "domains"}>
         <div class="flex items-center gap-1 px-4 pt-2 pb-0 border-b border-[var(--sg-stat-border)]">
           <button
