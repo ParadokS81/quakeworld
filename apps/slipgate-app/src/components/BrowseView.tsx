@@ -54,10 +54,14 @@ export default function BrowseView(props: BrowseViewProps) {
   // suppress unused-local error for loading — wired in a later task
   void loading;
 
-  onMount(async () => {
-    await runScan();
-    if (props.exePath) {
-      try { await invoke("start_browse_watch", { exePath: props.exePath }); } catch (e) { console.error(e); }
+  onMount(runScan);
+
+  createEffect(() => {
+    const exe = props.exePath;
+    // Stop any existing watcher first. Errors are ignored because "nothing to stop" is a valid state.
+    invoke("stop_browse_watch").catch(() => {});
+    if (exe) {
+      invoke("start_browse_watch", { exePath: exe }).catch((e) => console.error(e));
     }
   });
 

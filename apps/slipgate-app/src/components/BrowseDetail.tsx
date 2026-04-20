@@ -1,5 +1,5 @@
 import { Show, For, createResource } from "solid-js";
-import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import type { ScannedFile, ScanResult } from "../types";
 import { categoryDisplayName, assetBundle, CATEGORY_COLOR } from "../lib/assets/bundle";
 import ResolutionChain from "./ResolutionChain";
@@ -25,10 +25,6 @@ export default function BrowseDetail(props: BrowseDetailProps) {
   const [previewUrl] = createResource(
     () => (props.file && canPreview() ? props.file : null),
     async (f: ScannedFile) => {
-      if (f.container.kind === "loose") {
-        const abs = `${props.scan.root.replace(/\\/g, "/")}/${f.virtual_path}`;
-        return convertFileSrc(abs);
-      }
       try {
         const bytes = await invoke<number[]>("read_file_bytes", {
           exePath: props.exePath,
