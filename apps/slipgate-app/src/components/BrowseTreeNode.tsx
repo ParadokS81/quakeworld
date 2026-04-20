@@ -1,6 +1,7 @@
 import { For, Show, createSignal } from "solid-js";
 import type { ScannedFile } from "../types";
 import { CATEGORY_COLOR } from "../lib/assets/bundle";
+import WindowedList from "./WindowedList";
 
 export interface TreeNode {
   name: string;
@@ -72,17 +73,38 @@ export default function BrowseTreeNode(props: BrowseTreeNodeProps) {
         </Show>
       </div>
       <Show when={expanded() && props.node.children.length > 0}>
-        <For each={props.node.children}>
-          {(child) => (
-            <BrowseTreeNode
-              node={child}
-              depth={props.depth + 1}
-              selectedPath={props.selectedPath}
-              onSelect={props.onSelect}
-              autoExpand={shouldAutoExpand(child)}
-            />
-          )}
-        </For>
+        <Show
+          when={props.node.children.length > 200}
+          fallback={
+            <For each={props.node.children}>
+              {(child) => (
+                <BrowseTreeNode
+                  node={child}
+                  depth={props.depth + 1}
+                  selectedPath={props.selectedPath}
+                  onSelect={props.onSelect}
+                  autoExpand={shouldAutoExpand(child)}
+                />
+              )}
+            </For>
+          }
+        >
+          <WindowedList
+            items={props.node.children}
+            rowHeight={22}
+            overscan={10}
+            maxVisible={30}
+            renderRow={(child) => (
+              <BrowseTreeNode
+                node={child}
+                depth={props.depth + 1}
+                selectedPath={props.selectedPath}
+                onSelect={props.onSelect}
+                autoExpand={false}
+              />
+            )}
+          />
+        </Show>
       </Show>
     </div>
   );
