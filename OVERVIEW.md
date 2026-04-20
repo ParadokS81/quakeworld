@@ -40,15 +40,24 @@ Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW
 
 ### qw-oracle
 
-**Status:** Active (Phase 2b shipped 2026-04-18; Phase 2c-2h ahead).
+**Status:** Active (ezQuake Layer 1 fully extracted; Phase 2f historical backfill in progress).
 
-Being repurposed as the **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts from source code / interpreted claims from chat logs / curated concept notes) served over MCP so any LLM client can consume it. The existing 2.66M-message SQLite corpus is Layer 2; Layer 1 is the new versioned knowledge DB at `apps/qw-oracle/data/knowledge.db` (gitignored, regenerated from extractor JSON); Layer 3 is hand-authored markdown with cross-layer references. First consumer is Claude Code via a local MCP, with future outlets planned for Quad (Discord), slipgate web, and the Slipgate helper panel.
+The **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts from source code / interpreted claims from chat logs / curated concept notes) served over MCP so any LLM client can consume it. The existing 2.66M-message SQLite corpus is Layer 2; Layer 1 is the versioned knowledge DB at `apps/qw-oracle/data/knowledge.db` (gitignored, regenerated from extractor JSON); Layer 3 is hand-authored markdown with cross-layer references. First consumer is Claude Code via a local MCP, with future outlets planned for Quad (Discord), slipgate web, and the Slipgate helper panel.
 
-**Phase 2a + 2b complete:** schema spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md`, TypeScript loader pipeline at `apps/qw-oracle/scripts/load-knowledge/` (`load-version` + `diff` + `enrich` stages via `npm run load-knowledge`). Proven end-to-end against ezQuake 3.6.9 -> head with `cl_fakeshaft` default change captured and enriched via PR #1110. Remaining 2c-2h (commands/macros/cmdline extractors, FTE/MVDSV/KTX, historical backfill, MCP tool upgrades, automation) tracked in `HANDOVER.md`.
+**Phase 2c.6 shipped (2026-04-20):** ezQuake fully loaded at head across 9 entity types (3849 total entities: cvar, command, macro, cmdline_param, keyname, hud_element, ruleset, token_primitive, asset_category) plus 4 asset relation tables. Schema at v3.
+
+**Phase 2f stress testing (2026-04-20+):** TypeScript loader pipeline at `apps/qw-oracle/scripts/load-knowledge/` now generalized across all 9 types via `TYPE_DIFF_CONFIGS`. Release-notes ingestion shipped as schema v4 (`release_notes` table + `release-notes` CLI subcommand, fetches GitHub release bodies and parses bullet-by-bullet with entity / PR / commit / author linking). Stress-tested across 3 tag-pair spans (3.6.8->3.6.9, 3.6.5->3.6.6, 3.6.1->3.6.2 crossover); the last exercises the 2023-01-05 layout boundary where ezQuake moved source from repo root to `src/`. 7 ezQuake tags loaded (3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, head).
+
+Remaining work (all tracked in `HANDOVER.md`):
+- **Phase 2f Batches 2 + 3** — `flag_bit` entity type (for PEXT / FTE_PEXT / FPD / CVAR_* flag bits), asset relation diff mode, struct-field-addition blame correction, extractor version-tolerance audit on older tags.
+- **Phase 2d FTE** — first second-engine port, validates project-keyed schema.
+- **Phase 2e MVDSV + KTX** — small ports; KTX needs py-tree-sitter.
+- **Phase 2g MCP tool upgrades** — version parameters, `get_entity_history`.
+- **Phase 2h automation** — scheduled tag-delta job.
 
 Earlier POC / service design: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` (architecture) and `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (MCP POC, orthogonal track).
 
-Full context: `apps/qw-oracle/CLAUDE.md` (still scoped to the chat-corpus Layer 2 work; CLAUDE.md rewrite deferred to HANDOVER since it belongs with the POC plan's Task 1).
+Full context: `apps/qw-oracle/CLAUDE.md` (rewritten 2026-04-20 to match two-database three-layer reality).
 
 ## Integration map
 
@@ -114,7 +123,7 @@ Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology,
 
 Shared cvar definitions database for ezQuake and FTE. Consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. The source of truth for "what does this cvar do" across the ecosystem.
 
-As of 2026-04-18 also home to the AST-based libclang extractor (`scripts/extract-ezquake-cvars-clang.py`, with `--repo-root` / `--output` flags) whose JSON output is the input contract for qw-oracle's knowledge-db loader. Phase 2c will port the regex-based command/macro/cmdline extractors to the same libclang pattern.
+Also home to the **AST-based libclang extractor family** (11 scripts at `packages/qw-config/scripts/extract-ezquake-*-clang.py`, all accepting `--repo-root` / `--output`). Covers cvars, commands, macros, cmdline params, keynames, hud elements, rulesets, token primitives, plus asset-consumption passes (cvar bindings, loader sites, path-rules verifier). JSON outputs are the input contract for qw-oracle's knowledge-db loader. Extractors auto-detect `<repo>/src` vs repo-root layouts so they work across ezQuake's pre-2023 and post-2023 tags.
 
 ## Contracts and cross-project specs
 
