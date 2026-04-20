@@ -740,11 +740,20 @@ def build_output(extracted: list[ExtractedCvar], help_data: dict) -> dict:
 
         vars_out[cv.cvar_name] = entry
 
-    # Preserve help-only entries flagged as not-in-source (same behavior as regex extractor)
+    # Preserve help-only entries flagged as not-in-source (same behavior as regex extractor).
+    # help_variables.json upstream carries at least one stray duplicate key with
+    # trailing whitespace (e.g. "cl_voip_capturingvol "); strip and skip post-strip
+    # collisions with the canonical entry so we don't emit an invalid cvar name
+    # that the loader then rejects.
     help_only = 0
-    for name, hv in help_vars.items():
-        if name in source_names:
+    seen_help_names: set[str] = set()
+    for raw_name, hv in help_vars.items():
+        name = raw_name.strip()
+        if not name:
             continue
+        if name in source_names or name in vars_out or name in seen_help_names:
+            continue
+        seen_help_names.add(name)
         help_only += 1
         entry = {
             "type": hv.get("type", "string"),

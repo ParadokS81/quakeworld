@@ -27,6 +27,19 @@ export interface DiffOptions {
   ezquakeRepoPath: string;
 }
 
+// Repo-relative prefix prepended to `cvar_versions.source_file` (which
+// holds only the basename) before `git blame`. ezQuake / MVDSV / KTX
+// all root their C sources under `src/`. FTE's layout is subsystem-
+// partitioned (`engine/client/`, `engine/server/`, `engine/common/`,
+// ...), so FTE's extractor will need to emit paths relative to the
+// repo root itself rather than a single prefix.
+const PROJECT_SRC_PREFIX: Record<Project, string> = {
+  ezquake: 'src/',
+  mvdsv:   'src/',
+  ktx:     'src/',
+  fte:     '',
+};
+
 export interface DiffResult {
   extractorRunId: string;
   changeEventsInserted: number;
@@ -107,13 +120,23 @@ export function diffVersions(options: DiffOptions): DiffResult {
   let deletions = 0;
   let transitions = 0;
 
+  // Per-call blame cache keyed by `<file>:<line>`. A modified entity with N
+  // changed fields previously hit `git blame` N times; the cache collapses
+  // that to one hit per (file, line) per diff call. Meaningful at Phase 2f
+  // scale (~32 tags x thousands of cvars).
+  const blameCache = new Map<
+    string,
+    { commit_sha: string; commit_message_excerpt: string | null }
+  >();
+  const blameFor = (row: CvarRow) => resolveBlameCached(options, row, blameCache);
+
   const txn = options.db.transaction(() => {
     for (const entityId of allIds) {
       const fromRow = fromByEntity.get(entityId);
       const toRow = toByEntity.get(entityId);
 
       if (!fromRow && toRow) {
-        const blame = resolveBlame(options, toRow);
+        const blame = blameFor(toRow);
         insertEvent.run({
           entity_id: entityId,
           from_version: null,
@@ -145,7 +168,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
       }
 
       if (fromRow && !toRow) {
-        const blame = resolveBlame(options, fromRow);
+        const blame = blameFor(fromRow);
         insertEvent.run({
           entity_id: entityId,
           from_version: options.fromVersion,
@@ -178,7 +201,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
           const oldRaw = fromRow[field];
           const newRaw = toRow[field];
           if (!valuesDiffer(oldRaw, newRaw)) continue;
-          const blame = resolveBlame(options, toRow);
+          const blame = blameFor(toRow);
           insertEvent.run({
             entity_id: entityId,
             from_version: options.fromVersion,
@@ -209,17 +232,26 @@ export function diffVersions(options: DiffOptions): DiffResult {
   };
 }
 
-function resolveBlame(options: DiffOptions, row: CvarRow): { commit_sha: string; commit_message_excerpt: string | null } {
+function resolveBlameCached(
+  options: DiffOptions,
+  row: CvarRow,
+  cache: Map<string, { commit_sha: string; commit_message_excerpt: string | null }>,
+): { commit_sha: string; commit_message_excerpt: string | null } {
   const file = row.source_file as string | null;
   const line = row.source_line as number | null;
   if (!file || !line) {
     return { commit_sha: 'UNKNOWN', commit_message_excerpt: null };
   }
-  const result = blameLine(options.ezquakeRepoPath, 'HEAD', `src/${file}`, line);
-  if (!result) {
-    return { commit_sha: 'UNKNOWN', commit_message_excerpt: null };
-  }
-  return result;
+  const key = `${file}:${line}`;
+  const cached = cache.get(key);
+  if (cached !== undefined) return cached;
+
+  const prefix = PROJECT_SRC_PREFIX[options.project];
+  const repoPath = `${prefix}${file}`;
+  const result = blameLine(options.ezquakeRepoPath, 'HEAD', repoPath, line);
+  const out = result ?? { commit_sha: 'UNKNOWN', commit_message_excerpt: null };
+  cache.set(key, out);
+  return out;
 }
 
 function valuesDiffer(a: unknown, b: unknown): boolean {

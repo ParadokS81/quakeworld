@@ -296,8 +296,20 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         });
         transitions += 1;
 
-        const ent = options.db.prepare(`SELECT first_seen_version FROM entities WHERE id = ?`).get(upsertResult.id) as { first_seen_version: string };
-        if (ent.first_seen_version > options.version) {
+        // Compare by ordinal via the versions table rather than JavaScript
+        // string comparison -- '>' on version strings breaks on multi-tag
+        // orderings like '3.10.0' vs '3.6.6' where the lexicographic order
+        // disagrees with the release order.
+        const ordCheck = options.db.prepare(`
+          SELECT vCur.ordinal AS cur_ord, vNew.ordinal AS new_ord
+          FROM entities e
+          JOIN versions vCur ON vCur.project = e.project AND vCur.version = e.first_seen_version
+          JOIN versions vNew ON vNew.project = e.project AND vNew.version = ?
+          WHERE e.id = ?
+        `).get(options.version, upsertResult.id) as
+          | { cur_ord: number; new_ord: number }
+          | undefined;
+        if (ordCheck && ordCheck.new_ord < ordCheck.cur_ord) {
           extendFirstSeenVersion(options.db, upsertResult.id, options.version);
         }
       }

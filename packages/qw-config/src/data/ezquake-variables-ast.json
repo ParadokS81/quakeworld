@@ -5785,12 +5785,6 @@
         "trailing_comment": "Enables voip playback from other clients connected to server."
       }
     },
-    "cl_voip_capturingvol ": {
-      "type": "integer",
-      "group-id": "32",
-      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others.",
-      "ast": null
-    },
     "cl_voip_demorecord": {
       "type": "boolean",
       "group-id": "45",
@@ -67273,6 +67267,6 @@
       "CVAR_NO_RESET": 12,
       "CVAR_TRACKERCOLOR": 7
     },
-    "help_only": 187
+    "help_only": 186
   }
 }
