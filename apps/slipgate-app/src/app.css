@@ -3177,3 +3177,25 @@ input[type="number"] {
 .sg-browse-preview { max-width: 100%; max-height: 180px; image-rendering: pixelated; border: 1px solid var(--sg-stat-border); border-radius: 3px; }
 .sg-browse-preview-empty { border: 1px dashed var(--sg-stat-border); border-radius: 3px; padding: 16px; text-align: center; color: var(--sg-text-dim); font-size: 10px; font-style: italic; }
 
+/* Matches domain */
+.sg-match-bundle-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; cursor: pointer; border-radius: 3px; }
+.sg-match-bundle-row:hover { background: var(--sg-stat-border); }
+.sg-match-selected { background: oklch(0.25 0.05 260); }
+.sg-match-caret { width: 12px; text-align: center; color: var(--sg-text-dim); }
+.sg-match-date { color: var(--sg-text-dim); font-family: monospace; min-width: 82px; }
+.sg-match-label { font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-match-chips { display: flex; gap: 4px; }
+.sg-match-chip { display: inline-block; padding: 1px 6px; border-radius: 2px; font-size: 9px; letter-spacing: 0.4px; text-transform: uppercase; background: oklch(0.3 0.03 260); color: var(--sg-text-dim); }
+.sg-chip-demo { background: oklch(0.35 0.08 260); color: oklch(0.85 0.04 260); }
+.sg-chip-sshot { background: oklch(0.35 0.06 150); color: oklch(0.85 0.04 150); }
+.sg-chip-log { background: oklch(0.35 0.05 60); color: oklch(0.85 0.04 60); }
+.sg-match-bundle-details { margin-left: 18px; margin-bottom: 6px; border-left: 1px solid var(--sg-stat-border); padding-left: 8px; }
+.sg-match-file-row { display: flex; align-items: center; gap: 8px; padding: 2px 6px; cursor: pointer; border-radius: 3px; font-family: monospace; }
+.sg-match-file-row:hover { background: var(--sg-stat-border); }
+.sg-match-kind { min-width: 48px; font-size: 9px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--sg-text-dim); }
+.sg-match-file-demo .sg-match-kind { color: oklch(0.75 0.12 260); }
+.sg-match-file-sshot .sg-match-kind { color: oklch(0.75 0.12 150); }
+.sg-match-file-log .sg-match-kind { color: oklch(0.75 0.10 60); }
+.sg-match-leaf { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-match-size { color: var(--sg-text-dim); font-size: 10px; }
+

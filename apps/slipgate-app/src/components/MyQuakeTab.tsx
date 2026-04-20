@@ -1,11 +1,12 @@
 import { createSignal, createEffect, Switch, Match, Show, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry, BrowseModeName, BrowseDomainName } from "../types";
+import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry, ScanResult, BrowseModeName, BrowseDomainName } from "../types";
 import type { ProfileData } from "../store";
 import { updatePrefs } from "../store";
 import ConfigViewer from "./ConfigViewer";
 import BrowseView from "./BrowseView";
+import MatchesDomain from "./MatchesDomain";
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
@@ -32,6 +33,31 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [dropError, setDropError] = createSignal<string | null>(null);
   const [pendingDrop, setPendingDrop] = createSignal<string[] | null>(null);
+
+  const [matchesScan, setMatchesScan] = createSignal<ScanResult | null>(null);
+  async function runMatchesScan() {
+    if (!props.exePath) {
+      setMatchesScan(null);
+      return;
+    }
+    try {
+      const result = await invoke<ScanResult>("scan_quake_dir", {
+        exePath: props.exePath,
+        mergedCvars: mergedCvarsFromConfig(props.config),
+      });
+      setMatchesScan(result);
+    } catch (e) {
+      console.error("Matches scan failed:", e);
+      setMatchesScan(null);
+    }
+  }
+  // Rescan when user enters Matches domain, or when exePath changes while Matches is open.
+  createEffect(() => {
+    if (mode() === "domains" && domain() === "matches") {
+      void props.exePath;
+      runMatchesScan();
+    }
+  });
 
   // Persist prefs whenever any of the three signals change
   createEffect(() => {
@@ -262,9 +288,12 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
             Maps
           </button>
           <button
-            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
-            disabled
-            title="Coming soon"
+            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+              domain() === "matches"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
+                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-text-bright)]"
+            }`}
+            onClick={() => setDomain("matches")}
           >
             Matches
           </button>
@@ -319,6 +348,14 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               onCompareConfig={handleCompareConfig}
               onSwapCompareConfig={handleSwapCompareConfig}
               profile={props.profile}
+            />
+          </Match>
+          <Match when={mode() === "domains" && domain() === "matches"}>
+            <MatchesDomain
+              exePath={props.exePath}
+              mergedCvars={mergedCvarsFromConfig(props.config)}
+              scan={matchesScan()}
+              onRescan={runMatchesScan}
             />
           </Match>
         </Switch>

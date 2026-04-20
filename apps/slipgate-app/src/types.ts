@@ -346,6 +346,8 @@ export interface ScannedFile {
   search_path_winner: boolean;
   consumed_by: ConsumedBy;
   is_default: boolean;
+  matched_rules_by: string[];
+  match_group_id: string | null;
 }
 
 export interface BrowseClientInfo {

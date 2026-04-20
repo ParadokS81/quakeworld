@@ -54,8 +54,32 @@ pub struct BundleLoaderSite {
     pub dev_only: i32,
 }
 
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct ClientDefaults {
+    #[serde(default)]
+    pub screenshot_filename_prefixes: Vec<String>,
+    #[serde(default)]
+    pub screenshot_dir_names: Vec<String>,
+    #[serde(default)]
+    pub demo_extensions: Vec<String>,
+    #[serde(default)]
+    pub default_demo_ext: Option<String>,
+    #[serde(default)]
+    pub image_extensions: Vec<String>,
+    #[serde(default)]
+    pub log_extensions: Vec<String>,
+    #[serde(default)]
+    pub match_format_cvars: Vec<String>,
+    #[serde(default)]
+    pub owned_gamedirs: Vec<String>,
+}
+
 #[derive(Deserialize, Clone, Debug)]
 pub struct Bundle {
+    #[serde(default)]
+    pub project: String,
+    #[serde(default)]
+    pub client_defaults: ClientDefaults,
     #[serde(default)]
     pub asset_extensions: Vec<BundleExtension>,
     #[serde(default)]
@@ -75,12 +99,22 @@ fn load_bundle() -> Bundle {
     serde_json::from_str(BUNDLE_JSON).unwrap_or_else(|e| {
         eprintln!("[browse] bundle parse failed: {}. Browse will classify everything as other.", e);
         Bundle {
+            project: String::new(),
+            client_defaults: ClientDefaults::default(),
             asset_extensions: Vec::new(),
             asset_path_rules: Vec::new(),
             asset_cvar_bindings: Vec::new(),
             asset_loader_sites: Vec::new(),
         }
     })
+}
+
+/// Load every asset bundle shipped with slipgate. Today there's only one (ezquake),
+/// but the scanner's pipeline iterates this list so adding FTE / MVDSV / KTX bundles
+/// later is data-only: drop the JSON into packages/qw-config/src/data/, mirror it into
+/// src-tauri/resources/, register a new include_str! here.
+fn load_bundles() -> Vec<Bundle> {
+    vec![load_bundle()]
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -117,6 +151,14 @@ pub struct ScannedFile {
     pub search_path_winner: bool,
     pub consumed_by: ConsumedBy,
     pub is_default: bool,
+    /// Which client bundles' rules classified this file (e.g. "ezquake", later "fte").
+    /// Empty means no per-client rule fired - extension/path_hint only.
+    #[serde(default)]
+    pub matched_rules_by: Vec<String>,
+    /// When a demo + sshot + log triangle pairs up by (parent_dir, basename_stem),
+    /// all three share the same group id. None for standalone files.
+    #[serde(default)]
+    pub match_group_id: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -313,6 +355,139 @@ pub fn classify_extension(virtual_path: &str, extensions: &[BundleExtension]) ->
     None
 }
 
+/// Split a loose-file virtual_path into (parent_dir, basename_stem, extension_with_dot_lowercase).
+/// Archive entries return their own virtual path split on the archive boundary.
+fn split_virtual_path(vp: &str) -> (String, String, String) {
+    // For archive entries, the colon separates the archive from its interior. We only bundle
+    // loose files anyway, so this helper just handles either form gracefully.
+    let sep = vp.rfind(&[':', '/'][..]);
+    let (parent, leaf) = match sep {
+        Some(i) => (vp[..i].to_string(), &vp[i + 1..]),
+        None => (String::new(), vp),
+    };
+    let dot = leaf.rfind('.');
+    let (stem, ext) = match dot {
+        Some(i) if i > 0 => (leaf[..i].to_string(), leaf[i..].to_lowercase()),
+        _ => (leaf.to_string(), String::new()),
+    };
+    (parent, stem, ext)
+}
+
+fn push_unique(v: &mut Vec<String>, s: &str) {
+    if !v.iter().any(|x| x == s) {
+        v.push(s.to_string());
+    }
+}
+
+/// Secondary classifier pass: per-client rules override bundle-derived category when they fire.
+/// - Demo extension (from client_defaults.demo_extensions) -> category = demo.
+/// - Screenshot dir name on any ancestor folder + image extension -> category = screenshot.
+/// - Screenshot filename prefix + image extension -> category = screenshot.
+/// Each successful match appends the bundle's project to matched_rules_by.
+pub fn apply_client_rules(file: &mut ScannedFile, bundles: &[Bundle]) {
+    let lower_path = file.virtual_path.to_lowercase();
+    let (_parent, leaf_stem, leaf_ext) = split_virtual_path(&lower_path);
+    let path_segments: Vec<&str> = lower_path.split(&[':', '/'][..]).collect();
+
+    for b in bundles {
+        let cd = &b.client_defaults;
+        let project = b.project.as_str();
+
+        // Demo: extension match wins immediately and unambiguously.
+        let demo_hit = cd
+            .demo_extensions
+            .iter()
+            .any(|e| leaf_ext == e.to_lowercase());
+        if demo_hit {
+            file.category_id = Some("ezquake:asset_category:demo".to_string());
+            push_unique(&mut file.matched_rules_by, project);
+            continue;
+        }
+
+        // Screenshot requires an image extension to be considered.
+        let is_image = !leaf_ext.is_empty()
+            && cd.image_extensions.iter().any(|e| leaf_ext == e.to_lowercase());
+        if !is_image {
+            continue;
+        }
+
+        // Screenshot rule 1: any ancestor folder name matches a configured sshot dir.
+        let sshot_dir_hit = cd.screenshot_dir_names.iter().any(|d| {
+            let low = d.to_lowercase();
+            path_segments.iter().any(|seg| *seg == low)
+        });
+        // Screenshot rule 2: filename stem starts with one of the configured prefixes.
+        let prefix_hit = cd
+            .screenshot_filename_prefixes
+            .iter()
+            .any(|p| leaf_stem.starts_with(&p.to_lowercase()));
+
+        if sshot_dir_hit || prefix_hit {
+            file.category_id = Some("ezquake:asset_category:screenshot".to_string());
+            push_unique(&mut file.matched_rules_by, project);
+        }
+    }
+}
+
+/// Pair loose demos with sibling sshots and logs by (parent_dir, basename_stem).
+/// A demo's presence establishes a match_group_id; any image/log sibling sharing the
+/// stem inherits it. Archive-interior entries are never bundled.
+pub fn compute_match_groups(files: &mut [ScannedFile], bundles: &[Bundle]) {
+    use std::collections::HashMap;
+    let demo_exts: Vec<String> = bundles
+        .iter()
+        .flat_map(|b| b.client_defaults.demo_extensions.iter().map(|s| s.to_lowercase()))
+        .collect();
+    let image_exts: Vec<String> = bundles
+        .iter()
+        .flat_map(|b| b.client_defaults.image_extensions.iter().map(|s| s.to_lowercase()))
+        .collect();
+    let log_exts: Vec<String> = bundles
+        .iter()
+        .flat_map(|b| b.client_defaults.log_extensions.iter().map(|s| s.to_lowercase()))
+        .collect();
+
+    if demo_exts.is_empty() {
+        return;
+    }
+
+    // Pass 1: find demos, seed group keys.
+    let mut groups: HashMap<(String, String), String> = HashMap::new();
+    for f in files.iter() {
+        if !matches!(f.container, Container::Loose) {
+            continue;
+        }
+        let (parent, stem, ext) = split_virtual_path(&f.virtual_path);
+        if demo_exts.iter().any(|d| &ext == d) {
+            let key = (parent.clone(), stem.clone());
+            let gid = format!("match:{}:{}", if parent.is_empty() { "." } else { &parent }, stem);
+            groups.entry(key).or_insert(gid);
+        }
+    }
+
+    if groups.is_empty() {
+        return;
+    }
+
+    // Pass 2: every loose file sharing a (parent, stem) with an established demo group
+    // gets the same match_group_id. Type must be demo / image / log to qualify.
+    for f in files.iter_mut() {
+        if !matches!(f.container, Container::Loose) {
+            continue;
+        }
+        let (parent, stem, ext) = split_virtual_path(&f.virtual_path);
+        let qualifies = demo_exts.iter().any(|d| &ext == d)
+            || image_exts.iter().any(|d| &ext == d)
+            || log_exts.iter().any(|d| &ext == d);
+        if !qualifies {
+            continue;
+        }
+        if let Some(gid) = groups.get(&(parent, stem)) {
+            f.match_group_id = Some(gid.clone());
+        }
+    }
+}
+
 #[tauri::command]
 pub async fn scan_quake_dir(
     exe_path: String,
@@ -325,7 +500,8 @@ pub async fn scan_quake_dir(
         .to_path_buf();
     let root_str = root.to_string_lossy().to_string();
 
-    let bundle = load_bundle();
+    let bundles = load_bundles();
+    let bundle = &bundles[0];
     let mut warnings: Vec<ScanWarning> = Vec::new();
 
     let loose = walk_loose_files(&root).map_err(|e| format!("walk failed: {}", e))?;
@@ -405,8 +581,19 @@ pub async fn scan_quake_dir(
                 cvar_bindings: cvar_matches,
             },
             is_default: compute_is_default(&normalized, &container),
+            matched_rules_by: Vec::new(),
+            match_group_id: None,
         });
     }
+
+    // Per-client rule pass: screenshot prefix / sshot-dir / demo-extension overrides
+    // against each bundle's client_defaults. Tags provenance in matched_rules_by.
+    for f in files.iter_mut() {
+        apply_client_rules(f, &bundles);
+    }
+
+    // Match bundling pass: loose demo + siblings by (parent_dir, basename_stem).
+    compute_match_groups(&mut files, &bundles);
 
     let unresolved_external_refs =
         find_external_refs(&bundle.asset_cvar_bindings, &merged_cvars, &root_str);
