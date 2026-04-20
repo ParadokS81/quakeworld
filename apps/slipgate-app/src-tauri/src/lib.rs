@@ -41,8 +41,11 @@ pub fn run() {
             commands::browse::hash_file,
             commands::browse::read_file_bytes,
             commands::browse::open_containing_folder,
+            commands::browse::start_browse_watch,
+            commands::browse::stop_browse_watch,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
+        .manage(commands::browse::BrowseWatcherState::new())
         .setup(|app| {
             // Build the right-click context menu
             let menu = MenuBuilder::new(app)

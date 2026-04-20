@@ -1,5 +1,6 @@
-import { createSignal, createEffect, Show, onMount } from "solid-js";
+import { createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import type { ScanResult, ScannedFile, BrowseFilterState } from "../types";
 import type { ProfileData } from "../store";
 import BrowseFilterLens from "./BrowseFilterLens";
@@ -53,7 +54,22 @@ export default function BrowseView(props: BrowseViewProps) {
   // suppress unused-local error for loading — wired in a later task
   void loading;
 
-  onMount(runScan);
+  onMount(async () => {
+    await runScan();
+    if (props.exePath) {
+      try { await invoke("start_browse_watch", { exePath: props.exePath }); } catch (e) { console.error(e); }
+    }
+  });
+
+  let unlistenStale: (() => void) | null = null;
+  (async () => {
+    unlistenStale = await listen("browse-scan-stale", () => setStale(true));
+  })();
+
+  onCleanup(() => {
+    unlistenStale?.();
+    invoke("stop_browse_watch").catch(() => {});
+  });
   createEffect(() => {
     void props.exePath;
     void Object.keys(props.mergedCvars).length;

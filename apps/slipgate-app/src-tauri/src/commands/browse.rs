@@ -639,7 +639,12 @@ pub fn find_external_refs(
     out
 }
 
+use notify_debouncer_mini::notify::{RecommendedWatcher, RecursiveMode};
+use notify_debouncer_mini::{new_debouncer, DebounceEventResult, Debouncer};
 use sha2::{Digest, Sha256};
+use std::sync::Mutex;
+use std::time::Duration;
+use tauri::{AppHandle, Emitter, Manager};
 
 /// Lazy SHA256 of a file. For loose files, reads directly; for archive-interior files,
 /// extracts first. Max 64 MB guard prevents OOM on accidental huge files.
@@ -728,6 +733,53 @@ fn read_virtual_bytes(
         }
         std::fs::read(&path)
     }
+}
+
+pub struct BrowseWatcherState {
+    inner: Mutex<Option<Debouncer<RecommendedWatcher>>>,
+}
+
+impl BrowseWatcherState {
+    pub fn new() -> Self {
+        Self { inner: Mutex::new(None) }
+    }
+}
+
+#[tauri::command]
+pub fn start_browse_watch(exe_path: String, app_handle: AppHandle) -> Result<(), String> {
+    let state = app_handle.state::<BrowseWatcherState>();
+    let exe = PathBuf::from(&exe_path);
+    let root = exe.parent().ok_or_else(|| "invalid exe path".to_string())?.to_path_buf();
+
+    let handle = app_handle.clone();
+    let mut debouncer = new_debouncer(
+        Duration::from_millis(500),
+        move |result: DebounceEventResult| {
+            if let Ok(events) = result {
+                if !events.is_empty() {
+                    let _ = handle.emit("browse-scan-stale", ());
+                }
+            }
+        },
+    )
+    .map_err(|e| format!("watcher create failed: {}", e))?;
+
+    debouncer
+        .watcher()
+        .watch(&root, RecursiveMode::Recursive)
+        .map_err(|e| format!("watch failed: {}", e))?;
+
+    let mut guard = state.inner.lock().map_err(|e| format!("lock: {}", e))?;
+    *guard = Some(debouncer);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn stop_browse_watch(app_handle: AppHandle) -> Result<(), String> {
+    let state = app_handle.state::<BrowseWatcherState>();
+    let mut guard = state.inner.lock().map_err(|e| format!("lock: {}", e))?;
+    *guard = None;
+    Ok(())
 }
 
 #[cfg(test)]
