@@ -169,7 +169,7 @@ export default function BrowseView(props: BrowseViewProps) {
                 <span>{result().files.length} files</span>
                 <span>{(result().stats.total_bytes / (1024 * 1024)).toFixed(1)} MB</span>
                 <span>
-                  {result().stats.loaded} loaded - {result().stats.available} available - {result().stats.unreferenced} unreferenced
+                  {result().stats.loaded} loaded - {result().stats.available} available - {result().stats.shipped} shipped - {result().stats.other} other
                 </span>
               </div>
             </div>

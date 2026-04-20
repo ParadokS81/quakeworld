@@ -159,9 +159,13 @@ pub struct ScanWarning {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct ScanStats {
+    /// Files the engine references directly (loader site or cvar binding hit).
     pub loaded: usize,
+    /// Custom files the engine could load but has no direct reference to.
     pub available: usize,
-    pub unreferenced: usize,
+    /// Stock content shipped with Quake (is_default true, no active reference).
+    pub shipped: usize,
+    /// Files with no recognized category: client binaries, logs, metadata.
     pub other: usize,
     pub total_bytes: u64,
 }
@@ -432,27 +436,17 @@ pub async fn scan_quake_dir(
         }
     }
 
+    // Four disjoint buckets: loaded + available + shipped + other == files.len().
     let mut stats = ScanStats::default();
     for f in &files {
         stats.total_bytes = stats.total_bytes.saturating_add(f.size);
         let has_ref = !f.consumed_by.loader_sites.is_empty() || !f.consumed_by.cvar_bindings.is_empty();
-        match (has_ref, &f.category_id) {
-            (true, _) => stats.loaded += 1,
-            (false, Some(_)) => stats.unreferenced += 1,
-            (false, None) => stats.other += 1,
+        match (has_ref, f.category_id.is_some(), f.is_default) {
+            (true, _, _) => stats.loaded += 1,
+            (false, true, false) => stats.available += 1,
+            (false, true, true) => stats.shipped += 1,
+            (false, false, _) => stats.other += 1,
         }
-    }
-    stats.available = files
-        .iter()
-        .filter(|f| {
-            f.category_id.is_some()
-                && f.consumed_by.loader_sites.is_empty()
-                && f.consumed_by.cvar_bindings.is_empty()
-                && !f.is_default
-        })
-        .count();
-    if stats.unreferenced >= stats.available {
-        stats.unreferenced -= stats.available;
     }
 
     Ok(ScanResult {
@@ -573,16 +567,9 @@ pub fn match_cvar_bindings(
     out
 }
 
-/// Shipped pak filenames that count as default client content.
-/// Conservative v1 list: standard ezQuake/qw/id1 paks named pak0 through pak9.
-const SHIPPED_PAK_NAMES: &[&str] = &[
-    "pak0.pak", "pak1.pak", "pak2.pak",
-];
-
-const SHIPPED_GAMEDIRS_FOR_PAK: &[&str] = &["id1", "ezquake", "qw"];
-
-/// Returns true if this file entry is part of the default shipped game content.
-/// Loose id1 files are always default. Archives in known gamedirs with named pak0-pak2 are default.
+/// Default shipped Quake content: loose files under id1/, plus pak0 and pak1 inside id1/.
+/// Everything else - including ezquake/*.pak, qw/*.pak, and any custom pak the user dropped
+/// in a known gamedir - is treated as custom until hash-match against a release manifest lands.
 pub fn compute_is_default(_virtual_path: &str, container: &Container) -> bool {
     match container {
         Container::Loose => {
@@ -590,10 +577,8 @@ pub fn compute_is_default(_virtual_path: &str, container: &Container) -> bool {
             first == "id1"
         }
         Container::Archive { archive_path, .. } => {
-            let gamedir = archive_path.split('/').next().unwrap_or("");
-            let pak_name = archive_path.rsplit('/').next().unwrap_or("");
-            SHIPPED_GAMEDIRS_FOR_PAK.contains(&gamedir)
-                && SHIPPED_PAK_NAMES.contains(&pak_name.to_lowercase().as_str())
+            let lower = archive_path.to_lowercase();
+            lower == "id1/pak0.pak" || lower == "id1/pak1.pak"
         }
     }
 }
@@ -1009,18 +994,32 @@ mod tests {
     }
 
     #[test]
-    fn is_default_shipped_pak_is_default() {
-        let in_ez_pak0 = Container::Archive {
+    fn is_default_id1_pak0_pak1_only() {
+        let id1_pak0 = Container::Archive {
+            archive_path: "id1/pak0.pak".into(),
+            entry: "progs/player.mdl".into(),
+        };
+        assert!(compute_is_default("id1/pak0.pak:progs/player.mdl", &id1_pak0));
+
+        let id1_pak1 = Container::Archive {
+            archive_path: "id1/pak1.pak".into(),
+            entry: "sound/items/damage1.wav".into(),
+        };
+        assert!(compute_is_default("id1/pak1.pak:sound/items/damage1.wav", &id1_pak1));
+
+        // Non-id1 paks are NOT default, even with the canonical pak0 name.
+        let ez_pak0 = Container::Archive {
             archive_path: "ezquake/pak0.pak".into(),
             entry: "textures/test.tga".into(),
         };
-        assert!(compute_is_default("ezquake/pak0.pak:textures/test.tga", &in_ez_pak0));
+        assert!(!compute_is_default("ezquake/pak0.pak:textures/test.tga", &ez_pak0));
 
-        let in_qw_pak1 = Container::Archive {
-            archive_path: "qw/pak1.pak".into(),
-            entry: "textures/thing.tga".into(),
+        // id1 paks beyond pak1 (e.g. pak2 from the resaurus expansion) are custom.
+        let id1_pak2 = Container::Archive {
+            archive_path: "id1/pak2.pak".into(),
+            entry: "maps/test.bsp".into(),
         };
-        assert!(compute_is_default("qw/pak1.pak:textures/thing.tga", &in_qw_pak1));
+        assert!(!compute_is_default("id1/pak2.pak:maps/test.bsp", &id1_pak2));
     }
 
     #[test]

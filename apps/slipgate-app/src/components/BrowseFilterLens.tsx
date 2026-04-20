@@ -12,20 +12,34 @@ interface BrowseFilterLensProps {
 export default function BrowseFilterLens(props: BrowseFilterLensProps) {
   const categoryCounts = createMemo(() => {
     const counts = new Map<string, number>();
-    let unreferenced = 0;
     let other = 0;
     for (const f of props.scan.files) {
       if (!f.category_id) {
         other++;
         continue;
       }
-      if (f.consumed_by.loader_sites.length === 0 && f.consumed_by.cvar_bindings.length === 0) {
-        unreferenced++;
-      }
       counts.set(f.category_id, (counts.get(f.category_id) ?? 0) + 1);
     }
-    return { byCategory: counts, unreferenced, other };
+    return { byCategory: counts, other };
   });
+
+  const otherBreakdown = createMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of props.scan.files) {
+      if (f.category_id) continue;
+      // Leaf name after any archive ":" boundary and last "/".
+      const leafStart = Math.max(f.virtual_path.lastIndexOf("/"), f.virtual_path.lastIndexOf(":"));
+      const leaf = leafStart >= 0 ? f.virtual_path.slice(leafStart + 1) : f.virtual_path;
+      const dot = leaf.lastIndexOf(".");
+      const ext = dot > 0 ? leaf.slice(dot).toLowerCase() : "(no extension)";
+      counts.set(ext, (counts.get(ext) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  });
+
+  function setSearch(q: string) {
+    props.onFiltersChange({ ...props.filters, search: q });
+  }
 
   function toggle(set: Set<string>, value: string): Set<string> {
     const next = new Set(set);
@@ -106,17 +120,23 @@ export default function BrowseFilterLens(props: BrowseFilterLensProps) {
             );
           }}
         </For>
-        <Show when={categoryCounts().unreferenced > 0}>
-          <div class="sg-lens-row sg-lens-row-warn">
-            <span>unreferenced</span>
-            <span class="sg-lens-count">{categoryCounts().unreferenced}</span>
-          </div>
-        </Show>
         <Show when={categoryCounts().other > 0}>
           <div class="sg-lens-row sg-lens-row-dim">
             <span>other</span>
             <span class="sg-lens-count">{categoryCounts().other}</span>
           </div>
+          <For each={otherBreakdown().slice(0, 12)}>
+            {([ext, count]) => (
+              <div
+                class="sg-lens-row sg-lens-row-indent sg-lens-row-dim"
+                title={`Filter tree for "${ext}"`}
+                onClick={() => setSearch(ext)}
+              >
+                <span>{ext}</span>
+                <span class="sg-lens-count">{count}</span>
+              </div>
+            )}
+          </For>
         </Show>
       </section>
 

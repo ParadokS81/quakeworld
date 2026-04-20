@@ -379,7 +379,7 @@ export interface ScanWarning {
 export interface ScanStats {
   loaded: number;
   available: number;
-  unreferenced: number;
+  shipped: number;
   other: number;
   total_bytes: number;
 }
