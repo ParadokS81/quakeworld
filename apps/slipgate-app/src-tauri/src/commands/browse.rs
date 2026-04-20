@@ -334,6 +334,50 @@ pub async fn scan_quake_dir(
     })
 }
 
+/// For each candidate, return true iff this entry is the LIFO winner for its virtual_path.
+/// Heuristic v1 ranking (higher = wins):
+///   3: loose file in a user gamedir (qw/ezquake/custom)
+///   2: archive-interior entry in a user gamedir
+///   1: loose file in id1/
+///   0: archive-interior entry in id1/
+/// Ties within a rank resolve by the archive's lexical order (later name = later mount).
+pub fn pick_lifo_winners(candidates: &[(String, Container)]) -> Vec<bool> {
+    fn rank(vp: &str, container: &Container) -> (u8, String) {
+        let first_segment = vp.split('/').next().unwrap_or("");
+        let gamedir_rank = if first_segment == "id1" { 0u8 } else { 2u8 };
+        let container_bonus = match container {
+            Container::Loose => 1u8,
+            Container::Archive { .. } => 0u8,
+        };
+        let tie_key = match container {
+            Container::Loose => "~loose".to_string(),
+            Container::Archive { archive_path, .. } => archive_path.clone(),
+        };
+        (gamedir_rank + container_bonus, tie_key)
+    }
+
+    let mut best: HashMap<String, (u8, String, usize)> = HashMap::new();
+    for (i, (vp, container)) in candidates.iter().enumerate() {
+        let (r, tie) = rank(vp, container);
+        match best.get(vp) {
+            Some((prev_r, prev_tie, _)) => {
+                if r > *prev_r || (r == *prev_r && tie.as_str() > prev_tie.as_str()) {
+                    best.insert(vp.clone(), (r, tie, i));
+                }
+            }
+            None => {
+                best.insert(vp.clone(), (r, tie, i));
+            }
+        }
+    }
+
+    candidates
+        .iter()
+        .enumerate()
+        .map(|(i, (vp, _))| best.get(vp).map(|(_, _, winner_idx)| *winner_idx == i).unwrap_or(false))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -435,5 +479,35 @@ mod tests {
             Some("ezquake:asset_category:config".to_string()),
         );
         assert_eq!(classify_extension("random/thing.xyz", &extensions), None);
+    }
+
+    #[test]
+    fn lifo_resolution_picks_loose_over_pak() {
+        let candidates = vec![
+            ("qw/textures/conchars.tga".to_string(), Container::Loose),
+            ("qw/textures/conchars.tga".to_string(), Container::Archive {
+                archive_path: "qw/pak1.pak".into(),
+                entry: "textures/conchars.tga".into(),
+            }),
+            ("qw/textures/conchars.tga".to_string(), Container::Archive {
+                archive_path: "ezquake/pak0.pak".into(),
+                entry: "textures/conchars.tga".into(),
+            }),
+        ];
+
+        let winners = pick_lifo_winners(&candidates);
+        assert_eq!(winners.len(), 3);
+        assert!(winners[0], "loose in qw should win");
+        assert!(!winners[1]);
+        assert!(!winners[2]);
+    }
+
+    #[test]
+    fn lifo_resolution_single_source_always_wins() {
+        let candidates = vec![
+            ("qw/skins/haste.pcx".to_string(), Container::Loose),
+        ];
+        let winners = pick_lifo_winners(&candidates);
+        assert_eq!(winners, vec![true]);
     }
 }
