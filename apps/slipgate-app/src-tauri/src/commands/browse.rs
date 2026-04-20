@@ -1,3 +1,4 @@
+use crate::commands::archive;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -162,6 +163,47 @@ fn walk_inner(
     Ok(())
 }
 
+/// For each archive found in the tree, returns:
+/// - a list of ArchiveInfo metadata entries
+/// - a list of (archive_virtual_path, entry_name_inside_archive, size) tuples
+pub fn enumerate_archives(root: &Path) -> std::io::Result<(Vec<ArchiveInfo>, Vec<(String, String, u64)>)> {
+    let loose = walk_loose_files(root)?;
+    let mut archives = Vec::new();
+    let mut entries = Vec::new();
+
+    for (vp, size, _) in &loose {
+        let lower = vp.to_lowercase();
+        if !(lower.ends_with(".pak") || lower.ends_with(".pk3") || lower.ends_with(".zip")) {
+            continue;
+        }
+        let abs = root.join(vp);
+        match archive::scan_archive(&abs) {
+            Ok((fmt, arch_entries)) => {
+                let kind = match fmt {
+                    archive::ArchiveFormat::Pak => "pak",
+                    archive::ArchiveFormat::Zip => {
+                        if lower.ends_with(".pk3") { "pk3" } else { "zip" }
+                    }
+                };
+                archives.push(ArchiveInfo {
+                    archive_path: vp.clone(),
+                    kind: kind.to_string(),
+                    size: *size,
+                    entry_count: arch_entries.len(),
+                });
+                for e in arch_entries {
+                    entries.push((vp.clone(), e.name, e.size));
+                }
+            }
+            Err(_) => {
+                continue;
+            }
+        }
+    }
+
+    Ok((archives, entries))
+}
+
 #[tauri::command]
 pub async fn scan_quake_dir(
     exe_path: String,
@@ -213,5 +255,55 @@ mod tests {
         assert!(paths.contains(&"qw/skins/haste.pcx"));
         assert!(paths.contains(&"config.cfg"));
         assert!(!paths.iter().any(|p| p.contains(".git")));
+    }
+
+    #[test]
+    fn enumerate_archives_collects_pak_entries() {
+        let tmp = tempdir().unwrap();
+        let pak_path = tmp.path().join("qw/pak99.pak");
+        std::fs::create_dir_all(pak_path.parent().unwrap()).unwrap();
+        let pak_bytes = build_test_pak(&[("skins/test.pcx", b"X")]);
+        std::fs::write(&pak_path, &pak_bytes).unwrap();
+
+        let (archives, entries) = enumerate_archives(tmp.path()).unwrap();
+        assert_eq!(archives.len(), 1);
+        assert_eq!(archives[0].archive_path, "qw/pak99.pak");
+        assert_eq!(archives[0].entry_count, 1);
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].0, "qw/pak99.pak");
+        assert_eq!(entries[0].1, "skins/test.pcx");
+    }
+
+    /// Minimal PAK builder for testing (mirrors archive.rs's make_test_pak).
+    fn build_test_pak(files: &[(&str, &[u8])]) -> Vec<u8> {
+        let mut data = Vec::new();
+        // header placeholder (12 bytes)
+        data.extend_from_slice(b"PACK");
+        data.extend_from_slice(&[0u8; 8]);
+
+        // write file data, record offsets
+        let mut offsets = Vec::new();
+        for (_, content) in files {
+            offsets.push((data.len() as u32, content.len() as u32));
+            data.extend_from_slice(content);
+        }
+
+        // directory table
+        let table_offset = data.len() as u32;
+        for (i, (name, _)) in files.iter().enumerate() {
+            let mut entry = [0u8; 64];
+            let name_bytes = name.as_bytes();
+            let len = name_bytes.len().min(55);
+            entry[..len].copy_from_slice(&name_bytes[..len]);
+            entry[56..60].copy_from_slice(&offsets[i].0.to_le_bytes());
+            entry[60..64].copy_from_slice(&offsets[i].1.to_le_bytes());
+            data.extend_from_slice(&entry);
+        }
+
+        let table_size = (files.len() * 64) as u32;
+        data[4..8].copy_from_slice(&table_offset.to_le_bytes());
+        data[8..12].copy_from_slice(&table_size.to_le_bytes());
+
+        data
     }
 }
