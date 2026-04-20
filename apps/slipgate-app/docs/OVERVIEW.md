@@ -61,13 +61,23 @@ All pure client-side math. No Tauri calls.
 - **Launcher** — server IP input + Join / Spec / Launch buttons
 - **Screenshot POC** — internal-only, hardcoded to `C:/Users/Administrator/projects/slipgate-app/assets/screenshots`, not user-facing
 
-### 5. My Quake 📁 — *hosts the ConfigViewer*
-`MyQuakeTab.tsx` (244 lines). Three horizontal sub-tabs:
-- **Config** — active. Hosts the full ConfigViewer (see next section)
-- **Visuals** — disabled, placeholder. **Planned purpose:** asset browser for custom Quake content — textures, model skins, sounds, paks. Part of a "better explorer for your quake dir than Windows Explorer" vision. Not yet built.
-- **Matches** — disabled, placeholder. **Planned purpose:** browser for your own recorded demos + screenshots with stats. Not yet built.
+### 5. My Quake 📁 — *Browse + Domains*
+`MyQuakeTab.tsx`. Two top-level mode buttons: **Browse** and **Domains**.
 
-Drag-drop zone for `.cfg`, `.zip`, `.pak`, `.pk3`. Dropping a file loads it as the comparison config; dropping again prompts "replace current comparison?" modal.
+**Browse mode** — an Explorer-style three-pane view over the user's Quake directory:
+- **Left: filter lens** — multi-select filter by client (ezQuake / FTE / etc.), gamedir (qw / id1 / fortress / etc.), and asset category (configs / demos / screenshots / maps / models / sounds / textures). The tree dims branches that don't match the current selection.
+- **Center: file tree** — directory tree scoped to the quake dir. Non-matching branches are dimmed but still navigable. Clicking a file selects it and populates the detail pane.
+- **Right: detail pane** — shows file category, image preview (PNG and JPG in v1 — PCX/TGA/WAD deferred to Phase 2), resolution chain / collision visualiser for configs, an "Open in Configs" shortcut for `.cfg` files, and an "Open containing folder" button.
+
+Backed by a Rust scanner at `src-tauri/src/commands/browse.rs` that reads oracle's ezQuake asset-consumption bundle to drive category classification.
+
+**Domains mode** — hosts domain-specific sub-tabs:
+- **Configs** — active. Hosts the full ConfigViewer (see next section). Drag-drop zone for `.cfg`, `.zip`, `.pak`, `.pk3` files lives here. Dropping a file loads it as the comparison config; dropping again prompts "replace current comparison?" modal.
+- **Maps** — disabled placeholder. Future phase.
+- **Matches** — disabled placeholder. Future phase (demos + screenshots browser with stats).
+- **Assets** — disabled placeholder. Future phase (textures, skins, sounds, paks browser).
+
+The ConfigViewer itself is unchanged — it now lives inside Domains > Configs rather than at the top level of this tab.
 
 ### 6. Settings ⚙️ — *fully functional*
 `SettingsTab.tsx` (231 lines).
@@ -359,8 +369,10 @@ Things that exist in the codebase but aren't fully alive:
 | Item | Where | Status / intent |
 |---|---|---|
 | Schedule tab | `ScheduleTab.tsx` | Placeholder (11 lines). Key future feature — ties to Slipgate web scheduler + desktop notifications + quick availability toggle |
-| MyQuake → Visuals subtab | `MyQuakeTab.tsx:174-194` | Placeholder. Asset browser for custom textures/skins/sounds/paks. "Better explorer for your quake dir" vision |
-| MyQuake → Matches subtab | `MyQuakeTab.tsx:174-194` | Placeholder. Demos + screenshots browser with stats |
+| MyQuake → Browse mode (PCX/TGA/WAD preview) | `browse.rs`, `MyQuakeTab.tsx` | Browse mode is live for PNG/JPG. PCX, TGA, WAD preview deferred to Phase 2 |
+| MyQuake → Domains → Maps subtab | `MyQuakeTab.tsx` | Disabled placeholder. Future phase |
+| MyQuake → Domains → Matches subtab | `MyQuakeTab.tsx` | Disabled placeholder. Demos + screenshots browser with stats. Future phase |
+| MyQuake → Domains → Assets subtab | `MyQuakeTab.tsx` | Disabled placeholder. Textures, skins, sounds, paks browser. Future phase |
 | Screenshot automation | `screenshot.rs`, `ClientsTab` trigger | POC works end-to-end but has hardcoded Administrator path + fragile timings. Active goal: one-button → 3-5 perfect identical screenshots |
 | `equipment_history` field + `addEquipmentHistory()` | `store.ts` | Intentionally parked for future community gear-discussion feature — members can check in with each other about brand/model experience |
 | "View as Primary" for in-archive configs | `ConfigViewer.tsx:555-558` | Known limitation, warns on console. Needs full pak path in `ConfigEntry` to implement |
@@ -401,6 +413,8 @@ Things that exist in the codebase but aren't fully alive:
 
 **"I want to change the state editor panel"** → `src/components/StatePanel.tsx` (form controls, derived readouts, influencing-cvars rows, templates header). Styles under `sg-state-*` in `app.css`. Wired into the right-rail toggle via `useKeyboardPanelState.ts` and `ConfigKeyboardPanel.tsx`.
 
+**"I want to change how the quake dir is scanned for Browse mode"** → `src-tauri/src/commands/browse.rs` (Rust scanner) + `MyQuakeTab.tsx` (Browse pane layout and filter lens)
+
 **"I want to fix something on Discord auth"** → `src/auth.ts` (frontend flow) + `src-tauri/src/commands/auth.rs` (localhost listener)
 
 ---
@@ -415,4 +429,4 @@ Things that exist in the codebase but aren't fully alive:
 
 ---
 
-*Last synthesized: 2026-04-17 (Player State Simulator added, right-rail toggle behavior updated). Update this doc when you ship something new that changes the map above.*
+*Last synthesized: 2026-04-20 (Browse mode added to MyQuake tab; Domains mode restructures ConfigViewer under Configs sub-tab; Maps/Matches/Assets disabled placeholders noted). Update this doc when you ship something new that changes the map above.*
