@@ -8,58 +8,14 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)](#qw-oracleclaudemd-is-179-lines-still-over-150-ceiling) — improved by Task 1 rewrite, remaining bloat is raw messages schema
-- [qw-oracle/CLAUDE.md stale after Phase 2b](#qw-oracle-claudemd-stale-after-phase-2b) — main tree's `apps/qw-oracle/CLAUDE.md` (192 lines) says "No TypeScript yet" and omits the new `scripts/load-knowledge/` loader; rewrite belongs with the POC plan's Task 1 not standalone
 - [qw-oracle VISION.md needs active-assistance reframe](#qw-oracle-visionmd-needs-active-assistance-reframe) — current VISION.md talks Oracle Bot / Digest / Time Machine but not the broader constructive-query / version-aware vision
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Alias chain pretty view cosmetic: duplicate `.msg.point` rows](#alias-chain-pretty-view-cosmetic-duplicate-msgpoint-rows) — when an alias is referenced from two parent branches, chain view shows it twice and both highlight if either path fires
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
-- [Phase 2c-2h: remaining QW knowledge rollout](#phase-2c-2h-remaining-qw-knowledge-rollout) — Phase 2a schema + Phase 2b loader both shipped 2026-04-18; remaining: ezQuake commands/macros/cmdline extractors, FTE/MVDSV/KTX extractors, historical backfill, MCP tool upgrades, automation
-- [qw-oracle loader follow-ups from Phase 2b final review](#qw-oracle-loader-follow-ups-from-phase-2b-final-review) — 4 small items flagged for future phases: string-compare on version strings, git blame memoization, per-project src path prefix map, upstream extractor trailing-whitespace bug
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
 - [Quake-dir browser vision — unblocked, ready for implementation brainstorm](#quake-dir-browser-vision--unblocked-ready-for-implementation-brainstorm) — oracle Phase 2c.6 shipped 2026-04-20; slipgate dir-browser vision spec's prerequisites are all satisfied; next step is a fresh-context implementation brainstorm
 - [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
-
----
-
-## qw-oracle/CLAUDE.md is 179 lines (still over 150 ceiling)
-
-**Added:** 2026-04-14, **Updated:** 2026-04-16
-**Status:** improved by Task 1 rewrite (192 -> 179), still 29 lines over hard ceiling
-**Verification first:** `wc -l /home/paradoks/projects/quakeworld-poc/apps/qw-oracle/CLAUDE.md`. If under 150, resolved.
-
-The monorepo doc philosophy puts a soft ceiling at 120 lines and a hard ceiling at 150 lines on any `CLAUDE.md`. Bloat is diagnostic: the cause is almost always a missing Layer 2 doc that should be holding the overflow content. `apps/qw-oracle/CLAUDE.md` is currently 192 lines, 28% over the hard ceiling.
-
-The POC implementation plan at `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` includes rewriting `apps/qw-oracle/CLAUDE.md` in Task 1 as part of the three-layer scaffolding. That task will naturally trim the file AND create the Layer 2 docs (`layers/README.md`, `serve/README.md`, etc.) that should hold the content currently stuffed into CLAUDE.md.
-
-### Fix shape
-
-Don't split preemptively. The POC plan already handles it — Task 1 in `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` rewrites `apps/qw-oracle/CLAUDE.md` to the three-layer structure and creates the overflow docs. When that task lands, this handover item should resolve automatically. Only revisit if the POC plan stalls and qw-oracle/CLAUDE.md stays bloated for an extended period.
-
-### Related
-
-- The POC plan: `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` Task 1
-- The doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
-- The memory: `project_doc_philosophy.md`
-
----
-
-## qw-oracle CLAUDE.md stale after Phase 2b
-
-**Added:** 2026-04-18
-**Status:** pending
-**Verification first:** `head -30 /home/paradoks/projects/quakeworld/apps/qw-oracle/CLAUDE.md` — if it still says "No TypeScript yet" and does not mention `scripts/load-knowledge/`, the item holds.
-
-The main tree `apps/qw-oracle/CLAUDE.md` (192 lines) was written when the project was chat-corpus-only and Node/.mjs. Phase 2b added a TypeScript loader (`scripts/load-knowledge/`) with its own build toolchain, `knowledge.db` alongside `qw.db`, and new `npm run load-knowledge` commands. The file currently:
-
-- Declares "No TypeScript yet - plain .mjs scripts for now. Move to TS when the pipeline solidifies." (stale)
-- Omits `scripts/load-knowledge/` entirely from the project-structure listing
-- Commands section lists only `import:discord`, `import:irc`, `stats`; missing `typecheck` and `load-knowledge`
-- No mention of the new `knowledge.db` (Layer 1) alongside `qw.db` (Layer 2)
-
-This rewrite is the first task of the POC plan at `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (Task 1: rewrite qw-oracle/CLAUDE.md to the three-layer model). Leave it there. A standalone drive-by fix would need to be redone once the POC plan executes.
-
-Also covers the structural doc-quartet gap: qw-oracle has only CLAUDE.md + VISION.md today, missing README.md and OVERVIEW.md. Per monorepo doc philosophy, those should be written when the project lifecycle warrants it. The CLAUDE.md rewrite in POC Task 1 is a natural moment to also produce README.md (short) and OVERVIEW.md (map of layers + layer files).
 
 ---
 
@@ -142,30 +98,32 @@ The Player State Simulator (PlayerState model + ezQuake `if` evaluator + `evalua
 
 ---
 
-## Phase 2c-2h: remaining QW knowledge rollout
+## Phase 2d-2h: remaining QW knowledge rollout
 
 **Added:** 2026-04-18 (originally as "Phase 2 schema + rollout")
-**Updated:** 2026-04-18 — Phase 2a schema spec + Phase 2b TypeScript loader both shipped. Full pipeline proven end-to-end against ezQuake 3.6.9 -> head (1 change_event captured: cl_fakeshaft default 0->1, PR #1110).
-**Status:** 2a + 2b done. 2c through 2h remaining.
+**Updated:** 2026-04-20 — Phase 2c (4 more ezQuake types), 2c.5 (4 more + schema v2), and 2c.6 (asset consumption + schema v3) all shipped. ezQuake is fully loaded at head across 9 entity types (3849 entities total).
+**Status:** ezQuake head complete. Next terminal session priorities (reordered 2026-04-20 after dir-browser context shift):
 
-### What shipped (2a + 2b)
+### What shipped through Phase 2c.6
 
-- **Schema spec** at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` — 9 tables defined (schema_meta, versions, entities, cvar_versions, command_versions, macro_versions, cmdline_param_versions, change_events, source_state_transitions), canonical ID convention, field-level change events, source-state lifecycle, storage layout, loader interface.
-- **Loader pipeline** at `apps/qw-oracle/scripts/load-knowledge/` — TypeScript + better-sqlite3, three stages wired through a `npm run load-knowledge -- {load-version|diff|enrich}` CLI. Extractor patched with `--repo-root`/`--output` flags. Proven end-to-end against ezQuake 3.6.9 -> head: 2901 entities, `cl_fakeshaft` default 0->1 change event captured with PR #1110 enrichment.
+- **Schema v3** at `apps/qw-oracle/scripts/load-knowledge/schema.ts` — entities with 9 type values (cvar, command, macro, cmdline_param, keyname, hud_element, ruleset, token_primitive, asset_category) plus per-type version tables and 4 asset relation tables (asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites).
+- **Loader pipeline** with `load-version`, `load-assets`, `diff`, `enrich` CLIs. Seed-first + AST auto-pass reconciliation proven against ezQuake head (bea2515). Phase 2b loader follow-ups (version-string comparison, blame memoization, src-prefix map, extractor trailing-whitespace) all drained 2026-04-20.
+- **Extractors** in `packages/qw-config/scripts/` for all 8 ezQuake entity types plus asset loader sites, cvar bindings, path-rules verifier. Hand-authored seed YAMLs in `packages/qw-config/seeds/` for asset taxonomy and cvar bindings.
+- **End-to-end loaded**: 3849 ezQuake entities, 110 asset_loader_sites, 26 asset_cvar_bindings, 14 source-verified path_rules, 17 asset_categories.
 
-### Remaining sub-phases
+### Remaining sub-phases (roadmap reordered 2026-04-20)
 
-**2c. Port the remaining ezQuake extractors.** Commands, macros, cmdline-params using the libclang pattern. Feed through the loader. End state: ezQuake is fully in SQL.
+**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20.
 
-**2d. FTE cvars extractor.** Full port of the validated approach.
+**Tier 2 — Phase 2d FTE cvars.** First second-engine port. Biggest structural risk left — validates the project-keyed schema on a codebase with different layout (`engine/client/`, `engine/server/`, etc.). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signaling the extractor must emit repo-relative paths directly.
 
-**2e. MVDSV + KTX extractors.** MVDSV is a small port (189 cvars, same struct form as ezQuake). KTX is a different script (tree-sitter-based call-site extraction — use `py-tree-sitter` Python bindings, NOT the Node `tree-sitter@0.25` binding which segfaulted on WSL/Node 20 during the spike).
+**Tier 3 — Phase 2e MVDSV + KTX.** MVDSV is a small port (189 cvars, same struct form). KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted on WSL/Node 20 during the spike).
 
-**2f. Historical backfill.** Run each extractor against every tag. Diff consecutive tags. For each diff row, run `git blame` → commit SHA → parse PR number from commit message (ezQuake uses `CVAR: ... (#NNNN)` convention) → GitHub API call for PR title/body/linked issues → insert `change_events` rows. Rate-limit safe (<2000 requests per full historical pull).
+**Tier 4 — Phase 2g MCP tool upgrades (deprioritized).** Adds `version` parameter to `lookup_entity`, new `get_entity_history` tool, version/date filters on `search_entities`. Was higher priority before the dir-browser context shifted — dir-browser reads SQLite directly so MCP upgrades serve Oracle-bot / Claude-session users only.
 
-**2g. MCP tool upgrades.** Add `version` parameter to `lookup_entity` (defaults to "latest"). Add `get_entity_history` tool. Add version/date filters to `search_entities`.
+**Tier 5 — Layer 3 curated content.** Concept notes adapted from ezquake.com docs and community wisdom. Orthogonal to data expansion.
 
-**2h. Automation.** Scheduled job — detect new tags on each research repo's upstream, run delta extraction, enrich, insert.
+**Tier 6 — Phase 2h Automation.** Scheduled job to detect new tags, run delta extraction, enrich, insert.
 
 ### Out of scope for Phase 2
 
@@ -185,26 +143,6 @@ The Player State Simulator (PlayerState model + ezQuake `if` evaluator + `evalua
 ### Pressure
 
 Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
-
----
-
-## qw-oracle loader follow-ups from Phase 2b final review
-
-**Added:** 2026-04-18
-**Status:** Four small items flagged during the Phase 2b final code review. None block merge. Each is best addressed when its context re-enters the conversation rather than swept now.
-
-1. **Version-string comparison in `extendFirstSeenVersion`** (load-version.ts). The path uses JavaScript `>` on version strings, which breaks on multi-tag orderings like `3.10.0 < 3.6.6`. Safe for Phase 2b (only exercised on doc-only backfill match, not hit in the single-version e2e). Before Phase 2f historical backfill touches multiple non-head versions, switch to `ordinal` comparison via the `versions` table. Single query + one comparison change.
-
-2. **`git blame` memoization in `resolveBlame`** (diff-versions.ts). Current implementation runs `git blame` once per *changed field* on a modified entity; should run once per `(source_file, source_line)` per entity. Invisible at the Phase 2b e2e scale (1 change event) but becomes a perf leak at Phase 2f (~32 tags x thousands of cvars). Fix: a `Map<string, BlameResult | null>` cache scoped to a single `diffVersions` call.
-
-3. **Per-project source-path prefix map** (diff-versions.ts:218). `resolveBlame` hardcodes `src/${file}` which matches ezQuake/MVDSV/KTX layout but not FTE (uses `engine/client/...`). When Phase 2d's FTE extractor lands, blames will silently return UNKNOWN without this fix. Add `PROJECT_SRC_PREFIX: Record<Project, string>` alongside the existing `PROJECT_REPOS` map in enrich-prs.ts.
-
-4. **Extractor emits one cvar name with trailing whitespace** (`cl_voip_capturingvol ` - note trailing space). The loader correctly rejects via `/^[a-z0-9_.]+$/` name regex with a visible warning, so 2901 entities load instead of 2902. Fix belongs upstream in `packages/qw-config/scripts/extract-ezquake-cvars-clang.py`, not the loader. File when that script is next touched (Phase 2c).
-
-### Related
-
-- Phase 2b plan: `docs/superpowers/plans/2026-04-18-qw-knowledge-loader-phase-2b.md`
-- Final review captured in the same session transcript that produced commit `389a19b`.
 
 ---
 
