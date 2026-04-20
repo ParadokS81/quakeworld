@@ -2,6 +2,7 @@ import { createSignal, createEffect, Show, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import type { ScanResult, ScannedFile, BrowseFilterState } from "../types";
 import type { ProfileData } from "../store";
+import BrowseFilterLens from "./BrowseFilterLens";
 
 interface BrowseViewProps {
   exePath: string | null;
@@ -99,8 +100,13 @@ export default function BrowseView(props: BrowseViewProps) {
                 </button>
               </div>
               <div class="flex-1 grid grid-cols-[220px_1fr_300px] overflow-hidden">
-                <div class="border-r border-[var(--sg-stat-border)] p-2 overflow-auto">
-                  <p class="text-xs text-[var(--sg-text-dim)]">filter lens (stub)</p>
+                <div class="border-r border-[var(--sg-stat-border)] p-3 overflow-auto">
+                  <BrowseFilterLens
+                    scan={result()}
+                    filters={filters()}
+                    onFiltersChange={setFilters}
+                    onSwitchToClientsTab={props.onSwitchToClientsTab}
+                  />
                 </div>
                 <div class="overflow-auto">
                   <p class="text-xs text-[var(--sg-text-dim)] p-2">
