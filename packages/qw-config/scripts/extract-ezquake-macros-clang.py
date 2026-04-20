@@ -44,7 +44,7 @@ _cli.add_argument("--output", default=None)
 _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
-EZQ_SRC = EZQ_REPO / "src"
+EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
 HELP_JSON = EZQ_REPO / "help_macros.json"
 MACRO_IDS_H = EZQ_SRC / "macro_ids.h"
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-macros-ast.json")
@@ -171,7 +171,7 @@ _MACRO_DEF_RE = re.compile(r"^\s*MACRO_DEF\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)"
 
 
 def parse_macro_ids_h() -> list[str]:
-    src = MACRO_IDS_H.read_text(encoding="utf-8")
+    src = MACRO_IDS_H.read_text(encoding="utf-8", errors="replace")
     return [m.group(1) for m in _MACRO_DEF_RE.finditer(src)]
 
 

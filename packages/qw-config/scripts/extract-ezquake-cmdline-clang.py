@@ -48,7 +48,7 @@ _cli.add_argument("--output", default=None)
 _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
-EZQ_SRC = EZQ_REPO / "src"
+EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
 HELP_JSON = EZQ_REPO / "help_cmdline_params.json"
 MANIFEST_H = EZQ_SRC / "cmdline_params_ids.h"
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-cmdline-params-ast.json")
@@ -141,7 +141,7 @@ _MANIFEST_RE = re.compile(
 
 
 def parse_manifest() -> list[ManifestEntry]:
-    src = MANIFEST_H.read_text(encoding="utf-8")
+    src = MANIFEST_H.read_text(encoding="utf-8", errors="replace")
     out: list[ManifestEntry] = []
     for i, line in enumerate(src.splitlines(), start=1):
         m = _MANIFEST_RE.match(line)

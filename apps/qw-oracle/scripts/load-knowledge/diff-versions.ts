@@ -18,7 +18,7 @@
 
 import type Database from 'better-sqlite3';
 import { ulid } from 'ulid';
-import { blameLine } from './git.js';
+import { blameLine, treeHasDirectory } from './git.js';
 import { setEntitySourceState } from './natural-keys.js';
 import { logTransition } from './transitions.js';
 import type { ChangeKind, EntityType, Project } from './types.js';
@@ -31,15 +31,29 @@ export interface DiffOptions {
   ezquakeRepoPath: string;
 }
 
-// Repo-relative prefix prepended to `<type>_versions.source_file` (which holds
-// only the basename) before `git blame`. ezQuake / MVDSV / KTX all root their
-// C sources under `src/`. FTE's extractor emits repo-relative paths directly.
-const PROJECT_SRC_PREFIX: Record<Project, string> = {
+// Per-project fallback prefix used only when `treeHasDirectory(repo, sha, 'src')`
+// can't answer (degraded-mode fallback). The real prefix is resolved per-version
+// from the git tree so ezQuake's 2023-01-05 root->src relocation doesn't break
+// blame across that boundary. Phase 2f historical walks traverse ~15 ezQuake
+// tags, half of them pre-`src/`, so the detection must run per side (fromVersion,
+// toVersion) independently.
+const PROJECT_SRC_PREFIX_FALLBACK: Record<Project, string> = {
   ezquake: 'src/',
   mvdsv:   'src/',
   ktx:     'src/',
   fte:     '',
 };
+
+function detectSrcPrefix(
+  repoPath: string,
+  commitSha: string,
+  project: Project,
+): string {
+  if (commitSha === 'UNKNOWN' || !/^[0-9a-f]{7,40}$/.test(commitSha)) {
+    return PROJECT_SRC_PREFIX_FALLBACK[project];
+  }
+  return treeHasDirectory(repoPath, commitSha, 'src') ? 'src/' : '';
+}
 
 interface TypeDiffConfig {
   entityType: EntityType;
@@ -193,7 +207,12 @@ export function diffVersions(options: DiffOptions): DiffResult {
 
   const fromCommitSha = fromVer.commit_sha;
   const toCommitSha = toVer.commit_sha;
-  const prefix = PROJECT_SRC_PREFIX[options.project];
+  // Resolve src-prefix per side -- ezQuake moved files from repo root into
+  // `src/` on 2023-01-05 (between 3.6.1 and 3.6.2). A diff crossing that
+  // boundary needs different prefixes on each side, so blame paths resolve
+  // correctly against each version's actual tree layout.
+  const fromSrcPrefix = detectSrcPrefix(options.ezquakeRepoPath, fromCommitSha, options.project);
+  const toSrcPrefix = detectSrcPrefix(options.ezquakeRepoPath, toCommitSha, options.project);
 
   const insertEvent = options.db.prepare(`
     INSERT OR REPLACE INTO change_events (
@@ -255,7 +274,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
 
         if (!fromRow && toRow) {
           const blame = resolveBlame(
-            options.ezquakeRepoPath, toCommitSha, toRow, blameCache, prefix, config.hasSource,
+            options.ezquakeRepoPath, toCommitSha, toRow, blameCache, toSrcPrefix, config.hasSource,
           );
           insertEvent.run({
             entity_id: entityId,
@@ -291,7 +310,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
           // Blame at fromVersion for deletions: the file/line refers to
           // fromVersion state; at toVersion the file may have been removed.
           const blame = resolveBlame(
-            options.ezquakeRepoPath, fromCommitSha, fromRow, blameCache, prefix, config.hasSource,
+            options.ezquakeRepoPath, fromCommitSha, fromRow, blameCache, fromSrcPrefix, config.hasSource,
           );
           insertEvent.run({
             entity_id: entityId,
@@ -326,7 +345,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
             const newRaw = toRow[field];
             if (!valuesDiffer(oldRaw, newRaw)) continue;
             const blame = resolveBlame(
-              options.ezquakeRepoPath, toCommitSha, toRow, blameCache, prefix, config.hasSource,
+              options.ezquakeRepoPath, toCommitSha, toRow, blameCache, toSrcPrefix, config.hasSource,
             );
             insertEvent.run({
               entity_id: entityId,

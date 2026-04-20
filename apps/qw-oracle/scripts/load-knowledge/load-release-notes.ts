@@ -256,24 +256,72 @@ function extractAuthorHandles(text: string): string[] {
 // Token candidates for entity lookup. Precision beats recall here: release
 // bodies are prose, so matching loose identifiers produces dozens of false
 // positives against short entity names like ruleset:default or
-// asset_category:sound. Only three signals are trusted:
-//   1. Technical idents: contain at least one underscore or dot, or start
-//      with +/- (ezQuake's canonical cvar / command / macro style).
-//   2. Backtick-wrapped tokens: author-marked identifier references.
-//   3. Token primitives: `$X` (case-sensitive by design).
-// Single-word command names ("connect", "say") will be missed. That's an
-// accepted tradeoff -- the loss here is far smaller than the noise gained
-// by allowing bare English words.
+// asset_category:sound. Signals trusted as identifier references:
+//   1. Technical idents: contain at least one underscore or dot (ezQuake's
+//      canonical cvar / command / macro style).
+//   2. +/- prefix commands: `+showscores`, `-attack`. Unambiguous in prose.
+//   3. Backtick-wrapped tokens: author-marked identifier references.
+//   4. Quote-wrapped tokens: a weaker signal, used for "smackdrive"-style
+//      callouts that maintainers write without backticks.
+//   5. Token primitives: `$X` (case-sensitive by design).
+//   6. Brace expansion: `set_{calc,eval,ex,ex2}` -> `set_calc`, etc.
+//   7. Bracket range: `hud_gun[2-8]_frame_hide` -> `hud_gun2_frame_hide`, etc.
+// Single-word command names ("connect", "say") are handled separately by an
+// explicit allowlist in BARE_WORD_COMMANDS to keep prose words from matching
+// blindly.
 
 const TECHNICAL_IDENT_RE = /(?:^|[\s`()[\]"',.:;!?/])([+\-]?[a-z_][a-z0-9_.+\-]*(?:[_.][a-z0-9_.+\-]+)+)(?=$|[\s`()[\]"',.:;!?/])/gi;
+
+// +/- prefix command: 2+ letters after the sign, no internal underscore required.
+// Matches +showscores, -attack, -r-dump-shaders (already covered by TECHNICAL_IDENT
+// when underscored; this catches the plain-word form).
+const PLUS_MINUS_COMMAND_RE = /(?:^|[\s`()[\]"',.:;!?/])([+\-][a-z][a-z0-9_\-]+)(?=$|[\s`()[\]"',.:;!?/])/gi;
+
 const BACKTICK_RE = /`([^`]+)`/g;
 const BACKTICK_IDENT_RE = /^[+\-$]?[\w.+\-]+$/;
-const TOKEN_PRIMITIVE_RE = /\$([a-zA-Z0-9])/g;
+
+// Quote-wrapped identifier ("smackdrive", "default", "cl_foo"). Separately
+// required because maintainers sometimes use quotes instead of backticks.
+const QUOTE_WRAP_RE = /"([+\-]?[a-z][a-z0-9_.+\-]{1,40})"/gi;
+
+// Negative lookahead rejects matches inside longer identifiers like `$dateiso`,
+// which would otherwise incorrectly link to `token_primitive:$d` via the first
+// char. Token primitives are single-character by definition.
+const TOKEN_PRIMITIVE_RE = /\$([a-zA-Z0-9])(?![a-zA-Z0-9])/g;
+
+// Brace expansion: `set_{calc,eval,ex,ex2}` => set_calc, set_eval, set_ex, set_ex2.
+// Suffix support (`{a,b}_foo`) would bloat the regex for marginal gain -- not seen.
+const BRACE_EXPAND_RE = /([a-z][a-z0-9_]*)(_)?\{([a-z0-9_,\s]+)\}/gi;
+
+// Bracket range: `hud_gun[2-8]_frame_hide` => hud_gun2_frame_hide ... hud_gun8_frame_hide.
+// Caps the range at 16 to avoid pathological `[1-999]`-style cases.
+const BRACKET_RANGE_RE = /([a-z][a-z0-9_]*)\[(\d{1,3})-(\d{1,3})\]([a-z0-9_]*)/gi;
+const BRACKET_RANGE_LIMIT = 16;
+
+// Hand-curated bare-word entity names that appear in release notes without
+// backticks or quotes. Only distinctive names go here -- anything whose
+// English co-occurrence is plausible (say, kill, connect, echo, ...) is
+// deliberately excluded. Expand with evidence from real release bodies, not
+// speculation: an entry that produces false positives hurts every version.
+const BARE_WORD_ALLOWLIST: readonly string[] = [
+  // Rulesets often mentioned by name in prose ("Add smackdrive", "thunderdome restrictions")
+  'smackdrive', 'smackdown', 'thunderdome', 'mtfl', 'qcon',
+  // Distinctive command families whose root is a bare word
+  'skywind',
+];
+const BARE_WORD_ALLOWLIST_RE = new RegExp(
+  `\\b(${BARE_WORD_ALLOWLIST.join('|')})\\b`,
+  'gi',
+);
 
 function extractCandidateTokens(text: string): string[] {
   const set = new Set<string>();
 
   for (const m of text.matchAll(TECHNICAL_IDENT_RE)) {
+    set.add(m[1]!.toLowerCase());
+  }
+
+  for (const m of text.matchAll(PLUS_MINUS_COMMAND_RE)) {
     set.add(m[1]!.toLowerCase());
   }
 
@@ -284,8 +332,36 @@ function extractCandidateTokens(text: string): string[] {
     set.add(token.startsWith('$') ? token : token.toLowerCase());
   }
 
+  for (const m of text.matchAll(QUOTE_WRAP_RE)) {
+    set.add(m[1]!.toLowerCase());
+  }
+
   for (const m of text.matchAll(TOKEN_PRIMITIVE_RE)) {
     set.add('$' + m[1]!);
+  }
+
+  for (const m of text.matchAll(BRACE_EXPAND_RE)) {
+    const prefix = m[1]!.toLowerCase();
+    const sep = m[2] ? '_' : '';
+    const parts = m[3]!.split(',').map((s) => s.trim()).filter(Boolean);
+    for (const part of parts) {
+      set.add(`${prefix}${sep}${part}`);
+    }
+  }
+
+  for (const m of text.matchAll(BRACKET_RANGE_RE)) {
+    const prefix = m[1]!.toLowerCase();
+    const suffix = m[4]!.toLowerCase();
+    const from = Math.min(Number(m[2]), Number(m[3]));
+    const to = Math.max(Number(m[2]), Number(m[3]));
+    if (to - from + 1 > BRACKET_RANGE_LIMIT) continue;
+    for (let n = from; n <= to; n++) {
+      set.add(`${prefix}${n}${suffix}`);
+    }
+  }
+
+  for (const m of text.matchAll(BARE_WORD_ALLOWLIST_RE)) {
+    set.add(m[1]!.toLowerCase());
   }
 
   return [...set];

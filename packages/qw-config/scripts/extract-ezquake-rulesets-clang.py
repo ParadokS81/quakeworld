@@ -43,7 +43,7 @@ _cli.add_argument("--output", default=None)
 _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
-EZQ_SRC = EZQ_REPO / "src"
+EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
 RULESETS_C = EZQ_SRC / "rulesets.c"
 RULESETS_H = EZQ_SRC / "rulesets.h"
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-rulesets-ast.json")
@@ -103,7 +103,7 @@ _ENUM_RE = re.compile(
 
 
 def parse_ruleset_enum() -> list[tuple[str, str]]:
-    src = RULESETS_H.read_text(encoding="utf-8")
+    src = RULESETS_H.read_text(encoding="utf-8", errors="replace")
     m = _ENUM_RE.search(src)
     if m is None:
         raise RuntimeError(f"Could not find ruleset_t enum in {RULESETS_H}")
@@ -321,7 +321,7 @@ def main() -> int:
     print(f"  rulesets: {[p for _, p in enum_pairs]}")
 
     print("\nPhase 2: parsing rulesets.c")
-    src = RULESETS_C.read_text(encoding="utf-8")
+    src = RULESETS_C.read_text(encoding="utf-8", errors="replace")
     base_policy = parse_initial_rulesetdef(src)
     loaders = find_loader_bodies(src)
     print(f"  loader functions found: {sorted(loaders.keys())}")

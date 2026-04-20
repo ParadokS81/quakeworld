@@ -55,6 +55,20 @@ export function blameLine(
   };
 }
 
+/**
+ * True if `revision` has a tree entry named `path` (a directory).
+ * Used by diff-versions to detect whether a given tag has ezQuake's
+ * post-2023-01-05 `src/` layout or the older root-level layout.
+ */
+export function treeHasDirectory(
+  repoPath: string,
+  revision: string,
+  path: string,
+): boolean {
+  const result = runGit(repoPath, ['ls-tree', '-d', '--name-only', revision, path]);
+  return result.ok && result.stdout.trim() === path;
+}
+
 export function headCommit(repoPath: string): string {
   const result = runGit(repoPath, ['rev-parse', 'HEAD']);
   if (!result.ok) throw new Error(`git rev-parse HEAD failed in ${repoPath}`);

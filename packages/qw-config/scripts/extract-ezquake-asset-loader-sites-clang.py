@@ -48,7 +48,7 @@ _cli.add_argument("--output", default=None)
 _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
-EZQ_SRC = EZQ_REPO / "src"
+EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-asset-loader-sites-ast.json")
 DIAGNOSTICS_LOG = HERE.parent / "docs/ast-asset-loader-sites-diagnostics.log"
 

@@ -45,7 +45,7 @@ _cli.add_argument("--output", default=None)
 _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
-EZQ_SRC = EZQ_REPO / "src"
+EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
 HELP_JSON = EZQ_REPO / "help_variables.json"
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-variables-ast.json")
 DIAGNOSTICS_LOG = HERE.parent / "docs/ast-spike-diagnostics.log"
@@ -109,7 +109,7 @@ def parse_flag_names(raw: str) -> list[str]:
 
 def parse_cvar_groups_h() -> dict[str, str]:
     """CVAR_GROUP_X #defines -> human group name. Mirrors the regex extractor."""
-    src = (EZQ_SRC / "cvar_groups.h").read_text(encoding="utf-8")
+    src = (EZQ_SRC / "cvar_groups.h").read_text(encoding="utf-8", errors="replace")
     out: dict[str, str] = {}
     for m in re.finditer(r'#define\s+(CVAR_GROUP_\w+)\s+"([^"]+)"', src):
         out[m.group(1)] = m.group(2)
@@ -612,7 +612,11 @@ def extract_trailing_comments(cvars: list[ExtractedCvar]) -> int:
         if cv.source_file not in file_cache:
             p = EZQ_SRC / cv.source_file
             try:
-                file_cache[cv.source_file] = p.read_text(encoding="utf-8").split("\n")
+                # Pre-2020 ezQuake source files contain Windows-1252 / Latin-1
+                # bytes (e.g. 0x97 em-dashes) in comments. errors='replace' keeps
+                # the pass working across the full tag history without needing
+                # per-version encoding detection.
+                file_cache[cv.source_file] = p.read_text(encoding="utf-8", errors="replace").split("\n")
             except OSError:
                 file_cache[cv.source_file] = []
         lines = file_cache[cv.source_file]
