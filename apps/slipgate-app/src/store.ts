@@ -89,6 +89,12 @@ export interface ProfilePrefs {
   alias_chain_resolver: "label" | "simulator";
   /** Simulator state + templates. */
   simulator: SimulatorPrefs;
+  /** Which top-level view MyQuake shows. */
+  my_quake_mode: "browse" | "domains";
+  /** Which domain the dir browser is scoped to. */
+  my_quake_domain: "configs" | "maps" | "matches" | "assets";
+  /** Hide default/unmodified entries in the dir browser. */
+  browse_hide_defaults: boolean;
 }
 
 export interface ProfileData {
@@ -158,6 +164,9 @@ const DEFAULT_PREFS: ProfilePrefs = {
     currentState: createDefaultPlayerState(),
     templates: [],
   },
+  my_quake_mode: "domains",
+  my_quake_domain: "configs",
+  browse_hide_defaults: false,
 };
 
 function createDefaultProfile(): ProfileData {
@@ -261,6 +270,13 @@ function migrateProfile(data: any): ProfileData {
         ...DEFAULT_PREFS,
         ...data.prefs,
         simulator: deserializeSimulator(data.prefs?.simulator),
+        my_quake_mode:
+          data.prefs?.my_quake_mode === "browse" ? "browse" : "domains",
+        my_quake_domain: (["configs", "maps", "matches", "assets"] as const).includes(
+          data.prefs?.my_quake_domain as any,
+        )
+          ? (data.prefs.my_quake_domain as ProfilePrefs["my_quake_domain"])
+          : "configs",
       },
     };
   }
@@ -275,6 +291,13 @@ function migrateProfile(data: any): ProfileData {
       ...DEFAULT_PREFS,
       ...data.prefs,
       simulator: deserializeSimulator(data.prefs.simulator),
+      my_quake_mode:
+        data.prefs.my_quake_mode === "browse" ? "browse" : "domains",
+      my_quake_domain: (["configs", "maps", "matches", "assets"] as const).includes(
+        data.prefs.my_quake_domain as any,
+      )
+        ? (data.prefs.my_quake_domain as ProfilePrefs["my_quake_domain"])
+        : "configs",
     };
   }
 
