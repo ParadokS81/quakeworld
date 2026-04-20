@@ -4,6 +4,7 @@ import type { ScanResult, ScannedFile, BrowseFilterState } from "../types";
 import type { ProfileData } from "../store";
 import BrowseFilterLens from "./BrowseFilterLens";
 import BrowseTree from "./BrowseTree";
+import BrowseDetail from "./BrowseDetail";
 
 interface BrowseViewProps {
   exePath: string | null;
@@ -117,10 +118,13 @@ export default function BrowseView(props: BrowseViewProps) {
                     onSelect={setSelected}
                   />
                 </div>
-                <div class="border-l border-[var(--sg-stat-border)] p-2 overflow-auto">
-                  <Show when={selected()} fallback={<p class="text-xs text-[var(--sg-text-dim)]">select a file</p>}>
-                    {(f) => <p class="text-xs">{f().virtual_path}</p>}
-                  </Show>
+                <div class="border-l border-[var(--sg-stat-border)] p-3 overflow-auto">
+                  <BrowseDetail
+                    scan={result()}
+                    file={selected()}
+                    exePath={props.exePath!}
+                    onOpenInConfigs={props.onOpenInConfigs}
+                  />
                 </div>
               </div>
               <div class="px-4 py-1 border-t border-[var(--sg-stat-border)] text-xs text-[var(--sg-text-dim)] flex gap-4">
