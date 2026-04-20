@@ -6,24 +6,43 @@ interface BrowseTreeProps {
   scan: ScanResult;
   filters: BrowseFilterState;
   hideDefaults: boolean;
+  hideDimmed: boolean;
   selectedPath: string | null;
   onSelect: (file: ScannedFile) => void;
 }
 
+function isFiltersActive(filters: BrowseFilterState): boolean {
+  return (
+    filters.clients.size > 0 ||
+    filters.gamedirs.size > 0 ||
+    filters.categories.size > 0 ||
+    filters.search.trim().length > 0
+  );
+}
+
 export default function BrowseTree(props: BrowseTreeProps) {
   const tree = createMemo(() => buildTree(props.scan, props.filters, props.hideDefaults));
+  const filtersActive = createMemo(() => isFiltersActive(props.filters));
+  const effectiveHideDimmed = createMemo(() => filtersActive() && props.hideDimmed);
+
   return (
     <div class="p-2 font-mono text-xs">
       <For each={tree().children}>
-        {(child) => (
-          <BrowseTreeNode
-            node={child}
-            depth={0}
-            selectedPath={props.selectedPath}
-            onSelect={props.onSelect}
-            autoExpand={false}
-          />
-        )}
+        {(child) => {
+          // Hide top-level branches with no matches when filter-focus mode is on.
+          if (effectiveHideDimmed() && !child.hasMatchingFiles) return null;
+          return (
+            <BrowseTreeNode
+              node={child}
+              depth={0}
+              selectedPath={props.selectedPath}
+              onSelect={props.onSelect}
+              autoExpand={filtersActive() && child.hasMatchingFiles && child.isDir}
+              filtersActive={filtersActive()}
+              hideDimmed={effectiveHideDimmed()}
+            />
+          );
+        }}
       </For>
     </div>
   );
@@ -67,74 +86,10 @@ function buildTree(scan: ScanResult, filters: BrowseFilterState, hideDefaults: b
   };
 
   for (const f of scan.files) {
-    const parts = f.virtual_path.split("/").filter((p) => p.length > 0);
-    if (parts.length === 0) continue;
-
-    let cursor = root;
-    let built = "";
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      built = built.length ? `${built}/${part}` : part;
-      const isLast = i === parts.length - 1;
-      const isArchiveBoundary = part.includes(":");
-
-      if (isArchiveBoundary) {
-        const [archiveName, inner] = part.split(":");
-        let archiveChild = cursor.children.find((c) => c.name === archiveName);
-        if (!archiveChild) {
-          archiveChild = {
-            name: archiveName,
-            fullPath: `${built.split(":")[0]}`,
-            isDir: true,
-            isArchive: true,
-            file: null,
-            children: [],
-            matchCount: 0,
-            hasMatchingFiles: false,
-          };
-          cursor.children.push(archiveChild);
-        }
-        const innerParts = inner.split("/").filter((p) => p.length > 0);
-        let innerCursor = archiveChild;
-        let innerBuilt = `${archiveName}`;
-        for (let j = 0; j < innerParts.length; j++) {
-          const ipart = innerParts[j];
-          innerBuilt = `${innerBuilt}:${ipart}`;
-          const iLast = j === innerParts.length - 1;
-          let ichild = innerCursor.children.find((c) => c.name === ipart);
-          if (!ichild) {
-            ichild = {
-              name: ipart,
-              fullPath: innerBuilt,
-              isDir: !iLast,
-              isArchive: false,
-              file: iLast ? f : null,
-              children: [],
-              matchCount: 0,
-              hasMatchingFiles: false,
-            };
-            innerCursor.children.push(ichild);
-          }
-          innerCursor = ichild;
-        }
-        break;
-      }
-
-      let child = cursor.children.find((c) => c.name === part);
-      if (!child) {
-        child = {
-          name: part,
-          fullPath: built,
-          isDir: !isLast,
-          isArchive: false,
-          file: isLast ? f : null,
-          children: [],
-          matchCount: 0,
-          hasMatchingFiles: false,
-        };
-        cursor.children.push(child);
-      }
-      cursor = child;
+    if (f.container.kind === "archive") {
+      placeArchiveEntry(root, f);
+    } else {
+      placeLooseFile(root, f);
     }
   }
 
@@ -167,4 +122,88 @@ function buildTree(scan: ScanResult, filters: BrowseFilterState, hideDefaults: b
   sort(root);
 
   return root;
+}
+
+function placeLooseFile(root: TreeNode, f: ScannedFile) {
+  const parts = f.virtual_path.split("/").filter((p) => p.length > 0);
+  if (parts.length === 0) return;
+  let cursor = root;
+  let built = "";
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    built = built ? `${built}/${part}` : part;
+    const isLast = i === parts.length - 1;
+    let child = cursor.children.find((c) => c.name === part);
+    if (!child) {
+      child = {
+        name: part,
+        fullPath: built,
+        isDir: !isLast,
+        isArchive: false,
+        file: isLast ? f : null,
+        children: [],
+        matchCount: 0,
+        hasMatchingFiles: false,
+      };
+      cursor.children.push(child);
+    }
+    cursor = child;
+  }
+}
+
+function placeArchiveEntry(root: TreeNode, f: ScannedFile) {
+  if (f.container.kind !== "archive") return;
+  // Step 1: descend to the archive file node (rendered as an expandable container).
+  const archiveParts = f.container.archive_path.split("/").filter((p) => p.length > 0);
+  if (archiveParts.length === 0) return;
+  let cursor = root;
+  let built = "";
+  for (let i = 0; i < archiveParts.length; i++) {
+    const part = archiveParts[i];
+    built = built ? `${built}/${part}` : part;
+    const isArchiveFile = i === archiveParts.length - 1;
+    let child = cursor.children.find((c) => c.name === part);
+    if (!child) {
+      child = {
+        name: part,
+        fullPath: built,
+        isDir: true,
+        isArchive: isArchiveFile,
+        file: null,
+        children: [],
+        matchCount: 0,
+        hasMatchingFiles: false,
+      };
+      cursor.children.push(child);
+    } else if (isArchiveFile && !child.isArchive) {
+      child.isArchive = true;
+      child.isDir = true;
+    }
+    cursor = child;
+  }
+  // Step 2: nest the entry path inside the archive node.
+  const entryParts = f.container.entry.split("/").filter((p) => p.length > 0);
+  if (entryParts.length === 0) return;
+  let entryBuilt = f.container.archive_path;
+  for (let j = 0; j < entryParts.length; j++) {
+    const ep = entryParts[j];
+    const isLastEntry = j === entryParts.length - 1;
+    // fullPath of leaf must equal f.virtual_path ("archive:first/second/third").
+    entryBuilt = j === 0 ? `${entryBuilt}:${ep}` : `${entryBuilt}/${ep}`;
+    let child = cursor.children.find((c) => c.name === ep);
+    if (!child) {
+      child = {
+        name: ep,
+        fullPath: entryBuilt,
+        isDir: !isLastEntry,
+        isArchive: false,
+        file: isLastEntry ? f : null,
+        children: [],
+        matchCount: 0,
+        hasMatchingFiles: false,
+      };
+      cursor.children.push(child);
+    }
+    cursor = child;
+  }
 }

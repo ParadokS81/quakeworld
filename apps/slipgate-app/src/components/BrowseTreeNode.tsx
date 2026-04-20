@@ -20,10 +20,15 @@ interface BrowseTreeNodeProps {
   selectedPath: string | null;
   onSelect: (file: ScannedFile) => void;
   autoExpand: boolean;
+  filtersActive: boolean;
+  hideDimmed: boolean;
 }
 
 export default function BrowseTreeNode(props: BrowseTreeNodeProps) {
   const [expanded, setExpanded] = createSignal(props.autoExpand);
+
+  // When filter-focus mode is active, skip rendering branches that don't match.
+  if (props.hideDimmed && !props.node.hasMatchingFiles) return null;
 
   function dimClass() {
     return props.node.hasMatchingFiles ? "" : "opacity-40";
@@ -83,7 +88,9 @@ export default function BrowseTreeNode(props: BrowseTreeNodeProps) {
                   depth={props.depth + 1}
                   selectedPath={props.selectedPath}
                   onSelect={props.onSelect}
-                  autoExpand={false}
+                  autoExpand={props.filtersActive && child.hasMatchingFiles && child.isDir}
+                  filtersActive={props.filtersActive}
+                  hideDimmed={props.hideDimmed}
                 />
               )}
             </For>
@@ -100,7 +107,9 @@ export default function BrowseTreeNode(props: BrowseTreeNodeProps) {
                 depth={props.depth + 1}
                 selectedPath={props.selectedPath}
                 onSelect={props.onSelect}
-                autoExpand={false}
+                autoExpand={props.filtersActive && child.hasMatchingFiles && child.isDir}
+                filtersActive={props.filtersActive}
+                hideDimmed={props.hideDimmed}
               />
             )}
           />
@@ -127,4 +136,3 @@ function formatBytes(n: number): string {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
-

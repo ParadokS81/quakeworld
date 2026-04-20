@@ -28,6 +28,13 @@ export default function BrowseView(props: BrowseViewProps) {
     categories: new Set(),
     search: "",
   });
+  // When any filter is active, default to hiding non-matching branches. "Show all" reveals dimmed context.
+  const [hideDimmed, setHideDimmed] = createSignal(true);
+
+  const filtersActive = () => {
+    const f = filters();
+    return f.clients.size > 0 || f.gamedirs.size > 0 || f.categories.size > 0 || f.search.trim().length > 0;
+  };
 
   async function runScan() {
     const exe = props.exePath;
@@ -113,6 +120,16 @@ export default function BrowseView(props: BrowseViewProps) {
                   value={filters().search}
                   onInput={(e) => setFilters({ ...filters(), search: e.currentTarget.value })}
                 />
+                <Show when={filtersActive()}>
+                  <label class="flex items-center gap-1 text-xs text-[var(--sg-text-dim)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!hideDimmed()}
+                      onChange={(e) => setHideDimmed(!e.currentTarget.checked)}
+                    />
+                    Show all
+                  </label>
+                </Show>
                 <Show when={stale()}>
                   <span class="text-xs text-amber-400">changes detected</span>
                 </Show>
@@ -134,6 +151,7 @@ export default function BrowseView(props: BrowseViewProps) {
                     scan={result()}
                     filters={filters()}
                     hideDefaults={props.hideDefaults}
+                    hideDimmed={hideDimmed()}
                     selectedPath={selected()?.virtual_path ?? null}
                     onSelect={setSelected}
                   />
