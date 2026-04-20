@@ -14,8 +14,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
-- [Quake-dir browser vision — unblocked, ready for implementation brainstorm](#quake-dir-browser-vision--unblocked-ready-for-implementation-brainstorm) — oracle Phase 2c.6 shipped 2026-04-20; slipgate dir-browser vision spec's prerequisites are all satisfied; next step is a fresh-context implementation brainstorm
 - [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
+- [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
 
 ---
 
@@ -175,45 +175,6 @@ Same treatment applies to `qw-knowledge` when it's next touched.
 
 ---
 
-## Quake-dir browser vision — unblocked, ready for implementation brainstorm
-
-**Added:** 2026-04-19, **Updated:** 2026-04-20 (oracle prerequisite shipped)
-**Status:** Prerequisites satisfied. Next step is the slipgate implementation brainstorm in a fresh session.
-**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT 'cat',COUNT(*) FROM entities WHERE type='asset_category' UNION ALL SELECT 'ext',COUNT(*) FROM asset_extensions UNION ALL SELECT 'rules',COUNT(*) FROM asset_path_rules UNION ALL SELECT 'bind',COUNT(*) FROM asset_cvar_bindings UNION ALL SELECT 'sites',COUNT(*) FROM asset_loader_sites;"` — expect 17/25/14/26/110.
-
-Brainstorm session 2026-04-19 identified a new MyQuake feature ("Browse the quake dir") whose success depended on oracle extracting ezQuake filesystem-consumption facts. User chose to build the oracle foundation first rather than hardcode QW lore into slipgate. Oracle Phase 2c.6 shipped and pushed 2026-04-20; slipgate vision spec is now unblocked on all four prerequisite fronts (category catalog, path rules, cvar->asset bindings, loader-site inventory).
-
-### Specs
-
-1. **Slipgate vision spec** — `apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md`. Product frame (two-layer browse, wiki + filesystem, loaded-vs-available, hybrid taxonomy, v1 = read-only lens, multi-install deferred, subtab rename deferred). Prerequisites section now carries a "Satisfied 2026-04-20" note.
-2. **Oracle extraction spec** — `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md`. Delivered as Phase 2c.6: 5 new tables, schema v2 -> v3. Bundle JSON at `packages/qw-config/src/data/ezquake-asset-bundle.json`.
-
-### Verification snapshot (2026-04-20)
-
-- Counts match spec exactly. Schema `v3`. ezQuake source pin `bea2515d0511bdf250dee43f0df7c4ace3fdfc17`.
-- All 14 path rules `source_verified=1` with plain-prose descriptions suitable for slipgate UI tooltips.
-- Loader-site classification rate 77% (19 certain + 66 heuristic + 25 unclassified). 29 rows have null category — slipgate classifier will need extension+path_hint fallback for these.
-- Only 9 startup + 1 on_map_load triggers on loader sites — slipgate should prefer `asset_cvar_bindings.load_trigger` as the authoritative startup signal rather than inferring from call sites.
-- `seedNotCorroborated=23` on cvar bindings is expected (single-compound-scope auto-pass can't follow ezQuake's cross-statement flows). Seed remains source of truth.
-- 2 `auto_orphan` bindings on `mapname` (radar + conback path templates) — seed-expansion candidates, not current blockers.
-
-### Next step
-
-**Fresh-context brainstorm** to turn the vision spec into an implementation spec. Scope for that session: visual mockups (wiki overview, filesystem layer, per-category view), subtab rename decision, component breakdown, data-model for how slipgate caches the oracle bundle, scanner architecture (pure pak extraction vs lazy-scan, WSL+Windows split considerations), integration with existing MyQuake tab + ConfigViewer's `exePath` anchor.
-
-### Key references
-
-- Companion oracle spec cross-links are in each spec's "Related docs" block.
-- Schema bumped: `apps/qw-oracle/scripts/load-knowledge/schema.ts` (search `SCHEMA_V3_ADDITIONS_SQL`).
-- E2E verify doc with spot-check queries: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` (Phase 2c.6 section).
-
-### Pressure
-
-No deadline. User explicitly chose to build oracle foundation before resuming slipgate work and remains in no hurry.
-
----
-
-
 ## Knowledge schema spec behind code (v1 only)
 
 **Added:** 2026-04-20
@@ -237,5 +198,43 @@ Either (a) update the existing spec in place to cover v2 and v3, or (b) archive 
 - Phase 2c.5 plan: `docs/superpowers/plans/2026-04-19-qw-knowledge-phase-2c5.md` (describes v2 additions).
 - Phase 2c.6 design spec: `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md` (describes v3 additions).
 - E2E verify doc: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` has the current source-of-truth for what each v2/v3 table holds.
+
+---
+
+## Slipgate + monorepo VISION docs need web-services family addendum
+
+**Added:** 2026-04-20
+**Status:** New direction surfaced during the quake-dir browser brainstorm; not yet written into any VISION doc.
+**Verification first:** `grep -i "assets.quake.world\|maps.quake.world\|content.hash\|github.backup" apps/slipgate-app/docs/VISION.md VISION.md 2>&1` — if any hits, the relevant bits already landed; refine scope accordingly.
+
+The 2026-04-20 brainstorm that produced the quake-dir browser v1 spec + plan surfaced a much broader product direction for the Slipgate ecosystem that is NOT yet captured in any VISION.md file. Key facts:
+
+1. **Web services family.** Three sibling services: `assets.quake.world` (catalog of custom content — skins, crosshairs, conchars, HUD overlays, etc. — with metadata, comments, provenance), `maps.quake.world` (map catalog with custom textures/lits/locs/mapshots cross-linked to tournament data), and `hub.quake.world` (existing — played matches with browser-replay, the Matches domain's upstream). All three follow the same philosophy: curated central catalogs with per-asset metadata, navigable via web, consumable via the slipgate app.
+
+2. **Content hash as universal join key.** sha256 (or equivalent) of file bytes = the canonical identifier an asset carries across local-dir, central-catalog, and GitHub-backup contexts. The local app authors NO metadata — only the hash. All descriptive metadata (name, creator, categorization, bundle membership) lives centrally and is fetched by hash lookup. This is why the v1 `ScannedFile` record reserves a `content_hash` slot (deferred-compute in v1, becomes the join key when the central catalog ships).
+
+3. **Curated bundle subscriptions.** Users subscribe to bundles (e.g. "Tournament Maps 2026"). The central catalog pins a hash list per bundle version; slipgate diffs local hashes against the manifest, pulls missing entries, optionally prunes stale. Clean, Git-like, zero-config.
+
+4. **GitHub OAuth as personal backup + share layer.** Separate vertical from the catalog. User logs in with GitHub (same flow pattern as existing Discord OAuth), app creates a private-by-default git repo of their quake dir. Default-exclude list = demos/screenshots/full-map-pool (copyright + space). User opt-in for specific subsets. Clean-room baseline (Phase 3 feature) provides the natural v0 commit. Slipgate's existing `docs/AUTH.md` already references a future GitHub OAuth path — this is that.
+
+5. **MyQuake 2-mode pattern (Browse + Domains).** Parallels slipgate-wide Settings/Teamplay/Weapons split. Browse = flat raw quake-dir lens. Domains = curated concept dashboards (Configs built; Maps/Matches/Assets future). The web services above are the upstream of each Domain — Maps domain consumes maps.quake.world data, Matches consumes hub.quake.world, Assets consumes assets.quake.world. App + web are built in the same frontend stack so the UX is a continuation, not a handoff.
+
+### Where each fact lands
+
+- **Slipgate `apps/slipgate-app/docs/VISION.md`** — gains the GitHub-backup feature (it is app-internal) + the MyQuake 2-mode architectural pattern + the content-hash join key as a design constraint that frames how future asset features bolt on. A short section is enough; the reason-why clauses matter more than the implementation.
+- **Monorepo root `VISION.md`** — gains the web services family block (assets / maps / hub triad) as the broader Slipgate product vision: the apps are the desktop-native counterpart to a future web hub, both built in the same stack so features flow between them. This is the piece that extends "workshop monorepo" into "ecosystem."
+
+### Supporting memories
+
+- `project_slipgate_web_services_vision.md` (2026-04-20) — durable capture of the facts above.
+- `project_slipgate_architecture.md` — updated 2026-04-20 with the 2-mode MyQuake pattern.
+
+### Pressure
+
+Not blocking the quake-dir browser implementation. The v1 plan is written and the ScannedFile record already has the `content_hash` slot reserved. But VISION is the front door for contributors and for future-you — leaving the web-services direction undocumented means a new session won't see the shape. Should land in the next slipgate or monorepo-docs session.
+
+### Fix shape
+
+Single session, ~60 minutes. Draft additions against both VISION files in parallel. Keep them declarative (what, why) not prescriptive (how). Cross-reference the supporting memories for details.
 
 ---
