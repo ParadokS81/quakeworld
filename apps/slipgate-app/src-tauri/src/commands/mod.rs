@@ -1,5 +1,6 @@
 pub mod archive;
 pub mod auth;
+pub mod browse;
 pub mod ezquake;
 pub mod locs;
 pub mod scanner;
