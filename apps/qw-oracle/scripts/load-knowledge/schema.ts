@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -275,6 +275,135 @@ CREATE INDEX idx_entities_name ON entities(name);
 CREATE INDEX idx_entities_type ON entities(project, type);
 `;
 
+// v3 adds the asset_consumption model: one entity-style type (asset_category)
+// and four relation tables (extensions, path_rules, cvar_bindings,
+// loader_sites). Matches docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md.
+
+const SCHEMA_V3_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS asset_category_versions (
+  entity_id       INTEGER NOT NULL REFERENCES entities(id),
+  version         TEXT NOT NULL,
+  display_name    TEXT NOT NULL,
+  description     TEXT,
+  notes           TEXT,
+  raw_ast_hash    TEXT,
+  extracted_at    TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+
+CREATE TABLE IF NOT EXISTS asset_extensions (
+  id               INTEGER PRIMARY KEY,
+  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version          TEXT NOT NULL,
+  extension        TEXT NOT NULL,
+  path_hint        TEXT,
+  category_id      TEXT NOT NULL REFERENCES entities(canonical_id),
+  notes            TEXT,
+  raw_ast_hash     TEXT,
+  extracted_at     TEXT NOT NULL,
+  UNIQUE (project, version, extension, path_hint)
+);
+CREATE INDEX IF NOT EXISTS idx_asset_ext_cat ON asset_extensions(category_id);
+
+CREATE TABLE IF NOT EXISTS asset_path_rules (
+  id               INTEGER PRIMARY KEY,
+  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version          TEXT NOT NULL,
+  canonical_id     TEXT NOT NULL,
+  rule_kind        TEXT NOT NULL CHECK (rule_kind IN (
+                     'search_path','archive_precedence','cmdline_override','gamedir_behavior'
+                   )),
+  ordinal          INTEGER NOT NULL,
+  description      TEXT NOT NULL,
+  source_ref       TEXT,
+  source_verified  INTEGER NOT NULL DEFAULT 0,
+  notes            TEXT,
+  raw_ast_hash     TEXT,
+  extracted_at     TEXT NOT NULL,
+  UNIQUE (project, version, canonical_id)
+);
+
+CREATE TABLE IF NOT EXISTS asset_cvar_bindings (
+  id                 INTEGER PRIMARY KEY,
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version            TEXT NOT NULL,
+  cvar_canonical_id  TEXT NOT NULL REFERENCES entities(canonical_id),
+  category_id        TEXT NOT NULL REFERENCES entities(canonical_id),
+  path_pattern       TEXT,
+  load_trigger       TEXT NOT NULL CHECK (load_trigger IN (
+                       'startup','on_demand','on_connect','on_map_load','unknown'
+                     )),
+  confidence         TEXT NOT NULL CHECK (confidence IN (
+                       'seed','auto','auto_confirms_seed','auto_orphan'
+                     )),
+  source_ref         TEXT,
+  notes              TEXT,
+  raw_ast_hash       TEXT,
+  extracted_at       TEXT NOT NULL,
+  UNIQUE (project, version, cvar_canonical_id, category_id, path_pattern)
+);
+CREATE INDEX IF NOT EXISTS idx_asset_cvar_bind_cvar ON asset_cvar_bindings(cvar_canonical_id);
+CREATE INDEX IF NOT EXISTS idx_asset_cvar_bind_cat  ON asset_cvar_bindings(category_id);
+
+CREATE TABLE IF NOT EXISTS asset_loader_sites (
+  id                 INTEGER PRIMARY KEY,
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version            TEXT NOT NULL,
+  canonical_id       TEXT NOT NULL,
+  function_name      TEXT NOT NULL,
+  source_file        TEXT NOT NULL,
+  source_line        INTEGER NOT NULL,
+  source_column      INTEGER,
+  enclosing_function TEXT,
+  reads_category_id  TEXT REFERENCES entities(canonical_id),
+  load_trigger       TEXT NOT NULL CHECK (load_trigger IN (
+                       'startup','on_demand','on_connect','on_map_load','unknown'
+                     )),
+  path_source        TEXT NOT NULL CHECK (path_source IN ('literal','cvar','computed','unknown')),
+  path_literal       TEXT,
+  path_cvar_id       TEXT REFERENCES entities(canonical_id),
+  confidence         TEXT NOT NULL CHECK (confidence IN ('certain','heuristic','unclassified')),
+  dev_only           INTEGER NOT NULL DEFAULT 0,
+  notes              TEXT,
+  raw_ast_hash       TEXT,
+  extracted_at       TEXT NOT NULL,
+  UNIQUE (project, version, canonical_id)
+);
+CREATE INDEX IF NOT EXISTS idx_asset_loader_category ON asset_loader_sites(reads_category_id);
+CREATE INDEX IF NOT EXISTS idx_asset_loader_cvar     ON asset_loader_sites(path_cvar_id);
+CREATE INDEX IF NOT EXISTS idx_asset_loader_fn       ON asset_loader_sites(function_name);
+`;
+
+// v2 -> v3 rebuilds the entities table to add 'asset_category' to the
+// type CHECK. Same pattern as v1 -> v2.
+const ENTITIES_V3_MIGRATION_SQL = `
+CREATE TABLE entities_v3 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v3(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v3 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v3 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+`;
+
 function migrateV1ToV2(db: Database.Database): void {
   // PRAGMA foreign_keys = OFF must be toggled OUTSIDE a transaction --
   // SQLite silently ignores it mid-transaction. Disable before and restore
@@ -289,6 +418,23 @@ function migrateV1ToV2(db: Database.Database): void {
       `);
       db.exec(ENTITIES_V2_MIGRATION_SQL);
       db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('2');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
+function migrateV2ToV3(db: Database.Database): void {
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+      `);
+      db.exec(ENTITIES_V3_MIGRATION_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('3');
     });
     txn();
   } finally {
@@ -311,17 +457,24 @@ export function applySchema(db: Database.Database): void {
       `INSERT INTO schema_meta (key, value) VALUES ('schema_version', ?)`
     ).run(String(SCHEMA_VERSION));
   } else {
-    const existingVersion = Number(existing.value);
-    if (existingVersion === 1 && SCHEMA_VERSION === 2) {
+    let existingVersion = Number(existing.value);
+    if (existingVersion === 1) {
       migrateV1ToV2(db);
-    } else if (existingVersion !== SCHEMA_VERSION) {
+      existingVersion = 2;
+    }
+    if (existingVersion === 2 && SCHEMA_VERSION >= 3) {
+      migrateV2ToV3(db);
+      existingVersion = 3;
+    }
+    if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
       );
     }
   }
 
-  // v2 additions are idempotent CREATE IF NOT EXISTS -- safe to run on fresh
+  // v2 and v3 additions are idempotent CREATE IF NOT EXISTS -- safe on fresh
   // DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
+  db.exec(SCHEMA_V3_ADDITIONS_SQL);
 }
