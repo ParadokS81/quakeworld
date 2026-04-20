@@ -141,16 +141,23 @@ def parse_initial_rulesetdef(src: str) -> dict:
     if m is None:
         raise RuntimeError("Could not find initial rulesetDef initializer")
     body = _strip_line_comments(m.group(1))
-    # Positional values separated by commas. There are len(POLICY_FIELDS) of them.
+    # Positional values separated by commas. Newer ezQuake tags added fields to
+    # rulesetDef_t incrementally: 3.6.5 has 8, 3.6.6+ has 13. Accept any count
+    # up to len(POLICY_FIELDS); missing tail fields get None so the version row
+    # correctly shows NULL for policies not present at that tag. A count larger
+    # than POLICY_FIELDS means we hit an unknown post-head addition and should
+    # stop so someone updates this script.
     raw_values = [v.strip() for v in body.split(",") if v.strip()]
-    if len(raw_values) != len(POLICY_FIELDS):
+    if len(raw_values) > len(POLICY_FIELDS):
         raise RuntimeError(
             f"rulesetDef initializer has {len(raw_values)} values, "
-            f"expected {len(POLICY_FIELDS)} (one per POLICY_FIELDS entry)"
+            f"expected at most {len(POLICY_FIELDS)} (POLICY_FIELDS may need a new entry)"
         )
     out: dict = {}
     for (field, _json_key, _kind), raw in zip(POLICY_FIELDS, raw_values):
         out[field] = raw
+    for (field, _json_key, _kind) in POLICY_FIELDS[len(raw_values):]:
+        out[field] = None
     return out
 
 

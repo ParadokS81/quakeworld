@@ -16,6 +16,81 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
 - [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
 - [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
+- [Phase 2f stress-test gap catalog](#phase-2f-stress-test-gap-catalog) — A1/A2/A3 surfaced 10 gaps across 4 tiers; needs batched fix cycle before full historical backfill can run
+
+---
+
+## Phase 2f stress-test gap catalog
+
+**Added:** 2026-04-20
+**Status:** Discovery complete across three stress-test jumps (A1: 3.6.8→3.6.9, A2: 3.6.5→3.6.6, A3: 3.1→3.2). All gaps listed below surfaced from real runs, not speculation.
+**Verification first:** `git log --oneline -5 apps/qw-oracle/scripts/load-knowledge/` — if most recent commit is `b1b7d9c feat(qw-oracle): Phase 2f stress test foundation`, the A1+A2 pipeline is on disk and the gap batch is still open.
+
+### Stress test scorecard
+
+| Jump | change_events | cross-linked to release_notes | Notes |
+|---|---|---|---|
+| A1: 3.6.8 → 3.6.9 | 6 | 4/6 (67%) | clean mechanics validator |
+| A2: 3.6.5 → 3.6.6 | 77 | 2/77 (3%) | rich volume, exposed struct-blame + parser gaps |
+| A3: 3.1 → 3.2 | 0 | N/A | catastrophic — every extractor failed on repo layout |
+
+A1 and A2 live in knowledge.db under project=ezquake (3.6.5/3.6.6/3.6.8/3.6.9 versions loaded, 3.6.6 release_notes). A3 produced no data because every extractor assumes `<repo>/src` which didn't exist until 2023-01-05.
+
+### Gap catalog (10 items, 4 tiers)
+
+**Tier 1 — Blocks historical walks:**
+
+1. **Repo-layout version-tolerance (A3).** Every extractor hardcodes `EZQ_SRC = EZQ_REPO / "src"`. That path only exists from 2023-01-05 (commit 97a9b1884, between 3.6.1 and 3.6.2). 14+ pre-2023 tags unreachable. Companion: `diff-versions.ts` `PROJECT_SRC_PREFIX['ezquake']='src/'` is the same assumption baked into blame. Fix: detect `<repo>/src` vs root per-version at extractor entry + store layout in `versions` table so diff can use it for blame.
+2. **Version-tolerant struct parsing (A2).** Ruleset extractor patched inline (accepts 8-13 POLICY_FIELDS instead of exactly 13). Pattern will recur on older tags for other structs. Audit + fix each extractor against 3.6.1 / 3.6.0 / 3.2.3 once layout is fixed.
+3. **Struct-field-addition blame lands wrong (A2).** 20/25 ruleset modifications + 8/8 hud_element modifications have null PR because blame anchors at struct INSTANCE line, not the struct FIELD DEFINITION line in the header. Extractors need to emit per-field source locations for struct-field-typed mods. Architectural.
+4. **Cvar default-value blame via `Cvar_SetDefault` call sites (A2).** Same pattern for cvar mods — many modifications have null PR because blame lands on cvar_t declaration, not on the `Cvar_SetDefault(...)` call that changed the default. Related to gap 3.
+
+**Tier 2 — Data completeness:**
+
+5. **`flag_bit` entity type needed.** PEXT_TRANS, FTE_PEXT_COLOURMOD, FPD_*, CVAR_*, STAT_* etc. are all bitmask-domain features ezQuake treats as first-class facts but we don't capture. Probably 200-400 missing entities across history. New extractor + schema migration + type adapter.
+6. **Asset relation diff mode.** asset_extensions / path_rules / cvar_bindings / loader_sites tables are version-keyed but not entity-keyed, so diff-versions skips them. Stable across A1 + A2 (identical 17/25/14/26/110 at both pairs) — gap didn't bite yet but will over longer spans. Options: extend change_events with nullable columns for relation events, or separate relation_changes table.
+
+**Tier 3 — Parser precision/recall:**
+
+7. **Token-primitive substring bug (A2).** `$dateiso` → false match to `token_primitive:$d`. Fix: `/\$([a-zA-Z0-9])(?![a-zA-Z0-9])/g`. One line.
+8. **Parser patterns missing.** `+showscores` (+prefix, no underscore), `"smackdrive"` (quote-wrapped), `set_{calc,eval,ex,ex2}` (brace expansion), `hud_gun[2-8]_frame_hide` (bracket range). All surfaced in 3.6.6 release body.
+9. **Bare-word command allowlist.** ~30 commands (connect, skywind family, hunk_print, exec, etc.) that don't match the "must have underscore" filter but are real commands. Hand-curated list.
+
+**Tier 4 — Hygiene:**
+
+10. **Drop-guard uses `entityCount` not `_versions` row count (A1).** Help-only entries inflate count. Edge-case hardening.
+
+### Proposed fix sequencing (three batches)
+
+**Batch 1 (mechanical, ~4-6h): gaps 1, 7, 8, 9, 10.**
+Layout detection, token-primitive regex, parser patterns, bare-word allowlist, drop-guard fix. Unblocks every pre-2023 tag for A3-equivalent runs and pulls parser precision/recall up.
+
+**Batch 2 (new data, ~4-6h): gaps 5, 6.**
+`flag_bit` entity type (schema v4→v5, new extractor, new type adapter). Asset relation diff (extend change_events or new relation_changes table).
+
+**Batch 3 (architectural, ~full day+): gaps 2, 3, 4.**
+Struct-field-addition blame correction (per-field source location in extractors). Cvar default-value blame at call sites. Version-tolerance audit — run against 3.6.1 / 3.6.0 / 3.2.3 after Batch 1 and fix what surfaces extractor-by-extractor.
+
+Then re-run A1, A2, A3 against the fixed pipeline to verify the gap fixes took effect.
+
+### Known limitations NOT in the catalog
+
+- **FTE / MVDSV / KTX repo-layout and struct-shape assumptions** are entirely untested. Phase 2d (FTE) is its own discovery pass.
+- **Pre-v3.0 SVN-era tags** (`ezquake_19*`, `ezquake_2*`, 2005-2016) likely add a second-order layout/struct differential. Low priority.
+
+### Companion finding: in-repo CHANGELOG exists in older tags
+
+3.1 and 3.2 ship a root-level `CHANGELOG` file (47 lines, self-described as "INCOMPLETE"). Stopped being maintained when GitHub releases took over. Useful context for historical coverage but not reliable enough to replace GitHub release-notes as the canonical source.
+
+### Speed optimization that was started
+
+`/tmp/extract-tag-parallel.sh` runs cvars (heavy, 2m14s) in parallel with the 10 faster extractors (~30s total). Structure is sound but was never measurable because A3's extractors all failed instantly. Copy/promote into the qw-config scripts dir alongside Batch 1 so we get the measured speedup when we re-extract.
+
+### Related
+
+- Current loader code: `apps/qw-oracle/scripts/load-knowledge/` (generalized diff, release_notes ingestion shipped in commit `b1b7d9c`).
+- Ruleset extractor patched: `packages/qw-config/scripts/extract-ezquake-rulesets-clang.py` — accepts 1..13 POLICY_FIELDS, fills missing with null.
+- Memory: `project_qw_oracle_vision.md` holds Phase 2f roadmap; this catalog sits under it as Phase 2f prerequisites.
 
 ---
 
