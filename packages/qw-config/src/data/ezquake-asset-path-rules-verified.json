@@ -1,0 +1,165 @@
+{
+  "project": "ezquake",
+  "version": "head",
+  "path_rules": [
+    {
+      "canonical_id": "ezquake:path_rule:id1_qw_base_stack",
+      "rule_kind": "search_path",
+      "ordinal": 1,
+      "description": "At startup FS_InitFilesystemEx mounts the base game directories in this order: id1/ (or ID1/ on case-sensitive filesystems where the directory is upper-case), then ezquake/, then qw/, then (if set) the user's home directory. Each is pushed onto fs_searchpaths via FS_AddGameDirectory, which pushes to the head of the list \u2014 so the effective lookup order is homedir > qw > ezquake > id1.",
+      "source_ref": "fs.c:775",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:searchpath_lifo_lookup",
+      "rule_kind": "search_path",
+      "ordinal": 2,
+      "description": "fs_searchpaths is a singly-linked list traversed head-first. Every FS_AddPathHandle call sets search->next = fs_searchpaths then fs_searchpaths = search, so the most recently added directory or archive is checked first. Lookups (FS_FLocateFile) walk the list from head to tail and return the first match.",
+      "source_ref": "fs.c:2007",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddPathHandle",
+      "verified_function_fingerprint": "FS_AddPathHandle(char * probablepath, searchpathfuncs_t * funcs, void * handle, qbool copyprotect, qbool istemporary, FS_Load_File_Types loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:pak_numbered_ascending_load",
+      "rule_kind": "archive_precedence",
+      "ordinal": 1,
+      "description": "Within a game directory FS_AddDataFiles loads pak0.<ext>, pak1.<ext>, pak2.<ext>, ... in numeric-ascending order until one is missing. Because each is pushed to the head of fs_searchpaths on load, higher-numbered paks end up earlier in lookup order. Effect: pakN.pak overrides pak(N-1).pak for same-name entries.",
+      "source_ref": "fs.c:2758",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(char * pathto, searchpath_t * parent, char * extension, searchpathfuncs_t * funcs)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:archive_kind_order_pak_pk3_pk4",
+      "rule_kind": "archive_precedence",
+      "ordinal": 2,
+      "description": "FS_AddPathHandle loads archives in this order per directory: FS_LOAD_FILE_PAK (.pak), then FS_LOAD_FILE_PK3 (.pk3), then FS_LOAD_FILE_PK4 (.pk4). Later-loaded kinds sit higher on the LIFO stack, so precedence is: pk4 > pk3 > pak. QuakeWorld installs rarely use pk4; in practice this collapses to pk3 > pak.",
+      "source_ref": "fs.c:2013",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddPathHandle",
+      "verified_function_fingerprint": "FS_AddPathHandle(char * probablepath, searchpathfuncs_t * funcs, void * handle, qbool copyprotect, qbool istemporary, FS_Load_File_Types loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:wildcard_vs_numbered_archives",
+      "rule_kind": "archive_precedence",
+      "ordinal": 3,
+      "description": "After loading pakN.<ext>, pakN+1.<ext>, ... in order, FS_AddDataFiles enumerates `*.<ext>` in the same directory via FS_AddWildDataFiles. Wildcard-discovered archives are pushed after the numbered ones, so they sit higher on the stack and take precedence over numbered paks of the same extension.",
+      "source_ref": "fs.c:2772",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(char * pathto, searchpath_t * parent, char * extension, searchpathfuncs_t * funcs)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:archive_vs_loose_files",
+      "rule_kind": "archive_precedence",
+      "ordinal": 4,
+      "description": "FS_AddGameDirectory pushes the directory itself onto fs_searchpaths (via FS_AddPathHandle), THEN FS_AddPathHandle triggers FS_AddDataFiles which pushes the directory's archives on top. Net effect: archives override loose files in the same directory.",
+      "source_ref": "fs.c:2833",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddGameDirectory",
+      "verified_function_fingerprint": "FS_AddGameDirectory(char * dir, FS_Load_File_Types loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:pak_lst_disables_wildcards",
+      "rule_kind": "archive_precedence",
+      "ordinal": 5,
+      "description": "If a file named `pak.lst` exists in the game directory, FS_AddDataFiles skips the `*.<ext>` wildcard enumeration entirely. Only explicitly listed paks (via pak0..pakN numbered loop) load, giving the user a way to constrain which archives mount.",
+      "source_ref": "fs.c:2772",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(char * pathto, searchpath_t * parent, char * extension, searchpathfuncs_t * funcs)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:gamedir_unwinds_to_base",
+      "rule_kind": "gamedir_behavior",
+      "ordinal": 1,
+      "description": "FS_SetGamedir frees every searchpath entry above fs_base_searchpaths (the stack snapshot taken after id1/ezquake/qw/homedir load at init) before mounting the new mod dir. This means a gamedir switch does NOT keep the previous mod's entries \u2014 only the base stack survives. Each `gamedir` command thus swaps mods cleanly.",
+      "source_ref": "fs.c:618",
+      "source_verified": 1,
+      "verified_function_name": "FS_SetGamedir",
+      "verified_function_fingerprint": "FS_SetGamedir(char * dir, qbool force)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:gamedir_fallthrough_to_base",
+      "rule_kind": "gamedir_behavior",
+      "ordinal": 2,
+      "description": "After unwinding, FS_SetGamedir calls FS_AddGameDirectory for the new mod and, if set, FS_AddHomeDirectory for homedir/<mod>. The mod directory sits on top of the base stack (qw/ezquake/id1), so assets missing from the mod fall through to qw/, then ezquake/, then id1/.",
+      "source_ref": "fs.c:633",
+      "source_verified": 1,
+      "verified_function_name": "FS_SetGamedir",
+      "verified_function_fingerprint": "FS_SetGamedir(char * dir, qbool force)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:basedir_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 1,
+      "description": "`-basedir <path>` overrides the auto-detected com_basedir (the directory above id1/, ezquake/, qw/). Checked before Sys_getcwd fallback; when present, id1/ezquake/qw are resolved relative to this value.",
+      "source_ref": "fs.c:736",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:nohome_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 2,
+      "description": "`-nohome` clears com_homedir so no ~/ezQuake (Windows) or ~/.ezquake (POSIX) directory is mounted. Without it, the home directory is always added after qw/ at startup.",
+      "source_ref": "fs.c:760",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:data_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 3,
+      "description": "`-data <subdir>` can be repeated to mount additional game directories under com_basedir, applied as extra FS_AddGameDirectory calls after id1/ezquake/qw. Each -data entry pushes on top of the previous one.",
+      "source_ref": "fs.c:798",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:userdir_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 4,
+      "description": "`-userdir <dir> <type>` sets a user-specific media directory via FS_SetUserDirectory, separating user-generated files (screenshots, demos, configs) from the base install. Applied after base stack but before any gamedir switch.",
+      "source_ref": "fs.c:811",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "ezquake:path_rule:game_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 5,
+      "description": "`-game <mod>` (or `+gamedir <mod>`) calls FS_SetGamedir at startup, mounting <mod> on top of the base stack. Equivalent to running `gamedir <mod>` at the console immediately after init.",
+      "source_ref": "fs.c:815",
+      "source_verified": 1,
+      "verified_function_name": "FS_InitFilesystemEx",
+      "verified_function_fingerprint": "FS_InitFilesystemEx(qbool guess_cwd)",
+      "verification_notes": null
+    }
+  ],
+  "_stats": {
+    "total": 14,
+    "verified": 14,
+    "failed": 0
+  }
+}
