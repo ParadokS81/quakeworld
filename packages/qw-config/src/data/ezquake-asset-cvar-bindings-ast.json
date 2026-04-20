@@ -1,0 +1,116 @@
+{
+  "cvar_bindings": [
+    {
+      "cvar_canonical_id": "ezquake:cvar:demo_capture_dir",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "movie.c:434",
+      "enclosing_function": "WAVCaptureStart",
+      "loader_function": "FS_OpenVFS",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": "ezquake:asset_category:texture",
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "hud_radar.c:139",
+      "enclosing_function": "HUD_NewRadarMap",
+      "loader_function": "R_LoadPicImage",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": "ezquake:asset_category:texture",
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "hud_radar.c:141",
+      "enclosing_function": "HUD_NewRadarMap",
+      "loader_function": "R_LoadPicImage",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": "ezquake:asset_category:texture",
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "hud_radar.c:144",
+      "enclosing_function": "HUD_NewRadarMap",
+      "loader_function": "R_LoadPicImage",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": "ezquake:asset_category:hud_overlay",
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "r_draw.c:1072",
+      "enclosing_function": "Draw_ConsoleBackground",
+      "loader_function": "Draw_CachePicSafe",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": "ezquake:asset_category:hud_overlay",
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "r_draw.c:1082",
+      "enclosing_function": "Draw_ConsoleBackground",
+      "loader_function": "Draw_CachePicSafe",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:mapname",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "r_part.c:210",
+      "enclosing_function": "R_ReadPointFile_f",
+      "loader_function": "FS_OpenVFS",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:scr_conpicture",
+      "category_id": "ezquake:asset_category:texture",
+      "load_trigger": "startup",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "r_draw.c:1041",
+      "enclosing_function": "Draw_InitConback",
+      "loader_function": "R_LoadPicImage",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:sv_demoDir",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "sv_user.c:1474",
+      "enclosing_function": "Cmd_Download_f",
+      "loader_function": "FS_OpenVFS",
+      "notes": null
+    }
+  ],
+  "_stats": {
+    "total_bindings": 9,
+    "unique_cvars": 4,
+    "by_category": {
+      "ezquake:asset_category:texture": 4,
+      "<null>": 3,
+      "ezquake:asset_category:hud_overlay": 2
+    },
+    "by_load_trigger": {
+      "on_demand": 8,
+      "startup": 1
+    }
+  }
+}
