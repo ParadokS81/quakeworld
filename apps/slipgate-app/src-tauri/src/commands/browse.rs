@@ -435,6 +435,75 @@ pub fn match_cvar_bindings(
     out
 }
 
+/// Shipped pak filenames that count as default client content.
+/// Conservative v1 list: standard ezQuake/qw/id1 paks named pak0 through pak9.
+const SHIPPED_PAK_NAMES: &[&str] = &[
+    "pak0.pak", "pak1.pak", "pak2.pak",
+];
+
+const SHIPPED_GAMEDIRS_FOR_PAK: &[&str] = &["id1", "ezquake", "qw"];
+
+/// Returns true if this file entry is part of the default shipped game content.
+/// Loose id1 files are always default. Archives in known gamedirs with named pak0-pak2 are default.
+pub fn compute_is_default(_virtual_path: &str, container: &Container) -> bool {
+    match container {
+        Container::Loose => {
+            let first = _virtual_path.split('/').next().unwrap_or("");
+            first == "id1"
+        }
+        Container::Archive { archive_path, .. } => {
+            let gamedir = archive_path.split('/').next().unwrap_or("");
+            let pak_name = archive_path.rsplit('/').next().unwrap_or("");
+            SHIPPED_GAMEDIRS_FOR_PAK.contains(&gamedir)
+                && SHIPPED_PAK_NAMES.contains(&pak_name.to_lowercase().as_str())
+        }
+    }
+}
+
+/// Detect cvar bindings whose resolved path escapes `root`. Does not enumerate.
+pub fn find_external_refs(
+    bindings: &[BundleCvarBinding],
+    merged_cvars: &HashMap<String, String>,
+    root: &str,
+) -> Vec<ExternalRef> {
+    let root_path = Path::new(root);
+    let mut out = Vec::new();
+
+    for b in bindings {
+        let Some(pattern) = b.path_pattern.as_ref() else {
+            continue;
+        };
+        let short = b
+            .cvar_canonical_id
+            .rsplit(':')
+            .next()
+            .unwrap_or(&b.cvar_canonical_id);
+        let Some(value) = merged_cvars.get(short) else {
+            continue;
+        };
+        let resolved = pattern.replace("{value}", value);
+
+        let is_abs_external = Path::new(&resolved).is_absolute()
+            && !Path::new(&resolved).starts_with(root_path);
+        let is_dotdot = resolved.contains("..");
+
+        if is_abs_external || is_dotdot {
+            let full = if is_abs_external {
+                resolved.clone()
+            } else {
+                root_path.join(&resolved).to_string_lossy().to_string()
+            };
+            out.push(ExternalRef {
+                cvar_canonical_id: b.cvar_canonical_id.clone(),
+                resolved_path: full.clone(),
+                exists: Path::new(&full).exists(),
+            });
+        }
+    }
+
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -650,5 +719,63 @@ mod tests {
 
         let cvars: HashMap<String, String> = HashMap::new();
         assert!(match_cvar_bindings("qw/skins/anything.pcx", &bindings, &cvars).is_empty());
+    }
+
+    #[test]
+    fn is_default_id1_always_default() {
+        assert!(compute_is_default("id1/anything.bsp", &Container::Loose));
+        assert!(compute_is_default("id1/stuff/thing.wav", &Container::Loose));
+    }
+
+    #[test]
+    fn is_default_shipped_pak_is_default() {
+        let in_ez_pak0 = Container::Archive {
+            archive_path: "ezquake/pak0.pak".into(),
+            entry: "textures/test.tga".into(),
+        };
+        assert!(compute_is_default("ezquake/pak0.pak:textures/test.tga", &in_ez_pak0));
+
+        let in_qw_pak1 = Container::Archive {
+            archive_path: "qw/pak1.pak".into(),
+            entry: "textures/thing.tga".into(),
+        };
+        assert!(compute_is_default("qw/pak1.pak:textures/thing.tga", &in_qw_pak1));
+    }
+
+    #[test]
+    fn is_default_loose_in_user_gamedir_is_custom() {
+        assert!(!compute_is_default("qw/skins/haste.pcx", &Container::Loose));
+        assert!(!compute_is_default("ezquake/hud/overlay.png", &Container::Loose));
+    }
+
+    #[test]
+    fn is_default_user_pak_not_default() {
+        let custom_pak = Container::Archive {
+            archive_path: "qw/skinpack.pak".into(),
+            entry: "skins/one.pcx".into(),
+        };
+        assert!(!compute_is_default("qw/skinpack.pak:skins/one.pcx", &custom_pak));
+    }
+
+    #[test]
+    fn external_ref_detected_when_pattern_escapes_root() {
+        let bindings = vec![
+            BundleCvarBinding {
+                cvar_canonical_id: "ezquake:cvar:crosshairimage".into(),
+                category_id: "ezquake:asset_category:crosshair".into(),
+                path_pattern: Some("{value}".into()),
+                load_trigger: "on_demand".into(),
+                confidence: "seed".into(),
+                source_ref: "x".into(),
+            },
+        ];
+
+        let mut cvars = HashMap::new();
+        cvars.insert("crosshairimage".to_string(), "../outside/xhair.png".to_string());
+
+        let refs = find_external_refs(&bindings, &cvars, "/quake");
+        assert_eq!(refs.len(), 1);
+        assert_eq!(refs[0].cvar_canonical_id, "ezquake:cvar:crosshairimage");
+        assert!(refs[0].resolved_path.contains("outside"));
     }
 }
