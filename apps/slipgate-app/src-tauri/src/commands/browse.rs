@@ -66,7 +66,10 @@ pub struct Bundle {
     pub asset_loader_sites: Vec<BundleLoaderSite>,
 }
 
-const BUNDLE_JSON: &str = include_str!("../../../../../packages/qw-config/src/data/ezquake-asset-bundle.json");
+// Bundle file is copied into src-tauri/resources/ by scripts/sync-rust.sh from
+// packages/qw-config/src/data/. The copy keeps the include path self-contained inside
+// src-tauri/ so the Windows build mirror (which only syncs src-tauri/) can compile.
+const BUNDLE_JSON: &str = include_str!("../../resources/ezquake-asset-bundle.json");
 
 fn load_bundle() -> Bundle {
     serde_json::from_str(BUNDLE_JSON).unwrap_or_else(|e| {
