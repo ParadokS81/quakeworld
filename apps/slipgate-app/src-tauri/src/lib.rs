@@ -38,6 +38,9 @@ pub fn run() {
             commands::scanner::load_config_from_source,
             commands::locs::scan_loc_files,
             commands::browse::scan_quake_dir,
+            commands::browse::hash_file,
+            commands::browse::read_file_bytes,
+            commands::browse::open_containing_folder,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .setup(|app| {

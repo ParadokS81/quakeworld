@@ -639,6 +639,97 @@ pub fn find_external_refs(
     out
 }
 
+use sha2::{Digest, Sha256};
+
+/// Lazy SHA256 of a file. For loose files, reads directly; for archive-interior files,
+/// extracts first. Max 64 MB guard prevents OOM on accidental huge files.
+#[tauri::command]
+pub async fn hash_file(exe_path: String, virtual_path: String) -> Result<String, String> {
+    let exe = PathBuf::from(&exe_path);
+    let root = exe.parent().ok_or_else(|| "invalid exe path".to_string())?;
+
+    let bytes = read_virtual_bytes(root, &virtual_path, 64 * 1024 * 1024)
+        .map_err(|e| format!("read failed: {}", e))?;
+    let mut hasher = Sha256::new();
+    hasher.update(&bytes);
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+/// Read file bytes up to `max_bytes`. Used for preview rendering via blob URLs.
+#[tauri::command]
+pub async fn read_file_bytes(
+    exe_path: String,
+    virtual_path: String,
+    max_bytes: u64,
+) -> Result<Vec<u8>, String> {
+    let exe = PathBuf::from(&exe_path);
+    let root = exe.parent().ok_or_else(|| "invalid exe path".to_string())?;
+    read_virtual_bytes(root, &virtual_path, max_bytes as usize)
+        .map_err(|e| format!("read failed: {}", e))
+}
+
+/// Open the containing folder of a virtual_path in the OS file explorer.
+/// For archive-interior files, opens the folder containing the archive.
+#[tauri::command]
+pub async fn open_containing_folder(
+    exe_path: String,
+    virtual_path: String,
+) -> Result<(), String> {
+    let exe = PathBuf::from(&exe_path);
+    let root = exe.parent().ok_or_else(|| "invalid exe path".to_string())?;
+
+    let target = if let Some(colon) = virtual_path.find(':') {
+        root.join(&virtual_path[..colon])
+    } else {
+        root.join(&virtual_path)
+    };
+    let parent = target.parent().ok_or_else(|| "no parent dir".to_string())?;
+
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(parent.as_os_str())
+            .spawn()
+            .map_err(|e| format!("explorer failed: {}", e))?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = parent;
+        Err("open_containing_folder is Windows-only in v1".to_string())
+    }
+}
+
+fn read_virtual_bytes(
+    root: &Path,
+    virtual_path: &str,
+    max_bytes: usize,
+) -> std::io::Result<Vec<u8>> {
+    if let Some(colon) = virtual_path.find(':') {
+        let archive_rel = &virtual_path[..colon];
+        let entry = &virtual_path[colon + 1..];
+        let archive_abs = root.join(archive_rel);
+        let bytes = crate::commands::archive::extract_file(&archive_abs, entry)?;
+        if bytes.len() > max_bytes {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "file exceeds max_bytes guard",
+            ));
+        }
+        Ok(bytes)
+    } else {
+        let path = root.join(virtual_path);
+        let meta = std::fs::metadata(&path)?;
+        if meta.len() as usize > max_bytes {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "file exceeds max_bytes guard",
+            ));
+        }
+        std::fs::read(&path)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
