@@ -321,3 +321,88 @@ export interface ConfigSourceBundle {
   detected_client: string | null;
   label: string;
 }
+
+// Browse mode
+
+export type Container =
+  | { kind: "loose" }
+  | { kind: "archive"; archive_path: string; entry: string };
+
+export type Confidence = "certain" | "heuristic" | "seed" | "unclassified";
+
+export interface ConsumedBy {
+  loader_sites: string[];
+  cvar_bindings: number[];
+}
+
+export interface ScannedFile {
+  virtual_path: string;
+  container: Container;
+  size: number;
+  mtime: number;
+  content_hash: string | null;
+  category_id: string | null;
+  confidence: Confidence;
+  search_path_winner: boolean;
+  consumed_by: ConsumedBy;
+  is_default: boolean;
+}
+
+export interface BrowseClientInfo {
+  name: string;
+  exe_path: string;
+  version: string | null;
+  active: boolean;
+}
+
+export interface ExternalRef {
+  cvar_canonical_id: string;
+  resolved_path: string;
+  exists: boolean;
+}
+
+export interface ArchiveInfo {
+  archive_path: string;
+  kind: "pak" | "pk3" | "zip";
+  size: number;
+  entry_count: number;
+}
+
+export type ScanWarningKind = "archive_parse_failure" | "permission_denied" | "bundle_mismatch";
+
+export interface ScanWarning {
+  kind: ScanWarningKind;
+  path: string;
+  message: string;
+}
+
+export interface ScanStats {
+  loaded: number;
+  available: number;
+  unreferenced: number;
+  other: number;
+  total_bytes: number;
+}
+
+export interface ScanResult {
+  exe_path: string;
+  scan_timestamp: number;
+  root: string;
+  clients_detected: BrowseClientInfo[];
+  gamedirs_detected: string[];
+  files: ScannedFile[];
+  archives: ArchiveInfo[];
+  unresolved_external_refs: ExternalRef[];
+  warnings: ScanWarning[];
+  stats: ScanStats;
+}
+
+export type BrowseModeName = "browse" | "domains";
+export type BrowseDomainName = "configs" | "maps" | "matches" | "assets";
+
+export interface BrowseFilterState {
+  clients: Set<string>;
+  gamedirs: Set<string>;
+  categories: Set<string>;
+  search: string;
+}
