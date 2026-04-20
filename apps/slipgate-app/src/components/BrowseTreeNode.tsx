@@ -83,7 +83,7 @@ export default function BrowseTreeNode(props: BrowseTreeNodeProps) {
                   depth={props.depth + 1}
                   selectedPath={props.selectedPath}
                   onSelect={props.onSelect}
-                  autoExpand={shouldAutoExpand(child)}
+                  autoExpand={false}
                 />
               )}
             </For>
@@ -128,8 +128,3 @@ function formatBytes(n: number): string {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function shouldAutoExpand(n: TreeNode): boolean {
-  if (!n.isDir) return false;
-  if (n.isArchive) return false;
-  return n.children.length <= 100;
-}

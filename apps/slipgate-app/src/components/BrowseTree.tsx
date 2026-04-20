@@ -21,7 +21,7 @@ export default function BrowseTree(props: BrowseTreeProps) {
             depth={0}
             selectedPath={props.selectedPath}
             onSelect={props.onSelect}
-            autoExpand={child.children.length <= 100 && child.name !== "id1"}
+            autoExpand={false}
           />
         )}
       </For>
