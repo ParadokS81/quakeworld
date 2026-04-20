@@ -253,3 +253,130 @@ ORDER BY e.canonical_id;
 - **83 HUD elements own 1404 synthesized hud_\* cvars** between them (parent->child linkage via `owned_cvars_json`).
 - **All 6 rulesets resolved with full policy bundles.** Locked-cvar counts: default 0, smackdown 6, qcon 5, thunderdome 4, mtfl 6, smackdrive 5.
 - **Case-sensitive token primitives preserved** at the entity level (`canonical_id` retains raw case for `token_primitive` only). Enables `$B`=blue LED (byte 137) vs `$b`=glyph (byte 139) to coexist as distinct entities.
+
+---
+
+# E2E verification - Phase 2c.6 (asset consumption model)
+
+Phase 2c.6 adds the engine's filesystem-consumption surface: what files
+ezQuake reads, under what search-path rules, and which cvars drive which
+asset paths. Schema bumped to v3. Adds one new entity type
+(`asset_category`) and four relation tables.
+
+## Commands used (ezQuake head, 2026-04-20)
+
+```bash
+# Extract (from packages/qw-config/)
+python3 scripts/extract-ezquake-asset-loader-sites-clang.py
+python3 scripts/extract-ezquake-asset-cvar-bindings-clang.py
+python3 scripts/extract-ezquake-asset-path-rules-verify.py
+
+# Build bundle + load (from apps/qw-oracle/)
+HEAD_SHA=$(git -C ../../research/repos/ezquake-source rev-parse HEAD)
+bunx tsx scripts/load-knowledge/build-asset-bundle.ts --project ezquake --version head
+
+npm run load-knowledge -- load-version \
+  --project ezquake --version head --type asset_category \
+  --json ../../packages/qw-config/src/data/ezquake-asset-bundle.json \
+  --commit $HEAD_SHA --ordinal 2 \
+  --extractor-version clang-ezquake-assets@1.0.0
+
+npm run load-knowledge -- load-assets \
+  --project ezquake --version head \
+  --json ../../packages/qw-config/src/data/ezquake-asset-bundle.json \
+  --commit $HEAD_SHA --ordinal 2 \
+  --extractor-version clang-ezquake-assets@1.0.0
+```
+
+## Per-table counts
+
+```sql
+SELECT 'asset_category entities'  AS what, COUNT(*) FROM entities WHERE type='asset_category'
+UNION ALL SELECT 'asset_category_versions',  COUNT(*) FROM asset_category_versions
+UNION ALL SELECT 'asset_extensions',         COUNT(*) FROM asset_extensions
+UNION ALL SELECT 'asset_path_rules',         COUNT(*) FROM asset_path_rules
+UNION ALL SELECT 'asset_cvar_bindings',      COUNT(*) FROM asset_cvar_bindings
+UNION ALL SELECT 'asset_loader_sites',       COUNT(*) FROM asset_loader_sites;
+```
+
+Expected at head:
+- asset_category entities:  **17**
+- asset_category_versions:  **17**
+- asset_extensions:         **25**
+- asset_path_rules:         **14**  (all `source_verified=1`)
+- asset_cvar_bindings:      **26**  (23 seed + 1 auto_confirms_seed + 2 auto_orphans)
+- asset_loader_sites:       **110** (19 certain + 66 heuristic + 25 unclassified)
+- **Total ezQuake entities: 3849** (3832 from 2c.5 + 17 new `asset_category`).
+
+## Spot-check queries
+
+```sql
+-- Which cvars bind to the skin category?
+SELECT SUBSTR(cvar_canonical_id, INSTR(cvar_canonical_id,':cvar:')+6) AS cvar,
+       path_pattern, load_trigger, confidence
+FROM asset_cvar_bindings
+WHERE category_id='ezquake:asset_category:skin'
+  AND project='ezquake' AND version='head'
+ORDER BY cvar;
+-- Expected: 9 rows (baseskin, team/enemy skin + quad/pent/both variants),
+-- all with path_pattern 'skins/{value}.pcx', load_trigger=on_connect,
+-- confidence=seed.
+
+-- Which sound loaders fire during entity init? (CL_InitTEnts precaches
+-- weapon impact sounds, etc.) load_trigger classifies as on_demand --
+-- CL_InitTEnts is not in the startup-rule watchlist.
+SELECT source_file||':'||source_line AS at, path_literal, enclosing_function
+FROM asset_loader_sites
+WHERE function_name='S_PrecacheSound' AND project='ezquake' AND version='head'
+ORDER BY source_file, source_line LIMIT 5;
+-- Expected: 5 rows from cl_tent.c (hit sounds) and cl_parse.c / cl_nqdemo.c
+-- (server-info sound precache).
+
+-- Search-path rules in precedence order.
+SELECT rule_kind, ordinal, canonical_id, source_verified
+FROM asset_path_rules
+WHERE project='ezquake' AND version='head'
+ORDER BY rule_kind, ordinal;
+-- Expected: 14 rules across 4 rule_kinds:
+--   search_path:         2 (id1_qw_base_stack, searchpath_lifo_lookup)
+--   archive_precedence:  5 (pak_numbered_ascending_load ... pak_lst_disables_wildcards)
+--   gamedir_behavior:    2 (gamedir_unwinds_to_base, gamedir_fallthrough_to_base)
+--   cmdline_override:    5 (basedir, nohome, data, userdir, game)
+-- All with source_verified=1.
+
+-- Does r_skyname resolve to a path template?
+SELECT cvar_canonical_id, category_id, path_pattern, load_trigger, confidence
+FROM asset_cvar_bindings WHERE cvar_canonical_id='ezquake:cvar:r_skyname';
+-- Expected: 1 row, category=skybox, path_pattern='env/{value}_{face}.tga',
+-- load_trigger=on_map_load, confidence=seed.
+```
+
+## Data-quality signals surfaced by Phase 2c.6
+
+- **Seed remains source of truth for cvar bindings.** 24 seed entries
+  hand-authored; AST auto-pass corroborates only 1 (`scr_conpicture`)
+  because most ezQuake cvar-to-loader flows cross statement boundaries
+  via intermediate strings, which the single-compound-scope auto-pass
+  can't see. 2 auto_orphans surfaced (`mapname` in radar + conback
+  sites) -- seed-expansion candidates, not misses.
+
+- **Loader-site classification rate 77%.** 19/110 rows `certain` (literal
+  path + specific category known from function name), 66 `heuristic`
+  (partial hints via extension, enclosing function, or function name
+  mapping to `other`), 25 `unclassified` (generic `FS_OpenVFS` /
+  `FS_LoadFile` with local-variable arg[0] and no categorising hint).
+
+- **Path rules all pass source verification.** 14/14 rows resolve to
+  plausible `fs.c` functions (`FS_InitFilesystemEx`, `FS_AddPathHandle`,
+  `FS_SetGamedir`, `FS_AddGameDirectory`, `FS_AddDataFiles`).
+
+- **Dev-only detection returned 0** because the extractor's dev-regex
+  (`Dev_*`, `_Debug_f$`, etc.) didn't match anything in the default
+  build variant. Not a bug -- ezQuake's debug surface is largely gated
+  by preprocessor rather than naming convention.
+
+- **Reconciliation stats emitted by build-asset-bundle.ts:**
+  `{ seedRetained: 24, seedUpgradedToAutoConfirms: 1, seedNotCorroborated: 23, autoOrphans: 2 }`.
+  Future seed tuning should watch the `seedNotCorroborated` count drop
+  as either the seed or the auto-pass improves; today's high number
+  reflects the data-flow gap rather than seed inaccuracy.
