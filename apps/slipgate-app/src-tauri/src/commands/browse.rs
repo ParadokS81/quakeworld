@@ -3,6 +3,83 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+#[derive(Deserialize, Clone, Debug)]
+pub struct BundleExtension {
+    pub extension: String,
+    #[serde(default)]
+    pub path_hint: Option<String>,
+    pub category_id: String,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct BundlePathRule {
+    pub canonical_id: String,
+    pub rule_kind: String,
+    pub ordinal: i32,
+    pub description: String,
+    pub source_ref: String,
+    #[serde(default)]
+    pub source_verified: i32,
+    #[serde(default)]
+    pub notes: Option<String>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct BundleCvarBinding {
+    pub cvar_canonical_id: String,
+    pub category_id: String,
+    #[serde(default)]
+    pub path_pattern: Option<String>,
+    pub load_trigger: String,
+    pub confidence: String,
+    pub source_ref: String,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct BundleLoaderSite {
+    pub canonical_id: String,
+    pub function_name: String,
+    pub source_file: String,
+    pub source_line: i32,
+    pub enclosing_function: String,
+    #[serde(default)]
+    pub reads_category_id: Option<String>,
+    pub load_trigger: String,
+    pub path_source: String,
+    #[serde(default)]
+    pub path_literal: Option<String>,
+    #[serde(default)]
+    pub path_cvar_id: Option<String>,
+    pub confidence: String,
+    pub dev_only: i32,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct Bundle {
+    #[serde(default)]
+    pub asset_extensions: Vec<BundleExtension>,
+    #[serde(default)]
+    pub asset_path_rules: Vec<BundlePathRule>,
+    #[serde(default)]
+    pub asset_cvar_bindings: Vec<BundleCvarBinding>,
+    #[serde(default)]
+    pub asset_loader_sites: Vec<BundleLoaderSite>,
+}
+
+const BUNDLE_JSON: &str = include_str!("../../../../../packages/qw-config/src/data/ezquake-asset-bundle.json");
+
+fn load_bundle() -> Bundle {
+    serde_json::from_str(BUNDLE_JSON).unwrap_or_else(|e| {
+        eprintln!("[browse] bundle parse failed: {}. Browse will classify everything as other.", e);
+        Bundle {
+            asset_extensions: Vec::new(),
+            asset_path_rules: Vec::new(),
+            asset_cvar_bindings: Vec::new(),
+            asset_loader_sites: Vec::new(),
+        }
+    })
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Container {
@@ -204,6 +281,31 @@ pub fn enumerate_archives(root: &Path) -> std::io::Result<(Vec<ArchiveInfo>, Vec
     Ok((archives, entries))
 }
 
+/// Match a virtual_path against the bundle's extension rules.
+/// Returns the category_id for the first match that satisfies both extension AND path_hint.
+/// Path-hinted rules take priority over path-less rules on the same extension.
+pub fn classify_extension(virtual_path: &str, extensions: &[BundleExtension]) -> Option<String> {
+    let lower = virtual_path.to_lowercase();
+
+    for rule in extensions.iter().filter(|r| r.path_hint.is_some()) {
+        if !lower.ends_with(&rule.extension.to_lowercase()) {
+            continue;
+        }
+        let hint = rule.path_hint.as_ref().unwrap().to_lowercase();
+        if lower.contains(&hint) {
+            return Some(rule.category_id.clone());
+        }
+    }
+
+    for rule in extensions.iter().filter(|r| r.path_hint.is_none()) {
+        if lower.ends_with(&rule.extension.to_lowercase()) {
+            return Some(rule.category_id.clone());
+        }
+    }
+
+    None
+}
+
 #[tauri::command]
 pub async fn scan_quake_dir(
     exe_path: String,
@@ -305,5 +407,33 @@ mod tests {
         data[8..12].copy_from_slice(&table_size.to_le_bytes());
 
         data
+    }
+
+    #[test]
+    fn classify_by_extension_and_path_hint() {
+        let extensions = vec![
+            BundleExtension { extension: ".pcx".into(), path_hint: Some("skins/".into()), category_id: "ezquake:asset_category:skin".into() },
+            BundleExtension { extension: ".tga".into(), path_hint: Some("textures/".into()), category_id: "ezquake:asset_category:texture".into() },
+            BundleExtension { extension: ".tga".into(), path_hint: Some("conchars/".into()), category_id: "ezquake:asset_category:conchar".into() },
+            BundleExtension { extension: ".cfg".into(), path_hint: None, category_id: "ezquake:asset_category:config".into() },
+        ];
+
+        assert_eq!(
+            classify_extension("qw/skins/haste.pcx", &extensions),
+            Some("ezquake:asset_category:skin".to_string()),
+        );
+        assert_eq!(
+            classify_extension("qw/textures/wall.tga", &extensions),
+            Some("ezquake:asset_category:texture".to_string()),
+        );
+        assert_eq!(
+            classify_extension("qw/conchars/custom.tga", &extensions),
+            Some("ezquake:asset_category:conchar".to_string()),
+        );
+        assert_eq!(
+            classify_extension("qw/config.cfg", &extensions),
+            Some("ezquake:asset_category:config".to_string()),
+        );
+        assert_eq!(classify_extension("random/thing.xyz", &extensions), None);
     }
 }
