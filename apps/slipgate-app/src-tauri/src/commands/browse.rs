@@ -402,6 +402,39 @@ pub fn match_loader_sites(virtual_path: &str, sites: &[BundleLoaderSite]) -> Vec
         .collect()
 }
 
+/// Return indices of cvar bindings whose resolved path matches this virtual_path.
+/// Substitutes `{value}` in path_pattern with the merged cvar value and compares.
+/// Match is case-insensitive suffix match against the resolved path.
+pub fn match_cvar_bindings(
+    virtual_path: &str,
+    bindings: &[BundleCvarBinding],
+    merged_cvars: &HashMap<String, String>,
+) -> Vec<usize> {
+    let vp_lower = virtual_path.to_lowercase();
+    let mut out = Vec::new();
+
+    for (i, b) in bindings.iter().enumerate() {
+        let Some(pattern) = b.path_pattern.as_ref() else {
+            continue;
+        };
+        // extract the short cvar name from "ezquake:cvar:baseskin" -> "baseskin"
+        let short = b
+            .cvar_canonical_id
+            .rsplit(':')
+            .next()
+            .unwrap_or(&b.cvar_canonical_id);
+        let Some(value) = merged_cvars.get(short) else {
+            continue;
+        };
+        let resolved = pattern.replace("{value}", value).to_lowercase();
+        if vp_lower.ends_with(&resolved) || vp_lower.contains(&format!("/{}", resolved)) {
+            out.push(i);
+        }
+    }
+
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -577,5 +610,45 @@ mod tests {
             },
         ];
         assert!(match_loader_sites("qw/textures/wall.tga", &sites).is_empty());
+    }
+
+    #[test]
+    fn cvar_binding_resolves_path_pattern() {
+        let bindings = vec![
+            BundleCvarBinding {
+                cvar_canonical_id: "ezquake:cvar:baseskin".into(),
+                category_id: "ezquake:asset_category:skin".into(),
+                path_pattern: Some("skins/{value}.pcx".into()),
+                load_trigger: "on_connect".into(),
+                confidence: "seed".into(),
+                source_ref: "skin.c:369".into(),
+            },
+        ];
+
+        let mut cvars = HashMap::new();
+        cvars.insert("baseskin".to_string(), "haste".to_string());
+
+        let matches = match_cvar_bindings("qw/skins/haste.pcx", &bindings, &cvars);
+        assert_eq!(matches, vec![0usize]);
+
+        let miss = match_cvar_bindings("qw/skins/otherskin.pcx", &bindings, &cvars);
+        assert!(miss.is_empty());
+    }
+
+    #[test]
+    fn cvar_binding_skipped_when_value_missing() {
+        let bindings = vec![
+            BundleCvarBinding {
+                cvar_canonical_id: "ezquake:cvar:baseskin".into(),
+                category_id: "ezquake:asset_category:skin".into(),
+                path_pattern: Some("skins/{value}.pcx".into()),
+                load_trigger: "on_connect".into(),
+                confidence: "seed".into(),
+                source_ref: "x".into(),
+            },
+        ];
+
+        let cvars: HashMap<String, String> = HashMap::new();
+        assert!(match_cvar_bindings("qw/skins/anything.pcx", &bindings, &cvars).is_empty());
     }
 }
