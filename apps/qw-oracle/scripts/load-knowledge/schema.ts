@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -374,6 +374,30 @@ CREATE INDEX IF NOT EXISTS idx_asset_loader_cvar     ON asset_loader_sites(path_
 CREATE INDEX IF NOT EXISTS idx_asset_loader_fn       ON asset_loader_sites(function_name);
 `;
 
+// v4 adds release_notes: one row per parsed bullet from a tag's GitHub
+// release body. Captures version-level narrative that entity diffs can't see
+// (code-only fixes, bitmask-flag additions, high-level feature notes).
+// Entity cross-links are stored as JSON arrays of canonical_ids rather than
+// per-row FK rows so the table stays free of junction scaffolding.
+const SCHEMA_V4_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS release_notes (
+  id                          INTEGER PRIMARY KEY,
+  project                     TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version                     TEXT NOT NULL,
+  section                     TEXT NOT NULL,
+  ordinal                     INTEGER NOT NULL,
+  body_md                     TEXT NOT NULL,
+  referenced_entity_ids_json  TEXT,
+  commit_urls_json            TEXT,
+  pr_numbers_json             TEXT,
+  author_handles_json         TEXT,
+  raw_body_hash               TEXT,
+  extracted_at                TEXT NOT NULL,
+  UNIQUE (project, version, section, ordinal)
+);
+CREATE INDEX IF NOT EXISTS idx_release_notes_version ON release_notes(project, version);
+`;
+
 // v2 -> v3 rebuilds the entities table to add 'asset_category' to the
 // type CHECK. Same pattern as v1 -> v2.
 const ENTITIES_V3_MIGRATION_SQL = `
@@ -442,6 +466,14 @@ function migrateV2ToV3(db: Database.Database): void {
   }
 }
 
+function migrateV3ToV4(db: Database.Database): void {
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V4_ADDITIONS_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('4');
+  });
+  txn();
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -466,6 +498,10 @@ export function applySchema(db: Database.Database): void {
       migrateV2ToV3(db);
       existingVersion = 3;
     }
+    if (existingVersion === 3 && SCHEMA_VERSION >= 4) {
+      migrateV3ToV4(db);
+      existingVersion = 4;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -473,8 +509,9 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 and v3 additions are idempotent CREATE IF NOT EXISTS -- safe on fresh
-  // DBs (where v1 SQL didn't have them) and on migrated DBs.
+  // v2 / v3 / v4 additions are idempotent CREATE IF NOT EXISTS -- safe on
+  // fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
+  db.exec(SCHEMA_V4_ADDITIONS_SQL);
 }

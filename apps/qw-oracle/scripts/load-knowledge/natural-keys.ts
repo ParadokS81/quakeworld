@@ -20,6 +20,7 @@ import type {
   KeynameVersionRow,
   MacroVersionRow,
   Project,
+  ReleaseNoteRow,
   RulesetVersionRow,
   SourceState,
   TokenPrimitiveVersionRow,
@@ -313,6 +314,20 @@ export function upsertAssetCvarBinding(db: Database.Database, row: AssetCvarBind
     ) VALUES (
       @project, @version, @cvar_canonical_id, @category_id, @path_pattern,
       @load_trigger, @confidence, @source_ref, @notes, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertReleaseNote(db: Database.Database, row: ReleaseNoteRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO release_notes (
+      project, version, section, ordinal, body_md,
+      referenced_entity_ids_json, commit_urls_json, pr_numbers_json,
+      author_handles_json, raw_body_hash, extracted_at
+    ) VALUES (
+      @project, @version, @section, @ordinal, @body_md,
+      @referenced_entity_ids_json, @commit_urls_json, @pr_numbers_json,
+      @author_handles_json, @raw_body_hash, @extracted_at
     )
   `).run(row);
 }

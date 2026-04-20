@@ -31,6 +31,28 @@ export class GitHubClient {
     return this.lastRateLimit;
   }
 
+  async getReleaseBody(owner: string, repo: string, tag: string): Promise<string | null> {
+    const url = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${encodeURIComponent(tag)}`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'qw-oracle-loader',
+      },
+    });
+
+    this.updateRateLimit(response.headers);
+
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      throw new Error(`GitHub API ${response.status} for ${url}: ${await response.text()}`);
+    }
+
+    const release = await response.json() as { body: string | null };
+    return release.body ?? null;
+  }
+
   async getPrsForCommit(owner: string, repo: string, sha: string): Promise<PrInfo | null> {
     if (sha === 'UNKNOWN') return null;
     const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}/pulls`;

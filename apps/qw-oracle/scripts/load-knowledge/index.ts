@@ -35,6 +35,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'release-notes') {
+    await runReleaseNotes(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -57,6 +62,7 @@ Subcommands:
   load-assets   --project <p> --version <v> --json <bundle-path>
                 --commit <sha> --ordinal <n>
                 [--tag-date <iso8601>] [--extractor-version <s>]
+  release-notes --project <p> --version <v> --github-token <token>
 `.trim());
   process.exit(2);
 }
@@ -197,6 +203,36 @@ async function runLoadAssets(args: string[]): Promise<void> {
       tagDate: values['tag-date'] ?? null,
       ordinal: Number(values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-assets@1.0.0',
+    });
+    console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runReleaseNotes(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      version: { type: 'string' },
+      'github-token': { type: 'string' },
+    },
+  });
+
+  const token = values['github-token'] ?? process.env.GITHUB_TOKEN;
+  if (!values.project) throw new Error('--project is required');
+  if (!values.version) throw new Error('--version is required');
+  if (!token) throw new Error('--github-token or GITHUB_TOKEN environment variable is required');
+
+  const { loadReleaseNotes } = await import('./load-release-notes.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = await loadReleaseNotes({
+      db,
+      project: values.project as Project,
+      version: values.version!,
+      githubToken: token,
     });
     console.log(JSON.stringify(result, null, 2));
   } finally {

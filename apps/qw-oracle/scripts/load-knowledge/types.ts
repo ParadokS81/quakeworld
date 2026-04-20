@@ -509,6 +509,20 @@ export interface CvarVersionRow {
   extracted_at: string;
 }
 
+export interface ReleaseNoteRow {
+  project: Project;
+  version: string;
+  section: string;
+  ordinal: number;
+  body_md: string;
+  referenced_entity_ids_json: string | null;
+  commit_urls_json: string | null;
+  pr_numbers_json: string | null;
+  author_handles_json: string | null;
+  raw_body_hash: string | null;
+  extracted_at: string;
+}
+
 export interface VersionRow {
   project: Project;
   version: string;
