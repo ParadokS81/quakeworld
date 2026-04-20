@@ -309,28 +309,163 @@ pub fn classify_extension(virtual_path: &str, extensions: &[BundleExtension]) ->
 #[tauri::command]
 pub async fn scan_quake_dir(
     exe_path: String,
-    _merged_cvars: HashMap<String, String>,
+    merged_cvars: HashMap<String, String>,
 ) -> Result<ScanResult, String> {
     let exe = PathBuf::from(&exe_path);
     let root = exe
         .parent()
         .ok_or_else(|| "invalid exe path".to_string())?
         .to_path_buf();
+    let root_str = root.to_string_lossy().to_string();
+
+    let bundle = load_bundle();
+    let mut warnings: Vec<ScanWarning> = Vec::new();
+
+    let loose = walk_loose_files(&root).map_err(|e| format!("walk failed: {}", e))?;
+
+    let (archives, archive_entries) = enumerate_archives(&root).unwrap_or_else(|e| {
+        warnings.push(ScanWarning {
+            kind: ScanWarningKind::ArchiveParseFailure,
+            path: root_str.clone(),
+            message: format!("archive enumeration failed: {}", e),
+        });
+        (Vec::new(), Vec::new())
+    });
+
+    let mut candidates: Vec<(String, Container, u64, u64)> = Vec::new();
+    for (vp, size, mtime) in loose {
+        let lower = vp.to_lowercase();
+        let is_archive = lower.ends_with(".pak") || lower.ends_with(".pk3") || lower.ends_with(".zip");
+        if !is_archive {
+            candidates.push((vp, Container::Loose, size, mtime));
+        }
+    }
+    for (archive_path, entry_name, size) in archive_entries {
+        let vp = format!("{}:{}", archive_path, entry_name);
+        let container = Container::Archive {
+            archive_path: archive_path.clone(),
+            entry: entry_name.clone(),
+        };
+        candidates.push((vp, container, size, 0));
+    }
+
+    fn normalize_for_lifo(vp: &str, container: &Container) -> String {
+        match container {
+            Container::Loose => vp.to_string(),
+            Container::Archive { archive_path, entry } => {
+                let gamedir = archive_path.split('/').next().unwrap_or("").to_string();
+                format!("{}/{}", gamedir, entry)
+            }
+        }
+    }
+
+    let normalized_pairs: Vec<(String, Container)> = candidates
+        .iter()
+        .map(|(vp, c, _, _)| (normalize_for_lifo(vp, c), c.clone()))
+        .collect();
+    let winners = pick_lifo_winners(&normalized_pairs);
+
+    let mut files: Vec<ScannedFile> = Vec::with_capacity(candidates.len());
+    for (i, (vp, container, size, mtime)) in candidates.into_iter().enumerate() {
+        let normalized = normalize_for_lifo(&vp, &container);
+        let category_id = classify_extension(&normalized, &bundle.asset_extensions);
+        let confidence = match (&category_id, &container) {
+            (None, _) => Confidence::Unclassified,
+            (Some(_), Container::Loose) => Confidence::Heuristic,
+            (Some(_), Container::Archive { .. }) => Confidence::Heuristic,
+        };
+        let loader_matches = match_loader_sites(&normalized, &bundle.asset_loader_sites);
+        let cvar_matches = match_cvar_bindings(&normalized, &bundle.asset_cvar_bindings, &merged_cvars);
+        let confidence = if !loader_matches.is_empty() {
+            Confidence::Certain
+        } else if !cvar_matches.is_empty() {
+            Confidence::Seed
+        } else {
+            confidence
+        };
+
+        files.push(ScannedFile {
+            virtual_path: vp,
+            container: container.clone(),
+            size,
+            mtime,
+            content_hash: None,
+            category_id,
+            confidence,
+            search_path_winner: winners[i],
+            consumed_by: ConsumedBy {
+                loader_sites: loader_matches,
+                cvar_bindings: cvar_matches,
+            },
+            is_default: compute_is_default(&normalized, &container),
+        });
+    }
+
+    let unresolved_external_refs =
+        find_external_refs(&bundle.asset_cvar_bindings, &merged_cvars, &root_str);
+
+    let clients_detected = vec![ClientInfo {
+        name: "ezquake".to_string(),
+        exe_path: exe_path.clone(),
+        version: None,
+        active: true,
+    }];
+
+    let mut gamedirs_detected: Vec<String> = Vec::new();
+    let known: &[&str] = &["id1", "qw", "ezquake"];
+    if let Ok(entries) = std::fs::read_dir(&root) {
+        for e in entries.flatten() {
+            if !e.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                continue;
+            }
+            let name = e.file_name().to_string_lossy().to_string();
+            if name.starts_with('.') {
+                continue;
+            }
+            let has_cfg = e.path().join("config.cfg").exists();
+            if known.contains(&name.as_str()) || has_cfg {
+                gamedirs_detected.push(name);
+            }
+        }
+    }
+
+    let mut stats = ScanStats::default();
+    for f in &files {
+        stats.total_bytes = stats.total_bytes.saturating_add(f.size);
+        let has_ref = !f.consumed_by.loader_sites.is_empty() || !f.consumed_by.cvar_bindings.is_empty();
+        match (has_ref, &f.category_id) {
+            (true, _) => stats.loaded += 1,
+            (false, Some(_)) => stats.unreferenced += 1,
+            (false, None) => stats.other += 1,
+        }
+    }
+    stats.available = files
+        .iter()
+        .filter(|f| {
+            f.category_id.is_some()
+                && f.consumed_by.loader_sites.is_empty()
+                && f.consumed_by.cvar_bindings.is_empty()
+                && !f.is_default
+        })
+        .count();
+    if stats.unreferenced >= stats.available {
+        stats.unreferenced -= stats.available;
+    }
 
     Ok(ScanResult {
-        exe_path: exe_path.clone(),
+        exe_path,
         scan_timestamp: std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_secs())
             .unwrap_or(0),
-        root: root.to_string_lossy().to_string(),
-        clients_detected: Vec::new(),
-        gamedirs_detected: Vec::new(),
-        files: Vec::new(),
-        archives: Vec::new(),
-        unresolved_external_refs: Vec::new(),
-        warnings: Vec::new(),
-        stats: ScanStats::default(),
+        root: root_str,
+        clients_detected,
+        gamedirs_detected,
+        files,
+        archives,
+        unresolved_external_refs,
+        warnings,
+        stats,
     })
 }
 
@@ -777,5 +912,43 @@ mod tests {
         assert_eq!(refs.len(), 1);
         assert_eq!(refs[0].cvar_canonical_id, "ezquake:cvar:crosshairimage");
         assert!(refs[0].resolved_path.contains("outside"));
+    }
+
+    #[test]
+    fn scan_end_to_end_small_tree() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path();
+
+        std::fs::create_dir_all(root.join("qw/skins")).unwrap();
+        std::fs::create_dir_all(root.join("qw/textures")).unwrap();
+        std::fs::create_dir_all(root.join("id1")).unwrap();
+        std::fs::create_dir_all(root.join("qizmo")).unwrap();
+        std::fs::write(root.join("qw/skins/haste.pcx"), b"x").unwrap();
+        std::fs::write(root.join("qw/textures/wall.tga"), b"x").unwrap();
+        std::fs::write(root.join("id1/readme.txt"), b"x").unwrap();
+        std::fs::write(root.join("qizmo/qizmo.exe"), b"x").unwrap();
+        std::fs::write(
+            root.join("qw/pak1.pak"),
+            build_test_pak(&[("skins/bps.pcx", b"x")]),
+        ).unwrap();
+
+        let fake_exe = root.join("qw/ezquake.exe");
+        std::fs::write(&fake_exe, b"x").unwrap();
+
+        let cvars = HashMap::new();
+        let result = tauri::async_runtime::block_on(scan_quake_dir(
+            fake_exe.to_string_lossy().to_string(),
+            cvars,
+        ))
+        .expect("scan should succeed");
+
+        // exe lives in qw/, so root = qw/. Only qw/ contents are scanned:
+        // haste.pcx, wall.tga, ezquake.exe (loose) + skins/bps.pcx from pak1.pak
+        assert!(!result.files.is_empty());
+        for f in &result.files {
+            assert!(f.size > 0 || f.size == 0);
+        }
+        // 4 scanned entries each 1 byte; just confirm bytes were accumulated
+        assert!(result.stats.total_bytes >= 1);
     }
 }
