@@ -77,16 +77,22 @@ The existing `MyQuake` tab has three subtabs: `Config` (built), `Visuals` (place
 
 ## Prerequisites
 
-This spec does **not** progress to a writing-plans phase until the companion oracle spec lands. The reason: half the interesting claims the browser needs to make - "this file is loaded," "this file is shadowed," "this pak is extracted" - depend on authoritative rules that only oracle can provide.
+**Status: Satisfied 2026-04-20.** Oracle Phase 2c.6 shipped the asset-consumption model. All four prerequisite fronts below are now available in `apps/qw-oracle/data/knowledge.db` (schema v3) and pre-bundled at `packages/qw-config/src/data/ezquake-asset-bundle.json`.
 
-Specifically, the browser needs oracle to expose:
+| Prerequisite | Delivered as | Counts (ezQuake head) |
+|---|---|---|
+| Asset category catalog | `entities` (type=asset_category) + `asset_category_versions` + `asset_extensions` | 17 categories, 25 extension/path-hint rows |
+| Path search rules | `asset_path_rules` (all `source_verified=1`) | 14 rules across search_path / archive_precedence / gamedir_behavior / cmdline_override |
+| Cvar -> asset bindings | `asset_cvar_bindings` | 26 bindings with `path_pattern` + `load_trigger` |
+| File-I/O call site inventory | `asset_loader_sites` | 110 sites (19 certain + 66 heuristic + 25 unclassified) |
 
-- **Asset category catalog** (what a "skin" is, what a "conchar" is, extension mappings).
-- **Path search rules** (load order across `id1/` -> `qw/` -> `<mod>/`, pak-vs-loose precedence, `.pak` vs `.pk3` ordering).
-- **Cvar -> asset bindings** (which cvars resolve to which file paths; e.g. `cl_teamskin`, `sys_command_line`, HUD image cvars).
-- **File-I/O call site inventory** (what functions read what, so the "available" set is correct).
+Notes for the implementation-spec session:
 
-Until these exist in oracle's `knowledge.db`, slipgate would have to hardcode QW lore - which defeats the architecture.
+- **Use cvar bindings' `load_trigger` as the authoritative startup signal.** Only 9 loader sites are tagged `startup` directly; inferring startup from call sites is thin. Cvar bindings carry explicit triggers (`startup`, `on_demand`, `on_connect`, `on_map_load`).
+- **Plan an extension+path_hint fallback** in the slipgate classifier for files that match no loader site (29 sites have null category; many reads go through generic `FS_OpenVFS`/`FS_LoadFile` whose runtime path argument can't be resolved statically).
+- **Path rules are already plain prose** and source-verified — they can feed UI tooltips/explainers directly without rewriting.
+
+With these in hand, the spec is ready to progress to a fresh-context implementation brainstorm.
 
 ## Open research questions
 

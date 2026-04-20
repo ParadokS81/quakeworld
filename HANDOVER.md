@@ -17,7 +17,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2c-2h: remaining QW knowledge rollout](#phase-2c-2h-remaining-qw-knowledge-rollout) — Phase 2a schema + Phase 2b loader both shipped 2026-04-18; remaining: ezQuake commands/macros/cmdline extractors, FTE/MVDSV/KTX extractors, historical backfill, MCP tool upgrades, automation
 - [qw-oracle loader follow-ups from Phase 2b final review](#qw-oracle-loader-follow-ups-from-phase-2b-final-review) — 4 small items flagged for future phases: string-compare on version strings, git blame memoization, per-project src path prefix map, upstream extractor trailing-whitespace bug
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
-- [Quake-dir browser vision + oracle prerequisite](#quake-dir-browser-vision--oracle-prerequisite) — two specs landed 2026-04-19; slipgate dir-browser blocked on oracle asset-consumption extraction; executable work is the oracle spec first
+- [Quake-dir browser vision — unblocked, ready for implementation brainstorm](#quake-dir-browser-vision--unblocked-ready-for-implementation-brainstorm) — oracle Phase 2c.6 shipped 2026-04-20; slipgate dir-browser vision spec's prerequisites are all satisfied; next step is a fresh-context implementation brainstorm
+- [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
 
 ---
 
@@ -236,32 +237,67 @@ Same treatment applies to `qw-knowledge` when it's next touched.
 
 ---
 
-## Quake-dir browser vision + oracle prerequisite
+## Quake-dir browser vision — unblocked, ready for implementation brainstorm
 
-**Added:** 2026-04-19
-**Status:** Both specs drafted and committed. Oracle spec is the actionable item; slipgate spec is blocked on it.
-**Verification first:** `ls docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md` — both should exist.
+**Added:** 2026-04-19, **Updated:** 2026-04-20 (oracle prerequisite shipped)
+**Status:** Prerequisites satisfied. Next step is the slipgate implementation brainstorm in a fresh session.
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT 'cat',COUNT(*) FROM entities WHERE type='asset_category' UNION ALL SELECT 'ext',COUNT(*) FROM asset_extensions UNION ALL SELECT 'rules',COUNT(*) FROM asset_path_rules UNION ALL SELECT 'bind',COUNT(*) FROM asset_cvar_bindings UNION ALL SELECT 'sites',COUNT(*) FROM asset_loader_sites;"` — expect 17/25/14/26/110.
 
-Brainstorm session 2026-04-19 identified a new MyQuake feature ("Browse the quake dir") whose success depends on oracle extracting ezQuake filesystem-consumption facts that do not yet exist in `knowledge.db`. User chose to pause slipgate work and build the oracle foundation first, rather than hardcode QW lore into slipgate.
+Brainstorm session 2026-04-19 identified a new MyQuake feature ("Browse the quake dir") whose success depended on oracle extracting ezQuake filesystem-consumption facts. User chose to build the oracle foundation first rather than hardcode QW lore into slipgate. Oracle Phase 2c.6 shipped and pushed 2026-04-20; slipgate vision spec is now unblocked on all four prerequisite fronts (category catalog, path rules, cvar->asset bindings, loader-site inventory).
 
-Two specs now exist:
+### Specs
 
-1. **Slipgate vision spec** — `apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md`. Holds the product frame (two-layer browse, wiki + filesystem, loaded-vs-available, hybrid taxonomy, v1 = read-only lens, multi-install deferred, subtab rename deferred). Does **not** progress to writing-plans until oracle side lands.
-2. **Oracle extraction spec** — `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md`. Proposes five new tables (asset_categories, asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites), libclang-based extraction, schema v2 -> v3 bump. Provisionally tagged Phase 2c.6; final numbering is user's call.
+1. **Slipgate vision spec** — `apps/slipgate-app/docs/superpowers/specs/2026-04-19-quake-dir-browser-vision-design.md`. Product frame (two-layer browse, wiki + filesystem, loaded-vs-available, hybrid taxonomy, v1 = read-only lens, multi-install deferred, subtab rename deferred). Prerequisites section now carries a "Satisfied 2026-04-20" note.
+2. **Oracle extraction spec** — `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md`. Delivered as Phase 2c.6: 5 new tables, schema v2 -> v3. Bundle JSON at `packages/qw-config/src/data/ezquake-asset-bundle.json`.
 
-### Sequencing
+### Verification snapshot (2026-04-20)
 
-Oracle spec progresses to writing-plans next (independent oracle terminal session). Slipgate spec stays dormant until oracle Phase 2c.6 (or whatever number) ships and `knowledge.db` has the new tables populated. Only then does the slipgate implementation-spec brainstorm happen.
+- Counts match spec exactly. Schema `v3`. ezQuake source pin `bea2515d0511bdf250dee43f0df7c4ace3fdfc17`.
+- All 14 path rules `source_verified=1` with plain-prose descriptions suitable for slipgate UI tooltips.
+- Loader-site classification rate 77% (19 certain + 66 heuristic + 25 unclassified). 29 rows have null category — slipgate classifier will need extension+path_hint fallback for these.
+- Only 9 startup + 1 on_map_load triggers on loader sites — slipgate should prefer `asset_cvar_bindings.load_trigger` as the authoritative startup signal rather than inferring from call sites.
+- `seedNotCorroborated=23` on cvar bindings is expected (single-compound-scope auto-pass can't follow ezQuake's cross-statement flows). Seed remains source of truth.
+- 2 `auto_orphan` bindings on `mapname` (radar + conback path templates) — seed-expansion candidates, not current blockers.
+
+### Next step
+
+**Fresh-context brainstorm** to turn the vision spec into an implementation spec. Scope for that session: visual mockups (wiki overview, filesystem layer, per-category view), subtab rename decision, component breakdown, data-model for how slipgate caches the oracle bundle, scanner architecture (pure pak extraction vs lazy-scan, WSL+Windows split considerations), integration with existing MyQuake tab + ConfigViewer's `exePath` anchor.
 
 ### Key references
 
-- Companion spec cross-links are in each spec's "Related docs" block.
-- Schema spec to bump: `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (v2 -> v3).
-- Phase 2c.5 plan (immediate predecessor): `docs/superpowers/plans/2026-04-19-qw-knowledge-phase-2c5.md`.
+- Companion oracle spec cross-links are in each spec's "Related docs" block.
+- Schema bumped: `apps/qw-oracle/scripts/load-knowledge/schema.ts` (search `SCHEMA_V3_ADDITIONS_SQL`).
+- E2E verify doc with spot-check queries: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` (Phase 2c.6 section).
 
 ### Pressure
 
-No deadline. User explicitly stated "not in a hurry" — willing to fully build the oracle foundation before resuming slipgate work.
+No deadline. User explicitly chose to build oracle foundation before resuming slipgate work and remains in no hurry.
 
 ---
 
+
+## Knowledge schema spec behind code (v1 only)
+
+**Added:** 2026-04-20
+**Status:** Drift surfaced during the Phase 2c.6 wrap-up verification; oracle team's concern.
+**Verification first:** `grep -c 'asset_categor\|keyname_version\|hud_element_version' docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` — if 0, drift holds. `grep 'SCHEMA_VERSION' apps/qw-oracle/scripts/load-knowledge/schema.ts` should report `= 3`.
+
+The schema design spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` still documents only the v1 shape (cvar / command / macro / cmdline_param entities and the original eight tables). Since it was written, two migrations have landed in `apps/qw-oracle/scripts/load-knowledge/schema.ts`:
+
+- **v1 -> v2 (Phase 2c.5)** added four entity types: `keyname`, `hud_element`, `ruleset`, `token_primitive` — and their four per-type version tables.
+- **v2 -> v3 (Phase 2c.6)** added one new entity type (`asset_category`) plus four relation tables: `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`.
+
+The code is authoritative; the spec has silently drifted across two phases. The spec's header frontmatter says "Delete/archive once Phase 2b-2g implementation lands and the schema stabilizes, or once it is superseded by a revised Phase-3 schema spec." — either intention is fine, but the current state (the Layer 1 schema is well past the doc) should be resolved rather than left indefinite.
+
+### Fix shape
+
+Either (a) update the existing spec in place to cover v2 and v3, or (b) archive the v1 spec with a one-line supersession note and write a new consolidated spec at `docs/superpowers/specs/YYYY-MM-DD-qw-knowledge-schema-v3.md` that captures the current state. (b) is probably cleaner given the spec's own frontmatter anticipates supersession. Either way, the fix belongs with the oracle team and can slot in alongside the next oracle session naturally.
+
+### Related
+
+- Code: `apps/qw-oracle/scripts/load-knowledge/schema.ts` — search `SCHEMA_V2_ADDITIONS_SQL` and `SCHEMA_V3_ADDITIONS_SQL`.
+- Phase 2c.5 plan: `docs/superpowers/plans/2026-04-19-qw-knowledge-phase-2c5.md` (describes v2 additions).
+- Phase 2c.6 design spec: `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md` (describes v3 additions).
+- E2E verify doc: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` has the current source-of-truth for what each v2/v3 table holds.
+
+---
