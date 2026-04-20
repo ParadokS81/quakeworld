@@ -13,7 +13,8 @@ export type EntityType =
   | 'keyname'
   | 'hud_element'
   | 'ruleset'
-  | 'token_primitive';
+  | 'token_primitive'
+  | 'asset_category';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'
@@ -354,6 +355,130 @@ export interface TokenPrimitiveVersionRow {
   source_line: number | null;
   raw_ast_hash: string | null;
   extracted_at: string;
+}
+
+// --- Phase 2c.6 asset consumption types -------------------------------------
+
+export type AssetLoadTrigger =
+  | 'startup'
+  | 'on_demand'
+  | 'on_connect'
+  | 'on_map_load'
+  | 'unknown';
+
+export type AssetPathRuleKind =
+  | 'search_path'
+  | 'archive_precedence'
+  | 'cmdline_override'
+  | 'gamedir_behavior';
+
+export type AssetCvarBindingConfidence =
+  | 'seed'
+  | 'auto'
+  | 'auto_confirms_seed'
+  | 'auto_orphan';
+
+export type AssetLoaderSiteConfidence = 'certain' | 'heuristic' | 'unclassified';
+
+export type AssetLoaderSitePathSource = 'literal' | 'cvar' | 'computed' | 'unknown';
+
+// Per-type entity entry for asset_category. Mirrors the per-type extractor
+// JSON shape used elsewhere (e.g. token_primitives) so load-version.ts can
+// dispatch through the same adapter interface.
+export interface AssetCategoryAstBlock {
+  display_name: string;
+  description: string | null;
+  notes: string | null;
+}
+
+export interface AssetCategoryEntry {
+  ast: AssetCategoryAstBlock | null;
+}
+
+export interface AssetCategoryVersionRow {
+  entity_id: number;
+  version: string;
+  display_name: string;
+  description: string | null;
+  notes: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+// Relation-row shapes for the four non-entity asset tables. These are
+// loaded via `load-assets` (not the per-type adapter dispatch).
+
+export interface AssetExtensionRow {
+  project: Project;
+  version: string;
+  extension: string;
+  path_hint: string | null;
+  category_id: string;
+  notes: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface AssetPathRuleRow {
+  project: Project;
+  version: string;
+  canonical_id: string;
+  rule_kind: AssetPathRuleKind;
+  ordinal: number;
+  description: string;
+  source_ref: string | null;
+  source_verified: number;
+  notes: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface AssetCvarBindingRow {
+  project: Project;
+  version: string;
+  cvar_canonical_id: string;
+  category_id: string;
+  path_pattern: string | null;
+  load_trigger: AssetLoadTrigger;
+  confidence: AssetCvarBindingConfidence;
+  source_ref: string | null;
+  notes: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface AssetLoaderSiteRow {
+  project: Project;
+  version: string;
+  canonical_id: string;
+  function_name: string;
+  source_file: string;
+  source_line: number;
+  source_column: number | null;
+  enclosing_function: string | null;
+  reads_category_id: string | null;
+  load_trigger: AssetLoadTrigger;
+  path_source: AssetLoaderSitePathSource;
+  path_literal: string | null;
+  path_cvar_id: string | null;
+  confidence: AssetLoaderSiteConfidence;
+  dev_only: number;
+  notes: string | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+// Shape of the JSON bundle emitted by build-asset-bundle.ts and consumed
+// by load-assets.
+export interface AssetBundle {
+  project: Project;
+  version: string;
+  asset_categories: Record<string, AssetCategoryEntry>;
+  asset_extensions: Omit<AssetExtensionRow, 'project' | 'version' | 'extracted_at'>[];
+  asset_path_rules: Omit<AssetPathRuleRow, 'project' | 'version' | 'extracted_at'>[];
+  asset_cvar_bindings: Omit<AssetCvarBindingRow, 'project' | 'version' | 'extracted_at'>[];
+  asset_loader_sites: Omit<AssetLoaderSiteRow, 'project' | 'version' | 'extracted_at'>[];
+  _stats?: Record<string, unknown>;
 }
 
 export interface CvarVersionRow {

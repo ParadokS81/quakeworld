@@ -7,6 +7,11 @@
 
 import type Database from 'better-sqlite3';
 import type {
+  AssetCategoryVersionRow,
+  AssetCvarBindingRow,
+  AssetExtensionRow,
+  AssetLoaderSiteRow,
+  AssetPathRuleRow,
   CmdlineParamVersionRow,
   CommandVersionRow,
   CvarVersionRow,
@@ -254,6 +259,76 @@ export function upsertTokenPrimitiveVersion(db: Database.Database, row: TokenPri
       @entity_id, @version, @form, @suffix_char, @byte_value,
       @category, @case_style, @source_file, @source_line,
       @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+// --- Phase 2c.6 asset consumption upserts -----------------------------------
+
+export function upsertAssetCategoryVersion(db: Database.Database, row: AssetCategoryVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO asset_category_versions (
+      entity_id, version, display_name, description, notes,
+      raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @display_name, @description, @notes,
+      @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+// The four relation-row upserts use natural keys given by the table's UNIQUE
+// constraint. INSERT OR REPLACE is safe because no other tables FK-reference
+// these tables by row id.
+
+export function upsertAssetExtension(db: Database.Database, row: AssetExtensionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO asset_extensions (
+      project, version, extension, path_hint, category_id,
+      notes, raw_ast_hash, extracted_at
+    ) VALUES (
+      @project, @version, @extension, @path_hint, @category_id,
+      @notes, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertAssetPathRule(db: Database.Database, row: AssetPathRuleRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO asset_path_rules (
+      project, version, canonical_id, rule_kind, ordinal, description,
+      source_ref, source_verified, notes, raw_ast_hash, extracted_at
+    ) VALUES (
+      @project, @version, @canonical_id, @rule_kind, @ordinal, @description,
+      @source_ref, @source_verified, @notes, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertAssetCvarBinding(db: Database.Database, row: AssetCvarBindingRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO asset_cvar_bindings (
+      project, version, cvar_canonical_id, category_id, path_pattern,
+      load_trigger, confidence, source_ref, notes, raw_ast_hash, extracted_at
+    ) VALUES (
+      @project, @version, @cvar_canonical_id, @category_id, @path_pattern,
+      @load_trigger, @confidence, @source_ref, @notes, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertAssetLoaderSite(db: Database.Database, row: AssetLoaderSiteRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO asset_loader_sites (
+      project, version, canonical_id, function_name,
+      source_file, source_line, source_column, enclosing_function,
+      reads_category_id, load_trigger, path_source, path_literal, path_cvar_id,
+      confidence, dev_only, notes, raw_ast_hash, extracted_at
+    ) VALUES (
+      @project, @version, @canonical_id, @function_name,
+      @source_file, @source_line, @source_column, @enclosing_function,
+      @reads_category_id, @load_trigger, @path_source, @path_literal, @path_cvar_id,
+      @confidence, @dev_only, @notes, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }

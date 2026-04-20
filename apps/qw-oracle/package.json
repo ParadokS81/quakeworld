@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.0.0",
+    "js-yaml": "^4.1.1",
     "ulid": "^2.4.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.19.39",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

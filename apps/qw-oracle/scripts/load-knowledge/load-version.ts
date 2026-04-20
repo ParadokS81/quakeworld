@@ -63,6 +63,12 @@ import {
   tokenPrimitiveIsSourceBacked,
   upsertTokenPrimitiveRow,
 } from './load-token-primitives.js';
+import {
+  ASSET_CATEGORY_PAYLOAD_FIELD,
+  assetCategoryIsSourceBacked,
+  buildAssetCategoryVersionRow,
+  upsertAssetCategoryRow,
+} from './load-asset-categories.js';
 import type {
   EntityType,
   Project,
@@ -164,6 +170,13 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: tokenPrimitiveIsSourceBacked,
     buildRow: buildTokenPrimitiveVersionRow,
     upsertRow: upsertTokenPrimitiveRow,
+  },
+  asset_category: {
+    payloadField: ASSET_CATEGORY_PAYLOAD_FIELD,
+    versionsTable: 'asset_category_versions',
+    isSourceBacked: assetCategoryIsSourceBacked,
+    buildRow: buildAssetCategoryVersionRow,
+    upsertRow: upsertAssetCategoryRow,
   },
 };
 

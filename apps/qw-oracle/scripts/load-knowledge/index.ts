@@ -30,6 +30,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'load-assets') {
+    await runLoadAssets(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -49,6 +54,9 @@ Subcommands:
                 [--tag-date <iso8601>] [--extractor-version <s>] [--force]
   diff          --project <p> --from <v1> --to <v2>
   enrich        --project <p> --github-token <token> [--limit <n>]
+  load-assets   --project <p> --version <v> --json <bundle-path>
+                --commit <sha> --ordinal <n>
+                [--tag-date <iso8601>] [--extractor-version <s>]
 `.trim());
   process.exit(2);
 }
@@ -150,6 +158,45 @@ async function runEnrich(args: string[]): Promise<void> {
       project: values.project as Project,
       githubToken: token,
       limit: values.limit ? Number(values.limit) : undefined,
+    });
+    console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runLoadAssets(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      version: { type: 'string' },
+      json: { type: 'string' },
+      commit: { type: 'string' },
+      ordinal: { type: 'string' },
+      'tag-date': { type: 'string' },
+      'extractor-version': { type: 'string' },
+    },
+  });
+
+  for (const required of ['project', 'version', 'json', 'commit', 'ordinal'] as const) {
+    if (!values[required]) {
+      throw new Error(`--${required} is required`);
+    }
+  }
+
+  const { loadAssets } = await import('./load-assets.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = loadAssets({
+      db,
+      project: values.project as Project,
+      version: values.version!,
+      jsonPath: values.json!,
+      commitSha: values.commit!,
+      tagDate: values['tag-date'] ?? null,
+      ordinal: Number(values.ordinal),
+      extractorVersion: values['extractor-version'] ?? 'clang-ezquake-assets@1.0.0',
     });
     console.log(JSON.stringify(result, null, 2));
   } finally {
