@@ -1,0 +1,199 @@
+# ezQuake cvar -> asset binding seed.
+#
+# Hand-curated ground truth. Each entry binds an existing cvar entity (by
+# short name, resolved to canonical_id 'ezquake:cvar:<name>' at load time)
+# to an asset_category with an optional path template.
+#
+# path_pattern placeholders:
+#   {value}  the cvar's string value at runtime
+#   {face}   used by r_skyname: one of ft,bk,lf,rt,up,dn (six cubemap faces)
+#
+# load_trigger values:
+#   startup       resolved during engine init (once per process)
+#   on_connect    resolved per server connect (e.g. player skins)
+#   on_map_load   resolved per map change (sky, levelshot)
+#   on_demand     resolved when a user changes the cvar or the feature is used
+#   unknown       not classifiable without deeper analysis
+#
+# This seed intentionally errs toward high confidence over completeness.
+# Task 3's AST auto-pass produces auto-binding rows; the loader merges
+# them with this seed and flags unmatched auto rows as 'auto_orphan' for
+# future seed expansion.
+#
+# Every `cvar:` value below must resolve against entities in knowledge.db —
+# the loader rejects stale references with a loud warning.
+project: ezquake
+version: head
+cvar_bindings:
+
+  # -- Skins ------------------------------------------------------------
+
+  - cvar: baseskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:369"
+    notes: "Fallback skin loaded via Skin_Cache when a named skin is missing."
+
+  - cvar: teamskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:296"
+
+  - cvar: enemyskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:297"
+
+  - cvar: teamquadskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:298"
+
+  - cvar: enemyquadskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:299"
+
+  - cvar: teampentskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:300"
+
+  - cvar: enemypentskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:301"
+
+  - cvar: teambothskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:302"
+
+  - cvar: enemybothskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "skin.c:303"
+
+  # -- Crosshair --------------------------------------------------------
+
+  - cvar: crosshairimage
+    category: crosshair
+    path_pattern: "crosshairs/{value}"
+    load_trigger: on_demand
+    source_ref: "r_draw.c:201"
+    notes: "Draw_CachePicSafe(va(\"crosshairs/%s\", s)); extension resolved by the cache layer."
+
+  # -- Skybox -----------------------------------------------------------
+
+  - cvar: r_skyname
+    category: skybox
+    path_pattern: "env/{value}_{face}.tga"
+    load_trigger: on_map_load
+    source_ref: "cl_skygroups.c:255"
+    notes: >
+      R_SetSky(r_skyname.string). Engine searches both env/ and gfx/env/
+      and tries <name><face> and <name>_<face> permutations; this pattern
+      shows the canonical shape. Face ∈ {ft,bk,lf,rt,up,dn}.
+
+  # -- Console background / charset ------------------------------------
+
+  - cvar: scr_conpicture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: startup
+    source_ref: "r_draw.c:1041"
+    notes: "Default value 'conback'; R_LoadPicImage(va(\"gfx/%s\", ...))."
+
+  - cvar: gl_consolefont
+    category: charset
+    path_pattern: "textures/charsets/{value}"
+    load_trigger: startup
+    source_ref: "r_draw_charset.c:714"
+    notes: >
+      Draw_LoadCharset(gl_consolefont.string); value 'original' restores
+      the 8bit font embedded in gfx.wad instead of loading an external
+      charset.
+
+  - cvar: font_facepath
+    category: other
+    path_pattern: "{value}"
+    load_trigger: startup
+    source_ref: "fonts.c:586"
+    notes: "TrueType file; value is an absolute-or-relative path, not templated."
+
+  # -- HUD group backgrounds -------------------------------------------
+
+  - cvar: hud_group1_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+    notes: "snprintf(pic_path, HUD_GROUP_PIC_BASEPATH, newpic) where BASEPATH = \"gfx/%s\"."
+
+  - cvar: hud_group2_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group3_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group4_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group5_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group6_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group7_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group8_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  - cvar: hud_group9_picture
+    category: hud_overlay
+    path_pattern: "gfx/{value}"
+    load_trigger: on_demand
+    source_ref: "hud_groups.c:137"
+
+  # -- Demo directory --------------------------------------------------
+
+  - cvar: demo_dir
+    category: demo
+    path_pattern: "{value}/"
+    load_trigger: on_demand
+    source_ref: "cl_demo.c:2326"
+    notes: >
+      FS_LegacyDir(demo_dir.string) — directory under which demos are
+      listed and read on playback. Also used for demo recording output.

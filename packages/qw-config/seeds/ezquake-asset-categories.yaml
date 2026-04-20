@@ -1,0 +1,65 @@
+# ezQuake asset categories.
+#
+# Each category is a first-class entity in knowledge.db (type='asset_category').
+# Loaders bind cvars to these categories via asset_cvar_bindings; loader sites
+# may reference them via asset_loader_sites.reads_category_id.
+#
+# Category `name` becomes the entity canonical_id suffix:
+#   ezquake:asset_category:<name>
+#
+# Scope: ezQuake head. These categories are version-agnostic unless a future
+# version explicitly retires one (use source_state_transitions for that).
+project: ezquake
+version: head
+categories:
+  - name: config
+    display_name: "Configuration Files"
+    description: "Client configuration files (.cfg) parsed by exec at startup or runtime."
+  - name: conchar
+    display_name: "Console Character Set"
+    description: "Bitmap font used to render the console and HUD text."
+  - name: crosshair
+    display_name: "Crosshair Image"
+    description: "User-selectable crosshair overlay image."
+  - name: texture
+    display_name: "Texture"
+    description: "World, model, or HUD textures. Includes 32-bit replacements for baseline .wad data."
+  - name: skin
+    display_name: "Player Skin"
+    description: "Player model skin, loaded per-connect from userinfo."
+  - name: sound
+    display_name: "Sound"
+    description: "Audio samples consumed by the sound engine."
+  - name: model
+    display_name: "Model"
+    description: "3D model (.mdl, .md3, .bsp for brush-model entities)."
+  - name: map
+    display_name: "Map"
+    description: "Level geometry (.bsp). Downloaded per-connect when absent."
+  - name: wad
+    display_name: "WAD Archive"
+    description: "Legacy Quake asset archive (.wad) containing textures or HUD graphics."
+  - name: pak
+    display_name: "PAK Archive"
+    description: "Original Quake pack archive (.pak). Mounted into search path at init."
+  - name: pk3
+    display_name: "PK3 Archive"
+    description: "ZIP-based pack archive (.pk3). Mounted into search path at init."
+  - name: demo
+    display_name: "Demo Recording"
+    description: "Recorded game replay (.qwd, .mvd, .qtv)."
+  - name: screenshot
+    display_name: "Screenshot"
+    description: "Captured screen image (.tga, .png, .jpg)."
+  - name: hud_overlay
+    display_name: "HUD Overlay Image"
+    description: "User-configurable HUD graphic referenced by a hud_* cvar."
+  - name: skybox
+    display_name: "Skybox"
+    description: "Six-image cubemap for the world sky, selected by r_skyname."
+  - name: charset
+    display_name: "Charset Replacement"
+    description: "Custom bitmap charset loaded via loadcharset. Distinct from conchar for indexing clarity."
+  - name: other
+    display_name: "Other"
+    description: "Files the taxonomy doesn't otherwise cover."

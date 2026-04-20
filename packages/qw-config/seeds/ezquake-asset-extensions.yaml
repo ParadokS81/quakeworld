@@ -1,0 +1,69 @@
+# ezQuake file-extension -> category mapping.
+#
+# (project, version, extension, path_hint) is the natural key. path_hint is the
+# directory prefix that disambiguates multi-purpose extensions such as .tga and
+# .pcx. Rule: longest-matching path_hint wins; fall back to the unqualified row.
+#
+# Scope: ezQuake head. FTE/MVDSV/KTX get their own seed files in later phases.
+project: ezquake
+version: head
+extensions:
+  - extension: ".cfg"
+    category: config
+  - extension: ".pak"
+    category: pak
+  - extension: ".pk3"
+    category: pk3
+  - extension: ".wad"
+    category: wad
+  - extension: ".bsp"
+    category: map
+  - extension: ".mdl"
+    category: model
+  - extension: ".md3"
+    category: model
+  - extension: ".wav"
+    category: sound
+  - extension: ".ogg"
+    category: sound
+  - extension: ".qwd"
+    category: demo
+  - extension: ".mvd"
+    category: demo
+  - extension: ".dem"
+    category: demo
+  - extension: ".qtv"
+    category: demo
+  # Texture-variant extensions disambiguate via path_hint.
+  - extension: ".tga"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".tga"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".tga"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".tga"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".tga"
+    path_hint: "env/"
+    category: skybox
+  - extension: ".tga"
+    category: screenshot
+  - extension: ".png"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".png"
+    category: screenshot
+  - extension: ".jpg"
+    category: screenshot
+  - extension: ".pcx"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".pcx"
+    path_hint: "gfx/"
+    category: conchar
+  - extension: ".lmp"
+    category: hud_overlay
