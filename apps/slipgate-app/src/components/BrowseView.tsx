@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type { ScanResult, ScannedFile, BrowseFilterState } from "../types";
 import type { ProfileData } from "../store";
 import BrowseFilterLens from "./BrowseFilterLens";
+import BrowseTree from "./BrowseTree";
 
 interface BrowseViewProps {
   exePath: string | null;
@@ -48,9 +49,8 @@ export default function BrowseView(props: BrowseViewProps) {
     }
   }
 
-  // suppress unused-local errors for signals that will be wired in later tasks
+  // suppress unused-local error for loading — wired in a later task
   void loading;
-  void setSelected;
 
   onMount(runScan);
   createEffect(() => {
@@ -109,9 +109,13 @@ export default function BrowseView(props: BrowseViewProps) {
                   />
                 </div>
                 <div class="overflow-auto">
-                  <p class="text-xs text-[var(--sg-text-dim)] p-2">
-                    {result().files.length} files scanned. Tree coming next task.
-                  </p>
+                  <BrowseTree
+                    scan={result()}
+                    filters={filters()}
+                    hideDefaults={props.hideDefaults}
+                    selectedPath={selected()?.virtual_path ?? null}
+                    onSelect={setSelected}
+                  />
                 </div>
                 <div class="border-l border-[var(--sg-stat-border)] p-2 overflow-auto">
                   <Show when={selected()} fallback={<p class="text-xs text-[var(--sg-text-dim)]">select a file</p>}>

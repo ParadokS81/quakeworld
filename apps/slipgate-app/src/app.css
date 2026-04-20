@@ -3148,6 +3148,18 @@ input[type="number"] {
   opacity: 1;
 }
 
+/* Browse: tree */
+.sg-browse-row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; cursor: pointer; border-radius: 3px; }
+.sg-browse-row:hover { background: var(--sg-stat-border); }
+.sg-browse-row-selected { background: oklch(0.25 0.05 260); }
+.sg-browse-caret { width: 12px; text-align: center; color: var(--sg-text-dim); }
+.sg-browse-state-dot { width: 12px; text-align: center; font-size: 10px; }
+.sg-browse-cat-band { width: 3px; height: 14px; border-radius: 1px; flex-shrink: 0; }
+.sg-browse-count { margin-left: 6px; color: var(--sg-text-dim); font-size: 10px; }
+.sg-browse-chip { display: inline-block; padding: 0 5px; border-radius: 2px; background: oklch(0.3 0.03 260); color: var(--sg-text-dim); font-size: 9px; }
+.sg-browse-conf-hint { color: var(--sg-text-dim); font-size: 9px; margin-left: 2px; }
+.sg-browse-size { margin-left: auto; color: var(--sg-text-dim); font-size: 10px; }
+
 /* Browse: filter lens */
 .sg-label { color: var(--sg-text-dim); font-size: 9px; letter-spacing: 0.6px; margin-bottom: 4px; }
 .sg-lens-row { display: flex; align-items: center; gap: 6px; padding: 2px 6px; margin: 0 -6px; border-radius: 4px; cursor: pointer; }
