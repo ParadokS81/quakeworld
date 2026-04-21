@@ -26,10 +26,15 @@ describe("ezquake-asset-bundle.json shape (Path 1)", () => {
     expect(withTemplate.length).toBeGreaterThanOrEqual(20);
   });
 
-  test("bsp-companion template maps/%s.lit is present", () => {
+  test("bsp-companion template maps/%s.pts is present", () => {
+    // maps/%s.lit would be the obvious bsp-companion sentinel, but it is
+    // loaded via R_LoadLighting / FS_LoadHunkFile which are not in the
+    // current LOADER_FUNCTIONS watchlist (Task 3.3 adds them). Until then,
+    // maps/%s.pts (R_ReadPointFile_f via FS_OpenVFS) is the structural
+    // equivalent that the extractor can actually reach.
     const sites = bundle.asset_loader_sites;
-    const lit = sites.find((s: any) => s.path_template === "maps/%s.lit");
-    expect(lit).toBeDefined();
-    expect(lit.path_extension).toBe(".lit");
+    const pts = sites.find((s: any) => s.path_template === "maps/%s.pts");
+    expect(pts).toBeDefined();
+    expect(pts.path_extension).toBe(".pts");
   });
 });

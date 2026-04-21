@@ -14,7 +14,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_2",
@@ -30,7 +34,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_3",
@@ -46,7 +54,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_4",
@@ -62,7 +74,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_qtvlist_QTVList_Cache_File_Open_1",
@@ -78,7 +94,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_Update_Source_From_File_1",
@@ -94,7 +114,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_Reload_Sources_1",
@@ -110,7 +134,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1",
@@ -126,7 +154,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_PlayQWZDemo_1",
@@ -142,7 +174,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_1",
@@ -153,12 +189,27 @@
       "enclosing_function": "CL_Open_Demo_File",
       "reads_category_id": "ezquake:asset_category:demo",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "com_basedir",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "name + 3",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_2",
@@ -174,7 +225,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_3",
@@ -185,12 +240,27 @@
       "enclosing_function": "CL_Open_Demo_File",
       "reads_category_id": "ezquake:asset_category:demo",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "CL_DemoDirectory()",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_4",
@@ -206,7 +276,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_ForName_cl_nqdemo_NQD_ParseServerData_1",
@@ -222,7 +296,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_nqdemo_NQD_ParseServerData_1",
@@ -238,7 +316,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_VWepModel_NextDownload_1",
@@ -254,7 +336,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_Model_NextDownload_1",
@@ -270,7 +356,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_parse_Sound_NextDownload_1",
@@ -286,7 +376,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_1",
@@ -302,7 +396,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s.lmp",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "cursorimage",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lmp",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_2",
@@ -318,7 +422,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_1",
@@ -334,7 +442,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_2",
@@ -350,7 +462,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_3",
@@ -366,7 +482,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_4",
@@ -382,7 +502,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_5",
@@ -398,7 +522,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_6",
@@ -414,7 +542,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_7",
@@ -430,7 +562,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1",
@@ -446,7 +582,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_common_draw_Draw_BigFontAvailable_1",
@@ -462,7 +602,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_config_manager_ResetConfigs_1",
@@ -478,7 +622,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetNormalImage_1",
@@ -494,7 +642,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetHoverImage_1",
@@ -510,7 +662,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetPressedImage_1",
@@ -526,7 +682,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetToggledHoverImage_1",
@@ -542,7 +702,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_controls_EZ_control_SetBackgroundImage_1",
@@ -558,7 +722,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_WriteFileRelative_1",
@@ -574,7 +742,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_LoadFile_1",
@@ -590,7 +762,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadHunkFile_1",
@@ -606,7 +782,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadTempFile_1",
@@ -622,7 +802,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadHeapFile_1",
@@ -638,7 +822,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_InitFilesystem_1",
@@ -654,7 +842,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_1",
@@ -670,7 +862,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_2",
@@ -686,7 +882,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_3",
@@ -702,7 +902,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_4",
@@ -718,7 +922,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_DiffFile_f_1",
@@ -734,7 +942,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_DiffFile_f_2",
@@ -750,7 +962,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1",
@@ -766,7 +982,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1",
@@ -782,7 +1002,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_groups_SCR_HUD_LoadGroupPic_1",
@@ -793,12 +1017,16 @@
       "enclosing_function": "SCR_HUD_LoadGroupPic",
       "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "HUD_GROUP_PIC_BASEPATH",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "HUD_GROUP_PIC_BASEPATH",
+      "path_parameters": [],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
@@ -809,12 +1037,16 @@
       "enclosing_function": "HUD_NewRadarMap",
       "reads_category_id": "ezquake:asset_category:texture",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "RADAR_BASE_PATH_FORMAT",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "RADAR_BASE_PATH_FORMAT",
+      "path_parameters": [],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPNG_All_1",
@@ -830,7 +1062,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WritePNG_1",
@@ -841,12 +1077,22 @@
       "enclosing_function": "Image_WritePNG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WritePNG_2",
@@ -862,7 +1108,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_OpenAPNG_1",
@@ -873,12 +1123,22 @@
       "enclosing_function": "Image_OpenAPNG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_OpenAPNG_2",
@@ -894,7 +1154,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadTGA_1",
@@ -910,7 +1174,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteTGA_1",
@@ -926,7 +1194,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteTGA_2",
@@ -942,7 +1214,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteJPEG_1",
@@ -953,12 +1229,22 @@
       "enclosing_function": "Image_WriteJPEG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteJPEG_2",
@@ -974,7 +1260,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadJPEG_1",
@@ -990,7 +1280,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPCX_1",
@@ -1006,7 +1300,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_M_ScanSaves_1",
@@ -1022,7 +1320,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_M_Menu_Load_f_1",
@@ -1038,7 +1340,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_1",
@@ -1049,12 +1355,52 @@
       "enclosing_function": "WAVCaptureStart",
       "reads_category_id": "ezquake:asset_category:sound",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/audio.wav",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/audio.wav",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "movie_dir.string",
+          "semantic": "cvar_value:movie_dir"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "movie_start_date.tm_mday",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 2,
+          "expression_snippet": "1 + movie_start_date.tm_mon",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 3,
+          "expression_snippet": "1900 + movie_start_date.tm_year",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 4,
+          "expression_snippet": "movie_start_date.tm_hour",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 5,
+          "expression_snippet": "movie_start_date.tm_min",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 6,
+          "expression_snippet": "movie_start_date.tm_sec",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": ".wav",
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_2",
@@ -1070,7 +1416,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_PF2_FS_OpenFile_1",
@@ -1086,7 +1436,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_PF2_FS_OpenFile_2",
@@ -1102,7 +1456,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
@@ -1113,12 +1471,22 @@
       "enclosing_function": "Mod_LoadBrushModel",
       "reads_category_id": "ezquake:asset_category:model",
       "load_trigger": "on_map_load",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "*%i",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "*%i",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "i + 1",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
@@ -1134,7 +1502,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "s",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1",
@@ -1150,7 +1528,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "crosshairs/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "s",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_customCrosshair_Init_1",
@@ -1166,7 +1554,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_1",
@@ -1182,7 +1574,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/wad/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
@@ -1198,7 +1600,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
@@ -1214,7 +1626,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_Draw_CachePicSafe_1",
@@ -1223,14 +1639,24 @@
       "source_line": 425,
       "source_column": 11,
       "enclosing_function": "Draw_CachePicSafe",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.lmp",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s.lmp",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "stripped_path",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lmp",
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
@@ -1246,7 +1672,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_CachePic_1",
@@ -1262,7 +1692,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1",
@@ -1278,7 +1712,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
@@ -1294,7 +1732,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "scr_conpicture.string",
+          "semantic": "cvar_value:scr_conpicture"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_ConsoleBackground_1",
@@ -1305,12 +1753,22 @@
       "enclosing_function": "Draw_ConsoleBackground",
       "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/levelshots/%s.xxx",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/levelshots/%s.xxx",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "host_mapname.string",
+          "semantic": "cvar_value:host_mapname"
+        }
+      ],
+      "path_extension": ".xxx",
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1",
@@ -1321,12 +1779,27 @@
       "enclosing_function": "Load_Locale_Charset",
       "reads_category_id": "ezquake:asset_category:charset",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/charsets/%s-%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/charsets/%s-%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "locale",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
@@ -1342,7 +1815,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/charsets/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_charset_R_Draw_CharacterBase_1",
@@ -1358,7 +1841,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_Mod_TouchModel_1",
@@ -1374,7 +1861,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_Mod_ForName_1",
@@ -1390,7 +1881,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_ForName_r_model_Mod_CustomModel_1",
@@ -1406,7 +1901,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_part_R_ReadPointFile_f_1",
@@ -1417,12 +1916,22 @@
       "enclosing_function": "R_ReadPointFile_f",
       "reads_category_id": null,
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "maps/%s.pts",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "maps/%s.pts",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "host_mapname.string",
+          "semantic": "cvar_value:host_mapname"
+        }
+      ],
+      "path_extension": ".pts",
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_1",
@@ -1433,12 +1942,22 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.link",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s.link",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".link",
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_2",
@@ -1449,12 +1968,22 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "link",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_3",
@@ -1465,12 +1994,27 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "%s.%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "formats[i].extension",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_settings_page_Setting_DrawSkinPreview_1",
@@ -1486,7 +2030,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_1",
@@ -1502,7 +2050,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_2",
@@ -1518,7 +2070,11 @@
       "path_cvar_id": null,
       "confidence": "certain",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Restart_f_1",
@@ -1534,7 +2090,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Play_f_1",
@@ -1550,7 +2110,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSound_1",
@@ -1566,7 +2130,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSoundWithVol_1",
@@ -1582,7 +2150,11 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_Cmd_Download_f_1",
@@ -1598,7 +2170,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_Cmd_Download_f_2",
@@ -1614,7 +2190,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_WriteFile_teamplay_locfiles_TP_SaveLocFile_1",
@@ -1630,7 +2210,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_tp_triggers_TP_CheckSoundTrigger_1",
@@ -1646,7 +2230,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "sound/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "soundname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1",
@@ -1657,12 +2251,22 @@
       "enclosing_function": "VX_TrackerInit",
       "reads_category_id": "ezquake:asset_category:texture",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/tracker/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/tracker/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "imagename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
@@ -1678,7 +2282,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/halflife/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
@@ -1694,7 +2308,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/wad3/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
@@ -1710,7 +2334,17 @@
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": "textures/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
@@ -1726,7 +2360,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_XSD_LoadDocument_1",
@@ -1742,7 +2380,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_document_XSD_Document_Load_1",
@@ -1758,7 +2400,11 @@
       "path_cvar_id": null,
       "confidence": "unclassified",
       "dev_only": 0,
-      "notes": null
+      "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null
     }
   ],
   "_stats": {
@@ -1777,8 +2423,8 @@
     },
     "by_confidence": {
       "certain": 19,
-      "heuristic": 66,
-      "unclassified": 25
+      "heuristic": 68,
+      "unclassified": 23
     },
     "by_load_trigger": {
       "startup": 9,
@@ -1787,8 +2433,8 @@
     },
     "by_path_source": {
       "literal": 23,
-      "unknown": 76,
-      "computed": 11
+      "unknown": 59,
+      "computed": 28
     },
     "dev_only_count": 0
   }

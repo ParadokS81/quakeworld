@@ -756,6 +756,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -773,6 +777,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -790,6 +798,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -807,6 +819,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -824,6 +840,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -841,6 +861,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -858,6 +882,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -875,6 +903,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -892,6 +924,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -903,12 +939,27 @@
       "enclosing_function": "CL_Open_Demo_File",
       "reads_category_id": "ezquake:asset_category:demo",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "com_basedir",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "name + 3",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -926,6 +977,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -937,12 +992,27 @@
       "enclosing_function": "CL_Open_Demo_File",
       "reads_category_id": "ezquake:asset_category:demo",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "CL_DemoDirectory()",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -960,6 +1030,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -977,6 +1051,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -994,6 +1072,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1011,6 +1093,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1028,6 +1114,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1045,6 +1135,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1062,6 +1156,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s.lmp",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "cursorimage",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lmp",
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -1079,6 +1183,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1096,6 +1204,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1113,6 +1225,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1130,6 +1246,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1147,6 +1267,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1164,6 +1288,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1181,6 +1309,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1198,6 +1330,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1215,6 +1351,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1232,6 +1372,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1249,6 +1393,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1266,6 +1414,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1283,6 +1435,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1300,6 +1456,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1317,6 +1477,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1334,6 +1498,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1351,6 +1519,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1368,6 +1540,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1385,6 +1561,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1402,6 +1582,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1419,6 +1603,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1436,6 +1624,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1453,6 +1645,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1470,6 +1666,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1487,6 +1687,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1504,6 +1708,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1521,6 +1729,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1538,6 +1750,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1555,6 +1771,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1572,6 +1792,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1583,12 +1807,16 @@
       "enclosing_function": "SCR_HUD_LoadGroupPic",
       "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "HUD_GROUP_PIC_BASEPATH",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "HUD_GROUP_PIC_BASEPATH",
+      "path_parameters": [],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1600,12 +1828,16 @@
       "enclosing_function": "HUD_NewRadarMap",
       "reads_category_id": "ezquake:asset_category:texture",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "RADAR_BASE_PATH_FORMAT",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "RADAR_BASE_PATH_FORMAT",
+      "path_parameters": [],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1623,6 +1855,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1634,12 +1870,22 @@
       "enclosing_function": "Image_WritePNG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1657,6 +1903,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1668,12 +1918,22 @@
       "enclosing_function": "Image_OpenAPNG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1691,6 +1951,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1708,6 +1972,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1725,6 +1993,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1742,6 +2014,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1753,12 +2029,22 @@
       "enclosing_function": "Image_WriteJPEG",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1776,6 +2062,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1793,6 +2083,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1810,6 +2104,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1827,6 +2125,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1844,6 +2146,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1855,12 +2161,52 @@
       "enclosing_function": "WAVCaptureStart",
       "reads_category_id": "ezquake:asset_category:sound",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/audio.wav",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/audio.wav",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "movie_dir.string",
+          "semantic": "cvar_value:movie_dir"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "movie_start_date.tm_mday",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 2,
+          "expression_snippet": "1 + movie_start_date.tm_mon",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 3,
+          "expression_snippet": "1900 + movie_start_date.tm_year",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 4,
+          "expression_snippet": "movie_start_date.tm_hour",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 5,
+          "expression_snippet": "movie_start_date.tm_min",
+          "semantic": "unknown"
+        },
+        {
+          "slot": 6,
+          "expression_snippet": "movie_start_date.tm_sec",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": ".wav",
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1878,6 +2224,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1895,6 +2245,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1912,6 +2266,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1923,12 +2281,22 @@
       "enclosing_function": "Mod_LoadBrushModel",
       "reads_category_id": "ezquake:asset_category:model",
       "load_trigger": "on_map_load",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "*%i",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "*%i",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "i + 1",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -1946,6 +2314,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "s",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -1963,6 +2341,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "crosshairs/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "s",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -1980,6 +2368,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -1997,6 +2389,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/wad/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2014,6 +2416,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2031,6 +2443,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2040,14 +2456,24 @@
       "source_line": 425,
       "source_column": 11,
       "enclosing_function": "Draw_CachePicSafe",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.lmp",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s.lmp",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "stripped_path",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lmp",
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2065,6 +2491,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2082,6 +2512,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2099,6 +2533,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2116,6 +2554,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "gfx/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "scr_conpicture.string",
+          "semantic": "cvar_value:scr_conpicture"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2127,12 +2575,22 @@
       "enclosing_function": "Draw_ConsoleBackground",
       "reads_category_id": "ezquake:asset_category:hud_overlay",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/levelshots/%s.xxx",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/levelshots/%s.xxx",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "host_mapname.string",
+          "semantic": "cvar_value:host_mapname"
+        }
+      ],
+      "path_extension": ".xxx",
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2144,12 +2602,27 @@
       "enclosing_function": "Load_Locale_Charset",
       "reads_category_id": "ezquake:asset_category:charset",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/charsets/%s-%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/charsets/%s-%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "locale",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2167,6 +2640,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/charsets/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "name",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2184,6 +2667,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2201,6 +2688,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2218,6 +2709,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2235,6 +2730,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2246,12 +2745,22 @@
       "enclosing_function": "R_ReadPointFile_f",
       "reads_category_id": null,
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "maps/%s.pts",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "maps/%s.pts",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "host_mapname.string",
+          "semantic": "cvar_value:host_mapname"
+        }
+      ],
+      "path_extension": ".pts",
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2263,12 +2772,22 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.link",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s.link",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".link",
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2280,12 +2799,22 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "link",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2297,12 +2826,27 @@
       "enclosing_function": "R_LoadImagePixels",
       "reads_category_id": "ezquake:asset_category:screenshot",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "%s.%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "%s.%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "basename",
+          "semantic": "local_variable"
+        },
+        {
+          "slot": 1,
+          "expression_snippet": "formats[i].extension",
+          "semantic": "unknown"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2320,6 +2864,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2337,6 +2885,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2354,6 +2906,10 @@
       "confidence": "certain",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2371,6 +2927,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2388,6 +2948,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2405,6 +2969,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2422,6 +2990,10 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2439,6 +3011,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2456,6 +3032,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2473,6 +3053,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2490,6 +3074,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "sound/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "soundname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2501,12 +3095,22 @@
       "enclosing_function": "VX_TrackerInit",
       "reads_category_id": "ezquake:asset_category:texture",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "textures/tracker/%s",
       "path_cvar_id": null,
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/tracker/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "imagename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "snprintf",
       "raw_ast_hash": null
     },
     {
@@ -2524,6 +3128,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/halflife/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2541,6 +3155,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/wad3/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2558,6 +3182,16 @@
       "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
+      "path_template": "textures/%s",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "filename",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": null,
+      "format_function": "va",
       "raw_ast_hash": null
     },
     {
@@ -2575,6 +3209,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2592,6 +3230,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     },
     {
@@ -2609,6 +3251,10 @@
       "confidence": "unclassified",
       "dev_only": 0,
       "notes": null,
+      "path_template": null,
+      "path_parameters": null,
+      "path_extension": null,
+      "format_function": null,
       "raw_ast_hash": null
     }
   ],
