@@ -27,6 +27,12 @@ CREATE TABLE IF NOT EXISTS versions (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_versions_ordinal ON versions(project, ordinal);
 
+-- The entities.type CHECK lists the full v5 type set (not just v1's four)
+-- because applySchema stamps SCHEMA_VERSION directly on fresh DBs and skips
+-- the migration chain. Migrated DBs rebuild this table via
+-- ENTITIES_V2/V3/V5_MIGRATION_SQL, so the widened v1 CHECK is harmless for
+-- them and correct for fresh ones. Keep this list in sync with
+-- ENTITIES_V5_MIGRATION_SQL (and any future ENTITIES_V*_MIGRATION_SQL).
 CREATE TABLE IF NOT EXISTS entities (
   id                    INTEGER PRIMARY KEY,
   project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
