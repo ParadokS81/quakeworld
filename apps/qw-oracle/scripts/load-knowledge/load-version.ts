@@ -12,11 +12,13 @@ import {
   extendFirstSeenVersion,
   setEntitySourceState,
   upsertEntity,
+  upsertSourceOverride,
   upsertVersion,
 } from './natural-keys.js';
 import { logTransition } from './transitions.js';
 import {
   CVAR_PAYLOAD_FIELD,
+  buildCvarOverrides,
   buildCvarVersionRow,
   cvarIsSourceBacked,
   upsertCvarRow,
@@ -47,12 +49,14 @@ import {
 } from './load-keynames.js';
 import {
   HUD_ELEMENT_PAYLOAD_FIELD,
+  buildHudElementOverrides,
   buildHudElementVersionRow,
   hudElementIsSourceBacked,
   upsertHudElementRow,
 } from './load-hud-elements.js';
 import {
   RULESET_PAYLOAD_FIELD,
+  buildRulesetOverrides,
   buildRulesetVersionRow,
   rulesetIsSourceBacked,
   upsertRulesetRow,
@@ -78,6 +82,7 @@ import {
 import type {
   EntityType,
   Project,
+  SourceOverrideRow,
   SourceState,
 } from './types.js';
 
@@ -118,6 +123,14 @@ interface TypeAdapter {
   isSourceBacked: (entry: any) => boolean;
   buildRow: (entityId: number, version: string, entry: any, now: string) => any;
   upsertRow: (db: Database.Database, row: any) => void;
+  buildOverrides?: (
+    entityId: number,
+    version: string,
+    entry: any,
+    now: string,
+    payload: any,
+    nameLowered: string,
+  ) => SourceOverrideRow[];
 }
 
 const ADAPTERS: Record<EntityType, TypeAdapter> = {
@@ -127,6 +140,7 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: cvarIsSourceBacked,
     buildRow: buildCvarVersionRow,
     upsertRow: upsertCvarRow,
+    buildOverrides: buildCvarOverrides,
   },
   command: {
     payloadField: COMMAND_PAYLOAD_FIELD,
@@ -162,6 +176,7 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: hudElementIsSourceBacked,
     buildRow: buildHudElementVersionRow,
     upsertRow: upsertHudElementRow,
+    buildOverrides: buildHudElementOverrides,
   },
   ruleset: {
     payloadField: RULESET_PAYLOAD_FIELD,
@@ -169,6 +184,7 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: rulesetIsSourceBacked,
     buildRow: buildRulesetVersionRow,
     upsertRow: upsertRulesetRow,
+    buildOverrides: buildRulesetOverrides,
   },
   token_primitive: {
     payloadField: TOKEN_PRIMITIVE_PAYLOAD_FIELD,
@@ -331,6 +347,21 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         options.db,
         adapter.buildRow(upsertResult.id, options.version, entry, now),
       );
+
+      if (adapter.buildOverrides) {
+        const overrides = adapter.buildOverrides(
+          upsertResult.id,
+          options.version,
+          entry,
+          now,
+          payload,
+          name,
+        );
+        for (const ov of overrides) {
+          upsertSourceOverride(options.db, ov);
+        }
+      }
+
       upserted += 1;
     }
 

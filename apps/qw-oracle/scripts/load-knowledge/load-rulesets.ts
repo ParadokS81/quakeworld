@@ -3,7 +3,7 @@
 import { createHash } from 'crypto';
 import type Database from 'better-sqlite3';
 import { upsertRulesetVersion } from './natural-keys.js';
-import type { RulesetEntry, RulesetVersionRow } from './types.js';
+import type { RulesetEntry, RulesetVersionRow, SourceOverrideRow } from './types.js';
 
 export const RULESET_PAYLOAD_FIELD = 'rulesets';
 
@@ -48,4 +48,28 @@ export function buildRulesetVersionRow(
 
 export function upsertRulesetRow(db: Database.Database, row: RulesetVersionRow): void {
   upsertRulesetVersion(db, row);
+}
+
+export function buildRulesetOverrides(
+  entityId: number,
+  version: string,
+  entry: RulesetEntry,
+  now: string,
+): SourceOverrideRow[] {
+  const ast = entry.ast;
+  if (!ast || !ast.field_source_lines) return [];
+  const out: SourceOverrideRow[] = [];
+  for (const [field_name, loc] of Object.entries(ast.field_source_lines)) {
+    out.push({
+      entity_id: entityId,
+      version,
+      field_name,
+      source_file: loc.source_file,
+      source_line: loc.source_line,
+      source_column: null,
+      override_kind: 'struct_field_decl',
+      extracted_at: now,
+    });
+  }
+  return out;
 }

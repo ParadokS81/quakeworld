@@ -3,7 +3,7 @@
 import { createHash } from 'crypto';
 import type Database from 'better-sqlite3';
 import { upsertHudElementVersion } from './natural-keys.js';
-import type { HudElementEntry, HudElementVersionRow } from './types.js';
+import type { HudElementEntry, HudElementVersionRow, SourceOverrideRow } from './types.js';
 
 export const HUD_ELEMENT_PAYLOAD_FIELD = 'hud_elements';
 
@@ -42,4 +42,28 @@ export function buildHudElementVersionRow(
 
 export function upsertHudElementRow(db: Database.Database, row: HudElementVersionRow): void {
   upsertHudElementVersion(db, row);
+}
+
+export function buildHudElementOverrides(
+  entityId: number,
+  version: string,
+  entry: HudElementEntry,
+  now: string,
+): SourceOverrideRow[] {
+  const ast = entry.ast;
+  if (!ast || !ast.field_source_lines) return [];
+  const out: SourceOverrideRow[] = [];
+  for (const [field_name, loc] of Object.entries(ast.field_source_lines)) {
+    out.push({
+      entity_id: entityId,
+      version,
+      field_name,
+      source_file: loc.source_file,
+      source_line: loc.source_line,
+      source_column: null,
+      override_kind: 'header_declaration',
+      extracted_at: now,
+    });
+  }
+  return out;
 }

@@ -65,6 +65,7 @@ export interface GroupDef {
 export interface ExtractorOutput {
   groups: GroupDef[];
   vars: Record<string, VariableEntry>;
+  default_overrides?: Record<string, Array<{ source_file: string; source_line: number }>>;
   _stats?: Record<string, unknown>;
 }
 
@@ -179,6 +180,7 @@ export interface HudElementAstBlock {
   source_column: number;
   enclosing_function: string | null;
   build_variant: string;
+  field_source_lines?: Record<string, { source_file: string; source_line: number }>;
 }
 
 export interface HudElementEntry {
@@ -210,6 +212,7 @@ export interface RulesetAstBlock {
   locked_cvar_count: number;
   source_file: string;
   source_line: number;
+  field_source_lines?: Record<string, { source_file: string; source_line: number }>;
 }
 
 export interface RulesetEntry {

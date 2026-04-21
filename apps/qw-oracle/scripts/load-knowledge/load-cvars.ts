@@ -7,7 +7,12 @@
 import { createHash } from 'crypto';
 import type Database from 'better-sqlite3';
 import { upsertCvarVersion } from './natural-keys.js';
-import type { CvarVersionRow, VariableEntry } from './types.js';
+import type {
+  CvarVersionRow,
+  ExtractorOutput,
+  SourceOverrideRow,
+  VariableEntry,
+} from './types.js';
 
 export const CVAR_PAYLOAD_FIELD = 'vars';
 
@@ -59,4 +64,30 @@ export function buildCvarVersionRow(
 
 export function upsertCvarRow(db: Database.Database, row: CvarVersionRow): void {
   upsertCvarVersion(db, row);
+}
+
+export function buildCvarOverrides(
+  entityId: number,
+  version: string,
+  _entry: VariableEntry,
+  now: string,
+  payload: ExtractorOutput,
+  nameLowered: string,
+): SourceOverrideRow[] {
+  const sites = payload.default_overrides?.[nameLowered];
+  // Emit one override per cvar; if multiple call sites, pick the first
+  // (deterministic and sufficient for blame -- git blame handles multi-commit
+  // histories via log).
+  const first = sites?.[0];
+  if (!first) return [];
+  return [{
+    entity_id: entityId,
+    version,
+    field_name: 'default_value',
+    source_file: first.source_file,
+    source_line: first.source_line,
+    source_column: null,
+    override_kind: 'call_site',
+    extracted_at: now,
+  }];
 }
