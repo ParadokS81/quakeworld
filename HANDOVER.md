@@ -58,22 +58,6 @@ Both items are creative / iterative -- not the kind of thing to grind through so
 
 ---
 
-## Alias chain pretty view cosmetic: duplicate `.msg.point` rows
-
-**Added:** 2026-04-17
-**Status:** known cosmetic limitation, not fixing now
-**Verification first:** open the Point bind's expanded chain in Pretty mode. If `.msg.point` appears twice as separate rows AND both rows highlight when either parent branch reaches `.msg.point`, this issue still holds.
-
-`resolveAliasChain` flattens the alias tree with only per-body dedup (`seen` set per-call scope). When an alias like `.msg.point` is referenced from two different parent branches (e.g. `__point` else AND `__point_powerup` else), it appears twice in the flat chain array. The active-leaf highlight matches on stripped `entry.command` text, so both duplicates highlight identically whenever either path's leaf fires.
-
-Proper fix requires tracking the parent-path to disambiguate -- a non-trivial change that affects the chain visualization data model. Deferred because the user's reaction was "didn't quite understand... is it because 2 different chains end up with that msg" -- the behaviour is internally consistent, just visually redundant. Not blocking anything.
-
-### Related
-
-- `apps/slipgate-app/src/components/AliasChainResolver.tsx` `resolveAliasChain` + `activeLeafCommands` matching
-
----
-
 ## Player state simulator -- follow-ups
 
 **Added:** 2026-04-17
