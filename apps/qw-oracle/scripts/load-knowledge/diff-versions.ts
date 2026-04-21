@@ -15,13 +15,17 @@
 //            exist at toVersion)
 //        Falls back to 'UNKNOWN' if blame fails or the version-row lacks
 //        source_file/source_line (asset_category has no source location).
+//      - Per-field blame override: modifications look up source_overrides
+//        via resolveBlameForField before falling back to the row's primary
+//        source_line (Batch 3 / schema v6).
 //
 // 2. Asset relation_changes across the 4 relation tables in
 //    RELATION_DIFF_CONFIGS (see diffAssetRelations). Relation rows are not
 //    entity-keyed; keyed on each table's UNIQUE natural-key columns via
-//    deterministic JSON. Blame is intentionally deferred to Phase 2f Batch 3
-//    (relation rows don't yet carry source_file/source_line), so relation
-//    change_events get commit_sha='UNKNOWN' in v5.
+//    deterministic JSON. Relation-row blame is still deferred -- Batch 3
+//    shipped entity per-field blame via source_overrides (see
+//    resolveBlameForField), but relation tables still lack source_file /
+//    source_line so diffAssetRelations writes commit_sha='UNKNOWN'.
 
 import type Database from 'better-sqlite3';
 import { ulid } from 'ulid';
@@ -294,6 +298,29 @@ export function diffVersions(options: DiffOptions): DiffResult {
   // hud_element registered at the same site).
   const blameCache = new Map<string, BlameOut>();
 
+  // Preload source_overrides for the toVersion once so per-field blame
+  // lookups during the modification loop hit a Map, not a fresh SQL query.
+  // Keyed by `${entityId}|${fieldName}`.
+  const overridesForToVersion = new Map<string, { source_file: string; source_line: number }>();
+  {
+    const rows = options.db.prepare(`
+      SELECT entity_id, field_name, source_file, source_line
+      FROM source_overrides
+      WHERE version = ?
+    `).all(options.toVersion) as Array<{
+      entity_id: number;
+      field_name: string;
+      source_file: string;
+      source_line: number;
+    }>;
+    for (const r of rows) {
+      overridesForToVersion.set(`${r.entity_id}|${r.field_name}`, {
+        source_file: r.source_file,
+        source_line: r.source_line,
+      });
+    }
+  }
+
   let totalCreations = 0;
   let totalModifications = 0;
   let totalDeletions = 0;
@@ -405,8 +432,8 @@ export function diffVersions(options: DiffOptions): DiffResult {
             const newRaw = toRow[field];
             if (!valuesDiffer(oldRaw, newRaw)) continue;
             const blame = resolveBlameForField(
-              options.db, options.ezquakeRepoPath, toCommitSha, toRow, blameCache,
-              toSrcPrefix, config.hasSource, entityId, options.toVersion, field,
+              overridesForToVersion, options.ezquakeRepoPath, toCommitSha, toRow, blameCache,
+              toSrcPrefix, config.hasSource, entityId, field,
             );
             insertEvent.run({
               entity_id: entityId,
@@ -626,7 +653,7 @@ function resolveBlame(
 // and deletion events don't pass through here -- they have no field_name and
 // correctly stay on entity-level blame.
 function resolveBlameForField(
-  db: Database.Database,
+  overrides: Map<string, { source_file: string; source_line: number }>,
   ezquakeRepoPath: string,
   blameRef: string,
   row: Row,
@@ -634,15 +661,9 @@ function resolveBlameForField(
   sourcePrefix: string,
   hasSource: boolean,
   entityId: number,
-  version: string,
   fieldName: string,
 ): BlameOut {
-  const override = db.prepare(`
-    SELECT source_file, source_line
-    FROM source_overrides
-    WHERE entity_id = ? AND version = ? AND field_name = ?
-  `).get(entityId, version, fieldName) as { source_file: string; source_line: number } | undefined;
-
+  const override = overrides.get(`${entityId}|${fieldName}`);
   if (override) {
     const key = `${blameRef}|${override.source_file}:${override.source_line}`;
     const cached = cache.get(key);
@@ -653,7 +674,6 @@ function resolveBlameForField(
     cache.set(key, out);
     return out;
   }
-
   return resolveBlame(ezquakeRepoPath, blameRef, row, cache, sourcePrefix, hasSource);
 }
 
