@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -398,6 +398,49 @@ CREATE TABLE IF NOT EXISTS release_notes (
 CREATE INDEX IF NOT EXISTS idx_release_notes_version ON release_notes(project, version);
 `;
 
+// v5 adds flag_bit_versions (per-version table for the new 'flag_bit' entity
+// type) and relation_changes (change-event stream for the asset_* relation
+// tables, mirroring change_events for entity rows but keyed by relation_table
+// + row_key_json). Widening the entities.type CHECK to include 'flag_bit'
+// requires an entities-table rebuild (see ENTITIES_V5_MIGRATION_SQL).
+const SCHEMA_V5_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS flag_bit_versions (
+  entity_id         INTEGER NOT NULL REFERENCES entities(id),
+  version           TEXT NOT NULL,
+  bitmask_family    TEXT NOT NULL,
+  value_raw         TEXT,
+  value_numeric     INTEGER,
+  source_file       TEXT,
+  source_line       INTEGER,
+  raw_ast_hash      TEXT,
+  extracted_at      TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_flag_bit_versions_family ON flag_bit_versions(bitmask_family);
+
+CREATE TABLE IF NOT EXISTS relation_changes (
+  id                       INTEGER PRIMARY KEY,
+  relation_table           TEXT NOT NULL CHECK (relation_table IN (
+                             'asset_extensions','asset_path_rules',
+                             'asset_cvar_bindings','asset_loader_sites'
+                           )),
+  project                  TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  from_version             TEXT,
+  to_version               TEXT NOT NULL,
+  change_kind              TEXT NOT NULL CHECK (change_kind IN ('created','modified','deleted')),
+  row_key_json             TEXT NOT NULL,
+  field_name               TEXT NOT NULL DEFAULT '',
+  old_value                TEXT,
+  new_value                TEXT,
+  commit_sha               TEXT NOT NULL,
+  commit_message_excerpt   TEXT,
+  extracted_at             TEXT NOT NULL,
+  UNIQUE (relation_table, project, to_version, row_key_json, field_name, change_kind)
+);
+CREATE INDEX IF NOT EXISTS idx_relation_changes_to_version ON relation_changes(to_version);
+CREATE INDEX IF NOT EXISTS idx_relation_changes_table      ON relation_changes(relation_table);
+`;
+
 // v2 -> v3 rebuilds the entities table to add 'asset_category' to the
 // type CHECK. Same pattern as v1 -> v2.
 const ENTITIES_V3_MIGRATION_SQL = `
@@ -424,6 +467,37 @@ CREATE TABLE entities_v3 (
 INSERT INTO entities_v3 SELECT * FROM entities;
 DROP TABLE entities;
 ALTER TABLE entities_v3 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+`;
+
+// v4 -> v5 rebuilds the entities table to add 'flag_bit' to the type CHECK.
+// Same pattern as v2 -> v3. (v4 only added release_notes, so no entities
+// rebuild was needed at that step.)
+const ENTITIES_V5_MIGRATION_SQL = `
+CREATE TABLE entities_v5 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category','flag_bit'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v5(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v5 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v5 RENAME TO entities;
 CREATE INDEX idx_entities_name ON entities(name);
 CREATE INDEX idx_entities_type ON entities(project, type);
 `;
@@ -474,6 +548,27 @@ function migrateV3ToV4(db: Database.Database): void {
   txn();
 }
 
+function migrateV4ToV5(db: Database.Database): void {
+  // Like v1->v2 and v2->v3, the entities-table rebuild requires
+  // foreign_keys OFF outside the transaction. SQLite silently ignores the
+  // pragma mid-transaction.
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+      `);
+      db.exec(ENTITIES_V5_MIGRATION_SQL);
+      db.exec(SCHEMA_V5_ADDITIONS_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('5');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -502,6 +597,10 @@ export function applySchema(db: Database.Database): void {
       migrateV3ToV4(db);
       existingVersion = 4;
     }
+    if (existingVersion === 4 && SCHEMA_VERSION >= 5) {
+      migrateV4ToV5(db);
+      existingVersion = 5;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -509,9 +608,10 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 additions are idempotent CREATE IF NOT EXISTS -- safe on
-  // fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
+  // v2 / v3 / v4 / v5 additions are idempotent CREATE IF NOT EXISTS -- safe
+  // on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
   db.exec(SCHEMA_V4_ADDITIONS_SQL);
+  db.exec(SCHEMA_V5_ADDITIONS_SQL);
 }
