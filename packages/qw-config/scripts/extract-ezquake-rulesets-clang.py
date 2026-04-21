@@ -161,6 +161,49 @@ def parse_initial_rulesetdef(src: str) -> dict:
     return out
 
 
+_STRUCT_DECL_RE = re.compile(
+    r"typedef\s+struct\s+rulesetDef_s\s*\{",
+)
+_FIELD_DECL_RE = re.compile(
+    r"^\s*(?:float|int|double|qbool|ruleset_t|unsigned|char|short|long)\s+(\w+)\s*;",
+    re.MULTILINE,
+)
+
+
+def extract_struct_field_lines(source_text: str) -> dict[str, int]:
+    """Locate `typedef struct rulesetDef_s { ... }` and return a map of
+    field_name -> 1-indexed line number of its declaration.
+
+    The struct is small (<20 fields) and has no nested braces in practice,
+    but we walk depth defensively so any future nested typedef/union survives.
+    """
+    m = _STRUCT_DECL_RE.search(source_text)
+    if m is None:
+        return {}
+    open_brace_idx = m.end() - 1
+    depth = 1
+    i = open_brace_idx + 1
+    while i < len(source_text) and depth > 0:
+        ch = source_text[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        i += 1
+    block = source_text[open_brace_idx + 1:i - 1]
+    block_start_offset = open_brace_idx + 1
+    out: dict[str, int] = {}
+    for fm in _FIELD_DECL_RE.finditer(block):
+        field_name = fm.group(1)
+        # In MULTILINE mode, `^` matches at the start of each line (just
+        # after a newline), so fm.start() points at the line containing
+        # the type keyword. Compute 1-indexed line number in the full source.
+        abs_offset = block_start_offset + fm.start()
+        line_no = source_text.count("\n", 0, abs_offset) + 1
+        out[field_name] = line_no
+    return out
+
+
 _LOADER_BODY_RE = re.compile(
     r"static\s+void\s+Rulesets_(\w+)\s*\(\s*qbool\s+enable\s*\)\s*\{",
     re.MULTILINE,
@@ -286,6 +329,7 @@ def build_ruleset_entry(
     resolved_policy: dict,
     locked_cvars: list[dict],
     source_line: int,
+    field_source_lines: dict[str, dict] | None = None,
 ) -> dict:
     ast: dict = {
         "enum_ident": enum_ident,
@@ -301,6 +345,8 @@ def build_ruleset_entry(
         ast[json_key] = normalise_value(raw, kind)
     ast["locked_cvars"] = locked_cvars
     ast["locked_cvar_count"] = len(locked_cvars)
+    if field_source_lines is not None:
+        ast["field_source_lines"] = field_source_lines
     return {"ast": ast}
 
 
@@ -325,6 +371,30 @@ def main() -> int:
     base_policy = parse_initial_rulesetdef(src)
     loaders = find_loader_bodies(src)
     print(f"  loader functions found: {sorted(loaders.keys())}")
+
+    # Per-field source locations from the rulesetDef_s struct declaration.
+    # The struct is shared across all rulesets, so every entry receives the
+    # same map. Older ezQuake tags naturally yield fewer fields because the
+    # struct grew incrementally.
+    #
+    # Keys are the JSON (snake_case) field names, NOT the raw C struct names.
+    # This is deliberate: downstream (Task 11 adapter + Task 12 diff pipeline)
+    # uses this map's keys as the field_name column in source_overrides, which
+    # must match the JSON schema keys the diff pipeline walks. Fields present
+    # in the C struct but not in POLICY_FIELDS are dropped (would mean the
+    # script needs updating anyway -- same posture as parse_initial_rulesetdef).
+    raw_field_lines = extract_struct_field_lines(src)
+    c_to_json = {c_name: json_key for c_name, json_key, _ in POLICY_FIELDS}
+    field_source_lines_shared: dict[str, dict] = {}
+    for c_name, line in raw_field_lines.items():
+        json_key = c_to_json.get(c_name)
+        if json_key is None:
+            continue
+        field_source_lines_shared[json_key] = {
+            "source_file": RULESETS_C.name,
+            "source_line": line,
+        }
+    print(f"  struct field source lines: {len(field_source_lines_shared)}")
 
     print("\nPhase 3: assembling ruleset entries")
     rulesets_out: dict[str, dict] = {}
@@ -366,6 +436,7 @@ def main() -> int:
             resolved_policy=resolved,
             locked_cvars=locked_cvars,
             source_line=source_line,
+            field_source_lines=field_source_lines_shared,
         )
         rulesets_out[public] = entry
 

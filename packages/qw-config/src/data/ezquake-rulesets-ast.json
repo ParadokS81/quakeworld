@@ -19,7 +19,61 @@
         "restrict_seteval": 0,
         "restrict_setex": 0,
         "locked_cvars": [],
-        "locked_cvar_count": 0
+        "locked_cvar_count": 0,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     },
     "smackdown": {
@@ -66,7 +120,61 @@
             "value": "1"
           }
         ],
-        "locked_cvar_count": 6
+        "locked_cvar_count": 6,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     },
     "thunderdome": {
@@ -105,7 +213,61 @@
             "value": "0"
           }
         ],
-        "locked_cvar_count": 4
+        "locked_cvar_count": 4,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     },
     "qcon": {
@@ -148,7 +310,61 @@
             "value": "0"
           }
         ],
-        "locked_cvar_count": 5
+        "locked_cvar_count": 5,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     },
     "mtfl": {
@@ -195,7 +411,61 @@
             "value": "0"
           }
         ],
-        "locked_cvar_count": 6
+        "locked_cvar_count": 6,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     },
     "smackdrive": {
@@ -238,7 +508,61 @@
             "value": "1"
           }
         ],
-        "locked_cvar_count": 5
+        "locked_cvar_count": 5,
+        "field_source_lines": {
+          "enum_ident": {
+            "source_file": "rulesets.c",
+            "source_line": 30
+          },
+          "maxfps": {
+            "source_file": "rulesets.c",
+            "source_line": 32
+          },
+          "restrict_triggers": {
+            "source_file": "rulesets.c",
+            "source_line": 33
+          },
+          "restrict_packet": {
+            "source_file": "rulesets.c",
+            "source_line": 34
+          },
+          "restrict_particles": {
+            "source_file": "rulesets.c",
+            "source_line": 35
+          },
+          "restrict_play": {
+            "source_file": "rulesets.c",
+            "source_line": 36
+          },
+          "restrict_logging": {
+            "source_file": "rulesets.c",
+            "source_line": 37
+          },
+          "restrict_rollangle": {
+            "source_file": "rulesets.c",
+            "source_line": 38
+          },
+          "restrict_ipc": {
+            "source_file": "rulesets.c",
+            "source_line": 39
+          },
+          "restrict_exec": {
+            "source_file": "rulesets.c",
+            "source_line": 40
+          },
+          "restrict_setcalc": {
+            "source_file": "rulesets.c",
+            "source_line": 41
+          },
+          "restrict_seteval": {
+            "source_file": "rulesets.c",
+            "source_line": 42
+          },
+          "restrict_setex": {
+            "source_file": "rulesets.c",
+            "source_line": 43
+          }
+        }
       }
     }
   },
