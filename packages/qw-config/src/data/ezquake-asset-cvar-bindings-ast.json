@@ -98,18 +98,40 @@
       "enclosing_function": "Cmd_Download_f",
       "loader_function": "FS_OpenVFS",
       "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:sv_loadentfiles_dir",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "sv_init.c:586",
+      "enclosing_function": "SV_SpawnServer",
+      "loader_function": "FS_LoadHunkFile",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:sv_progsname",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
+      "source_ref": "pr_edict.c:1163",
+      "enclosing_function": "PR1_LoadProgs",
+      "loader_function": "FS_LoadHunkFile",
+      "notes": null
     }
   ],
   "_stats": {
-    "total_bindings": 9,
-    "unique_cvars": 4,
+    "total_bindings": 11,
+    "unique_cvars": 6,
     "by_category": {
+      "<null>": 5,
       "ezquake:asset_category:texture": 4,
-      "<null>": 3,
       "ezquake:asset_category:hud_overlay": 2
     },
     "by_load_trigger": {
-      "on_demand": 8,
+      "on_demand": 10,
       "startup": 1
     }
   }

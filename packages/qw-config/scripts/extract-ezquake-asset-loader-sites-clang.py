@@ -74,6 +74,16 @@ LOADER_FUNCTIONS: set[str] = {
     "Mod_FindName",
     "S_PrecacheSound",
     "W_LoadWadFile",
+    # Path 3 additions (Task 3.3). Confirmed in ezquake head (2026-04-22):
+    #   TP_LoadLocFile    -- teamplay_locfiles.c, char* path at arg[0]
+    #   PlayQWZDemo       -- cl_demo.c (static), const char* name at arg[0]
+    #   FS_LoadHunkFile   -- fs.c, generic hunk-loader; captures .lit/.dat
+    #                        via _category_from_extension (no
+    #                        FUNCTION_TO_CATEGORY entry needed since it
+    #                        straddles multiple asset families).
+    "TP_LoadLocFile",
+    "PlayQWZDemo",
+    "FS_LoadHunkFile",
 }
 
 # Function-name -> category_id heuristic (when we can classify). Keys are
@@ -86,6 +96,11 @@ FUNCTION_TO_CATEGORY: dict[str, str] = {
     "Mod_FindName": "ezquake:asset_category:model",
     "Draw_CachePicSafe": "ezquake:asset_category:hud_overlay",
     "R_LoadPicImage": "ezquake:asset_category:texture",
+    # Path 3 additions. FS_LoadHunkFile deliberately omitted -- its
+    # category varies per call site (progs.dat vs .lit vs .mdl) and is
+    # resolved by _category_from_extension instead.
+    "TP_LoadLocFile": "ezquake:asset_category:locfile",
+    "PlayQWZDemo": "ezquake:asset_category:demo_archive",
 }
 
 # Extension -> category fallback when the callee is generic (FS_LoadFile /
@@ -111,6 +126,16 @@ EXT_TO_CATEGORY: dict[str, str] = {
     ".jpg":  "ezquake:asset_category:texture",
     ".jpeg": "ezquake:asset_category:texture",
     ".pcx":  "ezquake:asset_category:skin",
+    # Path 3 additions (Task 3.3).
+    ".log":  "ezquake:asset_category:log",
+    ".loc":  "ezquake:asset_category:locfile",
+    ".lit":  "ezquake:asset_category:map_lighting",
+    ".xml":  "ezquake:asset_category:help_xml",
+    ".dat":  "ezquake:asset_category:quakec_progs",
+    ".kmap": "ezquake:asset_category:keymap",
+    ".spr":  "ezquake:asset_category:sprite",
+    ".qwz":  "ezquake:asset_category:demo_archive",
+    ".dll":  "ezquake:asset_category:plugin",
 }
 
 # Fallback category when path_source is literal but no extension matches

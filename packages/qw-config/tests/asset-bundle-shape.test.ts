@@ -53,3 +53,30 @@ describe("ezquake-asset-bundle.json shape (Path 2)", () => {
     expect(keys).toContain("textures/wad");
   });
 });
+
+describe("Path 3: new loader-family call sites", () => {
+  const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
+  const siteFunctions = new Set(bundle.asset_loader_sites.map((s: any) => s.function_name));
+
+  // Step 1 investigation findings (2026-04-22): only three of the plan's
+  // candidate names exist verbatim in ezquake head.
+  //   TP_LoadLocFile    -- confirmed (teamplay_locfiles.c:84), takes char* path at arg[0]
+  //   PlayQWZDemo       -- confirmed (cl_demo.c:3123, static), takes const char* name at arg[0]
+  //   FS_LoadHunkFile   -- confirmed (fs.c:403), generic loader; captures .lit/.dat via ext
+  // Other candidates (R_LoadLighting, Log_OpenLogfile, Help_LoadXML,
+  // Key_LoadBindings, IN_LoadKeymap, PR_LoadProgs, CL_Demo_Unpack_QWZ,
+  // Plug_Load) do not exist; their call paths either run through
+  // FS_LoadHunkFile already (progs.dat, .lit) or go through raw fopen
+  // (Log_AutoLogging_*) which the AST watchlist intentionally skips.
+  const expected = [
+    "TP_LoadLocFile",
+    "PlayQWZDemo",
+    "FS_LoadHunkFile",
+  ];
+
+  for (const fn of expected) {
+    test(`extractor captures at least one call to ${fn}`, () => {
+      expect(siteFunctions.has(fn)).toBe(true);
+    });
+  }
+});

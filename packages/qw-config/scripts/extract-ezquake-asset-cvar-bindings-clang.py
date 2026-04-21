@@ -61,6 +61,12 @@ LOADER_FUNCTIONS: set[str] = {
     "Mod_FindName",
     "S_PrecacheSound",
     "W_LoadWadFile",
+    # Path 3 additions (Task 3.3); keep in lockstep with
+    # extract-ezquake-asset-loader-sites-clang.py so auto-corroboration
+    # doesn't drift.
+    "TP_LoadLocFile",
+    "PlayQWZDemo",
+    "FS_LoadHunkFile",
 }
 
 FUNCTION_TO_CATEGORY: dict[str, str] = {
@@ -71,6 +77,9 @@ FUNCTION_TO_CATEGORY: dict[str, str] = {
     "Mod_FindName": "ezquake:asset_category:model",
     "Draw_CachePicSafe": "ezquake:asset_category:hud_overlay",
     "R_LoadPicImage": "ezquake:asset_category:texture",
+    # Path 3 additions. FS_LoadHunkFile omitted -- extension-driven.
+    "TP_LoadLocFile": "ezquake:asset_category:locfile",
+    "PlayQWZDemo": "ezquake:asset_category:demo_archive",
 }
 
 TRIGGER_RULES: list[tuple[re.Pattern, str]] = [
