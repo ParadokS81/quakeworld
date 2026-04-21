@@ -157,6 +157,69 @@
         "description": "Files the taxonomy doesn't otherwise cover.",
         "notes": null
       }
+    },
+    "log": {
+      "ast": {
+        "display_name": "Log File",
+        "description": "Console and match logs. Produced by the Log_* subsystem and auto-recording.",
+        "notes": null
+      }
+    },
+    "locfile": {
+      "ast": {
+        "display_name": "Location File",
+        "description": "Team-reporting location file (.loc) keyed to a map name; used by %l macros.",
+        "notes": null
+      }
+    },
+    "map_lighting": {
+      "ast": {
+        "display_name": "Map Lighting",
+        "description": "Per-map colored-lighting companion (.lit) loaded alongside a .bsp.",
+        "notes": null
+      }
+    },
+    "help_xml": {
+      "ast": {
+        "display_name": "Help Documentation",
+        "description": "Engine help system XML files, shipped in ezquake.pk3.",
+        "notes": null
+      }
+    },
+    "quakec_progs": {
+      "ast": {
+        "display_name": "QuakeC Progs",
+        "description": "Compiled QuakeC bytecode (qwprogs.dat, spprogs.dat, mod progs.dat).",
+        "notes": null
+      }
+    },
+    "keymap": {
+      "ast": {
+        "display_name": "Keymap File",
+        "description": "Keyboard-layout data consumed by the key-binding subsystem (.kmap).",
+        "notes": null
+      }
+    },
+    "sprite": {
+      "ast": {
+        "display_name": "Sprite",
+        "description": "Sprite model (.spr). Distinct from .mdl via the precache path.",
+        "notes": null
+      }
+    },
+    "demo_archive": {
+      "ast": {
+        "display_name": "Demo Archive",
+        "description": "Compressed demo archive (.qwz). Decoded via qwdtools before playback.",
+        "notes": null
+      }
+    },
+    "plugin": {
+      "ast": {
+        "display_name": "Client Plugin",
+        "description": "Native plugin DLL (FTE's fteplug_*.dll family). ezQuake does not consume these; surfaced as a cross-client presence signal.",
+        "notes": null
+      }
     }
   },
   "asset_extensions": [
@@ -395,6 +458,69 @@
       "extension": ".lmp",
       "path_hint": null,
       "category_id": "ezquake:asset_category:hud_overlay",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".log",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:log",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".loc",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:locfile",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".lit",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:map_lighting",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".xml",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:help_xml",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".dat",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:quakec_progs",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".kmap",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:keymap",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".spr",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:sprite",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".qwz",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:demo_archive",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".dll",
+      "path_hint": null,
+      "category_id": "ezquake:asset_category:plugin",
       "notes": null,
       "raw_ast_hash": null
     }
@@ -3384,8 +3510,8 @@
     }
   ],
   "_stats": {
-    "categories": 17,
-    "extensions": 34,
+    "categories": 26,
+    "extensions": 43,
     "path_rules": 14,
     "cvar_bindings": 26,
     "loader_sites": 110,

@@ -21,3 +21,38 @@ describe("asset_extensions path_hint coverage", () => {
     expect(jpg).toEqual(tga);
   });
 });
+
+describe("new loader-family categories + extensions", () => {
+  const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
+
+  const expectedCategories = [
+    "log", "locfile", "map_lighting", "help_xml", "quakec_progs",
+    "keymap", "sprite", "demo_archive", "plugin",
+  ];
+
+  for (const c of expectedCategories) {
+    test(`asset_category '${c}' exists in bundle`, () => {
+      expect(bundle.asset_categories[c]).toBeDefined();
+    });
+  }
+
+  const expectedExtensionToCategory: Array<[string, string]> = [
+    [".log",   "log"],
+    [".loc",   "locfile"],
+    [".lit",   "map_lighting"],
+    [".xml",   "help_xml"],
+    [".dat",   "quakec_progs"],
+    [".kmap",  "keymap"],
+    [".spr",   "sprite"],
+    [".qwz",   "demo_archive"],
+    [".dll",   "plugin"],
+  ];
+
+  for (const [ext, cat] of expectedExtensionToCategory) {
+    test(`extension ${ext} maps to category ${cat}`, () => {
+      const catCanonical = `ezquake:asset_category:${cat}`;
+      const match = bundle.asset_extensions.find((e: any) => e.extension === ext && e.category_id === catCanonical);
+      expect(match).toBeDefined();
+    });
+  }
+});

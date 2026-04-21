@@ -96,3 +96,21 @@ extensions:
     category: conchar
   - extension: ".lmp"
     category: hud_overlay
+  - extension: ".log"
+    category: log
+  - extension: ".loc"
+    category: locfile
+  - extension: ".lit"
+    category: map_lighting
+  - extension: ".xml"
+    category: help_xml
+  - extension: ".dat"
+    category: quakec_progs
+  - extension: ".kmap"
+    category: keymap
+  - extension: ".spr"
+    category: sprite
+  - extension: ".qwz"
+    category: demo_archive
+  - extension: ".dll"
+    category: plugin

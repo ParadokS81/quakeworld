@@ -63,3 +63,30 @@ categories:
   - name: other
     display_name: "Other"
     description: "Files the taxonomy doesn't otherwise cover."
+  - name: log
+    display_name: "Log File"
+    description: "Console and match logs. Produced by the Log_* subsystem and auto-recording."
+  - name: locfile
+    display_name: "Location File"
+    description: "Team-reporting location file (.loc) keyed to a map name; used by %l macros."
+  - name: map_lighting
+    display_name: "Map Lighting"
+    description: "Per-map colored-lighting companion (.lit) loaded alongside a .bsp."
+  - name: help_xml
+    display_name: "Help Documentation"
+    description: "Engine help system XML files, shipped in ezquake.pk3."
+  - name: quakec_progs
+    display_name: "QuakeC Progs"
+    description: "Compiled QuakeC bytecode (qwprogs.dat, spprogs.dat, mod progs.dat)."
+  - name: keymap
+    display_name: "Keymap File"
+    description: "Keyboard-layout data consumed by the key-binding subsystem (.kmap)."
+  - name: sprite
+    display_name: "Sprite"
+    description: "Sprite model (.spr). Distinct from .mdl via the precache path."
+  - name: demo_archive
+    display_name: "Demo Archive"
+    description: "Compressed demo archive (.qwz). Decoded via qwdtools before playback."
+  - name: plugin
+    display_name: "Client Plugin"
+    description: "Native plugin DLL (FTE's fteplug_*.dll family). ezQuake does not consume these; surfaced as a cross-client presence signal."
