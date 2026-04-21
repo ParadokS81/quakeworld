@@ -404,8 +404,9 @@ export function diffVersions(options: DiffOptions): DiffResult {
             const oldRaw = fromRow[field];
             const newRaw = toRow[field];
             if (!valuesDiffer(oldRaw, newRaw)) continue;
-            const blame = resolveBlame(
-              options.ezquakeRepoPath, toCommitSha, toRow, blameCache, toSrcPrefix, config.hasSource,
+            const blame = resolveBlameForField(
+              options.db, options.ezquakeRepoPath, toCommitSha, toRow, blameCache,
+              toSrcPrefix, config.hasSource, entityId, options.toVersion, field,
             );
             insertEvent.run({
               entity_id: entityId,
@@ -616,6 +617,44 @@ function resolveBlame(
   const out = result ?? { commit_sha: 'UNKNOWN', commit_message_excerpt: null };
   cache.set(key, out);
   return out;
+}
+
+// Modification events prefer the per-field site recorded in source_overrides
+// (e.g. a ruleset's maxfps struct-field line, a hud_element's header-declared
+// flags, a cvar's default_value call-site). Fields without an override row
+// fall back to the entity's primary declaration via resolveBlame. Creation
+// and deletion events don't pass through here -- they have no field_name and
+// correctly stay on entity-level blame.
+function resolveBlameForField(
+  db: Database.Database,
+  ezquakeRepoPath: string,
+  blameRef: string,
+  row: Row,
+  cache: Map<string, BlameOut>,
+  sourcePrefix: string,
+  hasSource: boolean,
+  entityId: number,
+  version: string,
+  fieldName: string,
+): BlameOut {
+  const override = db.prepare(`
+    SELECT source_file, source_line
+    FROM source_overrides
+    WHERE entity_id = ? AND version = ? AND field_name = ?
+  `).get(entityId, version, fieldName) as { source_file: string; source_line: number } | undefined;
+
+  if (override) {
+    const key = `${blameRef}|${override.source_file}:${override.source_line}`;
+    const cached = cache.get(key);
+    if (cached !== undefined) return cached;
+    const repoPath = `${sourcePrefix}${override.source_file}`;
+    const result = blameLine(ezquakeRepoPath, blameRef, repoPath, override.source_line);
+    const out = result ?? { commit_sha: 'UNKNOWN', commit_message_excerpt: null };
+    cache.set(key, out);
+    return out;
+  }
+
+  return resolveBlame(ezquakeRepoPath, blameRef, row, cache, sourcePrefix, hasSource);
 }
 
 function valuesDiffer(a: unknown, b: unknown): boolean {
