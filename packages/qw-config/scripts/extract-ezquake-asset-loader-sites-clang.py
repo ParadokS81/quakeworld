@@ -35,6 +35,7 @@ import json
 import os
 import re
 import sys
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -555,7 +556,6 @@ def main() -> int:
     # sorting by source_line ascending so ordinals are deterministic and stable
     # across upstream line-shifts. The canonical_id is
     # ezquake:loader_site:<fn>_<basename>_<enclosing>_<ordinal>.
-    from collections import defaultdict
     sites.sort(key=lambda s: (
         s.source_file,
         s.enclosing_function or "",
@@ -572,6 +572,8 @@ def main() -> int:
         ordinal = ordinal_counters[group_key]
         s.canonical_id = f"ezquake:loader_site:{s.function_name}_{basename}_{enc}_{ordinal}"
 
+    # Resort into emission order (source_file, source_line). Does not affect
+    # canonical_ids (already assigned above) -- only JSON output ordering.
     sites = sorted(sites, key=lambda x: (x.source_file, x.source_line, x.source_column))
 
     # Stats.
