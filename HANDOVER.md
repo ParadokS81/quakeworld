@@ -12,8 +12,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. qw-knowledge quartet completed 2026-04-21; qw-config still pending, surface next time it's touched substantially
 - [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
-- [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) — 2026-04-21: Gap A fixed upstream (client_defaults now seed-driven). Remaining: png/jpg path_hint variants; 9 loader families missing (.log, .loc, .lit, .dat, .kmap, .xml, .spr, .qwz, .dll). Post-Batch3 task for qw-oracle session.
-- [Asset reference-resolution graph — research foundation](#asset-reference-resolution-graph--research-foundation) — 2026-04-21: spec at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` proposes shift from category-classification to consumer-reference graph (parameterized-path extraction + BSP/progs parsers + asset_companions schema). Foundation for a future implementation plan; precondition met by post-Batch3 oracle work.
+- [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) — RESOLVED 2026-04-22: all three gaps closed. Gap A via seed-driven client_defaults (2026-04-21). Gap B (png/jpg path_hints) + Gap C (9 loader families) via plan docs/superpowers/plans/2026-04-22-oracle-source-extraction-paths.md. Inventory coverage verified: 'other' bucket = 90 of 14,859 files.
+- [Asset reference-resolution graph — research foundation](#asset-reference-resolution-graph--research-foundation) — 2026-04-22: Capabilities A (parameterized paths) + D (reserved subdirs) shipped via docs/superpowers/plans/2026-04-22-oracle-source-extraction-paths.md. Capabilities B (BSP parser) + C (progs.dat parser) remain roadmapped under the artifact-derived-facts track in docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md.
 
 ---
 
@@ -154,7 +154,8 @@ Single session, ~60 minutes. Draft additions against both VISION files in parall
 ## ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory
 
 **Added:** 2026-04-21
-**Status:** Surfaced from a slipgate-side inventory dump of a real 14,859-file ezQuake install. Three concrete gaps; all belong upstream in qw-oracle, not in slipgate.
+**Closed:** 2026-04-22
+**Status:** RESOLVED. Gap A (client_defaults) drained 2026-04-21 via seed-driven bundle. Gap B (png/jpg path_hints) + Gap C (9 loader families) landed via plan docs/superpowers/plans/2026-04-22-oracle-source-extraction-paths.md. Inventory coverage verified: 'other' bucket = 90 of 14,859 files (well under 400 threshold).
 **Verification first:** `python3 -c "import json; b=json.load(open('packages/qw-config/src/data/ezquake-asset-bundle.json')); print('client_defaults present:', 'client_defaults' in b); exts=b['asset_extensions']; print('.png variants:', sum(1 for e in exts if e['extension']=='.png')); print('.jpg variants:', sum(1 for e in exts if e['extension']=='.jpg')); print('.tga variants:', sum(1 for e in exts if e['extension']=='.tga'))"` — if client_defaults shows True and .png/.jpg have multiple variants like .tga, the work is done.
 
 ### Context
@@ -212,7 +213,8 @@ One sitting, probably ~90 minutes. Add png/jpg path_hint coverage (Gap B) and th
 ## Asset reference-resolution graph — research foundation
 
 **Added:** 2026-04-21
-**Status:** Research-and-design foundation spec landed at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md`. Awaiting an implementation plan; not blocking any current work.
+**Closed (partial):** 2026-04-22
+**Status:** Capabilities A (parameterized paths) + D (reserved subdirs) shipped via `docs/superpowers/plans/2026-04-22-oracle-source-extraction-paths.md`. Capabilities B (BSP parser) + C (progs.dat parser) remain roadmapped under `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md` (artifact-derived-facts track).
 **Verification first:** `ls docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md && head -5 docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md`.
 
 ### Context
