@@ -206,6 +206,11 @@ class LoaderSite:
     confidence: str
     dev_only: int
     notes: Optional[str] = None
+    # Path 1 additions.
+    path_template: Optional[str] = None
+    path_parameters: Optional[list] = None
+    path_extension: Optional[str] = None
+    format_function: Optional[str] = None
 
 
 # ----- helpers --------------------------------------------------------------
