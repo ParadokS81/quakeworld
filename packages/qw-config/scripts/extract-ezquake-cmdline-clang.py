@@ -428,16 +428,31 @@ def main() -> int:
     print(f"  output: {OUTPUT_JSON}")
     print()
 
-    if not MANIFEST_H.is_file():
-        print(f"ERROR: cmdline_params_ids.h not found at {MANIFEST_H}", file=sys.stderr)
-        return 1
-    if not HELP_JSON.is_file():
-        print(f"ERROR: help_cmdline_params.json not found at {HELP_JSON}", file=sys.stderr)
-        return 1
+    # Version tolerance: pre-3.6.0 tags may lack the cmdline_params_ids.h
+    # manifest and help_cmdline_params.json enrichment file. Both are
+    # post-3.2.3 artifacts. When absent, run with empty inputs -- Phase 2
+    # (COM_CheckParm[Offset] call-site walk) still captures string-literal
+    # usages and emits them as undeclared entries.
+    skip_phase1 = not MANIFEST_H.is_file()
+    skip_help = not HELP_JSON.is_file()
+
+    startup_diagnostics: list[str] = []
+    if skip_phase1:
+        msg = f"cmdline_params_ids.h not found at {MANIFEST_H} -- skipping Phase 1 (pre-3.6.0 tag?)"
+        print(f"  WARN: {msg}")
+        startup_diagnostics.append(msg)
+    if skip_help:
+        msg = f"help_cmdline_params.json not found at {HELP_JSON} -- proceeding without help enrichment"
+        print(f"  WARN: {msg}")
+        startup_diagnostics.append(msg)
 
     print("Phase 1: parsing cmdline_params_ids.h manifest")
-    manifest = parse_manifest()
-    print(f"  declared params: {len(manifest)}")
+    if skip_phase1:
+        manifest: list[ManifestEntry] = []
+        print("  declared params: 0 (manifest absent)")
+    else:
+        manifest = parse_manifest()
+        print(f"  declared params: {len(manifest)}")
 
     print("\nPhase 2: walking COM_CheckParm[Offset] call-exprs")
     c_files = sorted([p for p in EZQ_SRC.iterdir() if p.suffix == ".c"])
@@ -459,8 +474,12 @@ def main() -> int:
     print(f"\n  total usage sites: {total_sites} over {len(usages)} distinct argument forms")
 
     print("\nPhase 3: loading help_cmdline_params.json for enrichment")
-    help_data = load_help_data()
-    print(f"  help entries: {len(help_data)}")
+    if skip_help:
+        help_data: dict = {}
+        print("  help entries: 0 (help_cmdline_params.json absent)")
+    else:
+        help_data = load_help_data()
+        print(f"  help entries: {len(help_data)}")
 
     print("\nPhase 4: merging and writing output")
     output = build_output(manifest, usages, help_data)
@@ -473,12 +492,13 @@ def main() -> int:
     OUTPUT_JSON.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(f"\n  written: {OUTPUT_JSON}")
 
+    all_diagnostics = startup_diagnostics + diagnostics
     DIAGNOSTICS_LOG.parent.mkdir(parents=True, exist_ok=True)
     DIAGNOSTICS_LOG.write_text(
-        "\n".join(diagnostics) + "\n" if diagnostics else "(no diagnostics)\n",
+        "\n".join(all_diagnostics) + "\n" if all_diagnostics else "(no diagnostics)\n",
         encoding="utf-8",
     )
-    print(f"  diagnostics logged: {DIAGNOSTICS_LOG} ({len(diagnostics)} entries)")
+    print(f"  diagnostics logged: {DIAGNOSTICS_LOG} ({len(all_diagnostics)} entries)")
 
     return 0
 
