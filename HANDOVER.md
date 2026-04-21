@@ -19,6 +19,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2f stress-test gap catalog](#phase-2f-stress-test-gap-catalog) — A1/A2/A3 surfaced 10 gaps + 1 new; Batch 1 + Batch 2 + Batch 3 all shipped (2026-04-21). All 11 gaps closed plus the fresh-DB CHECK latent bug. Phase 2f historical backfill is unblocked.
 - [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) — 2026-04-21: bb462ae regeneration wiped client_defaults; png/jpg lack path_hint variants; 9 loader families missing (.log, .loc, .lit, .dat, .kmap, .xml, .spr, .qwz, .dll). Post-Batch3 task for qw-oracle session.
 - [Asset reference-resolution graph — research foundation](#asset-reference-resolution-graph--research-foundation) — 2026-04-21: spec at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` proposes shift from category-classification to consumer-reference graph (parameterized-path extraction + BSP/progs parsers + asset_companions schema). Foundation for a future implementation plan; precondition met by post-Batch3 oracle work.
+- [qw-oracle Layer 1 documentation gap (README + OVERVIEW + SCHEMA missing)](#qw-oracle-layer-1-documentation-gap-readme--overview--schema-missing) — quartet 2-of-4, Layer 2 0-of-8; user lost thread because schema cumulative state lives only in code + six scattered specs; blocks before historical backfill proper
+- [docs-check skill leaks findings via "lazy migration" and repeated nothing-burger rejection](#docs-check-skill-leaks-findings-via-lazy-migration-and-repeated-nothing-burger-rejection) — skill failure pattern: same Mode 1/Mode 2 findings rejected as nothing-burger across 4+ sessions by arguing against the rule, not applying it. Needs explicit block-on-repeated-rejection + "quartet must be complete by session N" escalation.
 
 ---
 
@@ -458,5 +460,111 @@ Next step is an implementation plan (in the `docs/superpowers/plans/` track, not
 
 - Not to write the implementation plan here. That's a separate session, preferably when Batch 3 T4-T13 have landed and the oracle session has capacity.
 - Not to start any extractor code. Plan first; implementation via subagent-driven execution once the plan exists.
+
+---
+
+## qw-oracle Layer 1 documentation gap (README + OVERVIEW + SCHEMA missing)
+
+**Added:** 2026-04-21
+**Status:** Critical for contributor onboarding and for ParadokS's own mental model. Blocks before the Phase 2f historical-backfill proper should run -- backfill produces tens of thousands of rows and is un-sanity-checkable without cumulative schema reference.
+**Verification first:** `ls apps/qw-oracle/{README.md,OVERVIEW.md,SCHEMA.md} apps/qw-oracle/docs/{README.md,OVERVIEW.md,SCHEMA.md} 2>&1` -- if any of the six paths exist, the state has changed; re-read this item before acting.
+
+### The gap
+
+qw-oracle's documentation state as of 2026-04-21:
+
+- **Layer 1 quartet:** 2 of 4 present (`CLAUDE.md` 107 lines, `VISION.md` present but needs reframe). **Missing: `README.md`, `OVERVIEW.md`.**
+- **Layer 2 menu:** 0 of 8 present. `SCHEMA.md` is the mandatory one given this project's nature (extraction pipeline -> SQLite DB is the product).
+- **Layer 3 references:** none.
+- **Schema intent:** scattered across 6 specs (v1 original, then dated per-migration specs for v5 + v6; v2/v3/v4 undocumented per a separate HANDOVER item). No single cumulative "here is what Layer 1 actually is" document exists.
+
+ParadokS surfaced the pain directly in the 2026-04-21 wrap-up conversation: "I've lost the thread ... I know what majority of the categories are but a good deal is gibberish ... I can no longer catch issues." That's the exact symptom profile a missing SCHEMA.md produces in a schema-heavy project.
+
+### Why it matters now
+
+Phase 2f historical backfill is the next natural move and was about to ship. Backfill walks ~15 ezQuake tags, diffs consecutive pairs, and produces tens of thousands of `change_events` + `relation_changes` + `source_overrides` rows. Without a cumulative SCHEMA.md, neither the user nor Claude can sanity-check a sample of those rows meaningfully. You'd be backfilling into a foundation the operator can't read. That amplifies any latent extraction bug by 15x.
+
+Writing SCHEMA.md (and the sibling quartet docs) before backfill is the prerequisite, not a nice-to-have.
+
+### Proposed scope for the focused session
+
+1. **`apps/qw-oracle/SCHEMA.md`** -- the biggest piece. One section per table, organized topically (not chronologically):
+   - Identity layer: `entities`, `versions`
+   - Per-type version tables (10): `cvar_versions` through `flag_bit_versions`, `asset_category_versions`
+   - Relation tables (5): `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes`
+   - Change tracking: `change_events`, `relation_changes`, `source_overrides`
+   - Audit: `source_state_transitions`, `schema_meta`
+   - Each section: purpose, columns + semantics, natural key, populated-by (which extractor + which loader adapter), consumed-by (slipgate views, MCP tools, diff pipeline), link to the relevant per-migration spec for the *why*.
+2. **`apps/qw-oracle/OVERVIEW.md`** -- describes the machinery around the data (not the data itself). The scripts/ directory map, load-version / diff / enrich / load-assets / release-notes CLI flow, extractor-to-loader-to-diff pipeline, the "two DBs side by side" architecture.
+3. **`apps/qw-oracle/README.md`** -- short. Public-facing "what this is" for a contributor arriving cold. Mostly links to the above + CLAUDE.md + VISION.md.
+4. **Optional bonus: 1-page HTML renderer of SCHEMA.md** for public consumption. Per-project coverage grid (ezQuake | FTE | MVDSV | KTX columns, entity-type rows) that fills in as each engine lands. Generated from SCHEMA.md + a per-project coverage manifest so drift is impossible. See wrap-up conversation 2026-04-21 for full shape discussion.
+
+### Non-goals
+
+- Do NOT tangle this with the VISION.md active-assistance reframe (separate handover item).
+- Do NOT try to also ship qw-config's quartet in the same session -- that's a separate handover item with its own triggers.
+- Do NOT write the three docs "from scratch" by re-reading code. Read the existing six specs + e2e-verify.md + schema.ts + CLAUDE.md + this handover file + memory files; compose SCHEMA.md from them. Claude already reconstructs this every session -- write it down once.
+
+### Acceptance criteria
+
+- Next Claude session opening qw-oracle can answer "what does table `flag_bit_versions` contain and why" by reading ONE file, not by joining six.
+- ParadokS can read SCHEMA.md and feel the "I know what this is" sensation. Validated by a short walkthrough pass in the session itself.
+- Monorepo OVERVIEW.md's "will be written when Claude next works in it" lazy-migration note for qw-oracle is deleted (graduation of the migration).
+- Per-project docs-check Mode 2 quartet presence is now 4 of 4.
+
+### Related
+
+- Monorepo doc philosophy: `.claude/skills/philosophy/*` (auto-loaded).
+- Doc template reference: `~/.claude/skills/docs-check/references/doc-template.md`.
+- Conversation that surfaced the pain: 2026-04-21 wrap-up.
+- Sibling HANDOVER item: "Knowledge schema spec behind code (v2-v4 undocumented)" -- complementary but distinct (specs capture intent at migration edges; SCHEMA.md captures cumulative state at today's head).
+- Sibling HANDOVER item: "qw-config package missing Layer 1 quartet" -- same pattern, different package.
+
+---
+
+## docs-check skill leaks findings via "lazy migration" and repeated nothing-burger rejection
+
+**Added:** 2026-04-21
+**Status:** Skill-correctness bug. Surfaced by ParadokS during 2026-04-21 wrap-up after five consecutive oracle sessions (Phase 2c.5, 2c.6, 2f Batch 1, 2f Batch 2, 2f Batch 3) failed to graduate qw-oracle's Layer 1 quartet and failed to create SCHEMA.md despite every session meeting the Mode 1 and Mode 2 triggers.
+**Verification first:** read `~/.claude/skills/docs-check/SKILL.md` Steps 4, 5, 7.5. Compare against the failure pattern below. If the skill has already been updated, this item is resolved -- check for new language around repeated-rejection escalation.
+
+### The failure pattern
+
+Two compounding bugs:
+
+**Bug 1: "lazy migration" became a permanent escape hatch.**
+Monorepo `OVERVIEW.md` has a note saying qw-oracle and qw-config quartets "will be written when Claude next works in them." Across ~5 substantial qw-oracle sessions in a week, every wrap-up triaged the missing README/OVERVIEW as "already covered by the lazy-migration note -> skip." The intent of "lazy migration" was "fix when you're next in the area." It degraded to "defer forever." The skill has no counter for "how many times has this project been touched without graduating the migration", so the reject pattern is invisible to it.
+
+**Bug 2: Repeated nothing-burger rejection of the same finding.**
+Mode 1 question 1 ("did this session change a schema? ensure SCHEMA.md exists") fired on all 5 sessions. Each time Claude answered with "schema-as-code + per-migration specs handle it distributively -> nothing-burger." That's arguing AGAINST the template's rule ("every project has the mandatory docs, period") rather than applying it. The template explicitly warns against exactly this: *"Scope is not an escape hatch"* and *"Never leave findings unassigned."* The skill trusts Claude's triage judgment; when that judgment is consistently wrong in the same way, the skill has no cross-session memory to catch the pattern.
+
+### Why the existing guardrails didn't help
+
+- **Step 7.5's "rejection as nothing-burger is valid" clause** is correct in the single-session case but has no backstop for "the same finding gets rejected 4 times in a row."
+- **The "CLAUDE.md bloat as diagnostic" heuristic** is narrow: it catches overfull, not underfull. qw-oracle's CLAUDE.md stayed tight (107 lines, under ceiling) only because the schema content was being reconstructed from code every session, not because it was well-placed elsewhere. There's no "schema content has no home" alarm.
+- **Mode 2 question 1** ("was OVERVIEW.md touched this session?") asks about the one file, but doesn't ask "does the project's OVERVIEW.md EXIST at all?" Presence check is scattered into Step 2 but not re-surfaced as a blocking finding in the lifecycle-aware pressure step.
+
+### Proposed skill changes
+
+1. **Track cross-session rejection history.** When the same Mode 1 or Mode 2 finding has been rejected as nothing-burger on 2+ consecutive wrap-ups touching the same project, auto-promote the next occurrence to Track B (handover) regardless of the current-session Claude's judgment. The skill needs persistent state for this -- probably a small `.claude/docs-check-state.json` per monorepo tracking per-project findings + rejection counts.
+2. **Lazy-migration has a clock.** When a project is touched substantially in N sessions (suggest: 3) with the quartet still incomplete, upgrade from "nudge" to "block close-out." The "lazy migration will happen next time" note is valid for the FIRST deferral; it's not valid for the third.
+3. **"Documentation absence" check distinct from "CLAUDE.md bloat".** Add an explicit Step 2 check: "does this project have a Layer 2 doc matching the category of its dominant content?" Schema-heavy projects need SCHEMA.md. API-heavy projects need API_CONTRACTS.md. UI-heavy projects need DESIGN.md. Absence should flag, not just bloat.
+4. **Step 10 report prompt about rejected findings.** When Section A/B/D contains `rejected: nothing-burger` items, surface them to the user explicitly rather than just listing them. Ask: "I rejected these N findings as nothing-burgers. Do you want me to reconsider any of them as Track B?" The user has cross-session memory the skill doesn't.
+
+### Related pattern in user's own vocabulary
+
+ParadokS named the pattern during the conversation: "fix later as we can do it later" accumulates into "double or triple work later." That's the exact anti-pattern Step 7.5 was designed to prevent, and this handover item captures how Step 7.5 itself leaked in practice. Saving the skill-fix here so the fix lands as a focused skill-update session, not folded into oracle work.
+
+### Non-goals
+
+- Not to rewrite the whole docs-check skill.
+- Not to try to audit every project retroactively -- pick up the pattern from here forward.
+- Not to remove Step 7.5's valid use of "rejected: nothing-burger" in the single-session case; add a cross-session backstop instead.
+
+### Related
+
+- Doc philosophy source: `~/.claude/skills/docs-check/references/doc-philosophy.md` (especially sections on "Template is structure, not graduation" and "CLAUDE.md bloat is a symptom").
+- Skill itself: `~/.claude/skills/docs-check/SKILL.md`.
+- Feedback memory to write alongside the fix: "fix-later is an anti-pattern; every finding gets an explicit track or it leaks."
 
 ---
