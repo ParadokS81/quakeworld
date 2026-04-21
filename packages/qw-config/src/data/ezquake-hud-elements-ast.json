@@ -32,7 +32,33 @@
         "source_line": 439,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo for active weapon."
     },
@@ -67,7 +93,33 @@
         "source_line": 454,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo - shells."
     },
@@ -102,7 +154,33 @@
         "source_line": 465,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo - nails."
     },
@@ -137,7 +215,33 @@
         "source_line": 476,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo - rockets."
     },
@@ -172,7 +276,33 @@
         "source_line": 487,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo - cells."
     },
@@ -207,7 +337,33 @@
         "source_line": 229,
         "source_column": 2,
         "enclosing_function": "Armor_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - armor level."
     },
@@ -241,7 +397,33 @@
         "source_line": 255,
         "source_column": 2,
         "enclosing_function": "Armor_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows amount of damage done to your armour."
     },
@@ -278,7 +460,33 @@
         "source_line": 268,
         "source_column": 2,
         "enclosing_function": "Armor_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Armor bar."
     },
@@ -314,7 +522,33 @@
         "source_line": 119,
         "source_column": 2,
         "enclosing_function": "Health_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Health bar."
     },
@@ -345,7 +579,33 @@
         "source_line": 228,
         "source_column": 2,
         "enclosing_function": "CenterPrint_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows alerts from server, countdowns etc."
     },
@@ -380,7 +640,33 @@
         "source_line": 378,
         "source_column": 2,
         "enclosing_function": "Clock_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows current local time (hh:mm:ss)."
     },
@@ -413,7 +699,33 @@
         "source_line": 393,
         "source_column": 2,
         "enclosing_function": "Clock_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows current demo time (hh:mm:ss)."
     },
@@ -442,7 +754,33 @@
         "source_line": 85,
         "source_column": 2,
         "enclosing_function": "Face_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Your bloody face."
     },
@@ -476,7 +814,33 @@
         "source_line": 303,
         "source_column": 2,
         "enclosing_function": "Performance_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows your current framerate in frames per second (fps).This can also show the minimum framerate that occured in the last measured period."
     },
@@ -529,7 +893,33 @@
         "source_line": 1535,
         "source_column": 2,
         "enclosing_function": "Frags_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Show list of player frags in short form."
     },
@@ -560,7 +950,33 @@
         "source_line": 345,
         "source_column": 2,
         "enclosing_function": "Performance_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows information about the renderer's status & workload."
     },
@@ -594,7 +1010,33 @@
         "source_line": 319,
         "source_column": 2,
         "enclosing_function": "Performance_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows your current frametime in ms.This can also show the maximum frametime that occured in the last measured period."
     },
@@ -629,7 +1071,33 @@
         "source_line": 406,
         "source_column": 2,
         "enclosing_function": "Clock_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows current game time (hh:mm:ss)."
     },
@@ -665,7 +1133,33 @@
         "source_line": 236,
         "source_column": 2,
         "enclosing_function": "GameSummary_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows total pickups & current weapons."
     },
@@ -699,7 +1193,33 @@
         "source_line": 206,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -733,7 +1253,33 @@
         "source_line": 218,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -767,7 +1313,33 @@
         "source_line": 230,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -801,7 +1373,33 @@
         "source_line": 242,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -835,7 +1433,33 @@
         "source_line": 254,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -869,7 +1493,33 @@
         "source_line": 266,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -903,7 +1553,33 @@
         "source_line": 278,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -937,7 +1613,33 @@
         "source_line": 290,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -971,7 +1673,33 @@
         "source_line": 302,
         "source_column": 2,
         "enclosing_function": "Groups_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Group element."
     },
@@ -1004,7 +1732,33 @@
         "source_line": 358,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - current weapon."
     },
@@ -1036,7 +1790,33 @@
         "source_line": 367,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - shotgun."
     },
@@ -1068,7 +1848,33 @@
         "source_line": 375,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - super shotgun."
     },
@@ -1100,7 +1906,33 @@
         "source_line": 383,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - nailgun."
     },
@@ -1132,7 +1964,33 @@
         "source_line": 391,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - super nailgun."
     },
@@ -1164,7 +2022,33 @@
         "source_line": 399,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - grenade launcher."
     },
@@ -1196,7 +2080,33 @@
         "source_line": 407,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - rocket launcher."
     },
@@ -1229,7 +2139,33 @@
         "source_line": 415,
         "source_column": 2,
         "enclosing_function": "Guns_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - thunderbolt."
     },
@@ -1262,7 +2198,33 @@
         "source_line": 135,
         "source_column": 2,
         "enclosing_function": "Health_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your status - health level."
     },
@@ -1296,7 +2258,33 @@
         "source_line": 148,
         "source_column": 2,
         "enclosing_function": "Health_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows amount of damage done to your health."
     },
@@ -1327,7 +2315,33 @@
         "source_line": 500,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo icon."
     },
@@ -1357,7 +2371,33 @@
         "source_line": 510,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo icon."
     },
@@ -1387,7 +2427,33 @@
         "source_line": 516,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo icon."
     },
@@ -1417,7 +2483,33 @@
         "source_line": 522,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo icon."
     },
@@ -1447,7 +2539,33 @@
         "source_line": 528,
         "source_column": 2,
         "enclosing_function": "Ammo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - ammo icon."
     },
@@ -1478,7 +2596,33 @@
         "source_line": 244,
         "source_column": 2,
         "enclosing_function": "Armor_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - armor icon."
     },
@@ -1512,7 +2656,33 @@
         "source_line": 970,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Displays upcoming item respawns"
     },
@@ -1543,7 +2713,33 @@
         "source_line": 244,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - silver key."
     },
@@ -1574,7 +2770,33 @@
         "source_line": 253,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - gold key."
     },
@@ -1604,7 +2826,33 @@
         "source_line": 961,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows which keys user does press at the moment"
     },
@@ -1635,7 +2883,33 @@
         "source_line": 346,
         "source_column": 2,
         "enclosing_function": "Net_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows network statistics, like latency, packet loss, average packet sizes and bandwidth. Shown only when you are connected to a server."
     },
@@ -1672,7 +2946,33 @@
         "source_line": 771,
         "source_column": 18,
         "enclosing_function": "R_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows your network conditions in graph-form. With netgraph you can monitor your latency (ping), packet loss and network errors."
     },
@@ -1701,7 +3001,33 @@
         "source_line": 357,
         "source_column": 2,
         "enclosing_function": "Net_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows an icon if you are experiencing network problems"
     },
@@ -1734,7 +3060,33 @@
         "source_line": 948,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows last console lines"
     },
@@ -1765,7 +3117,33 @@
         "source_line": 852,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Highlights your own frags"
     },
@@ -1796,7 +3174,33 @@
         "source_line": 271,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - invulnerability."
     },
@@ -1833,7 +3237,33 @@
         "source_line": 366,
         "source_column": 2,
         "enclosing_function": "Net_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows most important net conditions, like ping and pl. Shown only when you are connected to a server."
     },
@@ -1863,7 +3293,33 @@
         "source_line": 87,
         "source_column": 2,
         "enclosing_function": "Qtv_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "QTV buffering status."
     },
@@ -1894,7 +3350,33 @@
         "source_line": 289,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - quad damage."
     },
@@ -1943,7 +3425,33 @@
         "source_line": 1422,
         "source_column": 2,
         "enclosing_function": "Radar_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Plots the players on a picture of the map. (Only when watching MVD's or QTV)."
     },
@@ -1974,7 +3482,33 @@
         "source_line": 262,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - invisibility."
     },
@@ -2010,7 +3544,33 @@
         "source_line": 837,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Team, enemy, and difference scores together."
     },
@@ -2044,7 +3604,33 @@
         "source_line": 812,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Difference between teamscores and enemyscores."
     },
@@ -2078,7 +3664,33 @@
         "source_line": 799,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Scores of enemy or enemy team."
     },
@@ -2112,7 +3724,33 @@
         "source_line": 825,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Position on scoreboard."
     },
@@ -2146,7 +3784,33 @@
         "source_line": 786,
         "source_column": 2,
         "enclosing_function": "Scores_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Own scores or team scores."
     },
@@ -2177,7 +3841,33 @@
         "source_line": 421,
         "source_column": 2,
         "enclosing_function": "Clock_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows current date and time on the scoreboard"
     },
@@ -2208,7 +3898,33 @@
         "source_line": 251,
         "source_column": 2,
         "enclosing_function": "GameSummary_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows map name on the scoreboard"
     },
@@ -2239,7 +3955,33 @@
         "source_line": 299,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - sigil 1."
     },
@@ -2270,7 +4012,33 @@
         "source_line": 308,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - sigil 2."
     },
@@ -2301,7 +4069,33 @@
         "source_line": 317,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - sigil 3."
     },
@@ -2332,7 +4126,33 @@
         "source_line": 326,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - sigil 4."
     },
@@ -2376,7 +4196,33 @@
         "source_line": 679,
         "source_column": 2,
         "enclosing_function": "Speed_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows your current running speed. It is measured over XY or XYZ axis depending on 'xyz' property."
     },
@@ -2416,7 +4262,33 @@
         "source_line": 702,
         "source_column": 2,
         "enclosing_function": "Speed_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows your current running speed. It is measured over XY or XYZ axis depending on 'xyz' property."
     },
@@ -2450,7 +4322,33 @@
         "source_line": 983,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Static text (demos only)."
     },
@@ -2481,7 +4379,33 @@
         "source_line": 280,
         "source_column": 2,
         "enclosing_function": "Items_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Part of your inventory - biosuit."
     },
@@ -2528,7 +4452,33 @@
         "source_line": 1567,
         "source_column": 2,
         "enclosing_function": "Frags_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Show list of team frags in short form."
     },
@@ -2565,7 +4515,33 @@
         "source_line": 1390,
         "source_column": 16,
         "enclosing_function": "TeamHold_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows how much of the level (in percent) that is currently being held by either team."
     },
@@ -2601,7 +4577,33 @@
         "source_line": 1375,
         "source_column": 17,
         "enclosing_function": "TeamHold_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows which important items in the level that are being held by the teams."
     },
@@ -2646,7 +4648,33 @@
         "source_line": 908,
         "source_column": 2,
         "enclosing_function": "TeamInfo_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Show information about your team in short form."
     },
@@ -2684,7 +4712,33 @@
         "source_line": 996,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows relative stacks of each team."
     },
@@ -2717,7 +4771,33 @@
         "source_line": 936,
         "source_column": 2,
         "enclosing_function": "CommonDraw_Init",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows deaths, frag streaks etc"
     },
@@ -2748,7 +4828,33 @@
         "source_line": 67,
         "source_column": 2,
         "enclosing_function": "Tracking_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows the name of tracked player."
     },
@@ -2779,7 +4885,33 @@
         "source_line": 334,
         "source_column": 2,
         "enclosing_function": "Performance_HudInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Shows the delay between the time a frame is rendered and the time it's displayed."
     },
@@ -2811,7 +4943,33 @@
         "source_line": 226,
         "source_column": 2,
         "enclosing_function": "WeaponStats_HUDInit",
-        "build_variant": "client"
+        "build_variant": "client",
+        "field_source_lines": {
+          "hud_alias": {
+            "source_file": "hud.h",
+            "source_line": 69
+          },
+          "help_desc": {
+            "source_file": "hud.h",
+            "source_line": 70
+          },
+          "draw_fn": {
+            "source_file": "hud.h",
+            "source_line": 72
+          },
+          "draw_order_raw": {
+            "source_file": "hud.h",
+            "source_line": 74
+          },
+          "min_state_raw": {
+            "source_file": "hud.h",
+            "source_line": 105
+          },
+          "flags_raw": {
+            "source_file": "hud.h",
+            "source_line": 108
+          }
+        }
       },
       "desc": "Weapon stats"
     }

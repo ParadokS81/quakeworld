@@ -50,6 +50,7 @@ _args, _ = _cli.parse_known_args()
 
 EZQ_REPO = Path(_args.repo_root).resolve() if _args.repo_root else (REPO_ROOT / "research/repos/ezquake-source")
 EZQ_SRC = (EZQ_REPO / "src") if (EZQ_REPO / "src").is_dir() and any((EZQ_REPO / "src").glob("*.c")) else EZQ_REPO
+HUD_H = EZQ_SRC / "hud.h"
 OUTPUT_JSON = Path(_args.output).resolve() if _args.output else (REPO_ROOT / "packages/qw-config/src/data/ezquake-hud-elements-ast.json")
 DIAGNOSTICS_LOG = HERE.parent / "docs/ast-hud-elements-diagnostics.log"
 
@@ -195,6 +196,97 @@ def _resolve_fn_ref(arg_cursor) -> Optional[str]:
                 return ref.spelling
         stack.extend(list(n.get_children()))
     return None
+
+
+# ----- hud_t struct field source lines --------------------------------------
+# Maps C struct field names in hud_t (hud.h) to the schema.ts field names in
+# hud_element_versions. Fields missing from hud_t (e.g. `hud_alias` derives
+# from HUD_Register arg 1 `var_alias`, not a struct member) anchor to the
+# closest structural pin: `name` is the element's identity in the struct and
+# is the pragmatic source-line for hud_alias. `description` anchors help_desc
+# similarly (desc comes from HUD_Register arg 2, not a struct member, but the
+# `description` struct field is a natural source pin).
+#
+# Keys not listed (e.g. `show`, `place`, `opacity`) have no schema counterpart
+# in hud_element_versions and are dropped.
+
+HUD_T_C_TO_SCHEMA_NAME = {
+    "name":        "hud_alias",
+    "description": "help_desc",
+    "draw_func":   "draw_fn",
+    "order":       "draw_order_raw",
+    "min_state":   "min_state_raw",
+    "flags":       "flags_raw",
+}
+
+# Simple-declaration pattern: leading whitespace, optional `const`, then a
+# type (which may be `struct X`, `unsigned`, `cvar_t`, etc.), any number of
+# pointer stars, the captured identifier, optional array suffix, then `;`.
+# Handles single-declarator lines only; multi-declarator lines like
+# `int lx, ly, lw, lh;` are dropped (no schema counterpart anyway).
+_HUD_FIELD_RE = re.compile(
+    r"^\s*(?!struct\s+\w+\s*$)(?:const\s+)?(?:\w+|\*)(?:\s+|\s*\*+\s*)(?:\w+\s*\*+\s*)*(\w+)\s*(?:\[[^\]]+\])?\s*;",
+    re.MULTILINE,
+)
+
+# Function-pointer pattern: `<return> (*name) (args);`.
+_HUD_FP_FIELD_RE = re.compile(
+    r"^\s*[^;{}]*\(\s*\*\s*(\w+)\s*\)\s*\([^;]*\)\s*;",
+    re.MULTILINE,
+)
+
+
+def extract_hud_field_lines(hud_h_source: str) -> dict[str, int]:
+    """Parse `typedef struct hud_s { ... } hud_t;` and return a map of C field
+    name -> 1-indexed line number. Uses brace-depth walking for the struct
+    bounds so nested unions/structs survive; uses two regex passes (simple
+    decls + function pointers) for field enumeration."""
+    m = re.search(r"typedef\s+struct\s+hud_s\s*\{", hud_h_source)
+    if m is None:
+        return {}
+    start = m.end()
+    depth = 1
+    i = start
+    while i < len(hud_h_source) and depth > 0:
+        ch = hud_h_source[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        i += 1
+    block = hud_h_source[start:i]
+    fields: dict[str, int] = {}
+    for fm in _HUD_FIELD_RE.finditer(block):
+        abs_offset = start + fm.start(1)
+        line = hud_h_source.count("\n", 0, abs_offset) + 1
+        fields[fm.group(1)] = line
+    for fm in _HUD_FP_FIELD_RE.finditer(block):
+        abs_offset = start + fm.start(1)
+        line = hud_h_source.count("\n", 0, abs_offset) + 1
+        fields.setdefault(fm.group(1), line)
+    return fields
+
+
+def build_hud_field_source_lines() -> dict[str, dict]:
+    """Return the schema-keyed field_source_lines map for hud_t, shared by
+    every HUD element entry (the struct is common). Keys use the schema
+    vocabulary (hud_alias, flags_raw, etc.) so Task 12's diff pipeline can
+    look up source_overrides by the same field_name it emits in change_events."""
+    try:
+        src = HUD_H.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return {}
+    raw = extract_hud_field_lines(src)
+    out: dict[str, dict] = {}
+    for c_name, schema_name in HUD_T_C_TO_SCHEMA_NAME.items():
+        line = raw.get(c_name)
+        if line is None:
+            continue
+        out[schema_name] = {
+            "source_file": HUD_H.name,
+            "source_line": line,
+        }
+    return out
 
 
 # ----- owned-cvar synthesis (mirrors extract-ezquake-cvars-clang.py) --------
@@ -366,6 +458,13 @@ def main() -> int:
     }
 
     print("\nPhase 2: writing output")
+    # Per-field source lines from hud_t in hud.h. The struct is common across
+    # all HUD elements, so every entry receives the same map. Keys use the
+    # schema-field vocabulary so Task 12's diff pipeline can look up
+    # source_overrides by the same field_name it emits in change_events.
+    field_source_lines_shared = build_hud_field_source_lines()
+    print(f"  hud_t field source lines: {len(field_source_lines_shared)}")
+
     hud_out: dict[str, dict] = {}
     for el in sorted(unique, key=lambda e: e.name):
         entry: dict = {
@@ -381,6 +480,7 @@ def main() -> int:
                 "source_column": el.source_column,
                 "enclosing_function": el.enclosing_function,
                 "build_variant": el.build_variant,
+                "field_source_lines": field_source_lines_shared,
             },
         }
         if el.description:
