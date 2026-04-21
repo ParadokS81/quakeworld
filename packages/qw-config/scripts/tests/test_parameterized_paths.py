@@ -80,6 +80,27 @@ def test_q_snprintfz_writes_buffer_then_loader_reads_it():
     assert s.format_function == "Q_snprintfz"
 
 
+def test_cvar_value_semantic_detected():
+    sites = _extract_sites(FIXTURE_DIR / "05_cvar_value.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadFile"]
+    assert len(loaders) == 1
+    s = loaders[0]
+    assert s.path_parameters == [
+        {"slot": 0, "expression_snippet": "baseskin.string", "semantic": "cvar_value:baseskin"},
+    ]
+
+
+def test_multi_slot_templates_report_each_slot():
+    sites = _extract_sites(FIXTURE_DIR / "06_multi_slot.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadFile"]
+    assert len(loaders) == 1
+    s = loaders[0]
+    assert s.path_template == "env/%s_%s.tga"
+    assert len(s.path_parameters) == 2
+    assert s.path_parameters[0]["semantic"] == "current_map_name"
+    assert s.path_parameters[1]["semantic"] in ("function_parameter", "local_variable", "unknown")
+
+
 if __name__ == "__main__":
     tests = [fn for name, fn in globals().items() if name.startswith("test_")]
     failed = 0
