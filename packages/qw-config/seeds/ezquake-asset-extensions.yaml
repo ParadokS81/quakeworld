@@ -52,11 +52,40 @@ extensions:
     category: skybox
   - extension: ".tga"
     category: screenshot
+  # .png variants mirror .tga's path_hints (same loader call-sites accept both).
   - extension: ".png"
     path_hint: "textures/"
     category: texture
   - extension: ".png"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".png"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".png"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".png"
+    path_hint: "env/"
+    category: skybox
+  - extension: ".png"
     category: screenshot
+  # .jpg variants mirror .tga's path_hints.
+  - extension: ".jpg"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".jpg"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".jpg"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".jpg"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".jpg"
+    path_hint: "env/"
+    category: skybox
   - extension: ".jpg"
     category: screenshot
   - extension: ".pcx"

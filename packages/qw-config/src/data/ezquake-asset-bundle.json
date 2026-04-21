@@ -302,8 +302,71 @@
     },
     {
       "extension": ".png",
+      "path_hint": "skins/",
+      "category_id": "ezquake:asset_category:skin",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".png",
+      "path_hint": "crosshairs/",
+      "category_id": "ezquake:asset_category:crosshair",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".png",
+      "path_hint": "gfx/",
+      "category_id": "ezquake:asset_category:hud_overlay",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".png",
+      "path_hint": "env/",
+      "category_id": "ezquake:asset_category:skybox",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".png",
       "path_hint": null,
       "category_id": "ezquake:asset_category:screenshot",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".jpg",
+      "path_hint": "textures/",
+      "category_id": "ezquake:asset_category:texture",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".jpg",
+      "path_hint": "skins/",
+      "category_id": "ezquake:asset_category:skin",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".jpg",
+      "path_hint": "crosshairs/",
+      "category_id": "ezquake:asset_category:crosshair",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".jpg",
+      "path_hint": "gfx/",
+      "category_id": "ezquake:asset_category:hud_overlay",
+      "notes": null,
+      "raw_ast_hash": null
+    },
+    {
+      "extension": ".jpg",
+      "path_hint": "env/",
+      "category_id": "ezquake:asset_category:skybox",
       "notes": null,
       "raw_ast_hash": null
     },
@@ -3322,7 +3385,7 @@
   ],
   "_stats": {
     "categories": 17,
-    "extensions": 25,
+    "extensions": 34,
     "path_rules": 14,
     "cvar_bindings": 26,
     "loader_sites": 110,
