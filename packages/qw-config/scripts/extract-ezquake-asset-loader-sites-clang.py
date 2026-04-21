@@ -5,7 +5,11 @@ Walks every .c file in ezquake-source/src/ and captures every CALL_EXPR
 whose callee is a known file-I/O / asset-loader function. Each call site
 becomes one row with:
 
-  - canonical_id    ezquake:loader_site:<fn>_<source_file_basename>_<line>
+  - canonical_id    ezquake:loader_site:<fn>_<source_file_basename>_<enclosing>_<ordinal>
+                    where ordinal is the nth call to <fn> inside
+                    <enclosing> within <basename>, ordered by source_line
+                    ascending. Line-number is NOT embedded -- upstream
+                    edits that shift lines no longer ripple into keys.
   - function_name   the callee's spelling
   - source_file     basename of the .c file
   - source_line/col call-site position
@@ -429,7 +433,9 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
                     load_trigger = _classify_load_trigger(enclosing)
                     dev_only = 1 if _is_dev_only(enclosing) else 0
 
-                    canonical = f"ezquake:loader_site:{fn}_{path.stem}_{src_line}"
+                    # canonical_id is assigned in main() post-collection
+                    # so ordinals are stable per (fn, enclosing, basename).
+                    canonical = ""
 
                     notes = None
                     if label == "server":
@@ -534,21 +540,39 @@ def main() -> int:
             print(f"    [{i}/{len(c_files)}] {f.name}")
         sites.extend(extract_from_file(f, diagnostics))
 
-    # Canonical-ID collision guard. Different extensions in the same file at
-    # the same line would collide — suffix with column when they do.
-    by_canonical: dict[str, LoaderSite] = {}
+    # Exact-duplicate dedup (same site observed in both default + server TUs).
+    # seen_keys inside extract_from_file covers intra-file dup; belt-and-braces
+    # cross-file check here in case a site ever slips through.
+    dedup: dict[tuple[str, str, int, int], LoaderSite] = {}
     for s in sites:
-        if s.canonical_id in by_canonical:
-            other = by_canonical[s.canonical_id]
-            if (other.source_line == s.source_line
-                    and other.source_column == s.source_column):
-                # exact dup (e.g. same site seen in both TUs) — skip
-                continue
-            # rewrite this one with column suffix
-            s.canonical_id = f"{s.canonical_id}_{s.source_column}"
-        by_canonical[s.canonical_id] = s
+        k = (s.function_name, s.source_file, s.source_line, s.source_column)
+        if k in dedup:
+            continue
+        dedup[k] = s
+    sites = list(dedup.values())
 
-    sites = sorted(by_canonical.values(), key=lambda x: (x.source_file, x.source_line, x.source_column))
+    # Assign ordinals per (function_name, enclosing_function, source_file) group,
+    # sorting by source_line ascending so ordinals are deterministic and stable
+    # across upstream line-shifts. The canonical_id is
+    # ezquake:loader_site:<fn>_<basename>_<enclosing>_<ordinal>.
+    from collections import defaultdict
+    sites.sort(key=lambda s: (
+        s.source_file,
+        s.enclosing_function or "",
+        s.function_name,
+        s.source_line,
+        s.source_column,
+    ))
+    ordinal_counters: dict[tuple[str, str, str], int] = defaultdict(int)
+    for s in sites:
+        basename = s.source_file.rsplit(".", 1)[0]
+        enc = s.enclosing_function or "global"
+        group_key = (s.function_name, enc, s.source_file)
+        ordinal_counters[group_key] += 1
+        ordinal = ordinal_counters[group_key]
+        s.canonical_id = f"ezquake:loader_site:{s.function_name}_{basename}_{enc}_{ordinal}"
+
+    sites = sorted(sites, key=lambda x: (x.source_file, x.source_line, x.source_column))
 
     # Stats.
     by_fn: dict[str, int] = {}

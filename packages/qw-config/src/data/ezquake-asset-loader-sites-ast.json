@@ -1,7 +1,7 @@
 {
   "loader_sites": [
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_43",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "Ctrl_ScrollBar.c",
       "source_line": 43,
@@ -17,7 +17,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_44",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_2",
       "function_name": "Draw_CachePicSafe",
       "source_file": "Ctrl_ScrollBar.c",
       "source_line": 44,
@@ -33,7 +33,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_45",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_3",
       "function_name": "Draw_CachePicSafe",
       "source_file": "Ctrl_ScrollBar.c",
       "source_line": 45,
@@ -49,7 +49,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_46",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_4",
       "function_name": "Draw_CachePicSafe",
       "source_file": "Ctrl_ScrollBar.c",
       "source_line": 46,
@@ -65,7 +65,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_qtvlist_312",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_qtvlist_QTVList_Cache_File_Open_1",
       "function_name": "FS_OpenVFS",
       "source_file": "EX_browser_qtvlist.c",
       "source_line": 312,
@@ -81,7 +81,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_97",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_Update_Source_From_File_1",
       "function_name": "FS_OpenVFS",
       "source_file": "EX_browser_sources.c",
       "source_line": 97,
@@ -97,7 +97,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_902",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_EX_browser_sources_Reload_Sources_1",
       "function_name": "FS_OpenVFS",
       "source_file": "EX_browser_sources.c",
       "source_line": 902,
@@ -113,7 +113,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_cmd_639",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_cmd.c",
       "source_line": 639,
@@ -129,7 +129,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_3167",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_PlayQWZDemo_1",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_demo.c",
       "source_line": 3167,
@@ -145,7 +145,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_3950",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_1",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_demo.c",
       "source_line": 3950,
@@ -161,7 +161,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_3956",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_2",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_demo.c",
       "source_line": 3956,
@@ -177,7 +177,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_3963",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_3",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_demo.c",
       "source_line": 3963,
@@ -193,7 +193,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_3970",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_4",
       "function_name": "FS_OpenVFS",
       "source_file": "cl_demo.c",
       "source_line": 3970,
@@ -209,7 +209,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_nqdemo_559",
+      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_nqdemo_NQD_ParseServerData_1",
       "function_name": "Mod_ForName",
       "source_file": "cl_nqdemo.c",
       "source_line": 559,
@@ -225,7 +225,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_nqdemo_570",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_nqdemo_NQD_ParseServerData_1",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_nqdemo.c",
       "source_line": 570,
@@ -241,7 +241,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_680",
+      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_VWepModel_NextDownload_1",
       "function_name": "Mod_ForName",
       "source_file": "cl_parse.c",
       "source_line": 680,
@@ -257,7 +257,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_735",
+      "canonical_id": "ezquake:loader_site:Mod_ForName_cl_parse_Model_NextDownload_1",
       "function_name": "Mod_ForName",
       "source_file": "cl_parse.c",
       "source_line": 735,
@@ -273,7 +273,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_parse_778",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_parse_Sound_NextDownload_1",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_parse.c",
       "source_line": 778,
@@ -289,7 +289,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_1042",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "cl_screen.c",
       "source_line": 1042,
@@ -305,7 +305,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_1048",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_2",
       "function_name": "Draw_CachePicSafe",
       "source_file": "cl_screen.c",
       "source_line": 1048,
@@ -321,7 +321,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_76",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_1",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 76,
@@ -337,7 +337,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_77",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_2",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 77,
@@ -353,7 +353,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_78",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_3",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 78,
@@ -369,7 +369,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_79",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_4",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 79,
@@ -385,7 +385,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_80",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_5",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 80,
@@ -401,7 +401,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_81",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_6",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 81,
@@ -417,7 +417,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_82",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_7",
       "function_name": "S_PrecacheSound",
       "source_file": "cl_tent.c",
       "source_line": 82,
@@ -433,7 +433,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cmodel_1270",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1",
       "function_name": "FS_OpenVFS",
       "source_file": "cmodel.c",
       "source_line": 1270,
@@ -449,7 +449,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_common_draw_885",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_common_draw_Draw_BigFontAvailable_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "common_draw.c",
       "source_line": 885,
@@ -465,7 +465,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_config_manager_791",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_config_manager_ResetConfigs_1",
       "function_name": "FS_OpenVFS",
       "source_file": "config_manager.c",
       "source_line": 791,
@@ -481,7 +481,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_357",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetNormalImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "ez_button.c",
       "source_line": 357,
@@ -497,7 +497,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_365",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetHoverImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "ez_button.c",
       "source_line": 365,
@@ -513,7 +513,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_373",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetPressedImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "ez_button.c",
       "source_line": 373,
@@ -529,7 +529,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_381",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetToggledHoverImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "ez_button.c",
       "source_line": 381,
@@ -545,7 +545,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_controls_1424",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_ez_controls_EZ_control_SetBackgroundImage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "ez_controls.c",
       "source_line": 1424,
@@ -561,7 +561,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_220",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_WriteFileRelative_1",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 220,
@@ -577,7 +577,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_351",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_LoadFile_1",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 351,
@@ -593,7 +593,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_404",
+      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadHunkFile_1",
       "function_name": "FS_LoadFile",
       "source_file": "fs.c",
       "source_line": 404,
@@ -609,7 +609,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_408",
+      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadTempFile_1",
       "function_name": "FS_LoadFile",
       "source_file": "fs.c",
       "source_line": 408,
@@ -625,7 +625,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_414",
+      "canonical_id": "ezquake:loader_site:FS_LoadFile_fs_FS_LoadHeapFile_1",
       "function_name": "FS_LoadFile",
       "source_file": "fs.c",
       "source_line": 414,
@@ -641,7 +641,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_826",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_InitFilesystem_1",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 826,
@@ -657,7 +657,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_1078",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_1",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 1078,
@@ -673,7 +673,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_1082",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_2",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 1082,
@@ -689,7 +689,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_1086",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_3",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 1086,
@@ -705,7 +705,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_1090",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_OpenVFS_4",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 1090,
@@ -721,7 +721,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_3127",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_DiffFile_f_1",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 3127,
@@ -737,7 +737,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_3132",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_fs_FS_DiffFile_f_2",
       "function_name": "FS_OpenVFS",
       "source_file": "fs.c",
       "source_line": 3132,
@@ -753,7 +753,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_host_751",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1",
       "function_name": "FS_OpenVFS",
       "source_file": "host.c",
       "source_line": 751,
@@ -769,7 +769,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_262_176",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "hud_262.c",
       "source_line": 176,
@@ -785,7 +785,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_groups_140",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_hud_groups_SCR_HUD_LoadGroupPic_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "hud_groups.c",
       "source_line": 140,
@@ -801,7 +801,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_hud_radar_144",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
       "function_name": "R_LoadPicImage",
       "source_file": "hud_radar.c",
       "source_line": 144,
@@ -817,7 +817,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_653",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPNG_All_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 653,
@@ -833,7 +833,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_935",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WritePNG_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 935,
@@ -849,7 +849,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_937",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WritePNG_2",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 937,
@@ -865,7 +865,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_991",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_OpenAPNG_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 991,
@@ -881,7 +881,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_993",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_OpenAPNG_2",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 993,
@@ -897,7 +897,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1208",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadTGA_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1208,
@@ -913,7 +913,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1373",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteTGA_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1373,
@@ -929,7 +929,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1375",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteTGA_2",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1375,
@@ -945,7 +945,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1482",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteJPEG_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1482,
@@ -961,7 +961,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1484",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_WriteJPEG_2",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1484,
@@ -977,7 +977,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1679",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadJPEG_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1679,
@@ -993,7 +993,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_1809",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPCX_1",
       "function_name": "FS_OpenVFS",
       "source_file": "image.c",
       "source_line": 1809,
@@ -1009,7 +1009,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_967",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_M_ScanSaves_1",
       "function_name": "FS_OpenVFS",
       "source_file": "menu.c",
       "source_line": 967,
@@ -1025,7 +1025,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_988",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_menu_M_Menu_Load_f_1",
       "function_name": "FS_OpenVFS",
       "source_file": "menu.c",
       "source_line": 988,
@@ -1041,7 +1041,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_437",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_1",
       "function_name": "FS_OpenVFS",
       "source_file": "movie.c",
       "source_line": 437,
@@ -1057,7 +1057,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_439",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_2",
       "function_name": "FS_OpenVFS",
       "source_file": "movie.c",
       "source_line": 439,
@@ -1073,7 +1073,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_1724",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_PF2_FS_OpenFile_1",
       "function_name": "FS_OpenVFS",
       "source_file": "pr2_cmds.c",
       "source_line": 1724,
@@ -1089,7 +1089,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_1745",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_pr2_cmds_PF2_FS_OpenFile_2",
       "function_name": "FS_OpenVFS",
       "source_file": "pr2_cmds.c",
       "source_line": 1745,
@@ -1105,7 +1105,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_FindName_r_brushmodel_load_1619",
+      "canonical_id": "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
       "function_name": "Mod_FindName",
       "source_file": "r_brushmodel_load.c",
       "source_line": 1619,
@@ -1121,7 +1121,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_182",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 182,
@@ -1137,7 +1137,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_201",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "r_draw.c",
       "source_line": 201,
@@ -1153,7 +1153,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_222",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_customCrosshair_Init_1",
       "function_name": "FS_OpenVFS",
       "source_file": "r_draw.c",
       "source_line": 222,
@@ -1169,7 +1169,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_357",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_1",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 357,
@@ -1185,7 +1185,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_358",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 358,
@@ -1201,7 +1201,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_413",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 413,
@@ -1217,7 +1217,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_425",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_draw_Draw_CachePicSafe_1",
       "function_name": "FS_OpenVFS",
       "source_file": "r_draw.c",
       "source_line": 425,
@@ -1233,7 +1233,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_442",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 442,
@@ -1249,7 +1249,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_528",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_CachePic_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "r_draw.c",
       "source_line": 528,
@@ -1265,7 +1265,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:W_LoadWadFile_r_draw_578",
+      "canonical_id": "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1",
       "function_name": "W_LoadWadFile",
       "source_file": "r_draw.c",
       "source_line": 578,
@@ -1281,7 +1281,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_1041",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
       "function_name": "R_LoadPicImage",
       "source_file": "r_draw.c",
       "source_line": 1041,
@@ -1297,7 +1297,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_1073",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_ConsoleBackground_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "r_draw.c",
       "source_line": 1073,
@@ -1313,7 +1313,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_158",
+      "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1",
       "function_name": "R_LoadCharsetImage",
       "source_file": "r_draw_charset.c",
       "source_line": 158,
@@ -1329,7 +1329,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_183",
+      "canonical_id": "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
       "function_name": "R_LoadCharsetImage",
       "source_file": "r_draw_charset.c",
       "source_line": 183,
@@ -1345,7 +1345,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_charset_805",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_r_draw_charset_R_Draw_CharacterBase_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "r_draw_charset.c",
       "source_line": 805,
@@ -1361,7 +1361,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_189",
+      "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_Mod_TouchModel_1",
       "function_name": "Mod_FindName",
       "source_file": "r_model.c",
       "source_line": 189,
@@ -1377,7 +1377,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_310",
+      "canonical_id": "ezquake:loader_site:Mod_FindName_r_model_Mod_ForName_1",
       "function_name": "Mod_FindName",
       "source_file": "r_model.c",
       "source_line": 310,
@@ -1393,7 +1393,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Mod_ForName_r_model_697",
+      "canonical_id": "ezquake:loader_site:Mod_ForName_r_model_Mod_CustomModel_1",
       "function_name": "Mod_ForName",
       "source_file": "r_model.c",
       "source_line": 697,
@@ -1409,7 +1409,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_part_212",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_part_R_ReadPointFile_f_1",
       "function_name": "FS_OpenVFS",
       "source_file": "r_part.c",
       "source_line": 212,
@@ -1425,7 +1425,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_282",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_1",
       "function_name": "FS_OpenVFS",
       "source_file": "r_texture_load.c",
       "source_line": 282,
@@ -1441,7 +1441,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_301",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_2",
       "function_name": "FS_OpenVFS",
       "source_file": "r_texture_load.c",
       "source_line": 301,
@@ -1457,7 +1457,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_349",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_3",
       "function_name": "FS_OpenVFS",
       "source_file": "r_texture_load.c",
       "source_line": 349,
@@ -1473,7 +1473,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_settings_page_593",
+      "canonical_id": "ezquake:loader_site:Draw_CachePicSafe_settings_page_Setting_DrawSkinPreview_1",
       "function_name": "Draw_CachePicSafe",
       "source_file": "settings_page.c",
       "source_line": 593,
@@ -1489,7 +1489,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_358",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_1",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 358,
@@ -1505,7 +1505,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_359",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_2",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 359,
@@ -1521,7 +1521,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_409",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Restart_f_1",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 409,
@@ -1537,7 +1537,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_1006",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_Play_f_1",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 1006,
@@ -1553,7 +1553,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_1074",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSound_1",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 1074,
@@ -1569,7 +1569,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_1091",
+      "canonical_id": "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSoundWithVol_1",
       "function_name": "S_PrecacheSound",
       "source_file": "snd_main.c",
       "source_line": 1091,
@@ -1585,7 +1585,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_1533",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_Cmd_Download_f_1",
       "function_name": "FS_OpenVFS",
       "source_file": "sv_user.c",
       "source_line": 1533,
@@ -1601,7 +1601,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_1535",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_sv_user_Cmd_Download_f_2",
       "function_name": "FS_OpenVFS",
       "source_file": "sv_user.c",
       "source_line": 1535,
@@ -1617,7 +1617,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_WriteFile_teamplay_locfiles_276",
+      "canonical_id": "ezquake:loader_site:FS_WriteFile_teamplay_locfiles_TP_SaveLocFile_1",
       "function_name": "FS_WriteFile",
       "source_file": "teamplay_locfiles.c",
       "source_line": 276,
@@ -1633,7 +1633,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_tp_triggers_202",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_tp_triggers_TP_CheckSoundTrigger_1",
       "function_name": "FS_OpenVFS",
       "source_file": "tp_triggers.c",
       "source_line": 202,
@@ -1649,7 +1649,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:R_LoadPicImage_vx_tracker_1409",
+      "canonical_id": "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1",
       "function_name": "R_LoadPicImage",
       "source_file": "vx_tracker.c",
       "source_line": 1409,
@@ -1665,7 +1665,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_278",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
       "function_name": "FS_OpenVFS",
       "source_file": "wad.c",
       "source_line": 278,
@@ -1681,7 +1681,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_279",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
       "function_name": "FS_OpenVFS",
       "source_file": "wad.c",
       "source_line": 279,
@@ -1697,7 +1697,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_280",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
       "function_name": "FS_OpenVFS",
       "source_file": "wad.c",
       "source_line": 280,
@@ -1713,7 +1713,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_281",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
       "function_name": "FS_OpenVFS",
       "source_file": "wad.c",
       "source_line": 281,
@@ -1729,7 +1729,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_195",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_XSD_LoadDocument_1",
       "function_name": "FS_OpenVFS",
       "source_file": "xsd.c",
       "source_line": 195,
@@ -1745,7 +1745,7 @@
       "notes": null
     },
     {
-      "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_document_1167",
+      "canonical_id": "ezquake:loader_site:FS_OpenVFS_xsd_document_XSD_Document_Load_1",
       "function_name": "FS_OpenVFS",
       "source_file": "xsd_document.c",
       "source_line": 1167,
