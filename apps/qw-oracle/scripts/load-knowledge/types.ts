@@ -472,11 +472,28 @@ export interface AssetLoaderSiteRow {
   extracted_at: string;
 }
 
+// Per-engine client-level conventions used by downstream consumers
+// (slipgate's scanner today) to classify files that are engine-behavior
+// derived rather than loader-call derived: screenshots, demos, logs, and
+// match-format cvars. Optional on the bundle for forward-compat with
+// engines that haven't shipped a seed yet.
+export interface ClientDefaults {
+  screenshot_filename_prefixes: string[];
+  screenshot_dir_names: string[];
+  demo_extensions: string[];
+  default_demo_ext: string | null;
+  image_extensions: string[];
+  log_extensions: string[];
+  match_format_cvars: string[];
+  owned_gamedirs: string[];
+}
+
 // Shape of the JSON bundle emitted by build-asset-bundle.ts and consumed
 // by load-assets.
 export interface AssetBundle {
   project: Project;
   version: string;
+  client_defaults?: ClientDefaults;
   asset_categories: Record<string, AssetCategoryEntry>;
   asset_extensions: Omit<AssetExtensionRow, 'project' | 'version' | 'extracted_at'>[];
   asset_path_rules: Omit<AssetPathRuleRow, 'project' | 'version' | 'extracted_at'>[];

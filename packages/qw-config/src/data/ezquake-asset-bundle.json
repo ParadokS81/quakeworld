@@ -1,6 +1,43 @@
 {
   "project": "ezquake",
   "version": "head",
+  "client_defaults": {
+    "screenshot_filename_prefixes": [
+      "ezquake"
+    ],
+    "screenshot_dir_names": [
+      "sshots",
+      "screenshots"
+    ],
+    "demo_extensions": [
+      ".dem",
+      ".qwd",
+      ".qwz",
+      ".mvd"
+    ],
+    "default_demo_ext": ".qwd",
+    "image_extensions": [
+      ".png",
+      ".jpg",
+      ".jpeg",
+      ".tga",
+      ".pcx"
+    ],
+    "log_extensions": [
+      ".log"
+    ],
+    "match_format_cvars": [
+      "match_format",
+      "match_format_1on1",
+      "match_format_2on2",
+      "match_format_3on3",
+      "match_format_4on4",
+      "match_format_ffa"
+    ],
+    "owned_gamedirs": [
+      "ezquake"
+    ]
+  },
   "asset_categories": {
     "config": {
       "ast": {

@@ -1,0 +1,35 @@
+# ezQuake client-level conventions consumed by slipgate's scanner to
+# classify files that are engine-behavior-derived rather than loader-call
+# derived: screenshots, demos, logs, and match-format cvars. Per-engine;
+# FTE/MVDSV will drop in their own ezquake-client-defaults.yaml sibling
+# under their own bundle. Values reflect ezQuake head as of 2026-04-21.
+
+client_defaults:
+  screenshot_filename_prefixes:
+    - ezquake
+  screenshot_dir_names:
+    - sshots
+    - screenshots
+  demo_extensions:
+    - .dem
+    - .qwd
+    - .qwz
+    - .mvd
+  default_demo_ext: .qwd
+  image_extensions:
+    - .png
+    - .jpg
+    - .jpeg
+    - .tga
+    - .pcx
+  log_extensions:
+    - .log
+  match_format_cvars:
+    - match_format
+    - match_format_1on1
+    - match_format_2on2
+    - match_format_3on3
+    - match_format_4on4
+    - match_format_ffa
+  owned_gamedirs:
+    - ezquake

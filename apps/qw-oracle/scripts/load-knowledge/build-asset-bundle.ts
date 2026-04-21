@@ -31,6 +31,7 @@ import type {
   AssetLoaderSiteRow,
   AssetPathRuleKind,
   AssetPathRuleRow,
+  ClientDefaults,
   Project,
 } from './types.js';
 
@@ -146,6 +147,19 @@ export function buildAssetBundle(
   const cvarBindingsSeedDoc = loadYaml<{ cvar_bindings: CvarBindingSeed[] }>(
     resolve(seedsDir, `${options.project}-asset-cvar-bindings.yaml`),
   );
+
+  // client_defaults is optional: engines that haven't authored a seed yet
+  // simply omit the block. Missing file is warn-and-continue, not fatal.
+  let clientDefaults: ClientDefaults | undefined;
+  const clientDefaultsPath = resolve(seedsDir, `${options.project}-client-defaults.yaml`);
+  try {
+    const doc = loadYaml<{ client_defaults: ClientDefaults }>(clientDefaultsPath);
+    clientDefaults = doc.client_defaults;
+  } catch {
+    console.warn(
+      `[build-asset-bundle] client_defaults seed missing (${clientDefaultsPath}); bundle will omit the block`,
+    );
+  }
 
   // Path rules: prefer the verifier JSON (carries source_verified +
   // verified_function_fingerprint). Fall back to the raw seed YAML if the
@@ -350,6 +364,7 @@ export function buildAssetBundle(
   const bundle: AssetBundle = {
     project: options.project,
     version: options.version,
+    ...(clientDefaults ? { client_defaults: clientDefaults } : {}),
     asset_categories,
     asset_extensions,
     asset_path_rules,
