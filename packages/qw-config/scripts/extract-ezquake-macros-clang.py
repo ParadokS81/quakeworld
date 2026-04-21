@@ -164,6 +164,44 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
     return None
 
 
+def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
+    """Parse a C string literal from the argument's source extent, including
+    simple concatenated runs (`"foo" "bar"`). Returns the logical string value
+    without surrounding quotes, or None if the argument isn't a string literal.
+
+    Pre-macro_ids.h ezQuake (3.2.3 and earlier) passes the macro public name as
+    a bare string literal: `Cmd_AddMacro("health", Macro_Health)`.
+    """
+    text = _read_extent(source_bytes, arg_cursor.extent).strip()
+    if not (text.startswith('"') or text.startswith('L"')):
+        return None
+    parts: list[str] = []
+    i = 0
+    while i < len(text):
+        while i < len(text) and text[i].isspace():
+            i += 1
+        if i < len(text) and text[i] == "L":
+            i += 1
+        if i < len(text) and text[i] == '"':
+            i += 1
+            buf = []
+            while i < len(text):
+                c = text[i]
+                if c == "\\" and i + 1 < len(text):
+                    buf.append(text[i + 1])
+                    i += 2
+                    continue
+                if c == '"':
+                    i += 1
+                    break
+                buf.append(c)
+                i += 1
+            parts.append("".join(buf))
+        else:
+            break
+    return "".join(parts) if parts else None
+
+
 # ----- macro_ids.h parser ----------------------------------------------------
 
 
@@ -209,25 +247,33 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[tuple[str, Reg
                 if loc.file is not None and os.path.samefile(loc.file.name, target_path):
                     args = list(node.get_arguments())
                     if len(args) >= 2:
+                        # Preferred (post-3.2.3): first arg is an enum constant
+                        # `macro_<name>`. Fallback (3.2.3 and earlier): first
+                        # arg is a bare string literal.
+                        public_name: Optional[str] = None
                         enum_name = _resolve_enum_constant(args[0])
                         if enum_name and enum_name.startswith("macro_"):
                             public_name = enum_name[len("macro_"):]
-                            if public_name not in already_seen:
-                                handler = _resolve_fn_ref(args[1])
-                                teamplay_raw: Optional[str] = None
-                                if node.spelling == "Cmd_AddMacroEx" and len(args) >= 3:
-                                    teamplay_raw = _read_extent(source_bytes, args[2].extent).strip() or None
-                                out.append((public_name, RegistrationSite(
-                                    handler_fn=handler,
-                                    teamplay_raw=teamplay_raw,
-                                    source_file=Path(loc.file.name).name,
-                                    source_line=loc.line,
-                                    source_column=loc.column,
-                                    enclosing_function=current_fn,
-                                    call_form=node.spelling,
-                                    build_variant=label,
-                                )))
-                                already_seen.add(public_name)
+                        else:
+                            lit = _literal_string(args[0], source_bytes)
+                            if lit:
+                                public_name = lit
+                        if public_name and public_name not in already_seen:
+                            handler = _resolve_fn_ref(args[1])
+                            teamplay_raw: Optional[str] = None
+                            if node.spelling == "Cmd_AddMacroEx" and len(args) >= 3:
+                                teamplay_raw = _read_extent(source_bytes, args[2].extent).strip() or None
+                            out.append((public_name, RegistrationSite(
+                                handler_fn=handler,
+                                teamplay_raw=teamplay_raw,
+                                source_file=Path(loc.file.name).name,
+                                source_line=loc.line,
+                                source_column=loc.column,
+                                enclosing_function=current_fn,
+                                call_form=node.spelling,
+                                build_variant=label,
+                            )))
+                            already_seen.add(public_name)
             for c in node.get_children():
                 visit(c, current_fn)
 
@@ -364,16 +410,30 @@ def main() -> int:
     print(f"  output: {OUTPUT_JSON}")
     print()
 
-    if not MACRO_IDS_H.is_file():
-        print(f"ERROR: macro_ids.h not found at {MACRO_IDS_H}", file=sys.stderr)
-        return 1
-    if not HELP_JSON.is_file():
-        print(f"ERROR: help_macros.json not found at {HELP_JSON}", file=sys.stderr)
-        return 1
+    # Version tolerance: pre-3.6.0 tags may lack the macro_ids.h manifest and
+    # help_macros.json enrichment file. Both are post-3.2.3 artifacts. When
+    # absent, run with empty inputs -- Phase 2 (call-site walk) still produces
+    # best-effort entries tagged as "registered_not_declared".
+    skip_phase1 = not MACRO_IDS_H.is_file()
+    skip_help = not HELP_JSON.is_file()
+
+    startup_diagnostics: list[str] = []
+    if skip_phase1:
+        msg = f"macro_ids.h not found at {MACRO_IDS_H} -- skipping Phase 1 (pre-3.6.0 tag?)"
+        print(f"  WARN: {msg}")
+        startup_diagnostics.append(msg)
+    if skip_help:
+        msg = f"help_macros.json not found at {HELP_JSON} -- proceeding without help enrichment"
+        print(f"  WARN: {msg}")
+        startup_diagnostics.append(msg)
 
     print("Phase 1: parsing macro_ids.h manifest")
-    declared = parse_macro_ids_h()
-    print(f"  declared macros: {len(declared)}")
+    if skip_phase1:
+        declared: list[str] = []
+        print("  declared macros: 0 (manifest absent)")
+    else:
+        declared = parse_macro_ids_h()
+        print(f"  declared macros: {len(declared)}")
 
     print("\nPhase 2: walking Cmd_AddMacro[Ex] call-exprs")
     c_files = sorted([p for p in EZQ_SRC.iterdir() if p.suffix == ".c"])
@@ -394,8 +454,12 @@ def main() -> int:
     print(f"\n  unique macros registered: {len(registrations)}")
 
     print("\nPhase 3: loading help_macros.json for enrichment")
-    help_data = load_help_data()
-    print(f"  help entries: {len(help_data)}")
+    if skip_help:
+        help_data: dict = {}
+        print("  help entries: 0 (help_macros.json absent)")
+    else:
+        help_data = load_help_data()
+        print(f"  help entries: {len(help_data)}")
 
     print("\nPhase 4: merging and writing output")
     output = build_output(declared, registrations, help_data)
@@ -408,12 +472,13 @@ def main() -> int:
     OUTPUT_JSON.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(f"\n  written: {OUTPUT_JSON}")
 
+    all_diagnostics = startup_diagnostics + diagnostics
     DIAGNOSTICS_LOG.parent.mkdir(parents=True, exist_ok=True)
     DIAGNOSTICS_LOG.write_text(
-        "\n".join(diagnostics) + "\n" if diagnostics else "(no diagnostics)\n",
+        "\n".join(all_diagnostics) + "\n" if all_diagnostics else "(no diagnostics)\n",
         encoding="utf-8",
     )
-    print(f"  diagnostics logged: {DIAGNOSTICS_LOG} ({len(diagnostics)} entries)")
+    print(f"  diagnostics logged: {DIAGNOSTICS_LOG} ({len(all_diagnostics)} entries)")
 
     return 0
 
