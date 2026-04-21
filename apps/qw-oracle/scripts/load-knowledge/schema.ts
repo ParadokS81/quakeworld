@@ -30,7 +30,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_versions_ordinal ON versions(project, ordi
 CREATE TABLE IF NOT EXISTS entities (
   id                    INTEGER PRIMARY KEY,
   project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
-  type                  TEXT NOT NULL CHECK (type IN ('cvar','command','macro','cmdline_param')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category','flag_bit'
+                        )),
   name                  TEXT NOT NULL,
   canonical_id          TEXT NOT NULL,
   first_seen_version    TEXT NOT NULL,
