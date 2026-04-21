@@ -592,3 +592,21 @@ export interface VersionRow {
   notes: string | null;
   extracted_at: string;
 }
+
+// --- Phase 2f Batch 3: source_overrides ---------------------------
+
+export type SourceOverrideKind =
+  | 'struct_field_decl'
+  | 'call_site'
+  | 'header_declaration';
+
+export interface SourceOverrideRow {
+  entity_id: number;
+  version: string;
+  field_name: string;
+  source_file: string;
+  source_line: number;
+  source_column: number | null;
+  override_kind: SourceOverrideKind;
+  extracted_at: string;
+}

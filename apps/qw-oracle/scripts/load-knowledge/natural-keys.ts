@@ -24,6 +24,7 @@ import type {
   RelationChangeRow,
   ReleaseNoteRow,
   RulesetVersionRow,
+  SourceOverrideRow,
   SourceState,
   TokenPrimitiveVersionRow,
   VersionRow,
@@ -372,6 +373,18 @@ export function upsertRelationChange(db: Database.Database, row: RelationChangeR
       @relation_table, @project, @from_version, @to_version, @change_kind,
       @row_key_json, @field_name, @old_value, @new_value,
       @commit_sha, @commit_message_excerpt, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertSourceOverride(db: Database.Database, row: SourceOverrideRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO source_overrides (
+      entity_id, version, field_name, source_file, source_line,
+      source_column, override_kind, extracted_at
+    ) VALUES (
+      @entity_id, @version, @field_name, @source_file, @source_line,
+      @source_column, @override_kind, @extracted_at
     )
   `).run(row);
 }
