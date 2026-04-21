@@ -16,6 +16,15 @@ A comprehensive QuakeWorld knowledge engine. Not a single product, but a foundat
 
 Same knowledge engine, different outlets. The engine is the hard part; the interfaces are relatively straightforward once the foundation exists.
 
+## Foundation first
+
+The outlets above are the eventual surface. Today the work is **Layer 1**: extracting every useful fact from the engine source (cvars, commands, macros, HUD elements, asset consumption, flag bits, etc.), then backfilling that across the engine's release history so every fact carries a version range. Two consequences fall out of this that are not obvious until you build it:
+
+- **Other apps in the monorepo consume Layer 1 directly, right now.** Slipgate already reads the ezQuake asset bundle to classify files on disk. Every Layer 1 addition (new entity type, new relation table, new seed) becomes a coupling point with a consumer. Consumer-facing coupling is handled as it surfaces, not speculatively.
+- **Version-awareness falls out of the extractor, not out of the Q&A layer.** Once each fact carries `first_seen_version` / `last_seen_version` from the AST extraction walk across tags, every future outlet inherits temporal relevance for free -- no separate system.
+
+The Q&A interfaces are a concern for when the foundation is complete. Right now: finish Layer 1 extraction, keep existing consumers unblocked as coverage expands.
+
 ## The data
 
 The raw material is unusually rich for a niche community:
@@ -53,6 +62,6 @@ Explore 20 years of community history. Drama, milestones, eras, forgotten gems. 
 
 ## Current reality
 
-This project is paused. The data foundation is solid (2.66M messages imported, search layer functional), but building the full knowledge engine requires sustained effort that competes with the other active projects in the monorepo. The vision is clear and the raw material is there; it is a matter of time and hands.
+Layer 1 extraction for ezQuake is active and shipping. The schema is stable at v6; head is fully loaded; historical backfill across the ~15 tags is the next major push. FTE, MVDSV, and KTX ports come after. Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline has not been the focus recently. Layer 3 (curated pattern notes adapted from community docs) is planned but not populated.
 
-The important thing is that the vision does not get lost. When the time comes to pick this up -- whether after slipgate web launches, or when the demo parser unlocks new analysis possibilities, or when a motivated contributor appears -- the foundation and the direction are documented here.
+See `OVERVIEW.md` for the living lifecycle status.
