@@ -1,0 +1,462 @@
+{
+  "flag_bits": {
+    "CVAR_ARCHIVE": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<0)",
+        "value_numeric": 1,
+        "source_file": "cvar.h",
+        "source_line": 31
+      }
+    },
+    "CVAR_AUTO": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<14)",
+        "value_numeric": 16384,
+        "source_file": "cvar.h",
+        "source_line": 47
+      }
+    },
+    "CVAR_AUTOSETRECENT": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<19)",
+        "value_numeric": 524288,
+        "source_file": "cvar.h",
+        "source_line": 52
+      }
+    },
+    "CVAR_COLOR": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<13)",
+        "value_numeric": 8192,
+        "source_file": "cvar.h",
+        "source_line": 46
+      }
+    },
+    "CVAR_INIT": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<4)",
+        "value_numeric": 16,
+        "source_file": "cvar.h",
+        "source_line": 35
+      }
+    },
+    "CVAR_LATCH": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(CVAR_LATCH_GFX | CVAR_LATCH_SOUND)",
+        "value_numeric": null,
+        "source_file": "cvar.h",
+        "source_line": 56
+      }
+    },
+    "CVAR_LATCH_GFX": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<11)",
+        "value_numeric": 2048,
+        "source_file": "cvar.h",
+        "source_line": 42
+      }
+    },
+    "CVAR_LATCH_SOUND": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<21)",
+        "value_numeric": 2097152,
+        "source_file": "cvar.h",
+        "source_line": 54
+      }
+    },
+    "CVAR_MOD_CREATED": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<15)",
+        "value_numeric": 32768,
+        "source_file": "cvar.h",
+        "source_line": 48
+      }
+    },
+    "CVAR_NONE": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(0)",
+        "value_numeric": 0,
+        "source_file": "cvar.h",
+        "source_line": 30
+      }
+    },
+    "CVAR_NO_RESET": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<9)",
+        "value_numeric": 512,
+        "source_file": "cvar.h",
+        "source_line": 40
+      }
+    },
+    "CVAR_QUEUED_TRIGGER": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<18)",
+        "value_numeric": 262144,
+        "source_file": "cvar.h",
+        "source_line": 51
+      }
+    },
+    "CVAR_RECOMPILE_PROGS": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<16)",
+        "value_numeric": 65536,
+        "source_file": "cvar.h",
+        "source_line": 49
+      }
+    },
+    "CVAR_RELOAD_GFX": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<22)",
+        "value_numeric": 4194304,
+        "source_file": "cvar.h",
+        "source_line": 55
+      }
+    },
+    "CVAR_ROM": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<3)",
+        "value_numeric": 8,
+        "source_file": "cvar.h",
+        "source_line": 34
+      }
+    },
+    "CVAR_RULESET_MAX": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<7)",
+        "value_numeric": 128,
+        "source_file": "cvar.h",
+        "source_line": 38
+      }
+    },
+    "CVAR_RULESET_MIN": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<8)",
+        "value_numeric": 256,
+        "source_file": "cvar.h",
+        "source_line": 39
+      }
+    },
+    "CVAR_SERVERINFO": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<2)",
+        "value_numeric": 4,
+        "source_file": "cvar.h",
+        "source_line": 33
+      }
+    },
+    "CVAR_SILENT": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<12)",
+        "value_numeric": 4096,
+        "source_file": "cvar.h",
+        "source_line": 45
+      }
+    },
+    "CVAR_TEMP": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<10)",
+        "value_numeric": 1024,
+        "source_file": "cvar.h",
+        "source_line": 41
+      }
+    },
+    "CVAR_TRACKERCOLOR": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<17)",
+        "value_numeric": 131072,
+        "source_file": "cvar.h",
+        "source_line": 50
+      }
+    },
+    "CVAR_USERINFO": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<1)",
+        "value_numeric": 2,
+        "source_file": "cvar.h",
+        "source_line": 32
+      }
+    },
+    "CVAR_USERINFONORESET": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<20)",
+        "value_numeric": 1048576,
+        "source_file": "cvar.h",
+        "source_line": 53
+      }
+    },
+    "CVAR_USERINFO_NO_CFG_RESET": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(CVAR_USERINFO | CVAR_USERINFONORESET)",
+        "value_numeric": null,
+        "source_file": "cvar.h",
+        "source_line": 58
+      }
+    },
+    "CVAR_USER_ARCHIVE": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<6)",
+        "value_numeric": 64,
+        "source_file": "cvar.h",
+        "source_line": 37
+      }
+    },
+    "CVAR_USER_CREATED": {
+      "ast": {
+        "bitmask_family": "cvar_flag",
+        "value_raw": "(1<<5)",
+        "value_numeric": 32,
+        "source_file": "cvar.h",
+        "source_line": 36
+      }
+    },
+    "FPD_ENABLE_PLAYER_COUNT": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "(1 << 16)",
+        "value_numeric": 65536,
+        "source_file": "teamplay.h",
+        "source_line": 113
+      }
+    },
+    "FPD_LIMIT_PITCH": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "(1 << 14)",
+        "value_numeric": 16384,
+        "source_file": "teamplay.h",
+        "source_line": 111
+      }
+    },
+    "FPD_LIMIT_YAW": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "(1 << 15)",
+        "value_numeric": 32768,
+        "source_file": "teamplay.h",
+        "source_line": 112
+      }
+    },
+    "FPD_NO_FORCE_COLOR": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "512",
+        "value_numeric": 512,
+        "source_file": "teamplay.h",
+        "source_line": 110
+      }
+    },
+    "FPD_NO_FORCE_SKIN": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "256",
+        "value_numeric": 256,
+        "source_file": "teamplay.h",
+        "source_line": 109
+      }
+    },
+    "FPD_NO_SOUNDTRIGGERS": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "4",
+        "value_numeric": 4,
+        "source_file": "teamplay.h",
+        "source_line": 108
+      }
+    },
+    "FPD_NO_TIMERS": {
+      "ast": {
+        "bitmask_family": "fpd_flag",
+        "value_raw": "2",
+        "value_numeric": 2,
+        "source_file": "teamplay.h",
+        "source_line": 107
+      }
+    },
+    "STAT_ACTIVEWEAPON": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "10",
+        "value_numeric": 10,
+        "source_file": "common.h",
+        "source_line": 97
+      }
+    },
+    "STAT_AMMO": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "3",
+        "value_numeric": 3,
+        "source_file": "common.h",
+        "source_line": 90
+      }
+    },
+    "STAT_ARMOR": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "4",
+        "value_numeric": 4,
+        "source_file": "common.h",
+        "source_line": 91
+      }
+    },
+    "STAT_CELLS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "9",
+        "value_numeric": 9,
+        "source_file": "common.h",
+        "source_line": 96
+      }
+    },
+    "STAT_HEALTH": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "0",
+        "value_numeric": 0,
+        "source_file": "common.h",
+        "source_line": 86
+      }
+    },
+    "STAT_ITEMS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "15",
+        "value_numeric": 15,
+        "source_file": "common.h",
+        "source_line": 102
+      }
+    },
+    "STAT_MATCHSTARTTIME": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "18",
+        "value_numeric": 18,
+        "source_file": "common.h",
+        "source_line": 105
+      }
+    },
+    "STAT_MONSTERS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "14",
+        "value_numeric": 14,
+        "source_file": "common.h",
+        "source_line": 101
+      }
+    },
+    "STAT_NAILS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "7",
+        "value_numeric": 7,
+        "source_file": "common.h",
+        "source_line": 94
+      }
+    },
+    "STAT_ROCKETS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "8",
+        "value_numeric": 8,
+        "source_file": "common.h",
+        "source_line": 95
+      }
+    },
+    "STAT_SECRETS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "13",
+        "value_numeric": 13,
+        "source_file": "common.h",
+        "source_line": 100
+      }
+    },
+    "STAT_SHELLS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "6",
+        "value_numeric": 6,
+        "source_file": "common.h",
+        "source_line": 93
+      }
+    },
+    "STAT_TIME": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "17",
+        "value_numeric": 17,
+        "source_file": "common.h",
+        "source_line": 104
+      }
+    },
+    "STAT_TOTALMONSTERS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "12",
+        "value_numeric": 12,
+        "source_file": "common.h",
+        "source_line": 99
+      }
+    },
+    "STAT_TOTALSECRETS": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "11",
+        "value_numeric": 11,
+        "source_file": "common.h",
+        "source_line": 98
+      }
+    },
+    "STAT_VIEWHEIGHT": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "16",
+        "value_numeric": 16,
+        "source_file": "common.h",
+        "source_line": 103
+      }
+    },
+    "STAT_WEAPON": {
+      "ast": {
+        "bitmask_family": "stat_const",
+        "value_raw": "2",
+        "value_numeric": 2,
+        "source_file": "common.h",
+        "source_line": 89
+      }
+    }
+  },
+  "_stats": {
+    "total": 50,
+    "by_family": {
+      "cvar_flag": 26,
+      "fpd_flag": 7,
+      "stat_const": 17
+    }
+  }
+}
