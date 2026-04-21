@@ -3258,6 +3258,68 @@
       "raw_ast_hash": null
     }
   ],
+  "reserved_subdirs": [
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_charsets",
+      "parent_dir": "textures",
+      "subdir_name": "charsets",
+      "loader_site_refs": [
+        "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
+        "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_halflife",
+      "parent_dir": "textures",
+      "subdir_name": "halflife",
+      "loader_site_refs": [
+        "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_levelshots",
+      "parent_dir": "textures",
+      "subdir_name": "levelshots",
+      "loader_site_refs": [
+        "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_ConsoleBackground_1"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_scrollbars",
+      "parent_dir": "textures",
+      "subdir_name": "scrollbars",
+      "loader_site_refs": [
+        "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_1",
+        "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_2",
+        "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_3",
+        "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_4"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_tracker",
+      "parent_dir": "textures",
+      "subdir_name": "tracker",
+      "loader_site_refs": [
+        "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_wad",
+      "parent_dir": "textures",
+      "subdir_name": "wad",
+      "loader_site_refs": [
+        "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_1"
+      ]
+    },
+    {
+      "canonical_id": "ezquake:reserved_subdir:textures_wad3",
+      "parent_dir": "textures",
+      "subdir_name": "wad3",
+      "loader_site_refs": [
+        "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2"
+      ]
+    }
+  ],
   "_stats": {
     "categories": 17,
     "extensions": 25,

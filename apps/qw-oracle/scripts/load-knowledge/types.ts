@@ -494,6 +494,13 @@ export interface ClientDefaults {
   owned_gamedirs: string[];
 }
 
+export interface ReservedSubdirEntry {
+  canonical_id: string;
+  parent_dir: string;
+  subdir_name: string;
+  loader_site_refs: string[];
+}
+
 // Shape of the JSON bundle emitted by build-asset-bundle.ts and consumed
 // by load-assets.
 export interface AssetBundle {
@@ -505,6 +512,7 @@ export interface AssetBundle {
   asset_path_rules: Omit<AssetPathRuleRow, 'project' | 'version' | 'extracted_at'>[];
   asset_cvar_bindings: Omit<AssetCvarBindingRow, 'project' | 'version' | 'extracted_at'>[];
   asset_loader_sites: Omit<AssetLoaderSiteRow, 'project' | 'version' | 'extracted_at'>[];
+  reserved_subdirs?: ReservedSubdirEntry[];
   _stats?: Record<string, unknown>;
 }
 

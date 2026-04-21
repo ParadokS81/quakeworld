@@ -38,3 +38,18 @@ describe("ezquake-asset-bundle.json shape (Path 1)", () => {
     expect(pts.path_extension).toBe(".pts");
   });
 });
+
+describe("ezquake-asset-bundle.json shape (Path 2)", () => {
+  const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));
+
+  test("bundle carries a non-empty reserved_subdirs array", () => {
+    expect(Array.isArray(bundle.reserved_subdirs)).toBe(true);
+    expect(bundle.reserved_subdirs.length).toBeGreaterThanOrEqual(5);
+  });
+
+  test("reserved_subdirs includes textures/charsets and textures/wad", () => {
+    const keys = bundle.reserved_subdirs.map((r: any) => `${r.parent_dir}/${r.subdir_name}`);
+    expect(keys).toContain("textures/charsets");
+    expect(keys).toContain("textures/wad");
+  });
+});

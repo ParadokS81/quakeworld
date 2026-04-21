@@ -33,6 +33,7 @@ import type {
   AssetPathRuleRow,
   ClientDefaults,
   Project,
+  ReservedSubdirEntry,
 } from './types.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -229,6 +230,21 @@ export function buildAssetBundle(
     });
   }
 
+  // 2b. Reserved subdirs (Path 2). Optional: warn-and-continue if the
+  // derivation output is missing.
+  let reserved_subdirs: ReservedSubdirEntry[] | undefined;
+  const reservedPath = resolve(dataDir, `${options.project}-reserved-subdirs.json`);
+  try {
+    const doc = JSON.parse(readFileSync(reservedPath, 'utf-8')) as {
+      reserved_subdirs: ReservedSubdirEntry[];
+    };
+    reserved_subdirs = doc.reserved_subdirs;
+  } catch {
+    console.warn(
+      `[build-asset-bundle] reserved_subdirs derivation missing (${reservedPath}); bundle will omit the block`,
+    );
+  }
+
   // 3. Path rules (with verification flag passed through).
   const asset_path_rules: Omit<AssetPathRuleRow, 'project' | 'version' | 'extracted_at'>[] = [];
   for (const r of pathRulesSource) {
@@ -379,6 +395,7 @@ export function buildAssetBundle(
     asset_path_rules,
     asset_cvar_bindings,
     asset_loader_sites,
+    ...(reserved_subdirs ? { reserved_subdirs } : {}),
     _stats: {
       categories: Object.keys(asset_categories).length,
       extensions: asset_extensions.length,
