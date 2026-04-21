@@ -14,7 +14,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Player state simulator -- follow-ups](#player-state-simulator----follow-ups) — .loc dropdowns, visual polish, minor carry-overs
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
-- [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
+- [Knowledge schema spec behind code (v2-v4 undocumented)](#knowledge-schema-spec-behind-code-v1-only) — v5 and v6 now have dated specs (2026-04-21); v1 original spec is stale; v2/v3/v4 (keyname/hud_element/ruleset/token_primitive/asset_category/release_notes) still absent from any spec file
 - [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
 - [Phase 2f stress-test gap catalog](#phase-2f-stress-test-gap-catalog) — A1/A2/A3 surfaced 10 gaps + 1 new; Batch 1 + Batch 2 + Batch 3 all shipped (2026-04-21). All 11 gaps closed plus the fresh-DB CHECK latent bug. Phase 2f historical backfill is unblocked.
 - [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) — 2026-04-21: bb462ae regeneration wiped client_defaults; png/jpg lack path_hint variants; 9 loader families missing (.log, .loc, .lit, .dat, .kmap, .xml, .spr, .qwz, .dll). Post-Batch3 task for qw-oracle session.
@@ -272,29 +272,31 @@ Same treatment applies to `qw-knowledge` when it's next touched.
 
 ---
 
-## Knowledge schema spec behind code (v1 only)
+## Knowledge schema spec behind code (v2-v4 undocumented)
 
 **Added:** 2026-04-20
-**Status:** Drift surfaced during the Phase 2c.6 wrap-up verification; oracle team's concern.
-**Verification first:** `grep -c 'asset_categor\|keyname_version\|hud_element_version' docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` — if 0, drift holds. `grep 'SCHEMA_VERSION' apps/qw-oracle/scripts/load-knowledge/schema.ts` should report `= 3`.
+**Updated:** 2026-04-21 — v5 and v6 now have dated specs. Drift narrowed to v2/v3/v4.
+**Status:** Partial drain; schema is at v6 but v2/v3/v4 migrations never got their own spec files.
+**Verification first:** `grep 'SCHEMA_VERSION' apps/qw-oracle/scripts/load-knowledge/schema.ts` should report `= 6`. `ls docs/superpowers/specs/2026-04-*qw-knowledge-schema*` — expect `v5-flag-bits-and-relation-changes.md` and `v6-source-overrides.md`.
 
-The schema design spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` still documents only the v1 shape (cvar / command / macro / cmdline_param entities and the original eight tables). Since it was written, two migrations have landed in `apps/qw-oracle/scripts/load-knowledge/schema.ts`:
+The original schema design spec at `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` still documents only the v1 shape (cvar / command / macro / cmdline_param entities and the original eight tables). v5 and v6 now have their own dedicated spec files per the spec-first rule that kicked in at Phase 2f Batch 2. The remaining gap is v2, v3, v4:
 
 - **v1 -> v2 (Phase 2c.5)** added four entity types: `keyname`, `hud_element`, `ruleset`, `token_primitive` — and their four per-type version tables.
 - **v2 -> v3 (Phase 2c.6)** added one new entity type (`asset_category`) plus four relation tables: `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`.
-
-The code is authoritative; the spec has silently drifted across two phases. The spec's header frontmatter says "Delete/archive once Phase 2b-2g implementation lands and the schema stabilizes, or once it is superseded by a revised Phase-3 schema spec." — either intention is fine, but the current state (the Layer 1 schema is well past the doc) should be resolved rather than left indefinite.
+- **v3 -> v4 (Phase 2f stress-test prep)** added `release_notes` table.
+- **v4 -> v5 (Phase 2f Batch 2)** — documented at `docs/superpowers/specs/2026-04-21-qw-knowledge-schema-v5-flag-bits-and-relation-changes.md`.
+- **v5 -> v6 (Phase 2f Batch 3)** — documented at `docs/superpowers/specs/2026-04-21-qw-knowledge-schema-v6-source-overrides.md`.
 
 ### Fix shape
 
-Either (a) update the existing spec in place to cover v2 and v3, or (b) archive the v1 spec with a one-line supersession note and write a new consolidated spec at `docs/superpowers/specs/YYYY-MM-DD-qw-knowledge-schema-v3.md` that captures the current state. (b) is probably cleaner given the spec's own frontmatter anticipates supersession. Either way, the fix belongs with the oracle team and can slot in alongside the next oracle session naturally.
+Either (a) retroactively write 3 dated spec files for v2, v3, v4 (small, mechanical), or (b) archive the v1 spec with a one-line supersession note and write a single consolidated `2026-04-XX-qw-knowledge-schema-v2-through-v4.md` covering all three. Option (b) is lighter-weight and matches the v5/v6 precedent of one-spec-per-migration-era. Worth doing next time someone is in oracle-docs mode; not blocking.
 
 ### Related
 
-- Code: `apps/qw-oracle/scripts/load-knowledge/schema.ts` — search `SCHEMA_V2_ADDITIONS_SQL` and `SCHEMA_V3_ADDITIONS_SQL`.
+- Code: `apps/qw-oracle/scripts/load-knowledge/schema.ts` — search `SCHEMA_V2_ADDITIONS_SQL`, `SCHEMA_V3_ADDITIONS_SQL`, `SCHEMA_V4_ADDITIONS_SQL`.
 - Phase 2c.5 plan: `docs/superpowers/plans/2026-04-19-qw-knowledge-phase-2c5.md` (describes v2 additions).
 - Phase 2c.6 design spec: `docs/superpowers/specs/2026-04-19-ezquake-asset-consumption-extraction-design.md` (describes v3 additions).
-- E2E verify doc: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` has the current source-of-truth for what each v2/v3 table holds.
+- E2E verify doc: `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` has the current source-of-truth for what each v2-v6 table holds.
 
 ---
 
