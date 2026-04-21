@@ -103,6 +103,11 @@ interface AutoLoaderSite {
   confidence: 'certain' | 'heuristic' | 'unclassified';
   dev_only: 0 | 1;
   notes?: string | null;
+  // Path 1 additions from the Python extractor JSON.
+  path_template?: string | null;
+  path_parameters?: Array<{ slot: number; expression_snippet: string; semantic: string }> | null;
+  path_extension?: string | null;
+  format_function?: string | null;
 }
 
 export interface BuildAssetBundleOptions {
@@ -357,6 +362,10 @@ export function buildAssetBundle(
       confidence: s.confidence,
       dev_only: s.dev_only,
       notes: s.notes ?? null,
+      path_template: s.path_template ?? null,
+      path_parameters: s.path_parameters ?? null,
+      path_extension: s.path_extension ?? null,
+      format_function: s.format_function ?? null,
       raw_ast_hash: null,
     });
   }

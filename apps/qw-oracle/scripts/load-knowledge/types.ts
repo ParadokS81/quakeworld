@@ -468,6 +468,12 @@ export interface AssetLoaderSiteRow {
   confidence: AssetLoaderSiteConfidence;
   dev_only: number;
   notes: string | null;
+  // Path 1 additions. Optional so the DB loader can ignore cleanly; bundle
+  // carries them verbatim for downstream consumers.
+  path_template?: string | null;
+  path_parameters?: Array<{ slot: number; expression_snippet: string; semantic: string }> | null;
+  path_extension?: string | null;
+  format_function?: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }
