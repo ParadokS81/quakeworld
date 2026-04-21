@@ -19,9 +19,16 @@ import runpy
 
 _EXTRACTOR_SCRIPT = SCRIPTS_DIR / "extract-ezquake-asset-loader-sites-clang.py"
 
+_cached_ns = None
+
 
 def _load_extractor_ns():
-    return runpy.run_path(str(_EXTRACTOR_SCRIPT), run_name="not_main")
+    # libclang's Config.set_library_file can only be called once per process,
+    # so we memoize the namespace across multiple test calls.
+    global _cached_ns
+    if _cached_ns is None:
+        _cached_ns = runpy.run_path(str(_EXTRACTOR_SCRIPT), run_name="not_main")
+    return _cached_ns
 
 
 def _extract_sites(c_path: Path):
@@ -40,6 +47,37 @@ def test_va_basic_emits_template_and_parameters():
     assert s.path_parameters == [
         {"slot": 0, "expression_snippet": "cl.worldmodel->name", "semantic": "current_map_name"}
     ], f"path_parameters={s.path_parameters!r}"
+
+
+def test_sprintf_writes_buffer_then_loader_reads_it():
+    sites = _extract_sites(FIXTURE_DIR / "02_sprintf.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadFile"]
+    assert len(loaders) == 1
+    s = loaders[0]
+    assert s.path_template == "env/%s_ft.tga"
+    assert s.path_extension == ".tga"
+    assert s.format_function == "sprintf"
+    assert s.path_parameters and s.path_parameters[0]["slot"] == 0
+
+
+def test_snprintf_writes_buffer_then_loader_reads_it():
+    sites = _extract_sites(FIXTURE_DIR / "03_snprintf.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadFile"]
+    assert len(loaders) == 1
+    s = loaders[0]
+    assert s.path_template == "locs/%s.loc"
+    assert s.path_extension == ".loc"
+    assert s.format_function == "snprintf"
+
+
+def test_q_snprintfz_writes_buffer_then_loader_reads_it():
+    sites = _extract_sites(FIXTURE_DIR / "04_q_snprintfz.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadFile"]
+    assert len(loaders) == 1
+    s = loaders[0]
+    assert s.path_template == "progs/%s.dat"
+    assert s.path_extension == ".dat"
+    assert s.format_function == "Q_snprintfz"
 
 
 if __name__ == "__main__":

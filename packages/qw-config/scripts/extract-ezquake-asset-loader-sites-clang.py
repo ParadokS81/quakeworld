@@ -398,6 +398,50 @@ def _classify_parameterized_call(call_cursor, source_bytes: bytes):
     return template, parameters, extension, fn
 
 
+def _find_enclosing_compound_from_stack(compound_stack):
+    """Return the innermost COMPOUND_STMT from the visitor's compound_stack,
+    or None if we're not currently inside one. libclang's semantic_parent is
+    unreliable for expression cursors, so the caller must maintain this stack
+    via a pre-order traversal."""
+    return compound_stack[-1] if compound_stack else None
+
+
+def _lookup_buffer_write_in_compound(compound, var_name: str, before_line: int,
+                                      before_col: int, source_bytes: bytes):
+    """Find the nearest format-family CALL_EXPR whose first arg is a
+    DECL_REF_EXPR to var_name, occurring strictly before (before_line, before_col)
+    inside compound. Returns parameterization tuple or None."""
+    best = None
+    best_pos = (-1, -1)
+
+    def visit(node):
+        nonlocal best, best_pos
+        if node.kind == CursorKind.CALL_EXPR and node.spelling in FORMAT_FUNCTIONS:
+            args = list(node.get_arguments())
+            if args:
+                buf = args[0]
+                n = buf
+                for _ in range(4):
+                    if n.kind == CursorKind.DECL_REF_EXPR:
+                        break
+                    ch = list(n.get_children())
+                    if not ch:
+                        break
+                    n = ch[0]
+                if n.kind == CursorKind.DECL_REF_EXPR and n.spelling == var_name:
+                    pos = (node.location.line, node.location.column)
+                    if pos < (before_line, before_col) and pos > best_pos:
+                        param = _classify_parameterized_call(node, source_bytes)
+                        if param is not None:
+                            best = param
+                            best_pos = pos
+        for c in node.get_children():
+            visit(c)
+
+    visit(compound)
+    return best
+
+
 def _resolve_semantic(arg_cursor, snippet: str) -> str:
     """Best-effort semantic label for a format-call argument."""
     cvar = _resolve_cvar_ref(arg_cursor)
@@ -418,9 +462,11 @@ def _resolve_semantic(arg_cursor, snippet: str) -> str:
     return "unknown"
 
 
-def _classify_first_arg(arg_cursor, source_bytes: bytes):
+def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None):
     """Return (path_source, path_literal, cvar_ident, parameterization).
-    parameterization is (template, parameters, extension, format_function) or None."""
+    parameterization is (template, parameters, extension, format_function) or None.
+    enclosing_compound, if provided, enables backward-lookup for DECL_REF_EXPR
+    arguments (buffer written earlier by sprintf/snprintf/Q_snprintfz)."""
     node = arg_cursor
     for _ in range(4):
         if node.kind in (CursorKind.STRING_LITERAL, CursorKind.MEMBER_REF_EXPR, CursorKind.CALL_EXPR, CursorKind.DECL_REF_EXPR):
@@ -446,6 +492,16 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes):
             # carry the structured data.
             return "computed", template, None, param
         return "computed", None, None, None
+
+    if node.kind == CursorKind.DECL_REF_EXPR and enclosing_compound is not None:
+        loc = arg_cursor.location
+        param = _lookup_buffer_write_in_compound(
+            enclosing_compound, node.spelling, loc.line, loc.column, source_bytes,
+        )
+        if param is not None:
+            template = param[0]
+            return "computed", template, None, param
+        # Fall through to "unknown" below when no backward write found.
 
     return "unknown", None, None, None
 
@@ -473,18 +529,25 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
     seen_keys: set[tuple[str, str, int, int]] = set()
 
     def walk(root, label: str):
-        # Visitor that maintains a stack of enclosing function names so each
-        # CALL_EXPR can attribute itself to its host function.
+        # Visitor that maintains stacks of enclosing function names and
+        # COMPOUND_STMT ancestors. The compound stack lets backward-lookup
+        # helpers find buffer writes in the same block as a loader call
+        # (libclang's semantic_parent is unreliable for expression cursors).
         func_stack: list[str] = []
+        compound_stack: list = []
 
         def visit(node):
             pushed = False
+            pushed_compound = False
             if node.kind == CursorKind.FUNCTION_DECL:
                 # Only push when we're entering the function body, i.e. the
                 # node has a COMPOUND_STMT child.
                 if any(c.kind == CursorKind.COMPOUND_STMT for c in node.get_children()):
                     func_stack.append(node.spelling or "?")
                     pushed = True
+            if node.kind == CursorKind.COMPOUND_STMT:
+                compound_stack.append(node)
+                pushed_compound = True
 
             if (
                 node.kind == CursorKind.CALL_EXPR
@@ -499,9 +562,10 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
                 if key not in seen_keys:
                     seen_keys.add(key)
                     enclosing = func_stack[-1] if func_stack else None
+                    enclosing_compound = _find_enclosing_compound_from_stack(compound_stack)
                     args = list(node.get_arguments())
                     if args:
-                        path_source, path_literal, cvar_ident, parameterization = _classify_first_arg(args[0], source_bytes)
+                        path_source, path_literal, cvar_ident, parameterization = _classify_first_arg(args[0], source_bytes, enclosing_compound)
                     else:
                         path_source, path_literal, cvar_ident, parameterization = ("unknown", None, None, None)
 
@@ -574,6 +638,8 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
 
             if pushed:
                 func_stack.pop()
+            if pushed_compound:
+                compound_stack.pop()
 
         visit(root)
 
