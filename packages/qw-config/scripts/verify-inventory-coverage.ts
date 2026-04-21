@@ -115,8 +115,8 @@ function parseInventory(md: string): {
       // no-extension marker). Skips archive / match-group tables.
       if (ext === "" || ext.startsWith(".")) {
         // First occurrence wins: the "Files by extension (all)" table runs
-        // first and covers every extension once. Later "Classified extensions
-        // — detail" sections repeat counts but we only want the first total.
+        // first and covers every extension once. Later "Classified extensions"
+        // detail sections repeat counts but we only want the first total.
         if (!byExt.has(ext)) {
           byExt.set(ext, { count, samples: [] });
         }
@@ -125,7 +125,7 @@ function parseInventory(md: string): {
     }
 
     // Sample-path detection inside per-extension sections:
-    //   ### `.png` — 3464 files, 8.67 GB
+    //   E.g. "### '.png' - 3464 files, 8.67 GB".
     //   ...
     //   - Samples:
     //     - `qw/dm3_000.png`
@@ -157,7 +157,7 @@ function parseInventory(md: string): {
     if (m) fencedPaths.push(m[1].toLowerCase());
   }
 
-  // Count rows whose extension isn't in the bundle at all — reported as
+  // Count rows whose extension isn't in the bundle at all - reported as
   // context but always classified "other".
   let unknownExtCount = 0;
   for (const [ext, sum] of byExt) {
@@ -263,6 +263,18 @@ if (unclassifiedExts.length > 0) {
   for (const [ext, n] of byCount) {
     console.log(`  ${ext.padEnd(12)} ${n}`);
   }
+}
+
+// Per-category splits for hinted extensions are extrapolated from 5 sample
+// paths per extension, so per-bucket numbers for these four are approximate.
+// Extension totals and the 'other' bucket remain exact.
+const hintedExts = [".png", ".jpg", ".tga", ".pcx"];
+const hintedPresent = hintedExts.some((ext) => byExt.has(ext));
+if (hintedPresent) {
+  console.log("");
+  console.log("NOTE: png/jpg/tga/pcx category splits are extrapolated from 5 samples per");
+  console.log("      extension and are approximate. Extension totals and 'other' bucket");
+  console.log("      are exact.");
 }
 
 const maxOther = Number(values["max-other"]);
