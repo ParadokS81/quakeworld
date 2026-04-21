@@ -155,6 +155,49 @@ const TYPE_DIFF_CONFIGS: readonly TypeDiffConfig[] = [
   },
 ];
 
+interface RelationDiffConfig {
+  table: 'asset_extensions' | 'asset_path_rules' | 'asset_cvar_bindings' | 'asset_loader_sites';
+  naturalKeyColumns: readonly string[];
+  diffableColumns: readonly string[];
+}
+
+const RELATION_DIFF_CONFIGS: readonly RelationDiffConfig[] = [
+  {
+    table: 'asset_extensions',
+    naturalKeyColumns: ['extension', 'path_hint'],
+    diffableColumns: ['category_id', 'notes'],
+  },
+  {
+    table: 'asset_path_rules',
+    naturalKeyColumns: ['canonical_id'],
+    diffableColumns: ['rule_kind', 'ordinal', 'description', 'source_ref', 'source_verified', 'notes'],
+  },
+  {
+    table: 'asset_cvar_bindings',
+    naturalKeyColumns: ['cvar_canonical_id', 'category_id', 'path_pattern'],
+    diffableColumns: ['load_trigger', 'confidence', 'source_ref', 'notes'],
+  },
+  {
+    table: 'asset_loader_sites',
+    naturalKeyColumns: ['canonical_id'],
+    diffableColumns: [
+      'function_name', 'source_file', 'source_line', 'source_column',
+      'enclosing_function', 'reads_category_id', 'load_trigger',
+      'path_source', 'path_literal', 'path_cvar_id', 'confidence',
+      'dev_only', 'notes',
+    ],
+  },
+];
+
+interface RelationStats {
+  table: string;
+  fromCount: number;
+  toCount: number;
+  created: number;
+  modified: number;
+  deleted: number;
+}
+
 export interface DiffTypeStats {
   type: EntityType;
   fromCount: number;
@@ -174,6 +217,7 @@ export interface DiffResult {
   deletionsEmitted: number;
   transitionsLogged: number;
   perType: DiffTypeStats[];
+  relationStats: RelationStats[];
 }
 
 interface Row {
@@ -248,6 +292,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
   let totalDeletions = 0;
   let totalTransitions = 0;
   const perType: DiffTypeStats[] = [];
+  const diffResultExtras: { relationStats?: RelationStats[] } = {};
 
   const txn = options.db.transaction(() => {
     for (const config of TYPE_DIFF_CONFIGS) {
@@ -384,6 +429,14 @@ export function diffVersions(options: DiffOptions): DiffResult {
         deleted,
       });
     }
+
+    const relResult = diffAssetRelations(
+      options.db, options.project, options.fromVersion, options.toVersion, now,
+    );
+    totalCreations += relResult.totalCreated;
+    totalModifications += relResult.totalModified;
+    totalDeletions += relResult.totalDeleted;
+    (diffResultExtras as any).relationStats = relResult.stats;
   });
 
   txn();
@@ -398,7 +451,132 @@ export function diffVersions(options: DiffOptions): DiffResult {
     deletionsEmitted: totalDeletions,
     transitionsLogged: totalTransitions,
     perType,
+    relationStats: diffResultExtras.relationStats ?? [],
   };
+}
+
+function diffAssetRelations(
+  db: Database.Database,
+  project: Project,
+  fromVersion: string,
+  toVersion: string,
+  now: string,
+): { stats: RelationStats[]; totalCreated: number; totalModified: number; totalDeleted: number } {
+  const insertRelChange = db.prepare(`
+    INSERT OR REPLACE INTO relation_changes (
+      relation_table, project, from_version, to_version, change_kind,
+      row_key_json, field_name, old_value, new_value,
+      commit_sha, commit_message_excerpt, extracted_at
+    ) VALUES (
+      @relation_table, @project, @from_version, @to_version, @change_kind,
+      @row_key_json, @field_name, @old_value, @new_value,
+      'UNKNOWN', NULL, @extracted_at
+    )
+  `);
+
+  const stats: RelationStats[] = [];
+  let totalCreated = 0;
+  let totalModified = 0;
+  let totalDeleted = 0;
+
+  for (const config of RELATION_DIFF_CONFIGS) {
+    const fromRows = db.prepare(`
+      SELECT * FROM ${config.table} WHERE project = ? AND version = ?
+    `).all(project, fromVersion) as Array<Record<string, unknown>>;
+    const toRows = db.prepare(`
+      SELECT * FROM ${config.table} WHERE project = ? AND version = ?
+    `).all(project, toVersion) as Array<Record<string, unknown>>;
+
+    const keyOf = (row: Record<string, unknown>): string => {
+      const obj: Record<string, unknown> = {};
+      for (const col of [...config.naturalKeyColumns].sort()) {
+        obj[col] = row[col] ?? null;
+      }
+      return JSON.stringify(obj);
+    };
+
+    const fromByKey = new Map<string, Record<string, unknown>>();
+    const toByKey = new Map<string, Record<string, unknown>>();
+    for (const r of fromRows) fromByKey.set(keyOf(r), r);
+    for (const r of toRows) toByKey.set(keyOf(r), r);
+
+    const allKeys = new Set<string>([...fromByKey.keys(), ...toByKey.keys()]);
+    let created = 0;
+    let modified = 0;
+    let deleted = 0;
+
+    for (const key of allKeys) {
+      const fromRow = fromByKey.get(key);
+      const toRow = toByKey.get(key);
+
+      if (!fromRow && toRow) {
+        insertRelChange.run({
+          relation_table: config.table,
+          project,
+          from_version: fromVersion,
+          to_version: toVersion,
+          change_kind: 'created' as ChangeKind,
+          row_key_json: key,
+          field_name: '',
+          old_value: null,
+          new_value: null,
+          extracted_at: now,
+        });
+        created += 1;
+        continue;
+      }
+
+      if (fromRow && !toRow) {
+        insertRelChange.run({
+          relation_table: config.table,
+          project,
+          from_version: fromVersion,
+          to_version: toVersion,
+          change_kind: 'deleted' as ChangeKind,
+          row_key_json: key,
+          field_name: '',
+          old_value: null,
+          new_value: null,
+          extracted_at: now,
+        });
+        deleted += 1;
+        continue;
+      }
+
+      if (fromRow && toRow) {
+        for (const col of config.diffableColumns) {
+          if (!valuesDiffer(fromRow[col], toRow[col])) continue;
+          insertRelChange.run({
+            relation_table: config.table,
+            project,
+            from_version: fromVersion,
+            to_version: toVersion,
+            change_kind: 'modified' as ChangeKind,
+            row_key_json: key,
+            field_name: col,
+            old_value: stringifyOrNull(fromRow[col]),
+            new_value: stringifyOrNull(toRow[col]),
+            extracted_at: now,
+          });
+          modified += 1;
+        }
+      }
+    }
+
+    stats.push({
+      table: config.table,
+      fromCount: fromRows.length,
+      toCount: toRows.length,
+      created,
+      modified,
+      deleted,
+    });
+    totalCreated += created;
+    totalModified += modified;
+    totalDeleted += deleted;
+  }
+
+  return { stats, totalCreated, totalModified, totalDeleted };
 }
 
 function resolveBlame(
