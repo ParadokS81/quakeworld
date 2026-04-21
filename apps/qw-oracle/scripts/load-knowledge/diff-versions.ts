@@ -1,20 +1,27 @@
 // apps/qw-oracle/scripts/load-knowledge/diff-versions.ts
 //
-// Stage 2 of the loader pipeline: compute change_events between two
-// already-loaded versions of the same project, across all 9 entity types.
+// Stage 2 of the loader pipeline. Two parallel diff streams:
 //
-// Per spec Section 3 + Section 4:
-//   - Modification emits one row per changed substantive field.
-//   - Creation emits one row with change_kind='created'; re-added entities
-//     also flip source_state back to source_backed and log transition.
-//   - Deletion emits one row with change_kind='deleted'; loader flips
-//     source_state to source_retired and logs transition.
-//   - commit_sha populated via git blame at the correct version ref:
-//       * creations / modifications -> blame at toVersion.commit_sha
-//       * deletions -> blame at fromVersion.commit_sha (file may no longer
-//         exist at toVersion)
-//     Falls back to 'UNKNOWN' if blame fails or the version-row lacks
-//     source_file/source_line (asset_category has no source location).
+// 1. Entity change_events across the 10 entity types in TYPE_DIFF_CONFIGS.
+//    Per spec Section 3 + Section 4:
+//      - Modification emits one row per changed substantive field.
+//      - Creation emits one row with change_kind='created'; re-added entities
+//        also flip source_state back to source_backed and log transition.
+//      - Deletion emits one row with change_kind='deleted'; loader flips
+//        source_state to source_retired and logs transition.
+//      - commit_sha populated via git blame at the correct version ref:
+//          * creations / modifications -> blame at toVersion.commit_sha
+//          * deletions -> blame at fromVersion.commit_sha (file may no longer
+//            exist at toVersion)
+//        Falls back to 'UNKNOWN' if blame fails or the version-row lacks
+//        source_file/source_line (asset_category has no source location).
+//
+// 2. Asset relation_changes across the 4 relation tables in
+//    RELATION_DIFF_CONFIGS (see diffAssetRelations). Relation rows are not
+//    entity-keyed; keyed on each table's UNIQUE natural-key columns via
+//    deterministic JSON. Blame is intentionally deferred to Phase 2f Batch 3
+//    (relation rows don't yet carry source_file/source_line), so relation
+//    change_events get commit_sha='UNKNOWN' in v5.
 
 import type Database from 'better-sqlite3';
 import { ulid } from 'ulid';
@@ -436,7 +443,7 @@ export function diffVersions(options: DiffOptions): DiffResult {
     totalCreations += relResult.totalCreated;
     totalModifications += relResult.totalModified;
     totalDeletions += relResult.totalDeleted;
-    (diffResultExtras as any).relationStats = relResult.stats;
+    diffResultExtras.relationStats = relResult.stats;
   });
 
   txn();
@@ -462,6 +469,11 @@ function diffAssetRelations(
   toVersion: string,
   now: string,
 ): { stats: RelationStats[]; totalCreated: number; totalModified: number; totalDeleted: number } {
+  // commit_sha='UNKNOWN' / commit_message_excerpt=NULL are hardcoded
+  // intentionally. Relation rows (asset_extensions / _path_rules /
+  // _cvar_bindings / _loader_sites) don't yet carry source_file+source_line,
+  // so git blame has no anchor. Batch 3 will add loader-site line tracking
+  // and retire this stub.
   const insertRelChange = db.prepare(`
     INSERT OR REPLACE INTO relation_changes (
       relation_table, project, from_version, to_version, change_kind,
