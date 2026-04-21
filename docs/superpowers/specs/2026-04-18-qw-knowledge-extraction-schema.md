@@ -1,8 +1,10 @@
 ---
-Doc type: current - Design spec. Delete/archive once Phase 2b-2g implementation lands and the schema stabilizes, or once it is superseded by a revised Phase-3 schema spec.
+Doc type: historical - Original v1 design spec. For the current cumulative schema reference see `apps/qw-oracle/SCHEMA.md`. For individual migration rationale see the per-migration specs (v5, v6) in this directory, plus git history of `apps/qw-oracle/scripts/load-knowledge/schema.ts` for v2-v4 which predate the SCHEMA.md + spec discipline.
 ---
 
-# QW Knowledge Extraction - Schema Design Spec
+# QW Knowledge Extraction - Schema Design Spec (v1, historical)
+
+> **This spec is retained as a historical record of the v1 design.** The schema is now at v6. For the current schema shape, read `apps/qw-oracle/SCHEMA.md`. For v5 and v6 migration rationale, see the dated specs in this directory. v2-v4 migrations predate this convention; their rationale lives in git commit messages on `schema.ts`.
 
 **Date:** 2026-04-18
 **Status:** Draft. Awaiting user review before implementation planning.

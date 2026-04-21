@@ -1,0 +1,148 @@
+# QW Oracle - Overview
+
+Living map of what is in this project right now. If you want why it exists, see `VISION.md`. For rules that apply while working here, see `CLAUDE.md`. For the Layer 1 data model, see `SCHEMA.md`. When in doubt, the code is the source of truth; this is the map.
+
+**Lifecycle status:** Active. Layer 1 ezQuake extraction is fully built and stable; historical backfill across tags is the next major push. Layer 2 corpus is imported but the processing pipeline on top of it hasn't been touched in weeks and is not inventoried (see "Layer 2" below).
+
+## What the project is
+
+Two SQLite databases side by side at `data/`:
+
+| File | Layer | What it is |
+|---|---|---|
+| `knowledge.db` | Layer 1 | Source-extracted engine facts: cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset-consumption model, flag bits. Per-version history + per-field diff stream + commit blame. Covered by `SCHEMA.md`. |
+| `qw.db` | Layer 2 | 2.66M community chat messages (1.94M QuakeNet IRC 2005-2016 + 717K Quake.World Discord 2016-present). Raw + FTS5 search index. |
+
+A future **Layer 3** (hand-authored concept notes adapted from ezquake.com docs and community wisdom) is not yet populated.
+
+Both are gitignored — they regenerate from source (Layer 1) or from raw import dumps (Layer 2).
+
+## Layer 1 - where things stand
+
+**Covered at head:** ezQuake, 10 entity types + 4 asset relation tables. Totals at head: 2901 cvars, 522 commands, 68 macros, 71 cmdline params, 148 keynames, 83 HUD elements, 6 rulesets, 33 token primitives, 50 flag bits, 17 asset categories = 3899 entities. Relations: 25 extensions, 14 path rules, 26 cvar bindings, 110 loader sites.
+
+**Tags loaded:** 3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, plus `head`. `flag_bit` was added in Batch 2 so it's only present across 3.6.5+; earlier tags need a re-load to backfill. `source_overrides` was added in Batch 3 so pre-Batch-3 tags need a re-load to populate their blame index.
+
+**Schema version:** 6. Migrations v1→v6 are all in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape and per-migration spec pointers.
+
+**Still open on Layer 1:**
+- **Phase 2f historical backfill proper** - walk every ezQuake tag (~15 total), run full extractor sweep per tag, diff consecutive pairs, enrich with PRs. All architectural prerequisites shipped through Batch 3. This is the next move; the HANDOVER entry "qw-oracle Layer 1 documentation gap" was the gating blocker.
+- **Phase 2d FTE** - first second-engine port. Biggest structural risk: validates the project-keyed schema against a codebase with a different layout (`engine/client/`, `engine/server/`, etc.).
+- **Phase 2e MVDSV + KTX** - smaller ports. KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike).
+- **Phase 2g MCP tool upgrades** - add `version` / `as_of` parameters to existing tools, add `get_entity_history`, add version/date filters on `search_entities`.
+- **Phase 2h automation** - scheduled tag-delta job (detect new upstream tag → extract → load → enrich → insert).
+- **Asset-bundle loader-family gaps** - 9 loader families missing at head (.log, .loc, .lit, .xml, .dat, .kmap, .spr, .qwz, .dll) plus png/jpg path_hint variants. Post-Batch3 cleanup. See HANDOVER "ezquake asset-bundle gaps".
+- **Asset reference-resolution graph** - research-foundation spec at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` proposes the shift from category-classification to consumer-reference graph (parameterized-path extraction + BSP/progs parsers + `asset_companions` / `asset_consumers` schema). Implementation plan not yet written.
+
+## Layer 1 machinery
+
+### Loader pipeline - `scripts/load-knowledge/`
+
+TypeScript. Opens `data/knowledge.db`, migrates if needed, dispatches per-type loader adapters.
+
+CLI entry: `npm run load-knowledge -- <subcommand> [...args]` — see `scripts/load-knowledge/index.ts`. Subcommands:
+
+| Subcommand | Purpose |
+|---|---|
+| `load-version` | Load one entity-type snapshot for one (project, version) from an extractor JSON. Idempotent. |
+| `load-assets` | Load the four `asset_*` relation tables for one (project, version) from a bundle JSON. |
+| `release-notes` | Fetch a tag's GitHub release body, parse bullets, write to `release_notes`. Requires GitHub token. |
+| `diff` | Walk two versions, compare per-entity `*_versions` rows, write `change_events` + `relation_changes`. |
+| `enrich` | Backfill `pr_*` columns on `change_events` via GitHub API. Requires GitHub token. |
+
+Real command examples with expected counts: see `scripts/load-knowledge/e2e-verify.md` (the source of truth for what each phase should produce).
+
+### Per-type loader adapters
+
+One file per entity type at `scripts/load-knowledge/load-<type>.ts`. Each is ~40-50 lines: parse the extractor JSON, upsert the entity row, upsert the `*_versions` row, optionally emit `source_overrides`. Shared scaffolding lives in:
+
+- `load-version.ts` - type dispatch, drop-guard, transition emission
+- `natural-keys.ts` - idempotent upsert helpers; canonical ID logic
+- `types.ts` - row-shape interfaces mirroring `schema.ts`
+- `db.ts` - connection open + migration run
+
+### Diff pipeline - `diff-versions.ts`
+
+`TYPE_DIFF_CONFIGS` generalizes the diff across all 10 entity types + the 4 relation tables. Preloads `source_overrides` into a Map at diff start so the hot loop is zero-SQL per event (commit `d949108`). `PROJECT_SRC_PREFIX` map resolves ezQuake's 2023 repo-root-to-`src/` layout boundary per-version at blame time (`treeHasDirectory` via `git ls-tree`).
+
+### Where extractors live
+
+Extractors are NOT in this directory — they live in `packages/qw-config/scripts/` because the JSON they produce is a shared contract, not just oracle's input. Python + libclang 18 for ezQuake; tree-sitter (TBD) for KTX.
+
+| Extractor | Output JSON |
+|---|---|
+| `extract-ezquake-cvars-clang.py` | `ezquake-variables-ast.json` |
+| `extract-ezquake-commands-clang.py` | `ezquake-commands-ast.json` |
+| `extract-ezquake-macros-clang.py` | `ezquake-macros-ast.json` |
+| `extract-ezquake-cmdline-clang.py` | `ezquake-cmdline-params-ast.json` |
+| `extract-ezquake-keynames-clang.py` | `ezquake-keynames-ast.json` |
+| `extract-ezquake-hud-elements-clang.py` | `ezquake-hud-elements-ast.json` |
+| `extract-ezquake-rulesets-clang.py` | `ezquake-rulesets-ast.json` |
+| `extract-ezquake-token-primitives-clang.py` | `ezquake-token-primitives-ast.json` |
+| `extract-ezquake-flag-bits-clang.py` | `ezquake-flag-bits-ast.json` |
+| `extract-ezquake-asset-loader-sites-clang.py` | feeds asset-bundle build |
+| `extract-ezquake-asset-cvar-bindings-clang.py` | feeds asset-bundle build |
+| `extract-ezquake-asset-path-rules-verify.py` | feeds asset-bundle build |
+
+All extractors accept `--repo-root` / `--output` and auto-detect `<repo>/src` vs repo-root layout (the Batch 1 fix for pre-2023 tags).
+
+Extractor JSON outputs are committed at `packages/qw-config/src/data/` so the loader has deterministic input without requiring a libclang install to re-build.
+
+Hand-authored seed YAMLs are at `packages/qw-config/seeds/` (asset taxonomy, cvar→category bindings). The `build-asset-bundle.ts` script reconciles seed against AST auto-pass and emits `ezquake-asset-bundle.json`.
+
+### Enrichment - `enrich-prs.ts` + GitHub
+
+Second pass after `diff`. Reads `change_events` with empty `pr_*` columns, queries GitHub's commit-to-PR API, stuffs PR number / title / body excerpt / linked issues into the row. Staged from the diff pass because PR enrichment is rate-limited and the diff is cheap — you want them decoupled.
+
+## Code landmarks
+
+If you want to... | Look at...
+---|---
+Add a new entity type | `schema.ts` (new `*_versions` table + CHECK widening for `entities.type`) → `types.ts` (row interface) → `natural-keys.ts` (upsert helper) → new `load-<type>.ts` adapter → `load-version.ts` (register in dispatcher) → `diff-versions.ts` (`TYPE_DIFF_CONFIGS` entry)
+Change how diff blame is resolved | `diff-versions.ts` — the Map preload + override lookup hot loop
+Add per-field blame for a new type | Extractor emits `field_source_lines` payload → adapter calls `upsertSourceOverride` with `override_kind`
+Tune drop-guard | `load-version.ts` — the `dropGuard` check
+Add an MCP tool | Not in this repo — MCP server is separate. The queries live against the shape documented in `SCHEMA.md`.
+Migrate schema (v6 → v7) | `schema.ts` — add `SCHEMA_V7_ADDITIONS_SQL` + `migrateV6ToV7` + extend `applySchema`'s chain
+Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md`
+
+## Layer 2 - state unknown
+
+The Layer 2 corpus is imported into `data/qw.db` and a basic FTS5 search index exists. The processing pipeline on top of it — tier classification, session segmentation, summarization, curation — hasn't been touched in weeks and has not been audited for this doc. The scripts at `scripts/*.mjs` are what exists, not what is necessarily still in use:
+
+- `import-discord.mjs` / `import-irc.mjs` - raw import from the respective dumps
+- `db.mjs` - Layer 2 schema + connection (legacy .mjs, not TypeScript)
+- `build-search-index.mjs` - FTS5 index build
+- `search.mjs` - search CLI
+- `stats.mjs` / `stats-tier1.mjs` - dataset stats
+- `process-tier1.mjs` - early tier-1 classification work
+- `sample-*.mjs` - ad-hoc sampling scripts used during design spikes
+- `helpdesk-benchmark.mjs` / `helpdesk-coverage.mjs` - the "can this answer a real question" bench
+
+This list is a file inventory, not a working map. Before the next Layer 2 push, this section needs its own audit pass — which scripts are current, which are scratchpads to delete, which compose into a pipeline. See HANDOVER for the follow-up item if one exists; if not, add one when Layer 2 work restarts.
+
+## MCP integration
+
+Claude Code sessions consume Layer 1 via a local MCP server (tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`). The server itself is NOT in this directory — it lives elsewhere in the monorepo's MCP infrastructure. What lives here is the SQLite DB it queries and the schema it queries against.
+
+Future outlets planned: Quad (Discord) answering player questions in-channel, slipgate web chat surface, Slipgate desktop helper panel.
+
+## Parked with purpose
+
+- `docs/plan.md` - legacy Layer 2 pipeline plan from earlier in the project. Not deleted because the Layer 2 pipeline still hasn't been rebuilt; reconsider when Layer 2 work restarts.
+- `memory/` - prototyping artifacts from design spikes. Not committed production output. Review periodically; delete what is clearly stale.
+- `output/` - scratch output from ad-hoc runs. Gitignored.
+
+## Integration points
+
+- **Consumes:** `packages/qw-config/src/data/*-ast.json` (extractor outputs), `packages/qw-config/seeds/*.yaml` (seed taxonomies), ezQuake source at `research/repos/ezquake-source` (git blame + tag resolution), GitHub API (release bodies + PR enrichment).
+- **Produces:** `data/knowledge.db` (Layer 1), `data/qw.db` (Layer 2).
+- **Consumed by:** MCP server (local) → Claude sessions. Slipgate desktop (planned helper panel). Quad Discord bot (planned). Future slipgate web chat surface.
+
+## What this doc intentionally does NOT cover
+
+- **Layer 1 data model** — `SCHEMA.md`.
+- **Why this project exists / three paths / long-term vision** — `VISION.md` (note: reframe to "active assistance" pending per HANDOVER).
+- **Rules for Claude sessions** — `CLAUDE.md`.
+- **Per-migration design intent** — `docs/superpowers/specs/` (the v1 / v5 / v6 specs).
+- **Verification queries** — `scripts/load-knowledge/e2e-verify.md`.

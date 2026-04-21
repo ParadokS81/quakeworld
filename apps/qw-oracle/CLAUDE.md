@@ -95,7 +95,7 @@ Supported entity types: `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, 
 - **Layer 1 extractors are idempotent** - re-running against the same tag produces the same rows.
 - **Regression guards are load-bearing** - `load-version` aborts when entity counts drop >50% without `--force`. Don't bypass.
 - **Source citation discipline** - every Layer 1 row that can carry a `source_ref` must; every Layer 2 summary must trace back to message IDs.
-- **Schema evolution is spec-first** - schema changes get a dated spec under root `docs/superpowers/specs/` before the migration lands.
+- **Schema evolution updates SCHEMA.md** - schema changes update `SCHEMA.md` alongside the migration. Architecturally-significant changes (new entity-identity concepts, cross-cutting blame models, migrations that reshape how diffs work) additionally get a dated spec under root `docs/superpowers/specs/` for the design discussion. Small additive migrations (one new table, one new field) don't need a spec — SCHEMA.md + git history + schema.ts comments are enough.
 
 ## Non-negotiable rules
 

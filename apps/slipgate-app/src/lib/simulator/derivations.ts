@@ -14,7 +14,7 @@ const DEFAULT_WEAPON_NAMES: Record<Weapon, string> = {
 // Priority order lg=8 -> sg=2. axe excluded from $weapons display (ezQuake convention).
 const WEAPON_PRIORITY: Weapon[] = ["lg", "rl", "gl", "sng", "ng", "ssg", "sg"];
 
-export function resolveWeaponName(w: Weapon, cvars: Map<string, string>): string {
+function resolveWeaponName(w: Weapon, cvars: Map<string, string>): string {
   return cvars.get(`tp_name_${w}`) ?? DEFAULT_WEAPON_NAMES[w];
 }
 

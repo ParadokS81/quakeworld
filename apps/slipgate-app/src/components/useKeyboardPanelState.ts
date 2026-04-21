@@ -75,7 +75,7 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     try {
       await updatePrefs({ config_keyboard_visible: next });
     } catch (e) {
-      console.error("Failed to persist keyboard visibility pref:", e);
+      console.error("persist keyboard visibility pref:", e);
     }
   }
 
@@ -100,19 +100,19 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     const next = !showMovement();
     setShowMovement(next);
     try { await updatePrefs({ config_keyboard_show_movement: next }); }
-    catch (e) { console.error("Failed to persist kb movement toggle:", e); }
+    catch (e) { console.error("persist kb movement toggle:", e); }
   }
   async function toggleWeapons() {
     const next = !showWeapons();
     setShowWeapons(next);
     try { await updatePrefs({ config_keyboard_show_weapons: next }); }
-    catch (e) { console.error("Failed to persist kb weapons toggle:", e); }
+    catch (e) { console.error("persist kb weapons toggle:", e); }
   }
   async function toggleTeamplay() {
     const next = !showTeamplay();
     setShowTeamplay(next);
     try { await updatePrefs({ config_keyboard_show_teamplay: next }); }
-    catch (e) { console.error("Failed to persist kb teamplay toggle:", e); }
+    catch (e) { console.error("persist kb teamplay toggle:", e); }
   }
 
   // Right-slot module state
@@ -141,7 +141,7 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
     try {
       await updatePrefs({ [moduleField]: m } as Partial<import("../store").ProfilePrefs>);
     } catch (e) {
-      console.error("Failed to persist kb module:", e);
+      console.error("persist kb module:", e);
     }
   }
 
