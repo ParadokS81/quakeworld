@@ -308,31 +308,119 @@ def _resolve_cvar_ref(arg_cursor) -> Optional[str]:
     return ref.spelling  # C identifier — maps to cvar name in a later pass
 
 
-def _extract_literal_from_va(call_cursor, source_bytes: bytes) -> Optional[str]:
-    """Pull the format-string literal out of `va("fmt", ...)` call expressions.
-    Returns the literal text (without quotes) or None."""
-    if call_cursor.kind != CursorKind.CALL_EXPR or call_cursor.spelling != "va":
+FORMAT_FUNCTIONS: dict[str, int] = {
+    # function_name -> index of the format-string argument
+    "va":          0,
+    "sprintf":     1,   # sprintf(buf, fmt, ...)
+    "snprintf":    2,   # snprintf(buf, size, fmt, ...)
+    "Q_snprintfz": 2,   # ezQuake's bounded snprintf wrapper
+}
+
+def _conversion_slots(fmt: str) -> list[str]:
+    """Return %-conversion specifiers in fmt, in order. Skips '%%'.
+    Example: 'maps/%s_%d.tga' -> ['%s', '%d']."""
+    out: list[str] = []
+    i = 0
+    while i < len(fmt):
+        if fmt[i] != '%':
+            i += 1
+            continue
+        if i + 1 < len(fmt) and fmt[i + 1] == '%':
+            i += 2
+            continue
+        j = i + 1
+        while j < len(fmt) and fmt[j] in "-+ #0123456789.*hljztL":
+            j += 1
+        if j < len(fmt):
+            out.append(fmt[i:j + 1])
+        i = j + 1
+    return out
+
+
+def _extract_expression_snippet(cursor, source_bytes: bytes) -> str:
+    """Single-line source-extent snippet for a cursor."""
+    text = read_extent_text(source_bytes, cursor.extent).strip()
+    return " ".join(text.split())
+
+
+def _extension_from_template(tpl: str) -> Optional[str]:
+    """Return '.<ext>' if the template has a literal suffix ending in '.<ext>';
+    None otherwise. Any '%' after the last '.' disqualifies."""
+    if not tpl:
         return None
+    dot = tpl.rfind('.')
+    if dot < 0:
+        return None
+    suffix = tpl[dot:]
+    if '%' in suffix:
+        return None
+    return suffix
+
+
+def _classify_parameterized_call(call_cursor, source_bytes: bytes):
+    """If call_cursor is a format-family call (va/sprintf/snprintf/Q_snprintfz),
+    return (template, parameters, extension, format_function). Else None."""
+    if call_cursor.kind != CursorKind.CALL_EXPR:
+        return None
+    fn = call_cursor.spelling
+    if fn not in FORMAT_FUNCTIONS:
+        return None
+    fmt_idx = FORMAT_FUNCTIONS[fn]
     args = list(call_cursor.get_arguments())
-    if not args:
+    if len(args) <= fmt_idx:
         return None
-    first = args[0]
-    # Drill through UNEXPOSED_EXPR to STRING_LITERAL.
+
+    fmt_cursor = args[fmt_idx]
+    lit_node = fmt_cursor
     for _ in range(4):
-        if first.kind == CursorKind.STRING_LITERAL:
+        if lit_node.kind == CursorKind.STRING_LITERAL:
             break
-        ch = list(first.get_children())
+        ch = list(lit_node.get_children())
         if not ch:
             return None
-        first = ch[0]
-    if first.kind != CursorKind.STRING_LITERAL:
+        lit_node = ch[0]
+    if lit_node.kind != CursorKind.STRING_LITERAL:
         return None
-    return strip_quotes(read_extent_text(source_bytes, first.extent).strip())
+    template = strip_quotes(read_extent_text(source_bytes, lit_node.extent).strip())
+
+    slots = _conversion_slots(template)
+    variadic = args[fmt_idx + 1: fmt_idx + 1 + len(slots)]
+    parameters: list[dict] = []
+    for i, (_spec, arg) in enumerate(zip(slots, variadic)):
+        snippet = _extract_expression_snippet(arg, source_bytes)
+        parameters.append({
+            "slot": i,
+            "expression_snippet": snippet,
+            "semantic": _resolve_semantic(arg, snippet),
+        })
+
+    extension = _extension_from_template(template)
+    return template, parameters, extension, fn
 
 
-def _classify_first_arg(arg_cursor, source_bytes: bytes) -> tuple[str, Optional[str], Optional[str]]:
-    """Return (path_source, path_literal, path_cvar_ident)."""
-    # Drill through UNEXPOSED_EXPR wrappers to the meaningful expression.
+def _resolve_semantic(arg_cursor, snippet: str) -> str:
+    """Best-effort semantic label for a format-call argument."""
+    cvar = _resolve_cvar_ref(arg_cursor)
+    if cvar:
+        return f"cvar_value:{cvar}"
+    map_accessors = (
+        "cl.worldmodel->name",
+        "cl.mapname",
+        "host_mapname",
+        "mod->name",
+    )
+    if snippet in map_accessors or (snippet.endswith("->name") and "worldmodel" in snippet):
+        return "current_map_name"
+    if "precache" in snippet.lower() or "cl.model_name" in snippet or "cl.sound_name" in snippet:
+        return "precached_model_name"
+    if snippet.isidentifier():
+        return "local_variable"
+    return "unknown"
+
+
+def _classify_first_arg(arg_cursor, source_bytes: bytes):
+    """Return (path_source, path_literal, cvar_ident, parameterization).
+    parameterization is (template, parameters, extension, format_function) or None."""
     node = arg_cursor
     for _ in range(4):
         if node.kind in (CursorKind.STRING_LITERAL, CursorKind.MEMBER_REF_EXPR, CursorKind.CALL_EXPR, CursorKind.DECL_REF_EXPR):
@@ -344,21 +432,22 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes) -> tuple[str, Optional[
 
     if node.kind == CursorKind.STRING_LITERAL:
         lit = strip_quotes(read_extent_text(source_bytes, node.extent).strip())
-        return "literal", lit, None
+        return "literal", lit, None, None
 
     cvar_ident = _resolve_cvar_ref(arg_cursor)
     if cvar_ident:
-        return "cvar", None, cvar_ident
+        return "cvar", None, cvar_ident, None
 
     if node.kind == CursorKind.CALL_EXPR:
-        # va("foo/%s", something) — capture the format literal as path_literal
-        # and mark as computed.
-        fmt = _extract_literal_from_va(node, source_bytes)
-        if fmt is not None:
-            return "computed", fmt, None
-        return "computed", None, None
+        param = _classify_parameterized_call(node, source_bytes)
+        if param is not None:
+            template = param[0]
+            # path_literal keeps the template for DB back-compat; new fields
+            # carry the structured data.
+            return "computed", template, None, param
+        return "computed", None, None, None
 
-    return "unknown", None, None
+    return "unknown", None, None, None
 
 
 # ----- extraction -----------------------------------------------------------
@@ -412,9 +501,16 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
                     enclosing = func_stack[-1] if func_stack else None
                     args = list(node.get_arguments())
                     if args:
-                        path_source, path_literal, cvar_ident = _classify_first_arg(args[0], source_bytes)
+                        path_source, path_literal, cvar_ident, parameterization = _classify_first_arg(args[0], source_bytes)
                     else:
-                        path_source, path_literal, cvar_ident = ("unknown", None, None)
+                        path_source, path_literal, cvar_ident, parameterization = ("unknown", None, None, None)
+
+                    path_template = None
+                    path_parameters = None
+                    path_extension = None
+                    format_function = None
+                    if parameterization is not None:
+                        path_template, path_parameters, path_extension, format_function = parameterization
 
                     # Category inference.
                     cat_from_fn = FUNCTION_TO_CATEGORY.get(fn)
@@ -467,6 +563,10 @@ def extract_from_file(path: Path, diagnostics: list[str]) -> list[LoaderSite]:
                         confidence=confidence,
                         dev_only=dev_only,
                         notes=notes,
+                        path_template=path_template,
+                        path_parameters=path_parameters,
+                        path_extension=path_extension,
+                        format_function=format_function,
                     ))
 
             for c in node.get_children():
