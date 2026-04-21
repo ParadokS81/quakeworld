@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -451,6 +451,30 @@ CREATE INDEX IF NOT EXISTS idx_relation_changes_to_version ON relation_changes(t
 CREATE INDEX IF NOT EXISTS idx_relation_changes_table      ON relation_changes(relation_table);
 `;
 
+// v6 adds source_overrides: per-(entity, version, field) blame rows for
+// fields whose value comes from a site other than the entity's primary
+// struct-init declaration (e.g. re-declarations in command handlers,
+// header-level defaults, call-site overrides). Pure-additive; no CHECK
+// widening on entities, so no entities-table rebuild.
+const SCHEMA_V6_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS source_overrides (
+  entity_id     INTEGER NOT NULL REFERENCES entities(id),
+  version       TEXT NOT NULL,
+  field_name    TEXT NOT NULL,
+  source_file   TEXT NOT NULL,
+  source_line   INTEGER NOT NULL,
+  source_column INTEGER,
+  override_kind TEXT NOT NULL CHECK (override_kind IN (
+                  'struct_field_decl',
+                  'call_site',
+                  'header_declaration'
+                )),
+  extracted_at  TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version, field_name)
+);
+CREATE INDEX IF NOT EXISTS idx_source_overrides_entity ON source_overrides(entity_id, version);
+`;
+
 // v2 -> v3 rebuilds the entities table to add 'asset_category' to the
 // type CHECK. Same pattern as v1 -> v2.
 const ENTITIES_V3_MIGRATION_SQL = `
@@ -579,6 +603,16 @@ function migrateV4ToV5(db: Database.Database): void {
   }
 }
 
+function migrateV5ToV6(db: Database.Database): void {
+  // Pure-additive: new source_overrides table + index, no entities rebuild
+  // and no CHECK widening. Plain txn, no foreign_keys toggle needed.
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V6_ADDITIONS_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('6');
+  });
+  txn();
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -611,6 +645,10 @@ export function applySchema(db: Database.Database): void {
       migrateV4ToV5(db);
       existingVersion = 5;
     }
+    if (existingVersion === 5 && SCHEMA_VERSION >= 6) {
+      migrateV5ToV6(db);
+      existingVersion = 6;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -618,10 +656,11 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 / v5 additions are idempotent CREATE IF NOT EXISTS -- safe
-  // on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
+  // v2 / v3 / v4 / v5 / v6 additions are idempotent CREATE IF NOT EXISTS --
+  // safe on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
   db.exec(SCHEMA_V4_ADDITIONS_SQL);
   db.exec(SCHEMA_V5_ADDITIONS_SQL);
+  db.exec(SCHEMA_V6_ADDITIONS_SQL);
 }
