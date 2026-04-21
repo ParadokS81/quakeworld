@@ -145,6 +145,14 @@ const TYPE_DIFF_CONFIGS: readonly TypeDiffConfig[] = [
     diffableFields: ['display_name', 'description', 'notes'],
     hasSource: false,
   },
+  {
+    entityType: 'flag_bit',
+    versionsTable: 'flag_bit_versions',
+    diffableFields: [
+      'bitmask_family', 'value_raw', 'value_numeric', 'source_file',
+    ],
+    hasSource: true,
+  },
 ];
 
 export interface DiffTypeStats {
