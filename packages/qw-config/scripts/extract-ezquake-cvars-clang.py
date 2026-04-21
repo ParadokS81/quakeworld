@@ -104,6 +104,42 @@ def parse_flag_names(raw: str) -> list[str]:
     return list(dict.fromkeys(FLAG_NAME_RE.findall(raw)))  # preserve order, dedupe
 
 
+# Matches external call sites that override a cvar's default value. Captures
+# group 2 is the identifier immediately after `&` (or bare). We deliberately
+# skip cvar.c (internal plumbing defines these helpers) and config_manager.c
+# (cfg_reset_all loops over all cvars and is not a per-cvar blame target).
+_CVAR_DEFAULT_CALL_RE = re.compile(
+    r"Cvar_(SetDefaultAndValue|ResetVar)\s*\(\s*&?(\w+)"
+)
+
+
+def scan_default_call_sites(ezq_src_dir: Path) -> dict[str, list[dict]]:
+    """Return a map of lowercased cvar identifier -> list of call-site anchors
+    for `Cvar_SetDefaultAndValue` / `Cvar_ResetVar`. Entries from cvar.c and
+    config_manager.c are intentionally skipped (internal uses, not blameworthy
+    for the cvar's default-value identity). Best-effort: macro-expanded forms
+    and pointer-member accesses (e.g. `set->cvar`) won't resolve to a real
+    cvar identifier but are harmless noise in the output map."""
+    SKIP_FILES = {"cvar.c", "config_manager.c"}
+    out: dict[str, list[dict]] = {}
+    for c_file in sorted(ezq_src_dir.glob("*.c")):
+        if c_file.name in SKIP_FILES:
+            continue
+        try:
+            text = c_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for m in _CVAR_DEFAULT_CALL_RE.finditer(text):
+            ident = m.group(2).lower()
+            # Compute 1-based source line for the match offset.
+            line = text.count("\n", 0, m.start()) + 1
+            out.setdefault(ident, []).append({
+                "source_file": c_file.name,
+                "source_line": line,
+            })
+    return out
+
+
 # ----- cvar_groups.h parsing -------------------------------------------------
 
 
@@ -833,6 +869,15 @@ def main() -> int:
 
     print("\nPhase 4: merging and writing output")
     output = build_output(unique_cvars, help_data)
+
+    # Attach external call-site anchors for default-value overrides.
+    # Consumed by the cvars loader adapter to emit source_overrides rows so
+    # default_value blame resolves to the mutation site, not the cvar_t
+    # declaration. See Phase 2f Batch 3 Task 10.
+    default_overrides = scan_default_call_sites(EZQ_SRC)
+    output["default_overrides"] = default_overrides
+    print(f"  default_overrides entries: {len(default_overrides)}")
+
     stats = output["_stats"]
     print(f"  source cvars: client={stats['client']} server={stats['server_only']}")
     print(f"  with flags:       {stats['with_flags']}")

@@ -67268,5 +67268,25 @@
       "CVAR_TRACKERCOLOR": 7
     },
     "help_only": 186
+  },
+  "default_overrides": {
+    "v_gamma": [
+      {
+        "source_file": "cl_view.c",
+        "source_line": 1210
+      }
+    ],
+    "gl_max_size": [
+      {
+        "source_file": "r_texture_cvars.c",
+        "source_line": 202
+      }
+    ],
+    "set": [
+      {
+        "source_file": "settings_page.c",
+        "source_line": 353
+      }
+    ]
   }
 }
