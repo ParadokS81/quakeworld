@@ -16,16 +16,16 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. Pre-existing; surface next time qw-config is being touched substantially
 - [Knowledge schema spec behind code (v1 only)](#knowledge-schema-spec-behind-code-v1-only) — `2026-04-18-qw-knowledge-extraction-schema.md` documents schema v1; v2 (keyname/hud_element/ruleset/token_primitive) and v3 (5 asset_* tables) are in `schema.ts` but absent from the spec
 - [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
-- [Phase 2f stress-test gap catalog](#phase-2f-stress-test-gap-catalog) — A1/A2/A3 surfaced 10 gaps across 4 tiers; needs batched fix cycle before full historical backfill can run
+- [Phase 2f stress-test gap catalog](#phase-2f-stress-test-gap-catalog) — A1/A2/A3 surfaced 10 gaps across 4 tiers; Batch 1 + Batch 2 shipped (7 of 10 closed plus 1 new gap surfaced). Batch 3 architectural fixes remain before full historical backfill.
 
 ---
 
 ## Phase 2f stress-test gap catalog
 
 **Added:** 2026-04-20
-**Updated:** 2026-04-20 — Batch 1 complete (5 of 10 gaps closed). Batch 2 (Tier 2) and Batch 3 (Tier 1-complex) remain.
-**Status:** Batch 1 mechanical fixes landed in commit `18cb835`. Crossover validation (3.6.1 -> 3.6.2) passed; parser improvements measured 3 -> 16 entity refs on 3.6.6 rerun.
-**Verification first:** `git log --oneline -5 -- apps/qw-oracle/scripts/load-knowledge/ packages/qw-config/scripts/` — most recent should include `18cb835 feat(qw-oracle): Batch 1 gap fixes`.
+**Updated:** 2026-04-21 — Batch 2 complete (7 of 10 gaps closed). Batch 3 (Tier 1-complex) remains.
+**Status:** Batch 2 landed across commits `b9d27a0 .. db72945` (schema v5 spec, v5 migration, types+adapter, extractor, diff config, asset-relation diff). A1+A2 validation run against the new pipeline.
+**Verification first:** `git log --oneline -12 -- apps/qw-oracle/scripts/load-knowledge/ packages/qw-config/scripts/ docs/superpowers/specs/` — should include `db72945 chore(qw-oracle): comment-hygiene on relation_changes UNKNOWN + drop as-any` near the top.
 
 ### Stress test scorecard
 
@@ -36,8 +36,10 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 | A2: 3.6.5 -> 3.6.6 (post-Batch1 re-parse) | 77 | 11/77 (14%) | parser fixes lifted rate 3% -> 14% |
 | A3: 3.1 -> 3.2 (pre-Batch1) | 0 | N/A | catastrophic -- every extractor failed on repo layout |
 | A3 crossover: 3.6.1 -> 3.6.2 (post-Batch1) | 88 | not yet evaluated | root->src layout boundary, 100% real SHA blame |
+| A1: 3.6.8 -> 3.6.9 (post-Batch2) | 7 entity + 12 relation | not yet evaluated | +1 flag_bit creation (fpd_enable_player_count); relation_changes code path active |
+| A2: 3.6.5 -> 3.6.6 (post-Batch2) | 77 entity + 22 relation | 11/77 (14%, unchanged) | flag_bit stable; relation_changes code path active |
 
-7 ezQuake tags loaded (3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, head). Release_notes loaded for 3.6.2, 3.6.6, 3.6.9.
+7 ezQuake tags loaded for entity types (3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, head). flag_bit loaded across 3.6.5, 3.6.6, 3.6.8, 3.6.9, head. Release_notes loaded for 3.6.2, 3.6.6, 3.6.9.
 
 ### Gap catalog (10 items, 4 tiers)
 
@@ -50,8 +52,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 **Tier 2 -- Data completeness:**
 
-5. **`flag_bit` entity type needed.** PEXT_TRANS, FTE_PEXT_COLOURMOD, FPD_*, CVAR_*, STAT_* etc. are all bitmask-domain features ezQuake treats as first-class facts but we don't capture. Probably 200-400 missing entities across history. New extractor + schema migration + type adapter.
-6. **Asset relation diff mode.** asset_extensions / path_rules / cvar_bindings / loader_sites tables are version-keyed but not entity-keyed, so diff-versions skips them. Stable across A1 + A2 (identical 17/25/14/26/110 at both pairs) -- gap didn't bite yet but will over longer spans. Options: extend change_events with nullable columns for relation events, or separate relation_changes table.
+5. ~~`flag_bit` entity type needed.~~ **RESOLVED (Batch 2, 2026-04-21).** Schema v5 adds `flag_bit_versions` table. Extractor `extract-ezquake-flag-bits-clang.py` covers `CVAR_*` (26), `FPD_*` (7), `STAT_*` (17) at ezQuake head = 50 entities. Extensible via `FAMILY_TARGETS` config. Loaded across 5 tags (head + 3.6.5/3.6.6/3.6.8/3.6.9). `PEXT_*`/`FTE_PEXT_*` deferred (0 at head; extractor will pick them up naturally if encountered during historical walks).
+6. ~~Asset relation diff mode.~~ **RESOLVED (Batch 2, 2026-04-21).** Schema v5 adds `relation_changes` table (parallel to `change_events`, relation-keyed with deterministic `row_key_json`). `diff-versions.ts` emits created/deleted/modified rows for all four asset_* tables. Blame intentionally deferred in v5 (`commit_sha='UNKNOWN'`): relation rows don't carry source_file/source_line; proper blame is a Batch 3 item.
 
 **Tier 3 -- Parser precision/recall:**
 
@@ -65,11 +67,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Remaining fix sequencing
 
-**Batch 2 (new data, ~4-6h): gaps 5, 6.**
-`flag_bit` entity type (schema v4->v5, new extractor, new type adapter). Asset relation diff (extend change_events or new relation_changes table). This is where "data completeness" gets its big step up -- ezQuake has ~200-400 flag_bit entities across history that aren't captured today.
-
-**Batch 3 (architectural, ~full day+): gaps 2, 3, 4.**
-Extractor version-tolerance audit -- run against 3.6.0 / 3.2.3 now that layout-detection is in place and catalog what new struct-shape mismatches surface. Struct-field-addition blame correction (per-field source location in extractors). Cvar default-value blame at `Cvar_SetDefault` call sites.
+**Batch 3 (architectural, ~full day+): gaps 2, 3, 4 plus new gap 11 surfaced during Batch 2.**
+Extractor version-tolerance audit -- run against 3.6.0 / 3.2.3 now that layout-detection is in place and catalog what new struct-shape mismatches surface. Struct-field-addition blame correction (per-field source location in extractors). Cvar default-value blame at `Cvar_SetDefault` call sites. Plus the loader-site natural-key fragility surfaced by A1/A2 Batch 2 validation (see gap 11 below).
 
 Then re-run A1, A2, A3 against the fixed pipeline to verify.
 
@@ -83,6 +82,10 @@ Then re-run A1, A2, A3 against the fixed pipeline to verify.
 - **`$dateiso` in backticks doesn't link to the macro** `dateiso`. Backtick extractor preserves the `$` prefix but macros are stored without it. Small parser tweak: strip leading `$` when looking up non-token-primitive candidates. Low priority.
 - **`$`-prefixed identifiers inside backticks** generally need a two-stage lookup: try as `$X` token primitive first, then strip `$` and try as macro. Same tweak as above.
 
+### New follow-ups surfaced during Batch 2
+
+11. **Loader-site natural-key fragility (surfaced during Batch 2 A1/A2 validation).** `asset_loader_sites.canonical_id` is shaped `ezquake:loader_site:<function>_<basename>_<source_line>`. The embedded line number makes the natural key shift whenever upstream edits add or remove lines, producing spurious (created, deleted) pairs in `relation_changes` even when the loader site itself is unchanged. A1 observed 6+6 such pairs; A2 observed 11+11. Underlying row counts remain stable at 110/110 on both pairs, so the noise is purely in the diff stream. Batch 3 candidate fixes: (a) change the canonical_id formula to `<function>_<basename>_<nth-call-in-function>` (line-independent), or (b) add a secondary key that survives line shifts. Either way the extractor is the site of the fix -- the diff pipeline is doing exactly what we asked. Tier 3 (precision/recall).
+
 ### Companion finding: in-repo CHANGELOG exists in older tags
 
 3.1 and 3.2 ship a root-level `CHANGELOG` file (47 lines, self-described as "INCOMPLETE"). Stopped being maintained when GitHub releases took over. Useful context for historical coverage but not reliable enough to replace GitHub release-notes as the canonical source.
@@ -95,9 +98,13 @@ Then re-run A1, A2, A3 against the fixed pipeline to verify.
 
 ### Related
 
-- Batch 1 commit: `18cb835 feat(qw-oracle): Batch 1 gap fixes -- repo-layout tolerance + parser extensions` (14 files, +149/-36).
+- Batch 2 commits: `b9d27a0` (spec) `f76f975` (schema v5) `83c4ff4` (types+upserts+adapter) `279a017`/`17f7603` (extractor) `2af6d6f` (flag_bit diff config) `c7f26ee`/`db72945` (relation_changes diff).
+- Batch 2 plan: `docs/superpowers/plans/2026-04-21-phase-2f-batch-2.md` (11 tasks, 3+4 folded due to typecheck-atomicity).
+- Batch 2 spec: `docs/superpowers/specs/2026-04-21-qw-knowledge-schema-v5-flag-bits-and-relation-changes.md`.
+- Batch 2 validation note: `/tmp/batch2-validation.md` (observed counts, loader-site finding).
+- Batch 1 commit: `18cb835 feat(qw-oracle): Batch 1 gap fixes -- repo-layout tolerance + parser extensions`.
 - Prior commits: `b1b7d9c` (Phase A1 + Phase B pipeline foundation), `8bf832b` (ruleset extractor patch + original gap catalog).
-- Loader code: `apps/qw-oracle/scripts/load-knowledge/` (generalized diff with per-version blame prefix, release_notes ingestion at v4).
+- Loader code: `apps/qw-oracle/scripts/load-knowledge/` (generalized diff, release_notes at v4, flag_bit + relation_changes at v5).
 - Memory: `project_qw_oracle_vision.md` holds Phase 2f roadmap; this catalog is Phase 2f prerequisites.
 
 ---

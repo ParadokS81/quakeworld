@@ -380,3 +380,80 @@ FROM asset_cvar_bindings WHERE cvar_canonical_id='ezquake:cvar:r_skyname';
   Future seed tuning should watch the `seedNotCorroborated` count drop
   as either the seed or the auto-pass improves; today's high number
   reflects the data-flow gap rather than seed inaccuracy.
+
+---
+
+# E2E verification - Phase 2f Batch 2 (schema v5: flag_bit + relation_changes)
+
+Batch 2 adds a 10th entity type (`flag_bit`) and a parallel diff stream
+(`relation_changes`) for the four asset relation tables. Schema bumped
+to v5.
+
+## flag_bit head load verification
+
+```sql
+SELECT COUNT(*) FROM entities WHERE type='flag_bit' AND project='ezquake';
+-- expect: 50 at head (26 cvar_flag + 7 fpd_flag + 17 stat_const)
+
+SELECT bitmask_family, COUNT(*) FROM flag_bit_versions
+WHERE version = 'head'
+GROUP BY bitmask_family;
+-- expect: cvar_flag 26, fpd_flag 7, stat_const 17
+```
+
+## flag_bit spot-check
+
+```sql
+SELECT e.name, fv.bitmask_family, fv.value_raw, fv.value_numeric,
+       fv.source_file, fv.source_line
+FROM entities e JOIN flag_bit_versions fv ON fv.entity_id = e.id
+WHERE e.name IN ('cvar_archive','fpd_no_timers','stat_health');
+-- expect:
+--   cvar_archive   cvar_flag   (1<<0)  1  cvar.h       31
+--   fpd_no_timers  fpd_flag    2       2  teamplay.h  107
+--   stat_health    stat_const  0       0  common.h     86
+```
+
+## flag_bit diff coverage
+
+A1 (3.6.8 -> 3.6.9) observed: 1 created (`fpd_enable_player_count` --
+a genuinely new FPD flag), 0 modified, 0 deleted.
+A2 (3.6.5 -> 3.6.6) observed: 0 changes (families stable).
+
+```sql
+SELECT ce.change_kind, e.name FROM change_events ce
+JOIN entities e ON e.id = ce.entity_id
+WHERE e.type='flag_bit' AND ce.to_version='3.6.9'
+ORDER BY ce.change_kind, e.name;
+-- expect: 1 row: created | fpd_enable_player_count
+```
+
+## relation_changes coverage
+
+```sql
+SELECT relation_table, change_kind, COUNT(*) FROM relation_changes
+WHERE to_version IN ('3.6.9','3.6.6')
+GROUP BY relation_table, change_kind, to_version;
+```
+
+Observed on A1 / A2 validation runs: `asset_loader_sites` emits
+created/deleted pairs where upstream edits shifted source_line numbers
+(the loader-site canonical_id embeds the line). Underlying row counts
+are stable at 110/110; the diff is surfacing a natural-key coupling
+issue in the loader-site extractor, not real churn. Batch 3 item. The
+other three relation tables (asset_extensions, asset_path_rules,
+asset_cvar_bindings) correctly emit 0 rows as expected.
+
+## Data-quality signals surfaced by Phase 2f Batch 2
+
+- **Loader-site natural-key fragility.** `asset_loader_sites.canonical_id`
+  is `<function>_<basename>_<source_line>`. Any edit above a loader site
+  shifts the line and produces a spurious (created, deleted) pair in
+  relation_changes even when the site itself is unchanged. Row counts
+  remain stable; the noise is purely in the diff stream. Batch 3
+  candidate fix: change the canonical_id formula to be line-independent
+  (e.g. `<function>_<basename>_<nth-call-in-function>`) or add a
+  secondary key that survives line shifts.
+- **flag_bit diff runs green.** The new entity type flows through the
+  full pipeline (extractor -> load-version -> diff -> change_events)
+  without friction. Single real creation on A1 validates end-to-end.
