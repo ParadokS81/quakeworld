@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Phase 2f Batch 2 shipped 2026-04-21 - flag_bit entity type + relation_changes diff coverage, schema v5.
+**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Phase 2f Batch 3 shipped 2026-04-21 - schema v6 source_overrides blame index, per-field extractor emissions, diff-pipeline blame override; all 11 stress-test gaps closed.
 
 ## What this is
 
@@ -8,7 +8,7 @@ Oracle maintains two SQLite stores side-by-side:
 
 | Database | Purpose | Populated |
 |---|---|---|
-| `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits). Source-derived, version-aware, canonical. | ezQuake across 5 tags + head (3912 entities across 10 types, schema v5). FTE/MVDSV/KTX pending. |
+| `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits) plus a source_overrides blame index. Source-derived, version-aware, canonical. | ezQuake across 7 tags + head (schema v6). FTE/MVDSV/KTX pending. |
 | `data/qw.db` | **Layer 2** - community chat corpus (IRC 2005-2016 + Discord 2016-present). ~2.66M messages. | Fully imported. Processing pipeline not yet built. |
 
 A future **Layer 3** (curated concept notes adapted from ezquake.com docs and community wisdom) is not yet populated.
@@ -18,7 +18,7 @@ A future **Layer 3** (curated concept notes adapted from ezquake.com docs and co
 | When you need... | Read... |
 |---|---|
 | Vision, three paths (Oracle Bot / Digest / Time Machine), active-assistance product framing | `VISION.md` (note: pending reframe per HANDOVER) |
-| Schema-as-code (v5 tables, migrations) | `scripts/load-knowledge/schema.ts` |
+| Schema-as-code (v6 tables, migrations) | `scripts/load-knowledge/schema.ts` |
 | Knowledge-loader pipeline (types, adapters, CLI) | `scripts/load-knowledge/` |
 | End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
 | Layer 1 extractors (Python + libclang for ezQuake) | `packages/qw-config/scripts/extract-ezquake-*-clang.py` |
@@ -44,7 +44,7 @@ apps/qw-oracle/
 ├── tsconfig.json
 ├── scripts/
 │   ├── load-knowledge/ # Layer 1 loader (TypeScript)
-│   │   ├── schema.ts           # v5 schema + migrations
+│   │   ├── schema.ts           # v6 schema + migrations
 │   │   ├── index.ts            # CLI: load-version, load-assets, diff, enrich
 │   │   ├── load-version.ts     # per-type adapter dispatch
 │   │   ├── load-assets.ts      # relation-row loader (asset_* tables)

@@ -457,3 +457,111 @@ asset_cvar_bindings) correctly emit 0 rows as expected.
 - **flag_bit diff runs green.** The new entity type flows through the
   full pipeline (extractor -> load-version -> diff -> change_events)
   without friction. Single real creation on A1 validates end-to-end.
+
+## E2E verification - Phase 2f Batch 3
+
+Batch 3 landed the `source_overrides` blame index (schema v6) so `diff-versions.ts`
+consults per-field / per-call-site source locations when generating change_events,
+rather than always anchoring blame on the entity's primary source_ref. The effect is
+a more semantically-correct commit attribution for fields that live on a shared
+struct (rulesets, hud_elements) or are set via call-site rather than declaration
+(cvar default_value).
+
+### Schema v6 migration sanity
+
+```sql
+SELECT value FROM schema_meta WHERE key='schema_version';
+-- expect: 6
+
+.schema source_overrides
+-- expect: PK (entity_id, version, field_name), CHECK on override_kind
+-- in ('struct_field_decl','call_site','header_declaration').
+```
+
+### source_overrides population by kind
+
+```sql
+SELECT override_kind, COUNT(*) FROM source_overrides
+GROUP BY override_kind;
+-- post-Batch3 observed (ezQuake head + 3.6.5/3.6.6/3.6.8/3.6.9 loaded):
+--   header_declaration | 2478   (hud_element HUD_Register call sites)
+--   struct_field_decl  |  341   (ruleset rulesetDef_t field declarations)
+--   call_site          |    5   (cvar Cvar_SetDefault / Cvar_ForceSet anchors)
+```
+
+### source_overrides population by version
+
+```sql
+SELECT version, COUNT(*) FROM source_overrides
+GROUP BY version ORDER BY version;
+-- expect a row per loaded historical tag; head populated last.
+```
+
+### Override spot-checks
+
+```sql
+-- Ruleset: maxfps field declared in struct
+SELECT e.name, so.override_kind, so.source_file, so.source_line
+FROM source_overrides so JOIN entities e ON e.id = so.entity_id
+WHERE so.version='3.6.6' AND so.field_name='maxfps'
+ORDER BY e.name;
+-- expect: all rulesets map to rulesets.c struct line (same line for each, because
+-- the struct field declaration is a single site shared across all rulesets of the
+-- same type -- that's the point).
+
+-- HUD element: flags_raw from HUD_Register header call
+SELECT COUNT(*) FROM source_overrides
+WHERE version='3.6.6' AND field_name='flags_raw';
+-- expect: 82 (one per HUD element).
+
+-- Cvar: default_value from Cvar_SetDefault call site
+SELECT e.name, so.source_file, so.source_line
+FROM source_overrides so JOIN entities e ON e.id = so.entity_id
+WHERE so.version='3.6.6' AND so.field_name='default_value'
+  AND so.override_kind='call_site'
+LIMIT 10;
+-- expect: handful of cvars whose defaults are set via Cvar_SetDefault /
+-- Cvar_ForceSet / Cvar_LockDefault rather than the initial declaration.
+```
+
+### Blame attribution improvement (A2 ruleset mods)
+
+```sql
+-- Pre-Batch3 baseline (from knowledge.db.bak-pre-v6): 4 distinct commits + 5 UNKNOWN
+-- Post-Batch3: 1 distinct commit, 0 UNKNOWN.
+-- The single commit (2dbb3f1d...) is the one that added the restrict_* fields to
+-- the rulesetDef_t struct. All 5 rulesets legitimately share the same semantic
+-- author for those fields.
+SELECT commit_sha, COUNT(*) FROM change_events ce
+JOIN entities e ON e.id = ce.entity_id
+WHERE e.type='ruleset' AND ce.to_version='3.6.6' AND ce.change_kind='modified'
+GROUP BY commit_sha ORDER BY COUNT(*) DESC;
+```
+
+### Loader-site natural-key stability (resolved gap 11)
+
+```sql
+SELECT change_kind, COUNT(*) FROM relation_changes
+WHERE relation_table='asset_loader_sites' AND to_version='3.6.6'
+GROUP BY change_kind;
+-- post-Batch3 expect: 0 created / 0 deleted spurious pairs (down from 11+11 before
+-- the ordinal-based canonical_id fix). Underlying row counts stable at 110/110.
+```
+
+### Data-quality signals surfaced by Phase 2f Batch 3
+
+- **Blame override is only as granular as the extractor emits.** For rulesets the
+  struct_field_decl is the authoritative author of the field; all rulesets share
+  the same struct line because the struct is shared. That's the correct blame. If
+  a future extractor wants per-instance assignment-site blame it can emit both
+  kinds (struct_field_decl + call_site) and the resolver's kind priority picks
+  the more specific one.
+- **`owned_cvars_json` has no field_source_lines entry.** HUD element changes to
+  `owned_cvars_json` (the JSON-stringified list of owned cvars) fall back to the
+  loader function anchor; the field is synthesized by the adapter, not declared
+  in a struct. Low-priority to resolve; the loader function is a reasonable
+  blame target for schema changes driven by cvar additions.
+- **Cvar default_value override is best-effort regex.** Anchored on `&cvar_name`
+  literal matches for Cvar_SetDefault / Cvar_ForceSet / Cvar_LockDefault. Macro-
+  expanded or array-subscript forms (`&cvars[i]`) won't match; those fall back to
+  the cvar declaration blame. YAGNI until evidence demands an AST walk.
