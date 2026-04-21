@@ -14,7 +14,8 @@ export type EntityType =
   | 'hud_element'
   | 'ruleset'
   | 'token_primitive'
-  | 'asset_category';
+  | 'asset_category'
+  | 'flag_bit';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'
@@ -520,6 +521,64 @@ export interface ReleaseNoteRow {
   pr_numbers_json: string | null;
   author_handles_json: string | null;
   raw_body_hash: string | null;
+  extracted_at: string;
+}
+
+// --- Phase 2f Batch 2: flag_bit + relation_changes ---------------------------
+
+export type FlagBitFamily =
+  | 'cvar_flag'
+  | 'fpd_flag'
+  | 'stat_const'
+  | 'other';
+
+export interface FlagBitAstBlock {
+  bitmask_family: FlagBitFamily;
+  value_raw: string;
+  value_numeric: number | null;
+  source_file: string;
+  source_line: number;
+}
+
+export interface FlagBitEntry {
+  ast: FlagBitAstBlock | null;
+}
+
+export interface FlagBitExtractorOutput {
+  flag_bits: Record<string, FlagBitEntry>;
+  _stats?: Record<string, unknown>;
+}
+
+export interface FlagBitVersionRow {
+  entity_id: number;
+  version: string;
+  bitmask_family: FlagBitFamily;
+  value_raw: string | null;
+  value_numeric: number | null;
+  source_file: string | null;
+  source_line: number | null;
+  raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export type RelationTable =
+  | 'asset_extensions'
+  | 'asset_path_rules'
+  | 'asset_cvar_bindings'
+  | 'asset_loader_sites';
+
+export interface RelationChangeRow {
+  relation_table: RelationTable;
+  project: Project;
+  from_version: string | null;
+  to_version: string;
+  change_kind: ChangeKind;
+  row_key_json: string;
+  field_name: string;
+  old_value: string | null;
+  new_value: string | null;
+  commit_sha: string;
+  commit_message_excerpt: string | null;
   extracted_at: string;
 }
 

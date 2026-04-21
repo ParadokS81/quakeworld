@@ -16,10 +16,12 @@ import type {
   CommandVersionRow,
   CvarVersionRow,
   EntityType,
+  FlagBitVersionRow,
   HudElementVersionRow,
   KeynameVersionRow,
   MacroVersionRow,
   Project,
+  RelationChangeRow,
   ReleaseNoteRow,
   RulesetVersionRow,
   SourceState,
@@ -344,6 +346,32 @@ export function upsertAssetLoaderSite(db: Database.Database, row: AssetLoaderSit
       @source_file, @source_line, @source_column, @enclosing_function,
       @reads_category_id, @load_trigger, @path_source, @path_literal, @path_cvar_id,
       @confidence, @dev_only, @notes, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertFlagBitVersion(db: Database.Database, row: FlagBitVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO flag_bit_versions (
+      entity_id, version, bitmask_family, value_raw, value_numeric,
+      source_file, source_line, raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version, @bitmask_family, @value_raw, @value_numeric,
+      @source_file, @source_line, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertRelationChange(db: Database.Database, row: RelationChangeRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO relation_changes (
+      relation_table, project, from_version, to_version, change_kind,
+      row_key_json, field_name, old_value, new_value,
+      commit_sha, commit_message_excerpt, extracted_at
+    ) VALUES (
+      @relation_table, @project, @from_version, @to_version, @change_kind,
+      @row_key_json, @field_name, @old_value, @new_value,
+      @commit_sha, @commit_message_excerpt, @extracted_at
     )
   `).run(row);
 }

@@ -69,6 +69,12 @@ import {
   buildAssetCategoryVersionRow,
   upsertAssetCategoryRow,
 } from './load-asset-categories.js';
+import {
+  FLAG_BIT_PAYLOAD_FIELD,
+  buildFlagBitVersionRow,
+  flagBitIsSourceBacked,
+  upsertFlagBitRow,
+} from './load-flag-bits.js';
 import type {
   EntityType,
   Project,
@@ -177,6 +183,13 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: assetCategoryIsSourceBacked,
     buildRow: buildAssetCategoryVersionRow,
     upsertRow: upsertAssetCategoryRow,
+  },
+  flag_bit: {
+    payloadField: FLAG_BIT_PAYLOAD_FIELD,
+    versionsTable: 'flag_bit_versions',
+    isSourceBacked: flagBitIsSourceBacked,
+    buildRow: buildFlagBitVersionRow,
+    upsertRow: upsertFlagBitRow,
   },
 };
 
