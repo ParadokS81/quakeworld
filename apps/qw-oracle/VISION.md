@@ -20,7 +20,7 @@ Three data layers plus the machinery that fills and serves them.
 
 - **Layer 1** - `data/knowledge.db`. Source-extracted engine facts. cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset consumption, flag bits. Every fact carries a version range and per-field blame. This is the authoritative "how does the engine actually work" tier.
 - **Layer 2** - `data/qw.db`. 2.66M community chat messages from QuakeNet IRC (2005-2016, 1.94M) and Quake.World Discord (2016-present, 717K). Raw + FTS5 search index. This is the tribal-knowledge tier: debugging sessions, config discussions, gameplay debates, community history.
-- **Layer 3** - hand-authored concept notes. Not yet populated. Intended to hold curated patterns, idioms, and explanations that synthesize Layer 1 + Layer 2 into usable guidance (e.g., "the weapon-script pattern," "the teamsay grammar," "the asset-override model").
+- **Layer 3** - hand-authored concept notes. Bootstrapped 2026-04-22 with two prototype notes. Intended to hold curated patterns, idioms, and explanations that synthesize Layer 1 + Layer 2 into usable guidance (e.g., "the weapon-script pattern," "the teamsay grammar," "the asset-override model"), plus consumer-facing classifier metadata that Layer 1 alone cannot produce (ecosystem provenance, file-type visibility axes). See `concept-notes/README.md` for the authoring template.
 
 ### Backstage: extraction and loading
 
@@ -65,7 +65,7 @@ Digest / newsletter ("what happened while I was away") and time-machine ("what w
 
 Layer 1 extraction for ezQuake is active and shipping. The schema is stable at v6; head is fully loaded across 10 entity types (3899 entities total) plus 4 asset relation tables. Historical backfill across ezQuake's ~15 release tags is the next major push and is unblocked by the recent extraction-pipeline speedups. FTE, MVDSV, and KTX ports come after.
 
-Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline - tier classification, session segmentation, summarization - has not been the current focus. Layer 3 is planned but not populated.
+Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline - tier classification, session segmentation, summarization - has not been the current focus. Layer 3 has its first prototype notes (2026-04-22); broader population is ongoing as consumer questions surface material Layer 1 alone cannot answer.
 
 The MCP surface is live (local server, Claude Code consumer). Snapshot distribution is a forward commitment; slipgate's current qw-config JSON consumption is the pre-snapshot state.
 

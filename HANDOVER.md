@@ -9,54 +9,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status
 - [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
-
----
-
-## Pass 2 follow-up: asset-extension per-row verification-status audit
-
-**Added:** 2026-04-22 (evening, during Pass 2)
-**Status:** Pass 2 flagged 7 rows in `packages/qw-config/seeds/ezquake-asset-extensions.yaml` as "audit pending" for verification-status: `.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`. The Pass 2 doc (`apps/qw-oracle/docs/entity-types.md` § asset_extensions) documents the shape of the audit without executing the row-level stamp.
-**Verification first:** Check whether `entity-types.md` § asset_extensions still lists "audit pending" for these seven extensions; if all seven are stamped with a real verification-status, this entry is resolved.
-
-The audit is mechanical: for each of the seven extensions, walk the ezQuake source and either (a) find a concrete loader site that reads the extension and stamp `ast_verified`; (b) find no loader evidence and stamp `seed_only_no_ast_support` (likely for `.qwz` which is decoded externally by qwdtools); or (c) find the loader site was removed at a specific commit and stamp `orphaned_historical` (as already done for `.kmap`).
-
-Best done alongside or after Phase 2f historical backfill, when the extraction toolchain is warm and cross-version visibility is at its best. Not blocking Pass 3.
-
-### Fix shape
-
-1. Run the unified extractor's `asset-loader-sites` handler and query `reads_category_id` groupings for each of the seven extensions.
-2. For any extension with zero loader sites at head, check git history via `git log -p -- <plausible path>` to find the commit that removed loader support (the `.kmap` case is the template; commit `46b5046` removed keymap loading on 2014-01-12).
-3. Stamp each row's status in the entity-types.md sub-section. Do NOT edit the seed YAML - document findings, don't silently fix.
-4. If an extension is confirmed `orphaned_historical`, open a separate future-pass HANDOVER item for seed-YAML cleanup (category decision: keep-as-archive vs remove).
-
-### Related
-
-- Pass 2 doc: `apps/qw-oracle/docs/entity-types.md` § asset_extensions.
-- Seed: `packages/qw-config/seeds/ezquake-asset-extensions.yaml`.
-- `.kmap` template finding: ezQuake commit `46b5046` (2014-01-12) removed keymap loader.
-- Pre-existing related entry: "Asset-bundle loader-family gaps" in the Phase 2d-2h umbrella section lower down (the audit and the gap-fill work are complementary).
-
-### Session-start template (use exactly this)
-
-> Execute Pass N of the knowledge-service realignment roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Read the roadmap's Pass N section and the shared tier-model section. Do exactly what the pass specifies, nothing more. Flag scope creep and ask before expanding. End with acceptance criteria verified and commit.
-
-### Dependencies
-
-Pass 2 starts only after Pass 1 is committed (Pass 2 writeups use tier-aligned language from Pass 1). Pass 3 starts only after Pass 2 is committed (Pass 3's JSON content is sourced from Pass 2's doc).
-
-### Pressure
-
-Not blocking anything concrete. But user identified this realignment as preventing **wrong inferences** — the docs-vs-reality drift causes Claude sessions to make incorrect assumptions. Running the three passes at any sustainable cadence (not necessarily back-to-back) pays down that cognitive debt.
-
-### Related files
-
-- Roadmap: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`
-- Dashboard mockup (Pass 3 target): `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`
-- Prior frame-setting: `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md`
-- Doc philosophy baseline: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 
 ---
 
@@ -104,10 +58,10 @@ Backward walk (head → oldest) is the alternative; weaker because head's classi
 
 If head is still unfinished when backfill runs, every tag-pair surfaces "novelty vs already-unclassified-at-head" ambiguity. Four items to land at head first so backfill asks crisp questions:
 
-1. **Audit the 7 pending asset-extensions** (the HANDOVER item above - `.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`). Stamp each.
-2. **Classify the 25 `unclassified` asset_loader_sites at head** (out of 110 total). Promote to `heuristic` or `certain`, or mark intentionally-unclassified with reason.
-3. **Decide `seed_only_no_ast_support` schema policy.** `.dll` (intentional cross-engine signal) and `.kmap` (orphaned) need first-class DB representation - a `verification_status` column on relevant tables, or a separate annotations table - so the review skill can query for them cleanly. Today both are implicit in seed comments.
-4. **Write at least one Layer 3 concept note as a prototype.** The `.kmap` story is the natural first note. Establishes the shape; backfill will surface more candidates.
+1. **Audit the 7 pending asset-extensions** (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`). **DONE 2026-04-22.** All seven stamped `ast_verified` in `apps/qw-oracle/docs/entity-types.md` § asset_extensions. Four backed by DB rows post-reload (`.loc`, `.lit`, `.dat`, `.qwz`); three verified via grep-cited source (`.log`, `.xml`, `.spr`) where the loader uses a wrapper not on the `LOADER_FUNCTIONS` watchlist. Three wrapper-gap classes surfaced (raw `fopen`, `CPageViewer_GoUrl`, `cl_modelnames[]` table-indirection); the other terminal has been iterating on extractor coverage. See `reference_asset_loader_extractor_capabilities.md` memory for current watchlist state.
+2. **Classify the 25 `unclassified` asset_loader_sites at head** (out of 110 total). Open. Framing refined during the 7-extension audit: the real shape is "widen the extractor to include wrapper classes it currently misses, THEN classify what's left," not "stamp the existing 25." The 25 are the generic-FS-primitive sub-class (`FS_OpenVFS`, `FS_LoadFile` etc. in `fs.c`) — arguably a distinct `intentionally_generic` confidence bucket rather than classifications to promote.
+3. **Decide `seed_only_no_ast_support` schema policy.** Open. `.dll` (intentional cross-engine signal) and `.kmap` (orphaned) need first-class DB representation - a `verification_status` column on relevant tables, or a separate annotations table - so the review skill can query for them cleanly. Today both are implicit in seed comments plus the entity-types.md prose audit.
+4. **Write at least one Layer 3 concept note as a prototype.** **DONE 2026-04-22.** Two notes shipped in `apps/qw-oracle/concept-notes/`: `kmap-legacy-keymap-system.md` (historical-narrative shape, ~135 lines) and `engine-internal-vs-player-facing-files.md` (classifier-taxonomy shape, ~100 lines). Template documented in `concept-notes/README.md` - outer frame (Summary / topic-specific body / Consumer implications / References / Related) tested across both shapes without forcing. Layer 3 directory is the new home; `get_concept_note` MCP integration is future work.
 
 ### Proposed shape of the skill + CLI
 

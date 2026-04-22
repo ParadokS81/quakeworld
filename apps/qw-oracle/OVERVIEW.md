@@ -15,7 +15,7 @@ Two SQLite databases side by side at `data/`:
 | `knowledge.db` | Layer 1 | Source-extracted engine facts: cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset-consumption model, flag bits. Per-version history + per-field diff stream + commit blame. Covered by `SCHEMA.md`. |
 | `qw.db` | Layer 2 | 2.66M community chat messages (1.94M QuakeNet IRC 2005-2016 + 717K Quake.World Discord 2016-present). Raw + FTS5 search index. |
 
-A future **Layer 3** (hand-authored concept notes adapted from ezquake.com docs and community wisdom) is not yet populated.
+**Layer 3** (hand-authored concept notes that synthesize Layer 1 + Layer 2 into usable guidance) was bootstrapped 2026-04-22 with two prototype notes under `concept-notes/`. The `get_concept_note` MCP tool will eventually serve this directory; no MCP integration exists yet. See `concept-notes/README.md` for the note-authoring template and trigger criteria.
 
 Both are gitignored — they regenerate from source (Layer 1) or from raw import dumps (Layer 2).
 

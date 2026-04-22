@@ -11,7 +11,7 @@ Oracle maintains two SQLite stores side-by-side:
 | `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits) plus a source_overrides blame index. Source-derived, version-aware, canonical. | ezQuake across 7 tags + head (schema v6). FTE/MVDSV/KTX pending. |
 | `data/qw.db` | **Layer 2** - community chat corpus (IRC 2005-2016 + Discord 2016-present). ~2.66M messages. | Fully imported. Processing pipeline not yet built. |
 
-A future **Layer 3** (curated concept notes adapted from ezquake.com docs and community wisdom) is not yet populated.
+**Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) bootstrapped 2026-04-22 with two prototype notes at `concept-notes/`. `get_concept_note` MCP tool integration is future work.
 
 ## Where to find things
 
@@ -63,7 +63,9 @@ apps/qw-oracle/
 │   ├── knowledge.db    # Layer 1 (gitignored)
 │   └── qw.db           # Layer 2 (gitignored)
 ├── docs/
+│   ├── entity-types.md # Layer 1 per-entity-type reference with verification-status audit
 │   └── plan.md         # legacy Layer 2 pipeline plan
+├── concept-notes/      # Layer 3 hand-authored notes + authoring template
 └── memory/             # prototyping artifacts
 ```
 
