@@ -6,6 +6,8 @@ Living map of what is in this project right now. If you want why it exists, see 
 
 ## What the project is
 
+Oracle is the **knowledge service** for the monorepo: three data layers plus the machinery around them. See `VISION.md` for the framing; this OVERVIEW is the current-state map.
+
 Two SQLite databases side by side at `data/`:
 
 | File | Layer | What it is |
@@ -67,7 +69,9 @@ One file per entity type at `scripts/load-knowledge/load-<type>.ts`. Each is ~40
 
 ### Where extractors live
 
-Extractors are NOT in this directory — they live in `packages/qw-config/scripts/` because the JSON they produce is a shared contract, not just oracle's input. Python + libclang 18 for ezQuake; tree-sitter (TBD) for KTX.
+The extractor fleet is **oracle's responsibility** - it produces Layer 1 facts - even though the scripts currently live in `packages/qw-config/scripts/` rather than in this directory. The location is a historical accident: slipgate-app originally scraped ezQuake in qw-config, and the AST extractors grew in the same folder. When slipgate migrates to oracle-snapshot consumption, the extractor scripts relocate into oracle's build and `packages/qw-config/` dissolves.
+
+Python + libclang 18 for ezQuake; tree-sitter (TBD) for KTX.
 
 | Extractor | Output JSON |
 |---|---|
@@ -121,11 +125,19 @@ The Layer 2 corpus is imported into `data/qw.db` and a basic FTS5 search index e
 
 This list is a file inventory, not a working map. Before the next Layer 2 push, this section needs its own audit pass — which scripts are current, which are scratchpads to delete, which compose into a pipeline. See HANDOVER for the follow-up item if one exists; if not, add one when Layer 2 work restarts.
 
-## MCP integration
+## Serving surfaces
 
-Claude Code sessions consume Layer 1 via a local MCP server (tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`). The server itself is NOT in this directory — it lives elsewhere in the monorepo's MCP infrastructure. What lives here is the SQLite DB it queries and the schema it queries against.
+Two paths through which consumers reach the knowledge foundation. See `VISION.md` § "Serving surfaces" for the framing.
 
-Future outlets planned: Quad (Discord) answering player questions in-channel, slipgate web chat surface, Slipgate desktop helper panel.
+### MCP (live)
+
+Claude Code sessions consume Layer 1 via a local MCP server (tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`). The server itself is NOT in this directory - it lives elsewhere in the monorepo's MCP infrastructure. What lives here is the SQLite DB it queries and the schema it queries against.
+
+Future MCP consumers: quad chatbot mode (Discord), a new chatbot app, slipgate web chat surface.
+
+### Snapshot distribution (forward commitment)
+
+Consumer-tailored JSON snapshots pre-computed from Layer 1. Deterministic, shipped with the consumer, no runtime dependency on oracle. Not yet implemented as a first-class output of this project; slipgate-app's ConfigViewer is the canonical case and will be the first real consumer. The current state is legacy: slipgate reads `packages/qw-config/src/data/*.json` produced by the scraping predecessors. When oracle's extraction pipeline is feature-complete, a `build-snapshot` CLI will produce slipgate-shaped snapshots from the same Layer 1 data the loader writes.
 
 ## Parked with purpose
 
@@ -135,14 +147,15 @@ Future outlets planned: Quad (Discord) answering player questions in-channel, sl
 
 ## Integration points
 
-- **Consumes:** `packages/qw-config/src/data/*-ast.json` (extractor outputs), `packages/qw-config/seeds/*.yaml` (seed taxonomies), ezQuake source at `research/repos/ezquake-source` (git blame + tag resolution), GitHub API (release bodies + PR enrichment).
+- **Consumes:** `packages/qw-config/src/data/*-ast.json` (extractor outputs - transitionally hosted, see "Where extractors live"), `packages/qw-config/seeds/*.yaml` (seed taxonomies - same transitional status), ezQuake source at `research/repos/ezquake-source` (git blame + tag resolution), GitHub API (release bodies + PR enrichment).
 - **Produces:** `data/knowledge.db` (Layer 1), `data/qw.db` (Layer 2).
-- **Consumed by:** MCP server (local) → Claude sessions. Slipgate desktop (planned helper panel). Quad Discord bot (planned). Future slipgate web chat surface.
+- **Consumed by:** MCP server (local) -> Claude Code sessions (live). Planned MCP consumers: quad chatbot mode, a new chatbot app, slipgate web chat surface. Planned snapshot consumers: slipgate-app ConfigViewer (replaces the current qw-config-JSON path).
 
 ## What this doc intentionally does NOT cover
 
-- **Layer 1 data model** — `SCHEMA.md`.
-- **Why this project exists / three paths / long-term vision** — `VISION.md` (note: reframe to "active assistance" pending per HANDOVER).
-- **Rules for Claude sessions** — `CLAUDE.md`.
-- **Per-migration design intent** — `docs/superpowers/specs/` (the v1 / v5 / v6 specs).
-- **Verification queries** — `scripts/load-knowledge/e2e-verify.md`.
+- **Layer 1 data model** - `SCHEMA.md`.
+- **Per-entity-type formal documentation (what each type is, why we extract it, who consumes it)** - scheduled as Pass 2 of the 2026-04-22 knowledge-service realignment roadmap. Output location: `apps/qw-oracle/docs/entity-types.md` when Pass 2 ships. Pass 2 also introduces **verification status** (ast_verified / seed_only_with_ast_support / seed_only_no_ast_support / orphaned_historical) as a first-class field on each entity type, surfacing cases like `.kmap` where a seed-YAML entry predates loader support being removed.
+- **Why this project exists / the service shape / long-term vision** - `VISION.md`.
+- **Rules for Claude sessions** - `CLAUDE.md`.
+- **Per-migration design intent** - `docs/superpowers/specs/` (the v1 / v5 / v6 specs).
+- **Verification queries** - `scripts/load-knowledge/e2e-verify.md`.

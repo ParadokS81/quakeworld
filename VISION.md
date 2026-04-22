@@ -32,6 +32,39 @@ Five reasons, roughly in order of practical weight:
 - **One working directory for Claude.** A Claude session can explore and edit all five apps from a single working directory. Cross-app refactors (renaming a shared Firestore field, updating a contract) happen in one branch with one mental model.
 - **Cheap context switching for the user.** Solo developer maintaining all five apps. Keeping everything in one place lowers the mental cost of jumping between them.
 
+## The emerging ecosystem
+
+The monorepo started as "five apps sharing a workshop." What has emerged since is a clearer shape: one of those apps (qw-oracle) is turning into a **knowledge service** that the others consume, and several future products (two web services, a chatbot mode on an existing app, a new chatbot app) are lining up to consume it as well. This section names that shape explicitly so future sessions inherit the right mental model.
+
+### Two parts: knowledge foundation and consumers
+
+**qw-oracle is the knowledge service.** It holds three data layers (Layer 1 source-extracted engine facts, Layer 2 community chat corpus, Layer 3 curated concept notes) plus the backstage machinery that fills them (AST extractors, seed YAMLs, loader pipeline). The service is not a chatbot. A chatbot is a consumer built on top.
+
+**Consumers** read the knowledge service via one of two serving surfaces:
+
+- **MCP** - live queries, interactive access. Used by Claude Code today; future chatbots.
+- **Snapshot distribution** - consumer-tailored JSON snapshots produced from the same foundation. Used by clients that need deterministic, pre-computed inputs (slipgate-app's ConfigViewer is the canonical case - it ships with a snapshot of the cvar facts its features need, not a live MCP dependency).
+
+The live consumers today are Claude Code (MCP) and slipgate-app (snapshot, though currently reading legacy scraped JSON from `packages/qw-config/` pending migration to oracle-produced snapshots). Future consumers are scoped below.
+
+### Web services family
+
+Three community-facing web services are in the product direction, all siblings of the desktop app and all consuming the same knowledge service:
+
+- **assets.quake.world** - catalog of custom content: skins, crosshairs, conchars, HUD overlays. Metadata, comments, provenance.
+- **maps.quake.world** - map catalog with custom textures / lits / locs / mapshots cross-linked to tournament data.
+- **hub.quake.world** - already exists; played matches with browser replay. The upstream of the Matches domain.
+
+All three follow the same philosophy: curated central catalogs with per-asset metadata, navigable via web, consumable via the slipgate app. The app and the web services share a frontend stack so features flow between them.
+
+A **content hash** (sha256 of file bytes) is the universal join key across local-dir, central-catalog, and GitHub-backup contexts. The local app authors no metadata beyond the hash; all descriptive metadata (name, creator, categorization, bundle membership) lives centrally and is fetched by hash lookup. This enables curated bundle subscriptions: users subscribe to bundles (e.g. "Tournament Maps 2026"), the central catalog pins a hash list per bundle version, slipgate diffs local hashes against the manifest, pulls missing entries, optionally prunes stale.
+
+### qw-config is transitional
+
+`packages/qw-config/` is a holding pen, not a permanent part of the structure. It exists because slipgate-app originally scraped ezQuake for its ConfigViewer and the scraping code grew there. The AST extractors that later landed there are legitimately oracle's machinery - but their hosting location is historical accident. When oracle's extraction pipeline is feature-complete and slipgate migrates to oracle-snapshot consumption, qw-config dissolves: extractors relocate into oracle's build; slipgate's inputs become oracle snapshots.
+
+Docs name this honestly rather than papering over it. Pass 1 of the 2026-04-22 realignment roadmap captured this framing.
+
 ## Who it's for
 
 ParadokS as product owner and vibe coder. Claude Code (the CLI harness) as the engineer doing most of the keyboard work. Anthropic's Claude family of models as the brain.
@@ -46,7 +79,7 @@ Not every app will live in this monorepo forever. The workshop framing is delibe
 - **quad** - candidate to graduate. Stable, integration-critical Discord bot with a clean boundary. Maintenance.
 - **matchscheduler** - will NOT graduate as-is. It will be rebuilt from scratch inside slipgate web in SolidJS. Effective-legacy today: still serving, but not evolving.
 - **qw-stats** - uncertain graduation. The production API deployed on Unraid is useful today; the ranking research half is stalled. Paused.
-- **qw-oracle** - workshop-only for the foreseeable future. Idea-stage community knowledge base with a 2.66M message SQLite archive. Paused.
+- **qw-oracle** - workshop-only for the foreseeable future, but now the monorepo's structural center of gravity. The knowledge service consumed by Claude Code today (MCP) and soon by slipgate-app (snapshot distribution). Active; ezQuake Layer 1 fully loaded at head, historical backfill and second-engine ports ahead.
 
 ## What this repo is NOT
 

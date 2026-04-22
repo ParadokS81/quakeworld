@@ -1,5 +1,5 @@
 ---
-Doc type: roadmap spec - orchestrates three sequential passes (doc realignment, per-entity formal documentation, dashboard build) that together fix the monorepo mental-model drift between "qw-oracle as chatbot" and "qw-oracle as knowledge service." Each pass is scoped for a single focused session. Read this file at the start of each pass.
+Doc type: roadmap spec - orchestrates three sequential passes (doc realignment, per-entity formal documentation, dashboard build) that together fix the monorepo mental-model drift between "qw-oracle as chatbot" and "qw-oracle as knowledge service." Each pass is scoped for a single focused session. Read this file at the start of each pass. Updated 2026-04-22 evening: ecosystem model is two-part (knowledge foundation + consumers), not three-tier; qw-config is a transitional holding pen that dissolves, not a package to formalize.
 ---
 
 # QW Knowledge Service - Realignment Roadmap
@@ -13,8 +13,8 @@ Doc type: roadmap spec - orchestrates three sequential passes (doc realignment, 
 
 The monorepo's vision and structure drifted from reality. Three symptoms:
 
-1. **qw-oracle is named and framed like a chatbot** ("Oracle Bot / Digest / Time Machine as the three paths"). In reality it is a knowledge service: three data layers plus an MCP server. A chatbot would be a consumer of the service, not the service itself.
-2. **qw-config is misclassified.** Its name and history say "config-scraping helper for slipgate-app." Its current role is "Layer 1 extraction machinery for the knowledge service." It hosts 11 libclang AST extractors plus seed YAMLs - all of which feed qw-oracle, not slipgate directly.
+1. **qw-oracle is named and framed like a chatbot** ("Oracle Bot / Digest / Time Machine as the three paths"). In reality it is a knowledge service: three data layers plus serving surfaces (MCP live queries + consumer-tailored snapshots). A chatbot would be a consumer of the service, not the service itself.
+2. **qw-config is a transitional holding pen, not a package to formalize.** It exists because slipgate-app originally scraped ezQuake for its ConfigViewer, and the scraping code grew in this folder. The AST extractors that later landed there are legitimately oracle's machinery - they produce the facts that become Layer 1 - but their hosting location in qw-config is historical accident, not architecture. When oracle's extraction pipeline is feature-complete and slipgate migrates to consuming oracle snapshots, qw-config dissolves: extractors relocate into oracle's build, and slipgate's inputs become oracle snapshots.
 3. **No formal per-entity documentation exists.** The Layer 1 schema stores 10 entity types (cvars, commands, keynames, token_primitives, etc.), but nothing in the repo explains what each entity type IS, why we extract it, or who consumes it. Developers curious about the extractor must read the source.
 
 These gaps cause real harm:
@@ -29,64 +29,71 @@ The realignment fixes all three by executing three sequential passes. The final 
 
 At the end of the three passes, these are all true:
 
-- Root `VISION.md`, root `OVERVIEW.md`, and `apps/qw-oracle/VISION.md` describe the three-tier model (extraction / knowledge / consumers) and name qw-oracle as the knowledge service, not a chatbot.
-- `packages/qw-config/` has its mandatory doc quartet (CLAUDE.md + README.md + VISION.md + OVERVIEW.md), with docs framing it as transitional extraction-tier machinery until slipgate switches to consuming oracle directly.
+- Root `VISION.md`, root `OVERVIEW.md`, and `apps/qw-oracle/VISION.md` describe the two-part ecosystem model (knowledge foundation + consumers, connected via MCP and snapshot distribution) and name qw-oracle as the knowledge service, not a chatbot.
+- `packages/qw-config/` is named honestly across the docs it touches - transitional holding pen, not a package to formalize with a quartet.
 - `apps/qw-oracle/docs/entity-types.md` (or equivalent) contains formal short-form documentation for all 10 ezQuake entity types, using a consistent five-field template.
 - Seed-YAML entries whose AST backing is thin or contradicted are explicitly labelled with a verification status, not silently merged with verified entries.
 - `docs/architecture.html` + `docs/architecture-data.json` exist and render the mockup's three-column drill-down pattern with real data. Double-click the HTML, works in any browser.
 - `docs-check` skill knows to update `architecture-data.json` when schema, extractors, or entity-type docs change.
 
-## The tier model (authoritative)
+## The ecosystem model (authoritative)
 
-Three tiers. Everything in the monorepo fits in one of them.
+Two parts, connected by serving surfaces.
 
 ```
-+--------------------------+    +--------------------------+    +--------------------------+
-|       EXTRACTION         |    |        KNOWLEDGE         |    |        CONSUMERS         |
-|                          |    |                          |    |                          |
-|  libclang AST extractors | -> |  qw-oracle               | -> |  Claude Code (MCP)       |
-|  (packages/qw-config/)   |    |                          |    |  slipgate-app            |
-|  seed YAMLs              |    |  Layer 1: knowledge.db   |    |  quad (chatbot future)   |
-|  artifact parsers (fut)  |    |  Layer 2: qw.db          |    |  slipgate web (future)   |
-|                          |    |  Layer 3: concept notes  |    |                          |
-|                          |    |                          |    |                          |
-|                          |    |  MCP server (tools)      |    |                          |
-+--------------------------+    +--------------------------+    +--------------------------+
++----------------------------------+     serving surfaces     +---------------------------+
+|    qw-oracle (knowledge service) |    +-----------------+   |        consumers          |
+|                                  |    |   MCP surface   |   |                           |
+|  Layer 1: knowledge.db           |    | lookup_entity   |   |  Claude Code       (live) |
+|   source-extracted engine facts  |--->| search_entities |-->|  slipgate-app (transitnl) |
+|   per-version, per-field blame   |    | get_concept_... |   |  quad chatbot    (future) |
+|                                  |    | ...             |   |  slipgate web    (future) |
+|  Layer 2: qw.db                  |    +-----------------+   |  chatbot app     (future) |
+|   2.66M chat messages + FTS5     |                          |                           |
+|                                  |    +-----------------+   |                           |
+|  Layer 3: concept notes          |--->|   snapshot      |-->|                           |
+|   (not yet populated)            |    |  distribution   |   |                           |
+|                                  |    | consumer-       |   |                           |
+|  (backstage) extractors,         |    |  tailored JSON  |   |                           |
+|   loaders, diff pipeline         |    +-----------------+   |                           |
++----------------------------------+                          +---------------------------+
 ```
 
-### Extraction tier
+### The knowledge service (qw-oracle)
 
-**What belongs here:** machinery that turns authoritative sources (engine C code, bundled artifacts, community corpora) into structured JSON the knowledge tier can ingest. No user-facing behavior.
+Data foundation. Three layers plus the machinery that fills them:
 
-**Current residents:**
-- `packages/qw-config/scripts/extract-ezquake-*-clang.py` — 11 libclang Python extractors (cvars, commands, macros, cmdline_params, keynames, hud_elements, rulesets, token_primitives, flag_bits, asset_loader_sites, asset_cvar_bindings, asset_path_rules_verify).
-- `packages/qw-config/seeds/*.yaml` — hand-authored taxonomies and bindings.
-- `packages/qw-config/src/data/*.json` — committed extractor outputs (the input contract to the knowledge tier).
-- Artifact parsers (BSP, progs.dat, pak/pk3, WAD, MDL/SPR) — roadmapped, not yet implemented. See `2026-04-21-layer1-identity-model-design.md`.
+- **Layer 1** - `apps/qw-oracle/data/knowledge.db`. Source-extracted engine facts across 10 entity types plus 4 asset relation tables. Per-version history, per-field blame, schema v6.
+- **Layer 2** - `apps/qw-oracle/data/qw.db`. 2.66M community chat messages (IRC 2005-2016 + Discord 2016-present) plus FTS5 index. Processing pipeline not yet built.
+- **Layer 3** - hand-authored concept notes. Not yet populated.
 
-**Transitional status:** `packages/qw-config/` also still serves `apps/slipgate-app` directly via the legacy scraped cvar JSON. This is historical; slipgate refactors to consume qw-oracle (via MCP or direct SQLite) once AST extraction is feature-complete. Until then, qw-config wears two hats. Docs should name this honestly.
+Backstage to these layers - not visible to consumers, but part of the service's responsibility:
 
-### Knowledge tier
+- Extractor fleet - libclang Python extractors for ezQuake, plus the unified driver; hand-authored seed YAMLs. Currently hosted in `packages/qw-config/scripts/` and `packages/qw-config/seeds/` for historical reasons (see below). The JSON outputs at `packages/qw-config/src/data/` are the input contract for oracle's loader.
+- Loader pipeline - `apps/qw-oracle/scripts/load-knowledge/`. TypeScript. Ingests extractor JSON into Layer 1 DB. Diff pipeline computes per-field change events with git-blame enrichment.
 
-**What belongs here:** the three-layer knowledge store plus the MCP server that exposes it.
+### Serving surfaces
 
-**Current residents:**
-- `apps/qw-oracle/data/knowledge.db` — Layer 1 SQLite. Source-extracted engine facts across 10 entity types plus 4 asset relation tables. Per-version history, per-field blame, schema v6.
-- `apps/qw-oracle/data/qw.db` — Layer 2 SQLite. 2.66M community chat messages (IRC 2005-2016 + Discord 2016-present) plus FTS5 index. Processing pipeline not yet built.
-- Layer 3 — hand-authored concept notes. Not yet populated.
-- `apps/qw-oracle/scripts/load-knowledge/` — loader pipeline (TypeScript). Ingests extractor JSON into Layer 1 DB. Diff pipeline computes per-field change events with git-blame enrichment.
-- MCP server — lives elsewhere in the monorepo's MCP infrastructure; exposes `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`. The DB and schema live in qw-oracle; the MCP wire protocol lives separately.
+- **MCP** - live queries. One tool per consumer need (`lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`). Used by interactive clients: Claude Code today, future chatbots. The server itself lives in the monorepo's MCP infrastructure (outside the qw-oracle directory); the DB and schema live in qw-oracle.
+- **Snapshot distribution** - consumer-tailored JSON snapshots produced from the same foundation. Used by clients that need deterministic, pre-computed inputs (slipgate-app's ConfigViewer is the canonical case - it doesn't query MCP on every user action, it ships with a snapshot of the facts its features need).
 
-### Consumers tier
+Both surfaces serve the same underlying facts. A consumer picks the surface that fits its access pattern.
 
-**What belongs here:** apps and services that read from the knowledge tier. Each is a user-facing product.
+### Consumers
 
-**Current residents:**
-- **Claude Code** (live) — every coding session uses the MCP. The primary consumer today.
-- **slipgate-app** (transitional) — reads qw-config's legacy scraped JSON today. Will switch to oracle consumption after AST extractors are feature-complete.
-- **quad — chatbot extension** (future) — quad is a voice-recording Discord bot today. A chat-over-oracle mode is a separate future capability.
-- **slipgate web — help surface** (future) — per the 2026-04-20 web-services-family brainstorm.
+User-facing apps that read from the knowledge service. Each is its own product.
+
+- **Claude Code** (live) - every coding session consumes MCP. The primary consumer today.
+- **slipgate-app** (transitional) - reads `packages/qw-config/src/data/*.json` directly today (legacy). Future state: consumes oracle snapshots for the same data. Migration scheduled after oracle's extraction pipeline is feature-complete.
+- **quad chatbot mode** (future) - quad is a voice-recording Discord bot today. A chat-over-oracle mode is a separate future capability on top of MCP.
+- **slipgate web - help surface** (future) - per the 2026-04-20 web-services-family brainstorm.
 - **New chatbot app** (future, possibly separate from quad).
+
+### The qw-config question
+
+`packages/qw-config/` is a holding pen, not an architectural tier. It exists because slipgate-app originally needed engine facts for its ConfigViewer, and the scraping code grew there. The AST extractors that now also live there are oracle's machinery - they produce Layer 1 facts - but their hosting location in qw-config is historical accident. When oracle's extraction pipeline is feature-complete and slipgate migrates to oracle-snapshot consumption, qw-config dissolves: extractors relocate into oracle's build; slipgate's inputs become oracle snapshots.
+
+Consequence for this roadmap: qw-config does NOT get the mandatory doc quartet. We do not formalize a package we are dissolving. The dissolution trigger is already tracked (Phase 2d-2h extraction completion + slipgate refactor); no new follow-up item needed.
 
 ## Per-entity writeup template
 
@@ -146,54 +153,58 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 
 ## Pass 1 — Monorepo doc realignment
 
-**Goal:** Fix the docs-vs-reality drift so the three-tier model is authoritative across every VISION/OVERVIEW file in the monorepo.
+**Goal:** Fix the docs-vs-reality drift so the two-part ecosystem model is authoritative across every VISION/OVERVIEW file in the monorepo.
 
 **Estimated effort:** one focused session, docs-only, no code or schema changes.
 
 **Session-start checklist:**
-1. Read this roadmap's "The tier model" section.
-2. Confirm with the user: any outstanding tier-model disputes or clarifications before starting.
+1. Read this roadmap's "The ecosystem model" section.
+2. Confirm with the user: any outstanding model disputes or clarifications before starting.
 3. Open the file list below; work top-down.
 
 ### Files to edit
 
 - **`VISION.md` (monorepo root)**
-  - Add the three-tier model as a first-class section. Replace any language that frames qw-oracle as a chatbot with "knowledge service."
-  - Fold in the web-services-family addendum that has been sitting in HANDOVER since 2026-04-20. The three `*.quake.world` services are consumers of the knowledge tier and siblings of the desktop app.
+  - Add the two-part ecosystem model (knowledge foundation + consumers + serving surfaces) as a first-class section. Replace any language that frames qw-oracle as a chatbot with "knowledge service."
+  - Fold in the web-services-family addendum that has been sitting in HANDOVER since 2026-04-20. The three `*.quake.world` services are consumer-side products of the ecosystem and siblings of the desktop app.
+  - Correct qw-oracle's lifecycle status (listed as "Paused" in Graduation paths; actually Active per the OVERVIEW).
 - **`OVERVIEW.md` (monorepo root)**
-  - Rewrite the ASCII integration diagram to show three tiers. Keep the existing QW Hub / Firestore / Storage shared-infrastructure sections; only the app-to-app relationships change.
-  - Update the "Packages" section to describe qw-config as transitional extraction-tier machinery, not a slipgate helper.
+  - Add a second integration diagram showing the knowledge-service ecosystem (Knowledge Layers / MCP Surface / Consumers columns, matching the mockup). Keep the existing server-to-server diagram; it is a different integration pattern.
+  - Update the "Packages" section to describe qw-config as a transitional holding pen that dissolves when slipgate migrates, not a permanent package.
 - **`apps/qw-oracle/VISION.md`**
-  - Reframe from "Oracle Bot / Digest / Time Machine as three paths" to "three layers plus MCP serving." The products the old framing called "Oracle Bot" etc. are consumer apps that will be built on top of the service.
-  - Note: earlier HANDOVER entry mentions a "reframe to active assistance pending." This pass supersedes that note; update or delete the HANDOVER entry when done.
+  - Reframe from "Oracle Bot / Digest / Time Machine as three paths" to "knowledge service = Layers 1-3 + extraction capability + MCP serving + snapshot distribution." The products the old framing called "Oracle Bot" etc. are consumer apps built on top of the service.
+  - Preserve the active-assistance answer-shape philosophy (moves from memory-only to VISION-captured).
 - **`apps/qw-oracle/OVERVIEW.md`**
-  - Already mostly accurate. Add a short "Extractor location" note explicitly calling out that the libclang extractors currently live in `packages/qw-config/scripts/` for historical reasons; this is transitional, not architecturally intentional.
-- **`packages/qw-config/CLAUDE.md`, `VISION.md`, `OVERVIEW.md`** — new files
-  - This package has a substantial `README.md` but no CLAUDE/VISION/OVERVIEW. The doc philosophy (spec at `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`) requires the quartet.
-  - `CLAUDE.md`: rules for working in qw-config — extractor scripts are AST-based, seeds are hand-authored, reconciliation produces bundle JSONs, the transitional two-hat role.
-  - `VISION.md`: why qw-config exists (shared engine-feature extraction pipeline, authoritative-source discipline). Name the future: extractors become the knowledge service's extraction tier; slipgate's legacy consumption retires once slipgate refactors.
-  - `OVERVIEW.md`: the living map — all extractors, all seeds, all data files, all consumers. Largely factual; pulls content from the existing README plus a fresh audit.
+  - Remove the "note: reframe to 'active assistance' pending per HANDOVER" reference in the bottom "What this doc intentionally does NOT cover" section - superseded by the Pass 1 VISION edit.
+  - Add a short "Extraction" section / callout explicitly framing the extractor fleet as oracle's responsibility even though scripts currently live in `packages/qw-config/scripts/` - this is transitional.
+  - Add a one-sentence forward-pointer to Pass 2 for verification-status.
+- **`apps/qw-oracle/CLAUDE.md`**
+  - Update the "Where to find things" VISION line to remove "(note: pending reframe per HANDOVER)."
 - **`apps/slipgate-app/docs/VISION.md`**
-  - Add one paragraph: slipgate's current qw-config consumption is legacy; future state is oracle consumer (via MCP or direct SQLite). This work is scheduled after AST extraction is feature-complete.
+  - Add a paragraph: slipgate's current `packages/qw-config/src/data/*.json` consumption is legacy; future state is oracle-snapshot consumer. qw-config dissolves on migration.
+  - Fold in the web-services-family addendum: assets/maps/hub.quake.world triad, content-hash join key, MyQuake 2-mode pattern.
+
+**NOT written in this pass:** `packages/qw-config/CLAUDE.md`, `packages/qw-config/VISION.md`, `packages/qw-config/OVERVIEW.md`. qw-config is transitional and dissolves; formalizing it with a quartet works against the ecosystem model. The existing README stays as-is for now.
 
 ### Acceptance criteria
 
 - [ ] The phrase "chatbot" does not appear as a primary framing of qw-oracle in any VISION or OVERVIEW file.
-- [ ] The three-tier model is named in root VISION, root OVERVIEW, and qw-oracle VISION.
-- [ ] qw-config has all four quartet files (CLAUDE, README, VISION, OVERVIEW).
-- [ ] HANDOVER entry "qw-config package missing Layer 1 quartet" is resolvable after Pass 1 completes.
-- [ ] HANDOVER entry "Slipgate + monorepo VISION docs need web-services family addendum" is resolvable after Pass 1 completes (folded into root VISION).
+- [ ] The two-part ecosystem model is named in root VISION, root OVERVIEW, and qw-oracle VISION.
+- [ ] qw-config's transitional / dissolving framing appears in root OVERVIEW's Packages section and in slipgate's VISION.
+- [ ] HANDOVER entry "qw-config package missing Layer 1 quartet" is resolvable after Pass 1 completes (closed on structural basis - not written because the package dissolves).
+- [ ] HANDOVER entry "Slipgate + monorepo VISION docs need web-services family addendum" is resolvable after Pass 1 completes (folded into root VISION + slipgate VISION).
 - [ ] No code files touched. No schema touched. No tests touched.
 
 ### Out of scope / drift guards
 
 - Do NOT touch any `.py`, `.ts`, `.rs`, or `.tsx` file.
 - Do NOT physically relocate `packages/qw-config/` or any of its scripts. This is documentation realignment only.
+- Do NOT write the qw-config quartet. Package is dissolving; the quartet is not warranted. Revisit only if the dissolution plan itself changes.
 - Do NOT write per-entity-type documentation (that is Pass 2's job).
 - Do NOT build the HTML dashboard or any of its data files (that is Pass 3's job).
 - Do NOT retroactively validate seed-YAML entries (e.g., the `.kmap` question). Flag the finding in Pass 2; do not audit in Pass 1.
-- Resist scope creep into non-tier-impacting doc cleanup. Matchscheduler docs drift, quad docs drift, qw-stats docs drift — all separate sessions. Only touch them if a specific tier-model claim requires it.
-- Do NOT rename qw-config on disk. Naming change is a separate future refactor, scheduled after slipgate migrates off legacy consumption.
+- Resist scope creep into non-tier-impacting doc cleanup. Matchscheduler docs drift, quad docs drift, qw-stats docs drift — all separate sessions. Only touch them if a specific ecosystem-model claim requires it.
+- Do NOT rename qw-config on disk. Naming change is moot - the package dissolves on migration rather than being renamed.
 
 ### Output
 
@@ -209,7 +220,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 
 **Session-start checklist:**
 1. Read this roadmap's "Per-entity writeup template" and "worked example" sections.
-2. Confirm Pass 1 is merged. If not, the tier language in the writeups will drift.
+2. Confirm Pass 1 is committed. If not, the ecosystem-model language in the writeups will drift.
 3. Open `apps/qw-oracle/SCHEMA.md` and the 11 extractor scripts in `packages/qw-config/scripts/`.
 
 ### What to produce
@@ -269,7 +280,7 @@ For each entity type, audit as follows:
 **Estimated effort:** one focused session. HTML plus a small JSON plus a docs-check integration note.
 
 **Session-start checklist:**
-1. Read this roadmap's "The tier model" section.
+1. Read this roadmap's "The ecosystem model" section.
 2. Open `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` in a browser for the visual target.
 3. Open `apps/qw-oracle/docs/entity-types.md` (Pass 2's output) — this is the content source.
 
@@ -296,7 +307,7 @@ For each entity type, audit as follows:
 ### Out of scope / drift guards
 
 - Do NOT add content that wasn't already in Pass 2's entity-type doc. If a detail panel needs a fact not in the source doc, stop and either (a) add the fact to Pass 2's doc and commit, or (b) file as a HANDOVER item. Do not ad-hoc-author content in the dashboard.
-- Do NOT change tier model wording (Pass 1's output is authoritative).
+- Do NOT change ecosystem-model wording (Pass 1's output is authoritative).
 - Do NOT build a backend, a server, a build step, or a generator. The dashboard is static HTML that reads a static JSON.
 - Do NOT refactor `packages/qw-config/` or `apps/qw-oracle/`. This pass is pure presentation.
 - Do NOT try to make the dashboard auto-update from SCHEMA.md in this pass. Human-updated-via-docs-check is the v1 maintenance model.
@@ -329,12 +340,12 @@ After all three passes ship, the maintenance model is:
 - `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` — the doc-philosophy quartet. Pass 1 brings qw-config into compliance with it.
 - `apps/qw-oracle/SCHEMA.md` — Layer 1 data model. Pass 2 references it extensively; may be lightly edited.
 - `apps/qw-oracle/VISION.md` — rewritten in Pass 1.
-- `HANDOVER.md` — two entries cleared by Pass 1 ("qw-config package missing Layer 1 quartet", "Slipgate + monorepo VISION docs need web-services family addendum"). New entries likely from Pass 2.
+- `HANDOVER.md` — two entries cleared by Pass 1 ("qw-config package missing Layer 1 quartet" - closed on structural basis, package dissolves; "Slipgate + monorepo VISION docs need web-services family addendum" - folded in). New entries likely from Pass 2.
 - `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` — visual target for Pass 3. Committed reference; the real `docs/architecture.html` supersedes it when Pass 3 ships.
 
 ## Not in scope for this roadmap
 
-- Physical reorganization of `packages/qw-config/`. Rename, split, or relocate the package — separate future refactor, scheduled after slipgate switches to oracle consumption.
+- Physical dissolution of `packages/qw-config/`. Extractors relocate into oracle's build and slipgate's inputs become oracle snapshots - scheduled after slipgate switches to oracle consumption. Docs describe this future state; the physical move happens when the migration does.
 - Layer 2 processing pipeline (tier classification, session segmentation, summarization). Orthogonal track; has its own roadmap.
 - Phase 2f historical backfill across all ezQuake tags. Orthogonal track; blocked on this realignment only insofar as verification-status definitions become authoritative during Pass 2.
 - FTE / MVDSV / KTX source extraction. Inherits the template after Pass 2 ships.

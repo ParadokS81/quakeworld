@@ -41,6 +41,30 @@ This is a public repo inside the QuakeWorld monorepo workshop. Contributions, is
 
 The app is glue: small, focused, connecting things that are currently disconnected.
 
+## Where knowledge comes from
+
+A lot of slipgate's value depends on knowing facts about ezQuake: what each cvar does, what valid values it accepts, which commands exist, which keys are recognized, how asset directories are organized. The ConfigViewer alone needs ~3000 cvar definitions to categorize binds, resolve aliases, and explain settings in the UI.
+
+Today, those facts come from `packages/qw-config/src/data/*.json` - legacy JSON files produced by extractors originally written for this app's ConfigViewer. The facts are correct, but the path is pre-oracle.
+
+The future state is **consumption from qw-oracle** via snapshot distribution. Oracle produces a slipgate-shaped JSON snapshot from its Layer 1 data (the same data it serves over MCP to Claude Code); slipgate ships with the snapshot and reads it locally, exactly as it reads qw-config JSON today. No runtime MCP dependency; same deterministic access pattern the app has always had.
+
+The migration happens once oracle's extraction pipeline is feature-complete. At that point `packages/qw-config/` dissolves: its AST extractors relocate into oracle's build, and its legacy scraped JSON is replaced by oracle-produced snapshots. This app's code that reads cvar / command / macro definitions switches from qw-config loaders to oracle-snapshot loaders in the same refactor.
+
+Until then, qw-config is the input path. The ConfigViewer does not block on this; current-reality features ship against the current-reality data source.
+
+## The web-services family
+
+The slipgate app is the desktop side of a larger ecosystem that also includes three community web services. All three consume the same qw-oracle knowledge foundation (directly, via snapshots, or via purpose-built APIs built on top of oracle).
+
+- **hub.quake.world** - already exists. Played matches with browser replay. The upstream of this app's Matches domain.
+- **maps.quake.world** - map catalog with custom textures / lits / locs / mapshots, cross-linked to tournament data from hub.
+- **assets.quake.world** - catalog of custom content: skins, crosshairs, conchars, HUD overlays. Metadata, comments, provenance.
+
+The app and the web services share a frontend stack, so features flow between them. The MyQuake tab's 2-mode pattern (Browse = flat quake-dir lens; Domains = curated concept dashboards) is the app-side counterpart: Configs domain is built, Maps domain consumes maps.quake.world, Matches consumes hub.quake.world, Assets consumes assets.quake.world.
+
+A **content hash** (sha256 of file bytes) is the universal join key across local-dir, central-catalog, and GitHub-backup contexts. The app authors no metadata beyond the hash; all descriptive metadata lives centrally and is fetched by hash lookup. This enables curated bundle subscriptions (e.g., "Tournament Maps 2026"): the catalog pins a hash list per bundle version; slipgate diffs local hashes against the manifest, pulls missing entries, optionally prunes stale. Clean, Git-like, zero-config for the user.
+
 ## On the drawing board
 
 The feature set today is not the app's final shape. Here is what is on the author's mind for where it goes next, and why each idea matters.
@@ -67,6 +91,8 @@ Parse your `/qw/matches/` folder for the demos and screenshots normally recorded
 
 Log in with GitHub (as a second auth provider alongside Discord), auto-create a `quakeworld-setup-{username}` repo, and upload the minimal viable set of files that define a setup (configs, key bindings, custom textures, HUD overlays, crosshair packs). Exclude the heavy and ephemeral stuff (custom maps, recorded demos, generated state, crash dumps). Show diffs on subsequent syncs.
 
+This backup vertical is separate from the web-services family above but shares the content-hash substrate: the same sha256 that joins local files to the central catalogs also stabilizes the backup. Heavy assets (maps, custom content) don't need to be stored in the backup repo because they are addressable by hash via the catalogs.
+
 *Why it matters:* three distinct use cases stack into the same feature, and any one of them would justify building it:
 
 - **Disaster recovery.** Rolling back a bad config edit, comparing your binds from 6 months ago, restoring a setup you accidentally broke.
@@ -84,6 +110,7 @@ Not all of these relationships are built yet. Marked *(built)* where the integra
 | **Slipgate web** | Desktop extension of the web hub. Same auth, same data, different capabilities. *(Planned - slipgate web does not exist yet.)* |
 | **matchscheduler** | Shared Firebase project for auth today. Eventually: receive match notifications, quick availability toggle. *(Partial: auth built, notifications planned.)* |
 | **quad** | No direct integration planned today; both projects live in the same monorepo for cross-app context but slipgate-app does not talk to the Discord bot. |
+| **qw-oracle** | Future knowledge source. Today: reads `packages/qw-config/src/data/*.json` directly for ConfigViewer. Future: consumes oracle-produced snapshots (same access pattern, oracle-managed content) once oracle's extraction pipeline is feature-complete and qw-config dissolves. *(Transitional - legacy path today, oracle-snapshot path future.)* |
 | **ezQuake** | Reads configs, detects version, manages install, launches with args, screenshot puppet via mailslot IPC. *(Built.)* |
 | **Mumble** | Eventually quick-join team channel via `mumble://` deep link. *(Planned.)* |
 | **GitHub** | Eventually second auth provider for the backup feature above. *(Planned.)* |

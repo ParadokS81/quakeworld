@@ -10,27 +10,26 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [Knowledge-service realignment roadmap — three passes pending](#knowledge-service-realignment-roadmap--three-passes-pending) — 2026-04-22 umbrella. Pass 1 doc realignment, Pass 2 per-entity formal docs, Pass 3 HTML dashboard. Each pass is a separate session. Supersedes the two items below for their Pass 1 portions.
-- [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. **Resolution scheduled under Pass 1 of the realignment roadmap.**
-- [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet. **Resolution scheduled under Pass 1 of the realignment roadmap.**
+- [Knowledge-service realignment roadmap — Pass 2 and Pass 3 pending](#knowledge-service-realignment-roadmap--pass-2-and-pass-3-pending) — 2026-04-22 umbrella. Pass 1 doc realignment **shipped 2026-04-22 evening**. Pass 2 per-entity formal docs + Pass 3 HTML dashboard still pending. Each pass is a separate session.
 
 ---
 
-## Knowledge-service realignment roadmap — three passes pending
+## Knowledge-service realignment roadmap — Pass 2 and Pass 3 pending
 
 **Added:** 2026-04-22
-**Status:** Roadmap committed (`eb1d053`) at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Three sequential passes scheduled, each in its own focused session. Dashboard mockup v2 committed as Pass 3's visual target.
-**Verification first:** `ls docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md docs/architecture.html 2>&1`. If `architecture.html` exists, Pass 3 shipped — check whether the Open items index still needs this entry.
+**Updated:** 2026-04-22 evening — Pass 1 shipped. Ecosystem model reframed from three-tier to two-part (knowledge foundation + consumers, connected via MCP live queries and snapshot distribution). qw-config framed as transitional holding pen that dissolves on slipgate migration; quartet explicitly not written.
+**Status:** Roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Dashboard mockup v2 at `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`. Pass 1 committed; Pass 2 and Pass 3 each pending in separate focused sessions.
+**Verification first:** `ls docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md apps/qw-oracle/docs/entity-types.md docs/architecture.html 2>&1`. If `entity-types.md` exists, Pass 2 shipped. If `architecture.html` exists, Pass 3 shipped.
 
-Monorepo structure drifted from reality in three ways (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as slipgate helper when its extractors feed the knowledge tier; no formal per-entity documentation of the 10 ezQuake entity types). This roadmap fixes all three through three sequential doc-only passes plus a final dashboard build. Each pass has explicit out-of-scope drift guards.
+Monorepo structure drifted from reality (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as a permanent package when it is a transitional holding pen; no formal per-entity documentation of the 10 ezQuake entity types). Pass 1 fixed the vision-layer drift across root + qw-oracle + slipgate VISION/OVERVIEW. Pass 2 and Pass 3 remain.
 
-The roadmap also introduces verification-status as a first-class extractor-hygiene concept. Triggering discovery: `.kmap` seed YAML entry (`packages/qw-config/seeds/ezquake-asset-extensions.yaml`) claims ezQuake loads keymap files, but ezQuake commit `46b5046` (2014-01-12) removed keymap loader support. Files still ship in `ezquake.pk3/keymaps/` but no current C code consumes them. The seed entry was added speculatively in commit `119dd0e` (today, 01:00) and the reconciliation pipeline passed it silently. Pass 2's audit surfaces all `.kmap`-class findings; Pass 3's dashboard makes verification status visible per entity type.
+The roadmap introduces verification-status as a first-class extractor-hygiene concept. Triggering discovery: `.kmap` seed YAML entry (`packages/qw-config/seeds/ezquake-asset-extensions.yaml`) claims ezQuake loads keymap files, but ezQuake commit `46b5046` (2014-01-12) removed keymap loader support. Files still ship in `ezquake.pk3/keymaps/` but no current C code consumes them. Pass 2's audit surfaces all `.kmap`-class findings; Pass 3's dashboard makes verification status visible per entity type.
 
 ### Pass-by-pass summary
 
-- **Pass 1 — Monorepo doc realignment** (docs-only, no code). Updates root VISION / OVERVIEW / qw-oracle VISION / qw-oracle OVERVIEW / slipgate VISION. Writes the full quartet for `packages/qw-config/` (CLAUDE + VISION + OVERVIEW; README already present). Resolves the two related open HANDOVER items in the Open items index above. Strict drift guards: no code touches, no physical reorganization of qw-config, no per-entity writeups (that is Pass 2), no dashboard build (that is Pass 3), no seed-YAML audits (that is Pass 2).
+- **Pass 1 — Monorepo doc realignment** — **SHIPPED 2026-04-22 evening.** Reframed the monorepo's vision docs to the two-part ecosystem model (knowledge foundation + consumers, MCP + snapshot distribution as serving surfaces). Folded in the web-services-family addendum. Explicitly did NOT write a qw-config quartet (the package is dissolving, so formalization works against the intent). Committed in the same pass as the roadmap edits themselves.
 - **Pass 2 — Per-entity formal documentation** (docs-only). Ten ezQuake entity types get formal writeups using the five-field-plus-verification-status template defined in the roadmap. Output file is `apps/qw-oracle/docs/entity-types.md` (or a restructured SCHEMA.md section). Audits seed YAMLs against AST output; marks each entry's verification status. Expected finding: `.kmap` = `orphaned_historical`. Other entries in the "9 missing loader families" list need per-entry audits. Drift guards: no extractor rewrites, no seed-YAML repairs (audit + document only), no schema changes, no dashboard work.
-- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no tier-model rewording, no backend or build step.
+- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no ecosystem-model rewording, no backend or build step.
 
 ### Session-start template (use exactly this)
 
@@ -121,73 +120,4 @@ Both items are creative / iterative -- not the kind of thing to grind through so
 Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
 
 ---
-
-## qw-config package missing Layer 1 quartet
-
-**Added:** 2026-04-18
-**Status:** Pre-existing gap. Substantially touched on 2026-04-22 (unified AST extractor refactor) without quartet being filled in — user consciously chose to defer again.
-**Verification first:** `ls /home/paradoks/projects/quakeworld/packages/qw-config/{CLAUDE.md,VISION.md,OVERVIEW.md} 2>&1`. If all three exist, resolved.
-
-The qw-config package has a substantial `README.md` (now ~110 lines after the 2026-04-22 unified-extractor update) but is missing the other three mandatory-quartet files: `CLAUDE.md`, `VISION.md`, `OVERVIEW.md`. Per the doc philosophy (`docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`), every project — including shared packages — has the quartet.
-
-**Update 2026-04-21:** sibling package `qw-knowledge` received its full quartet (commits `cd8a155` + `efeeba0`). qw-config is the remaining gap.
-
-**Update 2026-04-22:** qw-config was touched substantially this session — unified AST extractor, 8-handler package under `extractor_lib/`, archival of 8 legacy scripts to `_legacy/`, verifier, 55x speedup. The README got a material update to reflect the unification. Quartet files still not written — deferred again with user's OK; the refactor was the focus. Next substantial qw-config touch should NOT defer the quartet a third time.
-
-**Update 2026-04-22 (evening):** Resolution now explicitly scheduled under Pass 1 of the knowledge-service realignment roadmap (`docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`). Pass 1 writes CLAUDE + VISION + OVERVIEW for qw-config as part of the tier-realignment effort, with framing that names the package as transitional extraction-tier machinery. Fix shape below remains accurate; the roadmap supersedes the "lazy migration when next touched" trigger with an explicit scheduled pass.
-
-### Fix shape
-
-Don't sweep. When next significant qw-config work happens, pause to:
-1. Split `CLAUDE.md` from `README.md` — rules for Claude go in `CLAUDE.md`, product description stays in `README.md`
-2. Write `VISION.md` — why qw-config exists (shared engine-feature database, authoritative-source discipline, consumer-agnostic)
-3. Write `OVERVIEW.md` — the living map: all extractors (incl. the new unified driver + `extractor_lib/`), all data files, all consumers, with lifecycle status. Distinct from the _legacy/ archive which stays flat.
-
-The README already contains most of the OVERVIEW content; the work is mostly restructuring, not writing from scratch. After today's update the README also mentions the unified extractor explicitly — OVERVIEW would lift that structural map into its own doc.
-
-### Related
-
-- Doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
-- Memory: `project_doc_philosophy.md`
-- Monorepo OVERVIEW.md line 106: lazy-migration note
-
----
-
-## Slipgate + monorepo VISION docs need web-services family addendum
-
-**Added:** 2026-04-20
-**Status:** New direction surfaced during the quake-dir browser brainstorm; not yet written into any VISION doc.
-**Verification first:** `grep -i "assets.quake.world\|maps.quake.world\|content.hash\|github.backup" apps/slipgate-app/docs/VISION.md VISION.md 2>&1` — if any hits, the relevant bits already landed; refine scope accordingly.
-
-The 2026-04-20 brainstorm that produced the quake-dir browser v1 spec + plan surfaced a much broader product direction for the Slipgate ecosystem that is NOT yet captured in any VISION.md file. Key facts:
-
-1. **Web services family.** Three sibling services: `assets.quake.world` (catalog of custom content — skins, crosshairs, conchars, HUD overlays, etc. — with metadata, comments, provenance), `maps.quake.world` (map catalog with custom textures/lits/locs/mapshots cross-linked to tournament data), and `hub.quake.world` (existing — played matches with browser-replay, the Matches domain's upstream). All three follow the same philosophy: curated central catalogs with per-asset metadata, navigable via web, consumable via the slipgate app.
-
-2. **Content hash as universal join key.** sha256 (or equivalent) of file bytes = the canonical identifier an asset carries across local-dir, central-catalog, and GitHub-backup contexts. The local app authors NO metadata — only the hash. All descriptive metadata (name, creator, categorization, bundle membership) lives centrally and is fetched by hash lookup. This is why the v1 `ScannedFile` record reserves a `content_hash` slot (deferred-compute in v1, becomes the join key when the central catalog ships).
-
-3. **Curated bundle subscriptions.** Users subscribe to bundles (e.g. "Tournament Maps 2026"). The central catalog pins a hash list per bundle version; slipgate diffs local hashes against the manifest, pulls missing entries, optionally prunes stale. Clean, Git-like, zero-config.
-
-4. **GitHub OAuth as personal backup + share layer.** Separate vertical from the catalog. User logs in with GitHub (same flow pattern as existing Discord OAuth), app creates a private-by-default git repo of their quake dir. Default-exclude list = demos/screenshots/full-map-pool (copyright + space). User opt-in for specific subsets. Clean-room baseline (Phase 3 feature) provides the natural v0 commit. Slipgate's existing `docs/AUTH.md` already references a future GitHub OAuth path — this is that.
-
-5. **MyQuake 2-mode pattern (Browse + Domains).** Parallels slipgate-wide Settings/Teamplay/Weapons split. Browse = flat raw quake-dir lens. Domains = curated concept dashboards (Configs built; Maps/Matches/Assets future). The web services above are the upstream of each Domain — Maps domain consumes maps.quake.world data, Matches consumes hub.quake.world, Assets consumes assets.quake.world. App + web are built in the same frontend stack so the UX is a continuation, not a handoff.
-
-### Where each fact lands
-
-- **Slipgate `apps/slipgate-app/docs/VISION.md`** — gains the GitHub-backup feature (it is app-internal) + the MyQuake 2-mode architectural pattern + the content-hash join key as a design constraint that frames how future asset features bolt on. A short section is enough; the reason-why clauses matter more than the implementation.
-- **Monorepo root `VISION.md`** — gains the web services family block (assets / maps / hub triad) as the broader Slipgate product vision: the apps are the desktop-native counterpart to a future web hub, both built in the same stack so features flow between them. This is the piece that extends "workshop monorepo" into "ecosystem."
-
-### Supporting memories
-
-- `project_slipgate_web_services_vision.md` (2026-04-20) — durable capture of the facts above.
-- `project_slipgate_architecture.md` — updated 2026-04-20 with the 2-mode MyQuake pattern.
-
-### Pressure
-
-Not blocking the quake-dir browser implementation. The v1 plan is written and the ScannedFile record already has the `content_hash` slot reserved. But VISION is the front door for contributors and for future-you — leaving the web-services direction undocumented means a new session won't see the shape. Should land in the next slipgate or monorepo-docs session.
-
-### Fix shape
-
-Single session, ~60 minutes. Draft additions against both VISION files in parallel. Keep them declarative (what, why) not prescriptive (how). Cross-reference the supporting memories for details.
-
-**Update 2026-04-22 (evening):** Resolution now folded into Pass 1 of the knowledge-service realignment roadmap (`docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`). The web-services-family addendum lands alongside the tier-model reframe in the same Pass 1 session — VISION files get both treatments together.
 

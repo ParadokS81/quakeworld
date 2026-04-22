@@ -64,9 +64,13 @@ Earlier POC / service design: `docs/superpowers/specs/2026-04-14-qw-knowledge-se
 
 Full context: `apps/qw-oracle/CLAUDE.md`, `apps/qw-oracle/OVERVIEW.md` (pipeline + machinery map), `apps/qw-oracle/SCHEMA.md` (Layer 1 data model), `apps/qw-oracle/VISION.md`.
 
-## Integration map
+## Integration maps
 
-How the apps share data.
+Two different integration patterns live in this monorepo. They share infrastructure but are structurally distinct, so each gets its own diagram.
+
+### Server-to-server data flow
+
+How the match / voice / stats apps share data through QW Hub and Firebase.
 
 ```
           +---------------------------+
@@ -95,6 +99,33 @@ How the apps share data.
 
 quad and qw-stats are both read-only consumers of QW Hub. matchscheduler reads from both. slipgate-app is not on this diagram because it has no server-to-server integration with siblings: it uses Firebase Auth (`matchscheduler-dev` project) for Discord login and otherwise talks directly to ezQuake on the local filesystem and to GitHub Releases for the updater.
 
+### Knowledge-service ecosystem
+
+How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "The emerging ecosystem" for the framing; this diagram is the current state.
+
+```
++----------------------------+    serving surfaces    +----------------------------+
+|  qw-oracle (knowledge svc) |    +---------------+   |         consumers          |
+|                            |    |      MCP      |   |                            |
+|  Layer 1  knowledge.db     |--->|  lookup /     |-->|  Claude Code        (live) |
+|    engine facts, versioned |    |  search /     |   |                            |
+|                            |    |  concept note |   |  slipgate-app (transitnl)  |
+|  Layer 2  qw.db            |    +---------------+   |  via snapshot JSON -       |
+|    2.66M chat + FTS5       |                        |  reads packages/qw-config/ |
+|                            |    +---------------+   |  today, oracle-produced    |
+|  Layer 3  concept notes    |--->|   snapshot    |-->|  snapshots after migration |
+|    (not yet populated)     |    |  distribution |   |                            |
+|                            |    +---------------+   |  quad chatbot    (future)  |
+|  (backstage) extractors,   |                        |  assets/maps.quake.world   |
+|  loaders, diff pipeline    |                        |                   (future) |
++----------------------------+                        |  slipgate web    (future)  |
+                                                      +----------------------------+
+```
+
+Claude Code queries MCP live; slipgate-app reads pre-computed snapshots. Both get the same underlying facts through different access patterns. Future chatbots (on quad or as a new app) join as MCP consumers; the web services join as snapshot consumers in their own shape.
+
+The extractor fleet (Python + libclang for ezQuake, and AST for FTE / MVDSV / KTX as those ports land) is oracle's backstage machinery. The scripts currently live in `packages/qw-config/scripts/` for historical reasons; they move into oracle's build when slipgate migrates to snapshot consumption. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
+
 ## Shared Firestore collections
 
 Project: `matchscheduler-dev`.
@@ -118,17 +149,20 @@ Upload size limits and retention rules live in `contracts/CROSS-PROJECT-SCHEMA.m
 
 ## Packages
 
-Two shared packages under `packages/`. Neither has a README today; both will get one when the package is next touched (lazy migration per the doc philosophy spec).
+Two shared packages under `packages/`. `qw-knowledge` has a full doc quartet; `qw-config` has only a README because it is transitional (see below).
 
 ### qw-knowledge
 
 Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology, strategies, player mappings. Extracted from the archived `voice-analysis` repo during the 2026-03-29 monorepo migration. Consumed by quad for transcript enrichment and (eventually) by slipgate-app for map-related features.
 
-### qw-config
+### qw-config (transitional)
 
-Shared cvar definitions database for ezQuake and FTE. Consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. The source of truth for "what does this cvar do" across the ecosystem.
+A holding pen, not a permanent package. Two roles live here today:
 
-Also home to the **unified AST-based libclang extractor** at `packages/qw-config/scripts/extract-ezquake-unified.py`, backed by the `extractor_lib/` handler package. One parse pass per file (client + server variants) is shared across all 8 entity handlers via a Visitor / shared-walk dispatcher, with `multiprocessing.Pool` across files. Handlers: commands, cvars, macros, cmdline params, keynames, hud elements, asset-cvar-bindings, asset-loader-sites. Three text/regex extractors remain as siblings (`extract-ezquake-flag-bits-clang.py`, `-rulesets-clang.py`, `-token-primitives-clang.py`) -- they were never libclang-based despite the filename. 8 legacy per-entity libclang scripts are archived at `scripts/_legacy/` (git-tracked, kept as fallback reference for full-history backfill). Extractors auto-detect `<repo>/src` vs repo-root layouts so they work across ezQuake's flat-layout era (3.2.x) and the modern src/ era (3.6+). Verified 32/32 PASS per-entity against legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3. Measured on a Ryzen 9 3900X (2026-04-22): ~14s per tag vs 749s legacy sequential pipeline -- 55x. JSON outputs are the input contract for qw-oracle's knowledge-db loader.
+1. **Legacy scraped JSON** (`src/data/ezquake-variables.json`, `ezquake-commands.json`, etc.) consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. This is slipgate's current input path; it predates oracle.
+2. **AST extraction machinery** (`scripts/extract-ezquake-unified.py` + `extractor_lib/`) - the backstage fleet that produces Layer 1 facts for qw-oracle. The unified driver runs one parse pass per file (client + server variants) shared across 8 entity handlers via a Visitor / shared-walk dispatcher, with `multiprocessing.Pool` across files. Three text/regex extractors remain siblings (`extract-ezquake-flag-bits-clang.py`, `-rulesets-clang.py`, `-token-primitives-clang.py`) - never libclang-based despite the filename. 8 legacy per-entity libclang scripts are archived at `scripts/_legacy/`. Extractors auto-detect `<repo>/src` vs repo-root layouts so they work across ezQuake's flat-layout era (3.2.x) and the modern src/ era (3.6+). Verified 32/32 PASS per-entity against legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3. Measured on a Ryzen 9 3900X (2026-04-22): ~14s per tag vs 749s legacy sequential - 55x. JSON outputs at `src/data/*-ast.json` are the input contract for qw-oracle's knowledge-db loader.
+
+**On dissolution:** the AST extractors are oracle's machinery and move into oracle's build when oracle's extraction pipeline is feature-complete. The legacy scraped JSON retires when slipgate migrates to oracle-snapshot consumption. At that point qw-config ceases to exist as a package; both halves relocate. Because this is transitional, qw-config does NOT carry a full doc quartet - only the existing `README.md`. See `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` for the framing.
 
 ## Contracts and cross-project specs
 

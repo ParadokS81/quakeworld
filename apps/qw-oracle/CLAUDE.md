@@ -17,7 +17,7 @@ A future **Layer 3** (curated concept notes adapted from ezquake.com docs and co
 
 | When you need... | Read... |
 |---|---|
-| Vision, three paths (Oracle Bot / Digest / Time Machine), active-assistance product framing | `VISION.md` (note: pending reframe per HANDOVER) |
+| Vision: the knowledge service (Layers 1-3 + MCP + snapshot distribution), active-assistance answer-shape, consumer list | `VISION.md` |
 | Schema-as-code (v6 tables, migrations) | `scripts/load-knowledge/schema.ts` |
 | Knowledge-loader pipeline (types, adapters, CLI) | `scripts/load-knowledge/` |
 | End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
@@ -39,7 +39,7 @@ A future **Layer 3** (curated concept notes adapted from ezquake.com docs and co
 ```
 apps/qw-oracle/
 ├── CLAUDE.md           # This file
-├── VISION.md           # Long-term vision (reframe pending)
+├── VISION.md           # Knowledge-service vision + active-assistance answer shape
 ├── package.json
 ├── tsconfig.json
 ├── scripts/
