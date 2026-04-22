@@ -2,6 +2,7 @@ pub mod archive;
 pub mod auth;
 pub mod browse;
 pub mod ezquake;
+pub mod inventory_report;
 pub mod locs;
 pub mod scanner;
 pub mod screenshot;

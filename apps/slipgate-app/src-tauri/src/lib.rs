@@ -43,6 +43,7 @@ pub fn run() {
             commands::browse::open_containing_folder,
             commands::browse::start_browse_watch,
             commands::browse::stop_browse_watch,
+            commands::inventory_report::dump_inventory_report,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())

@@ -61,6 +61,32 @@ export default function BrowseView(props: BrowseViewProps) {
   // suppress unused-local error for loading — wired in a later task
   void loading;
 
+  const [dumping, setDumping] = createSignal(false);
+  const [dumpMsg, setDumpMsg] = createSignal<string | null>(null);
+
+  async function dumpInventory() {
+    const exe = props.exePath;
+    if (!exe) return;
+    setDumping(true);
+    setDumpMsg(null);
+    try {
+      // Relative path resolves against the scan root (exe's parent) in Rust,
+      // so the report lands in <quake-dir>/quake-dir-inventory.md — reachable
+      // from WSL via /mnt/c/... without worrying about runtime CWD.
+      const outPath = "quake-dir-inventory.md";
+      const written = await invoke<string>("dump_inventory_report", {
+        exePath: exe,
+        mergedCvars: props.mergedCvars,
+        outPath,
+      });
+      setDumpMsg(`Wrote ${written}`);
+    } catch (e) {
+      setDumpMsg(`Failed: ${String(e)}`);
+    } finally {
+      setDumping(false);
+    }
+  }
+
   onMount(runScan);
 
   createEffect(() => {
@@ -136,6 +162,17 @@ export default function BrowseView(props: BrowseViewProps) {
                 <button class="btn btn-sm btn-outline" onClick={runScan}>
                   Rescan
                 </button>
+                <button
+                  class="btn btn-sm btn-outline"
+                  onClick={dumpInventory}
+                  disabled={dumping()}
+                  title="Write a markdown inventory report to test-output/quake-dir-inventory.md"
+                >
+                  {dumping() ? "Dumping..." : "Dump inventory"}
+                </button>
+                <Show when={dumpMsg()}>
+                  <span class="text-xs text-[var(--sg-text-dim)] truncate max-w-[320px]">{dumpMsg()}</span>
+                </Show>
               </div>
               <div class="flex-1 grid grid-cols-[220px_1fr_300px] overflow-hidden">
                 <div class="border-r border-[var(--sg-stat-border)] p-3 overflow-auto">
