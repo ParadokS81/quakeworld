@@ -25,7 +25,7 @@ Both are gitignored — they regenerate from source (Layer 1) or from raw import
 
 **Tags loaded:** 3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, plus `head`. `flag_bit` was added in Batch 2 so it's only present across 3.6.5+; earlier tags need a re-load to backfill. `source_overrides` was added in Batch 3 so pre-Batch-3 tags need a re-load to populate their blame index.
 
-**Schema version:** 6. Migrations v1→v6 are all in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape and per-migration spec pointers.
+**Schema version:** 8. Migrations v1→v8 are all in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape and per-migration spec pointers. Latest two migrations (2026-04-22): v7 added per-row `verification_status` + `verification_reason` to `asset_extensions` (lifts the `.kmap`/`.dll` audit out of prose into queryable columns); v8 widened `asset_loader_sites.confidence` to add `intentionally_generic` (separates FS-layer primitives from genuine `unclassified` findings — zero unclassified at head).
 
 **Still open on Layer 1:**
 - **Phase 2f historical backfill proper** - walk every ezQuake tag (~15 total), run full extractor sweep per tag, diff consecutive pairs, enrich with PRs. All architectural prerequisites shipped through Batch 3. This is the next move; the HANDOVER entry "qw-oracle Layer 1 documentation gap" was the gating blocker.
@@ -33,7 +33,7 @@ Both are gitignored — they regenerate from source (Layer 1) or from raw import
 - **Phase 2e MVDSV + KTX** - smaller ports. KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike).
 - **Phase 2g MCP tool upgrades** - add `version` / `as_of` parameters to existing tools, add `get_entity_history`, add version/date filters on `search_entities`.
 - **Phase 2h automation** - scheduled tag-delta job (detect new upstream tag → extract → load → enrich → insert).
-- **Asset-bundle loader-family gaps** - 9 loader families missing at head (.log, .loc, .lit, .xml, .dat, .kmap, .spr, .qwz, .dll) plus png/jpg path_hint variants. Post-Batch3 cleanup. See HANDOVER "ezquake asset-bundle gaps".
+- **Asset-bundle loader-family wrapper gaps** - the seven speculative extensions (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) all stamped `ast_verified` in the 2026-04-22 audit. `.loc` / `.lit` / `.dat` / `.qwz` confirmed via DB rows; `.log` / `.xml` / `.spr` verified via grep-cited source where the loader uses a wrapper (raw `fopen`, `CPageViewer_GoUrl`, `cl_modelnames[]` indirection) not on the extractor's `LOADER_FUNCTIONS` watchlist. Watchlist widening to close those gaps is a future extractor pass; `.kmap` / `.dll` are now first-class via `verification_status`. PNG/JPG path_hint variants still pending.
 - **Asset reference-resolution graph** - research-foundation spec at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` proposes the shift from category-classification to consumer-reference graph (parameterized-path extraction + BSP/progs parsers + `asset_companions` / `asset_consumers` schema). Implementation plan not yet written.
 
 ## Layer 1 machinery
@@ -107,7 +107,8 @@ Change how diff blame is resolved | `diff-versions.ts` — the Map preload + ove
 Add per-field blame for a new type | Extractor emits `field_source_lines` payload → adapter calls `upsertSourceOverride` with `override_kind`
 Tune drop-guard | `load-version.ts` — the `dropGuard` check
 Add an MCP tool | Not in this repo — MCP server is separate. The queries live against the shape documented in `SCHEMA.md`.
-Migrate schema (v6 → v7) | `schema.ts` — add `SCHEMA_V7_ADDITIONS_SQL` + `migrateV6ToV7` + extend `applySchema`'s chain
+Migrate schema (additive — new column on existing table) | `schema.ts` — bump `SCHEMA_VERSION`, add `SCHEMA_V<N>_MIGRATION_SQL` (e.g. `ALTER TABLE foo ADD COLUMN bar TEXT...`), add `migrateV<N-1>ToV<N>`, extend `applySchema`'s chain. Pattern at v7 (asset_extensions verification columns).
+Migrate schema (CHECK widening on existing column) | `schema.ts` — table rebuild required since SQLite can't ALTER CHECK in place. Pattern at v8 (asset_loader_sites confidence — `<TABLE>_V<N>_MIGRATION_SQL` rebuild block + `foreign_keys = OFF` outside the txn). Update the v3 `CREATE TABLE` block too so fresh DBs land on the widened CHECK.
 Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md`
 
 ## Layer 2 - state unknown

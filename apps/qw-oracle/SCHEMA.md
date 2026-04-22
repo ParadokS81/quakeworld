@@ -1,12 +1,12 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v6, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
+Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v8, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
 
 Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as five `SCHEMA_V*_ADDITIONS_SQL` blocks plus entities-rebuild blocks for CHECK widening. Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV5ToV6` in order.
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV7ToV8` in order.
 - **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx` (CHECK-constrained; only `ezquake` is populated today).
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
@@ -23,7 +23,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 20 tables at schema v6.
+Total: 20 tables at schema v8.
 
 ---
 
@@ -224,15 +224,15 @@ These are not per-entity snapshots — they are cross-row relations that exist p
 
 ### `asset_extensions`
 
-"This file extension belongs to this category in this project/version." Schema v3.
+"This file extension belongs to this category in this project/version." Schema v3; v7 added per-row hygiene audit.
 
-Columns: `project`, `version`, `extension`, `path_hint` (nullable — path fragment that refines ambiguous extensions like `.tga` → skin vs texture vs skybox), `category_id` (FK to `entities.canonical_id`), `notes`, `raw_ast_hash`, `extracted_at`.
+Columns: `project`, `version`, `extension`, `path_hint` (nullable — path fragment that refines ambiguous extensions like `.tga` → skin vs texture vs skybox), `category_id` (FK to `entities.canonical_id`), `notes`, `verification_status` (CHECK `ast_verified` / `seed_only_with_ast_support` / `seed_only_no_ast_support` / `orphaned_historical`, default `ast_verified`, schema v7), `verification_reason` (free-text justification for any non-default status, schema v7), `raw_ast_hash`, `extracted_at`.
 
 **Natural key:** `(project, version, extension, path_hint)`.
 
-**Count at ezQuake head:** 25. Gap: png/jpg lack full path_hint variants today — see HANDOVER "ezquake asset-bundle gaps".
+**Count at ezQuake head:** 270 rows total — 268 `ast_verified`, 1 `orphaned_historical` (`.kmap` — loader removed in commit `46b5046`, files persist via nQuake bundle), 1 `seed_only_no_ast_support` (`.dll` — intentional FTE cross-engine signal). Per-row stamps live in the seed YAML under optional `verification_status` / `verification_reason` keys; rebuild bundle + reload to populate.
 
-Index: `idx_asset_ext_cat ON (category_id)`.
+Indexes: `idx_asset_ext_cat ON (category_id)`, `idx_asset_ext_verif ON (verification_status)`.
 
 ### `asset_path_rules`
 
@@ -258,13 +258,13 @@ Indexes: `idx_asset_cvar_bind_cvar ON (cvar_canonical_id)`, `idx_asset_cvar_bind
 
 ### `asset_loader_sites`
 
-Every concrete callsite in engine C that loads an asset — function name, location, classifier. Schema v3.
+Every concrete callsite in engine C that loads an asset — function name, location, classifier. Schema v3; v8 widened the confidence CHECK.
 
-Columns: `canonical_id`, `function_name`, `source_file`, `source_line`, `enclosing_function`, `reads_category_id` (nullable FK), `load_trigger`, `path_source` (CHECK `literal` / `cvar` / `computed` / `unknown`), `path_literal` (if literal), `path_cvar_id` (FK if cvar-driven), `confidence` (CHECK `certain` / `heuristic` / `unclassified`), `dev_only` (0/1).
+Columns: `canonical_id`, `function_name`, `source_file`, `source_line`, `enclosing_function`, `reads_category_id` (nullable FK), `load_trigger`, `path_source` (CHECK `literal` / `cvar` / `computed` / `unknown`), `path_literal` (if literal), `path_cvar_id` (FK if cvar-driven), `confidence` (CHECK `certain` / `heuristic` / `intentionally_generic` / `unclassified`, schema v8), `dev_only` (0/1).
 
 **Natural key:** `(project, version, canonical_id)` where `canonical_id = <function>_<basename>_<ordinal-in-function>` (ordinal-based since Batch 3 — was line-embedded before, which produced spurious diff pairs on unrelated edits above).
 
-**Count at ezQuake head:** 110 — 19 certain + 66 heuristic + 25 unclassified.
+**Count at ezQuake head:** 128 — 24 certain + 80 heuristic + 24 intentionally_generic + 0 unclassified. The `intentionally_generic` bucket (schema v8, 2026-04-22) covers calls to the four FS-layer primitives (`FS_OpenVFS` / `FS_LoadFile` / `FS_LoadHunkFile` / `FS_WriteFile`) with `path_source='unknown'` — these are the FS layer itself rather than asset loaders. Zero `unclassified` at head means a future tag-pair surfacing one would be a real novelty, not FS-internals noise.
 
 Indexes: `idx_asset_loader_category`, `idx_asset_loader_cvar`, `idx_asset_loader_fn`.
 

@@ -9,15 +9,17 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ## Open items
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
+- [Extraction-review skill + CLI](#extraction-review-skill--cli) — 2026-04-22 evening. Baseline-cleanup at head DONE (schema v7 verification_status + schema v8 intentionally_generic, both shipped 2026-04-22). Remaining: design + build the per-tag-pair review CLI + skill so Phase 2f historical backfill captures novelties / retirements / orphans through a closed disposition set rather than silently absorbing them.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
+- [Rebuild-and-load CLI subcommand](#rebuild-and-load-cli-subcommand) — small Track-B item from 2026-04-22 wrap-up. Schema-migration sessions twice wrote ad-hoc tsx scripts to `applySchema → buildAssetBundle → loadAssets`. A `npm run load-knowledge -- rebuild-and-load --project --version` subcommand would compress the ritual.
 
 ---
 
-## Extraction-review skill + baseline-cleanup before Phase 2f
+## Extraction-review skill + CLI
 
 **Added:** 2026-04-22 evening (end-of-session thinking after Pass 2 shipped)
-**Status:** Design sketch. No implementation work yet. Not blocking Pass 3 (dashboard). IS blocking a well-curated Phase 2f historical backfill.
+**Updated:** 2026-04-22 late night — baseline-cleanup at head fully drained this session. Schema v7 + v8 shipped (both `verification_status` on asset_extensions and `intentionally_generic` on asset_loader_sites are now in the DB). Remaining work is the skill + CLI itself.
+**Status:** Baseline-cleanup DONE. Skill + CLI is design-sketch with no implementation work yet. Not blocking Pass 3 (dashboard). IS blocking a well-curated Phase 2f historical backfill.
 **Verification first:** `ls apps/qw-oracle/scripts/load-knowledge/review-*.ts ~/.claude/skills/extraction-review/ 2>&1` - if either exists, the skill+CLI is at least partly built.
 
 The problem this solves: today's pipeline extracts-then-loads silently. Novel findings (new entity types, new extensions, loader retirements, category shifts) pass without being captured as classification-hygiene events. Pass 2's `.kmap` finding was surfaced by accident; the next one will too. The mental model shift the user brought: "normally you'd document a release as it ships, but we're walking backwards through history - so we need a review process that runs per tag-pair, captures novelties as we go, and forces each finding into a disposition rather than silently absorbing it."
@@ -54,13 +56,13 @@ Review is the judgment layer; direction matters.
 
 Backward walk (head → oldest) is the alternative; weaker because head's classification is already the anchor, so temporal proximity doesn't buy you much.
 
-### Strengthen the baseline at head BEFORE Phase 2f
+### Strengthen the baseline at head BEFORE Phase 2f — ALL DONE
 
-If head is still unfinished when backfill runs, every tag-pair surfaces "novelty vs already-unclassified-at-head" ambiguity. Four items to land at head first so backfill asks crisp questions:
+The four-item baseline-cleanup pass is fully drained as of 2026-04-22 late night. Kept here for context on what shaped the review skill design; do not re-run.
 
-1. **Audit the 7 pending asset-extensions** (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`). **DONE 2026-04-22.** All seven stamped `ast_verified` in `apps/qw-oracle/docs/entity-types.md` § asset_extensions. Four backed by DB rows post-reload (`.loc`, `.lit`, `.dat`, `.qwz`); three verified via grep-cited source (`.log`, `.xml`, `.spr`) where the loader uses a wrapper not on the `LOADER_FUNCTIONS` watchlist. Three wrapper-gap classes surfaced (raw `fopen`, `CPageViewer_GoUrl`, `cl_modelnames[]` table-indirection); the other terminal has been iterating on extractor coverage. See `reference_asset_loader_extractor_capabilities.md` memory for current watchlist state.
-2. **Classify the 25 `unclassified` asset_loader_sites at head** (out of 110 total). Open. Framing refined during the 7-extension audit: the real shape is "widen the extractor to include wrapper classes it currently misses, THEN classify what's left," not "stamp the existing 25." The 25 are the generic-FS-primitive sub-class (`FS_OpenVFS`, `FS_LoadFile` etc. in `fs.c`) — arguably a distinct `intentionally_generic` confidence bucket rather than classifications to promote.
-3. **Decide `seed_only_no_ast_support` schema policy.** Open. `.dll` (intentional cross-engine signal) and `.kmap` (orphaned) need first-class DB representation - a `verification_status` column on relevant tables, or a separate annotations table - so the review skill can query for them cleanly. Today both are implicit in seed comments plus the entity-types.md prose audit.
+1. **Audit the 7 pending asset-extensions** (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`). **DONE 2026-04-22.** All seven stamped `ast_verified`. Four backed by DB rows (`.loc`, `.lit`, `.dat`, `.qwz`); three verified via grep-cited source (`.log`, `.xml`, `.spr`) where the loader uses a wrapper not on the `LOADER_FUNCTIONS` watchlist. Three wrapper-gap classes surfaced (raw `fopen`, `CPageViewer_GoUrl`, `cl_modelnames[]` table-indirection) — watchlist widening is a future extractor pass tracked separately.
+2. **Classify the unclassified `asset_loader_sites` at head.** **DONE 2026-04-22 late night.** Resolved via schema v8 + extractor change: added `intentionally_generic` confidence value, taught `handler_asset_loader_sites.py` to stamp the four FS-layer primitives (`FS_OpenVFS` / `FS_LoadFile` / `FS_LoadHunkFile` / `FS_WriteFile`) when called with `path_source='unknown'`. 24 unclassified rows → 0 unclassified, +24 `intentionally_generic`. Total at head now 128 (was 110; the unified extractor finds more sites than the legacy script). Commit `f243654`.
+3. **Decide `seed_only_no_ast_support` schema policy.** **DONE 2026-04-22 late night.** Resolved via schema v7: added `verification_status` (CHECK with four bucket values) + `verification_reason` columns directly on `asset_extensions`. `.kmap` stamped `orphaned_historical`, `.dll` stamped `seed_only_no_ast_support`, both with reason text. Migration is pure-additive (`ALTER TABLE ADD COLUMN` with literal DEFAULT + self-column CHECK; SQLite accepts this). Same column pattern can be applied to peer relation tables (`asset_cvar_bindings`, `asset_loader_sites`) when a real case appears — not done speculatively. Commit `5be9bf6`.
 4. **Write at least one Layer 3 concept note as a prototype.** **DONE 2026-04-22.** Two notes shipped in `apps/qw-oracle/concept-notes/`: `kmap-legacy-keymap-system.md` (historical-narrative shape, ~135 lines) and `engine-internal-vs-player-facing-files.md` (classifier-taxonomy shape, ~100 lines). Template documented in `concept-notes/README.md` - outer frame (Summary / topic-specific body / Consumer implications / References / Related) tested across both shapes without forcing. Layer 3 directory is the new home; `get_concept_note` MCP integration is future work.
 
 ### Proposed shape of the skill + CLI
@@ -74,9 +76,9 @@ Conceptually analogous to `docs-check` but for extraction hygiene instead of ses
 
 ### Recommended order of operations
 
-1. **Pass 3 (dashboard)** - unblocked. Separate session. Renders Pass 2 content as HTML.
-2. **Baseline-cleanup pass at head** - the 4 items above. One focused session.
-3. **Build the review skill + CLI** - one focused session (design + implementation).
+1. **Pass 3 (dashboard)** - DONE (shipped as markdown reshape, see "Interactive HTML dashboard (deferred)" entry below).
+2. **Baseline-cleanup pass at head** - DONE 2026-04-22 late night (all four sub-items above).
+3. **Build the review skill + CLI** - one focused session (design + implementation). **THIS IS THE NEXT STEP.**
 4. **Phase 2f historical backfill (forward-chronological)** - walk ezQuake tags 3.2.x → head. Review skill runs per tag-pair; findings captured as classified / orphaned / concept-noted / handover / rejected.
 5. **FTE / MVDSV / KTX ports** - each new engine's extraction uses the review skill from day one. New-engine ports become a natural test of the skill: genuine greenfield classification plus cross-engine orphans/retirements.
 
@@ -185,6 +187,28 @@ Zero. Not blocking anything. Only revive if the triggers above actually fire, no
 
 - Pass 3 final shape: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` § "Pass 3 — GitHub-navigable per-entity doc + README refresh" (revised 2026-04-22 late evening to drop the dashboard deliverables).
 - Doc philosophy spec that drove the revision: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`.
+
+---
+
+## Rebuild-and-load CLI subcommand
+
+**Added:** 2026-04-22 late night (wrap-up Track-B from the schema v7+v8 session)
+**Status:** Friction observed twice in one session, no implementation yet. Low pressure — the ad-hoc tsx scripts work, this is just an ergonomics smoothing.
+**Verification first:** `grep -n "rebuild-and-load\|rebuildAndLoad" apps/qw-oracle/scripts/load-knowledge/index.ts 2>&1` - if matched, the subcommand is already wired.
+
+During the schema v7 + schema v8 sessions, the same ritual repeated twice: write a temp tsx script that does `applySchema → buildAssetBundle → loadAssets` for `(project='ezquake', version='head')`, run it, delete it. Each script was ~30 lines of glue. A `npm run load-knowledge -- rebuild-and-load --project <p> --version <v>` subcommand in `index.ts` would compress this to one command.
+
+Shape:
+- Wire a third subcommand alongside the existing `load-version` / `load-assets` cases at `apps/qw-oracle/scripts/load-knowledge/index.ts`.
+- Internally: open DB (which triggers `applySchema` automatically via `openKnowledgeDb`), then `buildAssetBundle({ project, version })`, then look up the existing `versions` row for `commit_sha` / `ordinal` / `tag_date`, then `loadAssets` against the freshly written bundle.
+- Required flags: `--project`, `--version`. Optional: `--extractor-version` (default to the same string `load-assets` uses).
+- Error if no `versions` row exists for that (project, version) — the user must `load-version` first to seed the version.
+
+Why Track B and not Track A: minor ergonomic improvement, not blocking anything. Worth doing once it surfaces a third time, or once the extraction-review skill needs it as a primitive.
+
+### Pressure
+
+Zero. Ergonomic only. Skip until it surfaces a third time or until the review skill consumes it.
 
 ---
 
