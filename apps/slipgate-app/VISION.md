@@ -16,7 +16,7 @@ Slipgate App is a lightweight desktop companion that sits in the system tray and
 
 The app's core advantage is direct local access: it can scan your hardware, read your quake directory, parse your configs, and manage your client install without requiring you to upload anything first. A web interface could theoretically do most of the same things with a headless helper or file uploads, but the desktop app makes it frictionless. Where the data gets *displayed and manipulated* (desktop app vs web interface) is a design question the team has different opinions on - vikpe leans toward keeping features in the web, ParadokS and infiniti see value in the app being a front for some of them. Regardless of that debate, the local-access utility is undisputed.
 
-Some of the intended capabilities exist today (hardware scan, config parsing, client updater). Others are on the drawing board lower in this doc. For the current state of what is actually built, see `OVERVIEW.md`.
+Some of the intended capabilities exist today (hardware scan, config parsing, client updater). Others are on the drawing board lower in this doc. For the current state of what is actually built, see `OVERVIEW.md` (thin app-root map) and `docs/OVERVIEW.md` (full feature map).
 
 ## Who it's for
 
@@ -31,6 +31,34 @@ This is a public repo inside the QuakeWorld monorepo workshop. Contributions, is
 - **Shared identity.** Same Discord login as the community web side. One community identity across desktop and web, so your setup data, matches, and profile come together without duplication.
 - **Lightweight.** Tauri keeps the binary around 5-10 MB installed with minimal RAM usage. Gamers care about resource headroom; a 100 MB Electron companion would be a non-starter when the user is trying to hit 250+ FPS.
 - **Cross-platform intent.** Windows, macOS, Linux. Windows-native in practice today - non-Windows code paths exist as stubs but are not yet supported. Cross-platform is the intent, not the current reality.
+
+## Three subsystems carry the current thesis
+
+Most of what slipgate-app does today funnels through three subsystems. They are not the whole app - Profile, Tools, MyQuake Browse, and Settings all exist alongside them - but they are where the design thesis lives, and understanding them explains why the app is shaped the way it is.
+
+### ConfigViewer - the cvar system made legible
+
+An ezQuake config is a plain-text file of cvar sets, aliases, binds, and `exec` references to other files. In practice, an experienced player's config is a graph: `config.cfg` execs an autoexec chain, the autoexec chain references team-selector aliases, the team-selectors rewrite `tp_name_*` cvars, binds dispatch into aliases that read those cvars back, and cvars that are at engine defaults are omitted entirely from the saved file. Reading a config in a text editor is possible but asks the reader to simulate the whole graph in their head.
+
+The ConfigViewer's thesis is that this graph should be walked once by the app and rendered as a legible surface: every cvar categorized, every bind classified by what it actually does in combat, every alias chain expandable to its leaves, engine defaults filled in so nothing is invisible, `exec` chains followed recursively with cycle detection. The Compare mode exists because two captains looking at each other's configs is a concrete workflow the community already does manually with diff tools; the app makes it a two-click operation. The FTE converter exists because the same cvar graph needs to survive translation to a different client's dialect.
+
+This is the app's largest feature by a wide margin. Its size is load-bearing: the whole "desktop app is better than a web tool" claim hinges on whether the ConfigViewer genuinely surfaces things you couldn't easily see otherwise. If it does not, the app does not earn its install.
+
+### Updater - ezQuake install management without the GitHub tab open
+
+ezQuake ships via GitHub Releases (stable channel) and a nightly build server (snapshot channel). Experienced players cycle between the two depending on what they are testing. The manual flow is: open the GitHub release page, check your current `.exe`'s version, download the right zip, extract next to your install, hope nothing clobbered. Unofficial "unezQuake" builds and two server-side projects (KTX, MVDSV) sit next to ezQuake with their own release cycles; QWFWD is a fourth. Players maintaining their own server need changelog visibility on all three server-side projects without necessarily updating them from the desktop (they run on Linux).
+
+The Updater's thesis is a single hub for the five projects that matter, with each project treated at the right level: ezQuake and unezQuake are installable end-to-end (stable + snapshot, version detection via Windows PE `FileVersionRaw`, SHA256/MD5 verification, atomic rename-backup install); KTX, MVDSV, and QWFWD are changelog-browsing only because installing them from a desktop app makes no sense. The "parallel check all" button exists because noticing a new release is most of the friction; once you see it, deciding whether to update is fast.
+
+### Player State Simulator + StatePanel - ezQuake's macro system made inspectable
+
+ezQuake teamsay messages (`say_team`) are not plain text. They are strings with three layers of substitution: `$var` config-variables set via `set`, `%token` runtime macros the engine provides (`%health`, `%ammo`, `%location`, etc.), and `$X` single-char color/symbol codes. The macros resolve against live player state: health, armor, armor class, weapons, powerups, location, match status. This is why teamsays can say things like "need rl 50 50/red" conditionally based on what you actually have - the `if/then/else` trigger grammar evaluates expressions against those same state fields.
+
+Without a simulator, the only way to see what a teamsay will actually emit is to launch ezQuake, set up the exact state you care about (full health, LG, quad, specific location, etc.), and trigger the bind. This is tedious enough that most players never actually verify their teamsays; they write them once and hope.
+
+The Simulator is a pure-TS port of ezQuake's `Expr_Eval` grammar plus the derivation rules for `$weapons` / `$bestweapon` / `$powerups` / `$armortype` / `$colored_armor`. It takes a `PlayerState` (the 27 raw fields a live player has) and an alias body, walks the if/then/else tree, substitutes `$var` and `%token` refs, and returns what ezQuake would actually say. The StatePanel in the ConfigViewer's right rail lets the user edit that PlayerState sprite-by-sprite (face / armor / powerups / weapons) and see teamsay output update live. The Alias Chain Pretty View renders the output with real color codes, dims the inactive branch of if/then/else chains, and tints the active-leaf alias row so you can see which teamsay actually fires under the current state.
+
+The thesis is that the macro system has always been ezQuake's most powerful feature and its least legible one - and making it inspectable is exactly the kind of thing a local desktop tool with the full cvar graph in memory can do, but a web tool with a config upload cannot.
 
 ## What this is NOT
 

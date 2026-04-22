@@ -7,8 +7,9 @@
 When you need... | Read...
 ---|---
 Elevator pitch, tech stack, building from source | `README.md`
-A plain-English map of what's built right now | `docs/OVERVIEW.md`
-Why this project exists, long-term vision, drawing board | `docs/VISION.md`
+Why this project exists, long-term vision, drawing board | `VISION.md`
+Thin app-root map (status, tabs at a glance, integrations) | `OVERVIEW.md`
+Full feature map - every tab, subsystem, Rust command, parked-with-purpose item | `docs/OVERVIEW.md`
 Tech debt, cleanup priorities, known risks (2026-04-10 snapshot) | `docs/HEALTH.md`
 Dev environment setup (WSL+Windows split, rsync hook, troubleshooting) | `docs/DEVELOPMENT.md`
 Design system, OKLCH theming, UI rules | `docs/DESIGN.md`
@@ -22,7 +23,7 @@ What the hardware scan collects and how | `docs/SYSTEM-SPECS.md`
 EloShapes API reference for the peripheral database | `docs/PERIPHERAL-SELECTOR.md`
 Deploy/release notes | `DEPLOYMENT.md`
 
-Start with `OVERVIEW.md` when returning to the project after a break.
+Start with `docs/OVERVIEW.md` when returning to the project after a break - it is the full living feature map.
 
 ## Tech stack
 

@@ -36,7 +36,7 @@ Full context: `apps/qw-stats/README.md` (elevator pitch + getting started), `app
 
 Desktop companion for QuakeWorld players. Tauri v2 + SolidJS + Rust. Windows-native in practice. Reads hardware specs (CPU, GPU, RAM, monitors, peripherals) via WMI and SetupAPI, parses ezQuake configs (follows exec chains, classifies binds, resolves aliases), manages the ezQuake install (version detection, stable + snapshot updater), and renders all of it inside a 6-tab sidebar app. The biggest feature by far is the ConfigViewer subsystem (~20 components, ~3000 lines of frontend code plus a 2124-line Rust parser).
 
-Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW.md` (nested under `docs/` rather than at app root). A thin app-root OVERVIEW.md + VISION.md are open items per the per-app doc-philosophy-compliance HANDOVER umbrella.
+Full context: `apps/slipgate-app/README.md` (elevator pitch), `apps/slipgate-app/VISION.md` (rationale + three-subsystems thesis + drawing board), `apps/slipgate-app/OVERVIEW.md` (thin app-root map), `apps/slipgate-app/docs/OVERVIEW.md` (full feature map - the deep living doc), `apps/slipgate-app/CLAUDE.md` (rules).
 
 ### qw-oracle
 
@@ -196,7 +196,7 @@ External services and hosts that multiple apps rely on:
 
 ## What this doc intentionally does NOT cover
 
-- **Per-app feature details** - each app's own `OVERVIEW.md`. slipgate-app and qw-oracle have theirs today; quad / qw-stats / matchscheduler will have theirs written lazily when Claude next works in them.
+- **Per-app feature details** - each app's own `OVERVIEW.md`. All five apps have theirs as of 2026-04-22.
 - **Why any of this exists** - `VISION.md`.
 - **Session rules and workflow** - `CLAUDE.md`.
 - **Deploy details** - the `deploy` skill and per-app `DEPLOYMENT.md` files.
