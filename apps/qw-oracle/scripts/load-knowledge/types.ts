@@ -412,6 +412,12 @@ export interface AssetCategoryVersionRow {
 // Relation-row shapes for the four non-entity asset tables. These are
 // loaded via `load-assets` (not the per-type adapter dispatch).
 
+export type AssetExtensionVerificationStatus =
+  | 'ast_verified'
+  | 'seed_only_with_ast_support'
+  | 'seed_only_no_ast_support'
+  | 'orphaned_historical';
+
 export interface AssetExtensionRow {
   project: Project;
   version: string;
@@ -419,6 +425,8 @@ export interface AssetExtensionRow {
   path_hint: string | null;
   category_id: string;
   notes: string | null;
+  verification_status: AssetExtensionVerificationStatus;
+  verification_reason: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }

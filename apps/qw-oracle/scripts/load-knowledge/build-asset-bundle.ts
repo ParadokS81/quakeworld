@@ -53,6 +53,15 @@ interface ExtensionSeed {
   path_hint?: string;
   category: string;
   notes?: string;
+  // Optional per-row hygiene stamp. Defaults to 'ast_verified' when omitted
+  // (the common case). Stamp explicit values for orphaned entries (.kmap)
+  // and intentional cross-engine signals (.dll).
+  verification_status?:
+    | 'ast_verified'
+    | 'seed_only_with_ast_support'
+    | 'seed_only_no_ast_support'
+    | 'orphaned_historical';
+  verification_reason?: string;
 }
 
 interface PathRuleSeedRaw {
@@ -226,6 +235,8 @@ export function buildAssetBundle(
       path_hint: e.path_hint ?? null,
       category_id: cid,
       notes: e.notes ?? null,
+      verification_status: e.verification_status ?? 'ast_verified',
+      verification_reason: e.verification_reason ?? null,
       raw_ast_hash: null,
     });
   }

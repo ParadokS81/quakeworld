@@ -108,9 +108,13 @@ extensions:
     category: quakec_progs
   - extension: ".kmap"
     category: keymap
+    verification_status: orphaned_historical
+    verification_reason: "Loader subsystem removed in commit 46b5046 (2014-01-12, 1446 lines across 9 files). Files persist on user machines via the nQuake bundle (gpl/ezquake/ezquake.pk3) which has not refreshed against the removal. See concept-notes/kmap-legacy-keymap-system.md."
   - extension: ".spr"
     category: sprite
   - extension: ".qwz"
     category: demo_archive
   - extension: ".dll"
     category: plugin
+    verification_status: seed_only_no_ast_support
+    verification_reason: "Intentional cross-engine signal. Category 'plugin' is an FTE construct (fteplug_*.dll); ezQuake does not load these. The seed entry exists so consumers can recognize plugin .dll files as FTE-origin when classifying a user's quake directory."

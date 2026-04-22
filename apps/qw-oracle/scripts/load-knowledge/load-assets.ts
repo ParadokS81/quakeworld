@@ -110,6 +110,8 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
         path_hint: e.path_hint,
         category_id: e.category_id,
         notes: e.notes,
+        verification_status: e.verification_status,
+        verification_reason: e.verification_reason,
         raw_ast_hash: e.raw_ast_hash ?? hashRow(e),
         extracted_at: now,
       };

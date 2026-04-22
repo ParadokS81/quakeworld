@@ -228,6 +228,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:config",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -235,6 +237,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:pak",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -242,6 +246,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:pk3",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -249,6 +255,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:wad",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -256,6 +264,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:map",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -263,6 +273,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:model",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -270,6 +282,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:model",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -277,6 +291,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:sound",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -284,6 +300,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:sound",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -291,6 +309,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:demo",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -298,6 +318,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:demo",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -305,6 +327,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:demo",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -312,6 +336,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:demo",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -319,6 +345,8 @@
       "path_hint": "textures/",
       "category_id": "ezquake:asset_category:texture",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -326,6 +354,8 @@
       "path_hint": "skins/",
       "category_id": "ezquake:asset_category:skin",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -333,6 +363,8 @@
       "path_hint": "crosshairs/",
       "category_id": "ezquake:asset_category:crosshair",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -340,6 +372,8 @@
       "path_hint": "gfx/",
       "category_id": "ezquake:asset_category:hud_overlay",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -347,6 +381,8 @@
       "path_hint": "env/",
       "category_id": "ezquake:asset_category:skybox",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -354,6 +390,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:screenshot",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -361,6 +399,8 @@
       "path_hint": "textures/",
       "category_id": "ezquake:asset_category:texture",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -368,6 +408,8 @@
       "path_hint": "skins/",
       "category_id": "ezquake:asset_category:skin",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -375,6 +417,8 @@
       "path_hint": "crosshairs/",
       "category_id": "ezquake:asset_category:crosshair",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -382,6 +426,8 @@
       "path_hint": "gfx/",
       "category_id": "ezquake:asset_category:hud_overlay",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -389,6 +435,8 @@
       "path_hint": "env/",
       "category_id": "ezquake:asset_category:skybox",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -396,6 +444,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:screenshot",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -403,6 +453,8 @@
       "path_hint": "textures/",
       "category_id": "ezquake:asset_category:texture",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -410,6 +462,8 @@
       "path_hint": "skins/",
       "category_id": "ezquake:asset_category:skin",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -417,6 +471,8 @@
       "path_hint": "crosshairs/",
       "category_id": "ezquake:asset_category:crosshair",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -424,6 +480,8 @@
       "path_hint": "gfx/",
       "category_id": "ezquake:asset_category:hud_overlay",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -431,6 +489,8 @@
       "path_hint": "env/",
       "category_id": "ezquake:asset_category:skybox",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -438,6 +498,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:screenshot",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -445,6 +507,8 @@
       "path_hint": "skins/",
       "category_id": "ezquake:asset_category:skin",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -452,6 +516,8 @@
       "path_hint": "gfx/",
       "category_id": "ezquake:asset_category:conchar",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -459,6 +525,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:hud_overlay",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -466,6 +534,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:log",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -473,6 +543,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:locfile",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -480,6 +552,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:map_lighting",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -487,6 +561,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:help_xml",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -494,6 +570,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:quakec_progs",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -501,6 +579,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:keymap",
       "notes": null,
+      "verification_status": "orphaned_historical",
+      "verification_reason": "Loader subsystem removed in commit 46b5046 (2014-01-12, 1446 lines across 9 files). Files persist on user machines via the nQuake bundle (gpl/ezquake/ezquake.pk3) which has not refreshed against the removal. See concept-notes/kmap-legacy-keymap-system.md.",
       "raw_ast_hash": null
     },
     {
@@ -508,6 +588,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:sprite",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -515,6 +597,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:demo_archive",
       "notes": null,
+      "verification_status": "ast_verified",
+      "verification_reason": null,
       "raw_ast_hash": null
     },
     {
@@ -522,6 +606,8 @@
       "path_hint": null,
       "category_id": "ezquake:asset_category:plugin",
       "notes": null,
+      "verification_status": "seed_only_no_ast_support",
+      "verification_reason": "Intentional cross-engine signal. Category 'plugin' is an FTE construct (fteplug_*.dll); ezQuake does not load these. The seed entry exists so consumers can recognize plugin .dll files as FTE-origin when classifying a user's quake directory.",
       "raw_ast_hash": null
     }
   ],

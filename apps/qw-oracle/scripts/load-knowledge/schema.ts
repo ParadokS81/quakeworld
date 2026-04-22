@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -302,18 +302,31 @@ CREATE TABLE IF NOT EXISTS asset_category_versions (
 );
 
 CREATE TABLE IF NOT EXISTS asset_extensions (
-  id               INTEGER PRIMARY KEY,
-  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
-  version          TEXT NOT NULL,
-  extension        TEXT NOT NULL,
-  path_hint        TEXT,
-  category_id      TEXT NOT NULL REFERENCES entities(canonical_id),
-  notes            TEXT,
-  raw_ast_hash     TEXT,
-  extracted_at     TEXT NOT NULL,
+  id                     INTEGER PRIMARY KEY,
+  project                TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version                TEXT NOT NULL,
+  extension              TEXT NOT NULL,
+  path_hint              TEXT,
+  category_id            TEXT NOT NULL REFERENCES entities(canonical_id),
+  notes                  TEXT,
+  -- v7: per-row verification audit. Lifts the .kmap / .dll prose stamps from
+  -- entity-types.md into a queryable column so the future review skill (and
+  -- consumers like the dir-browser) can filter by hygiene status without
+  -- parsing markdown. Values mirror the four buckets documented in
+  -- apps/qw-oracle/docs/entity-types.md § Verification statuses.
+  verification_status    TEXT NOT NULL DEFAULT 'ast_verified' CHECK (verification_status IN (
+                           'ast_verified',
+                           'seed_only_with_ast_support',
+                           'seed_only_no_ast_support',
+                           'orphaned_historical'
+                         )),
+  verification_reason    TEXT,
+  raw_ast_hash           TEXT,
+  extracted_at           TEXT NOT NULL,
   UNIQUE (project, version, extension, path_hint)
 );
 CREATE INDEX IF NOT EXISTS idx_asset_ext_cat ON asset_extensions(category_id);
+CREATE INDEX IF NOT EXISTS idx_asset_ext_verif ON asset_extensions(verification_status);
 
 CREATE TABLE IF NOT EXISTS asset_path_rules (
   id               INTEGER PRIMARY KEY,
@@ -475,6 +488,23 @@ CREATE TABLE IF NOT EXISTS source_overrides (
 CREATE INDEX IF NOT EXISTS idx_source_overrides_entity ON source_overrides(entity_id, version);
 `;
 
+// v6 -> v7 adds verification_status + verification_reason to asset_extensions
+// so the per-row hygiene audit lives in the DB instead of entity-types.md
+// prose. Pure-additive: ALTER TABLE ADD COLUMN with a literal DEFAULT and a
+// self-referencing CHECK is supported by SQLite without a table rebuild.
+const SCHEMA_V7_MIGRATION_SQL = `
+ALTER TABLE asset_extensions
+  ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'ast_verified'
+    CHECK (verification_status IN (
+      'ast_verified',
+      'seed_only_with_ast_support',
+      'seed_only_no_ast_support',
+      'orphaned_historical'
+    ));
+ALTER TABLE asset_extensions ADD COLUMN verification_reason TEXT;
+CREATE INDEX IF NOT EXISTS idx_asset_ext_verif ON asset_extensions(verification_status);
+`;
+
 // v2 -> v3 rebuilds the entities table to add 'asset_category' to the
 // type CHECK. Same pattern as v1 -> v2.
 const ENTITIES_V3_MIGRATION_SQL = `
@@ -613,6 +643,16 @@ function migrateV5ToV6(db: Database.Database): void {
   txn();
 }
 
+function migrateV6ToV7(db: Database.Database): void {
+  // Pure-additive ALTER TABLE on asset_extensions. SQLite accepts
+  // ADD COLUMN with literal DEFAULT + self-column CHECK.
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V7_MIGRATION_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('7');
+  });
+  txn();
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -648,6 +688,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 5 && SCHEMA_VERSION >= 6) {
       migrateV5ToV6(db);
       existingVersion = 6;
+    }
+    if (existingVersion === 6 && SCHEMA_VERSION >= 7) {
+      migrateV6ToV7(db);
+      existingVersion = 7;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

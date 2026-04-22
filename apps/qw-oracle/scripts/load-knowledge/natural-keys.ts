@@ -289,10 +289,10 @@ export function upsertAssetExtension(db: Database.Database, row: AssetExtensionR
   db.prepare(`
     INSERT OR REPLACE INTO asset_extensions (
       project, version, extension, path_hint, category_id,
-      notes, raw_ast_hash, extracted_at
+      notes, verification_status, verification_reason, raw_ast_hash, extracted_at
     ) VALUES (
       @project, @version, @extension, @path_hint, @category_id,
-      @notes, @raw_ast_hash, @extracted_at
+      @notes, @verification_status, @verification_reason, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }

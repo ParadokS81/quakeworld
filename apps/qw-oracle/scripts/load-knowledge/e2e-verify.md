@@ -383,6 +383,48 @@ FROM asset_cvar_bindings WHERE cvar_canonical_id='ezquake:cvar:r_skyname';
 
 ---
 
+# E2E verification - schema v7 (asset_extensions verification audit)
+
+Schema v7 lifts the per-row hygiene audit on `asset_extensions` out of
+`apps/qw-oracle/docs/entity-types.md` prose and into two queryable columns:
+`verification_status` (one of four buckets) plus a free-text
+`verification_reason`. The migration is pure-additive (`ALTER TABLE ADD
+COLUMN` with literal DEFAULT and self-column CHECK), so existing rows
+default to `ast_verified` and only explicit seed entries deviate.
+
+```sql
+-- Which extension rows are NOT ast_verified, and why?
+SELECT extension, path_hint, verification_status,
+       SUBSTR(verification_reason, 1, 80) AS reason_preview
+FROM asset_extensions
+WHERE project='ezquake' AND version='head'
+  AND verification_status != 'ast_verified'
+ORDER BY extension;
+-- Expected at head: 2 rows.
+--   .dll  -> seed_only_no_ast_support  (FTE-only construct)
+--   .kmap -> orphaned_historical       (loader removed in commit 46b5046)
+```
+
+```sql
+-- Counts by status (sanity check after each reload).
+SELECT verification_status, COUNT(*) FROM asset_extensions
+WHERE project='ezquake' AND version='head'
+GROUP BY verification_status;
+-- Expected at head:
+--   ast_verified              268
+--   orphaned_historical         1
+--   seed_only_no_ast_support    1
+```
+
+The four-bucket meaning is documented in
+`apps/qw-oracle/docs/entity-types.md` § Verification statuses. Adding a
+new exception is two lines of YAML in
+`packages/qw-config/seeds/ezquake-asset-extensions.yaml`
+(`verification_status` + `verification_reason`); rebuild the bundle and
+re-run `load-assets` to populate.
+
+---
+
 # E2E verification - Phase 2f Batch 2 (schema v5: flag_bit + relation_changes)
 
 Batch 2 adds a 10th entity type (`flag_bit`) and a parallel diff stream

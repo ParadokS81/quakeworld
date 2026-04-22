@@ -335,14 +335,21 @@ Every entity type and every individual row in the DB carries one of four statuse
 
 **Tagline:** "This file extension belongs to this category in this project version."
 
-**Verification status:** seed_only_with_ast_support at the fleet level; individual row findings below.
+**Verification status:** seed_only_with_ast_support at the fleet level; individual row stamps live in `asset_extensions.verification_status` (schema v7, 2026-04-22).
 
 **What it entails:** A (project, version, extension, path_hint) tuple mapping a file on disk to a category. `path_hint` disambiguates multi-purpose extensions - `.tga` in `textures/` is a texture, `.tga` in `skins/` is a skin, `.tga` with no hint defaults to screenshot.
 
-**Known row-level findings (2026-04-22):**
-- `.kmap` - **orphaned_historical**. ezQuake removed the keymap loader subsystem in commit `46b5046` (2014-01-12, 1446 lines removed across 9 files). `.kmap` files are no longer distributed by ezQuake the project. They continue to appear on user machines in 2026 because nQuake (the community installer) bundles them inside its curated `gpl/ezquake/ezquake.pk3` and has not refreshed that bundle against the 2014 removal. Full story: `apps/qw-oracle/concept-notes/kmap-legacy-keymap-system.md`.
-- `.dll` - **seed_only_no_ast_support** (intentional). Category `plugin` is an FTE construct (`fteplug_*.dll`); ezQuake does not load these. The seed carries the entry as a cross-engine presence signal, not a claim about ezQuake.
-Audit completed 2026-04-22 late night. All seven speculative extensions from commit `119dd0e` stamp **ast_verified** — the seed author's claims were correct. Four verified via DB rows (post-reload of the asset bundle), three verified via grep-cited source evidence where the loader goes through a wrapper not yet on the extractor's `LOADER_FUNCTIONS` watchlist.
+**Per-row hygiene audit:** As of schema v7 the four-bucket verification status carries through to a column. Query:
+
+```sql
+SELECT extension, verification_status, verification_reason
+FROM asset_extensions
+WHERE verification_status != 'ast_verified';
+```
+
+At ezQuake head this returns 2 rows: `.kmap` (`orphaned_historical` - loader subsystem removed in commit `46b5046`, 2014-01-12; files persist via the nQuake bundle - full story in `apps/qw-oracle/concept-notes/kmap-legacy-keymap-system.md`) and `.dll` (`seed_only_no_ast_support` - intentional cross-engine signal, FTE-only construct that ezQuake does not load).
+
+The seven speculative extensions audited 2026-04-22 (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) all stamp **ast_verified**. Four are confirmed by DB rows; three (`.log`, `.xml`, `.spr`) are verified via grep-cited source evidence where the loader uses a wrapper not on the extractor's `LOADER_FUNCTIONS` watchlist.
 
 - `.loc` - **ast_verified** (DB: 3 rows). Primary loader `src/teamplay_locfiles.c:84` `TP_LoadLocFile`, autoloaded on map change at `:558-560` via `va("%s.loc", mapname)` with mapgroup fallback. Also exposed as `loadloc`/`saveloc`/`addloc`/`removeloc` console commands.
 - `.lit` - **ast_verified** (DB: 5 rows). Loaded via `FS_LoadHunkFile` deref-assignment pattern in `r_brushmodel_load.c`; the engine reads colored-lightmap overrides when present alongside the `.bsp`.
