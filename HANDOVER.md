@@ -8,7 +8,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status
 - [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
@@ -140,27 +139,6 @@ Not blocking Pass 3 (that's the immediate next session, orthogonal). Blocking a 
 - Phase 2d-2h umbrella (below) - Phase 2f is the trigger; baseline-cleanup reorders the first steps of that umbrella.
 - Layer 1 identity model spec (`docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md`) - the artifact-derived bucket shares this review pattern when its parsers ship.
 - User feedback memories: `feedback_every_finding_gets_a_track.md` (the closed-disposition-set principle), `feedback_best_tool_no_overkill.md` (CLI + skill composition rather than one monolithic tool).
-
----
-
-## Pretty view + StatePanel visual polish
-
-**Added:** 2026-04-17
-**Updated:** 2026-04-19 — StatePanel pass landed (sprite tiers + two-column layout, see OVERVIEW.md). User wants to continue iterating on sizing / spacing / interaction polish in a new terminal focused on UI. Pretty-view visual polish still untouched.
-**Verification first:** ask the user what they landed on before doing anything -- this is intentionally judgment-heavy and needs the user's eye in the loop.
-
-The pretty view and the StatePanel both shipped in their first functional form across 2026-04-17. User has identified that both need visual refinement once real usage surfaces what the display should actually communicate:
-
-- **StatePanel:** first denoise + sprite-first redesign landed 2026-04-18/19. Vitals tier (face+HP / GA/YA/RA), Powerups tier, Weapons tier (2+2 then 2+1+1 family grid, ammo input per family, in-sprite `EQ` chip). Two-column panel layout claims horizontal space; collapsed disclosures (Location / Match / LEDs / Events) sit in the right column with the templates header. HUD-ring sketch idea explicitly scrapped. Active iteration area: slot / cell sizing, spacing rhythm, EQ chip discoverability, potential use of `anum_*` / `num_*` / `face_p*` sprites.
-- **Pretty view:** untouched this session. The readability wins are there (colors render, $vars substitute, runtime tokens label or simulate) but the typography/spacing/active-leaf affordance is an early cut. Especially the dotted-underline + hover convention for variable/runtime spans deserves a second look once the user tries it against dense teamsay configs.
-
-Both items are creative / iterative -- not the kind of thing to grind through solo. Pair with the user next session.
-
-### Related
-
-- StatePanel: `apps/slipgate-app/src/components/StatePanel.tsx`
-- Pretty view CSS: `apps/slipgate-app/src/app.css` (search `sg-span-`)
-- Active-leaf tint: `.sg-alias-chain-entry-active` in the same CSS file
 
 ---
 
