@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""Unified ezQuake AST extraction driver (Step 2: parallel).
+"""Unified ezQuake AST extraction driver.
 
 Parses each .c file in ezquake-source/src/ once (client variant + server
-variant) and dispatches the two translation units to each registered handler.
-Replaces the 7 full-repo libclang extractors with a single shared parse pass.
+variant) and dispatches the two translation units to each registered handler
+via a shared cursor walk. Replaces the 8 legacy per-entity libclang
+extractors archived at scripts/_legacy/.
 
-STEP 2 OF THE OPTIMIZATION PLAN -- parallel execution via multiprocessing.Pool
-on fork start method (validated by pre-flight spike). Step 1 (unified serial
-architecture) is still reachable via --workers 1 or --serial for debugging.
+Architecture:
+  - Per-handler setup() runs once in the parent (before Pool fork).
+  - multiprocessing.Pool (fork mode, validated by spike) across file chunks.
+  - Inside each worker: for every file, one client TU parse + one server TU
+    parse, then walk_tu_dispatch delivers every cursor to every Visitor.
+  - Per-tag wall time on 12-core Ryzen: ~14s (vs ~830s legacy serial estimate).
 
-Until the old extractors are retired, the driver writes outputs with a
-".unified" suffix so the committed .json files still come from the legacy
-per-entity extractors. Diff at the natural-key level, not byte level.
+Output: canonical <output-dir>/ezquake-<entity>-ast.json files. The original
+verification phase used a .unified suffix to diff against legacy; that bar
+is cleared (32/32 PASS across HEAD + 3.6.6 + 3.6.0 + 3.2.3) and the driver
+now writes canonical names by default. Pass --validation-suffix to re-enable
+.json.unified output for comparison against archived legacy scripts.
 
 Usage:
     python3 extract-ezquake-unified.py \\
@@ -244,6 +250,9 @@ def parse_args():
                     help="Force serial execution (equivalent to --workers 1).")
     ap.add_argument("--progress-every", type=int, default=25,
                     help="Serial mode: print a progress line every N files (0 to disable).")
+    ap.add_argument("--validation-suffix", action="store_true",
+                    help="Write outputs with a .json.unified suffix instead of the canonical "
+                         ".json. Used when diffing against archived legacy scripts.")
     return ap.parse_args()
 
 
@@ -282,12 +291,13 @@ def main() -> int:
         chunk_size = max(4, len(c_files) // max(1, workers * 2))
 
     mode_label = "serial" if workers == 1 else f"parallel x {workers}"
+    suffix_label = ".json.unified" if args.validation_suffix else ".json"
 
     print(f"ezQuake unified AST extraction ({mode_label})")
     print(f"  repo:     {ezq_repo}")
     print(f"  src:      {ezq_src} ({len(c_files)} .c files)")
     print(f"  handlers: {[h.name for h in handlers]}")
-    print(f"  output:   {output_dir} (.json.unified suffix)")
+    print(f"  output:   {output_dir} ({suffix_label})")
     print()
 
     clang_args_client = clang_args_for(str(ezq_src))
@@ -315,8 +325,9 @@ def main() -> int:
     print(f"\nParse + visit phase: {parse_time:.1f}s")
 
     # Finalize and write per-handler outputs.
+    suffix = ".unified" if args.validation_suffix else ""
     for h in handlers:
-        out_path = output_dir / f"{h.output_filename}.unified"
+        out_path = output_dir / f"{h.output_filename}{suffix}"
         output = h.finalize(all_rows=rows_by_handler[h.name], repo_root=ezq_repo)
         out_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
         print(f"  [{h.name}] {len(rows_by_handler[h.name])} raw rows -> {out_path}")
