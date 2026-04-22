@@ -111,6 +111,19 @@ def test_pointer_deref_assignment_recovers_template():
     assert s.format_function == "va", f"format_function={s.format_function!r}"
 
 
+def test_multiple_deref_assignments_pick_nearest_prior():
+    # Two *litfilename = va(...) writes precede the loader call. Classifier
+    # must select the NEAREST prior ("maps/%s.lit"), not the first one
+    # ("lits/%s.lit"). Guards the strict-before + nearest semantics shared
+    # with _lookup_buffer_write_in_compound.
+    sites = _extract_sites(FIXTURE_DIR / "08_multiple_deref_assignments.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadHunkFile"]
+    assert len(loaders) == 1, f"expected 1 FS_LoadHunkFile site, got {len(loaders)}"
+    s = loaders[0]
+    assert s.path_template == "maps/%s.lit", f"path_template={s.path_template!r}"
+    assert s.format_function == "va"
+
+
 if __name__ == "__main__":
     tests = [fn for name, fn in globals().items() if name.startswith("test_")]
     failed = 0

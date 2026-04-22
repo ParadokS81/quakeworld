@@ -637,8 +637,7 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
             if param is not None:
                 template = param[0]
                 return "computed", template, None, param
-        # Fall through to "unknown" when no deref write matches.
-        return "unknown", None, None, None
+        # Fall through to "unknown" below when no deref write matches.
 
     if node.kind == CursorKind.DECL_REF_EXPR and enclosing_compound is not None:
         loc = arg_cursor.location
