@@ -62,7 +62,7 @@ Remaining work (all tracked in `HANDOVER.md`):
 
 Earlier POC / service design: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` (architecture) and `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (MCP POC, orthogonal track).
 
-Full context: `apps/qw-oracle/CLAUDE.md` (rewritten 2026-04-20 to match two-database three-layer reality).
+Full context: `apps/qw-oracle/CLAUDE.md`, `apps/qw-oracle/OVERVIEW.md` (pipeline + machinery map), `apps/qw-oracle/SCHEMA.md` (Layer 1 data model), `apps/qw-oracle/VISION.md`.
 
 ## Integration map
 
@@ -128,7 +128,7 @@ Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology,
 
 Shared cvar definitions database for ezQuake and FTE. Consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. The source of truth for "what does this cvar do" across the ecosystem.
 
-Also home to the **AST-based libclang extractor family** (11 scripts at `packages/qw-config/scripts/extract-ezquake-*-clang.py`, all accepting `--repo-root` / `--output`). Covers cvars, commands, macros, cmdline params, keynames, hud elements, rulesets, token primitives, plus asset-consumption passes (cvar bindings, loader sites, path-rules verifier). JSON outputs are the input contract for qw-oracle's knowledge-db loader. Extractors auto-detect `<repo>/src` vs repo-root layouts so they work across ezQuake's pre-2023 and post-2023 tags.
+Also home to the **unified AST-based libclang extractor** at `packages/qw-config/scripts/extract-ezquake-unified.py`, backed by the `extractor_lib/` handler package. One parse pass per file (client + server variants) is shared across all 8 entity handlers via a Visitor / shared-walk dispatcher, with `multiprocessing.Pool` across files. Handlers: commands, cvars, macros, cmdline params, keynames, hud elements, asset-cvar-bindings, asset-loader-sites. Three text/regex extractors remain as siblings (`extract-ezquake-flag-bits-clang.py`, `-rulesets-clang.py`, `-token-primitives-clang.py`) -- they were never libclang-based despite the filename. 8 legacy per-entity libclang scripts are archived at `scripts/_legacy/` (git-tracked, kept as fallback reference for full-history backfill). Extractors auto-detect `<repo>/src` vs repo-root layouts so they work across ezQuake's flat-layout era (3.2.x) and the modern src/ era (3.6+). Verified 32/32 PASS per-entity against legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3. Measured on a Ryzen 9 3900X (2026-04-22): ~14s per tag vs 749s legacy sequential pipeline -- 55x. JSON outputs are the input contract for qw-oracle's knowledge-db loader.
 
 ## Contracts and cross-project specs
 
@@ -162,7 +162,7 @@ External services and hosts that multiple apps rely on:
 
 ## What this doc intentionally does NOT cover
 
-- **Per-app feature details** - each app's own `docs/OVERVIEW.md`. slipgate-app has one today; quad / qw-stats / qw-oracle / matchscheduler will have theirs written lazily when Claude next works in them.
+- **Per-app feature details** - each app's own `OVERVIEW.md`. slipgate-app and qw-oracle have theirs today; quad / qw-stats / matchscheduler will have theirs written lazily when Claude next works in them.
 - **Why any of this exists** - `VISION.md`.
 - **Session rules and workflow** - `CLAUDE.md`.
 - **Deploy details** - the `deploy` skill and per-app `DEPLOYMENT.md` files.

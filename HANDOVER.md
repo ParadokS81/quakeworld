@@ -51,7 +51,7 @@ Both items are creative / iterative -- not the kind of thing to grind through so
 
 ### Remaining sub-phases (roadmap reordered 2026-04-20)
 
-**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20.
+**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20. **2026-04-22 update:** extraction is now ~55x faster (`extract-ezquake-unified.py`, shared-walk + 12-core parallelism — ~14s per tag vs 749s legacy sequential). A 15-tag backfill that would have taken ~3 hours now takes ~4 minutes of extraction time. Verified byte-equivalent to legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3 (spanning the flat-repo / src-dir layout boundary). The orchestration work (diff + blame + enrich) is the remaining cost.
 
 **Tier 2 — Phase 2d FTE cvars.** First second-engine port. Biggest structural risk left — validates the project-keyed schema on a codebase with different layout (`engine/client/`, `engine/server/`, etc.). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signaling the extractor must emit repo-relative paths directly.
 
@@ -87,21 +87,23 @@ Not blocking anything. User is proceeding at their own pace. No freeze, no deadl
 ## qw-config package missing Layer 1 quartet
 
 **Added:** 2026-04-18
-**Status:** Pre-existing gap. Not caused by the AST spike but surfaced during wrap-up.
+**Status:** Pre-existing gap. Substantially touched on 2026-04-22 (unified AST extractor refactor) without quartet being filled in — user consciously chose to defer again.
 **Verification first:** `ls /home/paradoks/projects/quakeworld/packages/qw-config/{CLAUDE.md,VISION.md,OVERVIEW.md} 2>&1`. If all three exist, resolved.
 
-The qw-config package has a substantial `README.md` (96 lines, reasonably thorough) but is missing the other three mandatory-quartet files: `CLAUDE.md`, `VISION.md`, `OVERVIEW.md`. Per the doc philosophy (`docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`), every project — including shared packages — has the quartet.
+The qw-config package has a substantial `README.md` (now ~110 lines after the 2026-04-22 unified-extractor update) but is missing the other three mandatory-quartet files: `CLAUDE.md`, `VISION.md`, `OVERVIEW.md`. Per the doc philosophy (`docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`), every project — including shared packages — has the quartet.
 
 **Update 2026-04-21:** sibling package `qw-knowledge` received its full quartet (commits `cd8a155` + `efeeba0`). qw-config is the remaining gap.
 
+**Update 2026-04-22:** qw-config was touched substantially this session — unified AST extractor, 8-handler package under `extractor_lib/`, archival of 8 legacy scripts to `_legacy/`, verifier, 55x speedup. The README got a material update to reflect the unification. Quartet files still not written — deferred again with user's OK; the refactor was the focus. Next substantial qw-config touch should NOT defer the quartet a third time.
+
 ### Fix shape
 
-Don't sweep. When Phase 2 work lands and starts adding significantly to `qw-config` (new extractors, SQLite loader, new data format), pause to:
+Don't sweep. When next significant qw-config work happens, pause to:
 1. Split `CLAUDE.md` from `README.md` — rules for Claude go in `CLAUDE.md`, product description stays in `README.md`
 2. Write `VISION.md` — why qw-config exists (shared engine-feature database, authoritative-source discipline, consumer-agnostic)
-3. Write `OVERVIEW.md` — the living map: all extractors, all data files, all consumers, with lifecycle status
+3. Write `OVERVIEW.md` — the living map: all extractors (incl. the new unified driver + `extractor_lib/`), all data files, all consumers, with lifecycle status. Distinct from the _legacy/ archive which stays flat.
 
-The README already contains most of the OVERVIEW content; the work is mostly restructuring, not writing from scratch.
+The README already contains most of the OVERVIEW content; the work is mostly restructuring, not writing from scratch. After today's update the README also mentions the unified extractor explicitly — OVERVIEW would lift that structural map into its own doc.
 
 ### Related
 

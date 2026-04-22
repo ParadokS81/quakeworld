@@ -27,10 +27,26 @@ See feedback memory `feedback_exhaustive_mapping.md` for the full rule and histo
 
 Two extractor families live side-by-side in `scripts/`:
 
-- **Bun/TypeScript extractors (`*.ts`)** — the original regex-based approach. Still the production source for all data files in `src/data/`. Idempotent.
-- **Python/libclang extractors (`*-clang.py`)** — research-spike AST-based approach validated for ezQuake cvars on 2026-04-18. Produces richer output (flags, OnChange callbacks, source line numbers, trailing comments) into `src/data/ezquake-variables-ast.json`, sitting alongside the regex output. See `docs/extraction-comparison-report.md` for the full comparison and Phase 2 plan. Requires system packages `libclang-dev` + `python3-clang` (Ubuntu/WSL: `sudo apt-get install -y libclang-dev python3-clang`).
+- **Bun/TypeScript extractors (`*.ts`)** — the original regex-based approach. Still the production source for slipgate-consumed data files in `src/data/` like `ezquake-variables.json`, `ezquake-commands.json`, etc.
+- **Python/libclang unified extractor (`extract-ezquake-unified.py`)** — AST-based. One pass parses each `.c` file once (client + server variants) and dispatches a shared cursor walk to 8 entity handlers in parallel via `multiprocessing.Pool`. Produces the `-ast.json` variants consumed by qw-oracle's knowledge-db loader. See `extractor_lib/` for the handler package and `extractor_lib/_visitor.py` for the shared-walk dispatcher. Requires system packages `libclang-dev` + `python3-clang` (Ubuntu/WSL: `sudo apt-get install -y libclang-dev python3-clang`).
 
-The TypeScript extractors below remain the production source today. The AST path is scheduled to replace them in Phase 2.
+Three text/regex Python extractors remain as siblings — they never used libclang despite the filename: `extract-ezquake-flag-bits-clang.py`, `-rulesets-clang.py`, `-token-primitives-clang.py`. 8 legacy per-entity libclang scripts are archived at `scripts/_legacy/` (git-tracked), superseded by the unified driver. See `scripts/_legacy/README.md` for the legacy -> ported-handler mapping.
+
+### Running unified AST extraction
+
+```bash
+cd packages/qw-config
+python3 scripts/extract-ezquake-unified.py --handlers all --workers 12
+# Default: writes packages/qw-config/src/data/ezquake-<entity>-ast.json
+# Options: --repo-root <path>   run against a different ezquake-source checkout
+#          --handlers commands,cvars  run a subset
+#          --output-dir /tmp/out      avoid clobbering committed data
+#          --validation-suffix        write .json.unified instead (compare runs)
+```
+
+Measured on a 12-core Ryzen (2026-04-22): ~14s for all 8 handlers on ezQuake HEAD (305 .c files). Verified byte-equivalent to legacy output per natural-key set equality + deep value compare across HEAD + 3.6.6 + 3.6.0 + 3.2.3 (spanning the flat-repo / src-dir layout boundary). Documented baseline: 749s legacy sequential on the same machine.
+
+The TypeScript extractors below remain the production source for slipgate-consumed flat JSON. AST migration for those consumers is tracked as a separate effort.
 
 | Script | Regenerates | When to run |
 |---|---|---|
