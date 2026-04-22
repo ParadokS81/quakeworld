@@ -10,26 +10,51 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [Knowledge-service realignment roadmap — Pass 2 and Pass 3 pending](#knowledge-service-realignment-roadmap--pass-2-and-pass-3-pending) — 2026-04-22 umbrella. Pass 1 doc realignment **shipped 2026-04-22 evening**. Pass 2 per-entity formal docs + Pass 3 HTML dashboard still pending. Each pass is a separate session.
+- [Knowledge-service realignment roadmap — Pass 3 pending](#knowledge-service-realignment-roadmap--pass-3-pending) — 2026-04-22 umbrella. Pass 1 doc realignment **shipped 2026-04-22 evening**. Pass 2 per-entity formal docs **shipped 2026-04-22 evening**. Pass 3 HTML dashboard still pending.
+- [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status. Not blocking Pass 3.
 
 ---
 
-## Knowledge-service realignment roadmap — Pass 2 and Pass 3 pending
+## Knowledge-service realignment roadmap — Pass 3 pending
 
 **Added:** 2026-04-22
-**Updated:** 2026-04-22 evening — Pass 1 shipped. Ecosystem model reframed from three-tier to two-part (knowledge foundation + consumers, connected via MCP live queries and snapshot distribution). qw-config framed as transitional holding pen that dissolves on slipgate migration; quartet explicitly not written.
-**Status:** Roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Dashboard mockup v2 at `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`. Pass 1 committed; Pass 2 and Pass 3 each pending in separate focused sessions.
-**Verification first:** `ls docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md apps/qw-oracle/docs/entity-types.md docs/architecture.html 2>&1`. If `entity-types.md` exists, Pass 2 shipped. If `architecture.html` exists, Pass 3 shipped.
+**Updated:** 2026-04-22 evening — Pass 1 and Pass 2 both shipped in back-to-back sessions (user opted to continue rather than context-switch, with explicit discipline around Pass 2's drift guards). Pass 3 dashboard build still pending.
+**Status:** Roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Dashboard mockup v2 at `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`. Pass 1 + Pass 2 committed; Pass 3 remains for a fresh focused session.
+**Verification first:** `ls apps/qw-oracle/docs/entity-types.md docs/architecture.html docs/architecture-data.json 2>&1`. If `architecture.html` and `architecture-data.json` both exist, Pass 3 shipped - remove this entry.
 
-Monorepo structure drifted from reality (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as a permanent package when it is a transitional holding pen; no formal per-entity documentation of the 10 ezQuake entity types). Pass 1 fixed the vision-layer drift across root + qw-oracle + slipgate VISION/OVERVIEW. Pass 2 and Pass 3 remain.
-
-The roadmap introduces verification-status as a first-class extractor-hygiene concept. Triggering discovery: `.kmap` seed YAML entry (`packages/qw-config/seeds/ezquake-asset-extensions.yaml`) claims ezQuake loads keymap files, but ezQuake commit `46b5046` (2014-01-12) removed keymap loader support. Files still ship in `ezquake.pk3/keymaps/` but no current C code consumes them. Pass 2's audit surfaces all `.kmap`-class findings; Pass 3's dashboard makes verification status visible per entity type.
+Monorepo structure drifted from reality (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as a permanent package when it is a transitional holding pen; no formal per-entity documentation of the 10 ezQuake entity types). Pass 1 fixed the vision-layer drift. Pass 2 wrote the per-entity documentation with verification-status audit. Pass 3 renders both into the interactive HTML dashboard.
 
 ### Pass-by-pass summary
 
-- **Pass 1 — Monorepo doc realignment** — **SHIPPED 2026-04-22 evening.** Reframed the monorepo's vision docs to the two-part ecosystem model (knowledge foundation + consumers, MCP + snapshot distribution as serving surfaces). Folded in the web-services-family addendum. Explicitly did NOT write a qw-config quartet (the package is dissolving, so formalization works against the intent). Committed in the same pass as the roadmap edits themselves.
-- **Pass 2 — Per-entity formal documentation** (docs-only). Ten ezQuake entity types get formal writeups using the five-field-plus-verification-status template defined in the roadmap. Output file is `apps/qw-oracle/docs/entity-types.md` (or a restructured SCHEMA.md section). Audits seed YAMLs against AST output; marks each entry's verification status. Expected finding: `.kmap` = `orphaned_historical`. Other entries in the "9 missing loader families" list need per-entry audits. Drift guards: no extractor rewrites, no seed-YAML repairs (audit + document only), no schema changes, no dashboard work.
-- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no ecosystem-model rewording, no backend or build step.
+- **Pass 1 — Monorepo doc realignment** — **SHIPPED 2026-04-22 evening** (commit `129eb1e`). Reframed the monorepo's vision docs to the two-part ecosystem model (knowledge foundation + consumers, MCP + snapshot distribution as serving surfaces). Folded in the web-services-family addendum. Explicitly did NOT write a qw-config quartet (the package is dissolving, so formalization works against the intent).
+- **Pass 2 — Per-entity formal documentation** — **SHIPPED 2026-04-22 evening** (same session as Pass 1, separate commit). Ten ezQuake entity types written up in `apps/qw-oracle/docs/entity-types.md` using the five-field-plus-verification-status template. Key findings surfaced: `.kmap` = `orphaned_historical` (loader removed in ezQuake commit `46b5046`, 2014-01-12); `.dll` = `seed_only_no_ast_support` (intentional cross-engine presence signal); seven asset-extension entries (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) flagged for per-row audit (captured as its own HANDOVER item below).
+- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no ecosystem-model rewording, no backend or build step. **Pass 3 should run in a fresh session** - the content lives in Pass 2's file, so Pass 3 can read it cold without inheriting build-time context.
+
+---
+
+## Pass 2 follow-up: asset-extension per-row verification-status audit
+
+**Added:** 2026-04-22 (evening, during Pass 2)
+**Status:** Pass 2 flagged 7 rows in `packages/qw-config/seeds/ezquake-asset-extensions.yaml` as "audit pending" for verification-status: `.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`. The Pass 2 doc (`apps/qw-oracle/docs/entity-types.md` § asset_extensions) documents the shape of the audit without executing the row-level stamp.
+**Verification first:** Check whether `entity-types.md` § asset_extensions still lists "audit pending" for these seven extensions; if all seven are stamped with a real verification-status, this entry is resolved.
+
+The audit is mechanical: for each of the seven extensions, walk the ezQuake source and either (a) find a concrete loader site that reads the extension and stamp `ast_verified`; (b) find no loader evidence and stamp `seed_only_no_ast_support` (likely for `.qwz` which is decoded externally by qwdtools); or (c) find the loader site was removed at a specific commit and stamp `orphaned_historical` (as already done for `.kmap`).
+
+Best done alongside or after Phase 2f historical backfill, when the extraction toolchain is warm and cross-version visibility is at its best. Not blocking Pass 3.
+
+### Fix shape
+
+1. Run the unified extractor's `asset-loader-sites` handler and query `reads_category_id` groupings for each of the seven extensions.
+2. For any extension with zero loader sites at head, check git history via `git log -p -- <plausible path>` to find the commit that removed loader support (the `.kmap` case is the template; commit `46b5046` removed keymap loading on 2014-01-12).
+3. Stamp each row's status in the entity-types.md sub-section. Do NOT edit the seed YAML - document findings, don't silently fix.
+4. If an extension is confirmed `orphaned_historical`, open a separate future-pass HANDOVER item for seed-YAML cleanup (category decision: keep-as-archive vs remove).
+
+### Related
+
+- Pass 2 doc: `apps/qw-oracle/docs/entity-types.md` § asset_extensions.
+- Seed: `packages/qw-config/seeds/ezquake-asset-extensions.yaml`.
+- `.kmap` template finding: ezQuake commit `46b5046` (2014-01-12) removed keymap loader.
+- Pre-existing related entry: "Asset-bundle loader-family gaps" in the Phase 2d-2h umbrella section lower down (the audit and the gap-fill work are complementary).
 
 ### Session-start template (use exactly this)
 
