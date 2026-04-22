@@ -431,6 +431,61 @@ def _find_enclosing_compound_from_stack(compound_stack):
     return compound_stack[-1] if compound_stack else None
 
 
+def _unary_op_token(cursor, source_bytes: bytes) -> Optional[str]:
+    """Return the operator token of a prefix UNARY_OPERATOR by slicing the
+    source text between the unary's start and its operand's start. Works for
+    '*', '&', '!', '-', '+', '~'. Returns None for non-unary or postfix."""
+    if cursor.kind != CursorKind.UNARY_OPERATOR:
+        return None
+    children = list(cursor.get_children())
+    if not children:
+        return None
+    operand = children[0]
+    try:
+        start = cursor.extent.start.offset
+        end = operand.extent.start.offset
+    except AttributeError:
+        return None
+    if start >= end:
+        return None
+    prefix = source_bytes[start:end].decode("utf-8", errors="replace").strip()
+    return prefix if prefix else None
+
+
+def _binary_op_token(cursor, source_bytes: bytes) -> Optional[str]:
+    """Return the operator token of a BINARY_OPERATOR by slicing the source
+    text between LHS end and RHS start. Strips whitespace. Distinguishes '='
+    from '==' / '+=' / etc."""
+    if cursor.kind != CursorKind.BINARY_OPERATOR:
+        return None
+    children = list(cursor.get_children())
+    if len(children) != 2:
+        return None
+    lhs, rhs = children
+    try:
+        start = lhs.extent.end.offset
+        end = rhs.extent.start.offset
+    except AttributeError:
+        return None
+    if start >= end:
+        return None
+    return source_bytes[start:end].decode("utf-8", errors="replace").strip()
+
+
+def _drill_to_decl_ref(cursor, depth: int = 4):
+    """Walk cursor's first child a few levels to find a DECL_REF_EXPR.
+    Returns the cursor if found, else None."""
+    n = cursor
+    for _ in range(depth):
+        if n.kind == CursorKind.DECL_REF_EXPR:
+            return n
+        ch = list(n.get_children())
+        if not ch:
+            break
+        n = ch[0]
+    return n if n.kind == CursorKind.DECL_REF_EXPR else None
+
+
 def _lookup_buffer_write_in_compound(compound, var_name: str, before_line: int,
                                       before_col: int, source_bytes: bytes):
     """Find the nearest format-family CALL_EXPR whose first arg is a
@@ -467,6 +522,49 @@ def _lookup_buffer_write_in_compound(compound, var_name: str, before_line: int,
     return best
 
 
+def _lookup_deref_assignment_in_compound(compound, var_name: str, before_line: int,
+                                          before_col: int, source_bytes: bytes):
+    """Find the nearest BINARY_OPERATOR(=) inside compound whose LHS is
+    *var_name and whose RHS drills to a format-family CALL_EXPR, strictly
+    before (before_line, before_col). Returns parameterization tuple or None.
+    Mirrors _lookup_buffer_write_in_compound but for pointer-deref assignment,
+    e.g. *litfilename = va("maps/%s.lit", mapname)."""
+    best = None
+    best_pos = (-1, -1)
+
+    def visit(node):
+        nonlocal best, best_pos
+        if node.kind == CursorKind.BINARY_OPERATOR and _binary_op_token(node, source_bytes) == "=":
+            children = list(node.get_children())
+            if len(children) == 2:
+                lhs, rhs = children
+                if (lhs.kind == CursorKind.UNARY_OPERATOR
+                    and _unary_op_token(lhs, source_bytes) == "*"):
+                    inner = _drill_to_decl_ref(lhs)
+                    if inner is not None and inner.spelling == var_name:
+                        rhs_call = rhs
+                        for _ in range(4):
+                            if rhs_call.kind == CursorKind.CALL_EXPR:
+                                break
+                            ch = list(rhs_call.get_children())
+                            if not ch:
+                                break
+                            rhs_call = ch[0]
+                        if (rhs_call.kind == CursorKind.CALL_EXPR
+                            and rhs_call.spelling in FORMAT_FUNCTIONS):
+                            pos = (node.location.line, node.location.column)
+                            if pos < (before_line, before_col) and pos > best_pos:
+                                param = _classify_parameterized_call(rhs_call, source_bytes)
+                                if param is not None:
+                                    best = param
+                                    best_pos = pos
+        for c in node.get_children():
+            visit(c)
+
+    visit(compound)
+    return best
+
+
 def _resolve_semantic(arg_cursor, snippet: str) -> str:
     """Best-effort semantic label for a format-call argument."""
     cvar = _resolve_cvar_ref(arg_cursor)
@@ -491,10 +589,18 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
     """Return (path_source, path_literal, cvar_ident, parameterization).
     parameterization is (template, parameters, extension, format_function) or None.
     enclosing_compound, if provided, enables backward-lookup for DECL_REF_EXPR
-    arguments (buffer written earlier by sprintf/snprintf/Q_snprintfz)."""
+    arguments (buffer written earlier by sprintf/snprintf/Q_snprintfz) and for
+    UNARY_OPERATOR(*) arguments (pointer assigned earlier via *var = va(...))."""
+    # UNARY_OPERATOR is included in the break set so the deref branch below
+    # can dispatch on it. Without this, the drill-through flattens *var to
+    # its DECL_REF_EXPR child and loses the dereference signal.
     node = arg_cursor
     for _ in range(4):
-        if node.kind in (CursorKind.STRING_LITERAL, CursorKind.MEMBER_REF_EXPR, CursorKind.CALL_EXPR, CursorKind.DECL_REF_EXPR):
+        if node.kind in (
+            CursorKind.STRING_LITERAL, CursorKind.MEMBER_REF_EXPR,
+            CursorKind.CALL_EXPR, CursorKind.DECL_REF_EXPR,
+            CursorKind.UNARY_OPERATOR,
+        ):
             break
         ch = list(node.get_children())
         if not ch:
@@ -517,6 +623,22 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
             # carry the structured data.
             return "computed", template, None, param
         return "computed", None, None, None
+
+    if (node.kind == CursorKind.UNARY_OPERATOR
+        and enclosing_compound is not None
+        and _unary_op_token(node, source_bytes) == "*"):
+        inner = _drill_to_decl_ref(node)
+        if inner is not None:
+            loc = arg_cursor.location
+            param = _lookup_deref_assignment_in_compound(
+                enclosing_compound, inner.spelling,
+                loc.line, loc.column, source_bytes,
+            )
+            if param is not None:
+                template = param[0]
+                return "computed", template, None, param
+        # Fall through to "unknown" when no deref write matches.
+        return "unknown", None, None, None
 
     if node.kind == CursorKind.DECL_REF_EXPR and enclosing_compound is not None:
         loc = arg_cursor.location

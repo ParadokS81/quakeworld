@@ -101,6 +101,16 @@ def test_multi_slot_templates_report_each_slot():
     assert s.path_parameters[1]["semantic"] in ("function_parameter", "local_variable", "unknown")
 
 
+def test_pointer_deref_assignment_recovers_template():
+    sites = _extract_sites(FIXTURE_DIR / "07_pointer_deref_assignment.c")
+    loaders = [s for s in sites if s.function_name == "FS_LoadHunkFile"]
+    assert len(loaders) == 1, f"expected 1 FS_LoadHunkFile site, got {len(loaders)}"
+    s = loaders[0]
+    assert s.path_template == "maps/%s.lit", f"path_template={s.path_template!r}"
+    assert s.path_extension == ".lit", f"path_extension={s.path_extension!r}"
+    assert s.format_function == "va", f"format_function={s.format_function!r}"
+
+
 if __name__ == "__main__":
     tests = [fn for name, fn in globals().items() if name.startswith("test_")]
     failed = 0
