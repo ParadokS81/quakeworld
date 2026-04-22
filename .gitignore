@@ -51,6 +51,9 @@ Thumbs.db
 .claude/projects/
 .superpowers/
 
+# Ad-hoc diagnostic output (local, never committed)
+test-output/
+
 # Logs
 *.log
 
