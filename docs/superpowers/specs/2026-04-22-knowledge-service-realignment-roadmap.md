@@ -33,8 +33,11 @@ At the end of the three passes, these are all true:
 - `packages/qw-config/` is named honestly across the docs it touches - transitional holding pen, not a package to formalize with a quartet.
 - `apps/qw-oracle/docs/entity-types.md` (or equivalent) contains formal short-form documentation for all 10 ezQuake entity types, using a consistent five-field template.
 - Seed-YAML entries whose AST backing is thin or contradicted are explicitly labelled with a verification status, not silently merged with verified entries.
-- `docs/architecture.html` + `docs/architecture-data.json` exist and render the mockup's three-column drill-down pattern with real data. Double-click the HTML, works in any browser.
-- `docs-check` skill knows to update `architecture-data.json` when schema, extractors, or entity-type docs change.
+- `apps/qw-oracle/docs/entity-types.md` is GitHub-navigable (top-of-file TOC + collapsible `<details>` blocks per entity + verification-status tags in summary lines). Page opens compact; reviewers expand what they want.
+- `apps/qw-oracle/README.md` surfaces the three-layer foundation + MCP/snapshot serving surfaces + consumer list as named sections, and links to `docs/entity-types.md` as the per-type reference.
+- Root `README.md` carries accurate per-app statuses (qw-oracle reads as Active, not Paused).
+
+HTML dashboard (`docs/architecture.html` + `docs/architecture-data.json`) is explicitly deferred; see Pass 3's drift guards below for the reasoning. Tracked as a future "if needed" item in HANDOVER.
 
 ## The ecosystem model (authoritative)
 
@@ -273,75 +276,83 @@ For each entity type, audit as follows:
 - Committed `apps/qw-oracle/docs/entity-types.md` (or equivalent).
 - Any new HANDOVER entries for repair work surfaced by the audit (e.g., "seed-YAML cleanup of orphaned_historical entries").
 
-## Pass 3 — Dashboard build
+## Pass 3 — GitHub-navigable per-entity doc + README refresh
 
-**Goal:** Build `docs/architecture.html` plus `docs/architecture-data.json` as a double-click-to-open interactive dashboard. Data comes from Pass 2's entity-type docs plus the current tier model from Pass 1.
+**Goal:** Make Pass 2's per-entity content discoverable and compact-by-default on GitHub, and bring the qw-oracle README + root README into alignment with the Pass 1 ecosystem model.
 
-**Estimated effort:** one focused session. HTML plus a small JSON plus a docs-check integration note.
+**Estimated effort:** one focused session, docs-only, no new file classes at monorepo root.
+
+**Why this shape** (2026-04-22 evening revision, during Pass 3's planning session): The original Pass 3 plan was to ship `docs/architecture.html` + `docs/architecture-data.json` + `docs/architecture-README.md` as an interactive dashboard rendered from a data file. A design review against the 2026-04-11 doc-philosophy spec surfaced three problems: (1) the doc-philosophy template has no class for a monorepo-wide HTML dashboard; Layer 3 reference docs live inside the owning app, not at the root `docs/` folder. (2) The static HTML + separate JSON pattern forces double-bookkeeping between the JSON source and the HTML's embedded copy, reintroducing exactly the drift risk the realignment was paying down. (3) GitHub doesn't execute HTML dashboards in the repo UI by default, so the "external reviewers can see what we extract" motivation is better served by GitHub-rendered markdown than by a `file://` HTML that requires a local checkout. The reshape below achieves the same reviewer outcome with one file touched, zero build step, and doc-philosophy compliance.
 
 **Session-start checklist:**
 1. Read this roadmap's "The ecosystem model" section.
-2. Open `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` in a browser for the visual target.
-3. Open `apps/qw-oracle/docs/entity-types.md` (Pass 2's output) — this is the content source.
+2. Open `apps/qw-oracle/docs/entity-types.md` (Pass 2's output) - this is the content source.
+3. Open `apps/qw-oracle/README.md` + root `README.md` - these need alignment.
 
 ### What to produce
 
-- **`docs/architecture.html`** — single static file, no server required. Double-click opens in any browser. Structure matches the mockup: three columns (Knowledge Layers / MCP Surface / Consumers) at top, clickable entity-type list under Layer 1 -> ezQuake, detail panel below that populates on click. Uses pre-rendered hidden sections for entity-type details (one per type), toggled by JS click handlers. No innerHTML string interpolation (security hook will reject it).
-- **`docs/architecture-data.json`** — data source the HTML reads at load time (or has inlined at build time, if simpler). Contains: tier definitions, per-entity short-form docs from Pass 2, counts at current head, MCP tool list, consumer list. Human-readable, hand-editable. This is what docs-check refreshes when reality changes.
-- **`docs/architecture-README.md`** — one-page explainer: what this dashboard is, how to update it, how the data file is structured.
-
-### Integration with docs-check
-
-- docs-check gains a new responsibility: when SCHEMA.md, an extractor script, or `apps/qw-oracle/docs/entity-types.md` changes, flag whether `docs/architecture-data.json` needs a refresh.
-- Start with a human-in-the-loop check (the skill asks the user to confirm). Automation is a future iteration.
-- Document the integration in `docs/architecture-README.md`.
+- **Reshape `apps/qw-oracle/docs/entity-types.md` for GitHub navigation.** Add a top-of-file contents/TOC section with anchor links. Wrap each entity's 6-field block in `<details><summary>...</summary>...</details>`. Summary lines carry the entity name (implicit, from the preceding `##` heading), the count, and the verification status as a code-fenced tag for quick scanning. Content unchanged - pure presentation pass.
+- **Refresh `apps/qw-oracle/README.md`.** Pull the "MCP + snapshot serving surfaces" and "consumer list" beats out of the status line into their own short named sections. Add a visible link to `docs/entity-types.md` from both the foundation section and the "Learn more" index. Drop any leftover pre-Pass-1 framing (e.g., "three paths Oracle Bot / Digest / Time Machine" pointer in the VISION line).
+- **Fix stale per-app status lines in root `README.md`.** qw-oracle had drifted to "Paused"; reality is Active (Phase 2f mid-flight). Update the one-line entry to describe the knowledge-service shape and current stage. Other app lines untouched unless they're similarly rotten.
 
 ### Acceptance criteria
 
-- [ ] `docs/architecture.html` opens in a browser from a file:// URL and renders the three columns plus working click-to-populate detail panel.
-- [ ] `docs/architecture-data.json` contains per-entity-type short-form docs that match Pass 2's output.
-- [ ] All 10 ezQuake entity types are reachable by click; each one populates a detail panel with the five fields plus verification status.
-- [ ] Verification statuses (including `.kmap`-class findings) are visible in the detail panels.
-- [ ] docs-check skill knows to check this data file.
+- [ ] `apps/qw-oracle/docs/entity-types.md` renders on GitHub with a contents index at the top and each entity block collapsed by default. Clicking a TOC entry jumps to the entity heading and auto-expands its `<details>` block.
+- [ ] Each entity's summary line includes its count and verification-status tag, so a reviewer scanning the collapsed page can see the fleet status without expanding.
+- [ ] `apps/qw-oracle/README.md` names the three data layers, the two serving surfaces (MCP + snapshot distribution), and the consumer list as separate sections. It links to `docs/entity-types.md` at least once.
+- [ ] Root `README.md` reads qw-oracle as Active with a description that matches the OVERVIEW-level reality.
+- [ ] No new files at monorepo root `docs/`. No HTML. No separate JSON data file. No build step.
 
 ### Out of scope / drift guards
 
-- Do NOT add content that wasn't already in Pass 2's entity-type doc. If a detail panel needs a fact not in the source doc, stop and either (a) add the fact to Pass 2's doc and commit, or (b) file as a HANDOVER item. Do not ad-hoc-author content in the dashboard.
+- Do NOT add content that wasn't already in Pass 2's `entity-types.md`. The reshape is visual only.
 - Do NOT change ecosystem-model wording (Pass 1's output is authoritative).
-- Do NOT build a backend, a server, a build step, or a generator. The dashboard is static HTML that reads a static JSON.
-- Do NOT refactor `packages/qw-config/` or `apps/qw-oracle/`. This pass is pure presentation.
-- Do NOT try to make the dashboard auto-update from SCHEMA.md in this pass. Human-updated-via-docs-check is the v1 maintenance model.
+- Do NOT build the HTML dashboard, the JSON data file, or the architecture-README. Those are explicitly deferred; see "Deferred: HTML dashboard" below.
+- Do NOT refactor `packages/qw-config/` or `apps/qw-oracle/`.
+- Do NOT attempt to retroactively fix per-app doc gaps (matchscheduler / qw-stats / slipgate-app missing VISION/OVERVIEW). That is a separate doc-philosophy-compliance umbrella and deserves its own planning. Capture as HANDOVER only.
+
+### Deferred: HTML dashboard
+
+The `docs/architecture.html` + `docs/architecture-data.json` idea is not killed, just shelved. Revisit if either trigger fires:
+
+- `entity-types.md` stops serving the orchestrator's (user's) mental-model-refresh need - i.e. scrolling + collapsibles becomes a meaningful friction compared to a click-to-drill dashboard.
+- External reviewers ask for something more visual than a markdown document.
+
+If built later, the right shape is likely (a) a GitHub Pages deploy driven by a 50-line `scripts/build-dashboard.ts` that reads `entity-types.md` and writes the HTML/JSON, so markdown stays the single source; or (b) a standalone interactive page that we point out-of-band viewers at. Either approach happens in its own session with its own plan.
 
 ### Output
 
-- Committed `docs/architecture.html`, `docs/architecture-data.json`, `docs/architecture-README.md`.
-- docs-check skill update (in the skill file, if user-global; or a HANDOVER item describing the change, to be applied on the user-global skill later).
+- Committed edits to the three files above.
+- Deferred-item note added to `HANDOVER.md` for the HTML dashboard, with the trigger conditions above.
+- Separate HANDOVER entry added for per-app doc-philosophy compliance (matchscheduler / qw-stats / slipgate-app VISION/OVERVIEW gaps).
 
 ## Maintenance loop
 
 After all three passes ship, the maintenance model is:
 
-1. Whenever a developer adds a Layer 1 entity type, modifies an extractor, or changes SCHEMA.md, the docs-check skill flags `architecture-data.json` as potentially stale.
-2. The user (or the assistant) updates `architecture-data.json` to match. Most updates are a one-line count change; some are a new entity type, which also requires a new detail-section in `architecture.html`.
-3. The dashboard is always viewable as a static file. Zero build step, zero server, zero dependencies.
-4. Future engine ports (FTE, MVDSV, KTX) slot into the dashboard by adding their panel under Layer 1. Template already set. No architectural churn.
-5. Consumer list updates as new apps ship (slipgate web, chatbot app). Each new consumer appears in the rightmost column with a short description and a pointer to its VISION.md.
+1. Whenever a developer adds a Layer 1 entity type, modifies an extractor, or changes SCHEMA.md, the docs-check skill flags `apps/qw-oracle/docs/entity-types.md` as potentially stale (count / status / new-type updates).
+2. The user (or the assistant) updates entity-types.md to match. Most updates are a one-line count change in a summary line; a new entity type adds a new `## entity_name` + `<details>` block and a TOC entry.
+3. The doc is always viewable directly on GitHub. Zero build step, zero server, zero dependencies.
+4. Future engine ports (FTE, MVDSV, KTX) slot into the doc by adding their own `## entity_name` sections under a per-engine sub-header, or by adding "FTE" / "MVDSV" / "KTX" columns to each entity's extractor line. Template already set. No architectural churn.
+5. Consumer list updates in `apps/qw-oracle/README.md` as new apps ship (slipgate web, chatbot app).
+6. If the HTML dashboard ever becomes useful (see Pass 3 "Deferred: HTML dashboard"), it plugs into this loop as a second surface rendered from the same markdown.
 
 ## Dependencies between passes
 
 - Pass 2 should not start until Pass 1 is committed. Pass 2's writeups reference "consumer tier" language that Pass 1 solidifies. Starting Pass 2 first creates rework.
-- Pass 3 should not start until Pass 2 is committed. Pass 3's JSON content comes from Pass 2's file. Starting Pass 3 first produces either speculative content or a dashboard that immediately goes stale when Pass 2 ships.
+- Pass 3 should not start until Pass 2 is committed. Pass 3 reshapes Pass 2's file in place; starting Pass 3 first produces either speculative content or churn.
 - HANDOVER entries created by Pass 2 (e.g., seed-YAML cleanup) are independent follow-ups, not gates on Pass 3.
 
 ## Related docs
 
-- `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md` — Layer 1 identity model (source-derived + artifact-derived tracks). Still authoritative. Roadmap entries for artifact-derived facts (BSP, progs.dat, pak/pk3, WAD, MDL/SPR) land in the dashboard under Layer 1 as roadmapped slots.
+- `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md` — Layer 1 identity model (source-derived + artifact-derived tracks). Still authoritative. Artifact-derived facts (BSP, progs.dat, pak/pk3, WAD, MDL/SPR) slot into `entity-types.md` as additional `## entity_name` sections when their parsers ship.
 - `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` — prior spec for Capabilities A + D (parameterized paths + reserved subdirs). In-flight. The AST extractor optimization running in parallel with this session implements these.
-- `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` — the doc-philosophy quartet. Pass 1 brings qw-config into compliance with it.
+- `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` — the doc-philosophy spec that Pass 3's reshape respects. Directly drove the revision from "new HTML dashboard" to "reshape existing Layer 3 doc in place."
 - `apps/qw-oracle/SCHEMA.md` — Layer 1 data model. Pass 2 references it extensively; may be lightly edited.
 - `apps/qw-oracle/VISION.md` — rewritten in Pass 1.
-- `HANDOVER.md` — two entries cleared by Pass 1 ("qw-config package missing Layer 1 quartet" - closed on structural basis, package dissolves; "Slipgate + monorepo VISION docs need web-services family addendum" - folded in). New entries likely from Pass 2.
-- `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` — visual target for Pass 3. Committed reference; the real `docs/architecture.html` supersedes it when Pass 3 ships.
+- `apps/qw-oracle/README.md` — refreshed in Pass 3 to name the serving surfaces + consumers explicitly and link to `docs/entity-types.md`.
+- `HANDOVER.md` — two entries cleared by Pass 1 (qw-config quartet closed on structural basis; web-services addendum folded). Pass 3 adds a new deferred-HTML-dashboard entry and a per-app doc-philosophy-compliance umbrella.
+- `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` — visual reference kept as the target shape for the deferred HTML dashboard. When/if that dashboard ships, this is the mockup it lands against.
 
 ## Not in scope for this roadmap
 
@@ -350,7 +361,9 @@ After all three passes ship, the maintenance model is:
 - Phase 2f historical backfill across all ezQuake tags. Orthogonal track; blocked on this realignment only insofar as verification-status definitions become authoritative during Pass 2.
 - FTE / MVDSV / KTX source extraction. Inherits the template after Pass 2 ships.
 - Artifact-parser implementation (BSP, progs.dat, pak/pk3, WAD, MDL/SPR). Roadmapped under the 2026-04-21 identity-model spec; no action here.
-- Automatic regeneration of `architecture-data.json` from schema + extractor introspection. A future enhancement after the human-updated v1 proves the shape. Start simple.
+- Automatic regeneration of any rendered surface from schema + extractor introspection. A future enhancement if and when a second surface (HTML dashboard, external viewer) gets built. Start simple.
+- Per-app doc-philosophy compliance (matchscheduler / qw-stats / slipgate-app VISION/OVERVIEW). Out of scope for this realignment; tracked as a separate HANDOVER umbrella.
+- Interactive HTML dashboard. Deferred per Pass 3's revised shape. See Pass 3 "Deferred: HTML dashboard" for the trigger conditions that would unshelve it.
 
 ## Session-start template
 

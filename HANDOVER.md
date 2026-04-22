@@ -10,26 +10,10 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [Knowledge-service realignment roadmap — Pass 3 pending](#knowledge-service-realignment-roadmap--pass-3-pending) — 2026-04-22 umbrella. Pass 1 doc realignment **shipped 2026-04-22 evening**. Pass 2 per-entity formal docs **shipped 2026-04-22 evening**. Pass 3 HTML dashboard still pending.
-- [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status. Not blocking Pass 3.
+- [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status
 - [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
-
----
-
-## Knowledge-service realignment roadmap — Pass 3 pending
-
-**Added:** 2026-04-22
-**Updated:** 2026-04-22 evening — Pass 1 and Pass 2 both shipped in back-to-back sessions (user opted to continue rather than context-switch, with explicit discipline around Pass 2's drift guards). Pass 3 dashboard build still pending.
-**Status:** Roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Dashboard mockup v2 at `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`. Pass 1 + Pass 2 committed; Pass 3 remains for a fresh focused session.
-**Verification first:** `ls apps/qw-oracle/docs/entity-types.md docs/architecture.html docs/architecture-data.json 2>&1`. If `architecture.html` and `architecture-data.json` both exist, Pass 3 shipped - remove this entry.
-
-Monorepo structure drifted from reality (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as a permanent package when it is a transitional holding pen; no formal per-entity documentation of the 10 ezQuake entity types). Pass 1 fixed the vision-layer drift. Pass 2 wrote the per-entity documentation with verification-status audit. Pass 3 renders both into the interactive HTML dashboard.
-
-### Pass-by-pass summary
-
-- **Pass 1 — Monorepo doc realignment** — **SHIPPED 2026-04-22 evening** (commit `129eb1e`). Reframed the monorepo's vision docs to the two-part ecosystem model (knowledge foundation + consumers, MCP + snapshot distribution as serving surfaces). Folded in the web-services-family addendum. Explicitly did NOT write a qw-config quartet (the package is dissolving, so formalization works against the intent).
-- **Pass 2 — Per-entity formal documentation** — **SHIPPED 2026-04-22 evening** (same session as Pass 1, separate commit). Ten ezQuake entity types written up in `apps/qw-oracle/docs/entity-types.md` using the five-field-plus-verification-status template. Key findings surfaced: `.kmap` = `orphaned_historical` (loader removed in ezQuake commit `46b5046`, 2014-01-12); `.dll` = `seed_only_no_ast_support` (intentional cross-engine presence signal); seven asset-extension entries (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) flagged for per-row audit (captured as its own HANDOVER item below).
-- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no ecosystem-model rewording, no backend or build step. **Pass 3 should run in a fresh session** - the content lives in Pass 2's file, so Pass 3 can read it cold without inheriting build-time context.
+- [Per-app doc-philosophy compliance umbrella](#per-app-doc-philosophy-compliance-umbrella) — matchscheduler / qw-stats / slipgate-app are missing pieces of the Layer 1 quartet per the 2026-04-11 lazy-migration plan. Surfaced during Pass 3 planning when reviewing the GitHub-rendered repo. Not blocking anything, but GitHub visibility makes the gap more visible than "lazy" originally implied.
+- [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 
 ---
 
@@ -226,6 +210,95 @@ Both items are creative / iterative -- not the kind of thing to grind through so
 ### Pressure
 
 Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
+
+---
+
+## Per-app doc-philosophy compliance umbrella
+
+**Added:** 2026-04-22 late evening (surfaced during Pass 3 planning when the user reviewed the GitHub repo and noticed the README one-liners were the only surface for four of the five apps).
+**Status:** Three apps have uneven quartet coverage per the 2026-04-11 doc-philosophy spec's lazy-migration plan. Not blocking anything technical, but GitHub visibility makes the gap more visible than "lazy" originally implied - external reviewers land on `apps/<app>/` pages expecting a README pattern like quad's or qw-oracle's, and today they don't all find one.
+**Verification first:** run the survey in the fix-shape section below. Any app with all four of CLAUDE/README/VISION/OVERVIEW present at its expected path is done and can be removed from the per-app punch list.
+
+### Current state (2026-04-22)
+
+| App | CLAUDE | README | VISION | OVERVIEW |
+|---|---|---|---|---|
+| matchscheduler | yes | - | - | - |
+| quad | yes | yes | yes | yes |
+| qw-stats | yes | yes | - | - |
+| slipgate-app | yes | yes | - | `docs/OVERVIEW.md` (nested, not root) |
+| qw-oracle | yes | yes | yes | yes |
+
+quad and qw-oracle are complete. The other three have gaps. slipgate-app in particular has a nested `docs/OVERVIEW.md` that works for app-internal navigation but is non-obvious to a GitHub reviewer landing on `apps/slipgate-app/`.
+
+### Fix shape
+
+One focused session per app (or a batched session for the Paused/Maintenance apps, since those docs can be shorter). Per app:
+
+1. Write `README.md` at app root if missing. Follow quad's shape - elevator pitch + tech stack + status + pointer to VISION/OVERVIEW. 50-100 lines.
+2. Write `VISION.md` at app root if missing. Why this app exists; problem it solves; non-goals; who it's for.
+3. Write `OVERVIEW.md` at app root if missing, OR decide whether to promote slipgate-app's nested `docs/OVERVIEW.md` to the root path. For slipgate-app specifically, the nested location is a deliberate choice (slipgate has a rich `docs/` tree with CFG-PARSER.md, EZQUAKE-RESOLUTION.md etc.) - may be worth adding a thin root OVERVIEW.md that points into the nested tree, rather than flattening.
+4. Make sure each app's `CLAUDE.md` "Where to find things" index lists the real docs.
+
+### Scope discipline
+
+This is NOT the realignment umbrella extended. The realignment (2026-04-22) was scoped to qw-oracle + monorepo-root vision-layer drift. Per-app doc gaps across other apps are a separate lineage from 2026-04-11. Keep the two umbrellas distinct so the realignment stays a discrete, auditable chunk of work.
+
+The Paused/Maintenance apps (matchscheduler, qw-stats) deserve short docs, not full quartets. The lifecycle-aware pressure model from the 2026-04-11 philosophy spec applies: a paused app's quartet can be 4 thin files totaling ~200 lines; an active app's can be as long as needed.
+
+### Pressure
+
+Not blocking. GitHub browsing surface looks uneven but no session work is gated on this. Good item for a low-energy doc session.
+
+### Related
+
+- Doc philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` (lazy-migration plan lives in the "Migration plan" section near the bottom).
+- Reference app shapes: `apps/quad/README.md` (short, punchy), `apps/qw-oracle/README.md` (post-Pass-3 refresh, three-layer + surfaces + consumers shape).
+- quad's complete quartet as the pattern to copy for similar-scope apps (qw-stats especially).
+
+---
+
+## Interactive HTML dashboard (deferred)
+
+**Added:** 2026-04-22 late evening (during Pass 3 planning, after the design review surfaced conflicts between the original HTML dashboard plan and the monorepo doc philosophy).
+**Status:** Shelved, not killed. Pass 3 shipped as a GitHub-navigable markdown reshape of `apps/qw-oracle/docs/entity-types.md` instead of a standalone HTML dashboard.
+**Verification first:** `ls docs/architecture.html docs/architecture-data.json 2>&1` - if either exists, this entry has been acted on and should be removed or updated.
+
+Why deferred (design review findings):
+
+1. The doc-philosophy template has no class for a monorepo-wide HTML dashboard. Layer 1 quartet + Layer 2 conditionals + Layer 3 in-app reference docs is the full shape. Adding `docs/architecture.html` at monorepo root is a new artifact class that hasn't been planned.
+2. Separate `.html` + `.json` forces double-bookkeeping between the authoritative JSON and the HTML's embedded copy (browsers block fetch on `file://`). That's exactly the drift risk the realignment is paying down.
+3. GitHub doesn't execute HTML dashboards in the repo UI; a dashboard is only useful via GitHub Pages or a local clone. For the "external reviewers can see what we extract" goal, GitHub-rendered markdown is strictly better than HTML that requires a deploy or checkout.
+4. The markdown reshape achieves the same reviewer outcome (top-of-file TOC + collapsible per-entity blocks + status-at-a-glance) with one file touched, zero build step, and doc-philosophy compliance.
+
+### Unshelve triggers
+
+Revisit if either fires:
+
+- `entity-types.md` stops serving the user's mental-model-refresh need - i.e. scrolling through 14 collapsibles becomes meaningfully worse than a click-to-drill dashboard for quick orientation.
+- External reviewers ask for something more visual than a markdown document.
+
+### Fix shape (if unshelved)
+
+The right shape for a dashboard at that point is likely:
+
+- A ~50-line `scripts/build-dashboard.ts` (Bun/Node) that reads `apps/qw-oracle/docs/entity-types.md` and writes `docs/architecture.html` + `docs/architecture-data.json`. Markdown stays the single source; the HTML is regenerated.
+- GitHub Pages deploy to publish the dashboard at a stable URL, so external reviewers click a link rather than clone the repo.
+- docs-check integration to flag dashboard staleness when `entity-types.md` or the extractors change.
+
+Committed reference assets for this future work:
+
+- Visual target: `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` (three-column + detail-panel pattern).
+- Source content: `apps/qw-oracle/docs/entity-types.md` (10 entity types + 4 asset sub-relations with Pass 2 verification-status audit).
+
+### Pressure
+
+Zero. Not blocking anything. Only revive if the triggers above actually fire, not speculatively.
+
+### Related
+
+- Pass 3 final shape: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` § "Pass 3 — GitHub-navigable per-entity doc + README refresh" (revised 2026-04-22 late evening to drop the dashboard deliverables).
+- Doc philosophy spec that drove the revision: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`.
 
 ---
 

@@ -12,7 +12,7 @@ apps/
   quad/            - Discord voice recording bot
   qw-stats/        - Stats API + ranking research
   slipgate-app/    - Desktop companion for QuakeWorld players
-  qw-oracle/       - Community knowledge base
+  qw-oracle/       - QuakeWorld knowledge service
 
 packages/
   qw-knowledge/    - Shared QW domain knowledge (maps, terminology, strategies)
@@ -31,7 +31,7 @@ The five apps in one line each, with their current lifecycle status:
 - **quad** - Discord voice recording bot, TypeScript + discord.js. *Maintenance.* Stable and integration-critical.
 - **qw-stats** - PostgreSQL stats API + ranking research, Express backend. 18k+ games indexed. *Paused.*
 - **slipgate-app** - Desktop companion, Tauri v2 + SolidJS + Rust. *Active* - 90% of current work lives here.
-- **qw-oracle** - Community knowledge base with a 2.66M message SQLite archive, Node.js. *Paused.*
+- **qw-oracle** - QuakeWorld knowledge service (source-extracted engine facts + 2.66M-message chat corpus), TypeScript + Node + Python. *Active* - Layer 1 fully loaded for ezQuake; historical backfill + FTE/MVDSV/KTX ports next.
 
 ## How it fits together
 
