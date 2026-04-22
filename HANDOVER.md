@@ -10,8 +10,46 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Pretty view + StatePanel visual polish](#pretty-view--statepanel-visual-polish) — deferred visual refinement on both the state editor and the pretty-render display; user wants to iterate on the feel tomorrow
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
-- [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. qw-knowledge quartet completed 2026-04-21; qw-config still pending, surface next time it's touched substantially
-- [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet
+- [Knowledge-service realignment roadmap — three passes pending](#knowledge-service-realignment-roadmap--three-passes-pending) — 2026-04-22 umbrella. Pass 1 doc realignment, Pass 2 per-entity formal docs, Pass 3 HTML dashboard. Each pass is a separate session. Supersedes the two items below for their Pass 1 portions.
+- [qw-config package missing Layer 1 quartet](#qw-config-package-missing-layer-1-quartet) — no CLAUDE.md, VISION.md, or OVERVIEW.md; only a substantial README. **Resolution scheduled under Pass 1 of the realignment roadmap.**
+- [Slipgate + monorepo VISION docs need web-services family addendum](#slipgate--monorepo-vision-docs-need-web-services-family-addendum) — 2026-04-20 brainstorm surfaced assets.quake.world / maps.quake.world triad + content-hash join key + GitHub OAuth backup; none of it reflected in VISION.md files yet. **Resolution scheduled under Pass 1 of the realignment roadmap.**
+
+---
+
+## Knowledge-service realignment roadmap — three passes pending
+
+**Added:** 2026-04-22
+**Status:** Roadmap committed (`eb1d053`) at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Three sequential passes scheduled, each in its own focused session. Dashboard mockup v2 committed as Pass 3's visual target.
+**Verification first:** `ls docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md docs/architecture.html 2>&1`. If `architecture.html` exists, Pass 3 shipped — check whether the Open items index still needs this entry.
+
+Monorepo structure drifted from reality in three ways (qw-oracle framed as chatbot when it is a knowledge service; qw-config misclassified as slipgate helper when its extractors feed the knowledge tier; no formal per-entity documentation of the 10 ezQuake entity types). This roadmap fixes all three through three sequential doc-only passes plus a final dashboard build. Each pass has explicit out-of-scope drift guards.
+
+The roadmap also introduces verification-status as a first-class extractor-hygiene concept. Triggering discovery: `.kmap` seed YAML entry (`packages/qw-config/seeds/ezquake-asset-extensions.yaml`) claims ezQuake loads keymap files, but ezQuake commit `46b5046` (2014-01-12) removed keymap loader support. Files still ship in `ezquake.pk3/keymaps/` but no current C code consumes them. The seed entry was added speculatively in commit `119dd0e` (today, 01:00) and the reconciliation pipeline passed it silently. Pass 2's audit surfaces all `.kmap`-class findings; Pass 3's dashboard makes verification status visible per entity type.
+
+### Pass-by-pass summary
+
+- **Pass 1 — Monorepo doc realignment** (docs-only, no code). Updates root VISION / OVERVIEW / qw-oracle VISION / qw-oracle OVERVIEW / slipgate VISION. Writes the full quartet for `packages/qw-config/` (CLAUDE + VISION + OVERVIEW; README already present). Resolves the two related open HANDOVER items in the Open items index above. Strict drift guards: no code touches, no physical reorganization of qw-config, no per-entity writeups (that is Pass 2), no dashboard build (that is Pass 3), no seed-YAML audits (that is Pass 2).
+- **Pass 2 — Per-entity formal documentation** (docs-only). Ten ezQuake entity types get formal writeups using the five-field-plus-verification-status template defined in the roadmap. Output file is `apps/qw-oracle/docs/entity-types.md` (or a restructured SCHEMA.md section). Audits seed YAMLs against AST output; marks each entry's verification status. Expected finding: `.kmap` = `orphaned_historical`. Other entries in the "9 missing loader families" list need per-entry audits. Drift guards: no extractor rewrites, no seed-YAML repairs (audit + document only), no schema changes, no dashboard work.
+- **Pass 3 — Dashboard build.** Static HTML + JSON at `docs/architecture.html` and `docs/architecture-data.json`. Readable via double-click (file://), no server. Matches the committed mockup's three-column-plus-detail-panel pattern. Integrates with docs-check skill for staleness flagging. Drift guards: no content that isn't already in Pass 2's doc, no tier-model rewording, no backend or build step.
+
+### Session-start template (use exactly this)
+
+> Execute Pass N of the knowledge-service realignment roadmap at `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`. Read the roadmap's Pass N section and the shared tier-model section. Do exactly what the pass specifies, nothing more. Flag scope creep and ask before expanding. End with acceptance criteria verified and commit.
+
+### Dependencies
+
+Pass 2 starts only after Pass 1 is committed (Pass 2 writeups use tier-aligned language from Pass 1). Pass 3 starts only after Pass 2 is committed (Pass 3's JSON content is sourced from Pass 2's doc).
+
+### Pressure
+
+Not blocking anything concrete. But user identified this realignment as preventing **wrong inferences** — the docs-vs-reality drift causes Claude sessions to make incorrect assumptions. Running the three passes at any sustainable cadence (not necessarily back-to-back) pays down that cognitive debt.
+
+### Related files
+
+- Roadmap: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`
+- Dashboard mockup (Pass 3 target): `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`
+- Prior frame-setting: `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md`
+- Doc philosophy baseline: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 
 ---
 
@@ -96,6 +134,8 @@ The qw-config package has a substantial `README.md` (now ~110 lines after the 20
 
 **Update 2026-04-22:** qw-config was touched substantially this session — unified AST extractor, 8-handler package under `extractor_lib/`, archival of 8 legacy scripts to `_legacy/`, verifier, 55x speedup. The README got a material update to reflect the unification. Quartet files still not written — deferred again with user's OK; the refactor was the focus. Next substantial qw-config touch should NOT defer the quartet a third time.
 
+**Update 2026-04-22 (evening):** Resolution now explicitly scheduled under Pass 1 of the knowledge-service realignment roadmap (`docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`). Pass 1 writes CLAUDE + VISION + OVERVIEW for qw-config as part of the tier-realignment effort, with framing that names the package as transitional extraction-tier machinery. Fix shape below remains accurate; the roadmap supersedes the "lazy migration when next touched" trigger with an explicit scheduled pass.
+
 ### Fix shape
 
 Don't sweep. When next significant qw-config work happens, pause to:
@@ -148,4 +188,6 @@ Not blocking the quake-dir browser implementation. The v1 plan is written and th
 ### Fix shape
 
 Single session, ~60 minutes. Draft additions against both VISION files in parallel. Keep them declarative (what, why) not prescriptive (how). Cross-reference the supporting memories for details.
+
+**Update 2026-04-22 (evening):** Resolution now folded into Pass 1 of the knowledge-service realignment roadmap (`docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`). The web-services-family addendum lands alongside the tier-model reframe in the same Pass 1 session — VISION files get both treatments together.
 
