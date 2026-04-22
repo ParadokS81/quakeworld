@@ -37,7 +37,7 @@ Both serve the same underlying facts; consumers pick the surface that fits their
 - **Plain Node .mjs scripts** for the Layer 2 corpus (`scripts/import-*.mjs`, `scripts/stats.mjs`, `scripts/search.mjs`)
 - **better-sqlite3 11** for both stores
 - **ulid** for extractor-run IDs; **js-yaml** for seed ingestion
-- **Python 3 + libclang 18** for engine-source extractors (live in `packages/qw-config/`, not here)
+- **Python 3 + libclang 18** for engine-source extractors (historical accident: live in `packages/qw-config/scripts/` today; relocate into oracle's build when slipgate migrates to oracle-snapshot consumption and qw-config dissolves)
 
 Both DB files are gitignored and regenerate from source (Layer 1) or raw import dumps (Layer 2).
 
