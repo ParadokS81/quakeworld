@@ -12,6 +12,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [Knowledge-service realignment roadmap — Pass 3 pending](#knowledge-service-realignment-roadmap--pass-3-pending) — 2026-04-22 umbrella. Pass 1 doc realignment **shipped 2026-04-22 evening**. Pass 2 per-entity formal docs **shipped 2026-04-22 evening**. Pass 3 HTML dashboard still pending.
 - [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status. Not blocking Pass 3.
+- [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
 
 ---
 
@@ -74,6 +75,88 @@ Not blocking anything concrete. But user identified this realignment as preventi
 - Dashboard mockup (Pass 3 target): `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html`
 - Prior frame-setting: `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md`
 - Doc philosophy baseline: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
+
+---
+
+## Extraction-review skill + baseline-cleanup before Phase 2f
+
+**Added:** 2026-04-22 evening (end-of-session thinking after Pass 2 shipped)
+**Status:** Design sketch. No implementation work yet. Not blocking Pass 3 (dashboard). IS blocking a well-curated Phase 2f historical backfill.
+**Verification first:** `ls apps/qw-oracle/scripts/load-knowledge/review-*.ts ~/.claude/skills/extraction-review/ 2>&1` - if either exists, the skill+CLI is at least partly built.
+
+The problem this solves: today's pipeline extracts-then-loads silently. Novel findings (new entity types, new extensions, loader retirements, category shifts) pass without being captured as classification-hygiene events. Pass 2's `.kmap` finding was surfaced by accident; the next one will too. The mental model shift the user brought: "normally you'd document a release as it ships, but we're walking backwards through history - so we need a review process that runs per tag-pair, captures novelties as we go, and forces each finding into a disposition rather than silently absorbing it."
+
+### The 5-question checklist (per consecutive tag-pair)
+
+Every (from_version → to_version) review asks:
+
+1. **Additions** - rows that appeared. Fit an existing entity type + verification-status? Need a new seed entry? Genuinely new kind?
+2. **Retirements** - rows that disappeared. Orphaned-historical with reason captured (commit + why)? Renamed (link via `predecessor_id`)? Legitimately retired?
+3. **Semantic crossings** - rows that shifted category / flags / load_trigger / path_pattern in a way that changes meaning, not just value. Worth a Layer 3 note explaining why?
+4. **Unclassified promotions** - `asset_loader_sites` with `confidence='unclassified'` or `'heuristic'` that moved or arrived. Enough evidence now to promote to `certain`?
+5. **Source-invisible changes** - GitHub release notes reference a behavioral change that entity rows don't capture. Concept-note candidate?
+
+### The closed disposition set
+
+Every finding gets exactly ONE of five dispositions - no "think about it later" bucket (anti-pattern per the user's "every finding gets a track" feedback):
+
+- **classify** - update seed YAML or entity-types.md.
+- **mark-orphan** - stamp `orphaned_historical` with commit SHA + reason.
+- **concept-note** - write a Layer 3 note capturing the story.
+- **handover** - defer to its own tracked HANDOVER item.
+- **reject-as-noise** - no action, but the rejection is captured in the review output so it doesn't re-surface.
+
+### Order matters: extraction vs review
+
+Extraction is mechanical; run on every tag, order doesn't matter (55x unified extractor makes the full tag set minutes of work).
+Review is the judgment layer; direction matters.
+
+**Recommendation: forward-chronological review** (oldest → latest). Reasons:
+- Narrative arrives naturally forward. "`.kmap` supported in 3.5.x; removed in 3.6.x commit 46b5046 because OS handles it" reads forward cleanly.
+- Additions are cleaner to classify than subtractions (brain does less reconstruction work).
+- PR enrichment is forward-directional.
+
+Backward walk (head → oldest) is the alternative; weaker because head's classification is already the anchor, so temporal proximity doesn't buy you much.
+
+### Strengthen the baseline at head BEFORE Phase 2f
+
+If head is still unfinished when backfill runs, every tag-pair surfaces "novelty vs already-unclassified-at-head" ambiguity. Four items to land at head first so backfill asks crisp questions:
+
+1. **Audit the 7 pending asset-extensions** (the HANDOVER item above - `.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`). Stamp each.
+2. **Classify the 25 `unclassified` asset_loader_sites at head** (out of 110 total). Promote to `heuristic` or `certain`, or mark intentionally-unclassified with reason.
+3. **Decide `seed_only_no_ast_support` schema policy.** `.dll` (intentional cross-engine signal) and `.kmap` (orphaned) need first-class DB representation - a `verification_status` column on relevant tables, or a separate annotations table - so the review skill can query for them cleanly. Today both are implicit in seed comments.
+4. **Write at least one Layer 3 concept note as a prototype.** The `.kmap` story is the natural first note. Establishes the shape; backfill will surface more candidates.
+
+### Proposed shape of the skill + CLI
+
+Two halves, compose:
+
+- **CLI** - `npm run load-knowledge -- review --from <v1> --to <v2>`. Mechanical. Queries `change_events` / `relation_changes` / `source_state_transitions` plus documented-claims surfaces (seeds, entity-types.md, Layer 3 notes directory), emits a structured report (JSON + markdown) of findings flagged by the 5 questions. No decisions, just surfaces.
+- **Skill** - `extraction-review` (user-global or project-scoped, TBD). Walks the report interactively with the user, prompts disposition per finding, writes outputs to the right places (seed updates, entity-types.md updates, new HANDOVER items, new Layer 3 notes).
+
+Conceptually analogous to `docs-check` but for extraction hygiene instead of session wrap-up.
+
+### Recommended order of operations
+
+1. **Pass 3 (dashboard)** - unblocked. Separate session. Renders Pass 2 content as HTML.
+2. **Baseline-cleanup pass at head** - the 4 items above. One focused session.
+3. **Build the review skill + CLI** - one focused session (design + implementation).
+4. **Phase 2f historical backfill (forward-chronological)** - walk ezQuake tags 3.2.x → head. Review skill runs per tag-pair; findings captured as classified / orphaned / concept-noted / handover / rejected.
+5. **FTE / MVDSV / KTX ports** - each new engine's extraction uses the review skill from day one. New-engine ports become a natural test of the skill: genuine greenfield classification plus cross-engine orphans/retirements.
+
+Phase 2f should NOT run without the review skill. Running it bare absorbs findings silently and recreates the `.kmap`-class debt we're trying to prevent.
+
+### Pressure
+
+Not blocking Pass 3 (that's the immediate next session, orthogonal). Blocking a well-curated Phase 2f in the sense that running Phase 2f without this work produces a larger cleanup debt later. Better to scope the baseline-cleanup + skill-build work before backfill than to do the backfill twice.
+
+### Related
+
+- Pass 2 doc: `apps/qw-oracle/docs/entity-types.md` (the classification surface the review skill reads against).
+- Pass 2 asset-extensions audit HANDOVER (above) - manual one-off instance of exactly this pattern.
+- Phase 2d-2h umbrella (below) - Phase 2f is the trigger; baseline-cleanup reorders the first steps of that umbrella.
+- Layer 1 identity model spec (`docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md`) - the artifact-derived bucket shares this review pattern when its parsers ship.
+- User feedback memories: `feedback_every_finding_gets_a_track.md` (the closed-disposition-set principle), `feedback_best_tool_no_overkill.md` (CLI + skill composition rather than one monolithic tool).
 
 ---
 
