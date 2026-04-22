@@ -1534,6 +1534,8 @@ Expected: `expect(siteFunctions.has(fn)).toBe(true)` fails for each new loader.
 
 In `packages/qw-config/scripts/extract-ezquake-asset-loader-sites-clang.py`:
 
+**Actual additions after Step 1 investigation (ezquake head, 2026-04-22):** only three of the originally-listed candidates exist verbatim. The remainder were rejected with source-backed reasons (see commit `d549041` body + `asset-bundle-shape.test.ts` Path 3 describe block for the full record).
+
 ```python
 LOADER_FUNCTIONS: set[str] = {
     "FS_LoadFile",
@@ -1546,13 +1548,10 @@ LOADER_FUNCTIONS: set[str] = {
     "Mod_FindName",
     "S_PrecacheSound",
     "W_LoadWadFile",
-    # Path 3 additions (confirmed in Step 1).
-    "TP_LoadLocFile",        # or TP_LoadLoc, per Step 1
-    "R_LoadLighting",        # or Mod_LoadLighting
-    "Log_OpenLogfile",
-    "Help_LoadXML",
-    "Key_LoadBindings",
-    "CL_Demo_Unpack_QWZ",
+    # Path 3 additions (confirmed in ezquake head 2026-04-22).
+    "TP_LoadLocFile",   # teamplay_locfiles.c:84 - .loc files
+    "PlayQWZDemo",      # cl_demo.c:3123 (static) - .qwz archives
+    "FS_LoadHunkFile",  # fs.c:403 - generic loader; captures .lit/.dat/.mdl via extension
 }
 
 FUNCTION_TO_CATEGORY: dict[str, str] = {
@@ -1563,15 +1562,20 @@ FUNCTION_TO_CATEGORY: dict[str, str] = {
     "Mod_FindName":         "ezquake:asset_category:model",
     "Draw_CachePicSafe":    "ezquake:asset_category:hud_overlay",
     "R_LoadPicImage":       "ezquake:asset_category:texture",
-    # Path 3.
+    # Path 3. FS_LoadHunkFile intentionally has no entry here - its category
+    # comes from the path extension via EXT_TO_CATEGORY.
     "TP_LoadLocFile":       "ezquake:asset_category:locfile",
-    "R_LoadLighting":       "ezquake:asset_category:map_lighting",
-    "Log_OpenLogfile":      "ezquake:asset_category:log",
-    "Help_LoadXML":         "ezquake:asset_category:help_xml",
-    "Key_LoadBindings":     "ezquake:asset_category:keymap",
-    "CL_Demo_Unpack_QWZ":   "ezquake:asset_category:demo_archive",
+    "PlayQWZDemo":          "ezquake:asset_category:demo_archive",
 }
 ```
+
+**Rejected candidates (reason captured here for future reference):**
+- `R_LoadLighting` / `Mod_LoadLighting` — do not exist as standalone loaders. The `.lit` path goes through `FS_LoadHunkFile` with a pointer-indirected format arg (r_brushmodel_load.c:108-127); extension-based classification picks it up.
+- `Log_OpenLogfile` — does not exist. Logging uses raw `fopen` calls (logging.c:146/148/280/282/336), deliberately skipped by the AST watchlist.
+- `Help_LoadXML` — does not exist. `Help_LoadDocuments` reads compiled-in JSON, not runtime XML.
+- `Key_LoadBindings` / `IN_LoadKeymap` — do not exist in ezquake source.
+- `PR_LoadProgs` — is a macro dispatching to `PR1_LoadProgs`/`PR2_LoadProgs`, which internally call `FS_LoadHunkFile("progs.dat", ...)` 5 times in `pr_edict.c:1156-1172`. Already covered via the FS_LoadHunkFile watchlist entry.
+- `CL_Demo_Unpack_QWZ` / `Plug_Load` — do not exist. `PlayQWZDemo` is the correct name for QWZ unpacking.
 
 Also extend `EXT_TO_CATEGORY` (around line 93) with the new extensions:
 
@@ -1605,7 +1609,7 @@ npx tsx apps/qw-oracle/scripts/load-knowledge/build-asset-bundle.ts --project ez
 cd packages/qw-config && bun test tests/
 ```
 
-Expected: Path 3 tests pass; total loader-site count increases from 110 baseline to somewhere in the 120-180 range (exact count depends on how many call sites each new loader has).
+Expected: Path 3 tests pass; total loader-site count increases from 110 baseline to 128 (actual landed count 2026-04-22: TP_LoadLocFile=3 sites, PlayQWZDemo=1 site, FS_LoadHunkFile=14 sites, +18 total).
 
 - [ ] **Step 7: Commit**
 
