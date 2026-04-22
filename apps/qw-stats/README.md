@@ -101,7 +101,9 @@ See [ROADMAP.md](ROADMAP.md) for the full project direction. Currently in **Phas
 
 | File | What it covers |
 |------|---------------|
-| [CLAUDE.md](CLAUDE.md) | Technical reference — schema, scripts, API, methodology |
+| [VISION.md](VISION.md) | Why this project exists, the sniff-test problem, the identity-resolution blocker, non-goals |
+| [OVERVIEW.md](OVERVIEW.md) | Current-state living map: what is loaded, what the API serves, research docs, code landmarks |
+| [CLAUDE.md](CLAUDE.md) | Technical reference — schema, scripts, API, methodology, domain notes |
 | [ROADMAP.md](ROADMAP.md) | Project direction, phases, current status |
 | [ANALYSIS.md](ANALYSIS.md) | Statistical findings from initial data exploration |
 | [RESEARCH-RANKING.md](RESEARCH-RANKING.md) | Ranking methodology research (Stats Composite, RAPM, OpenSkill) |

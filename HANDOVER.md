@@ -12,7 +12,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [Pass 2 follow-up: asset-extension per-row verification-status audit](#pass-2-follow-up-asset-extension-per-row-verification-status-audit) — 7 entries in `ezquake-asset-extensions.yaml` (.log, .loc, .lit, .xml, .dat, .spr, .qwz) need per-row AST verification to stamp their verification-status
 - [Extraction-review skill + baseline-cleanup before Phase 2f](#extraction-review-skill--baseline-cleanup-before-phase-2f) — 2026-04-22 evening thinking. Design a per-release review process (CLI + skill) so historical backfill captures novelties / retirements / orphans as they surface, rather than silently absorbing them. Four pre-backfill cleanup items at head first; then build the skill; then run Phase 2f forward-chronologically.
-- [Per-app doc-philosophy compliance umbrella](#per-app-doc-philosophy-compliance-umbrella) — matchscheduler / qw-stats / slipgate-app are missing pieces of the Layer 1 quartet per the 2026-04-11 lazy-migration plan. Surfaced during Pass 3 planning when reviewing the GitHub-rendered repo. Not blocking anything, but GitHub visibility makes the gap more visible than "lazy" originally implied.
+- [Per-app doc-philosophy compliance — slipgate-app pending](#per-app-doc-philosophy-compliance-umbrella) — matchscheduler and qw-stats closed 2026-04-22 night (README/VISION/OVERVIEW written for both; root OVERVIEW links updated). slipgate-app still needs root-level VISION.md and a thin root OVERVIEW.md (its rich nested `docs/` tree should stay; the root OVERVIEW points into it). Deserves its own focused session because slipgate-app is Active and complex.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 
 ---
@@ -216,45 +216,45 @@ Not blocking anything. User is proceeding at their own pace. No freeze, no deadl
 ## Per-app doc-philosophy compliance umbrella
 
 **Added:** 2026-04-22 late evening (surfaced during Pass 3 planning when the user reviewed the GitHub repo and noticed the README one-liners were the only surface for four of the five apps).
-**Status:** Three apps have uneven quartet coverage per the 2026-04-11 doc-philosophy spec's lazy-migration plan. Not blocking anything technical, but GitHub visibility makes the gap more visible than "lazy" originally implied - external reviewers land on `apps/<app>/` pages expecting a README pattern like quad's or qw-oracle's, and today they don't all find one.
-**Verification first:** run the survey in the fix-shape section below. Any app with all four of CLAUDE/README/VISION/OVERVIEW present at its expected path is done and can be removed from the per-app punch list.
+**Updated:** 2026-04-22 night - matchscheduler and qw-stats both closed in the same session; README (matchscheduler only - qw-stats already had one) + VISION + OVERVIEW written for each. Root `OVERVIEW.md` updated with the new "Full context" pointers. slipgate-app is the remaining gap.
+**Status:** Only slipgate-app remains. It needs a root-level VISION.md and a thin root OVERVIEW.md that points into the rich nested `docs/` tree; the nested `docs/OVERVIEW.md` stays where it is. Deserves its own focused session because slipgate-app is Active and complex.
+**Verification first:** `ls apps/slipgate-app/VISION.md apps/slipgate-app/OVERVIEW.md 2>&1`. If both exist, this entry is resolved - remove it.
 
-### Current state (2026-04-22)
+### Current state (2026-04-22 night, after this session)
 
-| App | CLAUDE | README | VISION | OVERVIEW |
-|---|---|---|---|---|
-| matchscheduler | yes | - | - | - |
-| quad | yes | yes | yes | yes |
-| qw-stats | yes | yes | - | - |
-| slipgate-app | yes | yes | - | `docs/OVERVIEW.md` (nested, not root) |
-| qw-oracle | yes | yes | yes | yes |
+| App | CLAUDE | README | VISION | OVERVIEW | Status |
+|---|---|---|---|---|---|
+| matchscheduler | yes | yes | yes | yes | complete |
+| quad | yes | yes | yes | yes | complete |
+| qw-stats | yes | yes | yes | yes | complete |
+| slipgate-app | yes | yes | - | `docs/OVERVIEW.md` only | pending |
+| qw-oracle | yes | yes | yes | yes | complete |
 
-quad and qw-oracle are complete. The other three have gaps. slipgate-app in particular has a nested `docs/OVERVIEW.md` that works for app-internal navigation but is non-obvious to a GitHub reviewer landing on `apps/slipgate-app/`.
+### Fix shape for slipgate-app
 
-### Fix shape
+One focused session. Slipgate is the largest and most active app in the monorepo; its docs cannot be thin.
 
-One focused session per app (or a batched session for the Paused/Maintenance apps, since those docs can be shorter). Per app:
-
-1. Write `README.md` at app root if missing. Follow quad's shape - elevator pitch + tech stack + status + pointer to VISION/OVERVIEW. 50-100 lines.
-2. Write `VISION.md` at app root if missing. Why this app exists; problem it solves; non-goals; who it's for.
-3. Write `OVERVIEW.md` at app root if missing, OR decide whether to promote slipgate-app's nested `docs/OVERVIEW.md` to the root path. For slipgate-app specifically, the nested location is a deliberate choice (slipgate has a rich `docs/` tree with CFG-PARSER.md, EZQUAKE-RESOLUTION.md etc.) - may be worth adding a thin root OVERVIEW.md that points into the nested tree, rather than flattening.
-4. Make sure each app's `CLAUDE.md` "Where to find things" index lists the real docs.
+1. **Write `apps/slipgate-app/VISION.md`.** Why the desktop companion exists; what ezQuake itself does not give players; the ConfigViewer + Updater + StatePanel philosophy; the web-services-family graduation direction (per existing memory). Longer than matchscheduler's VISION. 150-250 lines plausible.
+2. **Write `apps/slipgate-app/OVERVIEW.md` at app root.** Thin pointer-doc - points into the nested `docs/OVERVIEW.md` as the authoritative map, plus captures any app-root-level lifecycle and status facts that the nested doc does not. ~50-80 lines. The goal is GitHub reviewer experience: someone landing on `apps/slipgate-app/` sees the root OVERVIEW rendered and can click through.
+3. **Update `apps/slipgate-app/CLAUDE.md`** to add the "Where to find things" pointer to the new VISION.md + the clarified OVERVIEW hierarchy.
+4. **Update root `OVERVIEW.md`** - replace the "Full context" line for slipgate-app with the new file list.
 
 ### Scope discipline
 
-This is NOT the realignment umbrella extended. The realignment (2026-04-22) was scoped to qw-oracle + monorepo-root vision-layer drift. Per-app doc gaps across other apps are a separate lineage from 2026-04-11. Keep the two umbrellas distinct so the realignment stays a discrete, auditable chunk of work.
+This is NOT the realignment umbrella extended. The realignment (2026-04-22) was scoped to qw-oracle + monorepo-root vision-layer drift. Per-app doc gaps across other apps are a separate lineage from the 2026-04-11 doc philosophy. Keep the two umbrellas distinct.
 
-The Paused/Maintenance apps (matchscheduler, qw-stats) deserve short docs, not full quartets. The lifecycle-aware pressure model from the 2026-04-11 philosophy spec applies: a paused app's quartet can be 4 thin files totaling ~200 lines; an active app's can be as long as needed.
+Do NOT split qw-stats's 332-line CLAUDE.md in this track. That's its own lazy-migration item (per the 2026-04-11 plan: split into `CLAUDE.md` lean + `DEVELOPMENT.md` + `HEALTH.md` when qw-stats is next actively touched). qw-stats is Paused; the split is not urgent.
 
 ### Pressure
 
-Not blocking. GitHub browsing surface looks uneven but no session work is gated on this. Good item for a low-energy doc session.
+Not blocking. slipgate-app is Active so a long gap between sessions here makes the OVERVIEW drift; close it when you're next doing slipgate work anyway.
 
 ### Related
 
-- Doc philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` (lazy-migration plan lives in the "Migration plan" section near the bottom).
-- Reference app shapes: `apps/quad/README.md` (short, punchy), `apps/qw-oracle/README.md` (post-Pass-3 refresh, three-layer + surfaces + consumers shape).
-- quad's complete quartet as the pattern to copy for similar-scope apps (qw-stats especially).
+- Doc philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` (lazy-migration plan near the bottom).
+- Reference app shapes: `apps/quad/README.md` (short, punchy), `apps/qw-oracle/README.md` (three-layer + surfaces + consumers shape), `apps/matchscheduler/VISION.md` (paused-app shape, grad-path framing), `apps/qw-stats/VISION.md` (paused-app shape, blocker framing).
+- Existing slipgate-app docs: `apps/slipgate-app/docs/OVERVIEW.md` (nested; stays authoritative for app-internal map), `apps/slipgate-app/docs/` (rich tree with CFG-PARSER.md, EZQUAKE-RESOLUTION.md, SYSTEM-SPECS.md, PERIPHERAL-SELECTOR.md, AUTH.md, etc.).
+- Slipgate memory: `project_slipgate_architecture.md`, `project_slipgate_status.md`, `project_slipgate_web_services_vision.md` - source material for the VISION writeup.
 
 ---
 

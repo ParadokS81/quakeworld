@@ -1,7 +1,17 @@
 # CLAUDE.md - MatchScheduler Guidelines
 
+**Status:** Maintenance (effective-legacy; will be rebuilt inside slipgate web).
+
 ## Essential References
-- **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview (READ FIRST for orientation)
+
+Monorepo-aligned quartet (orient here first):
+- **README.md** - elevator pitch, tech stack, who uses it
+- **VISION.md** - why this project exists, the 3x3-grid rationale, the slipgate-web graduation path
+- **OVERVIEW.md** - current-state living map: features, Firestore collections, Discord integration, voice-pairing flow
+- **DEPLOYMENT.md** - Firebase deploy flow
+
+Subsystem docs:
+- **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview (READ FIRST for orientation if modifying code)
 - **Data Schema**: `context/SCHEMA.md` - Firestore document structures (ALWAYS check before writing backend code)
 - **Pillar Documents**: `context/Pillar*.md` - Architecture specifications
 - **Slice Specs**: `context/slices/` - Feature implementation details

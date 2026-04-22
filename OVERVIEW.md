@@ -12,7 +12,7 @@ Each app has its own `CLAUDE.md` in `apps/<name>/`. Current lifecycle statuses a
 
 Firebase web app for scheduling 4on4 matches. Vanilla JavaScript + Alpine.js + Tailwind CSS. Users create teams, declare weekly availability on a 3x3 grid, propose matches, and confirm them. Reads voice-recording manifests from the `voiceRecordings` Firestore collection (written by quad) to auto-load replays alongside scheduled matches. Reads head-to-head and form data from the qw-stats API.
 
-Full context: `apps/matchscheduler/CLAUDE.md`.
+Full context: `apps/matchscheduler/README.md` (elevator pitch), `apps/matchscheduler/VISION.md` (rationale + graduation path), `apps/matchscheduler/OVERVIEW.md` (current-state map), `apps/matchscheduler/CLAUDE.md` (rules).
 
 ### quad
 
@@ -28,7 +28,7 @@ Full context: `apps/quad/CLAUDE.md`.
 
 PostgreSQL 16 database of QuakeWorld 4on4 match statistics plus an Express API serving head-to-head, form, maps, and roster queries to matchscheduler. 18,000+ games indexed from 2022 to the present, auto-synced every 15 minutes from QWHub. Also contains the in-progress ranking research (composite rating, correlation analysis) that is stalled at identity resolution Phase 0.
 
-Full context: `apps/qw-stats/CLAUDE.md`.
+Full context: `apps/qw-stats/README.md` (elevator pitch + getting started), `apps/qw-stats/VISION.md` (sniff-test + identity-resolution rationale), `apps/qw-stats/OVERVIEW.md` (current-state map), `apps/qw-stats/CLAUDE.md` (technical reference; will split when next touched).
 
 ### slipgate-app
 
@@ -36,7 +36,7 @@ Full context: `apps/qw-stats/CLAUDE.md`.
 
 Desktop companion for QuakeWorld players. Tauri v2 + SolidJS + Rust. Windows-native in practice. Reads hardware specs (CPU, GPU, RAM, monitors, peripherals) via WMI and SetupAPI, parses ezQuake configs (follows exec chains, classifies binds, resolves aliases), manages the ezQuake install (version detection, stable + snapshot updater), and renders all of it inside a 6-tab sidebar app. The biggest feature by far is the ConfigViewer subsystem (~20 components, ~3000 lines of frontend code plus a 2124-line Rust parser).
 
-Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW.md` (the only per-app OVERVIEW in the monorepo today).
+Full context: `apps/slipgate-app/CLAUDE.md` and `apps/slipgate-app/docs/OVERVIEW.md` (nested under `docs/` rather than at app root). A thin app-root OVERVIEW.md + VISION.md are open items per the per-app doc-philosophy-compliance HANDOVER umbrella.
 
 ### qw-oracle
 
