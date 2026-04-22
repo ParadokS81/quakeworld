@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QW Knowledge Service - Dashboard Mockup (v2)</title>
+<style>
+  body {
+    background: #070b12;
+    color: #dbe3ed;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  h2 { color: #e8e8e8; margin-top: 0; }
+  .subtitle { color: #8a96a8; font-size: 0.9rem; }
+  .doc-banner {
+    background: #1a2636;
+    border: 1px solid #2a3850;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: #9cc8ff;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">Reference mockup for Pass 3 of the knowledge-service realignment roadmap. Not the live dashboard. See <code>docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md</code>.</div>
+
+<h2>Dashboard v2 - detail panel below</h2>
+<p class="subtitle">Click a data category under ezQuake to populate the detail panel. This is what external developers see when they're curious about what your extractor actually does.</p>
+
+<style>
+  .dash { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  .col { border: 1px solid #2a3340; border-radius: 8px; padding: 1rem; background: #0f1620; min-height: 280px; }
+  .col h3 { margin-top: 0; font-size: 1.05rem; color: #e8e8e8; }
+  .col .col-sub { font-size: 0.78rem; color: #8a96a8; margin-bottom: 0.75rem; }
+  details { margin-bottom: 0.4rem; background: #162030; border-radius: 4px; padding: 0.4rem 0.6rem; }
+  details[open] { background: #1a2636; }
+  summary { cursor: pointer; font-weight: 500; color: #dbe3ed; font-size: 0.9rem; }
+  summary:hover { color: #9cc8ff; }
+  .nested { margin-left: 0.75rem; margin-top: 0.4rem; font-size: 0.85rem; color: #b8c2d1; }
+  .meta { font-size: 0.72rem; color: #778191; font-style: italic; margin-top: 0.2rem; }
+  .tag { display: inline-block; font-size: 0.68rem; background: #2a3850; color: #9cc8ff; padding: 2px 5px; border-radius: 3px; margin-right: 3px; }
+  .count { color: #7fb87f; font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+  .roadmap { opacity: 0.55; }
+  .entity-link { cursor: pointer; padding: 3px 6px; border-radius: 3px; margin: 2px 0; display: block; font-size: 0.82rem; color: #b8c2d1; }
+  .entity-link:hover { background: #223046; color: #9cc8ff; }
+  .entity-link.active { background: #2d4266; color: #fff; }
+
+  .detail-panel {
+    margin-top: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #2a3340;
+    border-radius: 8px;
+    background: #0f1620;
+    min-height: 280px;
+  }
+  .detail-section { display: none; }
+  .detail-section.active { display: block; }
+  .detail-empty { display: flex; align-items: center; justify-content: center; color: #56606f; font-style: italic; min-height: 240px; }
+  .detail-section h3 { margin-top: 0; color: #e8e8e8; font-size: 1.15rem; }
+  .detail-section .tagline { font-size: 0.95rem; color: #9cc8ff; margin-bottom: 1rem; font-style: italic; }
+  .detail-section .field { margin-bottom: 0.9rem; }
+  .detail-section .field-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #778191;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+  .detail-section .field-body { color: #dbe3ed; font-size: 0.9rem; line-height: 1.5; }
+  .detail-section code {
+    background: #1a2636;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #d7cba8;
+    font-size: 0.85rem;
+  }
+  .detail-section .consumer-chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    background: #2a3850;
+    color: #9cc8ff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-right: 5px;
+    margin-top: 3px;
+  }
+  .detail-section .source-row {
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #2a3340;
+  }
+  .detail-section .source-link {
+    font-size: 0.78rem;
+    color: #7fb87f;
+    text-decoration: none;
+    margin-right: 1rem;
+  }
+</style>
+
+<div class="dash">
+
+  <div class="col">
+    <h3>Knowledge Layers</h3>
+    <div class="col-sub">What the oracle holds.</div>
+
+    <details open>
+      <summary>Layer 1 - Source facts</summary>
+      <div class="nested">
+        <details open>
+          <summary>ezQuake <span class="count">3899</span></summary>
+          <div class="nested">
+            <a class="entity-link" data-detail="cvar">cvars <span class="tag">2901</span></a>
+            <a class="entity-link" data-detail="command">commands <span class="tag">522</span></a>
+            <a class="entity-link" data-detail="hud_element">hud elements <span class="tag">83</span></a>
+            <a class="entity-link" data-detail="macro">macros <span class="tag">68</span></a>
+            <a class="entity-link" data-detail="cmdline_param">cmdline params <span class="tag">71</span></a>
+            <a class="entity-link" data-detail="keyname">keynames <span class="tag">148</span></a>
+            <a class="entity-link" data-detail="ruleset">rulesets <span class="tag">6</span></a>
+            <a class="entity-link" data-detail="token_primitive">token primitives <span class="tag">33</span></a>
+            <a class="entity-link" data-detail="flag_bit">flag bits <span class="tag">50</span></a>
+            <a class="entity-link" data-detail="asset_category">asset categories <span class="tag">17</span></a>
+          </div>
+        </details>
+        <details class="roadmap"><summary>FTE</summary></details>
+        <details class="roadmap"><summary>MVDSV</summary></details>
+        <details class="roadmap"><summary>KTX</summary></details>
+        <details class="roadmap"><summary>Artifact-derived facts</summary></details>
+      </div>
+    </details>
+
+    <details>
+      <summary>Layer 2 - Community corpus</summary>
+      <div class="nested meta">2.66M messages. Processing pipeline not yet built.</div>
+    </details>
+
+    <details>
+      <summary>Layer 3 - Concept notes</summary>
+      <div class="nested meta">Curated markdown. Not yet populated.</div>
+    </details>
+  </div>
+
+  <div class="col">
+    <h3>MCP Surface</h3>
+    <div class="col-sub">How consumers reach the knowledge.</div>
+    <details open>
+      <summary>Tools exposed</summary>
+      <div class="nested">
+        <div><code>lookup_entity</code></div>
+        <div><code>search_entities</code></div>
+        <div><code>get_concept_note</code></div>
+        <div><code>search_solved_issues</code></div>
+      </div>
+    </details>
+    <details class="roadmap"><summary>Planned tools (Phase 2g)</summary></details>
+    <details><summary>Answer shape / rules</summary></details>
+  </div>
+
+  <div class="col">
+    <h3>Consumers</h3>
+    <div class="col-sub">Apps that plug in.</div>
+    <details open><summary>Claude Code (live)</summary></details>
+    <details><summary>slipgate-app <span class="tag">transitional</span></summary></details>
+    <details class="roadmap"><summary>Quad - chatbot mode (future)</summary></details>
+    <details class="roadmap"><summary>slipgate web (future)</summary></details>
+    <details class="roadmap"><summary>New chatbot app (future)</summary></details>
+  </div>
+
+</div>
+
+<div class="detail-panel">
+  <div id="detail-empty" class="detail-section detail-empty active">
+    Click a data category in the ezQuake column to see its details.
+  </div>
+
+  <div id="detail-cvar" class="detail-section">
+    <h3>cvar</h3>
+    <div class="tagline">User-tunable engine variable. The knob the player turns.</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">A named value the engine reads and the player can set. Covers every adjustable aspect of the client: graphics (<code>gl_fog</code>), input (<code>sensitivity</code>), gameplay toggles (<code>cl_smartjump</code>), teamplay behaviour (<code>tp_pickup</code>), HUD layout. The schema stores name, default, type (int/float/string/enum), description, flag bits (CVAR_ARCHIVE, CVAR_USERINFO, etc.), enum values where applicable, and the source file + line it was declared at.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">cvars are the primary surface a player tunes. A config file is 95% cvar assignments. Any consumer that wants to understand, visualize, or validate a config needs the cvar definitions - types, defaults, valid enum values. Without this table, <code>seta crosshair 3</code> is just text.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>sensitivity 3.0</code>, <code>cl_crossx -2</code>, <code>gl_fog 1</code>. In-engine: <code>CVAR_REGISTER(&amp;sensitivity, ...)</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate ConfigViewer</span>
+        <span class="consumer-chip">config linters (future)</span>
+        <span class="consumer-chip">chatbot Q&amp;A</span>
+        <span class="consumer-chip">cvar diff tools</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#cvars</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-cvars-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-command" class="detail-section">
+    <h3>command</h3>
+    <div class="tagline">Console-invoked action. The verb the player types.</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Named actions the engine executes when typed in the console or bound to a key. Covers connection (<code>connect</code>), gameplay (<code>+attack</code>, <code>impulse</code>), config management (<code>exec</code>, <code>writeconfig</code>), debugging (<code>condump</code>). Schema stores name, description, argument hints, source location, and whether the command is client / server / both.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Binds target commands. Aliases wrap command sequences. Every consumer that parses or visualizes a config needs to know which tokens are commands vs cvars vs aliases - they're resolved differently. Without this table, a bind chain can't be classified.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>bind mouse1 +attack</code>, <code>exec autoexec.cfg</code>, <code>alias wpnext "impulse 10"</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate bind classifier</span>
+        <span class="consumer-chip">alias resolver</span>
+        <span class="consumer-chip">config linters (future)</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#commands</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-commands-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-keyname" class="detail-section">
+    <h3>keyname</h3>
+    <div class="tagline">Identifier for a physical key or button in a bind.</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">The string the engine accepts on the left side of a <code>bind</code> command. Includes keyboard (<code>space</code>, <code>mouse1</code>, <code>F1</code>, <code>kp_enter</code>), joystick inputs, and modifier variants. 148 distinct key identifiers in ezQuake. Schema stores canonical name, aliases the engine accepts, and the source enum declaration.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">A config editor or visual bind editor needs to know what's bindable. Rendering a visual keyboard layout, validating user-entered bind targets, and parsing existing bind chains all depend on this list. Keynames are the vocabulary of the input layer - without them, <code>bind mouse4 +attack</code> is indistinguishable from <code>bind asdf +attack</code>.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>bind mouse1 +attack</code>, <code>bind F1 "say gl hf"</code>, <code>bind kp_end "impulse 2"</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate BindsView</span>
+        <span class="consumer-chip">visual keyboard editor (future)</span>
+        <span class="consumer-chip">bind validator</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#keynames</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-keynames-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-token_primitive" class="detail-section">
+    <h3>token primitive</h3>
+    <div class="tagline">Atomic grammar element the engine tokenizer recognizes.</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">The low-level syntax symbols the engine's config-and-command parser treats as structural: <code>$</code> for variable expansion, <code>%</code> for teamplay macro, <code>;</code> for command separator, quote handling rules, whitespace rules, comment markers. 33 primitives in ezQuake. Schema stores the symbol, its role (expansion / separator / quoting / comment / escape), and the parser function that handles it.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Without knowing the tokenizer's grammar atoms, consumers that walk or lint configs can't safely parse them. Slipgate's alias-chain follower and macro-expansion resolver need to know where <code>$</code> triggers variable substitution and where <code>;</code> ends a command. A linter that doesn't respect these primitives will mis-split alias bodies. This table is the config-grammar contract.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body">In a config line <code>alias check "echo %l; wait; say team ready"</code>, the primitives at play are <code>%</code> (macro expansion), <code>;</code> (command sep), <code>"</code> (quote grouping).</div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate alias-chain resolver</span>
+        <span class="consumer-chip">slipgate macro / $var display</span>
+        <span class="consumer-chip">config linter (future)</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#token_primitives</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-token-primitives-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-macro" class="detail-section">
+    <h3>macro</h3>
+    <div class="tagline">Built-in percent-expansion token (<code>%h</code>, <code>%a</code>, <code>%l</code>).</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Percent-prefixed tokens the engine expands at command-evaluation time, typically inside teamplay binds. <code>%h</code> = current health, <code>%a</code> = armor, <code>%l</code> = current location. 68 macros in ezQuake across combat status, items, map context, and game state. Schema stores name, expansion source (cvar, game state, computed), return type, and description.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Teamplay configs are dense with macro use. Any pretty-print or what-will-this-say preview needs to expand macros to show the actual message. Consumers that validate teamplay scripts need to know which macros are real and which are typos.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>bind t "say_team i have %h/%a at %l"</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate pretty-view</span>
+        <span class="consumer-chip">teamsay preview</span>
+        <span class="consumer-chip">teamplay linter</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#macros</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-macros-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-cmdline_param" class="detail-section">
+    <h3>cmdline param</h3>
+    <div class="tagline">Command-line flag passed at engine launch (<code>+set</code>, <code>-game</code>).</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Flags the engine processes before entering the main loop - different from console cvars or commands. Covers game selection (<code>-game ruleset_smackdown</code>), cvar preseeding (<code>+set fullscreen 1</code>), console dumping, config sourcing, etc. 71 cmdline params in ezQuake. Schema stores flag name, syntax (single flag vs flag+value), description, source location.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Launcher apps (slipgate) build engine command lines. Knowing which flags are valid, what they accept, and what they do is what lets the launcher offer a sane configuration UI instead of a free-form text box.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>ezquake.exe -game ctf +set fullscreen 1 +exec autoexec.cfg</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate launcher</span>
+        <span class="consumer-chip">launcher UI (future)</span>
+        <span class="consumer-chip">cmdline validator</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#cmdline_params</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-cmdline-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-hud_element" class="detail-section">
+    <h3>hud element</h3>
+    <div class="tagline">Named HUD component the player can show / move / style.</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Discrete on-screen display components: health bar, armor display, ammo counters, frag tracker, clock, scoreboard panels. Each HUD element has position, visibility, style, and element-specific cvars (<code>hud_health_X</code>, <code>hud_health_place</code>, etc.). 83 HUD elements in ezQuake. Schema stores element name, per-element cvar set, default position, and element category.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">The HUD is one of the most configured parts of a QW client. Any config editor / visualizer needs to know the valid HUD elements to render a preview or to group the hundreds of <code>hud_*</code> cvars by element.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>hud_health_place "top"</code>, <code>hud_health_show 1</code></div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate HUD editor (future)</span>
+        <span class="consumer-chip">HUD preview renderer</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#hud_elements</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-hud-elements-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-ruleset" class="detail-section">
+    <h3>ruleset</h3>
+    <div class="tagline">Named competition-compatibility preset (smackdown, qcon, default).</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Canonical rulesets the engine supports - each a bundle of cvar locks and feature restrictions designed for a specific tournament or playstyle. 6 rulesets in ezQuake. Schema stores ruleset name, full locked-cvar list, authoritative source reference, and per-field blame index so historical rule changes are queryable.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Tournament configs must match ruleset. Slipgate surfaces "you are on ruleset X; these cvars cannot be changed." Historical queries ("when did smackdown lock r_fastsky?") answer from this table + blame index.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>ruleset smackdown</code> - locks <code>r_fastsky 1</code>, <code>gl_flashblend 0</code>, etc.</div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate ConfigViewer</span>
+        <span class="consumer-chip">ruleset diff tool</span>
+        <span class="consumer-chip">compliance checker</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#rulesets</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-rulesets-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-flag_bit" class="detail-section">
+    <h3>flag bit</h3>
+    <div class="tagline">Individual bit within a cvar/feature flag family (CVAR_ARCHIVE, FPD_NO_FORCE_SKIN).</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Single bits inside bit-flag families: CVAR_* (cvar metadata: archived, userinfo, server-only), FPD_* (feature disables set by the server), STAT_* (stat IDs transmitted over the wire). 50 flag bits in ezQuake at head. Schema stores family name, bit name, bit value, the family's declaration location, and the bit's purpose.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">A cvar's behaviour depends on its flag bits - CVAR_ARCHIVE means it's saved to config, CVAR_USERINFO means it's broadcast to the server. Knowing individual bits lets consumers explain WHY a cvar behaves as it does, and lets servers / linters reason about FPD restrictions.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body"><code>cvar_t sensitivity = { "sensitivity", "3", CVAR_ARCHIVE | CVAR_USERINFO };</code> - the flag bits here define the cvar's lifecycle.</div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate cvar inspector</span>
+        <span class="consumer-chip">linter explaining cvar scope</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#flag_bits</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/scripts/extract-ezquake-flag-bits-clang.py</a>
+    </div>
+  </div>
+
+  <div id="detail-asset_category" class="detail-section">
+    <h3>asset category</h3>
+    <div class="tagline">Classification of engine-loaded files on disk (textures, sounds, models, etc).</div>
+    <div class="field"><div class="field-label">What it entails</div>
+      <div class="field-body">Top-level categories ezQuake loads: textures (charsets, HUD, map-specific, WAD-bundled), sounds, models (MDL, MD3), configs, maps, demos, screenshots, etc. 17 categories at head. Paired with <code>asset_extensions</code>, <code>asset_path_rules</code>, <code>asset_cvar_bindings</code>, <code>asset_loader_sites</code> relation tables.</div></div>
+    <div class="field"><div class="field-label">Why we extract it</div>
+      <div class="field-body">Tools that understand what a user's <code>quake/</code> directory actually contains need this taxonomy. Slipgate's quake-dir browser uses it to group files sensibly. Future catalog services (assets.quake.world) use it as the axis for search and curation.</div></div>
+    <div class="field"><div class="field-label">Example</div>
+      <div class="field-body">File <code>textures/schloss/wall.tga</code> -&gt; category 'map-specific texture'. File <code>qw/ezquake.cfg</code> -&gt; category 'config'.</div></div>
+    <div class="field"><div class="field-label">Consumers</div>
+      <div class="field-body">
+        <span class="consumer-chip">slipgate quake-dir browser</span>
+        <span class="consumer-chip">assets.quake.world (future)</span>
+        <span class="consumer-chip">config linter</span>
+      </div></div>
+    <div class="source-row">
+      <a class="source-link">-&gt; Schema: SCHEMA.md#asset_categories</a>
+      <a class="source-link">-&gt; Extractor: packages/qw-config/seeds/asset-taxonomy.yaml + AST reconciler</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.entity-link').forEach(link => {
+    link.addEventListener('click', () => {
+      const key = link.getAttribute('data-detail');
+      document.querySelectorAll('.entity-link').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.detail-section').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('detail-' + key);
+      if (target) target.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
