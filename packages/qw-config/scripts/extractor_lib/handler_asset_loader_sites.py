@@ -1,28 +1,24 @@
-"""Asset loader-sites handler for the unified extraction driver.
+"""Asset loader-sites handler (Visitor protocol).
 
-Ports extract-ezquake-asset-loader-sites-clang.py. Walks both client+server
-TUs for CALL_EXPR to known LOADER_FUNCTIONS, captures path classification
-(literal / cvar / computed with full Path-1 structured templates from
-va/sprintf/snprintf/Q_snprintfz + *ptr=va(...) deref assignments),
-category inference, dev-only flagging, and load-trigger heuristics.
+Emits on every CALL_EXPR to a LOADER_FUNCTION. Uses func_stack and
+compound_stack (maintained via enter/exit hooks) for enclosing-function
+name and for backward-lookup helpers (buffer writes / deref assignments
+within the same compound scope).
 
-canonical_id assignment requires cross-file ordinal stability and happens
-in finalize(). process_file returns row dicts with canonical_id="" that
-finalize fills in.
+canonical_id requires cross-file ordinal stability, assigned in finalize().
 """
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from clang.cindex import CursorKind
 
+from ._visitor import Visitor
 
-# ----- watchlist & heuristics (copied verbatim from legacy) -----------------
 
 LOADER_FUNCTIONS: set[str] = {
     "FS_LoadFile",
@@ -116,8 +112,6 @@ FORMAT_FUNCTIONS: dict[str, int] = {
     "Q_snprintfz": 2,
 }
 
-
-# ----- helpers --------------------------------------------------------------
 
 def _read_extent(source_bytes: bytes, extent) -> str:
     start = extent.start.offset
@@ -470,9 +464,7 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
     return "unknown", None, None, None
 
 
-# ----- Handler --------------------------------------------------------------
-
-class AssetLoaderSitesHandler:
+class AssetLoaderSitesHandler(Visitor):
     name = "asset-loader-sites"
     output_filename = "ezquake-asset-loader-sites-ast.json"
 
@@ -508,130 +500,110 @@ class AssetLoaderSitesHandler:
             return None
         return self._cvar_ident_map.get(ident, ident)
 
-    def process_file(
-        self,
-        *,
-        tu_client: Any,
-        tu_server: Any,
-        source_bytes: bytes,
-        source_path: Path,
-    ) -> list[dict]:
-        target_path = str(source_path.resolve())
-        file_name = source_path.name
-        collected: list[dict] = []
-        seen_keys: set[tuple[str, str, int, int]] = set()
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._source_file_name = source_path.name
+        self._func_stack: list[str] = []
+        self._compound_stack: list = []
+        self._collected: list[dict] = []
+        self._seen_keys: set[tuple[str, str, int, int]] = set()
 
-        def walk(root, label: str):
-            func_stack: list[str] = []
-            compound_stack: list = []
+    def enter_function(self, cursor, variant: str) -> None:
+        self._func_stack.append(cursor.spelling or "?")
 
-            def visit(node):
-                pushed = False
-                pushed_compound = False
-                if node.kind == CursorKind.FUNCTION_DECL:
-                    if any(c.kind == CursorKind.COMPOUND_STMT for c in node.get_children()):
-                        func_stack.append(node.spelling or "?")
-                        pushed = True
-                if node.kind == CursorKind.COMPOUND_STMT:
-                    compound_stack.append(node)
-                    pushed_compound = True
+    def exit_function(self, cursor, variant: str) -> None:
+        self._func_stack.pop()
 
-                if (
-                    node.kind == CursorKind.CALL_EXPR
-                    and node.spelling in LOADER_FUNCTIONS
-                    and node.location.file is not None
-                    and os.path.samefile(node.location.file.name, target_path)
-                ):
-                    fn = node.spelling
-                    src_line = node.location.line
-                    src_col = node.location.column
-                    key = (fn, file_name, src_line, src_col)
-                    if key not in seen_keys:
-                        seen_keys.add(key)
-                        enclosing = func_stack[-1] if func_stack else None
-                        enclosing_compound = compound_stack[-1] if compound_stack else None
-                        args = list(node.get_arguments())
-                        if args:
-                            path_source, path_literal, cvar_ident, parameterization = _classify_first_arg(args[0], source_bytes, enclosing_compound)
-                        else:
-                            path_source, path_literal, cvar_ident, parameterization = ("unknown", None, None, None)
+    def enter_compound(self, cursor, variant: str) -> None:
+        self._compound_stack.append(cursor)
 
-                        path_template = None
-                        path_parameters = None
-                        path_extension = None
-                        format_function = None
-                        if parameterization is not None:
-                            path_template, path_parameters, path_extension, format_function = parameterization
+    def exit_compound(self, cursor, variant: str) -> None:
+        self._compound_stack.pop()
 
-                        cat_from_fn = FUNCTION_TO_CATEGORY.get(fn)
-                        cat_from_ext = _category_from_extension(path_literal) if path_literal else None
-                        cat_from_enclosing = _category_from_enclosing(enclosing)
-                        cat_fallback = GENERIC_LITERAL_CATEGORY if (path_source == "literal" and path_literal) else None
-                        reads_category_id = cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
+    def visit_cursor(self, cursor, variant: str) -> None:
+        if cursor.kind != CursorKind.CALL_EXPR:
+            return
+        fn = cursor.spelling
+        if fn not in LOADER_FUNCTIONS:
+            return
+        src_line = cursor.location.line
+        src_col = cursor.location.column
+        key = (fn, self._source_file_name, src_line, src_col)
+        if key in self._seen_keys:
+            return
+        self._seen_keys.add(key)
 
-                        has_specific_category = bool(cat_from_fn or cat_from_ext)
-                        if path_source == "literal" and has_specific_category:
-                            confidence = "certain"
-                        elif reads_category_id or path_source in ("cvar", "computed"):
-                            confidence = "heuristic"
-                        else:
-                            confidence = "unclassified"
+        enclosing = self._func_stack[-1] if self._func_stack else None
+        enclosing_compound = self._compound_stack[-1] if self._compound_stack else None
+        args = list(cursor.get_arguments())
+        if args:
+            path_source, path_literal, cvar_ident, parameterization = _classify_first_arg(args[0], self.source_bytes, enclosing_compound)
+        else:
+            path_source, path_literal, cvar_ident, parameterization = ("unknown", None, None, None)
 
-                        load_trigger = _classify_load_trigger(enclosing)
-                        dev_only = 1 if _is_dev_only(enclosing) else 0
+        path_template = None
+        path_parameters = None
+        path_extension = None
+        format_function = None
+        if parameterization is not None:
+            path_template, path_parameters, path_extension, format_function = parameterization
 
-                        notes = None
-                        if label == "server":
-                            notes = "server-build variant"
+        cat_from_fn = FUNCTION_TO_CATEGORY.get(fn)
+        cat_from_ext = _category_from_extension(path_literal) if path_literal else None
+        cat_from_enclosing = _category_from_enclosing(enclosing)
+        cat_fallback = GENERIC_LITERAL_CATEGORY if (path_source == "literal" and path_literal) else None
+        reads_category_id = cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
 
-                        path_cvar_canonical = (
-                            f"ezquake:cvar:{self._cvar_ident_to_name(cvar_ident)}"
-                            if cvar_ident else None
-                        )
+        has_specific_category = bool(cat_from_fn or cat_from_ext)
+        if path_source == "literal" and has_specific_category:
+            confidence = "certain"
+        elif reads_category_id or path_source in ("cvar", "computed"):
+            confidence = "heuristic"
+        else:
+            confidence = "unclassified"
 
-                        collected.append({
-                            "canonical_id": "",  # assigned in finalize
-                            "function_name": fn,
-                            "source_file": file_name,
-                            "source_line": src_line,
-                            "source_column": src_col,
-                            "enclosing_function": enclosing,
-                            "reads_category_id": reads_category_id,
-                            "load_trigger": load_trigger,
-                            "path_source": path_source,
-                            "path_literal": path_literal,
-                            "path_cvar_id": path_cvar_canonical,
-                            "confidence": confidence,
-                            "dev_only": dev_only,
-                            "notes": notes,
-                            "path_template": path_template,
-                            "path_parameters": path_parameters,
-                            "path_extension": path_extension,
-                            "format_function": format_function,
-                        })
+        load_trigger = _classify_load_trigger(enclosing)
+        dev_only = 1 if _is_dev_only(enclosing) else 0
 
-                for c in node.get_children():
-                    visit(c)
+        notes = None
+        if variant == "server":
+            notes = "server-build variant"
 
-                if pushed:
-                    func_stack.pop()
-                if pushed_compound:
-                    compound_stack.pop()
+        path_cvar_canonical = (
+            f"ezquake:cvar:{self._cvar_ident_to_name(cvar_ident)}"
+            if cvar_ident else None
+        )
 
-            visit(root)
+        self._collected.append({
+            "canonical_id": "",
+            "function_name": fn,
+            "source_file": self._source_file_name,
+            "source_line": src_line,
+            "source_column": src_col,
+            "enclosing_function": enclosing,
+            "reads_category_id": reads_category_id,
+            "load_trigger": load_trigger,
+            "path_source": path_source,
+            "path_literal": path_literal,
+            "path_cvar_id": path_cvar_canonical,
+            "confidence": confidence,
+            "dev_only": dev_only,
+            "notes": notes,
+            "path_template": path_template,
+            "path_parameters": path_parameters,
+            "path_extension": path_extension,
+            "format_function": format_function,
+        })
 
-        walk(tu_client.cursor, "default")
-        walk(tu_server.cursor, "server")
-        return collected
+    def end_file(self) -> list[dict]:
+        rows = self._collected
+        self._collected = []
+        self._seen_keys = set()
+        self._compound_stack = []
+        self._func_stack = []
+        return rows
 
-    def finalize(
-        self,
-        *,
-        all_rows: list[dict],
-        repo_root: Path,
-    ) -> dict:
-        # Cross-file dedup by (fn, file, line, col). Belt-and-braces since
-        # per-file already dedupes, but keeps parity with legacy behavior.
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         dedup: dict[tuple[str, str, int, int], dict] = {}
         for s in all_rows:
             k = (s["function_name"], s["source_file"], s["source_line"], s["source_column"])
@@ -640,7 +612,6 @@ class AssetLoaderSitesHandler:
             dedup[k] = s
         sites = list(dedup.values())
 
-        # Assign ordinals per (fn, enclosing, file) group, sorted by line.
         sites.sort(key=lambda s: (
             s["source_file"],
             s["enclosing_function"] or "",
@@ -657,7 +628,6 @@ class AssetLoaderSitesHandler:
             ordinal = ordinal_counters[group_key]
             s["canonical_id"] = f"ezquake:loader_site:{s['function_name']}_{basename}_{enc}_{ordinal}"
 
-        # Resort into emission order.
         sites = sorted(sites, key=lambda x: (x["source_file"], x["source_line"], x["source_column"]))
 
         by_fn: dict[str, int] = {}

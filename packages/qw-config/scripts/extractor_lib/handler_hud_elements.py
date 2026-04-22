@@ -1,20 +1,17 @@
-"""HUD elements handler for the unified extraction driver.
+"""HUD elements handler (Visitor protocol).
 
-Ports extract-ezquake-hud-elements-clang.py. SINGLE-parse: only uses
-tu_client; the server TU is ignored (legacy extractor never parsed it).
-
-setup() parses hud.h once to derive the shared field_source_lines map
-embedded in every element's ast. process_file walks HUD_Register call
-sites. finalize dedups by name (first-wins).
+SINGLE-parse: only processes the client variant (variant == "client"),
+ignores server TUs. Legacy behavior preserved.
 """
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from clang.cindex import CursorKind
+
+from ._visitor import Visitor
 
 
 HUD_T_C_TO_SCHEMA_NAME = {
@@ -174,7 +171,7 @@ def _synthesize_owned_cvar_names(name: str, args: list, source_bytes: bytes) -> 
     return deduped
 
 
-class HudElementsHandler:
+class HudElementsHandler(Visitor):
     name = "hud-elements"
     output_filename = "ezquake-hud-elements-ast.json"
 
@@ -199,63 +196,67 @@ class HudElementsHandler:
             }
         self._field_source_lines = out
 
-    def process_file(
-        self,
-        *,
-        tu_client: Any,
-        tu_server: Any,  # unused
-        source_bytes: bytes,
-        source_path: Path,
-    ) -> list[dict]:
-        target_path = str(source_path.resolve())
-        out: list[dict] = []
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._func_stack: list[str] = []
+        self._rows: list[dict] = []
+        self._source_file_name = source_path.name
 
-        def visit(node, current_fn: Optional[str]):
-            if node.kind == CursorKind.FUNCTION_DECL:
-                if node.location.file is not None and os.path.samefile(node.location.file.name, target_path):
-                    current_fn = node.spelling
-            if node.kind == CursorKind.CALL_EXPR and node.spelling == "HUD_Register":
-                loc = node.location
-                if loc.file is not None and os.path.samefile(loc.file.name, target_path):
-                    args = list(node.get_arguments())
-                    if len(args) >= 16:
-                        name = _literal_string(args[0], source_bytes)
-                        if name and re.fullmatch(r"[a-z][a-z0-9_]*", name):
-                            alias = _literal_string(args[1], source_bytes)
-                            description = _literal_string(args[2], source_bytes)
-                            flags_raw = _read_extent(source_bytes, args[3].extent).strip()
-                            min_state_raw = _read_extent(source_bytes, args[4].extent).strip()
-                            draw_order_raw = _read_extent(source_bytes, args[5].extent).strip()
-                            draw_fn = _resolve_fn_ref(args[6])
-                            owned = _synthesize_owned_cvar_names(name, args, source_bytes)
-                            out.append({
-                                "name": name,
-                                "alias": alias,
-                                "description": description,
-                                "flags_raw": flags_raw,
-                                "min_state_raw": min_state_raw,
-                                "draw_order_raw": draw_order_raw,
-                                "draw_fn": draw_fn,
-                                "owned_cvars": owned,
-                                "source_file": Path(loc.file.name).name,
-                                "source_line": loc.line,
-                                "source_column": loc.column,
-                                "enclosing_function": current_fn,
-                                "build_variant": "client",
-                            })
-            for c in node.get_children():
-                visit(c, current_fn)
+    def enter_function(self, cursor, variant: str) -> None:
+        if variant != "client":
+            return
+        self._func_stack.append(cursor.spelling or "?")
 
-        visit(tu_client.cursor, None)
-        return out
+    def exit_function(self, cursor, variant: str) -> None:
+        if variant != "client":
+            return
+        self._func_stack.pop()
 
-    def finalize(
-        self,
-        *,
-        all_rows: list[dict],
-        repo_root: Path,
-    ) -> dict:
-        # First-wins dedup by name.
+    def visit_cursor(self, cursor, variant: str) -> None:
+        # SINGLE-parse: client-only, matches legacy behavior.
+        if variant != "client":
+            return
+        if cursor.kind != CursorKind.CALL_EXPR:
+            return
+        if cursor.spelling != "HUD_Register":
+            return
+        args = list(cursor.get_arguments())
+        if len(args) < 16:
+            return
+        name = _literal_string(args[0], self.source_bytes)
+        if not name or not re.fullmatch(r"[a-z][a-z0-9_]*", name):
+            return
+        alias = _literal_string(args[1], self.source_bytes)
+        description = _literal_string(args[2], self.source_bytes)
+        flags_raw = _read_extent(self.source_bytes, args[3].extent).strip()
+        min_state_raw = _read_extent(self.source_bytes, args[4].extent).strip()
+        draw_order_raw = _read_extent(self.source_bytes, args[5].extent).strip()
+        draw_fn = _resolve_fn_ref(args[6])
+        owned = _synthesize_owned_cvar_names(name, args, self.source_bytes)
+        loc = cursor.location
+        self._rows.append({
+            "name": name,
+            "alias": alias,
+            "description": description,
+            "flags_raw": flags_raw,
+            "min_state_raw": min_state_raw,
+            "draw_order_raw": draw_order_raw,
+            "draw_fn": draw_fn,
+            "owned_cvars": owned,
+            "source_file": self._source_file_name,
+            "source_line": loc.line,
+            "source_column": loc.column,
+            "enclosing_function": self._func_stack[-1] if self._func_stack else None,
+            "build_variant": "client",
+        })
+
+    def end_file(self) -> list[dict]:
+        rows = self._rows
+        self._rows = []
+        self._func_stack = []
+        return rows
+
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         deduped: dict[str, dict] = {}
         for el in all_rows:
             if el["name"] not in deduped:

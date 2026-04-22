@@ -1,17 +1,18 @@
-"""Commands handler for the unified extraction driver.
+"""Commands handler for the unified extraction driver (Step 3: Visitor).
 
-Ports the logic from extract-ezquake-commands-clang.py. Kept byte-for-byte
-identical in output shape -- see verify-unified-output.py for the natural-key
-set-equality check used during rollout.
+Ports the legacy walk to cursor-dispatch. Each file receives one client walk
+and one server walk from the central walker; this handler emits per-file
+first-wins rows (client then server).
 """
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from clang.cindex import CursorKind
+
+from ._visitor import Visitor
 
 
 # ----- group assignment (mirrors legacy extractor exactly) -------------------
@@ -88,8 +89,6 @@ def _assign_group(name: str, deprecated: bool) -> str:
 # ----- per-file visit helpers -----------------------------------------------
 
 def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    """Extract a C string literal value from an argument cursor, handling
-    adjacent string literal concatenation and basic escape sequences."""
     extent = arg_cursor.extent
     start = extent.start.offset
     end = extent.end.offset
@@ -128,8 +127,6 @@ def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
 
 
 def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    """Given arg[1] of Cmd_AddCommand, walk the subtree to find the referenced
-    function decl. Handles `NULL`, `&Fn`, bare `Fn`, and cast-wrapped forms."""
     stack = [arg_cursor]
     while stack:
         n = stack.pop()
@@ -141,73 +138,63 @@ def _resolve_fn_ref(arg_cursor) -> Optional[str]:
     return None
 
 
-def _collect_cmd_add_sites(tu_cursor, target_path: str, variant: str, already_seen: set[str], source_bytes: bytes) -> list[dict]:
-    """Walk a TU tracking enclosing-FUNCTION_DECL, emit a row per
-    Cmd_AddCommand call whose first-string-arg has not been seen yet."""
-    found: list[dict] = []
-
-    def visit(node, current_fn: Optional[str]):
-        if node.kind == CursorKind.FUNCTION_DECL:
-            if node.location.file is not None and os.path.samefile(node.location.file.name, target_path):
-                current_fn = node.spelling
-        if node.kind == CursorKind.CALL_EXPR and node.spelling == "Cmd_AddCommand":
-            loc = node.location
-            if loc.file is not None and os.path.samefile(loc.file.name, target_path):
-                args = list(node.get_arguments())
-                if len(args) >= 2:
-                    name = _literal_string(args[0], source_bytes)
-                    if name and name not in already_seen:
-                        handler = _resolve_fn_ref(args[1])
-                        found.append({
-                            "name": name,
-                            "handler_fn": handler,
-                            "source_file": Path(loc.file.name).name,
-                            "source_line": loc.line,
-                            "source_column": loc.column,
-                            "enclosing_function": current_fn,
-                            "build_variant": variant,
-                        })
-                        already_seen.add(name)
-        for c in node.get_children():
-            visit(c, current_fn)
-
-    visit(tu_cursor.cursor, None)
-    return found
-
-
 # ----- Handler --------------------------------------------------------------
 
-class CommandsHandler:
+class CommandsHandler(Visitor):
     name = "commands"
     output_filename = "ezquake-commands-ast.json"
 
-    def process_file(
-        self,
-        *,
-        tu_client: Any,
-        tu_server: Any,
-        source_bytes: bytes,
-        source_path: Path,
-    ) -> list[dict]:
-        target_path = str(source_path.resolve())
-        seen: set[str] = set()
-        client_hits = _collect_cmd_add_sites(tu_client, target_path, "client", seen, source_bytes)
-        server_hits = _collect_cmd_add_sites(tu_server, target_path, "server-build", seen, source_bytes)
-        return client_hits + server_hits
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._func_stack: list[str] = []
+        # Per-file seen names — legacy rule: within one file, client sees
+        # name X, server skips X if already-seen. Across files: first-wins
+        # (in finalize).
+        self._seen_in_file: set[str] = set()
+        self._rows: list[dict] = []
 
-    def finalize(
-        self,
-        *,
-        all_rows: list[dict],
-        repo_root: Path,
-    ) -> dict:
-        # help_commands.json lives inside the ezquake-source repo, not the
-        # monorepo root. The driver passes ezq_repo as repo_root for handlers.
+    def enter_function(self, cursor, variant: str) -> None:
+        self._func_stack.append(cursor.spelling or "?")
+
+    def exit_function(self, cursor, variant: str) -> None:
+        self._func_stack.pop()
+
+    def visit_cursor(self, cursor, variant: str) -> None:
+        if cursor.kind != CursorKind.CALL_EXPR:
+            return
+        if cursor.spelling != "Cmd_AddCommand":
+            return
+        args = list(cursor.get_arguments())
+        if len(args) < 2:
+            return
+        name = _literal_string(args[0], self.source_bytes)
+        if not name or name in self._seen_in_file:
+            return
+        handler = _resolve_fn_ref(args[1])
+        loc = cursor.location
+        build_variant = "client" if variant == "client" else "server-build"
+        self._rows.append({
+            "name": name,
+            "handler_fn": handler,
+            "source_file": Path(loc.file.name).name,
+            "source_line": loc.line,
+            "source_column": loc.column,
+            "enclosing_function": self._func_stack[-1] if self._func_stack else None,
+            "build_variant": build_variant,
+        })
+        self._seen_in_file.add(name)
+
+    def end_file(self) -> list[dict]:
+        rows = self._rows
+        self._rows = []
+        self._func_stack = []
+        self._seen_in_file = set()
+        return rows
+
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         help_json_path = repo_root / "help_commands.json"
         help_data: dict = json.loads(help_json_path.read_text(encoding="utf-8"))
 
-        # Cross-file dedup: first sighting wins. Matches legacy behavior
-        # (for c in all_cmds: if c.name not in deduped: deduped[c.name] = c).
         deduped: dict[str, dict] = {}
         for row in all_rows:
             if row["name"] not in deduped:
@@ -244,12 +231,10 @@ class CommandsHandler:
                 stats["with_help_desc"] += 1
             if help_entry.get("remarks"):
                 entry["remarks"] = help_entry["remarks"]
-
             if cmd["handler_fn"]:
                 stats["with_handler"] += 1
             if cmd["build_variant"] == "server-build":
                 stats["server_build_only"] += 1
-
             commands_out[cmd["name"]] = entry
 
         stats["help_only_system_generated"] = 0

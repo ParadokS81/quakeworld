@@ -1,29 +1,19 @@
-"""Asset cvar-bindings handler for the unified extraction driver.
+"""Asset cvar-bindings handler (Visitor protocol).
 
-Ports extract-ezquake-asset-cvar-bindings-clang.py. Walks both client+server
-TUs for MEMBER_REF_EXPR on `.string` where the base is a cvar_t VAR_DECL,
-paired with CALL_EXPR to any function in LOADER_FUNCTIONS within the same
-COMPOUND_STMT scope. Emits auto-bindings at "auto" confidence.
-
-setup() reads the committed ezquake-variables-ast.json to build a
-c_ident -> cvar_name map. When running together with the cvars handler in
-one unified pass, this still reads the PREVIOUSLY-committed data (not
-the .json.unified output from this run), which matches legacy behavior.
-
-NOTE: Legacy extractor used a slightly different CLANG_ARGS set (missing
-a few debug/experimental defines). The unified driver uses the common
-args. If the verifier reveals behavioral drift, revisit per-handler arg
-overrides; for now the empirical check decides.
+Per-compound scope pairing: on COMPOUND_STMT exit, if the scope saw both
+cvar.string member-refs AND loader-function call-exprs, emit one binding
+per (cvar_ref, loader_call) pair.
 """
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from clang.cindex import CursorKind
+
+from ._visitor import Visitor
 
 
 LOADER_FUNCTIONS: set[str] = {
@@ -97,7 +87,7 @@ def _resolve_cvar_string_ref(member_ref_cursor) -> Optional[str]:
     return ref.spelling
 
 
-class AssetCvarBindingsHandler:
+class AssetCvarBindingsHandler(Visitor):
     name = "asset-cvar-bindings"
     output_filename = "ezquake-asset-cvar-bindings-ast.json"
 
@@ -105,10 +95,8 @@ class AssetCvarBindingsHandler:
         self._cvar_ident_map: dict[str, str] = {}
 
     def setup(self, *, ezq_repo: Path, ezq_src: Path) -> None:
-        # Read the committed ezquake-variables-ast.json to map c_ident ->
-        # registered cvar name. Matches legacy.
         here = Path(__file__).resolve().parent
-        monorepo_root = here.parent.parent.parent.parent  # scripts/extractor_lib -> scripts -> qw-config -> packages -> monorepo
+        monorepo_root = here.parent.parent.parent.parent
         candidate = monorepo_root / "packages/qw-config/src/data/ezquake-variables-ast.json"
         self._cvar_ident_map = {}
         if not candidate.is_file():
@@ -133,111 +121,84 @@ class AssetCvarBindingsHandler:
     def _cvar_ident_to_name(self, ident: str) -> str:
         return self._cvar_ident_map.get(ident, ident)
 
-    def process_file(
-        self,
-        *,
-        tu_client: Any,
-        tu_server: Any,
-        source_bytes: bytes,
-        source_path: Path,
-    ) -> list[dict]:
-        target_path = str(source_path.resolve())
-        file_name = source_path.name
-        bindings: list[dict] = []
-        seen_keys: set[tuple[str, str, int, str]] = set()
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._source_file_name = source_path.name
+        self._func_stack: list[str] = []
+        # Each compound entry is (cvar_refs_list, loader_calls_list).
+        self._scope_stack: list[tuple[list, list]] = []
+        self._bindings: list[dict] = []
+        self._seen_keys: set[tuple[str, str, int, str]] = set()
 
-        def walk(root):
-            func_stack: list[str] = []
-            scope_stack: list[tuple[list[dict], list[dict]]] = [([], [])]
+    def enter_function(self, cursor, variant: str) -> None:
+        self._func_stack.append(cursor.spelling or "?")
 
-            def visit(node):
-                pushed_func = False
-                pushed_scope = False
+    def exit_function(self, cursor, variant: str) -> None:
+        self._func_stack.pop()
 
-                if node.kind == CursorKind.FUNCTION_DECL:
-                    if any(c.kind == CursorKind.COMPOUND_STMT for c in node.get_children()):
-                        func_stack.append(node.spelling or "?")
-                        pushed_func = True
+    def enter_compound(self, cursor, variant: str) -> None:
+        self._scope_stack.append(([], []))
 
-                if node.kind == CursorKind.COMPOUND_STMT:
-                    scope_stack.append(([], []))
-                    pushed_scope = True
+    def exit_compound(self, cursor, variant: str) -> None:
+        cvar_refs, loader_calls = self._scope_stack.pop()
+        if not (cvar_refs and loader_calls):
+            return
+        for cref in cvar_refs:
+            for lc in loader_calls:
+                cvar_name = self._cvar_ident_to_name(cref["cvar_ident"])
+                canonical = f"ezquake:cvar:{cvar_name}"
+                cat = FUNCTION_TO_CATEGORY.get(lc["fn"])
+                trigger = _classify_load_trigger(cref["enclosing"])
+                source_ref = f"{self._source_file_name}:{cref['line']}"
+                dedup_key = (canonical, self._source_file_name, cref["line"], lc["fn"])
+                if dedup_key in self._seen_keys:
+                    continue
+                self._seen_keys.add(dedup_key)
+                self._bindings.append({
+                    "cvar_canonical_id": canonical,
+                    "category_id": cat,
+                    "load_trigger": trigger,
+                    "path_pattern": None,
+                    "confidence": "auto",
+                    "source_ref": source_ref,
+                    "enclosing_function": cref["enclosing"],
+                    "loader_function": lc["fn"],
+                    "notes": None,
+                })
 
-                if (
-                    node.kind == CursorKind.MEMBER_REF_EXPR
-                    and node.location.file is not None
-                    and os.path.samefile(node.location.file.name, target_path)
-                ):
-                    ident = _resolve_cvar_string_ref(node)
-                    if ident:
-                        scope_stack[-1][0].append({
-                            "cvar_ident": ident,
-                            "line": node.location.line,
-                            "col": node.location.column,
-                            "enclosing": func_stack[-1] if func_stack else None,
-                        })
+    def visit_cursor(self, cursor, variant: str) -> None:
+        kind = cursor.kind
+        if kind == CursorKind.MEMBER_REF_EXPR:
+            ident = _resolve_cvar_string_ref(cursor)
+            if ident and self._scope_stack:
+                self._scope_stack[-1][0].append({
+                    "cvar_ident": ident,
+                    "line": cursor.location.line,
+                    "col": cursor.location.column,
+                    "enclosing": self._func_stack[-1] if self._func_stack else None,
+                })
+            return
+        if kind == CursorKind.CALL_EXPR:
+            if cursor.spelling in LOADER_FUNCTIONS and self._scope_stack:
+                self._scope_stack[-1][1].append({
+                    "fn": cursor.spelling,
+                    "line": cursor.location.line,
+                    "col": cursor.location.column,
+                })
 
-                if (
-                    node.kind == CursorKind.CALL_EXPR
-                    and node.spelling in LOADER_FUNCTIONS
-                    and node.location.file is not None
-                    and os.path.samefile(node.location.file.name, target_path)
-                ):
-                    scope_stack[-1][1].append({
-                        "fn": node.spelling,
-                        "line": node.location.line,
-                        "col": node.location.column,
-                    })
+    def end_file(self) -> list[dict]:
+        rows = self._bindings
+        self._bindings = []
+        self._seen_keys = set()
+        self._scope_stack = []
+        self._func_stack = []
+        return rows
 
-                for c in node.get_children():
-                    visit(c)
-
-                if pushed_scope:
-                    cvar_refs, loader_calls = scope_stack.pop()
-                    if cvar_refs and loader_calls:
-                        for cref in cvar_refs:
-                            for lc in loader_calls:
-                                cvar_name = self._cvar_ident_to_name(cref["cvar_ident"])
-                                canonical = f"ezquake:cvar:{cvar_name}"
-                                cat = FUNCTION_TO_CATEGORY.get(lc["fn"])
-                                trigger = _classify_load_trigger(cref["enclosing"])
-                                source_ref = f"{file_name}:{cref['line']}"
-                                dedup_key = (canonical, file_name, cref["line"], lc["fn"])
-                                if dedup_key in seen_keys:
-                                    continue
-                                seen_keys.add(dedup_key)
-                                bindings.append({
-                                    "cvar_canonical_id": canonical,
-                                    "category_id": cat,
-                                    "load_trigger": trigger,
-                                    "path_pattern": None,
-                                    "confidence": "auto",
-                                    "source_ref": source_ref,
-                                    "enclosing_function": cref["enclosing"],
-                                    "loader_function": lc["fn"],
-                                    "notes": None,
-                                })
-
-                if pushed_func:
-                    func_stack.pop()
-
-            visit(root)
-
-        walk(tu_client.cursor)
-        walk(tu_server.cursor)
-        return bindings
-
-    def finalize(
-        self,
-        *,
-        all_rows: list[dict],
-        repo_root: Path,
-    ) -> dict:
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         bindings = sorted(
             all_rows,
             key=lambda b: (b["cvar_canonical_id"], b["source_ref"], b["loader_function"]),
         )
-
         by_cvar: dict = {}
         by_cat: dict = {}
         by_trigger: dict = {}
@@ -246,14 +207,10 @@ class AssetCvarBindingsHandler:
             cat_key = b["category_id"] or "<null>"
             by_cat[cat_key] = by_cat.get(cat_key, 0) + 1
             by_trigger[b["load_trigger"]] = by_trigger.get(b["load_trigger"], 0) + 1
-
         stats = {
             "total_bindings": len(bindings),
             "unique_cvars": len(by_cvar),
             "by_category": dict(sorted(by_cat.items(), key=lambda kv: -kv[1])),
             "by_load_trigger": by_trigger,
         }
-        return {
-            "cvar_bindings": bindings,
-            "_stats": stats,
-        }
+        return {"cvar_bindings": bindings, "_stats": stats}

@@ -1,23 +1,18 @@
-"""Macros handler for the unified extraction driver.
+"""Macros handler (Visitor protocol).
 
-Ports extract-ezquake-macros-clang.py. Reads macro_ids.h in setup() for the
-canonical manifest, then walks Cmd_AddMacro / Cmd_AddMacroEx call sites on
-both client + server TUs (first-client-wins within a file, first-file-wins
-across files).
-
-Version tolerance: pre-3.6.0 tags lack macro_ids.h and help_macros.json.
-setup() tolerates their absence -- Phase 2 still produces best-effort
-entries tagged "registered_not_declared".
+Walks Cmd_AddMacro / Cmd_AddMacroEx sites across client + server TUs with
+per-file first-wins dedup on public_name (client variant sees it first).
 """
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from clang.cindex import CursorKind
+
+from ._visitor import Visitor
 
 
 _MACRO_DEF_RE = re.compile(r"^\s*MACRO_DEF\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)", re.MULTILINE)
@@ -89,51 +84,7 @@ def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
     return "".join(parts) if parts else None
 
 
-def _collect_macro_sites(tu_cursor, target_path: str, variant: str, already_seen: set[str], source_bytes: bytes) -> list[dict]:
-    out: list[dict] = []
-
-    def visit(node, current_fn: Optional[str]):
-        if node.kind == CursorKind.FUNCTION_DECL:
-            if node.location.file is not None and os.path.samefile(node.location.file.name, target_path):
-                current_fn = node.spelling
-        if node.kind == CursorKind.CALL_EXPR and node.spelling in ("Cmd_AddMacro", "Cmd_AddMacroEx"):
-            loc = node.location
-            if loc.file is not None and os.path.samefile(loc.file.name, target_path):
-                args = list(node.get_arguments())
-                if len(args) >= 2:
-                    public_name: Optional[str] = None
-                    enum_name = _resolve_enum_constant(args[0])
-                    if enum_name and enum_name.startswith("macro_"):
-                        public_name = enum_name[len("macro_"):]
-                    else:
-                        lit = _literal_string(args[0], source_bytes)
-                        if lit:
-                            public_name = lit
-                    if public_name and public_name not in already_seen:
-                        handler = _resolve_fn_ref(args[1])
-                        teamplay_raw: Optional[str] = None
-                        if node.spelling == "Cmd_AddMacroEx" and len(args) >= 3:
-                            teamplay_raw = _read_extent(source_bytes, args[2].extent).strip() or None
-                        out.append({
-                            "public_name": public_name,
-                            "handler_fn": handler,
-                            "teamplay_raw": teamplay_raw,
-                            "source_file": Path(loc.file.name).name,
-                            "source_line": loc.line,
-                            "source_column": loc.column,
-                            "enclosing_function": current_fn,
-                            "call_form": node.spelling,
-                            "build_variant": variant,
-                        })
-                        already_seen.add(public_name)
-        for c in node.get_children():
-            visit(c, current_fn)
-
-    visit(tu_cursor.cursor, None)
-    return out
-
-
-class MacrosHandler:
+class MacrosHandler(Visitor):
     name = "macros"
     output_filename = "ezquake-macros-ast.json"
 
@@ -150,31 +101,68 @@ class MacrosHandler:
         else:
             self._declared = []
             self._manifest_available = False
-
         help_path = ezq_repo / "help_macros.json"
         self._help_available = help_path.is_file()
 
-    def process_file(
-        self,
-        *,
-        tu_client: Any,
-        tu_server: Any,
-        source_bytes: bytes,
-        source_path: Path,
-    ) -> list[dict]:
-        target_path = str(source_path.resolve())
-        seen: set[str] = set()
-        client_hits = _collect_macro_sites(tu_client, target_path, "client", seen, source_bytes)
-        server_hits = _collect_macro_sites(tu_server, target_path, "server-build", seen, source_bytes)
-        return client_hits + server_hits
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._func_stack: list[str] = []
+        self._seen_in_file: set[str] = set()
+        self._rows: list[dict] = []
+        self._source_file_name = source_path.name
 
-    def finalize(
-        self,
-        *,
-        all_rows: list[dict],
-        repo_root: Path,
-    ) -> dict:
-        # Cross-file first-wins dedup on public_name.
+    def enter_function(self, cursor, variant: str) -> None:
+        self._func_stack.append(cursor.spelling or "?")
+
+    def exit_function(self, cursor, variant: str) -> None:
+        self._func_stack.pop()
+
+    def visit_cursor(self, cursor, variant: str) -> None:
+        if cursor.kind != CursorKind.CALL_EXPR:
+            return
+        sp = cursor.spelling
+        if sp not in ("Cmd_AddMacro", "Cmd_AddMacroEx"):
+            return
+        args = list(cursor.get_arguments())
+        if len(args) < 2:
+            return
+        public_name: Optional[str] = None
+        enum_name = _resolve_enum_constant(args[0])
+        if enum_name and enum_name.startswith("macro_"):
+            public_name = enum_name[len("macro_"):]
+        else:
+            lit = _literal_string(args[0], self.source_bytes)
+            if lit:
+                public_name = lit
+        if not public_name or public_name in self._seen_in_file:
+            return
+        handler = _resolve_fn_ref(args[1])
+        teamplay_raw: Optional[str] = None
+        if sp == "Cmd_AddMacroEx" and len(args) >= 3:
+            teamplay_raw = _read_extent(self.source_bytes, args[2].extent).strip() or None
+        loc = cursor.location
+        build_variant = "client" if variant == "client" else "server-build"
+        self._rows.append({
+            "public_name": public_name,
+            "handler_fn": handler,
+            "teamplay_raw": teamplay_raw,
+            "source_file": self._source_file_name,
+            "source_line": loc.line,
+            "source_column": loc.column,
+            "enclosing_function": self._func_stack[-1] if self._func_stack else None,
+            "call_form": sp,
+            "build_variant": build_variant,
+        })
+        self._seen_in_file.add(public_name)
+
+    def end_file(self) -> list[dict]:
+        rows = self._rows
+        self._rows = []
+        self._func_stack = []
+        self._seen_in_file = set()
+        return rows
+
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         registrations: dict[str, dict] = {}
         for row in all_rows:
             if row["public_name"] not in registrations:
@@ -201,7 +189,6 @@ class MacrosHandler:
         for name in self._declared:
             reg = registrations.get(name)
             help_entry = help_data.get(name, {}) or {}
-
             entry: dict = {}
             if reg is not None:
                 entry["ast"] = {
@@ -222,7 +209,6 @@ class MacrosHandler:
             else:
                 entry["ast"] = None
                 stats["declared_not_implemented"] += 1
-
             if help_entry.get("description"):
                 entry["desc"] = help_entry["description"]
                 stats["with_help_desc"] += 1
@@ -234,7 +220,6 @@ class MacrosHandler:
                 entry["teamplay-restricted"] = help_entry["teamplay-restricted"]
             if help_entry.get("related-cvars") is not None:
                 entry["related-cvars"] = help_entry["related-cvars"]
-
             macros_out[name] = entry
 
         for name in registrations:

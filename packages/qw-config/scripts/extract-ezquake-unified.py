@@ -46,6 +46,7 @@ from extractor_lib.clang_config import (  # noqa: E402
     clang_args_for,
     clang_args_server_for,
 )
+from extractor_lib._visitor import Visitor, walk_tu_dispatch  # noqa: E402
 from extractor_lib.handler_commands import CommandsHandler  # noqa: E402
 from extractor_lib.handler_cvars import CvarsHandler  # noqa: E402
 from extractor_lib.handler_macros import MacrosHandler  # noqa: E402
@@ -81,16 +82,64 @@ _WORKER_CLANG_CLIENT: list[str] = []
 _WORKER_CLANG_SERVER: list[str] = []
 
 
-def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
-    """Parse each file in the chunk, run all handlers, return merged rows.
+def _split_handlers(handlers: list) -> tuple[list, list]:
+    """Partition handlers into (visitors, legacy). Visitor handlers use the
+    shared-walk dispatcher; legacy handlers still use process_file."""
+    visitors = [h for h in handlers if isinstance(h, Visitor)]
+    legacy = [h for h in handlers if not isinstance(h, Visitor)]
+    return visitors, legacy
 
-    Returns (local_rows_by_handler_name, local_diagnostics). Workers are
-    forked from the parent after setup() so handler internal state (cvar
-    maps, group_defs, etc.) is inherited read-only.
-    """
+
+def _process_one_file(
+    path: Path,
+    source_bytes: bytes,
+    tu_client,
+    tu_server,
+    visitors: list,
+    legacy: list,
+    local_rows: dict,
+    local_diag: list,
+) -> None:
+    """Run all handlers against one file's TUs. Visitor handlers go through
+    the shared walk; legacy handlers get their own process_file call."""
+    target_path_str = str(path.resolve())
+
+    # Visitor path: shared walk per TU, dispatching to every visitor.
+    if visitors:
+        for v in visitors:
+            v.start_file(source_path=path, source_bytes=source_bytes)
+        try:
+            walk_tu_dispatch(tu_client, visitors, "client", target_path_str)
+            walk_tu_dispatch(tu_server, visitors, "server", target_path_str)
+        except Exception as e:
+            local_diag.append(f"{path.name} [visitor-walk]: {type(e).__name__}: {e}")
+        for v in visitors:
+            try:
+                rows = v.end_file()
+                local_rows[v.name].extend(rows)
+            except Exception as e:
+                local_diag.append(f"{path.name} [{v.name}.end_file]: {type(e).__name__}: {e}")
+
+    # Legacy path: each handler owns its walk via process_file.
+    for h in legacy:
+        try:
+            rows = h.process_file(
+                tu_client=tu_client,
+                tu_server=tu_server,
+                source_bytes=source_bytes,
+                source_path=path,
+            )
+            local_rows[h.name].extend(rows)
+        except Exception as e:
+            local_diag.append(f"{path.name} [{h.name}]: {type(e).__name__}: {e}")
+
+
+def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
+    """Parse each file in the chunk, run all handlers, return merged rows."""
     idx = Index.create()
     local_rows: dict[str, list[dict]] = {h.name: [] for h in _WORKER_HANDLERS}
     local_diag: list[str] = []
+    visitors, legacy = _split_handlers(_WORKER_HANDLERS)
 
     for ps in file_path_strs:
         path = Path(ps)
@@ -103,17 +152,10 @@ def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
         tu_client = idx.parse(ps, args=_WORKER_CLANG_CLIENT, options=PARSE_OPTS)
         tu_server = idx.parse(ps, args=_WORKER_CLANG_SERVER, options=PARSE_OPTS)
 
-        for h in _WORKER_HANDLERS:
-            try:
-                rows = h.process_file(
-                    tu_client=tu_client,
-                    tu_server=tu_server,
-                    source_bytes=source_bytes,
-                    source_path=path,
-                )
-                local_rows[h.name].extend(rows)
-            except Exception as e:
-                local_diag.append(f"{path.name} [{h.name}]: {type(e).__name__}: {e}")
+        _process_one_file(
+            path, source_bytes, tu_client, tu_server,
+            visitors, legacy, local_rows, local_diag,
+        )
 
     return local_rows, local_diag
 
@@ -125,9 +167,10 @@ def _run_serial(
     clang_args_server: list[str],
     progress_every: int,
 ) -> tuple[dict, list]:
-    """Serial fallback, same behavior as Step 1. Used when workers == 1."""
+    """Serial fallback. Used when workers == 1."""
     rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
     diagnostics: list[str] = []
+    visitors, legacy = _split_handlers(handlers)
     t0 = time.perf_counter()
     for i, path in enumerate(c_files, 1):
         try:
@@ -138,15 +181,10 @@ def _run_serial(
         idx = Index.create()
         tu_client = idx.parse(str(path), args=clang_args_client, options=PARSE_OPTS)
         tu_server = idx.parse(str(path), args=clang_args_server, options=PARSE_OPTS)
-        for h in handlers:
-            try:
-                rows = h.process_file(
-                    tu_client=tu_client, tu_server=tu_server,
-                    source_bytes=source_bytes, source_path=path,
-                )
-                rows_by_handler[h.name].extend(rows)
-            except Exception as e:
-                diagnostics.append(f"{path.name} [{h.name}]: {type(e).__name__}: {e}")
+        _process_one_file(
+            path, source_bytes, tu_client, tu_server,
+            visitors, legacy, rows_by_handler, diagnostics,
+        )
         if progress_every and i % progress_every == 0:
             elapsed = time.perf_counter() - t0
             rate = i / elapsed if elapsed > 0 else 0
