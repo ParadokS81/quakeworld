@@ -26,7 +26,7 @@ Each section below is collapsed by default. Click an entry to expand it, or use 
 - [asset_extensions](#asset_extensions-relation) - `seed_only_with_ast_support` with row-level findings
 - [asset_path_rules](#asset_path_rules-relation) - 14 rules - `ast_verified`
 - [asset_cvar_bindings](#asset_cvar_bindings-relation) - 26 rows - `seed_only_with_ast_support`
-- [asset_loader_sites](#asset_loader_sites-relation) - 110 sites - `ast_verified`
+- [asset_loader_sites](#asset_loader_sites-relation) - 128 sites - `ast_verified`
 
 See [How to read this doc](#how-to-read-this-doc) and [Verification statuses](#verification-statuses) for what the fields and status tags mean.
 
@@ -419,11 +419,11 @@ The seven speculative extensions audited 2026-04-22 (`.log`, `.loc`, `.lit`, `.x
 ### asset_loader_sites (relation)
 
 <details>
-<summary>110 sites - <code>ast_verified</code> - click to expand</summary>
+<summary>128 sites - <code>ast_verified</code> - click to expand</summary>
 
 **Tagline:** Every concrete call site in engine C that loads an asset.
 
-**Verification status:** ast_verified (110 sites at ezQuake head: 19 `certain` + 66 `heuristic` + 25 `unclassified`. The confidence gradient reflects how much evidence the classifier has for `reads_category_id` - a literal path-string scores `certain`, a cvar-driven path without a binding match scores `heuristic`, a computed path with no cvar scores `unclassified`).
+**Verification status:** ast_verified (128 sites at ezQuake head: 24 `certain` + 80 `heuristic` + 24 `intentionally_generic` + 0 `unclassified`. The confidence gradient reflects how much evidence the classifier has for `reads_category_id` - a literal path-string with a known-category function scores `certain`, a cvar-driven or category-hintable path scores `heuristic`, a call to one of the four FS-layer primitives (`FS_OpenVFS` / `FS_LoadFile` / `FS_LoadHunkFile` / `FS_WriteFile`) with `path_source='unknown'` scores `intentionally_generic` (schema v8, 2026-04-22) since these are the FS layer itself rather than asset loaders, and anything else scores `unclassified`. Zero unclassified at head means a new unclassified row in a future tag-pair is a real novelty, not noise.).
 
 **What it entails:** A row per engine-source function that reads a file. Each row stores the canonical id (`<function>_<basename>_<ordinal>`, ordinal-based since Batch 3 for diff stability), function name, source file + line, enclosing function, category (FK if classified), load trigger, path source (`literal` / `cvar` / `computed` / `unknown`), path literal if applicable, path cvar id if applicable, confidence, and a `dev_only` flag for debug-build-only sites.
 

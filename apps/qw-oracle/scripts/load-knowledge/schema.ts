@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -385,7 +385,7 @@ CREATE TABLE IF NOT EXISTS asset_loader_sites (
   path_source        TEXT NOT NULL CHECK (path_source IN ('literal','cvar','computed','unknown')),
   path_literal       TEXT,
   path_cvar_id       TEXT REFERENCES entities(canonical_id),
-  confidence         TEXT NOT NULL CHECK (confidence IN ('certain','heuristic','unclassified')),
+  confidence         TEXT NOT NULL CHECK (confidence IN ('certain','heuristic','intentionally_generic','unclassified')),
   dev_only           INTEGER NOT NULL DEFAULT 0,
   notes              TEXT,
   raw_ast_hash       TEXT,
@@ -486,6 +486,42 @@ CREATE TABLE IF NOT EXISTS source_overrides (
   PRIMARY KEY (entity_id, version, field_name)
 );
 CREATE INDEX IF NOT EXISTS idx_source_overrides_entity ON source_overrides(entity_id, version);
+`;
+
+// v7 -> v8 widens the asset_loader_sites.confidence CHECK to add
+// 'intentionally_generic'. SQLite can't ALTER a CHECK in place, so the
+// migration rebuilds the table preserving rows, indexes, and ids.
+const ASSET_LOADER_SITES_V8_MIGRATION_SQL = `
+CREATE TABLE asset_loader_sites_v8 (
+  id                 INTEGER PRIMARY KEY,
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  version            TEXT NOT NULL,
+  canonical_id       TEXT NOT NULL,
+  function_name      TEXT NOT NULL,
+  source_file        TEXT NOT NULL,
+  source_line        INTEGER NOT NULL,
+  source_column      INTEGER,
+  enclosing_function TEXT,
+  reads_category_id  TEXT REFERENCES entities(canonical_id),
+  load_trigger       TEXT NOT NULL CHECK (load_trigger IN (
+                       'startup','on_demand','on_connect','on_map_load','unknown'
+                     )),
+  path_source        TEXT NOT NULL CHECK (path_source IN ('literal','cvar','computed','unknown')),
+  path_literal       TEXT,
+  path_cvar_id       TEXT REFERENCES entities(canonical_id),
+  confidence         TEXT NOT NULL CHECK (confidence IN ('certain','heuristic','intentionally_generic','unclassified')),
+  dev_only           INTEGER NOT NULL DEFAULT 0,
+  notes              TEXT,
+  raw_ast_hash       TEXT,
+  extracted_at       TEXT NOT NULL,
+  UNIQUE (project, version, canonical_id)
+);
+INSERT INTO asset_loader_sites_v8 SELECT * FROM asset_loader_sites;
+DROP TABLE asset_loader_sites;
+ALTER TABLE asset_loader_sites_v8 RENAME TO asset_loader_sites;
+CREATE INDEX idx_asset_loader_category ON asset_loader_sites(reads_category_id);
+CREATE INDEX idx_asset_loader_cvar     ON asset_loader_sites(path_cvar_id);
+CREATE INDEX idx_asset_loader_fn       ON asset_loader_sites(function_name);
 `;
 
 // v6 -> v7 adds verification_status + verification_reason to asset_extensions
@@ -653,6 +689,28 @@ function migrateV6ToV7(db: Database.Database): void {
   txn();
 }
 
+function migrateV7ToV8(db: Database.Database): void {
+  // Widens asset_loader_sites.confidence CHECK to allow
+  // 'intentionally_generic'. Table rebuild preserves rows + ids; same FK
+  // pattern as the entities-table rebuilds (foreign_keys OFF outside the
+  // transaction so DROP TABLE is allowed).
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_asset_loader_category;
+        DROP INDEX IF EXISTS idx_asset_loader_cvar;
+        DROP INDEX IF EXISTS idx_asset_loader_fn;
+      `);
+      db.exec(ASSET_LOADER_SITES_V8_MIGRATION_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('8');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -692,6 +750,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 6 && SCHEMA_VERSION >= 7) {
       migrateV6ToV7(db);
       existingVersion = 7;
+    }
+    if (existingVersion === 7 && SCHEMA_VERSION >= 8) {
+      migrateV7ToV8(db);
+      existingVersion = 8;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

@@ -36,6 +36,19 @@ LOADER_FUNCTIONS: set[str] = {
     "FS_LoadHunkFile",
 }
 
+# Generic filesystem primitives. When called with a non-literal path and no
+# resolvable category, the call site is the FS layer itself (or a runtime-
+# filename consumer like QuakeC builtins) rather than an asset loader. Stamp
+# these as `intentionally_generic` instead of `unclassified` so the review
+# skill can distinguish "we know this is FS-layer code" from "novel finding
+# that needs triage."
+GENERIC_FS_PRIMITIVES: set[str] = {
+    "FS_OpenVFS",
+    "FS_LoadFile",
+    "FS_LoadHunkFile",
+    "FS_WriteFile",
+}
+
 FUNCTION_TO_CATEGORY: dict[str, str] = {
     "S_PrecacheSound": "ezquake:asset_category:sound",
     "W_LoadWadFile": "ezquake:asset_category:wad",
@@ -559,6 +572,8 @@ class AssetLoaderSitesHandler(Visitor):
             confidence = "certain"
         elif reads_category_id or path_source in ("cvar", "computed"):
             confidence = "heuristic"
+        elif fn in GENERIC_FS_PRIMITIVES and path_source == "unknown" and not reads_category_id:
+            confidence = "intentionally_generic"
         else:
             confidence = "unclassified"
 

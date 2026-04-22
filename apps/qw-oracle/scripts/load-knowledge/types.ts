@@ -382,7 +382,11 @@ export type AssetCvarBindingConfidence =
   | 'auto_confirms_seed'
   | 'auto_orphan';
 
-export type AssetLoaderSiteConfidence = 'certain' | 'heuristic' | 'unclassified';
+export type AssetLoaderSiteConfidence =
+  | 'certain'
+  | 'heuristic'
+  | 'intentionally_generic'
+  | 'unclassified';
 
 export type AssetLoaderSitePathSource = 'literal' | 'cvar' | 'computed' | 'unknown';
 

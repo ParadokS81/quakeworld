@@ -365,6 +365,10 @@ FROM asset_cvar_bindings WHERE cvar_canonical_id='ezquake:cvar:r_skyname';
   (partial hints via extension, enclosing function, or function name
   mapping to `other`), 25 `unclassified` (generic `FS_OpenVFS` /
   `FS_LoadFile` with local-variable arg[0] and no categorising hint).
+  **Schema v8 update (2026-04-22):** the 25 `unclassified` rows were
+  reclassified to `intentionally_generic` after the extractor learned
+  to recognise the four FS-layer primitives. See the v8 section below
+  for the new bucket and counts.
 
 - **Path rules all pass source verification.** 14/14 rows resolve to
   plausible `fs.c` functions (`FS_InitFilesystemEx`, `FS_AddPathHandle`,
@@ -422,6 +426,50 @@ new exception is two lines of YAML in
 `packages/qw-config/seeds/ezquake-asset-extensions.yaml`
 (`verification_status` + `verification_reason`); rebuild the bundle and
 re-run `load-assets` to populate.
+
+---
+
+# E2E verification - schema v8 (asset_loader_sites.intentionally_generic)
+
+Schema v8 widens the `asset_loader_sites.confidence` CHECK to add a fourth
+value: `intentionally_generic`. The extractor (`handler_asset_loader_sites.py`,
+`GENERIC_FS_PRIMITIVES`) stamps any call to `FS_OpenVFS`, `FS_LoadFile`,
+`FS_LoadHunkFile`, or `FS_WriteFile` with this confidence when `path_source`
+is `unknown` and no category resolves. These are the FS layer itself (or
+runtime-filename consumers like QuakeC builtins), not asset loaders. The
+distinction matters for the future review skill: a NEW `unclassified` row in
+a future tag-pair is now a real novelty, not noise from FS internals.
+
+```sql
+-- Confidence distribution (sanity check after each tag reload).
+SELECT confidence, COUNT(*) FROM asset_loader_sites
+WHERE project='ezquake' AND version='head'
+GROUP BY confidence
+ORDER BY confidence;
+-- Expected at head:
+--   certain                  24
+--   heuristic                80
+--   intentionally_generic    24
+--   (unclassified absent)
+```
+
+```sql
+-- The 24 generic FS-primitive sites (formerly 'unclassified' under v7).
+SELECT function_name, source_file, source_line, enclosing_function
+FROM asset_loader_sites
+WHERE project='ezquake' AND version='head'
+  AND confidence='intentionally_generic'
+ORDER BY source_file, source_line;
+-- Expected: 24 rows. function_name is one of FS_OpenVFS / FS_LoadFile /
+-- FS_LoadHunkFile / FS_WriteFile. enclosing_function names FS-internal
+-- helpers (FS_LoadHeapFile, FS_DiffFile_f), QuakeC builtins
+-- (PF2_FS_OpenFile), or runtime-filename consumers (CL_Download_Accept).
+```
+
+Migration is a table rebuild because SQLite can't ALTER a CHECK in place.
+The rebuild preserves rows + ids; same pattern as the entities-table v3/v5
+rebuilds. v3 SQL block (the canonical fresh-DB definition) is also updated,
+so fresh DBs land on the widened CHECK without traversing the migration.
 
 ---
 
