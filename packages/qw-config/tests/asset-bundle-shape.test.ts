@@ -26,15 +26,14 @@ describe("ezquake-asset-bundle.json shape (Path 1)", () => {
     expect(withTemplate.length).toBeGreaterThanOrEqual(20);
   });
 
-  test("bsp-companion template maps/%s.pts is present", () => {
-    // maps/%s.lit would be the obvious bsp-companion sentinel, but the
-    // .lit call sites in r_brushmodel_load.c:108-127 dereference a local
-    // pointer (FS_LoadHunkFile(*litfilename, ...)) that was assigned from
-    // va() on a previous line. FS_LoadHunkFile IS in the watchlist, but
-    // the format-template classifier does not follow pointer indirection,
-    // so the template is not recovered today. This is a Path 1 capability
-    // gap. maps/%s.pts (R_ReadPointFile_f via FS_OpenVFS) is the
-    // structural equivalent the classifier can resolve directly.
+  test("bsp-companion template maps/%s.lit is present", () => {
+    const sites = bundle.asset_loader_sites;
+    const lit = sites.find((s: any) => s.path_template === "maps/%s.lit");
+    expect(lit).toBeDefined();
+    expect(lit.path_extension).toBe(".lit");
+  });
+
+  test("pointfile template maps/%s.pts is present", () => {
     const sites = bundle.asset_loader_sites;
     const pts = sites.find((s: any) => s.path_template === "maps/%s.pts");
     expect(pts).toBeDefined();

@@ -1621,18 +1621,24 @@
       "source_line": 108,
       "source_column": 9,
       "enclosing_function": "LoadColoredLighting",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:map_lighting",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "maps/lits/%s.lit",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
-      "path_template": null,
-      "path_parameters": null,
-      "path_extension": null,
-      "format_function": null
+      "path_template": "maps/lits/%s.lit",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "mapname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lit",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_2",
@@ -1641,18 +1647,24 @@
       "source_line": 112,
       "source_column": 10,
       "enclosing_function": "LoadColoredLighting",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:map_lighting",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "maps/%s.lit",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
-      "path_template": null,
-      "path_parameters": null,
-      "path_extension": null,
-      "format_function": null
+      "path_template": "maps/%s.lit",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "mapname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lit",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_3",
@@ -1661,18 +1673,24 @@
       "source_line": 117,
       "source_column": 10,
       "enclosing_function": "LoadColoredLighting",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:map_lighting",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "lits/%s.lit",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
-      "path_template": null,
-      "path_parameters": null,
-      "path_extension": null,
-      "format_function": null
+      "path_template": "lits/%s.lit",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "mapname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lit",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_4",
@@ -1681,18 +1699,24 @@
       "source_line": 122,
       "source_column": 10,
       "enclosing_function": "LoadColoredLighting",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:map_lighting",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "maps/%s.lit",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
-      "path_template": null,
-      "path_parameters": null,
-      "path_extension": null,
-      "format_function": null
+      "path_template": "maps/%s.lit",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "groupname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lit",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_5",
@@ -1701,18 +1725,24 @@
       "source_line": 127,
       "source_column": 10,
       "enclosing_function": "LoadColoredLighting",
-      "reads_category_id": null,
+      "reads_category_id": "ezquake:asset_category:map_lighting",
       "load_trigger": "on_demand",
-      "path_source": "unknown",
-      "path_literal": null,
+      "path_source": "computed",
+      "path_literal": "lits/%s.lit",
       "path_cvar_id": null,
-      "confidence": "unclassified",
+      "confidence": "heuristic",
       "dev_only": 0,
       "notes": null,
-      "path_template": null,
-      "path_parameters": null,
-      "path_extension": null,
-      "format_function": null
+      "path_template": "lits/%s.lit",
+      "path_parameters": [
+        {
+          "slot": 0,
+          "expression_snippet": "groupname",
+          "semantic": "local_variable"
+        }
+      ],
+      "path_extension": ".lit",
+      "format_function": "va"
     },
     {
       "canonical_id": "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
@@ -2827,8 +2857,8 @@
     },
     "by_confidence": {
       "certain": 24,
-      "heuristic": 75,
-      "unclassified": 29
+      "heuristic": 80,
+      "unclassified": 24
     },
     "by_load_trigger": {
       "startup": 9,
@@ -2837,8 +2867,8 @@
     },
     "by_path_source": {
       "literal": 27,
-      "unknown": 65,
-      "computed": 36
+      "unknown": 60,
+      "computed": 41
     },
     "dev_only_count": 0
   }
