@@ -190,7 +190,7 @@ When the review CLI assembles clusters for walk N:
    - Any shared commit-sha → strong match.
    - Any shared PR-number → strong match.
    - Any shared entity-prefix + ≥1 shared member entity-ref → strong match.
-   - Any shared `topic` / concept-note slug (when prior cluster dispositioned to concept-note) → medium match.
+   - ~~Any shared `topic` / concept-note slug (when prior cluster dispositioned to concept-note) → medium match.~~ **Deferred (2026-04-24, Session 2):** this rule duplicates §3 scope-tracking, which already matches clusters against open concept-notes via authoritative frontmatter (`related_entities`, `topic`, slug keywords) loaded fresh from disk — richer signal than reconstructing from prior-draft parsing, which would require fragile `cluster_id` → `concept-note slug` inference. §3 is the authoritative surface for "extends an existing concept-note"; §2.1 rules 1-3 remain the surface for "mechanical signals appeared in an earlier walk." Two different questions, no coverage gap. Revisit if Phase 2f data surfaces cases §3 alone misses.
 4. Emit `prior_cluster_refs[]` on each walk-N cluster that matches.
 
 ### 2.2 Prompt at preamble
