@@ -4,15 +4,33 @@ Hand-authored curated notes that synthesize Layer 1 facts and Layer 2 testimony 
 
 See `../VISION.md` for the three-layer knowledge-service framing.
 
-## When to write a concept note
+## Two feeding paths
 
-Earn the note by answering a concrete consumer question that Layer 1 alone cannot answer. If a question reduces to "what cvar does X" or "which source line implements Y", it is a Layer 1 lookup, not a concept-note topic.
+Layer 3 accepts content from two distinct sources. Both produce notes in this directory; both live under the same MCP surface and the same frontmatter schema.
 
-Good triggers:
+- **Imported** — guide content already curated by the community elsewhere (primarily ezquake.com/docs guide pages). Mirrored into a concept note with entity links to Layer 1. Earned by 15+ years of community questions; no need to re-derive.
+- **Authored-here** — full-body notes written during review or deliberate investigation for gaps the community hasn't covered. Potential upstream PR candidates back to ezquake.com.
+
+The "earn by question" principle below governs **authored-here** notes only. It does not reject imports.
+
+## When to author a note (earn-the-note tests)
+
+A finding warrants a concept note — as opposed to cold Layer 1 data — when at least one of these applies:
+
+1. **User-visible artifacts still on disk.** Example: `.kmap` files ship in nQuake bundles even though ezQuake removed the loader in 2014.
+2. **Orphan state in the current engine.** Example: `in_builtinkeymap` cvar surviving the rest of the removed keymap subsystem.
+3. **Commonly referenced in Layer 2 chat testimony.** The community still asks about the topic.
+4. **Cautionary / teaching example for current design patterns.** Example: server-side protocol version-gating pattern, generalizable across protocol extensions.
+5. **Current feature with depth beyond a Layer 1 entity listing.** Material narrative, pattern, or synthesis across multiple entities — a family story, not one cvar.
+
+Otherwise: Layer 1 alone is sufficient; no note. **Layer 3 is guidance-for-today, not a museum. Layer 1 is the museum** — version-aware facts with per-field blame already carry history. Removed features that leave no artifacts, no orphan state, no community volume, and no teaching value do not earn a note.
+
+Good triggers (examples that pass one or more tests):
 - A fact that requires synthesizing multiple Layer 1 entities into a story (a removal commit plus a surviving cvar plus a distribution channel).
 - A classifier or taxonomy question that crosses entity types (player-facing vs engine-internal).
 - An ecosystem fact that source code has no access to (which community installer ships which files, what a file's cultural role is).
 - A deprecation / transition story that a frozen Layer 1 snapshot misses because the knowledge lives in the diff, not the state.
+- A cross-codebase pattern (an ezQuake feature with KTX or MVDSV counterpart) — even if only one codebase is walked, create the note now so future walks can reference it rather than duplicate.
 
 ## Note shape
 
@@ -24,8 +42,13 @@ Frontmatter:
 ---
 title: <short human title>
 slug: <matches filename stem>
-topic: <asset-lifecycle | classifier-metadata | domain-guide | ...>
+topic: <asset-lifecycle | classifier-metadata | domain-guide | security-policy | ...>
 status: draft | curated | deprecated
+authored_by: community | qw-oracle    # path-1 import vs path-2 authored-here
+source_url: <upstream URL if imported>        # omit for authored-here
+imported_from: <commit sha of upstream>       # omit for authored-here
+last_imported_at: YYYY-MM-DD                  # omit for authored-here
+upstream_status: imported | authored | gap-candidate | upstream-pending
 related_entities:
   - ezquake:cvar:<name>
   - ezquake:extension:<ext>
@@ -34,6 +57,11 @@ related_messages: []
 last_updated: YYYY-MM-DD
 ---
 ```
+
+Provenance fields distinguish imports from authored-here and track drift:
+
+- `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` — the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
+- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` flags it for eventual upstream PR.
 
 Body:
 

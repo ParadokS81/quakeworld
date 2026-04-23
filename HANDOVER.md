@@ -8,9 +8,12 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Phase 2f now gated on Workstream A (review-skill tweaks) landing** — see that entry.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Author 4 concept-note bodies from the 3.6.5 -> 3.6.6 shakedown walk](#author-4-concept-note-bodies-from-the-365---366-shakedown-walk) — 3 tracks covering 4 concept notes and 33 dispositioned findings. Track 1: Client-side server-exec allowlist (7 findings, security family, standalone). Track 2: QW competitive ruleset anti-script restriction pattern (16 findings, cross-codebase with KTX). Track 3: Batched skywind + Completing legacy FTE protocol extensions (10 findings combined, two smaller notes in one focused session).
+- [Workstream A: review-skill tweaks from shakedown walk](#workstream-a-review-skill-tweaks-from-shakedown-walk) — 7 improvements surfaced during the 3.6.5 -> 3.6.6 walk: pre-walk cluster detection, semantic clustering for release-notes, cross-category clustering, cross-codebase hint, split upstream_candidate flag, scope-tracking on open concept-notes, cross-walk revision protocol. Gates Phase 2f backfill.
+- [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
+- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — 33-page audit of `research/repos/ezquake-docs/docs/docs/*.md`, license check, short note to nano (Daniel Svensson), gap-report output format. Non-code preparation before any mirror lands.
 
 ---
 
@@ -188,5 +191,106 @@ Not blocking Phase 2f. Each note target has the grouped rationale preserved in `
 - Concept-note authoring template: `apps/qw-oracle/concept-notes/README.md`
 - Layer 3 two-path curation principle: `memory/project_layer3_two_path_curation.md`
 - Two existing concept notes as style reference: `kmap-legacy-keymap-system.md` (narrative/history shape) + `engine-internal-vs-player-facing-files.md` (classifier shape)
+
+---
+
+## Workstream A: review-skill tweaks from shakedown walk
+
+**Added:** 2026-04-23 (session-close, after shakedown walk completed 65/65)
+**Status:** 7 improvements surfaced during the walk. Not yet specced; not yet implemented. **Gates Phase 2f backfill** — running full-history walks without these would re-disposition clusters we could have caught up front.
+**Verification first:** check `~/.claude/skills/extraction-review/SKILL.md` git log — if a commit after 2026-04-23 mentions cluster-detection, this entry may be partially or fully resolved.
+
+The 2026-04-23 shakedown walk (3.6.5 -> 3.6.6, 65/65 dispositioned) surfaced seven needs that aren't in the current skill. The `security-policy` family (cl_allow_downloads + cl_allow_uploads + cl_remote_capabilities, 3 commits in a 3-second window) and the `smackdrive` + 15 restrict_set* semantic-crossings cluster both forced mid-walk revisions because clusters weren't detected up-front.
+
+### The seven improvements
+
+1. **Pre-walk mechanical cluster detection.** Group findings by: same commit-sha (strong), same PR number (strong), commit-window <= 60s (medium), shared entity-name prefix (>= 3 chars, >= 2 siblings — medium), shared author + commit window <= 1 day (weak backup). Output clusters in a preamble before the walk; walk processes clusters as units with one proposed disposition.
+2. **Semantic clustering for the release-notes (Q5) bucket.** Match release-note bullets against (a) open concept-notes' scopes, (b) entity names already classified. The manual Q5 batching during the walk (Group 1 / 2 / 3 / 4 pre-classification before bulk disposition) worked — this mechanizes it.
+3. **Cross-category clustering.** Same cluster can span multiple finding categories — smackdrive is an addition; the 15 restrict_set* changes are semantic-crossings; they belong to one cluster. Detector runs across all finding categories, not per-bucket.
+4. **Cross-codebase hint in disposition research.** Entities whose source lives in not-yet-walked codebases (sv_* inside ezQuake referencing shared protocol surfaces, entities with analogs in MVDSV/KTX/FTE) get a "half-picture likely" signal that biases toward concept-note when story-shape passes. Semantic signal, probably LLM-driven rather than mechanical.
+5. **Split `upstream_candidate` flag.** Replace single field with: `upstream_cvar_reference: <page> | none` (automation-handled reference coverage) + `upstream_guide_candidate: <page> | new-page | none-today` (guide coverage). The distinction matters because pretending a guide explainer belongs in an auto-generated settings reference masks that ezquake.com needs a new page.
+6. **Scope-tracking on open concept-notes.** During a walk, when a new finding matches an already-opened concept-note's scope, present as a group-extension ("add to note X") rather than creating a parallel note. Prevents the cl_remote_capabilities-grouping-with-cl_allow_downloads revision pattern.
+7. **Cross-walk cluster revision protocol.** If a later walk finds a finding belonging to a cluster whose earlier members were already dispositioned (e.g., a 2024 commit related to a 2023 family), explicit revision prompt. Never silent cross-walk revision — erodes review-history trust.
+
+### Implementation sequencing
+
+1. Spec the seven items as one document. Decide signal thresholds empirically (prefix length, commit-window duration) after first run, not up-front.
+2. Implement cluster detection + preamble + grouped walk behavior.
+3. Regression-test against the completed 3.6.5 -> 3.6.6 walk — all manually-spotted clusters should re-emerge from mechanical detection.
+4. Then run sanity-sample pairs (2-3 additional pairs, no full walks, just eyeball counts) to validate extraction trust on older tags.
+5. Only after that, resume Phase 2f backfill proper.
+
+### Pressure
+
+Medium. Phase 2f is blocked on this. Not urgent in isolation — the existing skill works, we just don't want to scale it to 15-tag backfill with known inefficiency.
+
+### Related
+
+- Design doc: `docs/superpowers/specs/2026-04-23-layer3-pivot-design.md` (Workstream A section)
+- Walk review (for regression data): `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md`
+- Skill current state: `~/.claude/skills/extraction-review/SKILL.md`
+
+---
+
+## Workstream B: concept-note authoring scaffolding
+
+**Added:** 2026-04-23 (session-close, after shakedown walk)
+**Status:** Provenance frontmatter schema decided and landed in `apps/qw-oracle/concept-notes/README.md` (2026-04-23). Still open: template MDX-compatibility test + authoring-ritual shape.
+**Verification first:** grep `concept-notes/README.md` for `source_url` — if present, frontmatter is already landed.
+
+Concept-note bodies aren't the review skill's job; this workstream handles the non-body infrastructure so the four queued note bodies (HANDOVER Tracks 1-3) can proceed cleanly.
+
+### Done
+
+- **Provenance frontmatter schema.** Fields `authored_by`, `source_url`, `imported_from`, `last_imported_at`, `upstream_status` added to the template in `concept-notes/README.md`. Applies to both imported (path 1) and authored-here (path 2) notes.
+- **Two-path curation framing.** Added to `concept-notes/README.md` ahead of the earn-the-note tests.
+- **Earn-the-note tests.** 5 tests explicitly documented in `concept-notes/README.md` (previously only implicit in the `last_updated: 2026-04-22` bootstrap notes).
+
+### Still open
+
+- **Template MDX-compatibility test.** Generate one test note in the current template, check it renders through ezquake.com's vitepress pipeline (`research/repos/ezquake-docs/`). Fix template before writing four note bodies in a shape that won't PR cleanly upstream. Probably a 30-minute experiment: copy one concept note into `research/repos/ezquake-docs/docs/docs/_test.md`, run the vitepress build, eyeball output, delete.
+- **Authoring ritual.** Session prompt shape, disposition-record handoff (skill -> author), cross-reference handling. Possibly a small skill or slash command; possibly just documentation in the README. Decide after drafting the first note (skywind) — implementation-level rituals are best derived from real experience.
+
+### Pressure
+
+Low. Does not block any other work. The four note bodies can be drafted without the MDX test — but if the test surfaces a template change, the notes would need retrofitting. Cheap to do the test first; cheap to retrofit if needed.
+
+### Related
+
+- Design doc: `docs/superpowers/specs/2026-04-23-layer3-pivot-design.md` (Workstream B section)
+- Authoring template: `apps/qw-oracle/concept-notes/README.md`
+- The four queued note bodies: see "Author 4 concept-note bodies from the 3.6.5 -> 3.6.6 shakedown walk"
+
+---
+
+## Workstream C: /docs ingest pipeline prep
+
+**Added:** 2026-04-23 (session-close, after shakedown walk)
+**Status:** Not started. Non-code preparation; no implementation until these four items are addressed.
+**Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 26; `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return ~7-8. Total ~33 guide pages.
+
+Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until these four items resolve.
+
+### The four items
+
+1. **Per-page audit of the 33 guide pages.** Classification table: {mirror / ignore (L1 duplicate) / split / historical}. Half-day of reading work, no writes. The sidebar taxonomy (Features / Graphics / Reference / Settings reference / Misc) roughly predicts mirror-vs-ignore: Features + Graphics + Misc are guide-heavy (mirror); Reference + Settings reference are L1 duplicates (ignore). `textures.md` is a known mixed case (skybox guide + cvar list).
+2. **License check on ezquake.com repo.** Verify `research/repos/ezquake-docs/LICENSE` or equivalent before mirroring any content. Reuse terms must permit the derivative work pattern we're proposing (normalized copies in oracle's concept-notes directory, with source_url provenance).
+3. **Short note to nano (Daniel Svensson, maintainer) describing the approach.** Two paragraphs: (a) what oracle is, (b) that we want to use ezquake.com/docs as a Layer 3 source AND feed gap reports upstream. Relationship framing before any upstream PR activity. Identifies nano's preferred channel for PR review and whether the gap-report cadence (always-on vs on-demand) is welcome.
+4. **Gap-report output format.** Machine-readable digest emitted per review run listing new entities that are reference-present but guide-absent, with suggested guide page targets. Shape decision: JSON? Markdown PR-ready? Both? Could live in the review skill (Workstream A) or as a separate `emit-gap-report` command. Decide during Workstream A scoping.
+
+### Why prep-before-ingest
+
+The two-halves asymmetry of ezquake.com/docs (reference auto-updates via `data/ezquake/*.json`; guides frozen at ~2022-11-21) means the import target is well-scoped (the 33 guide pages, not the reference data). But the shape of the relationship with ezquake.com maintainers is load-bearing for the longer-term bi-directional flow — rushing into mirroring without license confirmation or nano's buy-in risks building on an unstable foundation.
+
+### Pressure
+
+Low. No downstream work blocked. Can proceed in parallel with Workstream A and B.
+
+### Related
+
+- Design doc: `docs/superpowers/specs/2026-04-23-layer3-pivot-design.md` (Workstream C section)
+- ezquake.com repo cloned: `research/repos/ezquake-docs/`
+- Memory: `memory/project_layer3_two_path_curation.md` (updated 2026-04-23)
+- Git-trail audit finding: 32/33 guide pages last content-edited <= 2022-11-21
 
 ---
