@@ -28,7 +28,7 @@ Both are gitignored — they regenerate from source (Layer 1) or from raw import
 **Schema version:** 8. Migrations v1→v8 are all in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape and per-migration spec pointers. Latest two migrations (2026-04-22): v7 added per-row `verification_status` + `verification_reason` to `asset_extensions` (lifts the `.kmap`/`.dll` audit out of prose into queryable columns); v8 widened `asset_loader_sites.confidence` to add `intentionally_generic` (separates FS-layer primitives from genuine `unclassified` findings — zero unclassified at head).
 
 **Still open on Layer 1:**
-- **Phase 2f historical backfill proper** - walk every ezQuake tag (~15 total), run full extractor sweep per tag, diff consecutive pairs, enrich with PRs. All architectural prerequisites shipped through Batch 3. This is the next move; the HANDOVER entry "qw-oracle Layer 1 documentation gap" was the gating blocker.
+- **Phase 2f historical backfill proper** - walk every ezQuake tag (~15 total), run full extractor sweep per tag, diff consecutive pairs, enrich with PRs. All architectural prerequisites shipped through Batch 3 + extraction-review skill/CLI + Workstream A tweaks (2026-04-24). Remaining gate before Phase 2f proper: **sanity-sample calibration** — run `review` CLI on 2-3 additional tag pairs (eyeball-only) to validate extraction trust on older tags and calibrate TBD thresholds per spec §8. HANDOVER entry: `Phase 2d-2h: remaining QW knowledge rollout`.
 - **Phase 2d FTE** - first second-engine port. Biggest structural risk: validates the project-keyed schema against a codebase with a different layout (`engine/client/`, `engine/server/`, etc.).
 - **Phase 2e MVDSV + KTX** - smaller ports. KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike).
 - **Phase 2g MCP tool upgrades** - add `version` / `as_of` parameters to existing tools, add `get_entity_history`, add version/date filters on `search_entities`.
@@ -58,9 +58,16 @@ Real command examples with expected counts: see `scripts/load-knowledge/e2e-veri
 
 ### Review pipeline - `scripts/load-knowledge/review/`
 
-Stateless findings generator over existing Layer 1 tables. Five modules, one per checklist question (additions / retirements / semantic-crossings / unclassified / source-invisible), composed by `review/index.ts` and rendered to markdown by `review/draft-writer.ts`. Schema-expansion events (NULL -> falsy-default) are filtered out of Q3 as non-semantic. Q4 surfaces only confidence demotions, not pre-existing low-confidence debt. Finding IDs are stable hashes so re-runs are resume-safe.
+Stateless findings generator over existing Layer 1 tables. Five finding modules (additions / retirements / semantic-crossings / unclassified / source-invisible) plus four cross-cutting modules added in Workstream A (2026-04-24):
 
-Design + process: `docs/superpowers/specs/2026-04-23-extraction-review-design.md`. Interactive walk is driven by the user-global skill at `~/.claude/skills/extraction-review/SKILL.md`.
+- `clusters.ts` - mechanical cluster detection (PR, commit-window, entity-name prefix).
+- `prior-walks.ts` - cross-walk `prior_cluster_refs` lookup so a pair's clusters can be tied back to matching clusters in earlier walks.
+- `semantic-match.ts` - Q5 semantic-pass proposal: suggests joining a source-invisible finding to a non-Q5 cluster via entity-name overlap or shared commit-message theme. Proposal, not mandate — operator confirms at preamble.
+- `cross-codebase.ts` - entity-name hint (`likely-shared` / `ezquake-only` / `unknown`) to bias cross-codebase-pattern concept-note creation.
+
+Composed by `review/index.ts`, rendered to markdown by `review/draft-writer.ts`. Schema-expansion events (NULL -> falsy-default) are filtered out of Q3 as non-semantic. Q4 surfaces only confidence demotions, not pre-existing low-confidence debt. Finding IDs are stable hashes so re-runs are resume-safe.
+
+Design + process: `docs/superpowers/specs/2026-04-23-extraction-review-design.md`; Workstream A tweaks: `docs/superpowers/specs/2026-04-24-extraction-review-skill-tweaks.md`. Interactive walk is driven by the user-global skill at `~/.claude/skills/extraction-review/SKILL.md`.
 
 ### Per-type loader adapters
 

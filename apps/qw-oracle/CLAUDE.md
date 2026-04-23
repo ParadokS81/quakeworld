@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Phase 2f Batch 3 shipped 2026-04-21 - schema v6 source_overrides blame index, per-field extractor emissions, diff-pipeline blame override; all 11 stress-test gaps closed.
+**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v8 at ezQuake head (9 entity types + 4 asset relation tables); extraction-review skill+CLI shipped 2026-04-23, Workstream A tweaks shipped 2026-04-24 across 3 sessions (cluster detection, prior-walk detection, scope-tracking, semantic pass, cross-codebase hint, upstream split, help-JSON vocab, cross-walk revision). Phase 2f historical backfill gated on sanity-sample calibration only.
 
 ## What this is
 
