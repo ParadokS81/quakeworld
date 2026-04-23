@@ -51,8 +51,16 @@ CLI entry: `npm run load-knowledge -- <subcommand> [...args]` — see `scripts/l
 | `release-notes` | Fetch a tag's GitHub release body, parse bullets, write to `release_notes`. Requires GitHub token. |
 | `diff` | Walk two versions, compare per-entity `*_versions` rows, write `change_events` + `relation_changes`. |
 | `enrich` | Backfill `pr_*` columns on `change_events` via GitHub API. Requires GitHub token. |
+| `extract-tag` | Atomic "ensure one tag is fully loaded": checkout source, run unified + legacy Python extractors, build asset bundle, load all 10 entity types + asset relations, fetch release notes. ezquake only in first ship. |
+| `review` | Emit a 5-question findings report (JSON on stdout + pre-seeded markdown draft at `docs/reviews/`) for a tag-pair. Hard-errors on missing prerequisites. Consumed by the `extraction-review` user-global skill. |
 
 Real command examples with expected counts: see `scripts/load-knowledge/e2e-verify.md` (the source of truth for what each phase should produce).
+
+### Review pipeline - `scripts/load-knowledge/review/`
+
+Stateless findings generator over existing Layer 1 tables. Five modules, one per checklist question (additions / retirements / semantic-crossings / unclassified / source-invisible), composed by `review/index.ts` and rendered to markdown by `review/draft-writer.ts`. Schema-expansion events (NULL -> falsy-default) are filtered out of Q3 as non-semantic. Q4 surfaces only confidence demotions, not pre-existing low-confidence debt. Finding IDs are stable hashes so re-runs are resume-safe.
+
+Design + process: `docs/superpowers/specs/2026-04-23-extraction-review-design.md`. Interactive walk is driven by the user-global skill at `~/.claude/skills/extraction-review/SKILL.md`.
 
 ### Per-type loader adapters
 
