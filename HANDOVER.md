@@ -243,9 +243,13 @@ Concept-note bodies aren't the review skill's job; this workstream handles the n
 
 ### Done
 
-- **Provenance frontmatter schema.** Fields `authored_by`, `source_url`, `imported_from`, `last_imported_at`, `upstream_status` added to the template in `concept-notes/README.md`. Applies to both imported (path 1) and authored-here (path 2) notes.
+- **Provenance frontmatter schema.** Fields `authored_by`, `source_url`, `imported_from`, `last_imported_at`, `upstream_status`, `upstream_target`, `primary_contributors` added to the template in `concept-notes/README.md`. Applies to both imported (path 1) and authored-here (path 2) notes.
 - **Two-path curation framing.** Added to `concept-notes/README.md` ahead of the earn-the-note tests.
 - **Earn-the-note tests.** 5 tests explicitly documented in `concept-notes/README.md` (previously only implicit in the `last_updated: 2026-04-22` bootstrap notes).
+- **Entity-ref format formalized.** `<project>:<kind>:<identifier>` vocabulary including `ezquake:pr:<n>` for load-bearing PR provenance.
+- **Topic vocabulary guidance.** `domain-guide` is intentionally broad / audience-agnostic; new topic values only when existing ones would actively miscategorize.
+- **Recognized note shapes enumerated.** Narrative/history, taxonomy/classifier, domain walkthrough, policy+iteration-story — each with an exemplar note in the directory.
+- **Track 1, Track 3a, Track 3b concept-note bodies landed** (2026-04-23 same-day). Security family (`client-side-server-exec-allowlist.md`), skywind (`skywind-animated-skyboxes.md`), FTE protocol extensions (`completing-legacy-fte-protocol-extensions.md`). Track 2 (ruleset anti-script pattern) remains — see "Author 4 concept-note bodies..." entry above for the remaining target.
 
 ### Still open
 

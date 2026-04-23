@@ -34,7 +34,14 @@ Good triggers (examples that pass one or more tests):
 
 ## Note shape
 
-Each note has YAML frontmatter and a predictable section skeleton. See `kmap-legacy-keymap-system.md` for the narrative / history shape and `engine-internal-vs-player-facing-files.md` for the taxonomy / classifier shape.
+Each note has YAML frontmatter and a predictable section skeleton. The `<topic-specific>` sections between Summary and Consumer implications vary by note shape. Recognized shapes, with existing exemplars:
+
+- **Narrative / history** — sequential arc across origin, transition, removal, current state. Exemplars: `kmap-legacy-keymap-system.md`, `completing-legacy-fte-protocol-extensions.md`.
+- **Taxonomy / classifier** — axis defined, per-item placement, consumer implications per category. Exemplar: `engine-internal-vs-player-facing-files.md`.
+- **Domain walkthrough** — what-the-feature-does + per-entity breakdown + conventions + failure modes. Exemplar: `skywind-animated-skyboxes.md`.
+- **Policy + iteration story** — threat model / purpose + defenses + time-ordered iteration (e.g., follow-up commits tuning defaults) + current state. Exemplar: `client-side-server-exec-allowlist.md`.
+
+Pick the closest shape; small hybrids are fine. Add a new shape to this list only when a note doesn't fit any existing one.
 
 Frontmatter:
 
@@ -50,6 +57,8 @@ imported_from: <commit sha of upstream>       # omit for authored-here
 last_imported_at: YYYY-MM-DD                  # omit for authored-here
 upstream_status: imported | authored | gap-candidate | upstream-pending
 upstream_target: <ezquake.com page slug> | new-page | none-today   # omit when upstream_status is imported or authored
+primary_contributors:                         # upstream code authors the note documents (GitHub handles)
+  - "@handle"
 related_entities:
   - ezquake:cvar:<name>
   - ezquake:command:<name>
@@ -65,7 +74,9 @@ last_updated: YYYY-MM-DD
 Provenance fields distinguish imports from authored-here and track drift:
 
 - `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` — the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
-- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it.
+- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it. Use `upstream_target: new-page` when no existing ezquake.com page is a natural home; when the new page would also require a new sidebar section (e.g., a "Security" section that doesn't exist), capture that scope expansion in the References section — the upstream PR is larger than a single-file add.
+
+`primary_contributors` lists the upstream code authors the note documents (GitHub handles, e.g., `@dsvensson`, `@osm`) — distinct from `authored_by`, which is about the note's provenance, not the feature's. Populated for both imported and authored-here notes. Useful for MCP "who landed X" queries and for upstream-PR coordination (crediting and notifying the original contributor). Multiple handles when the documented work genuinely spans multiple contributors.
 
 Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance — cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline. Multiple PRs in one note are fine when the story genuinely spans them (e.g., a feature landing across an initial merge + follow-up fixes); single-PR notes are the common case.
 
@@ -93,6 +104,7 @@ Length: ~40-150 lines. Shorter notes tend to be under-justified; longer notes us
 | `engine-internal-vs-player-facing-files` | Engine-internal vs player-facing files in a QuakeWorld install | classifier-metadata | draft |
 | `skywind-animated-skyboxes` | Skywind: animated skyboxes ported from IronWail | domain-guide | draft |
 | `completing-legacy-fte-protocol-extensions` | Completing legacy FTE protocol extensions in ezQuake 3.6.6 | domain-guide | draft |
+| `client-side-server-exec-allowlist` | Client-side server-exec allowlist: guarding the client against hostile servers | security-policy | draft |
 
 ## Candidate future notes
 

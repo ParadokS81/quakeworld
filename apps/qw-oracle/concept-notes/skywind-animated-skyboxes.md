@@ -6,6 +6,8 @@ status: draft
 authored_by: qw-oracle
 upstream_status: gap-candidate
 upstream_target: textures.md
+primary_contributors:
+  - "@dsvensson"
 related_entities:
   - ezquake:cvar:r_skywind
   - ezquake:command:skywind

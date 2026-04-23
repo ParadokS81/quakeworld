@@ -6,6 +6,8 @@ status: draft
 authored_by: qw-oracle
 upstream_status: gap-candidate
 upstream_target: none-today
+primary_contributors:
+  - "@dsvensson"
 related_entities:
   - ezquake:cvar:pext_ezquake_verfortrans
   - ezquake:commit:f670f949
