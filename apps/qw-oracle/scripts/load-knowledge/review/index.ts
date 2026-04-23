@@ -4,6 +4,8 @@
 // a ReviewReport. Called by the CLI (index.ts) runReview handler.
 
 import { existsSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import type Database from 'better-sqlite3';
 import { findAdditions } from './findings-additions.js';
 import { findRetirements } from './findings-retirements.js';
@@ -11,9 +13,12 @@ import { findSemanticCrossings } from './findings-semantic-crossings.js';
 import { findUnclassified } from './findings-unclassified.js';
 import { findSourceInvisible } from './findings-source-invisible.js';
 import { detectClusters } from './clusters.js';
+import { annotatePriorRefs, loadPriorWalks } from './prior-walks.js';
 import { writeDraft } from './draft-writer.js';
 import type { Finding, ReviewCounts, ReviewReport } from './types.js';
 import type { Project } from '../types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export interface RunReviewOptions {
   db: Database.Database;
@@ -23,6 +28,7 @@ export interface RunReviewOptions {
   outPath: string;
   force: boolean;
   ezquakeRepoPath: string | null;
+  reviewsDir?: string;
 }
 
 export function runReview(options: RunReviewOptions): ReviewReport {
@@ -39,9 +45,19 @@ export function runReview(options: RunReviewOptions): ReviewReport {
     ...findSourceInvisible(options.db, options.project, options.fromVersion, options.toVersion),
   ];
 
-  const { clusters, findings } = detectClusters(rawFindings, {
+  const { clusters: rawClusters, findings } = detectClusters(rawFindings, {
     ezquakeRepoPath: options.ezquakeRepoPath,
   });
+
+  const reviewsDir = options.reviewsDir
+    ?? join(__dirname, '..', '..', '..', 'docs', 'reviews');
+  const priorWalks = loadPriorWalks({
+    reviewsDir,
+    currentProject: options.project,
+    currentFrom: options.fromVersion,
+    currentTo: options.toVersion,
+  });
+  const clusters = annotatePriorRefs(rawClusters, priorWalks);
 
   const counts: ReviewCounts = {
     addition: 0,

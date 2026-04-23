@@ -49,11 +49,25 @@ export interface Finding {
 
 export type ClusterConfidence = 'strong' | 'medium' | 'weak';
 
+// Cross-walk detection output per spec §2.1. Attached to a current-walk
+// cluster when any prior walk's cluster shares a signal surface. The
+// skill uses this to render the "EXTENDS PRIOR WALK" prompt at preamble.
+export interface PriorClusterRef {
+  walk_file: string;           // basename of the prior walk draft
+  walk_label: string;          // "<project> <from> -> <to> (<date>)"
+  prior_cluster_id: string;
+  match_signals: string[];     // signals that overlap
+  match_strength: 'strong' | 'medium';
+  prior_member_count: number;
+  majority_disposition: string | null;
+}
+
 export interface Cluster {
   cluster_id: string;
   confidence: ClusterConfidence;
   signals: string[];
   members: string[];
+  prior_cluster_refs?: PriorClusterRef[];
 }
 
 export interface ReviewCounts {

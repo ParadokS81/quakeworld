@@ -48,6 +48,17 @@ function renderClusters(clusters: readonly Cluster[]): string {
     lines.push(`Signals: ${c.signals.join(', ')}`);
     lines.push(`Members (${c.members.length}):`);
     for (const id of c.members) lines.push(`- ${id}`);
+    if (c.prior_cluster_refs && c.prior_cluster_refs.length > 0) {
+      lines.push('Prior cluster refs:');
+      for (const ref of c.prior_cluster_refs) {
+        const disp = ref.majority_disposition ?? 'unknown';
+        const signals = ref.match_signals.join(', ');
+        lines.push(
+          `- ${ref.prior_cluster_id} (${ref.walk_label}) - disposition: ${disp}, ` +
+            `members: ${ref.prior_member_count}, match: ${signals} [${ref.match_strength}]`,
+        );
+      }
+    }
     lines.push('');
   }
   // Trim trailing blank so the outer join doesn't double-space.
