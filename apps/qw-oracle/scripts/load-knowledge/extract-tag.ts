@@ -40,6 +40,16 @@ const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   ktx: null,
 };
 
+// The `head` version is not a git tag — it's a moving snapshot of each
+// project's default branch. Map it per-project so `extract-tag --version head`
+// checks out the right ref instead of failing on a non-existent tag.
+const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
+  ezquake: 'master',
+  fte: 'master',
+  mvdsv: 'master',
+  ktx: 'master',
+};
+
 const EXTRACTOR_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
 
 // Per-entity-type JSON file mapping. Keyed on the unified extractor's output names.
@@ -94,16 +104,20 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     throw new Error(`Source repo not found at ${repoPath}. Clone it first.`);
   }
 
-  // 1. Checkout. Only fetch if the tag is not already known locally, so the
-  // common case (tag already present) stays offline-safe.
-  const tagKnown = spawnSync(
-    'git', ['-C', repoPath, 'rev-parse', '--verify', `refs/tags/${options.version}`],
+  // 1. Checkout. `head` resolves to the project's default branch; every other
+  // value is treated as a tag. Only fetch if the target ref is not already
+  // known locally, so the common case stays offline-safe.
+  const checkoutRef = options.version === 'head'
+    ? PROJECT_DEFAULT_BRANCH[options.project]
+    : options.version;
+  const refKnown = spawnSync(
+    'git', ['-C', repoPath, 'rev-parse', '--verify', checkoutRef],
     { stdio: 'ignore' },
   ).status === 0;
-  if (!tagKnown) {
+  if (!refKnown) {
     execSync(`git -C "${repoPath}" fetch --tags --quiet`, { stdio: 'inherit' });
   }
-  execSync(`git -C "${repoPath}" checkout "${options.version}"`, { stdio: 'inherit' });
+  execSync(`git -C "${repoPath}" checkout "${checkoutRef}"`, { stdio: 'inherit' });
 
   const commitSha = options.commitSha ?? execSync(`git -C "${repoPath}" rev-parse HEAD`, {
     encoding: 'utf-8',
