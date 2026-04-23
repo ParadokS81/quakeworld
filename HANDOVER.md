@@ -8,10 +8,11 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Phase 2f gated on sanity-sample calibration** (2-3 tag pairs, eyeball-only) per spec §9 step 9 — Workstream A implementation shipped 2026-04-24.
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Sanity-sample calibration cleared 2026-04-24** — thresholds hold at §8 starting values; P1 detector bug fixed in-flight; P3 semantic-pass gap spawned as its own HANDOVER. Phase 2f is unblocked.
+- [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
-- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — 33-page audit of `research/repos/ezquake-docs/docs/docs/*.md`, license check, short note to nano (Daniel Svensson), gap-report output format. Non-code preparation before any mirror lands.
+- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages; full table inline below). **License blocker confirmed** — repo has `license: null` at GitHub metadata level; mirroring requires LICENSE commit from QW-Group (request CC-BY-4.0). Remaining: nano (Daniel Svensson) + vikpe (xantom — original author) outreach, gap-report output format.
 
 ---
 
@@ -31,7 +32,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Remaining sub-phases (roadmap reordered 2026-04-20)
 
-**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20. **2026-04-22 update:** extraction is now ~55x faster (`extract-ezquake-unified.py`, shared-walk + 12-core parallelism — ~14s per tag vs 749s legacy sequential). A 15-tag backfill that would have taken ~3 hours now takes ~4 minutes of extraction time. Verified byte-equivalent to legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3 (spanning the flat-repo / src-dir layout boundary). The orchestration work (diff + blame + enrich) is the remaining cost. **2026-04-24 update:** Workstream A review-skill tweaks shipped (Sessions 1-3, commits `9be2375` / `a977adc` / `183e0c0`). All 8 items implemented (cluster detection, prior-walk detection, scope-tracking, semantic pass, cross-codebase hint, upstream split, help-JSON vocab, cross-walk revision). **Remaining gate before Phase 2f proper:** sanity-sample calibration — run `review` CLI on 2-3 additional tag pairs (including oldest-known and one middle pair), eyeball-only (no walks), validate extraction trust on older tags, calibrate the TBD thresholds per spec §8 (commit-window 60s, entity-name prefix ≥2 tokens + ≥2 siblings, author-window currently skipped). Output: small calibration note to feed back into the spec. Then Phase 2f proper.
+**Tier 1 — Phase 2f Historical backfill (UNBLOCKED 2026-04-24).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. **Sanity-sample calibration cleared the same day:** 4 tag pairs eyeball-reviewed (3.6.5→3.6.6 regression + 3.6.1→3.6.2 oldest + 3.6.6→3.6.8 recent + 3.6.2→3.6.5 stress), all §8 thresholds hold at starting values, P1 detector bug (commit-UNKNOWN sentinel) fixed in-flight in `clusters.ts`, P3 semantic-pass abbreviation-bridge captured to its own HANDOVER entry. Full calibration note at `docs/superpowers/specs/2026-04-24-extraction-review-sanity-sample-calibration.md`. Extraction is ~55x faster via `extract-ezquake-unified.py` (shared-walk + 12-core parallelism, ~14s per tag vs 749s legacy sequential). Byte-equivalent to legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3. Remaining cost is the per-pair walk time (operator judgment, not machine throughput).
 
 **Tier 2 — Phase 2d FTE cvars.** First second-engine port. Biggest structural risk left — validates the project-keyed schema on a codebase with different layout (`engine/client/`, `engine/server/`, etc.). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signaling the extractor must emit repo-relative paths directly.
 
@@ -61,6 +62,58 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ### Pressure
 
 Not blocking anything. User is proceeding at their own pace. No freeze, no deadline.
+
+---
+
+## Semantic-pass abbreviation-bridge heuristic
+
+**Added:** 2026-04-24 (sanity-sample calibration P3)
+**Status:** Spec-ready. Not a Phase 2f blocker — operators catch these at walk time. Worth fixing during or before Phase 2f walks reach the affected pairs for better automation.
+**Verification first:** `grep -n "abbreviation\|startsWith.*entity\|prefix.*release" apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` — if any match surfaces, this entry has been acted on and should be removed or updated.
+
+The semantic pass in `apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` currently matches release-note bodies to clusters via (a) entity-name token overlap, (b) commit-message prefix tags (SECURITY:, RENDERER:, etc.), and (c) cross-name transforms for protocol extensions (`FTE_PEXT_*` ↔ `cl_pext_*`). It does not bridge **abbreviation ↔ expansion**.
+
+### Concrete case that failed during calibration
+
+3.6.1 → 3.6.2 has a 55-member cluster (PR 567 by ewhac, "INPUT: Restore joystick support") containing entities `joyadvanced`, `joyflysensitivity`, `joypitchsensitivity`, `joyindex`, `joyname`, `aux1`-`aux32`, etc. The associated release-note bullet reads *"Restore joystick support (ewhac)"*. The semantic pass did not propose cluster membership because no entity token literally equals "joystick" — they tokenize as `joy*` single-token names (no underscore) and `aux*`.
+
+A human would bridge trivially: "joystick" starts with "joy", which is the common prefix of N cluster members. The detector should do the same.
+
+### Proposed heuristic
+
+Add to `semantic-match.ts` a fourth match path after (a)-(c):
+
+1. For each cluster, compute a `prefix_signature`: the set of first-3-char substrings shared by at least 3 cluster members' first token. Example: joy-cluster → `{'joy'}`; hud_ammo cluster → `{'hud'}`; gl_outline → `{'gl_'}` (rejected, contains underscore — single-token only).
+2. For each release-note body, tokenize to words (split on whitespace + punctuation).
+3. For each word W of length ≥ 6, test whether W starts with any cluster's `prefix_signature` entry.
+4. When match, propose cluster membership with rationale: *"abbreviation match: release-note word 'joystick' starts with cluster prefix 'joy' (N members share prefix)"*.
+
+### Guard rails
+
+- **Min word length ≥ 6:** avoids short-word coincidences. "joystick" (8) matches; "joy" (3) would not trigger match against itself (too short to be release-note expansion of anything).
+- **Min shared-prefix char length ≥ 3:** avoids 2-char noise.
+- **Min members sharing prefix ≥ 3:** avoids 2-member coincidences. 3+ members sharing `joy` as first 3 chars is a real family signal; 2 is too noisy.
+- **Single-token names only:** gl_outline-family already clusters via `prefix:gl_outline` in the mechanical pass. Abbreviation bridge is specifically for entities whose names are single tokens without underscores (joy*, aux*, vmi*, etc.) where the mechanical prefix pass can't help.
+- **Over-proposal is the designed failure mode.** Semantic pass output is a hint for operator confirmation at walk time. The mechanical pass's "17/26 annotated on 3.6.5→3.6.6" already demonstrates operators handle over-propose-then-filter comfortably.
+
+### Known false-positive risk
+
+"hudson" (6 chars) starts with "hud" → would propose match to a `hud_*` cluster even though it's coincidence. 3.6.2→3.6.5 release-notes contain no such words, but future tags may. Acceptable — operator rejects at walk. If the noise rate becomes a problem, tighten min-word-length to 7 or require the shared prefix to appear in ≥5 members.
+
+### Test cases to include
+
+- 3.6.1 → 3.6.2 release_notes:25 ("Restore joystick support (ewhac)") should propose joy-cluster.
+- Grep past ezQuake release-notes for other candidates (particle, screen, console, etc.) and verify each proposes correctly or benignly misses.
+- Negative: release-notes with no abbreviation-expansion content should not over-propose.
+
+### File inventory
+
+- Modify: `apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts`
+- Verify: re-run `review --project ezquake --from 3.6.1 --to 3.6.2` and confirm release_notes:25 gains `proposed_cluster_id` pointing at the joystick cluster.
+
+### Pressure
+
+Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment time. If Phase 2f walks reach 3.6.1 → 3.6.2 before this ships, that's fine — manual bridge at walk.
 
 ---
 
@@ -144,19 +197,34 @@ Low. Does not block any other work. The four note bodies can be drafted without 
 ## Workstream C: /docs ingest pipeline prep
 
 **Added:** 2026-04-23 (session-close, after shakedown walk)
-**Status:** Not started. Non-code preparation; no implementation until these four items are addressed.
+**Status:** Audit done (2026-04-24). License blocker confirmed. Nano + vikpe outreach pending; gap-report format pending.
 **Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 26; `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return ~7-8. Total ~33 guide pages.
 
-Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until these four items resolve.
+Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until remaining items resolve.
 
-### The four items
+### Item 1 — audit (DONE 2026-04-24)
 
-1. **Per-page audit of the 33 guide pages.** Classification table: {mirror / ignore (L1 duplicate) / split / historical}. Half-day of reading work, no writes. The sidebar taxonomy (Features / Graphics / Reference / Settings reference / Misc) roughly predicts mirror-vs-ignore: Features + Graphics + Misc are guide-heavy (mirror); Reference + Settings reference are L1 duplicates (ignore). `textures.md` is a known mixed case (skybox guide + cvar list).
-2. **License check on ezquake.com repo.** Verify `research/repos/ezquake-docs/LICENSE` or equivalent before mirroring any content. Reuse terms must permit the derivative work pattern we're proposing (normalized copies in oracle's concept-notes directory, with source_url provenance).
-3. **Short note to nano (Daniel Svensson, maintainer) describing the approach.** Two paragraphs: (a) what oracle is, (b) that we want to use ezquake.com/docs as a Layer 3 source AND feed gap reports upstream. Relationship framing before any upstream PR activity. Identifies nano's preferred channel for PR review and whether the gap-report cadence (always-on vs on-demand) is welcome.
-4. **Gap-report output format.** Machine-readable digest emitted per review run listing new entities that are reference-present but guide-absent, with suggested guide page targets. Shape decision: JSON? Markdown PR-ready? Both? Could live in the review skill (Workstream A) or as a separate `emit-gap-report` command. Decide during Workstream A scoping.
+Full per-page classification of 30 guide pages. Buckets: **15 mirror** (community-earned guides worth importing), **10 ignore** (auto-gen reference already in Layer 1 — the 9 `settings/*.md` + commands/structure/faq), **4 split** (guide + reference mix requiring separation: command-line-parameters, macros, textures, triggers), **1 historical** (`upgrading.md`, pre-3.5 changelog). 32/33 guide pages content-stale since 2022-11-21, confirming the guide-frozen / reference-auto-updated asymmetry.
 
-   **Canonical "needs human docs" source set:** the help JSON emits `system-generated: true` for rows the extractor produced from source without any human-authored description. Combined with absent-desc detection (see Workstream A item 8), the predicate `system-generated: true && desc: absent` is the canonical upstream-documentation-gap set — these are the cvars and commands that ezquake.com reference pages auto-surface with empty descriptions because no human has written docs. Separate from the guide-gap set (entity undocumented in any `docs/docs/*.md` guide page). Both categories belong in the gap report but should be distinguished, since they drive different upstream PR shapes (help-desc PR to ezQuake vs guide-page PR to ezquake.com). Surfaced by Track 3b drafting on `pext_ezquake_verfortrans`.
+Mirror set (import candidates): `charsets.md`, `crosshairs.md`, `fakeshaft.md`, `frag-tracker.md`, `hud.md`, `independent-physics.md`, `message-filtering.md`, `multiview.md`, `particles.md`, `player-skins.md`, `scripting.md`, `server-browser.md`, `teamplay-communication.md`, `video-capture.md`, `voice-support.md`, `weapon-scripts.md`.
+
+Split set (partial import, guide section only): `command-line-parameters.md`, `macros.md`, `textures.md`, `triggers.md`.
+
+### Item 2 — license (BLOCKER CONFIRMED 2026-04-24)
+
+No LICENSE file, no license header, no README footer. `gh api repos/QW-Group/ezquake.com` returns `"license": null` — no license declared at GitHub metadata level either. Repo is public (visible, forkable) but unlicensed; default-copyright applies. Mirroring creates legal risk. Adjacent repo `QW-Group/ezquake-source` is GPL-2.0; docs authors may have assumed same, but nothing is declared.
+
+**Resolution path:** request QW-Group to add `CC-BY-4.0` (standard for documentation content, attribution-only, no copyleft drag) or `MIT`. One-line commit. Name the specific license in the ask — open-ended "can I use it?" goes in circles.
+
+### Item 3 — outreach (OPEN)
+
+Ask vikpe (xantom, guide author) for moral consent first, then nano (Daniel Svensson, QW-Group org admin) to merge the LICENSE commit. Two paragraphs: (a) what oracle is, (b) the bi-directional flow — oracle uses ezquake.com/docs as Layer 3 source AND feeds gap reports upstream. User (david.larsen.1981) volunteered to do this outreach.
+
+### Item 4 — gap-report output format (OPEN)
+
+Machine-readable digest emitted per review run listing new entities that are reference-present but guide-absent, with suggested guide page targets. Shape decision: JSON? Markdown PR-ready? Both? Could live in the review skill (Workstream A) or as a separate `emit-gap-report` command.
+
+**Canonical "needs human docs" source set:** the help JSON emits `system-generated: true` for rows the extractor produced from source without any human-authored description. Combined with absent-desc detection (Workstream A item 8), the predicate `system-generated: true && desc: absent` is the canonical upstream-documentation-gap set — these are cvars/commands that ezquake.com reference pages auto-surface with empty descriptions because no human has written docs. Separate from the guide-gap set (entity undocumented in any `docs/docs/*.md` guide page). Both categories belong in the gap report but should be distinguished: help-desc PR to ezQuake vs guide-page PR to ezquake.com.
 
 ### Why prep-before-ingest
 

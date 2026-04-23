@@ -73,7 +73,7 @@ export function detectClusters(
   const keysByFinding = new Map<string, SignalKey[]>();
   for (const f of findings) {
     const keys: SignalKey[] = [];
-    if (f.evidence.commit_sha) {
+    if (f.evidence.commit_sha && f.evidence.commit_sha !== 'UNKNOWN') {
       keys.push({ key: `commit:${shortSha(f.evidence.commit_sha)}`, strength: 'strong' });
     }
     if (typeof f.evidence.pr_number === 'number') {
