@@ -53,7 +53,7 @@ Operates over the full findings list regardless of category. Each finding emits 
 |---|---|---|---|---|
 | same commit-sha | `commit:<sha>` | strong | exact match | Any finding with `evidence.commit` |
 | same PR number | `pr:<n>` | strong | exact match | Any finding enriched with `pr_number` |
-| commit-window | `commit-window:<bucket>` | medium | TBD (proposed 60s initial) | `addition`, `retirement`, `semantic-crossing` with `commit_timestamp` |
+| commit-window | `commit-window:<bucket>` | medium | TBD (60s initial, validated on 3.6.5->3.6.6). **Uses committer time (`%ct`), not author time (`%at`).** Rebased feature branches re-stamp `%ct` near-identical at merge; author time preserves original write times and would fragment clusters that landed together. | `addition`, `retirement`, `semantic-crossing` with `commit_timestamp` |
 | shared entity-name prefix | `prefix:<token>` | medium | TBD (proposed ≥2 underscore-delimited tokens shared, ≥2 siblings; OR ≥5 chars + ≥3 siblings for prefixes without `_`) | `addition`, `retirement` on named entities |
 | shared author + time window | `author-window:<author>:<bucket>` | weak | TBD (proposed ≤1 day initial, likely tighten to ≤1 hour) | Any finding with commit metadata |
 
@@ -77,6 +77,12 @@ Operates over the full findings list regardless of category. Each finding emits 
 ```
 
 Slug generation: prefer the strongest semantic cue — shared name-prefix over commit-sha over PR. Ties broken alphabetically. Slug is mutable by the operator at preamble time.
+
+**Name-prefix slug threshold (validated 2026-04-24):** use a prefix-derived slug (`<prefix>-family`) only when ≥80% of cluster members share the primary semantic prefix. Below 80%, fall back to commit-sha (`commit-<short-sha>`). Examples:
+- skywind family (5/6 = 83% share `skywind`; the 6th is `r_skywind` which tokenizes differently) → `skywind-family`.
+- hud_gun family (8 members: `hud_gun_frame_hide`, `hud_gun2_frame_hide`, ... `hud_gun8_frame_hide`; token-2 diverges so no ≥80%-shared 2+-token prefix exists) → `commit-2c7fd802`.
+
+The 80% rule prevents "misleading specificity" — a prefix slug that names only a subset of members is worse than the neutral commit-sha fallback.
 
 ### 1.2 Semantic pass (item 2)
 
