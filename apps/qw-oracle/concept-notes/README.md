@@ -49,10 +49,14 @@ source_url: <upstream URL if imported>        # omit for authored-here
 imported_from: <commit sha of upstream>       # omit for authored-here
 last_imported_at: YYYY-MM-DD                  # omit for authored-here
 upstream_status: imported | authored | gap-candidate | upstream-pending
+upstream_target: <ezquake.com page slug> | new-page | none-today   # omit when upstream_status is imported or authored
 related_entities:
   - ezquake:cvar:<name>
+  - ezquake:command:<name>
   - ezquake:extension:<ext>
   - ezquake:commit:<sha>
+  - ezquake:pr:<number>
+  - ezquake:ruleset:<name>
 related_messages: []
 last_updated: YYYY-MM-DD
 ---
@@ -61,7 +65,9 @@ last_updated: YYYY-MM-DD
 Provenance fields distinguish imports from authored-here and track drift:
 
 - `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` — the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
-- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` flags it for eventual upstream PR.
+- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it.
+
+Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance — cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline.
 
 Body:
 
@@ -83,6 +89,7 @@ Length: ~40-150 lines. Shorter notes tend to be under-justified; longer notes us
 |---|---|---|---|
 | `kmap-legacy-keymap-system` | The `.kmap` legacy keymap system and its persistence via nQuake | asset-lifecycle | draft |
 | `engine-internal-vs-player-facing-files` | Engine-internal vs player-facing files in a QuakeWorld install | classifier-metadata | draft |
+| `skywind-animated-skyboxes` | Skywind: animated skyboxes ported from IronWail | domain-guide | draft |
 
 ## Candidate future notes
 
