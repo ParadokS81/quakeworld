@@ -4,9 +4,13 @@
 // Subcommands: load-version, diff, enrich
 
 import { parseArgs } from 'util';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { openKnowledgeDb } from './db.js';
 import { loadVersion } from './load-version.js';
 import type { EntityType, Project } from './types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 async function main(): Promise<void> {
   const [, , subcommand, ...rest] = process.argv;
@@ -336,8 +340,11 @@ async function runReviewCli(args: string[]): Promise<void> {
 
 function defaultReviewPath(project: Project, from: string, to: string): string {
   const today = new Date().toISOString().slice(0, 10);
-  // Relative to cwd at invocation time; skill invokes from apps/qw-oracle/.
-  return `docs/reviews/${today}-${project}-${from}-to-${to}.md`;
+  const name = `${today}-${project}-${from}-to-${to}.md`;
+  // Anchor to apps/qw-oracle/docs/reviews/ regardless of cwd, so the CLI
+  // writes to the right place whether invoked from apps/qw-oracle/ or the
+  // monorepo root. __dirname is scripts/load-knowledge/; ../.. is the app root.
+  return join(__dirname, '..', '..', 'docs', 'reviews', name);
 }
 
 main().catch((err) => {

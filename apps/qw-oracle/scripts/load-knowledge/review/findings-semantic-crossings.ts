@@ -23,7 +23,7 @@ const ENTITY_SEMANTIC_FIELDS: readonly string[] = [
   'hud_alias',           // hud element alias changed
   'min_state_raw',       // hud element visibility gate
   'draw_order_raw',      // hud element paint order
-  // ruleset restrict_* flags (all ten) + cap + pin list
+  // ruleset restrict_* flags (all eleven per schema.ts) + cap + pin list
   'restrict_triggers', 'restrict_packet', 'restrict_particles', 'restrict_play',
   'restrict_logging', 'restrict_rollangle', 'restrict_ipc', 'restrict_exec',
   'restrict_setcalc', 'restrict_seteval', 'restrict_setex',

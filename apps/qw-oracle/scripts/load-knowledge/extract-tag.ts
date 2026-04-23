@@ -94,8 +94,15 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     throw new Error(`Source repo not found at ${repoPath}. Clone it first.`);
   }
 
-  // 1. Checkout.
-  execSync(`git -C "${repoPath}" fetch --tags`, { stdio: 'inherit' });
+  // 1. Checkout. Only fetch if the tag is not already known locally, so the
+  // common case (tag already present) stays offline-safe.
+  const tagKnown = spawnSync(
+    'git', ['-C', repoPath, 'rev-parse', '--verify', `refs/tags/${options.version}`],
+    { stdio: 'ignore' },
+  ).status === 0;
+  if (!tagKnown) {
+    execSync(`git -C "${repoPath}" fetch --tags --quiet`, { stdio: 'inherit' });
+  }
   execSync(`git -C "${repoPath}" checkout "${options.version}"`, { stdio: 'inherit' });
 
   const commitSha = options.commitSha ?? execSync(`git -C "${repoPath}" rev-parse HEAD`, {
