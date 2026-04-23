@@ -105,6 +105,7 @@ Length: ~40-150 lines. Shorter notes tend to be under-justified; longer notes us
 | `skywind-animated-skyboxes` | Skywind: animated skyboxes ported from IronWail | domain-guide | draft |
 | `completing-legacy-fte-protocol-extensions` | Completing legacy FTE protocol extensions in ezQuake 3.6.6 | domain-guide | draft |
 | `client-side-server-exec-allowlist` | Client-side server-exec allowlist: guarding the client against hostile servers | security-policy | draft |
+| `ruleset-anti-script-restriction-pattern` | QW competitive ruleset anti-script restriction pattern | security-policy | draft |
 
 ## Candidate future notes
 
