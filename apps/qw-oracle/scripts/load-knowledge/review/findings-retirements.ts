@@ -19,7 +19,7 @@ export function findRetirements(
   // Entity deletions. Pull commit blame from change_events and the entity's
   // type/name for the summary.
   const entityRows = db.prepare(`
-    SELECT ce.entity_id, ce.commit_sha, ce.commit_message_excerpt,
+    SELECT ce.entity_id, ce.commit_sha, ce.commit_message_excerpt, ce.pr_number,
            e.canonical_id, e.type, e.name
     FROM change_events ce
     JOIN entities e ON e.id = ce.entity_id
@@ -32,6 +32,7 @@ export function findRetirements(
     entity_id: number;
     commit_sha: string;
     commit_message_excerpt: string | null;
+    pr_number: number | null;
     canonical_id: string;
     type: string;
     name: string;
@@ -45,6 +46,7 @@ export function findRetirements(
       evidence: {
         entity_ref: r.canonical_id,
         commit_sha: r.commit_sha,
+        ...(r.pr_number !== null ? { pr_number: r.pr_number } : {}),
         ...(r.commit_message_excerpt ? { from_value: r.commit_message_excerpt } : {}),
       },
     });

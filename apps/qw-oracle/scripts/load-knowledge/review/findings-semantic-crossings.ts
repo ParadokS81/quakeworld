@@ -71,7 +71,8 @@ export function findSemanticCrossings(
   const entityPlaceholders = ENTITY_SEMANTIC_FIELDS.map(() => '?').join(',');
   const entityRows = db.prepare(`
     SELECT ce.entity_id, ce.field_name, ce.old_value, ce.new_value, ce.commit_sha,
-           ce.commit_message_excerpt, e.canonical_id, e.type, e.name
+           ce.commit_message_excerpt, ce.pr_number,
+           e.canonical_id, e.type, e.name
     FROM change_events ce
     JOIN entities e ON e.id = ce.entity_id
     WHERE ce.from_version = ? AND ce.to_version = ?
@@ -86,6 +87,7 @@ export function findSemanticCrossings(
     new_value: string | null;
     commit_sha: string;
     commit_message_excerpt: string | null;
+    pr_number: number | null;
     canonical_id: string;
     type: string;
     name: string;
@@ -100,6 +102,7 @@ export function findSemanticCrossings(
       evidence: {
         entity_ref: r.canonical_id,
         commit_sha: r.commit_sha,
+        ...(r.pr_number !== null ? { pr_number: r.pr_number } : {}),
         from_value: r.old_value ?? '',
         to_value: r.new_value ?? '',
       },

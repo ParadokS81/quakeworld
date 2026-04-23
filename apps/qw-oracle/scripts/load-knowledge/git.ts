@@ -74,3 +74,27 @@ export function headCommit(repoPath: string): string {
   if (!result.ok) throw new Error(`git rev-parse HEAD failed in ${repoPath}`);
   return result.stdout.trim();
 }
+
+/**
+ * Batched commit-timestamp lookup. Returns a Map keyed by full 40-char sha
+ * mapping to the committer Unix timestamp (%ct). Committer time is the
+ * cluster-relevant signal: it answers "did these commits land together"
+ * rather than "were they authored together". Shas that fail to resolve are
+ * omitted from the map (callers should handle missing keys as skip).
+ */
+export function commitTimestamps(
+  repoPath: string,
+  shas: readonly string[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  if (shas.length === 0) return out;
+  const result = runGit(repoPath, ['show', '-s', '--format=%H %ct', ...shas]);
+  if (!result.ok) return out;
+  for (const line of result.stdout.split('\n')) {
+    const [sha, ts] = line.trim().split(/\s+/);
+    if (!sha || !ts) continue;
+    const n = Number(ts);
+    if (Number.isFinite(n)) out.set(sha, n);
+  }
+  return out;
+}

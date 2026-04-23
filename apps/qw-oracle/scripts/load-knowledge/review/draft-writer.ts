@@ -9,7 +9,7 @@
 // skill prompt.
 
 import { writeFileSync } from 'fs';
-import type { Finding, ReviewReport } from './types.js';
+import type { Cluster, Finding, ReviewReport } from './types.js';
 
 export function writeDraft(report: ReviewReport): void {
   const md = renderDraft(report);
@@ -24,6 +24,8 @@ export function renderDraft(report: ReviewReport): string {
   parts.push('');
   parts.push(renderSummary(report));
   parts.push('');
+  parts.push(renderClusters(report.clusters));
+  parts.push('');
   parts.push('## Findings');
   parts.push('');
   for (const f of report.findings) {
@@ -31,6 +33,26 @@ export function renderDraft(report: ReviewReport): string {
     parts.push('');
   }
   return parts.join('\n');
+}
+
+function renderClusters(clusters: readonly Cluster[]): string {
+  const lines: string[] = [];
+  lines.push('## Clusters');
+  lines.push('');
+  if (clusters.length === 0) {
+    lines.push('_No clusters detected — findings walk individually._');
+    return lines.join('\n');
+  }
+  for (const c of clusters) {
+    lines.push(`### cluster:${c.cluster_id} (confidence: ${c.confidence})`);
+    lines.push(`Signals: ${c.signals.join(', ')}`);
+    lines.push(`Members (${c.members.length}):`);
+    for (const id of c.members) lines.push(`- ${id}`);
+    lines.push('');
+  }
+  // Trim trailing blank so the outer join doesn't double-space.
+  while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+  return lines.join('\n');
 }
 
 function renderFrontmatter(report: ReviewReport): string {
@@ -95,6 +117,7 @@ function renderFinding(f: Finding): string {
     lines.push(`**Rationale:** _(pending)_`);
   }
   lines.push(`**Applied:** _(pending)_`);
+  lines.push(`**Cluster:** ${f.cluster_id ?? 'none'}`);
   return lines.join('\n');
 }
 

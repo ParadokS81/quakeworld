@@ -81,7 +81,7 @@ Subcommands:
                 [--commit <sha>] [--tag-date <iso8601>]
                 [--github-token <t>] [--skip-release-notes] [--force]
   review        --project <p> --from <v1> --to <v2>
-                [--out <path>] [--force]
+                [--out <path>] [--ezquake-repo <path>] [--force]
 `.trim());
   process.exit(2);
 }
@@ -306,6 +306,7 @@ async function runReviewCli(args: string[]): Promise<void> {
       from: { type: 'string' },
       to: { type: 'string' },
       out: { type: 'string' },
+      'ezquake-repo': { type: 'string' },
       force: { type: 'boolean' },
     },
   });
@@ -330,6 +331,8 @@ async function runReviewCli(args: string[]): Promise<void> {
       toVersion: values.to!,
       outPath,
       force: values.force ?? false,
+      ezquakeRepoPath: values['ezquake-repo']
+        ?? '/home/paradoks/projects/quakeworld/research/repos/ezquake-source',
     });
     // stdout contract: emit the full report as JSON for the skill to consume.
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

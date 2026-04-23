@@ -10,6 +10,7 @@ import { findRetirements } from './findings-retirements.js';
 import { findSemanticCrossings } from './findings-semantic-crossings.js';
 import { findUnclassified } from './findings-unclassified.js';
 import { findSourceInvisible } from './findings-source-invisible.js';
+import { detectClusters } from './clusters.js';
 import { writeDraft } from './draft-writer.js';
 import type { Finding, ReviewCounts, ReviewReport } from './types.js';
 import type { Project } from '../types.js';
@@ -21,6 +22,7 @@ export interface RunReviewOptions {
   toVersion: string;
   outPath: string;
   force: boolean;
+  ezquakeRepoPath: string | null;
 }
 
 export function runReview(options: RunReviewOptions): ReviewReport {
@@ -29,13 +31,17 @@ export function runReview(options: RunReviewOptions): ReviewReport {
 
   const now = new Date().toISOString();
 
-  const findings: Finding[] = [
+  const rawFindings: Finding[] = [
     ...findAdditions(options.db, options.project, options.fromVersion, options.toVersion),
     ...findRetirements(options.db, options.project, options.fromVersion, options.toVersion),
     ...findSemanticCrossings(options.db, options.project, options.fromVersion, options.toVersion),
     ...findUnclassified(options.db, options.project, options.fromVersion, options.toVersion),
     ...findSourceInvisible(options.db, options.project, options.fromVersion, options.toVersion),
   ];
+
+  const { clusters, findings } = detectClusters(rawFindings, {
+    ezquakeRepoPath: options.ezquakeRepoPath,
+  });
 
   const counts: ReviewCounts = {
     addition: 0,
@@ -54,6 +60,7 @@ export function runReview(options: RunReviewOptions): ReviewReport {
     draft_path: options.outPath,
     counts,
     findings,
+    clusters,
   };
 
   writeDraft(report);

@@ -25,6 +25,7 @@ export interface FindingEvidence {
   entity_ref?: string;
   relation_row_key?: string;
   commit_sha?: string;
+  pr_number?: number;
   source_file?: string;
   source_line?: number;
   from_value?: string;
@@ -43,6 +44,16 @@ export interface Finding {
   summary: string;
   evidence: FindingEvidence;
   proposed_disposition?: ProposedDisposition;
+  cluster_id?: string | null;
+}
+
+export type ClusterConfidence = 'strong' | 'medium' | 'weak';
+
+export interface Cluster {
+  cluster_id: string;
+  confidence: ClusterConfidence;
+  signals: string[];
+  members: string[];
 }
 
 export interface ReviewCounts {
@@ -61,6 +72,7 @@ export interface ReviewReport {
   draft_path: string;
   counts: ReviewCounts;
   findings: Finding[];
+  clusters: Cluster[];
 }
 
 // Helper for finding-id stability across re-runs of the same (project, from, to).
