@@ -67,7 +67,9 @@ Provenance fields distinguish imports from authored-here and track drift:
 - `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` — the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
 - `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it.
 
-Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance — cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline.
+Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance — cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline. Multiple PRs in one note are fine when the story genuinely spans them (e.g., a feature landing across an initial merge + follow-up fixes); single-PR notes are the common case.
+
+Topic vocabulary (`topic:` field) is intentionally broad. `domain-guide` covers narrative / walkthrough content regardless of audience — player-facing, operator-facing, and tool-author-facing notes all use it. `asset-lifecycle` and `classifier-metadata` are reserved for the specific shapes named. Add a new topic value only when a third note in a truly distinct shape (e.g., `protocol-archaeology`, `security-policy`) would be actively miscategorized under the existing ones; don't split the vocabulary speculatively.
 
 Body:
 
@@ -90,6 +92,7 @@ Length: ~40-150 lines. Shorter notes tend to be under-justified; longer notes us
 | `kmap-legacy-keymap-system` | The `.kmap` legacy keymap system and its persistence via nQuake | asset-lifecycle | draft |
 | `engine-internal-vs-player-facing-files` | Engine-internal vs player-facing files in a QuakeWorld install | classifier-metadata | draft |
 | `skywind-animated-skyboxes` | Skywind: animated skyboxes ported from IronWail | domain-guide | draft |
+| `completing-legacy-fte-protocol-extensions` | Completing legacy FTE protocol extensions in ezQuake 3.6.6 | domain-guide | draft |
 
 ## Candidate future notes
 
