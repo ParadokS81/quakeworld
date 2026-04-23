@@ -21,6 +21,7 @@ import type Database from 'better-sqlite3';
 import { loadVersion } from './load-version.js';
 import { loadAssets } from './load-assets.js';
 import { loadReleaseNotes } from './load-release-notes.js';
+import { buildAssetBundle } from './build-asset-bundle.js';
 import type { EntityType, Project } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,9 +53,12 @@ const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
 
 const EXTRACTOR_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
 
-// Per-entity-type JSON file mapping. Keyed on the unified extractor's output names.
+// Per-entity-type JSON file mapping. Names must match the extractors' actual
+// output filenames (unified and legacy). The cvar handler writes
+// `ezquake-variables-ast.json` (historic name); everything else is on the
+// canonical `ezquake-<type>-ast.json` pattern.
 const ENTITY_JSON_FILES: Record<EntityType, string | null> = {
-  cvar:            'ezquake-cvars-ast.json',
+  cvar:            'ezquake-variables-ast.json',
   command:         'ezquake-commands-ast.json',
   macro:           'ezquake-macros-ast.json',
   cmdline_param:   'ezquake-cmdline-params-ast.json',
@@ -63,10 +67,21 @@ const ENTITY_JSON_FILES: Record<EntityType, string | null> = {
   ruleset:         'ezquake-rulesets-ast.json',
   token_primitive: 'ezquake-token-primitives-ast.json',
   flag_bit:        'ezquake-flag-bits-ast.json',
-  asset_category:  null, // loaded via asset bundle, not standalone
+  // asset_category rows live under the `asset_categories` top-level field
+  // of the bundle JSON, so point the entity loader at the bundle.
+  asset_category:  'ezquake-asset-bundle.json',
 };
 
 const ASSET_BUNDLE_FILE = 'ezquake-asset-bundle.json';
+
+// Legacy single-purpose extractors not yet folded into the unified driver.
+// Each takes --repo-root + --output; runs against the currently-checked-out
+// source tree and writes the canonical JSON into EXTRACTOR_OUTPUT_DIR.
+const LEGACY_EXTRACTORS_EZQUAKE: ReadonlyArray<{ script: string; output: string }> = [
+  { script: 'extract-ezquake-rulesets-clang.py',         output: 'ezquake-rulesets-ast.json' },
+  { script: 'extract-ezquake-token-primitives-clang.py', output: 'ezquake-token-primitives-ast.json' },
+  { script: 'extract-ezquake-flag-bits-clang.py',        output: 'ezquake-flag-bits-ast.json' },
+];
 
 const EXTRACTOR_VERSION_DEFAULT = 'clang-ezquake-unified@1.0.0';
 
@@ -124,8 +139,9 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   }).trim();
   const tagDate = options.tagDate ?? resolveTagDate(repoPath, options.version);
 
-  // 2. Extractor (Python).
-  const spawn = spawnSync(
+  // 2. Unified Python extractor (cvar / command / macro / cmdline_param /
+  // keyname / hud_element / asset_cvar_bindings / asset_loader_sites).
+  const unifiedRun = spawnSync(
     'python3',
     [
       extractorPath,
@@ -135,9 +151,36 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     ],
     { stdio: 'inherit' },
   );
-  if (spawn.status !== 0) {
-    throw new Error(`Python extractor failed with status ${spawn.status}`);
+  if (unifiedRun.status !== 0) {
+    throw new Error(`Python unified extractor failed with status ${unifiedRun.status}`);
   }
+
+  // 2b. Legacy single-purpose extractors (ruleset / token_primitive / flag_bit).
+  // Older tags may not have the source files some of these scan — the scripts
+  // themselves treat missing inputs as empty output with a diagnostic, so we
+  // don't error the run on a non-zero status here. If a script is truly
+  // broken the subsequent loadVersion call will fail loudly.
+  if (options.project === 'ezquake') {
+    const scriptsDir = join(MONOREPO_ROOT, 'packages', 'qw-config', 'scripts');
+    for (const { script, output } of LEGACY_EXTRACTORS_EZQUAKE) {
+      const scriptPath = join(scriptsDir, script);
+      const outPath = join(EXTRACTOR_OUTPUT_DIR, output);
+      const run = spawnSync(
+        'python3',
+        [scriptPath, '--repo-root', repoPath, '--output', outPath],
+        { stdio: 'inherit' },
+      );
+      if (run.status !== 0) {
+        console.warn(`[extract-tag] legacy extractor ${script} exited ${run.status}; continuing`);
+      }
+    }
+  }
+
+  // 2c. Rebuild the asset bundle for this specific version. The bundle merges
+  // seed YAMLs + the two asset AST JSONs produced in step 2 and stamps its
+  // own `version` field — loadAssets rejects a mismatch, so per-tag rebuild
+  // is required.
+  buildAssetBundle({ project: options.project, version: options.version });
 
   // 3. Entity loaders.
   const entitiesLoaded: Partial<Record<EntityType, number>> = {};
