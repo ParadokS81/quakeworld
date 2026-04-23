@@ -80,6 +80,8 @@ npm run load-knowledge -- load-version --project <p> --version <v> --type <t> --
 npm run load-knowledge -- load-assets   --project <p> --version <v> --json <bundle> --commit <sha> --ordinal <n>
 npm run load-knowledge -- diff          --project <p> --from <v1> --to <v2>
 npm run load-knowledge -- enrich        --project <p> --github-token <t> [--limit <n>]
+npm run load-knowledge -- extract-tag   --project <p> --version <v> --ordinal <n>  # atomic: checkout + extract + loaders
+npm run load-knowledge -- review        --project <p> --from <v1> --to <v2>        # emits findings JSON + draft .md
 
 # Layer 2 corpus (legacy .mjs scripts)
 npm run import:discord
