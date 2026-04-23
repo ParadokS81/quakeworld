@@ -10,8 +10,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
-- [Layer 3 ingest brainstorm + ezquake.com/docs baseline](#layer-3-ingest-brainstorm--ezquakecomdocs-baseline) — Pivot surfaced 2026-04-23 during the extraction-review shakedown. Next-session brainstorm needed: whether to bulk-import ezquake.com/docs guides as Layer 3 concept notes, reference-only, or hybrid. Full reasoning + starter pointers in `docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md`.
-- [Resume extraction-review shakedown walk](#resume-extraction-review-shakedown-walk) — ezquake 3.6.5 -> 3.6.6 draft has 2/65 dispositions filled (F1 hud_gun2_frame_hide, F2 cl_pext_colourmod). Blocked on Layer 3 ingest completing first, so a `concept-note` disposition for skywind (F3) can cross-reference the imported guides.
+- [Author 4 concept-note bodies from the 3.6.5 -> 3.6.6 shakedown walk](#author-4-concept-note-bodies-from-the-365---366-shakedown-walk) — 3 tracks covering 4 concept notes and 33 dispositioned findings. Track 1: Client-side server-exec allowlist (7 findings, security family, standalone). Track 2: QW competitive ruleset anti-script restriction pattern (16 findings, cross-codebase with KTX). Track 3: Batched skywind + Completing legacy FTE protocol extensions (10 findings combined, two smaller notes in one focused session).
 
 ---
 
@@ -106,50 +105,88 @@ Zero. Not blocking anything. Only revive if the triggers above actually fire, no
 - Pass 3 final shape: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` § "Pass 3 — GitHub-navigable per-entity doc + README refresh" (revised 2026-04-22 late evening to drop the dashboard deliverables).
 - Doc philosophy spec that drove the revision: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`.
 
+## Author 4 concept-note bodies from the 3.6.5 -> 3.6.6 shakedown walk
 
-## Layer 3 ingest brainstorm + ezquake.com/docs baseline
+**Added:** 2026-04-23 (session-close, after the 3.6.5 -> 3.6.6 shakedown walk completed 65/65 dispositions)
+**Status:** 4 concept-note targets identified during the walk, all with grouped rationale already recorded in the review draft. Bodies deferred per the resume-protocol guidance (walk records disposition + evidence, note authoring is its own focused task).
+**Verification first:** `ls apps/qw-oracle/concept-notes/*.md | wc -l` - baseline is 2 (kmap-legacy + engine-internal-vs-player-facing + README); after Track 1 it'll be 3; after Track 2 it'll be 4; after Track 3 it'll be 6.
 
-**Added:** 2026-04-23 (session-close of the extraction-review shakedown)
-**Status:** Needs its own brainstorm session. Judgment-heavy architectural decision about how Layer 3 relates to ezquake.com/docs as a community-curated knowledge source.
-**Verification first:** `ls research/repos/ezquake-docs/ docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md 2>&1` - the handover doc exists and the repo may or may not be cloned depending on whether the next session started yet.
+The 2026-04-23 walk dispositioned 33 findings as `concept-note` spanning four note targets. Each note covers a family of entities + release-note bullets with shared rationale. Working titles are flag-don't-lock — refine to something the author judges reads well.
 
-Full reasoning, context, and starter pointers are in `docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md`. The short version: during the extraction-review shakedown walk, a finding about the new `skywind` feature surfaced that the skill's disposition-research protocol didn't consult ezquake.com/docs. Deeper than a prompt gap, this surfaced an architectural question: are community-curated guides on ezquake.com/docs supposed to BE Layer 3 (imported / normalized), or are they a peer reference system (read-only)?
+### Track 1 — Client-side server-exec allowlist (standalone, 7 findings, security family)
 
-The next session should run `superpowers:brainstorming` starting from the pivot handover doc, tour the ezquake.com source repo at `https://github.com/QW-Group/ezquake.com`, and settle the ingest strategy before continuing the shakedown walk. Recommended approach is likely hybrid (import guide-heavy pages like charsets / crosshairs / HUD; reference-only for cvar-listing pages that duplicate Layer 1).
+Working title: "Client-side server-exec allowlist" (domain-shaped, not version-stamped). Covers the 3-cvar allow_* family plus 4 release-note bullets from the Q5 walk. Origin: closes a server -> client command-injection exploit class where a hostile server could stufftext arbitrary client-side commands, download files + execute them, inject via qw:// URL parser, or ride the cbuf_svc buffer.
+
+Findings covered:
+- `ezquake:cvar:cl_allow_downloads` (commit 41852d49, extension allowlist default)
+- `ezquake:cvar:cl_allow_uploads` (commit c04f608d, default off)
+- `ezquake:cvar:cl_remote_capabilities` (commit b276b1d0, REMOTE_CAPABILITIES macro = 50+ command allowlist, Jan 2025 KTX tuning follow-ups via 5a124533 / 989ec708 / 94080d53 / PR #994)
+- Release-note #64 (qw:// URL parser command-concatenation)
+- Release-note #65 (cl_remote_capabilities validation)
+- Release-note #66 (downloadable files execution prevention)
+- Release-note #79 (cbuf_svc server-alias restriction — moved to this track via user override)
+
+Upstream shape: `upstream_cvar_reference: settings/multiplayer.md` (autogenerated via VariableList already covers the 3 cvars). `upstream_guide_candidate: new-page` (the explainer has no home on ezquake.com; narrative note doesn't fit existing pages).
+
+### Track 2 — QW competitive ruleset anti-script restriction pattern (standalone, 16 findings, cross-codebase)
+
+Working title: "QW competitive ruleset anti-script restriction pattern" (flag-don't-lock). One note covers 1 addition + 15 semantic-crossings touching 4 rulesets.
+
+Key teaching facts to capture (per user's scope-note during the walk):
+1. **Greenfield-vs-retrofit asymmetry:** smackdrive is greenfield (all 5 restrictions enabled by default, commit 22b5b6c2); qcon / smackdown / thunderdome are retrofits (commit 2dbb3f1d adds restrict_setcalc / seteval / setex + updates existing restrict_exec / ipc).
+2. **Why restrict_set* matters:** setcalc / seteval / setex are scriptable cvar-mutation functions; restricting them closes a bypass path for other anti-script gates.
+3. **Cross-codebase:** `ruleset` is a KTX (server-side) concept that ezQuake observes — future KTX-side Phase 2 walk should reference this note rather than duplicate.
+
+Findings covered:
+- `ezquake:ruleset:smackdrive` (addition)
+- 15 ruleset semantic-crossings: qcon / smackdown / thunderdome × {restrict_exec, restrict_ipc, restrict_setcalc, restrict_seteval, restrict_setex} — all commit 2dbb3f1d
+
+Upstream shape: `upstream_cvar_reference: settings/multiplayer.md` (ruleset names autogenerated via VariableList). `upstream_guide_candidate: new-page` — note the new guide page likely needs a new sidebar section on ezquake.com too (slower upstream uptake but right target).
+
+### Track 3 — Batched: Skywind + Completing legacy FTE protocol extensions (10 findings in two smaller notes, one focused session)
+
+Two smaller notes can share a session. Both are well-scoped and should take less time than Track 1 or Track 2 separately.
+
+#### Note 3a — Skywind animated skyboxes (6 findings)
+
+Working title candidates: "Client-side server-exec allowlist"-style domain-shaped names; "Skywind animated skyboxes", "Alpha-skybox wind animation", or the user-facing "What is skywind?". Flag-don't-lock.
+
+Key facts: feature ports from IronWail engine (cross-engine provenance), requires alpha-channel skyboxes (partial transparency), uses sidecar `gfx/env/<skyboxname>_wind.cfg` config-file convention that auto-loads with the skybox, 5 commands for parameter control + 1 scale-factor cvar.
+
+Findings covered:
+- `ezquake:command:skywind` + `skywind_load` + `skywind_lookdir` + `skywind_rotate` + `skywind_save`
+- `ezquake:cvar:r_skywind`
+- All commit d7e91ef3, PR #978 from qw-ctf/skywind (@dsvensson)
+
+Upstream shape: `upstream_cvar_reference: settings/graphics.md` (or wherever r_* renders into). `upstream_guide_candidate: textures.md` — the existing Skyboxes guide section is the natural home for a skywind subsection.
+
+#### Note 3b — Completing legacy FTE protocol extensions (4 findings)
+
+Working title: "Completing legacy FTE protocol extensions" (broadened during the Q5 walk when PEXT_MODELDBL joined PEXT_TRANS — flag-don't-lock). Covers two long-dormant FTE extensions that sat half-implemented for ~12 years and were completed together in 3.6.6.
+
+Key teaching facts: FTE_PEXT_TRANS (entity transparency protocol) was half-implemented in 2013 and sat dormant until 3.6.6 when @dsvensson landed the client fix + server-side version gate. FTE_PEXT_MODELDBL had a parallel shape ("didn't read short if U_MODEL was unset and U_FTE_MODELDBL set"). Pattern: "FTE extensions that sat half-implemented and got completed in 3.6.6" as a class.
+
+Findings covered:
+- `ezquake:cvar:pext_ezquake_verfortrans` (server-side version gate, commit f670f949, default `7814`)
+- Release-note #77 (client-side PEXT_TRANS fix)
+- Release-note #53 (entity alpha plumbing — the rendering side)
+- Release-note #85 (PEXT_MODELDBL completion — joining the note broadened its scope)
+
+Upstream shape: `upstream_cvar_reference: settings/multiplayer.md`. `upstream_guide_candidate: none-today` (too niche for a dedicated ezquake.com guide page; FAQ entry is probably the right upstream shape).
+
+### Working order
+
+Track 1 first (highest user-facing value, cleanest scope, closes a security story arc). Track 2 second (big scope + KTX cross-codebase dimension adds depth). Track 3 last (smaller, batched — good warm-down session).
 
 ### Pressure
 
-Blocks the resumed extraction-review walk. Not a hard deadline but the walk can't proceed cleanly without settling how ezquake.com content is incorporated — the next `concept-note` disposition (skywind, Finding 3) depends on the decision.
+Not blocking Phase 2f. Each note target has the grouped rationale preserved in `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md` — authors pick up cold from the disposition blocks. Recommended cadence: one Track per session so the author can focus.
 
 ### Related
 
-- Pivot handover: `docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md`
-- Shakedown review draft (paused): `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md`
+- Review draft with all grouped rationale: `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md`
 - Concept-note authoring template: `apps/qw-oracle/concept-notes/README.md`
-- ezquake.com source repo: https://github.com/QW-Group/ezquake.com
-
----
-
-## Resume extraction-review shakedown walk
-
-**Added:** 2026-04-23 (session-close of the extraction-review shakedown)
-**Status:** 2 of 65 findings dispositioned. Paused pending the Layer 3 ingest decision (see entry above).
-**Verification first:** `ls apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md && grep -c "^### " apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md` - should return 65 headings; `grep -c "Applied.*2026" apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md` should return 2 until the walk resumes.
-
-The `extraction-review` skill + CLI shipped this session and was validated end-to-end on the 3.6.5 -> 3.6.6 shakedown pair. Two findings were dispositioned (F1 hud_gun2_frame_hide and F2 cl_pext_colourmod, both `classify`). The walk paused at Finding 3 (the skywind 6-entity family) because that finding surfaced the Layer 3 pivot.
-
-The skill's resume protocol handles stable finding IDs — re-invoking `/extraction-review --project ezquake --from 3.6.5 --to 3.6.6` after the Layer 3 ingest settles will skip the 2 already-done findings and walk the remaining 63. No code changes needed; just pick up where we left off.
-
-**Expected disposition for Finding 3 after Layer 3 decisions settle:** `concept-note` for the skywind family, with the note's shape informed by whatever ingest strategy was chosen (e.g., if ezquake.com/docs is bulk-imported as notes, the skywind note flags the public-docs gap and proposes upstream contribution; if reference-only, the skywind note stands as a pure qw-oracle-authored entry with cross-refs to the absent ezquake.com section).
-
-### Pressure
-
-Blocked on Layer 3 ingest. Zero pressure until that resolves. Once unblocked, the walk is a ~30 minute session to disposition the remaining 63 findings.
-
-### Related
-
-- Draft: `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md`
-- Skill: `~/.claude/skills/extraction-review/SKILL.md`
-- Spec: `docs/superpowers/specs/2026-04-23-extraction-review-design.md`
+- Layer 3 two-path curation principle: `memory/project_layer3_two_path_curation.md`
+- Two existing concept notes as style reference: `kmap-legacy-keymap-system.md` (narrative/history shape) + `engine-internal-vs-player-facing-files.md` (classifier shape)
 
 ---
