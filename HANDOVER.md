@@ -8,9 +8,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Phase 2f now gated on Workstream A (review-skill tweaks) landing** — see that entry.
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Phase 2f gated on sanity-sample calibration** (2-3 tag pairs, eyeball-only) per spec §9 step 9 — Workstream A implementation shipped 2026-04-24.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
-- [Workstream A: review-skill tweaks from shakedown walk](#workstream-a-review-skill-tweaks-from-shakedown-walk) — 7 improvements surfaced during the 3.6.5 -> 3.6.6 walk: pre-walk cluster detection, semantic clustering for release-notes, cross-category clustering, cross-codebase hint, split upstream_candidate flag, scope-tracking on open concept-notes, cross-walk revision protocol. Gates Phase 2f backfill.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — 33-page audit of `research/repos/ezquake-docs/docs/docs/*.md`, license check, short note to nano (Daniel Svensson), gap-report output format. Non-code preparation before any mirror lands.
 
@@ -32,7 +31,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Remaining sub-phases (roadmap reordered 2026-04-20)
 
-**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20. **2026-04-22 update:** extraction is now ~55x faster (`extract-ezquake-unified.py`, shared-walk + 12-core parallelism — ~14s per tag vs 749s legacy sequential). A 15-tag backfill that would have taken ~3 hours now takes ~4 minutes of extraction time. Verified byte-equivalent to legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3 (spanning the flat-repo / src-dir layout boundary). The orchestration work (diff + blame + enrich) is the remaining cost.
+**Tier 1 — Phase 2f Historical backfill (next).** Walk every ezQuake tag, diff consecutive tags, git-blame → PR enrichment. Reuses all extractors; pure orchestration. This is what separates a head-snapshot from a knowledge base with history. Preconditions (ordinal comparison, blame memoization, src-prefix map) already landed in the Tier-0 drain on 2026-04-20. **2026-04-22 update:** extraction is now ~55x faster (`extract-ezquake-unified.py`, shared-walk + 12-core parallelism — ~14s per tag vs 749s legacy sequential). A 15-tag backfill that would have taken ~3 hours now takes ~4 minutes of extraction time. Verified byte-equivalent to legacy output across HEAD + 3.6.6 + 3.6.0 + 3.2.3 (spanning the flat-repo / src-dir layout boundary). The orchestration work (diff + blame + enrich) is the remaining cost. **2026-04-24 update:** Workstream A review-skill tweaks shipped (Sessions 1-3, commits `9be2375` / `a977adc` / `183e0c0`). All 8 items implemented (cluster detection, prior-walk detection, scope-tracking, semantic pass, cross-codebase hint, upstream split, help-JSON vocab, cross-walk revision). **Remaining gate before Phase 2f proper:** sanity-sample calibration — run `review` CLI on 2-3 additional tag pairs (including oldest-known and one middle pair), eyeball-only (no walks), validate extraction trust on older tags, calibrate the TBD thresholds per spec §8 (commit-window 60s, entity-name prefix ≥2 tokens + ≥2 siblings, author-window currently skipped). Output: small calibration note to feed back into the spec. Then Phase 2f proper.
 
 **Tier 2 — Phase 2d FTE cvars.** First second-engine port. Biggest structural risk left — validates the project-keyed schema on a codebase with different layout (`engine/client/`, `engine/server/`, etc.). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signaling the extractor must emit repo-relative paths directly.
 
@@ -106,45 +105,6 @@ Zero. Not blocking anything. Only revive if the triggers above actually fire, no
 
 - Pass 3 final shape: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` § "Pass 3 — GitHub-navigable per-entity doc + README refresh" (revised 2026-04-22 late evening to drop the dashboard deliverables).
 - Doc philosophy spec that drove the revision: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`.
-
-## Workstream A: review-skill tweaks from shakedown walk
-
-**Added:** 2026-04-23 (session-close, after shakedown walk completed 65/65)
-**Status:** 7 improvements surfaced during the walk. Not yet specced; not yet implemented. **Gates Phase 2f backfill** — running full-history walks without these would re-disposition clusters we could have caught up front.
-**Verification first:** check `~/.claude/skills/extraction-review/SKILL.md` git log — if a commit after 2026-04-23 mentions cluster-detection, this entry may be partially or fully resolved.
-
-The 2026-04-23 shakedown walk (3.6.5 -> 3.6.6, 65/65 dispositioned) surfaced seven needs that aren't in the current skill. The `security-policy` family (cl_allow_downloads + cl_allow_uploads + cl_remote_capabilities, 3 commits in a 3-second window) and the `smackdrive` + 15 restrict_set* semantic-crossings cluster both forced mid-walk revisions because clusters weren't detected up-front.
-
-### The seven improvements
-
-1. **Pre-walk mechanical cluster detection.** Group findings by: same commit-sha (strong), same PR number (strong), commit-window <= 60s (medium), shared entity-name prefix (>= 3 chars, >= 2 siblings — medium), shared author + commit window <= 1 day (weak backup). Output clusters in a preamble before the walk; walk processes clusters as units with one proposed disposition.
-2. **Semantic clustering for the release-notes (Q5) bucket.** Match release-note bullets against (a) open concept-notes' scopes, (b) entity names already classified. The manual Q5 batching during the walk (Group 1 / 2 / 3 / 4 pre-classification before bulk disposition) worked — this mechanizes it.
-3. **Cross-category clustering.** Same cluster can span multiple finding categories — smackdrive is an addition; the 15 restrict_set* changes are semantic-crossings; they belong to one cluster. Detector runs across all finding categories, not per-bucket.
-4. **Cross-codebase hint in disposition research.** Entities whose source lives in not-yet-walked codebases (sv_* inside ezQuake referencing shared protocol surfaces, entities with analogs in MVDSV/KTX/FTE) get a "half-picture likely" signal that biases toward concept-note when story-shape passes. Semantic signal, probably LLM-driven rather than mechanical.
-5. **Split `upstream_candidate` flag.** Replace single field with: `upstream_cvar_reference: <page> | none` (automation-handled reference coverage) + `upstream_guide_candidate: <page> | new-page | none-today` (guide coverage). The distinction matters because pretending a guide explainer belongs in an auto-generated settings reference masks that ezquake.com needs a new page.
-6. **Scope-tracking on open concept-notes.** During a walk, when a new finding matches an already-opened concept-note's scope, present as a group-extension ("add to note X") rather than creating a parallel note. Prevents the cl_remote_capabilities-grouping-with-cl_allow_downloads revision pattern.
-7. **Cross-walk cluster revision protocol.** If a later walk finds a finding belonging to a cluster whose earlier members were already dispositioned (e.g., a 2024 commit related to a 2023 family), explicit revision prompt. Never silent cross-walk revision — erodes review-history trust.
-8. **Vocabulary precision for help-JSON predicates.** The review skill currently uses "help_desc NULL" as shorthand for "the entity has no human-authored description." The actual JSON shape has three states, not two: key absent (extractor emitted the row but upstream has no description at all), key present with null value (rare; explicit upstream null), key present with string (documented). Surfaced by Track 3b drafting (`pext_ezquake_verfortrans` — field absent, `system-generated: true`). The skill's disposition vocabulary should distinguish these since they feed different upstream gap categories (see Workstream C gap-report format).
-
-### Implementation sequencing
-
-1. Spec the seven items as one document. Decide signal thresholds empirically (prefix length, commit-window duration) after first run, not up-front.
-2. Implement cluster detection + preamble + grouped walk behavior.
-3. Regression-test against the completed 3.6.5 -> 3.6.6 walk — all manually-spotted clusters should re-emerge from mechanical detection.
-4. Then run sanity-sample pairs (2-3 additional pairs, no full walks, just eyeball counts) to validate extraction trust on older tags.
-5. Only after that, resume Phase 2f backfill proper.
-
-### Pressure
-
-Medium. Phase 2f is blocked on this. Not urgent in isolation — the existing skill works, we just don't want to scale it to 15-tag backfill with known inefficiency.
-
-### Related
-
-- Design doc: `docs/superpowers/specs/2026-04-23-layer3-pivot-design.md` (Workstream A section)
-- Walk review (for regression data): `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md`
-- Skill current state: `~/.claude/skills/extraction-review/SKILL.md`
-
----
 
 ## Workstream B: concept-note authoring scaffolding
 
