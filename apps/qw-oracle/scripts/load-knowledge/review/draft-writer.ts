@@ -129,6 +129,23 @@ function renderFinding(f: Finding): string {
   }
   lines.push(`**Applied:** _(pending)_`);
   lines.push(`**Cluster:** ${f.cluster_id ?? 'none'}`);
+  // Cross-codebase hint (§4): CLI-computed from the cue set; skill can
+  // override during walk by editing the value.
+  lines.push(`**Cross-codebase hint:** ${f.cross_codebase_hint ?? 'unknown'}`);
+  // Upstream coverage split (§5): two machine-parseable fields replace
+  // the pre-Session-3 inline "upstream_candidate: X" rationale convention.
+  // Both start _(pending)_; skill fills during walk per decision table
+  // in SKILL.md. At least one must be populated when disposition is
+  // concept-note.
+  lines.push(`**Upstream cvar reference:** _(pending)_`);
+  lines.push(`**Upstream guide candidate:** _(pending)_`);
+  // Semantic pass proposal (§1.2): source-invisible findings only.
+  // Skill preamble reads this line to offer the operator an
+  // "accept / reject" prompt for joining the proposed cluster.
+  if (f.proposed_cluster_id) {
+    const rationale = f.match_rationale ?? 'semantic match';
+    lines.push(`**Proposed cluster:** ${f.proposed_cluster_id} — ${rationale}`);
+  }
   return lines.join('\n');
 }
 

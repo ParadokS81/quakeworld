@@ -14,6 +14,8 @@ import { findUnclassified } from './findings-unclassified.js';
 import { findSourceInvisible } from './findings-source-invisible.js';
 import { detectClusters } from './clusters.js';
 import { annotatePriorRefs, loadPriorWalks } from './prior-walks.js';
+import { runSemanticMatch } from './semantic-match.js';
+import { annotateCrossCodebase } from './cross-codebase.js';
 import { writeDraft } from './draft-writer.js';
 import type { Finding, ReviewCounts, ReviewReport } from './types.js';
 import type { Project } from '../types.js';
@@ -45,7 +47,7 @@ export function runReview(options: RunReviewOptions): ReviewReport {
     ...findSourceInvisible(options.db, options.project, options.fromVersion, options.toVersion),
   ];
 
-  const { clusters: rawClusters, findings } = detectClusters(rawFindings, {
+  const { clusters: rawClusters, findings: clusteredFindings } = detectClusters(rawFindings, {
     ezquakeRepoPath: options.ezquakeRepoPath,
   });
 
@@ -58,6 +60,12 @@ export function runReview(options: RunReviewOptions): ReviewReport {
     currentTo: options.toVersion,
   });
   const clusters = annotatePriorRefs(rawClusters, priorWalks);
+
+  // Semantic pass over source-invisible (§1.2): propose cluster membership
+  // for release-note bullets that lack a mechanical signal.
+  const { findings: semanticallyAnnotated } = runSemanticMatch(clusteredFindings, clusters);
+  // Cross-codebase hint (§4): cue-set classifier per finding.
+  const findings = annotateCrossCodebase(semanticallyAnnotated);
 
   const counts: ReviewCounts = {
     addition: 0,

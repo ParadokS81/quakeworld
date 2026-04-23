@@ -38,6 +38,8 @@ export interface ProposedDisposition {
   rationale: string;
 }
 
+export type CrossCodebaseHint = 'likely-shared' | 'ezquake-only' | 'unknown';
+
 export interface Finding {
   id: string;
   bucket: Bucket;
@@ -45,6 +47,16 @@ export interface Finding {
   evidence: FindingEvidence;
   proposed_disposition?: ProposedDisposition;
   cluster_id?: string | null;
+  // Semantic pass (§1.2): source-invisible findings may receive a
+  // proposal to join a non-source-invisible cluster. Skill operator
+  // confirms at preamble; CLI emits proposal + rationale only.
+  proposed_cluster_id?: string | null;
+  match_rationale?: string;
+  // Cue-set classifier (§4): per-finding bias signal for concept-note
+  // disposition when the entity's source region suggests analogs in
+  // not-yet-walked codebases. CLI emits 'likely-shared' on cue match,
+  // 'unknown' otherwise. Operator may override to 'ezquake-only'.
+  cross_codebase_hint?: CrossCodebaseHint;
 }
 
 export type ClusterConfidence = 'strong' | 'medium' | 'weak';
