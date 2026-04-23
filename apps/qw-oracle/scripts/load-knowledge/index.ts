@@ -40,6 +40,16 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'extract-tag') {
+    await runExtractTag(rest);
+    return;
+  }
+
+  if (subcommand === 'review') {
+    await runReviewCli(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -63,6 +73,11 @@ Subcommands:
                 --commit <sha> --ordinal <n>
                 [--tag-date <iso8601>] [--extractor-version <s>]
   release-notes --project <p> --version <v> --github-token <token>
+  extract-tag   --project <p> --version <v> --ordinal <n>
+                [--commit <sha>] [--tag-date <iso8601>]
+                [--github-token <t>] [--skip-release-notes] [--force]
+  review        --project <p> --from <v1> --to <v2>
+                [--out <path>] [--force]
 `.trim());
   process.exit(2);
 }
@@ -238,6 +253,91 @@ async function runReleaseNotes(args: string[]): Promise<void> {
   } finally {
     db.close();
   }
+}
+
+async function runExtractTag(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      version: { type: 'string' },
+      ordinal: { type: 'string' },
+      commit: { type: 'string' },
+      'tag-date': { type: 'string' },
+      'github-token': { type: 'string' },
+      'skip-release-notes': { type: 'boolean' },
+      force: { type: 'boolean' },
+    },
+  });
+
+  for (const required of ['project', 'version', 'ordinal'] as const) {
+    if (!values[required]) throw new Error(`--${required} is required`);
+  }
+
+  const { extractTag } = await import('./extract-tag.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = await extractTag({
+      db,
+      project: values.project as Project,
+      version: values.version!,
+      ordinal: Number(values.ordinal),
+      commitSha: values.commit,
+      tagDate: values['tag-date'],
+      githubToken: values['github-token'] ?? process.env.GITHUB_TOKEN,
+      skipReleaseNotes: values['skip-release-notes'] ?? false,
+      force: values.force ?? false,
+    });
+    console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runReviewCli(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      from: { type: 'string' },
+      to: { type: 'string' },
+      out: { type: 'string' },
+      force: { type: 'boolean' },
+    },
+  });
+
+  for (const required of ['project', 'from', 'to'] as const) {
+    if (!values[required]) throw new Error(`--${required} is required`);
+  }
+
+  const outPath = values.out ?? defaultReviewPath(
+    values.project as Project,
+    values.from!,
+    values.to!,
+  );
+
+  const { runReview } = await import('./review/index.js');
+  const db = openKnowledgeDb();
+  try {
+    const report = runReview({
+      db,
+      project: values.project as Project,
+      fromVersion: values.from!,
+      toVersion: values.to!,
+      outPath,
+      force: values.force ?? false,
+    });
+    // stdout contract: emit the full report as JSON for the skill to consume.
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+  } finally {
+    db.close();
+  }
+}
+
+function defaultReviewPath(project: Project, from: string, to: string): string {
+  const today = new Date().toISOString().slice(0, 10);
+  // Relative to cwd at invocation time; skill invokes from apps/qw-oracle/.
+  return `docs/reviews/${today}-${project}-${from}-to-${to}.md`;
 }
 
 main().catch((err) => {
