@@ -11,6 +11,21 @@ import type { Finding } from './types.js';
 import { makeFindingId } from './types.js';
 import type { Project } from '../types.js';
 
+// Schema-expansion filter: when a field DID NOT EXIST at fromVersion (stored
+// NULL) and now holds a canonical "empty" / "disabled" value at toVersion,
+// that represents a new field being added to the struct with a no-op default
+// rather than a semantic policy change. The diff pipeline legitimately emits
+// one modification event per (row, field); the review layer suppresses the
+// ones where behavior didn't actually change. Any NULL -> nonzero/non-empty
+// transition still surfaces because that IS a behavior change.
+const SCHEMA_EXPANSION_DEFAULTS = new Set(['0', 'false', '', 'null', '[]', '{}']);
+
+function isSchemaExpansion(oldValue: string | null, newValue: string | null): boolean {
+  if (oldValue !== null) return false;
+  if (newValue === null) return false;
+  return SCHEMA_EXPANSION_DEFAULTS.has(newValue.trim());
+}
+
 // Entity-level fields whose changes are categorical.
 // Keyed on change_events.field_name exactly as the diff pipeline writes it.
 const ENTITY_SEMANTIC_FIELDS: readonly string[] = [
@@ -77,6 +92,7 @@ export function findSemanticCrossings(
   }>;
 
   for (const r of entityRows) {
+    if (isSchemaExpansion(r.old_value, r.new_value)) continue;
     findings.push({
       id: makeFindingId('semantic-crossing', `${r.canonical_id}:${r.field_name}`),
       bucket: 'semantic-crossing',
@@ -114,6 +130,7 @@ export function findSemanticCrossings(
     }>;
 
     for (const r of relRows) {
+      if (isSchemaExpansion(r.old_value, r.new_value)) continue;
       const key = `${r.relation_table}:${r.row_key_json}`;
       findings.push({
         id: makeFindingId('semantic-crossing', `${key}:${r.field_name}`),
