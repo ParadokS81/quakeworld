@@ -30,6 +30,18 @@ What Layer 3 is NOT:
 
 The **"guidance-for-today, not a museum"** principle is the load-bearing test when a question arises about whether a note earns its place.
 
+### Relationship to ezquake.com/docs
+
+Initially framed as "we import from the authoritative site." Updated understanding (2026-04-25, from Discord with vikpe) flips this:
+
+- **Only one person has edited ezquake.com/docs in 6 years** (vikpe; "1 edit beyond myself submitted in 6 years"). The corpus is effectively single-maintainer-plus-stepped-back.
+- **Oracle's Layer 1 is the ground truth** for current engine state. Extraction runs against head; every commit is known; every cvar/command/macro has a verifiable provenance.
+- **Oracle's Layer 3 is fresher than ezquake.com/docs on new material.** For post-2022 additions (most of what's changed since the last guide-content edit), Oracle is the more current source.
+
+The practical consequence: **Oracle is the producer; ezquake.com/docs is a downstream human-readable surface.** Not the other way around. The "gap-report" we emit isn't just a PR queue for our own contributions — it's a **contributor onboarding kit**. Anyone who wants to help update ezquake.com can consume Oracle's Layer 1 facts + Layer 2 testimony + Layer 3 guidance and write the missing pages from solid ground rather than from scratch.
+
+This is the Oracle project's core value proposition in one frame: produce authoritative, version-aware, source-backed current-state knowledge that downstream consumers (ezquake.com/docs today, chatbots + slipgate-app + future web-services tomorrow) can draw from.
+
 ---
 
 ## 2. Feeding paths
@@ -40,27 +52,29 @@ Two distinct paths produce entries. Both land in this directory under the same f
 
 Guide content already written by the community elsewhere (primarily ezquake.com/docs), mirrored and adapted into a concept note. The original author earned the note by 15+ years of answering community questions; we don't re-derive that labor, we just normalize the format and add cross-links to Layer 1 entities.
 
-**When applicable:** the upstream source covers material that (a) belongs in Layer 3 (not Layer 1 reference duplicates), (b) the author has consented to reuse (explicitly or via an open license), (c) the content is current or can be made current with light editing.
+**When applicable:** the upstream source (a) covers material that belongs in Layer 3 (not Layer 1 reference duplicates), (b) the content is current or can be made current with light editing — meaning the guide accurately describes present-day engine mechanisms. A page describing features that have since been replaced, or missing substantial material added after the guide was written, is NOT a Path 1 candidate — it becomes source material for Path 2 instead (see below).
 
 **Authoring cost:** low — structure is given, we adapt to template.
 
 **Attribution:** `authored_by: community` + `source_url` pointing to the original + `primary_contributors` listing the upstream author.
 
+**Realistic frequency:** **rare.** Given ezquake.com/docs has been single-maintainer with near-zero external contribution for 6 years, most upstream guides are stale enough that Path 1 doesn't apply cleanly. Discovered during the `weapon-scripts.md` first-import evaluation (2026-04-25): the guide omits `+fire` (15 years of coverage missing) and frames `weapon`+preselect as novel when they're 20 years old. Light editing couldn't fix it without producing a Frankenstein. Outcome: the first "import" became a Path 2 authoring that cited vikpe's guide as source material. Expect most imports to follow that pattern.
+
 ### Path 2 — authored-here
 
-Full-body notes written during deliberate investigation — typically during a Phase 2f historical walk where a finding raises a question the community hasn't yet answered, or during an ad-hoc research session.
+Full-body notes written during deliberate investigation — typically during a Phase 2f historical walk where a finding raises a question the community hasn't yet answered, during an ad-hoc research session, or during a first-import evaluation that reveals the upstream guide has substantial staleness.
 
-**When applicable:** no community source covers the material adequately, AND the entry passes one of the earn-the-note tests documented in `README.md`.
+**When applicable:** (a) no community source covers the material adequately, OR (b) the community source is stale / incomplete / selective enough that faithful mirroring would introduce misleading content, AND the entry passes one of the earn-the-note tests documented in `README.md`.
 
 **Authoring cost:** high — every note is investigation + synthesis + writing.
 
-**Attribution:** `authored_by: qw-oracle`. If the note documents work an upstream contributor did, credit them in `primary_contributors`. If the note could close a gap on ezquake.com, flag `upstream_status: gap-candidate` with a `upstream_target` for eventual PR back.
+**Attribution:** `authored_by: qw-oracle`. When the note builds on upstream source material (guides, forum posts, vikpe's work, pre-vikpe-era impulse-script authors), credit them in `primary_contributors` even though the note's own provenance is oracle. If the note could close a gap on ezquake.com, flag `upstream_status: gap-candidate` with a `upstream_target` for eventual upstream offer.
 
 ### Choosing a path
 
-When a topic arises, check both paths before writing. Path 1 is the default when upstream coverage exists and is current. Path 2 is the default when no upstream coverage exists or upstream is stale on the specific point.
+Given the ezquake.com/docs staleness reality, the default is Path 2. Path 1 applies only when the upstream page genuinely describes present-day engine mechanisms without substantial omissions — rare in practice. The validation step: before committing to Path 1, grep the guide's mentioned entities against Layer 1 (does every cvar/command exist?) and check for post-guide engine additions in the same domain (does the guide cover what's current?). If either test fails, escalate to Path 2 with the guide as source material.
 
-A single note can acknowledge both paths in references: Path-1 import can cite additional investigation that extended the original, and Path-2 authored can cite upstream sources that informed but didn't cover.
+A single note can acknowledge both paths in references: Path-2 authored typically cites upstream sources that informed but didn't fully cover the topic.
 
 ---
 
@@ -106,6 +120,14 @@ Authored-here content's license follows qw-oracle's eventual project license (TB
 The `primary_contributors` field names the upstream code / guide authors whose work the note documents, regardless of whether the note is Path 1 or Path 2. This is distinct from `authored_by`, which names the note's own provenance.
 
 Example: `skywind-animated-skyboxes.md` is authored-here (Path 2, `authored_by: qw-oracle`) but documents code written by the skywind feature author, so that handle appears in `primary_contributors`. A future Path-1 import of a vikpe-written guide would have `authored_by: community` + `primary_contributors: [vikpe]`.
+
+**Single-maintainer context for ezquake.com/docs.** Per vikpe on Discord 2026-04-25, "1 edit beyond myself submitted in 6 years" — meaning vikpe has curated effectively alone since ~2019-2020. When a Layer 3 note builds on guide material from that corpus, the attribution chain is typically:
+
+- `vikpe` as the curator who assembled and maintained the guide in its current form
+- Pre-vikpe-era feature authors whose original work predates the guide (impulse-script authors from 2000s, weapon-command author from 2006, `+fire` author from 2011, etc.) when the note covers material with identifiable original implementers
+- Layer 1 commit/PR provenance in `related_entities` as the machine-readable audit trail
+
+When the original implementer is unknown or the history is genuinely collective, list vikpe alone with a "pre-vikpe era authors unknown" note in References.
 
 ---
 
@@ -203,9 +225,17 @@ Proposed in §3 as a likely catalog addition when Path 1 imports begin. Not adde
 
 User raised 2026-04-24: the first mirror import should treat the template as a *test surface*, not a fixed constraint. Imports will stress the template differently than the 4 Path-2 notes already drafted; gaps will surface and revise the template. Planned first import: `weapon-scripts.md` (55 lines, user knows domain deeply). Outcomes to feed back into this doc + `README.md`.
 
-### 2026-04-25 — Gap-report output format (inherited from Workstream C)
+### 2026-04-25 — Gap-report output format as contributor-onboarding kit (inherited from Workstream C)
 
-When Path 1 imports + Phase 2f walks run, they will emit entities that are reference-present in Layer 1 but guide-absent in ezquake.com/docs. The output format for this gap report is undecided (JSON? Markdown PR-ready? Both?). See HANDOVER.md Workstream C Item 3.
+When Phase 2f walks run, they will emit entities reference-present in Layer 1 but guide-absent in ezquake.com/docs. Reframed 2026-04-25 after vikpe's Discord confirmation that the guide corpus is single-maintainer-plus-stepped-back: the gap report isn't just a PR queue — it's a **contributor onboarding kit**. Someone wanting to help update ezquake.com should be able to consume the gap report + Oracle's Layer 1/2/3 and write a missing page from solid ground.
+
+That reframes the output requirements:
+
+- **Per-gap entry carries everything needed to write the missing page**, not just the entity list. Layer 1 facts (when added, by whom, related cvars/macros), Layer 2 testimony references (community discussion excerpts), Layer 3 concept-note link if we've already written one.
+- **Output should be usable by a non-Oracle contributor.** Target shape is probably Markdown (human-readable) with a machine-readable sidecar (JSON) for future tooling.
+- **Explicit "suggested page target"** per gap (new page, existing page + section, multi-page split) to lower the onboarding friction.
+
+See HANDOVER.md Workstream C Item 3.
 
 ### 2026-04-25 — Cross-linking between concept notes
 
