@@ -108,6 +108,7 @@ export interface LoadVersionResult {
   transitionsLogged: number;
   entityCount: number;
   parseState: 'ok' | 'partial';
+  typeMismatchOrphansPruned: number;
 }
 
 const PARTIAL_DROP_GUARD_RATIO = 0.5;
@@ -365,6 +366,53 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       upserted += 1;
     }
 
+    // Cross-type help-JSON orphan cleanup. Help-JSON files occasionally label
+    // a name under the wrong entity type (e.g. `radar` is registered via
+    // HUD_Register so it lands as `hud_element source_backed`, but
+    // help_commands.json ALSO lists `radar` → commands extractor emits it with
+    // ast=null → loader creates `command doc_only`). The loader-side check:
+    // if a doc_only entity of the current type has a same-name, same-project
+    // source_backed counterpart under any OTHER type, the current row is a
+    // help-JSON labeling artifact and should be pruned. Delete from the
+    // per-type versions table, transitions, overrides, and entities. Runs
+    // per-type so each load-version invocation cleans up only the orphans it
+    // would otherwise produce, and re-running the loader is idempotent.
+    const findOrphansStmt = options.db.prepare(`
+      SELECT e.id FROM entities e
+      WHERE e.project = ? AND e.type = ? AND e.source_state = 'doc_only'
+        AND EXISTS (
+          SELECT 1 FROM entities e2
+          WHERE e2.project = e.project
+            AND e2.name = e.name
+            AND e2.type != e.type
+            AND e2.source_state = 'source_backed'
+        )
+    `);
+    const orphanRows = findOrphansStmt.all(options.project, options.type) as { id: number }[];
+
+    if (orphanRows.length > 0) {
+      const deleteVersions = options.db.prepare(
+        `DELETE FROM ${adapter.versionsTable} WHERE entity_id = ?`,
+      );
+      const deleteTransitions = options.db.prepare(
+        `DELETE FROM source_state_transitions WHERE entity_id = ?`,
+      );
+      const deleteOverrides = options.db.prepare(
+        `DELETE FROM source_overrides WHERE entity_id = ?`,
+      );
+      const deleteEntity = options.db.prepare(`DELETE FROM entities WHERE id = ?`);
+      for (const { id } of orphanRows) {
+        deleteVersions.run(id);
+        deleteTransitions.run(id);
+        deleteOverrides.run(id);
+        deleteEntity.run(id);
+      }
+      console.log(
+        `[load-version] pruned ${orphanRows.length} ${options.type} help-JSON orphan(s) ` +
+        `(cross-type source_backed counterpart exists for ${options.project})`,
+      );
+    }
+
     const setMeta = options.db.prepare(`
       INSERT INTO schema_meta (key, value) VALUES (?, ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value
@@ -374,10 +422,10 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     setMeta.run(`${options.project}:source_repo_commit`, options.commitSha);
     setMeta.run(`${options.project}:source_repo_tag`, options.tagDate ? options.version : '');
 
-    return { upserted, transitions };
+    return { upserted, transitions, orphansPruned: orphanRows.length };
   });
 
-  const { upserted, transitions } = txn();
+  const { upserted, transitions, orphansPruned } = txn();
 
   return {
     extractorRunId,
@@ -386,5 +434,6 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     transitionsLogged: transitions,
     entityCount: entryCount,
     parseState: parseStateFinal,
+    typeMismatchOrphansPruned: orphansPruned,
   };
 }
