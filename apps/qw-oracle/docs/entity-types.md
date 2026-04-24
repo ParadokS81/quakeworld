@@ -4,6 +4,12 @@ Per-entity-type short-form documentation for Layer 1 of the QW Oracle knowledge 
 
 This doc is the per-type reference linked from `apps/qw-oracle/README.md` and from the monorepo-level `OVERVIEW.md`. It was produced by Pass 2 of the 2026-04-22 knowledge-service realignment roadmap.
 
+**Runtime coverage verified 2026-04-25** via in-engine `cvarlist` / `cmdlist` dump diff:
+- **cvar**: 99.8% name coverage (2688/2693 runtime cvars in DB). Real gaps = 0; the 4 residuals are dynamically-created teamsay macros (`Cvar_Create` at config-exec time — out of reach for static extraction).
+- **command**: 100% of source-registered commands. The 130 runtime "gaps" are all HUD auto-synthesized names (+hud_*, -hud_*, plain plain-name toggles) already present in the DB as `hud_element`, a richer type.
+- **20-row field-accuracy sample**: 20/20 fields (default_value, flags_raw, on_change, source_file/line, trailing_comment) match source exactly, including binary-escaped default values and HUD positional-arg defaults.
+- See `packages/qw-config/docs/EXTRACTOR-PLAYBOOK.md` § Runtime validation playbook for the procedure, or `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` for the full audit that produced these numbers.
+
 ## Contents
 
 Each section below is collapsed by default. Click an entry to expand it, or use the anchor links here.
