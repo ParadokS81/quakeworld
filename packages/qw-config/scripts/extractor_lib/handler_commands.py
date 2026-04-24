@@ -7,12 +7,24 @@ first-wins rows (client then server).
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
 from ._visitor import Visitor
+
+
+# `#define NAME "string literal"` — used to resolve Cmd_AddCommand calls whose
+# first arg is a macro identifier (e.g. vid_sdl2.c:1873
+# `Cmd_AddCommand(CVAR_RELOAD_GFX_COMMAND, ...)` where line 144 has
+# `#define CVAR_RELOAD_GFX_COMMAND "vid_reload"`).
+_DEFINE_STRING_RE = re.compile(
+    r'^\s*#\s*define\s+([A-Z_][A-Z0-9_]+)\s+"([^"\n]*)"',
+    re.MULTILINE,
+)
+_MACRO_IDENT_RE = re.compile(r'^[A-Z_][A-Z0-9_]+$')
 
 
 # ----- group assignment (mirrors legacy extractor exactly) -------------------
@@ -215,6 +227,12 @@ class CommandsHandler(Visitor):
         # (in finalize).
         self._seen_in_file: set[str] = set()
         self._rows: list[dict] = []
+        # Per-file `#define NAME "literal"` map for identifier-arg resolution
+        # at Cmd_AddCommand call sites (P6: vid_reload).
+        src_text = source_bytes.decode("utf-8", errors="replace")
+        self._file_macros: dict[str, str] = {
+            m.group(1): m.group(2) for m in _DEFINE_STRING_RE.finditer(src_text)
+        }
 
     def enter_function(self, cursor, variant: str) -> None:
         self._func_stack.append(cursor.spelling or "?")
@@ -242,6 +260,14 @@ class CommandsHandler(Visitor):
         if len(args) < 2:
             return
         name = _literal_string(args[0], self.source_bytes)
+        if not name:
+            # Fallback: all-caps identifier likely a #define'd string macro.
+            extent = args[0].extent
+            raw = self.source_bytes[extent.start.offset:extent.end.offset].decode(
+                "utf-8", errors="replace"
+            ).strip()
+            if _MACRO_IDENT_RE.match(raw):
+                name = self._file_macros.get(raw)
         if not name or name in self._seen_in_file:
             return
         if sp == "Cmd_AddCommand":

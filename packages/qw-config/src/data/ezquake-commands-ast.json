@@ -5957,9 +5957,15 @@
       "desc": "Prints all supported video modes."
     },
     "vid_reload": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "video",
+      "ast": {
+        "handler_fn": "VID_Reload_f",
+        "source_file": "vid_sdl2.c",
+        "source_line": 1873,
+        "source_column": 3,
+        "enclosing_function": "VID_RegisterCommands",
+        "build_variant": "client"
+      }
     },
     "vid_restart": {
       "group-id": "video",
@@ -6111,11 +6117,11 @@
     }
   },
   "_stats": {
-    "source_total": 508,
-    "with_handler": 445,
+    "source_total": 509,
+    "with_handler": 446,
     "with_help_desc": 290,
     "server_build_only": 14,
-    "help_only": 62,
-    "help_only_system_generated": 6
+    "help_only": 61,
+    "help_only_system_generated": 5
   }
 }
