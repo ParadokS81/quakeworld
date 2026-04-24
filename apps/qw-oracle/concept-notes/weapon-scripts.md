@@ -12,6 +12,8 @@ upstream_target: weapon-scripts
 primary_contributors:
   - "@ParadokS"
   - "@johnnycz"
+  - "@meag"
+  - "@BLooD_DoG"
   - "@vikpe"
 related_entities:
   - ezquake:cvar:cl_weaponpreselect
@@ -20,12 +22,15 @@ related_entities:
   - ezquake:cvar:cl_weaponhide_axe
   - ezquake:command:+fire
   - ezquake:command:-fire
+  - ezquake:command:+fire_ar
+  - ezquake:command:-fire_ar
   - ezquake:command:weapon
   - ezquake:command:+attack
   - ezquake:command:-attack
   - ezquake:command:impulse
   - ezquake:commit:7c328aa4
   - ezquake:commit:ab813f8a
+  - ezquake:commit:db269539
 scope: cross-engine
 engines_covered: [ezquake, fte]
 last_updated: 2026-04-24
@@ -37,15 +42,15 @@ last_updated: 2026-04-24
 
 QuakeWorld weapon-bind configs reduce to three practical methods, defined by what the user does at the keyboard: **quickfire** (one press selects and fires), **manual select+fire** (two separate presses, one to select, one to fire), **hold-modifier + fire** (hold one button to rebind the fire key, then press fire).
 
-For most users the recommended form is **quickfire via `bind X "+fire N M"`**. `+fire` bundles weapon-selection and attack into a single usercmd frame, which eliminates the one-frame exposure window the older two-command forms produce. Sections below cover each method's canonical form, modulation cvars, historical context, and cross-engine support.
+For most users the recommended form is **quickfire via `bind X "+fire_ar N M"`**. `+fire_ar` bundles weapon-selection and attack into a single usercmd frame (eliminating the one-frame exposure window older forms produce) AND handles the multi-key rollover case when two fire keys are held in quick succession. `+fire` is the simpler single-key ancestor; use it when you want the behavior without the key-stack handling. Sections below cover each method's canonical form, modulation cvars, historical context, and cross-engine support.
 
 ## The three methods at a glance
 
 | Method | User action | Canonical form | When to choose |
 |---|---|---|---|
-| Quickfire | 1 press | `bind mouse1 "+fire 7 5"` | Most weapons you want to fire immediately (RL, SSG). |
-| Manual select+fire | 2 presses (different buttons) | `bind q "weapon 7 5"; bind mouse1 +attack` | Weapon you want to "hold" before deciding to shoot; rare, mostly historical. |
-| Hold-modifier + fire | Hold modifier, press fire | `alias +lg "bind mouse1 +fire 8 5"; alias -lg "bind mouse1 +fire 7 5"; bind space +lg` | Per-button context-switching: LG while holding space, RL otherwise. |
+| Quickfire | 1 press | `bind mouse1 "+fire_ar 7 5"` | Most weapons you want to fire immediately (RL, SSG). |
+| Manual select+fire | 2 presses (different buttons) | `bind q "weapon 7 5"; bind mouse1 +attack` | Fires everything through `mouse1` with per-weapon select keys; very common. |
+| Hold-modifier + fire | Hold modifier, press fire | `alias +lg "bind mouse1 +fire_ar 8 5"; alias -lg "bind mouse1 +fire_ar 7 5"; bind space +lg` | Per-button context-switching: LG while holding space, RL otherwise. |
 
 All three methods coexist in one config. A single weapon (e.g. RL) can be reached via quickfire on `mouse1` AND be the fallback of an unprimed hold-modifier pattern.
 
@@ -53,16 +58,21 @@ All three methods coexist in one config. A single weapon (e.g. RL) can be reache
 
 **Canonical form:**
 ```
-bind mouse1 "+fire 7 5 3 2"
+bind mouse1 "+fire_ar 7 5 3 2"
 ```
 
-One press of `mouse1` selects the best available weapon from the priority chain (RL, then SNG, then SG, then axe) and fires it. Release triggers `-fire`, which handles the weapon-hide transition if `cl_weaponhide` is enabled.
+One press of `mouse1` selects the best available weapon from the priority chain (RL, then SNG, then SG, then axe) and fires it. Release triggers `-fire_ar`, which handles the weapon-hide transition if `cl_weaponhide` is enabled AND pops the key from the internal key-stack for rollover handling.
 
-**Why this form wins:** `+fire` bundles the weapon-selection impulse and the attack bit into the same usercmd frame. The older two-command forms (`weapon 7 5; +attack` across two binds, or `impulse 7; +attack` on one bind) could emit the weapon change and the attack bit in separate frames, giving the server a one-frame window where the weapon had switched but the attack hadn't fired yet. In standard 77fps competitive play that window is ~13ms and visible on demos. `+fire` closes it.
+**Why `+fire_ar` wins:** two compounded reasons.
 
-**Priority chain semantics:** `7 5 3 2` is a fallback order. The client tries weapon 7 (RL); if you don't have it or don't have ammo, tries 5 (SNG); then 3 (SG); then 2 (SSG). `cl_weaponforgetorder` controls whether this list persists frame-to-frame (default 0, persistent) or resets per command (1, one-shot). With the default, `+fire 7 5 3 2` issued once keeps re-evaluating the best available weapon as your inventory changes.
+1. **Single-frame delivery.** Both `+fire` and `+fire_ar` bundle the weapon-selection impulse and the attack bit into the same usercmd frame. The older two-command forms (`weapon 7 5; +attack` across two binds, or `impulse 7; +attack` on one bind) could emit the weapon change and the attack bit in separate frames, giving the server a one-frame window where the weapon had switched but the attack hadn't fired yet. In standard 77fps competitive play that window is ~13ms and visible on demos.
+2. **Multi-key rollover.** `+fire_ar` additionally maintains a per-client key-stack: when you press a second fire key while still holding a first, the second takes over; when you release the second, the client pops the stack and re-executes the most recent prior `+fire_ar` so the first key's weapon resumes. Hand-written scripts used to simulate this (see legacy forum discussion referenced in meag's 2021 commit message); `+fire_ar` handles it natively.
 
-**Cross-engine:** `+fire` originated in ezQuake (commit `ab813f8a`, johnnycz, 2011-05-29). FTE added equivalent support 7 years later (commit `98303e606`, Spoike, 2018-12-06). Both engines behave identically today.
+**When to use `+fire` instead:** you want the single-frame delivery behavior without the key-stack machinery — for example, a bind that should always fire its own chain regardless of what else is held. In practice, most competitive configs can use `+fire_ar` unconditionally; it degrades gracefully to `+fire` behavior when only one fire key is active.
+
+**Priority chain semantics:** `7 5 3 2` is a fallback order. The client tries weapon 7 (RL); if you don't have it or don't have ammo, tries 5 (SNG); then 3 (SG); then 2 (SSG). `cl_weaponforgetorder` controls whether this list persists frame-to-frame (default 0, persistent) or resets per command (1, one-shot). With the default, `+fire_ar 7 5 3 2` issued once keeps re-evaluating the best available weapon as your inventory changes.
+
+**Cross-engine:** `+fire` originated in ezQuake (commit `ab813f8a`, johnnycz, 2011-05-29). FTE added equivalent support 7 years later (commit `98303e606`, Spoike, 2018-12-06). `+fire_ar` is ezQuake-specific as of current head (commit `db269539`, meag, 2021-05-29). Behavior for single-key case is identical across all three; rollover handling exists only in ezQuake's `+fire_ar`.
 
 ## Method 2: Manual select+fire
 
@@ -76,7 +86,7 @@ Press `q` to preselect the best available weapon from the chain. Press `mouse1` 
 
 **Why `weapon` over `impulse`:** the legacy alternative replaces `weapon 7 5 3` with `impulse 7`. `impulse` bypasses `cl_weaponpreselect` entirely — see the source comment at `cl_input.c:555`: *"This is the same command as impulse but cl_weaponpreselect can be used in here, while for impulses cannot be used."* Users who set `cl_weaponpreselect 1` and mix `impulse` binds with `weapon` binds get preselect working on some keys and not others — the most common "preselect sometimes doesn't work" misconfiguration. `weapon` is the unified path.
 
-**When to use:** very common. Many players bind most weapons via manual select+fire so all shots come from `mouse1` — matches the "fire with mouse1" instinct from other FPS games while still getting the `weapon` chain's priority-fallback semantics. Typically paired with quickfire (method 1) on dedicated keys for a few hot weapons (SSG, GL). See "Hybrid configs" below for a representative combination.
+**When to use:** very common. Many players bind most weapons via manual select+fire so all shots come from `mouse1` — matches the "fire with mouse1" instinct from other FPS games while still getting the `weapon` chain's priority-fallback semantics. Typically paired with quickfire (method 1, `+fire_ar`) on dedicated keys for a few hot weapons (SSG, GL). See "Hybrid configs" below for a representative combination.
 
 **Cross-engine:** `weapon` and `+attack` are universal. Works in ezQuake and FTE client.
 
@@ -84,8 +94,8 @@ Press `q` to preselect the best available weapon from the chain. Press `mouse1` 
 
 **Canonical form:**
 ```
-alias +lg "bind mouse1 +fire 8 5 3 2"
-alias -lg "bind mouse1 +fire 7 3 2"
+alias +lg "bind mouse1 +fire_ar 8 5 3 2"
+alias -lg "bind mouse1 +fire_ar 7 3 2"
 bind space +lg
 ```
 
@@ -93,7 +103,7 @@ Hold `space` to rewrite `mouse1`'s bind to LG priority. Release `space` to resto
 
 **Mechanism:** the `+alias`/`-alias` mechanism — aliases named `+X` run on key press, `-X` run on key release. Any commands are legal inside them, including `bind` statements that reassign other keys.
 
-**Relationship to method 1:** this method uses `+fire` under the hood (both branches of the alias chain emit a `+fire` bind). The engine primitive is the same. The difference is the user experience. Method 1 is one press, one weapon. Method 3 is two actions (hold modifier, press fire), context-sensitive weapon.
+**Relationship to method 1:** this method uses `+fire_ar` under the hood (both branches of the alias chain emit a `+fire_ar` bind). The engine primitive is the same. The difference is the user experience. Method 1 is one press, one weapon. Method 3 is two actions (hold modifier, press fire), context-sensitive weapon.
 
 **Classifier note:** a weapon bound via method 3 is user-experience-level **manual**, even though the underlying mechanism is `+fire`. Config-viewer tools should report this weapon as hold-modifier+fire, not quickfire — the user performs 2 actions.
 
@@ -105,9 +115,9 @@ Most competitive configs combine methods rather than sticking to one. A represen
 
 ```
 // Quickfire on dedicated keys for a few hot weapons
-bind space "+fire 3 2"       // GL quickfire on space
-bind c "+fire 4 3"           // SG quickfire on c
-bind v "+fire 3"             // SSG quickfire on v
+bind space "+fire_ar 3 2"    // GL quickfire on space
+bind c "+fire_ar 4 3"        // SG quickfire on c
+bind v "+fire_ar 3"          // SSG quickfire on v
 
 // Manual select+fire for everything else, firing via mouse1
 bind q "weapon 7 5"          // RL priority preselect
@@ -132,8 +142,8 @@ The `+alias`/`-alias` mechanism that swaps binds can chain any other cvar or com
 
 Example combining sensitivity with bind swap:
 ```
-alias +lg "sensitivity 1.7; bind mouse1 +fire 8 5 3 2"
-alias -lg "sensitivity 2.0; bind mouse1 +fire 7 3 2"
+alias +lg "sensitivity 1.7; bind mouse1 +fire_ar 8 5 3 2"
+alias -lg "sensitivity 2.0; bind mouse1 +fire_ar 7 3 2"
 bind space +lg
 ```
 
@@ -184,9 +194,14 @@ alias +rl "weapon 7 6; +attack"
 alias -rl "-attack; weapon 2"
 ```
 
-**Step 3 — compound commands (2011-present).** `+fire` (johnnycz, 2011) folded weapon-select and attack into one command, closing the one-frame exposure window:
+**Step 3 — compound commands (2011).** `+fire` (johnnycz, 2011) folded weapon-select and attack into one command, closing the one-frame exposure window:
 ```
 bind mouse1 "+fire 7 6"
+```
+
+**Step 3b — anti-rollover compound (2021).** `+fire_ar` (meag, commit `db269539`, 2021-05-29) added a per-client key-stack that handles the "press second fire key while still holding the first" case natively. Commit message explicitly names its purpose: *"Bit experimental, trying to get round having to have scripts like [forum topic/5900] created."* The hand-written scripts that forum topic documented — elaborate alias chains tracking which fire key was held most recently — become unnecessary:
+```
+bind mouse1 "+fire_ar 7 6"
 ```
 
 Each step is the engine absorbing complexity the user had been expressing manually. Legacy configs still work — nothing was removed. The recommendation isn't a rule, it's the form the engine has made optimal.
@@ -195,11 +210,13 @@ Each step is the engine absorbing complexity the user had been expressing manual
 
 Older configs and community-shared scripts commonly contain:
 
-- **Impulse chains** (`alias +rl "impulse 6; impulse 7; +attack"`) — step-1 era. Modern equivalent: `bind X "+fire 7 6"`.
-- **Weapon+attack two-command form** (`alias +rl "weapon 7 6; +attack"`) — step-2 era. Modern equivalent: `bind X "+fire 7 6"` for quickfire semantics, or keep the original if you genuinely want manual select+fire.
+- **Impulse chains** (`alias +rl "impulse 6; impulse 7; +attack"`) — step-1 era. Modern equivalent: `bind X "+fire_ar 7 6"`.
+- **Weapon+attack two-command form** (`alias +rl "weapon 7 6; +attack"`) — step-2 era. Modern equivalent: `bind X "+fire_ar 7 6"` for quickfire semantics, or keep the original if you genuinely want manual select+fire.
 - **Explicit hide in `-alias`** (`alias -rl "-attack; weapon 2"`) — step-2 era. Modern equivalent: set `cl_weaponhide 1` and let the engine handle it.
+- **Hand-rolled multi-key rollover** — elaborate alias chains that track which fire key was held last so the previous weapon resumes on release. The pattern `+fire_ar` now handles natively (see meag's commit message reference to [forum topic/5900](https://www.quakeworld.nu/forum/topic/5900)). Modern equivalent: plain `bind X "+fire_ar ..."` on each fire key, no custom rollover bookkeeping needed.
+- **`wreg` (KTX-only)** — server-side KTX command for high-ping weapon switching; client issues `cmd wreg X` and the KTX server stores a per-client weapon registration and simulates the attack server-side. "Legendary but rarely used" (per BLooD_DoG, 2026-04-24) and no longer works cleanly with `antilag 1`. Pre-dates the modern antilag-compensation flow. Mentioned for recognition value when encountered in old configs/discussions; full treatment deferred until KTX enters Layer 1 (Phase 2e).
 
-All legacy forms still function in current ezQuake and FTE. Modernizing is optional — gains are packet efficiency and readability, not compatibility.
+All legacy client-side forms still function in current ezQuake and FTE. Modernizing is optional — gains are packet efficiency, rollover handling, and readability, not compatibility.
 
 ## Ruleset interaction
 
@@ -219,6 +236,7 @@ Some rulesets restrict broader scripting patterns (e.g. anti-script restrictions
 - **Source guide:** https://ezquake.com/docs/weapon-scripts (imported 2026-04-24, upstream commit `44f5b9b566ce138c258c0f3521f2e4e2308a0e6b`, last upstream content edit 2022-10-26). The source guide omits `+fire` entirely and frames `cl_weaponpreselect`/`cl_weaponhide` as ezQuake-specific — both corrected in this note.
 - **Original `cl_weaponpreselect` implementation:** commit `7c328aa4`, johnnycz, 2006-10-17 ("*cl_weaponpreselect 2 - immediate weapon selection happens when holding +attack*"). Earlier modes 0/1 predate this commit.
 - **`+fire` command introduction:** commit `ab813f8a`, johnnycz, 2011-05-29 ("*+fire command; inbuilt weapon select+fire scripts*"). ezQuake-origin. FTE added equivalent support 7 years later in commit `98303e606`, Spoike, 2018-12-06 ("*Weapon preselect/hiding stuff*").
+- **`+fire_ar` anti-rollover variant:** commit `db269539`, meag, 2021-05-29 ("*INPUT: +fire_ar: anti-rollover +fire / Bit experimental, trying to get round having to have scripts like [forum topic/5900] created*"). ezQuake-specific as of current head. Shares `IN_FireDown`/`IN_FireUp` handlers with `+fire` and branches on `argv[0]` check at `cl_input.c:338, 388`. Community validation: BLooD_DoG, 2026-04-24 ("*I and many others have been using it for years with nothing to report*").
 - **Cross-engine verification (FTE):** `cl_weaponpreselect` at `engine/client/cl_input.c:285`, `cl_weaponhide` at `cl_input.c:283`, `cl_weaponforgetorder` at `cl_input.c:286`, `cl_weaponhide_axe` as CVARAD compat-alias for `cl_weaponhide_preference` at `cl_input.c:284`. `+fire`/`-fire` at `engine/client/cl_main.c:2214-2215`.
 - **Source file references (ezQuake head):** `cl_input.c:42-45` (cvar declarations), `cl_input.c:70-71` (hide mode logic with deathmatch 1 check), `cl_input.c:530` (hide_axe target selection), `cl_input.c:555` (weapon vs impulse semantic comment), `cl_input.c:609` (preselect mode switch), `cl_input.c:1258-1269` (command registrations), `cl_input.c:1279-1282` (cvar registrations).
 - **This note is structured for progressive disclosure.** `## Summary` + `## The three methods at a glance` together constitute a complete user-facing answer for default MCP serving. Deeper sections provide drill-down depth on request.

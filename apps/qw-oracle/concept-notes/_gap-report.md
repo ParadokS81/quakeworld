@@ -22,8 +22,19 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 - **Source location:** `cl_input.c:1258-1259`
 - **Origin:** ezQuake-authored (johnnycz). FTE added equivalent 2018 (Spoike, `98303e606`).
 - **Current upstream coverage:** zero. Guide teaches `bind X "weapon N"` + separate `bind Y +attack` and never introduces `+fire`.
-- **Why it matters:** canonical modern quickfire form (`bind mouse1 "+fire 7 5"`). Bundles weapon-select and attack into one usercmd frame, closing the one-frame exposure window the two-command form produces.
-- **Suggested placement:** new "modern pattern" section near the top of the guide. Replace the current `bind mouse1 +attack` example with `bind mouse1 "+fire 7 5"` and state the mechanical reason.
+- **Why it matters:** single-frame delivery (bundles weapon-select and attack into one usercmd frame, closing the one-frame exposure window the two-command form produces). Superseded for most users by `+fire_ar` (below) which adds multi-key rollover handling on top.
+- **Suggested placement:** historical ancestor of `+fire_ar` in the "modern pattern" section.
+- **Layer 3 cross-reference:** see § "Method 1: Quickfire" in `weapon-scripts.md`.
+
+#### `+fire_ar` / `-fire_ar` (command pair)
+
+- **Oracle Layer 1 first_seen:** 3.6.1 (introduced commit `db269539`, 2021-05-29, meag)
+- **Source location:** `cl_input.c:1260-1261`, handlers shared with `+fire`/`-fire` with `argv[0]` branch at `cl_input.c:338, 388`
+- **Origin:** ezQuake-specific as of current head. Not in FTE.
+- **Current upstream coverage:** zero. Guide doesn't mention `+fire` or `+fire_ar`.
+- **Why it matters:** canonical modern quickfire form for competitive play (`bind mouse1 "+fire_ar 7 5"`). Superset of `+fire`: same single-frame-delivery behavior, plus multi-key rollover handling via a per-client key-stack — when the user presses a second fire key while still holding the first, the second takes over; on release the first resumes. Replaces hand-rolled rollover alias chains that players maintained for years (see meag's commit message citing [forum topic/5900](https://www.quakeworld.nu/forum/topic/5900)).
+- **Community validation:** BLooD_DoG, 2026-04-24: "*I and many others have been using it for years with nothing to report*."
+- **Suggested placement:** new "modern pattern" section near the top of the guide. Replace the current `bind mouse1 +attack` example with `bind mouse1 "+fire_ar 7 5"` and state the two mechanical reasons (single-frame delivery + rollover handling).
 - **Layer 3 cross-reference:** see § "Method 1: Quickfire" in `weapon-scripts.md`.
 
 #### `cl_weaponpreselect` modes 2, 3, 4
