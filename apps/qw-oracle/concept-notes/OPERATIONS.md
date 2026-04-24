@@ -241,6 +241,25 @@ See HANDOVER.md Workstream C Item 3.
 
 When a note's scope overlaps an existing note's scope, we link via "Related concept notes" prose. No machine-readable cross-reference field yet. If the MCP serving layer needs to traverse note-graph relationships (e.g., "notes that depend on this concept"), we'll add a `related_notes: [<slug>]` frontmatter field. Not needed today; captured here so a future need has a home.
 
+### 2026-04-24 — First R7 opinionated-best-practice note landed
+
+Weapon-scripts Path-2 rewrite completed 2026-04-24 as the first Layer 3 note carrying opinionated best-practice guidance (three-method taxonomy + recommended canonical form per method). Earlier role-map work (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`) had parked R7 as an open bucket with no exemplars. This note is the first.
+
+**Authority-grounding pattern observed:** every recommendation grounds in at least one of:
+- **Engine mechanics** (e.g., "`+fire` closes the one-frame exposure window" — defensible from `cl_input.c`).
+- **Community consensus** via commit messages or Layer 2 testimony (johnnycz's 2011 commit: *"inbuilt weapon select+fire scripts"* articulates design intent).
+- **Operator SME** explicitly credited in `primary_contributors` (for this note: @ParadokS for the user-facing taxonomy derived from slipgate classifier work).
+
+Not bare assertion. If a recommendation can't be traced to one of these three grounds, either it's not ready for Layer 3 or the authoring authority needs to be surfaced.
+
+**Trigger for formalizing as a rule:** the second R7 note's authoring experience. Candidate: per-weapon-sensitivity-tuning. If the same authority-grounding pattern holds across two different R7 topics, promote to a Layer 3 authoring rule in §3 or §4. If the second note exposes different discipline, update this entry first.
+
+### 2026-04-24 — Progressive-disclosure structure for long notes
+
+Weapon-scripts note (230 lines) structures its opening ~20 lines as a standalone answer (Summary + three-methods-glance table). The rest is drill-down depth. Rationale: MCP delivery can condense regardless of note length, so the note stays comprehensive while default serving stays short.
+
+**Trigger for formalizing as a rule:** a second note intentionally using the same structure, ideally of a different shape (R5 infrastructure + R7 advice). If the pattern holds across 2+ notes, promote to a Layer 3 authoring rule in §3 (note shape) or §5 (template). Until then, treat as weapon-scripts-specific observation.
+
 ---
 
 ## 8. References
