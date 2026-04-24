@@ -9789,17 +9789,47 @@
       "type": "string",
       "group-id": "35",
       "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[2].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 111,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Allows color of grenades to be set without requiring a texture change.",
-      "remarks": "Leave blank to disable.\nSee gl_custom_grenade_fullbright.",
-      "ast": null
+      "remarks": "Leave blank to disable.\nSee gl_custom_grenade_fullbright."
     },
     "gl_custom_grenade_fullbright": {
       "type": "boolean",
       "group-id": "35",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[2].<field1>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 112,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Determines if gl_custom_grenade_color refers to a fullbright color or standard.",
-      "remarks": "Has no effect if gl_custom_grenade_color is blank.",
-      "ast": null
+      "remarks": "Has no effect if gl_custom_grenade_color is blank."
     },
     "gl_custom_grenade_tf": {
       "type": "boolean",
@@ -9826,65 +9856,187 @@
       "type": "string",
       "group-id": "35",
       "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[0].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 93,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Allows color of lightning shaft to be set without requiring a texture change.",
-      "remarks": "Leave blank to disable.\nHas no effect if particle shaft is enabled.",
-      "ast": null
+      "remarks": "Leave blank to disable.\nHas no effect if particle shaft is enabled."
     },
     "gl_custom_lg_fullbright": {
       "type": "boolean",
       "group-id": "35",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[0].<field1>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 94,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Determines if gl_custom_lg_color refers to a fullbright color or standard.",
-      "remarks": "Has no effect if gl_custom_lg_color is blank.",
-      "ast": null
+      "remarks": "Has no effect if gl_custom_lg_color is blank."
     },
     "gl_custom_lgpack_color": {
       "type": "string",
       "group-id": "35",
       "default": "64 64 255",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[5].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 138,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Color lightning gun backpacks with this value.",
-      "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only.",
-      "ast": null
+      "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only."
     },
     "gl_custom_rlpack_color": {
       "type": "string",
       "group-id": "35",
       "default": "255 64 64",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[4].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 129,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Tints rocket launcher backpacks with this value.",
-      "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only.",
-      "ast": null
+      "remarks": "Leave blank to disable. QTV/MVD only, KTX 1.38+ only."
     },
     "gl_custom_rocket_color": {
       "type": "string",
       "group-id": "35",
       "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[1].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 102,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Allows color of rockets to be set without requiring a texture change.",
-      "remarks": "Leave blank to disable.\nSee gl_custom_rocket_fullbright.",
-      "ast": null
+      "remarks": "Leave blank to disable.\nSee gl_custom_rocket_fullbright."
     },
     "gl_custom_rocket_fullbright": {
       "type": "boolean",
       "group-id": "35",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[1].<field1>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 103,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Determines if gl_custom_rocket_color refers to a fullbright color or standard.",
-      "remarks": "Has no effect if gl_custom_rocket_color is blank.",
-      "ast": null
+      "remarks": "Has no effect if gl_custom_rocket_color is blank."
     },
     "gl_custom_spike_color": {
       "type": "string",
       "group-id": "35",
       "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[3].<field0>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 120,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": "CVAR_COLOR",
+        "flag_names": [
+          "CVAR_COLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Allows color of spikes/nails to be set without requiring a texture change.",
-      "remarks": "Leave blank to disable.\nSee gl_custom_spike_fullbright.",
-      "ast": null
+      "remarks": "Leave blank to disable.\nSee gl_custom_spike_fullbright."
     },
     "gl_custom_spike_fullbright": {
       "type": "boolean",
       "group-id": "35",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "custom_model_colors[3].<field1>",
+        "source_file": "r_aliasmodel.c",
+        "source_line": 121,
+        "source_column": 3,
+        "storage_class": "static",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Determines if gl_custom_spike_color refers to a fullbright color or standard.",
-      "remarks": "Has no effect if gl_custom_spike_color is blank.",
-      "ast": null
+      "remarks": "Has no effect if gl_custom_spike_color is blank."
     },
     "gl_cutf_tesla_effect": {
       "type": "float",
@@ -67256,16 +67408,16 @@
     }
   },
   "_stats": {
-    "source_total": 2722,
-    "client": 2554,
+    "source_total": 2732,
+    "client": 2564,
     "server_only": 162,
-    "with_flags": 234,
+    "with_flags": 240,
     "with_onchange": 136,
     "with_bounds": 0,
     "with_group": 2431,
-    "with_help_desc": 1870,
+    "with_help_desc": 1880,
     "flag_histogram": {
-      "CVAR_COLOR": 42,
+      "CVAR_COLOR": 48,
       "CVAR_NONE": 20,
       "CVAR_ROM": 32,
       "CVAR_USERINFO_NO_CFG_RESET": 5,
@@ -67283,7 +67435,7 @@
       "CVAR_NO_RESET": 12,
       "CVAR_TRACKERCOLOR": 7
     },
-    "help_only": 185
+    "help_only": 175
   },
   "default_overrides": {
     "v_gamma": [

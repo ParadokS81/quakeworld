@@ -166,6 +166,105 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     }
 
 
+# Container struct-types whose elements hold nested cvar_t struct-literals at
+# known field indices. r_aliasmodel.c declares
+#   static custom_model_color_t custom_model_colors[] = {
+#     { { "gl_custom_lg_color", "", CVAR_COLOR }, { "gl_custom_lg_fullbright", "1" }, ... },
+#     ...
+#   };
+# and registers each nested cvar via
+#   for (i=...) { Cvar_Register(&custom_model_colors[i].color_cvar);
+#                 Cvar_Register(&custom_model_colors[i].fullbright_cvar); }
+# Scalar + cvar_t[] patterns don't match; walk the array directly.
+_NESTED_CVAR_TABLE_TYPES: dict[str, list[int]] = {
+    "custom_model_color_t": [0, 1],
+}
+
+
+def _strip_array_and_qualifiers(tspell: str) -> str:
+    s = tspell.split("[", 1)[0].strip()
+    for q in ("const ", "static "):
+        if s.startswith(q):
+            s = s[len(q):].strip()
+    return s
+
+
+def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
+    base = _strip_array_and_qualifiers(node.type.spelling)
+    indices = _NESTED_CVAR_TABLE_TYPES.get(base)
+    if indices is None:
+        return []
+    outer_init = None
+    for c in node.get_children():
+        if c.kind == CursorKind.INIT_LIST_EXPR:
+            outer_init = c
+            break
+    if outer_init is None:
+        return []
+    out: list[dict] = []
+    file_name = Path(node.location.file.name).name if node.location.file else ""
+    storage = _storage_str(node.storage_class)
+    for outer_idx, outer_elem in enumerate(outer_init.get_children()):
+        elem_init = outer_elem
+        if outer_elem.kind != CursorKind.INIT_LIST_EXPR:
+            for ch in outer_elem.get_children():
+                if ch.kind == CursorKind.INIT_LIST_EXPR:
+                    elem_init = ch
+                    break
+        if elem_init.kind != CursorKind.INIT_LIST_EXPR:
+            continue
+        elem_fields = list(elem_init.get_children())
+        for cvar_idx in indices:
+            if cvar_idx >= len(elem_fields):
+                continue
+            cvar_init = elem_fields[cvar_idx]
+            if cvar_init.kind != CursorKind.INIT_LIST_EXPR:
+                wrapped = None
+                for ch in cvar_init.get_children():
+                    if ch.kind == CursorKind.INIT_LIST_EXPR:
+                        wrapped = ch
+                        break
+                if wrapped is None:
+                    continue
+                cvar_init = wrapped
+            inner = list(cvar_init.get_children())
+            if len(inner) < 2:
+                continue
+            name = _strip_quotes(_read_extent(source_bytes, inner[0].extent).strip())
+            if not name:
+                # Empty-name slot = unused placeholder (e.g. rlpack has no
+                # fullbright cvar — element init literal is {"", "0"}).
+                continue
+            default = _strip_quotes(_read_extent(source_bytes, inner[1].extent).strip())
+            flags_raw: Optional[str] = None
+            flag_names: list[str] = []
+            if len(inner) >= 3:
+                flags_raw = _read_extent(source_bytes, inner[2].extent).strip()
+                flag_names = _parse_flag_names(flags_raw)
+            on_change: Optional[str] = None
+            if len(inner) >= 4:
+                ref = inner[3].referenced
+                if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
+                    on_change = ref.spelling
+            out.append({
+                "cvar_name": name,
+                "c_ident": f"{node.spelling}[{outer_idx}].<field{cvar_idx}>",
+                "default_value": default,
+                "source_file": file_name,
+                "source_line": cvar_init.location.line,
+                "source_column": cvar_init.location.column,
+                "storage_class": storage,
+                "flags_raw": flags_raw,
+                "flag_names": flag_names,
+                "on_change": on_change,
+                "group_name": None,
+                "min_bound": None,
+                "max_bound": None,
+                "trailing_comment": None,
+            })
+    return out
+
+
 def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
     outer_init = None
     for c in node.get_children():
@@ -324,6 +423,16 @@ class CvarsHandler(Visitor):
             tspell = cursor.type.spelling
             is_cvar_scalar = bool(re.fullmatch(r"(?:const\s+)?cvar_t", tspell))
             is_cvar_array = bool(re.fullmatch(r"(?:const\s+)?cvar_t\s*\[\d*\]", tspell))
+            is_nested_table = _strip_array_and_qualifiers(tspell) in _NESTED_CVAR_TABLE_TYPES
+            if is_nested_table:
+                for elem in _extract_nested_cvar_table(cursor, self.source_bytes):
+                    if elem["cvar_name"] in self._seen_names:
+                        continue
+                    if variant != "client":
+                        elem["storage_class"] = f"{elem['storage_class']} (server-build)"
+                    self._cvars_unnamed.append(elem)
+                    self._seen_names.add(elem["cvar_name"])
+                return
             if not (is_cvar_scalar or is_cvar_array):
                 return
             if variant == "client":
