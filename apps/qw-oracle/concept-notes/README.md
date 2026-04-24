@@ -25,6 +25,8 @@ A finding warrants a concept note — as opposed to cold Layer 1 data — when a
 
 Otherwise: Layer 1 alone is sufficient; no note. **Layer 3 is guidance-for-today, not a museum. Layer 1 is the museum** — version-aware facts with per-field blame already carry history. Removed features that leave no artifacts, no orphan state, no community volume, and no teaching value do not earn a note.
 
+**Outside current Layer 3 scope:** opinionated community best-practice — strategy guides, competitive performance tuning, teamplay culture on and off the field. That material lives in Layer 2 raw testimony today. A future authoring lane can crystallize it into Layer 3 notes once it stabilizes, but current scope stays factual: mechanics, workflows, patterns, conventions, not normative advice.
+
 Good triggers (examples that pass one or more tests):
 - A fact that requires synthesizing multiple Layer 1 entities into a story (a removal commit plus a surviving cvar plus a distribution channel).
 - A classifier or taxonomy question that crosses entity types (player-facing vs engine-internal).
@@ -40,8 +42,25 @@ Each note has YAML frontmatter and a predictable section skeleton. The `<topic-s
 - **Taxonomy / classifier** — axis defined, per-item placement, consumer implications per category. Exemplar: `engine-internal-vs-player-facing-files.md`.
 - **Domain walkthrough** — what-the-feature-does + per-entity breakdown + conventions + failure modes. Exemplar: `skywind-animated-skyboxes.md`.
 - **Policy + iteration story** — threat model / purpose + defenses + time-ordered iteration (e.g., follow-up commits tuning defaults) + current state. Exemplar: `client-side-server-exec-allowlist.md`.
+- **Pattern library** — single reusable script/config shape + one worked example + variations + constraints. Focuses narrowly on a pattern (version-gating, exec-allowlist, restriction primitives), not a feature area. Exemplars: the pattern sections of `client-side-server-exec-allowlist.md`, `ruleset-anti-script-restriction-pattern.md`, `completing-legacy-fte-protocol-extensions.md`.
+- **Short how-to** — 15-30 line task-oriented prose, numbered steps common. No current exemplars; incoming from guide-derived imports (e.g. `crosshairs`, `fakeshaft`).
 
 Pick the closest shape; small hybrids are fine. Add a new shape to this list only when a note doesn't fit any existing one.
+
+### Voice and length by shape
+
+Voice register and length depend on shape. One skeleton, tiered voice. Evidence for the split — and why forcing one voice across all shapes fights the source material — lives in `docs/superpowers/specs/2026-04-24-layer3-role-map.md`.
+
+| Shape | Voice | Length | Citation density |
+|---|---|---|---|
+| Narrative / history | Third-person factual, past tense for history | 60-120 lines | High: commit SHAs, PRs, file:line |
+| Taxonomy / classifier | Third-person factual, axis-defining | 40-80 lines | High: file:line per category boundary |
+| Domain walkthrough | Lighter imperative; journey-stage headings | 30-80 lines | Moderate: primary entities + key PRs |
+| Policy + iteration story | Third-person factual, threat-model framing | 80-150 lines | High: commit SHAs + PR trail |
+| Pattern library | "Here is a shape, with constraints, with one worked example" | 30-80 lines | Moderate: primary entities + 1-2 anchoring PRs |
+| Short how-to | Imperative second-person; numbered steps common | 15-30 lines | Low: entity refs only |
+
+Source-derived infrastructure notes (the first six in this directory) carry the highest citation density. Guide-derived feature-family and pattern notes use a lighter imperative register. Short how-tos don't force source-archaeology citations the original material doesn't contain.
 
 Frontmatter:
 
@@ -94,7 +113,7 @@ Body:
 
 Tone: factual, third-person, present tense for current state, past tense for history. Cite liberally. Community testimony (e.g. "per ParadokS, 2026-04-22") is a legitimate source for facts that Layer 1 cannot verify.
 
-Length: ~40-150 lines. Shorter notes tend to be under-justified; longer notes usually want splitting.
+Length: ~15-150 lines depending on shape — see the voice-and-length table above. Shorter notes tend to be under-justified when they hold infrastructure content; longer notes in any shape usually want splitting.
 
 ## Current notes
 
