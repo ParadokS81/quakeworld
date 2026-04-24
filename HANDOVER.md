@@ -10,9 +10,10 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Sanity-sample calibration cleared 2026-04-24** — thresholds hold at §8 starting values; P1 detector bug fixed in-flight; P3 semantic-pass gap spawned as its own HANDOVER. Phase 2f is unblocked.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
+- [Layer 1 doc_only audit](#layer-1-doc_only-audit--platform-variant-passes--help-json-type-mismatch-dedup) — **5 extractor patterns shipped 2026-04-25** (P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution). Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only went 269 -> 239; zero regressions; +24 newly-discovered command entities. Remaining: (A) platform-variant parse passes for Win32 + Apple guards (~8 rows, sets the reusable pattern for FTE/MVDSV/KTX), (B) help-JSON type-mismatch dedup (17 rows, loader task).
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
-- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. Remaining: gap-report output format as **contributor onboarding kit**, first Path-2 rewrite on `weapon-scripts` as template-calibration.
+- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes (from ~15 mirrors); 7 roles surfaced; **D1 voice resolved to tiered-per-shape** and captured in `concept-notes/README.md`; **D2 (R7 opinionated best-practice) parked as open bucket**, does not block C. Remaining: gap-report output format as **contributor onboarding kit**, first Path-2 rewrite on `weapon-scripts` as template-calibration.
 
 ---
 
@@ -117,6 +118,69 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 
 ---
 
+## Layer 1 doc_only audit — platform-variant passes + help-JSON type-mismatch dedup
+
+**Added:** 2026-04-24 (during weapon-scripts guide-rewrite Phase 3+4). Updated 2026-04-25 after 5 extractor fixes shipped and the prior retraction was itself disproven.
+**Status:** Audit re-opened 2026-04-25 after verification showed the 2026-04-24 retraction was wrong. Original 7-pattern extractor-fix analysis was approximately correct. Five of the patterns shipped (P1, P2, P3, P5a, P6 — see commit trail below). Two items still open: platform-variant passes (P5b Win32 + P5c Apple + P7 absorbed) and help-JSON type-mismatch dedup (17 rows, a loader task, not extractor).
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state (post-P1-P6): 174 cvar, 60 command, 3 cmdline_param, 2 macro = 239. Was 269 before fixes.
+
+### What shipped (2026-04-25)
+
+| Commit | Pattern | Recovery |
+|---|---|---|
+| c6fdcf3 | P5a (move `-DSERVER_ONLY` from client clang args to server) | +1 cvar |
+| a099231 | P1 (detect `Cmd_AddLegacyCommand(old, new)` alias shims) | +40 commands (16 audit-flagged + 24 newly-discovered) |
+| 8f67843 | P2 (struct-literal table: `log_t logs[]` in sv_ccmds.c) | +7 commands |
+| 0f8f170 | P3 (nested cvar_t tables: `custom_model_color_t custom_model_colors[]`) | +10 cvars |
+| 5dd466c | P6 (resolve `#define NAME "literal"` at Cmd_AddCommand call sites) | +1 command (vid_reload) |
+
+**Net:** 11 cvars flipped + 19 commands flipped + 24 new command entities discovered. Zero regressions (before/after diff on all previously-source-backed names showed none lost).
+
+### Pattern 4 reclassified — NOT an extractor bug
+
+Handler `handler_macros.py` already parses `MACRO_DEF(name)` tokens from `macro_ids.h` at setup. The three remaining `doc_only` macro-family rows (`mp3_volume` as command, `mp3_volume` as macro, `mp3info` as macro) are genuine cat2 drift: the MACRO_DEF declarations persist in source but the corresponding `Cmd_AddMacro(macro_mp3_volume, ...)` call sites were removed when the MP3 feature was deprecated. These belong in the upstream help-JSON gap report, not the extractor fix queue.
+
+### Remaining work — Item A: platform-variant parse passes (P5b + P5c + P7)
+
+Expected recovery: ~8 rows (6 cvars + 1 cmdline guarded by `#ifdef _WIN32`; 1 cvar guarded by `#ifdef __APPLE__`).
+
+- **P5b (Win32):** `cl_verify_qwprotocol` (cl_main.c:259), `con_deadkey` (console.c:84), `demo_capture_codec` / `demo_capture_mp3` / `demo_capture_mp3_kbps` / `demo_capture_vid_maxlen` (movie.c:45 block). Plus `-nopriority` cmdline_param at `sv_sys_win.c:645` (P7 absorbed — `handler_cmdline.py` already recognizes `COM_CheckParm`, the file is simply never reached because no variant defines `_WIN32`).
+- **P5c (Apple):** `in_ignore_deadkeys` (vid_sdl2.c:73 `#ifdef __APPLE__`).
+
+Fix shape: add `clang_args_win_for` + `clang_args_apple_for` in `clang_config.py`, extend `extract-ezquake-unified.py` to run those parses alongside client+server, dedup by name (first-wins across variants). The `variant` arg passed to `visit_cursor` becomes a 4-value enum; handlers that branch on variant need to accept the new values and map them sensibly to `build_variant` labels.
+
+Downstream impact on DB: **none on schema.** `build_variant` is emitted into the JSON `ast` dict but not read by `load-commands.ts` / `load-cvars.ts`. Safe to add new variant labels.
+
+Side-benefit: the same pattern will be the template for MVDSV/KTX/FTE which have richer platform guards.
+
+### Remaining work — Item B: help-JSON type-mismatch dedup (17 rows)
+
+These rows are NOT extractor bugs. Each name is correctly source-backed in the DB under its correct type; the help-JSON additionally labels it under a wrong type, producing an orphan `doc_only` row at the wrong type:
+
+- **12 HUD elements labeled as commands in help-JSON** (registered via `HUD_Register` in source, present as `hud_element source_backed`, but help-JSON lists them under type=`command` → orphan `command doc_only`): `bar_armor`, `bar_health`, `itemsclock`, `netproblem`, `radar`, `score_difference`, `score_enemy`, `score_position`, `speed`, `speed2`, `teamholdbar`, `teamholdinfo`.
+- **3 cvars labeled as commands in help-JSON** (present as `cvar source_backed`): `password`, `spectator_password`, `vid_fullscreen`.
+- **2 commands labeled as cvars in help-JSON** (present as `command source_backed`): `floodprotmsg`, `userdir`.
+
+**Fix options (pick one):**
+1. **Loader-side (recommended, zero upstream coordination):** when ingesting help-JSON, if name+project already exists in the DB under any type with `source_backed`, merge help-JSON desc/remarks onto the existing row rather than creating a fresh `doc_only` row under the help-JSON-declared type. Touches `apps/qw-oracle/scripts/load-knowledge/load-commands.ts` + `load-cvars.ts` (and possibly the help-JSON ingest path — need to map the read sites).
+2. **Upstream help-JSON:** re-label the 17 entries in `help_commands.json` / `help_variables.json` to their correct types, ship a PR to ezquake-source.
+
+Verify-first for Item B: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` — should return two rows (`hud_element source_backed` + `command doc_only`).
+
+### Pressure
+
+Low. No downstream work blocked. Item A sets the reusable multi-platform-pass pattern for FTE/MVDSV/KTX — worth landing before those engines come online so the precedent is already in the codebase. Item B is pure hygiene.
+
+### Related
+
+- Findings doc (supersedes retraction): `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` — being rewritten in same session
+- Raw sweep TSVs: `docs/superpowers/specs/assets/2026-04-24-doc-only-sweep.tsv` + `assets/2026-04-24-doc-only-cat1-semantic.tsv`
+- Extractor reference: `memory/reference_libclang_ezquake_extraction.md`, `memory/reference_asset_loader_extractor_capabilities.md`
+- Schema field: `source_state` on `entities` table — `source_backed | doc_only | source_retired`. Load-bearing for data-quality queries.
+- Cross-session lesson: every derived conclusion needs a primary-source check. This session overturned two prior rounds of analysis; the pattern of "analysis looked right at step N, was actually wrong" appears when queries aren't structure-verified first. Always `jq 'keys'` or equivalent before assuming the shape of what you're querying.
+
+---
+
 ## Interactive HTML dashboard (deferred)
 
 **Added:** 2026-04-22 late evening (during Pass 3 planning, after the design review surfaced conflicts between the original HTML dashboard plan and the monorepo doc philosophy).
@@ -197,7 +261,7 @@ Low. Does not block any other work. The four note bodies can be drafted without 
 ## Workstream C: /docs ingest pipeline prep
 
 **Added:** 2026-04-23 (session-close, after shakedown walk)
-**Status:** Audit done (2026-04-24). License resolved by operator decision — treat as CC-BY-4.0. **Framing flipped 2026-04-25** after vikpe Discord confirmation that ezquake.com/docs is single-maintainer-plus-stepped-back: Oracle is the producer, ezquake.com is the downstream consumer, most "imports" become Path 2 rewrites. Gap-report format open and reframed as contributor onboarding kit. First Path-2 rewrite session on `weapon-scripts` pending.
+**Status:** Audit done (2026-04-24). License resolved by operator decision — treat as CC-BY-4.0. **Framing flipped 2026-04-25** after vikpe Discord confirmation that ezquake.com/docs is single-maintainer-plus-stepped-back: Oracle is the producer, ezquake.com is the downstream consumer, most "imports" become Path 2 rewrites. **Role map shipped 2026-04-24** resolving scale + voice questions (see Item 4). Gap-report format open and reframed as contributor onboarding kit. First Path-2 rewrite session on `weapon-scripts` pending.
 **Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 26; `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return ~7-8. Total ~33 guide pages.
 
 Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until remaining items resolve.
@@ -232,6 +296,18 @@ Output shape implications:
 
 **Canonical "needs human docs" source set:** the help JSON emits `system-generated: true` for rows the extractor produced from source without any human-authored description. Combined with absent-desc detection (Workstream A item 8), the predicate `system-generated: true && desc: absent` is the canonical upstream-documentation-gap set — cvars/commands that ezquake.com reference pages auto-surface with empty descriptions because no human has written docs. Separate from the guide-gap set (entity undocumented in any `docs/docs/*.md` guide page). Both categories belong in the gap report but should be distinguished: help-desc PR to ezQuake vs guide-page PR to ezquake.com.
 
+### Item 4 — role map + voice decision (DONE 2026-04-24)
+
+Fresh-session analysis of the full 20-candidate /docs corpus against the 6 existing concept notes. Artifact at `docs/superpowers/specs/2026-04-24-layer3-role-map.md` (3873 words, evidence-cited). Resolves three load-bearing questions before Workstream C execution starts:
+
+- **Scale.** Revised from ~15 mirror notes to **~22-26 Layer 3 notes** (11 full-note + 4 multi-concept guides yielding 2-3 notes each + 4 nugget-patch absorbed into siblings + 6 existing notes). Ignore-set validated (9 settings + commands.md auto-gen; `structure.md` is trivially-absorbable convention, not auto-gen — minor rationale correction from the audit).
+- **D1 voice.** Seven roles surface in the corpus (R1 why-it-exists, R2 feature-family workflow, R3 pattern library, R4 convention specs, R5 infrastructure, R6 short how-to, R7 opinionated best-practice). Existing 6 notes are all R5. Incoming ~18 guide-derived notes are mostly R2/R3. **Tiered-voice decision**: one skeleton, voice register and length flex per shape. Captured in `concept-notes/README.md` § "Voice and length by shape" with a per-shape table. Two new shapes added to the shape catalog (Pattern library, Short how-to).
+- **D2 R7.** Opinionated best-practice is absent from /docs (guides are toolbox-presentation, not normative) and absent from existing notes (template excludes editorial voice). **Parked as open bucket**: not required for C, not forbidden later. If/when R7 content is authored, it comes from Layer 2 testimony synthesis, separate authoring lane, does not block this workstream. README `Outside current Layer 3 scope` paragraph captures the parking.
+
+**D3-D6 deferred to per-guide judgment during walks**: multi-concept splitting (4 guides), Layer-1-seed-vs-Layer-3 boundary for ~3 convention specs, R6 short-how-to posture, Path-1-vs-Path-2 per guide. No blocker; per-walk operator call.
+
+**Coverage gaps** flagged in the role-map spec § 5: rulesets, cmdline params, macros, keynames, token primitives, flag bits, HUD child cvars at scale, and all post-2022 features are unserved by /docs. The gap-report output format (Item 3) should surface these for contributor onboarding.
+
 ### Why prep-before-ingest
 
 The two-halves asymmetry of ezquake.com/docs (reference auto-updates via `data/ezquake/*.json`; guides frozen at ~2022-11-21) means the import target is well-scoped (the 33 guide pages, not the reference data). But the shape of the relationship with ezquake.com maintainers is load-bearing for the longer-term bi-directional flow — rushing into mirroring without license confirmation or nano's buy-in risks building on an unstable foundation.
@@ -243,6 +319,8 @@ Low. No downstream work blocked. Can proceed in parallel with Workstream A and B
 ### Related
 
 - Design doc: `docs/superpowers/specs/2026-04-23-layer3-pivot-design.md` (Workstream C section)
+- Role map: `docs/superpowers/specs/2026-04-24-layer3-role-map.md` (evidence-based; resolves scale, D1, D2)
+- Template with voice guidance: `apps/qw-oracle/concept-notes/README.md` § "Voice and length by shape"
 - ezquake.com repo cloned: `research/repos/ezquake-docs/`
 - Memory: `memory/project_layer3_two_path_curation.md` (updated 2026-04-23)
 - Git-trail audit finding: 32/33 guide pages last content-edited <= 2022-11-21
