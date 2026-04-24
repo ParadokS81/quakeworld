@@ -56,12 +56,11 @@ def clang_args_for(ezq_src_dir: str) -> list[str]:
         "-DDEBUG_VM",
         "-DDEBUG_MEMORY_ALLOCATIONS",
         "-DWEBSITE_LOGIN_SUPPORT",
-        "-DSERVER_ONLY",
     ]
 
 
 def clang_args_server_for(ezq_src_dir: str) -> list[str]:
-    return clang_args_for(ezq_src_dir) + ["-DSERVERONLY"]
+    return clang_args_for(ezq_src_dir) + ["-DSERVERONLY", "-DSERVER_ONLY"]
 
 
 PARSE_OPTS = (

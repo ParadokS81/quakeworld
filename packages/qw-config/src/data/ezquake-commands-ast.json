@@ -4593,7 +4593,7 @@
         "source_line": 715,
         "source_column": 3,
         "enclosing_function": "Central_Init",
-        "build_variant": "client"
+        "build_variant": "server-build"
       }
     },
     "sv_web_post": {
@@ -4604,7 +4604,7 @@
         "source_line": 716,
         "source_column": 3,
         "enclosing_function": "Central_Init",
-        "build_variant": "client"
+        "build_variant": "server-build"
       }
     },
     "sv_web_postfile": {
@@ -4615,7 +4615,7 @@
         "source_line": 717,
         "source_column": 3,
         "enclosing_function": "Central_Init",
-        "build_variant": "client"
+        "build_variant": "server-build"
       }
     },
     "svadmin": {
@@ -5642,7 +5642,7 @@
     "source_total": 461,
     "with_handler": 438,
     "with_help_desc": 282,
-    "server_build_only": 11,
+    "server_build_only": 14,
     "help_only": 80,
     "help_only_system_generated": 16
   }

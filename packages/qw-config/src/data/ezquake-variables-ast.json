@@ -6281,7 +6281,23 @@
       "type": "string",
       "group-id": "0",
       "default": "https://badplace.eu/",
-      "ast": null
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_www_address",
+        "source_file": "central.c",
+        "source_line": 26,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
     },
     "cl_yawspeed": {
       "type": "float",
@@ -62372,7 +62388,7 @@
         "source_file": "central.c",
         "source_line": 28,
         "source_column": 15,
-        "storage_class": "static",
+        "storage_class": "static (server-build)",
         "flags_raw": null,
         "flag_names": [],
         "on_change": null,
@@ -62392,7 +62408,7 @@
         "source_file": "central.c",
         "source_line": 29,
         "source_column": 15,
-        "storage_class": "static",
+        "storage_class": "static (server-build)",
         "flags_raw": null,
         "flag_names": [],
         "on_change": null,
@@ -62412,7 +62428,7 @@
         "source_file": "central.c",
         "source_line": 30,
         "source_column": 15,
-        "storage_class": "static",
+        "storage_class": "static (server-build)",
         "flags_raw": null,
         "flag_names": [],
         "on_change": null,
@@ -67240,10 +67256,10 @@
     }
   },
   "_stats": {
-    "source_total": 2721,
-    "client": 2553,
+    "source_total": 2722,
+    "client": 2554,
     "server_only": 162,
-    "with_flags": 233,
+    "with_flags": 234,
     "with_onchange": 136,
     "with_bounds": 0,
     "with_group": 2431,
@@ -67251,7 +67267,7 @@
     "flag_histogram": {
       "CVAR_COLOR": 42,
       "CVAR_NONE": 20,
-      "CVAR_ROM": 31,
+      "CVAR_ROM": 32,
       "CVAR_USERINFO_NO_CFG_RESET": 5,
       "CVAR_USERINFO": 9,
       "CVAR_QUEUED_TRIGGER": 1,
@@ -67267,7 +67283,7 @@
       "CVAR_NO_RESET": 12,
       "CVAR_TRACKERCOLOR": 7
     },
-    "help_only": 186
+    "help_only": 185
   },
   "default_overrides": {
     "v_gamma": [
