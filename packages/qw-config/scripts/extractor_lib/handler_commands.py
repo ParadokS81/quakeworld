@@ -162,7 +162,8 @@ class CommandsHandler(Visitor):
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
-        if cursor.spelling != "Cmd_AddCommand":
+        sp = cursor.spelling
+        if sp not in ("Cmd_AddCommand", "Cmd_AddLegacyCommand"):
             return
         args = list(cursor.get_arguments())
         if len(args) < 2:
@@ -170,10 +171,17 @@ class CommandsHandler(Visitor):
         name = _literal_string(args[0], self.source_bytes)
         if not name or name in self._seen_in_file:
             return
-        handler = _resolve_fn_ref(args[1])
+        if sp == "Cmd_AddCommand":
+            handler = _resolve_fn_ref(args[1])
+            legacy_alias_of = None
+        else:
+            # Cmd_AddLegacyCommand("old_name", "new_name") — proxy alias with no
+            # direct handler. arg[1] is the target command name as a literal.
+            handler = None
+            legacy_alias_of = _literal_string(args[1], self.source_bytes)
         loc = cursor.location
         build_variant = "client" if variant == "client" else "server-build"
-        self._rows.append({
+        row = {
             "name": name,
             "handler_fn": handler,
             "source_file": Path(loc.file.name).name,
@@ -181,7 +189,10 @@ class CommandsHandler(Visitor):
             "source_column": loc.column,
             "enclosing_function": self._func_stack[-1] if self._func_stack else None,
             "build_variant": build_variant,
-        })
+        }
+        if legacy_alias_of is not None:
+            row["legacy_alias_of"] = legacy_alias_of
+        self._rows.append(row)
         self._seen_in_file.add(name)
 
     def end_file(self) -> list[dict]:
@@ -215,16 +226,19 @@ class CommandsHandler(Visitor):
             source_names.add(cmd["name"])
             help_entry = help_data.get(cmd["name"], {}) or {}
 
+            ast_entry: dict = {
+                "handler_fn": cmd["handler_fn"],
+                "source_file": cmd["source_file"],
+                "source_line": cmd["source_line"],
+                "source_column": cmd["source_column"],
+                "enclosing_function": cmd["enclosing_function"],
+                "build_variant": cmd["build_variant"],
+            }
+            if "legacy_alias_of" in cmd:
+                ast_entry["legacy_alias_of"] = cmd["legacy_alias_of"]
             entry: dict = {
                 "group-id": _assign_group(cmd["name"], deprecated=False),
-                "ast": {
-                    "handler_fn": cmd["handler_fn"],
-                    "source_file": cmd["source_file"],
-                    "source_line": cmd["source_line"],
-                    "source_column": cmd["source_column"],
-                    "enclosing_function": cmd["enclosing_function"],
-                    "build_variant": cmd["build_variant"],
-                },
+                "ast": ast_entry,
             }
             if help_entry.get("description"):
                 entry["desc"] = help_entry["description"]
