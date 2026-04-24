@@ -138,6 +138,69 @@ def _resolve_fn_ref(arg_cursor) -> Optional[str]:
     return None
 
 
+# Struct-array tables whose elements register a command via for-loop iteration.
+# Each entry maps the underlying struct-type name to (name_field_index,
+# handler_field_index) for the nested initializer. sv_ccmds.c defines
+#   log_t logs[MAX_LOG] = { {NULL, "logfile", ..., SV_Logfile_f, 0}, ... };
+# and registers them via
+#   for (i = ...) Cmd_AddCommand(logs[i].command, logs[i].function);
+# The Cmd_AddCommand call has non-literal args so the CALL_EXPR detector
+# can't resolve the name; we enumerate the array directly instead.
+_COMMAND_TABLE_TYPES: dict[str, tuple[int, int]] = {
+    "log_t": (1, 5),
+}
+
+
+def _strip_array_and_qualifiers(tspell: str) -> str:
+    s = tspell.split("[", 1)[0].strip()
+    for q in ("const ", "static "):
+        if s.startswith(q):
+            s = s[len(q):].strip()
+    return s
+
+
+def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
+    base = _strip_array_and_qualifiers(node.type.spelling)
+    idx_pair = _COMMAND_TABLE_TYPES.get(base)
+    if idx_pair is None:
+        return []
+    name_idx, handler_idx = idx_pair
+    outer_init = None
+    for c in node.get_children():
+        if c.kind == CursorKind.INIT_LIST_EXPR:
+            outer_init = c
+            break
+    if outer_init is None:
+        return []
+    out: list[dict] = []
+    file_name = Path(node.location.file.name).name if node.location.file else ""
+    for elem in outer_init.get_children():
+        init = elem
+        if elem.kind != CursorKind.INIT_LIST_EXPR:
+            for ch in elem.get_children():
+                if ch.kind == CursorKind.INIT_LIST_EXPR:
+                    init = ch
+                    break
+        if init.kind != CursorKind.INIT_LIST_EXPR:
+            continue
+        fields = list(init.get_children())
+        if len(fields) <= max(name_idx, handler_idx):
+            continue
+        name = _literal_string(fields[name_idx], source_bytes)
+        if not name:
+            continue
+        handler = _resolve_fn_ref(fields[handler_idx])
+        out.append({
+            "name": name,
+            "handler_fn": handler,
+            "source_file": file_name,
+            "source_line": init.location.line,
+            "source_column": init.location.column,
+            "enclosing_function": None,
+        })
+    return out
+
+
 # ----- Handler --------------------------------------------------------------
 
 class CommandsHandler(Visitor):
@@ -160,7 +223,17 @@ class CommandsHandler(Visitor):
         self._func_stack.pop()
 
     def visit_cursor(self, cursor, variant: str) -> None:
-        if cursor.kind != CursorKind.CALL_EXPR:
+        kind = cursor.kind
+        if kind == CursorKind.VAR_DECL:
+            build_variant = "client" if variant == "client" else "server-build"
+            for row in _extract_command_table(cursor, self.source_bytes):
+                if row["name"] in self._seen_in_file:
+                    continue
+                row["build_variant"] = build_variant
+                self._rows.append(row)
+                self._seen_in_file.add(row["name"])
+            return
+        if kind != CursorKind.CALL_EXPR:
             return
         sp = cursor.spelling
         if sp not in ("Cmd_AddCommand", "Cmd_AddLegacyCommand"):

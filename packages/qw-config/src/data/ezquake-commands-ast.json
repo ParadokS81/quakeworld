@@ -2100,8 +2100,15 @@
       "desc": "This command centers the player's screen.\nIt was created because the original \"centerview\" command did not work when \"+mlook\" was enabled.\nThis command will center the screen in any mode no matter commands are active."
     },
     "fraglogfile": {
-      "group-id": "deprecated",
-      "ast": null,
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_FragLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 223,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      },
       "desc": "Enables logging of kills to a file.\nUseful for external frag polling programs.\nThe file name is frag_##.log"
     },
     "fs_diff": {
@@ -2964,29 +2971,59 @@
       "desc": "If you type \"log filename\" it will log console to filename.log in your gamedir.\nIt overwrites logs without asking."
     },
     "logerrors": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ErrorLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 220,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "logfile": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_Logfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 219,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "logplayers": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_PlayerLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 224,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "logrcon": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_RconLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 221,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "logtelnet": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_TelnetLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 222,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "ls": {
       "group-id": "misc",
@@ -3291,9 +3328,15 @@
       }
     },
     "modfraglogfile": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SV_ModFragLogfile_f",
+        "source_file": "sv_ccmds.c",
+        "source_line": 225,
+        "source_column": 9,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
     },
     "move": {
       "group-id": "misc",
@@ -6068,11 +6111,11 @@
     }
   },
   "_stats": {
-    "source_total": 501,
-    "with_handler": 438,
-    "with_help_desc": 289,
+    "source_total": 508,
+    "with_handler": 445,
+    "with_help_desc": 290,
     "server_build_only": 14,
-    "help_only": 69,
-    "help_only_system_generated": 12
+    "help_only": 62,
+    "help_only_system_generated": 6
   }
 }
