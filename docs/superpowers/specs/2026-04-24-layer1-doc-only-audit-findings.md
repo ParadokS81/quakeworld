@@ -5,7 +5,7 @@
 **Scope:** 269 `source_state=doc_only` rows in ezQuake Layer 1 at HEAD — 185 cvar, 79 command, 3 cmdline_param, 2 macro.
 **Goal:** Distinguish extractor misses (fix pipeline) from genuine upstream drift (feed contributor-onboarding gap report).
 **Method:** Mechanical sweep (current-source grep + `git log -S` history check) → semantic reclassification → primary-source verification per pattern → targeted extractor fixes with before/after regression diffs.
-**Status:** Partially complete. Five of seven original patterns shipped 2026-04-25 (269 doc_only → 239). Platform-variant passes (P5b/P5c/P7 absorbed) and help-JSON type-mismatch dedup remain — tracked in HANDOVER as Items A and B.
+**Status:** Closed 2026-04-25 with one deferred row. Six extractor patterns + four-variant architecture + loader-side type-mismatch dedup all shipped end-to-end (269 → 210 doc_only, zero regressions). Deferred: `-nopriority` cmdline_param requires Windows SDK headers unreachable on Linux libclang.
 **Artifacts:**
 - Raw sweep: `assets/2026-04-24-doc-only-sweep.tsv` (269 rows, 5 cols: type, name, current_hits, commit_count, mechanical_bucket)
 - Cat1 semantic classification: `assets/2026-04-24-doc-only-cat1-semantic.tsv` (73 rows, 7 cols)
@@ -73,20 +73,19 @@ Recovery options when pressure surfaces:
 
 Recommended: option 1 when/if MVDSV or FTE hit the same barrier — solve in one place, across extractors. Until then, the -nopriority doc_only row is acceptable pending that shared solve.
 
-### Item B — help-JSON type-mismatch dedup (17 rows)
+### Item B — help-JSON type-mismatch dedup (SHIPPED, commit `146cd73`)
 
-**NOT an extractor bug. Loader-side task.** Each of these 17 names is correctly source-backed in the DB under its true type; the help-JSON file additionally lists the name under a wrong type, producing an orphan `doc_only` row under the wrong type.
+Help-JSON files occasionally label a name under the wrong entity type. Rather than ship a patch upstream per mismatch, the loader now cleans these up on ingest: at the end of each `load-version` transaction, doc_only entities of the current type with a same-name same-project source_backed counterpart under any OTHER type are deleted (from the per-type versions table, source_state_transitions, source_overrides, and entities). Per-type-scoped + idempotent — each re-run cleans only what its own type produces; already-clean DBs yield zero prunes.
 
-- **12 HUD elements labeled as commands in help-JSON** (registered via `HUD_Register` in source, present as `hud_element source_backed`): `bar_armor`, `bar_health`, `itemsclock`, `netproblem`, `radar`, `score_difference`, `score_enemy`, `score_position`, `speed`, `speed2`, `teamholdbar`, `teamholdinfo`.
-- **3 cvars labeled as commands in help-JSON** (present as `cvar source_backed`): `password`, `spectator_password`, `vid_fullscreen`.
-- **2 commands labeled as cvars in help-JSON** (present as `command source_backed`): `floodprotmsg` (Cmd_AddCommand at sv_ccmds.c:1904 + host.c:534), `userdir` (Cmd_AddCommand at cl_cmd.c:953).
+Initial cleanup on ezquake head pruned **22 orphan rows**:
+- 15 `command doc_only`:
+  - 12 HUD elements labeled as commands in help_commands.json (source_backed as `hud_element`): `bar_armor`, `bar_health`, `itemsclock`, `netproblem`, `radar`, `score_difference`, `score_enemy`, `score_position`, `speed`, `speed2`, `teamholdbar`, `teamholdinfo`.
+  - 3 cvars labeled as commands in help-JSON (source_backed as `cvar`): `password`, `spectator_password`, `vid_fullscreen`.
+- 7 `cvar doc_only`:
+  - 2 commands labeled as cvars in help-JSON (source_backed as `command`): `floodprotmsg` (Cmd_AddCommand at sv_ccmds.c:1904 + host.c:534), `userdir` (Cmd_AddCommand at cl_cmd.c:953).
+  - 5 `scr_weaponstats_*` that became `command source_backed` via P1's Cmd_AddLegacyCommand detection while help_variables.json still listed them as cvars. Not in the original audit — surfaced by the loader's cross-type check during the cleanup run. Good example of the loader-side fix catching a class of mismatch I hadn't cataloged manually.
 
-**Fix options:**
-
-1. **Loader-side (recommended, zero upstream coordination):** when ingesting help-JSON, if `(project, name)` already exists with `source_backed` under a different type, merge the help-JSON `desc` / `remarks` onto the existing row rather than emitting a fresh `doc_only` row at the help-JSON-declared type. Touches `apps/qw-oracle/scripts/load-knowledge/load-commands.ts`, `load-cvars.ts`, and any upstream type-dispatch.
-2. **Upstream help-JSON fix:** re-label the 17 entries to their correct types via ezquake-source PR. Cleanest but requires coordination.
-
-Reproducer: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` — should return two rows (`hud_element source_backed` + `command doc_only`).
+Verify-after: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` — returns one row (`hud_element source_backed`). The prior `command doc_only` orphan is gone.
 
 ---
 

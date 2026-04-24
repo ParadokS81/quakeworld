@@ -10,7 +10,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Sanity-sample calibration cleared 2026-04-24** — thresholds hold at §8 starting values; P1 detector bug fixed in-flight; P3 semantic-pass gap spawned as its own HANDOVER. Phase 2f is unblocked.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
-- [Layer 1 doc_only audit](#layer-1-doc_only-audit--platform-variant-passes--help-json-type-mismatch-dedup) — **6 extractor patterns shipped 2026-04-25** (P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture). Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only went 269 -> 232; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage site. Remaining: (B) help-JSON type-mismatch dedup (17 rows, loader task). Deferred: -nopriority cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers that don't exist in the Linux-side libclang environment; the Sys_Init function body containing the call refuses to parse past `winsock2.h` not found / other Win SDK dependencies).
+- [Layer 1 doc_only audit](#layer-1-doc_only-audit--closed-with-one-deferred-row) — **CLOSED 2026-04-25 with one deferred row.** Six extractor patterns + one architectural change + one loader dedup shipped across the session: P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture, Item B cross-type help-JSON orphan prune. Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only 269 -> 210; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage. Deferred: `-nopriority` cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers unreachable on Linux libclang). One entry remains until MVDSV/FTE hit the same wall — then stub-headers solution lands in one place.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes (from ~15 mirrors); 7 roles surfaced; **D1 voice resolved to tiered-per-shape** and captured in `concept-notes/README.md`; **D2 (R7 opinionated best-practice) parked as open bucket**, does not block C. Remaining: gap-report output format as **contributor onboarding kit**, first Path-2 rewrite on `weapon-scripts` as template-calibration.
@@ -118,11 +118,11 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 
 ---
 
-## Layer 1 doc_only audit — platform-variant passes + help-JSON type-mismatch dedup
+## Layer 1 doc_only audit — closed with one deferred row
 
-**Added:** 2026-04-24 (during weapon-scripts guide-rewrite Phase 3+4). Updated 2026-04-25 after 5 extractor fixes shipped and the prior retraction was itself disproven.
-**Status:** Audit re-opened 2026-04-25 after verification showed the 2026-04-24 retraction was wrong. Original 7-pattern extractor-fix analysis was approximately correct. Six patterns shipped (P1, P2, P3, P5a, P6, Item A 4-variant architecture — see commit trail below). One item still open: help-JSON type-mismatch dedup (17 rows, a loader task, not extractor). Deferred: `-nopriority` cmdline_param requires Windows SDK headers unreachable on Linux libclang.
-**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state (post-shipped-work): 167 cvar, 60 command, 3 cmdline_param, 2 macro = 232. Was 269 before fixes.
+**Added:** 2026-04-24 (during weapon-scripts guide-rewrite Phase 3+4).
+**Closed:** 2026-04-25 after seven shipped fixes (six extractor patterns + one loader dedup + one architectural multi-variant-parse change) with full primary-source verification per fix.
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state: 160 cvar, 45 command, 3 cmdline_param, 2 macro = 210. Was 269 before fixes (269 → 239 extractor fixes → 232 Item A platform variants → 210 Item B type-mismatch dedup).
 
 ### What shipped (2026-04-25)
 
@@ -152,23 +152,19 @@ Recovery options when this becomes pressure:
 
 Low priority. Deferred until MVDSV or another engine hits the same wall — then solve in one place.
 
-### Remaining work — Item B (still open): help-JSON type-mismatch dedup (17 rows)
+### Item B — help-JSON type-mismatch dedup (SHIPPED, commit `146cd73`)
 
-These rows are NOT extractor bugs. Each name is correctly source-backed in the DB under its correct type; the help-JSON additionally labels it under a wrong type, producing an orphan `doc_only` row at the wrong type:
+Loader-side cleanup added to `load-version.ts`. At the end of each load-version transaction, entities of the current type with `source_state='doc_only'` and a same-name same-project `source_backed` counterpart under any OTHER type are deleted (version rows, transitions, overrides, entity row). Per-type-scoped + idempotent — each re-run cleans only what its own type would produce; already-clean DBs yield zero prunes.
 
-- **12 HUD elements labeled as commands in help-JSON** (registered via `HUD_Register` in source, present as `hud_element source_backed`, but help-JSON lists them under type=`command` → orphan `command doc_only`): `bar_armor`, `bar_health`, `itemsclock`, `netproblem`, `radar`, `score_difference`, `score_enemy`, `score_position`, `speed`, `speed2`, `teamholdbar`, `teamholdinfo`.
-- **3 cvars labeled as commands in help-JSON** (present as `cvar source_backed`): `password`, `spectator_password`, `vid_fullscreen`.
-- **2 commands labeled as cvars in help-JSON** (present as `command source_backed`): `floodprotmsg`, `userdir`.
+Initial cleanup on ezquake head: **22 orphan rows pruned**:
+- 15 `command doc_only` (12 HUD elements labeled-as-command in help_commands.json; 3 cvars labeled-as-command: `password`, `spectator_password`, `vid_fullscreen`)
+- 7 `cvar doc_only` (2 commands labeled-as-cvar: `floodprotmsg`, `userdir`; 5 `scr_weaponstats_*` that became `command source_backed` via P1's Cmd_AddLegacyCommand detection while help_variables.json still lists them as cvars)
 
-**Fix options (pick one):**
-1. **Loader-side (recommended, zero upstream coordination):** when ingesting help-JSON, if name+project already exists in the DB under any type with `source_backed`, merge help-JSON desc/remarks onto the existing row rather than creating a fresh `doc_only` row under the help-JSON-declared type. Touches `apps/qw-oracle/scripts/load-knowledge/load-commands.ts` + `load-cvars.ts` (and possibly the help-JSON ingest path — need to map the read sites).
-2. **Upstream help-JSON:** re-label the 17 entries in `help_commands.json` / `help_variables.json` to their correct types, ship a PR to ezquake-source.
-
-Verify-first for Item B: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` — should return two rows (`hud_element source_backed` + `command doc_only`).
+Verify-after-cleanup: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` — returns one row (`hud_element source_backed`). The earlier `command doc_only` orphan is gone.
 
 ### Pressure
 
-Low. No downstream work blocked. Item A sets the reusable multi-platform-pass pattern for FTE/MVDSV/KTX — worth landing before those engines come online so the precedent is already in the codebase. Item B is pure hygiene.
+None. Audit closed. `-nopriority` remains a known deferral with a clear recovery path (Windows SDK stub headers) if MVDSV/FTE need the same solve later.
 
 ### Related
 
