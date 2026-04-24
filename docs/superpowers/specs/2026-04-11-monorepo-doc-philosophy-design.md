@@ -171,7 +171,7 @@ Plain English. Names the files. Doesn't hide from size. Reads naturally top-to-b
 
 ## Layer 2 — Standard conditional docs
 
-A menu of eight. Each project picks the subset that matches its shape. Triggers are cognitive (the skill asks Claude to answer), not regex. No project has zero; no project has all eight.
+A menu of nine (expanded from eight on 2026-04-25 — see amendments section at end of doc). Each project picks the subset that matches its shape. Triggers are cognitive (the skill asks Claude to answer), not regex. No project has zero; no project has all nine.
 
 ### `DEVELOPMENT.md` — run/build/test locally
 
@@ -236,6 +236,22 @@ A menu of eight. Each project picks the subset that matches its shape. Triggers 
 **Content:** A point-in-time snapshot. Risks / debt / nice-to-have with severity. NOT maintained in place — regenerate a new one when you want a fresh snapshot.
 
 **Which projects need one:** Slipgate-app ✓ (as of 2026-04-10). None of the others have earned one yet — they're either too small, too stable, or too paused.
+
+### `OPERATIONS.md` — stewardship playbook for an evolving content corpus
+
+**Added:** 2026-04-25 — surfaced during qw-oracle Layer 3 concept-notes design discussion.
+
+**Trigger:** Project curates an evolving content corpus (knowledge base, skill library, seed dataset, template gallery) where editorial decisions, template/schema evolution, attribution policy, and lifecycle management need a stable playbook. NOT for deploy/runbook ops — that's `DEPLOYMENT.md`'s territory; NOT for code architecture — that's `OVERVIEW.md` or Layer 3 reference docs.
+
+**Content:** Purpose + scope of the corpus (what it is, what it isn't). Feeding paths (who contributes and how — community imports vs authored-here vs extracted). Template / shape catalog (which entry shapes are recognized; grows as new shapes surface). Attribution & license policy. Lifecycle handling (how entries age — current vs deprecated vs historical — and when to sunset / archive). Feedback-loop protocol (how new learnings revise the template, the catalog, and this doc itself). Open questions / known gaps (running list; items graduate out as resolved).
+
+**What does NOT go in:** The entry template itself lives in the corpus directory (e.g., `concept-notes/README.md`) — OPERATIONS.md is about stewardship, not the schema of individual entries. Session-specific status / open deferrals — those belong in `HANDOVER.md`.
+
+**Which projects need one:** qw-oracle ✓ (`concept-notes/` corpus for Layer 3 knowledge). No other project currently has a matching corpus; likely future candidates include skill libraries in harness projects or community-submission features in slipgate-app.
+
+**Target length:** No hard cap. 200-400 lines is typical — long enough to carry the principles + the feedback-loop protocol, short enough to stay readable.
+
+**Update cadence:** Living doc. Updated whenever a session surfaces a learning the existing playbook didn't cover. Unlike `HEALTH.md` (regenerate-from-scratch), `OPERATIONS.md` evolves in place; each change captures the why, not just the what.
 
 ---
 
@@ -473,3 +489,17 @@ After this spec is approved:
 3. **Lazy migration** as Claude returns to each project in the migration priority order.
 
 The three deliverables (philosophy ref, template ref, refactored skill) should be producible in a single focused session after plan approval. The monorepo-root doc cleanup (slim CLAUDE.md, write README/VISION/OVERVIEW) is a second session. Per-app migration is lazy.
+
+---
+
+## Amendments
+
+### 2026-04-25 — OPERATIONS.md added as 9th Layer 2 doc
+
+**Trigger for the amendment:** During qw-oracle Layer 3 concept-notes design, the need surfaced for a stewardship playbook distinct from the existing 8 conditional docs. None fit: DEPLOYMENT is ship-to-prod, HEALTH is a point-in-time debt snapshot, Layer 3 (domain reference) is permanent background. The gap was "how do we steward an evolving content corpus over time" — template evolution, attribution policy, lifecycle handling, feedback-loop protocol.
+
+**Scope:** Added OPERATIONS.md as the 9th Layer 2 conditional doc with trigger "project curates an evolving content corpus." Updated the menu count ("eight" → "nine") in the Layer 2 intro. Updated the living references at `~/.claude/skills/docs-check/references/doc-philosophy.md` and `doc-template.md` + the `SKILL.md` Mode 1 checklist so docs-check can nudge the new doc when relevant.
+
+**First instance:** `apps/qw-oracle/concept-notes/OPERATIONS.md` (drafted in the same commit as this amendment). Subsequent OPERATIONS.md docs should follow the same shape — purpose, feeding paths, catalog, lifecycle, attribution, feedback-loop, open questions — and cite this amendment as the reference standard.
+
+**Principle preserved:** No speculative additions. Layer 2 grew because a real project hit a real gap, not to round out a taxonomy. If a future session surfaces a second gap that fits none of the 9, handle it the same way — document the trigger, confirm the gap is generalizable, commit the amendment alongside the first instance.

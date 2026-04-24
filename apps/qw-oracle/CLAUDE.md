@@ -25,6 +25,8 @@ Oracle maintains two SQLite stores side-by-side:
 | Layer 1 seed YAMLs (hand-authored taxonomy, path rules, cvar bindings) | `packages/qw-config/seeds/` |
 | Extractor JSON outputs (versioned in git) | `packages/qw-config/src/data/` |
 | Schema spec (design rationale) | `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (root tree) |
+| Layer 3 entry template (frontmatter + shape catalog) | `concept-notes/README.md` |
+| Layer 3 stewardship playbook (feeding paths, lifecycle, feedback loop) | `concept-notes/OPERATIONS.md` |
 | Legacy chat-corpus scripts (Layer 2) | `scripts/*.mjs` |
 
 ## Tech stack
@@ -65,7 +67,9 @@ apps/qw-oracle/
 ├── docs/
 │   ├── entity-types.md # Layer 1 per-entity-type reference with verification-status audit
 │   └── plan.md         # legacy Layer 2 pipeline plan
-├── concept-notes/      # Layer 3 hand-authored notes + authoring template
+├── concept-notes/      # Layer 3 hand-authored notes
+│   ├── README.md       # entry template (frontmatter + shape catalog)
+│   └── OPERATIONS.md   # stewardship playbook (feeding paths, lifecycle, feedback loop)
 └── memory/             # prototyping artifacts
 ```
 
