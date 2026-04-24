@@ -5747,6 +5747,21 @@
       "type": "enum",
       "group-id": "40",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_verify_qwprotocol",
+        "source_file": "cl_main.c",
+        "source_line": 260,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Enables the check on client startup for handling URLs starting with qw://",
       "remarks": "When enabled and the client is not associated with handling of qw:// URLs, user will be prompted if he wishes to associate the client with the protocol.",
       "values": [
@@ -5762,8 +5777,7 @@
           "description": "Always associate client with qw:// URLs",
           "name": "2"
         }
-      ],
-      "ast": null
+      ]
     },
     "cl_voip_capturingvol": {
       "type": "float",
@@ -6728,9 +6742,23 @@
       "type": "boolean",
       "group-id": "5",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "con_toggle_deadkey",
+        "source_file": "console.c",
+        "source_line": 85,
+        "source_column": 13,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Console Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Set this if the console toggle button is also a deadkey. The operating system will be sent a backspace character as the console is toggled.",
-      "remarks": "Windows only.",
-      "ast": null
+      "remarks": "Windows only."
     },
     "con_fragmessages": {
       "type": "enum",
@@ -7881,8 +7909,22 @@
       "type": "float",
       "group-id": "7",
       "default": "0",
-      "desc": "Determines what codes should be used for captured video stream compression. E.g: xvid, divx, x264, ...",
-      "ast": null
+      "server-only": false,
+      "ast": {
+        "c_ident": "movie_codec",
+        "source_file": "movie.c",
+        "source_line": 58,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_movie_codec",
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": "Capturing to avi"
+      },
+      "desc": "Determines what codes should be used for captured video stream compression. E.g: xvid, divx, x264, ..."
     },
     "demo_capture_dir": {
       "type": "string",
@@ -7930,6 +7972,21 @@
       "type": "boolean",
       "group-id": "7",
       "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "movie_mp3",
+        "source_file": "movie.c",
+        "source_line": 59,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "When set to 1 .avi capturing captures sound compressed in MP3 format.",
       "remarks": "See demo_capture_mp3_kbps too.",
       "values": [
@@ -7941,15 +7998,28 @@
           "description": "Captures sound in MP3 format",
           "name": "true"
         }
-      ],
-      "ast": null
+      ]
     },
     "demo_capture_mp3_kbps": {
       "type": "float",
       "group-id": "7",
       "default": "128",
-      "desc": "Sets bitrate for captured sound stream when demo_capture_mp3 is set to 1.",
-      "ast": null
+      "server-only": false,
+      "ast": {
+        "c_ident": "movie_mp3_kbps",
+        "source_file": "movie.c",
+        "source_line": 60,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Sets bitrate for captured sound stream when demo_capture_mp3 is set to 1."
     },
     "demo_capture_quiet": {
       "type": "boolean",
@@ -7982,9 +8052,23 @@
       "type": "integer",
       "group-id": "7",
       "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "movie_vid_maxlen",
+        "source_file": "movie.c",
+        "source_line": 61,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "If set, multiple files will be created. This variable determines length of each file in MB.",
-      "remarks": "The .avi format has issues with files over 2GB in size.",
-      "ast": null
+      "remarks": "The .avi format has issues with files over 2GB in size."
     },
     "demo_dir": {
       "type": "string",
@@ -45018,6 +45102,23 @@
       "type": "enum",
       "group-id": "11",
       "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "in_ignore_deadkeys",
+        "source_file": "vid_sdl2.c",
+        "source_line": 75,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "CVAR_SILENT",
+        "flag_names": [
+          "CVAR_SILENT"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
       "desc": "Ignores operating-system interpretation of keypresses while deadkey is held down",
       "values": [
         {
@@ -45032,8 +45133,7 @@
           "description": "Enabled when alt keys are held down (for standard keyboard on MacOS)",
           "name": "2"
         }
-      ],
-      "ast": null
+      ]
     },
     "in_ignore_touch_events": {
       "type": "boolean",
@@ -66571,12 +66671,12 @@
     "vid_hwgammacontrol": {
       "type": "enum",
       "group-id": "52",
-      "default": "0",
+      "default": "2",
       "server-only": false,
       "ast": {
         "c_ident": "vid_hwgammacontrol",
         "source_file": "vid_sdl2.c",
-        "source_line": 192,
+        "source_line": 190,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "CVAR_LATCH_GFX",
@@ -66739,12 +66839,12 @@
     "vid_software_palette": {
       "type": "boolean",
       "group-id": "52",
-      "default": "1",
+      "default": "0",
       "server-only": false,
       "ast": {
         "c_ident": "vid_software_palette",
         "source_file": "vid_sdl2.c",
-        "source_line": 232,
+        "source_line": 230,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "CVAR_NO_RESET | CVAR_LATCH_GFX",
@@ -67408,14 +67508,14 @@
     }
   },
   "_stats": {
-    "source_total": 2732,
-    "client": 2564,
+    "source_total": 5595,
+    "client": 2571,
     "server_only": 162,
-    "with_flags": 240,
-    "with_onchange": 136,
+    "with_flags": 241,
+    "with_onchange": 137,
     "with_bounds": 0,
-    "with_group": 2431,
-    "with_help_desc": 1880,
+    "with_group": 2437,
+    "with_help_desc": 1887,
     "flag_histogram": {
       "CVAR_COLOR": 48,
       "CVAR_NONE": 20,
@@ -67426,7 +67526,7 @@
       "CVAR_RULESET_MAX": 7,
       "CVAR_RULESET_MIN": 7,
       "CVAR_LATCH_GFX": 27,
-      "CVAR_SILENT": 40,
+      "CVAR_SILENT": 41,
       "CVAR_AUTO": 13,
       "CVAR_RELOAD_GFX": 15,
       "CVAR_LATCH_SOUND": 2,
@@ -67435,7 +67535,7 @@
       "CVAR_NO_RESET": 12,
       "CVAR_TRACKERCOLOR": 7
     },
-    "help_only": 175
+    "help_only": 168
   },
   "default_overrides": {
     "v_gamma": [

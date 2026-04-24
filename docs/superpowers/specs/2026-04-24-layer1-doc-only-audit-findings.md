@@ -23,38 +23,55 @@ Each fix was verified end-to-end: re-extract → JSON diff vs prior state (zero 
 | `8f67843` | **P2** — `log_t logs[MAX_LOG]` struct-literal array in sv_ccmds.c registered via `for (i=...) Cmd_AddCommand(logs[i].command, logs[i].function)`. Cmd_AddCommand's args are struct-field accesses (non-literal), so the call-site detector can't resolve the name. | `handler_commands.py` — `_extract_command_table` + `_COMMAND_TABLE_TYPES` dict keyed on struct-type name; walks the initializer list directly. | +7 commands (`logfile`, `logerrors`, `logrcon`, `logtelnet`, `logplayers`, `fraglogfile`, `modfraglogfile`). |
 | `0f8f170` | **P3** — `custom_model_color_t custom_model_colors[]` in r_aliasmodel.c has nested `cvar_t` struct-literals at fields 0 and 1 of each element. Registration via `Cvar_Register(&custom_model_colors[i].color_cvar)` is a non-literal arg to Cvar_Register. | `handler_cvars.py` — `_extract_nested_cvar_table` + `_NESTED_CVAR_TABLE_TYPES` dict. Empty-name slots (unused placeholders like `{"", "0"}` for rlpack's absent fullbright cvar) are skipped. | +10 cvars (`gl_custom_{lg,rocket,grenade,spike}_{color,fullbright}` + `gl_custom_{rlpack,lgpack}_color`). |
 | `5dd466c` | **P6** — `Cmd_AddCommand(CVAR_RELOAD_GFX_COMMAND, VID_Reload_f)` at vid_sdl2.c:1873 where line 144 has `#define CVAR_RELOAD_GFX_COMMAND "vid_reload"`. The literal-string detector returns None for identifier args. | `handler_commands.py` — `start_file` parses `#define NAME "literal"` in the current file; fallback path resolves all-caps identifier args via the file-local map. | +1 command (`vid_reload`). |
+| Item A | **4-variant parse architecture** — code behind `#ifdef _WIN32` or `#ifdef __APPLE__` is invisible to the client+server passes. Add two extra TU parses per file with their respective defines. | `clang_config.py` — `clang_args_win_for`, `clang_args_apple_for`. `extract-ezquake-unified.py` — threads `tu_win`, `tu_apple` through the worker pool; dispatches to `walk_tu_dispatch` with variant="client" (client-flavored). Handlers unchanged — the existing primary-path logic + per-file `_seen_in_file` dedup handle the extra passes naturally. | +7 cvars (`cl_verify_qwprotocol`, `con_deadkey`, `demo_capture_{codec,mp3,mp3_kbps,vid_maxlen}`, `in_ignore_deadkeys`); bonus +1 asset cvar binding (`demo_capture_dir` at movie.c:430) and +1 cmdline usage (gl_sdl.c:85). |
 
 **Net impact:**
-- cvar doc_only: 185 → 174 (−11)
+- cvar doc_only: 185 → 167 (−18)
 - command doc_only: 79 → 60 (−19)
 - command source_backed: 443 → 491 (+48 — 24 flipped + 24 newly-discovered aliases from P1's by-product)
+- cvar source_backed: 2716 → 2734 (+18)
+- Parse time: 14s → 26s (2× due to doubling parse count; still well under the prior 830s sequential baseline)
 
 ---
 
 ## Remaining work
 
-### Item A — platform-variant parse passes (P5b Win32 + P5c Apple + P7 absorbed)
+### Item A — platform-variant parse passes (SHIPPED with one deferred case)
 
-**Expected recovery: ~8 rows.** Architectural change: `extract-ezquake-unified.py` currently runs two TU parses per file (client, server). Code behind `#ifdef _WIN32` or `#ifdef __APPLE__` is invisible to both.
+Four-variant architecture landed: base `clang_args_for` produces the client pass; `clang_args_server_for` adds `-DSERVERONLY -DSERVER_ONLY` for the server pass; `clang_args_win_for` adds `-DWIN32 -D_WIN32` for the Win pass; `clang_args_apple_for` adds `-D__APPLE__` for the Apple pass. Both new passes dispatch as `variant="client"` through `walk_tu_dispatch` — handlers' existing `variant == "client"` primary path handles the additive detection naturally. Per-file `_seen_in_file` / `_seen_names` dedup prevents double-counting when a cvar is visible to multiple passes (e.g. a non-guarded cvar visible to both client and win passes gets added once, whichever pass reaches it first).
 
-Primary-source-verified cases:
-- `cl_verify_qwprotocol` at cl_main.c:259, `#ifdef WIN32`
-- `con_deadkey` at console.c:84, `#ifdef _WIN32`
-- `demo_capture_codec` / `demo_capture_mp3` / `demo_capture_mp3_kbps` / `demo_capture_vid_maxlen` at movie.c:45-61, `#ifdef _WIN32` block
-- `in_ignore_deadkeys` at vid_sdl2.c:73, `#ifdef __APPLE__`
-- `-nopriority` cmdline_param at sv_sys_win.c:645 (the cmdline handler already recognizes `COM_CheckParm`; the file is just unreached because no variant defines `_WIN32`). This is what the original analysis tracked as P7 — it collapses into P5b.
+Recovered (7 of 8 expected):
+- `cl_verify_qwprotocol` at cl_main.c:260, `#ifdef WIN32`
+- `con_deadkey` at console.c:85, `#ifdef _WIN32`
+- `demo_capture_codec`, `demo_capture_mp3`, `demo_capture_mp3_kbps`, `demo_capture_vid_maxlen` at movie.c:58-61, `#ifdef _WIN32` block
+- `in_ignore_deadkeys` at vid_sdl2.c:75, `#ifdef __APPLE__`
 
-Fix shape:
-1. Add `clang_args_win_for(ezq_src_dir)` and `clang_args_apple_for(ezq_src_dir)` in `clang_config.py`. Reuse the base args; append `-DWIN32 -D_WIN32` for Win, `-D__APPLE__` for Apple. Consider whether `-D__unix__` needs removing on the Apple variant.
-2. In `extract-ezquake-unified.py`, add two extra TU parses per file: `tu_win` and `tu_apple`. Dispatch `walk_tu_dispatch` for each with a new `variant` label (e.g. `"win"`, `"apple"`).
-3. Handlers currently do `build_variant = "client" if variant == "client" else "server-build"`. Extend the mapping: `win` and `apple` are client-flavored (most code under those guards lives in client-only paths). Possible labels: `client-win`, `client-apple`, or just keep as `client` since the DB doesn't consume the field and the provenance is in `source_file`.
-4. Dedup: existing `_seen_in_file` + finalize first-wins dedup should Just Work. A cvar visible in both client and Win passes will be labeled by whichever runs first.
+Bonus (side-effect, not targeted):
+- `demo_capture_dir` asset binding at movie.c:430 (`WAVCaptureStart`), previously invisible — now captured by `asset-cvar-bindings` handler
+- Additional COM_CheckParm usage for `-condebug` at gl_sdl.c:85 (`GL_SDL_CreateBestContext`), previously invisible
 
-Downstream impact on DB: **none on schema.** `build_variant` is emitted into the JSON `ast` dict but not read by `load-commands.ts` / `load-cvars.ts`. Verified by grep.
+Deferred: `-nopriority` cmdline_param at sv_sys_win.c:645. Captured under its own section below — requires Windows SDK headers that don't exist on Linux libclang.
 
-Parse-time impact: ~2× the current 14s = ~28s total. Still fast.
+Regression safety: a first-pass experiment that added `-DWIN32` to the server variant (hoping to reach `sv_sys_win.c` COM_CheckParm calls under the SERVER+WIN combination) turned out to hide `chmod` at sv_ccmds.c:1858 (which is guarded by `#ifdef SERVERONLY / #ifndef _WIN32`). Reverted — server variant stays clean. Lesson preserved: any new platform define on an existing variant is a potential regression; prefer adding a new variant over compounding an existing one.
 
-Side-benefit: this is the reusable pattern for MVDSV / KTX / FTE, which have richer platform guards. Landing it on ezQuake first keeps the architectural change narrow.
+Downstream impact on DB: **zero schema change.** `build_variant` is emitted into the JSON `ast` dict but not consumed by `load-commands.ts` / `load-cvars.ts` / etc. New Win/Apple-only entities land as `build_variant: "client"` which is imprecise but harmless — provenance lives in `source_file`.
+
+Parse-time impact: ~14s → ~26s (2× due to doubling parse count). Still well within tolerance.
+
+Side-benefit: this is the reusable pattern for MVDSV / KTX / FTE, which have richer platform guards. Landing it on ezQuake first keeps the architectural change narrow. Future projects add variants by (a) defining new `clang_args_<platform>_for` in `clang_config.py`, (b) threading them through the driver's worker globals and `_process_one_file`, (c) relying on the existing handler primary-path logic.
+
+### Deferred — `-nopriority` cmdline_param (1 row)
+
+The 4-variant architecture reaches `sv_sys_win.c`, and two other COM_CheckParm call sites in that file (lines 374 and 409 for `-noerrormsgbox`) are captured correctly. The third call site at line 645 is inside `Sys_Init`, whose body references Windows SDK types: `VER_PLATFORM_WIN32_NT`, `GetCurrentProcess()`, `SetPriorityClass(...)`, `HIGH_PRIORITY_CLASS` — all provided by `<mmsystem.h>` and `<winsock2.h>`. These headers don't exist on the Linux libclang environment.
+
+Under `PARSE_INCOMPLETE`, clang continues parsing past fatal `#include` errors and makes most of the file walkable — but specific function bodies whose resolution depends on the missing SDK types remain invalid AST, and the walker can't visit cursors inside them. `Sys_Init` is such a body; `COM_CheckParm("-nopriority")` at line 645 is therefore unreachable.
+
+Recovery options when pressure surfaces:
+1. **Stub Windows SDK headers.** Add a minimal `win-sdk-stubs/` directory with declarative `.h` files for winsock2, mmsystem, SDL, etc., and point `-I` at it in `clang_args_win_for`. One-time setup, unblocks all Win-SDK-dependent TUs.
+2. **Accept help-JSON as source of truth** for this row. Register `-nopriority` in upstream `help_cmdline_params.json` and stop trying to recover from source on Linux.
+3. **Upstream refactor** to split Sys_Init so the `COM_CheckParm` call doesn't intertwine with Windows-SDK type usage.
+
+Recommended: option 1 when/if MVDSV or FTE hit the same barrier — solve in one place, across extractors. Until then, the -nopriority doc_only row is acceptable pending that shared solve.
 
 ### Item B — help-JSON type-mismatch dedup (17 rows)
 

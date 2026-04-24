@@ -207,6 +207,14 @@
             "build_variant": "client"
           },
           {
+            "source_file": "gl_sdl.c",
+            "source_line": 85,
+            "source_column": 8,
+            "enclosing_function": "GL_SDL_CreateBestContext",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
             "source_file": "sys_posix.c",
             "source_line": 331,
             "source_column": 11,
@@ -223,7 +231,7 @@
             "build_variant": "client"
           }
         ],
-        "usage_count": 5
+        "usage_count": 6
       },
       "desc": "log all console output to qw/qconsole.log"
     },

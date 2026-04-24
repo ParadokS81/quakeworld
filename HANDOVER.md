@@ -10,7 +10,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake fully loaded at head through Phase 2c.6 (2026-04-20); remaining: Phase 2d FTE cvars, Phase 2e MVDSV+KTX extractors, Phase 2f historical backfill, Phase 2g MCP tool upgrades, Phase 2h automation. **Sanity-sample calibration cleared 2026-04-24** — thresholds hold at §8 starting values; P1 detector bug fixed in-flight; P3 semantic-pass gap spawned as its own HANDOVER. Phase 2f is unblocked.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
-- [Layer 1 doc_only audit](#layer-1-doc_only-audit--platform-variant-passes--help-json-type-mismatch-dedup) — **5 extractor patterns shipped 2026-04-25** (P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution). Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only went 269 -> 239; zero regressions; +24 newly-discovered command entities. Remaining: (A) platform-variant parse passes for Win32 + Apple guards (~8 rows, sets the reusable pattern for FTE/MVDSV/KTX), (B) help-JSON type-mismatch dedup (17 rows, loader task).
+- [Layer 1 doc_only audit](#layer-1-doc_only-audit--platform-variant-passes--help-json-type-mismatch-dedup) — **6 extractor patterns shipped 2026-04-25** (P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture). Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only went 269 -> 232; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage site. Remaining: (B) help-JSON type-mismatch dedup (17 rows, loader task). Deferred: -nopriority cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers that don't exist in the Linux-side libclang environment; the Sys_Init function body containing the call refuses to parse past `winsock2.h` not found / other Win SDK dependencies).
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes (from ~15 mirrors); 7 roles surfaced; **D1 voice resolved to tiered-per-shape** and captured in `concept-notes/README.md`; **D2 (R7 opinionated best-practice) parked as open bucket**, does not block C. Remaining: gap-report output format as **contributor onboarding kit**, first Path-2 rewrite on `weapon-scripts` as template-calibration.
@@ -121,8 +121,8 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 ## Layer 1 doc_only audit — platform-variant passes + help-JSON type-mismatch dedup
 
 **Added:** 2026-04-24 (during weapon-scripts guide-rewrite Phase 3+4). Updated 2026-04-25 after 5 extractor fixes shipped and the prior retraction was itself disproven.
-**Status:** Audit re-opened 2026-04-25 after verification showed the 2026-04-24 retraction was wrong. Original 7-pattern extractor-fix analysis was approximately correct. Five of the patterns shipped (P1, P2, P3, P5a, P6 — see commit trail below). Two items still open: platform-variant passes (P5b Win32 + P5c Apple + P7 absorbed) and help-JSON type-mismatch dedup (17 rows, a loader task, not extractor).
-**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state (post-P1-P6): 174 cvar, 60 command, 3 cmdline_param, 2 macro = 239. Was 269 before fixes.
+**Status:** Audit re-opened 2026-04-25 after verification showed the 2026-04-24 retraction was wrong. Original 7-pattern extractor-fix analysis was approximately correct. Six patterns shipped (P1, P2, P3, P5a, P6, Item A 4-variant architecture — see commit trail below). One item still open: help-JSON type-mismatch dedup (17 rows, a loader task, not extractor). Deferred: `-nopriority` cmdline_param requires Windows SDK headers unreachable on Linux libclang.
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state (post-shipped-work): 167 cvar, 60 command, 3 cmdline_param, 2 macro = 232. Was 269 before fixes.
 
 ### What shipped (2026-04-25)
 
@@ -133,27 +133,26 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 | 8f67843 | P2 (struct-literal table: `log_t logs[]` in sv_ccmds.c) | +7 commands |
 | 0f8f170 | P3 (nested cvar_t tables: `custom_model_color_t custom_model_colors[]`) | +10 cvars |
 | 5dd466c | P6 (resolve `#define NAME "literal"` at Cmd_AddCommand call sites) | +1 command (vid_reload) |
+| Item A | 4-variant parse architecture: `clang_args_win_for` + `clang_args_apple_for`, unified driver runs two extra TU parses per file with variant="client". Handlers unchanged — existing `variant == "client"` primary path covers the additive detection; per-file `_seen_in_file` dedup handles repeat visits. | +7 cvars (cl_verify_qwprotocol, con_deadkey, demo_capture_{codec,mp3,mp3_kbps,vid_maxlen}, in_ignore_deadkeys); bonus +1 asset cvar binding (demo_capture_dir at movie.c:430, WAVCaptureStart) and +1 cmdline usage site (gl_sdl.c:85). |
 
-**Net:** 11 cvars flipped + 19 commands flipped + 24 new command entities discovered. Zero regressions (before/after diff on all previously-source-backed names showed none lost).
+**Net:** 18 cvars flipped + 19 commands flipped + 24 new command entities discovered + 1 asset binding + 1 cmdline usage. Zero regressions (per-type before/after diff on all previously-source-backed names showed none lost).
 
 ### Pattern 4 reclassified — NOT an extractor bug
 
 Handler `handler_macros.py` already parses `MACRO_DEF(name)` tokens from `macro_ids.h` at setup. The three remaining `doc_only` macro-family rows (`mp3_volume` as command, `mp3_volume` as macro, `mp3info` as macro) are genuine cat2 drift: the MACRO_DEF declarations persist in source but the corresponding `Cmd_AddMacro(macro_mp3_volume, ...)` call sites were removed when the MP3 feature was deprecated. These belong in the upstream help-JSON gap report, not the extractor fix queue.
 
-### Remaining work — Item A: platform-variant parse passes (P5b + P5c + P7)
+### Deferred — `-nopriority` cmdline_param
 
-Expected recovery: ~8 rows (6 cvars + 1 cmdline guarded by `#ifdef _WIN32`; 1 cvar guarded by `#ifdef __APPLE__`).
+Item A shipped 7 of 8 expected rows. The eighth — `-nopriority` at `sv_sys_win.c:645` — remains unrecovered. The 4-variant architecture is architecturally sound and reaches the file, but `sv_sys_win.c`'s `Sys_Init` function body references Windows SDK types (`VER_PLATFORM_WIN32_NT`, `GetCurrentProcess()`, `SetPriorityClass`, `HIGH_PRIORITY_CLASS`) via `#include <mmsystem.h>` and `<winsock2.h>` — headers that don't exist in the Linux libclang environment. With `PARSE_INCOMPLETE`, the file's top-level parses and the two `COM_CheckParm("-noerrormsgbox")` calls at lines 374/409 ARE captured (those call sites live in function bodies with fewer Windows SDK dependencies). The Sys_Init body at line ~623 refuses to parse cleanly past the SDL.h / winsock2.h errors, so the COM_CheckParm at line 645 is never visited by the walker.
 
-- **P5b (Win32):** `cl_verify_qwprotocol` (cl_main.c:259), `con_deadkey` (console.c:84), `demo_capture_codec` / `demo_capture_mp3` / `demo_capture_mp3_kbps` / `demo_capture_vid_maxlen` (movie.c:45 block). Plus `-nopriority` cmdline_param at `sv_sys_win.c:645` (P7 absorbed — `handler_cmdline.py` already recognizes `COM_CheckParm`, the file is simply never reached because no variant defines `_WIN32`).
-- **P5c (Apple):** `in_ignore_deadkeys` (vid_sdl2.c:73 `#ifdef __APPLE__`).
+Recovery options when this becomes pressure:
+1. **Stub Windows SDK headers.** A minimal directory of empty/declarative `.h` files for winsock2, mmsystem, SDL, etc. at the root of `research/repos/ezquake-source/win-sdk-stubs/`, added to `clang_args_win_for` via `-I`. Adds env complexity; unblocks parsing of all Windows-specific TUs in one go.
+2. **Hand-register the -nopriority row** in `help_cmdline_params.json` upstream and treat Linux-side extraction as silent on Windows-SDK-dependent call sites.
+3. **Source refactor upstream** — split Sys_Init so the COM_CheckParm call isn't intertwined with Windows-SDK type usage. Unlikely to happen just for Oracle's benefit.
 
-Fix shape: add `clang_args_win_for` + `clang_args_apple_for` in `clang_config.py`, extend `extract-ezquake-unified.py` to run those parses alongside client+server, dedup by name (first-wins across variants). The `variant` arg passed to `visit_cursor` becomes a 4-value enum; handlers that branch on variant need to accept the new values and map them sensibly to `build_variant` labels.
+Low priority. Deferred until MVDSV or another engine hits the same wall — then solve in one place.
 
-Downstream impact on DB: **none on schema.** `build_variant` is emitted into the JSON `ast` dict but not read by `load-commands.ts` / `load-cvars.ts`. Safe to add new variant labels.
-
-Side-benefit: the same pattern will be the template for MVDSV/KTX/FTE which have richer platform guards.
-
-### Remaining work — Item B: help-JSON type-mismatch dedup (17 rows)
+### Remaining work — Item B (still open): help-JSON type-mismatch dedup (17 rows)
 
 These rows are NOT extractor bugs. Each name is correctly source-backed in the DB under its correct type; the help-JSON additionally labels it under a wrong type, producing an orphan `doc_only` row at the wrong type:
 

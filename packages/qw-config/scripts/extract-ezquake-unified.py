@@ -49,8 +49,10 @@ sys.path.insert(0, str(HERE))
 
 from extractor_lib.clang_config import (  # noqa: E402
     PARSE_OPTS,
+    clang_args_apple_for,
     clang_args_for,
     clang_args_server_for,
+    clang_args_win_for,
 )
 from extractor_lib._visitor import Visitor, walk_tu_dispatch  # noqa: E402
 from extractor_lib.handler_commands import CommandsHandler  # noqa: E402
@@ -86,6 +88,8 @@ ALL_HANDLERS = {
 _WORKER_HANDLERS: list = []
 _WORKER_CLANG_CLIENT: list[str] = []
 _WORKER_CLANG_SERVER: list[str] = []
+_WORKER_CLANG_WIN: list[str] = []
+_WORKER_CLANG_APPLE: list[str] = []
 
 
 def _split_handlers(handlers: list) -> tuple[list, list]:
@@ -101,13 +105,23 @@ def _process_one_file(
     source_bytes: bytes,
     tu_client,
     tu_server,
+    tu_win,
+    tu_apple,
     visitors: list,
     legacy: list,
     local_rows: dict,
     local_diag: list,
 ) -> None:
     """Run all handlers against one file's TUs. Visitor handlers go through
-    the shared walk; legacy handlers get their own process_file call."""
+    the shared walk; legacy handlers get their own process_file call.
+
+    Four parse variants feed the visitor walk: client, server, Windows,
+    and macOS. The win/apple passes dispatch as variant="client" so that
+    existing handler behavior (primary-path add, per-file seen-name
+    dedup, unconditional overwrite with identical data) applies uniformly
+    without requiring each handler to learn about new variant labels.
+    Code behind #ifdef _WIN32 / #ifdef __APPLE__ guards — invisible to
+    the baseline client+server passes — surfaces through these extras."""
     target_path_str = str(path.resolve())
 
     # Visitor path: shared walk per TU, dispatching to every visitor.
@@ -117,6 +131,8 @@ def _process_one_file(
         try:
             walk_tu_dispatch(tu_client, visitors, "client", target_path_str)
             walk_tu_dispatch(tu_server, visitors, "server", target_path_str)
+            walk_tu_dispatch(tu_win,    visitors, "client", target_path_str)
+            walk_tu_dispatch(tu_apple,  visitors, "client", target_path_str)
         except Exception as e:
             local_diag.append(f"{path.name} [visitor-walk]: {type(e).__name__}: {e}")
         for v in visitors:
@@ -126,7 +142,9 @@ def _process_one_file(
             except Exception as e:
                 local_diag.append(f"{path.name} [{v.name}.end_file]: {type(e).__name__}: {e}")
 
-    # Legacy path: each handler owns its walk via process_file.
+    # Legacy path: each handler owns its walk via process_file. Only the
+    # client+server TUs are passed; legacy handlers that need platform
+    # variants spin up their own parses (e.g. handler_keynames).
     for h in legacy:
         try:
             rows = h.process_file(
@@ -157,9 +175,11 @@ def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
 
         tu_client = idx.parse(ps, args=_WORKER_CLANG_CLIENT, options=PARSE_OPTS)
         tu_server = idx.parse(ps, args=_WORKER_CLANG_SERVER, options=PARSE_OPTS)
+        tu_win    = idx.parse(ps, args=_WORKER_CLANG_WIN,    options=PARSE_OPTS)
+        tu_apple  = idx.parse(ps, args=_WORKER_CLANG_APPLE,  options=PARSE_OPTS)
 
         _process_one_file(
-            path, source_bytes, tu_client, tu_server,
+            path, source_bytes, tu_client, tu_server, tu_win, tu_apple,
             visitors, legacy, local_rows, local_diag,
         )
 
@@ -171,6 +191,8 @@ def _run_serial(
     handlers: list,
     clang_args_client: list[str],
     clang_args_server: list[str],
+    clang_args_win: list[str],
+    clang_args_apple: list[str],
     progress_every: int,
 ) -> tuple[dict, list]:
     """Serial fallback. Used when workers == 1."""
@@ -187,8 +209,10 @@ def _run_serial(
         idx = Index.create()
         tu_client = idx.parse(str(path), args=clang_args_client, options=PARSE_OPTS)
         tu_server = idx.parse(str(path), args=clang_args_server, options=PARSE_OPTS)
+        tu_win    = idx.parse(str(path), args=clang_args_win,    options=PARSE_OPTS)
+        tu_apple  = idx.parse(str(path), args=clang_args_apple,  options=PARSE_OPTS)
         _process_one_file(
-            path, source_bytes, tu_client, tu_server,
+            path, source_bytes, tu_client, tu_server, tu_win, tu_apple,
             visitors, legacy, rows_by_handler, diagnostics,
         )
         if progress_every and i % progress_every == 0:
@@ -203,14 +227,19 @@ def _run_parallel(
     handlers: list,
     clang_args_client: list[str],
     clang_args_server: list[str],
+    clang_args_win: list[str],
+    clang_args_apple: list[str],
     workers: int,
     chunk_size: int,
 ) -> tuple[dict, list]:
     """Parallel path: forked Pool, chunked map, ordered result merge."""
     global _WORKER_HANDLERS, _WORKER_CLANG_CLIENT, _WORKER_CLANG_SERVER
+    global _WORKER_CLANG_WIN, _WORKER_CLANG_APPLE
     _WORKER_HANDLERS = handlers
     _WORKER_CLANG_CLIENT = clang_args_client
     _WORKER_CLANG_SERVER = clang_args_server
+    _WORKER_CLANG_WIN = clang_args_win
+    _WORKER_CLANG_APPLE = clang_args_apple
 
     file_strs = [str(p) for p in c_files]
     chunks = [file_strs[i:i + chunk_size] for i in range(0, len(file_strs), chunk_size)]
@@ -302,6 +331,8 @@ def main() -> int:
 
     clang_args_client = clang_args_for(str(ezq_src))
     clang_args_server = clang_args_server_for(str(ezq_src))
+    clang_args_win    = clang_args_win_for(str(ezq_src))
+    clang_args_apple  = clang_args_apple_for(str(ezq_src))
 
     # One-time per-handler init. Runs in the PARENT process before workers
     # fork, so derived state (cvar maps, group_defs, field_source_lines) is
@@ -314,11 +345,15 @@ def main() -> int:
     t0 = time.perf_counter()
     if workers == 1:
         rows_by_handler, diagnostics = _run_serial(
-            c_files, handlers, clang_args_client, clang_args_server, args.progress_every
+            c_files, handlers,
+            clang_args_client, clang_args_server, clang_args_win, clang_args_apple,
+            args.progress_every,
         )
     else:
         rows_by_handler, diagnostics = _run_parallel(
-            c_files, handlers, clang_args_client, clang_args_server, workers, chunk_size
+            c_files, handlers,
+            clang_args_client, clang_args_server, clang_args_win, clang_args_apple,
+            workers, chunk_size,
         )
 
     parse_time = time.perf_counter() - t0

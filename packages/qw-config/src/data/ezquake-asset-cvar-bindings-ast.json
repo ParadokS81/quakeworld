@@ -6,6 +6,17 @@
       "load_trigger": "on_demand",
       "path_pattern": null,
       "confidence": "auto",
+      "source_ref": "movie.c:430",
+      "enclosing_function": "WAVCaptureStart",
+      "loader_function": "FS_OpenVFS",
+      "notes": null
+    },
+    {
+      "cvar_canonical_id": "ezquake:cvar:demo_capture_dir",
+      "category_id": null,
+      "load_trigger": "on_demand",
+      "path_pattern": null,
+      "confidence": "auto",
       "source_ref": "movie.c:434",
       "enclosing_function": "WAVCaptureStart",
       "loader_function": "FS_OpenVFS",
@@ -123,15 +134,15 @@
     }
   ],
   "_stats": {
-    "total_bindings": 11,
+    "total_bindings": 12,
     "unique_cvars": 6,
     "by_category": {
-      "<null>": 5,
+      "<null>": 6,
       "ezquake:asset_category:texture": 4,
       "ezquake:asset_category:hud_overlay": 2
     },
     "by_load_trigger": {
-      "on_demand": 10,
+      "on_demand": 11,
       "startup": 1
     }
   }

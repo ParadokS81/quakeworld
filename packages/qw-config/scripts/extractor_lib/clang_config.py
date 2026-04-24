@@ -63,6 +63,22 @@ def clang_args_server_for(ezq_src_dir: str) -> list[str]:
     return clang_args_for(ezq_src_dir) + ["-DSERVERONLY", "-DSERVER_ONLY"]
 
 
+def clang_args_win_for(ezq_src_dir: str) -> list[str]:
+    """Client-flavored Windows variant. Surfaces entities behind
+    `#ifdef _WIN32` / `#ifdef WIN32` guards: demo_capture_codec,
+    con_deadkey, cl_verify_qwprotocol, etc., plus the -nopriority
+    cmdline_param in sv_sys_win.c."""
+    return clang_args_for(ezq_src_dir) + ["-DWIN32", "-D_WIN32"]
+
+
+def clang_args_apple_for(ezq_src_dir: str) -> list[str]:
+    """Client-flavored macOS variant. Surfaces entities behind
+    `#ifdef __APPLE__` guards: in_ignore_deadkeys, etc. The
+    keynames handler runs its own Apple parse internally so this
+    variant primarily benefits cvars/commands/cmdline handlers."""
+    return clang_args_for(ezq_src_dir) + ["-D__APPLE__"]
+
+
 PARSE_OPTS = (
     TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
     | TranslationUnit.PARSE_INCOMPLETE
