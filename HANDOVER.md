@@ -12,7 +12,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
-- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages; full table inline below). **License blocker confirmed** — repo has `license: null` at GitHub metadata level; mirroring requires LICENSE commit from QW-Group (request CC-BY-4.0). Remaining: nano (Daniel Svensson) + vikpe (xantom — original author) outreach, gap-report output format.
+- [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages; full table inline below). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, author (vikpe) consented verbally on Discord, no LICENSE commit required. Remaining: gap-report output format (and actual import work when Workstream C is picked up).
 
 ---
 
@@ -197,7 +197,7 @@ Low. Does not block any other work. The four note bodies can be drafted without 
 ## Workstream C: /docs ingest pipeline prep
 
 **Added:** 2026-04-23 (session-close, after shakedown walk)
-**Status:** Audit done (2026-04-24). License blocker confirmed. Nano + vikpe outreach pending; gap-report format pending.
+**Status:** Audit done (2026-04-24). License resolved by operator decision — treat as CC-BY-4.0. Gap-report format still open.
 **Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 26; `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return ~7-8. Total ~33 guide pages.
 
 Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until remaining items resolve.
@@ -210,17 +210,15 @@ Mirror set (import candidates): `charsets.md`, `crosshairs.md`, `fakeshaft.md`, 
 
 Split set (partial import, guide section only): `command-line-parameters.md`, `macros.md`, `textures.md`, `triggers.md`.
 
-### Item 2 — license (BLOCKER CONFIRMED 2026-04-24)
+### Item 2 — license (RESOLVED 2026-04-24 by operator decision)
 
-No LICENSE file, no license header, no README footer. `gh api repos/QW-Group/ezquake.com` returns `"license": null` — no license declared at GitHub metadata level either. Repo is public (visible, forkable) but unlicensed; default-copyright applies. Mirroring creates legal risk. Adjacent repo `QW-Group/ezquake-source` is GPL-2.0; docs authors may have assumed same, but nothing is declared.
+`QW-Group/ezquake.com` has no LICENSE file and `gh api` returns `"license": null`. Vikpe (original author of ezquake.com and /docs, confirmed in Discord 2026-04-24) stated his intent was GPL-2.0 "same as client." Adjacent `QW-Group/ezquake-source` is GPL-2.0.
 
-**Resolution path:** request QW-Group to add `CC-BY-4.0` (standard for documentation content, attribution-only, no copyleft drag) or `MIT`. One-line commit. Name the specific license in the ask — open-ended "can I use it?" goes in circles.
+**Operator decision 2026-04-24:** treat mirrored content as CC-BY-4.0. Rational community-scale risk assessment — guides were originally curated from old QW forums / articles / self-written over many years; original author consented verbally; QW community is small and nobody will contest a mirror. No LICENSE commit required before proceeding. Save the Discord screenshot as evidence alongside the per-note `source_url` + `primary_contributors` frontmatter.
 
-### Item 3 — outreach (OPEN)
+**Not in scope for this HANDOVER:** persuading QW-Group to add a formal LICENSE file. If a future consumer ever needs cleaner legal footing, revisit.
 
-Ask vikpe (xantom, guide author) for moral consent first, then nano (Daniel Svensson, QW-Group org admin) to merge the LICENSE commit. Two paragraphs: (a) what oracle is, (b) the bi-directional flow — oracle uses ezquake.com/docs as Layer 3 source AND feeds gap reports upstream. User (david.larsen.1981) volunteered to do this outreach.
-
-### Item 4 — gap-report output format (OPEN)
+### Item 3 — gap-report output format (OPEN)
 
 Machine-readable digest emitted per review run listing new entities that are reference-present but guide-absent, with suggested guide page targets. Shape decision: JSON? Markdown PR-ready? Both? Could live in the review skill (Workstream A) or as a separate `emit-gap-report` command.
 
