@@ -256,6 +256,17 @@ Not bare assertion. If a recommendation can't be traced to one of these three gr
 
 **Second instance landed 2026-04-25:** `lightning-gun-customization.md` is R2+R7 flavored (feature-family workflow with opinionated competitive recipe). Authority-grounding rule held cleanly — every recommendation traced to engine mechanics (source-cited), operator SME (@ParadokS for recipe + silent-override gotcha), or both. Community-consensus-via-commit-message wasn't required this time because the other two grounds were strong; the rule as written ("at least one of") covered the case. No rule change. Confirming instance, hold for third.
 
+**Third instance landed 2026-04-25 (late):** `player-skins.md` is R2+R7 flavored (same role mix as lightning-gun-customization but a different domain shape — five-bucket taxonomy + competitive recipe). Authority-grounding rule held across all sections, with one new lane surfacing: **explicitly-hedged community knowledge** (the color-picker conventions section: white safe, red collides with damage flash, etc., explicitly labeled in-prose as *"community knowledge, not source-defensible — based on operator practice and field reports rather than measured palette overlap"*). This is a meaningful fourth ground beyond engine-mechanics / community-consensus-via-commit / operator-SME: the prose-level hedge that names the claim's status as field-verified-but-not-authority-grounded.
+
+**Promotion to README rule (rule of three cleared).** Per §6 feedback-loop protocol: three instances of the same authoring discipline across two distinct R-mixes (R3+R7 weapon-scripts, R2+R7 lightning-gun + player-skins). Promoted to `README.md` § "Voice and length by shape" as an R7-authoring requirement. The four labeled grounds:
+
+1. **Engine mechanics** — source-defensible, cite file:line.
+2. **Community consensus** — via commit messages, PR threads, or Layer 2 testimony with message-ID citation.
+3. **Operator SME** — explicitly credited in `primary_contributors` frontmatter.
+4. **Hedged community knowledge** — flagged inline as not-source-defensible field practice. Names its own status so a downstream consumer can weight the claim correctly.
+
+Bare assertion remains disallowed.
+
 ### 2026-04-24 — Progressive-disclosure structure for long notes
 
 Weapon-scripts note (230 lines) structures its opening ~20 lines as a standalone answer (Summary + three-methods-glance table). The rest is drill-down depth. Rationale: MCP delivery can condense regardless of note length, so the note stays comprehensive while default serving stays short.
@@ -263,6 +274,14 @@ Weapon-scripts note (230 lines) structures its opening ~20 lines as a standalone
 **Trigger for formalizing as a rule:** a second note intentionally using the same structure, ideally of a different shape (R5 infrastructure + R7 advice). If the pattern holds across 2+ notes, promote to a Layer 3 authoring rule in §3 (note shape) or §5 (template). Until then, treat as weapon-scripts-specific observation.
 
 **Second instance landed 2026-04-25:** `lightning-gun-customization.md` (Domain walkthrough shape, R2+R7 flavor — different from weapon-scripts' Domain walkthrough + R3+R7 mix) intentionally uses the same structure: Summary + Mechanical behavior together stand alone as a ~60-line default-serve answer. Visual / Audio / Ruleset / Cross-engine are drill-downs. Pattern holds across 2 notes of different role mixes. Confirming instance, holding for third before promoting to a `README.md` template rule per rule-of-three discipline.
+
+**Third instance landed 2026-04-25 (late):** `player-skins.md` (Domain walkthrough shape, R2+R7 flavor) opens with Summary + a five-bucket-and-two-paths Mental Model table; everything from § "Identification — file-based path" onward is drill-down depth. Different opener shape (bucket+path table vs three-method-glance vs summary+mechanical-behavior), same structural principle: the first ~30 lines form a complete short answer, the rest is depth. Pattern now holds across 3 notes of two distinct R-mixes (R3+R7 once, R2+R7 twice).
+
+**Promotion to README rule (rule of three cleared).** Per §6: three confirming instances across multiple R-mixes is the bar. Promoted to `README.md` § "Voice and length by shape" as a structural requirement for notes longer than ~80 lines:
+
+> *For notes over ~80 lines, structure the first ~30 lines (Summary + the next section, typically a Mental model or per-method-glance table) as a standalone short answer that a reader can stop after with the gist of the topic. Everything below is drill-down depth. The opener shape varies (taxonomy table, three-method glance, summary + mechanics, bucket+path table) but the principle is consistent: short-answer-first.*
+
+Notes under ~80 lines do not need the structural split — they can be linear. The 30-line threshold is approximate; the test is whether a reader who stops after the first two sections has a usable answer.
 
 ### 2026-04-25 — Chat-trigger auto-responses (fcheck family) at a Layer 1 modeling boundary
 
@@ -287,6 +306,8 @@ If any of the five are incomplete, cycle back — don't draft speculatively.
 **Implementation:** captured at the skill level as Phase 7.5 — Operator consult — in `~/.claude/skills/guide-rewrite/SKILL.md`, with role-keyed question templates so the consult is focused, not open-ended chat. Phase 5 also expanded to enumerate the six ruleset-restriction mechanisms exhaustively rather than surface-scanning the first one that matches.
 
 **Rationale for OPERATIONS-level capture:** the *why* belongs in OPERATIONS so future skill maintainers understand what the gate prevents. The *how* lives in the skill file. Both pointers cross-reference each other.
+
+**Confirming instance, 2026-04-25 (late) — `player-skins.md`:** Phase 7.5 caught a likely-wrong scope claim before drafting. Pre-consult, my proposed scope listed `cl_name_as_skin` as an active-player cvar (matching the upstream guide's framing of it). Operator answer surfaced: it's spec/demo-only — `Skin_ForcingType` in `src/skin.c:93` only honors it when `cls.demoplayback || cl.spectator`, and `OnChangeSkinForcing` short-circuits the same way at `src/skin.c:946`. Without the consult, the note would have shipped recommending `cl_name_as_skin` as part of an active-player config — a non-obvious source quirk that source-only data wouldn't have surfaced because the cvar IS source-backed and the per-mechanism scan didn't find ruleset restrictions. Same shape of save as the lightning-gun-customization session (the silent-override gotcha class). Consult cost: 1 turn from operator. No rule change; gate works as designed. Hold for fourth instance before considering whether the consult template needs new role-keyed questions.
 
 ---
 

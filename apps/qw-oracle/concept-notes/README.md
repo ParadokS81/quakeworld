@@ -62,6 +62,29 @@ Voice register and length depend on shape. One skeleton, tiered voice. Evidence 
 
 Source-derived infrastructure notes (the first six in this directory) carry the highest citation density. Guide-derived feature-family and pattern notes use a lighter imperative register. Short how-tos don't force source-archaeology citations the original material doesn't contain.
 
+### Progressive disclosure for notes over ~80 lines
+
+Notes longer than approximately 80 lines structure their opening as a standalone short answer. The first ~30 lines (Summary + the section that follows it — usually a Mental model, per-method glance, or taxonomy table) must be readable on its own: a reader who stops there has a usable answer to the topic. Everything below those two sections is drill-down depth.
+
+The opener shape varies — taxonomy table, three-method glance, summary + mechanical behavior, bucket+path table — but the principle is consistent: short-answer-first, depth-after. This pairs with MCP serving: the default condense can return the first two sections without losing meaning, while a depth query can return the full note.
+
+Notes under ~80 lines do not need the structural split — they can be linear. The 30-line threshold is approximate; the test is whether a reader who stops after the first two sections has a usable answer.
+
+Confirmed across `weapon-scripts.md` (R3+R7, three-method glance opener), `lightning-gun-customization.md` (R2+R7, summary + mechanical behavior opener), and `player-skins.md` (R2+R7, bucket+path table opener). See `OPERATIONS.md` § 7 entry "Progressive-disclosure structure for long notes" for the rule-of-three trail.
+
+### Authority grounding for R7 (opinionated best-practice) content
+
+R7-flavored notes — those carrying recommendations, named recipes, or "most players use X" claims — must ground every recommendation in at least one of four labeled grounds. Bare assertion is disallowed.
+
+1. **Engine mechanics** — source-defensible. Cite file:line.
+2. **Community consensus** — via commit messages, PR threads, or Layer 2 testimony with message-ID citation.
+3. **Operator SME** — explicitly credited in the `primary_contributors` frontmatter.
+4. **Hedged community knowledge** — flagged inline as not-source-defensible field practice. The hedge must name its own status (e.g. *"community knowledge, not source-defensible"*) so a downstream consumer can weight the claim correctly.
+
+A single recommendation can rest on more than one ground; the requirement is that at least one labeled ground supports each claim. This is what keeps R7 content useful rather than opinion-mining: a downstream consumer can trace any "you should do X" to a defensible source class even when measurement-grade evidence isn't available.
+
+Confirmed across `weapon-scripts.md`, `lightning-gun-customization.md`, and `player-skins.md`. See `OPERATIONS.md` § 7 entry "First R7 opinionated-best-practice note landed" for the rule-of-three trail.
+
 Frontmatter:
 
 ```yaml
