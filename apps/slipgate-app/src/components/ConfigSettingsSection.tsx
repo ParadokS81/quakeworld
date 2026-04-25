@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import type { CvarInfo } from "qw-config";
+import type { CvarInfo } from "../lib/config";
 import CvarRow from "./CvarRow";
 import CvarTooltip from "./CvarTooltip";
 import { CATEGORY_PRIORITY } from "./ConfigViewer";

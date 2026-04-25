@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseConfig } from "../src/parser/config-parser.js";
+import { parseConfig } from "../parser/config-parser.js";
 
 describe("config parser", () => {
   test("parses cvar assignments", () => {

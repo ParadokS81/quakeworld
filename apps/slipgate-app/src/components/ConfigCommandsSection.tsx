@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import { loadEzQuakeCommands, loadEzQuakeDefaultCommands } from "qw-config";
+import { loadEzQuakeCommands, loadEzQuakeDefaultCommands } from "../lib/config";
 
 interface ConfigCommandsSectionProps {
   commands: Array<{ name: string; args: string; sourceFile: string }>;

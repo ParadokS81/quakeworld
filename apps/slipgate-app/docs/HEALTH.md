@@ -138,7 +138,7 @@ Not urgent, but it's the cheapest insurance policy in the codebase.
 
 **Handoff:** `docs/superpowers/specs/2026-04-13-weapon-bind-classifier-rewrite-handoff.md` documents the current state, known issues, the user's mental model, the weapon-preselect research task, and a phased approach for a fresh session to tackle this properly.
 
-**Related:** the `stateful_commands` list in the Rust parser duplicates a tiny subset of the authoritative ezQuake commands database in `qw-config`. The long-term fix is plumbing the database through to Rust, but that's a bigger refactor.
+**Related:** the `stateful_commands` list in the Rust parser duplicates a tiny subset of the authoritative ezQuake commands database in `src/lib/config/data/ezquake-commands.json`. The long-term fix is plumbing the database through to Rust, but that's a bigger refactor.
 
 ### No logging infrastructure — `println!` / `eprintln!` scattered
 **Files:**

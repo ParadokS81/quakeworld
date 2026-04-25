@@ -1,6 +1,6 @@
 import { createSignal, createMemo, createEffect, createResource, For, Show, Switch, Match, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
-import { lookupCvar, loadDatabase, loadDomainTags, loadEzQuakeCommands, loadKtxCommands } from "qw-config";
+import { lookupCvar, loadDatabase, loadDomainTags, loadEzQuakeCommands, loadKtxCommands } from "../lib/config";
 import type { EzQuakeConfig, ConfigChain, ConfigSourceBundle, ConfigEntry, ChainBindClassification, LocScanResult } from "../types";
 import ConfigChainPanel from "./ConfigChainPanel";
 import ConfigSidebar from "./ConfigSidebar";

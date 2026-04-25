@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import type { CvarInfo } from "qw-config";
+import type { CvarInfo } from "../lib/config";
 
 interface CvarRowProps {
   name: string;

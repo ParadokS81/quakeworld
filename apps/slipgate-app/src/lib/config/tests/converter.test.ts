@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { convertConfig } from "../src/converter/converter.js";
-import { parseConfig } from "../src/parser/config-parser.js";
-import { generateReport } from "../src/converter/report.js";
+import { convertConfig } from "../converter/converter.js";
+import { parseConfig } from "../parser/config-parser.js";
+import { generateReport } from "../converter/report.js";
 
 describe("converter", () => {
   const sampleConfig = 'sensitivity "3.5"\ncl_maxfps "600"\nfov "120"\nbind mouse1 "+attack"\nbind q "impulse 7"';

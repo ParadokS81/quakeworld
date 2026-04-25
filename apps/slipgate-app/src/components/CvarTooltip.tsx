@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { findEquivalent } from "qw-config";
-import type { CvarInfo } from "qw-config";
+import { findEquivalent } from "../lib/config";
+import type { CvarInfo } from "../lib/config";
 
 const TYPE_LABELS: Record<string, string> = {
   string: "string — text value (words, names, color codes)",

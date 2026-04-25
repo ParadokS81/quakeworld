@@ -2,8 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-const REPO_ROOT = resolve(import.meta.dir, "../../..");
-const BUNDLE_PATH = resolve(REPO_ROOT, "packages/qw-config/src/data/ezquake-asset-bundle.json");
+const BUNDLE_PATH = resolve(import.meta.dir, "../data/ezquake-asset-bundle.json");
 
 describe("ezquake-asset-bundle.json shape (Path 1)", () => {
   const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf-8"));

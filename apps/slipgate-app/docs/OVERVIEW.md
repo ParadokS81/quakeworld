@@ -125,7 +125,7 @@ Curated sections beyond the raw cvar dump:
 ### Raw sections
 - **Binds** — every key with category color coding (movement/weapons/teamsay/**ktx**/**unresolved**/misc), alias chain expansion up to 8 levels deep. KTX binds (commands like `rpickup`, `autotrack`, `scores` injected by the KTX server mod on connect) show with a purple banner explaining they only work on KTX servers. Unresolved binds (commands not found in aliases, ezQuake commands, or cvars) show with a yellow warning triangle and explanation.
 - **Aliases** — all aliases as Name | Command | Source File
-- **Macros** — built-in teamplay cvars + user-created `set` variables + **runtime `%`-prefix macros reference** (the 68 engine-provided tokens like `%health`, `%ammo`, `%location` used in say/say_team messages, loaded from `qw-config/src/data/ezquake-macros.json`)
+- **Macros** — built-in teamplay cvars + user-created `set` variables + **runtime `%`-prefix macros reference** (the 68 engine-provided tokens like `%health`, `%ammo`, `%location` used in say/say_team messages, loaded from `src/lib/config/data/ezquake-macros.json`)
 - **Triggers** — `f_*` (client-side) and `on_*` (server-side) triggers with inline guide on how they work, "restricted under competitive rulesets" badges, and an **infoset event decoder** (parses `cmd info ev X` bitmasks to show which on_triggers are active)
 - **Commands** — stateful command invocations captured from configs (e.g. `floodprot 4 4 10`, `mapgroup clear`, `hud_recalculate`, `-moveup`/`-movedown` release block). Grouped into 14 sub-groups (Press/Release Actions, Teamplay, HUD, Video, Stateful State, Game Actions, Config Management, etc.). Default invocations marked with a "default" badge and hidden when "Hide Defaults" is on. Uses the same typography and grid as the Settings section.
 
@@ -395,7 +395,7 @@ Things that exist in the codebase but aren't fully alive:
 
 **"I want to change the config comparison UI"** → `src/components/ConfigViewer.tsx` for orchestration, `src/components/configMerger.ts` for the merge logic, individual `Config*Section.tsx` files for display
 
-**"I want to add/change a cvar's description or category"** → the `qw-config` package imported by `CvarTooltip.tsx` — not in this repo, it's a separate shared package
+**"I want to add/change a cvar's description or category"** → `src/lib/config/data/ezquake-variables.json` (the snapshot consumed by `CvarTooltip.tsx` and the rest of ConfigViewer)
 
 **"I want to change the updater behavior"** → `src-tauri/src/commands/updater.rs`
 

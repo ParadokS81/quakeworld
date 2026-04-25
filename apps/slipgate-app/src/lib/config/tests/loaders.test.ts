@@ -3,9 +3,9 @@ import {
   loadEzQuakeCvars,
   getEzQuakeCategories,
   getEzQuakeVarCount,
-} from "../src/loaders/ezquake.js";
-import { loadFteCvars, getFteCvarCount } from "../src/loaders/fte.js";
-import { loadDatabase, lookupCvar, findEquivalent } from "../src/loaders/index.js";
+} from "../loaders/ezquake.js";
+import { loadFteCvars, getFteCvarCount } from "../loaders/fte.js";
+import { loadDatabase, lookupCvar, findEquivalent } from "../loaders/index.js";
 
 describe("ezQuake loader", () => {
   test("loads all variables", () => {

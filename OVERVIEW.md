@@ -110,21 +110,22 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "
 |  Layer 1  knowledge.db     |--->|  lookup /     |-->|  Claude Code        (live) |
 |    engine facts, versioned |    |  search /     |   |                            |
 |                            |    |  concept note |   |  slipgate-app (transitnl)  |
-|  Layer 2  qw.db            |    +---------------+   |  via snapshot JSON -       |
-|    2.66M chat + FTS5       |                        |  reads packages/qw-config/ |
-|                            |    +---------------+   |  src/data today, oracle    |
-|  Layer 3  concept notes    |--->|   snapshot    |-->|  snapshots after migration |
-|    (not yet populated)     |    |  distribution |   |                            |
-|                            |    +---------------+   |  quad chatbot    (future)  |
-|  (backstage) extractors,   |                        |  assets/maps.quake.world   |
-|  loaders, diff pipeline    |                        |                   (future) |
-+----------------------------+                        |  slipgate web    (future)  |
+|  Layer 2  qw.db            |    +---------------+   |  reads legacy scraped JSON |
+|    2.66M chat + FTS5       |                        |  in apps/slipgate-app/src/ |
+|                            |    +---------------+   |  lib/config/data/ today;   |
+|  Layer 3  concept notes    |--->|   snapshot    |-->|  switches to oracle-built  |
+|    (not yet populated)     |    |  distribution |   |  snapshots in next arc     |
+|                            |    +---------------+   |                            |
+|  (backstage) extractors,   |                        |  quad chatbot    (future)  |
+|  loaders, diff pipeline    |                        |  assets/maps.quake.world   |
++----------------------------+                        |                   (future) |
+                                                      |  slipgate web    (future)  |
                                                       +----------------------------+
 ```
 
 Claude Code queries MCP live; slipgate-app reads pre-computed snapshots. Both get the same underlying facts through different access patterns. Future chatbots (on quad or as a new app) join as MCP consumers; the web services join as snapshot consumers in their own shape.
 
-The extractor fleet (Python + libclang for ezQuake, and AST for FTE / MVDSV / KTX / QWCL / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `fte/`, `ktx/`, `qwcl/`, etc., plus shared `extractor_lib/`). qw-config dissolution Half 1 (extractor relocation) shipped 2026-04-25; Half 2 — slipgate migrating to oracle-snapshot consumption so the legacy scraped JSON retires — is the remaining gate before qw-config ceases to exist as a package. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
+The extractor fleet (Python + libclang for ezQuake, and AST for FTE / MVDSV / KTX / QWCL / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `fte/`, `ktx/`, `qwcl/`, etc., plus shared `extractor_lib/`). The `qw-config` package was fully retired 2026-04-25 — its scraped JSON, parser, converter, writers, and loaders moved into `apps/slipgate-app/src/lib/config/`, where they always belonged once oracle existed. The next arc is replacing the legacy scraped JSON with oracle-generated snapshots produced by a `build-snapshot` CLI in qw-oracle; slipgate's loader code stays where it is. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
 
 ## Shared Firestore collections
 
@@ -149,21 +150,11 @@ Upload size limits and retention rules live in `contracts/CROSS-PROJECT-SCHEMA.m
 
 ## Packages
 
-Two shared packages under `packages/`. `qw-knowledge` has a full doc quartet; `qw-config` has only a README because it is transitional (see below).
+One shared package under `packages/`: `qw-knowledge`. The former `qw-config` package was fully retired 2026-04-25 — its concerns split between oracle (extractors, dissolved Half 1 2026-04-25) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2 2026-04-25).
 
 ### qw-knowledge
 
 Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology, strategies, player mappings. Extracted from the archived `voice-analysis` repo during the 2026-03-29 monorepo migration. Consumed by quad for transcript enrichment and (eventually) by slipgate-app for map-related features.
-
-### qw-config (transitional, Half 1 dissolved)
-
-A shrinking holding pen. One role remains here:
-
-1. **Legacy scraped JSON + slipgate-runtime code** (`src/data/ezquake-variables.json`, `ezquake-commands.json`, the parser/loaders/converter/writers under `src/`, plus `tests/`) consumed by slipgate-app's ConfigViewer to resolve cvar descriptions, types, enum values, defaults, and FTE / QWCL equivalents. This is slipgate's current input path; it predates oracle.
-
-The AST extraction machinery has dissolved out of qw-config (Half 1, 2026-04-25). It now lives at `apps/qw-oracle/scripts/extractors/` with project-scoped subdirs (`ezquake/`, `fte/`, `ktx/`, `qwcl/`, `mvdsv/`, `qwfwd/`) and a shared `extractor_lib/`. AST output JSONs are co-located at `apps/qw-oracle/scripts/extractors/<project>/output/`. The asset bundle (`packages/qw-config/src/data/<project>-asset-bundle.json`) is still produced into qw-config's data dir because slipgate's `bundle.ts` imports it from there — that path retires in Half 2.
-
-**On Half 2 dissolution:** the legacy scraped JSON and runtime code retire when slipgate migrates to oracle-snapshot consumption. At that point qw-config ceases to exist as a package. Because this is transitional, qw-config does NOT carry a full doc quartet - only the existing `README.md`. See `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` for the framing.
 
 ## Contracts and cross-project specs
 

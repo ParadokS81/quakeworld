@@ -228,9 +228,9 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 - Lines beginning with `+` or `-` (press/release action commands like `-moveup`, `+attack`)
 - Lines whose first token is in the hardcoded `stateful_commands` list: `floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`
 
-**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `packages/qw-config/src/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional — plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
+**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `src/lib/config/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional — plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
 
-**The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from qw-config. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
+**The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from `src/lib/config/`. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
 
 ### 10. Future categories (still open)
 

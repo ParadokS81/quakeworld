@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseConfig } from "qw-config";
+import { parseConfig } from "./config";
 import { buildSpanTree } from "./prettyRender.js";
 import { createDefaultPlayerState } from "./simulator/index.js";
 

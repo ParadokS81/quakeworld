@@ -19,11 +19,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "qw-config": ["../../packages/qw-config/src"],
-      "qw-config/*": ["../../packages/qw-config/src/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"],

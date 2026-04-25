@@ -2,7 +2,7 @@ import { For, Show, createEffect, type JSX } from "solid-js";
 import type { FiringPath, MovementKeys, TeamsayBind, Weapon, WeaponChangeDispatch } from "../types";
 import { resolveAliasChain, AliasChainView } from "./AliasChainResolver";
 import type { AliasChainEntry, AliasChainResult } from "./AliasChainResolver";
-import { lookupCvar } from "qw-config";
+import { lookupCvar } from "../lib/config";
 import { WEAPON_COLORS } from "./WeaponBindViz";
 import type { RuntimeResolver } from "../lib/runtimeResolver";
 import type { PlayerState } from "../lib/simulator/index.js";

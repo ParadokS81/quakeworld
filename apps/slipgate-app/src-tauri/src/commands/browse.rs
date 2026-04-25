@@ -91,7 +91,7 @@ pub struct Bundle {
 }
 
 // Bundle file is copied into src-tauri/resources/ by scripts/sync-rust.sh from
-// packages/qw-config/src/data/. The copy keeps the include path self-contained inside
+// src/lib/config/data/. The copy keeps the include path self-contained inside
 // src-tauri/ so the Windows build mirror (which only syncs src-tauri/) can compile.
 const BUNDLE_JSON: &str = include_str!("../../resources/ezquake-asset-bundle.json");
 
@@ -111,7 +111,7 @@ fn load_bundle() -> Bundle {
 
 /// Load every asset bundle shipped with slipgate. Today there's only one (ezquake),
 /// but the scanner's pipeline iterates this list so adding FTE / MVDSV / KTX bundles
-/// later is data-only: drop the JSON into packages/qw-config/src/data/, mirror it into
+/// later is data-only: drop the JSON into src/lib/config/data/, mirror it into
 /// src-tauri/resources/, register a new include_str! here.
 fn load_bundles() -> Vec<Bundle> {
     vec![load_bundle()]

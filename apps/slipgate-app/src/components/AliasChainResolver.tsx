@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import { lookupCvar } from "qw-config";
+import { lookupCvar } from "../lib/config";
 import type { PlayerState, TraceStep } from "../lib/simulator/index.js";
 import { createDefaultPlayerState, deriveNeed, evaluateTeamsay } from "../lib/simulator/index.js";
 import { buildSpanTree, type SpanColor } from "../lib/prettyRender.js";

@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import { loadDatabase } from "qw-config";
+import { loadDatabase } from "../lib/config";
 
 interface MacroEntry {
   name: string;

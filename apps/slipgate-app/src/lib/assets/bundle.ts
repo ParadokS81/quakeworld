@@ -1,5 +1,5 @@
 // apps/slipgate-app/src/lib/assets/bundle.ts
-import raw from "../../../../../packages/qw-config/src/data/ezquake-asset-bundle.json";
+import raw from "../config/data/ezquake-asset-bundle.json";
 
 export type AssetCategory = {
   id: string;

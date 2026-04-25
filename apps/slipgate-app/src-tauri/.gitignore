@@ -6,5 +6,5 @@
 # will have schema files for capabilities auto-completion
 /gen/schemas
 
-# Copied from packages/qw-config/src/data/ by scripts/sync-rust.sh before build.
+# Copied from src/lib/config/data/ by scripts/sync-rust.sh before build.
 /resources/

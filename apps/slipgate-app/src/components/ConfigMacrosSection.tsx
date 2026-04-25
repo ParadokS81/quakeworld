@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
-import { loadDatabase, loadEzQuakeMacros } from "qw-config";
+import { loadDatabase, loadEzQuakeMacros } from "../lib/config";
 
 const TYPE_LABELS: Record<string, string> = {
   string: "Text value (words, names, color codes)",

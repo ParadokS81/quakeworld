@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseConfig } from "qw-config";
+import { parseConfig } from "../config";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createDefaultPlayerState } from "./defaults.js";
