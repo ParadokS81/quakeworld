@@ -95,9 +95,11 @@ const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
   qwcl:    false,
 };
 
-// Bundle output stays in qw-config until slipgate-app migrates to oracle snapshots
-// (qw-config dissolution Half 2). Slipgate's bundle.ts imports from this path.
-const BUNDLE_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
+// Slipgate absorbed the bundle location during qw-config dissolution Half 2a
+// (2026-04-25); the legacy packages/qw-config/src/data/ tree is gone. Bundle
+// rebuild calls (buildAssetBundle in step 2c, asset_category load in step 3,
+// loadAssets in step 4) all resolve here.
+const BUNDLE_OUTPUT_DIR = join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'src', 'lib', 'config', 'data');
 
 // Per-project entity-type JSON file mapping. Filenames must match each
 // extractor's actual output. ezQuake's cvar handler writes

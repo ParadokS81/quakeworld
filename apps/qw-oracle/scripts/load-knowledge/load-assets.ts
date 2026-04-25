@@ -90,6 +90,20 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
       extracted_at: now,
     });
 
+    // Wipe existing relation rows for this (project, version) before
+    // re-inserting from the bundle. The four upsert helpers use INSERT OR
+    // REPLACE keyed on UNIQUE(project, version, ..., path_hint /
+    // path_pattern), but SQLite treats NULL as distinct in UNIQUE
+    // constraints — so re-runs of load-assets at the same (project, version)
+    // append duplicate rows for every entry whose path_hint or path_pattern
+    // is NULL instead of upserting. Mirroring the bundle exactly via a
+    // wipe-then-insert pass sidesteps the NULL-distinct trap and keeps the
+    // DB an idempotent reflection of the bundle.
+    options.db.prepare(`DELETE FROM asset_extensions    WHERE project=? AND version=?`).run(options.project, options.version);
+    options.db.prepare(`DELETE FROM asset_path_rules    WHERE project=? AND version=?`).run(options.project, options.version);
+    options.db.prepare(`DELETE FROM asset_cvar_bindings WHERE project=? AND version=?`).run(options.project, options.version);
+    options.db.prepare(`DELETE FROM asset_loader_sites  WHERE project=? AND version=?`).run(options.project, options.version);
+
     let extCount = 0;
     let ruleCount = 0;
     let bindCount = 0;
