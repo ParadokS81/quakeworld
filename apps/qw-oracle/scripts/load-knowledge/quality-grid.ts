@@ -212,6 +212,14 @@ function probeEntityHasVersionRows(ctx: ProbeContext): ProbeResult {
 // ordered versions is almost always an extractor bug, not real history.
 // Detection: build an ordered presence string per entity, look for "1 0 1"
 // (or longer with gaps in the middle).
+//
+// Doc_only entities are excluded: their version-row presence tracks the
+// upstream help_*.json's own contents, which is hand-curated and can lose
+// then re-add entries (e.g., ezquake `s_stereo` is in 3.1 help_variables.json,
+// dropped 3.2..3.2.3, restored 3.6.0+, never source-defined at any tag).
+// That help-JSON drift is real upstream documentation history, not an
+// extractor anomaly. The probe stays useful for source_backed / source_retired
+// entities, where flicker would still indicate a missed extraction.
 function probeFlickeringPresence(ctx: ProbeContext): ProbeResult {
   const versions = ctx.db.prepare(`
     SELECT version, ordinal FROM versions WHERE project=? ORDER BY ordinal
@@ -236,7 +244,7 @@ function probeFlickeringPresence(ctx: ProbeContext): ProbeResult {
       FROM entities e
       LEFT JOIN ${versionTable} xv ON xv.entity_id=e.id
       LEFT JOIN versions v ON v.project=e.project AND v.version=xv.version
-      WHERE e.project=? AND e.type=?
+      WHERE e.project=? AND e.type=? AND e.source_state != 'doc_only'
       GROUP BY e.id
     `).all(ctx.project, type) as { id: number; name: string; pattern: string | null }[];
     for (const r of rows) {
