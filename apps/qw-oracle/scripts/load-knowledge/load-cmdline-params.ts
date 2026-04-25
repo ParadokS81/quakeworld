@@ -22,10 +22,13 @@ export function buildCmdlineParamVersionRow(
     ? createHash('sha1').update(JSON.stringify(ast)).digest('hex')
     : null;
 
-  // Use the first usage site as the primary source location (if any).
-  // Full usage_sites detail is preserved in the AST hash / can be surfaced
-  // later if needed as a separate junction table.
+  // Cite the first usage site when present; otherwise fall back to the
+  // manifest entry in cmdline_params_ids.h. Some params (e.g. -nolibpng,
+  // -showliberrors) are declared but consumed by library-init code rather
+  // than read via COM_CheckParm, so usage_sites is legitimately empty.
   const primarySite = ast?.usage_sites?.[0] ?? null;
+  const sourceFile = primarySite?.source_file ?? ast?.manifest_file ?? null;
+  const sourceLine = primarySite?.source_line ?? ast?.manifest_line ?? null;
 
   return {
     entity_id: entityId,
@@ -35,8 +38,8 @@ export function buildCmdlineParamVersionRow(
     arguments: entry.arguments ?? null,
     flags_json: entry.flags ? JSON.stringify(entry.flags) : null,
     systems_json: entry.systems ? JSON.stringify(entry.systems) : null,
-    source_file: primarySite?.source_file ?? null,
-    source_line: primarySite?.source_line ?? null,
+    source_file: sourceFile,
+    source_line: sourceLine,
     source_column: primarySite?.source_column ?? null,
     raw_ast_hash,
     extracted_at: now,

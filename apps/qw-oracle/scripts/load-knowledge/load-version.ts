@@ -221,12 +221,22 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
 
   const raw = readFileSync(options.jsonPath, 'utf-8');
   const payload = JSON.parse(raw) as Record<string, unknown>;
-  const entries = (payload as any)[adapter.payloadField] as Record<string, any> | undefined;
-  if (!entries || typeof entries !== 'object') {
+  const rawEntries = (payload as any)[adapter.payloadField] as Record<string, any> | undefined;
+  if (!rawEntries || typeof rawEntries !== 'object') {
     throw new Error(
       `Extractor JSON at ${options.jsonPath} has no "${adapter.payloadField}" field for type=${options.type}`
     );
   }
+
+  // Case-fold merge. Source code uses identifiers like `loadFragfile` and
+  // `HUD262_add` while help_*.json files lowercase them, producing two
+  // dict entries for the same logical entity. The loader case-folds names
+  // (line below), so without this merge the second iteration's INSERT OR
+  // REPLACE clobbers the first -- and which side wins depends on dict
+  // ordering. Token primitives are case-sensitive ($G != $g) and excluded.
+  const entries = (options.type === 'token_primitive')
+    ? rawEntries
+    : caseFoldMergeEntries(rawEntries);
 
   const entryCount = Object.keys(entries).length;
 
@@ -482,4 +492,52 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     parseState: parseStateFinal,
     typeMismatchOrphansPruned: orphansPruned,
   };
+}
+
+// Group dict entries by their lowercase key and merge case-variants. The two
+// real-world flavours: AST-bearing source-truth name (e.g. `loadFragfile`,
+// `HUD262_add`) carrying source_file/source_line but empty desc; lowercased
+// help-JSON name carrying desc but no AST. Without this merge they collide
+// at the case-folding step downstream and the help-JSON entry blanks the
+// citation. Strategy: pick the AST-bearing variant as base, fold help-text
+// fields from any sibling that has them; if multiple variants both carry
+// AST, keep the first and log a warning (would indicate a genuine source
+// conflict, not the AST-vs-help case-collision pattern).
+function caseFoldMergeEntries(
+  raw: Record<string, any>,
+): Record<string, any> {
+  const groups = new Map<string, Array<[string, any]>>();
+  for (const [k, v] of Object.entries(raw)) {
+    const lc = k.toLowerCase();
+    const list = groups.get(lc);
+    if (list) list.push([k, v]);
+    else groups.set(lc, [[k, v]]);
+  }
+
+  const merged: Record<string, any> = {};
+  for (const [lc, variants] of groups.entries()) {
+    const first = variants[0]!;
+    if (variants.length === 1) {
+      merged[lc] = first[1];
+      continue;
+    }
+    const astBearing = variants.filter(([, v]) => v && v.ast != null);
+    if (astBearing.length > 1) {
+      const names = astBearing.map(([k]) => k).join(', ');
+      console.warn(
+        `[load-version] case-fold merge: multiple variants carry ast for "${lc}" (${names}); keeping first`,
+      );
+    }
+    const base = astBearing.length > 0 ? astBearing[0]![1] : first[1];
+    const out: Record<string, any> = { ...base };
+    for (const [, v] of variants) {
+      if (v === base) continue;
+      for (const [field, val] of Object.entries(v)) {
+        if (val == null || val === '') continue;
+        if (out[field] == null || out[field] === '') out[field] = val;
+      }
+    }
+    merged[lc] = out;
+  }
+  return merged;
 }
