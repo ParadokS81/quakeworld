@@ -133,19 +133,19 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 
 #### `gl_custom_lg_color` / `gl_custom_lg_fullbright` (cvar pair)
 
-- **Oracle Layer 1 first_seen:** `head` (post-3.6.6; not in any tagged release)
+- **Oracle Layer 1 first_seen:** present from 3.6.1 in `cvar_versions`. **Note:** `entities.first_seen_version` reports `head` for both, which contradicts the `cvar_versions` history. Treat the version-table data as authoritative; flagged as a Layer 1 data-quality inconsistency in HANDOVER.
 - **Source location:** `r_aliasmodel.c:93-94`
 - **Current upstream coverage:** zero.
-- **Why they matter:** override model-beam color without requiring a texture swap. Layer 1 descs are *"Allows color of lightning shaft to be set without requiring a texture change."* and *"Determines if gl_custom_lg_color refers to a fullbright color or standard."* 6-mechanism ruleset scan finds no restriction — usable under smackdown. Post-2022 additions the upstream guide's staleness misses entirely.
-- **Suggested placement:** Visual rendering section, as optional cosmetic.
+- **Why they matter:** override the model-beam color without requiring a texture swap. Layer 1 desc and remarks together carry load-bearing scope: `gl_custom_lg_color` *"Allows color of lightning shaft to be set without requiring a texture change. Has no effect if particle shaft is enabled."* `gl_custom_lg_fullbright` *"Determines if gl_custom_lg_color refers to a fullbright color or standard. Has no effect if gl_custom_lg_color is blank."* Effective applicability inverts with ruleset: ON under smackdown / qcon / smackdrive (model beam used because particle path is suppressed), OFF under default / thunderdome / mtfl (particle beam active, model-beam color cvar inert). The recommended way to recolor the LG beam under competitive play.
+- **Suggested placement:** Visual rendering section. Upstream should call out the particle-vs-model effective-when relationship — the help_remarks say it but the implication isn't player-obvious.
 
 #### `gl_custom_lgpack_color` (cvar)
 
-- **Oracle Layer 1 first_seen:** `head`
+- **Oracle Layer 1 first_seen:** present from 3.6.1 in `cvar_versions`. (Same `entities.first_seen_version='head'` inconsistency as above.)
 - **Source location:** `r_aliasmodel.c:138`
 - **Current upstream coverage:** zero.
-- **Why it matters:** colors the dropped LG backpack. **Operator flags this as likely-restricted under smackdown but 6-mechanism source scan finds no restriction — verification pending.** Either the cvar is genuinely free under smackdown (post-3.6.6 addition that didn't get ruleset-audited) or there's a restriction path the scan didn't check (e.g., hash-check on the backpack model). Upstream authoring blocked until verified in field.
-- **Suggested placement:** deferred pending verification.
+- **Why it matters:** Layer 1 remarks resolve the operator's likely-restricted intuition: *"Leave blank to disable. QTV/MVD only, KTX 1.38+ only."* The cvar applies to demo playback / multi-view / QuakeTV spectator rendering, NOT to live in-match rendering. Not technically ruleset-restricted (no CVAR_ROM, no behavior gate, no watch) — it's restricted by virtue of the consuming code path being demo-playback-only. Effectively unavailable for in-game LG-backpack coloring across all rulesets. Useful for content creators / spectators / demo reviewers.
+- **Suggested placement:** Visual rendering section, in a "Demo-playback-only cvars" subsection. Upstream pages have no precedent for documenting this scope category — adding one is itself a contribution worth making.
 
 #### `gl_coronas` (cvar)
 

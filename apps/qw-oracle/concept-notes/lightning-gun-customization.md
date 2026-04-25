@@ -89,20 +89,18 @@ Legacy alias redirecting to `cl_fakeshaft` via `Cmd_AddLegacyCommand` at `host.c
 
 ezQuake renders the LG beam via two code paths: a **particle beam** (textured particles along the beam axis) and a **model beam** (the classic `bolt.mdl` entity). Which path runs depends on `gl_lightning` and the active ruleset.
 
-**Under smackdown / qcon / smackdrive the particle beam is suppressed and the model beam is the only beam that renders.** The model-beam cvars are therefore the ones that matter for competitive play. Particle-beam cvars are listed for completeness but note that they only have effect on servers running no ruleset, thunderdome, mtfl, or default.
+**Under smackdown / qcon / smackdrive the particle beam is suppressed and the model beam is the only beam that renders.** This shapes which cvars matter where: model-beam cvars are the ones that take effect under competitive play; particle-beam cvars are inert. Under default / thunderdome / mtfl the particle beam is live, and the relationship inverts — the particle-only cvars take effect, and `gl_custom_lg_color` (which only colors the model beam) becomes inert.
 
-### Model beam cvars (effective under all rulesets)
+### Model beam cvars (active when particle beam is OFF — including all competitive rulesets)
 
 | cvar | Layer 1 desc | notes |
 |---|---|---|
-| `gl_shaftlight` | "Toggles between darker/fullbright shaft beams." | Valid range 0 to 1, where 0 is maximally dimmed and 1 is fullbright. `0.5` is the typical competitive pick — dim but clearly visible. |
-| `gl_custom_lg_color` | "Allows color of lightning shaft to be set without requiring a texture change." | `CVAR_COLOR`; set as `"r g b"` triplet. Match your HUD or cells-ammo tint to reduce visual clutter. |
-| `gl_custom_lg_fullbright` | "Determines if gl_custom_lg_color refers to a fullbright color or standard." | Default `1` (fullbright). |
-| `r_lgbloodcolor` | "Determines the color of the blood particles emitted when hitting entities with the lightning gun." | Hit-effect tint, not the beam itself. |
+| `gl_shaftlight` | "Toggles between darker/fullbright shaft beams." | Valid range 0 to 1; 0 is maximally dimmed, 1 is fullbright. `0.5` is the typical competitive pick — dim but clearly visible. |
+| `gl_custom_lg_color` | "Allows color of lightning shaft to be set without requiring a texture change." | `CVAR_COLOR`; `"r g b"` triplet. Layer 1 remarks: *"Has no effect if particle shaft is enabled."* So this cvar IS effective under smackdown/qcon/smackdrive (particle beam suppressed) but inert under default/thunderdome/mtfl with particle beam active. |
+| `gl_custom_lg_fullbright` | "Determines if gl_custom_lg_color refers to a fullbright color or standard." | Default `1` (fullbright). Layer 1 remarks: *"Has no effect if gl_custom_lg_color is blank."* — gated by the color cvar above. |
+| `r_lgbloodcolor` | "Determines the color of the blood particles emitted when hitting entities with the lightning gun." | Hit-effect tint, not the beam itself. No ruleset restriction. |
 
 Source: `cl_main.c:229`, `r_aliasmodel.c:75, 93-94`, `cl_tent.c:68`.
-
-`gl_custom_lg_color`, `gl_custom_lg_fullbright`, and `gl_custom_lgpack_color` have `first_seen_version='head'` in Layer 1 — added after the last tagged release.
 
 ### Particle beam cvars (nullified under smackdown / qcon / smackdrive)
 
@@ -121,7 +119,7 @@ Source: `vx_stuff.c:34-55`, `cl_tent.c:875+, 914, 925`.
 ### Peripheral visuals
 
 - `gl_coronas` adds glow to the beam path (among other effects). Active only when `gl_lightning > 0`, so has no visible effect on the model-beam path used under smackdown.
-- `gl_custom_lgpack_color` (default `64 64 255`, blue) colors the backpack model when it contains an LG. **Operator flags this as likely-restricted under smackdown, but the 6-mechanism source scan finds no restriction on it or on `gl_custom_lg_color` / `gl_custom_lg_fullbright`. Verify in-field before relying on a custom backpack color being visible during matches.**
+- `gl_custom_lgpack_color` (default `64 64 255`) colors the backpack model when it contains an LG. **Layer 1 remarks make the scope explicit: *"QTV/MVD only, KTX 1.38+ only."* This cvar applies to the demo-playback / multi-view / QuakeTV-spectator rendering path, NOT to live in-game rendering.** Effectively restricted across the board for live play — not via any ruleset mechanism, but because the consuming code path is only active during demo viewing. Useful for demo reviewers, content creators, and spectators; has no effect during your own match.
 
 ## Audio customization
 
@@ -155,6 +153,14 @@ QuakeWorld's ruleset system is client-declared. A player types `ruleset smackdow
 **`r_shiftbeam` rationale.** Source at `cl_tent.c:72` offsets the beam start-point along the view's right vector. The feature was originally meant for video capture and demo playback — letting movie-makers align the beam visually with screen-center despite the first-person weapon model being positioned off to the side. In a live-match context it's a visual manipulation no competitor should have available, which is why all four competitive rulesets lock it.
 
 **The same gates apply under qcon and smackdrive.** Thunderdome locks `r_shiftbeam` but does NOT restrict particles — the particle-beam family is live under thunderdome.
+
+### Demo-playback-only cvars (effectively restricted from live play)
+
+Some cvars apply only during demo playback / multi-view / QuakeTV-spectator rendering, not during live in-game rendering. These aren't ruleset-restricted in the technical sense — no CVAR_ROM lock, no behavior gate, no watch list. The consuming code path is simply only active during demo viewing. Effectively restricted from in-match play across the board.
+
+| cvar | Layer 1 remarks |
+|---|---|
+| `gl_custom_lgpack_color` | *"QTV/MVD only, KTX 1.38+ only."* Colors LG backpacks during demo or multi-view rendering only. Has no effect during your own live match. |
 
 ### Asset modification under rulesets
 
