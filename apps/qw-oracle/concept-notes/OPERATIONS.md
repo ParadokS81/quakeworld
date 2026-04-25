@@ -129,6 +129,12 @@ Example: `skywind-animated-skyboxes.md` is authored-here (Path 2, `authored_by: 
 
 When the original implementer is unknown or the history is genuinely collective, list vikpe alone with a "pre-vikpe era authors unknown" note in References.
 
+### Authority statements vs population claims
+
+Recommendations from named QW devs (vikpe, BLooD_DoG, johnnycz, meag, etc.) are **authority statements**, not distribution claims. A note saying "the recommended form is `+fire_ar`" is correct; a note saying "most players use `+fire_ar`" is a fabricated frequency claim — Layer 1 + Layer 2 + Layer 3 today contain zero population data. Phrases to avoid: *"most players,"* *"most competitive configs,"* *"typical setup,"* *"the common choice,"* *"many players bind X."* Phrase recommendations as recommendations from named expertise, or as mechanical / design-intent statements, not as projections onto user populations.
+
+A future Layer 4 (opt-in config telemetry from real slipgate-app users) would justify some defensible frequency claims with actual data. Until that ships, none. Surfaced from a 2026-04-25 LLM-side audit of `weapon-scripts.md` that caught six soft frequency claims; cleaned in the same session.
+
 ---
 
 ## 5. Lifecycle handling

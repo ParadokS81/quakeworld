@@ -157,9 +157,9 @@ Two paths through which consumers reach the knowledge foundation. See `VISION.md
 
 ### MCP (live)
 
-Claude Code sessions consume Layer 1 via a local MCP server (tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`). The server itself is NOT in this directory - it lives elsewhere in the monorepo's MCP infrastructure. What lives here is the SQLite DB it queries and the schema it queries against.
+Claude Code sessions consume Layers 1, 2, and 3 via a local MCP server at `serve/mcp/` (TypeScript on Bun, two readonly handles into `data/knowledge.db` and `data/qw.db`). Four tools: `lookup_entity` (case-insensitive name lookup across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes in one call), `search_entities` (substring search by name or current help text), `get_concept_note` (Layer 3 with full frontmatter passthrough), `search_solved_issues` (FTS5 over the chat corpus). v0.2.0 rewrite shipped 2026-04-25; the librarian volunteers cross-references rather than requiring follow-up tool calls.
 
-Future MCP consumers: quad chatbot mode (Discord), a new chatbot app, slipgate web chat surface.
+Future MCP consumers: a public QW community chatbot (web app or Discord bot calling Claude API, separate deploy), quad chatbot mode, slipgate web chat surface, a Claude Code plugin that bundles dev-focused skills on top of the MCP. The MCP itself is voice-neutral; consumer voice and orchestration recipes live in each consumer's own surface.
 
 ### Snapshot distribution (forward commitment)
 

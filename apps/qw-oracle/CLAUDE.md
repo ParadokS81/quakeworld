@@ -97,6 +97,11 @@ npm run load-knowledge -- quality-grid  --project <p> [--family regression|anoma
 npm run import:discord
 npm run import:irc
 npm run stats
+
+# MCP server (run from apps/qw-oracle/serve/mcp/)
+bun run src/index.ts                                      # start the server
+bun run scripts/verify-rewrite.ts                         # 24-assertion smoke test
+bunx tsc --noEmit                                         # typecheck
 ```
 
 Supported entity types: `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`, `asset_category`, `flag_bit`.
