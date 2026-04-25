@@ -39,6 +39,9 @@ related_entities:
   - ezquake:cvar:r_powerupglow
   - ezquake:cvar:r_dynamic
   - ezquake:cvar:gl_flashblend
+  - ezquake:cvar:v_quadcshift
+  - ezquake:cvar:v_pentcshift
+  - ezquake:cvar:v_ringcshift
   - ezquake:command:showskins
   - ezquake:command:skins
   - ezquake:command:teamcolor
@@ -133,13 +136,23 @@ The skin layer paints the player model itself. A separate set of cvars controls 
 - `1` (default) — glow on every powerup carrier, including the player you're spectating.
 - `2` — glow on every powerup carrier *except* the viewplayer. Useful in spec/demo to keep the camera from being engulfed in the player you're following. Verified at `src/cl_ents.c:1821`: `r_powerupglow.value && !(r_powerupglow.value == 2 && j == cl.viewplayernum)`.
 
-`r_dynamic <0|1|2>` controls dynamic lighting on world surfaces — how muzzle flashes, rocket trails, explosions, and powerup auras paint colored light onto walls, floors, and ceilings. Defaults: `1` on the GL renderer, `2` on the software renderer (the higher value means more aggressive accumulation, only meaningful in software). Setting it to `0` flattens the lighting entirely; you keep the model halo from `r_powerupglow` but lose the *room lights up red* effect that announces a quad carrier rounding the corner. Help text confirms: *"Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces."*
+`r_dynamic <0|1|2>` controls dynamic lighting on world surfaces — how muzzle flashes, rocket trails, explosions, and powerup auras paint colored light onto walls, floors, and ceilings. The three modes are computation-path choices:
+
+- `0` — no dynamic lighting. Surfaces stay flat-lit regardless of nearby effects. The model halo from `r_powerupglow` still draws, but you lose the *room lights up red* effect that announces a quad carrier rounding the corner.
+- `1` — software (CPU-computed) lighting. The classic path. Works on every renderer.
+- `2` — hardware (GPU-computed) lighting via GLSL. Only valid when the modern-OpenGL renderer is active. The OnChange handler at `src/r_rmain.c:108` rejects this value with `"Hardware lighting not supported when not using GLSL"` when the immediate-mode renderer is loaded.
+
+Default depends on the renderer build: `"2"` on builds that include modern-OpenGL (`EZ_MULTIPLE_RENDERERS` or `RENDERER_OPTION_MODERN_OPENGL`); `"1"` on immediate-mode-only builds (`src/r_rmain.c:151-153`). Modern ezQuake distributions ship the multi-renderer build, so most players get `r_dynamic 2` by default. Help text: *"Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces."* Mode predicates verified at `src/r_lighting.h:47-49` (`R_NoLighting`, `R_HardwareLighting`, `R_SoftwareLighting` macros).
+
+The historical context (the immediate-mode and modern-OpenGL renderers used to ship as separate clients before being consolidated into one binary with a runtime renderer toggle) is why the cvar has both software and hardware paths under one name. On a modern build, `r_dynamic 1` and `r_dynamic 2` produce visually equivalent output via different compute paths; mode `2` offloads the cost to the GPU.
 
 `gl_flashblend <0|1|2>` is a global toggle for "glow bubble" rendering — the soft sphere that surrounds rocket projectiles, explosions, and (depending on configuration) powerup auras. Default `0`. Setting it nonzero substitutes glow bubbles for true dynamic lighting on the affected surfaces — faster on legacy hardware but loses the per-surface lighting detail that gives you advance warning of a carrier through a doorway. Help text reference: *"This variable affects when glow bubbles are displayed in the client. You can change the color of the rocket glow by `r_rocketLightColor`, the color of explosions by `r_explosionLightColor`, and the color of flag carriers by `r_flagColor`."*
 
-The competitive carrier-visibility recipe is `r_powerupglow 1`, `r_dynamic 1`, `gl_flashblend 0`: maximum identification through both the model halo and the world-surface lighting. None of these are ruleset-restricted under any of the six rulesets — they are pure visual cvars with no script-related concerns.
+The competitive carrier-visibility recipe is `r_powerupglow 2`, `r_dynamic 2` (or `1` on immediate-mode builds), `gl_flashblend 0`: maximum identification through both the model halo and the world-surface lighting, with the player's own halo suppressed (mode 2) so the camera isn't engulfed in their own glow. None of these are ruleset-restricted under any of the six rulesets — they are pure visual cvars with no script-related concerns.
 
 A note on line-of-sight: `r_powerupglow` paints a halo on the player model, so it shows only when the model itself is visible. `r_dynamic` paints light onto world surfaces near the carrier, so it shows whenever the *surface* is visible — which is what gives you the through-doorway and around-corner advance warning. The two effects compose: the model halo identifies the carrier once you can see them; the world-surface lighting tells you they're nearby before you can.
+
+**Self-awareness trade — `r_powerupglow 2` removes your own halo.** Mode 2 suppresses the halo on the viewplayer's model, which keeps the spectator camera comfortable but means *you* lose the visual cue that you're carrying a powerup. The first-person color-shift family fills that gap: `v_quadcshift` adds a blue hue to your screen while you carry quad, `v_pentcshift` adds red while you carry pent, and `v_ringcshift` adds yellow while you carry ring. All three accept a 0-1 fraction (default `0.5`); all three require `gl_polyblend 1`. Operator practice: `r_powerupglow 2` paired with `v_quadcshift 0.6` (and equivalents for pent/ring) trades the self-glow halo for a self-tinted screen — your carrier-state stays visible to you without your own halo blocking your view. The cshift family belongs more naturally in a "first-person POV self-state indicators" note (alongside `v_contentblend`, `v_bonusflash`, damage flash) but is cited here because the recipe doesn't make sense without it.
 
 ## Per-player tracking
 
@@ -187,7 +200,7 @@ These are tested operator recipes. None of the cvar values listed are ruleset-pr
 
 **ParadokS personal — asymmetric visibility.** White fullbright enemies for visibility (`r_enemyskincolor "255 255 255"`, `r_skincolormode 0`, `r_fullbrightskins 1`) + RGB-tinted teammates with lower brightness (`r_teamskincolor "<team-color>"`, blend mode set so teammates retain texture detail and you can distinguish them from each other). Asymmetry is the design: enemies are optimized for *spotting*, teammates for *distinguishing between each other* during coordinated play.
 
-All four recipes assume the powerup-carrier visibility layer is on its defaults: `r_powerupglow 1`, `r_dynamic 1` (GL), `gl_flashblend 0`. If you've turned `r_dynamic 0` for any reason, consider turning it back on for player-skins purposes — the through-corner advance warning is one of the highest-value identification cues in the game.
+All four recipes assume the powerup-carrier visibility layer is configured for maximum identification: `r_powerupglow 2` (suppress own-model halo, glow on every other carrier), `r_dynamic 2` (hardware lighting on modern builds; `1` on immediate-mode), `gl_flashblend 0`, plus `v_quadcshift 0.6` / `v_pentcshift 0.6` / `v_ringcshift 0.6` to retain self-awareness once your own halo is suppressed. If you'd rather keep your own halo visible, run `r_powerupglow 1` and skip the cshift family. Either choice is fine; what's load-bearing is that you don't run `r_dynamic 0` — the through-corner advance warning is one of the highest-value identification cues in the game.
 
 ## Gates and restrictions
 
@@ -230,7 +243,8 @@ The R7 layer covered above — `enemyforceskins`, `teamforceskins`, `r_enemyskin
 - `cl_deadbodyfilter` modes: `src/cl_ents.c:976-995` and `src/cl_ents.c:1903-1920`.
 - `r_fullbrightskins` ruleset clamp + serverinfo cap: `src/rulesets.c:651-666` (`Rulesets_OnChange_r_fullbrightSkins`); render-time clamp at `src/r_aliasmodel.c:590` reading `r_refdef2.max_fbskins` set from `serverinfo fbskins` at `src/cl_view.c:1088`.
 - MTFL ruleset lock on `r_fullbrightskins`: `src/rulesets.c:492` (entry in `disabled_cvars` table).
-- Powerup-carrier visibility layer: `r_powerupglow` declared `src/cl_main.c:220` (default `"1"`), consumed at `src/cl_ents.c:898` and `src/cl_ents.c:1821` (mode-2 viewplayer-exempt logic). `r_dynamic` declared `src/r_rmain.c:151,153` (GL/software defaults). `gl_flashblend` declared `src/r_rmain.c:182` (default `"0"`). All three are unrestricted under all six rulesets — verified via Phase 5b six-mechanism scan.
+- Powerup-carrier visibility layer: `r_powerupglow` declared `src/cl_main.c:220` (default `"1"`), consumed at `src/cl_ents.c:898` and `src/cl_ents.c:1821` (mode-2 viewplayer-exempt logic). `r_dynamic` declared `src/r_rmain.c:151-153` (default `"2"` on multi-renderer builds, `"1"` on immediate-mode-only builds); OnChange handler at `src/r_rmain.c:108-115` rejects `>1` when GLSL is unavailable. Mode predicates at `src/r_lighting.h:47-49` (`R_NoLighting`, `R_HardwareLighting`, `R_SoftwareLighting`). `gl_flashblend` declared `src/r_rmain.c:182` (default `"0"`). All three are unrestricted under all six rulesets — verified via Phase 5b six-mechanism scan.
+- First-person carrier color-shift (`v_*cshift` family): `v_quadcshift` / `v_pentcshift` / `v_ringcshift` declared `src/cl_view.c:91-94` (defaults `"0.5"`); applied at `src/cl_view.c:504, 516, 522` via `bound(0, val, 1)`; gated by `gl_polyblend 1` per help_remarks. Cited here because the `r_powerupglow 2` recipe depends on the cshift family for self-awareness; full coverage belongs in a future "first-person POV self-state indicators" Layer 3 note.
 - FTE FPD bit (cross-engine confirmation): `engine/client/client.h:1062` (`#define FPD_NO_FORCE_SKIN (1 << 8)`); FTE skin code at `engine/client/skin.c:73`.
 - KTX server-side skinforce admin: `src/commands.c:3729-3739` (`ToggleSkinForcing`); admin command at `src/commands.c:788`.
 - Operator SME (recipes + colorspace conventions): @ParadokS, 2026-04-25 consult.
