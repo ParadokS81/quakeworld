@@ -33,7 +33,7 @@ related_entities:
   - ezquake:commit:db269539
 scope: cross-engine
 engines_covered: [ezquake, fte]
-last_updated: 2026-04-24
+last_updated: 2026-04-25
 ---
 
 # QuakeWorld weapon scripts: the three practical methods
@@ -43,6 +43,14 @@ last_updated: 2026-04-24
 QuakeWorld weapon-bind configs reduce to three practical methods, defined by what the user does at the keyboard: **quickfire** (one press selects and fires), **manual select+fire** (two separate presses, one to select, one to fire), **hold-modifier + fire** (hold one button to rebind the fire key, then press fire).
 
 For most users the recommended form is **quickfire via `bind X "+fire_ar N M"`**. `+fire_ar` bundles weapon-selection and attack into a single usercmd frame (eliminating the one-frame exposure window older forms produce) AND handles the multi-key rollover case when two fire keys are held in quick succession. `+fire` is the simpler single-key ancestor; use it when you want the behavior without the key-stack handling. Sections below cover each method's canonical form, modulation cvars, historical context, and cross-engine support.
+
+### Why preselect+hide matters: the "walking backpack"
+
+In QuakeWorld, the dropped backpack on death contains **the single weapon you were holding** plus all your spare ammo. Other weapons you owned are simply lost on respawn — they don't go into the backpack for the enemy to grab. So the practical question is: at the moment you die, which weapon is in your hand? If the answer is RL or LG, the enemy gets it. If the answer is axe (or shotgun), they get a backpack with no power-weapon upgrade.
+
+The community label for poor weapon discipline here is **"walking backpack"** — a player whose scripts leave them holding their best weapon between fights. Used as a 4on4 callout: dp_blood_dog, 2024-01-26, after a player reverted from `+fire` binds back to old `impulse+attack` aliases: *"then you're a walking backpack in 4on4"* (Discord #quakeworld). The fix is mechanical, not skill: scripts that preselect-fire-and-hide atomically so you idle on the axe between shots.
+
+This is the design motivation for the modulation-cvar combo `cl_weaponpreselect 1` + `cl_weaponhide 1` + `cl_weaponhide_axe 1`. The engine itself acknowledges it: `cl_weaponpreselect`'s help text says *"Useful in most teamplay games where you don't want to carry your best weapon in your hands but want to be ready to instantly shoot from it."* Method 1 (quickfire via `+fire_ar`) is the modern script form that delivers this discipline with one bind per fire key.
 
 ## The three methods at a glance
 
@@ -168,6 +176,8 @@ Modes 3 and 4 matter for players on servers that mix dm1 and other modes — typ
 - `2` — hide only when the server reports `deathmatch 1` (see `cl_input.c:70-71`).
 
 Dummy-weapon target logic at `cl_input.c:530`: hide to shotgun by default. Hide to axe when the weapon currently being fired is already the shotgun (can't "hide" to what you're already firing) or when `cl_weaponhide_axe` is set.
+
+The motivation is the death-drop mechanic described in the Summary: a player who dies holding RL drops the RL in their backpack for the enemy. `cl_weaponhide 1` (paired with `cl_weaponhide_axe 1`) makes you idle on the axe between shots, so the dropped backpack carries axe + ammo instead of a power weapon.
 
 **`cl_weaponhide_axe`** — force the dummy weapon to axe regardless of what you're currently firing. FTE accepts the same cvar name as a compatibility alias for its native `cl_weaponhide_preference`.
 
