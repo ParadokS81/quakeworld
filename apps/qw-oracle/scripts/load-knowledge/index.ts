@@ -65,6 +65,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'build-snapshot') {
+    await runBuildSnapshot(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -101,6 +106,12 @@ Subcommands:
   quality-grid  --project <p>
                 [--family regression|anomaly|both] [--probe <name>]
                 [--list] [--json]
+  build-snapshot --project <p> [--version <v>] [--output <dir>]
+                Read knowledge.db and emit slipgate-shaped JSON snapshots
+                (one per entity type) into apps/slipgate-app/src/lib/config/data/.
+                Each entity row carries 5 enrichment fields: source_state,
+                first_seen_version, last_seen_version, plus optional
+                default_history and retired_at_version.
 `.trim());
   process.exit(2);
 }
@@ -446,6 +457,27 @@ async function runQualityGridCli(args: string[]): Promise<void> {
   } finally {
     db.close();
   }
+}
+
+async function runBuildSnapshot(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      version: { type: 'string' },
+      output: { type: 'string' },
+    },
+  });
+
+  if (!values.project) throw new Error('--project is required');
+
+  const { buildSnapshot } = await import('./build-snapshot.js');
+  const result = buildSnapshot({
+    project: values.project as Project,
+    version: values.version,
+    outputDir: values.output,
+  });
+  console.log(JSON.stringify(result, null, 2));
 }
 
 function defaultReviewPath(project: Project, from: string, to: string): string {
