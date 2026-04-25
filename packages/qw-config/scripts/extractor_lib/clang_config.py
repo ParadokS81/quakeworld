@@ -67,16 +67,24 @@ def clang_args_win_for(ezq_src_dir: str) -> list[str]:
     """Client-flavored Windows variant. Surfaces entities behind
     `#ifdef _WIN32` / `#ifdef WIN32` guards: demo_capture_codec,
     con_deadkey, cl_verify_qwprotocol, etc., plus the -nopriority
-    cmdline_param in sv_sys_win.c."""
-    return clang_args_for(ezq_src_dir) + ["-DWIN32", "-D_WIN32"]
+    cmdline_param in sv_sys_win.c.
+
+    `-U__linux__` undoes the Linux libclang host's automatic
+    predefine so guards like `#if !defined(_WIN32) && !defined(__linux__)`
+    don't silently exclude Win-only branches."""
+    return clang_args_for(ezq_src_dir) + ["-DWIN32", "-D_WIN32", "-U__linux__"]
 
 
 def clang_args_apple_for(ezq_src_dir: str) -> list[str]:
     """Client-flavored macOS variant. Surfaces entities behind
     `#ifdef __APPLE__` guards: in_ignore_deadkeys, etc. The
     keynames handler runs its own Apple parse internally so this
-    variant primarily benefits cvars/commands/cmdline handlers."""
-    return clang_args_for(ezq_src_dir) + ["-D__APPLE__"]
+    variant primarily benefits cvars/commands/cmdline handlers.
+
+    `-U__linux__` undoes the Linux libclang host's automatic
+    predefine so guards like `#if !defined(_WIN32) && !defined(__linux__)`
+    treat the variant as a non-Linux platform."""
+    return clang_args_for(ezq_src_dir) + ["-D__APPLE__", "-U__linux__"]
 
 
 PARSE_OPTS = (

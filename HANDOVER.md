@@ -14,7 +14,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
-- [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. 4 cmdline_params (`-gl_ext`, `-gl-forward-only-profile`, `-nohwtimer`, `-allowmultiple`) have real `COM_CheckParm` usage sites in source but the 4-variant parse (Linux client/server, Win, Apple) doesn't reach them. Suspected cause: Apple variant inherits `__linux__` from the Linux libclang host so the `#if !_WIN32 && !__linux__` block in `vid_common_gl.c` is still skipped; Win variant likely has similar issue with `sys_win.c` interior. Not surfacing as missing-citation any more (manifest-fallback covers it), but the actual usage-site coverage is incomplete. Investigation work, separate from deep-time walk.
+- [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 
 ---
 
@@ -180,44 +180,36 @@ None. Audit closed. `-nopriority` remains a known deferral with a clear recovery
 ## Sub-pattern 2b: cmdline variant-matrix gaps
 
 **Added:** 2026-04-25 (surfaced during 3.6.0 deep-time walk, parked while shipping 2a + case-fold-merge + Path 2).
-**Status:** Open. Investigation work. Not blocking anything; the manifest-fallback citation in `load-cmdline-params.ts` provides a citation for these entities (pointing at `cmdline_params_ids.h:N`), so they no longer surface in `F2.source_backed_missing_citation`. But the actual `usage_sites` coverage is still incomplete.
-**Verification first:** check the AST output JSON. From `apps/qw-oracle/`: `python3 -c "import json; d=json.load(open('../../packages/qw-config/src/data/ezquake-cmdline-params-ast.json')); [print(k, len(d['params'][k]['ast']['usage_sites']) if d['params'][k]['ast'] else 0) for k in ['-gl_ext', '-nohwtimer', '-allowmultiple', '-gl-forward-only-profile']]"`. If all four show `usage_sites=0`, this entry is unresolved. If any show ≥ 1 with citation in `vid_common_gl.c` / `sys_win.c` / `gl_sdl.c`, the variant matrix has been widened.
+**Updated:** 2026-04-25 late — Recovery option 1 (`-U__linux__` to Apple+Win variants) shipped and flipped 2 of 4 entities. `clang_config.py` change in commit forthcoming.
+**Status:** Partial. 2 entities now source-cited at head: `-gl_ext` at vid_common_gl.c:340 (Win/Apple variant catches the FreeBSD/Apple block now that `__linux__` is undef'd) and `-allowmultiple` at sys_win.c:682 (Win variant reaches the simpler `Sys_Init_` body). 2 entities remain manifest-fallback only and are gated on a separate SDK-stub-headers solve.
+**Verification first:** check the AST output JSON. From `apps/qw-oracle/`: `python3 -c "import json; d=json.load(open('../../packages/qw-config/src/data/ezquake-cmdline-params-ast.json')); [print(k, len(d['params'][k]['ast']['usage_sites']) if d['params'][k]['ast'] else 0) for k in ['-gl_ext', '-nohwtimer', '-allowmultiple', '-gl-forward-only-profile']]"`. Expected current counts: `-gl_ext=1`, `-nohwtimer=0`, `-allowmultiple=1`, `-gl-forward-only-profile=0`. If `-nohwtimer` or `-gl-forward-only-profile` now shows ≥1, the SDK stub-headers solve has landed and this entry can be closed entirely.
 
-### Affected entities
+### Remaining unresolved entities
 
-Four cmdline_params have real `COM_CheckParm` usage sites in source but the 4-variant parse doesn't reach them:
+Two cmdline_params still rely on the manifest-fallback citation only; their real `COM_CheckParm` call sites stay invisible to libclang under Linux:
 
-| Entity | Usage site | Guard / region |
+| Entity | Real call site | Why libclang misses it |
 |---|---|---|
-| `-gl_ext` | `vid_common_gl.c:340` | `#if !defined(_WIN32) && !defined(__linux__)` (FreeBSD/Apple block) |
-| `-gl-forward-only-profile` | `gl_sdl.c:50` | (need to verify guard — file IS visited at L78/85/97 but not L50) |
-| `-nohwtimer` | `sys_win.c:572` | inside Windows-only `#if`, but `sys_win.c` IS visited at L1288 |
-| `-allowmultiple` | `sys_win.c:682` | same as `-nohwtimer` |
+| `-nohwtimer` | `sys_win.c:572` (inside `Sys_InitDoubleTime`) | Function body opens with `__int64 freq; ... QueryPerformanceFrequency((LARGE_INTEGER *)&freq)`. Windows SDK types (`__int64`, `LARGE_INTEGER`, `QueryPerformanceFrequency`) fail under Linux libclang; PARSE_INCOMPLETE recovery skips the compound expression containing the COM_CheckParm. Note: the simpler `if (COM_CheckParm(...))` at sys_win.c:682 (in `Sys_Init_`) and sys_win.c:1278 (in `WinMain`) ARE reached by the Win variant — only function bodies whose surrounding code can't be type-checked get skipped. |
+| `-gl-forward-only-profile` | `gl_sdl.c:50` (inside `GL_SDL_SetupAttributes`) | Function body uses unresolved SDL macros (`SDL_GL_CONTEXT_PROFILE_MASK`, `SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG`, etc.) because `SDL.h` isn't found under Linux libclang. The COM_CheckParm at L50 is embedded in a compound expression `flags \|= cond && COM_CheckParm(X) ? Y : 0`; the parse-incomplete state of the surrounding statements blocks the cursor from surfacing. The simpler `if (COM_CheckParm(...))` calls at L78 and L97 in the next function (`GL_SDL_CreateBestContext`) DO surface — same SDL-missing context, simpler call structure. |
 
-### Suspected root cause
+Probe-confirmed 2026-04-25 by directly parsing gl_sdl.c with the Linux client args: libclang surfaces only L78 and L97, not L50, despite L50 being in the always-compiled `#else`-of-`#ifdef __APPLE__` branch.
 
-Apple variant of the 4-variant parse adds `-D__APPLE__` but doesn't undef `__linux__`. When libclang runs on a Linux host, the host predefines `__linux__` automatically. So the `#if !defined(_WIN32) && !defined(__linux__)` block in `vid_common_gl.c` is still skipped on the Apple variant. Same idea for the Win variant: `-DWIN32 -D_WIN32` is added but `__linux__` not undef'd.
+### Recovery option (consolidated with `-nopriority`)
 
-For `sys_win.c` interior call sites, the file IS visited (L1288 was found) but L572 / L682 aren't. May be the same `__linux__` issue, OR may be parse-incomplete failures part-way through the file when Windows SDK headers don't fully resolve under Linux libclang.
-
-### Recovery options
-
-1. **Add `-U__linux__` to Apple + Win variants** in `clang_args_apple_for` / `clang_args_win_for` (`extractor_lib/clang_config.py`). Cheap to try. Verify by re-extracting head and checking the four entities' `usage_sites` counts.
-2. **Stub Windows SDK headers** (same shape as the deferred `-nopriority` from Layer 1 doc_only audit). Bigger lift, but unblocks the broader class of Windows-SDK-dependent call sites.
-3. **Hand-register usage citations** in a seed YAML if Linux libclang can never reach them.
-
-Try option 1 first — it's the only-touches-a-config-file fix.
+Both remaining entities share the root cause of the deferred `-nopriority` cmdline_param in the (closed) Layer 1 doc_only audit: function bodies whose surrounding code references SDK types Linux libclang can't resolve. The previously-listed Recovery option 2 (stub Windows SDK / SDL headers under `research/repos/ezquake-source/win-sdk-stubs/`) would unblock all three at once. When MVDSV or FTE eventually hits the same wall, a stub-headers directory becomes the cleanest single solve for ezQuake / FTE / MVDSV / KTX simultaneously. Until then, manifest-fallback coverage means these are not grid anomalies.
 
 ### Pressure
 
-Low. The manifest-fallback citation makes this not a grid anomaly any more; the gap is in *usage-site coverage*, not in entity recognition. But cleanly closing it would let `loader_sites` analytics for these flags work right (e.g., "which files actually call -gl_ext" queries).
+Low. Manifest-fallback citations satisfy the grid; the residual gap is `loader_sites` analytics fidelity (queries like "which files actually call -nohwtimer" return empty for these two). The fix is consolidated with `-nopriority` so a single stub-headers effort closes all three deferred entities together.
 
 ### Related
 
 - Cmdline handler: `packages/qw-config/scripts/extractor_lib/handler_cmdline.py`
-- 4-variant clang args: `packages/qw-config/scripts/extractor_lib/clang_config.py`
+- 4-variant clang args: `packages/qw-config/scripts/extractor_lib/clang_config.py` (now with `-U__linux__` for Apple/Win)
 - AST output: `packages/qw-config/src/data/ezquake-cmdline-params-ast.json`
 - Loader fallback: `apps/qw-oracle/scripts/load-knowledge/load-cmdline-params.ts:28-40`
+- Sibling deferred row: Layer 1 doc_only audit § Deferred — `-nopriority` cmdline_param
 
 ---
 
