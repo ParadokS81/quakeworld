@@ -21,6 +21,8 @@ Oracle maintains two SQLite stores side-by-side:
 | Schema-as-code (v6 tables, migrations) | `scripts/load-knowledge/schema.ts` |
 | Knowledge-loader pipeline (types, adapters, CLI) | `scripts/load-knowledge/` |
 | End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
+| Layer 1 deep-time extraction roadmap (cliffs ahead, validation loop) | `docs/layer1-extraction-roadmap.md` |
+| Quality grid (regression + anomaly probes) | `scripts/load-knowledge/quality-grid.ts` |
 | Layer 1 extractors (Python + libclang for ezQuake) | `packages/qw-config/scripts/extract-ezquake-*-clang.py` |
 | Layer 1 seed YAMLs (hand-authored taxonomy, path rules, cvar bindings) | `packages/qw-config/seeds/` |
 | Extractor JSON outputs (versioned in git) | `packages/qw-config/src/data/` |
