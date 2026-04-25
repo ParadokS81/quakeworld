@@ -55,6 +55,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'prune-cross-type-orphans') {
+    await runPruneCrossTypeOrphans(rest);
+    return;
+  }
+
   if (subcommand === 'quality-grid') {
     await runQualityGridCli(rest);
     return;
@@ -85,7 +90,12 @@ Subcommands:
   release-notes --project <p> --version <v> --github-token <token>
   extract-tag   --project <p> --version <v> [--ordinal <n>]
                 [--commit <sha>] [--tag-date <iso8601>]
-                [--github-token <t>] [--skip-release-notes] [--force]
+                [--github-token <t>] [--skip-release-notes]
+                [--skip-prune] [--force]
+  prune-cross-type-orphans --project <p>
+                Run the cross-type help-JSON orphan prune across all
+                entity types. Use at end of a deep-time walk where
+                extract-tag was invoked with --skip-prune.
   review        --project <p> --from <v1> --to <v2>
                 [--out <path>] [--ezquake-repo <path>] [--force]
   quality-grid  --project <p>
@@ -289,6 +299,7 @@ async function runExtractTag(args: string[]): Promise<void> {
       'tag-date': { type: 'string' },
       'github-token': { type: 'string' },
       'skip-release-notes': { type: 'boolean' },
+      'skip-prune': { type: 'boolean' },
       force: { type: 'boolean' },
     },
   });
@@ -309,9 +320,40 @@ async function runExtractTag(args: string[]): Promise<void> {
       tagDate: values['tag-date'],
       githubToken: values['github-token'] ?? process.env.GITHUB_TOKEN,
       skipReleaseNotes: values['skip-release-notes'] ?? false,
+      skipPrune: values['skip-prune'] ?? false,
       force: values.force ?? false,
     });
     console.log(JSON.stringify(result, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+async function runPruneCrossTypeOrphans(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+    },
+  });
+
+  if (!values.project) throw new Error('--project is required');
+
+  const { pruneCrossTypeOrphansAllTypes } = await import('./prune-cross-type-orphans.js');
+  const db = openKnowledgeDb();
+  try {
+    const results = pruneCrossTypeOrphansAllTypes(db, values.project as Project);
+    const total = results.reduce((sum, r) => sum + r.pruned, 0);
+    const breakdown = results
+      .filter(r => r.pruned > 0)
+      .map(r => `${r.type}=${r.pruned}`)
+      .join(' ');
+    console.log(JSON.stringify({
+      project: values.project,
+      total_pruned: total,
+      breakdown,
+      per_type: results,
+    }, null, 2));
   } finally {
     db.close();
   }

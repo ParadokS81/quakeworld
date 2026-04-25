@@ -95,6 +95,12 @@ export interface ExtractTagOptions {
   githubToken?: string;
   skipReleaseNotes?: boolean;
   force?: boolean;
+  // Skip the cross-type help-JSON orphan prune at end of each per-type
+  // load. Use during deep-time walks to avoid the partial-state artifact
+  // where an entity is doc_only at newer tags but source-defined at
+  // not-yet-loaded older tags. Run `prune-cross-type-orphans` once at
+  // end of walk.
+  skipPrune?: boolean;
 }
 
 export interface ExtractTagResult {
@@ -202,6 +208,7 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
       ordinal: options.ordinal,
       extractorVersion: EXTRACTOR_VERSION_DEFAULT,
       forceOverwrite: options.force ?? false,
+      skipPrune: options.skipPrune ?? false,
     });
     entitiesLoaded[type] = result.entityCount;
   }

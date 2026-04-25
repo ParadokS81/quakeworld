@@ -79,6 +79,7 @@ import {
   flagBitIsSourceBacked,
   upsertFlagBitRow,
 } from './load-flag-bits.js';
+import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
   Project,
@@ -99,6 +100,11 @@ export interface LoadVersionOptions {
   notes?: string | null;
   extractorVersion: string;
   forceOverwrite?: boolean;
+  // Skip the cross-type help-JSON orphan prune at end of this load. Use
+  // during deep-time walks to avoid the partial-state artifact where an
+  // entity is doc_only at newer tags but source-defined at not-yet-loaded
+  // older tags. Run pruneCrossTypeOrphansAllTypes once at end of walk.
+  skipPrune?: boolean;
 }
 
 export interface LoadVersionResult {
@@ -422,49 +428,21 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       upserted += 1;
     }
 
-    // Cross-type help-JSON orphan cleanup. Help-JSON files occasionally label
-    // a name under the wrong entity type (e.g. `radar` is registered via
-    // HUD_Register so it lands as `hud_element source_backed`, but
-    // help_commands.json ALSO lists `radar` → commands extractor emits it with
-    // ast=null → loader creates `command doc_only`). The loader-side check:
-    // if a doc_only entity of the current type has a same-name, same-project
-    // source_backed counterpart under any OTHER type, the current row is a
-    // help-JSON labeling artifact and should be pruned. Delete from the
-    // per-type versions table, transitions, overrides, and entities. Runs
-    // per-type so each load-version invocation cleans up only the orphans it
-    // would otherwise produce, and re-running the loader is idempotent.
-    const findOrphansStmt = options.db.prepare(`
-      SELECT e.id FROM entities e
-      WHERE e.project = ? AND e.type = ? AND e.source_state = 'doc_only'
-        AND EXISTS (
-          SELECT 1 FROM entities e2
-          WHERE e2.project = e.project
-            AND e2.name = e.name
-            AND e2.type != e.type
-            AND e2.source_state = 'source_backed'
-        )
-    `);
-    const orphanRows = findOrphansStmt.all(options.project, options.type) as { id: number }[];
+    // Cross-type help-JSON orphan cleanup, scoped to this load's type. See
+    // prune-cross-type-orphans.ts for the rationale and the order-sensitivity
+    // caveat. Skipped during deep-time walks (see options.skipPrune); a final
+    // pruneCrossTypeOrphansAllTypes call at end of walk reconciles state.
+    const orphansPrunedCount = options.skipPrune
+      ? 0
+      : pruneCrossTypeOrphans({
+          db: options.db,
+          project: options.project,
+          type: options.type,
+        }).pruned;
 
-    if (orphanRows.length > 0) {
-      const deleteVersions = options.db.prepare(
-        `DELETE FROM ${adapter.versionsTable} WHERE entity_id = ?`,
-      );
-      const deleteTransitions = options.db.prepare(
-        `DELETE FROM source_state_transitions WHERE entity_id = ?`,
-      );
-      const deleteOverrides = options.db.prepare(
-        `DELETE FROM source_overrides WHERE entity_id = ?`,
-      );
-      const deleteEntity = options.db.prepare(`DELETE FROM entities WHERE id = ?`);
-      for (const { id } of orphanRows) {
-        deleteVersions.run(id);
-        deleteTransitions.run(id);
-        deleteOverrides.run(id);
-        deleteEntity.run(id);
-      }
+    if (orphansPrunedCount > 0) {
       console.log(
-        `[load-version] pruned ${orphanRows.length} ${options.type} help-JSON orphan(s) ` +
+        `[load-version] pruned ${orphansPrunedCount} ${options.type} help-JSON orphan(s) ` +
         `(cross-type source_backed counterpart exists for ${options.project})`,
       );
     }
@@ -574,7 +552,7 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     setMeta.run(`${options.project}:source_repo_commit`, options.commitSha);
     setMeta.run(`${options.project}:source_repo_tag`, options.tagDate ? options.version : '');
 
-    return { upserted, transitions, orphansPruned: orphanRows.length };
+    return { upserted, transitions, orphansPruned: orphansPrunedCount };
   });
 
   const { upserted, transitions, orphansPruned } = txn();

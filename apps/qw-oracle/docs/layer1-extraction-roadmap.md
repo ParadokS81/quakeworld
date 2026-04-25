@@ -12,9 +12,9 @@ Vision context: `apps/qw-oracle/VISION.md`. Schema: `scripts/load-knowledge/sche
 
 The single workflow that drives everything below:
 
-1. `extract-tag --project <p> --version <v>` (omit `--ordinal` for head; default for tags is the semver-encoded number, e.g. 3.6.6 -> 366).
-2. `quality-grid --project <p>`.
-3. **All regression PASS, anomalies CLEAN or expected** -> proceed to next tag.
+1. `extract-tag --project <p> --version <v> --skip-prune` (omit `--ordinal` for head; default for tags is the semver-encoded number, e.g. 3.6.6 -> 366).
+2. `quality-grid --project <p>` -- F1.cross_type_orphans may FAIL during a walk; that's expected (see "Walk procedure" below). Other regressions must PASS.
+3. **All regression PASS (modulo cross_type_orphans during walk), anomalies CLEAN or expected** -> proceed to next tag.
 4. **Anomaly surfaces**:
    - Investigate: hypothesise a cause, write a probe to test, verify against primary source (`git grep` or libclang trace).
    - Fix at the right layer (extractor / loader / schema). Each fix promotes its surfacing anomaly to a Family 1 regression probe.
@@ -22,6 +22,28 @@ The single workflow that drives everything below:
    - Confirm grid clean before proceeding.
 
 Each lap adds permanent invariants. The grid carries forward what each session learned.
+
+### Walk procedure (deep-time walks)
+
+The cross-type help-JSON orphan prune is order-sensitive: when walking
+backward (newer tags first), it will incorrectly delete entities that are
+doc_only at newer tags but real-source-defined at not-yet-loaded older tags
+(e.g. `scr_weaponstats_x` cvar at v3.0.1 was deleted during 3.6.x loads,
+forcing re-extraction once v3.0.1 revealed the cvar's actual source
+presence). The fix:
+
+1. **During the walk:** pass `--skip-prune` to every `extract-tag`
+   invocation. The per-load prune is skipped; orphans accumulate during
+   the walk. F1.cross_type_orphans WILL fail; treat as informational.
+2. **After all tags loaded:** run `npm run load-knowledge -- prune-cross-type-orphans --project <p>`.
+   The finalize sweeps all entity types project-wide, and the entity-level
+   `source_state` now reflects the full picture so the prune correctly
+   identifies permanent help-JSON mislabels (radar, password, etc.) vs.
+   real legacy aliases with older-version source presence.
+3. **Re-run the grid:** F1.cross_type_orphans now passes.
+
+Single-tag loads (no walk) can omit `--skip-prune`; the per-load prune
+fires as before because there is no "later" tag to reveal source presence.
 
 ## Status snapshot (2026-04-25, late session)
 
