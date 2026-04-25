@@ -82,12 +82,13 @@ Each Layer 1 loader adapter is ~40-50 lines; shared scaffolding lives in `load-v
 ```bash
 # Layer 1 loader (run from apps/qw-oracle/)
 npm run typecheck                                         # bunx tsc --noEmit
-npm run load-knowledge -- load-version --project <p> --version <v> --type <t> --json <path> --commit <sha> --ordinal <n>
-npm run load-knowledge -- load-assets   --project <p> --version <v> --json <bundle> --commit <sha> --ordinal <n>
+npm run load-knowledge -- load-version --project <p> --version <v> --type <t> --json <path> --commit <sha> [--ordinal <n>]
+npm run load-knowledge -- load-assets   --project <p> --version <v> --json <bundle> --commit <sha> [--ordinal <n>]
 npm run load-knowledge -- diff          --project <p> --from <v1> --to <v2>
 npm run load-knowledge -- enrich        --project <p> --github-token <t> [--limit <n>]
-npm run load-knowledge -- extract-tag   --project <p> --version <v> --ordinal <n>  # atomic: checkout + extract + loaders
-npm run load-knowledge -- review        --project <p> --from <v1> --to <v2>        # emits findings JSON + draft .md
+npm run load-knowledge -- extract-tag   --project <p> --version <v> [--ordinal <n>]  # atomic: checkout + extract + loaders
+npm run load-knowledge -- review        --project <p> --from <v1> --to <v2>          # emits findings JSON + draft .md
+npm run load-knowledge -- quality-grid  --project <p> [--family regression|anomaly|both] [--probe <name>] [--list] [--json]
 
 # Layer 2 corpus (legacy .mjs scripts)
 npm run import:discord
