@@ -15,7 +15,8 @@
 //   apps/qw-oracle/scripts/extractors/<project>/output/<project>-asset-loader-sites-ast.json
 //   apps/qw-oracle/scripts/extractors/<project>/output/<project>-asset-cvar-bindings-ast.json
 //
-// Output (slipgate-consumed location): packages/qw-config/src/data/<project>-asset-bundle.json
+// Output (slipgate-consumed location): apps/slipgate-app/src/lib/config/data/<project>-asset-bundle.json
+// (relocated from packages/qw-config/src/data/ in qw-config dissolution Half 2a, 2026-04-25).
 
 import { writeFileSync, readFileSync } from 'fs';
 import { parseArgs } from 'util';
@@ -39,9 +40,9 @@ import type {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, '../../../..');
 const DEFAULT_EXTRACTORS_DIR = resolve(REPO_ROOT, 'apps/qw-oracle/scripts/extractors');
-// Bundle output stays in qw-config until slipgate-app migrates to oracle snapshots
-// (qw-config dissolution Half 2). Slipgate's bundle.ts imports from this path.
-const DEFAULT_BUNDLE_OUTPUT_DIR = resolve(REPO_ROOT, 'packages/qw-config/src/data');
+// Slipgate absorbed the bundle location during qw-config dissolution Half 2a
+// (2026-04-25); the legacy packages/qw-config/src/data/ tree is gone.
+const DEFAULT_BUNDLE_OUTPUT_DIR = resolve(REPO_ROOT, 'apps/slipgate-app/src/lib/config/data');
 
 interface CategorySeed {
   name: string;

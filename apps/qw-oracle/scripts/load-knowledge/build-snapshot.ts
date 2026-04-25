@@ -22,11 +22,12 @@
 
 import Database from 'better-sqlite3';
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Project } from './types.js';
 import { SCHEMA_VERSION } from './schema.js';
+import { buildAssetBundle } from './build-asset-bundle.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MONOREPO_ROOT = join(__dirname, '..', '..', '..', '..');
@@ -447,6 +448,33 @@ function emitQwclVariables(
   return writeJson(join(outputDir, 'qwcl-variables.json'), out, out.length);
 }
 
+// ─── asset bundle emit ─────────────────────────────────────────────────────
+//
+// Delegates to build-asset-bundle.ts, which is the canonical seed-merging
+// pipeline (4 seed YAMLs + 3 AST output JSONs → 1 bundle JSON). Calling it
+// here ensures the bundle in slipgate's data dir reflects the FULL current
+// state of asset taxonomy: every extension recognized by the extractor,
+// every cvar binding the seed + AST reconciler emitted, every loader site
+// from the unified extractor's last run, plus client_defaults + reserved_subdirs
+// derived live. The relation tables in knowledge.db carry only the subset
+// without the Path 1 path_template fields, so going through buildAssetBundle
+// (which reads from the AST JSONs directly) preserves the richer shape.
+
+function emitEzqAssetBundle(
+  project: Project,
+  version: string,
+  outputDir: string,
+): { count: number; bytes: number } {
+  const outputPath = join(outputDir, `${project}-asset-bundle.json`);
+  const result = buildAssetBundle({ project, version, outputPath });
+  const bytes = statSync(outputPath).size;
+  return {
+    count: result.extensionCount + result.pathRuleCount
+         + result.cvarBindingCount + result.loaderSiteCount,
+    bytes,
+  };
+}
+
 // ─── meta + writer ─────────────────────────────────────────────────────────
 
 interface SnapshotMeta {
@@ -533,6 +561,8 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
       files.push({ file: `${opts.project}-macros.json`, entities: m.count, bytes: m.bytes });
       const cl = emitEzqCmdline(db, opts.project, version, meta, outputDir);
       files.push({ file: `${opts.project}-cmdline-params.json`, entities: cl.count, bytes: cl.bytes });
+      const ab = emitEzqAssetBundle(opts.project, version, outputDir);
+      files.push({ file: `${opts.project}-asset-bundle.json`, entities: ab.count, bytes: ab.bytes });
     } else {
       throw new Error(`build-snapshot does not yet support project=${opts.project}.`);
     }
