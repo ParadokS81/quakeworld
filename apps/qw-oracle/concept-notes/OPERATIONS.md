@@ -252,13 +252,41 @@ Weapon-scripts Path-2 rewrite completed 2026-04-24 as the first Layer 3 note car
 
 Not bare assertion. If a recommendation can't be traced to one of these three grounds, either it's not ready for Layer 3 or the authoring authority needs to be surfaced.
 
-**Trigger for formalizing as a rule:** the second R7 note's authoring experience. Candidate: per-weapon-sensitivity-tuning. If the same authority-grounding pattern holds across two different R7 topics, promote to a Layer 3 authoring rule in §3 or §4. If the second note exposes different discipline, update this entry first.
+**Trigger for formalizing as a rule:** the second R7 note's authoring experience.
+
+**Second instance landed 2026-04-25:** `lightning-gun-customization.md` is R2+R7 flavored (feature-family workflow with opinionated competitive recipe). Authority-grounding rule held cleanly — every recommendation traced to engine mechanics (source-cited), operator SME (@ParadokS for recipe + silent-override gotcha), or both. Community-consensus-via-commit-message wasn't required this time because the other two grounds were strong; the rule as written ("at least one of") covered the case. No rule change. Confirming instance, hold for third.
 
 ### 2026-04-24 — Progressive-disclosure structure for long notes
 
 Weapon-scripts note (230 lines) structures its opening ~20 lines as a standalone answer (Summary + three-methods-glance table). The rest is drill-down depth. Rationale: MCP delivery can condense regardless of note length, so the note stays comprehensive while default serving stays short.
 
 **Trigger for formalizing as a rule:** a second note intentionally using the same structure, ideally of a different shape (R5 infrastructure + R7 advice). If the pattern holds across 2+ notes, promote to a Layer 3 authoring rule in §3 (note shape) or §5 (template). Until then, treat as weapon-scripts-specific observation.
+
+**Second instance landed 2026-04-25:** `lightning-gun-customization.md` (Domain walkthrough shape, R2+R7 flavor — different from weapon-scripts' Domain walkthrough + R3+R7 mix) intentionally uses the same structure: Summary + Mechanical behavior together stand alone as a ~60-line default-serve answer. Visual / Audio / Ruleset / Cross-engine are drill-downs. Pattern holds across 2 notes of different role mixes. Confirming instance, holding for third before promoting to a `README.md` template rule per rule-of-three discipline.
+
+### 2026-04-25 — Chat-trigger auto-responses (fcheck family) at a Layer 1 modeling boundary
+
+Surfaced during `lightning-gun-customization.md` authoring. The `f_fakeshaft` chat trigger and siblings (`f_scripts`, `f_version`, `f_skins`, `f_cmdline`, `f_system`) register via `Util_F_Match` in `fchecks.c`, not `Cmd_AddCommand`. Layer 1's current schema (`cvar | command | macro | cmdline_param | keyname | hud_element | ruleset | token_primitive | flag_bit | asset_category`) has no category for chat-triggered auto-response handlers. Related commands `f_ruleset`, `f_server`, `f_modified` DO appear in Layer 1 because they're dual-form (also registered as console commands); the chat-trigger-only siblings sit at a modeling boundary rather than in any extractor gap set.
+
+Not an extractor bug, not a schema change proposal yet. One instance. Captured so a future note touching the same family doesn't re-derive the distinction. If a second note independently references chat-trigger handlers as a first-class concept, promote to a schema-evolution discussion.
+
+### 2026-04-25 — All-datasets-verified gate before drafting (guide-rewrite process)
+
+Surfaced during `lightning-gun-customization.md` session. First draft went out with (a) incomplete Phase 5 ruleset data — the scan only checked `disabled_cvars[]` arrays in `rulesets.c` and missed the `CVAR_RULESET_MIN | CVAR_RULESET_MAX` declaration-clamp pattern + behavior-gate mechanisms (`Rulesets_RestrictParticles()` short-circuits in render code) — and (b) no operator consultation on the competitive recipe. Result: draft recommended a ruleset-prohibited cvar (`r_shaftalpha`) and a movie-maker cvar (`gl_lightning 1`) for competitive play. Operator caught both on first read.
+
+**Process rule the session derived:** Phase 7 classification is the gate. Before drafting, verify all five datasets are complete:
+
+1. Entity set complete (Phase 2).
+2. Ruleset scan covers ALL six restriction mechanisms — `disabled_cvars[]`, `CVAR_RULESET_MIN | CVAR_RULESET_MAX` at declaration, `Rulesets_OnChange_*` handlers, behavior gates (`Rulesets_RestrictX()` checks at read sites), hard-coded clamps in cvar read paths, CVAR flag-based restrictions at declaration.
+3. Layer 1 `desc` field pulled verbatim for each entity.
+4. Cross-engine scan complete (Phase 6).
+5. Operator recipe captured when the note carries opinionated recommendations (R7-flavored notes).
+
+If any of the five are incomplete, cycle back — don't draft speculatively.
+
+**Implementation:** captured at the skill level as Phase 7.5 — Operator consult — in `~/.claude/skills/guide-rewrite/SKILL.md`, with role-keyed question templates so the consult is focused, not open-ended chat. Phase 5 also expanded to enumerate the six ruleset-restriction mechanisms exhaustively rather than surface-scanning the first one that matches.
+
+**Rationale for OPERATIONS-level capture:** the *why* belongs in OPERATIONS so future skill maintainers understand what the gate prevents. The *how* lives in the skill file. Both pointers cross-reference each other.
 
 ---
 
