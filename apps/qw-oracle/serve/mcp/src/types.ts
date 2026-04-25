@@ -1,6 +1,6 @@
 // Shared MCP tool response shapes.
-// The match_quality + suggested_fallback fields let consumer-side outlets
-// implement their own fallback policy without the server knowing about it.
+// match_quality + suggested_fallback let consumer-side outlets implement
+// their own fallback policy without the server knowing about it.
 
 export type MatchQuality = 'strong' | 'weak' | 'none';
 
@@ -15,42 +15,67 @@ export interface ToolResponse<T = unknown> {
   };
 }
 
-// Unified entity record: a cvar or a command. The `type` discriminator lets
-// consumer LLMs render them differently (cvars have default values, commands
-// don't). Same MCP tool returns both; the demo query often hits one of each.
-//
-// Note: there is no `linked_sessions` field. Cross-layer linking to Layer 2
-// happens by calling `search_solved_issues` with the entity name afterwards,
-// not by precomputed junction at build time.
+// User-facing entity types. Layer 1 also stores keyname/hud_element/
+// token_primitive/flag_bit/asset_category for internal classifier use, but
+// those are not directly looked up by humans and stay out of the MCP surface.
+export type EntityType = 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset';
+
+export type SourceState =
+  | 'source_backed'
+  | 'source_retired'
+  | 'doc_only'
+  | 'dynamically_registered';
+
+// Per-type version-table fields. Each entity type has a different shape; we
+// expose a small common set plus an optional type_specific blob with the
+// remaining columns so the asking LLM can read everything without a second
+// tool call.
+export interface EntityVersionData {
+  version: string;
+  help_desc: string | null;
+  help_remarks: string | null;
+  help_type: string | null;
+  default_value: string | null;
+  flag_names: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  type_specific: Record<string, unknown>;
+}
+
+export interface AssetRelation {
+  category: string;
+  extension: string | null;
+  loader_site: string | null;
+  source_file: string | null;
+  source_line: number | null;
+}
+
+// What lookup_entity / search_entities returns. The librarian's catalog
+// card: identity + state + version arc + cross-references, all in one shot.
 export interface EntityRecord {
   id: string;
-  type: 'cvar' | 'command';
+  type: EntityType;
   project: string;
   name: string;
-  value_type: string | null;       // cvar only: 'float' | 'int' | 'string' | 'bool' | 'enum'
-  default_value: string | null;    // cvar only
-  description: string | null;
-  group_name: string | null;
-  major_group: string | null;      // cvar only (commands don't carry a major group)
-  source_file: string | null;      // populated for FTE rows, null for ezquake/ktx scraped rows
-  extraction_method: string;       // 'scraped-json' | 'ast-extractor' | 'hand-curated'
-  linked_concepts: string[];       // reverse-indexed at startup from concept note frontmatter
+  source_state: SourceState;
+  first_seen_version: string;
+  last_seen_version: string;
+  current: EntityVersionData;
+  asset_relations: AssetRelation[];
+  linked_concepts: string[];
 }
 
 // One message inside a session, in the shape the outlet LLM consumes.
 export interface SessionMessage {
   author: string;
-  at: string;   // ISO 8601 timestamp
+  at: string;
   text: string;
-  discord_url?: string;  // present for platform='discord' messages whose channel is in discord_channels
+  discord_url?: string;
 }
 
-// A session hit from search_solved_issues. Mirrors the shape of
-// formatSessionForMcp() in layers/claims/get-session-text.mjs but inlined here
-// so the MCP server is self-contained.
 export interface SessionHit {
-  session_id: string;          // canonical: session:<platform>:<channel>:<started_at>
-  numeric_id: number;          // raw row id in the `sessions` table (for joining)
+  session_id: string;
+  numeric_id: number;
   channel: string;
   platform: 'irc' | 'discord' | string;
   started_at: string;
@@ -58,22 +83,17 @@ export interface SessionHit {
   chat_message_count: number;
   participants: string[];
   messages: SessionMessage[];
-  rank: number;                // FTS5 bm25 relevance; lower is better
+  rank: number;
 }
 
+// Concept note with full frontmatter passthrough. The librarian shows the
+// catalog card: contributors, source URL, scope, engines covered, and
+// anything else the note's frontmatter declares.
 export interface ConceptNote {
   id: string;
   title: string;
-  description: string;
   body: string;
-  tags: string[];
-  references: {
-    cvars: string[];
-    commands: string[];
-    sessions: string[];
-    concepts: string[];
-  };
-  authored_by: string;
-  authored_at: string;
-  confidence: string;
+  related_entities: string[];
+  external_refs: string[];
+  frontmatter: Record<string, unknown>;
 }

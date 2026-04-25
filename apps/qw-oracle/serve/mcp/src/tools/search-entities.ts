@@ -1,127 +1,113 @@
-import { db } from '../db.ts';
-import type { EntityRecord, ToolResponse } from '../types.ts';
+import { knowledgeDb } from '../db.ts';
+import { toEntityRecord, type EntityRow } from '../entity-record.ts';
+import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
 
-const SERVER_VERSION = '0.1.0';
+const SERVER_VERSION = '0.2.0';
 
 interface SearchEntitiesArgs {
   query: string;
   project?: string;
-  type?: 'cvar' | 'command';
+  type?: EntityType;
   limit?: number;
 }
 
-interface RawCvarRow {
-  id: string;
-  project: string;
-  name: string;
-  type: string | null;
-  default_value: string | null;
-  description: string | null;
-  group_name: string | null;
-  major_group: string | null;
-  source_file: string | null;
-  extraction_method: string;
+const VERSION_TABLE: Record<EntityType, string> = {
+  cvar: 'cvar_versions',
+  command: 'command_versions',
+  macro: 'macro_versions',
+  cmdline_param: 'cmdline_param_versions',
+  ruleset: 'ruleset_versions',
+};
+
+const ALL_TYPES: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
+
+function buildFilters(args: SearchEntitiesArgs, params: (string | number)[]): string[] {
+  const filters: string[] = [];
+  if (args.project) {
+    filters.push(`e.project = ?${params.length + 1}`);
+    params.push(args.project);
+  }
+  if (args.type) {
+    filters.push(`e.type = ?${params.length + 1}`);
+    params.push(args.type);
+  } else {
+    filters.push("e.type IN ('cvar','command','macro','cmdline_param','ruleset')");
+  }
+  return filters;
 }
 
-interface RawCmdRow {
-  id: string;
-  project: string;
-  name: string;
-  description: string | null;
-  group_name: string | null;
-  extraction_method: string;
+// Name match comes first, ranked highest. Substring match against canonical
+// name in the entities table; one query covers all five types.
+function nameMatchEntities(args: SearchEntitiesArgs, limit: number): EntityRow[] {
+  const params: (string | number)[] = [`%${args.query}%`];
+  const filters = buildFilters(args, params);
+  filters.unshift('e.name LIKE ?1 COLLATE NOCASE');
+  params.push(limit);
+  const sql = `
+    SELECT e.id, e.canonical_id, e.project, e.type, e.name, e.source_state,
+           e.first_seen_version, e.last_seen_version
+    FROM entities e
+    WHERE ${filters.join(' AND ')}
+    ORDER BY e.name
+    LIMIT ?${params.length}
+  `;
+  return knowledgeDb.prepare(sql).all(...params) as unknown as EntityRow[];
 }
 
-function cvarToEntity(r: RawCvarRow, conceptIndex: Map<string, string[]>): EntityRecord {
-  return {
-    id: r.id,
-    type: 'cvar',
-    project: r.project,
-    name: r.name,
-    value_type: r.type,
-    default_value: r.default_value,
-    description: r.description,
-    group_name: r.group_name,
-    major_group: r.major_group,
-    source_file: r.source_file,
-    extraction_method: r.extraction_method,
-    linked_concepts: conceptIndex.get(r.id) ?? [],
-  };
+// Description match: per-type, joining each version table at last_seen_version.
+// Run only for types in scope, only up to the remaining quota.
+function descriptionMatchEntities(
+  args: SearchEntitiesArgs,
+  remaining: number,
+  exclude: Set<string>,
+): EntityRow[] {
+  if (remaining <= 0) return [];
+  const types = args.type ? [args.type] : ALL_TYPES;
+  const out: EntityRow[] = [];
+  for (const t of types) {
+    if (out.length >= remaining) break;
+    const slots = remaining - out.length;
+    const versionTable = VERSION_TABLE[t];
+    const params: (string | number)[] = [`%${args.query}%`, t];
+    const projectFilter = args.project ? `AND e.project = ?${params.length + 1}` : '';
+    if (args.project) params.push(args.project);
+    params.push(slots);
+    const sql = `
+      SELECT e.id, e.canonical_id, e.project, e.type, e.name, e.source_state,
+             e.first_seen_version, e.last_seen_version
+      FROM entities e
+      JOIN ${versionTable} v ON v.entity_id = e.id AND v.version = e.last_seen_version
+      WHERE v.help_desc LIKE ?1 COLLATE NOCASE
+        AND e.type = ?2
+        ${projectFilter}
+      ORDER BY e.name
+      LIMIT ?${params.length}
+    `;
+    const rows = knowledgeDb.prepare(sql).all(...params) as unknown as EntityRow[];
+    for (const r of rows) {
+      if (!exclude.has(r.canonical_id)) out.push(r);
+    }
+  }
+  return out;
 }
 
-function cmdToEntity(r: RawCmdRow, conceptIndex: Map<string, string[]>): EntityRecord {
-  return {
-    id: r.id,
-    type: 'command',
-    project: r.project,
-    name: r.name,
-    value_type: null,
-    default_value: null,
-    description: r.description,
-    group_name: r.group_name,
-    major_group: null,
-    source_file: null,
-    extraction_method: r.extraction_method,
-    linked_concepts: conceptIndex.get(r.id) ?? [],
-  };
-}
-
-// Substring search on name and description. Name matches rank higher
-// than description-only matches via ORDER BY.
 export function searchEntities(
   args: SearchEntitiesArgs,
   conceptIndex: Map<string, string[]>,
 ): ToolResponse<EntityRecord> {
   const limit = Math.min(args.limit ?? 10, 25);
-  const pattern = `%${args.query}%`;
 
-  const wantCvars = args.type !== 'command';
-  const wantCmds = args.type !== 'cvar';
-  const results: EntityRecord[] = [];
+  const nameMatches = nameMatchEntities(args, limit);
+  const seen = new Set(nameMatches.map((e) => e.canonical_id));
+  const descMatches = descriptionMatchEntities(args, limit - nameMatches.length, seen);
 
-  if (wantCvars) {
-    const sql = args.project
-      ? `SELECT id, project, name, type, default_value, description, group_name, major_group, source_file, extraction_method
-         FROM kb_cvars WHERE (name LIKE ?1 OR description LIKE ?1) AND project = ?2
-         ORDER BY (name LIKE ?1) DESC, name
-         LIMIT ?3`
-      : `SELECT id, project, name, type, default_value, description, group_name, major_group, source_file, extraction_method
-         FROM kb_cvars WHERE name LIKE ?1 OR description LIKE ?1
-         ORDER BY (name LIKE ?1) DESC, name
-         LIMIT ?2`;
-
-    const rows = (args.project
-      ? db.prepare(sql).all(pattern, args.project, limit)
-      : db.prepare(sql).all(pattern, limit)) as unknown as RawCvarRow[];
-    for (const r of rows) results.push(cvarToEntity(r, conceptIndex));
-  }
-
-  if (wantCmds) {
-    const remaining = limit - results.length;
-    if (remaining <= 0) {
-      // Already at limit from cvars
-    } else {
-      const sql = args.project
-        ? `SELECT id, project, name, description, group_name, extraction_method
-           FROM kb_commands WHERE (name LIKE ?1 OR description LIKE ?1) AND project = ?2
-           ORDER BY (name LIKE ?1) DESC, name
-           LIMIT ?3`
-        : `SELECT id, project, name, description, group_name, extraction_method
-           FROM kb_commands WHERE name LIKE ?1 OR description LIKE ?1
-           ORDER BY (name LIKE ?1) DESC, name
-           LIMIT ?2`;
-
-      const rows = (args.project
-        ? db.prepare(sql).all(pattern, args.project, remaining)
-        : db.prepare(sql).all(pattern, remaining)) as unknown as RawCmdRow[];
-      for (const r of rows) results.push(cmdToEntity(r, conceptIndex));
-    }
-  }
+  const allRows = [...nameMatches, ...descMatches];
+  const results = allRows.map((e) => toEntityRecord(e, conceptIndex));
 
   let matchQuality: 'strong' | 'weak' | 'none';
   if (results.length === 0) {
     matchQuality = 'none';
-  } else if (results.some((r) => r.name.toLowerCase().includes(args.query.toLowerCase()))) {
+  } else if (nameMatches.length > 0) {
     matchQuality = 'strong';
   } else {
     matchQuality = 'weak';
@@ -132,7 +118,7 @@ export function searchEntities(
     match_quality: matchQuality,
     suggested_fallback:
       matchQuality === 'none'
-        ? `No cvars or commands matching "${args.query}" in Layer 1. Try broader terms or search_solved_issues for Layer 2 discussion.`
+        ? `No entities match "${args.query}". Try a broader term or search_solved_issues for Layer 2 community discussion.`
         : null,
     meta: {
       tool: 'search_entities',

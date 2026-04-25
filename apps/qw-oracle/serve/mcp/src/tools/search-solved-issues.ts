@@ -7,10 +7,10 @@
 // No build-time summariser. No precomputed entity-mention index. FTS5's
 // bm25 rank ordering does the work.
 
-import { db } from '../db.ts';
+import { corpusDb as db } from '../db.ts';
 import type { SessionHit, SessionMessage, ToolResponse } from '../types.ts';
 
-const SERVER_VERSION = '0.1.0';
+const SERVER_VERSION = '0.2.0';
 
 interface SearchSolvedIssuesArgs {
   query: string;

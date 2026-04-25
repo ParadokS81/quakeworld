@@ -11,7 +11,9 @@ Oracle maintains two SQLite stores side-by-side:
 | `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits) plus a source_overrides blame index. Source-derived, version-aware, canonical. | ezQuake across 8 tags + head (schema v9; 3.2.3 + 3.6.0/.1/.2/.5/.6/.8/.9 + head). FTE/MVDSV/KTX pending. |
 | `data/qw.db` | **Layer 2** - community chat corpus (IRC 2005-2016 + Discord 2016-present). ~2.66M messages. | Fully imported. Processing pipeline not yet built. |
 
-**Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) bootstrapped 2026-04-22 with two prototype notes at `concept-notes/`. `get_concept_note` MCP tool integration is future work.
+**Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) lives at `concept-notes/`. Nine notes shipped as of 2026-04-25.
+
+**MCP server** at `serve/mcp/`. Four tools: `lookup_entity` (case-insensitive name lookup across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes), `search_entities` (substring search by name or current help text), `get_concept_note` (Layer 3 retrieval with full frontmatter passthrough), `search_solved_issues` (FTS5 over the chat corpus). Runs under Bun reading both `data/knowledge.db` (Layer 1) and `data/qw.db` (Layer 2) read-only. Tool-description rewrite shipped 2026-04-25 (v0.2.0); the librarian volunteers cross-references in one tool call.
 
 ## Where to find things
 

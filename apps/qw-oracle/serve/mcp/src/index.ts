@@ -10,27 +10,23 @@ import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchSolvedIssues } from './tools/search-solved-issues.ts';
 import { getConceptNote } from './tools/get-concept-note.ts';
 import { searchEntities } from './tools/search-entities.ts';
+import type { EntityType } from './types.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> layers/concepts
-const CONCEPTS_DIR = resolve(__dirname, '..', '..', '..', 'layers', 'concepts');
+// serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> concept-notes
+const CONCEPTS_DIR = resolve(__dirname, '..', '..', '..', 'concept-notes');
 
 const conceptStore = loadAllConcepts(CONCEPTS_DIR);
 
-// Reverse index: entity_id -> [concept_id, ...]
-// Built once at startup from concept frontmatter. Used by lookup_entity to
-// populate linked_concepts without any runtime SQL.
+// Reverse index: entity_canonical_id -> [concept_id, ...]
+// Built once at startup from concept frontmatter so lookup_entity and
+// search_entities can populate linked_concepts without runtime SQL.
 const conceptIndex = new Map<string, string[]>();
 for (const [conceptId, note] of conceptStore) {
-  for (const cvarId of note.references.cvars) {
-    const list = conceptIndex.get(cvarId) ?? [];
+  for (const entityId of note.related_entities) {
+    const list = conceptIndex.get(entityId) ?? [];
     list.push(conceptId);
-    conceptIndex.set(cvarId, list);
-  }
-  for (const cmdId of note.references.commands) {
-    const list = conceptIndex.get(cmdId) ?? [];
-    list.push(conceptId);
-    conceptIndex.set(cmdId, list);
+    conceptIndex.set(entityId, list);
   }
 }
 
@@ -38,8 +34,10 @@ console.error(
   `[qw-oracle-mcp] loaded ${conceptStore.size} concept notes, ${conceptIndex.size} cross-ref entries`,
 );
 
+const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
+
 const server = new Server(
-  { name: 'qw-oracle', version: '0.1.0' },
+  { name: 'qw-oracle', version: '0.2.0' },
   { capabilities: { tools: {} } },
 );
 
@@ -48,61 +46,48 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'lookup_entity',
       description:
-        'Look up a QuakeWorld cvar OR command by name across all known projects (ezquake, ktx, fte, mvdsv). Returns Layer 1 rows (cvars and/or commands with a type discriminator) plus any linked Layer 3 concept notes. Use this when you have a name from a config or a user question and want to know what it is and where it comes from. For Layer 2 discussion history about the entity, call search_solved_issues with the entity name afterwards.',
+        'Look up a QuakeWorld entity by name across the four engine projects (ezquake, ktx, fte, mvdsv) and the five user-facing entity types (cvar, command, macro, cmdline_param, ruleset). Case-insensitive. Returns rich Layer 1 records: identity + project + type + source_state (live | retired | doc-only | dynamically-registered) + first_seen_version + last_seen_version + current per-version snapshot (default value, help text, type, flags, source file:line, plus any type-specific columns) + asset relations for cvars (which file categories the cvar controls) + linked Layer 3 concept notes that reference this entity. One call returns everything the asking LLM needs about the entity at its current state. For community discussion about the entity, call search_solved_issues with the entity name afterwards.',
       inputSchema: {
         type: 'object',
         properties: {
           name: {
             type: 'string',
-            description: 'Entity name, e.g. cl_bob or rpickup. Literal match, case-sensitive.',
+            description: 'Entity name, e.g. cl_bob or rpickup. Case-insensitive.',
           },
           project: {
             type: 'string',
-            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv | qwcl.',
+            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv.',
           },
           type: {
             type: 'string',
-            enum: ['cvar', 'command'],
-            description: 'Optional. Restrict to cvars only or commands only. Default returns both.',
+            enum: ENTITY_TYPE_ENUM,
+            description:
+              'Optional. Restrict to one entity type. Default returns matches across all five types.',
           },
         },
         required: ['name'],
       },
     },
     {
-      name: 'get_concept_note',
-      description:
-        'Retrieve a Layer 3 curated concept note by canonical id (e.g. concept:ktx_matchstart_injection). Concept notes are hand-written markdown that explicitly cross-link Layer 1 facts and Layer 2 chat discussions into human-level explanations. The tool response includes the note body, frontmatter, and all referenced cvar/command/session/concept ids so the outlet LLM can follow them.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            description: 'Canonical concept id, e.g. concept:ktx_matchstart_injection.',
-          },
-        },
-        required: ['id'],
-      },
-    },
-    {
       name: 'search_entities',
       description:
-        'Fuzzy search for QuakeWorld cvars and commands by substring match on name or description. Use this when you have a partial name, a natural-language term (e.g. "frag", "hud", "crosshair"), or want to discover related entities. Returns the same EntityRecord shape as lookup_entity. Name matches rank above description-only matches.',
+        'Substring search for QuakeWorld entities by name or current help-description. Returns the same rich EntityRecord shape as lookup_entity (source_state, version arc, asset relations, linked concept notes). Use when you have a partial name, a topic word ("frag", "crosshair", "lightning"), or want to discover entities related to a concept. Name matches rank above description-only matches.',
       inputSchema: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
-            description: 'Substring to search for in entity names and descriptions. Case-insensitive. E.g. "frag", "tracker", "compacthud".',
+            description: 'Substring to match against entity names and current help text. Case-insensitive.',
           },
           project: {
             type: 'string',
-            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv | qwcl.',
+            description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv.',
           },
           type: {
             type: 'string',
-            enum: ['cvar', 'command'],
-            description: 'Optional. Restrict to cvars only or commands only. Default returns both.',
+            enum: ENTITY_TYPE_ENUM,
+            description:
+              'Optional. Restrict to one entity type. Default searches all five types.',
           },
           limit: {
             type: 'number',
@@ -113,26 +98,41 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
+      name: 'get_concept_note',
+      description:
+        'Retrieve a Layer 3 curated concept note by canonical id (e.g. concept:weapon-scripts, concept:player-skins). Concept notes are hand-authored markdown that synthesises Layer 1 facts and Layer 2 community testimony into usable guidance. Returns the note body plus full frontmatter passthrough: title, slug, topic, status, source_url (when imported from upstream), primary_contributors, related_entities (canonical_ids), external_refs (commits, PRs, file extensions), scope (cross-engine | engine-specific), engines_covered, and any other fields the note declares.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'Canonical concept id, e.g. concept:weapon-scripts.',
+          },
+        },
+        required: ['id'],
+      },
+    },
+    {
       name: 'search_solved_issues',
       description:
-        'Full-text search over 128,084 denoised QuakeWorld community chat sessions (IRC 2005-2016 plus Discord 2016-present, category="chat" filtered). Returns ranked session hits with raw chat transcripts so the outlet LLM can read what people actually said. Sessions with fewer than 5 chat messages are excluded to cut pickup-callout noise. Use this to find community discussion about a cvar, command, concept, or gameplay topic. The MCP server does no summarisation -- raw transcripts go straight to you for synthesis.',
+        'Full-text search over the QuakeWorld community chat corpus: 2.66M denoised messages from QuakeNet IRC (2005-2016, 1.94M) and the Quake.World Discord (2016-present, 717K). Returns ranked session transcripts so the asking LLM reads what people actually said. Sessions with fewer than 5 chat messages are excluded to drop pickup-callout noise. Use this for community discussion about cvars, commands, gameplay topics, troubleshooting, history. Discord hits include deep links back to the original message.',
       inputSchema: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
             description:
-              'FTS5 query. Supports phrase matching, prefix, AND/OR, NEAR. E.g. "rpickup", "crosshair AND size", "\"weapon priority\"".',
+              'FTS5 query. Supports phrase matching, prefix, AND/OR, NEAR. E.g. "rpickup", "crosshair AND size", "\\"weapon priority\\"".',
           },
           limit: {
             type: 'number',
             description:
-              'Max number of session hits to return. Default 3. Raising this past 5 is usually wasteful -- FTS rank drops off fast.',
+              'Max session hits to return. Default 3. Raising past 5 is usually wasteful; FTS rank drops off fast.',
           },
           max_messages_per_session: {
             type: 'number',
             description:
-              'Max chat messages to include per session transcript. Default 40. Long sessions get truncated; the outlet LLM still gets enough context to synthesise.',
+              'Max chat messages per session transcript. Default 40. Long sessions get truncated; the asking LLM still gets enough context to synthesise.',
           },
         },
         required: ['query'],
@@ -146,14 +146,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (name) {
     case 'lookup_entity': {
       const response = lookupEntity(
-        args as { name: string; project?: string; type?: 'cvar' | 'command' },
+        args as { name: string; project?: string; type?: EntityType },
         conceptIndex,
       );
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }
     case 'search_entities': {
       const response = searchEntities(
-        args as { query: string; project?: string; type?: 'cvar' | 'command'; limit?: number },
+        args as { query: string; project?: string; type?: EntityType; limit?: number },
         conceptIndex,
       );
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };

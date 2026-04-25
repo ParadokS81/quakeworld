@@ -4,7 +4,7 @@
 
 import type { ConceptNote, ToolResponse } from '../types.ts';
 
-const SERVER_VERSION = '0.1.0';
+const SERVER_VERSION = '0.2.0';
 
 interface GetConceptNoteArgs {
   id: string;
