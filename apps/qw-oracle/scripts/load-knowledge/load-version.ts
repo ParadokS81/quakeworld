@@ -469,18 +469,22 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       );
     }
 
-    // Per-version retirement detection. Walk each source_backed entity's
-    // version rows ordered by ordinal; each time citation flips from
-    // non-null -> null going forward, the entity got retired in source at
-    // that version (Cvar_Register / Cmd_AddCommand removed but help-JSON
-    // entry kept). Idempotent on (entity_id, reason, version_context) so
-    // re-runs don't duplicate. Entity-level source_state stays
-    // 'source_backed' -- it was real at some loaded version; the per-version
-    // story lives on the transition rows. asset_category is excluded because
-    // its versions table has no source_file column (categories are
-    // seed-defined taxonomy, not per-source-location entities).
+    // Per-version state-transition detection. Walk each source_backed
+    // entity's version rows ordered by ordinal and watch for citation flips:
+    //   - non-null -> null  : source_retired_at_version (Cvar_Register /
+    //     Cmd_AddCommand removed in source, help-JSON entry kept).
+    //   - null -> non-null  : backfill_match (entity introduced in source
+    //     at this version; help-JSON entry pre-existed at older loaded
+    //     versions, e.g. cl_voip_* listed at v3.0.1 help-JSON but only
+    //     defined in source from 3.1 onward).
+    // Idempotent on (entity_id, reason, version_context) so re-runs don't
+    // duplicate. Entity-level source_state stays 'source_backed' -- it was
+    // real at some loaded version; the per-version story lives on the
+    // transition rows. asset_category is excluded because its versions
+    // table has no source_file column (categories are seed-defined taxonomy,
+    // not per-source-location entities).
     if (options.type !== 'asset_category') {
-    const retirementScan = options.db.prepare(`
+    const transitionScan = options.db.prepare(`
       SELECT e.id AS entity_id, e.name AS entity_name, v.ordinal,
              vrow.version, vrow.source_file
       FROM entities e
@@ -496,22 +500,30 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       source_file: string | null;
     }>;
 
-    const checkExistingTransition = options.db.prepare(`
+    const checkExistingRetirement = options.db.prepare(`
       SELECT 1 FROM source_state_transitions
       WHERE entity_id = ? AND reason = 'source_retired_at_version' AND version_context = ?
       LIMIT 1
     `);
+    const checkExistingBackfill = options.db.prepare(`
+      SELECT 1 FROM source_state_transitions
+      WHERE entity_id = ? AND reason = 'backfill_match' AND version_context = ?
+      LIMIT 1
+    `);
     let retirementsLogged = 0;
+    let backfillsLogged = 0;
     let currentEntityId: number | null = null;
     let prevHadCitation = false;
-    for (const row of retirementScan) {
+    let hasSeenRow = false;
+    for (const row of transitionScan) {
       if (row.entity_id !== currentEntityId) {
         currentEntityId = row.entity_id;
         prevHadCitation = false;
+        hasSeenRow = false;
       }
       const hasCitation = row.source_file != null;
-      if (prevHadCitation && !hasCitation) {
-        const exists = checkExistingTransition.get(row.entity_id, row.version);
+      if (hasSeenRow && prevHadCitation && !hasCitation) {
+        const exists = checkExistingRetirement.get(row.entity_id, row.version);
         if (!exists) {
           logTransition(options.db, {
             entity_id: row.entity_id,
@@ -523,13 +535,32 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
           });
           retirementsLogged += 1;
         }
+      } else if (hasSeenRow && !prevHadCitation && hasCitation) {
+        const exists = checkExistingBackfill.get(row.entity_id, row.version);
+        if (!exists) {
+          logTransition(options.db, {
+            entity_id: row.entity_id,
+            from_state: 'doc_only',
+            to_state: 'source_backed',
+            reason: 'backfill_match',
+            version_context: row.version,
+            extractor_run_id: extractorRunId,
+          });
+          backfillsLogged += 1;
+        }
       }
       prevHadCitation = hasCitation;
+      hasSeenRow = true;
     }
 
     if (retirementsLogged > 0) {
       console.log(
         `[load-version] logged ${retirementsLogged} ${options.type} source_retired_at_version transition(s)`,
+      );
+    }
+    if (backfillsLogged > 0) {
+      console.log(
+        `[load-version] logged ${backfillsLogged} ${options.type} backfill_match transition(s)`,
       );
     }
     }
