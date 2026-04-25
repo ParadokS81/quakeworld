@@ -1078,6 +1078,26 @@
         "trailing_comment": null
       }
     },
+    "gl_cshiftpercent": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "100",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_cshiftpercent",
+        "source_file": "view.c",
+        "source_line": 63,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
     "gl_cull": {
       "type": "boolean",
       "group-id": "0",
@@ -3822,8 +3842,8 @@
   },
   "default_overrides": {},
   "_stats": {
-    "source_total": 235,
-    "client": 186,
+    "source_total": 236,
+    "client": 187,
     "server_only": 0,
     "with_flags": 45,
     "with_onchange": 0,

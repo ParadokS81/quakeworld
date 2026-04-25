@@ -99,11 +99,29 @@ def clang_args_qwcl_for(qwcl_src_dir: str) -> list[str]:
 
     The libclang host's stricmp/isspace pre-C99 implicit-declaration
     diagnostics fire harmlessly on this codebase; PARSE_INCOMPLETE recovers
-    past them."""
+    past them.
+
+    `-D_WINDOWS` activates the two `#ifdef _WINDOWS` branches in the QWCL
+    tree (cl_main.c:1176 `Cmd_AddCommand("windows", CL_Windows_f)` and
+    keys.c:21 `#include <windows.h>`). The keys.c include resolves to a
+    missing-header diagnostic under Linux libclang; PARSE_INCOMPLETE
+    recovers past it without affecting the rest of the TU. Note: QWCL
+    used the original QuakeWorld guard `_WINDOWS` (capital W, singular),
+    distinct from ezQuake's `_WIN32`.
+
+    `-DGLQUAKE` activates 18 `#ifdef GLQUAKE` branches scattered through
+    non-gl_*.c files (e.g. view.c:62 `gl_cshiftpercent`). The QWCL build
+    ships two binaries (`qwcl` software vs `glqwcl` GL); we extract from
+    the GL flavour because it's the modern reference and all 17 gl_*.c
+    TUs already parse unconditionally. The single `#ifndef GLQUAKE` block
+    in the tree (view.c:1017) contains no cvar/command/COM_CheckParm
+    sites, so the trade is +18 branches active for 0 entity losses."""
     return [
         "-x", "c",
         f"-I{qwcl_src_dir}",
         "-w",
+        "-D_WINDOWS",
+        "-DGLQUAKE",
     ]
 
 

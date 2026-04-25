@@ -534,6 +534,96 @@
         "usage_count": 2
       }
     },
+    "-lm_1": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_rsurf.c",
+            "source_line": 1622,
+            "source_column": 6,
+            "enclosing_function": "GL_BuildLightmaps",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-lm_2": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_rsurf.c",
+            "source_line": 1628,
+            "source_column": 6,
+            "enclosing_function": "GL_BuildLightmaps",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-lm_4": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_rsurf.c",
+            "source_line": 1630,
+            "source_column": 6,
+            "enclosing_function": "GL_BuildLightmaps",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-lm_a": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_rsurf.c",
+            "source_line": 1624,
+            "source_column": 6,
+            "enclosing_function": "GL_BuildLightmaps",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-lm_i": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_rsurf.c",
+            "source_line": 1626,
+            "source_column": 6,
+            "enclosing_function": "GL_BuildLightmaps",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
     "-mdev": {
       "ast": {
         "manifest_enum": null,
@@ -1514,7 +1604,7 @@
     "manifest_with_usage": 0,
     "manifest_unused_in_source": 0,
     "help_only": 0,
-    "source_only_undeclared": 58,
+    "source_only_undeclared": 63,
     "with_help_desc": 0
   }
 }

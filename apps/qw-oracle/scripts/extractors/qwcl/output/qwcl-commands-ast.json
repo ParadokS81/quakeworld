@@ -857,8 +857,8 @@
       "group-id": "misc",
       "ast": {
         "handler_fn": "R_ReadPointFile_f",
-        "source_file": "r_main.c",
-        "source_line": 196,
+        "source_file": "gl_rmisc.c",
+        "source_line": 174,
         "source_column": 2,
         "enclosing_function": "R_Init",
         "build_variant": "client"
@@ -1099,8 +1099,8 @@
       "group-id": "misc",
       "ast": {
         "handler_fn": "R_TimeRefresh_f",
-        "source_file": "r_main.c",
-        "source_line": 195,
+        "source_file": "gl_rmisc.c",
+        "source_line": 172,
         "source_column": 2,
         "enclosing_function": "R_Init",
         "build_variant": "client"
@@ -1325,11 +1325,22 @@
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
       }
+    },
+    "windows": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Windows_f",
+        "source_file": "cl_main.c",
+        "source_line": 1176,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
     }
   },
   "_stats": {
-    "source_total": 137,
-    "with_handler": 115,
+    "source_total": 140,
+    "with_handler": 116,
     "with_help_desc": 0,
     "server_build_only": 0,
     "help_only": 0,
