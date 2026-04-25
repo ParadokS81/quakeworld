@@ -1,13 +1,13 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v8, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
+Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v10, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
 
 Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV8ToV9` in order.
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx` (CHECK-constrained; only `ezquake` is populated today).
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV9ToV10` in order.
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today).
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
 - **Timestamps** are ISO 8601 strings. `extracted_at` is "most recent extraction for this row" — overwritten on re-run. Git history of `knowledge.db` is not recoverable from the row itself (it is gitignored).
@@ -23,7 +23,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 20 tables at schema v8.
+Total: 20 tables at schema v10. (No tables added v9 → v10; v10 is a CHECK-widening migration only.)
 
 ---
 
@@ -36,7 +36,7 @@ One row per (project, version) pair loaded. The "have I seen this tag?" answer.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | INTEGER PK | |
-| `project` | TEXT CHECK | `ezquake` / `fte` / `mvdsv` / `ktx` |
+| `project` | TEXT CHECK | `ezquake` / `fte` / `mvdsv` / `ktx` / `qwcl` |
 | `version` | TEXT | Upstream tag string, or `head` |
 | `commit_sha` | TEXT | Resolved git SHA for the tag |
 | `tag_date` | TEXT nullable | ISO date of the tag |
@@ -396,7 +396,11 @@ Drop-guard compares `entityCount` (total `*_versions` rows expected) not `_versi
 
 ### Fresh DB vs migrated DB
 
-On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 9` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set — the comment at the top of `SCHEMA_V1_SQL` documents why. The v1 `source_state_transitions.reason` CHECK already lists the full v9 reason set for the same fresh-DB-skip-migrations reason. On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v9 one step at a time. Both paths converge on the same shape.
+On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 10` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set, the v1 `source_state_transitions.reason` CHECK already lists the full v9 reason set, and the v1 `project` CHECK already lists the full v10 project set including `qwcl` — the comments at the top of `SCHEMA_V1_SQL` document why (skip-migrations on fresh DB requires the v1 CHECKs to mirror the current target). On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v10 one step at a time. Both paths converge on the same shape.
+
+### v10: project CHECK widening for QWCL
+
+2026-04-25 (Arc 1 of QWCL extraction). Adds `qwcl` to the `project` CHECK on every project-keyed table: `versions`, `entities`, `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes`, `relation_changes` — eight tables rebuilt via the standard CREATE-NEW + INSERT-SELECT + DROP + RENAME pattern. `foreign_keys = OFF` outside the txn so the entities-table drop is allowed (entities is FK-targeted by every per-type version table plus `source_state_transitions`, `change_events`, `source_overrides`). `migrateV9ToV10` in `schema.ts`. Verified on the live ezQuake DB: 4041 entities + 40k+ per-version rows preserved, no FK violations.
 
 ---
 

@@ -92,6 +92,7 @@ npm run load-knowledge -- enrich        --project <p> --github-token <t> [--limi
 npm run load-knowledge -- extract-tag   --project <p> --version <v> [--ordinal <n>]  # atomic: checkout + extract + loaders
 npm run load-knowledge -- review        --project <p> --from <v1> --to <v2>          # emits findings JSON + draft .md
 npm run load-knowledge -- quality-grid  --project <p> [--family regression|anomaly|both] [--probe <name>] [--list] [--json]
+npm run load-knowledge -- build-snapshot --project <p> [--version <v>] [--output <dir>]  # emits slipgate-shaped JSON snapshots into apps/slipgate-app/src/lib/config/data/
 
 # Layer 2 corpus (legacy .mjs scripts)
 npm run import:discord
