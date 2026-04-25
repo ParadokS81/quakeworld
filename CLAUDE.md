@@ -57,16 +57,14 @@ Compile and build first. Manual verification second. Automated tests only when t
 The user does not touch git. Claude runs all git operations silently — no merge menus, no PR prompts, no branch questions. Git is a tool for Claude, not a UX for the user.
 
 **Layout:**
-- Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. Slipgate work and shared monorepo work happen here.
-- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics).
-- Long-lived worktrees currently in use:
-  - `/home/paradoks/projects/quakeworld-poc/` on branch `poc` (qw-oracle POC work)
+- Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. All work happens here unless a worktree is explicitly created for parallelism.
+- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics). None are currently active.
 - For matchscheduler, quad, or any new topic: create a worktree ad-hoc when parallel work is actually needed. Delete when the work merges or goes idle.
-- **When adding or removing a worktree, update BOTH this list AND the `case` block in `.claude/scripts/session-start-git-state.sh`** so the session banner continues to label it correctly.
+- **When adding or removing a worktree, update BOTH this section AND the `case` block in `.claude/scripts/session-start-git-state.sh`** so the session banner continues to label it correctly.
 
 **Session routing:**
 - Plain `claude` always lands in the main tree. That is the default and it is correct.
-- If the user says "let's work on the POC" (or any topic with an existing worktree), work on files in that worktree from the current session via absolute paths. Use `git -C /path/to/worktree <command>` for git operations. No terminal restart needed.
+- If a topic later gets its own worktree, work on files in that worktree from the current session via absolute paths. Use `git -C /path/to/worktree <command>` for git operations. No terminal restart needed.
 - Flag a collision ONLY if the user starts a second simultaneous session that would touch the SAME topic. That is the only case that produces HEAD collisions.
 
 **Commits and merges:**
