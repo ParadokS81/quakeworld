@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS schema_meta (
 -- derived from their semver; never reuse 999999 for anything else.
 CREATE TABLE IF NOT EXISTS versions (
   id             INTEGER PRIMARY KEY,
-  project        TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project        TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version        TEXT NOT NULL,
   commit_sha     TEXT NOT NULL,
   tag_date       TEXT,
@@ -46,7 +46,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_versions_ordinal ON versions(project, ordi
 -- ENTITIES_V5_MIGRATION_SQL (and any future ENTITIES_V*_MIGRATION_SQL).
 CREATE TABLE IF NOT EXISTS entities (
   id                    INTEGER PRIMARY KEY,
-  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   type                  TEXT NOT NULL CHECK (type IN (
                           'cvar','command','macro','cmdline_param',
                           'keyname','hud_element','ruleset','token_primitive',
@@ -315,7 +315,7 @@ CREATE TABLE IF NOT EXISTS asset_category_versions (
 
 CREATE TABLE IF NOT EXISTS asset_extensions (
   id                     INTEGER PRIMARY KEY,
-  project                TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project                TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version                TEXT NOT NULL,
   extension              TEXT NOT NULL,
   path_hint              TEXT,
@@ -342,7 +342,7 @@ CREATE INDEX IF NOT EXISTS idx_asset_ext_verif ON asset_extensions(verification_
 
 CREATE TABLE IF NOT EXISTS asset_path_rules (
   id               INTEGER PRIMARY KEY,
-  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version          TEXT NOT NULL,
   canonical_id     TEXT NOT NULL,
   rule_kind        TEXT NOT NULL CHECK (rule_kind IN (
@@ -360,7 +360,7 @@ CREATE TABLE IF NOT EXISTS asset_path_rules (
 
 CREATE TABLE IF NOT EXISTS asset_cvar_bindings (
   id                 INTEGER PRIMARY KEY,
-  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version            TEXT NOT NULL,
   cvar_canonical_id  TEXT NOT NULL REFERENCES entities(canonical_id),
   category_id        TEXT NOT NULL REFERENCES entities(canonical_id),
@@ -382,7 +382,7 @@ CREATE INDEX IF NOT EXISTS idx_asset_cvar_bind_cat  ON asset_cvar_bindings(categ
 
 CREATE TABLE IF NOT EXISTS asset_loader_sites (
   id                 INTEGER PRIMARY KEY,
-  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version            TEXT NOT NULL,
   canonical_id       TEXT NOT NULL,
   function_name      TEXT NOT NULL,
@@ -417,7 +417,7 @@ CREATE INDEX IF NOT EXISTS idx_asset_loader_fn       ON asset_loader_sites(funct
 const SCHEMA_V4_ADDITIONS_SQL = `
 CREATE TABLE IF NOT EXISTS release_notes (
   id                          INTEGER PRIMARY KEY,
-  project                     TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project                     TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   version                     TEXT NOT NULL,
   section                     TEXT NOT NULL,
   ordinal                     INTEGER NOT NULL,
@@ -459,7 +459,7 @@ CREATE TABLE IF NOT EXISTS relation_changes (
                              'asset_extensions','asset_path_rules',
                              'asset_cvar_bindings','asset_loader_sites'
                            )),
-  project                  TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),
+  project                  TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   from_version             TEXT,
   to_version               TEXT NOT NULL,
   change_kind              TEXT NOT NULL CHECK (change_kind IN ('created','modified','deleted')),
@@ -498,6 +498,215 @@ CREATE TABLE IF NOT EXISTS source_overrides (
   PRIMARY KEY (entity_id, version, field_name)
 );
 CREATE INDEX IF NOT EXISTS idx_source_overrides_entity ON source_overrides(entity_id, version);
+`;
+
+// v9 -> v10 widens the project CHECK on every project-keyed table to admit
+// 'qwcl' (first cross-codebase port: the 1996 id Software QuakeWorld client).
+// Eight tables carry their own project CHECK, each rebuilt by the standard
+// CREATE _v10 + INSERT SELECT * + DROP + RENAME pattern. Foreign keys must be
+// OFF outside the txn so the entities-table rebuild can drop a target of
+// many FKs. All other rebuilds are FK-safe but ride the same setting.
+//
+// Order matters only at the entities-table step (its self-FK on predecessor_id
+// is rewritten by the rebuild). All other tables are independent.
+const PROJECT_CHECK_V10_MIGRATION_SQL = `
+-- versions
+CREATE TABLE versions_v10 (
+  id             INTEGER PRIMARY KEY,
+  project        TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version        TEXT NOT NULL,
+  commit_sha     TEXT NOT NULL,
+  tag_date       TEXT,
+  ordinal        INTEGER NOT NULL,
+  parse_state    TEXT NOT NULL DEFAULT 'ok' CHECK (parse_state IN ('ok','partial')),
+  notes          TEXT,
+  extracted_at   TEXT NOT NULL,
+  UNIQUE (project, version)
+);
+INSERT INTO versions_v10 SELECT * FROM versions;
+DROP TABLE versions;
+ALTER TABLE versions_v10 RENAME TO versions;
+CREATE UNIQUE INDEX idx_versions_ordinal ON versions(project, ordinal);
+
+-- entities (self-FK on predecessor_id)
+CREATE TABLE entities_v10 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category','flag_bit'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v10(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v10 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v10 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+
+-- asset_extensions (FK to entities.canonical_id; verification CHECK preserved)
+CREATE TABLE asset_extensions_v10 (
+  id                     INTEGER PRIMARY KEY,
+  project                TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version                TEXT NOT NULL,
+  extension              TEXT NOT NULL,
+  path_hint              TEXT,
+  category_id            TEXT NOT NULL REFERENCES entities(canonical_id),
+  notes                  TEXT,
+  verification_status    TEXT NOT NULL DEFAULT 'ast_verified' CHECK (verification_status IN (
+                           'ast_verified',
+                           'seed_only_with_ast_support',
+                           'seed_only_no_ast_support',
+                           'orphaned_historical'
+                         )),
+  verification_reason    TEXT,
+  raw_ast_hash           TEXT,
+  extracted_at           TEXT NOT NULL,
+  UNIQUE (project, version, extension, path_hint)
+);
+INSERT INTO asset_extensions_v10 SELECT * FROM asset_extensions;
+DROP TABLE asset_extensions;
+ALTER TABLE asset_extensions_v10 RENAME TO asset_extensions;
+CREATE INDEX idx_asset_ext_cat ON asset_extensions(category_id);
+CREATE INDEX idx_asset_ext_verif ON asset_extensions(verification_status);
+
+-- asset_path_rules
+CREATE TABLE asset_path_rules_v10 (
+  id               INTEGER PRIMARY KEY,
+  project          TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version          TEXT NOT NULL,
+  canonical_id     TEXT NOT NULL,
+  rule_kind        TEXT NOT NULL CHECK (rule_kind IN (
+                     'search_path','archive_precedence','cmdline_override','gamedir_behavior'
+                   )),
+  ordinal          INTEGER NOT NULL,
+  description      TEXT NOT NULL,
+  source_ref       TEXT,
+  source_verified  INTEGER NOT NULL DEFAULT 0,
+  notes            TEXT,
+  raw_ast_hash     TEXT,
+  extracted_at     TEXT NOT NULL,
+  UNIQUE (project, version, canonical_id)
+);
+INSERT INTO asset_path_rules_v10 SELECT * FROM asset_path_rules;
+DROP TABLE asset_path_rules;
+ALTER TABLE asset_path_rules_v10 RENAME TO asset_path_rules;
+
+-- asset_cvar_bindings (FK to entities.canonical_id x2)
+CREATE TABLE asset_cvar_bindings_v10 (
+  id                 INTEGER PRIMARY KEY,
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version            TEXT NOT NULL,
+  cvar_canonical_id  TEXT NOT NULL REFERENCES entities(canonical_id),
+  category_id        TEXT NOT NULL REFERENCES entities(canonical_id),
+  path_pattern       TEXT,
+  load_trigger       TEXT NOT NULL CHECK (load_trigger IN (
+                       'startup','on_demand','on_connect','on_map_load','unknown'
+                     )),
+  confidence         TEXT NOT NULL CHECK (confidence IN (
+                       'seed','auto','auto_confirms_seed','auto_orphan'
+                     )),
+  source_ref         TEXT,
+  notes              TEXT,
+  raw_ast_hash       TEXT,
+  extracted_at       TEXT NOT NULL,
+  UNIQUE (project, version, cvar_canonical_id, category_id, path_pattern)
+);
+INSERT INTO asset_cvar_bindings_v10 SELECT * FROM asset_cvar_bindings;
+DROP TABLE asset_cvar_bindings;
+ALTER TABLE asset_cvar_bindings_v10 RENAME TO asset_cvar_bindings;
+CREATE INDEX idx_asset_cvar_bind_cvar ON asset_cvar_bindings(cvar_canonical_id);
+CREATE INDEX idx_asset_cvar_bind_cat  ON asset_cvar_bindings(category_id);
+
+-- asset_loader_sites (FK to entities.canonical_id x2; v8 confidence CHECK preserved)
+CREATE TABLE asset_loader_sites_v10 (
+  id                 INTEGER PRIMARY KEY,
+  project            TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version            TEXT NOT NULL,
+  canonical_id       TEXT NOT NULL,
+  function_name      TEXT NOT NULL,
+  source_file        TEXT NOT NULL,
+  source_line        INTEGER NOT NULL,
+  source_column      INTEGER,
+  enclosing_function TEXT,
+  reads_category_id  TEXT REFERENCES entities(canonical_id),
+  load_trigger       TEXT NOT NULL CHECK (load_trigger IN (
+                       'startup','on_demand','on_connect','on_map_load','unknown'
+                     )),
+  path_source        TEXT NOT NULL CHECK (path_source IN ('literal','cvar','computed','unknown')),
+  path_literal       TEXT,
+  path_cvar_id       TEXT REFERENCES entities(canonical_id),
+  confidence         TEXT NOT NULL CHECK (confidence IN ('certain','heuristic','intentionally_generic','unclassified')),
+  dev_only           INTEGER NOT NULL DEFAULT 0,
+  notes              TEXT,
+  raw_ast_hash       TEXT,
+  extracted_at       TEXT NOT NULL,
+  UNIQUE (project, version, canonical_id)
+);
+INSERT INTO asset_loader_sites_v10 SELECT * FROM asset_loader_sites;
+DROP TABLE asset_loader_sites;
+ALTER TABLE asset_loader_sites_v10 RENAME TO asset_loader_sites;
+CREATE INDEX idx_asset_loader_category ON asset_loader_sites(reads_category_id);
+CREATE INDEX idx_asset_loader_cvar     ON asset_loader_sites(path_cvar_id);
+CREATE INDEX idx_asset_loader_fn       ON asset_loader_sites(function_name);
+
+-- release_notes
+CREATE TABLE release_notes_v10 (
+  id                          INTEGER PRIMARY KEY,
+  project                     TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  version                     TEXT NOT NULL,
+  section                     TEXT NOT NULL,
+  ordinal                     INTEGER NOT NULL,
+  body_md                     TEXT NOT NULL,
+  referenced_entity_ids_json  TEXT,
+  commit_urls_json            TEXT,
+  pr_numbers_json             TEXT,
+  author_handles_json         TEXT,
+  raw_body_hash               TEXT,
+  extracted_at                TEXT NOT NULL,
+  UNIQUE (project, version, section, ordinal)
+);
+INSERT INTO release_notes_v10 SELECT * FROM release_notes;
+DROP TABLE release_notes;
+ALTER TABLE release_notes_v10 RENAME TO release_notes;
+CREATE INDEX idx_release_notes_version ON release_notes(project, version);
+
+-- relation_changes
+CREATE TABLE relation_changes_v10 (
+  id                       INTEGER PRIMARY KEY,
+  relation_table           TEXT NOT NULL CHECK (relation_table IN (
+                             'asset_extensions','asset_path_rules',
+                             'asset_cvar_bindings','asset_loader_sites'
+                           )),
+  project                  TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  from_version             TEXT,
+  to_version               TEXT NOT NULL,
+  change_kind              TEXT NOT NULL CHECK (change_kind IN ('created','modified','deleted')),
+  row_key_json             TEXT NOT NULL,
+  field_name               TEXT NOT NULL DEFAULT '',
+  old_value                TEXT,
+  new_value                TEXT,
+  commit_sha               TEXT NOT NULL,
+  commit_message_excerpt   TEXT,
+  extracted_at             TEXT NOT NULL,
+  UNIQUE (relation_table, project, to_version, row_key_json, field_name, change_kind)
+);
+INSERT INTO relation_changes_v10 SELECT * FROM relation_changes;
+DROP TABLE relation_changes;
+ALTER TABLE relation_changes_v10 RENAME TO relation_changes;
+CREATE INDEX idx_relation_changes_to_version ON relation_changes(to_version);
+CREATE INDEX idx_relation_changes_table      ON relation_changes(relation_table);
 `;
 
 // v8 -> v9 widens the source_state_transitions.reason CHECK to allow
@@ -770,6 +979,39 @@ function migrateV8ToV9(db: Database.Database): void {
   }
 }
 
+function migrateV9ToV10(db: Database.Database): void {
+  // Widens the project CHECK on 8 tables to admit 'qwcl'. Standard rebuild
+  // pattern; foreign_keys OFF outside the txn so the entities-table drop is
+  // allowed (entities is FK-targeted by every per-type version table plus
+  // source_state_transitions, change_events, source_overrides). Indexes are
+  // dropped before the rebuilds because the SQL block recreates each one.
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_versions_ordinal;
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+        DROP INDEX IF EXISTS idx_asset_ext_cat;
+        DROP INDEX IF EXISTS idx_asset_ext_verif;
+        DROP INDEX IF EXISTS idx_asset_cvar_bind_cvar;
+        DROP INDEX IF EXISTS idx_asset_cvar_bind_cat;
+        DROP INDEX IF EXISTS idx_asset_loader_category;
+        DROP INDEX IF EXISTS idx_asset_loader_cvar;
+        DROP INDEX IF EXISTS idx_asset_loader_fn;
+        DROP INDEX IF EXISTS idx_release_notes_version;
+        DROP INDEX IF EXISTS idx_relation_changes_to_version;
+        DROP INDEX IF EXISTS idx_relation_changes_table;
+      `);
+      db.exec(PROJECT_CHECK_V10_MIGRATION_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('10');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -817,6 +1059,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 8 && SCHEMA_VERSION >= 9) {
       migrateV8ToV9(db);
       existingVersion = 9;
+    }
+    if (existingVersion === 9 && SCHEMA_VERSION >= 10) {
+      migrateV9ToV10(db);
+      existingVersion = 10;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

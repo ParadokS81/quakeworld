@@ -53,6 +53,10 @@ const PROJECT_SRC_PREFIX_FALLBACK: Record<Project, string> = {
   mvdsv:   'src/',
   ktx:     'src/',
   fte:     '',
+  // QWCL keeps client sources under QW/client/. There is no `src/` dir, so
+  // detectSrcPrefix's treeHasDirectory(repo, sha, 'src') returns false and the
+  // fallback prefix is the actual repo-relative path.
+  qwcl:    'QW/client/',
 };
 
 function detectSrcPrefix(

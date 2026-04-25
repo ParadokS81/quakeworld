@@ -8,11 +8,15 @@ import type Database from 'better-sqlite3';
 import { GitHubClient } from './github.js';
 import type { Project } from './types.js';
 
-const PROJECT_REPOS: Record<Project, { owner: string; repo: string }> = {
+// `null` for projects without a GitHub upstream (qwcl: 1996 id Software dump
+// kept as a single-commit local snapshot; no live repo to enrich against).
+// Lookup-site guards check for null and short-circuit with a clear error.
+const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   ezquake: { owner: 'QW-Group', repo: 'ezquake-source' },
   fte:     { owner: 'fte-team', repo: 'fteqw' },
   mvdsv:   { owner: 'QW-Group', repo: 'mvdsv' },
   ktx:     { owner: 'QW-Group', repo: 'ktx' },
+  qwcl:    null,
 };
 
 export interface EnrichOptions {
@@ -34,7 +38,11 @@ export interface EnrichResult {
 
 export async function enrichPrs(options: EnrichOptions): Promise<EnrichResult> {
   const repoInfo = PROJECT_REPOS[options.project];
-  if (!repoInfo) throw new Error(`Unknown project: ${options.project}`);
+  if (!repoInfo) {
+    throw new Error(
+      `Project '${options.project}' has no GitHub upstream; PR enrichment is not applicable.`,
+    );
+  }
 
   const gh = new GitHubClient(options.githubToken);
   const guardPct = options.rateLimitGuardPct ?? 10;

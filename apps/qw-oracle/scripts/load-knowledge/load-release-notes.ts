@@ -23,12 +23,19 @@ import { GitHubClient } from './github.js';
 import { upsertReleaseNote } from './natural-keys.js';
 import type { Project, ReleaseNoteRow } from './types.js';
 
-const PROJECT_REPOS: Record<Project, { owner: string; repo: string }> = {
+// `null` for projects without a GitHub upstream (qwcl). Caller must skip
+// release-notes ingestion for those — see hasGithubUpstream().
+const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   ezquake: { owner: 'QW-Group', repo: 'ezquake-source' },
   fte:     { owner: 'fte-team', repo: 'fteqw' },
   mvdsv:   { owner: 'QW-Group', repo: 'mvdsv' },
   ktx:     { owner: 'QW-Group', repo: 'ktx' },
+  qwcl:    null,
 };
+
+export function projectHasGithubUpstream(project: Project): boolean {
+  return PROJECT_REPOS[project] !== null;
+}
 
 export interface LoadReleaseNotesOptions {
   db: Database.Database;
@@ -49,7 +56,11 @@ export async function loadReleaseNotes(
   options: LoadReleaseNotesOptions,
 ): Promise<LoadReleaseNotesResult> {
   const repoInfo = PROJECT_REPOS[options.project];
-  if (!repoInfo) throw new Error(`Unknown project: ${options.project}`);
+  if (!repoInfo) {
+    throw new Error(
+      `Project '${options.project}' has no GitHub upstream; release-notes ingestion is not applicable.`,
+    );
+  }
 
   const versionRow = options.db.prepare(
     `SELECT 1 FROM versions WHERE project = ? AND version = ?`,

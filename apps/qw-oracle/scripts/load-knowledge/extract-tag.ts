@@ -20,7 +20,7 @@ import { fileURLToPath } from 'url';
 import type Database from 'better-sqlite3';
 import { loadVersion } from './load-version.js';
 import { loadAssets } from './load-assets.js';
-import { loadReleaseNotes } from './load-release-notes.js';
+import { loadReleaseNotes, projectHasGithubUpstream } from './load-release-notes.js';
 import { buildAssetBundle } from './build-asset-bundle.js';
 import type { EntityType, Project } from './types.js';
 
@@ -32,6 +32,7 @@ const PROJECT_REPO_PATH: Record<Project, string> = {
   fte:     join(MONOREPO_ROOT, 'research', 'repos', 'fteqw'),
   mvdsv:   join(MONOREPO_ROOT, 'research', 'repos', 'mvdsv'),
   ktx:     join(MONOREPO_ROOT, 'research', 'repos', 'ktx'),
+  qwcl:    join(MONOREPO_ROOT, 'research', 'repos', 'qwcl-original'),
 };
 
 const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'extractors');
@@ -41,6 +42,7 @@ const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   fte: null,
   mvdsv: null,
   ktx: null,
+  qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
 };
 
 const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
@@ -48,16 +50,36 @@ const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
   fte:     join(EXTRACTORS_ROOT, 'fte', 'output'),
   mvdsv:   join(EXTRACTORS_ROOT, 'mvdsv', 'output'),
   ktx:     join(EXTRACTORS_ROOT, 'ktx', 'output'),
+  qwcl:    join(EXTRACTORS_ROOT, 'qwcl', 'output'),
 };
 
 // The `head` version is not a git tag — it's a moving snapshot of each
 // project's default branch. Map it per-project so `extract-tag --version head`
 // checks out the right ref instead of failing on a non-existent tag.
+//
+// QWCL's repo has 2 commits and no tags; `master` resolves to the WinQuake
+// import commit, not the QW dump. Hardcode the QW-dump commit so any caller
+// that passes --version head lands on the right tree. The expected workflow
+// is to pass --version 2.33 explicitly; head is a fallback.
 const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
   ezquake: 'master',
   fte: 'master',
   mvdsv: 'master',
   ktx: 'master',
+  qwcl: 'bf4ac42',
+};
+
+// Projects with hand-authored asset taxonomy (seed YAMLs + bundle output +
+// asset_loader_sites/asset_cvar_bindings extractors). When false, extract-tag
+// skips buildAssetBundle, loadAssets, and the asset_category entity-type load.
+// QWCL is single-version pre-tooling source; asset taxonomy is not meaningful.
+// FTE/MVDSV/KTX flip to true only after their seed authoring lands.
+const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
+  ezquake: true,
+  fte:     false,
+  mvdsv:   false,
+  ktx:     false,
+  qwcl:    false,
 };
 
 // Bundle output stays in qw-config until slipgate-app migrates to oracle snapshots
@@ -197,15 +219,20 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // 2c. Rebuild the asset bundle for this specific version. The bundle merges
   // seed YAMLs + the two asset AST JSONs produced in step 2 and stamps its
   // own `version` field — loadAssets rejects a mismatch, so per-tag rebuild
-  // is required.
-  buildAssetBundle({ project: options.project, version: options.version });
+  // is required. Skipped for projects without an asset bundle (QWCL today).
+  const hasAssetBundle = PROJECT_HAS_ASSET_BUNDLE[options.project];
+  if (hasAssetBundle) {
+    buildAssetBundle({ project: options.project, version: options.version });
+  }
 
   // 3. Entity loaders.
   const entitiesLoaded: Partial<Record<EntityType, number>> = {};
   for (const [type, jsonFile] of Object.entries(ENTITY_JSON_FILES) as [EntityType, string | null][]) {
     if (!jsonFile) continue;
-    // The asset_category type loads from the bundle (qw-config consumer-facing
-    // location). Every other type loads from the extractor's per-project output dir.
+    // asset_category lives only in the asset bundle; skip when the project
+    // doesn't ship one. Every other type loads from the extractor's per-project
+    // output dir.
+    if (type === 'asset_category' && !hasAssetBundle) continue;
     const jsonPath = type === 'asset_category'
       ? join(BUNDLE_OUTPUT_DIR, jsonFile)
       : join(extractorOutputDir, jsonFile);
@@ -229,29 +256,33 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     entitiesLoaded[type] = result.entityCount;
   }
 
-  // 4. Asset bundle.
-  const bundlePath = join(BUNDLE_OUTPUT_DIR, ASSET_BUNDLE_FILE);
-  if (!existsSync(bundlePath)) {
-    throw new Error(
-      `Asset bundle missing at ${bundlePath}. ` +
-      `Run build-asset-bundle for ${options.project}:${options.version} before extract-tag.`,
-    );
+  // 4. Asset bundle. Skipped for projects without one.
+  let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
+  if (hasAssetBundle) {
+    const bundlePath = join(BUNDLE_OUTPUT_DIR, ASSET_BUNDLE_FILE);
+    if (!existsSync(bundlePath)) {
+      throw new Error(
+        `Asset bundle missing at ${bundlePath}. ` +
+        `Run build-asset-bundle for ${options.project}:${options.version} before extract-tag.`,
+      );
+    }
+    assets = loadAssets({
+      db: options.db,
+      project: options.project,
+      version: options.version,
+      jsonPath: bundlePath,
+      commitSha,
+      tagDate,
+      ordinal: options.ordinal,
+      extractorVersion: EXTRACTOR_VERSION_DEFAULT,
+    });
   }
-  const assets = loadAssets({
-    db: options.db,
-    project: options.project,
-    version: options.version,
-    jsonPath: bundlePath,
-    commitSha,
-    tagDate,
-    ordinal: options.ordinal,
-    extractorVersion: EXTRACTOR_VERSION_DEFAULT,
-  });
 
   // 5. Release notes (optional — skill preflight will call release-notes separately if skipped here).
+  // Skipped automatically for projects without a GitHub upstream (qwcl).
   let releaseNotesLoaded: number | null = null;
   const token = options.githubToken ?? process.env.GITHUB_TOKEN;
-  if (!options.skipReleaseNotes && token) {
+  if (!options.skipReleaseNotes && token && projectHasGithubUpstream(options.project)) {
     const rn = await loadReleaseNotes({
       db: options.db,
       project: options.project,
