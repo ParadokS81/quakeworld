@@ -59,14 +59,27 @@ const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
 //
 // QWCL's repo has 2 commits and no tags; `master` resolves to the WinQuake
 // import commit, not the QW dump. Hardcode the QW-dump commit so any caller
-// that passes --version head lands on the right tree. The expected workflow
-// is to pass --version 2.33 explicitly; head is a fallback.
+// that passes --version head lands on the right tree.
 const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
   ezquake: 'master',
   fte: 'master',
   mvdsv: 'master',
   ktx: 'master',
   qwcl: 'bf4ac42',
+};
+
+// Per-project version-label-to-git-ref aliases. The version label is what
+// gets stored in the DB (e.g. '2.33') and presented to consumers; the git
+// ref is what `git checkout` actually resolves. Most projects don't need
+// this — their tag names ARE valid git refs. QWCL is the exception: its
+// canonical release name is `2.33` but the underlying commit is bf4ac42
+// with no tag.
+const PROJECT_VERSION_ALIASES: Record<Project, Record<string, string>> = {
+  ezquake: {},
+  fte:     {},
+  mvdsv:   {},
+  ktx:     {},
+  qwcl:    { '2.33': 'bf4ac42' },
 };
 
 // Projects with hand-authored asset taxonomy (seed YAMLs + bundle output +
@@ -86,23 +99,35 @@ const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
 // (qw-config dissolution Half 2). Slipgate's bundle.ts imports from this path.
 const BUNDLE_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
 
-// Per-entity-type JSON file mapping. Names must match the extractors' actual
-// output filenames (unified and legacy). The cvar handler writes
-// `ezquake-variables-ast.json` (historic name); everything else is on the
-// canonical `ezquake-<type>-ast.json` pattern.
-const ENTITY_JSON_FILES: Record<EntityType, string | null> = {
-  cvar:            'ezquake-variables-ast.json',
-  command:         'ezquake-commands-ast.json',
-  macro:           'ezquake-macros-ast.json',
-  cmdline_param:   'ezquake-cmdline-params-ast.json',
-  keyname:         'ezquake-keynames-ast.json',
-  hud_element:     'ezquake-hud-elements-ast.json',
-  ruleset:         'ezquake-rulesets-ast.json',
-  token_primitive: 'ezquake-token-primitives-ast.json',
-  flag_bit:        'ezquake-flag-bits-ast.json',
-  // asset_category rows live under the `asset_categories` top-level field
-  // of the bundle JSON, so point the entity loader at the bundle.
-  asset_category:  'ezquake-asset-bundle.json',
+// Per-project entity-type JSON file mapping. Filenames must match each
+// extractor's actual output. ezQuake's cvar handler writes
+// `ezquake-variables-ast.json` (historic name); other types follow the
+// `<project>-<type>-ast.json` pattern. Types absent from a project's map
+// (e.g. macros for QWCL, hud_element everywhere except ezQuake) are
+// silently skipped during the loader loop. asset_category rows live in
+// the asset bundle and are skipped when the project lacks one (see
+// PROJECT_HAS_ASSET_BUNDLE).
+const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = {
+  ezquake: {
+    cvar:            'ezquake-variables-ast.json',
+    command:         'ezquake-commands-ast.json',
+    macro:           'ezquake-macros-ast.json',
+    cmdline_param:   'ezquake-cmdline-params-ast.json',
+    keyname:         'ezquake-keynames-ast.json',
+    hud_element:     'ezquake-hud-elements-ast.json',
+    ruleset:         'ezquake-rulesets-ast.json',
+    token_primitive: 'ezquake-token-primitives-ast.json',
+    flag_bit:        'ezquake-flag-bits-ast.json',
+    asset_category:  'ezquake-asset-bundle.json',
+  },
+  qwcl: {
+    cvar:          'qwcl-variables-ast.json',
+    command:       'qwcl-commands-ast.json',
+    cmdline_param: 'qwcl-cmdline-params-ast.json',
+  },
+  fte: {},
+  mvdsv: {},
+  ktx: {},
 };
 
 const ASSET_BUNDLE_FILE = 'ezquake-asset-bundle.json';
@@ -158,12 +183,16 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     throw new Error(`Source repo not found at ${repoPath}. Clone it first.`);
   }
 
-  // 1. Checkout. `head` resolves to the project's default branch; every other
-  // value is treated as a tag. Only fetch if the target ref is not already
-  // known locally, so the common case stays offline-safe.
+  // 1. Checkout. `head` resolves to the project's default branch. Other
+  // version labels are first translated through PROJECT_VERSION_ALIASES so
+  // tagless projects (qwcl) can map a canonical release name to a commit
+  // sha; an unmapped label falls through as a tag/ref to git directly. Only
+  // fetch if the target ref is not already known locally, so the common
+  // case stays offline-safe.
+  const aliasMap = PROJECT_VERSION_ALIASES[options.project];
   const checkoutRef = options.version === 'head'
     ? PROJECT_DEFAULT_BRANCH[options.project]
-    : options.version;
+    : (aliasMap[options.version] ?? options.version);
   const refKnown = spawnSync(
     'git', ['-C', repoPath, 'rev-parse', '--verify', checkoutRef],
     { stdio: 'ignore' },
@@ -176,7 +205,10 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   const commitSha = options.commitSha ?? execSync(`git -C "${repoPath}" rev-parse HEAD`, {
     encoding: 'utf-8',
   }).trim();
-  const tagDate = options.tagDate ?? resolveTagDate(repoPath, options.version);
+  // Resolve tag_date against the checked-out ref, not the version label —
+  // version labels can be aliases (qwcl '2.33' -> commit bf4ac42) that
+  // git log won't recognize as a revision.
+  const tagDate = options.tagDate ?? resolveTagDate(repoPath, checkoutRef);
 
   // 2. Unified Python extractor (cvar / command / macro / cmdline_param /
   // keyname / hud_element / asset_cvar_bindings / asset_loader_sites).
@@ -227,8 +259,8 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
 
   // 3. Entity loaders.
   const entitiesLoaded: Partial<Record<EntityType, number>> = {};
-  for (const [type, jsonFile] of Object.entries(ENTITY_JSON_FILES) as [EntityType, string | null][]) {
-    if (!jsonFile) continue;
+  const fileMap = ENTITY_JSON_FILES[options.project];
+  for (const [type, jsonFile] of Object.entries(fileMap) as [EntityType, string][]) {
     // asset_category lives only in the asset bundle; skip when the project
     // doesn't ship one. Every other type loads from the extractor's per-project
     // output dir.
