@@ -261,6 +261,33 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     );
   }
 
+  // Stale-row cleanup: existing per-version rows whose entity name is NOT
+  // in the incoming JSON. Catches the legacy-extractor-stale-JSON bug where
+  // a prior load (e.g., pre-fix extract-tag pre-2026-04-23) inserted rows
+  // for entities that don't actually exist at this version. Done before the
+  // txn opens so the orphan-set is computed once on the pre-load DB state.
+  const incomingNames = new Set<string>();
+  for (const nameRaw of Object.keys(entries)) {
+    const canonical = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
+    incomingNames.add(canonical);
+  }
+  const existingVersionRows = options.db.prepare(`
+    SELECT cv.entity_id, e.name FROM ${adapter.versionsTable} cv
+    JOIN entities e ON e.id = cv.entity_id
+    WHERE e.project = ? AND e.type = ? AND cv.version = ?
+  `).all(options.project, options.type, options.version) as { entity_id: number; name: string }[];
+  const staleVersionRows = existingVersionRows.filter(r => !incomingNames.has(r.name));
+  if (staleVersionRows.length > 0 && existingVersionRows.length > 0) {
+    const staleRatio = staleVersionRows.length / existingVersionRows.length;
+    if (staleRatio > 1 - PARTIAL_DROP_GUARD_RATIO && !options.forceOverwrite) {
+      throw new Error(
+        `Stale-row cleanup would delete ${staleVersionRows.length}/${existingVersionRows.length} ` +
+        `${options.type} rows (${(staleRatio * 100).toFixed(0)}%) at ${options.project}@${options.version}. ` +
+        `Use --force to override.`
+      );
+    }
+  }
+
   const txn = options.db.transaction(() => {
     upsertVersion(options.db, {
       project: options.project,
@@ -272,6 +299,19 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       notes: options.notes ?? null,
       extracted_at: now,
     });
+
+    if (staleVersionRows.length > 0) {
+      const del = options.db.prepare(
+        `DELETE FROM ${adapter.versionsTable} WHERE entity_id = ? AND version = ?`,
+      );
+      for (const r of staleVersionRows) {
+        del.run(r.entity_id, options.version);
+      }
+      console.log(
+        `[load-version] cleaned up ${staleVersionRows.length} stale ${options.type} version rows ` +
+        `at ${options.project}@${options.version}`,
+      );
+    }
 
     let upserted = 0;
     let transitions = 0;
