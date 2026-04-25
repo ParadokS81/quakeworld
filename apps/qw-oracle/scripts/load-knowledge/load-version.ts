@@ -314,22 +314,15 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
           extractor_run_id: extractorRunId,
         });
         transitions += 1;
-      } else if (upsertResult.prevSourceState === 'doc_only' && sourceBacked) {
-        setEntitySourceState(options.db, upsertResult.id, 'source_backed');
-        logTransition(options.db, {
-          entity_id: upsertResult.id,
-          from_state: 'doc_only',
-          to_state: 'source_backed',
-          reason: 'backfill_match',
-          version_context: options.version,
-          extractor_run_id: extractorRunId,
-        });
-        transitions += 1;
-
-        // Compare by ordinal via the versions table rather than JavaScript
-        // string comparison -- '>' on version strings breaks on multi-tag
-        // orderings like '3.10.0' vs '3.6.6' where the lexicographic order
-        // disagrees with the release order.
+      } else {
+        // Existing entity. Two independent concerns: extend first_seen
+        // backwards if this version pre-dates the recorded earliest, and
+        // record a doc_only -> source_backed transition when the extractor
+        // newly catches what was previously help-JSON-only. Both must run
+        // regardless of order; either can fire without the other.
+        //
+        // Ordinal comparison via the versions table -- '<' on version
+        // strings breaks on multi-tag orderings like '3.10.0' vs '3.6.6'.
         const ordCheck = options.db.prepare(`
           SELECT vCur.ordinal AS cur_ord, vNew.ordinal AS new_ord
           FROM entities e
@@ -341,6 +334,19 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
           | undefined;
         if (ordCheck && ordCheck.new_ord < ordCheck.cur_ord) {
           extendFirstSeenVersion(options.db, upsertResult.id, options.version);
+        }
+
+        if (upsertResult.prevSourceState === 'doc_only' && sourceBacked) {
+          setEntitySourceState(options.db, upsertResult.id, 'source_backed');
+          logTransition(options.db, {
+            entity_id: upsertResult.id,
+            from_state: 'doc_only',
+            to_state: 'source_backed',
+            reason: 'backfill_match',
+            version_context: options.version,
+            extractor_run_id: extractorRunId,
+          });
+          transitions += 1;
         }
       }
 

@@ -105,7 +105,7 @@ for T in cvar command macro cmdline_param; do
   npm run load-knowledge -- load-version \
     --project ezquake --version head --type $T \
     --json ../../packages/qw-config/src/data/$JSON \
-    --commit $HEAD_SHA --ordinal 2
+    --commit $HEAD_SHA --ordinal 999999
 done
 ```
 
@@ -194,7 +194,7 @@ for T in \
   npm run load-knowledge -- load-version \
     --project ezquake --version head --type $TYPE \
     --json ../../packages/qw-config/src/data/$JSON \
-    --commit $HEAD_SHA --ordinal 2
+    --commit $HEAD_SHA --ordinal 999999
 done
 ```
 
@@ -278,13 +278,13 @@ bunx tsx scripts/load-knowledge/build-asset-bundle.ts --project ezquake --versio
 npm run load-knowledge -- load-version \
   --project ezquake --version head --type asset_category \
   --json ../../packages/qw-config/src/data/ezquake-asset-bundle.json \
-  --commit $HEAD_SHA --ordinal 2 \
+  --commit $HEAD_SHA --ordinal 999999 \
   --extractor-version clang-ezquake-assets@1.0.0
 
 npm run load-knowledge -- load-assets \
   --project ezquake --version head \
   --json ../../packages/qw-config/src/data/ezquake-asset-bundle.json \
-  --commit $HEAD_SHA --ordinal 2 \
+  --commit $HEAD_SHA --ordinal 999999 \
   --extractor-version clang-ezquake-assets@1.0.0
 ```
 

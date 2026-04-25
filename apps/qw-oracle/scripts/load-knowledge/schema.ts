@@ -7,12 +7,23 @@ import type Database from 'better-sqlite3';
 
 export const SCHEMA_VERSION = 8;
 
+// Sentinel ordinal for the 'head' version row (per project). Must be greater
+// than any plausible release ordinal so first_seen / last_seen comparisons
+// place head after every tagged release. See `versions` table comment.
+export const HEAD_ORDINAL = 999999;
+
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
   key    TEXT PRIMARY KEY,
   value  TEXT NOT NULL
 );
 
+-- Ordinal scheme: semver-encoded for tagged releases (3.6.1 -> 361,
+-- 3.6.6 -> 366, etc.) so '<' on ordinal mirrors release-time order.
+-- 'head' uses the sentinel HEAD_ORDINAL (999999) because it always represents
+-- the dev tip, after every tagged release. All first_seen / last_seen
+-- comparisons rely on this ordering. New release tags get an ordinal
+-- derived from their semver; never reuse 999999 for anything else.
 CREATE TABLE IF NOT EXISTS versions (
   id             INTEGER PRIMARY KEY,
   project        TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx')),

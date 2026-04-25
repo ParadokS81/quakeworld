@@ -95,12 +95,29 @@ export function upsertEntity(
       | undefined;
 
   if (existing) {
-    db.prepare(`
-      UPDATE entities
-      SET last_seen_version = ?,
-          updated_at = ?
-      WHERE id = ?
-    `).run(input.last_seen_version, now, existing.id);
+    // last_seen advances forward only -- compare by ordinal so re-loads of an
+    // older tag don't overwrite a newer last_seen. Mirrors the first_seen
+    // ordinal check in load-version.ts.
+    const ordCheck = db
+      .prepare(`
+        SELECT vCur.ordinal AS cur_ord, vNew.ordinal AS new_ord
+        FROM versions vCur, versions vNew
+        WHERE vCur.project = ? AND vCur.version = ?
+          AND vNew.project = ? AND vNew.version = ?
+      `)
+      .get(
+        input.project,
+        existing.last_seen_version,
+        input.project,
+        input.last_seen_version,
+      ) as { cur_ord: number; new_ord: number } | undefined;
+
+    if (ordCheck && ordCheck.new_ord > ordCheck.cur_ord) {
+      db.prepare(`UPDATE entities SET last_seen_version = ?, updated_at = ? WHERE id = ?`)
+        .run(input.last_seen_version, now, existing.id);
+    } else {
+      db.prepare(`UPDATE entities SET updated_at = ? WHERE id = ?`).run(now, existing.id);
+    }
     return { id: existing.id, isNew: false, prevSourceState: existing.source_state };
   }
 

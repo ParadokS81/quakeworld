@@ -8,6 +8,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { openKnowledgeDb } from './db.js';
 import { loadVersion } from './load-version.js';
+import { HEAD_ORDINAL } from './schema.js';
 import type { EntityType, Project } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -69,21 +70,31 @@ Subcommands:
   load-version  --project <p> --version <v>
                 --type <cvar|command|macro|cmdline_param|keyname|
                         hud_element|ruleset|token_primitive|flag_bit>
-                --json <path> --commit <sha> --ordinal <n>
+                --json <path> --commit <sha> [--ordinal <n>]
                 [--tag-date <iso8601>] [--extractor-version <s>] [--force]
   diff          --project <p> --from <v1> --to <v2>
   enrich        --project <p> --github-token <token> [--limit <n>]
   load-assets   --project <p> --version <v> --json <bundle-path>
-                --commit <sha> --ordinal <n>
+                --commit <sha> [--ordinal <n>]
                 [--tag-date <iso8601>] [--extractor-version <s>]
   release-notes --project <p> --version <v> --github-token <token>
-  extract-tag   --project <p> --version <v> --ordinal <n>
+  extract-tag   --project <p> --version <v> [--ordinal <n>]
                 [--commit <sha>] [--tag-date <iso8601>]
                 [--github-token <t>] [--skip-release-notes] [--force]
   review        --project <p> --from <v1> --to <v2>
                 [--out <path>] [--ezquake-repo <path>] [--force]
 `.trim());
   process.exit(2);
+}
+
+// Resolve --ordinal from CLI args. The 'head' version defaults to
+// HEAD_ORDINAL when --ordinal is omitted, so operators don't have to remember
+// the sentinel value. Tagged releases must pass --ordinal explicitly (a
+// semver-encoded number; see schema.ts).
+function resolveOrdinal(version: string | undefined, raw: string | undefined): number {
+  if (raw !== undefined) return Number(raw);
+  if (version === 'head') return HEAD_ORDINAL;
+  throw new Error('--ordinal is required for tagged versions');
 }
 
 async function runLoadVersion(args: string[]): Promise<void> {
@@ -102,7 +113,7 @@ async function runLoadVersion(args: string[]): Promise<void> {
     },
   });
 
-  for (const required of ['project', 'version', 'type', 'json', 'commit', 'ordinal'] as const) {
+  for (const required of ['project', 'version', 'type', 'json', 'commit'] as const) {
     if (!values[required]) {
       throw new Error(`--${required} is required`);
     }
@@ -118,7 +129,7 @@ async function runLoadVersion(args: string[]): Promise<void> {
       jsonPath: values.json!,
       commitSha: values.commit!,
       tagDate: values['tag-date'] ?? null,
-      ordinal: Number(values.ordinal),
+      ordinal: resolveOrdinal(values.version, values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-cvars@1.0.0',
       forceOverwrite: values.force ?? false,
     });
@@ -204,7 +215,7 @@ async function runLoadAssets(args: string[]): Promise<void> {
     },
   });
 
-  for (const required of ['project', 'version', 'json', 'commit', 'ordinal'] as const) {
+  for (const required of ['project', 'version', 'json', 'commit'] as const) {
     if (!values[required]) {
       throw new Error(`--${required} is required`);
     }
@@ -220,7 +231,7 @@ async function runLoadAssets(args: string[]): Promise<void> {
       jsonPath: values.json!,
       commitSha: values.commit!,
       tagDate: values['tag-date'] ?? null,
-      ordinal: Number(values.ordinal),
+      ordinal: resolveOrdinal(values.version, values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-assets@1.0.0',
     });
     console.log(JSON.stringify(result, null, 2));
@@ -274,7 +285,7 @@ async function runExtractTag(args: string[]): Promise<void> {
     },
   });
 
-  for (const required of ['project', 'version', 'ordinal'] as const) {
+  for (const required of ['project', 'version'] as const) {
     if (!values[required]) throw new Error(`--${required} is required`);
   }
 
@@ -285,7 +296,7 @@ async function runExtractTag(args: string[]): Promise<void> {
       db,
       project: values.project as Project,
       version: values.version!,
-      ordinal: Number(values.ordinal),
+      ordinal: resolveOrdinal(values.version, values.ordinal),
       commitSha: values.commit,
       tagDate: values['tag-date'],
       githubToken: values['github-token'] ?? process.env.GITHUB_TOKEN,
