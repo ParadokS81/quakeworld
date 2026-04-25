@@ -559,8 +559,17 @@
         "manifest_enum": "cmdline_param_client_printopenglextensions",
         "manifest_file": "cmdline_params_ids.h",
         "manifest_line": 22,
-        "usage_sites": [],
-        "usage_count": 0
+        "usage_sites": [
+          {
+            "source_file": "vid_common_gl.c",
+            "source_line": 340,
+            "source_column": 7,
+            "enclosing_function": "GL_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
       },
       "flags": [
         "incomplete"
@@ -3274,8 +3283,8 @@
   },
   "_stats": {
     "manifest_entries": 68,
-    "manifest_with_usage": 60,
-    "manifest_unused_in_source": 8,
+    "manifest_with_usage": 61,
+    "manifest_unused_in_source": 7,
     "help_only": 4,
     "source_only_undeclared": 2,
     "with_help_desc": 14
