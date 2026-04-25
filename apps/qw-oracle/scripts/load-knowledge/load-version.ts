@@ -469,6 +469,71 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       );
     }
 
+    // Per-version retirement detection. Walk each source_backed entity's
+    // version rows ordered by ordinal; each time citation flips from
+    // non-null -> null going forward, the entity got retired in source at
+    // that version (Cvar_Register / Cmd_AddCommand removed but help-JSON
+    // entry kept). Idempotent on (entity_id, reason, version_context) so
+    // re-runs don't duplicate. Entity-level source_state stays
+    // 'source_backed' -- it was real at some loaded version; the per-version
+    // story lives on the transition rows. asset_category is excluded because
+    // its versions table has no source_file column (categories are
+    // seed-defined taxonomy, not per-source-location entities).
+    if (options.type !== 'asset_category') {
+    const retirementScan = options.db.prepare(`
+      SELECT e.id AS entity_id, e.name AS entity_name, v.ordinal,
+             vrow.version, vrow.source_file
+      FROM entities e
+      JOIN ${adapter.versionsTable} vrow ON vrow.entity_id = e.id
+      JOIN versions v ON v.project = e.project AND v.version = vrow.version
+      WHERE e.project = ? AND e.type = ? AND e.source_state = 'source_backed'
+      ORDER BY e.id, v.ordinal
+    `).all(options.project, options.type) as Array<{
+      entity_id: number;
+      entity_name: string;
+      ordinal: number;
+      version: string;
+      source_file: string | null;
+    }>;
+
+    const checkExistingTransition = options.db.prepare(`
+      SELECT 1 FROM source_state_transitions
+      WHERE entity_id = ? AND reason = 'source_retired_at_version' AND version_context = ?
+      LIMIT 1
+    `);
+    let retirementsLogged = 0;
+    let currentEntityId: number | null = null;
+    let prevHadCitation = false;
+    for (const row of retirementScan) {
+      if (row.entity_id !== currentEntityId) {
+        currentEntityId = row.entity_id;
+        prevHadCitation = false;
+      }
+      const hasCitation = row.source_file != null;
+      if (prevHadCitation && !hasCitation) {
+        const exists = checkExistingTransition.get(row.entity_id, row.version);
+        if (!exists) {
+          logTransition(options.db, {
+            entity_id: row.entity_id,
+            from_state: 'source_backed',
+            to_state: 'source_retired',
+            reason: 'source_retired_at_version',
+            version_context: row.version,
+            extractor_run_id: extractorRunId,
+          });
+          retirementsLogged += 1;
+        }
+      }
+      prevHadCitation = hasCitation;
+    }
+
+    if (retirementsLogged > 0) {
+      console.log(
+        `[load-version] logged ${retirementsLogged} ${options.type} source_retired_at_version transition(s)`,
+      );
+    }
+    }
+
     const setMeta = options.db.prepare(`
       INSERT INTO schema_meta (key, value) VALUES (?, ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value

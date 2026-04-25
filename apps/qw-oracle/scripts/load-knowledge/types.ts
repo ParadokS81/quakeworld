@@ -28,6 +28,7 @@ export type TransitionReason =
   | 'removed_from_head'
   | 're_added'
   | 'backfill_match'
+  | 'source_retired_at_version'
   | 'manual_update';
 
 export interface AstBlock {

@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS source_state_transitions (
                        'removed_from_head',
                        're_added',
                        'backfill_match',
+                       'source_retired_at_version',
                        'manual_update'
                      )),
   version_context    TEXT,
@@ -499,6 +500,34 @@ CREATE TABLE IF NOT EXISTS source_overrides (
 CREATE INDEX IF NOT EXISTS idx_source_overrides_entity ON source_overrides(entity_id, version);
 `;
 
+// v8 -> v9 widens the source_state_transitions.reason CHECK to allow
+// 'source_retired_at_version' for the per-version retirement detection that
+// runs in load-version's normal path. Same table-rebuild pattern as v7->v8.
+const SOURCE_STATE_TRANSITIONS_V9_MIGRATION_SQL = `
+CREATE TABLE source_state_transitions_v9 (
+  id                 INTEGER PRIMARY KEY,
+  entity_id          INTEGER NOT NULL REFERENCES entities(id),
+  from_state         TEXT NOT NULL,
+  to_state           TEXT NOT NULL,
+  reason             TEXT NOT NULL CHECK (reason IN (
+                       'initial_observation',
+                       'removed_from_head',
+                       're_added',
+                       'backfill_match',
+                       'source_retired_at_version',
+                       'manual_update'
+                     )),
+  version_context    TEXT,
+  extractor_run_id   TEXT NOT NULL,
+  created_at         TEXT NOT NULL
+);
+INSERT INTO source_state_transitions_v9 SELECT * FROM source_state_transitions;
+DROP TABLE source_state_transitions;
+ALTER TABLE source_state_transitions_v9 RENAME TO source_state_transitions;
+CREATE INDEX idx_sst_entity ON source_state_transitions(entity_id);
+CREATE INDEX idx_sst_run    ON source_state_transitions(extractor_run_id);
+`;
+
 // v7 -> v8 widens the asset_loader_sites.confidence CHECK to add
 // 'intentionally_generic'. SQLite can't ALTER a CHECK in place, so the
 // migration rebuilds the table preserving rows, indexes, and ids.
@@ -722,6 +751,25 @@ function migrateV7ToV8(db: Database.Database): void {
   }
 }
 
+function migrateV8ToV9(db: Database.Database): void {
+  // Widens source_state_transitions.reason CHECK to allow
+  // 'source_retired_at_version'. Table rebuild preserves rows + ids.
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_sst_entity;
+        DROP INDEX IF EXISTS idx_sst_run;
+      `);
+      db.exec(SOURCE_STATE_TRANSITIONS_V9_MIGRATION_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('9');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -765,6 +813,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 7 && SCHEMA_VERSION >= 8) {
       migrateV7ToV8(db);
       existingVersion = 8;
+    }
+    if (existingVersion === 8 && SCHEMA_VERSION >= 9) {
+      migrateV8ToV9(db);
+      existingVersion = 9;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

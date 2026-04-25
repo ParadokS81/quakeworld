@@ -286,8 +286,13 @@ function probeEmptyBodyDensity(ctx: ProbeContext): ProbeResult {
 }
 
 // Source_backed entities should always have source_file + source_line on
-// every version row (asset_category excepted, no source location). Missing
-// citation = stale data or extractor regression.
+// every version row -- UNLESS the row is explained by a transition:
+//   - at or after a source_retired_at_version transition (entity retired in
+//     source; help-JSON entry persisted, version legitimately has no citation)
+//   - before a backfill_match transition (entity was doc_only at older
+//     versions, gained source registration later; older NULL rows are the
+//     pre-introduction state)
+// Missing citation without either explanation = stale data or extractor regression.
 function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
   const examples: string[] = [];
   let total = 0;
@@ -306,8 +311,23 @@ function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
     const rows = ctx.db.prepare(`
       SELECT e.name, xv.version FROM entities e
       JOIN ${table} xv ON xv.entity_id=e.id
+      JOIN versions vrow ON vrow.project=e.project AND vrow.version=xv.version
       WHERE e.project=? AND e.type=? AND e.source_state='source_backed'
         AND (xv.source_file IS NULL OR xv.source_line IS NULL)
+        AND NOT EXISTS (
+          SELECT 1 FROM source_state_transitions sst
+          JOIN versions vret ON vret.project=e.project AND vret.version=sst.version_context
+          WHERE sst.entity_id=e.id
+            AND sst.reason='source_retired_at_version'
+            AND vret.ordinal <= vrow.ordinal
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM source_state_transitions sst
+          JOIN versions vbf ON vbf.project=e.project AND vbf.version=sst.version_context
+          WHERE sst.entity_id=e.id
+            AND sst.reason='backfill_match'
+            AND vrow.ordinal < vbf.ordinal
+        )
     `).all(ctx.project, type) as { name: string; version: string }[];
     for (const r of rows) {
       total += 1;
@@ -317,10 +337,10 @@ function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
   return {
     name: 'F2.source_backed_missing_citation',
     family: 'anomaly',
-    description: 'source_backed entities with NULL source_file or source_line on a version row',
+    description: 'source_backed entities with NULL citation, not explained by a retirement or backfill transition',
     status: total === 0 ? 'CLEAN' : 'FOUND',
     count: total,
-    summary: total === 0 ? 'all source_backed entities cited' : `${total} version rows missing citation`,
+    summary: total === 0 ? 'all source_backed entities cited (or transition-explained)' : `${total} version rows missing citation`,
     examples,
   };
 }
