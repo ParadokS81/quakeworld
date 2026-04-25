@@ -1,0 +1,3839 @@
+{
+  "groups": [],
+  "vars": {
+    "_snd_mixahead": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "_snd_mixahead",
+        "source_file": "snd_dma.c",
+        "source_line": 85,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "_vid_default_mode": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "_vid_default_mode",
+        "source_file": "gl_vidnt.c",
+        "source_line": 145,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "_vid_default_mode_win": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "_vid_default_mode_win",
+        "source_file": "gl_vidnt.c",
+        "source_line": 147,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "_vid_wait_override": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "_vid_wait_override",
+        "source_file": "gl_vidnt.c",
+        "source_line": 150,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "_windowed_mouse": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "_windowed_mouse",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 75,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "ambient_fade": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "100",
+      "server-only": false,
+      "ast": {
+        "c_ident": "ambient_fade",
+        "source_file": "snd_dma.c",
+        "source_line": 82,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "ambient_level": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "ambient_level",
+        "source_file": "snd_dma.c",
+        "source_line": 81,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "baseskin": {
+      "type": "string",
+      "group-id": "0",
+      "default": "base",
+      "server-only": false,
+      "ast": {
+        "c_ident": "baseskin",
+        "source_file": "skin.c",
+        "source_line": 23,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "bgmbuffer": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "4096",
+      "server-only": false,
+      "ast": {
+        "c_ident": "bgmbuffer",
+        "source_file": "snd_dma.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "bgmvolume": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "bgmvolume",
+        "source_file": "snd_dma.c",
+        "source_line": 74,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "block_switch": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "block_switch",
+        "source_file": "vid_win.c",
+        "source_line": 83,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "bottomcolor": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "bottomcolor",
+        "source_file": "cl_main.c",
+        "source_line": 76,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_anglespeedkey": {
+      "type": "float",
+      "group-id": "0",
+      "default": "1.5",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_anglespeedkey",
+        "source_file": "cl_input.c",
+        "source_line": 221,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_backspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "200",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_backspeed",
+        "source_file": "cl_input.c",
+        "source_line": 213,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_bob": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.02",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_bob",
+        "source_file": "view.c",
+        "source_line": 39,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_bobcycle": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.6",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_bobcycle",
+        "source_file": "view.c",
+        "source_line": 40,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_bobup": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.5",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_bobup",
+        "source_file": "view.c",
+        "source_line": 41,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_chasecam": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_chasecam",
+        "source_file": "cl_cam.c",
+        "source_line": 45,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_crossx": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_crossx",
+        "source_file": "view.c",
+        "source_line": 59,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_crossy": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_crossy",
+        "source_file": "view.c",
+        "source_line": 60,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_forwardspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "200",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_forwardspeed",
+        "source_file": "cl_input.c",
+        "source_line": 212,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_hightrack": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_hightrack",
+        "source_file": "cl_cam.c",
+        "source_line": 43,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_hudswap": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_hudswap",
+        "source_file": "cl_main.c",
+        "source_line": 46,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_maxfps": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_maxfps",
+        "source_file": "cl_main.c",
+        "source_line": 47,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_movespeedkey": {
+      "type": "float",
+      "group-id": "0",
+      "default": "2.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_movespeedkey",
+        "source_file": "cl_input.c",
+        "source_line": 216,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_nodelta": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_nodelta",
+        "source_file": "cl_input.c",
+        "source_line": 24,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_nopred": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_nopred",
+        "source_file": "cl_pred.c",
+        "source_line": 23,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_pitchspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "150",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_pitchspeed",
+        "source_file": "cl_input.c",
+        "source_line": 219,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_predict_players": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_predict_players",
+        "source_file": "cl_main.c",
+        "source_line": 59,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_predict_players2": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_predict_players2",
+        "source_file": "cl_main.c",
+        "source_line": 60,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_rollangle": {
+      "type": "float",
+      "group-id": "0",
+      "default": "2.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_rollangle",
+        "source_file": "view.c",
+        "source_line": 37,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_rollspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "200",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_rollspeed",
+        "source_file": "view.c",
+        "source_line": 36,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_sbar": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_sbar",
+        "source_file": "cl_main.c",
+        "source_line": 45,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_shownet": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_shownet",
+        "source_file": "cl_main.c",
+        "source_line": 43,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_sidespeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "350",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_sidespeed",
+        "source_file": "cl_input.c",
+        "source_line": 214,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_solid_players": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_solid_players",
+        "source_file": "cl_main.c",
+        "source_line": 61,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_timeout": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "60",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_timeout",
+        "source_file": "cl_main.c",
+        "source_line": 41,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_upspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "200",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_upspeed",
+        "source_file": "cl_input.c",
+        "source_line": 211,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_warncmd": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_warncmd",
+        "source_file": "cmd.c",
+        "source_line": 39,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "cl_yawspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "140",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_yawspeed",
+        "source_file": "cl_input.c",
+        "source_line": 218,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "con_notifytime": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "con_notifytime",
+        "source_file": "console.c",
+        "source_line": 35,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "crosshair": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "crosshair",
+        "source_file": "view.c",
+        "source_line": 56,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "crosshaircolor": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "79",
+      "server-only": false,
+      "ast": {
+        "c_ident": "crosshaircolor",
+        "source_file": "view.c",
+        "source_line": 57,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "d_mipcap": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "d_mipcap",
+        "source_file": "d_init.c",
+        "source_line": 28,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "d_mipscale": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "d_mipscale",
+        "source_file": "d_init.c",
+        "source_line": 29,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "d_subdiv16": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "d_subdiv16",
+        "source_file": "d_init.c",
+        "source_line": 27,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "developer": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "developer",
+        "source_file": "cl_main.c",
+        "source_line": 121,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "entlatency": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "20",
+      "server-only": false,
+      "ast": {
+        "c_ident": "entlatency",
+        "source_file": "cl_main.c",
+        "source_line": 58,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "fov": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "90",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_fov",
+        "source_file": "gl_screen.c",
+        "source_line": 86,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gamma": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_gamma",
+        "source_file": "view.c",
+        "source_line": 265,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_affinemodels": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_affinemodels",
+        "source_file": "gl_rmain.c",
+        "source_line": 93,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_clear": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_clear",
+        "source_file": "gl_rmain.c",
+        "source_line": 89,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_cull": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_cull",
+        "source_file": "gl_rmain.c",
+        "source_line": 90,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_finish": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_finish",
+        "source_file": "gl_rmain.c",
+        "source_line": 100,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_flashblend": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_flashblend",
+        "source_file": "gl_rmain.c",
+        "source_line": 95,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_keeptjunctions": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_keeptjunctions",
+        "source_file": "gl_rmain.c",
+        "source_line": 98,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_max_size": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "1024",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_max_size",
+        "source_file": "gl_draw.c",
+        "source_line": 30,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_nobind": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_nobind",
+        "source_file": "gl_draw.c",
+        "source_line": 29,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_nocolors": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_nocolors",
+        "source_file": "gl_rmain.c",
+        "source_line": 97,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_picmip": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_picmip",
+        "source_file": "gl_draw.c",
+        "source_line": 31,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_playermip": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_playermip",
+        "source_file": "gl_rmain.c",
+        "source_line": 96,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_polyblend": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_polyblend",
+        "source_file": "gl_rmain.c",
+        "source_line": 94,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_reporttjunctions": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_reporttjunctions",
+        "source_file": "gl_rmain.c",
+        "source_line": 99,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_smoothmodels": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_smoothmodels",
+        "source_file": "gl_rmain.c",
+        "source_line": 92,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_subdivide_size": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "128",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_subdivide_size",
+        "source_file": "gl_model.c",
+        "source_line": 41,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_texsort": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_texsort",
+        "source_file": "gl_rmain.c",
+        "source_line": 91,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_triplebuffer": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_triplebuffer",
+        "source_file": "gl_screen.c",
+        "source_line": 94,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "gl_ztrick": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "gl_ztrick",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 114,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "host_speeds": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "host_speeds",
+        "source_file": "cl_main.c",
+        "source_line": 119,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvanced": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advanced",
+        "source_file": "in_win.c",
+        "source_line": 86,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisr": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisr",
+        "source_file": "in_win.c",
+        "source_line": 90,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisu": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisu",
+        "source_file": "in_win.c",
+        "source_line": 91,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisv": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisv",
+        "source_file": "in_win.c",
+        "source_line": 92,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisx": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisx",
+        "source_file": "in_win.c",
+        "source_line": 87,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisy": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisy",
+        "source_file": "in_win.c",
+        "source_line": 88,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyadvaxisz": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_advaxisz",
+        "source_file": "in_win.c",
+        "source_line": 89,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyforwardsensitivity": {
+      "type": "float",
+      "group-id": "0",
+      "default": "-1.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_forwardsensitivity",
+        "source_file": "in_win.c",
+        "source_line": 97,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyforwardthreshold": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_forwardthreshold",
+        "source_file": "in_win.c",
+        "source_line": 93,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyname": {
+      "type": "string",
+      "group-id": "0",
+      "default": "joystick",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_name",
+        "source_file": "in_win.c",
+        "source_line": 85,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joypitchsensitivity": {
+      "type": "float",
+      "group-id": "0",
+      "default": "1.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_pitchsensitivity",
+        "source_file": "in_win.c",
+        "source_line": 99,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joypitchthreshold": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_pitchthreshold",
+        "source_file": "in_win.c",
+        "source_line": 95,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joysidesensitivity": {
+      "type": "float",
+      "group-id": "0",
+      "default": "-1.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_sidesensitivity",
+        "source_file": "in_win.c",
+        "source_line": 98,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joysidethreshold": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_sidethreshold",
+        "source_file": "in_win.c",
+        "source_line": 94,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joystick": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "in_joystick",
+        "source_file": "in_win.c",
+        "source_line": 84,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joywwhack1": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_wwhack1",
+        "source_file": "in_win.c",
+        "source_line": 101,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joywwhack2": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_wwhack2",
+        "source_file": "in_win.c",
+        "source_line": 102,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyyawsensitivity": {
+      "type": "float",
+      "group-id": "0",
+      "default": "-1.0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_yawsensitivity",
+        "source_file": "in_win.c",
+        "source_line": 100,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "joyyawthreshold": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "joy_yawthreshold",
+        "source_file": "in_win.c",
+        "source_line": 96,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "lcd_x": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "lcd_x",
+        "source_file": "view.c",
+        "source_line": 34,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "loadas8bit": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "loadas8bit",
+        "source_file": "snd_dma.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "localid": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "localid",
+        "source_file": "cl_main.c",
+        "source_line": 63,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "lookspring": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "lookspring",
+        "source_file": "cl_main.c",
+        "source_line": 49,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "lookstrafe": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "lookstrafe",
+        "source_file": "cl_main.c",
+        "source_line": 50,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "m_filter": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "m_filter",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 97,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "m_forward": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "m_forward",
+        "source_file": "cl_main.c",
+        "source_line": 55,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "m_pitch": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.022",
+      "server-only": false,
+      "ast": {
+        "c_ident": "m_pitch",
+        "source_file": "cl_main.c",
+        "source_line": 53,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "m_side": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.8",
+      "server-only": false,
+      "ast": {
+        "c_ident": "m_side",
+        "source_file": "cl_main.c",
+        "source_line": 56,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "m_yaw": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.022",
+      "server-only": false,
+      "ast": {
+        "c_ident": "m_yaw",
+        "source_file": "cl_main.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "msg": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "msg",
+        "source_file": "cl_main.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "name": {
+      "type": "string",
+      "group-id": "0",
+      "default": "unnamed",
+      "server-only": false,
+      "ast": {
+        "c_ident": "name",
+        "source_file": "cl_main.c",
+        "source_line": 72,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "noaim": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "noaim",
+        "source_file": "cl_main.c",
+        "source_line": 78,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "noskins": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "noskins",
+        "source_file": "skin.c",
+        "source_line": 24,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "nosound": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "nosound",
+        "source_file": "snd_dma.c",
+        "source_line": 77,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "password": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "password",
+        "source_file": "cl_main.c",
+        "source_line": 70,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false, true",
+        "flag_names": [
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "precache": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "precache",
+        "source_file": "snd_dma.c",
+        "source_line": 78,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "pushlatency": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "-999",
+      "server-only": false,
+      "ast": {
+        "c_ident": "cl_pushlatency",
+        "source_file": "cl_pred.c",
+        "source_line": 24,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "qport": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "qport",
+        "source_file": "net_chan.c",
+        "source_line": 81,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_aliastransadj": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "100",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_aliastransadj",
+        "source_file": "r_main.c",
+        "source_line": 138,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_aliastransbase": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "200",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_aliastransbase",
+        "source_file": "r_main.c",
+        "source_line": 137,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_ambient": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_ambient",
+        "source_file": "r_main.c",
+        "source_line": 130,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_clearcolor": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "2",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_clearcolor",
+        "source_file": "r_main.c",
+        "source_line": 122,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_drawentities": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_drawentities",
+        "source_file": "gl_rmain.c",
+        "source_line": 77,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_drawflat": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_drawflat",
+        "source_file": "r_main.c",
+        "source_line": 129,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_draworder": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_draworder",
+        "source_file": "r_main.c",
+        "source_line": 116,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_drawviewmodel": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_drawviewmodel",
+        "source_file": "gl_rmain.c",
+        "source_line": 78,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_dspeeds": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_dspeeds",
+        "source_file": "r_main.c",
+        "source_line": 128,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_dynamic": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_dynamic",
+        "source_file": "gl_rmain.c",
+        "source_line": 85,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_fullbright": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_fullbright",
+        "source_file": "gl_rmain.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_graphheight": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_graphheight",
+        "source_file": "r_main.c",
+        "source_line": 121,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_lightmap": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_lightmap",
+        "source_file": "gl_rmain.c",
+        "source_line": 81,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_maxedges": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_maxedges",
+        "source_file": "r_main.c",
+        "source_line": 135,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_maxsurfs": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_maxsurfs",
+        "source_file": "r_main.c",
+        "source_line": 132,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_mirroralpha": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_mirroralpha",
+        "source_file": "gl_rmain.c",
+        "source_line": 83,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_netgraph": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_netgraph",
+        "source_file": "gl_rmain.c",
+        "source_line": 87,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_norefresh": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_norefresh",
+        "source_file": "gl_rmain.c",
+        "source_line": 76,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_novis": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_novis",
+        "source_file": "gl_rmain.c",
+        "source_line": 86,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_numedges": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_numedges",
+        "source_file": "r_main.c",
+        "source_line": 136,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_numsurfs": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_numsurfs",
+        "source_file": "r_main.c",
+        "source_line": 133,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_polymodelstats": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_aliasstats",
+        "source_file": "r_main.c",
+        "source_line": 127,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_reportedgeout": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_reportedgeout",
+        "source_file": "r_main.c",
+        "source_line": 134,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_reportsurfout": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_reportsurfout",
+        "source_file": "r_main.c",
+        "source_line": 131,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_shadows": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_shadows",
+        "source_file": "gl_rmain.c",
+        "source_line": 82,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_speeds": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_speeds",
+        "source_file": "gl_rmain.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_timegraph": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_timegraph",
+        "source_file": "r_main.c",
+        "source_line": 118,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_wateralpha": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_wateralpha",
+        "source_file": "gl_rmain.c",
+        "source_line": 84,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_waterwarp": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_waterwarp",
+        "source_file": "r_main.c",
+        "source_line": 123,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "r_zgraph": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "r_zgraph",
+        "source_file": "r_main.c",
+        "source_line": 120,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "rate": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "2500",
+      "server-only": false,
+      "ast": {
+        "c_ident": "rate",
+        "source_file": "cl_main.c",
+        "source_line": 77,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "rcon_address": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "rcon_address",
+        "source_file": "cl_main.c",
+        "source_line": 39,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "rcon_password": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "rcon_password",
+        "source_file": "cl_main.c",
+        "source_line": 37,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "registered": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "registered",
+        "source_file": "common.c",
+        "source_line": 41,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "scr_allowsnap": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_allowsnap",
+        "source_file": "gl_screen.c",
+        "source_line": 93,
+        "source_column": 10,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "scr_centertime": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "2",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_centertime",
+        "source_file": "gl_screen.c",
+        "source_line": 88,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "scr_conspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "300",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_conspeed",
+        "source_file": "gl_screen.c",
+        "source_line": 87,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "scr_printspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "8",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_printspeed",
+        "source_file": "gl_screen.c",
+        "source_line": 92,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "sensitivity": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "sensitivity",
+        "source_file": "cl_main.c",
+        "source_line": 51,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "show_fps": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "show_fps",
+        "source_file": "cl_main.c",
+        "source_line": 120,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "showdrop": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "showdrop",
+        "source_file": "net_chan.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "showpackets": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "showpackets",
+        "source_file": "net_chan.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "showpause": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_showpause",
+        "source_file": "gl_screen.c",
+        "source_line": 91,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "showram": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_showram",
+        "source_file": "gl_screen.c",
+        "source_line": 89,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "showturtle": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_showturtle",
+        "source_file": "gl_screen.c",
+        "source_line": 90,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "skin": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "skin",
+        "source_file": "cl_main.c",
+        "source_line": 74,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "snd_noextraupdate": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "snd_noextraupdate",
+        "source_file": "snd_dma.c",
+        "source_line": 83,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "snd_show": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "snd_show",
+        "source_file": "snd_dma.c",
+        "source_line": 84,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "spectator": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "spectator",
+        "source_file": "cl_main.c",
+        "source_line": 71,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false, true",
+        "flag_names": [
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "sys_linerefresh": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "sys_linerefresh",
+        "source_file": "sys_linux.c",
+        "source_line": 47,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "team": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "team",
+        "source_file": "cl_main.c",
+        "source_line": 73,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "topcolor": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "topcolor",
+        "source_file": "cl_main.c",
+        "source_line": 75,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true, true",
+        "flag_names": [
+          "ARCHIVE",
+          "INFO"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_centermove": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.15",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_centermove",
+        "source_file": "view.c",
+        "source_line": 148,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_centerspeed": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "500",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_centerspeed",
+        "source_file": "view.c",
+        "source_line": 149,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_contentblend": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_contentblend",
+        "source_file": "view.c",
+        "source_line": 66,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_idlescale": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_idlescale",
+        "source_file": "view.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_ipitch_cycle": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_ipitch_cycle",
+        "source_file": "view.c",
+        "source_line": 49,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_ipitch_level": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_ipitch_level",
+        "source_file": "view.c",
+        "source_line": 52,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_iroll_cycle": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.5",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_iroll_cycle",
+        "source_file": "view.c",
+        "source_line": 48,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_iroll_level": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_iroll_level",
+        "source_file": "view.c",
+        "source_line": 51,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_iyaw_cycle": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "2",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_iyaw_cycle",
+        "source_file": "view.c",
+        "source_line": 47,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_iyaw_level": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_iyaw_level",
+        "source_file": "view.c",
+        "source_line": 50,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_kickpitch": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.6",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_kickpitch",
+        "source_file": "view.c",
+        "source_line": 45,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_kickroll": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.6",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_kickroll",
+        "source_file": "view.c",
+        "source_line": 44,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "v_kicktime": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.5",
+      "server-only": false,
+      "ast": {
+        "c_ident": "v_kicktime",
+        "source_file": "view.c",
+        "source_line": 43,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_config_x": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "800",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_config_x",
+        "source_file": "gl_vidnt.c",
+        "source_line": 151,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_config_y": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "600",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_config_y",
+        "source_file": "gl_vidnt.c",
+        "source_line": 152,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_fullscreen_mode": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "3",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_fullscreen_mode",
+        "source_file": "vid_win.c",
+        "source_line": 81,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_mode": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "5",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_mode",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 77,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_nopageflip": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_nopageflip",
+        "source_file": "gl_vidnt.c",
+        "source_line": 149,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_redrawfull": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_redrawfull",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 78,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "false",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_stretch_by_2": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_stretch_by_2",
+        "source_file": "gl_vidnt.c",
+        "source_line": 153,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_wait": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_wait",
+        "source_file": "gl_vidnt.c",
+        "source_line": 148,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_waitforrefresh": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_waitforrefresh",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 79,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_window_x": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_window_x",
+        "source_file": "vid_win.c",
+        "source_line": 84,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_window_y": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_window_y",
+        "source_file": "vid_win.c",
+        "source_line": 85,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "vid_windowed_mode": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "vid_windowed_mode",
+        "source_file": "vid_win.c",
+        "source_line": 82,
+        "source_column": 9,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "viewsize": {
+      "type": "integer",
+      "group-id": "0",
+      "default": "100",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_viewsize",
+        "source_file": "gl_screen.c",
+        "source_line": 85,
+        "source_column": 17,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    },
+    "volume": {
+      "type": "float",
+      "group-id": "0",
+      "default": "0.7",
+      "server-only": false,
+      "ast": {
+        "c_ident": "volume",
+        "source_file": "snd_dma.c",
+        "source_line": 75,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "true",
+        "flag_names": [
+          "ARCHIVE"
+        ],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      }
+    }
+  },
+  "default_overrides": {},
+  "_stats": {
+    "source_total": 235,
+    "client": 186,
+    "server_only": 0,
+    "with_flags": 45,
+    "with_onchange": 0,
+    "with_bounds": 0,
+    "with_group": 0,
+    "with_help_desc": 0,
+    "flag_histogram": {
+      "ARCHIVE": 43,
+      "INFO": 10
+    },
+    "help_only": 0
+  }
+}

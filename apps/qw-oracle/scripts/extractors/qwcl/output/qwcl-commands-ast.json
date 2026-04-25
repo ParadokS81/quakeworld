@@ -1,0 +1,1338 @@
+{
+  "groups": [
+    {
+      "id": "misc",
+      "name": "Miscellaneous"
+    }
+  ],
+  "commands": {
+    "+attack": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_AttackDown",
+        "source_file": "cl_input.c",
+        "source_line": 510,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+back": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_BackDown",
+        "source_file": "cl_input.c",
+        "source_line": 496,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+forward": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_ForwardDown",
+        "source_file": "cl_input.c",
+        "source_line": 494,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+jump": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_JumpDown",
+        "source_file": "cl_input.c",
+        "source_line": 514,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+klook": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_KLookDown",
+        "source_file": "cl_input.c",
+        "source_line": 517,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+left": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LeftDown",
+        "source_file": "cl_input.c",
+        "source_line": 490,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+lookdown": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LookdownDown",
+        "source_file": "cl_input.c",
+        "source_line": 500,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+lookup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LookupDown",
+        "source_file": "cl_input.c",
+        "source_line": 498,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+mlook": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MLookDown",
+        "source_file": "cl_input.c",
+        "source_line": 519,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+movedown": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_DownDown",
+        "source_file": "cl_input.c",
+        "source_line": 488,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+moveleft": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MoveleftDown",
+        "source_file": "cl_input.c",
+        "source_line": 504,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+moveright": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MoverightDown",
+        "source_file": "cl_input.c",
+        "source_line": 506,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+moveup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_UpDown",
+        "source_file": "cl_input.c",
+        "source_line": 486,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+right": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_RightDown",
+        "source_file": "cl_input.c",
+        "source_line": 492,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+showscores": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sbar_ShowScores",
+        "source_file": "sbar.c",
+        "source_line": 211,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      }
+    },
+    "+showteamscores": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sbar_ShowTeamScores",
+        "source_file": "sbar.c",
+        "source_line": 214,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      }
+    },
+    "+speed": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_SpeedDown",
+        "source_file": "cl_input.c",
+        "source_line": 508,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+strafe": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_StrafeDown",
+        "source_file": "cl_input.c",
+        "source_line": 502,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "+use": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_UseDown",
+        "source_file": "cl_input.c",
+        "source_line": 512,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-attack": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_AttackUp",
+        "source_file": "cl_input.c",
+        "source_line": 511,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-back": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_BackUp",
+        "source_file": "cl_input.c",
+        "source_line": 497,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-forward": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_ForwardUp",
+        "source_file": "cl_input.c",
+        "source_line": 495,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-jump": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_JumpUp",
+        "source_file": "cl_input.c",
+        "source_line": 515,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-klook": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_KLookUp",
+        "source_file": "cl_input.c",
+        "source_line": 518,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-left": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LeftUp",
+        "source_file": "cl_input.c",
+        "source_line": 491,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-lookdown": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LookdownUp",
+        "source_file": "cl_input.c",
+        "source_line": 501,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-lookup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_LookupUp",
+        "source_file": "cl_input.c",
+        "source_line": 499,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-mlook": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MLookUp",
+        "source_file": "cl_input.c",
+        "source_line": 520,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-movedown": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_DownUp",
+        "source_file": "cl_input.c",
+        "source_line": 489,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-moveleft": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MoveleftUp",
+        "source_file": "cl_input.c",
+        "source_line": 505,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-moveright": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_MoverightUp",
+        "source_file": "cl_input.c",
+        "source_line": 507,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-moveup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_UpUp",
+        "source_file": "cl_input.c",
+        "source_line": 487,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-right": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_RightUp",
+        "source_file": "cl_input.c",
+        "source_line": 493,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-showscores": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sbar_DontShowScores",
+        "source_file": "sbar.c",
+        "source_line": 212,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      }
+    },
+    "-showteamscores": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Sbar_DontShowTeamScores",
+        "source_file": "sbar.c",
+        "source_line": 215,
+        "source_column": 2,
+        "enclosing_function": "Sbar_Init",
+        "build_variant": "client"
+      }
+    },
+    "-speed": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_SpeedUp",
+        "source_file": "cl_input.c",
+        "source_line": 509,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-strafe": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_StrafeUp",
+        "source_file": "cl_input.c",
+        "source_line": 503,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "-use": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_UseUp",
+        "source_file": "cl_input.c",
+        "source_line": 513,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "alias": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "cmd.c",
+        "source_line": 742,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "allskins": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skin_AllSkins_f",
+        "source_file": "cl_main.c",
+        "source_line": 1141,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "bf": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "V_BonusFlash_f",
+        "source_file": "view.c",
+        "source_line": 1034,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      }
+    },
+    "bind": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Key_Bind_f",
+        "source_file": "keys.c",
+        "source_line": 663,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      }
+    },
+    "cd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CD_f",
+        "source_file": "cd_audio.c",
+        "source_line": 834,
+        "source_column": 2,
+        "enclosing_function": "CDAudio_Init",
+        "build_variant": "client"
+      }
+    },
+    "centerview": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "V_StartPitchDrift",
+        "source_file": "view.c",
+        "source_line": 1035,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      }
+    },
+    "changing": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Changing_f",
+        "source_file": "cl_main.c",
+        "source_line": 1132,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "clear": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_Clear_f",
+        "source_file": "console.c",
+        "source_line": 247,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "cmd": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_ForwardToServer_f",
+        "source_file": "cmd.c",
+        "source_line": 745,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "color": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Color_f",
+        "source_file": "cl_main.c",
+        "source_line": 1157,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "connect": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Connect_f",
+        "source_file": "cl_main.c",
+        "source_line": 1145,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "disconnect": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Disconnect_f",
+        "source_file": "cl_main.c",
+        "source_line": 1133,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "download": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Download_f",
+        "source_file": "cl_main.c",
+        "source_line": 1158,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "echo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Echo_f",
+        "source_file": "cmd.c",
+        "source_line": 741,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "envmap": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "R_Envmap_f",
+        "source_file": "gl_rmisc.c",
+        "source_line": 173,
+        "source_column": 2,
+        "enclosing_function": "R_Init",
+        "build_variant": "client"
+      }
+    },
+    "exec": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "cmd.c",
+        "source_line": 740,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "flush": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cache_Flush",
+        "source_file": "zone.c",
+        "source_line": 819,
+        "source_column": 2,
+        "enclosing_function": "Cache_Init",
+        "build_variant": "client"
+      }
+    },
+    "force_centerview": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Force_CenterView_f",
+        "source_file": "gl_vidlinux.c",
+        "source_line": 679,
+        "source_column": 3,
+        "enclosing_function": "IN_Init",
+        "build_variant": "client"
+      }
+    },
+    "fullinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_FullInfo_f",
+        "source_file": "cl_main.c",
+        "source_line": 1154,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "fullserverinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_FullServerinfo_f",
+        "source_file": "cl_main.c",
+        "source_line": 1155,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "gl_texturemode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Draw_TextureMode_f",
+        "source_file": "gl_draw.c",
+        "source_line": 394,
+        "source_column": 2,
+        "enclosing_function": "Draw_Init",
+        "build_variant": "client"
+      }
+    },
+    "help": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Help_f",
+        "source_file": "menu.c",
+        "source_line": 1124,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "impulse": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "IN_Impulse",
+        "source_file": "cl_input.c",
+        "source_line": 516,
+        "source_column": 2,
+        "enclosing_function": "CL_InitInput",
+        "build_variant": "client"
+      }
+    },
+    "joyadvancedupdate": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Joy_AdvancedUpdate_f",
+        "source_file": "in_win.c",
+        "source_line": 510,
+        "source_column": 2,
+        "enclosing_function": "IN_Init",
+        "build_variant": "client"
+      }
+    },
+    "kill": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_main.c",
+        "source_line": 1166,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "menu_keys": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Keys_f",
+        "source_file": "menu.c",
+        "source_line": 1122,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "menu_main": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Main_f",
+        "source_file": "menu.c",
+        "source_line": 1120,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "menu_options": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Options_f",
+        "source_file": "menu.c",
+        "source_line": 1121,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "menu_quit": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Quit_f",
+        "source_file": "menu.c",
+        "source_line": 1125,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "menu_video": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_Menu_Video_f",
+        "source_file": "menu.c",
+        "source_line": 1123,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "messagemode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_MessageMode_f",
+        "source_file": "console.c",
+        "source_line": 245,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "messagemode2": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_MessageMode2_f",
+        "source_file": "console.c",
+        "source_line": 246,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "nextul": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_NextUpload",
+        "source_file": "cl_main.c",
+        "source_line": 1160,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "packet": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Packet_f",
+        "source_file": "cl_main.c",
+        "source_line": 1149,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "path": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "COM_Path_f",
+        "source_file": "common.c",
+        "source_line": 1225,
+        "source_column": 2,
+        "enclosing_function": "COM_Init",
+        "build_variant": "client"
+      }
+    },
+    "pause": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_main.c",
+        "source_line": 1167,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "play": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_Play",
+        "source_file": "snd_dma.c",
+        "source_line": 181,
+        "source_column": 2,
+        "enclosing_function": "S_Init",
+        "build_variant": "client"
+      }
+    },
+    "playdemo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_PlayDemo_f",
+        "source_file": "cl_main.c",
+        "source_line": 1137,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "playvol": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_PlayVol",
+        "source_file": "snd_dma.c",
+        "source_line": 182,
+        "source_column": 2,
+        "enclosing_function": "S_Init",
+        "build_variant": "client"
+      }
+    },
+    "pointfile": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "R_ReadPointFile_f",
+        "source_file": "r_main.c",
+        "source_line": 196,
+        "source_column": 2,
+        "enclosing_function": "R_Init",
+        "build_variant": "client"
+      }
+    },
+    "quit": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Quit_f",
+        "source_file": "cl_main.c",
+        "source_line": 1143,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "rcon": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Rcon_f",
+        "source_file": "cl_main.c",
+        "source_line": 1148,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "reconnect": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Reconnect_f",
+        "source_file": "cl_main.c",
+        "source_line": 1146,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "record": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Record_f",
+        "source_file": "cl_main.c",
+        "source_line": 1134,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "rerecord": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_ReRecord_f",
+        "source_file": "cl_main.c",
+        "source_line": 1135,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "say": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_main.c",
+        "source_line": 1168,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "say_team": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_main.c",
+        "source_line": 1169,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "screenshot": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_f",
+        "source_file": "gl_screen.c",
+        "source_line": 392,
+        "source_column": 2,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "serverinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "cl_main.c",
+        "source_line": 1170,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "setinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_SetInfo_f",
+        "source_file": "cl_main.c",
+        "source_line": 1153,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "sizedown": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SCR_SizeDown_f",
+        "source_file": "gl_screen.c",
+        "source_line": 395,
+        "source_column": 2,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "sizeup": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SCR_SizeUp_f",
+        "source_file": "gl_screen.c",
+        "source_line": 394,
+        "source_column": 2,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "skins": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Skin_Skins_f",
+        "source_file": "cl_main.c",
+        "source_line": 1140,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "snap": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "SCR_RSShot_f",
+        "source_file": "gl_screen.c",
+        "source_line": 393,
+        "source_column": 2,
+        "enclosing_function": "SCR_Init",
+        "build_variant": "client"
+      }
+    },
+    "soundinfo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_SoundInfo_f",
+        "source_file": "snd_dma.c",
+        "source_line": 185,
+        "source_column": 2,
+        "enclosing_function": "S_Init",
+        "build_variant": "client"
+      }
+    },
+    "soundlist": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_SoundList",
+        "source_file": "snd_dma.c",
+        "source_line": 184,
+        "source_column": 2,
+        "enclosing_function": "S_Init",
+        "build_variant": "client"
+      }
+    },
+    "stop": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Stop_f",
+        "source_file": "cl_main.c",
+        "source_line": 1136,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "stopsound": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "S_StopAllSoundsC",
+        "source_file": "snd_dma.c",
+        "source_line": 183,
+        "source_column": 2,
+        "enclosing_function": "S_Init",
+        "build_variant": "client"
+      }
+    },
+    "stopul": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_StopUpload",
+        "source_file": "cl_main.c",
+        "source_line": 1161,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "stuffcmds": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_StuffCmds_f",
+        "source_file": "cmd.c",
+        "source_line": 739,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    },
+    "timedemo": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_TimeDemo_f",
+        "source_file": "cl_main.c",
+        "source_line": 1138,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "timerefresh": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "R_TimeRefresh_f",
+        "source_file": "r_main.c",
+        "source_line": 195,
+        "source_column": 2,
+        "enclosing_function": "R_Init",
+        "build_variant": "client"
+      }
+    },
+    "togglechat": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_ToggleChat_f",
+        "source_file": "console.c",
+        "source_line": 244,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "toggleconsole": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Con_ToggleConsole_f",
+        "source_file": "console.c",
+        "source_line": 243,
+        "source_column": 2,
+        "enclosing_function": "Con_Init",
+        "build_variant": "client"
+      }
+    },
+    "togglemenu": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "M_ToggleMenu_f",
+        "source_file": "menu.c",
+        "source_line": 1118,
+        "source_column": 2,
+        "enclosing_function": "M_Init",
+        "build_variant": "client"
+      }
+    },
+    "unbind": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Key_Unbind_f",
+        "source_file": "keys.c",
+        "source_line": 664,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      }
+    },
+    "unbindall": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Key_Unbindall_f",
+        "source_file": "keys.c",
+        "source_line": 665,
+        "source_column": 2,
+        "enclosing_function": "Key_Init",
+        "build_variant": "client"
+      }
+    },
+    "user": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_User_f",
+        "source_file": "cl_main.c",
+        "source_line": 1150,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "users": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Users_f",
+        "source_file": "cl_main.c",
+        "source_line": 1151,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "v_cshift": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "V_cshift_f",
+        "source_file": "view.c",
+        "source_line": 1033,
+        "source_column": 2,
+        "enclosing_function": "V_Init",
+        "build_variant": "client"
+      }
+    },
+    "version": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "CL_Version_f",
+        "source_file": "cl_main.c",
+        "source_line": 1130,
+        "source_column": 2,
+        "enclosing_function": "CL_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_debug": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_Debug_f",
+        "source_file": "vid_svgalib.c",
+        "source_line": 582,
+        "source_column": 3,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_describecurrentmode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_DescribeCurrentMode_f",
+        "source_file": "gl_vidnt.c",
+        "source_line": 1597,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_describemode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_DescribeMode_f",
+        "source_file": "gl_vidnt.c",
+        "source_line": 1598,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_describemodes": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_DescribeModes_f",
+        "source_file": "gl_vidnt.c",
+        "source_line": 1599,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_forcemode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_ForceMode_f",
+        "source_file": "vid_win.c",
+        "source_line": 2124,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_fullscreen": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_Fullscreen_f",
+        "source_file": "vid_win.c",
+        "source_line": 2126,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_minimize": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_Minimize_f",
+        "source_file": "vid_win.c",
+        "source_line": 2127,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_nummodes": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_NumModes_f",
+        "source_file": "gl_vidnt.c",
+        "source_line": 1596,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_testmode": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_TestMode_f",
+        "source_file": "vid_win.c",
+        "source_line": 2119,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "vid_windowed": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "VID_Windowed_f",
+        "source_file": "vid_win.c",
+        "source_line": 2125,
+        "source_column": 2,
+        "enclosing_function": "VID_Init",
+        "build_variant": "client"
+      }
+    },
+    "wait": {
+      "group-id": "misc",
+      "ast": {
+        "handler_fn": "Cmd_Wait_f",
+        "source_file": "cmd.c",
+        "source_line": 743,
+        "source_column": 2,
+        "enclosing_function": "Cmd_Init",
+        "build_variant": "client"
+      }
+    }
+  },
+  "_stats": {
+    "source_total": 137,
+    "with_handler": 115,
+    "with_help_desc": 0,
+    "server_build_only": 0,
+    "help_only": 0,
+    "help_only_system_generated": 0
+  }
+}

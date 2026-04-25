@@ -87,6 +87,26 @@ def clang_args_apple_for(ezq_src_dir: str) -> list[str]:
     return clang_args_for(ezq_src_dir) + ["-D__APPLE__", "-U__linux__"]
 
 
+def clang_args_qwcl_for(qwcl_src_dir: str) -> list[str]:
+    """Args for the original 1996 QuakeWorld client (research/repos/qwcl-original/QW/client/).
+
+    Pre-tooling C: no FTE protocol extensions, no IRC/PNG/JPEG/zlib feature
+    macros, no renderer-option flags. The QWCL build segregates platform-
+    specific code into separate translation units (gl_vidnt.c vs
+    gl_vidlinux_x11.c, cd_win.c vs cd_linux.c, sys_win.c vs sys_linux.c)
+    rather than guarding with #ifdef inside one file, so a single client
+    variant suffices — no need for win/apple/server permutations.
+
+    The libclang host's stricmp/isspace pre-C99 implicit-declaration
+    diagnostics fire harmlessly on this codebase; PARSE_INCOMPLETE recovers
+    past them."""
+    return [
+        "-x", "c",
+        f"-I{qwcl_src_dir}",
+        "-w",
+    ]
+
+
 PARSE_OPTS = (
     TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
     | TranslationUnit.PARSE_INCOMPLETE

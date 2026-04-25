@@ -1,0 +1,1520 @@
+{
+  "params": {
+    "-allow360": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 3154,
+            "source_column": 37,
+            "enclosing_function": "VID_MenuDraw",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-basedir": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "common.c",
+            "source_line": 1837,
+            "source_column": 6,
+            "enclosing_function": "COM_InitFilesystem",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-bpp": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1658,
+            "source_column": 9,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1660,
+            "source_column": 28,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
+    "-cddev": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "cd_linux.c",
+            "source_line": 381,
+            "source_column": 11,
+            "enclosing_function": "CDAudio_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-cdmediacheck": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "cd_audio.c",
+            "source_line": 773,
+            "source_column": 6,
+            "enclosing_function": "CDAudio_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-condebug": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "console.c",
+            "source_line": 230,
+            "source_column": 17,
+            "enclosing_function": "Con_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-conheight": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 604,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 642,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_x11.c",
+            "source_line": 689,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinuxglx.c",
+            "source_line": 638,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1787,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 5
+      }
+    },
+    "-conwidth": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 591,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 629,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_x11.c",
+            "source_line": 676,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinuxglx.c",
+            "source_line": 625,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1774,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 5
+      }
+    },
+    "-current": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1638,
+            "source_column": 8,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-d": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 592,
+            "source_column": 7,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 598,
+            "source_column": 8,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 599,
+            "source_column": 25,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-dibonly": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 2129,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-dinput": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 431,
+            "source_column": 6,
+            "enclosing_function": "IN_StartupMouse",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-force": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1673,
+            "source_column": 9,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-fullsbar": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1829,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-gamma": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1545,
+            "source_column": 11,
+            "enclosing_function": "Check_Gamma",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-gl11": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 518,
+            "source_column": 22,
+            "enclosing_function": "CheckTextureExtensions",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-h": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 591,
+            "source_column": 35,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 596,
+            "source_column": 8,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 597,
+            "source_column": 25,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-height": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 588,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 626,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_x11.c",
+            "source_line": 673,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinuxglx.c",
+            "source_line": 622,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1339,
+            "source_column": 6,
+            "enclosing_function": "VID_InitDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1340,
+            "source_column": 39,
+            "enclosing_function": "VID_InitDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1669,
+            "source_column": 9,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1670,
+            "source_column": 31,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1708,
+            "source_column": 10,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1710,
+            "source_column": 32,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_x.c",
+            "source_line": 431,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 11
+      }
+    },
+    "-ip": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "net_udp.c",
+            "source_line": 248,
+            "source_column": 11,
+            "enclosing_function": "UDP_OpenSocket",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "net_wins.c",
+            "source_line": 246,
+            "source_column": 11,
+            "enclosing_function": "UDP_OpenSocket",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
+    "-mdev": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 687,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 688,
+            "source_column": 24,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 725,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 726,
+            "source_column": 24,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 865,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 866,
+            "source_column": 24,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 6
+      }
+    },
+    "-mem": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "sys_linux.c",
+            "source_line": 371,
+            "source_column": 6,
+            "enclosing_function": "main",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-minmemory": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "cl_main.c",
+            "source_line": 1425,
+            "source_column": 6,
+            "enclosing_function": "Host_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-mode": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1632,
+            "source_column": 7,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1634,
+            "source_column": 34,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 589,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 590,
+            "source_column": 37,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 4
+      }
+    },
+    "-mrate": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 692,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 693,
+            "source_column": 30,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 730,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 731,
+            "source_column": 30,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 870,
+            "source_column": 7,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 871,
+            "source_column": 30,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 6
+      }
+    },
+    "-no8bit": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1521,
+            "source_column": 3,
+            "enclosing_function": "VID_Init8bitPalette",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noadjustaspect": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1406,
+            "source_column": 10,
+            "enclosing_function": "VID_InitFullDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_win.c",
+            "source_line": 795,
+            "source_column": 10,
+            "enclosing_function": "VID_InitFullDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_win.c",
+            "source_line": 874,
+            "source_column": 11,
+            "enclosing_function": "VID_InitFullDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-nocdaudio": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "cd_audio.c",
+            "source_line": 770,
+            "source_column": 6,
+            "enclosing_function": "CDAudio_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "cd_linux.c",
+            "source_line": 378,
+            "source_column": 6,
+            "enclosing_function": "CDAudio_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "cd_win.c",
+            "source_line": 432,
+            "source_column": 6,
+            "enclosing_function": "CDAudio_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-noconinput": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "sys_linux.c",
+            "source_line": 380,
+            "source_column": 15,
+            "enclosing_function": "main",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noforcemaccel": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 454,
+            "source_column": 9,
+            "enclosing_function": "IN_StartupMouse",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noforcemparms": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 460,
+            "source_column": 9,
+            "enclosing_function": "IN_StartupMouse",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noforcemspd": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 451,
+            "source_column": 9,
+            "enclosing_function": "IN_StartupMouse",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noforcevga": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 3170,
+            "source_column": 49,
+            "enclosing_function": "VID_MenuDraw",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nofulldib": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 2143,
+            "source_column": 4,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nojoy": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 800,
+            "source_column": 7,
+            "enclosing_function": "IN_StartupJoystick",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nokbd": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 360,
+            "source_column": 6,
+            "enclosing_function": "Init_KBD",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 390,
+            "source_column": 6,
+            "enclosing_function": "Init_KBD",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 614,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-nomouse": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "in_win.c",
+            "source_line": 426,
+            "source_column": 7,
+            "enclosing_function": "IN_StartupMouse",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_x.c",
+            "source_line": 1044,
+            "source_column": 9,
+            "enclosing_function": "IN_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
+    "-nosound": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_dma.c",
+            "source_line": 175,
+            "source_column": 6,
+            "enclosing_function": "S_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nostdout": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "sys_linux.c",
+            "source_line": 384,
+            "source_column": 6,
+            "enclosing_function": "main",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-notriplebuf": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 607,
+            "source_column": 7,
+            "enclosing_function": "createDisplayDC",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-particles": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "r_part.c",
+            "source_line": 50,
+            "source_column": 6,
+            "enclosing_function": "R_InitParticles",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-primarysound": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_win.c",
+            "source_line": 303,
+            "source_column": 30,
+            "enclosing_function": "SNDDMA_InitDirect",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-resetwinpos": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 1266,
+            "source_column": 7,
+            "enclosing_function": "VID_SetWindowedMode",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_win.c",
+            "source_line": 2369,
+            "source_column": 9,
+            "enclosing_function": "VID_Update",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_win.c",
+            "source_line": 2387,
+            "source_column": 8,
+            "enclosing_function": "VID_Update",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-simsound": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_dma.c",
+            "source_line": 178,
+            "source_column": 6,
+            "enclosing_function": "S_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-sndbits": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_linux.c",
+            "source_line": 80,
+            "source_column": 16,
+            "enclosing_function": "SNDDMA_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-sndmono": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_linux.c",
+            "source_line": 102,
+            "source_column": 16,
+            "enclosing_function": "SNDDMA_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-sndspeed": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_linux.c",
+            "source_line": 91,
+            "source_column": 16,
+            "enclosing_function": "SNDDMA_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-sndstereo": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_linux.c",
+            "source_line": 104,
+            "source_column": 16,
+            "enclosing_function": "SNDDMA_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-snoforceformat": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_win.c",
+            "source_line": 282,
+            "source_column": 7,
+            "enclosing_function": "SNDDMA_InitDirect",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-startwindowed": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 2183,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-surfcachesize": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "d_surf.c",
+            "source_line": 39,
+            "source_column": 6,
+            "enclosing_function": "D_SurfaceCacheForRes",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "d_surf.c",
+            "source_line": 41,
+            "source_column": 26,
+            "enclosing_function": "D_SurfaceCacheForRes",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
+    "-verbose": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_x.c",
+            "source_line": 386,
+            "source_column": 10,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-visualid": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_x.c",
+            "source_line": 442,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-w": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 591,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 594,
+            "source_column": 8,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_svgalib.c",
+            "source_line": 595,
+            "source_column": 25,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 3
+      }
+    },
+    "-wavonly": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "snd_win.c",
+            "source_line": 559,
+            "source_column": 6,
+            "enclosing_function": "SNDDMA_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-width": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux.c",
+            "source_line": 586,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_svga.c",
+            "source_line": 624,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinux_x11.c",
+            "source_line": 671,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidlinuxglx.c",
+            "source_line": 620,
+            "source_column": 11,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1331,
+            "source_column": 6,
+            "enclosing_function": "VID_InitDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1332,
+            "source_column": 39,
+            "enclosing_function": "VID_InitDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1649,
+            "source_column": 9,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1651,
+            "source_column": 30,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_x.c",
+            "source_line": 424,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 9
+      }
+    },
+    "-window": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidlinux_x11.c",
+            "source_line": 724,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 1610,
+            "source_column": 6,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
+    "-winsize": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_x.c",
+            "source_line": 415,
+            "source_column": 12,
+            "enclosing_function": "VID_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-zone": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "zone.c",
+            "source_line": 929,
+            "source_column": 6,
+            "enclosing_function": "Memory_Init",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    }
+  },
+  "_stats": {
+    "manifest_entries": 0,
+    "manifest_with_usage": 0,
+    "manifest_unused_in_source": 0,
+    "help_only": 0,
+    "source_only_undeclared": 58,
+    "with_help_desc": 0
+  }
+}
