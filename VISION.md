@@ -45,7 +45,7 @@ The monorepo started as "five apps sharing a workshop." What has emerged since i
 - **MCP** - live queries, interactive access. Used by Claude Code today; future chatbots.
 - **Snapshot distribution** - consumer-tailored JSON snapshots produced from the same foundation. Used by clients that need deterministic, pre-computed inputs (slipgate-app's ConfigViewer is the canonical case - it ships with a snapshot of the cvar facts its features need, not a live MCP dependency).
 
-The live consumers today are Claude Code (MCP) and slipgate-app (snapshot, though currently reading legacy scraped JSON from `packages/qw-config/` pending migration to oracle-produced snapshots). Future consumers are scoped below.
+The live consumers today are Claude Code (MCP) and slipgate-app (snapshot — reading oracle-generated JSON in `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI). Future consumers are scoped below.
 
 ### Web services family
 
@@ -59,11 +59,15 @@ All three follow the same philosophy: curated central catalogs with per-asset me
 
 A **content hash** (sha256 of file bytes) is the universal join key across local-dir, central-catalog, and GitHub-backup contexts. The local app authors no metadata beyond the hash; all descriptive metadata (name, creator, categorization, bundle membership) lives centrally and is fetched by hash lookup. This enables curated bundle subscriptions: users subscribe to bundles (e.g. "Tournament Maps 2026"), the central catalog pins a hash list per bundle version, slipgate diffs local hashes against the manifest, pulls missing entries, optionally prunes stale.
 
-### qw-config is transitional
+### qw-config has been retired (2026-04-25/26)
 
-`packages/qw-config/` is a holding pen, not a permanent part of the structure. It exists because slipgate-app originally scraped ezQuake for its ConfigViewer and the scraping code grew there. The AST extractors that later landed there are legitimately oracle's machinery - but their hosting location is historical accident. When oracle's extraction pipeline is feature-complete and slipgate migrates to oracle-snapshot consumption, qw-config dissolves: extractors relocate into oracle's build; slipgate's inputs become oracle snapshots.
+The former `packages/qw-config/` holding pen is gone. Its concerns split as planned:
 
-Docs name this honestly rather than papering over it. Pass 1 of the 2026-04-22 realignment roadmap captured this framing.
+- **AST extractors** moved into `apps/qw-oracle/scripts/extractors/<project>/` (Half 1, 2026-04-25).
+- **Parser, converter, writers, loaders, JSON snapshots** moved into `apps/slipgate-app/src/lib/config/` — where slipgate-specific config-toolkit code always belonged once oracle existed (Half 2a, 2026-04-25).
+- **JSON snapshot generation** wired through oracle's new `build-snapshot` CLI: reads `knowledge.db`, writes enriched per-entity-type JSON (cvars, commands, macros, cmdline_params, asset bundle) into slipgate's `src/lib/config/data/` directory (Arc 2, 2026-04-25/26).
+
+Slipgate now consumes oracle Layer 1 end-to-end via deterministic snapshots. The legacy hand-curated JSON path is gone.
 
 ## Who it's for
 

@@ -16,7 +16,6 @@ apps/
 
 packages/
   qw-knowledge/    - Shared QW domain knowledge (maps, terminology, strategies)
-  qw-config/       - Shared cvar definitions for ezQuake and FTE
 
 contracts/         - Cross-project specs and data contracts
 research/          - Cloned reference repos (gitignored)

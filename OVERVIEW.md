@@ -109,12 +109,12 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "
 |                            |    |      MCP      |   |                            |
 |  Layer 1  knowledge.db     |--->|  lookup /     |-->|  Claude Code        (live) |
 |    engine facts, versioned |    |  search /     |   |                            |
-|                            |    |  concept note |   |  slipgate-app (transitnl)  |
-|  Layer 2  qw.db            |    +---------------+   |  reads legacy scraped JSON |
-|    2.66M chat + FTS5       |                        |  in apps/slipgate-app/src/ |
-|                            |    +---------------+   |  lib/config/data/ today;   |
-|  Layer 3  concept notes    |--->|   snapshot    |-->|  switches to oracle-built  |
-|    (not yet populated)     |    |  distribution |   |  snapshots in next arc     |
+|                            |    |  concept note |   |  slipgate-app      (live)  |
+|  Layer 2  qw.db            |    +---------------+   |  reads oracle-generated    |
+|    2.66M chat + FTS5       |                        |  JSON in apps/slipgate-app |
+|                            |    +---------------+   |  /src/lib/config/data/     |
+|  Layer 3  concept notes    |--->| build-snapshot|-->|  (5 entity files +         |
+|    (not yet populated)     |    |     CLI       |   |   asset bundle)            |
 |                            |    +---------------+   |                            |
 |  (backstage) extractors,   |                        |  quad chatbot    (future)  |
 |  loaders, diff pipeline    |                        |  assets/maps.quake.world   |
@@ -123,9 +123,9 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "
                                                       +----------------------------+
 ```
 
-Claude Code queries MCP live; slipgate-app reads pre-computed snapshots. Both get the same underlying facts through different access patterns. Future chatbots (on quad or as a new app) join as MCP consumers; the web services join as snapshot consumers in their own shape.
+Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenerated on demand by oracle's `build-snapshot` CLI. Both get the same underlying facts through different access patterns. Future chatbots (on quad or as a new app) join as MCP consumers; the web services join as snapshot consumers in their own shape.
 
-The extractor fleet (Python + libclang for ezQuake, and AST for FTE / MVDSV / KTX / QWCL / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `fte/`, `ktx/`, `qwcl/`, etc., plus shared `extractor_lib/`). The `qw-config` package was fully retired 2026-04-25 — its scraped JSON, parser, converter, writers, and loaders moved into `apps/slipgate-app/src/lib/config/`, where they always belonged once oracle existed. The next arc is replacing the legacy scraped JSON with oracle-generated snapshots produced by a `build-snapshot` CLI in qw-oracle; slipgate's loader code stays where it is. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
+The extractor fleet (Python + libclang for ezQuake and QWCL today; FTE / MVDSV / KTX / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `qwcl/`, `fte/`, `ktx/`, etc., plus shared `extractor_lib/`). The `qw-config` package was fully retired 2026-04-25/26 — its scraped JSON, parser, converter, writers, and loaders moved into `apps/slipgate-app/src/lib/config/`, and oracle's `build-snapshot` CLI now regenerates the JSON snapshots at richer fidelity from `knowledge.db`. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
 
 ## Shared Firestore collections
 
