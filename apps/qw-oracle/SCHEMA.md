@@ -6,7 +6,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV7ToV8` in order.
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV8ToV9` in order.
 - **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx` (CHECK-constrained; only `ezquake` is populated today).
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
@@ -349,11 +349,11 @@ Index: `idx_source_overrides_entity ON (entity_id, version)`.
 
 Append-only log of every `source_state` transition on every entity. The "receipt" layer. Schema v1.
 
-Columns: `entity_id`, `from_state`, `to_state`, `reason` (CHECK `initial_observation` / `removed_from_head` / `re_added` / `backfill_match` / `manual_update`), `version_context` (nullable — which version triggered the transition), `extractor_run_id` (ULID so you can group a single extraction run), `created_at`.
+Columns: `entity_id`, `from_state`, `to_state`, `reason` (CHECK `initial_observation` / `removed_from_head` / `re_added` / `backfill_match` / `source_retired_at_version` / `manual_update`), `version_context` (nullable — which version triggered the transition), `extractor_run_id` (ULID so you can group a single extraction run), `created_at`.
 
-**Populated by:** every `upsertEntity` call that transitions state emits a row. `initial_observation` fires on first insert; `removed_from_head` / `re_added` fire when the extractor's drop-guard sees an entity come and go across versions; `backfill_match` is reserved for the still-future historical-backfill work; `manual_update` is for operator annotations.
+**Populated by:** every `upsertEntity` call that transitions state emits a row. `initial_observation` fires on first insert; `removed_from_head` / `re_added` fire when the extractor's drop-guard sees an entity come and go across versions; `backfill_match` fires when an entity goes from `doc_only` to `source_backed` because a later load surfaced AST evidence; `source_retired_at_version` fires from the per-version retirement scan in `load-version.ts` whenever an entity's per-version citation flips from non-null to null going forward in version-ordinal space (the entity was retired in source between two loaded tags, with the help-JSON entry kept); `manual_update` is for operator annotations.
 
-**Consumed by:** rarely queried directly; it exists so that `source_state` on `entities` is not a trust-me field. `source_state = 'source_retired'` on the entity row should always be explainable by a matching `removed_from_head` transition row.
+**Consumed by:** read by the F2.source_backed_missing_citation probe in `quality-grid.ts` to filter out NULL-citation rows that are explained by a transition (retirement at-or-before, or backfill_match strictly-after). Walk the rows for an entity ordered by `version_context.ordinal` and you reconstruct that entity's full source-presence biography. Otherwise rarely queried directly; it exists so that `source_state` on `entities` is not a trust-me field.
 
 Indexes: `idx_sst_entity`, `idx_sst_run`.
 
@@ -396,7 +396,7 @@ Drop-guard compares `entityCount` (total `*_versions` rows expected) not `_versi
 
 ### Fresh DB vs migrated DB
 
-On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 6` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set — the comment at the top of `SCHEMA_V1_SQL` documents why. On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v6 one step at a time. Both paths converge on the same shape.
+On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 9` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set — the comment at the top of `SCHEMA_V1_SQL` documents why. The v1 `source_state_transitions.reason` CHECK already lists the full v9 reason set for the same fresh-DB-skip-migrations reason. On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v9 one step at a time. Both paths converge on the same shape.
 
 ---
 

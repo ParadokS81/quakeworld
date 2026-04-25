@@ -14,7 +14,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
-- [Per-version source_state gap (joystick + sv_enableprofile)](#per-version-source_state-gap) — surfaced by the post-marathon grid run 2026-04-25. The 3 grid-first-findings anomalies all resolved: ruleset/flag_bit fabrications were caused by stale legacy-extractor JSONs from pre-2026-04-23-11:43 loads (root cause = `b49fb9f` landed AFTER the historical tags were loaded); fix shipped as load-version stale-row cleanup + 6-tag re-extraction marathon; 5/5 regression probes PASS, 4/6 anomaly probes CLEAN. Remaining 69 missing-citation rows reduce to 2 entities — `joystick` (3.6.1 only) and `sv_enableprofile` (3.6.5+) — both cases where the entity is source-present at *some* tags and doc-only at others. Current schema only carries source_state per-entity, not per-version. Schema-level decision pending.
+- [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. 4 cmdline_params (`-gl_ext`, `-gl-forward-only-profile`, `-nohwtimer`, `-allowmultiple`) have real `COM_CheckParm` usage sites in source but the 4-variant parse (Linux client/server, Win, Apple) doesn't reach them. Suspected cause: Apple variant inherits `__linux__` from the Linux libclang host so the `#if !_WIN32 && !__linux__` block in `vid_common_gl.c` is still skipped; Win variant likely has similar issue with `sys_win.c` interior. Not surfacing as missing-citation any more (manifest-fallback covers it), but the actual usage-site coverage is incomplete. Investigation work, separate from deep-time walk.
 
 ---
 
@@ -177,46 +177,47 @@ None. Audit closed. `-nopriority` remains a known deferral with a clear recovery
 
 ---
 
-## Per-version source_state gap
+## Sub-pattern 2b: cmdline variant-matrix gaps
 
-**Added:** 2026-04-25 (surfaced by quality-grid post-marathon).
-**Status:** Open. Schema-level question, not a quick fix. Two known-affected entities in ezquake; classes likely larger across other projects.
-**Verification first:** `npm run load-knowledge -- quality-grid --project ezquake --probe F2.source_backed_missing_citation` from `apps/qw-oracle/`. If output shows 0 rows, this entry has been resolved.
+**Added:** 2026-04-25 (surfaced during 3.6.0 deep-time walk, parked while shipping 2a + case-fold-merge + Path 2).
+**Status:** Open. Investigation work. Not blocking anything; the manifest-fallback citation in `load-cmdline-params.ts` provides a citation for these entities (pointing at `cmdline_params_ids.h:N`), so they no longer surface in `F2.source_backed_missing_citation`. But the actual `usage_sites` coverage is still incomplete.
+**Verification first:** check the AST output JSON. From `apps/qw-oracle/`: `python3 -c "import json; d=json.load(open('../../packages/qw-config/src/data/ezquake-cmdline-params-ast.json')); [print(k, len(d['params'][k]['ast']['usage_sites']) if d['params'][k]['ast'] else 0) for k in ['-gl_ext', '-nohwtimer', '-allowmultiple', '-gl-forward-only-profile']]"`. If all four show `usage_sites=0`, this entry is unresolved. If any show ≥ 1 with citation in `vid_common_gl.c` / `sys_win.c` / `gl_sdl.c`, the variant matrix has been widened.
 
-### What surfaces
+### Affected entities
 
-Two ezquake cvars are `source_backed` at the entity level but have version rows where the AST didn't catch them — leaving `source_file` and `source_line` NULL:
+Four cmdline_params have real `COM_CheckParm` usage sites in source but the 4-variant parse doesn't reach them:
 
-- `joystick` — source-present at all tags from 3.6.2 onward (`in_win.c`, `keys.c`); source-absent at 3.6.1 (only in `help_variables.json`). Item A's 4-variant parse catches it from 3.6.2 forward; 3.6.1's older source structure breaks parsing.
-- `sv_enableprofile` — source-present at 3.6.1 and 3.6.2 (`pr2_vm.c:36`, `extern cvar_t` in `pr2_exec.c:40`, `Cvar_Register` at `pr2_exec.c:59`). Source-absent from 3.6.5 onward; only `help_variables.json` retains the entry. Genuinely retired in source between 3.6.2 and 3.6.5; the entity should be `source_retired`.
+| Entity | Usage site | Guard / region |
+|---|---|---|
+| `-gl_ext` | `vid_common_gl.c:340` | `#if !defined(_WIN32) && !defined(__linux__)` (FreeBSD/Apple block) |
+| `-gl-forward-only-profile` | `gl_sdl.c:50` | (need to verify guard — file IS visited at L78/85/97 but not L50) |
+| `-nohwtimer` | `sys_win.c:572` | inside Windows-only `#if`, but `sys_win.c` IS visited at L1288 |
+| `-allowmultiple` | `sys_win.c:682` | same as `-nohwtimer` |
 
-### Root cause
+### Suspected root cause
 
-`entities.source_state` is a single per-entity column. There is no representation for "source-backed at some versions, doc_only at others, source_retired at later versions." When a load creates the entity initially as `source_backed`, no later load can downgrade it to `doc_only`. The diff-versions module DOES emit `source_retired` transitions on cross-version diff, but `extract-tag`'s loader path doesn't trigger that automatic transition during isolated re-loads.
+Apple variant of the 4-variant parse adds `-D__APPLE__` but doesn't undef `__linux__`. When libclang runs on a Linux host, the host predefines `__linux__` automatically. So the `#if !defined(_WIN32) && !defined(__linux__)` block in `vid_common_gl.c` is still skipped on the Apple variant. Same idea for the Win variant: `-DWIN32 -D_WIN32` is added but `__linux__` not undef'd.
 
-This is a real schema limitation. It surfaces as `F2.source_backed_missing_citation` rows where entities are technically source_backed but their per-version row carries no source citation because the extractor didn't see them at that version.
+For `sys_win.c` interior call sites, the file IS visited (L1288 was found) but L572 / L682 aren't. May be the same `__linux__` issue, OR may be parse-incomplete failures part-way through the file when Windows SDK headers don't fully resolve under Linux libclang.
 
-### Two paths
+### Recovery options
 
-1. **Per-version source_state on the version row.** Each `*_versions` row gets a `source_state` column. Entity-level `source_state` becomes derived (e.g., source_backed if any version row is source_backed; source_retired if all version rows are source_retired). Cleaner semantics; touches 10 version tables.
-2. **Trigger source_retired transitions in load-version's normal path.** When loading version V with entity E that was previously source_backed at V_prev but not in incoming JSON, transition to source_retired at V. Doesn't require schema change. Already partially implemented in `diff-versions.ts`; just needs the same hook in `load-version.ts`.
+1. **Add `-U__linux__` to Apple + Win variants** in `clang_args_apple_for` / `clang_args_win_for` (`extractor_lib/clang_config.py`). Cheap to try. Verify by re-extracting head and checking the four entities' `usage_sites` counts.
+2. **Stub Windows SDK headers** (same shape as the deferred `-nopriority` from Layer 1 doc_only audit). Bigger lift, but unblocks the broader class of Windows-SDK-dependent call sites.
+3. **Hand-register usage citations** in a seed YAML if Linux libclang can never reach them.
 
-Path 2 is smaller; Path 1 is more semantically honest. Decision likely to wait until FTE/MVDSV/KTX surface similar cases — different engines might tip the call differently.
+Try option 1 first — it's the only-touches-a-config-file fix.
 
 ### Pressure
 
-Low. 2 cvars affected at ezquake. Joystick is correct-as-source-backed (just absent at 3.6.1 due to old layout). sv_enableprofile is genuinely retired but represented as source_backed — wrong direction but small surface area.
+Low. The manifest-fallback citation makes this not a grid anomaly any more; the gap is in *usage-site coverage*, not in entity recognition. But cleanly closing it would let `loader_sites` analytics for these flags work right (e.g., "which files actually call -gl_ext" queries).
 
 ### Related
 
-- Probe surfacing it: `quality-grid F2.source_backed_missing_citation`
-- Loader: `apps/qw-oracle/scripts/load-knowledge/load-version.ts`
-- Existing source_retired transition logic: `apps/qw-oracle/scripts/load-knowledge/diff-versions.ts`
-- Entity schema: `apps/qw-oracle/scripts/load-knowledge/schema.ts` (`entities.source_state` CHECK)
-
-### Origin context (resolved)
-
-The grid surfaced 3 anomalies on first run; this entry is the residue after the other 2 closed. **Anomaly 1+2** (smackdrive at 3.6.1, fpd_enable_player_count at 3.6.1) traced to stale legacy-extractor JSONs from pre-`b49fb9f` (2026-04-23 11:43) loads — the historical tag loads at 09:43-09:45 ran before the legacy-extractor wiring fix, so their flag_bit/ruleset/token_primitive content was head-state mislabeled as the historical tag. Fix shipped as a stale-row cleanup step in `load-version.ts` plus a 6-tag re-extraction marathon; both flickering entities now correctly first_seen at the right tags. **Anomaly 3** (20 cvars without per-version citations at older tags) resolved via the same marathon; only 2 of the original 20 remain — those 2 are this entry's per-version source_state gap. Fully closed in commit `<this commit>`.
+- Cmdline handler: `packages/qw-config/scripts/extractor_lib/handler_cmdline.py`
+- 4-variant clang args: `packages/qw-config/scripts/extractor_lib/clang_config.py`
+- AST output: `packages/qw-config/src/data/ezquake-cmdline-params-ast.json`
+- Loader fallback: `apps/qw-oracle/scripts/load-knowledge/load-cmdline-params.ts:28-40`
 
 ---
 

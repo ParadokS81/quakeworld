@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v8 at ezQuake head (9 entity types + 4 asset relation tables); extraction-review skill+CLI shipped 2026-04-23, Workstream A tweaks shipped 2026-04-24 across 3 sessions (cluster detection, prior-walk detection, scope-tracking, semantic pass, cross-codebase hint, upstream split, help-JSON vocab, cross-walk revision). Phase 2f historical backfill gated on sanity-sample calibration only.
+**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v9 (9 entity types + 4 asset relation tables + per-version retirement transitions); extraction-review skill+CLI shipped 2026-04-23, Workstream A tweaks shipped 2026-04-24 across 3 sessions, deep-time walk extended to 3.2.3 + 3.6.0 with case-fold-merge / cmdline manifest-fallback / per-version source_retired_at_version detection landed 2026-04-25. Phase 2f historical backfill gated on sanity-sample calibration only.
 
 ## What this is
 
@@ -8,7 +8,7 @@ Oracle maintains two SQLite stores side-by-side:
 
 | Database | Purpose | Populated |
 |---|---|---|
-| `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits) plus a source_overrides blame index. Source-derived, version-aware, canonical. | ezQuake across 7 tags + head (schema v6). FTE/MVDSV/KTX pending. |
+| `data/knowledge.db` | **Layer 1** - structured engine facts (cvars, commands, macros, HUD elements, rulesets, keynames, token primitives, cmdline params, asset consumption, flag bits) plus a source_overrides blame index. Source-derived, version-aware, canonical. | ezQuake across 8 tags + head (schema v9; 3.2.3 + 3.6.0/.1/.2/.5/.6/.8/.9 + head). FTE/MVDSV/KTX pending. |
 | `data/qw.db` | **Layer 2** - community chat corpus (IRC 2005-2016 + Discord 2016-present). ~2.66M messages. | Fully imported. Processing pipeline not yet built. |
 
 **Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) bootstrapped 2026-04-22 with two prototype notes at `concept-notes/`. `get_concept_note` MCP tool integration is future work.

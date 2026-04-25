@@ -23,10 +23,12 @@ The single workflow that drives everything below:
 
 Each lap adds permanent invariants. The grid carries forward what each session learned.
 
-## Status snapshot (2026-04-25)
+## Status snapshot (2026-04-25, late session)
 
-- ezQuake: 7 tags loaded clean (3.6.1 / 3.6.2 / 3.6.5 / 3.6.6 / 3.6.8 / 3.6.9 / head).
-- 5 regression probes PASS. 4 anomaly probes CLEAN. 1 informational (doc_only_crosstab). 1 known residue (per-version source_state on 2 entities, captured in `HANDOVER.md`).
+- ezQuake: 8 tags + head loaded clean (3.2.3 / 3.6.0 / 3.6.1 / 3.6.2 / 3.6.5 / 3.6.6 / 3.6.8 / 3.6.9 / head).
+- 5 regression probes PASS. 5 anomaly probes CLEAN. 1 informational (doc_only_crosstab at 201 doc_only entities).
+- Schema v9: per-version retirement transitions (`source_retired_at_version`) landed; entity biographies queryable via `source_state_transitions`.
+- Loader fixes shipped this session: cmdline manifest-fallback citation (params declared but not COM_CheckParm'd), case-fold dict-key merge (loadFragfile vs loadfragfile, HUD262_* family, -forceTextureReload), per-version retirement detection.
 - FTE / MVDSV / KTX: not started.
 
 ## Cliffs ahead — ezQuake deep-time walk (3.0 → 3.6.0)
@@ -57,11 +59,11 @@ Cvars and commands get renamed across years. The schema has `entities.predecesso
 
 What to watch for: a deletion at tag N alongside a creation at tag N+1 with similar name. The skill clusters these; operator decides if it's a rename or coincidence. Rename annotation is manual but bounded; one rename = one operator decision.
 
-### 5. Per-version source_state
+### 5. Per-version source_state — RESOLVED 2026-04-25
 
-Schema gap surfaced 2026-04-25 (joystick, sv_enableprofile). Entity-level `source_state` can't represent "source-backed at some versions, doc_only at others." Across a decade of additions / retirements / re-additions, this will affect more entities. See HANDOVER for the two-path discussion.
+Schema gap surfaced and resolved in same session. Loading 3.2.3 surfaced 17 entities (11 cvar + 5 command + 1 cmdline_param) source-backed at older tags but only doc_only at modern tags (`gl_motion_blur` family, `gl_particle_fasttrails`, `r_glstats`, `showram`, `sv_enableprofile`, etc.). Resolution went with Path 2: per-version retirement transitions (`source_retired_at_version`) on the existing `source_state_transitions` log. Entity-level `source_state` stays meaningful as "was real at some loaded version"; the per-version biography lives on the transition rows. Schema v9 widens the reason CHECK; loader runs the retirement scan after each orphan-prune; quality-grid F2 probe filters NULL rows that are explained by either retirement (at-or-before the row) or backfill_match (strictly-after the row, for the inverse "introduced at version X" case).
 
-What to watch for: `F2.source_backed_missing_citation` rows that aren't explained by extractor coverage gaps. When 2-3 more concrete cases surface, decide between Path 1 (per-version source_state column) and Path 2 (auto-trigger source_retired transitions in load-version).
+Outcome on the loaded set: F2.source_backed_missing_citation went 80 -> 9 -> 123 -> 0 across the session as fixes landed and 3.2.3 came in.
 
 ## Cross-engine generalisation
 
