@@ -8,7 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [Oracle build-snapshot CLI (slipgate Layer-1 consumption)](#oracle-build-snapshot-cli-slipgate-layer-1-consumption) — **NEW 2026-04-25.** Half 1 (extractor relocation) and Half 2a (slipgate-side absorption + qw-config deletion) both shipped 2026-04-25. Remaining: build a `build-snapshot` CLI in qw-oracle that reads `knowledge.db` and regenerates the JSON files now living at `apps/slipgate-app/src/lib/config/data/` at richer fidelity (source_state, version arc, blame/PR provenance, asset relations); extend slipgate's loaders/types to expose the new fields the ConfigViewer wants to surface. ~1-2 sessions; can run in parallel with other extractor work.
+- [Retired cvars in snapshot + stale-config warning UX](#retired-cvars-in-snapshot--stale-config-warning-ux) — **NEW 2026-04-26.** Coupled producer+consumer work blocked on UX design. The `build-snapshot` CLI today emits only entities present at head (2,899 ezquake cvars; 2,835 source_backed + 149 doc_only). 5 retired cvars (`cl_showkeycodes`, `gl_smoothfont`, `keymap_name`, `r_fx_geometry`, `scr_printspeed` — alive in v3.0 through 3.6.2, removed before head) are silently dropped. Use case it blocks: opening an old config in slipgate where `keymap_name "us"` is present and getting a truthful "this was removed in 3.6.5" message instead of generic "unknown cvar" treatment. Defer until the stale-warning UX is on the table.
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake deep-time walk reached **v3.0 floor (14 versions: v3.0 through head)** 2026-04-25 late; pre-3.0 era de-scoped on community-security framing. Walk infrastructure shipped same session: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Reusable for FTE/MVDSV/KTX. **QWCL 2.33 SHIPPED 2026-04-25** (first cross-codebase port; 186 cvar / 120 command / 58 cmdline_param at qwcl@2.33; schema v10 widened project CHECK; quality-grid 5/5 F1 PASS). Remaining: Phase 2d FTE, Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
 - [Layer 1 doc_only audit](#layer-1-doc_only-audit--closed-with-one-deferred-row) — **CLOSED 2026-04-25 with one deferred row.** Six extractor patterns + one architectural change + one loader dedup shipped across the session: P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture, Item B cross-type help-JSON orphan prune. Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only 269 -> 210; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage. Deferred: `-nopriority` cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers unreachable on Linux libclang). One entry remains until MVDSV/FTE hit the same wall — then stub-headers solution lands in one place.
@@ -19,41 +19,46 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ---
 
-## Oracle build-snapshot CLI (slipgate Layer-1 consumption)
+## Retired cvars in snapshot + stale-config warning UX
 
-**Added:** 2026-04-25 (Half 1 + Half 2a shipped same day; CLI work split into its own entry).
-**Status:** Scoped, not started. Half 1 (extractor relocation) shipped — extractors at `apps/qw-oracle/scripts/extractors/<project>/`. Half 2a (slipgate absorption + qw-config deletion) shipped — parser/converter/writers/loaders/JSON snapshots moved to `apps/slipgate-app/src/lib/config/`, 12 import sites rewritten, `packages/qw-config/` deleted, `bunx tsc --noEmit` clean, 195 tests pass. Remaining work is the Layer-1 → snapshot replacement.
-**Verification first:** `ls apps/qw-oracle/scripts/build-snapshot.ts 2>&1` should fail (CLI doesn't exist yet). `ls apps/slipgate-app/src/lib/config/data/ezquake-variables.json` should exist (legacy snapshot in its new home). `ls packages/qw-config 2>&1` should fail (package gone). If any of these flips, this entry has progressed or completed.
+**Added:** 2026-04-26 (after build-snapshot CLI shipped 2026-04-25; default_history numeric-equality fix shipped 2026-04-26 commit `9917002`).
+**Status:** Producer change scoped + tiny; gated on consumer-side UX design. Defer until the stale-warning feature is being designed in slipgate.
+**Verification first:** `python3 -c "import json; v=json.load(open('apps/slipgate-app/src/lib/config/data/ezquake-variables.json'))['vars']; print(sum(1 for o in v.values() if o.get('source_state')=='source_retired'))"` — currently `0`. When this returns `>0`, the producer side has shipped and consumer wiring is the remaining work.
 
-### Goal
+### What's missing
 
-Replace the legacy scraped JSON in `apps/slipgate-app/src/lib/config/data/` with oracle-generated snapshots produced from `knowledge.db`. Slipgate's loader code (`src/lib/config/loaders/`) keeps its current shape; the snapshot file contents become richer (source_state, version arc, blame/PR provenance, asset relations) and the loader types extend to expose the new fields the ConfigViewer wants to surface.
+The current `build-snapshot` CLI emits one row per entity present at the project's head version. Retired cvars (DB rows with `source_state='source_retired'` — alive in older versions, removed before head) are silently dropped from the snapshot.
 
-### Sub-phases (~1-2 sessions)
+Today's ezQuake retired set (5 cvars): `cl_showkeycodes`, `gl_smoothfont`, `keymap_name`, `r_fx_geometry`, `scr_printspeed`. Each was alive in v3.0 through 3.6.2 and removed in 3.6.5+. Slipgate's loader returns `undefined` for these names today.
 
-1. **`build-snapshot` CLI in qw-oracle** — `apps/qw-oracle/scripts/build-snapshot.ts` reads `knowledge.db`, emits slipgate-shaped JSON (initially shape-equivalent to today's legacy snapshots; richer fields layered in incrementally). Output destination: writes directly into `apps/slipgate-app/src/lib/config/data/` (committed to git, regenerated on demand).
-   - Phase 1 scope: regenerate 6 ezquake snapshots from Layer 1 (`ezquake-variables`, `-commands`, `-macros`, `-cmdline-params`, `-default-commands`, `-asset-bundle`). Shape parity tests vs. current legacy snapshots.
-   - Pass-through (for now): `fte-variables.json`, `qwcl-variables.json`, `ktx-commands.json`, `domain-tags.json`, `mappings.json`. They graduate to oracle-generated as their Layer 1 data lands. QWCL extraction running in parallel will graduate `qwcl-variables` first.
+### Use case it blocks
 
-2. **Slipgate consumer expansion (optional, follow-on arc)** — extend `src/lib/config/loaders/` types and ConfigViewer components to surface oracle's new fields (source_state, version arc, etc.). Not required for snapshot-replacement parity; this is the "use the rich data, not just the shape" arc.
+A user opens a 2018-era config in ConfigViewer. The config has `keymap_name "us"`. Slipgate's lookup → not found → falls back to "unknown cvar" treatment (yellow warning, treated as either user-defined `set` variable or noise).
 
-### Success criteria
+The truthful behavior is: "this cvar was removed in ezQuake 3.6.5; safe to delete." Same applies to FTE converter — it should know "this isn't a bug, this is a removal — translate to nearest equivalent or flag for the user." Same applies to FTE/MVDSV/KTX walks once they ship deep-time (the retired set will grow as more codebases get loaded).
 
-- `bun run build-snapshot` (or equivalent) regenerates `src/lib/config/data/*.json` from `knowledge.db` deterministically
-- ConfigViewer renders identically to pre-CLI baseline (no regression)
-- Legacy hand-written ezquake snapshots fully replaced; non-ezquake snapshots remain pass-through until their Layer 1 lands
+### Why it's coupled work, not a producer-side one-liner
+
+**Producer side (~30 min):** widen `build-snapshot.ts` to emit retired cvars too, marked with `source_state: "source_retired"` and `last_seen_version`. Snapshot grows by ~5 entries today, more when other codebases ship.
+
+**Consumer side (slipgate, ~1-2 hours of UI design + wiring):**
+- `loaders/ezquake.ts` `loadEzQuakeCvars` filter: today it loads everything in the JSON; needs to either filter retired cvars to a separate map or include them with a marker the UI consults
+- `CvarRow.tsx` / `CvarTooltip.tsx`: new visual state for "retired in 3.6.5" — different from "doc_only" (no source citation found) and from "unknown" (not in DB at all)
+- `ConfigConverter.tsx`: retired cvars need their own status bucket (not "transferred", not "no equivalent" — "removed upstream, drop or migrate")
+- Copy + visual design: how loud is the warning, what does the suggestion read
+
+The right time to do all this is when the stale-config-warning UX is on the design table, not as a speculative one-off.
 
 ### Pressure
 
-Low-medium. Doesn't block other extractor work. Unblocks slipgate using richer data for ConfigViewer enhancements.
+Low. Five cvars affected today; nobody has hit the use case in practice. Worth doing when slipgate's "open old config and tell me what's stale" feature gets prioritized.
 
 ### Related
 
-- Half 1 shipped 2026-04-25 — extractor relocation
-- Half 2a shipped 2026-04-25 — slipgate absorption + qw-config deletion
-- Realignment-roadmap spec: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`
-- Memory: `project_realignment_roadmap.md`, `project_qw_oracle_vision.md`, `project_qw_config.md`
-- Snapshot consumer surface: `apps/slipgate-app/src/lib/config/loaders/` + `data/`
+- Producer: `apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts`
+- Consumer: `apps/slipgate-app/src/lib/config/loaders/ezquake.ts` + `src/components/CvarRow.tsx`, `CvarTooltip.tsx`, `ConfigConverter.tsx`
+- DB query: `SELECT name, first_seen_version, last_seen_version FROM entities WHERE project='ezquake' AND type='cvar' AND source_state='source_retired'`
+- Sibling shipped fix: `default_history` numeric-equality (commit `9917002`, 2026-04-26) — phantom transitions on cvars like `cl_bonusflash` no longer surface
 
 ---
 
