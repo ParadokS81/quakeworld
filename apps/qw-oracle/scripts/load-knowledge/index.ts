@@ -55,6 +55,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'quality-grid') {
+    await runQualityGridCli(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -83,6 +88,9 @@ Subcommands:
                 [--github-token <t>] [--skip-release-notes] [--force]
   review        --project <p> --from <v1> --to <v2>
                 [--out <path>] [--ezquake-repo <path>] [--force]
+  quality-grid  --project <p>
+                [--family regression|anomaly|both] [--probe <name>]
+                [--list] [--json]
 `.trim());
   process.exit(2);
 }
@@ -347,6 +355,52 @@ async function runReviewCli(args: string[]): Promise<void> {
     });
     // stdout contract: emit the full report as JSON for the skill to consume.
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+  } finally {
+    db.close();
+  }
+}
+
+async function runQualityGridCli(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      family: { type: 'string' },
+      probe: { type: 'string' },
+      list: { type: 'boolean' },
+      json: { type: 'boolean' },
+    },
+  });
+
+  const { runQualityGrid, listProbes, formatGridText } = await import('./quality-grid.js');
+
+  if (values.list) {
+    const probes = listProbes();
+    for (const p of probes) console.log(`[${p.family}] ${p.name}`);
+    return;
+  }
+
+  if (!values.project) throw new Error('--project is required');
+  const family = (values.family as 'regression' | 'anomaly' | 'both' | undefined) ?? 'both';
+  if (!['regression', 'anomaly', 'both'].includes(family)) {
+    throw new Error(`--family must be regression|anomaly|both, got ${family}`);
+  }
+
+  const db = openKnowledgeDb();
+  try {
+    const results = runQualityGrid({
+      db,
+      project: values.project as Project,
+      family,
+      probeFilter: values.probe,
+    });
+    if (values.json) {
+      console.log(JSON.stringify(results, null, 2));
+    } else {
+      console.log(formatGridText(results));
+    }
+    const failed = results.some(r => r.status === 'FAIL' || r.status === 'ERROR');
+    process.exitCode = failed ? 1 : 0;
   } finally {
     db.close();
   }

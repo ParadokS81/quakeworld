@@ -14,6 +14,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
+- [Quality grid first findings (2026-04-25)](#quality-grid-first-findings) — `quality-grid` CLI subcommand shipped; first run surfaced 3 real anomalies on ezquake head DB. (a) ruleset extractor fabricates rows for older tags: `smackdrive` at 3.6.1 confirmed absent in source. (b) flag_bit extractor same shape: `fpd_enable_player_count` at 3.6.1 spurious. (c) 20 cvars source_backed-via-head-AST have NULL source_file/source_line at older tags (P3/Item A entities awaiting older-tag re-extraction). All 5 regression probes PASS.
 
 ---
 
@@ -173,6 +174,63 @@ None. Audit closed. `-nopriority` remains a known deferral with a clear recovery
 - Extractor reference: `memory/reference_libclang_ezquake_extraction.md`, `memory/reference_asset_loader_extractor_capabilities.md`
 - Schema field: `source_state` on `entities` table — `source_backed | doc_only | source_retired`. Load-bearing for data-quality queries.
 - Cross-session lesson: every derived conclusion needs a primary-source check. This session overturned two prior rounds of analysis; the pattern of "analysis looked right at step N, was actually wrong" appears when queries aren't structure-verified first. Always `jq 'keys'` or equivalent before assuming the shape of what you're querying.
+
+---
+
+## Quality grid first findings
+
+**Added:** 2026-04-25 (Phase A of the extraction-quality strategy).
+**Status:** Three anomalies surfaced on first run of `quality-grid` against ezquake head DB. Regression probes (5) all PASS. Findings need fixes; each promotes to a Family 1 regression probe once the underlying bug closes.
+**Verification first:** `npm run load-knowledge -- quality-grid --project ezquake` from `apps/qw-oracle/`. If summary line shows 0 anomalies surfaced and all regressions PASS, this entry has been resolved.
+
+### Background
+
+`quality-grid` ships in `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` plus CLI wiring in `index.ts`. Two probe families:
+
+- **Family 1 (regression).** Pinned invariants. Each PASS/FAIL is unambiguous. 5 probes shipped: first_seen / last_seen ordinal alignment, head sentinel ordinal, cross-type orphan (Item B), entity-has-version-rows.
+- **Family 2 (anomaly).** Open-ended consistency. Surfaces things worth a human look. 6 probes shipped: flickering presence, empty body density, missing source citation, +X/-X pair symmetry, doc_only crosstab, default-value ping-pong.
+
+### Anomaly 1 — ruleset extractor fabricates rows for older tags
+
+`smackdrive` ruleset reported at 3.6.1 (rulesets.c:542). Verified absent: `git -C research/repos/ezquake-source grep smackdrive 06270807 -- "*rulesets.c"` returns 0 matches at the 3.6.1 commit. The smackdrive ruleset was added in commit 2dbb3f1d (Feb 2025) per pre-existing concept-note research. Flickering pattern: 3.6.1+ 3.6.2- 3.6.5- 3.6.6+ 3.6.8+ 3.6.9+ head+ — only the post-2dbb3f1d tags should report it.
+
+Likely cause: `extract-ezquake-rulesets-clang.py` is a regex/text extractor (despite the `-clang.py` filename it never used libclang). It probably emits ruleset rows from a static pattern set rather than gating each row on per-tag source presence. Needs investigation.
+
+### Anomaly 2 — flag_bit extractor same shape
+
+`fpd_enable_player_count` reported at 3.6.1 (teamplay.h:113). Pattern: 3.6.1+ 3.6.2- 3.6.5- 3.6.6- 3.6.8- 3.6.9+ head+. The pre-existing Phase 2f Batch 2 note recorded this as "1 real flag_bit creation" between 3.6.5/3.6.6 — meaning 3.6.1 should be absent. Same shape as Anomaly 1: regex extractor (`extract-ezquake-flag-bits-clang.py`, also never libclang) appears to over-populate older tags.
+
+Likely the same bug class as Anomaly 1; both are the "sibling text/regex extractors" left out of the unified-extractor work. Worth fixing in one batch.
+
+### Anomaly 3 — 20 cvars source_backed-via-head-AST with NULL citations on older tags
+
+Citation count: 289 cvar version rows missing source_file/source_line, distributed across 20 distinct cvars × 6 older tags + a small head residue. The 20 names are exactly the entities flipped doc_only -> source_backed by recent extractor fixes:
+
+- 10 P3 entities: `gl_custom_grenade_*`, `gl_custom_lg_*`, `gl_custom_lgpack_color`, `gl_custom_rlpack_color`, `gl_custom_rocket_*`, `gl_custom_spike_*`.
+- 8 Item A entities: `cl_verify_qwprotocol`, `cl_www_address`, `con_deadkey`, `demo_capture_codec`, `demo_capture_mp3`, `demo_capture_mp3_kbps`, `demo_capture_vid_maxlen`, `in_ignore_deadkeys`.
+- 2 unenumerated: `joystick`, `sv_enableprofile` (likely additional Item A or platform-guarded discoveries).
+
+Not a code bug — it's a data-currency gap. Older tags were extracted before P3 / Item A landed; their per-version cvar rows have help_desc (from help-JSON) but no source_file/source_line because the AST extractors of the time didn't catch the cvars. Today's loader fix correctly extended `entities.first_seen_version` back, but the underlying per-version source citations are pre-fix.
+
+Recovery is operational, not code: re-run `extract-tag` on 3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9 with the current extractor. The 4-variant parse architecture should now catch these entities at the older tags too, populating the missing `source_file` / `source_line`. This is exactly the marathon Phase A is preparing for.
+
+### Pressure
+
+Anomalies 1 and 2 are real bugs; surface size unknown until investigated (could be just these two entities, could be more). Anomaly 3 is operational and resolves naturally during the historical re-extraction marathon. Regression probes are all PASS — the moat is in place.
+
+### Next
+
+- **Investigate Anomalies 1 + 2** in one session: read both regex extractors, diagnose over-population, fix or replace with a libclang Visitor handler.
+- **Marathon prep** can proceed in parallel with the above. Once Anomalies 1 + 2 fix, re-extract all older tags with the corrected extractor; Anomaly 3 also resolves in the same pass.
+- **Promote each fix to a Family 1 probe** as it closes (e.g., "no ruleset_versions row exists for a (ruleset, version) pair where the source file at that version doesn't contain the ruleset's identifier").
+
+### Related
+
+- Probe module: `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`
+- CLI wiring: `apps/qw-oracle/scripts/load-knowledge/index.ts` (subcommand `quality-grid`)
+- Run: `npm run load-knowledge -- quality-grid --project ezquake [--family regression|anomaly|both] [--probe <name>] [--list] [--json]`
+- Sibling regex extractors implicated: `packages/qw-config/scripts/extract-ezquake-rulesets-clang.py`, `extract-ezquake-flag-bits-clang.py`, `extract-ezquake-token-primitives-clang.py` (third one not yet probed but same architecture).
+- Earlier fixes promoted to Family 1: today's first_seen / last_seen / head ordinal, Item B cross-type orphans (commit 146cd73), entity-has-version-rows defensive invariant.
 
 ---
 
