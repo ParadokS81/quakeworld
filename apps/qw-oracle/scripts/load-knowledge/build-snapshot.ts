@@ -45,6 +45,23 @@ interface EnrichmentBlock {
   retired_at_version?: string;
 }
 
+// Numeric-aware equality. Stored values stay raw (preserves fidelity to
+// upstream help_variables.json), but the comparison ignores formatting-only
+// differences like "0" vs "0.0", ".33" vs "0.33", "1.0" vs "1". Pure
+// string-token changes ("%H:%M:%S" → "0") still surface as transitions
+// because Number() returns NaN for the non-numeric side.
+const NUMERIC_RE = /^-?(\d+(\.\d+)?|\.\d+)$/;
+function defaultsEqual(a: string | null, b: string | null): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (NUMERIC_RE.test(a) && NUMERIC_RE.test(b)) {
+    const na = Number(a);
+    const nb = Number(b);
+    if (!Number.isNaN(na) && !Number.isNaN(nb) && na === nb) return true;
+  }
+  return false;
+}
+
 // Per (entity_id) → enrichment. Built once per project+type.
 //
 // default_history is computed by walking cvar_versions in ordinal order and
@@ -99,7 +116,7 @@ function loadEnrichment(
         priorValue = null;
         history = [];
       }
-      if (r.default_value !== priorValue) {
+      if (!defaultsEqual(r.default_value, priorValue)) {
         history.push({ version: r.version, value: r.default_value });
         priorValue = r.default_value;
       }
