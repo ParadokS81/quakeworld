@@ -8,9 +8,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-- [qw-config dissolution Half 2 (slipgate snapshot consumption)](#qw-config-dissolution-half-2-slipgate-snapshot-consumption) — **NEW 2026-04-25.** Half 1 (extractor relocation) shipped 2026-04-25. Half 2 builds the `build-snapshot` CLI in qw-oracle that produces slipgate-shaped JSON from Layer 1, refactors slipgate to consume oracle snapshots, drops the `qw-config` workspace dependency, and deletes `packages/qw-config/`. 2-3 sessions; can run in parallel with other extractor work.
-- [QWCL 2.33 extraction](#qwcl-233-extraction) — **NEW 2026-04-25 (late).** First cross-codebase port of the unified Layer 1 pipeline. Foundational for slipgate-app's planned config converter ("pandoc for configs") mapping QWCL → ezQuake → FTE. Libclang already parses qwcl-original cleanly; cliff is adapter code for the simpler 1996-era cvar_t shape + `Cvar_RegisterVariable` registration + no-help-JSON loader path. Lands at `apps/qw-oracle/scripts/extractors/qwcl/extract.py` (post-Half-1 permanent home).
-- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake deep-time walk reached **v3.0 floor (14 versions: v3.0 through head)** 2026-04-25 late; pre-3.0 era de-scoped on community-security framing. Walk infrastructure shipped same session: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Reusable for FTE/MVDSV/KTX. Remaining: Phase 2d QWCL (separate handover entry above), Phase 2d FTE, Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
+- [Oracle build-snapshot CLI (slipgate Layer-1 consumption)](#oracle-build-snapshot-cli-slipgate-layer-1-consumption) — **NEW 2026-04-25.** Half 1 (extractor relocation) and Half 2a (slipgate-side absorption + qw-config deletion) both shipped 2026-04-25. Remaining: build a `build-snapshot` CLI in qw-oracle that reads `knowledge.db` and regenerates the JSON files now living at `apps/slipgate-app/src/lib/config/data/` at richer fidelity (source_state, version arc, blame/PR provenance, asset relations); extend slipgate's loaders/types to expose the new fields the ConfigViewer wants to surface. ~1-2 sessions; can run in parallel with other extractor work.
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake deep-time walk reached **v3.0 floor (14 versions: v3.0 through head)** 2026-04-25 late; pre-3.0 era de-scoped on community-security framing. Walk infrastructure shipped same session: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Reusable for FTE/MVDSV/KTX. **QWCL 2.33 SHIPPED 2026-04-25** (first cross-codebase port; 186 cvar / 120 command / 58 cmdline_param at qwcl@2.33; schema v10 widened project CHECK; quality-grid 5/5 F1 PASS). Remaining: Phase 2d FTE, Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
 - [Layer 1 doc_only audit](#layer-1-doc_only-audit--closed-with-one-deferred-row) — **CLOSED 2026-04-25 with one deferred row.** Six extractor patterns + one architectural change + one loader dedup shipped across the session: P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture, Item B cross-type help-JSON orphan prune. Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only 269 -> 210; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage. Deferred: `-nopriority` cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers unreachable on Linux libclang). One entry remains until MVDSV/FTE hit the same wall — then stub-headers solution lands in one place.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
@@ -20,113 +19,41 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ---
 
-## qw-config dissolution Half 2 (slipgate snapshot consumption)
+## Oracle build-snapshot CLI (slipgate Layer-1 consumption)
 
-**Added:** 2026-04-25 (Half 1 shipped same day; Half 2 split out as its own entry).
-**Status:** Scoped, not started. Half 1 (extractor relocation) shipped — extractors now at `apps/qw-oracle/scripts/extractors/<project>/` and AST outputs at `extractors/<project>/output/`. Half 2 retires the slipgate-runtime side of qw-config. Can run in parallel with QWCL / FTE / MVDSV / KTX extractor work.
-**Verification first:** `grep -A1 'qw-config' apps/slipgate-app/package.json` should still show `"qw-config": "workspace:*"`. `ls packages/qw-config/src/data/ezquake-variables.json` should still exist. `ls apps/qw-oracle/scripts/build-snapshot.ts` should NOT exist (the CLI doesn't exist yet). If any of those have changed, Half 2 has begun or partially landed.
+**Added:** 2026-04-25 (Half 1 + Half 2a shipped same day; CLI work split into its own entry).
+**Status:** Scoped, not started. Half 1 (extractor relocation) shipped — extractors at `apps/qw-oracle/scripts/extractors/<project>/`. Half 2a (slipgate absorption + qw-config deletion) shipped — parser/converter/writers/loaders/JSON snapshots moved to `apps/slipgate-app/src/lib/config/`, 12 import sites rewritten, `packages/qw-config/` deleted, `bunx tsc --noEmit` clean, 195 tests pass. Remaining work is the Layer-1 → snapshot replacement.
+**Verification first:** `ls apps/qw-oracle/scripts/build-snapshot.ts 2>&1` should fail (CLI doesn't exist yet). `ls apps/slipgate-app/src/lib/config/data/ezquake-variables.json` should exist (legacy snapshot in its new home). `ls packages/qw-config 2>&1` should fail (package gone). If any of these flips, this entry has progressed or completed.
 
-### Sub-phases (~2-3 sessions)
+### Goal
 
-1. **`build-snapshot` CLI in qw-oracle** — produces slipgate-shaped JSON files from Layer 1. Reads from `knowledge.db` and emits the same shape slipgate consumes today (`ezquake-variables.json`, `ezquake-commands.json`, `ezquake-macros.json`, `ezquake-cmdline-params.json`, `ezquake-default-commands.json`, `ktx-commands.json`, `fte-variables.json`, `qwcl-variables.json`, `domain-tags.json`, `mappings.json`, plus the asset bundle). Tests verify shape parity against current `packages/qw-config/src/data/` files.
-2. **Slipgate refactor** — point `apps/slipgate-app/src/lib/assets/bundle.ts` and the qw-config workspace consumers (parser, loaders, converter, writers) at the new snapshot location. Likely destination: `apps/qw-oracle/data/snapshots/` or a published artifact that slipgate fetches at build time.
-3. **Workspace dependency removal** — drop `"qw-config": "workspace:*"` from `apps/slipgate-app/package.json` once all references migrate. Slipgate's runtime imports change from `import { parseConfig } from "qw-config"` to whatever new home the parser/loaders take (likely `apps/slipgate-app/src/lib/config/` after extracting from qw-config).
-4. **Package deletion** — at this point `packages/qw-config/` has no consumers. Delete the entire directory. Update root `OVERVIEW.md` to remove the "qw-config (transitional)" section. Update memory: `project_realignment_roadmap.md` description ("qw-config dissolving holding pen" → "qw-config fully dissolved YYYY-MM-DD"). Update slipgate-app's CLAUDE.md if it references qw-config.
+Replace the legacy scraped JSON in `apps/slipgate-app/src/lib/config/data/` with oracle-generated snapshots produced from `knowledge.db`. Slipgate's loader code (`src/lib/config/loaders/`) keeps its current shape; the snapshot file contents become richer (source_state, version arc, blame/PR provenance, asset relations) and the loader types extend to expose the new fields the ConfigViewer wants to surface.
+
+### Sub-phases (~1-2 sessions)
+
+1. **`build-snapshot` CLI in qw-oracle** — `apps/qw-oracle/scripts/build-snapshot.ts` reads `knowledge.db`, emits slipgate-shaped JSON (initially shape-equivalent to today's legacy snapshots; richer fields layered in incrementally). Output destination: writes directly into `apps/slipgate-app/src/lib/config/data/` (committed to git, regenerated on demand).
+   - Phase 1 scope: regenerate 6 ezquake snapshots from Layer 1 (`ezquake-variables`, `-commands`, `-macros`, `-cmdline-params`, `-default-commands`, `-asset-bundle`). Shape parity tests vs. current legacy snapshots.
+   - Pass-through (for now): `fte-variables.json`, `qwcl-variables.json`, `ktx-commands.json`, `domain-tags.json`, `mappings.json`. They graduate to oracle-generated as their Layer 1 data lands. QWCL extraction running in parallel will graduate `qwcl-variables` first.
+
+2. **Slipgate consumer expansion (optional, follow-on arc)** — extend `src/lib/config/loaders/` types and ConfigViewer components to surface oracle's new fields (source_state, version arc, etc.). Not required for snapshot-replacement parity; this is the "use the rich data, not just the shape" arc.
 
 ### Success criteria
 
-- Slipgate runs the same as today (no functional regression in ConfigViewer)
-- `packages/qw-config/` no longer exists in the working tree
-- All memory and doc references updated
+- `bun run build-snapshot` (or equivalent) regenerates `src/lib/config/data/*.json` from `knowledge.db` deterministically
+- ConfigViewer renders identically to pre-CLI baseline (no regression)
+- Legacy hand-written ezquake snapshots fully replaced; non-ezquake snapshots remain pass-through until their Layer 1 lands
 
 ### Pressure
 
-Medium. Gates the qw-config directory deletion but not new extractor work. Can interleave with FTE / MVDSV / KTX / QWCL walks.
+Low-medium. Doesn't block other extractor work. Unblocks slipgate using richer data for ConfigViewer enhancements.
 
 ### Related
 
-- Half 1 shipped 2026-04-25 — extractor relocation only; Half 2 retires the runtime side
+- Half 1 shipped 2026-04-25 — extractor relocation
+- Half 2a shipped 2026-04-25 — slipgate absorption + qw-config deletion
 - Realignment-roadmap spec: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md`
-- Memory: `project_realignment_roadmap.md`, `project_qw_oracle_vision.md`
-- Slipgate consumer surface: 14 import callsites for `qw-config` package across `apps/slipgate-app/src/`
-
----
-
-## QWCL 2.33 extraction
-
-**Added:** 2026-04-25 (late session, after deep-time walk reached v3.0 and pivoted on community-security framing).
-**Status:** Scoped, not started. Half 1 dissolution shipped 2026-04-25 — new QWCL extractor lands at `apps/qw-oracle/scripts/extractors/qwcl/extract.py` (its permanent home; the empty subdir is already in place). Strategic priority — first cross-codebase port. Foundational for slipgate-app's planned config converter ("pandoc for configs") that maps QWCL → ezQuake → FTE. Per the 2026-04-25 chat with infiniti, pre-3.0 ezQuake era is de-scoped (security: pre-3.6 has known attack vectors); QWCL is the cleaner "where it all started" reference for the converter.
-**Verification first:** `ls research/repos/qwcl-original/QW/client/cl_main.c` should exist. `git -C research/repos/qwcl-original log --oneline | wc -l` should return 1 (single-commit snapshot of the 1996-1998 id Software QuakeWorld release). If both check out, this entry is unresolved.
-
-### Why this matters
-
-The slipgate-app config viewer is the user-facing front for cross-engine config translation. The vision (per `memory/project_config_viewer_next.md`, `memory/project_qw_config.md`): ezQuake users frequently want to migrate to FTE for streaming/recording features, FTE users sometimes want ezQuake for clean baseline; both want a way to reuse muscle memory across clients. Implementing that converter requires a **canonical baseline** of what QW cvars/commands originally were — that is QWCL 2.33. Then ezQuake (already loaded) shows what's been added/renamed/shifted; then FTE (Phase 2d after this) shows the parallel evolution. The converter rules emerge from the three-way diff.
-
-Until now slipgate's converter prep was scraping source code ad-hoc. With Layer 1 in good shape, slipgate will consume Oracle's Layer 1 directly — making the QWCL extraction the first non-ezQuake project loaded into knowledge.db.
-
-### Scout findings (2026-04-25)
-
-Repo state: `research/repos/qwcl-original/` is already cloned. 1 commit (`bf4ac42`), no tags. Layout: `QW/client/`, `QW/server/`, `QW/qw-qc/`, plus `WinQuake/` (id Software's original Quake — out of scope for this entry). 240 .c files across the QW subtree.
-
-Probe results on `qwcl-original/QW/client/cl_main.c` with the current ezQuake clang_args_for(...):
-- Diagnostics: 3 errors, all trivial (pre-C99 implicit declarations of `stricmp`, `isspace`). Libclang recovers past them. **No missing-header errors.**
-- Visible cursors: 43 `Cvar_RegisterVariable` + 29 `Cmd_AddCommand` + 1 `COM_CheckParm` + 35 `cvar_t` VAR_DECLs.
-
-Whole-tree counts via plain grep on `QW/client/`: ~19 cvar_t literal-init lines (sample is one dir; more in sibling files), 202 `Cvar_RegisterVariable` calls, 116 `Cmd_AddCommand` calls, 133 `COM_CheckParm` calls.
-
-Manifest presence: **NO `help_*.json`, NO `cmdline_params_ids.h`, NO `macro_ids.h`, NO `rulesets.[ch]`, NO `cvar_groups.h`.** Pure pre-tooling 1996-era source.
-
-cvar_t struct shape (from `QW/client/cvar.h`):
-```c
-typedef struct cvar_s {
-    char     *name;
-    char     *string;       // default value
-    qboolean  archive;      // optional 3rd field
-    qboolean  info;         // optional 4th field
-    float     value;
-    struct cvar_s *next;
-}
-```
-Initialization is positional, 2-4 fields:
-- `cvar_t cl_warncmd = {"cl_warncmd", "0"};` (2-field)
-- `cvar_t vid_mode = {"vid_mode","0",false};` (3-field, archive flag)
-- `cvar_t _windowed_mouse = {"_windowed_mouse", "1", true};` (3-field)
-
-Registration: `Cvar_RegisterVariable(&cvar)` (different function name from ezquake's `Cvar_Register`).
-
-### Implementation plan
-
-The 1-day estimate breaks down roughly:
-
-1. **Project entry plumbing (~1h):** add `qwcl-original` to `Project` type, `PROJECT_REPO_PATH`, `PROJECT_EXTRACTOR`, `PROJECT_SRC_PREFIX` in `apps/qw-oracle/scripts/load-knowledge/`. Schema CHECK constraint on `entities.project` widens to add `qwcl-original` (or `qwcl` — name choice TBD).
-2. **New extractor `extract-qwcl-clang.py` (~4-6h)** at `apps/qw-oracle/scripts/extractors/qwcl/extract.py`. Follows `apps/qw-oracle/scripts/extractors/ezquake/extract.py`'s Visitor pattern but with handlers for the qwcl shape:
-   - `Cvar_RegisterVariable(&X)` call sites + matching `cvar_t X = {...}` VAR_DECLs to capture cvar definitions and defaults.
-   - `Cmd_AddCommand("name", fn)` for commands.
-   - `COM_CheckParm("name")` for cmdline params (literal-string mode, since no manifest).
-   - Skip rulesets/HUD/macros/keynames/token_primitives/flag_bits — those entity types don't exist in QWCL.
-   - Skip the legacy single-purpose extractors (rulesets / token_primitives / flag_bits) — `LEGACY_EXTRACTORS_EZQUAKE` constant is ezquake-only; the QWCL path bypasses it.
-3. **Loader no-help-JSON path (~2-3h):** the per-type adapters (load-cvars.ts, load-commands.ts, load-cmdline-params.ts) currently merge AST + help-JSON entries. For QWCL the JSON has only AST entries; the loader should accept entries with no `desc`/`help_desc`/`help_remarks`/etc. The cross-type orphan prune is a no-op here (no help-JSON to mislabel) but should not error. This loader work is **partially reusable for any future pre-help-JSON ezQuake walk** if scope ever changes. Likely lands as defensive guards in build-asset-bundle.ts and the per-type adapters.
-4. **First load + grid validation (~1-2h):** `extract-tag --project qwcl-original --version 2.33 --ordinal 233`. Expected: ~200 cvars, ~120 commands, ~50 cmdline_params, no other types. F1 regression probes should all PASS; F2 anomaly probes filter the qwcl entities correctly (no help-JSON-only orphans, no doc_only entities, no flicker because only one version).
-5. **Lifecycle metadata (~1h, optional):** infiniti's security framing motivates a `lifecycle_status` field on entities or projects (active / legacy-reference / unsafe-defaults). Not required to ship qwcl extraction but worth adding before slipgate-app consumes the data so consumers can filter on safety. Could defer to a separate session.
-
-### Tests / validation
-
-- E2E: extract qwcl 2.33, load, run grid, verify 5/5 regression PASS + anomaly probes scoped sanely.
-- Sample probe (post-load): `sqlite3 data/knowledge.db "SELECT COUNT(*) FROM entities WHERE project='qwcl-original' AND type='cvar'"` ≈ 200.
-- Cross-project sanity: pick 5 cvars present in BOTH qwcl-original and ezquake (e.g. `cl_warncmd`, `vid_mode`) and confirm both rows exist with project-scoped first/last_seen versions.
-- Default-value capture: `cl_warncmd` should show default `"0"` at qwcl-original 2.33 — the literal-positional-init parsing must work.
-
-### Pressure
-
-Medium. Not blocking ezQuake work. Slipgate-app can't ship the config converter until this lands, but slipgate doesn't have the converter UI built yet either. Doable in 1 session of focused work.
-
-### Related
-
-- Strategic context: chat with infiniti 2026-04-25 (security framing for de-scoping pre-3.0 ezQuake), user note that this is the "first of three" for the converter (QWCL → ezQuake → FTE)
-- Memory: `project_config_viewer_next.md`, `project_qw_config.md`, `project_extraction_pipeline_vision.md` (all need refresh post-this-session)
-- Repo: `research/repos/qwcl-original/` (already cloned, single commit)
-- Cross-codebase pattern reference: ezquake's `apps/qw-oracle/scripts/extractors/ezquake/extract.py` + Visitor protocol at `apps/qw-oracle/scripts/extractors/extractor_lib/_visitor.py`
-- Walk procedure (if loading multiple QWCL versions ever surfaces — though only 2.33 is currently in the repo): `apps/qw-oracle/docs/layer1-extraction-roadmap.md` § "Walk procedure"
+- Memory: `project_realignment_roadmap.md`, `project_qw_oracle_vision.md`, `project_qw_config.md`
+- Snapshot consumer surface: `apps/slipgate-app/src/lib/config/loaders/` + `data/`
 
 ---
 
@@ -134,8 +61,9 @@ Medium. Not blocking ezQuake work. Slipgate-app can't ship the config converter 
 
 **Added:** 2026-04-18 (originally as "Phase 2 schema + rollout")
 **Updated:** 2026-04-20 — Phase 2c (4 more ezQuake types), 2c.5 (4 more + schema v2), and 2c.6 (asset consumption + schema v3) all shipped. ezQuake is fully loaded at head across 9 entity types (3849 entities total).
-**Updated:** 2026-04-25 (late) — Deep-time walk reached **v3.0 floor**: 14 ezQuake versions clean (v3.0, v3.0.1, 3.1, 3.2, 3.2.1, 3.2.2, 3.2.3, 3.6.0/.1/.2/.5/.6/.8/.9, head). Pre-3.0 era explicitly de-scoped on community-security framing (infiniti). Walk infrastructure shipped: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection + flicker-probe doc_only filter — all reusable for FTE/MVDSV/KTX walks. Schema v9 stamped (per-version transition log). Phase 2d ordering REVISED: QWCL 2.33 is now first cross-codebase port (foundational for slipgate-app config converter); FTE follows. See dedicated `QWCL 2.33 extraction` entry above.
-**Status:** ezQuake head + deep-time walk complete (v3.0 to head). Next terminal session priorities:
+**Updated:** 2026-04-25 (late) — Deep-time walk reached **v3.0 floor**: 14 ezQuake versions clean (v3.0, v3.0.1, 3.1, 3.2, 3.2.1, 3.2.2, 3.2.3, 3.6.0/.1/.2/.5/.6/.8/.9, head). Pre-3.0 era explicitly de-scoped on community-security framing (infiniti). Walk infrastructure shipped: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection + flicker-probe doc_only filter — all reusable for FTE/MVDSV/KTX walks. Schema v9 stamped (per-version transition log).
+**Updated:** 2026-04-25 (late, post-QWCL) — **QWCL 2.33 SHIPPED** as the first cross-codebase port: 186 cvar / 120 command / 58 cmdline_param at qwcl@2.33; schema v10 widened the project CHECK across 8 tables; loader-side gates (`PROJECT_VERSION_ALIASES`, `PROJECT_HAS_ASSET_BUNDLE`, per-project `ENTITY_JSON_FILES`) parameterize the cross-project boundary. Quality grid 5/5 F1 PASS. Three QWCL-specific handlers under `apps/qw-oracle/scripts/extractors/qwcl/` reuse the shared Visitor + walk_tu_dispatch from `extractor_lib`. Next codebase port: FTE.
+**Status:** ezQuake head + deep-time walk complete (v3.0 to head); QWCL 2.33 shipped. Next terminal session priorities:
 
 ### What shipped through Phase 2c.6
 
