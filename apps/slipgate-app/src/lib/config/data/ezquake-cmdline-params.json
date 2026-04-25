@@ -1,23 +1,41 @@
 {
+  "schema_version": "snapshot-v1",
+  "generated_at": "2026-04-25T21:58:36.160Z",
+  "oracle_commit": "45580b6f3cbd406fc1c45eafcb88667d9eae9248",
+  "knowledge_db_schema_version": 10,
+  "project": "ezquake",
+  "version": "head",
   "params": {
     "-allowmultiple": {
       "desc": "On Windows, launch multiple copies of ezQuake rather than re-using the existing instance",
       "systems": [
         "windows"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-basedir": {
       "desc": "The \"base\" directory is the path to the directory holding the quake.exe and all game directories.\n\nThis can be overridden with the \"-basedir\" command line parm to allow code debugging in a different directory.",
-      "arguments": "<path>"
+      "arguments": "<path>",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-bpp": {
       "desc": "Allows setting of 'r_colorbits' cvar during start-up",
-      "arguments": "<integer>"
+      "arguments": "<integer>",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-cdaudio": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-cddev": {
       "desc": "On Linux, specifies the cd device to use.  Must specify -cdaudio for this to have effect",
@@ -25,261 +43,477 @@
       "arguments": "<path>",
       "systems": [
         "linux"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-cheats": {
-      "desc": "enable cheats on local server (/noclip etc)"
+      "desc": "enable cheats on local server (/noclip etc)",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-clientport": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-conbufsize": {
       "desc": "set size of console buffer",
       "remarks": "between 32KB & 4MB, default is 64KB",
-      "arguments": "<size-in-kb>"
+      "arguments": "<size-in-kb>",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-condebug": {
-      "desc": "log all console output to qw/qconsole.log"
+      "desc": "log all console output to qw/qconsole.log",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-conheight": {
-      "desc": "set vid_conheight during startup"
+      "desc": "set vid_conheight during startup",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-conwidth": {
-      "desc": "set vid_conwidth during startup"
+      "desc": "set vid_conwidth during startup",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-data": {},
+    "-data": {
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "-democache": {
       "desc": "create memory buffer during startup, used instead of writing directly to disk when recording demos",
       "remarks": "Minimum value 2048KB",
-      "arguments": "<size-in-kb>"
+      "arguments": "<size-in-kb>",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-detailtrails": {
-      "desc": "sets /gl_particle_fulldetail 1 during startup"
+      "desc": "sets /gl_particle_fulldetail 1 during startup",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-dev": {},
+    "-dev": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-display": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-enablelocalcommand": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-forceTextureReload": {
+    "-forcetexturereload": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-forcetexturereload": {},
     "-freq": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-game": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-gamma": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-gl-debug": {
-      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev"
+      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev",
+      "source_state": "doc_only",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
-    "-gl-forward-only-profile": {},
+    "-gl-forward-only-profile": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-gl_ext": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-glsl-renderer": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-heapsize": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-height": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-ip": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-maxtmu2": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-mem": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-minmemory": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-no-accel-visuals": {
-      "desc": "Requests un-accelerated graphics (used in debugging to create OpenGL 1.1 context)"
+      "desc": "Requests un-accelerated graphics (used in debugging to create OpenGL 1.1 context)",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-no-triple-gl-buffer": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-no24bit": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-noatlas": {},
+    "-noatlas": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-noconinput": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-nodesktopres": {},
+    "-nodesktopres": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-noerrormsgbox": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-nohome": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-nohwgamma": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-nohwtimer": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-noindphys": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-noinvlmaps": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-nolibjpeg": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-nolibpng": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-nomouse": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "doc_only",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-nomtex": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-nonpot": {},
+    "-nonpot": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-nopriority": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-norjscripts": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-noscripts": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-nosound": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-nostdout": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-oldgamma": {},
+    "-oldgamma": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-particles": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-port": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-progtype": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
-    "-r-debug": {},
+    "-r-debug": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-r-dump-shaders": {
-      "desc": "Write expanded shader source to qw/shaders/<name>.<type>"
+      "desc": "Write expanded shader source to qw/shaders/<name>.<type>",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.9",
+      "last_seen_version": "head"
     },
-    "-r-no-amd-fix": {},
-    "-r-nocallback": {},
-    "-r-nomultibind": {},
-    "-r-novao": {},
-    "-r-trace": {},
-    "-r-verify": {},
+    "-r-no-amd-fix": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-r-nocallback": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-r-nomultibind": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-r-novao": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-r-trace": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-r-verify": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-ruleset": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-showliberrors": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
     },
     "-startwindowed": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-userdir": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-width": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     },
     "-window": {
       "flags": [
         "incomplete"
-      ]
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
     }
   }
 }
