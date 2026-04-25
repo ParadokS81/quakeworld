@@ -1,8 +1,9 @@
 // apps/qw-oracle/scripts/load-knowledge/types.ts
 //
 // Mirrors the extractor JSON format produced by
-// packages/qw-config/scripts/extract-ezquake-cvars-clang.py
-// (output: packages/qw-config/src/data/ezquake-variables-ast.json).
+// apps/qw-oracle/scripts/extractors/ezquake/extract.py (and the legacy single-purpose
+// scripts in apps/qw-oracle/scripts/extractors/ezquake/_legacy/)
+// (output: apps/qw-oracle/scripts/extractors/ezquake/output/ezquake-variables-ast.json).
 
 export type Project = 'ezquake' | 'fte' | 'mvdsv' | 'ktx';
 export type EntityType =

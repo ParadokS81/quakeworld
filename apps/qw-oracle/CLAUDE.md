@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v9 (9 entity types + 4 asset relation tables + per-version transition log: source_retired_at_version + per-version backfill_match). ezQuake deep-time walk reached v3.0 (2026-04-25 late), 14 versions loaded clean from v3.0 through head; pre-3.0 era de-scoped on community-security framing (infiniti). Architectural refinement landed same session: cross-type help-JSON orphan prune deferred during walks via `--skip-prune` + `prune-cross-type-orphans` finalize CLI; flicker probe filters doc_only entities (help-JSON curation drift is real upstream history, not extractor signal). Next: qw-config dissolution Half 1 (relocate AST extractors from `packages/qw-config/scripts/` to `apps/qw-oracle/scripts/extractors/` before adding new extractor ports — operator priority gate 2026-04-25). After that: QWCL 2.33 extraction as the first cross-codebase port — foundational for slipgate-app's planned config converter ("pandoc for configs") that maps QWCL → ezQuake → FTE.
+**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v9 (9 entity types + 4 asset relation tables + per-version transition log: source_retired_at_version + per-version backfill_match). ezQuake deep-time walk reached v3.0 (2026-04-25 late), 14 versions loaded clean from v3.0 through head; pre-3.0 era de-scoped on community-security framing (infiniti). Architectural refinement landed same session: cross-type help-JSON orphan prune deferred during walks via `--skip-prune` + `prune-cross-type-orphans` finalize CLI; flicker probe filters doc_only entities (help-JSON curation drift is real upstream history, not extractor signal). qw-config dissolution Half 1 shipped 2026-04-25 — extractors moved from `packages/qw-config/scripts/` to `apps/qw-oracle/scripts/extractors/<project>/` (project-scoped subdirs), AST outputs co-located at `extractors/<project>/output/`. Bundle output stays at `packages/qw-config/src/data/<project>-asset-bundle.json` until Half 2 (slipgate snapshot migration). Next: QWCL 2.33 extraction — first cross-codebase port, foundational for slipgate-app's planned config converter ("pandoc for configs") mapping QWCL → ezQuake → FTE.
 
 ## What this is
 
@@ -23,9 +23,10 @@ Oracle maintains two SQLite stores side-by-side:
 | End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
 | Layer 1 deep-time extraction roadmap (cliffs ahead, validation loop) | `docs/layer1-extraction-roadmap.md` |
 | Quality grid (regression + anomaly probes) | `scripts/load-knowledge/quality-grid.ts` |
-| Layer 1 extractors (Python + libclang for ezQuake) | `packages/qw-config/scripts/extract-ezquake-*-clang.py` |
-| Layer 1 seed YAMLs (hand-authored taxonomy, path rules, cvar bindings) | `packages/qw-config/seeds/` |
-| Extractor JSON outputs (versioned in git) | `packages/qw-config/src/data/` |
+| Layer 1 extractors (Python + libclang) | `scripts/extractors/<project>/extract.py` (+ `extractors/extractor_lib/` shared) |
+| Layer 1 seed YAMLs (hand-authored taxonomy, path rules, cvar bindings) | `scripts/extractors/<project>/seeds/` |
+| Extractor JSON outputs (versioned in git) | `scripts/extractors/<project>/output/` |
+| Asset bundle (transitional — slipgate-consumer location) | `packages/qw-config/src/data/<project>-asset-bundle.json` |
 | Schema spec (design rationale) | `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (root tree) |
 | Layer 3 entry template (frontmatter + shape catalog) | `concept-notes/README.md` |
 | Layer 3 stewardship playbook (feeding paths, lifecycle, feedback loop) | `concept-notes/OPERATIONS.md` |
@@ -36,7 +37,7 @@ Oracle maintains two SQLite stores side-by-side:
 - **TypeScript + Node 20+ / Bun** for the Layer 1 loader (`scripts/load-knowledge/`).
 - **Plain .mjs scripts** for the Layer 2 corpus import (`scripts/import-*.mjs`, `scripts/stats.mjs`).
 - **better-sqlite3 11** for both stores; **ulid** for extractor-run IDs; **js-yaml** for seed ingestion.
-- **Python 3 + libclang 18** for the engine-source extractors (live in `packages/qw-config/`, not here).
+- **Python 3 + libclang 18** for the engine-source extractors (live at `scripts/extractors/<project>/`; shared lib at `scripts/extractors/extractor_lib/`).
 
 ## Project structure
 

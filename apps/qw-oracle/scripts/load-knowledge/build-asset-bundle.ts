@@ -7,15 +7,15 @@
 // write.
 //
 // Inputs (defaults assume monorepo layout):
-//   packages/qw-config/seeds/ezquake-asset-categories.yaml
-//   packages/qw-config/seeds/ezquake-asset-extensions.yaml
-//   packages/qw-config/seeds/ezquake-asset-path-rules.yaml         (seed authoring)
-//   packages/qw-config/seeds/ezquake-asset-cvar-bindings.yaml      (seed)
-//   packages/qw-config/src/data/ezquake-asset-path-rules-verified.json   (seed + source_verified)
-//   packages/qw-config/src/data/ezquake-asset-loader-sites-ast.json
-//   packages/qw-config/src/data/ezquake-asset-cvar-bindings-ast.json
+//   apps/qw-oracle/scripts/extractors/<project>/seeds/<project>-asset-categories.yaml
+//   apps/qw-oracle/scripts/extractors/<project>/seeds/<project>-asset-extensions.yaml
+//   apps/qw-oracle/scripts/extractors/<project>/seeds/<project>-asset-path-rules.yaml      (seed authoring)
+//   apps/qw-oracle/scripts/extractors/<project>/seeds/<project>-asset-cvar-bindings.yaml   (seed)
+//   apps/qw-oracle/scripts/extractors/<project>/output/<project>-asset-path-rules-verified.json
+//   apps/qw-oracle/scripts/extractors/<project>/output/<project>-asset-loader-sites-ast.json
+//   apps/qw-oracle/scripts/extractors/<project>/output/<project>-asset-cvar-bindings-ast.json
 //
-// Output: packages/qw-config/src/data/ezquake-asset-bundle.json
+// Output (slipgate-consumed location): packages/qw-config/src/data/<project>-asset-bundle.json
 
 import { writeFileSync, readFileSync } from 'fs';
 import { parseArgs } from 'util';
@@ -38,8 +38,10 @@ import type {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, '../../../..');
-const DEFAULT_SEEDS_DIR = resolve(REPO_ROOT, 'packages/qw-config/seeds');
-const DEFAULT_DATA_DIR = resolve(REPO_ROOT, 'packages/qw-config/src/data');
+const DEFAULT_EXTRACTORS_DIR = resolve(REPO_ROOT, 'apps/qw-oracle/scripts/extractors');
+// Bundle output stays in qw-config until slipgate-app migrates to oracle snapshots
+// (qw-config dissolution Half 2). Slipgate's bundle.ts imports from this path.
+const DEFAULT_BUNDLE_OUTPUT_DIR = resolve(REPO_ROOT, 'packages/qw-config/src/data');
 
 interface CategorySeed {
   name: string;
@@ -146,10 +148,12 @@ export interface BuildAssetBundleResult {
 export function buildAssetBundle(
   options: BuildAssetBundleOptions,
 ): BuildAssetBundleResult {
-  const seedsDir = options.seedsDir ?? DEFAULT_SEEDS_DIR;
-  const dataDir = options.dataDir ?? DEFAULT_DATA_DIR;
+  const projectDir = resolve(DEFAULT_EXTRACTORS_DIR, options.project);
+  const seedsDir = options.seedsDir ?? resolve(projectDir, 'seeds');
+  const dataDir = options.dataDir ?? resolve(projectDir, 'output');
   const outputPath =
-    options.outputPath ?? resolve(dataDir, `${options.project}-asset-bundle.json`);
+    options.outputPath ??
+    resolve(DEFAULT_BUNDLE_OUTPUT_DIR, `${options.project}-asset-bundle.json`);
 
   // --- Load inputs --------------------------------------------------------
 

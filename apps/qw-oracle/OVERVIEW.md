@@ -28,8 +28,8 @@ Both are gitignored — they regenerate from source (Layer 1) or from raw import
 **Schema version:** 9. Migrations v1→v9 are all in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape and per-migration spec pointers. Latest migration (2026-04-25): v9 widened `source_state_transitions.reason` CHECK to add `source_retired_at_version`; the loader's per-entity transition scan also detects the symmetric `backfill_match` case post-load (entity gains source citation at version N after older versions had only help-JSON entries — e.g. `cl_voip_*` family at v3.0.1 → 3.1).
 
 **Still open on Layer 1:**
-- **qw-config dissolution Half 1 (PRIORITY GATE on all extractor work)** - relocate AST extractors from `packages/qw-config/scripts/` (currently a transitional holding pen per the realignment-roadmap) to `apps/qw-oracle/scripts/extractors/` before any new extractor ports land. Operator decision 2026-04-25 (late): doing more extraction work in qw-config increases the surface area to migrate later. ~1 session of file moves + path updates. Half 2 (slipgate snapshot consumption) is a separate larger track. HANDOVER entry: `qw-config dissolution`.
-- **Phase 2d QWCL 2.33** - first cross-codebase port (replaces FTE-first ordering). **Gated on qw-config dissolution Half 1** so the new extractor lands in its permanent home. Foundational for slipgate-app's planned config converter ("pandoc for configs") that maps QWCL → ezQuake → FTE. Libclang parses 1996 `qwcl-original/QW/client/cl_main.c` cleanly with current ezquake clang args (3 trivial pre-C99 implicit-decl warnings only); 43 `Cvar_RegisterVariable` + 29 `Cmd_AddCommand` + 35 cvar_t VAR_DECL cursors visible. Cliff is adapter code, not parsing: different cvar_t shape (positional 2-4-field init, not named-field), different registration function (`Cvar_RegisterVariable` not `Cvar_Register`), no help-JSON manifests, no `cmdline_params_ids.h`. ~1 day of new project-handler work + loader no-help-JSON path. HANDOVER entry: `QWCL 2.33 extraction (after qw-config Half 1)`.
+- **qw-config dissolution Half 1 — SHIPPED 2026-04-25.** Extractors relocated from `packages/qw-config/scripts/` to `apps/qw-oracle/scripts/extractors/<project>/` with project-scoped subdirs and shared `extractor_lib/`. AST output JSONs co-located at `extractors/<project>/output/`. Reserved-subdirs derivation also moved. Bundle output stays at `packages/qw-config/src/data/<project>-asset-bundle.json` until Half 2 (slipgate snapshot migration). Verified end-to-end: `extract-tag --version head` clean, typecheck clean across qw-oracle + slipgate.
+- **Phase 2d QWCL 2.33** - first cross-codebase port using the new extractor home. Foundational for slipgate-app's planned config converter ("pandoc for configs") that maps QWCL → ezQuake → FTE. Libclang parses 1996 `qwcl-original/QW/client/cl_main.c` cleanly with current ezquake clang args (3 trivial pre-C99 implicit-decl warnings only); 43 `Cvar_RegisterVariable` + 29 `Cmd_AddCommand` + 35 cvar_t VAR_DECL cursors visible. Cliff is adapter code, not parsing: different cvar_t shape (positional 2-4-field init, not named-field), different registration function (`Cvar_RegisterVariable` not `Cvar_Register`), no help-JSON manifests, no `cmdline_params_ids.h`. New extractor lands at `extractors/qwcl/extract.py`. ~1 day of new project-handler work + loader no-help-JSON path. HANDOVER entry: `QWCL 2.33 extraction`.
 - **Phase 2d FTE** - second cross-codebase port (after QWCL). Different layout (`engine/client/`, `engine/server/`), macro-heavy regex (Phase 2 motivation). FuhQuake mirror at `https://github.com/QuakeEngines/FuhQuake-mirror` parked as historical reference (low priority, after FTE).
 - **Phase 2e MVDSV + KTX** - smaller ports. KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike).
 - **Phase 2f historical backfill** - **walk infrastructure shipped 2026-04-25**: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version backfill_match detection. Reusable across FTE/MVDSV/KTX walks. Pre-3.0 ezQuake era explicitly out of scope (see "Tags loaded" above). HANDOVER entry: `Phase 2d-2h: remaining QW knowledge rollout`.
@@ -86,30 +86,38 @@ One file per entity type at `scripts/load-knowledge/load-<type>.ts`. Each is ~40
 
 ### Where extractors live
 
-The extractor fleet is **oracle's responsibility** - it produces Layer 1 facts - even though the scripts currently live in `packages/qw-config/scripts/` rather than in this directory. The location is a historical accident: slipgate-app originally scraped ezQuake in qw-config, and the AST extractors grew in the same folder. When slipgate migrates to oracle-snapshot consumption, the extractor scripts relocate into oracle's build and `packages/qw-config/` dissolves.
+The extractor fleet is **oracle's responsibility** — it produces Layer 1 facts. As of qw-config dissolution Half 1 (2026-04-25) it lives at `apps/qw-oracle/scripts/extractors/` with project-scoped subdirs. Python + libclang 18 for ezQuake / FTE / MVDSV / QWCL / QWFWD; tree-sitter for KTX (different language).
 
-Python + libclang 18 for ezQuake; tree-sitter (TBD) for KTX.
-
-| Extractor | Output JSON |
-|---|---|
-| `extract-ezquake-cvars-clang.py` | `ezquake-variables-ast.json` |
-| `extract-ezquake-commands-clang.py` | `ezquake-commands-ast.json` |
-| `extract-ezquake-macros-clang.py` | `ezquake-macros-ast.json` |
-| `extract-ezquake-cmdline-clang.py` | `ezquake-cmdline-params-ast.json` |
-| `extract-ezquake-keynames-clang.py` | `ezquake-keynames-ast.json` |
-| `extract-ezquake-hud-elements-clang.py` | `ezquake-hud-elements-ast.json` |
-| `extract-ezquake-rulesets-clang.py` | `ezquake-rulesets-ast.json` |
-| `extract-ezquake-token-primitives-clang.py` | `ezquake-token-primitives-ast.json` |
-| `extract-ezquake-flag-bits-clang.py` | `ezquake-flag-bits-ast.json` |
-| `extract-ezquake-asset-loader-sites-clang.py` | feeds asset-bundle build |
-| `extract-ezquake-asset-cvar-bindings-clang.py` | feeds asset-bundle build |
-| `extract-ezquake-asset-path-rules-verify.py` | feeds asset-bundle build |
+```
+scripts/extractors/
+  EXTRACTOR-PLAYBOOK.md       cross-engine porting playbook
+  extractor_lib/              shared libclang Visitor + per-entity handlers
+  ezquake/
+    extract.py                unified driver (cvars, commands, macros, cmdline,
+                              keynames, hud-elements, asset-cvar-bindings,
+                              asset-loader-sites)
+    rulesets.py               text/regex extractor (not libclang despite history)
+    token-primitives.py       text/regex extractor
+    flag-bits.py              text/regex extractor
+    asset-path-rules-verify.py
+    seeds/                    hand-authored taxonomy YAMLs
+    output/                   AST JSON outputs (versioned)
+    diagnostics/              extraction logs + comparison report
+    tests/                    pytest fixtures for parameterized paths
+    _legacy/                  archived per-entity libclang scripts
+  fte/                        cvars-check.py + cvars.ts (tree-sitter legacy)
+  ktx/                        commands.ts (tree-sitter)
+  qwcl/                       assemble.ts (1996 baseline; extract.py pending)
+  mvdsv/                      placeholder (server engine, libclang)
+  qwfwd/                      placeholder (proxy, libclang)
+  shared/                     derive-reserved-subdirs.ts, verify-inventory-coverage.ts
+```
 
 All extractors accept `--repo-root` / `--output` and auto-detect `<repo>/src` vs repo-root layout (the Batch 1 fix for pre-2023 tags).
 
-Extractor JSON outputs are committed at `packages/qw-config/src/data/` so the loader has deterministic input without requiring a libclang install to re-build.
+Extractor JSON outputs at `scripts/extractors/<project>/output/` are committed so the loader has deterministic input without requiring a libclang install to re-build.
 
-Hand-authored seed YAMLs are at `packages/qw-config/seeds/` (asset taxonomy, cvar→category bindings). The `build-asset-bundle.ts` script reconciles seed against AST auto-pass and emits `ezquake-asset-bundle.json`.
+Hand-authored seed YAMLs are at `scripts/extractors/<project>/seeds/` (asset taxonomy, cvar→category bindings). The `scripts/load-knowledge/build-asset-bundle.ts` script reconciles seed against AST auto-pass and emits `<project>-asset-bundle.json` to `packages/qw-config/src/data/` (transitional location — slipgate consumes it from there until Half 2).
 
 ### Enrichment - `enrich-prs.ts` + GitHub
 
@@ -155,7 +163,7 @@ Future MCP consumers: quad chatbot mode (Discord), a new chatbot app, slipgate w
 
 ### Snapshot distribution (forward commitment)
 
-Consumer-tailored JSON snapshots pre-computed from Layer 1. Deterministic, shipped with the consumer, no runtime dependency on oracle. Not yet implemented as a first-class output of this project; slipgate-app's ConfigViewer is the canonical case and will be the first real consumer. The current state is legacy: slipgate reads `packages/qw-config/src/data/*.json` produced by the scraping predecessors. When oracle's extraction pipeline is feature-complete, a `build-snapshot` CLI will produce slipgate-shaped snapshots from the same Layer 1 data the loader writes.
+Consumer-tailored JSON snapshots pre-computed from Layer 1. Deterministic, shipped with the consumer, no runtime dependency on oracle. Not yet implemented as a first-class output of this project; slipgate-app's ConfigViewer is the canonical case and will be the first real consumer. The current state is legacy: slipgate reads `packages/qw-config/src/data/*.json` (runtime cvar/command/macro JSONs produced by the scraping predecessors, plus the asset bundle). When oracle's extraction pipeline is feature-complete, a `build-snapshot` CLI will produce slipgate-shaped snapshots from the same Layer 1 data the loader writes — that's qw-config dissolution Half 2.
 
 ## Parked with purpose
 
@@ -165,7 +173,7 @@ Consumer-tailored JSON snapshots pre-computed from Layer 1. Deterministic, shipp
 
 ## Integration points
 
-- **Consumes:** `packages/qw-config/src/data/*-ast.json` (extractor outputs - transitionally hosted, see "Where extractors live"), `packages/qw-config/seeds/*.yaml` (seed taxonomies - same transitional status), ezQuake source at `research/repos/ezquake-source` (git blame + tag resolution), GitHub API (release bodies + PR enrichment).
+- **Consumes:** `apps/qw-oracle/scripts/extractors/<project>/output/*-ast.json` (extractor outputs), `apps/qw-oracle/scripts/extractors/<project>/seeds/*.yaml` (seed taxonomies), ezQuake source at `research/repos/ezquake-source` (git blame + tag resolution), GitHub API (release bodies + PR enrichment).
 - **Produces:** `data/knowledge.db` (Layer 1), `data/qw.db` (Layer 2).
 - **Consumed by:** MCP server (local) -> Claude Code sessions (live). Planned MCP consumers: quad chatbot mode, a new chatbot app, slipgate web chat surface. Planned snapshot consumers: slipgate-app ConfigViewer (replaces the current qw-config-JSON path).
 

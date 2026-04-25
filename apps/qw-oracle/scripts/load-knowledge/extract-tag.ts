@@ -2,7 +2,7 @@
 //
 // Atomic "ensure this tag is fully loaded" operation. Runs:
 //   1. git checkout <tag> in the project's source repo
-//   2. the unified Python extractor (writes JSON files to packages/qw-config/src/data/)
+//   2. the unified Python extractor (writes JSON files to apps/qw-oracle/scripts/extractors/<project>/output/)
 //   3. loadVersion() for each of the 9 entity types
 //   4. loadAssets() for the asset bundle
 //   5. loadReleaseNotes() if a GitHub token is available
@@ -34,11 +34,20 @@ const PROJECT_REPO_PATH: Record<Project, string> = {
   ktx:     join(MONOREPO_ROOT, 'research', 'repos', 'ktx'),
 };
 
+const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'extractors');
+
 const PROJECT_EXTRACTOR: Record<Project, string | null> = {
-  ezquake: join(MONOREPO_ROOT, 'packages', 'qw-config', 'scripts', 'extract-ezquake-unified.py'),
+  ezquake: join(EXTRACTORS_ROOT, 'ezquake', 'extract.py'),
   fte: null,
   mvdsv: null,
   ktx: null,
+};
+
+const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
+  ezquake: join(EXTRACTORS_ROOT, 'ezquake', 'output'),
+  fte:     join(EXTRACTORS_ROOT, 'fte', 'output'),
+  mvdsv:   join(EXTRACTORS_ROOT, 'mvdsv', 'output'),
+  ktx:     join(EXTRACTORS_ROOT, 'ktx', 'output'),
 };
 
 // The `head` version is not a git tag — it's a moving snapshot of each
@@ -51,7 +60,9 @@ const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
   ktx: 'master',
 };
 
-const EXTRACTOR_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
+// Bundle output stays in qw-config until slipgate-app migrates to oracle snapshots
+// (qw-config dissolution Half 2). Slipgate's bundle.ts imports from this path.
+const BUNDLE_OUTPUT_DIR = join(MONOREPO_ROOT, 'packages', 'qw-config', 'src', 'data');
 
 // Per-entity-type JSON file mapping. Names must match the extractors' actual
 // output filenames (unified and legacy). The cvar handler writes
@@ -76,11 +87,11 @@ const ASSET_BUNDLE_FILE = 'ezquake-asset-bundle.json';
 
 // Legacy single-purpose extractors not yet folded into the unified driver.
 // Each takes --repo-root + --output; runs against the currently-checked-out
-// source tree and writes the canonical JSON into EXTRACTOR_OUTPUT_DIR.
+// source tree and writes the canonical JSON into the project's output dir.
 const LEGACY_EXTRACTORS_EZQUAKE: ReadonlyArray<{ script: string; output: string }> = [
-  { script: 'extract-ezquake-rulesets-clang.py',         output: 'ezquake-rulesets-ast.json' },
-  { script: 'extract-ezquake-token-primitives-clang.py', output: 'ezquake-token-primitives-ast.json' },
-  { script: 'extract-ezquake-flag-bits-clang.py',        output: 'ezquake-flag-bits-ast.json' },
+  { script: 'rulesets.py',         output: 'ezquake-rulesets-ast.json' },
+  { script: 'token-primitives.py', output: 'ezquake-token-primitives-ast.json' },
+  { script: 'flag-bits.py',        output: 'ezquake-flag-bits-ast.json' },
 ];
 
 const EXTRACTOR_VERSION_DEFAULT = 'clang-ezquake-unified@1.0.0';
@@ -147,12 +158,13 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
 
   // 2. Unified Python extractor (cvar / command / macro / cmdline_param /
   // keyname / hud_element / asset_cvar_bindings / asset_loader_sites).
+  const extractorOutputDir = PROJECT_EXTRACTOR_OUTPUT_DIR[options.project];
   const unifiedRun = spawnSync(
     'python3',
     [
       extractorPath,
       '--repo-root', repoPath,
-      '--output-dir', EXTRACTOR_OUTPUT_DIR,
+      '--output-dir', extractorOutputDir,
       '--handlers', 'all',
     ],
     { stdio: 'inherit' },
@@ -167,10 +179,10 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // don't error the run on a non-zero status here. If a script is truly
   // broken the subsequent loadVersion call will fail loudly.
   if (options.project === 'ezquake') {
-    const scriptsDir = join(MONOREPO_ROOT, 'packages', 'qw-config', 'scripts');
+    const projectScriptsDir = join(EXTRACTORS_ROOT, 'ezquake');
     for (const { script, output } of LEGACY_EXTRACTORS_EZQUAKE) {
-      const scriptPath = join(scriptsDir, script);
-      const outPath = join(EXTRACTOR_OUTPUT_DIR, output);
+      const scriptPath = join(projectScriptsDir, script);
+      const outPath = join(extractorOutputDir, output);
       const run = spawnSync(
         'python3',
         [scriptPath, '--repo-root', repoPath, '--output', outPath],
@@ -192,7 +204,11 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   const entitiesLoaded: Partial<Record<EntityType, number>> = {};
   for (const [type, jsonFile] of Object.entries(ENTITY_JSON_FILES) as [EntityType, string | null][]) {
     if (!jsonFile) continue;
-    const jsonPath = join(EXTRACTOR_OUTPUT_DIR, jsonFile);
+    // The asset_category type loads from the bundle (qw-config consumer-facing
+    // location). Every other type loads from the extractor's per-project output dir.
+    const jsonPath = type === 'asset_category'
+      ? join(BUNDLE_OUTPUT_DIR, jsonFile)
+      : join(extractorOutputDir, jsonFile);
     if (!existsSync(jsonPath)) {
       console.warn(`[extract-tag] missing ${jsonFile}; skipping type=${type}`);
       continue;
@@ -214,7 +230,7 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   }
 
   // 4. Asset bundle.
-  const bundlePath = join(EXTRACTOR_OUTPUT_DIR, ASSET_BUNDLE_FILE);
+  const bundlePath = join(BUNDLE_OUTPUT_DIR, ASSET_BUNDLE_FILE);
   if (!existsSync(bundlePath)) {
     throw new Error(
       `Asset bundle missing at ${bundlePath}. ` +
