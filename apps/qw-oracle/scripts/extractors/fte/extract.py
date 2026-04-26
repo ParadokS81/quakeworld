@@ -4,16 +4,27 @@
 Walks two source roots (engine + plugins/ezhud) under 4 variants
 (client/server/win/client_vk) per file, dispatching to per-type handlers.
 
+Architecture:
+  - Per-handler setup() runs once in the parent (before Pool fork).
+  - multiprocessing.Pool (fork mode) over the per-file work list.
+  - Inside each worker: 4 TU parses per file (one per variant), dispatched
+    through walk_tu_dispatch with the correct source_root label.
+  - Per-tag wall time on 12-core: ~30s (vs ~326s serial baseline).
+  - --workers 1 falls back to serial loop for debugging.
+
 Usage:
     python3 extract.py \\
         --repo-root research/repos/fteqw \\
         --output-dir apps/qw-oracle/scripts/extractors/fte/output \\
-        --handlers all
+        --handlers all \\
+        --workers 12
 """
 from __future__ import annotations
 
 import argparse
 import json
+import multiprocessing as mp
+import os
 import sys
 import time
 from pathlib import Path
@@ -98,6 +109,161 @@ def merge_ezhud_into_cvars(output_dir: Path) -> None:
     cvars_path.write_text(json.dumps(cvars, indent=2, sort_keys=True) + "\n")
 
 
+# ----- worker-process state --------------------------------------------------
+# Set in the PARENT before Pool.map() via the pre-fork globals pattern
+# (fork mode: copy-on-write, no pickling). Do not mutate after fork.
+
+_WORKER_HANDLERS: list = []
+_WORKER_CLANG_CLIENT: list[str] = []
+_WORKER_CLANG_SERVER: list[str] = []
+_WORKER_CLANG_WIN: list[str] = []
+_WORKER_CLANG_VK: list[str] = []
+
+
+def _worker_process_file(task: tuple) -> tuple[dict, list]:
+    """Process one (file_path_str, source_root_label) pair in a worker.
+
+    Parses the file under all 4 variants, runs every handler via the shared
+    walk, and returns per-file rows for all handlers.
+
+    Returns (local_rows, local_diag):
+      local_rows  -- dict[handler_name, list[row_dict]]
+      local_diag  -- list of diagnostic strings
+    """
+    file_path_str, source_root_label = task
+    path = Path(file_path_str)
+
+    local_rows: dict[str, list[dict]] = {h.name: [] for h in _WORKER_HANDLERS}
+    local_diag: list[str] = []
+
+    try:
+        source_bytes = path.read_bytes()
+    except OSError as e:
+        local_diag.append(f"{path.name}: read failed: {e}")
+        return local_rows, local_diag
+
+    idx = Index.create()
+    target_str = file_path_str
+
+    variant_args = [
+        ("client",    _WORKER_CLANG_CLIENT),
+        ("server",    _WORKER_CLANG_SERVER),
+        ("win",       _WORKER_CLANG_WIN),
+        ("client_vk", _WORKER_CLANG_VK),
+    ]
+
+    for h in _WORKER_HANDLERS:
+        h.start_file(source_path=path, source_bytes=source_bytes)
+
+    for variant_name, clang_args in variant_args:
+        tu = idx.parse(target_str, args=clang_args, options=PARSE_OPTS)
+        try:
+            walk_tu_dispatch(
+                tu,
+                _WORKER_HANDLERS,
+                variant_name,
+                target_str,
+                source_root=source_root_label,
+            )
+        except Exception as e:
+            local_diag.append(f"{path.name} [{variant_name}|walk]: {type(e).__name__}: {e}")
+
+    for h in _WORKER_HANDLERS:
+        try:
+            rows = h.end_file()
+            local_rows[h.name].extend(rows)
+        except Exception as e:
+            local_diag.append(f"{path.name} [{h.name}.end_file]: {type(e).__name__}: {e}")
+
+    return local_rows, local_diag
+
+
+def _run_serial(
+    tasks: list[tuple],
+    handlers: list,
+    progress_every: int,
+) -> tuple[dict, list]:
+    """Serial fallback. Used when --workers 1."""
+    rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
+    diagnostics: list[str] = []
+    t0 = time.perf_counter()
+
+    for i, (file_path_str, source_root_label) in enumerate(tasks, 1):
+        path = Path(file_path_str)
+        try:
+            source_bytes = path.read_bytes()
+        except OSError as e:
+            diagnostics.append(f"{path.name}: read failed: {e}")
+            continue
+
+        idx = Index.create()
+        target_str = file_path_str
+
+        for h in handlers:
+            h.start_file(source_path=path, source_bytes=source_bytes)
+
+        # Use the same pre-resolved arg lists as parallel workers.
+        serial_variant_args = [
+            ("client",    _WORKER_CLANG_CLIENT),
+            ("server",    _WORKER_CLANG_SERVER),
+            ("win",       _WORKER_CLANG_WIN),
+            ("client_vk", _WORKER_CLANG_VK),
+        ]
+        for variant_name, clang_args in serial_variant_args:
+            tu = idx.parse(target_str, args=clang_args, options=PARSE_OPTS)
+            try:
+                walk_tu_dispatch(
+                    tu,
+                    handlers,
+                    variant_name,
+                    target_str,
+                    source_root=source_root_label,
+                )
+            except Exception as e:
+                diagnostics.append(f"{path.name} [{variant_name}|walk]: {type(e).__name__}: {e}")
+
+        for h in handlers:
+            try:
+                rows_by_handler[h.name].extend(h.end_file())
+            except Exception as e:
+                diagnostics.append(f"{path.name} [{h.name}.end_file]: {type(e).__name__}: {e}")
+
+        if progress_every and i % progress_every == 0:
+            elapsed = time.perf_counter() - t0
+            rate = i / elapsed if elapsed > 0 else 0
+            print(f"  [progress] {i} files in {elapsed:.1f}s ({rate:.1f} files/s)")
+
+    return rows_by_handler, diagnostics
+
+
+def _run_parallel(
+    tasks: list[tuple],
+    handlers: list,
+    workers: int,
+) -> tuple[dict, list]:
+    """Parallel path: forked Pool, one task per file, ordered result merge."""
+    global _WORKER_HANDLERS, _WORKER_CLANG_CLIENT, _WORKER_CLANG_SERVER
+    global _WORKER_CLANG_WIN, _WORKER_CLANG_VK
+    _WORKER_HANDLERS = handlers
+    # clang args already set by caller (main)
+
+    print(f"  parallel: {workers} workers, {len(tasks)} files")
+
+    ctx = mp.get_context("fork")
+    with ctx.Pool(processes=workers) as pool:
+        results = pool.map(_worker_process_file, tasks, chunksize=1)
+
+    # Deterministic merge: iterate results in input order.
+    rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
+    diagnostics: list[str] = []
+    for local_rows, local_diag in results:
+        for name, rows in local_rows.items():
+            rows_by_handler[name].extend(rows)
+        diagnostics.extend(local_diag)
+
+    return rows_by_handler, diagnostics
+
+
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -109,10 +275,12 @@ def parse_args() -> argparse.Namespace:
                     help="Output JSON directory (default: extractors/fte/output)")
     ap.add_argument("--handlers", default="all",
                     help="Comma-separated handler names or 'all'")
+    ap.add_argument("--workers", type=int, default=0,
+                    help="Parallel worker processes. 0 = auto (min(cpu_count, 12)). 1 = serial.")
     ap.add_argument("--limit-files", type=int, default=0,
                     help="Stop after N files per source root (0 = no limit). Useful for smoke tests.")
     ap.add_argument("--progress-every", type=int, default=20,
-                    help="Print a progress line every N files (0 to disable).")
+                    help="Serial mode: print a progress line every N files (0 to disable).")
     return ap.parse_args()
 
 
@@ -125,6 +293,9 @@ def walk_source_files(root_dir: Path) -> list[Path]:
 
 
 def main() -> int:
+    global _WORKER_HANDLERS, _WORKER_CLANG_CLIENT, _WORKER_CLANG_SERVER
+    global _WORKER_CLANG_WIN, _WORKER_CLANG_VK
+
     args = parse_args()
     fte_repo = Path(args.repo_root).resolve() if args.repo_root else FTE_REPO_DEFAULT
     output_dir = Path(args.output_dir).resolve() if args.output_dir else OUTPUT_DIR_DEFAULT
@@ -153,65 +324,58 @@ def main() -> int:
         return 0
 
     # One-time setup per handler (e.g. parse header files, build lookup tables).
-    # hasattr guard: handlers that don't need setup omit the method entirely.
+    # Runs in the PARENT before fork so derived state is inherited copy-on-write.
     for h in handlers:
         if hasattr(h, "setup"):
             h.setup(fte_repo=fte_repo, engine_dir=fte_repo / "engine")
 
-    idx = Index.create()
-    rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
-    diagnostics: list[str] = []
-    total_files = 0
-    t0 = time.perf_counter()
+    # Pre-resolve clang args once in the parent. Workers inherit via fork.
+    fte_repo_str = str(fte_repo)
+    _WORKER_HANDLERS = handlers
+    _WORKER_CLANG_CLIENT = clang_args_fte_for(fte_repo_str)
+    _WORKER_CLANG_SERVER = clang_args_fte_server_for(fte_repo_str)
+    _WORKER_CLANG_WIN    = clang_args_fte_win_for(fte_repo_str)
+    _WORKER_CLANG_VK     = clang_args_fte_vk_for(fte_repo_str)
 
+    # Build the flat list of (file_path_str, source_root_label) tasks,
+    # preserving the same source-root order as the original serial loop.
+    tasks: list[tuple] = []
+    source_root_file_counts: list[tuple[str, int]] = []
     for source_root_label, source_root_rel in SOURCE_ROOTS:
         source_root_path = fte_repo / source_root_rel
         if not source_root_path.is_dir():
             print(f"  [skip] source root '{source_root_rel}' not found under {fte_repo}", file=sys.stderr)
             continue
-
         files = walk_source_files(source_root_path)
         if args.limit_files > 0:
             files = files[: args.limit_files]
+        source_root_file_counts.append((source_root_label, len(files)))
+        for f in files:
+            tasks.append((str(f), source_root_label))
 
-        print(f"=== source_root={source_root_label} ({len(files)} files) ===")
+    workers = args.workers
+    if workers == 0:
+        workers = min(os.cpu_count() or 4, 12)
 
-        for file_path in files:
-            target_str = str(file_path.resolve())
-            try:
-                source_bytes = file_path.read_bytes()
-            except OSError as e:
-                diagnostics.append(f"{file_path.name}: read failed: {e}")
-                continue
+    mode_label = "serial" if workers == 1 else f"parallel x {workers}"
+    print(f"FTE AST extraction ({mode_label})")
+    print(f"  repo:     {fte_repo}")
+    for label, count in source_root_file_counts:
+        print(f"  source_root={label}: {count} files")
+    print(f"  handlers: {[h.name for h in handlers]}")
+    print(f"  output:   {output_dir}")
+    print(f"  total:    {len(tasks)} file-tasks")
+    print()
 
-            for h in handlers:
-                h.start_file(source_path=file_path, source_bytes=source_bytes)
-
-            for variant_name, args_func in VARIANT_FUNCS:
-                clang_args = args_func(str(fte_repo))
-                tu = idx.parse(target_str, args=clang_args, options=PARSE_OPTS)
-                try:
-                    walk_tu_dispatch(
-                        tu,
-                        handlers,
-                        variant_name,
-                        target_str,
-                        source_root=source_root_label,
-                    )
-                except Exception as e:
-                    diagnostics.append(f"{file_path.name} [{variant_name}|walk]: {type(e).__name__}: {e}")
-
-            for h in handlers:
-                try:
-                    rows_by_handler[h.name].extend(h.end_file())
-                except Exception as e:
-                    diagnostics.append(f"{file_path.name} [{h.name}.end_file]: {type(e).__name__}: {e}")
-
-            total_files += 1
-            if args.progress_every and total_files % args.progress_every == 0:
-                elapsed = time.perf_counter() - t0
-                rate = total_files / elapsed if elapsed > 0 else 0
-                print(f"  [progress] {total_files} files in {elapsed:.1f}s ({rate:.1f} files/s)")
+    t0 = time.perf_counter()
+    if workers == 1:
+        rows_by_handler, diagnostics = _run_serial(
+            tasks, handlers, args.progress_every,
+        )
+    else:
+        rows_by_handler, diagnostics = _run_parallel(
+            tasks, handlers, workers,
+        )
 
     parse_time = time.perf_counter() - t0
     print(f"\nParse + visit phase: {parse_time:.1f}s")
@@ -238,7 +402,7 @@ def main() -> int:
         print(f"\n[merge] fte-variables-ast.json after ezhud merge: {stats}")
 
     total_time = time.perf_counter() - t0
-    print(f"\nDone. {total_files} files, {total_time:.1f}s")
+    print(f"\nDone. {len(tasks)} file-tasks, {total_time:.1f}s")
     return 0
 
 

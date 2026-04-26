@@ -118,6 +118,33 @@
             "enclosing_function": null,
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4118,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          }
+        ],
+        "usage_count": 2,
+        "undeclared": true
+      }
+    },
+    "--version": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4185,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
           }
         ],
         "usage_count": 1,
@@ -472,6 +499,14 @@
             "build_variant": "client"
           },
           {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4289,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          },
+          {
             "source_file": "engine/server/sv_sys_unix.c",
             "source_line": 1100,
             "source_column": 6,
@@ -488,7 +523,7 @@
             "build_variant": "server"
           }
         ],
-        "usage_count": 4,
+        "usage_count": 5,
         "undeclared": true
       }
     },
@@ -734,9 +769,17 @@
             "enclosing_function": null,
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4286,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
           }
         ],
-        "usage_count": 2,
+        "usage_count": 3,
         "undeclared": true
       }
     },
@@ -986,6 +1029,25 @@
             "enclosing_function": null,
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          }
+        ],
+        "usage_count": 1,
+        "undeclared": true
+      }
+    },
+    "-makeinstaller": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4207,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
           }
         ],
         "usage_count": 1,
@@ -1736,6 +1798,25 @@
         "undeclared": true
       }
     },
+    "-outputdebugstring": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4190,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          }
+        ],
+        "usage_count": 1,
+        "undeclared": true
+      }
+    },
     "-particles": {
       "ast": {
         "manifest_enum": null,
@@ -1797,6 +1878,14 @@
             "build_variant": "client"
           },
           {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4141,
+            "source_column": 8,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          },
+          {
             "source_file": "engine/server/sv_sys_win.c",
             "source_line": 1495,
             "source_column": 7,
@@ -1805,7 +1894,7 @@
             "build_variant": "server"
           }
         ],
-        "usage_count": 2,
+        "usage_count": 3,
         "undeclared": true
       }
     },
@@ -1900,6 +1989,14 @@
             "build_variant": "client"
           },
           {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4136,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          },
+          {
             "source_file": "engine/server/sv_sys_win.c",
             "source_line": 1490,
             "source_column": 6,
@@ -1908,7 +2005,7 @@
             "build_variant": "server"
           }
         ],
-        "usage_count": 2,
+        "usage_count": 3,
         "undeclared": true
       }
     },
@@ -2001,6 +2098,25 @@
             "enclosing_function": null,
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          }
+        ],
+        "usage_count": 1,
+        "undeclared": true
+      }
+    },
+    "-register_types": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4153,
+            "source_column": 7,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
           }
         ],
         "usage_count": 1,
@@ -2300,6 +2416,25 @@
         "undeclared": true
       }
     },
+    "-v": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "engine/client/sys_win.c",
+            "source_line": 4185,
+            "source_column": 37,
+            "enclosing_function": null,
+            "call_form": "COM_CheckParm",
+            "build_variant": "win"
+          }
+        ],
+        "usage_count": 1,
+        "undeclared": true
+      }
+    },
     "-wavonly": {
       "ast": {
         "manifest_enum": null,
@@ -2359,10 +2494,10 @@
     }
   },
   "_stats": {
-    "count": 103,
-    "total_usage_sites": 153,
+    "count": 108,
+    "total_usage_sites": 163,
     "by_source_root": {
-      "engine": 103
+      "engine": 108
     }
   }
 }
