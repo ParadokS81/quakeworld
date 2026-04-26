@@ -410,6 +410,32 @@
         "usage_count": 3
       }
     },
+    "-heapsize": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "sys_win.c",
+            "source_line": 647,
+            "source_column": 6,
+            "enclosing_function": "WinMain",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "sys_win.c",
+            "source_line": 649,
+            "source_column": 7,
+            "enclosing_function": "WinMain",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 2
+      }
+    },
     "-height": {
       "ast": {
         "manifest_enum": null,
@@ -870,6 +896,24 @@
         "usage_count": 3
       }
     },
+    "-noautostretch": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 727,
+            "source_column": 46,
+            "enclosing_function": "VID_InitMGLDIB",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
     "-nocdaudio": {
       "ast": {
         "manifest_enum": null,
@@ -915,6 +959,60 @@
             "source_line": 380,
             "source_column": 15,
             "enclosing_function": "main",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nodd": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 442,
+            "source_column": 69,
+            "enclosing_function": "VID_InitMGLFull",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-noddraw": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 442,
+            "source_column": 40,
+            "enclosing_function": "VID_InitMGLFull",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nodirectdraw": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 442,
+            "source_column": 6,
+            "enclosing_function": "VID_InitMGLFull",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
           }
@@ -984,6 +1082,14 @@
         "usage_sites": [
           {
             "source_file": "vid_win.c",
+            "source_line": 472,
+            "source_column": 10,
+            "enclosing_function": "VID_InitMGLFull",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          },
+          {
+            "source_file": "vid_win.c",
             "source_line": 3170,
             "source_column": 49,
             "enclosing_function": "VID_MenuDraw",
@@ -991,7 +1097,7 @@
             "build_variant": "client"
           }
         ],
-        "usage_count": 1
+        "usage_count": 2
       }
     },
     "-nofulldib": {
@@ -1090,6 +1196,24 @@
         "usage_count": 2
       }
     },
+    "-nomtex": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "gl_vidnt.c",
+            "source_line": 580,
+            "source_column": 57,
+            "enclosing_function": "CheckMultiTextureExtensions",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
     "-nosound": {
       "ast": {
         "manifest_enum": null,
@@ -1137,6 +1261,60 @@
             "source_line": 607,
             "source_column": 7,
             "enclosing_function": "createDisplayDC",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-novesa": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 436,
+            "source_column": 3,
+            "enclosing_function": "VID_InitMGLFull",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nowd": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 435,
+            "source_column": 3,
+            "enclosing_function": "VID_InitMGLFull",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1
+      }
+    },
+    "-nowindirect": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "vid_win.c",
+            "source_line": 434,
+            "source_column": 6,
+            "enclosing_function": "VID_InitMGLFull",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
           }
@@ -1604,7 +1782,7 @@
     "manifest_with_usage": 0,
     "manifest_unused_in_source": 0,
     "help_only": 0,
-    "source_only_undeclared": 63,
+    "source_only_undeclared": 72,
     "with_help_desc": 0
   }
 }

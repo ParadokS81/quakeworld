@@ -6,9 +6,19 @@ upstream, update them in ONE place here.
 """
 from __future__ import annotations
 
+import pathlib
+
 from clang.cindex import Config, TranslationUnit
 
 Config.set_library_file("libclang-18.so.1")
+
+# Minimal Windows SDK stub headers for Linux-hosted libclang parsing of
+# Windows-specific source files (sys_win.c, vid_win.c, gl_vidnt.c, etc.).
+# Append -I{_STUBS_WINDOWS} to any Win-flavored clang_args_*_win_for variant.
+_STUBS_WINDOWS = str(
+    pathlib.Path(__file__).parent.parent.parent.parent.parent.parent
+    / "research" / "stubs" / "windows-sdk"
+)
 
 
 def clang_args_for(ezq_src_dir: str) -> list[str]:
@@ -71,8 +81,14 @@ def clang_args_win_for(ezq_src_dir: str) -> list[str]:
 
     `-U__linux__` undoes the Linux libclang host's automatic
     predefine so guards like `#if !defined(_WIN32) && !defined(__linux__)`
-    don't silently exclude Win-only branches."""
-    return clang_args_for(ezq_src_dir) + ["-DWIN32", "-D_WIN32", "-U__linux__"]
+    don't silently exclude Win-only branches.
+
+    `-I{_STUBS_WINDOWS}` supplies minimal Windows SDK stubs so libclang
+    can type-check function bodies that reference Windows types."""
+    return clang_args_for(ezq_src_dir) + [
+        "-DWIN32", "-D_WIN32", "-U__linux__",
+        f"-I{_STUBS_WINDOWS}",
+    ]
 
 
 def clang_args_apple_for(ezq_src_dir: str) -> list[str]:
@@ -115,13 +131,40 @@ def clang_args_qwcl_for(qwcl_src_dir: str) -> list[str]:
     the GL flavour because it's the modern reference and all 17 gl_*.c
     TUs already parse unconditionally. The single `#ifndef GLQUAKE` block
     in the tree (view.c:1017) contains no cvar/command/COM_CheckParm
-    sites, so the trade is +18 branches active for 0 entity losses."""
+    sites, so the trade is +18 branches active for 0 entity losses.
+
+    Windows-specific fixes required to reach entities in Windows TUs:
+    - `-I{_STUBS_WINDOWS}` provides Windows SDK stubs so libclang can
+      type-check function bodies (vid_win.c, sys_win.c, gl_vidnt.c).
+    - `-D_WIN32 -DWIN32` opens the `#ifdef _WIN32` guard in gl_vidnt.c's
+      CheckMultiTextureExtensions which contains `-nomtex`.
+    - `-Dbool=int` avoids C99 `bool` type error at vid_win.c line 117
+      (`bool useWinDirect = true`) which would corrupt subsequent parsing.
+    - `-Duchar=__uint8_t -Dm_int=long` resolve SciTech MGL SDK types used
+      in VID_InitMGLFull (vid_win.c:430), preventing COMPOUND_STMT collapse.
+    - `-DWINAPI= -DCALLBACK= -DAPIENTRY=` on the command line take precedence
+      over the same defines in the stub header, ensuring calling-convention
+      macros expand to empty before any prototype is seen by the parser.
+    Note: `-starttime` (sys_win.c:356) is inside a `#if 0` dead-code block
+    (lines 278-370) and is permanently irrecoverable. `-novbeaf`
+    (vid_win.c:408) is inside registerAllDispDrivers whose first MGL call
+    disrupts AST structure enough that the inner COMPOUND_STMT has 0
+    children; also irrecoverable via libclang."""
     return [
         "-x", "c",
         f"-I{qwcl_src_dir}",
+        f"-I{_STUBS_WINDOWS}",
         "-w",
         "-D_WINDOWS",
         "-DGLQUAKE",
+        "-D_WIN32",
+        "-DWIN32",
+        "-Dbool=int",
+        "-Duchar=__uint8_t",
+        "-Dm_int=long",
+        "-DWINAPI=",
+        "-DCALLBACK=",
+        "-DAPIENTRY=",
     ]
 
 
@@ -171,10 +214,15 @@ def clang_args_fte_server_for(fte_repo: str) -> list[str]:
 
 def clang_args_fte_win_for(fte_repo: str) -> list[str]:
     """FTE Windows-client variant: client defines + Windows platform defines.
-    Suppresses __linux__ to reach Win-only code paths (mirrors ezQuake pattern)."""
+    Suppresses __linux__ to reach Win-only code paths (mirrors ezQuake pattern).
+    `-I{_STUBS_WINDOWS}` supplies Windows SDK stubs for sys_win.c and friends."""
     return clang_args_fte_for(fte_repo) + [
         "-D_WIN32", "-DWIN32",
         "-U__linux__", "-U__unix__",
+        f"-I{_STUBS_WINDOWS}",
+        "-DWINAPI=",
+        "-DCALLBACK=",
+        "-DAPIENTRY=",
     ]
 
 
