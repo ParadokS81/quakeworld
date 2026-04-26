@@ -48,6 +48,7 @@ pub fn run() {
             commands::version_warehouse::list_warehoused_versions,
             commands::version_warehouse::read_warehouse_index,
             commands::version_warehouse::import_existing_install,
+            commands::warehouse_reconcile::reconcile_active_version,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())
