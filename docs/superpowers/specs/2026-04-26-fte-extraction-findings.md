@@ -209,7 +209,7 @@ Pass 1 required a live FTE instance to dump `cvarlist`. The operator ran this; s
    - Dynamic (`Cvar_Get` / `Cvar_FindOrGet`): grep source for the registration call -- document the absence as expected
    - Genuine extractor gap: drive to zero; each survivor becomes a tracked finding in HANDOVER
 
-**Expected outcome.** The -41% engine shortfall vs. spec estimate is consistent with dynamic registration being FTE's dominant pattern. Pass 1 should confirm that most runtime-only cvars are `Cvar_Get`/`Cvar_FindOrGet` callsites, not extractor bugs. Any genuine gaps surface here.
+**Actual outcome.** The -37% engine shortfall vs. spec estimate was confirmed as expected: dynamic registration (`Cvar_Get`/`Cvar_FindOrGet`, ~27 cvars) + runtime-synthesized names (~56 cvars) + non-ezhud plugins (~26 cvars) + Win-SDK-blocked function bodies (~5 cvars) account for all 114 residual. Zero genuine extractor gaps.
 
 ---
 
