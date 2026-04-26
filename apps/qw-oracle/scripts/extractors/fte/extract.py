@@ -60,9 +60,11 @@ def collect_handlers(names: str = "all") -> dict:
     """
     from _handler_cvars import CvarsFteHandler
     from _handler_commands import CommandsFteHandler
+    from _handler_macros import MacrosFteHandler
     available: dict = {
         "cvars": CvarsFteHandler(),
         "commands": CommandsFteHandler(),
+        "macros": MacrosFteHandler(),
     }
     if names == "all":
         return available
