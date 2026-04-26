@@ -29,10 +29,10 @@ function splitTag(value: string): TagParts {
   const numeric: number[] = [];
   let tail = "";
   for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
+    const p = parts[i]!;
     const m = /^(\d+)(.*)$/.exec(p);
     if (m) {
-      numeric.push(Number(m[1]));
+      numeric.push(Number(m[1]!));
       if (m[2]) {
         tail = m[2] + parts.slice(i + 1).map((x) => "." + x).join("");
         break;

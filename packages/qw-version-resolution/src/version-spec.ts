@@ -17,8 +17,8 @@ const BUILD_RE = /^build-(\d+)$/;
 
 export function parseVersionSpec(s: string): VersionSpec {
   const head = HEAD_RE.exec(s);
-  if (head) return { kind: "head", date: head[1], display: s };
+  if (head) return { kind: "head", date: head[1]!, display: s };
   const build = BUILD_RE.exec(s);
-  if (build) return { kind: "build", number: Number(build[1]), display: s };
+  if (build) return { kind: "build", number: Number(build[1]!), display: s };
   return { kind: "tag", value: s, display: s };
 }
