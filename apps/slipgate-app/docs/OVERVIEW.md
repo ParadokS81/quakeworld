@@ -258,6 +258,14 @@ Added 2026-04-18. Walks `<exe_dir>/qw/locs/` and `<exe_dir>/ezquake/locs/`, pars
 - Jumps to 5s, pauses, screenshots, quits
 - See full design in `project_slipgate_screenshot_automation` memory — not yet wired into the UI
 
+### Quake Dir Control subsystem
+Multi-version client management. Three Rust modules under `commands/` plus a `quake-dir/` frontend namespace; full architecture in `docs/QUAKE-DIR-CONTROL.md`.
+
+- `data_root.rs` — `get_data_root()` resolves portable mode (adjacent `data/portable.flag` marker) vs installed mode (`%APPDATA%/com.slipgate.app/`). Single source of truth for where slipgate stores state.
+- `version_warehouse.rs` — content-addressed binary store under `<data-root>/binaries/`. Blobs at `blobs/<sha256>.exe`, per-version manifests at `<client>/<version>/manifest.json`, top-level `index.json` tracks active version per client. `register_version` (used by updater downloads), `list_warehoused_versions`, `read_warehouse_index`, `import_existing_install` (user-imported pre-existing installs).
+- `warehouse_reconcile.rs` — `reconcile_active_version` hashes `<quake-dir>/<canonical_exe>` on launch, looks up the sha256 in the warehouse, and either marks the matching version active, returns a `foreign` result so the UI can offer to import, or clears `active` if the exe is missing.
+- The updater registers freshly downloaded exes into the warehouse before its existing backup+rename swap (Phase 3 will retire the legacy swap and route everything through a single swap module).
+
 ---
 
 ## App shell & data flow
@@ -331,7 +339,11 @@ Setup {
 | `launch_ezquake` | ClientsTab | Spawn game with args |
 | `capture_screenshot` | ClientsTab (POC) | Demo → screenshot automation |
 | `await_oauth_callback` | auth.ts | Discord OAuth callback |
-| `get_data_root` | quake-dir/dataRoot.ts | Resolve portable vs installed data root (Phase 1 of Quake Dir Control) |
+| `get_data_root` | quake-dir/dataRoot.ts | Resolve portable vs installed data root |
+| `list_warehoused_versions` | quake-dir/warehouse.ts | Enumerate registered version manifests |
+| `read_warehouse_index` | quake-dir/warehouse.ts | Read the top-level `index.json` (active version per client + last_scan) |
+| `import_existing_install` | quake-dir/warehouse.ts | Hash + register a user's existing exe into the warehouse |
+| `reconcile_active_version` | quake-dir/firstRunImport.ts | Hash `<quake-dir>/<exe>` on launch, set/update `index.active` |
 
 ### Events Rust → frontend
 - `config-changed` → `{ exe_path, config_name }` — listened by App.tsx, triggers re-parse
