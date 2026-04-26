@@ -17,7 +17,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
 - [Slipgate SCHEMA.md for snapshot consumer interface](#slipgate-schemamd-for-snapshot-consumer-interface) — **NEW 2026-04-26.** Slipgate's snapshot consumer types (`RawVar`, `RawCommand`, `RawMacro`, etc.) live inline in `apps/slipgate-app/src/lib/config/loaders/ezquake.ts`. The shape is small and single-file today, but the upcoming UI arc surfacing version-arc badges / source_state pills / default_history timelines will benefit from a single typed contract doc paired with oracle's `apps/qw-oracle/docs/entity-types.md` (the producer-side equivalent). Defer until that UI arc starts; revisit if the inline types start to fragment.
-- [Quake Dir Control Phase 1 cleanup → Phase 2 readiness](#quake-dir-control-phase-1-cleanup--phase-2-readiness) — **NEW 2026-04-26.** Three small post-Phase-1 items to bundle into the Phase 2 (warehouse) session: (a) write the `apps/slipgate-app/docs/QUAKE-DIR-CONTROL.md` stub from plan Task 1.5, (b) reconcile the stale "16 commands" claim in `docs/API_CONTRACTS.md` with the actual lib.rs count (now 17 with `get_data_root`; pre-existing drift had it at 26), (c) batch-update `docs/OVERVIEW.md` with the `quake-dir/` namespace + portable-mode entries once Phase 2's warehouse modules ship so the OVERVIEW gets one coherent block instead of five drips.
+- [Quake Dir Control Phase 3 — refined scope](#quake-dir-control-phase-3--refined-scope) — **NEW 2026-04-26 night.** Phase 3 (swap + UI + delete + foreign backup) ready to execute, with refinements from the late-evening fingerprinter conversation: design version list to anticipate MyQuake unification, include stubbed "Add Quake client" button, apply three-tier identity surfacing principles, address the "mid-session path changes don't re-import" gap with explicit version-list actions.
+- [Add Quake Client / MyQuake unification (post-Phase-3 scope sketch)](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night.** Future phase capturing the design conversation that emerged after Phase 2 verification. Single-button "Add Quake client" routes into MyQuake's existing browser (which already classifies files); ClientFingerprint module reads PE strings (InternalName / ProductName / version-string substring) to identify ezQuake / unezQuake-family / FTE; three-tier identity model (family / matched-to-official / unrecognized) per `reference_three_tier_identity_model.md`; release-cache module reuses the updater's existing GitHub Releases fetch as the Tier-2 source of truth. unezQuake repo cloned to `research/repos/unezquake/` for future authority lookups.
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 
 ---
@@ -314,29 +315,133 @@ Low. Mode 1 trigger Q1 (durable data model) fires technically, but the schema is
 
 ---
 
-## Quake Dir Control Phase 1 cleanup → Phase 2 readiness
+## Quake Dir Control Phase 3 — refined scope
 
-**Added:** 2026-04-26 (post-Phase-1 wrap-up).
-**Status:** Three small items to bundle into the next Quake Dir Control session, ideally as the first ~15 minutes of Phase 2 work so OVERVIEW + API_CONTRACTS + the new architecture doc all settle together.
-**Verification first:** `git log --oneline 5dec5f6..HEAD` should show the three Phase 1 commits (`34f4c36`, `4a6ba8a`, `1f8f762`). `grep -c "tauri::command\|commands::.*::" apps/slipgate-app/src-tauri/src/lib.rs` and the `tauri::generate_handler![]` block confirm the live command count before reconciling the doc claim. The plan file `docs/superpowers/plans/2026-04-26-quake-dir-control.md` Task 1.5 has the QUAKE-DIR-CONTROL.md stub content verbatim.
+**Added:** 2026-04-26 night (post-Phase-2 wrap, after extended fingerprinter design conversation).
+**Status:** Phase 3 ready to execute in a fresh terminal. Plan-as-written at `docs/superpowers/plans/2026-04-26-quake-dir-control.md` Phase 3 (lines 1614+) is the authoritative starting point; this entry layers the design refinements that emerged after Phase 2 verified end-to-end on Windows.
+**Verification first:** `git log --oneline 73c2624..HEAD` should show the 8 Phase 2 commits (`c4238f9`, `f2bee06`, `07ac770`, `53953ca`, `9396a25`, `7f133aa`, `8aefc60`, `ae875ca`). `cargo test --quiet 2>&1 | grep "test result"` from `apps/slipgate-app/src-tauri/` should show `102 passed`. `bun test src/lib/quake-dir/` from `apps/slipgate-app/` should show `8 pass`. Operator's Windows install at `%APPDATA%\com.slipgate.app\binaries\` should contain `index.json` + `blobs/<sha>.exe` + `ezquake/<version>/manifest.json` (proof of Phase 2 working end-to-end).
 
-### (a) Write QUAKE-DIR-CONTROL.md stub
+### Plan-as-written deliverables (unchanged)
 
-Plan Task 1.5 was deferred from the Phase 1 session. The stub captures the Windows-only smoke-test protocol for the portable artifact (extract zip → launch → devtools-call → confirm portable mode). One small fix vs the plan snippet: the protocol references `slipgate.exe` but the actual binary is `slipgate-app.exe` (Cargo `name = "slipgate-app"` — same delta caught and fixed in `build-portable.sh` already).
+- New `commands/version_swap.rs` module owning ALL canonical-exe mutation
+- Refactor `download_and_install_update` (per D7) to extract straight into `<data-root>/binaries/.staging/` and call `swap_active_version` instead of doing its own backup/rename. Delete legacy `backup_exe` and stages 5-7 of `download_and_install_update`.
+- New `VersionWarehouse` SolidJS component listing every warehoused version with switch + delete buttons
+- D6 foreign-exe backup heuristic: hash currently-installed exe before swap; if sha256 is in the warehouse, no backup needed (we already have the bytes); if foreign, rename to `<stem>.bak.exe`
 
-The doc has a second purpose: per the plan, after Phase 5 ships, it absorbs the design-decisions section (D1-D9) from the plan file as the durable architecture reference. Phase 1's stub is just the seed; that absorption happens in Phase 5's wrap-up.
+### Design refinements from late-evening fingerprinter conversation
 
-### (b) Reconcile API_CONTRACTS.md command count
+These layer on top of the plan-as-written; they don't replace any of it.
 
-`docs/API_CONTRACTS.md:99` says "16 commands + 2 events. The full command table lives in `OVERVIEW.md` under 'Tauri integration' to avoid duplication." Real count in `src-tauri/src/lib.rs` is now 27 (`greet` + 26 `commands::*` entries, including the new `get_data_root`). The "16" was already wrong before Phase 1; this session made it 17-vs-claimed-16. Two clean fixes possible:
-- Drop the count entirely — let OVERVIEW.md be the sole source of truth so the count can drift in one place only, not two.
-- Update the count and add a short maintenance note in API_CONTRACTS.md explaining why both numbers exist.
+- **Group version list by client even if only ezquake is populated today.** The UI structure should anticipate the post-Phase-3 unification with MyQuake (see "Add Quake Client / MyQuake unification" entry below). When that next phase lands, the list will fill in unezQuake / FTE sections without needing a structural rewrite. Empty client sections can be hidden until populated.
+- **Include "Add Quake client" button at the top of the version list, stubbed for now.** Either no-op with a tooltip ("coming soon") or a minimal "type a path" fallback that delegates to existing `import_existing_install`. Real flow comes in the next phase. The button placement decision matters now because the version list is what users will look at when asking "how do I add another client?" — having no answer is worse than a stub.
+- **Apply three-tier identity surfacing principles per `reference_three_tier_identity_model.md`.** When displaying entries in the version list:
+  - Tier 1 (family, always known): version row shows client family identifier (ezquake / unezquake / fte)
+  - Tier 2 (matched-to-official, when applicable): positive UI signal ("verified") for versions that match GitHub Releases data
+  - Tier 3 (unrecognized): for warehoused versions whose version string isn't in the official release list, surface "unrecognized build" with an inline upgrade nudge to the latest official version
+  - Phase 3 doesn't need to BUILD the Tier 2/3 cross-check (that's the next phase's release-cache work); just design the UI rows so the Tier 2/3 visual states are easy to add later
+- **Address the "mid-session path changes don't re-import" gap.** Phase 2 verified that the warehouse bootstrap fires once at app launch; switching exe path in the UI mid-session updates which exe slipgate uses but doesn't trigger a new reconcile/import. To populate more versions today, the user must fully quit and relaunch. **Phase 3's version list panel needs explicit "import this version" + "switch to this version" actions** so the user can manage their warehouse without quit-and-relaunch cycles. Wire `import_existing_install` and the new `swap_active_version` into UI buttons; also call `reconcile_active_version` on user-initiated path changes via the existing path picker.
 
-The first is simpler and matches the existing "to avoid duplication" framing. Pick during Phase 2.
+### Specific code anchors verified during Phase 2 execution
 
-### (c) Batch OVERVIEW.md updates
+- `apps/slipgate-app/src-tauri/src/commands/updater.rs:507-538` (existing `backup_exe` — Phase 3 deletes this)
+- `apps/slipgate-app/src-tauri/src/commands/updater.rs:661-831` (existing `download_and_install_update` — stages 5-7 are what Phase 3 replaces with `swap_active_version` call)
+- `apps/slipgate-app/src-tauri/src/commands/updater.rs:157` (`parse_pe_version` made `pub` during Phase 2 normalization fix `ae875ca`; reuse for any new code that needs PE-version normalization)
+- `apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs` (Phase 2 module; `register_version_at` / `list_warehoused_versions_at` / `read_index_at` / `write_index_at` / `blob_path_for` are the helpers Phase 3's swap module composes with)
+- `apps/slipgate-app/src-tauri/src/commands/warehouse_reconcile.rs` (Phase 2 module; reconcile is what Phase 3's path-change handler should call)
+- `apps/slipgate-app/src/lib/quake-dir/warehouse.ts` (Phase 2 frontend wrappers Phase 3 UI consumes)
+- `apps/slipgate-app/src/lib/quake-dir/firstRunImport.ts` (Phase 2 bootstrap; design parallel `userInitiatedReconcile` for path-change events)
 
-Already drained for `get_data_root` row in this wrap-up. Phase 2 will add `register_version`, `list_warehoused_versions`, `import_existing_install`, `reconcile_warehouse`, etc. — those should land as a coherent block (probably a new "Quake Dir Control subsystem" section under Tauri integration), not as five separate row appends. Hold the rows until Phase 2 commits, then add the block once.
+### Pressure
+
+Medium. Phase 2 is verified working end-to-end on Windows. Phase 3 unblocks the user-facing "switch between warehoused versions" feature, which is the first phase of Quake Dir Control that produces visible UX value. Plan estimate ~4 hours; should be a single-session execution.
+
+### Related
+
+- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` Phase 3 (~lines 1614-2120)
+- Memory: `project_quake_dir_control.md` (full multi-phase status)
+- Memory: `reference_three_tier_identity_model.md` (Tier 1/2/3 principles)
+- Memory: `reference_slipgate_devtools_invoke.md` (why filesystem inspection beats devtools for verification)
+
+---
+
+## Add Quake Client / MyQuake unification (post-Phase-3 scope sketch)
+
+**Added:** 2026-04-26 night (extended design conversation after Phase 2 verification).
+**Status:** Future phase scope, not yet planned in detail. Captures the architectural conclusions from a long late-evening conversation about how slipgate should let users add multiple Quake client binaries to the warehouse beyond the launch-time auto-import. Not blocking Phase 3; should be the natural next phase after Phase 3 ships the version-list UI surface.
+**Verification first:** This is forward-looking; no current state to verify. Read in conjunction with `project_quake_dir_control.md` (the multi-phase plan's current state) and `reference_three_tier_identity_model.md` (the identity-surfacing principles this phase implements).
+
+### The core idea
+
+Single button **"Add Quake client"** that routes into MyQuake's existing browser surface (already classifies files in the user's quake dir by type — see `apps/slipgate-app/src/components/MyQuakeTab.tsx` and the screenshot in operator's `Downloads/2026-04-26_20-35.png` if still present). MyQuake's left sidebar already shows "CLIENTS DETECTED" — this phase upgrades that from passive display to actionable.
+
+Two affordances inside the panel (folder vs specific exe), single follow-up screen showing a checklist of detected clients (ezQuake / unezQuake-family / FTE / Unknown), user ticks what to import, picks one as primary via radio, hits "Import selected." Slipgate hashes + warehouses + writes manifests for each ticked entry. User curates exactly once at the moment they care; after that, slipgate has clean canonical knowledge.
+
+### Why "single point of entry" is right (operator's framing)
+
+Operator: "i would attempt to make it a single point of entry to simplify it for the user. Add Quake client, and then we have some good ui that guides the user to show us to the quake folder to scan, or a direct exe. but the main concept should resolve some of the burden. Cause during that step, the user would import them so we dont auto add everything."
+
+Discovery-and-curation in one step replaces the alternative of either (a) auto-importing everything found (bloats warehouse with old beta exes the user forgot about) or (b) refusing to act (forces user to type paths). User-in-the-loop exactly once, at the moment they care.
+
+### Three deliverables
+
+1. **`ClientFingerprint` Rust module.** Reads PE resource strings (CompanyName, ProductName, FileDescription, OriginalFilename, FileVersion, ProductVersion, InternalName) — extends the existing `read_exe_version` infrastructure in `commands/ezquake.rs` (which currently reads only the numeric VS_FIXEDFILEINFO block) to also read the StringFileInfo block via a second `VerQueryValueW` call. Three classification rules from authoritative source evidence:
+   - `InternalName == "ftequake"` → FTE
+   - `ProductName == "ezQuake"` AND `version_string` substring-contains `"antilag"` (case-insensitive) → unezQuake-family
+   - `ProductName == "ezQuake"` AND no antilag substring → ezQuake
+   - Otherwise → Unknown / NotAClient (filtered out before user sees the import list)
+
+   Critical implementation detail: enumerate the translation table per file, don't assume `040904B0` (ezQuake langid) — FTE uses `080904B0`. The diagnostic dance: query `\VarFileInfo\Translation` to get the lang+codepage pairs, then iterate them building `\StringFileInfo\<lang+cp>\<KeyName>` paths. See `feedback_substring_not_regex_fingerprinting.md` for why version-string matching uses substrings rather than regex.
+
+2. **MyQuake browser integration.** The existing browser already does directory walking and per-file classification (file-type counts, etc.). Add a "Clients" first-class category with import actions on .exe rows. The CLIENTS DETECTED sidebar gains actionable rows: each detected client shows status (warehoused / not warehoused / active), and right-click or hover exposes "Import" / "Set as primary" / "Remove from warehouse." The "Add Quake client" button (stubbed in Phase 3) becomes "open MyQuake, filter to Clients, tick what you want, hit Import to warehouse."
+
+3. **Release-cache Rust module.** Owns the per-client release-list fetch + cache + Tier-2 lookup. Reuses slipgate's existing GitHub Releases fetch from `commands/updater.rs` (which already fetches release lists when checking for updates) — caches responses at `<data-root>/release-cache/<client>.json`, refreshes-on-launch (cheap, <500ms total for 4 clients via parallel fetch). Consumed by both the fingerprinter (for Tier-2 cross-check) AND the existing updater (replacing its current ad-hoc fetching). Net architectural improvement: one source of truth for "what releases exist for client X", consumed by multiple features.
+
+### Per-client distribution-model policy
+
+The three-tier identity model (`reference_three_tier_identity_model.md`) doesn't apply uniformly. Different clients have fundamentally different distribution shapes:
+
+| Client | Distribution model | Tier 2 viable? | Notes |
+|---|---|---|---|
+| ezQuake stable | GitHub Releases (~30) | Yes | ~1.5KB cached |
+| ezQuake snapshot | builds.quakeworld.nu (rolling) | Yes (live) | Updater already scrapes |
+| KTX | GitHub Releases (~30) | Yes | ~1.5KB cached |
+| MVDSV | GitHub Releases (~30) | Yes | ~1.5KB cached |
+| QWFWD | GitHub Releases (~30) | Yes | ~1KB cached |
+| unezQuake | GitHub Releases (~30+) at dusty-qw/unezquake | Yes | ~1.5KB cached |
+| FTE | Continuous nightly builds at fte.triptohell.info, no formal releases | **No** | Skip Tier 2 entirely |
+
+For FTE specifically, the question "is this an official release?" doesn't map. Asking whether `FTE QW build 6428` is "official" is roughly like asking whether `git rev-parse HEAD` is "official" — yes, it's whatever the build system produced that day, no separate canonical-vs-unofficial axis exists. Classify as `FTE QW (build NNN)` without judgment; the upgrade-nudge UX becomes "build NNN is from <date>; latest available is build MMM" rather than "this is unrecognized."
+
+### Variant tiebreaker rule (GLSL etc.)
+
+ezQuake historically shipped both `ezquake.exe` and `ezquake-glsl.exe` — same version, same release, same PE strings, different binaries (different sha256). If a user has both warehoused, they'd collide at the manifest path (`binaries/ezquake/3.6.6/manifest.json`) but not the blob (sha256 different). Two reasonable resolutions:
+
+1. **Variant in version key** — detect from filename (`-glsl` suffix → version becomes `3.6.6-glsl`). Different folder, no collision. Clean.
+2. **Refuse second import if same client+version exists** — prompt user: "You already have ezQuake 3.6.6 warehoused. This binary has different bytes — replace, keep both as variants, or skip?"
+
+Lean toward (1) for known filename-suffix variants (glsl, debug, etc.); (2) only as the safety net for genuinely surprising sha collisions. Pick during execution.
+
+### Research artifacts
+
+- `research/repos/unezquake/` — dusty-qw/unezquake cloned 2026-04-26 night; full history, all branches. Useful for future authority lookups (e.g., "did unezQuake ever ship version X").
+- `research/repos/fteqw/` — already present; FTE source for fingerprinter design.
+- `research/repos/ezquake-source/` — already present; ezQuake source for fingerprinter design and `winquake.rc` authority.
+
+### unezQuake-fork lineage finding (for context)
+
+During Phase 2 verification, operator's `ezquake-glsl.exe` (filename misleading) was identified as unezQuake-family via PE substring + behavioral cvar probing. Specific build (`3.6-dev-alpha10-antilag-r402`) doesn't appear in either ezQuake mainline OR dusty-qw/unezquake history (which started at clean v1.0 in Sep 2020). Lineage genuinely unresolved — possibly a pre-public dusty dev build, possibly a different antilag fork that predated dusty's project. **Not blocking** — fingerprinter design works regardless of which specific fork built it; the substring-based rule classifies correctly. Captured here as evidence for why the fingerprinter must be substring-based not regex-based: orphan binaries from forks we don't have local source for are the exact case that breaks brittle pattern matching. See `feedback_substring_not_regex_fingerprinting.md`.
+
+### Pressure
+
+Low for now — depends on Phase 3 shipping first to give the version list a home where the "Add Quake client" button lives and to prove the warehouse + swap pipeline works for multi-version scenarios. Once Phase 3 lands, this becomes the natural next priority because it's the first phase that delivers the user's broader product vision: "I want people to get updated clients instead of sitting on old stale stuff out of laziness." Three-tier identity surfacing + inline upgrade nudges are the UX that achieves this without lecturing the user.
+
+### Related
+
+- Memory: `reference_three_tier_identity_model.md` (Tier 1/2/3 principles)
+- Memory: `reference_behavioral_probing_escalation.md` (cvar-existence checks as PE-string ambiguity escalation)
+- Memory: `feedback_substring_not_regex_fingerprinting.md` (why substring beats regex for cross-version-history matching)
+- Memory: `project_quake_dir_control.md` (multi-phase plan status; Phases 0+1+2 shipped)
+- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (the original 6-phase plan; this entry sketches a phase that wasn't in the original scope)
 
 ---
 
