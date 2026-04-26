@@ -56,6 +56,9 @@ export function buildCvarVersionRow(
     group_name_in_source: ast?.group_name_in_source ?? null,
     trailing_comment: ast?.trailing_comment ?? null,
     server_only: entry['server-only'] ? 1 : 0,
+    // FTE entries carry source_root as a top-level field; ezQuake/QWCL entries
+    // have no source_root field (NULL = "engine" per SCHEMA.md semantics).
+    source_root: entry.source_root ?? null,
 
     raw_ast_hash,
     extracted_at: now,

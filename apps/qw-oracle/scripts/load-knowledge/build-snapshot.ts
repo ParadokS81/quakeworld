@@ -158,7 +158,7 @@ function loadEnrichment(
 function fetchCvarRows(db: Database.Database, project: Project, version: string) {
   return db.prepare(`
     SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_values, cv.help_group_id,
-           cv.help_type, cv.default_value, cv.flag_names, cv.server_only
+           cv.help_type, cv.default_value, cv.flag_names, cv.server_only, cv.source_root
     FROM cvar_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ? AND cv.version = ?
@@ -173,12 +173,13 @@ function fetchCvarRows(db: Database.Database, project: Project, version: string)
     default_value: string | null;
     flag_names: string | null;
     server_only: number;
+    source_root: string | null;
   }>;
 }
 
 function fetchCommandRows(db: Database.Database, project: Project, version: string) {
   return db.prepare(`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_group_id
+    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_group_id, cv.source_root
     FROM command_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ? AND cv.version = ?
@@ -188,12 +189,13 @@ function fetchCommandRows(db: Database.Database, project: Project, version: stri
     help_desc: string | null;
     help_remarks: string | null;
     help_group_id: string | null;
+    source_root: string | null;
   }>;
 }
 
 function fetchMacroRows(db: Database.Database, project: Project, version: string) {
   return db.prepare(`
-    SELECT e.name, mv.help_desc, mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json
+    SELECT e.name, mv.help_desc, mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json, mv.source_root
     FROM macro_versions mv
     JOIN entities e ON e.id = mv.entity_id
     WHERE e.project = ? AND mv.version = ?
@@ -204,6 +206,7 @@ function fetchMacroRows(db: Database.Database, project: Project, version: string
     macro_type: string | null;
     teamplay_restricted: number;
     related_cvars_json: string | null;
+    source_root: string | null;
   }>;
 }
 
@@ -273,6 +276,7 @@ function emitEzqVariables(
     if (r.help_values) {
       try { entry.values = JSON.parse(r.help_values); } catch { /* keep absent */ }
     }
+    if (r.source_root != null) entry.source_root = r.source_root;
     const enr = enrichment.get(r.name);
     if (enr) Object.assign(entry, enr);
     vars[r.name] = entry;
@@ -308,6 +312,7 @@ function emitEzqCommands(
     if (r.help_group_id) entry['group-id'] = r.help_group_id;
     if (r.help_desc) entry.desc = r.help_desc;
     if (r.help_remarks) entry.remarks = r.help_remarks;
+    if (r.source_root != null) entry.source_root = r.source_root;
     const enr = enrichment.get(r.name);
     if (enr) Object.assign(entry, enr);
     commands[r.name] = entry;
@@ -336,6 +341,7 @@ function emitEzqMacros(
     if (r.related_cvars_json) {
       try { entry['related-cvars'] = JSON.parse(r.related_cvars_json); } catch { /* keep absent */ }
     }
+    if (r.source_root != null) entry.source_root = r.source_root;
     const enr = enrichment.get(r.name);
     if (enr) Object.assign(entry, enr);
     macros[r.name] = entry;

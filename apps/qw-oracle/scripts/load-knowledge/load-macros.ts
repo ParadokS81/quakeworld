@@ -36,6 +36,9 @@ export function buildMacroVersionRow(
     source_line: ast?.source_line ?? null,
     source_column: ast?.source_column ?? null,
     registration_file: ast?.enclosing_function ?? null,
+    // FTE entries carry source_root as a top-level field; ezQuake/QWCL entries
+    // have no source_root field (NULL = "engine" per SCHEMA.md semantics).
+    source_root: entry.source_root ?? null,
     raw_ast_hash,
     extracted_at: now,
   };

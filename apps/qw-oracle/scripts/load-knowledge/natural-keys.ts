@@ -165,13 +165,13 @@ export function upsertCvarVersion(db: Database.Database, row: CvarVersionRow): v
       help_desc, help_remarks, help_values, help_group_id, help_type,
       default_value, flags_raw, flag_names, on_change, min_bound, max_bound,
       source_file, source_line, source_column, storage_class, group_name_in_source,
-      trailing_comment, server_only, raw_ast_hash, extracted_at
+      trailing_comment, server_only, source_root, raw_ast_hash, extracted_at
     ) VALUES (
       @entity_id, @version,
       @help_desc, @help_remarks, @help_values, @help_group_id, @help_type,
       @default_value, @flags_raw, @flag_names, @on_change, @min_bound, @max_bound,
       @source_file, @source_line, @source_column, @storage_class, @group_name_in_source,
-      @trailing_comment, @server_only, @raw_ast_hash, @extracted_at
+      @trailing_comment, @server_only, @source_root, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }
@@ -182,12 +182,12 @@ export function upsertCommandVersion(db: Database.Database, row: CommandVersionR
       entity_id, version,
       help_desc, help_remarks, help_group_id,
       handler_fn, source_file, source_line, source_column,
-      registration_file, raw_ast_hash, extracted_at
+      registration_file, source_root, raw_ast_hash, extracted_at
     ) VALUES (
       @entity_id, @version,
       @help_desc, @help_remarks, @help_group_id,
       @handler_fn, @source_file, @source_line, @source_column,
-      @registration_file, @raw_ast_hash, @extracted_at
+      @registration_file, @source_root, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }
@@ -198,12 +198,12 @@ export function upsertMacroVersion(db: Database.Database, row: MacroVersionRow):
       entity_id, version,
       help_desc, macro_type, teamplay_restricted, related_cvars_json,
       handler_fn, source_file, source_line, source_column,
-      registration_file, raw_ast_hash, extracted_at
+      registration_file, source_root, raw_ast_hash, extracted_at
     ) VALUES (
       @entity_id, @version,
       @help_desc, @macro_type, @teamplay_restricted, @related_cvars_json,
       @handler_fn, @source_file, @source_line, @source_column,
-      @registration_file, @raw_ast_hash, @extracted_at
+      @registration_file, @source_root, @raw_ast_hash, @extracted_at
     )
   `).run(row);
 }

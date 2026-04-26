@@ -56,6 +56,8 @@ export interface VariableEntry {
   desc?: string;
   remarks?: string;
   values?: unknown;
+  // Present on FTE entries (top-level field); absent on ezQuake/QWCL entries.
+  source_root?: string;
 }
 
 export interface GroupDef {
@@ -87,6 +89,8 @@ export interface CommandEntry {
   desc?: string;
   remarks?: string;
   system_generated?: boolean;
+  // Present on FTE entries (top-level field); absent on ezQuake/QWCL entries.
+  source_root?: string;
 }
 
 export interface CommandExtractorOutput {
@@ -115,6 +119,8 @@ export interface MacroEntry {
   type?: string;
   'teamplay-restricted'?: boolean;
   'related-cvars'?: string[];
+  // Present on FTE entries (top-level field); absent on ezQuake/QWCL entries.
+  source_root?: string;
 }
 
 export interface MacroExtractorOutput {
@@ -259,6 +265,7 @@ export interface CommandVersionRow {
   source_line: number | null;
   source_column: number | null;
   registration_file: string | null;
+  source_root: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }
@@ -275,6 +282,7 @@ export interface MacroVersionRow {
   source_line: number | null;
   source_column: number | null;
   registration_file: string | null;
+  source_root: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }
@@ -553,6 +561,7 @@ export interface CvarVersionRow {
   group_name_in_source: string | null;
   trailing_comment: string | null;
   server_only: number;
+  source_root: string | null;
 
   raw_ast_hash: string | null;
   extracted_at: string;
