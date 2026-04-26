@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS cvar_alias_versions (
   -- Both nullable; SQL-filterable directly without json_extract.
   verified_target_version TEXT,
   verified_mimics_version TEXT,
-  -- Cross-namespace freshness as of the version pair recorded in verified_against_version_pair_json
+  -- Cross-namespace freshness as of (this row's version, verified_target_version, verified_mimics_version)
   freshness_state                 TEXT NOT NULL DEFAULT 'alive'
                                     CHECK (freshness_state IN (
                                       'alive','target_gone','mimics_lhs_gone','both_gone','unknown'
@@ -271,11 +271,13 @@ The handler at `apps/qw-oracle/scripts/extractors/fte/_handler_ezscript.py` foll
    - `value_transform` = `'identity'` (handler default; manual review can promote)
    - `default_drift_status`, `freshness_state` = filled from the today-shipped sweep at first import; set to `unknown` for any LHS the sweep didn't cover
    - `semantic_confidence` = `'medium'` (default for source-extracted aliases)
-   - `verified_against_version_pair_json` = `{"target": "build-6698", "mimics": "3.6.9"}` (filled at the time the drift sweep ran; subsequent extractions update if a newer sweep ran)
+   - `verified_target_version` = `'build-6698'`, `verified_mimics_version` = `'3.6.9'` (filled from the drift seed; subsequent extractions update both if a newer sweep ran)
    - `source_file` = `'plugins/ezscript/ezscript.c'`, `source_line` = the strcmp branch line
    - `source_root` = `'fte:plugin:ezscript'`
 
-The drift / freshness data lives in `/tmp/ezscript-audit/drift-369.tsv` today. It will move into a permanent fixture (probably `apps/qw-oracle/scripts/extractors/fte/seeds/ezscript-drift-369-vs-build-6698.tsv`) the handler reads alongside the AST walk. That seed gets refreshed when either side cuts a new sanity-check version pair.
+The drift / freshness data lives in `/tmp/ezscript-audit/drift-369.tsv` today. It moves into a permanent committed fixture at `apps/qw-oracle/scripts/extractors/fte/seeds/ezscript-drift-369-vs-build-6698.tsv` as part of sub-thread #3, alongside the handler. The handler reads that seed during the AST walk to populate `default_drift_status`, `freshness_state`, `verified_target_version`, and `verified_mimics_version`. Refresh policy: regenerate and replace when either side cuts a new sanity-check version pair (named after the new pair, old seed retained or rotated per usual git history).
+
+Loader validation: `load-cvar-aliases.ts` calls `parseVersionSpec(...)` from `@qw/version-resolution` against `verified_target_version` and `verified_mimics_version` at upsert time. Any non-parseable string aborts the load. Cheap; prevents producer drift between alias seed format and other oracle version strings.
 
 Expected output: 38 alias entities at FTE build-6698 after `extract-tag --project fte --version build-6698` + `load-version --type cvar_alias`.
 
@@ -323,7 +325,7 @@ None of this is implementation for this spec; called out so the operator sees th
 
 - **Should serverinfo / userinfo become first-class entity types?** Today they're just target_kind labels. ezQuake registers serverinfo keys in source (`Cvar_RegisterVariable` is one path; serverinfo strings are sometimes literals). If a future Layer 1 pass extracts those, the alias rows can backfill `target_canonical_id`. Defer until there's a concrete reason to extract them.
 - **`cl_truelightning` migration timing.** Schema ships now; the actual `command` -> `cvar_alias` migration of that row depends on the slipgate search-gap UX work. Not blocking.
-- **Drift seed location and refresh cadence.** The `ezscript-drift-369-vs-build-6698.tsv` seed file location is proposed but not committed. Handler can read it from `/tmp` for the first import and we move it on the second pass. Operator's call.
+- ~~**Drift seed location.**~~ Closed in this revision. Path committed to `apps/qw-oracle/scripts/extractors/fte/seeds/ezscript-drift-369-vs-build-6698.tsv`, moved during sub-thread #3.
 - **value_transform_params_json shape per transform.** Schema doesn't enforce. We'll learn the shapes empirically as more transforms get classified. First-pass importer uses identity / needs_review; everything else is manual.
 - **Deletion/retire semantics for cvar_alias entities.** If a future ezscript version drops a strcmp branch, the entity transitions to `source_retired` via the standard mechanism. No special handling needed.
 
