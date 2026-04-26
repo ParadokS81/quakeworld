@@ -59,8 +59,10 @@ def collect_handlers(names: str = "all") -> dict:
     Returns dict[name, handler_instance] for the requested names (or all).
     """
     from _handler_cvars import CvarsFteHandler
+    from _handler_commands import CommandsFteHandler
     available: dict = {
         "cvars": CvarsFteHandler(),
+        "commands": CommandsFteHandler(),
     }
     if names == "all":
         return available
