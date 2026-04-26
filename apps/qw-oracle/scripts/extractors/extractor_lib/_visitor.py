@@ -84,7 +84,14 @@ _FUNCTION_DECL = CursorKind.FUNCTION_DECL
 _COMPOUND_STMT = CursorKind.COMPOUND_STMT
 
 
-def walk_tu_dispatch(tu, visitors: list, variant: str, target_path_str: str) -> None:
+def walk_tu_dispatch(
+    tu,
+    visitors: list,
+    variant: str,
+    target_path_str: str,
+    *,
+    source_root: str | None = None,
+) -> None:
     """Recursive walker that dispatches every cursor in the target file to
     every visitor, with enter/exit pairs for FUNCTION_DECL-with-body and
     COMPOUND_STMT. Skips recursion into subtrees whose root is outside the
@@ -93,7 +100,14 @@ def walk_tu_dispatch(tu, visitors: list, variant: str, target_path_str: str) -> 
     Traversal order matches legacy handlers exactly: pre-order visit, then
     recurse into children in cursor order. enter_* fires before visit_cursor
     on the same node; exit_* fires after all children are visited.
+
+    source_root: optional label (e.g. "engine", "plugin:ezhud") set on each
+    visitor as `current_source_root` before the walk. Handlers that track
+    provenance read this field. Existing callers that omit it get None, which
+    is safe for single-root extractors (ezQuake, QWCL).
     """
+    for v in visitors:
+        v.current_source_root = source_root
     def recurse(node):
         # Target-file filter. loc.file is None for preprocessor/built-in
         # cursors (harmless to descend into -- their children either also
