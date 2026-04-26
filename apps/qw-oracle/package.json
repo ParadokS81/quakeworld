@@ -11,6 +11,7 @@
     "load-knowledge": "tsx scripts/load-knowledge/index.ts"
   },
   "dependencies": {
+    "@qw/version-resolution": "workspace:*",
     "better-sqlite3": "^11.0.0",
     "js-yaml": "^4.1.1",
     "ulid": "^2.4.0"
