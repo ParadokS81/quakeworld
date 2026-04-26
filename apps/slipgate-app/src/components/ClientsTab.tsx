@@ -8,6 +8,9 @@ import type { ProfileData } from "../store";
 import { getPrimarySetup } from "../store";
 import Changelog from "./Changelog";
 import VersionWarehouse from "./VersionWarehouse";
+import { userInitiatedReconcile } from "../lib/quake-dir/swap";
+
+const WAREHOUSE_CLIENT = "ezquake";
 
 function quakeDirFromExePath(p: string | null | undefined): string | null {
   if (!p) return null;
@@ -41,6 +44,10 @@ export default function ClientsTab(props: ClientsTabProps) {
   const [selectedConfig, setSelectedConfig] = createSignal("config.cfg");
   const [error, setError] = createSignal("");
   const [connectAddress, setConnectAddress] = createSignal("");
+
+  // Bump to force VersionWarehouse to re-fetch when external events
+  // (path change reconcile, post-swap reload) mutate warehouse state.
+  const [warehouseRefreshKey, setWarehouseRefreshKey] = createSignal(0);
 
   // Update state — ezQuake
   const [updateCheck, setUpdateCheck] = createSignal<UpdateCheckResult | null>(null);
@@ -172,6 +179,14 @@ export default function ClientsTab(props: ClientsTabProps) {
       });
       if (selected) {
         await validateAndLoad(selected as string);
+        // User-initiated path change: reconcile warehouse active pointer
+        // against the (possibly-different) bytes now at the canonical path.
+        try {
+          await userInitiatedReconcile(invoke, WAREHOUSE_CLIENT, selected as string);
+          setWarehouseRefreshKey((k) => k + 1);
+        } catch (e) {
+          console.error("Reconcile after path change failed:", e);
+        }
       }
     } catch (e) {
       console.error("File dialog error:", e);
@@ -585,12 +600,14 @@ export default function ClientsTab(props: ClientsTabProps) {
               <span>Versions</span>
             </div>
             <VersionWarehouse
-              client="ezquake"
+              client={WAREHOUSE_CLIENT}
               quakeDir={quakeDirFromExePath(exePath())}
               targetExeName="ezquake.exe"
+              refreshKey={warehouseRefreshKey()}
               onSwapComplete={() => {
                 const p = exePath();
                 if (p) validateAndLoad(p);
+                setWarehouseRefreshKey((k) => k + 1);
               }}
             />
           </div>

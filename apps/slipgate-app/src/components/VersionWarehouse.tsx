@@ -15,6 +15,12 @@ interface Props {
   client: string;
   quakeDir: string | null;
   targetExeName: string;
+  /**
+   * Bumped by parent to force a re-fetch of warehouse state when an
+   * external event mutates it (e.g. user-initiated path change running
+   * reconcile_active_version).
+   */
+  refreshKey?: number;
   onSwapComplete?: (newVersion: string) => void;
 }
 
@@ -69,11 +75,13 @@ function buildDescriptor(
 }
 
 export default function VersionWarehouse(props: Props) {
-  const [versions, { refetch: refetchVersions }] = createResource(() =>
-    listWarehousedVersions(invoke),
+  const [versions, { refetch: refetchVersions }] = createResource(
+    () => props.refreshKey ?? 0,
+    () => listWarehousedVersions(invoke),
   );
-  const [index, { refetch: refetchIndex }] = createResource(() =>
-    readWarehouseIndex(invoke),
+  const [index, { refetch: refetchIndex }] = createResource(
+    () => props.refreshKey ?? 0,
+    () => readWarehouseIndex(invoke),
   );
   const [busy, setBusy] = createSignal<string | null>(null);
   const [error, setError] = createSignal<string | null>(null);
