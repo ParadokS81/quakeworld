@@ -450,8 +450,10 @@ function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
 // ---------------------------------------------------------------------------
 // FTE Family 1 — Regression probes
 //
-// Ranges centered on Phase 2d-core counts (2379 cvars / 556 commands /
-// 67 macros / 103 cmdline_params) with +-15% tolerance.
+// Ranges centered on post-Pattern-3-fix counts (2482 cvars / 556 commands /
+// 67 macros / 103 cmdline_params) with +-15% tolerance. Pattern 3 fix
+// recovered 103 nested cvar_t array / container-struct cvars; engine count
+// rose from 1294 to 1397.
 // ---------------------------------------------------------------------------
 
 function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
@@ -460,7 +462,7 @@ function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cvar'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [2000, 2750];
+  const [lo, hi] = [2110, 2855];
   return {
     name: 'F1.fte.cvars_count',
     family: 'regression',
@@ -482,7 +484,7 @@ function probeFteEngineCvars(ctx: ProbeContext): ProbeResult {
     WHERE e.project='fte' AND cv.source_root='engine'
   `).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [1100, 1500];
+  const [lo, hi] = [1187, 1606];
   return {
     name: 'F1.fte.engine_cvars',
     family: 'regression',
