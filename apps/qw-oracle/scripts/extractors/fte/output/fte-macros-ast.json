@@ -1,607 +1,942 @@
 {
   "macros": {
     "ammo": {
-      "name": "ammo",
-      "handler": "Macro_Ammo",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1336,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Ammo",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1336,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "armor": {
-      "name": "armor",
-      "handler": "Macro_Armor",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1328,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Armor",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1328,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "armortype": {
-      "name": "armortype",
-      "handler": "Macro_ArmorType",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1327,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_ArmorType",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1327,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "bestammo": {
-      "name": "bestammo",
-      "handler": "Macro_BestAmmo",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1338,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_BestAmmo",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1338,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "bestweapon": {
-      "name": "bestweapon",
-      "handler": "Macro_BestWeapon",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1337,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_BestWeapon",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1337,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "cells": {
-      "name": "cells",
-      "handler": "Macro_Cells",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1332,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Cells",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1332,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "chealth": {
-      "name": "chealth",
-      "handler": "Macro_CombinedHealth",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1370,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_CombinedHealth",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1370,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "colored_armor": {
-      "name": "colored_armor",
-      "handler": "Macro_Coloured_Armour",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1377,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Coloured_Armour",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1377,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "colored_powerups": {
-      "name": "colored_powerups",
-      "handler": "Macro_Coloured_Powerups",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1378,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Coloured_Powerups",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1378,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "colored_short_powerups": {
-      "name": "colored_short_powerups",
-      "handler": "Macro_Coloured_Short_Powerups",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1379,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Coloured_Short_Powerups",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1379,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "connectiontype": {
-      "name": "connectiontype",
-      "handler": "Macro_ConnectionType",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1350,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_ConnectionType",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1350,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "date": {
-      "name": "date",
-      "handler": "Macro_ProperDate",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4497,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_ProperDate",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4497,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "deathloc": {
-      "name": "deathloc",
-      "handler": "Macro_LastDeath",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1344,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_LastDeath",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1344,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "dedicated": {
-      "name": "dedicated",
-      "handler": "Macro_Dedicated",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4500,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Dedicated",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4500,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "demoplayback": {
-      "name": "demoplayback",
-      "handler": "Macro_demoplayback",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1351,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_demoplayback",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1351,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "droploc": {
-      "name": "droploc",
-      "handler": "Macro_LastDrop",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1360,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_LastDrop",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1360,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "droppedweapon": {
-      "name": "droppedweapon",
-      "handler": "Macro_DroppedWeapon",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1340,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_DroppedWeapon",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1340,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "droptime": {
-      "name": "droptime",
-      "handler": "Macro_LastDropTime",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1361,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_LastDropTime",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1361,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "gamedir": {
-      "name": "gamedir",
-      "handler": "Macro_Gamedir",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1383,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Gamedir",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1383,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "health": {
-      "name": "health",
-      "handler": "Macro_Health",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1326,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Health",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1326,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "lastloc": {
-      "name": "lastloc",
-      "handler": "Macro_Last_Location",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1380,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Last_Location",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1380,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "lastpowerup": {
-      "name": "lastpowerup",
-      "handler": "Macro_LastSeenPowerup",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1381,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_LastSeenPowerup",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1381,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "latency": {
-      "name": "latency",
-      "handler": "Macro_Latency",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1323,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Latency",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1323,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "ledpoint": {
-      "name": "ledpoint",
-      "handler": "Macro_Point_LED",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1359,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Point_LED",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1359,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "ledstatus": {
-      "name": "ledstatus",
-      "handler": "Macro_MyStatus_LED",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1358,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_MyStatus_LED",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1358,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "location": {
-      "name": "location",
-      "handler": "Macro_Location",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1324,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Location",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1324,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "matchname": {
-      "name": "matchname",
-      "handler": "Macro_Match_Name",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1355,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Match_Name",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1355,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "matchstatus": {
-      "name": "matchstatus",
-      "handler": "Macro_Match_Status",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1363,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Match_Status",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1363,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "matchtype": {
-      "name": "matchtype",
-      "handler": "Macro_Match_Type",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1356,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Match_Type",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1356,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "nails": {
-      "name": "nails",
-      "handler": "Macro_Nails",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1330,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Nails",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1330,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "need": {
-      "name": "need",
-      "handler": "Macro_Need",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1357,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Need",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1357,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "ping": {
-      "name": "ping",
-      "handler": "Macro_Latency",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1375,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Latency",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1375,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "point": {
-      "name": "point",
-      "handler": "Macro_PointName",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1352,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_PointName",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1352,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "pointatloc": {
-      "name": "pointatloc",
-      "handler": "Macro_PointNameAtLocation",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1353,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_PointNameAtLocation",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1353,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "pointloc": {
-      "name": "pointloc",
-      "handler": "Macro_PointLocation",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1354,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_PointLocation",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1354,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "powerups": {
-      "name": "powerups",
-      "handler": "Macro_Powerups",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1339,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Powerups",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1339,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "qt": {
-      "name": "qt",
-      "handler": "Macro_Quote",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4499,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Quote",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4499,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_ambient": {
-      "name": "r_editlights_current_ambient",
-      "handler": "r_editlights_current_ambient",
-      "description": "ambient intensity of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2395,
+      "desc": "ambient intensity of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_ambient",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2395,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_angles": {
-      "name": "r_editlights_current_angles",
-      "handler": "r_editlights_current_angles",
-      "description": "angles of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2387,
+      "desc": "angles of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_angles",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2387,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_color": {
-      "name": "r_editlights_current_color",
-      "handler": "r_editlights_current_color",
-      "description": "color of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2388,
+      "desc": "color of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_color",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2388,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_corona": {
-      "name": "r_editlights_current_corona",
-      "handler": "r_editlights_current_corona",
-      "description": "corona intensity of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2390,
+      "desc": "corona intensity of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_corona",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2390,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_coronasize": {
-      "name": "r_editlights_current_coronasize",
-      "handler": "r_editlights_current_coronasize",
-      "description": "corona size of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2391,
+      "desc": "corona size of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_coronasize",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2391,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_cubemap": {
-      "name": "r_editlights_current_cubemap",
-      "handler": "r_editlights_current_cubemap",
-      "description": "cubemap of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2394,
+      "desc": "cubemap of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_cubemap",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2394,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_diffuse": {
-      "name": "r_editlights_current_diffuse",
-      "handler": "r_editlights_current_diffuse",
-      "description": "diffuse intensity of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2396,
+      "desc": "diffuse intensity of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_diffuse",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2396,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_normalmode": {
-      "name": "r_editlights_current_normalmode",
-      "handler": "r_editlights_current_normalmode",
-      "description": "normalmode flag of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2398,
+      "desc": "normalmode flag of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_normalmode",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2398,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_origin": {
-      "name": "r_editlights_current_origin",
-      "handler": "r_editlights_current_origin",
-      "description": "origin of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2386,
+      "desc": "origin of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_origin",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2386,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_radius": {
-      "name": "r_editlights_current_radius",
-      "handler": "r_editlights_current_radius",
-      "description": "radius of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2389,
+      "desc": "radius of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_radius",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2389,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_realtimemode": {
-      "name": "r_editlights_current_realtimemode",
-      "handler": "r_editlights_current_realtimemode",
-      "description": "realtimemode flag of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2399,
+      "desc": "realtimemode flag of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_realtimemode",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2399,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_shadows": {
-      "name": "r_editlights_current_shadows",
-      "handler": "r_editlights_current_shadows",
-      "description": "shadows flag of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2393,
+      "desc": "shadows flag of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_shadows",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2393,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_specular": {
-      "name": "r_editlights_current_specular",
-      "handler": "r_editlights_current_specular",
-      "description": "specular intensity of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2397,
+      "desc": "specular intensity of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_specular",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2397,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "r_editlights_current_style": {
-      "name": "r_editlights_current_style",
-      "handler": "r_editlights_current_style",
-      "description": "style of selected light",
-      "source_file": "engine/gl/gl_rlight.c",
-      "source_line": 2392,
+      "desc": "style of selected light",
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacroD"
+      "ast": {
+        "handler_fn": "r_editlights_current_style",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2392,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacroD",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "random": {
-      "name": "random",
-      "handler": "Macro_Random",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4493,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Random",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4493,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "rockets": {
-      "name": "rockets",
-      "handler": "Macro_Rockets",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1331,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Rockets",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1331,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "shells": {
-      "name": "shells",
-      "handler": "Macro_Shells",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1329,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Shells",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1329,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "team": {
-      "name": "team",
-      "handler": "Macro_Team",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1342,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Team",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1342,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "tf_skin": {
-      "name": "tf_skin",
-      "handler": "Macro_TF_Skin",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1341,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_TF_Skin",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1341,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "time": {
-      "name": "time",
-      "handler": "Macro_Time",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4494,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Time",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4494,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "took": {
-      "name": "took",
-      "handler": "Macro_Took",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1347,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Took",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1347,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "tookatloc": {
-      "name": "tookatloc",
-      "handler": "Macro_TookAtLoc",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1345,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_TookAtLoc",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1345,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "tookloc": {
-      "name": "tookloc",
-      "handler": "Macro_TookLoc",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1346,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_TookLoc",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1346,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "triggermatch": {
-      "name": "triggermatch",
-      "handler": "Macro_LastTrigger_Match",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1364,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_LastTrigger_Match",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1364,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "ukdate": {
-      "name": "ukdate",
-      "handler": "Macro_UKDate",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4495,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_UKDate",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4495,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "usdate": {
-      "name": "usdate",
-      "handler": "Macro_USDate",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4496,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_USDate",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4496,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "version": {
-      "name": "version",
-      "handler": "Macro_Version",
-      "description": "",
-      "source_file": "engine/common/cmd.c",
-      "source_line": 4498,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Version",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4498,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "weapon": {
-      "name": "weapon",
-      "handler": "Macro_Weapon",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1335,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Weapon",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1335,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "weaponnum": {
-      "name": "weaponnum",
-      "handler": "Macro_WeaponNum",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1333,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_WeaponNum",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1333,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     },
     "weapons": {
-      "name": "weapons",
-      "handler": "Macro_Weapons",
-      "description": "",
-      "source_file": "engine/client/zqtp.c",
-      "source_line": 1334,
+      "desc": null,
       "source_root": "engine",
-      "registration_api": "Cmd_AddMacro"
+      "ast": {
+        "handler_fn": "Macro_Weapons",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 1334,
+        "source_column": null,
+        "enclosing_function": null,
+        "call_form": "Cmd_AddMacro",
+        "teamplay_arg_raw": null,
+        "build_variant": "client"
+      }
     }
   },
   "_stats": {

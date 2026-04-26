@@ -189,16 +189,30 @@ class EzhudFteHandler(Visitor):
 
             synth_from = row.get("synthesized_from", "")
 
-            entry: dict = {
-                "name": row["name"],
-                "default": row.get("default"),
-                "description": row.get("description"),
-                "alias": None,
-                "flags": [],
-                "callback": None,
+            # Emit loader-compatible shape matching VariableEntry + AstBlock.
+            # Ezhud cvars are always source-backed (synthesized from AST call sites).
+            ast_block: dict = {
+                "c_ident": "",
                 "source_file": src_file,
                 "source_line": row.get("source_line"),
+                "source_column": None,
+                "storage_class": None,
+                "flags_raw": None,
+                "flag_names": [],
+                "on_change": None,
+                "group_name_in_source": None,
+                "min_bound": None,
+                "max_bound": None,
+                "trailing_comment": None,
+            }
+
+            desc_val = row.get("description")
+            entry: dict = {
+                "default": row.get("default"),
+                "desc": desc_val or None,
                 "source_root": row.get("source_root", "plugin:ezhud"),
+                "ast": ast_block,
+                # Extra metadata for ezhud-specific consumers; ignored by loader.
                 "synthesized_from": synth_from,
             }
             if row.get("synthesized_parent"):

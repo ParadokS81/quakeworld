@@ -324,33 +324,51 @@ class CvarsFteHandler(Visitor):
                 except ValueError:
                     pass  # leave absolute if not under repo_root
 
-            entry: dict = {
-                "name": row["name"],
-                "default": row["default"],
-                "description": row.get("description"),
-                "alias": row.get("alias"),
-                "flags": row.get("flags") or [],
-                "callback": row.get("callback"),
+            # Emit loader-compatible shape: source-location fields inside an
+            # `ast` block (matches AstBlock in types.ts), description at top
+            # level as `desc`, default at top level. Source-backed is signalled
+            # by ast != null. FTE entries are always source-backed (no help-JSON
+            # complement), so ast is always non-null when source_file is present.
+            flags_list = row.get("flags") or []
+            ast_block: dict = {
+                "c_ident": row.get("c_ident") or "",
                 "source_file": src_file,
                 "source_line": row.get("source_line"),
-                "source_root": row.get("source_root"),
+                "source_column": None,
+                "storage_class": None,
+                # flags_raw: join CVAR_* flag tokens as space-separated string
+                "flags_raw": " | ".join(flags_list) if flags_list else None,
+                "flag_names": flags_list,
+                "on_change": row.get("callback"),
+                "group_name_in_source": row.get("group"),
+                "min_bound": None,
+                "max_bound": None,
+                "trailing_comment": None,
             }
-            if row.get("group"):
-                entry["group"] = row["group"]
+
+            entry: dict = {
+                "default": row["default"],
+                "desc": row.get("description") or None,
+                # alias stored in desc for now; no dedicated slot in VariableEntry.
+                # Keep alias as extra field so downstream tools can use it.
+                "alias": row.get("alias"),
+                "source_root": row.get("source_root"),
+                "ast": ast_block,
+            }
 
             vars_out[row["name"]] = entry
 
             # Stats accumulation
             stats["count"] += 1
-            if entry["description"]:
+            if entry.get("desc"):
                 stats["with_description"] += 1
             if entry["default"] is not None:
                 stats["with_default"] += 1
-            if entry["callback"]:
+            if entry["ast"].get("on_change"):
                 stats["with_callback"] += 1
-            if entry.get("group"):
+            if entry["ast"].get("group_name_in_source"):
                 stats["with_group"] += 1
-            src_root = entry["source_root"] or "unknown"
+            src_root = entry.get("source_root") or "unknown"
             stats["by_source_root"][src_root] = stats["by_source_root"].get(src_root, 0) + 1
 
         sorted_vars = {k: vars_out[k] for k in sorted(vars_out)}

@@ -207,25 +207,37 @@ class MacrosFteHandler(Visitor):
                 except ValueError:
                     pass  # leave absolute if not under repo_root
 
-            entry: dict = {
-                "name": row["name"],
-                "handler": row.get("handler"),
-                "description": row.get("description") or "",
+            # Emit loader-compatible shape: source-location fields inside an
+            # `ast` block (matches MacroAstBlock in types.ts). Source-backed
+            # is signalled by ast != null. FTE macros are always source-backed.
+            registration_api = row.get("registration_api") or "Cmd_AddMacro"
+            ast_block: dict = {
+                "handler_fn": row.get("handler"),
                 "source_file": src_file,
                 "source_line": row.get("source_line"),
+                "source_column": None,
+                "enclosing_function": None,
+                "call_form": registration_api,
+                "teamplay_arg_raw": None,
+                "build_variant": "client",
+            }
+
+            desc_str = row.get("description") or ""
+            entry: dict = {
+                "desc": desc_str or None,
                 "source_root": row.get("source_root"),
-                "registration_api": row.get("registration_api"),
+                "ast": ast_block,
             }
             macros_out[row["name"]] = entry
 
             stats["count"] += 1
-            if entry["description"]:
+            if desc_str:
                 stats["with_description"] += 1
-            src_root = entry["source_root"] or "unknown"
+            src_root = row.get("source_root") or "unknown"
             stats["by_source_root"][src_root] = (
                 stats["by_source_root"].get(src_root, 0) + 1
             )
-            api_key = entry["registration_api"] or "unknown"
+            api_key = registration_api
             stats["by_api"][api_key] = stats["by_api"].get(api_key, 0) + 1
 
         sorted_macros = {k: macros_out[k] for k in sorted(macros_out)}

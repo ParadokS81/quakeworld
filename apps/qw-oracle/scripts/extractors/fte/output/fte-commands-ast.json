@@ -1,0 +1,6689 @@
+{
+  "commands": {
+    "+attack": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_AttackDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3301,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+back": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_BackDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3283,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+forward": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_ForwardDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3281,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+infoplaque": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2PInfoPlaque_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1223,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+jump": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_JumpDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3305,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+klook": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_KLookDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3308,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+left": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LeftDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3277,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+lookdown": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LookdownDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3287,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+lookup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LookupDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3285,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+mlook": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MLookDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3310,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+movedown": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_DownDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3275,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+moveleft": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MoveleftDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3291,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+moveright": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MoverightDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3293,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+moveup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_UpDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3273,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+p": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SplitA_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3270,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+right": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RightDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3279,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+rollleft": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RollLeftDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3295,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+rollright": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RollRightDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3297,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+showdm": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_ShowScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1225,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+showinfo": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2ShowInfo_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1221,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+showscores": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_ShowScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1204,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+showteamscores": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_ShowTeamScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1207,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+speed": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_SpeedDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3299,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+strafe": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_StrafeDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3289,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+use": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_UseDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3303,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+voip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Voip_Enable_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 1759,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "+weaponwheel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_WWheelDown",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3314,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-attack": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_AttackUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3302,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-back": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_BackUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3284,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-forward": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_ForwardUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3282,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-infoplaque": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2MInfoPlaque_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1224,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-jump": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_JumpUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3306,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-klook": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_KLookUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3309,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-left": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LeftUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3278,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-lookdown": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LookdownUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3288,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-lookup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_LookupUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3286,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-mlook": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MLookUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3311,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-movedown": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_DownUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3276,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-moveleft": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MoveleftUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3292,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-moveright": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_MoverightUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3294,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-moveup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_UpUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3274,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-p": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SplitA_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3271,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-right": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RightUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3280,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-rollleft": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RollLeftUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3296,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-rollright": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RollRightUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3298,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-showdm": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_DontShowScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1226,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-showinfo": {
+      "desc": "Hexen2 Compat",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2DontShowInfo_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1222,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-showscores": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_DontShowScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1205,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-showteamscores": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_DontShowTeamScores",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1208,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-speed": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_SpeedUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3300,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-strafe": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_StrafeUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3290,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-use": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_UseUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3304,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-voip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Voip_Disable_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 1760,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "-weaponwheel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_WWheelUp",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3315,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "6dof": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6086,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "addip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_FilterIP_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3568,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "adduser": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_AddUser_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 926,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "alias": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4452,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "aliasedit": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_AliasEdit_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4458,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "aliaslevel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_AliasLevel_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4461,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "aliaslist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_AliasList_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4479,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "allskins": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Skin_AllSkins_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5994,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "applycompile": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_ApplyCompilation_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1558,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "apropos": {
+      "desc": "Lists all cvars or commands with the specified substring somewhere in their name or descrition.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Apropos_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4490,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "autotrack": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_AutoTrack_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1367,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ban": {
+      "desc": "Block the player's IP, preventing them from connecting. Also kicks them.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_BanClientIP_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3562,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "banlist": {
+      "desc": "Displays a list of every banned player on the server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_BanList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3565,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "banname": {
+      "desc": "Legacy compat, please use ban.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_BanClientIP_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3563,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "bestweapon": {
+      "desc": "Works like 'impulse', for compat with other engines.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_Impulse",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3317,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "bf": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "V_BonusFlash_f",
+        "source_file": "engine/client/view.c",
+        "source_line": 2729,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "bind": {
+      "desc": "Changes the action associated with each keyboard button. Use eg \\\"bind ctrl+shift+alt+k kill\\\" for special modifiers (should be used only after more basic modifiers).",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Key_Bind_f",
+        "source_file": "engine/client/keys.c",
+        "source_line": 2884,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "bindlevel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Key_Bind_f",
+        "source_file": "engine/client/keys.c",
+        "source_line": 2886,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "breakpoint": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_BreakPoint_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1553,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "breakpoint_csqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CSQC_Breakpoint_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8648,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "breakpoint_menuqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_Breakpoint_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3532,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cancel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3127,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "capture": {
+      "desc": "Captures realtime action to a named video file. Check the capture* cvars to control driver/codecs/rates.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_RecordFilm_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5203,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "capturedemo": {
+      "desc": "capturedemo foo.dem foo.avi - Captures a named demo to a named video file.\\nDemo capturing is performed offscreen when possible, allowing arbitrary video sizes or smooth captures on underpowered hardware.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_RecordDemo_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5204,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "capturepause": {
+      "desc": "Pauses the video capture, allowing you to avoid capturing uninteresting parts. This is a toggle, so reuse the same command to resume capturing again.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_CapturePause_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5206,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "capturestop": {
+      "desc": "Aborts the current video capture.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_StopRecordFilm_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5205,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CD_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5186,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "centerview": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "V_CenterView_f",
+        "source_file": "engine/client/view.c",
+        "source_line": 2732,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cfg_load": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4446,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cfg_reset": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Reset_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4447,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cfg_save": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_WriteConfig_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4442,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cfg_save_ifmodified": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_WriteConfig_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4443,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "changelevel": {
+      "desc": "Continues the game on a different map. The current map can be reentered later when a starting position for the new map is specified as a second argument.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3595,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "changing": {
+      "desc": "Part of network protocols. This command should not be used manually.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Changing_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5965,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "check_maps": {
+      "desc": "Obsolete, specific to ktpro. Modern mods should use search_begin instead.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3601,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cinematic": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_PlayFilm_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5224,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_addport": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "NET_ClientPort_f",
+        "source_file": "engine/common/net_wins.c",
+        "source_line": 10551,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_cmd": {
+      "desc": "Calls the csqc's GameCommand function",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CSQC_GameCommand_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8647,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_status": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Status_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5997,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_transfer": {
+      "desc": "Connect to a different server, disconnecting from the current server only when the new server replies.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Transfer_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6033,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_voip_mute": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "VIgnore_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 654,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cl_voip_unmute": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "VUnignore_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 655,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "clear": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Con_Clear_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 835,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "clientkick": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_KickSlot_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3556,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "closemenu": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_CloseMenu_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1514,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cmd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ForwardToServer_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4456,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cmdlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_List_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4478,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "color": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Color_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6068,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "colorize": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_Colourise_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3726,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "colourise": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_Colourise_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3725,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "com_reloadfilter": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Filter_Reload_f",
+        "source_file": "engine/common/translate.c",
+        "source_line": 37,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "compile": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_Compile_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1557,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conactivate": {
+      "desc": "Brings focus to the named console. Will not do anything if the named console is not created yet (so be sure to do any echos before using this command)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ConActivate_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 844,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conclear": {
+      "desc": "Clears a named console (instead of just the main one)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ConClear_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 842,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conclose": {
+      "desc": "Destroys a named console",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ConClose_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 843,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "condump": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Condump_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4457,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conecho": {
+      "desc": "conecho consolename The Text To Echo\\nEchos text to a named console instead of just the main one.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ConEcho_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 841,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conecho_center": {
+      "desc": "conecho_center consolename The Text To Echo\\nUse \\\"\\\" for the main console.\\nAny added lines will be aligned to the middle of the console.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ConEchoCenter_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 840,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "conmenu": {
+      "desc": "conmenu <callback>\\nCreates a new (built-in) scripted menu. any following commands that define scipted menu items will add their items to this new menu. The callback will be called with argument 'cancel' when the menu is closed.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Script_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 431,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connect": {
+      "desc": "connect scheme://address:port\\nConnect to a server. Use a scheme of rtc[s]://broker/gamename to connect via a webrtc broker.Use a scheme of ws[s]://server to connect via websockets.Use a scheme of tcp:// or tls:// to connect via non-udp protocols.Use a scheme of dtls://server to connect securely.Use irc://network:6667/user[@channel] to connect via an irc server. Not recommended.\\nDefault port is port . NQ:. QW:. Q2:. Q3:.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Connect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6003,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connectbr": {
+      "desc": "connect address:port\\nConnect to a qw server using the best route we can detect.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_ConnectBestRoute_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6001,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connectnq": {
+      "desc": "Connects to the specified server, defaulting to port . Also disables QW/Q2/Q3/DP handshakes preventing them from being favoured, so should only be used when you actually want NQ protocols specifically.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CLNQ_Connect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6042,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connectq2e": {
+      "desc": "Connects to the specified server, defaulting to port .",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CLQ2E_Connect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6048,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connectqe": {
+      "desc": "Connects to the specified server, defaulting to port . Also forces the use of DTLS and QE-specific handshakes. You will also need to ensure the dtls_psk_* cvars are set properly or the server will refuse the connection.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CLNQ_Connect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6044,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "connecttcp": {
+      "desc": "Connect to a server using the tcp:// prefix",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_TCPConnect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6035,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "coredump_csqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CSQC_CoreDump",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8645,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "coredump_menuqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_CoreDump_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3530,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "coredump_ssqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_SSCoreDump_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1559,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cprint": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_CPrint_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 276,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cripple": {
+      "desc": "Block the player's ability to move.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_CripplePlayer_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3561,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ctfscores": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_CTFScores_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1211,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cuff": {
+      "desc": "Slap handcuffs on the player, preventing them from being able to attack.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Cuff_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3560,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "curl": {
+      "desc": "For use by xonotic.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Curl_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6070,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvar_lockdefaults": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_LockDefaults_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4484,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvar_purgedefaults": {
+      "desc": "Resets all cvar defaults to back to the engine's default. Does not change their active value.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_PurgeDefaults_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4485,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvar_resettodefaults_all": {
+      "desc": "Resets all cvars to the mod's default value.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_ResetAll_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4488,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvar_resettodefaults_nosaveonly": {
+      "desc": "Resets all unsaved cvars to the mod's default value.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_ResetAll_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4486,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvar_resettodefaults_saveonly": {
+      "desc": "Resets all saved cvars to the mod's default value (without changing unsaved cvars).",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_ResetAll_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4487,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvarlist": {
+      "desc": "Lists all cvars. eg, 'cvarlist -cvd *' can be used to list all cvars with a value other than the mod's default.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_List_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4481,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvarreset": {
+      "desc": "Resets the named cvar to its default value.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_Reset_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4482,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "cvarwatch": {
+      "desc": "Prints a notification when the named cvar is changed. Also displays the start/end of configs. Alternatively, use '-watch foo' on the commandline.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_Watch_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4483,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "decompile": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_Decompile_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1556,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "defer": {
+      "desc": "Issues the given command after a time delay. Disabled if ruleset_allow_in is 0.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_In_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4510,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demo_jump": {
+      "desc": "Jump to a specified time in a demo. Prefix with a + or - for a relative offset. Seeking backwards will restart the demo and the fast forward, which can take some time in long demos.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_DemoJump_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5974,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demo_jump_end": {
+      "desc": "Jump to the next intermission message.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_DemoJump_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5976,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demo_jump_mark": {
+      "desc": "Jump to the next '//demomark' marker.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_DemoJump_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5975,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demo_nudge": {
+      "desc": "Nudge the demo by one frame. Argument should be +1 or -1. Nudging backwards is limited.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_DemoNudge_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5977,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demo_setspeed": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Demo_SetSpeed_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5797,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demolist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDList_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3129,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "demos": {
+      "desc": "Starts playing the demo reel.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Demos_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5989,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "devmap": {
+      "desc": "Loads a map in developer mode (sv_cheats 1), for Quake III compat.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3593,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "df": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "V_DarkFlash_f",
+        "source_file": "engine/client/view.c",
+        "source_line": 2730,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "dir": {
+      "desc": "Displays filesystem listings. Accepts wildcards.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Dir_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8446,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "disconnect": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Disconnect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5966,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "dlsize": {
+      "desc": "For internal use",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_DownloadSize_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6073,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "download": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Download_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6072,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "download_map_url": {
+      "desc": "Redundant - individual maps will probably download faster than the user can open a browser at the given url.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3607,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "dtls_importtrust": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CertLog_Import_f",
+        "source_file": "engine/common/log.c",
+        "source_line": 1058,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "dtls_untrustall": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CertLog_UntrustAll_f",
+        "source_file": "engine/common/log.c",
+        "source_line": 1057,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "easyrecord": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDEasyRecord_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3128,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "echo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Echo_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4451,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "edit": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Con_TextEditor_f",
+        "source_file": "engine/client/textedit.c",
+        "source_line": 1312,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "envmap": {
+      "desc": "Legacy name for the screenshot_cubemap command.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_Envmap_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3670,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "exec": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4450,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "extensionlist_csqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_CSExtensionList_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8646,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "extensionlist_ssqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_SVExtensionList_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1563,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "filter": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_MsgFilter_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3722,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "find": {
+      "desc": "Lists all cvars or commands with the specified substring somewhere in their name or descrition.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Apropos_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4491,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "finishdl": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_FinishDownload_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6078,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "flocate": {
+      "desc": "Searches for a named file, and displays where it can be found in the OS's filesystem",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Locate_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8449,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "floodprot": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Floodprot_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3573,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "flush": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cache_Flush",
+        "source_file": "engine/common/zone.c",
+        "source_line": 784,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fly": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6088,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fog": {
+      "desc": "fog <density> <red> <green> <blue> <alpha> <depthbias>",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Fog_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6106,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "force_centerview": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Force_CenterView_f",
+        "source_file": "engine/client/in_win.c",
+        "source_line": 1434,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fps_preset": {
+      "desc": "Apply a preset",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "FPS_Preset_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1515,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fraglogfile": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Fraglogfile_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3548,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_changegame": {
+      "desc": "Switch between different manifests (or registered games)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "FS_ChangeGame_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8442,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_changemod": {
+      "desc": "Provides the backend functionality of a transient online installer. Eg, for quaddicted's map/mod database.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "FS_ChangeMod_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8443,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_flush": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_RefreshFSCache_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8445,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_hash": {
+      "desc": "Computes a hash of the specified file.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_CalcHash_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8452,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_restart": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "FS_ReloadPackFiles_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8441,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fs_showmanifest": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "FS_ShowManifest_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8444,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "fullinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_FullInfo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6066,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "gamedir": {
+      "desc": "Change the current gamedir.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Gamedir_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3614,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "gamemap": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3594,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "give": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Give_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6084,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "globalservers": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "NetQ3_GlobalServers_f",
+        "source_file": "engine/client/net_master.c",
+        "source_line": 4078,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "god": {
+      "desc": "Makes you immune to damage.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_God_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6083,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "heartbeat": {
+      "desc": "Sends an update or ping to the master server so the current server can remain listed.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Heartbeat_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3611,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "help": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Help_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1376,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "hide": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sys_HideConsole",
+        "source_file": "engine/server/sv_sys_win.c",
+        "source_line": 1442,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "hunkprint": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Hunk_Print_f",
+        "source_file": "engine/common/zone.c",
+        "source_line": 785,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "identify": {
+      "desc": "Looks up a player's ip to see if they're using a different name",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IPLog_Identify_f",
+        "source_file": "engine/common/log.c",
+        "source_line": 1040,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "if": {
+      "desc": "For conditionally executing console commands.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_if_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4476,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ignore": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Ignore_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 656,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ignore_id": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Ignore_ID_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 664,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ignore_team": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Ignoreteam_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 659,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ignorelist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IgnoreList_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 657,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "impulse": {
+      "desc": "Sends an impulse number to the server (read: weapon change).",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_Impulse",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3307,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "in": {
+      "desc": "Issues the given command after a time delay. Disabled if ruleset_allow_in is 0.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_In_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4507,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "in_bind": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Key_Bind_f",
+        "source_file": "engine/client/keys.c",
+        "source_line": 2885,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "in_deviceids": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_DeviceIDs_f",
+        "source_file": "engine/client/in_generic.c",
+        "source_line": 395,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "in_restart": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_Restart",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3226,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "inc": {
+      "desc": "Adds a value to the named cvar. Use a negative value if you wish to decrease the cvar's value.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cvar_Inc_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4475,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "invleft": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2InvLeft_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1216,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "invnext": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2InvRight_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1219,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "invprev": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2InvLeft_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1218,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "invright": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2InvRight_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1217,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "invuse": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sbar_Hexen2InvUse_f",
+        "source_file": "engine/client/sbar.c",
+        "source_line": 1220,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ipdump": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IPLog_Dump_f",
+        "source_file": "engine/common/log.c",
+        "source_line": 1042,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ipmerge": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IPLog_Merge_f",
+        "source_file": "engine/common/log.c",
+        "source_line": 1041,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "join": {
+      "desc": "Switches away from spectator mode, optionally connecting to a different server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Join_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6054,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "kick": {
+      "desc": "Removes a player from the server, provide the name or IP of the desired player.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Kick_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3555,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "kill": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6094,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "killserver": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_KillServer_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3585,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listconfigs": {
+      "desc": "Displays a list of every installed config file.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ListConfigs_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 1045,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listfonts": {
+      "desc": "Displays a list of every installed font.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ListFonts_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 1043,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listip": {
+      "desc": "Displays a list of ever player the server has penalties for.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_FilterList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3570,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listmaps": {
+      "desc": "Displays a list of installed maps.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MapList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3597,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listskins": {
+      "desc": "Displays a list of every installed or downloaded QuakeWorld player skin.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ListSkins_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 1044,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "listskyboxes": {
+      "desc": "Displays a list of available custom skyboxes that can be set with r_skybox, type or click an entry.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ListSkyBoxes_f",
+        "source_file": "engine/gl/gl_warp.c",
+        "source_line": 1353,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "load": {
+      "desc": "Loads an existing saved game.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Loadgame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6054,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "loadfont": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_LoadFont_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3535,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "loadgame": {
+      "desc": "Loads an existing saved game.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Loadgame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6052,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "loadloc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_LoadLocFile_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3721,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "loadsky": {
+      "desc": "For compat with DarkPlaces, please use r_skybox.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ForceSky_f",
+        "source_file": "engine/gl/gl_warp.c",
+        "source_line": 1352,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "localinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Localinfo_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3613,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "localservers": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "NetQ3_LocalServers_f",
+        "source_file": "engine/client/net_master.c",
+        "source_line": 4077,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ls": {
+      "desc": "Displays filesystem listings. Accepts wildcards.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Dir_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8447,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "macrolist": {
+      "desc": "Lists all available $macro expansions.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_MacroList_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4480,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "map": {
+      "desc": "Begins a new game on the specified map.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3587,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "map_restart": {
+      "desc": "Restarts the server and reloads the map while flushing level cache, for general use and Quake III compat.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3596,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mapcluster": {
+      "desc": "Sets this server up as a cluster-server gateway. Additional processes will be used to host individual maps. If an argument is given then that will be the name of the map that new clients will initially be directed to. This can also be used for single-player to off-load nearly all server functions - use the 'ssv' command to direct each subserver.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MSV_MapCluster_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3583,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mapedit": {
+      "desc": "Loads the named map without any gamecode active.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3588,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "maplist": {
+      "desc": "Displays a list of installed maps.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MapList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3598,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "maps": {
+      "desc": "Displays a list of installed maps.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MapList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3599,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "me": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SayMe_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6097,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "media_add": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Media_Add_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5168,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "media_next": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_Next_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5151,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "media_remove": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Media_Remove_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5169,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_audio": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Audio_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1390,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_cmd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_GameCommand_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3531,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_credits": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Credits_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1413,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_demo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Demos_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1530,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_download": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Menu_DownloadStuff_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1524,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_fps": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_FPS_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1395,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_keys": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Keys_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1375,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_lighting": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Lighting_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1397,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_load": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Load_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1369,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_loadgame": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Load_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1370,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_main": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Main_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1386,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_media": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Media_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5170,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_mediafiles": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_MediaFiles_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1532,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_mods": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Mods_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1378,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_multi": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_MultiPlayer_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1373,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_network": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Network_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1410,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_newmulti": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_GameOptions_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1384,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_options": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Options_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1388,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_particles": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Particles_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1409,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_quit": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Quit_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1377,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_render": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Render_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1396,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_restart": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Restart_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1512,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_save": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Save_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1368,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_servers": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_ServerList2_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1520,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_setup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Setup_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1383,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_single": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_SinglePlayer_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1372,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_slist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_ServerList2_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1381,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_spcheats": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Singleplayer_Cheats_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1394,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_speakers": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Audio_Speakers_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1392,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1399,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_ammo_health": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Ammo_Health_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1406,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_armor": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Armor_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1403,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_items": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1402,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_locations": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Locations_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1400,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_needs": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Needs_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1401,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_powerups": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Powerups_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1405,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_status_location_misc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Status_Location_Misc_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1408,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_team_fortress": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Team_Fortress_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1407,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_teamplay_weapons": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Teamplay_Items_Weapons_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1404,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_textures": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Textures_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1398,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menu_video": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_Video_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1389,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menubind": {
+      "desc": "x y caption bindcommand",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Bind_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 440,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menubox": {
+      "desc": "x y width height",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Box_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 432,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menucallback": {
+      "desc": "Explicitly invoke the active script menu's callback function with the given option set.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Callback_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 430,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menucheck": {
+      "desc": "x y caption cvarname bitmask",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_CheckBox_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 438,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menuclear": {
+      "desc": "Pop the currently scripted menu.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Clear_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 429,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menucomboi": {
+      "desc": "x y caption cvarname [caption0] [caption1] ...",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Comboi_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 441,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menucombos": {
+      "desc": "x y caption cvarname [caption0] [value0] [caption1] [value1] ...\\nif 'caption0' is { then the options will be parsed from trailing lines\\n",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Combos_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 442,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menuedit": {
+      "desc": "x y caption cvarname",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Edit_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 433,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menueditpriv": {
+      "desc": "x y caption def",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_EditPriv_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 434,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menupic": {
+      "desc": "x y picname",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Picture_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 437,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menupop": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuPop_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1516,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menuslider": {
+      "desc": "x y caption cvarname min max",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Slider_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 439,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menutext": {
+      "desc": "x y caption cbcommand",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_Text_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 435,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "menutextbig": {
+      "desc": "x y caption cbcommand",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_MenuS_TextBig_f",
+        "source_file": "engine/client/m_script.c",
+        "source_line": 436,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "messagemode": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Con_MessageMode_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 833,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "messagemode2": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Con_MessageMode2_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 834,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_SendGameCommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3578,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_batchlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BatchList_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 662,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_bspx_injest": {
+      "desc": "Injests supplemental files (like .lits) into a new bspx file. REMEMBER TO BACK-UP FIRST!",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BSPX_Injest_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3303,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_bspx_list": {
+      "desc": "Lists all lumps (and their sizes) in the specified bsp.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BSPX_List_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3301,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_bspx_strip": {
+      "desc": "Strips a named extension lump from a bsp file.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BSPX_Strip_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3302,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_buildcubemaps": {
+      "desc": "Automatically builds cubemaps for each env_cubemap present in the map.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BuildCubemaps_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3299,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_findcubemaps": {
+      "desc": "Scans the entities of a map to find reflection env_cubemap sites and determines the nearest one to each surface.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_FindCubemaps_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3298,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_memlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_MemList_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 660,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_realign": {
+      "desc": "Reads the named bsp and writes it back out with only alignment changes.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_Realign_f",
+        "source_file": "engine/common/q1bsp.c",
+        "source_line": 3300,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_showent": {
+      "desc": "Allows you to quickly search through a map's entities.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_ShowEnt_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 684,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_terrain_convert": {
+      "desc": "mod_terrain_convert [mapname] [texkill]\\nConvert a terrain to the current format. If texkill is specified, only tiles with the named texture will be converted, and tiles with that texture will be stripped. This is a slow operation.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_Terrain_Convert_f",
+        "source_file": "engine/gl/gl_heightmap.c",
+        "source_line": 9224,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_terrain_create": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_Terrain_Create_f",
+        "source_file": "engine/gl/gl_heightmap.c",
+        "source_line": 9223,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_terrain_reload": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_Terrain_Reload_f",
+        "source_file": "engine/gl/gl_heightmap.c",
+        "source_line": 9219,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_terrain_save": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_Terrain_Save_f",
+        "source_file": "engine/gl/gl_heightmap.c",
+        "source_line": 9218,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_texturelist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_TextureList_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 663,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mod_usetexture": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_BlockTextureColour_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 664,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "modelviewer": {
+      "desc": "View a model...",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_Menu_ModelViewer_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1527,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "msg_trigger": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_MsgTrigger_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3723,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "music": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_NamedTrack_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5227,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "music_fforward": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_FForward_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5148,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "music_next": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_Next_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5150,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "music_rewind": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_Rewind_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5149,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mute": {
+      "desc": "Mutes the player (no voice or chat), shaming them.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Mute_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3558,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mvdcancel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3145,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mvdlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDList_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3146,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mvdrecord": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_Record_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3143,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "mvdstop": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDStop_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3144,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "net_ice_show": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "ICE_Show_f",
+        "source_file": "engine/common/net_ice.c",
+        "source_line": 5906,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "newalias": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4453,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "nextul": {
+      "desc": "For internal use",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_NextUpload",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6074,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "noclip": {
+      "desc": "Disables clipping, allowing you to fly through the level.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Noclip_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6085,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "notarget": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6090,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "observe": {
+      "desc": "Switches to spectator mode, optionally connecting to a different server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Observe_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6055,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "openroute": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_OpenRoute_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6041,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "p": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SplitA_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3269,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "packet": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Packet_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6058,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "path": {
+      "desc": "prints a list of current search paths.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Path_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8448,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pause": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6095,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pin_add": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Pin_Add_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3622,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pin_delete": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Pin_Delete_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3621,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pin_reload": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Pin_Reload_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3620,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pin_save": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Pin_Save_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3619,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pkg": {
+      "desc": "Provides a way to install / list / disable / purge packages via the console.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PM_Command_f",
+        "source_file": "engine/common/common.c",
+        "source_line": 6819,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "play": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Play_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2310,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "play2": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Play_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2311,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "playclip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_PlayVideoWindowed_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5221,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "playdemo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_PlayDemo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5970,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "playfilm": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_PlayFilm_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5223,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "playvideo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_PlayFilm_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5222,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "playvol": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Play_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2312,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "plug_close": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Plug_Close_f",
+        "source_file": "engine/common/plugin.c",
+        "source_line": 1263,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "plug_closeall": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Plug_CloseAll_f",
+        "source_file": "engine/common/plugin.c",
+        "source_line": 1262,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "plug_list": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Plug_List_f",
+        "source_file": "engine/common/plugin.c",
+        "source_line": 1265,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "plug_load": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Plug_Load_f",
+        "source_file": "engine/common/plugin.c",
+        "source_line": 1264,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pointfile": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ReadPointFile_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3487,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "poke_csqc": {
+      "desc": "Allows you to inspect/debug ",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CSQC_Poke_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8650,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "poke_menuqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_Poke_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3538,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "poke_ssqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_SSPoke_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1560,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "pr_dumpplatform": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_DumpPlatform_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1564,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "precaches": {
+      "desc": "Displays a list of current server precaches.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_PrecacheList_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3586,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "profile_csqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_CSProfile_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8651,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "profile_menuqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_Profile_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3539,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "profile_ssqc": {
+      "desc": "Displays how much time has been spent in various QC functions since this command was last used.\\nIf pr_enable_profiling is set, profiling will be enabled automatically, and can be used to list spawn functions.\\nAdd an arg with value 1 if you wish to avoid purging timing information.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_SSProfile_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1561,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "qtvdemos": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_QTVDemos_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5973,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "qtvlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_QTVList_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5972,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "qtvplay": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_QTVPlay_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5971,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "qtvreverse": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_QTVReverse_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3155,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "quickconnect": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_QuickConnect_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1417,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "quit": {
+      "desc": "Use this command when you get angry. Does not save any cvars. Use cfg_save to save settings, or use the menu for a prompt.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Quit_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5998,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "qwurl": {
+      "desc": "For compat with ezquake.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Connect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6051,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_beaminfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_BeamInfo_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3499,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_converteffectinfo": {
+      "desc": "Attempt to convert particle effects made for a certain other engine.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ConvertEffectInfo_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3493,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_dumpshaders": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Shader_WriteOutGenerics_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 770,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_clone": {
+      "desc": "Duplicate the current light (with a new origin)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_Clone_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2375,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_copyinfo": {
+      "desc": "store a copy of all properties (except origin) of the selected light",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_CopyInfo_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2381,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_edit": {
+      "desc": "Changes named properties on the current light.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_Edit_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2377,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_editall": {
+      "desc": "Like r_editlights_edit, but affects all lights instead of just the selected one.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_EditAll_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2378,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_lock": {
+      "desc": "Blocks changing the current light according the crosshair.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_Lock_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2383,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_pasteinfo": {
+      "desc": "apply the stored properties onto the selected light (making it exactly identical except for origin)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_PasteInfo_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2382,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_reload": {
+      "desc": "Reload static rtlights. Argument can be rtlights|statics|bsp|none to override the source.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ReloadRTLights_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2359,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_remove": {
+      "desc": "Removes the current light.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_Remove_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2376,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_save": {
+      "desc": "Saves rtlights to maps/FOO.rtlights",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_SaveRTLights_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2360,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_spawn": {
+      "desc": "Spawn a new light with default properties",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_Spawn_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2374,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_togglecorona": {
+      "desc": "Toggles the current light's corona field.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_ToggleCorona_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2380,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_editlights_toggleshadow": {
+      "desc": "Toggles the shadow flag on the current light.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_EditLights_ToggleShadow_f",
+        "source_file": "engine/gl/gl_rlight.c",
+        "source_line": 2379,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_effect": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_AssociateEffect_f",
+        "source_file": "engine/client/cl_tent.c",
+        "source_line": 452,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_exportalleffects": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ExportAllEffects_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3494,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_exportbuiltinparticles": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ExportBuiltinSet_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3492,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_imageformats": {
+      "desc": "Prints out a list of the usable hardware pixel formats.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Image_Formats_f",
+        "source_file": "engine/client/image.c",
+        "source_line": 15374,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_imagelist": {
+      "desc": "Prints out a list of the currently-known textures.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Image_List_f",
+        "source_file": "engine/client/image.c",
+        "source_line": 15373,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_imagelist_wad": {
+      "desc": "displays the available wad images.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WAD_ImageList_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6110,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_part": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ParticleEffect_f",
+        "source_file": "engine/client/r_part.c",
+        "source_line": 682,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_partinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_PartInfo_f",
+        "source_file": "engine/client/p_script.c",
+        "source_line": 3498,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_partredirect": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "P_ParticleEffectAlias_f",
+        "source_file": "engine/client/r_part.c",
+        "source_line": 684,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_remapshader": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Shader_RemapShader_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 771,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_shaderlist": {
+      "desc": "Prints out a list of the currently-loaded shaders.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Shader_ShaderList_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 773,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_showshader": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Shader_ShowShader_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 772,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "r_trail": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_AssociateEffect_f",
+        "source_file": "engine/client/cl_tent.c",
+        "source_line": 453,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rankadd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_AddUser_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 925,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rankfind": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_Find_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 919,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ranklist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_RankingList_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 917,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rankrconlevel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_RCon_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 923,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rankrefresh": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_Refresh_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 921,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rankremove": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_RemoveID_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 920,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ranktopten": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_ListTop10_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 918,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rcon": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Rcon_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6057,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "reconnect": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Reconnect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6053,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "record": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Record_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5967,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "register_bestweapon": {
+      "desc": "Normally set via a mod's default.cfg file",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_RegisterWeapon_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3316,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "removeip": {
+      "desc": "Removes an IP Address from the penality list.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Unfilter_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3569,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "renameclient": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_ForceName_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3557,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rerecord": {
+      "desc": "Reconnects to the previous/current server, but starts recording a clean demo.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_ReRecord_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5968,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "resetcfg": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Reset_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4448,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "restrict": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_RestrictCommand_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4460,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rmdemo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDRemove_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3130,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rmdemonum": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDRemoveNum_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3131,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "rotate": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "IN_Rotate_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3225,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "route_reload": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Route_Reload_f",
+        "source_file": "engine/server/sv_move.c",
+        "source_line": 1456,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "route_visualise": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Route_Visualise_f",
+        "source_file": "engine/server/sv_move.c",
+        "source_line": 1454,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "save": {
+      "desc": "Saves the game to the named location.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Savegame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6053,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "saveconfig": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_WriteConfig_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4444,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "savegame": {
+      "desc": "Saves the game to the named location.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Savegame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6051,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "savegame_legacy": {
+      "desc": "Saves the game in a format compatible with vanilla Quake. Anything not supported by that format will be lost.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Savegame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6049,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "say": {
+      "desc": "Send a chat message to everyone on the server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Say_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6096,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "say_team": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SayTeam_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6099,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sayone": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Say_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6098,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3671,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot_360": {
+      "desc": "screenshot_360 <name> [width] [height]\\nTakes an equirectangular screenshot.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_Mega_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3667,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot_cubemap": {
+      "desc": "screenshot_cubemap <name> [size]\\nTakes 6 screenshots forming a single cubemap.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_Cubemap_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3669,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot_mega": {
+      "desc": "screenshot_mega <name> [width] [height]\\nTakes a screenshot with explicit sizes that are not tied to the size of your monitor, allowing for true monstrosities.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_Mega_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3665,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot_stereo": {
+      "desc": "screenshot_stereo <name> [width] [height]\\nTakes a simple stereo screenshot.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_Mega_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3666,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "screenshot_vr": {
+      "desc": "screenshot_vr <name> [width]\\nTakes a spherical stereoscopic panorama image, for viewing with VR displays.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ScreenShot_VR_f",
+        "source_file": "engine/client/cl_screen.c",
+        "source_line": 3668,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sendcvar": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SendCvar_f",
+        "source_file": "engine/client/cl_input.c",
+        "source_line": 3227,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "serverinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_ServerInfo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6101,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "serverinfoblob": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Serverinfo_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3527,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "set": {
+      "desc": "Changes the current value of the named cvar, creating it if it doesn't yet exist.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4466,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "set_calc": {
+      "desc": "Sets the named cvar to the result of a (complex) expression.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4468,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "set_tp": {
+      "desc": "Identical to set. Included for compatibility with ezquake where ruleset restrictions on macros are on commands rather than cvars.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4470,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "seta": {
+      "desc": "Changes the current value of the named cvar, creating it if it doesn't yet exist. Also forces the archive flag so that the cvar will always be written into any saved configs.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4472,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "seta_calc": {
+      "desc": "Sets the named cvar to the result of a (complex) expression. Also forces the archive flag so that the cvar will always be written into any saved configs.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4473,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setfl": {
+      "desc": "Changes the current value of the named cvar, creating it if it doesn't yet exist. The third arg allows setting cvar flags and should be u, s, or a. This command should normally be used only inside default.cfg.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_set_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4467,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SetInfo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6065,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setinfoblob": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SetInfoBlob_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6063,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setmaster": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_SetMaster_f",
+        "source_file": "engine/client/net_master.c",
+        "source_line": 4073,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setpass": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Rank_SetPass_f",
+        "source_file": "engine/server/sv_rankin.c",
+        "source_line": 927,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setpos": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6089,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "setrenderer": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_SetRenderer_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 761,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "showalias": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_ShowAlias_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4463,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "showpic": {
+      "desc": "showpic <imagename> <placename> <x> <y> <zone> [width] [height] [touchcommand]\\nDisplays an image onscreen, that potentially has a key binding attached to it when clicked/touched.\\nzone should be one of: TL, TR, BL, BR, MM, TM, BM, ML, MR. This serves as an extra offset to move the image around the screen without any foreknowledge of the screen resolution.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ShowPic_Script_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5985,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "showpic_removeall": {
+      "desc": "removes any pictures inserted with the showpic command.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SCR_ShowPic_Remove_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5986,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skel_generateragdoll": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "skel_generateragdoll_f",
+        "source_file": "engine/common/pr_bgcmd.c",
+        "source_line": 116,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skel_info": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "skel_info_f",
+        "source_file": "engine/common/pr_bgcmd.c",
+        "source_line": 115,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skins": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Skin_Skins_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5992,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skipdl": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_SkipDownload_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6077,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sky": {
+      "desc": "For compat with Quakespasm, please use r_skybox.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ForceSky_f",
+        "source_file": "engine/gl/gl_warp.c",
+        "source_line": 1351,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skygroup": {
+      "desc": "Provides a way to associate a skybox name with a series of maps, so that the requested skybox will override on a per-map basis.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Skygroup_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6109,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "skyroomfog": {
+      "desc": "skyroomfog <density> <red> <green> <blue> <alpha> <depthbias>",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Fog_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6108,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "snap": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Snap_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3551,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "snapall": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_SnapAll_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3552,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "snd_restart": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Restart_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2317,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "soundcontrol": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Control_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2319,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "soundinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_SoundInfo_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2315,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "soundlist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_SoundList_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2314,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "spdevmap": {
+      "desc": "Loads a map in single-player developer mode (sv_cheats 1), for Quake III compat.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3591,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "spiderpig": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6087,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "spmap": {
+      "desc": "Loads a map in single-player mode, for Quake III compat.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3590,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sqlkill": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SQL_Kill_f",
+        "source_file": "engine/server/sv_sql.c",
+        "source_line": 1296,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sqlkillall": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SQL_Killall_f",
+        "source_file": "engine/server/sv_sql.c",
+        "source_line": 1297,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sqlstatus": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SQL_Status_f",
+        "source_file": "engine/server/sv_sql.c",
+        "source_line": 1295,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ssv": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MSV_SubServerCommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3581,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "ssv_all": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MSV_SubServerCommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3582,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "startdemos": {
+      "desc": "Sets the demoreel list, but does not start playing them (use the 'demos' command for that)",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Startdemos_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5988,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "status": {
+      "desc": "Prints info about the current server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Status_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3575,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stealthmute": {
+      "desc": "Mutes the player, without telling them, while pretending that their messages are still being broadcast. For use against people that would escalate on expiry or externally.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_StealthMute_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3559,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stop": {
+      "desc": "Stop demo recording.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Stop_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5969,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stopdemo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Stopdemo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5990,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stopmusic": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Media_StopTrack_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5228,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stopsound": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_StopAllSounds_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 2313,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stopul": {
+      "desc": "For internal use",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_StopUpload",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6075,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stt": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "STT_Init_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5177,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "stuffcmd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_StuffToClient_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3617,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_SendGameCommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3577,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_addport": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SVNET_AddPort_f",
+        "source_file": "engine/common/net_wins.c",
+        "source_line": 10547,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_democancel": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3136,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demoeasyrecord": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDEasyRecord_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3137,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDInfo_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3153,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinfoadd": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDInfoAdd_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3151,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demoinforemove": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDInfoRemove_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3152,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demolist": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDList_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3138,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demonumremove": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDRemoveNum_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3140,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demorecord": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVD_Record_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3134,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demoremove": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDRemove_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3139,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_demostop": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MVDStop_f",
+        "source_file": "engine/server/sv_mvd.c",
+        "source_line": 3135,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_downloadchunksperframe": {
+      "desc": "Flawed - downloads instead proceed at the client's drate (or rate) setting instead of ignoring it entirely.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3603,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_enableprofile": {
+      "desc": "Debug setting that is not implemented.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3605,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_gamedir": {
+      "desc": "Change the gamedir reported to clients, without changing any actual paths on the server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Gamedir",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3615,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_impulse": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Impulse_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6039,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_lightstyle": {
+      "desc": "Overrides lightstyles from the server's console, mostly for debug use.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_Lightstyle_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1566,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_meminfo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_MemInfo_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3624,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_progsname": {
+      "desc": "Use sv_progs instead.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3606,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_progtype": {
+      "desc": "Use sv_progs instead. Using to block .dll loading is insufficient with buggy clients around.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3608,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_saveentfile": {
+      "desc": "Dumps a copy of the map's entities to disk, so that it can be edited and used as a replacement for slightly customised maps.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_SaveEntFile_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 683,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_settimer": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_SetTimer_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3616,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sv_speedcheck": {
+      "desc": "Obsolete - movetime is instead metered over time, instead of randomly kicking everyone due to dodgy timer hardware on the server.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3604,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sys_browserredirect": {
+      "desc": "Navigates the browser to a different url. For sites using quake maps as a more interesting sitemap.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sys_BrowserRedirect_f",
+        "source_file": "engine/web/sys_web.c",
+        "source_line": 379,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sys_openfile": {
+      "desc": "Opens a file picker",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sys_OpenFile_f",
+        "source_file": "engine/web/sys_web.c",
+        "source_line": 381,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sys_register_file_associations": {
+      "desc": "Register FTE as the default handler for various file+protocol types, using FreeDesktop standards.\\n",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Sys_Register_File_Associations_f",
+        "source_file": "engine/client/sys_linux.c",
+        "source_line": 630,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "sys_select_timeout": {
+      "desc": "Redundant - server will throttle according to tick rates instead.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_redundantcommand_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3602,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tcpconnect": {
+      "desc": "Connect to a server using the tcp:// prefix",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_TCPConnect_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6036,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tell": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_ConSayOne_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3525,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "timedemo": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_TimeDemo_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 5978,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "timerefresh": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "GLR_TimeRefresh_f",
+        "source_file": "engine/gl/gl_rmisc.c",
+        "source_line": 450,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "toggle": {
+      "desc": "Toggles a cvar between two values\\ntoggle CVARNAME [newval [altval]]",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_toggle_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4465,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "toggleconsole": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Con_ToggleConsole_f",
+        "source_file": "engine/client/console.c",
+        "source_line": 832,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "togglemenu": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "M_ToggleMenu_f",
+        "source_file": "engine/client/menu.c",
+        "source_line": 1513,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "topten": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": null,
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6092,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tp_pickup": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_Pickup_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3731,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tp_point": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_Point_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3732,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tp_took": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TP_Took_f",
+        "source_file": "engine/client/zqtp.c",
+        "source_line": 3730,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "track": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_Track_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1368,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "track1": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_Track1_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1369,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "track2": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_Track2_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1370,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "track3": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_Track3_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1371,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "track4": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cam_Track4_f",
+        "source_file": "engine/client/cl_cam.c",
+        "source_line": 1372,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "tts": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "TTS_Say_f",
+        "source_file": "engine/client/m_mp3.c",
+        "source_line": 5176,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unban": {
+      "desc": "Unbans or removes an IP Address from the penality list, alias to removeip.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_Unfilter_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3566,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unbind": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Key_Unbind_f",
+        "source_file": "engine/client/keys.c",
+        "source_line": 2887,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unbindall": {
+      "desc": "A dangerous command that forgets ALL your key settings. For use only in default.cfg.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Key_Unbindall_f",
+        "source_file": "engine/client/keys.c",
+        "source_line": 2888,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unignore": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Unignore_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 658,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unignoreAll": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "UnignoreAll_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 661,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unignoreAll_team": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "UnignoreteamAll_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 662,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unignore_id": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Unignore_ID_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 663,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unignore_team": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Unignoreteam_f",
+        "source_file": "engine/client/cl_ignore.c",
+        "source_line": 660,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "unsavegame": {
+      "desc": "Wipes an existing saved game from disk.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_DeleteSavegame_f",
+        "source_file": "engine/server/sv_main.c",
+        "source_line": 6055,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "user": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_User_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6059,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "users": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Users_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6060,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "v_cshift": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "V_cshift_f",
+        "source_file": "engine/client/view.c",
+        "source_line": 2728,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "version": {
+      "desc": "Reports engine revision and optional compile-time settings.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Version_f",
+        "source_file": "engine/common/common.c",
+        "source_line": 6821,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "version_modelformats": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Mod_PrintFormats_f",
+        "source_file": "engine/gl/gl_model.c",
+        "source_line": 685,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "vid_recenter": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "GLVID_Recenter_f",
+        "source_file": "engine/gl/gl_vidnt.c",
+        "source_line": 3333,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "vid_reload": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ReloadRenderer_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 763,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "vid_restart": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_RestartRenderer_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 762,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "vid_toggle": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "R_ToggleFullscreen_f",
+        "source_file": "engine/client/renderer.c",
+        "source_line": 764,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "voip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "S_Voip_f",
+        "source_file": "engine/client/snd_dma.c",
+        "source_line": 1761,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "vstr": {
+      "desc": "Executes the string value of the cvar, much like if it were an alias. For compatibility with q3.",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Vstr_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4474,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "wait": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "Cmd_Wait_f",
+        "source_file": "engine/common/cmd.c",
+        "source_line": 4454,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "watchpoint": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_WatchPoint_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1554,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "watchpoint_csqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CSQC_WatchPoint_f",
+        "source_file": "engine/client/pr_csqc.c",
+        "source_line": 8649,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "watchpoint_menuqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "MP_Watchpoint_f",
+        "source_file": "engine/client/pr_menu.c",
+        "source_line": 3533,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "watchpoint_ssqc": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "PR_WatchPoint_f",
+        "source_file": "engine/server/pr_cmds.c",
+        "source_line": 1555,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "waterfog": {
+      "desc": "waterfog <density> <red> <green> <blue> <alpha> <depthbias>",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Fog_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6107,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "wf": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "V_WhiteFlash_f",
+        "source_file": "engine/client/view.c",
+        "source_line": 2731,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "which": {
+      "desc": "Searches for a named file, and displays where it can be found in the OS's filesystem",
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_Locate_f",
+        "source_file": "engine/common/fs.c",
+        "source_line": 8450,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "windows": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "CL_Windows_f",
+        "source_file": "engine/client/cl_main.c",
+        "source_line": 6115,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "worker_status": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_WorkerStatus_f",
+        "source_file": "engine/common/common.c",
+        "source_line": 6728,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "worker_test": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "COM_WorkerTest_f",
+        "source_file": "engine/common/common.c",
+        "source_line": 6727,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "writeip": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "SV_WriteIP_f",
+        "source_file": "engine/server/sv_ccmds.c",
+        "source_line": 3571,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_end": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_End_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 92,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_info": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Info_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 96,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_start": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Start_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 91,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_start_ar": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Start_AR_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 95,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_start_inline": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Start_Inline_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 93,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_start_vr": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Start_VR_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 94,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    },
+    "xr_toggle": {
+      "desc": null,
+      "source_root": "engine",
+      "ast": {
+        "handler_fn": "WebXR_Toggle_f",
+        "source_file": "engine/web/gl_vidweb.c",
+        "source_line": 90,
+        "source_column": null,
+        "enclosing_function": null,
+        "build_variant": "client"
+      }
+    }
+  },
+  "_stats": {
+    "count": 556,
+    "with_description": 189,
+    "legacy_aliases": 0,
+    "by_source_root": {
+      "engine": 556
+    },
+    "by_api": {
+      "Cmd_AddCommand": 352,
+      "Cmd_AddCommandD": 145,
+      "Cmd_AddCommandAD": 59
+    }
+  }
+}
