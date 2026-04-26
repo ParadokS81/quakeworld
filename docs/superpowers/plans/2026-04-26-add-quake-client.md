@@ -1,0 +1,804 @@
+# Add Quake Client — Phase 3.5 of Quake Dir Control
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Single-button "Add Quake client" flow that routes through MyQuake's existing browser, identifies clients via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly (family / matched-to-official / unrecognized), and makes the "switch to latest official" path one click away from any unrecognized state.
+
+**Position in roadmap:** Phase 3.5 of Quake Dir Control — between Phase 3 (swap + UI + delete) and Phase 4 (oracle snapshot widening). Reasoning: Phase 3 ships the swap mechanism. The next thing the user wants is "let me add more clients to switch between." Phases 4-5 (diff viewer) only deliver value when multiple versions exist in the warehouse, which only happens at scale once Add Client exists. Sequence-wise this puts user-facing value first, internal plumbing later.
+
+**Architecture:** A `ClientFingerprint` Rust module reads PE StringFileInfo (translation table enumeration + InternalName/ProductName/version-string lookup) to identify Quake clients in any folder slipgate scans. A `release_cache` Rust module owns per-client GitHub Releases data (with per-client distribution-shape policy — FTE skips Tier 2 entirely because no canonical release concept exists), refreshes-on-launch, replaces the updater's existing ad-hoc release fetching as a side benefit. MyQuake's existing browser (currently passive — read-only file classification) gains a Clients first-class category with actionable Import / Set primary / Remove rows. The "Add Quake client" entry-point button (stubbed in Phase 3) becomes a routed jump into MyQuake → Browse → Clients filter, where the user sees a default-select-all checklist of detected clients, ticks/unticks, picks one as primary, and bulk-imports.
+
+**Tech stack:** Tauri v2 + SolidJS + Rust + Bun (unchanged from earlier QDC phases). PE-string reading via `windows::Win32::Storage::FileSystem::VerQueryValueW` (already used by `ezquake.rs:read_exe_version`). Release-cache fetches via `reqwest` (already in use by `updater.rs`). Frontend tests `bun:test`.
+
+---
+
+## Critical context for the engineer
+
+Read this section before starting. These gotchas are not optional knowledge.
+
+1. **Phases 0+1+2 of Quake Dir Control are SHIPPED.** Read `apps/slipgate-app/docs/QUAKE-DIR-CONTROL.md` and the parent plan `docs/superpowers/plans/2026-04-26-quake-dir-control.md` first. Phase 3 (swap + UI + delete) MUST ship before this Phase 3.5 — the version warehouse panel Phase 3 builds is where the "Add Quake client" button lives.
+
+2. **Tauri command registration is two-step.** Adding a new Tauri command requires `pub mod <name>;` in `src-tauri/src/commands/mod.rs` AND the `#[tauri::command]` function listed in `tauri::generate_handler![]` in `src-tauri/src/lib.rs`. Forgetting either side gives a runtime "command not found" error in the frontend, not a compile error.
+
+3. **`ezquake.rs:read_exe_version` is the existing PE-reading model.** Lines 1763-1819 show the full pattern: `GetFileVersionInfoSizeW` → `GetFileVersionInfoW` → `VerQueryValueW` for the `\` sub-block (which gives `VS_FIXEDFILEINFO` numeric version). The new fingerprinter reuses this scaffolding but does additional `VerQueryValueW` calls for the `\StringFileInfo\<lang+cp>\<KeyName>` paths to read CompanyName, ProductName, InternalName, FileVersion, ProductVersion strings.
+
+4. **Translation table enumeration is mandatory, not optional.** Different clients use different langid+codepage combinations:
+   - ezQuake uses `040904B0` (US English / Unicode 04B0)
+   - FTE uses `080904B0` (UK English / Unicode 04B0)
+   - Other forks may use other combinations
+   The fingerprinter MUST query `\VarFileInfo\Translation` first to get the list of available pairs, then iterate them building `\StringFileInfo\<lang+cp>\<KeyName>` paths. Hardcoding `040904B0` will fail on FTE binaries.
+
+5. **`parse_pe_version` is now `pub` in `commands/updater.rs:157`** (made pub during Phase 2 normalization fix `ae875ca`). Reuse it for normalizing version strings from numeric VS_FIXEDFILEINFO when needed; it's the canonical helper for the "3.6.6.7947" → "3.6.6" conversion.
+
+6. **`read_exe_version` is Windows-only.** `commands/ezquake.rs:1765` is `#[cfg(target_os = "windows")]`; the Linux fallback returns None. WSL dev mode cannot read PE versions. The same pattern applies to ALL PE-string reading. The new `ClientFingerprint` module returns `Unknown` on non-Windows. Tests use Windows-only `#[cfg(target_os = "windows")]` guards or fixture data that doesn't depend on PE parsing.
+
+7. **MyQuake browser is currently passive.** `apps/slipgate-app/src/components/MyQuakeTab.tsx` (and the underlying browser components under `MyQuake*`) currently does directory walking, file classification by type, and read-only display. NO actionable rows exist today. This phase introduces the first action layer — Import / Set primary / Remove on Client rows. Match the existing visual pattern (DaisyUI semantic classes, OKLCH theme) and don't introduce a new interaction paradigm.
+
+8. **CLIENTS DETECTED sidebar already exists.** Look at MyQuakeTab's left sidebar — the "CLIENTS DETECTED [*] ezquake" line. This is currently a passive label. This phase upgrades it: each detected client becomes an actionable row showing warehouse status (warehoused / not warehoused / active) with hover or right-click revealing actions.
+
+9. **Updater already fetches GitHub Releases.** `commands/updater.rs:fetch_github_releases` (around line 182) is the existing ad-hoc fetch. Phase 3.5 adds `release_cache` module which becomes the single source of truth for release data; updater is refactored to consume the cache instead of fetching on its own. This is a meaningful refactor but pays back permanently.
+
+10. **No new heavy Rust deps.** `reqwest`, `serde_json`, `sha2`, `tokio` are all already in `Cargo.toml`. The release-cache fetches use `reqwest`; cache files use `serde_json`. No new crates needed.
+
+11. **FTE distribution model is fundamentally different.** FTE has no concept of "official release" — it's continuous nightly builds at `fte.triptohell.info` with build numbers in the thousands. The `release_cache` module's per-client policy MUST treat FTE differently: skip Tier 2 entirely. The fingerprinter classifies FTE binaries as "FTE QW (build NNN)" without judgment. The upgrade-nudge UX for FTE becomes "build NNN is from <date>; latest available is build MMM" rather than "this is unrecognized."
+
+12. **Default-select-all is the bulk-import policy** (operator's stated workflow: "i can just import all"). When the user opens the Add Client checklist, every detected client row is pre-ticked. User unticks the ones they don't want; the affirmative bulk action ("Import selected") is the primary CTA. This matches operator's actual workflow on a multi-version quake dir AND nudges users toward an organized warehouse.
+
+13. **Unknown / non-client exes are filtered before the user sees the import list.** When MyQuake's browser shows Clients filter, only fingerprinter-classified clients appear. Tools (qizmo, qwdtools), debug symbols (`.exe.db`), generic utilities (wget), and unrecognized binaries are NOT in the import list — there's no "tick this random.exe to import" option. They're still visible in MyQuake's general browser (categorized as Tools or Other), just not as importable clients.
+
+14. **No FTE config parsing in this phase.** The fingerprinter classifying a binary as FTE means slipgate knows to warehouse it as an FTE client. It does NOT mean slipgate can read FTE configs, classify FTE binds, or interact with FTE's gamedir conventions. That's a separate massive arc tracked elsewhere. This phase produces "switch between exes" capability for FTE; understanding FTE's content is future work.
+
+15. **unezQuake repo is locally cloned** at `research/repos/unezquake/` (gitignored). Use it for authority lookups during fingerprinter development — e.g., confirming what their .rc file says, what cvars distinguish them from vanilla ezQuake, what their GitHub Releases naming scheme is.
+
+16. **Slipgate dev devtools `invoke()` calls don't work** (per `reference_slipgate_devtools_invoke.md`). For Phase 3.5 verification, prefer filesystem inspection (`<data-root>/release-cache/<client>.json`, `<data-root>/binaries/<client>/<version>/manifest.json`) and PowerShell one-liners over devtools-driven checks.
+
+---
+
+## Design decisions
+
+These resolve structural choices made during the 2026-04-26 evening design conversation. Each is written as **decision + rationale + which sub-phase implements it**.
+
+### D1. Single button entry point, not multiple
+
+**Decision:** One button labeled "Add Quake client" lives at the top of the version warehouse panel (Phase 3 stubs it). Clicking it routes to MyQuake → Browse → Clients filter rather than opening a separate modal/wizard.
+
+**Why:** Operator's stated framing: "i would attempt to make it a single point of entry to simplify it for the user. Add Quake client, and then we have some good ui that guides the user to show us to the quake folder to scan, or a direct exe. but the main concept should resolve some of the burden." Discovery-and-curation in one step replaces the alternative of either auto-importing everything found (warehouse bloat) or refusing to act (forces user to type paths). Users see the result of a scan, pick what they want, done.
+
+Beautifully unifies with MyQuake — it's already the user's "look at my Quake stuff" surface. Adding "manage client warehouse" to that surface doesn't introduce a new mental model. No separate wizard to design, build, and maintain.
+
+**Phase:** Sub-phase 4 (entry-point flow).
+
+### D2. Default-select-all in the import checklist
+
+**Decision:** When the user opens the Clients filter checklist, every detected client row is pre-ticked. Primary CTA is "Import selected." User unticks rows they don't want; if they want only one, they untick the others.
+
+**Why:** Operator's workflow: "i can just import all, so i have a functional overview of what my quake dir consist of and i can easy switch to another." Default-select-all matches that workflow with one click ("Import selected") rather than N clicks to tick each row. Also nudges toward an organized warehouse — even users who weren't planning to "import everything" get the value of "now I know what's in my quake dir" without extra friction.
+
+For users who only want one client warehoused (operator's "perfect world" target state), the cost is N-1 unticks — still trivial for typical dirs (1-5 clients).
+
+**Phase:** Sub-phase 4 (entry-point flow).
+
+### D3. release_cache as a shared module, not per-feature ad-hoc fetching
+
+**Decision:** New `commands/release_cache.rs` module owns ALL GitHub Releases data fetching for slipgate. Caches at `<data-root>/release-cache/<client>.json`. Refresh-on-launch with 24-hour staleness check. Refactors `commands/updater.rs:fetch_github_releases` to consume the cache instead of fetching independently.
+
+**Why:** Multiple slipgate features need the same data:
+- Existing updater needs "latest stable" + "latest snapshot" per client for the Updater tab
+- Phase 3.5's fingerprinter Tier-2 cross-check needs the full release list to test "is this version official?"
+- Future features (release notes panel, "what's new in 3.6.10" UI, etc.) will need the same data
+
+Without `release_cache`, each feature ends up with its own ad-hoc fetch logic, all hitting GitHub independently, all caching differently (or not at all). One shared module = one source of truth, predictable cache behavior, easier to add rate-limiting / offline-mode handling later.
+
+The updater refactor is small (replace one function call) and pays back permanently.
+
+**Phase:** Sub-phase 2 (release_cache module + updater refactor).
+
+### D4. Substring-not-regex fingerprinting
+
+**Decision:** Version-string matching uses substrings (case-insensitive), not regex patterns. The unezQuake-family rule is `version_string contains "antilag"`, not `^3\.\d+-dev-alpha\d+-antilag-r\d+$` or any other structural pattern.
+
+**Why:** Projects evolve naming schemes. dusty-qw/unezquake demonstrated this in operator's real binary: version `3.6-dev-alpha10-antilag-r402` (pre-public era) vs modern `1.x` semver releases. A regex matching the old form fails on the new form and vice versa. The substring `antilag` is invariant — it's the project's identity, present in every version string and in every cvar grouping under "Antilag Support" in their README.
+
+Captured in `feedback_substring_not_regex_fingerprinting.md` as a reusable principle.
+
+**Phase:** Sub-phase 1 (ClientFingerprint module).
+
+### D5. Per-client distribution policy table
+
+**Decision:** Different clients have fundamentally different distribution shapes. The three-tier identity model (family / matched-to-official / unrecognized) doesn't apply uniformly. Per-client policy:
+
+| Client | Distribution model | Tier 2 viable? |
+|---|---|---|
+| ezQuake stable | GitHub Releases (~30) | Yes |
+| ezQuake snapshot | builds.quakeworld.nu (rolling) | Yes (live) |
+| KTX | GitHub Releases (~30) | Yes |
+| MVDSV | GitHub Releases (~30) | Yes |
+| QWFWD | GitHub Releases (~30) | Yes |
+| unezQuake | GitHub Releases (~30+) at dusty-qw/unezquake | Yes |
+| FTE | Continuous nightly builds at fte.triptohell.info | **No** |
+
+For FTE, asking "is this an official release?" doesn't map. Skip Tier 2 entirely; classify as `FTE QW (build NNN)` without judgment. Upgrade-nudge becomes "build NNN is from <date>; latest available is build MMM."
+
+**Why:** Forcing FTE through a Tier 2 check would either (a) require maintaining a list of thousands of build numbers as "official" (pointless — they all are), or (b) classify every FTE binary as "unrecognized" (false). Different clients want different policies; the per-client table is the cleanest way to encode that.
+
+**Phase:** Sub-phase 2 (release_cache module).
+
+### D6. Variant tiebreaker rule (filename-suffix → version-key suffix)
+
+**Decision:** When the same client+version exists with different bytes (different sha256), append the filename-derived variant suffix to the version key. Example: ezQuake 3.6.6 has historically shipped as `ezquake.exe` AND `ezquake-glsl.exe` — same PE strings, same version, different binaries. Filename suffix `-glsl` becomes version-key suffix → warehouse paths become `binaries/ezquake/3.6.6/manifest.json` and `binaries/ezquake/3.6.6-glsl/manifest.json`. No collision.
+
+Recognized variant suffixes: `-glsl`, `-debug`, `-dev`, `-test` (extensible list). Unknown suffixes fall through to refuse-and-prompt: "You already have ezQuake 3.6.6 warehoused. This binary has different bytes — replace, keep with custom variant tag, or skip?"
+
+**Why:** Variants are a real ezQuake-historical case (old GLSL builds shipped alongside vanilla). Collisions silently overwrite manifests today (only second-imported manifest sticks). The fix is small (one filename inspection at register time) and prevents data loss.
+
+**Phase:** Sub-phase 1 (ClientFingerprint module exposes variant suffix; sub-phase 4 uses it during register_version calls).
+
+### D7. Unknown clients filtered before the user sees the import list
+
+**Decision:** The Clients filter view in MyQuake shows ONLY fingerprinter-classified clients (ezQuake / unezQuake-family / FTE). Tools, debug symbols, generic utilities, and unrecognized binaries are NOT in the import list. They're still visible in MyQuake's general browser (categorized as Tools or Other in existing classification), just not as importable clients.
+
+**Why:** Importing `qizmo.exe` or `wget.exe` as a "Quake client" is meaningless; offering it as an option degrades the import experience. The fingerprinter's Unknown classification is a pre-filter, not a selectable option. Users who genuinely have a custom client we don't recognize can use the existing path-picker fallback (the simpler one Phase 3 might build as a stubbed alternative entry point), or wait for fingerprinter rule additions.
+
+**Phase:** Sub-phase 3 (MyQuake browser augmentation).
+
+---
+
+## File-structure preview
+
+**New Rust modules** (sub-phases 1-2):
+- `src-tauri/src/commands/client_fingerprint.rs` — PE StringFileInfo reader + classification rules + variant suffix detection
+- `src-tauri/src/commands/release_cache.rs` — GitHub Releases fetch + cache + per-client policy
+
+**Modified Rust files**:
+- `src-tauri/src/commands/mod.rs` — register new modules
+- `src-tauri/src/lib.rs` — register new Tauri commands
+- `src-tauri/src/commands/updater.rs` — refactor `fetch_github_releases` to consume `release_cache`
+
+**New SolidJS files** (sub-phases 3-4):
+- `src/lib/quake-dir/clientFingerprint.ts` — frontend wrapper
+- `src/lib/quake-dir/clientFingerprint.test.ts`
+- `src/lib/quake-dir/releaseCache.ts` — frontend wrapper
+- `src/lib/quake-dir/releaseCache.test.ts`
+- `src/lib/quake-dir/addClientFlow.ts` — orchestrates the bulk-import flow (calls fingerprint → match against cache → show checklist data → import selected)
+- `src/lib/quake-dir/addClientFlow.test.ts`
+- `src/components/AddClientPanel.tsx` — the checklist + primary-picker + import button UI
+- `src/components/ClientImportRow.tsx` — single-row component with three-tier identity surfacing
+
+**Modified SolidJS files**:
+- `src/components/MyQuakeTab.tsx` — Clients first-class category in the existing browser; CLIENTS DETECTED sidebar gains actionable rows
+- `src/components/VersionWarehouse.tsx` — wire the "Add Quake client" button (Phase 3 stubbed it) to route into MyQuake → Clients filter
+- The MyQuake browser file-classification layer (wherever the existing type categorization lives) — gain a "Clients" type that calls the fingerprinter on each .exe
+
+---
+
+## Sub-phase 1: ClientFingerprint Rust module
+
+**Sessions:** 1 (~2 hours)
+**Goal:** Pure-Rust module that takes a path and returns a `ClientFingerprint` enum classifying it as ezQuake / unezQuake-family / FTE / Unknown, with version + variant suffix.
+
+### Task 1.1: Module skeleton + types
+
+**Files:**
+- Create: `apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs`
+- Modify: `apps/slipgate-app/src-tauri/src/commands/mod.rs`
+
+- [ ] **Step 1: Define enum + result type**
+
+```rust
+// apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs
+use std::path::Path;
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum ClientKind {
+    EzQuake,
+    UnezQuakeFamily,
+    Fte,
+    Unknown,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ClientFingerprint {
+    pub kind: ClientKind,
+    pub version: Option<String>,        // raw version string from PE FileVersion or ProductVersion
+    pub variant: Option<String>,        // filename-derived variant suffix (e.g., "glsl", "debug")
+    pub product_name: Option<String>,   // raw PE ProductName
+    pub internal_name: Option<String>,  // raw PE InternalName
+    pub original_filename: Option<String>, // raw PE OriginalFilename
+}
+
+#[cfg(target_os = "windows")]
+fn read_pe_strings(path: &Path) -> Option<PeStrings> {
+    // ... uses windows crate, mirrors read_exe_version pattern in ezquake.rs
+    // Enumerates translation table, queries each for InternalName, ProductName,
+    // FileVersion, ProductVersion, OriginalFilename, CompanyName, FileDescription
+    todo!()
+}
+
+#[cfg(not(target_os = "windows"))]
+fn read_pe_strings(_path: &Path) -> Option<PeStrings> {
+    None
+}
+
+#[derive(Default, Debug)]
+struct PeStrings {
+    company_name: Option<String>,
+    product_name: Option<String>,
+    file_version: Option<String>,
+    product_version: Option<String>,
+    file_description: Option<String>,
+    original_filename: Option<String>,
+    internal_name: Option<String>,
+}
+```
+
+- [ ] **Step 2: Wire `pub mod client_fingerprint;` in commands/mod.rs**
+
+### Task 1.2: PE StringFileInfo reader
+
+**Files:**
+- Modify: `apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs`
+
+- [ ] **Step 1: Implement read_pe_strings on Windows**
+
+Pattern: mirror `ezquake.rs:read_exe_version` for the size + load + first-VerQueryValue (root sub-block) calls, then add the additional VerQueryValue calls:
+
+1. Query `\VarFileInfo\Translation` to get the list of (lang, codepage) pairs
+2. For each pair, build sub-block paths like `\StringFileInfo\<langhex+cphex>\InternalName` etc.
+3. Query each KeyName (InternalName, ProductName, CompanyName, FileVersion, ProductVersion, OriginalFilename, FileDescription) under each translation; first hit wins per key
+
+Reference the `windows::Win32::Storage::FileSystem::VerQueryValueW` signature; the lang+cp value is two u16 words at the returned pointer. Format as zero-padded hex like `040904B0`.
+
+Return None if `GetFileVersionInfoSizeW` returns 0 (no version info present).
+
+- [ ] **Step 2: Add 3 unit tests using fixture-style approach**
+
+Pure-Rust tests can't easily exercise the PE reader without real Windows binaries. Two approaches:
+
+- (a) Mark the read_pe_strings tests `#[cfg(target_os = "windows")]` and use small fixture binaries (e.g., bundled in `tests/fixtures/` if any exist; otherwise skip)
+- (b) Skip direct read_pe_strings tests and exercise the classification logic separately (see Task 1.3)
+
+Default to (b) for portability — write classification tests that take `PeStrings` literals and call the classifier function directly.
+
+### Task 1.3: Classification rules
+
+**Files:**
+- Modify: `apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs`
+
+- [ ] **Step 1: Implement classify_from_pe_strings**
+
+```rust
+pub fn classify_from_pe_strings(pe: &PeStrings) -> ClientKind {
+    // FTE check first — InternalName is the most stable signal
+    if pe.internal_name.as_deref() == Some("ftequake") {
+        return ClientKind::Fte;
+    }
+
+    // ezQuake family check via ProductName
+    if pe.product_name.as_deref() == Some("ezQuake") {
+        // Distinguish ezQuake vs unezQuake-family via version string substring
+        let version_str = pe.product_version.as_deref()
+            .or(pe.file_version.as_deref())
+            .or(pe.file_description.as_deref())
+            .unwrap_or("");
+
+        if version_str.to_ascii_lowercase().contains("antilag")
+            || version_str.to_ascii_lowercase().contains("unezquake")
+        {
+            return ClientKind::UnezQuakeFamily;
+        }
+        return ClientKind::EzQuake;
+    }
+
+    ClientKind::Unknown
+}
+```
+
+- [ ] **Step 2: Variant suffix detection from filename**
+
+```rust
+const KNOWN_VARIANT_SUFFIXES: &[&str] = &["glsl", "debug", "dev", "test"];
+
+pub fn variant_from_filename(filename: &str) -> Option<String> {
+    let stem = filename.trim_end_matches(".exe").to_ascii_lowercase();
+    for suffix in KNOWN_VARIANT_SUFFIXES {
+        if stem.ends_with(&format!("-{}", suffix)) {
+            return Some(suffix.to_string());
+        }
+    }
+    None
+}
+```
+
+- [ ] **Step 3: Top-level fingerprint function**
+
+```rust
+pub fn fingerprint(path: &Path) -> ClientFingerprint {
+    let pe = read_pe_strings(path).unwrap_or_default();
+    let kind = classify_from_pe_strings(&pe);
+    let filename = path.file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let variant = variant_from_filename(&filename);
+
+    ClientFingerprint {
+        kind,
+        version: pe.product_version.or(pe.file_version),
+        variant,
+        product_name: pe.product_name,
+        internal_name: pe.internal_name,
+        original_filename: pe.original_filename,
+    }
+}
+
+#[tauri::command]
+pub fn fingerprint_exe(path: String) -> Result<ClientFingerprint, String> {
+    let p = std::path::PathBuf::from(&path);
+    if !p.exists() {
+        return Err(format!("file not found: {}", p.display()));
+    }
+    Ok(fingerprint(&p))
+}
+
+#[tauri::command]
+pub fn fingerprint_folder(folder: String) -> Result<Vec<(String, ClientFingerprint)>, String> {
+    let p = std::path::PathBuf::from(&folder);
+    if !p.is_dir() {
+        return Err(format!("not a directory: {}", p.display()));
+    }
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(&p).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        if path.is_file() && path.extension().map(|e| e == "exe").unwrap_or(false) {
+            // Skip .exe.db debug symbol files
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.ends_with(".exe.db") { continue; }
+            let fp = fingerprint(&path);
+            out.push((path.to_string_lossy().into_owned(), fp));
+        }
+    }
+    Ok(out)
+}
+```
+
+- [ ] **Step 4: Unit tests (8 tests)**
+
+Test classification logic directly with literal PeStrings:
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn pe(product_name: &str, internal_name: &str, version: &str) -> PeStrings {
+        PeStrings {
+            product_name: Some(product_name.to_string()),
+            internal_name: Some(internal_name.to_string()),
+            product_version: Some(version.to_string()),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn classify_vanilla_ezquake() {
+        let p = pe("ezQuake", "ezquake", "3.6.9");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::EzQuake);
+    }
+
+    #[test]
+    fn classify_modern_unezquake() {
+        let p = pe("ezQuake", "ezquake", "1.3.5-dev unezquake build");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::UnezQuakeFamily);
+    }
+
+    #[test]
+    fn classify_old_unezquake_with_antilag_suffix() {
+        let p = pe("ezQuake", "ezquake", "3.6-dev-alpha10-antilag-r402 Build r7289");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::UnezQuakeFamily);
+    }
+
+    #[test]
+    fn classify_fte() {
+        let p = pe("FTE QW", "ftequake", "01.20");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::Fte);
+    }
+
+    #[test]
+    fn classify_unknown() {
+        let p = pe("Some Other Tool", "qizmo", "1.0");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::Unknown);
+    }
+
+    #[test]
+    fn classify_handles_case_insensitive_antilag() {
+        let p = pe("ezQuake", "ezquake", "3.6 ANTILAG-r5");
+        assert_eq!(classify_from_pe_strings(&p), ClientKind::UnezQuakeFamily);
+    }
+
+    #[test]
+    fn variant_glsl_detected() {
+        assert_eq!(variant_from_filename("ezquake-glsl.exe"), Some("glsl".to_string()));
+        assert_eq!(variant_from_filename("ezquake.exe"), None);
+    }
+
+    #[test]
+    fn variant_debug_detected() {
+        assert_eq!(variant_from_filename("fteqw-debug.exe"), Some("debug".to_string()));
+    }
+}
+```
+
+- [ ] **Step 5: Build + test**
+
+```bash
+cd apps/slipgate-app/src-tauri && cargo build --quiet && cargo test --quiet client_fingerprint
+```
+
+Expected: clean build, 8 tests pass.
+
+- [ ] **Step 6: Wire fingerprint_exe + fingerprint_folder in lib.rs handler block**
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs \
+        apps/slipgate-app/src-tauri/src/commands/mod.rs \
+        apps/slipgate-app/src-tauri/src/lib.rs
+git commit -m "feat(slipgate): client_fingerprint module with PE strings classification"
+```
+
+---
+
+## Sub-phase 2: release_cache module + updater refactor
+
+**Sessions:** 1 (~2 hours)
+**Goal:** Single source of truth for GitHub Releases data per client. Replaces updater's ad-hoc fetch.
+
+### Task 2.1: release_cache module
+
+**Files:**
+- Create: `apps/slipgate-app/src-tauri/src/commands/release_cache.rs`
+- Modify: `apps/slipgate-app/src-tauri/src/commands/mod.rs`
+
+- [ ] **Step 1: Module + types**
+
+```rust
+// apps/slipgate-app/src-tauri/src/commands/release_cache.rs
+use std::path::PathBuf;
+use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
+use crate::commands::data_root::data_root_path;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ReleaseEntry {
+    pub tag: String,            // "3.6.9", "v1.46", etc.
+    pub published_at: String,   // ISO 8601 from GitHub
+    pub download_url: Option<String>,
+    pub asset_sha256: Option<String>, // if checksums.txt is parseable
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct ClientReleaseCache {
+    pub client: String,
+    pub last_fetched: u64,      // unix epoch seconds
+    pub releases: Vec<ReleaseEntry>,
+    pub source: String,         // "github_releases", "builds_quakeworld_nu", "fte_triptohell", etc.
+}
+
+const CACHE_TTL_SECS: u64 = 24 * 60 * 60; // 24 hours
+
+#[derive(Clone, Copy, Debug)]
+pub enum DistributionShape {
+    GitHubReleases { owner: &'static str, repo: &'static str },
+    BuildsQuakeworld,
+    FteTripToHell,
+}
+
+pub fn distribution_for(client: &str) -> Option<DistributionShape> {
+    match client {
+        "ezquake" => Some(DistributionShape::GitHubReleases {
+            owner: "ezquake", repo: "ezquake-source"
+        }),
+        "ktx" => Some(DistributionShape::GitHubReleases {
+            owner: "QW-Group", repo: "ktx"
+        }),
+        "mvdsv" => Some(DistributionShape::GitHubReleases {
+            owner: "QW-Group", repo: "mvdsv"
+        }),
+        "qwfwd" => Some(DistributionShape::GitHubReleases {
+            owner: "QW-Group", repo: "qwfwd"
+        }),
+        "unezquake" => Some(DistributionShape::GitHubReleases {
+            owner: "dusty-qw", repo: "unezquake"
+        }),
+        "fte" => Some(DistributionShape::FteTripToHell),
+        _ => None,
+    }
+}
+
+pub fn supports_tier2(client: &str) -> bool {
+    !matches!(distribution_for(client), Some(DistributionShape::FteTripToHell))
+}
+```
+
+- [ ] **Step 2: Cache file I/O**
+
+```rust
+fn cache_path(data_root: &std::path::Path, client: &str) -> PathBuf {
+    data_root.join("release-cache").join(format!("{}.json", client))
+}
+
+pub fn read_cache(data_root: &std::path::Path, client: &str) -> Option<ClientReleaseCache> {
+    let path = cache_path(data_root, client);
+    if !path.exists() { return None; }
+    let text = std::fs::read_to_string(&path).ok()?;
+    serde_json::from_str(&text).ok()
+}
+
+pub fn write_cache(data_root: &std::path::Path, cache: &ClientReleaseCache) -> Result<(), String> {
+    let path = cache_path(data_root, &cache.client);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&path,
+        serde_json::to_string_pretty(cache).map_err(|e| e.to_string())?
+    ).map_err(|e| e.to_string())
+}
+
+pub fn is_stale(cache: &ClientReleaseCache) -> bool {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    now.saturating_sub(cache.last_fetched) > CACHE_TTL_SECS
+}
+```
+
+- [ ] **Step 3: Fetcher (GitHub Releases path)**
+
+```rust
+async fn fetch_github_releases(owner: &str, repo: &str) -> Result<Vec<ReleaseEntry>, String> {
+    let url = format!("https://api.github.com/repos/{}/{}/releases", owner, repo);
+    let resp = reqwest::Client::new()
+        .get(&url)
+        .header("User-Agent", "slipgate-app")
+        .send().await
+        .map_err(|e| e.to_string())?;
+    let releases: Vec<serde_json::Value> = resp.json().await.map_err(|e| e.to_string())?;
+    let entries = releases.iter().map(|r| ReleaseEntry {
+        tag: r["tag_name"].as_str().unwrap_or("").to_string(),
+        published_at: r["published_at"].as_str().unwrap_or("").to_string(),
+        download_url: r["assets"].as_array()
+            .and_then(|a| a.first())
+            .and_then(|a| a["browser_download_url"].as_str())
+            .map(|s| s.to_string()),
+        asset_sha256: None, // populate later if needed
+    }).collect();
+    Ok(entries)
+}
+
+// Stub for FTE; build server scrape happens here
+async fn fetch_fte_builds() -> Result<Vec<ReleaseEntry>, String> {
+    // TODO: scrape fte.triptohell.info; for now return empty so the rest works
+    Ok(Vec::new())
+}
+```
+
+- [ ] **Step 4: Top-level get_releases (cache-or-fetch)**
+
+```rust
+pub async fn get_releases(
+    data_root: &std::path::Path,
+    client: &str,
+) -> Result<ClientReleaseCache, String> {
+    if let Some(cache) = read_cache(data_root, client) {
+        if !is_stale(&cache) {
+            return Ok(cache);
+        }
+    }
+
+    let dist = distribution_for(client)
+        .ok_or_else(|| format!("no distribution shape for client '{}'", client))?;
+
+    let releases = match dist {
+        DistributionShape::GitHubReleases { owner, repo } => {
+            fetch_github_releases(owner, repo).await?
+        }
+        DistributionShape::FteTripToHell => fetch_fte_builds().await?,
+        DistributionShape::BuildsQuakeworld => {
+            // existing scraper lives in updater.rs; keep the dependency direction
+            // sane by stubbing here for this phase
+            Vec::new()
+        }
+    };
+
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+
+    let cache = ClientReleaseCache {
+        client: client.to_string(),
+        last_fetched: now,
+        releases,
+        source: format!("{:?}", dist),
+    };
+    write_cache(data_root, &cache)?;
+    Ok(cache)
+}
+
+#[tauri::command]
+pub async fn get_release_cache(
+    app: tauri::AppHandle,
+    client: String,
+) -> Result<ClientReleaseCache, String> {
+    let root = data_root_path(&app)?;
+    get_releases(&root, &client).await
+}
+
+#[tauri::command]
+pub async fn refresh_all_release_caches(
+    app: tauri::AppHandle,
+) -> Result<HashMap<String, ClientReleaseCache>, String> {
+    let root = data_root_path(&app)?;
+    let mut out = HashMap::new();
+    for client in ["ezquake", "ktx", "mvdsv", "qwfwd", "unezquake", "fte"] {
+        if let Ok(cache) = get_releases(&root, client).await {
+            out.insert(client.to_string(), cache);
+        }
+    }
+    Ok(out)
+}
+```
+
+- [ ] **Step 5: Tier-2 lookup helper**
+
+```rust
+pub fn matches_official_release(cache: &ClientReleaseCache, version_str: &str) -> bool {
+    cache.releases.iter().any(|r| r.tag == version_str || r.tag == format!("v{}", version_str))
+}
+```
+
+- [ ] **Step 6: Tests**
+
+Tests for cache I/O + staleness + matches_official_release using TempDir. Skip live fetching (network-dependent).
+
+- [ ] **Step 7: Build + test + commit**
+
+### Task 2.2: Refactor updater to consume release_cache
+
+**Files:**
+- Modify: `apps/slipgate-app/src-tauri/src/commands/updater.rs`
+
+- [ ] **Step 1: Replace updater's existing fetch_github_releases with release_cache::get_releases call**
+
+The existing `updater::fetch_github_releases` in updater.rs becomes a thin wrapper that calls `release_cache::get_releases(...)` and adapts the response shape if needed. Or delete it entirely and update callers to use `release_cache::get_releases` directly.
+
+- [ ] **Step 2: Add `app: tauri::AppHandle` parameter where needed** (if `check_for_update` doesn't already have it)
+
+- [ ] **Step 3: Build + commit**
+
+---
+
+## Sub-phase 3: MyQuake browser augmentation
+
+**Sessions:** 1 (~2-3 hours)
+**Goal:** MyQuake's existing browser gets a "Clients" first-class category. CLIENTS DETECTED sidebar gains actionable rows.
+
+### Task 3.1: Frontend wrapper for fingerprint commands
+
+- [ ] Create `src/lib/quake-dir/clientFingerprint.ts` with `fingerprintExe` and `fingerprintFolder` wrappers + types matching the Rust `ClientFingerprint` shape.
+- [ ] Test file with 3 wrapper tests using the inline-invoke pattern Phase 2 established.
+
+### Task 3.2: MyQuake browser Clients category
+
+**Files:**
+- Modify: `apps/slipgate-app/src/components/MyQuakeTab.tsx` (or wherever the file-classification layer lives)
+
+- [ ] **Step 1: Wire fingerprint into the existing scan**
+
+When the existing browser walks a directory, it currently classifies files by type. Add a parallel classification: for each `.exe` (excluding `.exe.db`), call `fingerprintExe`. Store the `ClientFingerprint` result alongside the existing file metadata.
+
+- [ ] **Step 2: Add "Clients" filter category to the left sidebar**
+
+Existing categories: Configuration Files, Crosshair Image, Texture, etc. Add "Clients" with a count of fingerprinter-classified clients (Unknown excluded). Clicking the filter shows only clients in the main browser pane.
+
+- [ ] **Step 3: Make CLIENTS DETECTED sidebar rows actionable**
+
+Each detected client row gains:
+- Status pill: warehoused / not warehoused / active
+- Hover or right-click reveals: Import / Set as primary / Remove from warehouse
+- Three-tier identity surface (small label or icon): "ezQuake 3.6.9 (verified official)" / "unezQuake-family (build 1.3.5)" / "ezQuake (unrecognized build)"
+
+- [ ] **Step 4: Tests + commit**
+
+---
+
+## Sub-phase 4: Add Quake client entry-point flow
+
+**Sessions:** 1 (~2-3 hours)
+**Goal:** The "Add Quake client" button (Phase 3 stubbed it) now routes to MyQuake → Browse → Clients filter, presents a default-select-all checklist, lets the user bulk-import.
+
+### Task 4.1: addClientFlow orchestrator
+
+- [ ] Create `src/lib/quake-dir/addClientFlow.ts`:
+  - Takes a folder path (or single exe path) input
+  - Calls `fingerprintFolder` (or `fingerprintExe`)
+  - For each fingerprinted client, calls `releaseCache.get` and computes Tier 2 match status
+  - Returns a list of `ImportCandidate` rows with all the data the UI needs
+
+- [ ] Tests with the inline-invoke pattern (5-6 tests covering bulk-import, single-exe import, all-known, all-unknown, FTE-skip-tier2 cases).
+
+### Task 4.2: AddClientPanel component
+
+**Files:**
+- Create: `apps/slipgate-app/src/components/AddClientPanel.tsx`
+- Create: `apps/slipgate-app/src/components/ClientImportRow.tsx`
+
+- [ ] **Step 1: Panel layout**
+
+Two affordances: "Pick a folder" + "Pick a specific exe" (file picker buttons). Both feed into the same checklist screen.
+
+- [ ] **Step 2: Checklist screen**
+
+Default-all-ticked rows showing each detected client. Each row:
+- Checkbox (default ticked)
+- Three-tier identity surface
+- Filename + path
+- Version
+- Variant suffix (if any)
+- Primary radio button (one row gets selected as primary)
+
+Bottom: "Import N selected" button (count updates as user ticks/unticks).
+
+- [ ] **Step 3: Wire to register_version + reconcile_active_version**
+
+On Import click, for each ticked row, call `import_existing_install`. After all imports complete, call `reconcile_active_version` for the primary-selected row to set it active.
+
+- [ ] **Step 4: Tests + commit**
+
+### Task 4.3: Wire Add Client button in VersionWarehouse
+
+**Files:**
+- Modify: `apps/slipgate-app/src/components/VersionWarehouse.tsx` (Phase 3 stubbed this button)
+
+- [ ] Replace the stub onClick with a router call to MyQuake → Browse → Clients filter, OR open the AddClientPanel modal directly. Pick whichever fits the existing app's navigation pattern better.
+
+- [ ] Final integration test: click Add Client → see folder picker → pick a folder → see checklist → import all → confirm warehouse populated.
+
+---
+
+## Self-review against goal
+
+Goal restated: Single-button "Add Quake client" routed through MyQuake's existing browser, identifies clients via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly, makes "switch to latest official" one click away from any unrecognized state.
+
+Sub-phase 1 ships the fingerprinter. Sub-phase 2 ships the release-cache + Tier 2 plumbing. Sub-phase 3 surfaces both in MyQuake's existing browser. Sub-phase 4 wires the entry-point flow with bulk-import UX. Each sub-phase is independently shippable; the order respects dependencies (fingerprinter before MyQuake integration; release-cache before Tier 2 surfacing).
+
+Three-tier identity: D5 per-client policy table covers when each tier applies. Sub-phase 3 surfaces all three tiers in the row component. Sub-phase 4 wires the upgrade nudge ("switch to latest official") inline on Tier 3 rows.
+
+Bulk import: D2 default-select-all + sub-phase 4 checklist UI cover this exactly.
+
+---
+
+## What this plan does NOT cover
+
+- **FTE config parsing.** Fingerprinter classifies a binary as FTE; warehouse stores it. Slipgate can't read FTE configs, classify FTE binds, etc. That's a separate massive arc.
+- **Multi-language UI.** All strings remain English-only.
+- **Cross-machine warehouse sync** (the D9 "share my versioned setup" use case from the parent QDC plan). Future arc.
+- **Bulk export** (export all warehoused versions to a zip). Operator confirmed this isn't wanted; bulk import is the primary use case.
+- **GLSL-vs-vanilla cvar diffing.** Variants are warehoused independently; comparing them feature-wise is Phase 5's diff viewer's job, not this phase.
+- **Active warehoused-version garbage collection** (delete old blobs when no manifest references them). Future cleanup arc.
+
+---
+
+## Execution handoff
+
+Plan ready for execution in a fresh terminal. Recommended workflow:
+
+1. Open a fresh Claude session.
+2. Verify Phase 3 is shipped: `git log --oneline | head -20` should show Phase 3 commits past `31f8b97`.
+3. Read this plan in full plus the parent `2026-04-26-quake-dir-control.md` Phase 3 section.
+4. Use `superpowers:executing-plans` (or `superpowers:subagent-driven-development` if subagents are working well).
+5. Each sub-phase is one shippable commit cluster; commit + push at sub-phase boundaries.
