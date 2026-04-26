@@ -9,6 +9,7 @@ pub mod scanner;
 pub mod screenshot;
 pub mod system;
 pub mod updater;
+pub mod version_swap;
 pub mod version_warehouse;
 pub mod warehouse_reconcile;
 pub mod watcher;

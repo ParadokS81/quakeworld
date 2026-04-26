@@ -48,6 +48,8 @@ pub fn run() {
             commands::version_warehouse::list_warehoused_versions,
             commands::version_warehouse::read_warehouse_index,
             commands::version_warehouse::import_existing_install,
+            commands::version_swap::swap_active_version,
+            commands::version_swap::delete_warehoused_version,
             commands::warehouse_reconcile::reconcile_active_version,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
