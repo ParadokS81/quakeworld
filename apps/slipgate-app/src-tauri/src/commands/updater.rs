@@ -661,6 +661,7 @@ pub async fn check_for_update(
 /// Download and install an update
 #[tauri::command]
 pub async fn download_and_install_update(
+    app: tauri::AppHandle,
     exe_path: String,
     client_name: String,
     channel: String,
@@ -756,6 +757,20 @@ pub async fn download_and_install_update(
         std::fs::rename(&temp_download, &new_exe_temp)
             .map_err(|e| format!("Failed to prepare update: {}", e))?;
     }
+
+    // 4b. Register the freshly extracted exe into the warehouse before any
+    // quake-dir mutation. Phase 3 will move the swap itself out of this
+    // function; for now the existing backup+rename below stays.
+    let new_version_for_warehouse =
+        read_exe_version(&new_exe_temp).unwrap_or_else(|| "unknown".to_string());
+    let _ = crate::commands::version_warehouse::register_version(
+        &app,
+        client_def.name,
+        &new_version_for_warehouse,
+        &new_exe_temp,
+        &channel,
+        "github_release",
+    )?;
 
     // 5. Backup current exe
     let _ = window.emit(
