@@ -129,3 +129,57 @@ PARSE_OPTS = (
     TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
     | TranslationUnit.PARSE_INCOMPLETE
 )
+
+
+def _clang_args_fte_base(fte_engine_dir: str, fte_plugin_dirs: list[str]) -> list[str]:
+    """Common defines + includes for all FTE variants. Excludes game-type defines
+    (HEXEN2/Q2CLIENT/Q3CLIENT/etc) per Phase 2d Option B scope."""
+    includes = [fte_engine_dir + "/" + sub for sub in (
+        "common", "client", "server", "qclib", "gl", "vk", "sw", "http",
+    )]
+    includes.extend(fte_plugin_dirs)
+    return [
+        "-x", "c", "-w",
+    ] + [f"-I{p}" for p in includes]
+
+
+def clang_args_fte_for(fte_repo: str) -> list[str]:
+    """FTE client variant: GL renderer, NetQuake + QW protocols, common feature flags.
+
+    Excluded: HEXEN2, Q2CLIENT, Q2SERVER, Q3CLIENT, Q3BSPS, Q2BSPS, VM_Q1 (game-type
+    gates per Option B). SWQUAKE, D3DQUAKE excluded (renderer scope). __APPLE__ excluded
+    (FTE has 0 Apple-gated cvars verified 2026-04-26).
+    """
+    engine = f"{fte_repo}/engine"
+    plugins = [f"{fte_repo}/plugins/ezhud"]
+    return _clang_args_fte_base(engine, plugins) + [
+        "-DHAVE_CLIENT", "-DGLQUAKE",
+        "-DNQPROT", "-DCSQC_DAT", "-DRTLIGHTS",
+        "-DMVD_RECORDING", "-DMULTITHREAD", "-DSUPPORT_ICE", "-DPLUGINS",
+    ]
+
+
+def clang_args_fte_server_for(fte_repo: str) -> list[str]:
+    """FTE server variant: SERVERONLY + server-only feature flags."""
+    engine = f"{fte_repo}/engine"
+    plugins = [f"{fte_repo}/plugins/ezhud"]
+    return _clang_args_fte_base(engine, plugins) + [
+        "-DHAVE_SERVER", "-DSERVERONLY",
+        "-DNQPROT", "-DMVD_RECORDING", "-DQUAKESTATS",
+    ]
+
+
+def clang_args_fte_win_for(fte_repo: str) -> list[str]:
+    """FTE Windows-client variant: client defines + Windows platform defines.
+    Suppresses __linux__ to reach Win-only code paths (mirrors ezQuake pattern)."""
+    return clang_args_fte_for(fte_repo) + [
+        "-D_WIN32", "-DWIN32",
+        "-U__linux__", "-U__unix__",
+    ]
+
+
+def clang_args_fte_vk_for(fte_repo: str) -> list[str]:
+    """FTE Vulkan-renderer client variant: GL undefined, VK defined."""
+    base = clang_args_fte_for(fte_repo)
+    base = [a for a in base if a != "-DGLQUAKE"]
+    return base + ["-DVKQUAKE"]
