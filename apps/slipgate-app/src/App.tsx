@@ -5,6 +5,7 @@ import { currentMonitor, availableMonitors } from "@tauri-apps/api/window";
 import type { AllSpecs, MonitorInfo, EzQuakeConfig, EzQuakeInstallation, ConfigSourceBundle } from "./types";
 import type { ProfileData, SetupHardware } from "./store";
 import { loadProfile, updatePrimaryClient, updatePrimaryHardware, getPrimarySetup } from "./store";
+import { runWarehouseBootstrap } from "./lib/quake-dir/firstRunImport";
 import SideNav from "./components/SideNav";
 import ProfileTab from "./components/ProfileTab";
 import ToolsTab from "./components/ToolsTab";
@@ -141,6 +142,15 @@ function App() {
 
     // Auto-load ezQuake config if we have a saved path
     await autoLoadConfig(prof);
+
+    // Warehouse bootstrap (reconcile + first-run import) — fire and forget.
+    // Linux dev no-ops on import because read_exe_version returns None there.
+    const setup = getPrimarySetup(prof);
+    runWarehouseBootstrap({
+      invoke,
+      client: "ezquake",
+      canonicalExePath: setup.client.exe_path ?? null,
+    }).catch((e) => console.warn("warehouse bootstrap failed:", e));
 
     setLoading(false);
   });
