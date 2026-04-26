@@ -1,0 +1,42 @@
+# FTE client-level conventions consumed by slipgate's scanner to classify
+# files that are engine-behavior-derived rather than loader-call derived:
+# screenshots, demos, logs, and match-format cvars. Per-engine; ezQuake's
+# sibling lives at apps/qw-oracle/scripts/extractors/ezquake/seeds/
+# ezquake-client-defaults.yaml. Values reflect FTE build-6698 (SHA 35843773).
+#
+# Source-of-truth references:
+#   - scr_sshot_prefix default value: "screenshots/fte-" (DB)
+#   - scr_sshot_type default value: "png" (DB)
+#   - sv_demoDir default value: "demos" (DB)
+#   - SCR_ScreenShot_f filename pattern:
+#       engine/client/cl_screen.c:2674 -- "<prefix><date>-<i>.<type>"
+
+client_defaults:
+  screenshot_filename_prefixes:
+    - fte-
+    - fte_
+  screenshot_dir_names:
+    - screenshots
+    - sshots
+  demo_extensions:
+    - .dem
+    - .qwd
+    - .mvd
+    - .qtv
+    - .dz
+  default_demo_ext: .mvd
+  image_extensions:
+    - .png
+    - .jpg
+    - .jpeg
+    - .tga
+    - .pcx
+  log_extensions:
+    - .log
+  # FTE has no match_format_* family; confirmed via
+  # SELECT name FROM entities WHERE project='fte' AND type='cvar' AND name LIKE 'match_%'
+  # (returns zero rows at build-6698).
+  match_format_cvars: []
+  owned_gamedirs:
+    - qw
+    - fte

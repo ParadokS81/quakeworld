@@ -1,0 +1,103 @@
+# FTE asset categories.
+#
+# Each category is a first-class entity in knowledge.db (type='asset_category').
+# Loaders bind cvars to these categories via asset_cvar_bindings; loader sites
+# may reference them via asset_loader_sites.reads_category_id.
+#
+# Category `name` becomes the entity canonical_id suffix:
+#   fte:asset_category:<name>
+#
+# Scope: FTE build-6698. These categories are version-agnostic unless a future
+# version explicitly retires one (use source_state_transitions for that).
+#
+# Authored AST-first per the 2d-bundle plan (D2): the 717-row research artifact
+# at output/fte-asset-loader-sites-ast.json informed which categories actually
+# appear in FTE's loader call sites, plus a few ezQuake-shared categories that
+# show up via path-literal extensions but not via FUNCTION_TO_CATEGORY mapping.
+project: fte
+version: build-6698
+categories:
+  - name: config
+    display_name: "Configuration Files"
+    description: "Client and server configuration files (.cfg, .rc) parsed by exec at startup or runtime."
+  - name: charset
+    display_name: "Character Set"
+    description: "Bitmap or texture font used to render console and HUD text. Loaded via gl_font / R_RegisterPic on the charset path."
+  - name: crosshair
+    display_name: "Crosshair Image"
+    description: "User-selectable crosshair overlay image."
+  - name: texture
+    display_name: "Texture"
+    description: "World, model, HUD, or shader textures. Includes 32-bit replacements (.tga/.png/.jpg) and original .pcx data."
+  - name: shader
+    display_name: "Shader"
+    description: "Q3-style shader script (.shader) or runtime-registered shader via R_RegisterShader / R_LoadShader. FTE-specific surface; no ezQuake counterpart."
+  - name: skin
+    display_name: "Player Skin"
+    description: "Player model skin, loaded per-connect from userinfo. Includes .pcx and .skin (Q3-style alias) variants."
+  - name: sound
+    display_name: "Sound"
+    description: "Audio samples consumed by the sound engine (.wav, .ogg, .mp3)."
+  - name: model
+    display_name: "Model"
+    description: "3D model (.mdl, .md3, .md2, .iqm). Brush models are categorized as 'map' instead."
+  - name: map
+    display_name: "Map"
+    description: "Level geometry (.bsp). Downloaded per-connect when absent."
+  - name: map_data
+    display_name: "Map Companion Data"
+    description: "Per-map auxiliary files loaded alongside a .bsp: potentially-hearable sets (.phs), leaf-visibility extensions (.lvx), and similar BSP companions. Distinct from map_lighting (.lit) which is the colored-lighting companion."
+  - name: map_lighting
+    display_name: "Map Lighting"
+    description: "Per-map colored-lighting companion (.lit) loaded alongside a .bsp."
+  - name: heightmap
+    display_name: "Terrain Heightmap"
+    description: "Heightmap data (.hms, .hmp) consumed by FTE's terrain renderer."
+  - name: wad
+    display_name: "WAD Archive"
+    description: "Legacy Quake asset archive (.wad) containing textures or HUD graphics."
+  - name: pak
+    display_name: "PAK Archive"
+    description: "Original Quake pack archive (.pak). Mounted into search path at init."
+  - name: pk3
+    display_name: "PK3/PK4 Archive"
+    description: "ZIP-based pack archive (.pk3, .pk4, .zip). Mounted into search path at init."
+  - name: demo
+    display_name: "Demo Recording"
+    description: "Recorded game replay (.qwd, .mvd, .dem, .qtv)."
+  - name: demo_archive
+    display_name: "Demo Archive"
+    description: "Compressed demo archive (.dz). Decoded via DZip before playback."
+  - name: screenshot
+    display_name: "Screenshot"
+    description: "Captured screen image (.tga, .png, .jpg) emitted by SCR_ScreenShot and friends."
+  - name: hud_overlay
+    display_name: "HUD Overlay Image"
+    description: "User-configurable HUD graphic referenced by a hud_* cvar or registered via R_RegisterPic. Includes .lmp legacy overlays."
+  - name: skybox
+    display_name: "Skybox"
+    description: "Six-image cubemap for the world sky, selected by r_skyname."
+  - name: log
+    display_name: "Log File"
+    description: "Console and match logs (.log)."
+  - name: locfile
+    display_name: "Location File"
+    description: "Team-reporting location file (.loc) keyed to a map name; used by %l macros and TP_LoadLocFile."
+  - name: quakec_progs
+    display_name: "QuakeC Progs"
+    description: "Compiled QuakeC bytecode (qwprogs.dat, spprogs.dat, csqc progs, mod progs). Includes Q3-style .qvm bytecode loaded by FTE's QuakeVM."
+  - name: sprite
+    display_name: "Sprite"
+    description: "Sprite model (.spr). Distinct from .mdl via the precache path."
+  - name: localization
+    display_name: "Localization"
+    description: "Gettext-style translation files (.po) consumed by FTE's localization layer."
+  - name: savegame
+    display_name: "Savegame"
+    description: "Single-player save data (.sav)."
+  - name: plugin
+    display_name: "FTE Plugin"
+    description: "Native plugin DLL/SO (FTE's fteplug_*.dll family). Loaded via the plug command."
+  - name: other
+    display_name: "Other"
+    description: "Files the taxonomy doesn't otherwise cover. Includes generic data lists (.txt, .lst), pak listings, and miscellaneous engine-internal files."

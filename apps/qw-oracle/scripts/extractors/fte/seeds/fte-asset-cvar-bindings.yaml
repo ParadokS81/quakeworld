@@ -1,0 +1,204 @@
+# FTE cvar -> asset binding seed.
+#
+# Hand-curated ground truth. Each entry binds an existing cvar entity (by
+# short name, resolved to canonical_id 'fte:cvar:<name>' at load time)
+# to an asset_category with an optional path template.
+#
+# path_pattern placeholders:
+#   {value}  the cvar's string value at runtime
+#   {face}   used by r_skybox: one of ft,bk,lf,rt,up,dn (six cubemap faces)
+#
+# load_trigger values:
+#   startup       resolved during engine init (once per process)
+#   on_connect    resolved per server connect (e.g. player skins)
+#   on_map_load   resolved per map change (sky, levelshot)
+#   on_demand     resolved when a user changes the cvar or the feature is used
+#   unknown       not classifiable without deeper analysis
+#
+# Authoring informed by the 77-row research artifact at
+# output/fte-asset-cvar-bindings-ast.json. Bindings whose value-string IS the
+# loaded asset path are included; bindings whose value-string is a
+# state-cvar that gets serialized into a savegame (savegame.c:1334-1353
+# batch) are excluded as auto-binding noise. Pure-toggle / quality-control
+# cvars (gl_picmip, r_loadlit boolean, noskins, fbskins) are also excluded.
+#
+# Every `cvar:` value below must resolve against entities in knowledge.db --
+# the loader rejects stale references with a loud warning.
+project: fte
+version: build-6698
+cvar_bindings:
+
+  # -- Skins ------------------------------------------------------------
+
+  - cvar: baseskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "engine/client/skin.c:378"
+    notes: "Q_snprintfz(name, sizeof(name), \"skins/%s.pcx\", baseskin.string)."
+
+  - cvar: cl_teamskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "engine/client/skin.c:96"
+
+  - cvar: cl_enemyskin
+    category: skin
+    path_pattern: "skins/{value}.pcx"
+    load_trigger: on_connect
+    source_ref: "engine/client/skin.c:96"
+
+  # -- Crosshair --------------------------------------------------------
+
+  - cvar: crosshairimage
+    category: crosshair
+    path_pattern: "crosshairs/{value}"
+    load_trigger: on_demand
+    source_ref: "engine/client/r_2d.c:1859"
+    notes: "R_LoadHiResTexture(crosshairimage.string, ...). Extension resolved by the texture cache layer."
+
+  # -- Skybox -----------------------------------------------------------
+
+  - cvar: r_skybox
+    category: skybox
+    path_pattern: "env/{value}_{face}.tga"
+    load_trigger: on_map_load
+    source_ref: "engine/gl/gl_warp.c:264"
+    notes: "R_SkyBox_Changed callback. Engine searches both env/ and gfx/env/ and tries <name><face> and <name>_<face> permutations. Face in {ft,bk,lf,rt,up,dn}."
+
+  # -- Charset / font --------------------------------------------------
+
+  - cvar: gl_font
+    category: charset
+    path_pattern: "{value}"
+    load_trigger: startup
+    source_ref: "engine/client/r_2d.c:1161"
+    notes: "Auto-bound via R2D_Font_Changed; FS_FLocateFile(gl_font.string)."
+
+  - cvar: con_textfont
+    category: charset
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/client/r_2d.c:1156"
+
+  # -- Shader -----------------------------------------------------------
+
+  - cvar: r_postprocshader
+    category: shader
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/gl/gl_rmain.c:2109"
+    notes: "R_RegisterShader(r_postprocshader.string, ...) inside GLR_RenderView."
+
+  - cvar: gl_shadeq1_name
+    category: shader
+    path_pattern: "{value}"
+    load_trigger: on_map_load
+    source_ref: "engine/gl/gl_model.c:1502"
+    notes: "R_RegisterCustom; Quake 1 surface shader name. Triggered during model finishing."
+
+  - cvar: gl_specular_fallback
+    category: shader
+    path_pattern: "{value}"
+    load_trigger: startup
+    source_ref: "engine/client/r_2d.c:268"
+    notes: "Fallback shader registered during R2D_Init."
+
+  # -- Demo storage -----------------------------------------------------
+
+  - cvar: sv_demoDir
+    category: demo
+    path_pattern: "{value}/"
+    load_trigger: on_demand
+    source_ref: "engine/client/cl_demo.c:1862"
+    notes: "FS_OpenVFS(va(\"%s/...\", sv_demoDir.string), ...). Directory under which client demos are recorded and read."
+
+  - cvar: sv_demoDirAlt
+    category: demo
+    path_pattern: "{value}/"
+    load_trigger: on_demand
+    source_ref: "engine/server/sv_user.c:3513"
+    notes: "Alternate demo directory consulted by SV_LocateDownload during demo download serving."
+
+  - cvar: sv_demoUseCache
+    category: demo
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/server/sv_mvd.c:1317"
+    notes: "Demo-cache directory used by SV_MVD_InitRecordFile."
+
+  # -- Loading screen ---------------------------------------------------
+
+  - cvar: scr_loadingscreen_picture
+    category: hud_overlay
+    path_pattern: "{value}"
+    load_trigger: on_map_load
+    source_ref: "engine/client/cl_screen.c:2222"
+    notes: "Drawn by SCR_DrawLoading; user-configurable load-screen image."
+
+  # -- Logs -------------------------------------------------------------
+
+  - cvar: log_name
+    category: log
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/common/log.c:95"
+    notes: "FS_OpenVFS(log_name.string, ...) inside Log_String."
+
+  - cvar: rank_filename
+    category: log
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/server/sv_rankin.c:163"
+    notes: "Server ranking-data file. Opened r+b then w+b in Rank_OpenRankings."
+
+  # -- QuakeC progs -----------------------------------------------------
+
+  - cvar: sv_progs
+    category: quakec_progs
+    path_pattern: "{value}"
+    load_trigger: on_map_load
+    source_ref: "engine/server/pr_cmds.c:1994"
+    notes: "Q_InitProgs loads the server-side QuakeC bytecode. FS_FLocateFile then COM_LoadStackFile."
+
+  - cvar: sv_csqc_progname
+    category: quakec_progs
+    path_pattern: "{value}"
+    load_trigger: on_map_load
+    source_ref: "engine/server/sv_init.c:1146"
+    notes: "Client-side QuakeC bytecode name; loaded during SV_SpawnServer for prespawn delivery."
+
+  - cvar: pr_sourcedir
+    category: quakec_progs
+    path_pattern: "{value}/"
+    load_trigger: on_demand
+    source_ref: "engine/server/pr_cmds.c:14181"
+    notes: "QuakeC source-tree root used by the in-engine QC editor + PR_DumpPlatform_f."
+
+  # -- Map data ---------------------------------------------------------
+
+  - cvar: sv_loadentfiles_dir
+    category: map_data
+    path_pattern: "{value}/"
+    load_trigger: on_map_load
+    source_ref: "engine/gl/gl_model.c:2274"
+    notes: "Per-map override .ent file directory. Mod_SaveEntFile_f writes here; load path mirrors."
+
+  # -- Replacement models / textures ------------------------------------
+
+  - cvar: r_replacemodels
+    category: model
+    path_pattern: "{value}"
+    load_trigger: on_map_load
+    source_ref: "engine/gl/gl_model.c:1185"
+    notes: "Comma-separated list of model-replacement extensions; consulted during Mod_LoadModelWorker."
+
+  # -- Config -----------------------------------------------------------
+
+  - cvar: cfg_save_name
+    category: config
+    path_pattern: "{value}"
+    load_trigger: on_demand
+    source_ref: "engine/client/cl_main.c:6218"
+    notes: "Default filename used by Host_WriteConfiguration / cfg_save command."

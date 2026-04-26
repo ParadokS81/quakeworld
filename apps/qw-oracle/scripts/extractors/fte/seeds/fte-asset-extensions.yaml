@@ -1,0 +1,161 @@
+# FTE file-extension -> category mapping.
+#
+# (project, version, extension, path_hint) is the natural key. path_hint is the
+# directory prefix that disambiguates multi-purpose extensions such as .tga and
+# .pcx. Rule: longest-matching path_hint wins; fall back to the unqualified row.
+#
+# Scope: FTE build-6698. Extension set informed by the 717-row research artifact
+# at output/fte-asset-loader-sites-ast.json (path-literal histogram surfaced
+# .po, .qvm, .lvx, .skin, .hms, .hmp, .sav, .phs, .txt, .lst as additions to
+# the ezQuake baseline).
+project: fte
+version: build-6698
+extensions:
+  - extension: ".cfg"
+    category: config
+  - extension: ".rc"
+    category: config
+  - extension: ".pak"
+    category: pak
+  - extension: ".pk3"
+    category: pk3
+  - extension: ".pk4"
+    category: pk3
+  - extension: ".zip"
+    category: pk3
+  - extension: ".wad"
+    category: wad
+  - extension: ".bsp"
+    category: map
+  - extension: ".mdl"
+    category: model
+  - extension: ".md3"
+    category: model
+  - extension: ".md2"
+    category: model
+  - extension: ".iqm"
+    category: model
+  - extension: ".wav"
+    category: sound
+  - extension: ".ogg"
+    category: sound
+  - extension: ".mp3"
+    category: sound
+  - extension: ".qwd"
+    category: demo
+  - extension: ".mvd"
+    category: demo
+  - extension: ".dem"
+    category: demo
+  - extension: ".qtv"
+    category: demo
+  - extension: ".dz"
+    category: demo_archive
+  - extension: ".shader"
+    category: shader
+  # Texture-variant extensions disambiguate via path_hint.
+  - extension: ".tga"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".tga"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".tga"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".tga"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".tga"
+    path_hint: "env/"
+    category: skybox
+  - extension: ".tga"
+    category: screenshot
+  - extension: ".png"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".png"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".png"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".png"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".png"
+    path_hint: "env/"
+    category: skybox
+  - extension: ".png"
+    category: screenshot
+  - extension: ".jpg"
+    path_hint: "textures/"
+    category: texture
+  - extension: ".jpg"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".jpg"
+    path_hint: "crosshairs/"
+    category: crosshair
+  - extension: ".jpg"
+    path_hint: "gfx/"
+    category: hud_overlay
+  - extension: ".jpg"
+    path_hint: "env/"
+    category: skybox
+  - extension: ".jpg"
+    category: screenshot
+  - extension: ".jpeg"
+    category: screenshot
+  - extension: ".pcx"
+    path_hint: "skins/"
+    category: skin
+  - extension: ".pcx"
+    path_hint: "gfx/"
+    category: charset
+  - extension: ".skin"
+    path_hint: "models/"
+    category: skin
+    notes: "Q3-style alias-skin reference file; lives under models/<model>/<name>.skin."
+  - extension: ".skin"
+    category: skin
+  - extension: ".lmp"
+    category: hud_overlay
+  - extension: ".log"
+    category: log
+  - extension: ".loc"
+    category: locfile
+  - extension: ".lit"
+    category: map_lighting
+  - extension: ".phs"
+    category: map_data
+    notes: "Potentially-hearable-set companion to a .bsp."
+  - extension: ".lvx"
+    category: map_data
+    notes: "Leaf-visibility-extension companion to a .bsp."
+  - extension: ".hms"
+    category: heightmap
+  - extension: ".hmp"
+    category: heightmap
+  - extension: ".dat"
+    category: quakec_progs
+  - extension: ".qvm"
+    category: quakec_progs
+    notes: "Q3-style QuakeC virtual-machine bytecode; FTE QuakeVM consumes this alongside .dat progs."
+  - extension: ".spr"
+    category: sprite
+  - extension: ".po"
+    category: localization
+    notes: "Gettext translation file."
+  - extension: ".sav"
+    category: savegame
+  - extension: ".dll"
+    category: plugin
+  - extension: ".so"
+    category: plugin
+  - extension: ".txt"
+    category: other
+    notes: "Generic text data; too varied to categorize meaningfully."
+  - extension: ".lst"
+    category: other
+    notes: "List files including pak.lst and similar engine-internal listings."

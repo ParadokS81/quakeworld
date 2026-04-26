@@ -1,0 +1,154 @@
+{
+  "project": "fte",
+  "version": "build-6698",
+  "path_rules": [
+    {
+      "canonical_id": "fte:path_rule:fte_id1_qw_base_stack",
+      "rule_kind": "search_path",
+      "ordinal": 1,
+      "description": "For the QuakeWorld game (manifest selector \"-quake\"/\"q1\"), FTE's gamemode_info[] entry defines the base game directory set as id1/, qw/, and *fte/ (the asterisk marks a private gamedir). When the manifest selector resolves, FS_Manifest_SetDefaultSettings copies the gamepath array into the manifest. FS_ChangeGame later iterates gamepath[] calling FS_AddGameDirectory for each base dir; each call pushes the dir to the head of com_searchpaths via FS_AddPathHandle. Effective lookup order is *fte > qw > id1 (last added is highest precedence in the LIFO stack).",
+      "source_ref": "engine/common/fs.c:1302",
+      "source_verified": 1,
+      "verified_function_name": "FS_Manifest_ReadMem",
+      "verified_function_fingerprint": "FS_Manifest_ReadMem(const char * fname, const char * basedir, const char * data)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:searchpath_lifo_lookup",
+      "rule_kind": "search_path",
+      "ordinal": 2,
+      "description": "com_searchpaths is a singly-linked list traversed head-first. FS_FLocateFile walks `for (search = com_searchpaths ; search ; search = search->next)` and returns the first FindFile match. Every FS_AddPathHandle call inserts at the head, so the most recently added directory or archive is checked first.",
+      "source_ref": "engine/common/fs.c:2246",
+      "source_verified": 1,
+      "verified_function_name": "FS_FLocateFile",
+      "verified_function_fingerprint": "FS_FLocateFile(const char * filename, unsigned int lflags, flocation_t * loc)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:base_searchpaths_snapshot",
+      "rule_kind": "search_path",
+      "ordinal": 3,
+      "description": "After mounting all base gamepath entries (id1, qw, *fte for QW), FS_ChangeGame snapshots com_searchpaths into com_base_searchpaths. Subsequent `gamedir` swaps unwind paths above this snapshot but preserve the base stack -- so id1, qw, *fte always remain mounted.",
+      "source_ref": "engine/common/fs.c:5391",
+      "source_verified": 1,
+      "verified_function_name": "FS_ReloadPackFilesFlags",
+      "verified_function_fingerprint": "FS_ReloadPackFilesFlags(unsigned int reloadflags)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:archive_kind_registration_order",
+      "rule_kind": "archive_precedence",
+      "ordinal": 1,
+      "description": "FS_RegisterDefaultFileSystems registers archive backends in this order: dz, pak, pk3, pk4, pkz, pkx, iwd, apk, zip, kpf. Later- registered kinds are scanned later in FS_AddDataFiles, and each scan's matches push onto the LIFO searchpath stack. Net effect for QW: pk4 > pk3 > pak. Quake 1 / QuakeWorld installs rarely use pk4; in practice this collapses to pk3 > pak.",
+      "source_ref": "engine/common/fs.c:8522",
+      "source_verified": 1,
+      "verified_function_name": "FS_RegisterDefaultFileSystems",
+      "verified_function_fingerprint": "FS_RegisterDefaultFileSystems()",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:pak_numbered_ascending_load",
+      "rule_kind": "archive_precedence",
+      "ordinal": 2,
+      "description": "Within a game directory FS_AddDataFiles loads pak0.<ext>, pak1.<ext>, pak2.<ext>, ... in numeric-ascending order until one is missing. Because each is pushed to the head of com_searchpaths on load, higher-numbered paks end up earlier in lookup order. Effect: pak1.pak overrides pak0.pak for same-name entries. Same loop runs per archive kind (pak, pk3, pk4).",
+      "source_ref": "engine/common/fs.c:4194",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(searchpath_t ** oldpaths, const char * purepath, const char * logicalpath, searchpath_t * search, unsigned int pflags, unsigned int loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:pak_lst_explicit_ordering",
+      "rule_kind": "archive_precedence",
+      "ordinal": 3,
+      "description": "If a file named `pak.lst` exists in the game directory, FS_AddDataFiles parses it for an explicit pak-load ordering before the numbered-pak scan. Names listed there are loaded by FS_AddSingleDataFile in file order. Unlike ezQuake's pak.lst (which suppresses the wildcard scan entirely), FTE's pak.lst is additive: numbered + manifest + wildcard scans all still run after the pak.lst entries.",
+      "source_ref": "engine/common/fs.c:4147",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(searchpath_t ** oldpaths, const char * purepath, const char * logicalpath, searchpath_t * search, unsigned int pflags, unsigned int loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:wildcard_archives_after_numbered",
+      "rule_kind": "archive_precedence",
+      "ordinal": 4,
+      "description": "After loading the numbered pakN.<ext> series and any manifest- declared packages, FS_AddDataFiles enumerates `*.<ext>` in the same directory and pushes each match to the head of com_searchpaths. Wildcard-discovered archives sit higher on the stack than numbered paks of the same extension and so take precedence.",
+      "source_ref": "engine/common/fs.c:4243",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddDataFiles",
+      "verified_function_fingerprint": "FS_AddDataFiles(searchpath_t ** oldpaths, const char * purepath, const char * logicalpath, searchpath_t * search, unsigned int pflags, unsigned int loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:archive_vs_loose_files",
+      "rule_kind": "archive_precedence",
+      "ordinal": 5,
+      "description": "FS_AddGameDirectory pushes the directory itself onto com_searchpaths (via FS_AddPathHandle). FS_AddPathHandle then triggers FS_AddDataFiles which pushes archives within that directory on top. Net effect: archives override loose files in the same directory.",
+      "source_ref": "engine/common/fs.c:4315",
+      "source_verified": 1,
+      "verified_function_name": "FS_AddPathHandle",
+      "verified_function_fingerprint": "FS_AddPathHandle(searchpath_t ** oldpaths, const char * purepath, const char * logicalpath, searchpathfuncs_t * handle, const char * prefix, unsigned int flags, unsigned int loadstuff)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:gamedir_change_via_changegame",
+      "rule_kind": "gamedir_behavior",
+      "ordinal": 1,
+      "description": "`gamedir <mod>` and `-game <mod>` both route through FS_ChangeGame, which loads a fresh manifest (or alters the existing one) and rebuilds the searchpath stack. Old searchpaths above com_base_searchpaths are freed; the base stack survives. The new mod directory is mounted via FS_AddGameDirectory on top of the base.",
+      "source_ref": "engine/common/fs.c:6797",
+      "source_verified": 1,
+      "verified_function_name": "FS_ChangeGame",
+      "verified_function_fingerprint": "FS_ChangeGame(ftemanifest_t * man, qboolean allowreloadconfigs, qboolean allowbasedirchange)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:gamedir_fallthrough_to_base",
+      "rule_kind": "gamedir_behavior",
+      "ordinal": 2,
+      "description": "After mounting a mod dir, lookups for assets missing in the mod fall through to the next searchpath entries -- which are the base stack (qw, id1 for QW). This works automatically because FS_FLocateFile's LIFO walk continues past head when FindFile misses; mod directory was pushed last so it's consulted first, but absent matches fall through to the next entry.",
+      "source_ref": "engine/common/fs.c:2246",
+      "source_verified": 1,
+      "verified_function_name": "FS_FLocateFile",
+      "verified_function_fingerprint": "FS_FLocateFile(const char * filename, unsigned int lflags, flocation_t * loc)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:basedir_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 1,
+      "description": "`-basedir <path>` overrides the auto-detected base directory (where id1/, qw/, and *fte/ are searched). Checked during init; when present, base game directories are resolved relative to this value.",
+      "source_ref": "engine/common/fs.c:6869",
+      "source_verified": 1,
+      "verified_function_name": "FS_ChangeGame",
+      "verified_function_fingerprint": "FS_ChangeGame(ftemanifest_t * man, qboolean allowreloadconfigs, qboolean allowbasedirchange)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:game_cmdline",
+      "rule_kind": "cmdline_override",
+      "ordinal": 2,
+      "description": "`-game <mod>` (or `+gamedir <mod>` at the console) calls FS_ChangeGame to mount the named mod gamedir on top of the base stack. Equivalent to running `gamedir <mod>` immediately after init.",
+      "source_ref": "engine/common/fs.c:6461",
+      "source_verified": 1,
+      "verified_function_name": "FS_AppendManifestGameArguments",
+      "verified_function_fingerprint": "FS_AppendManifestGameArguments(ftemanifest_t * man)",
+      "verification_notes": null
+    },
+    {
+      "canonical_id": "fte:path_rule:quake_manifest_selector",
+      "rule_kind": "cmdline_override",
+      "ordinal": 3,
+      "description": "`-quake` selects FTE's QuakeWorld game manifest (id1/qw/*fte gamepath set, QUAKEPROT protocol, q1 mode key). FTE supports multiple game manifests via cmdline selectors (-quake, -quake2, -quake3, -hexen2, etc.); -quake is the QW-relevant one. The manifest's installation string is matched against gamemode_info[i].argname inside FS_Manifest_SetDefaultSettings, which then copies the gamepath set into the manifest.",
+      "source_ref": "engine/common/fs.c:1298",
+      "source_verified": 1,
+      "verified_function_name": "FS_Manifest_ReadMem",
+      "verified_function_fingerprint": "FS_Manifest_ReadMem(const char * fname, const char * basedir, const char * data)",
+      "verification_notes": null
+    }
+  ],
+  "_stats": {
+    "total": 13,
+    "verified": 13,
+    "failed": 0
+  }
+}
