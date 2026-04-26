@@ -369,41 +369,87 @@ ezQuake 2026-04-25 results: 20/20 fields accurate. No systematic misparse.
 
 ## Known limits
 
-Documented absences, so future sessions don't waste time trying to fix them.
+Documented absences categorized by the 4-bucket framework. Per-engine detail lives in each engine's `OUT_OF_SCOPE.md`. Counts reflect state as of 2026-04-26 (post-stub-headers, post-Pattern-3 fix, post-FTE Phase 2d-core).
 
-### Windows SDK unreachable on Linux libclang
+### The 4-bucket framework (canonical cross-engine model)
 
-Files like `sv_sys_win.c`, `sys_win.c` `#include <winsock2.h>`, `<mmsystem.h>`, `<io.h>`. Those headers don't exist on Linux. `PARSE_INCOMPLETE` keeps TU top-level walkable but specific function bodies that reference Windows SDK types (`VER_PLATFORM_WIN32_NT`, `HIGH_PRIORITY_CLASS`, `SetPriorityClass`) become invalid AST. Any `Cmd_AddCommand` / `COM_CheckParm` call inside such a body is unreachable.
+Every entity absent from extraction falls into exactly one bucket. The bucket determines whether a fix is possible and what it looks like.
 
-ezQuake impact: 1 row (`-nopriority` cmdline_param at sv_sys_win.c:645). Other call sites in the same file at lines 374 and 409 ARE captured because their function bodies have fewer Windows-SDK dependencies.
+| Bucket | Description | Fixable? |
+|---|---|---|
+| 1 | Source roots not visited (plugins beyond allowlist) | Yes -- add plugin path to SOURCE_ROOTS |
+| 2 | Dynamic registration (Cvar_Get / Cvar_FindOrGet / Cvar_Create at runtime) | No -- fundamental static-analysis limit |
+| 3 | Runtime-synthesized names (sprintf-built from format strings) | No -- names depend on runtime state |
+| 4 | Windows SDK PARSE_INCOMPLETE | Mostly resolved via stubs; 2 irrecoverable cases remain |
 
-**Recovery path:** stub Windows SDK headers. Minimal `.h` files with empty struct declarations and the key typedefs, committed to `research/stubs/windows-sdk/`, referenced via `-I` in `clang_args_win_for`. Worth doing when MVDSV or FTE hits the same wall.
+**Current counts per engine:**
 
-### Runtime-dynamic registrations (`Cvar_Create`)
+| Engine | Total entities | Bucket 1 | Bucket 2 | Bucket 3 | Bucket 4 residual |
+|---|---|---|---|---|---|
+| ezQuake | ~3849 | 0 (no plugins) | ~4 cvars | ~5 HUD-synth subset | 0 |
+| QWCL | 364 | 0 (no plugins) | unknown (small) | 0 | 2 cmdline_params |
+| FTE | 3208 | ~26 cvars | ~27 cvars | ~56 cvars | 0 |
 
-`Cvar_Create(name, value, flags)` creates a cvar at runtime when an `exec` reads a name the engine doesn't know yet. These cvars have no source declaration — they exist only after specific configs run. Static extraction can never reach them.
+---
 
-ezQuake impact: at least 4 confirmed (`nick`, `tpname`, `tp_version`, `loc_name_separator` — user-defined teamsay macros). Possibly more in the "runtime-only 68" bucket.
+### Bucket 1 -- Out of scope by design (source roots not visited)
 
-**Not a recovery path:** this is a fundamental limit. Document the absence in the runtime-validation categorization step so it's separated from real gaps.
+Applies to FTE only. ezQuake and QWCL have no plugin systems; this bucket is empty for them.
 
-### HUD auto-synthesized command names
+FTE Phase 2d-core visited only the `engine/` tree and the `ezhud` plugin (the QW-competitive bridge plugin). Other plugins are not in SOURCE_ROOTS: `plugins/irc/`, `plugins/jabber/`, `plugins/bullet/`, `plugins/avplug/`, `plugins/cef/`, `plugins/cod/`, `plugins/hl2/`, `plugins/quake3/`, `plugins/serverb/`, `plugins/qi/`, `plugins/ezscript/`, ~17 others.
 
-`HUD_Register(...)` internally registers both the hud_element and associated command bindings at runtime (`+hud_<name>`, `-hud_<name>`, plain `<name>`). The calls happen inside HUD internals, not as visible `Cmd_AddCommand` sites.
+**Example entities absent (FTE):** `irc_nick`, `irc_altnick`, `irc_quitmessage`, `xmpp_autoacceptjoins`, `addon0`, ..., `addon15`.
 
-ezQuake impact: ~129 runtime commands (46 ± pairs + 83 plain names).
+**Fix shape:** add plugin dir to SOURCE_ROOTS in `extract.py`. Existing handlers handle `cvarfuncs->GetNVFDG()` and `CVARD`-family patterns without code changes. Do this when real user configs surface unknown `irc_*` / `ezscript_*` cvars.
 
-**Current handling:** the names ARE present in the DB, categorized under `hud_element`. They're not missing — just classified differently from how the runtime exposes them. If consumers need them visible as commands too, add a synthesis step to `hud_elements` finalize that emits mirror rows into `commands-ast.json`.
+---
 
-### String-built names (`snprintf("%s_suffix", parent)`)
+### Bucket 2 -- Dynamic registration (Cvar_Get / Cvar_FindOrGet / Cvar_Create)
 
-HUD child cvars like `hud_mouserate_align_x` never appear as literal strings in source — they're constructed by `HUD_CreateVar(parent, "align_x", ...)` inside HUD_Register. Mechanical grep + git-log-S will always classify them as "never existed" when they're actually hud-element children whose parent was removed.
+Cvars created at runtime by name. No source declaration exists; static extraction can never see them.
 
-**Current handling:** `handler_cvars.py::_synthesize_hud_cvars()` synthesizes these rows at the HUD_Register call site. Parent-element history is still invisible to git-log-S; audits must check the parent's history separately.
+**ezQuake confirmed (~4 cvars):** `nick`, `tpname`, `tp_version`, `loc_name_separator` (user-defined teamsay macros via `Cvar_Create`).
 
-### QuakeC (.qc) sources
+**FTE confirmed (~27 cvars):** physics_ode_* family (ODE plugin runtime config); IRC/XMPP per-session user-state cvars; a small set from CSQC mods loading user `progs.dat`.
 
-KTX and dusty-ktx include QuakeC modules. QuakeC is a distinct language (not C), libclang can't parse it. Needs `py-tree-sitter` with a QuakeC grammar OR a dedicated lexer. Architectural decision, not an incremental fix.
+**QWCL:** small set; QWCL uses `Cvar_RegisterVariable` for static cvars and has minimal dynamic creation.
+
+**Fix shape:** none. Document these in the runtime-validation categorization step so they are separated from real extraction gaps.
+
+---
+
+### Bucket 3 -- Runtime-synthesized names (sprintf-built)
+
+Names built via `sprintf("template_%s", arg)` or `sprintf("prefix_%d", i)` at runtime. The format string IS in source; the actual expansions are not -- they depend on hardware, user state, or playlist content.
+
+**ezQuake (~5 HUD-synth subset):** `+hud_<name>` / `-hud_<name>` command aliases auto-generated by HUD_Register at runtime. The underlying hud_element rows ARE in the DB; only the runtime `+/-` aliases are absent. The synthesized cvars (e.g. `hud_mouserate_align_x`) ARE handled by `_synthesize_hud_cvars()` in `handler_cvars.py`.
+
+**FTE (~56 cvars):** `gl_ext_GL_ARB_texture_env_dot3`, `gl_ext_GL_EXT_stencil_two_side`, `gl_ext_GL_EXT_texture_compression_dxt1` (one per GL extension the GPU advertises -- hardware-dependent list); `music_playlist_sampleposition1`, `music_playlist_sampleposition2`, ... (one per audio track); `addon0` through `addon15` (via `sprintf("addon%d", i)` loop).
+
+**Fix shape:** none for truly dynamic expansions. For `+/-hud_<name>` aliases specifically: could synthesize mirror rows at extraction time by iterating extracted hud_elements. Deferred until a consumer use case justifies it.
+
+---
+
+### Bucket 4 -- Windows SDK PARSE_INCOMPLETE (RESOLVED 2026-04-26)
+
+Files `sv_sys_win.c`, `sys_win.c`, and similar `#include <winsock2.h>` / `<mmsystem.h>` / `<io.h>` were previously unreachable on Linux libclang. `PARSE_INCOMPLETE` kept TU top-level walkable but specific function bodies that reference Windows SDK types (`VER_PLATFORM_WIN32_NT`, `HIGH_PRIORITY_CLASS`, `SetPriorityClass`) became invalid AST.
+
+**Resolution (2026-04-26):** stub headers at `research/stubs/windows-sdk/` -- minimal `.h` files with empty struct declarations and key typedefs, referenced via `-I` in `clang_args_win_for`. Recovered 9+ entities across ezQuake and QWCL; all FTE Bucket 4 entries also resolved.
+
+**Two irrecoverable cases remain (QWCL only):**
+
+- **`-novbeaf`** at `vid_win.c`: inside `registerAllDispDrivers()` whose surrounding code uses MGL display-driver types that the stub headers don't fully model. Fix shape: extend stubs with MGL types -- low ROI given QWCL audience size.
+- **`-starttime`** at `sys_win.c`: the `COM_CheckParm` call is inside a `#if 0 ... #endif` dead-code block. libclang correctly skips dead code. No fix short of a source-level patch upstream.
+
+---
+
+### Architectural exclusions (not a bucket)
+
+**QuakeC (.qc) sources:** KTX and dusty-ktx include QuakeC modules. QuakeC is a distinct language; libclang cannot parse it. Requires `py-tree-sitter` with a QuakeC grammar or a dedicated lexer. Architectural decision, not an incremental fix. User-loaded `progs.dat` from mods is fundamentally out of static reach regardless.
+
+**Game-type defines (FTE):** `HEXEN2`, `Q2CLIENT`, `Q3CLIENT`, etc. are deliberately undefined per Phase 2d Option B QW-only profile. Fixable by adding game-type variants to `clang_config.py` if the QW-only scope proves too narrow.
+
+**Renderer variants (FTE):** software renderer (`SWQUAKE`) and D3D paths excluded. Fixable by adding variants.
 
 ---
 

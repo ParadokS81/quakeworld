@@ -273,6 +273,25 @@
       },
       "desc": "set vid_conwidth during startup"
     },
+    "-d": {
+      "ast": {
+        "manifest_enum": null,
+        "manifest_file": null,
+        "manifest_line": null,
+        "usage_sites": [
+          {
+            "source_file": "sv_sys_win.c",
+            "source_line": 806,
+            "source_column": 6,
+            "enclosing_function": "WinMain",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
+          }
+        ],
+        "usage_count": 1,
+        "undeclared": true
+      }
+    },
     "-data": {
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_data",
@@ -901,9 +920,17 @@
             "enclosing_function": "Sys_Error",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "sv_sys_win.c",
+            "source_line": 803,
+            "source_column": 6,
+            "enclosing_function": "WinMain",
+            "call_form": "COM_CheckParm",
+            "build_variant": "client"
           }
         ],
-        "usage_count": 2,
+        "usage_count": 3,
         "undeclared": true
       }
     },
@@ -3286,7 +3313,7 @@
     "manifest_with_usage": 61,
     "manifest_unused_in_source": 7,
     "help_only": 4,
-    "source_only_undeclared": 2,
+    "source_only_undeclared": 3,
     "with_help_desc": 14
   }
 }

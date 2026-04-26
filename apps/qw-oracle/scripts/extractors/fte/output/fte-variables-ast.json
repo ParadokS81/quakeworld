@@ -1,5 +1,12 @@
 {
   "_stats": {
+    "_out_of_scope_estimate": {
+      "bucket1_plugin_unvisited": 26,
+      "bucket2_dynamic_registration": 27,
+      "bucket3_runtime_synthesized": 56,
+      "bucket4_sdk_blocked": 0,
+      "last_validated_against_runtime": "2026-04-26"
+    },
     "by_source_root": {
       "engine": 1397,
       "plugin:ezhud": 1085

@@ -3854,6 +3854,13 @@
       "ARCHIVE": 43,
       "INFO": 10
     },
-    "help_only": 0
+    "help_only": 0,
+    "_out_of_scope_estimate": {
+      "bucket1_plugin_unvisited": 0,
+      "bucket2_dynamic_registration": 0,
+      "bucket3_runtime_synthesized": 0,
+      "bucket4_sdk_blocked": 2,
+      "last_validated_against_runtime": "2026-04-26"
+    }
   }
 }

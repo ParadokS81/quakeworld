@@ -178,6 +178,16 @@ class CvarsQwclHandler(Visitor):
             if cv["cvar_name"] not in deduped:
                 deduped[cv["cvar_name"]] = cv
 
+        # Static estimates from Pass 1 runtime-validation diff (2026-04-26).
+        # Not computed dynamically -- derived from operator-driven runtime runs.
+        # Update after each new runtime-validation pass.
+        out_of_scope_estimate = {
+            "bucket1_plugin_unvisited": 0,
+            "bucket2_dynamic_registration": 0,
+            "bucket3_runtime_synthesized": 0,
+            "bucket4_sdk_blocked": 2,
+            "last_validated_against_runtime": "2026-04-26",
+        }
         vars_out: dict[str, dict] = {}
         stats = {
             "source_total": len(all_rows),
@@ -190,6 +200,7 @@ class CvarsQwclHandler(Visitor):
             "with_help_desc": 0,
             "flag_histogram": {},
             "help_only": 0,
+            "_out_of_scope_estimate": out_of_scope_estimate,
         }
 
         for cv in deduped.values():

@@ -448,6 +448,16 @@ class CvarsFteHandler(Visitor):
                 if not existing.get("group") and row.get("group"):
                     existing["group"] = row["group"]
 
+        # Static estimates from Pass 1 runtime-validation diff (2026-04-26).
+        # Not computed dynamically -- derived from operator-driven runtime runs.
+        # Update after each new runtime-validation pass.
+        out_of_scope_estimate = {
+            "bucket1_plugin_unvisited": 26,
+            "bucket2_dynamic_registration": 27,
+            "bucket3_runtime_synthesized": 56,
+            "bucket4_sdk_blocked": 0,
+            "last_validated_against_runtime": "2026-04-26",
+        }
         # Build output vars dict
         vars_out: dict[str, dict] = {}
         stats = {
@@ -457,6 +467,7 @@ class CvarsFteHandler(Visitor):
             "with_callback": 0,
             "with_group": 0,
             "by_source_root": {},
+            "_out_of_scope_estimate": out_of_scope_estimate,
         }
 
         repo_root_path = Path(repo_root).resolve()

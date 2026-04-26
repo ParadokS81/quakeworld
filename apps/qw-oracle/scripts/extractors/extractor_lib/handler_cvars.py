@@ -512,6 +512,16 @@ class CvarsHandler(Visitor):
 
         vars_out: dict[str, dict] = {}
         source_names: set[str] = set()
+        # Static estimates from Pass 1 runtime-validation diff (2026-04-26).
+        # Not computed dynamically -- derived from operator-driven runtime runs.
+        # Update after each new runtime-validation pass.
+        out_of_scope_estimate = {
+            "bucket1_plugin_unvisited": 0,
+            "bucket2_dynamic_registration": 4,
+            "bucket3_runtime_synthesized": 5,
+            "bucket4_sdk_blocked": 0,
+            "last_validated_against_runtime": "2026-04-26",
+        }
         stats = {
             "source_total": len(all_rows),
             "client": 0,
@@ -522,6 +532,7 @@ class CvarsHandler(Visitor):
             "with_group": 0,
             "with_help_desc": 0,
             "flag_histogram": {},
+            "_out_of_scope_estimate": out_of_scope_estimate,
         }
 
         for cv in unique_cvars:

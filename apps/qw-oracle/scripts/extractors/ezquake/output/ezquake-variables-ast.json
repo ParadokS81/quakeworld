@@ -67535,6 +67535,13 @@
       "CVAR_NO_RESET": 12,
       "CVAR_TRACKERCOLOR": 7
     },
+    "_out_of_scope_estimate": {
+      "bucket1_plugin_unvisited": 0,
+      "bucket2_dynamic_registration": 4,
+      "bucket3_runtime_synthesized": 5,
+      "bucket4_sdk_blocked": 0,
+      "last_validated_against_runtime": "2026-04-26"
+    },
     "help_only": 168
   },
   "default_overrides": {
