@@ -448,6 +448,231 @@ function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
+// FTE Family 1 — Regression probes
+//
+// Ranges centered on Phase 2d-core counts (2379 cvars / 556 commands /
+// 67 macros / 103 cmdline_params) with +-15% tolerance.
+// ---------------------------------------------------------------------------
+
+function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.cvars_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cvar'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [2000, 2750];
+  return {
+    name: 'F1.fte.cvars_count',
+    family: 'regression',
+    description: `total fte cvar entities in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} cvars (in range)` : `${n} cvars — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteEngineCvars(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.engine_cvars', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte' AND cv.source_root='engine'
+  `).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [1100, 1500];
+  return {
+    name: 'F1.fte.engine_cvars',
+    family: 'regression',
+    description: `fte cvar_versions rows with source_root='engine' in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} engine cvar rows (in range)` : `${n} engine cvar rows — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFtePluginEzhudCvars(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.plugin_ezhud_cvars', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
+  `).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [900, 1250];
+  return {
+    name: 'F1.fte.plugin_ezhud_cvars',
+    family: 'regression',
+    description: `fte cvar_versions rows with source_root='plugin:ezhud' in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} plugin:ezhud cvar rows (in range)` : `${n} plugin:ezhud cvar rows — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteCommandsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.commands_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='command'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [470, 650];
+  return {
+    name: 'F1.fte.commands_count',
+    family: 'regression',
+    description: `total fte command entities in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} commands (in range)` : `${n} commands — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteMacrosCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.macros_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='macro'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [55, 80];
+  return {
+    name: 'F1.fte.macros_count',
+    family: 'regression',
+    description: `total fte macro entities in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} macros (in range)` : `${n} macros — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteCmdlineCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.cmdline_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cmdline_param'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [85, 120];
+  return {
+    name: 'F1.fte.cmdline_count',
+    family: 'regression',
+    description: `total fte cmdline_param entities in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} cmdline params (in range)` : `${n} cmdline params — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// FTE Family 2 — Anomaly probes
+// ---------------------------------------------------------------------------
+
+// Guard: every fte cvar_versions row must have a non-NULL source_root.
+// A NULL here means the loader failed to set the engine/plugin:ezhud tag.
+function probeFteNoNullSourceRootCvars(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.no_null_source_root_cvars', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT e.name, cv.version FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte' AND cv.source_root IS NULL
+    LIMIT 10
+  `).all() as { name: string; version: string }[];
+  return {
+    name: 'F2.fte.no_null_source_root_cvars',
+    family: 'anomaly',
+    description: 'fte cvar_versions rows with NULL source_root — loader failed to tag engine/plugin split',
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all fte cvar rows have source_root' : `${rows.length} rows with NULL source_root`,
+    examples: rows.map(r => `${r.name}@${r.version}`),
+  };
+}
+
+// Guard: plugin:ezhud cvar rows must come from files under plugins/ezhud/.
+// A mismatch means a non-ezhud file was incorrectly tagged as plugin:ezhud.
+function probeFtePluginEzhudSourceFilePrefix(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.plugin_ezhud_source_file_prefix', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT e.name, cv.source_file FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
+      AND cv.source_file IS NOT NULL
+      AND cv.source_file NOT LIKE 'plugins/ezhud/%'
+    LIMIT 10
+  `).all() as { name: string; source_file: string }[];
+  return {
+    name: 'F2.fte.plugin_ezhud_source_file_prefix',
+    family: 'anomaly',
+    description: "plugin:ezhud cvar rows where source_file does not begin with plugins/ezhud/",
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all plugin:ezhud source files correctly prefixed' : `${rows.length} rows with wrong source_file prefix`,
+    examples: rows.map(r => `${r.name} -> ${r.source_file}`),
+  };
+}
+
+// Guard: engine-tagged cvar rows must not point at plugins/ source files.
+// An engine row with a plugins/ path means the source_root tagging inverted.
+function probeFteEngineNoPluginSourceFiles(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.engine_no_plugin_source_files', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT e.name, cv.source_file FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte' AND cv.source_root='engine'
+      AND cv.source_file LIKE 'plugins/%'
+    LIMIT 10
+  `).all() as { name: string; source_file: string }[];
+  return {
+    name: 'F2.fte.engine_no_plugin_source_files',
+    family: 'anomaly',
+    description: "engine cvar rows where source_file begins with plugins/ — source_root crossover",
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'no engine rows point at plugin source files' : `${rows.length} engine rows with plugin source_file`,
+    examples: rows.map(r => `${r.name} -> ${r.source_file}`),
+  };
+}
+
+// Guard: no fte cvar should have an absurdly long flags_raw (>5 commas).
+// Regression guard for the inflated-flags bug fixed in Task 14 — if flags_raw
+// has >5 comma-separated tokens it almost certainly accumulated duplicates.
+function probeFteNoInflatedFlags(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.no_inflated_flags', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT e.name, cv.flags_raw FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte'
+      AND cv.flags_raw IS NOT NULL
+      AND length(cv.flags_raw) - length(replace(cv.flags_raw, ',', '')) > 5
+    LIMIT 10
+  `).all() as { name: string; flags_raw: string }[];
+  return {
+    name: 'F2.fte.no_inflated_flags',
+    family: 'anomaly',
+    description: 'fte cvar_versions rows with >5 commas in flags_raw — regression guard for inflated-flags bug',
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'no inflated flags_raw rows' : `${rows.length} rows with >5 commas in flags_raw`,
+    examples: rows.map(r => `${r.name}: ${r.flags_raw}`),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
 
@@ -457,6 +682,13 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.head_ordinal_sentinel', family: 'regression', description: '', run: probeHeadOrdinalSentinel },
   { name: 'F1.cross_type_orphans', family: 'regression', description: '', run: probeCrossTypeOrphans },
   { name: 'F1.entity_has_version_rows', family: 'regression', description: '', run: probeEntityHasVersionRows },
+  // FTE count-range probes
+  { name: 'F1.fte.cvars_count', family: 'regression', description: '', run: probeFteCvarsCount },
+  { name: 'F1.fte.engine_cvars', family: 'regression', description: '', run: probeFteEngineCvars },
+  { name: 'F1.fte.plugin_ezhud_cvars', family: 'regression', description: '', run: probeFtePluginEzhudCvars },
+  { name: 'F1.fte.commands_count', family: 'regression', description: '', run: probeFteCommandsCount },
+  { name: 'F1.fte.macros_count', family: 'regression', description: '', run: probeFteMacrosCount },
+  { name: 'F1.fte.cmdline_count', family: 'regression', description: '', run: probeFteCmdlineCount },
 ];
 
 const ANOMALY_PROBES: Probe[] = [
@@ -466,6 +698,11 @@ const ANOMALY_PROBES: Probe[] = [
   { name: 'F2.pair_symmetry', family: 'anomaly', description: '', run: probePairSymmetry },
   { name: 'F2.doc_only_crosstab', family: 'anomaly', description: '', run: probeDocOnlyCrosstab },
   { name: 'F2.default_value_ping_pong', family: 'anomaly', description: '', run: probeDefaultValuePingPong },
+  // FTE source integrity probes
+  { name: 'F2.fte.no_null_source_root_cvars', family: 'anomaly', description: '', run: probeFteNoNullSourceRootCvars },
+  { name: 'F2.fte.plugin_ezhud_source_file_prefix', family: 'anomaly', description: '', run: probeFtePluginEzhudSourceFilePrefix },
+  { name: 'F2.fte.engine_no_plugin_source_files', family: 'anomaly', description: '', run: probeFteEngineNoPluginSourceFiles },
+  { name: 'F2.fte.no_inflated_flags', family: 'anomaly', description: '', run: probeFteNoInflatedFlags },
 ];
 
 export interface QualityGridOptions {
