@@ -312,3 +312,18 @@ Should be pre-installed on Windows 10/11. If missing:
 ### Rust compilation is slow
 First compile downloads and builds all dependencies. Subsequent builds use cache and are much faster. If consistently slow:
 - Check antivirus isn't scanning the `target\` directory — add an exclusion for the project folder
+
+---
+
+## Building the portable artifact
+
+Slipgate ships in two modes detected at startup via an adjacent `data/portable.flag` marker file. The standard `bun run tauri build` produces only MSI + NSIS installers; the portable .zip is produced by a separate script.
+
+```bash
+bun run tauri build
+./scripts/build-portable.sh
+```
+
+The first command produces the standard installers under `src-tauri/target/release/bundle/`; the second packages a sibling `src-tauri/target/release/slipgate-portable-<version>.zip` containing the release exe plus an empty `data/portable.flag`. Extracting the zip anywhere yields a portable install whose data root is the adjacent `data/` directory; without the flag, the same exe falls back to `%APPDATA%/com.slipgate.app/` (Windows) or the platform equivalent.
+
+The script has to run on the same machine as the build (it reads from `target/release/`) — in the split-process model, that means Windows. WSL can run the script if a Windows-built `.exe` has been rsync'd back, but in practice the build + zip happen together on Windows.
