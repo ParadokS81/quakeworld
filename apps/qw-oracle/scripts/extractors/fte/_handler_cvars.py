@@ -51,6 +51,29 @@ def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
 
 
+def _flags_tokens_of_var_decl(node) -> list[str]:
+    """Return CVAR_* token spellings from the VAR_DECL cursor's own source extent.
+
+    fields[3].get_tokens() is unreliable when field 3 has a zero-length extent
+    (the macro has been expanded away). In that case libclang walks the TU
+    context rather than the field and picks up CVAR_t enum-definition tokens,
+    inflating flag_names with every CVAR_* value in the header.
+
+    Collecting tokens from the VAR_DECL itself (which always has a correct
+    extent) and filtering to those whose start offset falls within that extent
+    restricts collection to the actual CVAR_ARCHIVE | CVAR_VIDEOLATCH expression
+    inside the macro argument list, regardless of whether it is single-line or
+    multi-line.
+    """
+    ext = node.extent
+    return [
+        t.spelling
+        for t in node.get_tokens()
+        if t.spelling.startswith("CVAR_")
+        and ext.start.offset <= t.extent.start.offset < ext.end.offset
+    ]
+
+
 def _concat_string_literals(tokens: list[str]) -> Optional[str]:
     """C adjacent-string-literal concatenation.
 
@@ -134,8 +157,11 @@ def _extract_cvar_fields(node) -> Optional[dict]:
     if not name:
         return None
 
-    # Field 3: flags (CVAR_* token list)
-    flags = _flags_from_tokens(_tokens_of(fields[3])) if len(fields) > 3 else []
+    # Field 3: flags -- collected from the VAR_DECL extent rather than
+    # fields[3].get_tokens() because field 3 often has a zero-length extent
+    # after macro expansion, causing the fallback token walk to pick up
+    # CVAR_t enum-definition tokens from the header (the inflated-tokens bug).
+    flags = _flags_tokens_of_var_decl(node)
 
     # Field 7: alias / ConsoleName2
     alias = _concat_string_literals(_tokens_of(fields[7])) if len(fields) > 7 else None
