@@ -9,6 +9,13 @@ use tauri::Emitter;
 
 use super::ezquake::read_exe_version;
 
+fn staging_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let dr = crate::commands::data_root::data_root_path(app)?;
+    let s = dr.join("binaries").join(".staging");
+    std::fs::create_dir_all(&s).map_err(|e| e.to_string())?;
+    Ok(s)
+}
+
 // ─── Client definitions ────────────────────────────────────────────────────
 
 /// Defines a QW client for update purposes — generic across ezQuake, unezQuake, etc.
@@ -504,39 +511,6 @@ fn extract_exe_from_zip(zip_path: &Path, exe_name: &str, dest: &Path) -> Result<
     Err(format!("'{}' not found in zip archive", exe_name))
 }
 
-/// Rename exe to include version: ezquake.exe → ezquake-3.6.6.exe
-fn backup_exe(exe_path: &Path, version: &str) -> Result<PathBuf, String> {
-    let parent = exe_path.parent().ok_or("Cannot determine exe directory")?;
-    let stem = exe_path
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("ezquake");
-
-    let backup_name = format!("{}-{}.exe", stem, version);
-    let mut backup_path = parent.join(&backup_name);
-
-    // If that name already exists, append a timestamp
-    if backup_path.exists() {
-        let ts = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-        let backup_name = format!("{}-{}-{}.exe", stem, version, ts);
-        backup_path = parent.join(&backup_name);
-    }
-
-    std::fs::rename(exe_path, &backup_path).map_err(|e| {
-        format!(
-            "Cannot rename {} to {}: {}",
-            exe_path.display(),
-            backup_path.display(),
-            e
-        )
-    })?;
-
-    Ok(backup_path)
-}
-
 /// Check if a process with the given exe name is running
 fn is_process_running(exe_name: &str) -> bool {
     let mut sys = System::new();
@@ -681,8 +655,9 @@ pub async fn download_and_install_update(
         ));
     }
 
-    // 2. Download to temp file in same directory (ensures same-fs rename)
-    let temp_download = exe_dir.join(".slipgate-update-download.tmp");
+    // 2. Download to staging dir under data-root (cross-fs OK; staged outside the user's quake dir)
+    let staging = staging_dir(&app)?;
+    let temp_download = staging.join("update-download.tmp");
     let _ = window.emit(
         "update-progress",
         UpdateProgress {
@@ -735,8 +710,8 @@ pub async fn download_and_install_update(
         }
     }
 
-    // 4. Extract exe from zip (stable) or use directly (snapshot)
-    let new_exe_temp = exe_dir.join(".slipgate-update-exe.tmp");
+    // 4. Extract exe from zip (stable) or use directly (snapshot) — into staging
+    let new_exe_temp = staging.join("update-exe.tmp");
     if channel == "stable" {
         let _ = window.emit(
             "update-progress",
@@ -758,15 +733,13 @@ pub async fn download_and_install_update(
             .map_err(|e| format!("Failed to prepare update: {}", e))?;
     }
 
-    // 4b. Register the freshly extracted exe into the warehouse before any
-    // quake-dir mutation. Phase 3 will move the swap itself out of this
-    // function; for now the existing backup+rename below stays.
+    // 5. Register the freshly extracted exe into the warehouse (writes blob + manifest).
     let new_version_for_warehouse = read_exe_version(&new_exe_temp)
         .as_deref()
         .and_then(parse_pe_version)
         .map(|(sv, _)| sv.to_string())
         .unwrap_or_else(|| "unknown".to_string());
-    let _ = crate::commands::version_warehouse::register_version(
+    let entry = crate::commands::version_warehouse::register_version(
         &app,
         client_def.name,
         &new_version_for_warehouse,
@@ -774,76 +747,31 @@ pub async fn download_and_install_update(
         &channel,
         "github_release",
     )?;
+    let _ = std::fs::remove_file(&new_exe_temp);
 
-    // 5. Backup current exe
-    let _ = window.emit(
-        "update-progress",
-        UpdateProgress {
-            stage: "backing_up".into(),
-            percent: None,
-            message: "Backing up current version...".into(),
-        },
-    );
-
-    // Read current version for backup filename
-    let current_version = read_exe_version(exe);
-    let version_for_backup = current_version
-        .as_ref()
-        .and_then(|v| parse_pe_version(v))
-        .map(|(sv, _)| sv.to_string())
-        .unwrap_or_else(|| "unknown".to_string());
-
-    let backup_path = match backup_exe(exe, &version_for_backup) {
-        Ok(p) => p,
-        Err(e) => {
-            // Cannot backup — restore state and abort
-            let _ = std::fs::remove_file(&new_exe_temp);
-            return Err(format!("Cannot backup current exe: {}", e));
-        }
-    };
-
-    // 6. Move new exe into place
-    let _ = window.emit(
-        "update-progress",
-        UpdateProgress {
-            stage: "installing".into(),
-            percent: None,
-            message: "Installing new version...".into(),
-        },
-    );
-
-    // Target path: canonical name in the same directory
-    let target_path = exe_dir.join(client_def.exe_name);
-    if let Err(e) = std::fs::rename(&new_exe_temp, &target_path) {
-        // Install failed — restore backup
-        let _ = std::fs::rename(&backup_path, exe);
-        let _ = std::fs::remove_file(&new_exe_temp);
-        return Err(format!("Failed to install new version: {}", e));
-    }
-
-    // 7. Read new version to confirm
-    let new_version = read_exe_version(&target_path);
-    let new_version_str = new_version
-        .as_ref()
-        .and_then(|v| parse_pe_version(v))
-        .map(|(sv, _)| sv.to_string());
+    // 6. Swap into the user's quake dir via the canonical swap path.
+    let quake_dir_str = exe_dir.to_string_lossy().into_owned();
+    let swap = crate::commands::version_swap::swap_active_version(
+        app.clone(),
+        client_def.name.to_string(),
+        entry.version.clone(),
+        quake_dir_str,
+        client_def.exe_name.to_string(),
+    )?;
 
     let _ = window.emit(
         "update-progress",
         UpdateProgress {
             stage: "done".into(),
             percent: Some(100.0),
-            message: format!(
-                "Updated to {}",
-                new_version_str.as_deref().unwrap_or("new version")
-            ),
+            message: format!("Updated to {}", entry.version),
         },
     );
 
     Ok(UpdateResult {
         success: true,
-        new_version: new_version_str,
-        backup_path: Some(backup_path.to_string_lossy().into_owned()),
+        new_version: Some(entry.version),
+        backup_path: swap.backup_path,
         error: None,
     })
 }
