@@ -331,6 +331,7 @@ Setup {
 | `launch_ezquake` | ClientsTab | Spawn game with args |
 | `capture_screenshot` | ClientsTab (POC) | Demo → screenshot automation |
 | `await_oauth_callback` | auth.ts | Discord OAuth callback |
+| `get_data_root` | quake-dir/dataRoot.ts | Resolve portable vs installed data root (Phase 1 of Quake Dir Control) |
 
 ### Events Rust → frontend
 - `config-changed` → `{ exe_path, config_name }` — listened by App.tsx, triggers re-parse
