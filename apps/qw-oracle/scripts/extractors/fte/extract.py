@@ -54,13 +54,18 @@ VARIANT_FUNCS = [
 ]
 
 
-def collect_handlers() -> dict:
+def collect_handlers(names: str = "all") -> dict:
     """Lazy import handlers -- added one by one across Tasks 5-9.
-    Returns dict[name, handler_instance].
+    Returns dict[name, handler_instance] for the requested names (or all).
     """
-    available: dict = {}
-    # Tasks 5-9 will add imports + entries here.
-    return available
+    from _handler_cvars import CvarsFteHandler
+    available: dict = {
+        "cvars": CvarsFteHandler(),
+    }
+    if names == "all":
+        return available
+    requested = {n.strip() for n in names.split(",") if n.strip()}
+    return {k: v for k, v in available.items() if k in requested}
 
 
 def parse_args() -> argparse.Namespace:
