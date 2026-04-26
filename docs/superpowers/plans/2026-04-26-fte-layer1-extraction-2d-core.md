@@ -9,6 +9,8 @@
 **Tech Stack:** Python 3 + libclang 18 (extractor), TypeScript + Bun + better-sqlite3 (loader), shared `extractor_lib/_visitor.py` walk infrastructure.
 
 **Spec:** `docs/superpowers/specs/2026-04-26-fte-layer1-extraction-design.md`
+**Locked head SHA:** `3584377302cda4bd1b6950b126d147451895a1da`
+**Locked autobuild number:** `build-6698` (git rev-list fallback; grep on quakedef.h/version.c returned nothing)
 
 **Predecessor templates:** `apps/qw-oracle/scripts/extractors/qwcl/` (cross-codebase port pattern), `apps/qw-oracle/scripts/extractors/ezquake/` (full-feature handler reference), `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` (pattern catalog + porting checklist).
 
