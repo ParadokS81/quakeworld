@@ -16,7 +16,8 @@ export type EntityType =
   | 'ruleset'
   | 'token_primitive'
   | 'asset_category'
-  | 'flag_bit';
+  | 'flag_bit'
+  | 'cvar_alias';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'
@@ -647,6 +648,95 @@ export interface VersionRow {
   ordinal: number;
   parse_state: 'ok' | 'partial';
   notes: string | null;
+  extracted_at: string;
+}
+
+// --- Cross-engine alias types (schema v12) ---------------------------------
+//
+// Spec: docs/superpowers/specs/2026-04-26-cross-engine-alias-schema-design.md.
+// One cvar_alias entity row per LHS name; per-version table holds target
+// descriptors, semantic mapping, and verification stamp.
+
+export type CvarAliasTargetKind =
+  | 'cvar'
+  | 'command'
+  | 'macro'
+  | 'serverinfo'
+  | 'userinfo';
+
+export type CvarAliasValueTransform =
+  | 'identity'
+  | 'bool_flip'
+  | 'scale'
+  | 'enum_remap'
+  | 'needs_review';
+
+export type CvarAliasDefaultDriftStatus =
+  | 'same'
+  | 'differ_safe'
+  | 'differ_dangerous'
+  | 'unknown';
+
+export type CvarAliasSemanticConfidence =
+  | 'high'
+  | 'medium'
+  | 'low'
+  | 'needs_review';
+
+export type CvarAliasFreshnessState =
+  | 'alive'
+  | 'target_gone'
+  | 'mimics_lhs_gone'
+  | 'both_gone'
+  | 'unknown';
+
+export interface CvarAliasAstBlock {
+  source_file: string;
+  source_line: number;
+  source_column: number;
+}
+
+export interface CvarAliasEntry {
+  ast: CvarAliasAstBlock | null;
+  target_project: Project;
+  target_kind: CvarAliasTargetKind;
+  target_name: string;
+  mimics_project?: Project | null;
+  value_transform?: CvarAliasValueTransform;
+  value_transform_params?: unknown;
+  default_drift_status?: CvarAliasDefaultDriftStatus;
+  semantic_confidence?: CvarAliasSemanticConfidence;
+  verified_target_version?: string | null;
+  verified_mimics_version?: string | null;
+  freshness_state?: CvarAliasFreshnessState;
+  source_root?: string;
+}
+
+export interface CvarAliasExtractorOutput {
+  aliases: Record<string, CvarAliasEntry>;
+  _stats?: Record<string, unknown>;
+}
+
+export interface CvarAliasVersionRow {
+  entity_id: number;
+  version: string;
+  target_project: Project;
+  target_kind: CvarAliasTargetKind;
+  target_name: string;
+  target_canonical_id: string | null;
+  mimics_project: Project | null;
+  value_transform: CvarAliasValueTransform;
+  value_transform_params_json: string | null;
+  default_drift_status: CvarAliasDefaultDriftStatus;
+  semantic_confidence: CvarAliasSemanticConfidence;
+  verified_target_version: string | null;
+  verified_mimics_version: string | null;
+  freshness_state: CvarAliasFreshnessState;
+  source_file: string | null;
+  source_line: number | null;
+  source_column: number | null;
+  source_root: string | null;
+  raw_ast_hash: string | null;
   extracted_at: string;
 }
 

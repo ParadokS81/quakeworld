@@ -1,0 +1,39 @@
+ez_name	fte_name	ez_def_369	fte_def_6698	def_match	ez_state	fte_state
+loadsky	r_skybox	-		na	NOT_FOUND	source_backed
+r_skyname	r_skybox			same	source_backed	source_backed
+r_skycolor	r_fastskycolour	40 80 150	0	DIFF	source_backed	source_backed
+cl_physfps	cl_netfps	0	150	DIFF	source_backed	source_backed
+fps_skycolor	r_fastskycolour	-	0	na	NOT_FOUND	source_backed
+fps_sky	r_fastsky	-	0	na	NOT_FOUND	source_backed
+gl_consolefont	gl_font	povo5		DIFF	source_backed	source_backed
+gl_bounceparticles	r_bouncysparks	1	1	same	source_backed	source_backed
+gl_loadlitfiles	r_loadlit	1	1	same	source_backed	source_backed
+gl_weather_rain	r_part_rain	0	0	same	source_backed	source_backed
+cl_bonusflash	v_bonusflash	0	1	DIFF	source_backed	source_backed
+sw_gamma	gamma	-	1.0	na	doc_only	source_backed
+sw_contrast	contrast	-	1.0	na	doc_only	source_backed
+s_nosound	nosound	0	0	same	source_backed	source_backed
+scr_conback	gl_conback	1		DIFF	source_backed	source_backed
+sv_maxpitch	maxpitch	80		DIFF	source_backed	source_backed
+sv_minpitch	minpitch	-70		DIFF	source_backed	source_backed
+sv_zombietime	zombietime	-	2	na	NOT_FOUND	source_backed
+tp_triggers	cl_triggers	1	1	same	source_backed	source_backed
+teamskin	cl_teamskin			same	source_backed	source_backed
+enemyskin	cl_enemyskin			same	source_backed	source_backed
+cl_predictPlayers	cl_predict_players	-	1	na	NOT_FOUND	source_backed
+sshot_format	scr_sshot_type	DEFAULT_SSHOT_FORMAT	png	DIFF	source_backed	source_backed
+cl_solidPlayers	cl_solid_players	-	1	na	NOT_FOUND	source_backed
+fps_muzzleflash	cl_muzzleflash	-	1	na	NOT_FOUND	source_backed
+in_m_mwhook	in_mwhook	-	-	na	NOT_FOUND	NOT_FOUND
+r_floorcolor	r_floorcolour	50 100 150	64 64 128	DIFF	source_backed	source_backed
+r_wallcolor	r_wallcolour	255 255 255	128 128 128	DIFF	source_backed	source_backed
+r_farclip	gl_maxdist	8192	0	DIFF	source_backed	source_backed
+vid_colorbits	vid_bpp	0	0	same	source_backed	source_backed
+vid_customheight	vid_height	-	0	na	doc_only	source_backed
+vid_customwidth	vid_width	-	0	na	doc_only	source_backed
+vid_hwgammacontrol	vid_hardwaregamma	2	1	DIFF	source_backed	source_backed
+vid_vsync	_vid_wait_override	0	-	na	source_backed	NOT_FOUND
+gl_lighting_vertex	r_vertexlight	0	0	same	source_backed	source_backed
+bgmvolume	musicvolume	1	0.3	DIFF	source_backed	source_backed
+scr_menualpha	scr_conalpha	0.7	0.7	same	source_backed	source_backed
+cl_fakeshaft	cl_truelightning	0	0	same	source_backed	source_backed

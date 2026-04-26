@@ -39,7 +39,7 @@ const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'ext
 
 const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   ezquake: join(EXTRACTORS_ROOT, 'ezquake', 'extract.py'),
-  fte: null,
+  fte: join(EXTRACTORS_ROOT, 'fte', 'extract.py'),
   mvdsv: null,
   ktx: null,
   qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
@@ -127,7 +127,13 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     command:       'qwcl-commands-ast.json',
     cmdline_param: 'qwcl-cmdline-params-ast.json',
   },
-  fte: {},
+  fte: {
+    cvar:          'fte-variables-ast.json',
+    command:       'fte-commands-ast.json',
+    macro:         'fte-macros-ast.json',
+    cmdline_param: 'fte-cmdline-params-ast.json',
+    cvar_alias:    'fte-aliases-ast.json',
+  },
   mvdsv: {},
   ktx: {},
 };

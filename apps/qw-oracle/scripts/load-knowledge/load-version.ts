@@ -79,6 +79,12 @@ import {
   flagBitIsSourceBacked,
   upsertFlagBitRow,
 } from './load-flag-bits.js';
+import {
+  CVAR_ALIAS_PAYLOAD_FIELD,
+  buildCvarAliasVersionRow,
+  cvarAliasIsSourceBacked,
+  upsertCvarAliasRow,
+} from './load-cvar-aliases.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
@@ -213,6 +219,13 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: flagBitIsSourceBacked,
     buildRow: buildFlagBitVersionRow,
     upsertRow: upsertFlagBitRow,
+  },
+  cvar_alias: {
+    payloadField: CVAR_ALIAS_PAYLOAD_FIELD,
+    versionsTable: 'cvar_alias_versions',
+    isSourceBacked: cvarAliasIsSourceBacked,
+    buildRow: buildCvarAliasVersionRow,
+    upsertRow: upsertCvarAliasRow,
   },
 };
 

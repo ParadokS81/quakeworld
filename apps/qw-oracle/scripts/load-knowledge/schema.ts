@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS entities (
   type                  TEXT NOT NULL CHECK (type IN (
                           'cvar','command','macro','cmdline_param',
                           'keyname','hud_element','ruleset','token_primitive',
-                          'asset_category','flag_bit'
+                          'asset_category','flag_bit','cvar_alias'
                         )),
   name                  TEXT NOT NULL,
   canonical_id          TEXT NOT NULL,
@@ -998,6 +998,83 @@ ALTER TABLE command_versions ADD COLUMN source_root TEXT;
 ALTER TABLE macro_versions   ADD COLUMN source_root TEXT;
 `;
 
+// v11 -> v12 introduces the cvar_alias entity type for cross-engine alias
+// scaffolding. The new entity type is hosted by the existing entities table
+// (CHECK widening, same rebuild pattern as v1->v2/v2->v3/v4->v5) and gets a
+// new per-version table cvar_alias_versions sibling to cvar_versions /
+// command_versions. Spec: docs/superpowers/specs/2026-04-26-cross-engine-alias-schema-design.md.
+const SCHEMA_V12_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS cvar_alias_versions (
+  entity_id                       INTEGER NOT NULL REFERENCES entities(id),
+  version                         TEXT NOT NULL,
+  target_project                  TEXT NOT NULL CHECK (target_project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  target_kind                     TEXT NOT NULL CHECK (target_kind IN (
+                                    'cvar','command','macro','serverinfo','userinfo'
+                                  )),
+  target_name                     TEXT NOT NULL,
+  target_canonical_id             TEXT REFERENCES entities(canonical_id),
+  mimics_project                  TEXT CHECK (mimics_project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  value_transform                 TEXT NOT NULL DEFAULT 'identity'
+                                    CHECK (value_transform IN (
+                                      'identity','bool_flip','scale','enum_remap','needs_review'
+                                    )),
+  value_transform_params_json     TEXT,
+  default_drift_status            TEXT NOT NULL DEFAULT 'unknown'
+                                    CHECK (default_drift_status IN (
+                                      'same','differ_safe','differ_dangerous','unknown'
+                                    )),
+  semantic_confidence             TEXT NOT NULL DEFAULT 'needs_review'
+                                    CHECK (semantic_confidence IN (
+                                      'high','medium','low','needs_review'
+                                    )),
+  verified_target_version         TEXT,
+  verified_mimics_version         TEXT,
+  freshness_state                 TEXT NOT NULL DEFAULT 'alive'
+                                    CHECK (freshness_state IN (
+                                      'alive','target_gone','mimics_lhs_gone','both_gone','unknown'
+                                    )),
+  source_file                     TEXT,
+  source_line                     INTEGER,
+  source_column                   INTEGER,
+  source_root                     TEXT,
+  raw_ast_hash                    TEXT,
+  extracted_at                    TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_cvar_alias_versions_target
+  ON cvar_alias_versions(target_project, target_kind, target_name);
+CREATE INDEX IF NOT EXISTS idx_cvar_alias_versions_canonical
+  ON cvar_alias_versions(target_canonical_id);
+`;
+
+const ENTITIES_V12_MIGRATION_SQL = `
+CREATE TABLE entities_v12 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category','flag_bit','cvar_alias'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v12(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v12 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v12 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+`;
+
 function migrateV9ToV10(db: Database.Database): void {
   // Widens the project CHECK on 8 tables to admit 'qwcl'. Standard rebuild
   // pattern; foreign_keys OFF outside the txn so the entities-table drop is
@@ -1039,6 +1116,27 @@ function migrateV10ToV11(db: Database.Database): void {
     db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('11');
   });
   txn();
+}
+
+function migrateV11ToV12(db: Database.Database): void {
+  // Like v1->v2 / v2->v3 / v4->v5, the entities-table CHECK widening requires
+  // foreign_keys OFF outside the transaction so the entities DROP can succeed
+  // (every per-type version table FK-references entities.id).
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+      `);
+      db.exec(ENTITIES_V12_MIGRATION_SQL);
+      db.exec(SCHEMA_V12_ADDITIONS_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('12');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
 }
 
 export function applySchema(db: Database.Database): void {
@@ -1097,6 +1195,10 @@ export function applySchema(db: Database.Database): void {
       migrateV10ToV11(db);
       existingVersion = 11;
     }
+    if (existingVersion === 11 && SCHEMA_VERSION >= 12) {
+      migrateV11ToV12(db);
+      existingVersion = 12;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -1104,11 +1206,12 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 / v5 / v6 additions are idempotent CREATE IF NOT EXISTS --
+  // v2 / v3 / v4 / v5 / v6 / v12 additions are idempotent CREATE IF NOT EXISTS --
   // safe on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
   db.exec(SCHEMA_V4_ADDITIONS_SQL);
   db.exec(SCHEMA_V5_ADDITIONS_SQL);
   db.exec(SCHEMA_V6_ADDITIONS_SQL);
+  db.exec(SCHEMA_V12_ADDITIONS_SQL);
 }

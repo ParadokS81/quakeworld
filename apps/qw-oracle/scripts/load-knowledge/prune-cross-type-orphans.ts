@@ -35,6 +35,7 @@ const PER_TYPE_VERSION_TABLE: Record<EntityType, string> = {
   token_primitive: 'token_primitive_versions',
   flag_bit:        'flag_bit_versions',
   asset_category:  'asset_category_versions',
+  cvar_alias:      'cvar_alias_versions',
 };
 
 export interface PruneCrossTypeOrphansOptions {

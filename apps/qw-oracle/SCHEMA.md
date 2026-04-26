@@ -1,12 +1,12 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v11, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
+Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v12, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
 
 Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV10ToV11` in order.
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5/v12; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV11ToV12` in order.
 - **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today; `fte` is the next target).
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
@@ -18,12 +18,12 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Group | Tables |
 |---|---|
 | Identity | `versions`, `entities` |
-| Per-type snapshots | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions` |
+| Per-type snapshots | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions`, `cvar_alias_versions` |
 | Relations | `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes` |
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 20 tables at schema v11. (No tables added v10 → v11; v11 is a pure-additive column migration only.)
+Total: 21 tables at schema v12. (v12 widens the entities.type CHECK to admit `cvar_alias` and adds the `cvar_alias_versions` per-version table; no other v11 → v12 changes.)
 
 ---
 
@@ -61,7 +61,7 @@ The shared identity table: one row per canonical engine feature across all its o
 |---|---|---|
 | `id` | INTEGER PK | |
 | `project` | TEXT CHECK | |
-| `type` | TEXT CHECK | 10 values — see table map above |
+| `type` | TEXT CHECK | 11 values — see table map above |
 | `name` | TEXT | Raw name as used in-game (case preserved) |
 | `canonical_id` | TEXT UNIQUE | `<project>:<type>:<name>`, lowercased except for `token_primitive` |
 | `first_seen_version` | TEXT | Oldest version still carrying this row |
@@ -82,7 +82,7 @@ The shared identity table: one row per canonical engine feature across all its o
 
 **Consumed by:** every downstream query. Every `*_versions` row FK-references `entity_id`; every `source_overrides` row too.
 
-**CHECK widening history:** The `type` CHECK started at 4 values in v1 and has been widened three times (v1→v2, v2→v3, v4→v5) via full table-rebuild migrations. See `ENTITIES_V2_MIGRATION_SQL`, `ENTITIES_V3_MIGRATION_SQL`, `ENTITIES_V5_MIGRATION_SQL` in `schema.ts`. Fresh DBs stamp the v5-wide CHECK directly on the v1 CREATE — the comment at the top of `SCHEMA_V1_SQL` documents why that is deliberate.
+**CHECK widening history:** The `type` CHECK started at 4 values in v1 and has been widened four times (v1→v2, v2→v3, v4→v5, v11→v12) via full table-rebuild migrations. See `ENTITIES_V2_MIGRATION_SQL`, `ENTITIES_V3_MIGRATION_SQL`, `ENTITIES_V5_MIGRATION_SQL`, `ENTITIES_V12_MIGRATION_SQL` in `schema.ts`. Fresh DBs stamp the widest CHECK directly on the v1 CREATE — the comment at the top of `SCHEMA_V1_SQL` documents why that is deliberate.
 
 ---
 
@@ -215,6 +215,24 @@ Type-specific: `bitmask_family` (one of `cvar_flag` / `fpd_flag` / `stat_const`)
 Index: `idx_flag_bit_versions_family ON (bitmask_family)`.
 
 **Spec:** `docs/superpowers/specs/2026-04-21-qw-knowledge-schema-v5-flag-bits-and-relation-changes.md`.
+
+### `cvar_alias_versions`
+
+Cross-engine and intra-engine cvar aliases. Schema v12. One row per (entity_id, version); LHS is the alias name registered in the host project, RHS is the actual entity it redirects to.
+
+Type-specific: `target_project` (CHECK), `target_kind` (CHECK `cvar` / `command` / `macro` / `serverinfo` / `userinfo`), `target_name`, `target_canonical_id` (nullable FK to `entities.canonical_id`; NULL when target isn't loaded yet or kind isn't an entity type), `mimics_project` (nullable; the namespace this alias bridges from — `ezquake` for ezscript, NULL for internal-engine aliases), `value_transform` (CHECK `identity` / `bool_flip` / `scale` / `enum_remap` / `needs_review`), `value_transform_params_json` (free-form JSON for parametric transforms), `default_drift_status` (CHECK `same` / `differ_safe` / `differ_dangerous` / `unknown`), `semantic_confidence` (CHECK `high` / `medium` / `low` / `needs_review`), `verified_target_version`, `verified_mimics_version`, `freshness_state` (CHECK `alive` / `target_gone` / `mimics_lhs_gone` / `both_gone` / `unknown`), `source_root` (nullable, mirrors v11 cvar_versions semantics).
+
+**Populated by:** `load-cvar-aliases.ts` ← `_handler_ezscript.py` (FTE plugin) → `fte-aliases-ast.json`. The handler joins drift / freshness fields from a checked-in TSV seed at `scripts/extractors/fte/seeds/ezscript-drift-369-vs-build-6698.tsv`. Future broad-scope alias research lands in the same table tagged with its own `source_root`.
+
+**Count at FTE build-6698:** 38 (36 cvar redirects + 2 serverinfo redirects, all `mimics_project='ezquake'`, `source_root='fte:plugin:ezscript'`).
+
+**Existence semantics:** `freshness_state` owns existence, not `default_drift_status`. When `freshness_state IN ('target_gone', 'both_gone')`, drift is meaningless and `default_drift_status` is `unknown`.
+
+**Loader validation:** `load-cvar-aliases.ts` calls `parseVersionSpec` from `@qw/version-resolution` against `verified_target_version` and `verified_mimics_version` at upsert time; non-canonical strings (e.g., underscore-separated typos) are rejected before insert.
+
+Indexes: `idx_cvar_alias_versions_target ON (target_project, target_kind, target_name)`, `idx_cvar_alias_versions_canonical ON (target_canonical_id)`.
+
+**Spec:** `docs/superpowers/specs/2026-04-26-cross-engine-alias-schema-design.md`.
 
 ---
 

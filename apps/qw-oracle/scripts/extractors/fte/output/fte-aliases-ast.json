@@ -1,0 +1,695 @@
+{
+  "aliases": {
+    "bgmvolume": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 73,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "musicvolume",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "cl_bonusflash": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 48,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "v_bonusflash",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "cl_fakeshaft": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 75,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_truelightning",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "cl_physfps": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 41,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_netfps",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "cl_predictplayers": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 59,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_predict_players",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "cl_solidplayers": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 61,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_solid_players",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "enemyskin": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 58,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_enemyskin",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "fps_muzzleflash": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 62,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_muzzleflash",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "fps_sky": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 43,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_fastsky",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "fps_skycolor": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 42,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_fastskycolour",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "gl_bounceparticles": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 45,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_bouncysparks",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "gl_consolefont": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 44,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "gl_font",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "gl_lighting_vertex": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 72,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_vertexlight",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "gl_loadlitfiles": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 46,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_loadlit",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "gl_weather_rain": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 47,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_part_rain",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "in_m_mwhook": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 63,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "in_mwhook",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "both_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "loadsky": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 38,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_skybox",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "r_farclip": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 66,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "gl_maxdist",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "r_floorcolor": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 64,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_floorcolour",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "r_skycolor": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 40,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_fastskycolour",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "r_skyname": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 39,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_skybox",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "r_wallcolor": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 65,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "r_wallcolour",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "s_nosound": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 51,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "nosound",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "scr_conback": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 52,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "gl_conback",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "scr_menualpha": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 74,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "scr_conalpha",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "sshot_format": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 60,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "scr_sshot_type",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "sv_maxpitch": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 53,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "serverinfo",
+      "target_name": "maxpitch",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "sv_minpitch": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 54,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "serverinfo",
+      "target_name": "minpitch",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "sv_zombietime": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 55,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "zombietime",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "sw_contrast": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 50,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "contrast",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "sw_gamma": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 49,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "gamma",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "teamskin": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 57,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_teamskin",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "tp_triggers": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 56,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "cl_triggers",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "vid_colorbits": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 67,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "vid_bpp",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "same",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "vid_customheight": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 68,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "vid_height",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "vid_customwidth": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 69,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "vid_width",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "mimics_lhs_gone",
+      "source_root": "plugin:ezscript"
+    },
+    "vid_hwgammacontrol": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 70,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "vid_hardwaregamma",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "differ_dangerous",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "alive",
+      "source_root": "plugin:ezscript"
+    },
+    "vid_vsync": {
+      "ast": {
+        "source_file": "plugins/ezscript/ezscript.c",
+        "source_line": 71,
+        "source_column": 7
+      },
+      "target_project": "fte",
+      "target_kind": "cvar",
+      "target_name": "_vid_wait_override",
+      "mimics_project": "ezquake",
+      "value_transform": "identity",
+      "default_drift_status": "unknown",
+      "semantic_confidence": "medium",
+      "verified_target_version": "build-6698",
+      "verified_mimics_version": "3.6.9",
+      "freshness_state": "target_gone",
+      "source_root": "plugin:ezscript"
+    }
+  },
+  "_stats": {
+    "count": 38,
+    "drift_joined": 38,
+    "drift_unjoined": 0,
+    "seed_target_version": "build-6698",
+    "seed_mimics_version": "3.6.9"
+  }
+}

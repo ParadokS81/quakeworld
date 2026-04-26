@@ -57,6 +57,7 @@ OUTPUT_DIR_DEFAULT = HERE / "output"
 SOURCE_ROOTS = [
     ("engine", "engine"),
     ("plugin:ezhud", "plugins/ezhud"),
+    ("plugin:ezscript", "plugins/ezscript"),
 ]
 
 # Each entry: (variant_name, clang_args_func)
@@ -77,12 +78,14 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_macros import MacrosFteHandler
     from _handler_cmdline import CmdlineFteHandler
     from _handler_ezhud import EzhudFteHandler
+    from _handler_ezscript import EzscriptFteHandler
     available: dict = {
         "cvars": CvarsFteHandler(),
         "commands": CommandsFteHandler(),
         "macros": MacrosFteHandler(),
         "cmdline": CmdlineFteHandler(),
         "ezhud": EzhudFteHandler(),
+        "ezscript": EzscriptFteHandler(),
     }
     if names == "all":
         return available

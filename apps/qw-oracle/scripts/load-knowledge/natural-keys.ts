@@ -14,6 +14,7 @@ import type {
   AssetPathRuleRow,
   CmdlineParamVersionRow,
   CommandVersionRow,
+  CvarAliasVersionRow,
   CvarVersionRow,
   EntityType,
   FlagBitVersionRow,
@@ -366,6 +367,53 @@ export function upsertAssetLoaderSite(db: Database.Database, row: AssetLoaderSit
       @confidence, @dev_only, @notes, @raw_ast_hash, @extracted_at
     )
   `).run(row);
+}
+
+export function upsertCvarAliasVersion(db: Database.Database, row: CvarAliasVersionRow): void {
+  // Best-effort target_canonical_id resolution: if target entity exists in the
+  // DB, link the FK; otherwise leave NULL (per spec § Field semantics). A
+  // separate resolver pass can re-link rows when target projects later load.
+  // Token primitives are case-sensitive everywhere; cvar aliases are not, so
+  // lowercase the lookup name to match the canonical-id pattern.
+  let resolved: string | null = row.target_canonical_id ?? null;
+  if (resolved == null) {
+    const targetIsEntity = row.target_kind === 'cvar'
+      || row.target_kind === 'command'
+      || row.target_kind === 'macro';
+    if (targetIsEntity) {
+      const lookupName = row.target_name.toLowerCase();
+      const hit = db.prepare(`
+        SELECT canonical_id FROM entities
+        WHERE project = ? AND type = ? AND name = ?
+      `).get(row.target_project, row.target_kind, lookupName) as
+        | { canonical_id: string }
+        | undefined;
+      if (hit) resolved = hit.canonical_id;
+    }
+  }
+  db.prepare(`
+    INSERT OR REPLACE INTO cvar_alias_versions (
+      entity_id, version,
+      target_project, target_kind, target_name, target_canonical_id,
+      mimics_project,
+      value_transform, value_transform_params_json,
+      default_drift_status, semantic_confidence,
+      verified_target_version, verified_mimics_version,
+      freshness_state,
+      source_file, source_line, source_column, source_root,
+      raw_ast_hash, extracted_at
+    ) VALUES (
+      @entity_id, @version,
+      @target_project, @target_kind, @target_name, @target_canonical_id,
+      @mimics_project,
+      @value_transform, @value_transform_params_json,
+      @default_drift_status, @semantic_confidence,
+      @verified_target_version, @verified_mimics_version,
+      @freshness_state,
+      @source_file, @source_line, @source_column, @source_root,
+      @raw_ast_hash, @extracted_at
+    )
+  `).run({ ...row, target_canonical_id: resolved });
 }
 
 export function upsertFlagBitVersion(db: Database.Database, row: FlagBitVersionRow): void {
