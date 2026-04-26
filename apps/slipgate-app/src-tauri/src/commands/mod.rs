@@ -1,6 +1,7 @@
 pub mod archive;
 pub mod auth;
 pub mod browse;
+pub mod data_root;
 pub mod ezquake;
 pub mod inventory_report;
 pub mod locs;

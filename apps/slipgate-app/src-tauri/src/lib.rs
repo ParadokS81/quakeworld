@@ -44,6 +44,7 @@ pub fn run() {
             commands::browse::start_browse_watch,
             commands::browse::stop_browse_watch,
             commands::inventory_report::dump_inventory_report,
+            commands::data_root::get_data_root,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())
