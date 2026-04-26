@@ -45,6 +45,9 @@ pub fn run() {
             commands::browse::stop_browse_watch,
             commands::inventory_report::dump_inventory_report,
             commands::data_root::get_data_root,
+            commands::version_warehouse::list_warehoused_versions,
+            commands::version_warehouse::read_warehouse_index,
+            commands::version_warehouse::import_existing_install,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())
