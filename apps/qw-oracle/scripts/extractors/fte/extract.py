@@ -6,10 +6,13 @@ Walks two source roots (engine + plugins/ezhud) under 4 variants
 
 Architecture:
   - Per-handler setup() runs once in the parent (before Pool fork).
-  - multiprocessing.Pool (fork mode) over the per-file work list.
-  - Inside each worker: 4 TU parses per file (one per variant), dispatched
-    through walk_tu_dispatch with the correct source_root label.
-  - Per-tag wall time on 12-core: ~30s (vs ~326s serial baseline).
+  - multiprocessing.Pool (fork mode) over pre-chunked task lists.
+  - Inside each worker: iterates its chunk; per file does 4 TU parses (one per
+    variant), dispatched through walk_tu_dispatch with the correct label.
+  - Chunking pattern matches ezQuake: tasks split into sub-lists of chunk_size
+    before submission; Pool.map chunksize=1 so the Pool does not re-chunk.
+    2x over-chunking (each worker gets ~2 chunks) gives load-balance headroom.
+  - Per-tag wall time on 24-core: ~38s (vs ~50s with 1-task-per-file + 12-worker cap).
   - --workers 1 falls back to serial loop for debugging.
 
 Usage:
@@ -120,30 +123,19 @@ _WORKER_CLANG_WIN: list[str] = []
 _WORKER_CLANG_VK: list[str] = []
 
 
-def _worker_process_file(task: tuple) -> tuple[dict, list]:
-    """Process one (file_path_str, source_root_label) pair in a worker.
+def _worker_process_chunk(tasks: list[tuple]) -> tuple[dict, list]:
+    """Process a chunk of (file_path_str, source_root_label) pairs in a worker.
 
-    Parses the file under all 4 variants, runs every handler via the shared
-    walk, and returns per-file rows for all handlers.
+    Creates one libclang Index for the whole chunk (kept warm across files).
+    For each file: 4 TU parses (one per variant), walk_tu_dispatch, end_file.
 
     Returns (local_rows, local_diag):
       local_rows  -- dict[handler_name, list[row_dict]]
       local_diag  -- list of diagnostic strings
     """
-    file_path_str, source_root_label = task
-    path = Path(file_path_str)
-
+    idx = Index.create()
     local_rows: dict[str, list[dict]] = {h.name: [] for h in _WORKER_HANDLERS}
     local_diag: list[str] = []
-
-    try:
-        source_bytes = path.read_bytes()
-    except OSError as e:
-        local_diag.append(f"{path.name}: read failed: {e}")
-        return local_rows, local_diag
-
-    idx = Index.create()
-    target_str = file_path_str
 
     variant_args = [
         ("client",    _WORKER_CLANG_CLIENT),
@@ -152,28 +144,37 @@ def _worker_process_file(task: tuple) -> tuple[dict, list]:
         ("client_vk", _WORKER_CLANG_VK),
     ]
 
-    for h in _WORKER_HANDLERS:
-        h.start_file(source_path=path, source_bytes=source_bytes)
+    for file_path_str, source_root_label in tasks:
+        path = Path(file_path_str)
 
-    for variant_name, clang_args in variant_args:
-        tu = idx.parse(target_str, args=clang_args, options=PARSE_OPTS)
         try:
-            walk_tu_dispatch(
-                tu,
-                _WORKER_HANDLERS,
-                variant_name,
-                target_str,
-                source_root=source_root_label,
-            )
-        except Exception as e:
-            local_diag.append(f"{path.name} [{variant_name}|walk]: {type(e).__name__}: {e}")
+            source_bytes = path.read_bytes()
+        except OSError as e:
+            local_diag.append(f"{path.name}: read failed: {e}")
+            continue
 
-    for h in _WORKER_HANDLERS:
-        try:
-            rows = h.end_file()
-            local_rows[h.name].extend(rows)
-        except Exception as e:
-            local_diag.append(f"{path.name} [{h.name}.end_file]: {type(e).__name__}: {e}")
+        for h in _WORKER_HANDLERS:
+            h.start_file(source_path=path, source_bytes=source_bytes)
+
+        for variant_name, clang_args in variant_args:
+            tu = idx.parse(file_path_str, args=clang_args, options=PARSE_OPTS)
+            try:
+                walk_tu_dispatch(
+                    tu,
+                    _WORKER_HANDLERS,
+                    variant_name,
+                    file_path_str,
+                    source_root=source_root_label,
+                )
+            except Exception as e:
+                local_diag.append(f"{path.name} [{variant_name}|walk]: {type(e).__name__}: {e}")
+
+        for h in _WORKER_HANDLERS:
+            try:
+                rows = h.end_file()
+                local_rows[h.name].extend(rows)
+            except Exception as e:
+                local_diag.append(f"{path.name} [{h.name}.end_file]: {type(e).__name__}: {e}")
 
     return local_rows, local_diag
 
@@ -240,18 +241,26 @@ def _run_parallel(
     tasks: list[tuple],
     handlers: list,
     workers: int,
+    chunk_size: int,
 ) -> tuple[dict, list]:
-    """Parallel path: forked Pool, one task per file, ordered result merge."""
+    """Parallel path: forked Pool, chunked map, ordered result merge.
+
+    Tasks are pre-split into sub-lists of chunk_size before submission.
+    Pool.map chunksize=1 because our chunks are already the unit of work --
+    letting Pool re-chunk would break the 2x over-dispatch load-balance goal.
+    """
     global _WORKER_HANDLERS, _WORKER_CLANG_CLIENT, _WORKER_CLANG_SERVER
     global _WORKER_CLANG_WIN, _WORKER_CLANG_VK
     _WORKER_HANDLERS = handlers
     # clang args already set by caller (main)
 
-    print(f"  parallel: {workers} workers, {len(tasks)} files")
+    chunks = [tasks[i:i + chunk_size] for i in range(0, len(tasks), chunk_size)]
+    print(f"  parallel: {workers} workers, {len(chunks)} chunks of ~{chunk_size} files ({len(tasks)} total)")
 
     ctx = mp.get_context("fork")
+    # chunksize=1: our chunks are the unit; Pool must not re-chunk.
     with ctx.Pool(processes=workers) as pool:
-        results = pool.map(_worker_process_file, tasks, chunksize=1)
+        results = pool.map(_worker_process_chunk, chunks, chunksize=1)
 
     # Deterministic merge: iterate results in input order.
     rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
@@ -276,7 +285,9 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--handlers", default="all",
                     help="Comma-separated handler names or 'all'")
     ap.add_argument("--workers", type=int, default=0,
-                    help="Parallel worker processes. 0 = auto (min(cpu_count, 12)). 1 = serial.")
+                    help="Parallel worker processes. 0 = auto (cpu_count). 1 = serial.")
+    ap.add_argument("--chunk-size", type=int, default=0,
+                    help="Files per chunk. 0 = auto (len(tasks) / (workers*2), min 4).")
     ap.add_argument("--limit-files", type=int, default=0,
                     help="Stop after N files per source root (0 = no limit). Useful for smoke tests.")
     ap.add_argument("--progress-every", type=int, default=20,
@@ -355,7 +366,13 @@ def main() -> int:
 
     workers = args.workers
     if workers == 0:
-        workers = min(os.cpu_count() or 4, 12)
+        workers = os.cpu_count() or 4
+
+    if args.chunk_size > 0:
+        chunk_size = args.chunk_size
+    else:
+        # 2x over-chunking for load balance: each worker gets ~2 chunks.
+        chunk_size = max(4, len(tasks) // max(1, workers * 2))
 
     mode_label = "serial" if workers == 1 else f"parallel x {workers}"
     print(f"FTE AST extraction ({mode_label})")
@@ -374,7 +391,7 @@ def main() -> int:
         )
     else:
         rows_by_handler, diagnostics = _run_parallel(
-            tasks, handlers, workers,
+            tasks, handlers, workers, chunk_size,
         )
 
     parse_time = time.perf_counter() - t0
