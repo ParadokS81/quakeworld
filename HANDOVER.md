@@ -20,6 +20,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Quake Dir Control Phase 3 — refined scope](#quake-dir-control-phase-3--refined-scope) — **NEW 2026-04-26 night.** Phase 3 (swap + UI + delete + foreign backup) ready to execute, with refinements from the late-evening fingerprinter conversation: design version list to anticipate MyQuake unification, include stubbed "Add Quake client" button, apply three-tier identity surfacing principles, address the "mid-session path changes don't re-import" gap with explicit version-list actions.
 - [Add Quake Client / MyQuake unification — Phase 3.5 plan written](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night.** Plan SHIPPED at `docs/superpowers/plans/2026-04-26-add-quake-client.md` (804 lines, commit `509f1e5`). Four sub-phases (~6-8hrs): ClientFingerprint Rust module + release_cache module + MyQuake browser augmentation + Add-Client entry-point flow with default-select-all bulk-import checklist. Seven design decisions (D1-D7) + sixteen engineer gotchas. Position: between Phase 3 (swap+UI+delete) and Phase 4 (oracle snapshot widening) — user-facing multi-client UX before internal diff-viewer plumbing. Operator's plan: start a fresh session for second-pass review, report back any pushback / scope creep before execution.
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
+- [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
+- [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
 
 ---
 
@@ -442,6 +444,92 @@ Low for now — depends on Phase 3 shipping first to give the version list a hom
 - Memory: `feedback_substring_not_regex_fingerprinting.md` (why substring beats regex for cross-version-history matching)
 - Memory: `project_quake_dir_control.md` (multi-phase plan status; Phases 0+1+2 shipped)
 - Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (the original 6-phase plan; this entry sketches a phase that wasn't in the original scope)
+
+---
+
+## Plugin v-table asset detection (loader-sites handler)
+
+**Added:** 2026-04-26 (during FTE Phase 2d-bundle Phase 1 ship).
+**Status:** Known limitation; not a Phase 2d-bundle blocker.
+**Verification first:** `python3 -c "import json; d=json.load(open('apps/qw-oracle/scripts/extractors/fte/output/fte-asset-loader-sites-ast.json')); sites=d['loader_sites']; from collections import Counter; print({k:v for k,v in Counter(('plugin' if '/plugins/' in (s.get('source_file') or '') else 'engine') for s in sites).items()})"` — should print `{'engine': 717}` (or whatever the current engine count is). Zero plugin entries = the gap is still present. A non-zero plugin count means someone has shipped the v-table detection.
+
+### What's missing
+
+The asset_loader_sites handler watches a fixed set of LOADER_FUNCTIONS (FS_OpenVFS, S_PrecacheSound, R_RegisterShader, etc.) and emits one row per direct CALL_EXPR. FTE plugins reach those same loaders indirectly: a plugin gets a `plugincorefuncs_t` struct from FTE at init, then calls `corefuncs->S_PrecacheSound(...)` or similar through the v-table. libclang sees this as a member-ref on a function pointer, not a CALL_EXPR with `spelling=='S_PrecacheSound'`, so the handler does not fire.
+
+`plugin:ezhud` is the only QW-relevant plugin currently in scope that loads assets (HUD images via `Draw_CachePicSafe`-equivalent v-table calls). `plugin:ezscript` has zero asset surface (its only cvar is `ezscript_silentmode`; no images, sounds, models). Other FTE plugins (IRC/XMPP/ODE/etc.) are out of QW scope.
+
+### Use case it blocks
+
+A user's FTE+ezhud install has HUD-image PNGs that slipgate's directory scanner classifies via the asset_extensions seed (extension + path_hint match). The bundle's `asset_loader_sites` array does not show those images as having a registered loader site, but the categorization still works because `gfx/<image>.png` matches the `gfx/` path_hint in the extensions seed. The visible gap is in oracle's "show me every site that loads asset category X" query — plugin-side sites are missing.
+
+### Why low pressure
+
+ezhud is the only affected plugin. Its images ship bundled inside the FTE distribution; an installed user has them automatically. Slipgate's classification works via the extensions seed regardless. The only consumer that loses signal is a hypothetical "show me every plugin asset loader site for cross-engine impact analysis" query — which nobody has asked for.
+
+### Fix shape (when it lands)
+
+Two paths:
+1. Detect the `plugincorefuncs_t` member-ref pattern in CALL_EXPRs and re-route to the corresponding LOADER_FUNCTION classification. Complicated because the v-table struct definition lives in `engine/client/plugin.h` and the field names map to function pointers, so we'd need a struct-aware pass.
+2. Add a hand-authored seed that lists per-plugin known loader sites, similar to asset-cvar-bindings. Ezhud's loader patterns are stable enough to enumerate by hand.
+
+(2) is faster to ship; (1) is more general. No decision yet — defer until a concrete consumer asks.
+
+### Related
+
+- FTE Phase 2d-bundle plan: `docs/superpowers/plans/2026-04-26-fte-phase-2d-bundle.md`
+- Research artifact commit: `308da47`
+- Bundle commit: `70d1d27`
+- Sibling memory: `reference_asset_loader_extractor_capabilities.md`
+
+### Pressure
+
+Low. No ezhud feature blocks on this.
+
+---
+
+## Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)
+
+**Added:** 2026-04-26 (during FTE Phase 2d-bundle Phase 1 ship).
+**Status:** Known engine-agnostic limitation in `extractor_lib/handler_asset_cvar_bindings.py`.
+**Verification first:** Run the bundle build for either project and inspect the reconciliation summary:
+- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project ezquake --version head 2>&1 | tail -8`  -> `seedNotCorroborated: 23` (of 24 seed entries).
+- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project fte --version build-6698 2>&1 | tail -8`  -> `seedNotCorroborated: 4` (of 22 seed entries).
+
+Both engines exercise the same handler; the per-row miss is the same shape across both.
+
+### What's missing
+
+The handler emits a binding when a `cvar.string` member-ref appears in the same COMPOUND_STMT as a loader-function CALL_EXPR. That covers ~10% of real bindings. The other ~90% are missed because real code does multi-step indirection that the handler does not follow:
+
+1. **snprintf chains.** `Q_strncpyz(name, baseskin.string, sizeof(name)); ...; FS_Open(name);` — the cvar.string is captured into a local buffer; the loader call uses the buffer, not the cvar directly. The two member-refs are in the same compound scope but the handler doesn't connect them across the buffer-write.
+
+2. **CVARFC callbacks.** FTE registers `r_skybox` with a `R_SkyBox_Changed` callback (CVARFC macro). The asset load happens inside the callback (`R_SetSky`) which is invoked at runtime, not at the cvar registration site. The handler walks each compound scope independently; it doesn't follow function pointers.
+
+3. **Multi-function call chains.** `cvar.string` -> `va()` -> wrapper function -> loader. Every additional function-call hop hides the cvar from the handler's same-scope detector.
+
+### Why this is engine-agnostic
+
+The handler is in `apps/qw-oracle/scripts/extractors/extractor_lib/handler_asset_cvar_bindings.py`. Both ezQuake and FTE use this code unchanged. The 23/24 vs 4/22 split is a function of how each engine's loader code is structured, not a function of the handler having different capabilities per project. Any future MVDSV/KTX seed will see the same shape.
+
+### Why low pressure
+
+The seed-not-corroborated rows are NOT lost. They land in the bundle as `seedRetained` with confidence `seed`. Slipgate's directory scanner reads them just like auto-corroborated rows. The signal that goes missing is "did the AST also see this binding?" — useful for spotting drift over time but not blocking any current consumer.
+
+### Fix shape (when it lands)
+
+The asset-loader-sites handler already has Path 1 structured extraction that follows buffer writes, format-call args, and deref-assignments inside a compound scope (see `reference_asset_loader_extractor_capabilities.md`). Lifting the same buffer-write tracking into the cvar-bindings handler would catch the snprintf chains. Following CVARFC callbacks would require resolving the callback function pointer to its target FUNCTION_DECL and walking that function's body — bigger surgery.
+
+### Related
+
+- ezQuake seed: `apps/qw-oracle/scripts/extractors/ezquake/seeds/ezquake-asset-cvar-bindings.yaml` (24 entries, 23 uncorroborated)
+- FTE seed: `apps/qw-oracle/scripts/extractors/fte/seeds/fte-asset-cvar-bindings.yaml` (22 entries, 4 uncorroborated)
+- Handler: `apps/qw-oracle/scripts/extractors/extractor_lib/handler_asset_cvar_bindings.py` (216 lines)
+- Sibling reference: `reference_asset_loader_extractor_capabilities.md` (already documents the loader-sites handler's same-class capabilities)
+
+### Pressure
+
+Low. Bundle output is correct; only the AST-corroboration signal is partial.
 
 ---
 
