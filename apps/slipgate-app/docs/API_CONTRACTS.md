@@ -96,7 +96,7 @@ For the full auth flow walkthrough, see `AUTH.md`. For config parsing internals,
 
 ## Tauri IPC (frontend to Rust)
 
-16 commands + 2 events. The full command table lives in `OVERVIEW.md` under "Tauri integration - frontend -> backend" to avoid duplication. The contracts to know:
+The full command table lives in `OVERVIEW.md` under "Tauri integration - frontend -> backend" to avoid duplication. Two events plus the contracts to know:
 
 ### Events (Rust to frontend)
 
