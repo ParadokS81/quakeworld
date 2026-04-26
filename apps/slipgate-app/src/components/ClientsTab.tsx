@@ -7,6 +7,13 @@ import type { EzQuakeInstallation, EzQuakeConfig, MonitorInfo, UpdateCheckResult
 import type { ProfileData } from "../store";
 import { getPrimarySetup } from "../store";
 import Changelog from "./Changelog";
+import VersionWarehouse from "./VersionWarehouse";
+
+function quakeDirFromExePath(p: string | null | undefined): string | null {
+  if (!p) return null;
+  const idx = Math.max(p.lastIndexOf("\\"), p.lastIndexOf("/"));
+  return idx > 0 ? p.slice(0, idx) : null;
+}
 
 interface ClientsTabProps {
   onConfigLoaded?: (config: EzQuakeConfig, exePath: string, configName: string, version: string | null) => void;
@@ -569,6 +576,23 @@ export default function ClientsTab(props: ClientsTabProps) {
                 <Changelog notes={qwfwdNotes()} />
               </Show>
             </Show>
+          </div>
+
+          {/* Version Warehouse */}
+          <div class="sg-card">
+            <div class="sg-card-header">
+              <HardDrive size={16} />
+              <span>Versions</span>
+            </div>
+            <VersionWarehouse
+              client="ezquake"
+              quakeDir={quakeDirFromExePath(exePath())}
+              targetExeName="ezquake.exe"
+              onSwapComplete={() => {
+                const p = exePath();
+                if (p) validateAndLoad(p);
+              }}
+            />
           </div>
         </Show>
 

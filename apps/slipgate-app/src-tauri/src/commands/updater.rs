@@ -739,9 +739,12 @@ pub async fn download_and_install_update(
         .and_then(parse_pe_version)
         .map(|(sv, _)| sv.to_string())
         .unwrap_or_else(|| "unknown".to_string());
+    // Warehouse keys are lowercase by convention (matches first-run import
+    // and frontend filters). The display name on ClientDef stays cased.
+    let warehouse_client = client_def.name.to_lowercase();
     let entry = crate::commands::version_warehouse::register_version(
         &app,
-        client_def.name,
+        &warehouse_client,
         &new_version_for_warehouse,
         &new_exe_temp,
         &channel,
@@ -753,7 +756,7 @@ pub async fn download_and_install_update(
     let quake_dir_str = exe_dir.to_string_lossy().into_owned();
     let swap = crate::commands::version_swap::swap_active_version(
         app.clone(),
-        client_def.name.to_string(),
+        warehouse_client,
         entry.version.clone(),
         quake_dir_str,
         client_def.exe_name.to_string(),
