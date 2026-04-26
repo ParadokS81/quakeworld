@@ -79,6 +79,8 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_cmdline import CmdlineFteHandler
     from _handler_ezhud import EzhudFteHandler
     from _handler_ezscript import EzscriptFteHandler
+    from _handler_asset_loader_sites import AssetLoaderSitesHandler
+    from _handler_asset_cvar_bindings import AssetCvarBindingsHandler
     available: dict = {
         "cvars": CvarsFteHandler(),
         "commands": CommandsFteHandler(),
@@ -86,6 +88,8 @@ def collect_handlers(names: str = "all") -> dict:
         "cmdline": CmdlineFteHandler(),
         "ezhud": EzhudFteHandler(),
         "ezscript": EzscriptFteHandler(),
+        "asset_loader_sites": AssetLoaderSitesHandler(),
+        "asset_cvar_bindings": AssetCvarBindingsHandler(),
     }
     if names == "all":
         return available
