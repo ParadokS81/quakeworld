@@ -62,16 +62,40 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_commands import CommandsFteHandler
     from _handler_macros import MacrosFteHandler
     from _handler_cmdline import CmdlineFteHandler
+    from _handler_ezhud import EzhudFteHandler
     available: dict = {
         "cvars": CvarsFteHandler(),
         "commands": CommandsFteHandler(),
         "macros": MacrosFteHandler(),
         "cmdline": CmdlineFteHandler(),
+        "ezhud": EzhudFteHandler(),
     }
     if names == "all":
         return available
     requested = {n.strip() for n in names.split(",") if n.strip()}
     return {k: v for k, v in available.items() if k in requested}
+
+
+def merge_ezhud_into_cvars(output_dir: Path) -> None:
+    """Merge fte-ezhud-cvars-ast.json into fte-variables-ast.json.
+
+    The loader expects one cvars JSON. Ezhud rows enter that surface tagged
+    source_root=plugin:ezhud. Called after finalize so both files exist.
+    Engine cvar count is preserved -- only new ezhud entries are added.
+    """
+    cvars_path = output_dir / "fte-variables-ast.json"
+    ezhud_path = output_dir / "fte-ezhud-cvars-ast.json"
+    if not cvars_path.exists() or not ezhud_path.exists():
+        return
+    cvars = json.loads(cvars_path.read_text())
+    ezhud = json.loads(ezhud_path.read_text())
+    cvars["vars"].update(ezhud["vars"])
+    cvars["_stats"]["count"] = len(cvars["vars"])
+    cvars["_stats"]["by_source_root"] = {
+        root: sum(1 for r in cvars["vars"].values() if r.get("source_root") == root)
+        for root in ("engine", "plugin:ezhud")
+    }
+    cvars_path.write_text(json.dumps(cvars, indent=2, sort_keys=True) + "\n")
 
 
 def parse_args() -> argparse.Namespace:
@@ -204,6 +228,14 @@ def main() -> int:
             print(f"  {d}")
         if len(diagnostics) > 20:
             print(f"  ... ({len(diagnostics) - 20} more)")
+
+    # Fold ezhud cvar rows into the main cvars JSON so the loader sees one surface.
+    merge_ezhud_into_cvars(output_dir)
+    ezhud_merged_path = output_dir / "fte-variables-ast.json"
+    if ezhud_merged_path.exists():
+        merged = json.loads(ezhud_merged_path.read_text())
+        stats = merged.get("_stats", {})
+        print(f"\n[merge] fte-variables-ast.json after ezhud merge: {stats}")
 
     total_time = time.perf_counter() - t0
     print(f"\nDone. {total_files} files, {total_time:.1f}s")

@@ -1,0 +1,19 @@
+# FTE ezhud plugin -- per-element custom param tables.
+#
+# Standard 9 subcvars (show / place / align_x / align_y / pos_x / pos_y /
+# frame / frame_color / item_opacity) plus order are synthesized for every
+# element automatically by the handler. This file documents per-element
+# custom params for downstream readers.
+#
+# The handler discovers custom params at run time from HUD_Register call
+# args[16..]; this file is not load-bearing for extraction. It exists as a
+# place to capture human-curated descriptions or known constraints later.
+#
+# Format:
+#   element_name:
+#     description: short text
+#     custom_params:  # optional
+#       - name: subcvar_name
+#         default: "default_value"
+
+# (populate as element-specific notes accrue)
