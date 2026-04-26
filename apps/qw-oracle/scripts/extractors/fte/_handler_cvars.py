@@ -70,7 +70,29 @@ def _flags_tokens_of_var_decl(node) -> list[str]:
         t.spelling
         for t in node.get_tokens()
         if t.spelling.startswith("CVAR_")
+        and t.spelling != "CVAR_t"
         and ext.start.offset <= t.extent.start.offset < ext.end.offset
+    ]
+
+
+def _flags_tokens_of_init_list(init_list_node, var_decl_tokens: list) -> list[str]:
+    """Return CVAR_* flag tokens for a nested cvar_t INIT_LIST_EXPR element.
+
+    For nested cvars (inside cvar_t[] arrays or container struct arrays), the
+    inner INIT_LIST_EXPR nodes have empty token extents after macro expansion.
+    We pass in the pre-collected VAR_DECL token tuples and filter by the element's
+    extent so each element only sees its own CVAR_* flags.
+
+    var_decl_tokens is a list of (spelling, start_offset, end_offset) tuples
+    pre-collected from the parent VAR_DECL.
+    """
+    ext = init_list_node.extent
+    return [
+        spelling
+        for spelling, start, _end in var_decl_tokens
+        if spelling.startswith("CVAR_")
+        and spelling != "CVAR_t"
+        and ext.start.offset <= start < ext.end.offset
     ]
 
 
@@ -193,6 +215,97 @@ def _extract_cvar_fields(node) -> Optional[dict]:
     }
 
 
+def _extract_cvar_from_init_list(init_list, var_decl_tokens: list) -> Optional[dict]:
+    """Extract a cvar row from a nested cvar_t INIT_LIST_EXPR.
+
+    init_list must have type 'cvar_t'. var_decl_tokens is a list of
+    (spelling, start_offset, end_offset) tuples from the parent VAR_DECL
+    used for flag extraction (see _flags_tokens_of_init_list).
+
+    Returns a raw-field dict or None if the init_list doesn't look like a
+    valid cvar_t init (name field must resolve to a string literal).
+    """
+    fields = list(init_list.get_children())
+    if len(fields) < 11:
+        return None
+
+    # Field 0: cvar name -- must be a string literal
+    name = _concat_string_literals(_tokens_of(fields[0]))
+    if not name:
+        return None
+
+    # Field 3: flags -- windowed from parent VAR_DECL tokens
+    flags = _flags_tokens_of_init_list(init_list, var_decl_tokens)
+
+    # Field 7: alias / ConsoleName2
+    alias = _concat_string_literals(_tokens_of(fields[7]))
+
+    # Field 8: callback -- resolve FUNCTION_DECL reference
+    callback = None
+    ref = fields[8].referenced
+    if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
+        callback = ref.spelling
+
+    # Field 9: description
+    description = _concat_string_literals(_tokens_of(fields[9]))
+
+    # Field 10: default value -- must be a string literal for a valid cvar
+    default = _concat_string_literals(_tokens_of(fields[10]))
+
+    loc = init_list.location
+    return {
+        "name": name,
+        "c_ident": "",   # no single C identifier for an array element
+        "default": default,
+        "description": description,
+        "alias": alias,
+        "flags": flags,
+        "callback": callback,
+        "source_line": loc.line,
+        "source_file": loc.file.name if loc.file else None,
+        "synthesized_from": "nested_struct",
+    }
+
+
+def _collect_nested_cvars(var_decl) -> list[dict]:
+    """Walk a VAR_DECL of array type and collect all nested cvar_t init-list rows.
+
+    Handles three shapes:
+    - cvar_t[N]: outer INIT_LIST_EXPR -> inner INIT_LIST_EXPRs of type cvar_t
+    - container_struct[N]: outer -> container INIT_LIST_EXPRs -> inner cvar_t ones
+    - any deeper nesting (recursively found INIT_LIST_EXPR with type cvar_t)
+
+    The detection signal is: INIT_LIST_EXPR whose type is exactly 'cvar_t'.
+    This is reliable across all macro families because libclang resolves types
+    post-macro-expansion.
+
+    Returns list of raw-field dicts (may be empty if no nested cvars found).
+    """
+    # Pre-collect all VAR_DECL tokens as (spelling, start, end) for windowed
+    # flag extraction across elements.
+    var_decl_tokens = [
+        (t.spelling, t.extent.start.offset, t.extent.end.offset)
+        for t in var_decl.get_tokens()
+    ]
+
+    rows: list[dict] = []
+
+    def _walk(cursor) -> None:
+        if cursor.kind == CursorKind.INIT_LIST_EXPR and cursor.type.spelling == "cvar_t":
+            row = _extract_cvar_from_init_list(cursor, var_decl_tokens)
+            if row is not None:
+                rows.append(row)
+            # Don't descend further -- this node IS the cvar_t init
+            return
+        for c in cursor.get_children():
+            _walk(c)
+
+    for c in var_decl.get_children():
+        _walk(c)
+
+    return rows
+
+
 # ---------------------------------------------------------------------------
 # Cvar_Register call-site extraction
 # ---------------------------------------------------------------------------
@@ -272,11 +385,18 @@ class CvarsFteHandler(Visitor):
     def visit_cursor(self, cursor, variant: str) -> None:
         kind = cursor.kind
 
-        # Branch 1: cvar_t VAR_DECL struct initializer
+        # Branch 1a: plain cvar_t VAR_DECL struct initializer (top-level scalar)
         if kind == CursorKind.VAR_DECL:
             tspell = cursor.type.spelling
             if re.fullmatch(r"(?:const\s+)?cvar_t", tspell):
                 self._handle_var_decl(cursor)
+                return
+
+            # Branch 1b: array or container VAR_DECL that may contain nested
+            # cvar_t init-list elements. Trigger on any array-shaped type
+            # (contains '[') so we catch cvar_t[N] and container_struct[N] alike.
+            if "[" in tspell:
+                self._handle_nested_array_var_decl(cursor)
             return
 
         # Branch 2: Cvar_Register call
@@ -370,6 +490,9 @@ class CvarsFteHandler(Visitor):
                 "min_bound": None,
                 "max_bound": None,
                 "trailing_comment": None,
+                # synthesized_from: present only for nested-struct extractions;
+                # null for top-level VAR_DECL cvars.
+                "synthesized_from": row.get("synthesized_from") or None,
             }
 
             entry: dict = {
@@ -404,6 +527,28 @@ class CvarsFteHandler(Visitor):
         }
 
     # -- Internal helpers ----------------------------------------------------
+
+    def _handle_nested_array_var_decl(self, cursor) -> None:
+        """Process a VAR_DECL of array type looking for nested cvar_t elements.
+
+        Called for any VAR_DECL whose type contains '[' (array). Walks all
+        descendant INIT_LIST_EXPR nodes whose type is exactly 'cvar_t'. Each
+        matching node is one cvar row. Dedup via _seen_names (per-file name set).
+        """
+        nested = _collect_nested_cvars(cursor)
+        if not nested:
+            return
+
+        src_root = getattr(self, "current_source_root", None)
+        for row in nested:
+            cvar_name = row.get("name")
+            if not cvar_name:
+                continue
+            if cvar_name in self._seen_names:
+                continue
+            self._seen_names.add(cvar_name)
+            row["source_root"] = src_root
+            self._rows.append(row)
 
     def _handle_var_decl(self, cursor) -> None:
         """Process one cvar_t VAR_DECL cursor."""
