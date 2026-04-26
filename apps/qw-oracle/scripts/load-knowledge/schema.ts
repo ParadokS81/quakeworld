@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -89,6 +89,10 @@ CREATE TABLE IF NOT EXISTS cvar_versions (
   trailing_comment        TEXT,
   server_only             INTEGER NOT NULL DEFAULT 0,
   raw_ast_hash            TEXT,
+  -- v11: which source root the entity came from when the project has multiple
+  -- sources (e.g., FTE engine + plugins). NULL = backwards compat for pre-v11
+  -- rows; semantically equivalent to "engine".
+  source_root             TEXT,
   extracted_at            TEXT NOT NULL,
   PRIMARY KEY (entity_id, version)
 );
@@ -106,6 +110,7 @@ CREATE TABLE IF NOT EXISTS command_versions (
   source_column     INTEGER,
   registration_file TEXT,
   raw_ast_hash      TEXT,
+  source_root       TEXT,  -- v11: see cvar_versions.source_root comment
   extracted_at      TEXT NOT NULL,
   PRIMARY KEY (entity_id, version)
 );
@@ -123,6 +128,7 @@ CREATE TABLE IF NOT EXISTS macro_versions (
   source_column        INTEGER,
   registration_file    TEXT,
   raw_ast_hash         TEXT,
+  source_root          TEXT,  -- v11: see cvar_versions.source_root comment
   extracted_at         TEXT NOT NULL,
   PRIMARY KEY (entity_id, version)
 );
@@ -979,6 +985,19 @@ function migrateV8ToV9(db: Database.Database): void {
   }
 }
 
+// v10 -> v11 adds a nullable source_root TEXT column to the three per-type
+// version tables that can have multi-source projects (cvars, commands, macros).
+// Pure-additive ALTER TABLE: SQLite accepts ADD COLUMN for nullable columns
+// with no DEFAULT and no CHECK, so no table rebuild is required.
+// cmdline_param_versions and other per-type tables do NOT get the column —
+// they are engine-only by definition (plugins don't register cmdline params,
+// keynames, HUD elements, rulesets, or token primitives).
+const SCHEMA_V11_MIGRATION_SQL = `
+ALTER TABLE cvar_versions    ADD COLUMN source_root TEXT;
+ALTER TABLE command_versions ADD COLUMN source_root TEXT;
+ALTER TABLE macro_versions   ADD COLUMN source_root TEXT;
+`;
+
 function migrateV9ToV10(db: Database.Database): void {
   // Widens the project CHECK on 8 tables to admit 'qwcl'. Standard rebuild
   // pattern; foreign_keys OFF outside the txn so the entities-table drop is
@@ -1010,6 +1029,16 @@ function migrateV9ToV10(db: Database.Database): void {
   } finally {
     db.pragma('foreign_keys = ON');
   }
+}
+
+function migrateV10ToV11(db: Database.Database): void {
+  // Pure-additive ALTER TABLE: nullable TEXT columns with no DEFAULT or CHECK
+  // do not require foreign_keys OFF or a table rebuild. Plain txn is enough.
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V11_MIGRATION_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('11');
+  });
+  txn();
 }
 
 export function applySchema(db: Database.Database): void {
@@ -1063,6 +1092,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 9 && SCHEMA_VERSION >= 10) {
       migrateV9ToV10(db);
       existingVersion = 10;
+    }
+    if (existingVersion === 10 && SCHEMA_VERSION >= 11) {
+      migrateV10ToV11(db);
+      existingVersion = 11;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

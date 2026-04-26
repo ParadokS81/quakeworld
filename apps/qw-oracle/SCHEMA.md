@@ -1,13 +1,13 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v10, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
+Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v11, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
 
 Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV9ToV10` in order.
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today).
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV10ToV11` in order.
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today; `fte` is the next target).
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
 - **Timestamps** are ISO 8601 strings. `extracted_at` is "most recent extraction for this row" — overwritten on re-run. Git history of `knowledge.db` is not recoverable from the row itself (it is gitignored).
@@ -23,7 +23,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 20 tables at schema v10. (No tables added v9 → v10; v10 is a CHECK-widening migration only.)
+Total: 20 tables at schema v11. (No tables added v10 → v11; v11 is a pure-additive column migration only.)
 
 ---
 
@@ -102,7 +102,7 @@ What differs is the type-specific payload columns.
 
 Extracted from `var_t`/`cvar_t` struct initializers. Schema v1.
 
-Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`.
+Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`, `source_root` (nullable, schema v11 — see `source_root` reference below).
 
 **Populated by:** `load-cvars.ts` ← `packages/qw-config/scripts/extract-ezquake-cvars-clang.py` → `ezquake-variables-ast.json`.
 
@@ -116,7 +116,7 @@ Index: `idx_cvar_versions_source ON (source_file, source_line)`.
 
 Extracted from `Cmd_AddCommand` registration sites. Schema v1.
 
-Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`.
+Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 — see `source_root` reference below).
 
 **Populated by:** `load-commands.ts` ← `extract-ezquake-commands-clang.py` → `ezquake-commands-ast.json`.
 
@@ -126,7 +126,7 @@ Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `regi
 
 ezQuake `$macro` registrations via `Cmd_AddMacro` / `Cmd_AddMacroEx`. Schema v1.
 
-Type-specific: `help_desc`, `macro_type`, `teamplay_restricted`, `related_cvars_json`, `handler_fn`, `registration_file`.
+Type-specific: `help_desc`, `macro_type`, `teamplay_restricted`, `related_cvars_json`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 — see `source_root` reference below).
 
 **Populated by:** `load-macros.ts` ← `extract-ezquake-macros-clang.py` → `ezquake-macros-ast.json`.
 
@@ -396,11 +396,26 @@ Drop-guard compares `entityCount` (total `*_versions` rows expected) not `_versi
 
 ### Fresh DB vs migrated DB
 
-On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 10` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set, the v1 `source_state_transitions.reason` CHECK already lists the full v9 reason set, and the v1 `project` CHECK already lists the full v10 project set including `qwcl` — the comments at the top of `SCHEMA_V1_SQL` document why (skip-migrations on fresh DB requires the v1 CHECKs to mirror the current target). On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v10 one step at a time. Both paths converge on the same shape.
+On a fresh DB, `applySchema` stamps `SCHEMA_VERSION = 11` directly and runs *all* `SCHEMA_V*_ADDITIONS_SQL` blocks (idempotent `CREATE IF NOT EXISTS`). The v1 `entities` CHECK already lists the full v5 type set, the v1 `source_state_transitions.reason` CHECK already lists the full v9 reason set, the v1 `project` CHECK already lists the full v10 project set including `qwcl` and `fte`, and the v1 `cvar_versions` / `command_versions` / `macro_versions` CREATE TABLE definitions already include `source_root TEXT` (v11) — this is the same "pre-widen the base CREATE TABLE to skip migration on fresh DBs" pattern used for all prior additive columns. On a migrated DB, `applySchema` walks the migration chain v1→v2→...→v11 one step at a time. Both paths converge on the same shape.
 
 ### v10: project CHECK widening for QWCL
 
 2026-04-25 (Arc 1 of QWCL extraction). Adds `qwcl` to the `project` CHECK on every project-keyed table: `versions`, `entities`, `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes`, `relation_changes` — eight tables rebuilt via the standard CREATE-NEW + INSERT-SELECT + DROP + RENAME pattern. `foreign_keys = OFF` outside the txn so the entities-table drop is allowed (entities is FK-targeted by every per-type version table plus `source_state_transitions`, `change_events`, `source_overrides`). `migrateV9ToV10` in `schema.ts`. Verified on the live ezQuake DB: 4041 entities + 40k+ per-version rows preserved, no FK violations.
+
+### v11: `source_root` column on cvar/command/macro version tables
+
+2026-04-26 (Task 2 of FTE Layer 1 extraction). Adds nullable `source_root TEXT` to `cvar_versions`, `command_versions`, `macro_versions`. Pure-additive `ALTER TABLE ADD COLUMN` — no table rebuild, no CHECK constraint, no DEFAULT. `migrateV10ToV11` in `schema.ts`.
+
+### `source_root` (v11+)
+
+Optional column on `cvar_versions`, `command_versions`, `macro_versions`. Identifies which source root the entity row came from when the project has multiple sources (e.g., FTE engine + plugins).
+
+Values:
+- `NULL` — backwards compat for pre-v11 rows; semantically equivalent to `"engine"`.
+- `"engine"` — entity was registered in the project's main engine source tree.
+- `"plugin:<name>"` — entity was registered inside a named plugin under the project's plugin directory (e.g., `"plugin:ezhud"` for FTE's ezQuake-HUD plugin).
+
+`cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, and `flag_bit_versions` do NOT carry this field — they are engine-only by definition (plugins do not register cmdline params, key bindings, HUD elements, or rulesets).
 
 ---
 
