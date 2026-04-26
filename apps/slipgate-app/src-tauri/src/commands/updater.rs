@@ -154,7 +154,7 @@ struct GitHubAsset {
 // ─── Helper functions ──────────────────────────────────────────────────────
 
 /// Parse PE version "3.6.6.7947" into (semver "3.6.6", build "7947")
-fn parse_pe_version(pe_version: &str) -> Option<(semver::Version, String)> {
+pub fn parse_pe_version(pe_version: &str) -> Option<(semver::Version, String)> {
     let parts: Vec<&str> = pe_version.split('.').collect();
     if parts.len() < 3 {
         return None;
@@ -761,8 +761,11 @@ pub async fn download_and_install_update(
     // 4b. Register the freshly extracted exe into the warehouse before any
     // quake-dir mutation. Phase 3 will move the swap itself out of this
     // function; for now the existing backup+rename below stays.
-    let new_version_for_warehouse =
-        read_exe_version(&new_exe_temp).unwrap_or_else(|| "unknown".to_string());
+    let new_version_for_warehouse = read_exe_version(&new_exe_temp)
+        .as_deref()
+        .and_then(parse_pe_version)
+        .map(|(sv, _)| sv.to_string())
+        .unwrap_or_else(|| "unknown".to_string());
     let _ = crate::commands::version_warehouse::register_version(
         &app,
         client_def.name,

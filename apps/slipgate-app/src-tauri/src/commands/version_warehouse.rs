@@ -196,8 +196,11 @@ pub fn import_existing_install(
     if !exe_path.exists() {
         return Err(format!("exe not found: {}", exe_path.display()));
     }
-    let version = crate::commands::ezquake::read_exe_version(&exe_path)
+    let raw = crate::commands::ezquake::read_exe_version(&exe_path)
         .ok_or("could not read version from exe (Linux/dev cannot read PE versions)")?;
+    let version = crate::commands::updater::parse_pe_version(&raw)
+        .map(|(sv, _)| sv.to_string())
+        .unwrap_or(raw);
     let root = data_root_path(&app)?;
     register_version_at(&root, &client, &version, &exe_path, "imported", "user_import")
 }
