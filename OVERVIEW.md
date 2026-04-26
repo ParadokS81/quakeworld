@@ -150,11 +150,15 @@ Upload size limits and retention rules live in `contracts/CROSS-PROJECT-SCHEMA.m
 
 ## Packages
 
-One shared package under `packages/`: `qw-knowledge`. The former `qw-config` package was fully retired 2026-04-25 — its concerns split between oracle (extractors, dissolved Half 1 2026-04-25) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2 2026-04-25).
+Two shared packages under `packages/`: `qw-knowledge` and `qw-version-resolution`. The former `qw-config` package was fully retired 2026-04-25 — its concerns split between oracle (extractors, dissolved Half 1 2026-04-25) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2 2026-04-25).
 
 ### qw-knowledge
 
 Shared QW domain knowledge: maps (with spawn info, geometry hints), terminology, strategies, player mappings. Extracted from the archived `voice-analysis` repo during the 2026-03-29 monorepo migration. Consumed by quad for transcript enrichment and (eventually) by slipgate-app for map-related features.
+
+### qw-version-resolution
+
+Shared TypeScript helpers for QW engine version strings: `parseVersionSpec` (turns `"3.6.9"` / `"head-2026-04-25"` / `"build-6698"` into a structured discriminated union), `compareVersions` (total ordering within a kind, tag < head/build, head/build mutually unordered), `existsAtVersion` (entity-alive-at-target check), `defaultAtVersion` (effective default after walking `default_history`). Pure functions, no deps. Shipped 2026-04-26 as Phase 0 of the Quake Dir Control plan. Wired into both qw-oracle and slipgate-app via `workspace:*` but unused until Phases 4 (oracle build-snapshot widening) and 5 (slipgate diff viewer) consume it. See `packages/qw-version-resolution/VISION.md` for the design choice that drove a shared lib over per-version pre-resolved snapshots.
 
 ## Contracts and cross-project specs
 

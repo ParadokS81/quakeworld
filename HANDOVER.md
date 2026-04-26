@@ -8,6 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
+- [Cross-engine alias scaffolding + slipgate version-awareness](#cross-engine-alias-scaffolding--slipgate-version-awareness) — **NEW 2026-04-26.** Umbrella for an in-flight arc spanning ezscript extraction, cross-engine alias schema, default-drift triage, and the structural shift that slipgate consumers should be version-aware (read user's installed binary version, resolve fields via `default_history` + `first_seen_version` / `last_seen_version` instead of rendering HEAD as static). Captured mid-investigation; pick any sub-thread next session without rebuilding context.
 - [Retired cvars in snapshot + stale-config warning UX](#retired-cvars-in-snapshot--stale-config-warning-ux) — **NEW 2026-04-26.** Coupled producer+consumer work blocked on UX design. The `build-snapshot` CLI today emits only entities present at head (2,899 ezquake cvars; 2,835 source_backed + 149 doc_only). 5 retired cvars (`cl_showkeycodes`, `gl_smoothfont`, `keymap_name`, `r_fx_geometry`, `scr_printspeed` — alive in v3.0 through 3.6.2, removed before head) are silently dropped. Use case it blocks: opening an old config in slipgate where `keymap_name "us"` is present and getting a truthful "this was removed in 3.6.5" message instead of generic "unknown cvar" treatment. Defer until the stale-warning UX is on the table.
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake deep-time walk reached **v3.0 floor (14 versions: v3.0 through head)** 2026-04-25 late; pre-3.0 era de-scoped on community-security framing. Walk infrastructure shipped same session: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Reusable for FTE/MVDSV/KTX. **QWCL 2.33 SHIPPED 2026-04-25** (first cross-codebase port; 186 cvar / 120 command / 58 cmdline_param at qwcl@2.33; schema v10 widened project CHECK; quality-grid 5/5 F1 PASS). **FTE Phase 2d-core FULLY SHIPPED 2026-04-26** (build-6698 SHA 35843773: 2482 cvars / 556 commands / 67 macros / 103 cmdline_params; schema v11 source_root; ezhud plugin in scope; Pass 1 runtime diff CLOSED -- 114 residual all explained). Remaining: Phase 2d-bundle (asset extraction), Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
@@ -20,10 +21,69 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ---
 
+## Cross-engine alias scaffolding + slipgate version-awareness
+
+**Added:** 2026-04-26 (mid-investigation, captured as savegame).
+**Status:** In-flight, paused mid-investigation. Several sub-threads closed today; remaining sub-threads have explicit dependency ordering. Next session: pick any open sub-thread; this entry reconstructs full context.
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name FROM entities WHERE project='ezquake' AND type='cvar' AND name='cl_fakeshaft'"` should return the cvar row. `git -C research/repos/ezquake-source log -1 --format='%h %s'` should show `bea2515d CVAR: cl_fakeshaft - default to 1 (#1110)` if the source clone is still at the same HEAD that produced today's findings; otherwise re-validate the `head` snapshot freshness before continuing.
+
+### Why this is one umbrella
+
+Each thread below started independently but converges on the same structural finding: **Layer 1's data model already encodes per-version richness (`default_history`, `first_seen_version`, `last_seen_version`, `source_state`), but slipgate consumes a flattened HEAD view, so users on stable releases see incorrect data**. The drift sweep on ezscript aliases surfaced this. The schema decision for cross-engine aliases needs the same version-pair shape. ezscript itself is 17 years stale. The `cl_fakeshaft` puzzle was the canary that exposed the version-skew. All threads share root infrastructure decisions.
+
+### Closed today
+
+- **Plugin audit (22 FTE plugins).** Only `ezhud` (already extracted) + `ezscript` (pending) are QW-relevant. Other 20 confirmed not alias-shaped, not QW-targeted, or empty. Three additional plugins (`hud`, `serverb`, `spaceinv`) use `Plug_ExecuteCommand` but are FTE-namespace-internal or sample-game commands, not alias bridges. ezscript is the only QW migration alias plugin in FTE.
+- **ezscript freshness check (38 aliases).** 25 A_LIVE (both sides `source_backed` at head) + 7 B_LHS_GONE (ezQuake LHS retired, FTE target alive — historical aliases for old configs) + 4 F_DOC_ONLY (ezQuake LHS in help-JSON only) + 1 D_BOTH_GONE (`in_m_mwhook` → `in_mwhook`) + 1 C_RHS_GONE (`vid_vsync` → `_vid_wait_override`; FTE renamed to `vid_vsync`, target obsolete). **37/38 importable; 1 needs target investigation/update.**
+- **`cl_fakeshaft` default puzzle resolved.** User observed default=0 in 3.6.9 binary; DB at HEAD reports default=1. Root cause: commit `bea2515d` (2026-03-23, post-3.6.9 tag, on 3.7.0 dev line) literally titled "CVAR: cl_fakeshaft - default to 1 (#1110)". Our cloned ezquake-source is on 3.7.0-dev; user's binary is on 3.6.9 stable. **Both correct for their version.** This was the canary that exposed the slipgate version-blindness gap.
+- **Default-drift sweep — both HEAD and 3.6.9 versions run.** HEAD vs build-6698: 11 same / 14 DIFF / 13 na. **3.6.9 vs build-6698: 12 same / 13 DIFF / 13 na.** Single delta: `cl_fakeshaft` flipped DIFF→same at 3.6.9 (the version-skew artifact, exactly as predicted). The 13 real drift rows at 3.6.9 are the alias-schema triage queue — including ones that genuinely need value transforms (`bgmvolume` 1 → `musicvolume` 0.3 likely scale; `cl_bonusflash` 0 → `v_bonusflash` 1 likely boolean flip), real model differences (`cl_physfps` 0=auto vs `cl_netfps` 150=hardcoded; `r_farclip` 8192=fixed vs `gl_maxdist` 0=dynamic), color triplet drift (3 r_*color rows), macro-vs-literal (`sshot_format` `DEFAULT_SSHOT_FORMAT` vs `png` — extractor doesn't resolve `#define`), and serverinfo redirects (`sv_maxpitch`/`sv_minpitch` ezQuake has defaults, FTE serverinfo target is empty by design). Saved data: `/tmp/ezscript-audit/aliases.tsv` (38 raw alias pairs) + `/tmp/ezscript-audit/drift-369.tsv` (full sweep with source_state). Regeneratable from source if /tmp clears.
+
+### Open sub-threads, ordered by dependency
+
+1. ~~**Re-run drift sweep at ezQuake 3.6.9 vs FTE build-6698.**~~ **DONE 2026-04-26.** 12 same / 13 DIFF / 13 na (vs HEAD's 11 / 14 / 13). Saved at `/tmp/ezscript-audit/drift-369.tsv`. The 13 DIFF rows feed schema decision below.
+2. **Schema decision for cross-engine aliases.** Need: `target_kind` (cvar / serverinfo / userinfo / command — ezscript has 2 serverinfo redirects), `value_transform` (identity / bool_flip / scale / enum_remap / needs_review), `default_drift_status` (same / differ_safe / differ_dangerous / unknown), `semantic_confidence` (high / medium / low / needs_review), `verified_at_version_pair` (e.g., `(ezquake@3.6.9, fte@build-6698)`). Schema must accommodate ezscript's existing 38 rows including the 7 B_LHS_GONE historical-LHS aliases and the 2 serverinfo redirects (`sv_maxpitch` → `serverinfo maxpitch`). N-to-1 mappings exist (multiple LHS, same RHS — e.g., `r_skycolor` + `fps_skycolor` → `r_fastskycolour`). **Blocks:** ezscript extract handler, future broader alias-research output. **New entity type `cvar_alias` likely cleaner than cross-cutting `cross_project_mapping` table** but final call deferred to schema design.
+3. **ezscript extract handler.** ~30 min once schema lands. Pattern is `Plug_ExecuteCommand` strcmp branches; AST walks both string literals per branch. Tag `source: fte:plugin:ezscript` + per-row freshness state from today's sweep. **Blocks:** nothing further. Standalone deliverable.
+4. **Phase 2d-bundle: FTE asset extraction.** Separate plan needed; not scoped today. FTE asset surface is the largest among QW engines. Probably 2-3 sessions. **Adjacent track (closes "what FTE has, we extract" together with ezscript).** **Blocks:** nothing immediate; FTE Layer 1 chapter doesn't fully close until this lands.
+5. **Slipgate consumer version-awareness.** Biggest fundamental shift. Slipgate's loader (`apps/slipgate-app/src/lib/config/loaders/ezquake.ts`) currently reads cvar `default` as static and renders HEAD's view. Needs to: read user's installed binary version (updater already knows this), resolve each cvar's effective default via `default_history` keyed to that version, hide cvars where `first_seen_version > user_version`, mark `last_seen_version < user_version` as retired-after-X. Single snapshot bundle stays — no per-version files needed because `default_history` + `first_seen_version` / `last_seen_version` already encode everything per-cvar. **2026-04-26 update:** version-resolution helpers now exist as `@qw/version-resolution` (Phase 0 of `docs/superpowers/plans/2026-04-26-quake-dir-control.md` shipped today — `parseVersionSpec` / `compareVersions` / `existsAtVersion` / `defaultAtVersion`). Phases 4 + 5 of that plan execute the consumer-side widening (snapshot retired-entity emission + diff viewer). The "ConfigViewer current-vs-default per-version" piece is NOT covered by the Quake Dir Control plan — that's still its own arc, but it consumes the same lib. **Touches every cvar field render.** Affects: ConfigViewer current-vs-default comparison, stale-warning UX, FTE converter behavior, "what changed" UI.
+
+### Adjacent threads surfaced but parked
+
+- **help_variables.json default vs source-literal default disagreement.** Today's investigation found `Cvar_Register` populates `cvar_t.defaultvalue` from the source literal (`var->string`). help_variables.json carries an independent `default` field that may diverge (e.g., curator-asserted vs source-asserted). Worth a one-shot scan: how many ezQuake cvars have help-JSON `default` ≠ source-literal default at any loaded version? Bounded answer; might surface a systemic Layer 1 extractor question or be a one-off (`cl_fakeshaft` was just version-skew, not extractor disagreement). Not a blocker for the alias arc — separate Layer 1 hygiene check.
+- **`cl_truelightning` slipgate search gap (Cmd_AddLegacyCommand UX).** ezQuake's `host.c:580` registers `cl_truelightning` as a legacy command alias for `cl_fakeshaft`. Our DB stores it as a `command` entity (P1 from doc_only audit). Slipgate's CvarRow / search UI is cvar-table-only, so `cl_truelightning` is invisible there. Either fold legacy-command-aliases into cvar search results with an "aliases to X" indicator, or extend search across the command table. Same UX shape as cross-engine aliases at smaller scope; the schema decision in sub-thread #2 should not preclude internal-engine aliases consuming the same lookup path.
+- **CI cadence for ezQuake new-tag → snapshot regen.** When ezQuake tags 3.7.0, oracle's `extract-tag --version 3.7.0` + `build-snapshot` should run automatically and update slipgate's data dir. Not urgent; slipgate isn't in full production. Right shape: tag-driven trigger on the ezquake-source mirror; no nightly extraction (tip-of-main produces churn without value between tags).
+- **"What changed between version A and B" UI feature.** Free fall-out of sub-thread #5. Layer 1's `change_events` table already encodes adds / retires / default-flips per version transition. Slipgate's existing per-version changelog UI (right detail panel of the updater) can render this in cvar-level granularity. Becomes a natural feature once the loader is version-aware. Use case the user named: returning player on 3.2.2 (eizor) wants to know what's changed before upgrading.
+
+### Schema implications already established
+
+From today's investigation, the cross-engine alias schema must support:
+- **N-to-1 mappings** (multiple LHS → same RHS — `r_skycolor` + `fps_skycolor` both → `r_fastskycolour`)
+- **Different target kinds** (cvar / serverinfo / userinfo / command — ezscript has 2 serverinfo redirects: `sv_maxpitch` → `serverinfo maxpitch`)
+- **Per-row freshness state** (ezscript's 7 historical-LHS rows are still useful for old configs, even though LHS is retired in current ezQuake)
+- **Value transforms beyond name swap** (some 14-row drift candidates may need bool_flip / scale / etc., not just identity)
+- **Version-pair verification stamp** (when was this alias last sanity-checked against which engine versions)
+
+### Pressure
+
+Medium-high once a sub-thread is picked up. Sub-thread #1 is 5 min and unblocks #2. Sub-thread #5 (slipgate version-awareness) is the highest-impact item — affects every user's experience and blocks the broader retired-cvars / stale-warning / FTE-converter UX work.
+
+### Related
+
+- ezscript source: `research/repos/fteqw/plugins/ezscript/ezscript.c`
+- FTE plugin scope decision: `apps/qw-oracle/scripts/extractors/fte/OUT_OF_SCOPE.md` § "Plugin allowlist gap"
+- Audit findings: full plugin audit + freshness check + drift sweep documented in conversation only (this entry is the durable summary)
+- Skywind concept note: `apps/qw-oracle/concept-notes/skywind-animated-skyboxes.md` — example of "ezQuake feature with no FTE counterpart" (vs alias case)
+- Slipgate consumer entry point: `apps/slipgate-app/src/lib/config/loaders/ezquake.ts`
+- ezQuake source-of-truth memory: `memory/project_qw_oracle_source_truth.md` (path 2 transition-log, source-as-ground-truth)
+- ezQuake updater UI screenshot reference: `/mnt/c/Users/Administrator/Downloads/2026-04-26_14-49.png` (multi-engine tabs, version list with install state, per-version changelog detail panel)
+- HEAD position (today): `bea2515d 2026-03-23 CVAR: cl_fakeshaft - default to 1 (#1110)` — three commits past the `3.6.9` tag (`b2d448f2 2026-03-01`)
+
+---
+
 ## Retired cvars in snapshot + stale-config warning UX
 
 **Added:** 2026-04-26 (after build-snapshot CLI shipped 2026-04-25; default_history numeric-equality fix shipped 2026-04-26 commit `9917002`).
-**Status:** Producer change scoped + tiny; gated on consumer-side UX design. Defer until the stale-warning feature is being designed in slipgate.
+**Updated:** 2026-04-26 evening — Quake Dir Control plan Phase 4 (`docs/superpowers/plans/2026-04-26-quake-dir-control.md`) now covers the producer-side retired-entity emission (across all 4 entity types, not just cvars). Phase 5 covers the diff-viewer consumer; the "stale-config warning UX in ConfigViewer" piece is still its own arc and stays open here.
+**Status:** Producer change scoped + tiny, will land in Phase 4 of the Quake Dir Control plan; gated on consumer-side UX design for the ConfigViewer warning. Defer the UX half until the stale-warning feature is being designed in slipgate.
 **Verification first:** `python3 -c "import json; v=json.load(open('apps/slipgate-app/src/lib/config/data/ezquake-variables.json'))['vars']; print(sum(1 for o in v.values() if o.get('source_state')=='source_retired'))"` — currently `0`. When this returns `>0`, the producer side has shipped and consumer wiring is the remaining work.
 
 ### What's missing

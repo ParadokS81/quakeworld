@@ -38,7 +38,7 @@ The schema must support:
 - **N-to-1 mappings.** `r_skycolor` and `fps_skycolor` both -> `r_fastskycolour`. Multiple LHS rows pointing at the same RHS.
 - **Heterogeneous target kinds.** ezscript has 36 cvar redirects + 2 serverinfo redirects (`sv_maxpitch` -> `serverinfo maxpitch`, `sv_minpitch` -> `serverinfo minpitch`). A future plugin could redirect to userinfo or commands. `target_kind` is open-ended within a known enum.
 - **Value transforms beyond identity.** `bgmvolume` 1 -> `musicvolume` 0.3 is likely a 0-1 vs 0-1 with different conventions; some rows will need bool_flip / scale / enum_remap; some flag for `needs_review` on first import.
-- **Drift status per row, version-pair-stamped.** `same` / `differ_safe` / `differ_dangerous` / `unknown` / `target_missing`. A verification-pair stamp documents which versions were checked.
+- **Drift status per row, version-pair-stamped.** `same` / `differ_safe` / `differ_dangerous` / `unknown`. A verification-pair stamp documents which versions were checked. Existence is owned by `freshness_state`, not `default_drift_status` -- when one side is gone, drift is not a meaningful question.
 - **Semantic confidence.** Not all aliases are equally trusted. ezscript hardcodes its 38 mappings; cross-engine aliases discovered later (e.g., from documentation or community memory) will have lower confidence.
 - **Per-row freshness.** Today's A_LIVE / B_LHS_GONE / C_RHS_GONE / D_BOTH_GONE buckets must persist alongside the alias row, not just exist in /tmp/.
 - **Plugin-vs-engine origin.** ezscript is an FTE plugin, not the FTE engine. The v11 `source_root` field already distinguishes. The alias schema must inherit that shape (`source_root='fte:plugin:ezscript'`).
@@ -159,18 +159,18 @@ CREATE TABLE IF NOT EXISTS cvar_alias_versions (
   value_transform_params_json     TEXT,
   default_drift_status            TEXT NOT NULL DEFAULT 'unknown'
                                     CHECK (default_drift_status IN (
-                                      'same','differ_safe','differ_dangerous','unknown','target_missing'
+                                      'same','differ_safe','differ_dangerous','unknown'
                                     )),
   semantic_confidence             TEXT NOT NULL DEFAULT 'needs_review'
                                     CHECK (semantic_confidence IN (
                                       'high','medium','low','needs_review'
                                     )),
-  -- Verification stamp. The (host_project @ version) side is implicit in this row.
-  -- JSON object captures the other axes: target-project version against which drift
-  -- was checked, and mimics-project version against which LHS-existence was checked.
-  -- Shape: {"target": "<v>"} for internal-engine aliases (no mimics axis),
-  -- {"target": "<v>", "mimics": "<v>"} for cross-namespace bridges.
-  verified_against_version_pair_json TEXT,
+  -- Verification stamp. Host side is implicit (this row's project + version).
+  -- target version: which target_project version drift was checked against.
+  -- mimics version: which mimics_project version LHS-existence was checked against.
+  -- Both nullable; SQL-filterable directly without json_extract.
+  verified_target_version TEXT,
+  verified_mimics_version TEXT,
   -- Cross-namespace freshness as of the version pair recorded in verified_against_version_pair_json
   freshness_state                 TEXT NOT NULL DEFAULT 'alive'
                                     CHECK (freshness_state IN (
@@ -203,11 +203,13 @@ CREATE INDEX IF NOT EXISTS idx_cvar_alias_versions_canonical
 
 **`value_transform_params_json`.** Free-form JSON for parametric transforms. `{"factor": 0.3}` for scale, `{"map": {"tga": "tga", "png": "png", "DEFAULT_SSHOT_FORMAT": "png"}}` for enum_remap, etc. NULL for identity / bool_flip / needs_review (they don't carry parameters). Schema deliberately doesn't enforce param shape per transform -- consumer-side validation owns that contract because it varies with use case.
 
-**`default_drift_status`.** Captures the drift sweep's per-row finding. `same` if defaults match at the verified version pair. `differ_safe` when defaults differ but both produce equivalent runtime behavior (e.g., color triplets that differ visually but neither is "wrong"). `differ_dangerous` when blindly applying the LHS value to the RHS would break user expectation (e.g., `cl_physfps` 0=auto vs `cl_netfps` 150=hardcoded). `unknown` is the safe default for rows the handler can't classify automatically. `target_missing` is the dedicated signal for "we couldn't even check because the RHS doesn't exist at the verified version."
+**`default_drift_status`.** Captures the drift sweep's per-row finding *when both sides exist*. `same` if defaults match at the verified version pair. `differ_safe` when defaults differ but both produce equivalent runtime behavior (e.g., color triplets that differ visually but neither is "wrong"). `differ_dangerous` when blindly applying the LHS value to the RHS would break user expectation (e.g., `cl_physfps` 0=auto vs `cl_netfps` 150=hardcoded). `unknown` is the safe default for rows the handler can't classify automatically. Existence questions ("we couldn't check because the RHS doesn't exist") are owned by `freshness_state`, not duplicated here. When `freshness_state IN ('target_gone', 'both_gone')`, `default_drift_status` is meaningless; importers should set it to `unknown` and consumers should ignore it.
 
 **`semantic_confidence`.** Trust level for the alias as a whole. ezscript rows ship at `medium` by default (the plugin author declared the mapping, but we haven't verified semantics ourselves). Manual review can promote to `high`. Inferred or community-sourced aliases land at `low` or `needs_review`. The handler should never auto-promote rows past `medium`.
 
-**`verified_against_version_pair_json`.** The verification stamp has three axes: the *host* project + version (the row's own project + version columns; FTE @ build-6698 for ezscript), the *target* project + version (where drift was checked against the RHS; same as host for ezscript since the target is also FTE), and the *mimics* project + version (where the LHS-existence check was done; ezQuake @ 3.6.9 for ezscript's drift sweep). Host is implicit in the row. Target and mimics live in a JSON object: `{"target": "build-6698", "mimics": "3.6.9"}` for ezscript today, `{"target": "<v>"}` for internal-engine aliases where no mimics check applies. JSON over three text columns because not every alias has a mimics axis, the shape is naturally optional, and future axes (e.g., a third-engine cross-check) extend without migration.
+**`verified_target_version` / `verified_mimics_version`.** The verification stamp has three axes: the *host* project + version (the row's own project + version columns; FTE @ build-6698 for ezscript), the *target* project + version (where drift was checked against the RHS; same as host for ezscript since the target is also FTE), and the *mimics* project + version (where the LHS-existence check was done; ezQuake @ 3.6.9 for ezscript's drift sweep). Host is implicit. Target and mimics each get a nullable text column so they're SQL-filterable directly (no `json_extract` needed for "show me all rows verified against ezQuake 3.6.9"). For ezscript today: `verified_target_version='build-6698'`, `verified_mimics_version='3.6.9'`. For internal-engine aliases (`mimics_project IS NULL`): `verified_mimics_version IS NULL`. Future third axis would land via `ALTER TABLE ADD COLUMN`, not via JSON shape evolution.
+
+Strings must round-trip through `parseVersionSpec` from `@qw/version-resolution` (Path A's shared lib). The loader for `cvar_alias` rows must call the parser to validate every incoming version string at load time so we can't drift between `build-6698` and `build_6698` style differences across producers.
 
 **`freshness_state`.** Five-valued, computed at extraction time:
 - `alive` -- LHS exists in mimics_project at its checked version (or mimics_project is NULL), AND target exists in target_project at its checked version. 25 of 38 ezscript rows today.
