@@ -30,7 +30,159 @@ gameplay_source:
 
 # Cluster 1: weapons (8 rows)
 weapons:
-# (filled by Task 4)
+  - name: axe
+    classname: null
+    damage: 20
+    refire_seconds: 0.5
+    source_ref: weapons.qc:57
+    props:
+      melee_range: 64
+      melee_range_source_ref: weapons.qc:44
+      damage_dm_gt_3: 75
+      damage_dm_gt_3_source_ref: weapons.qc:55
+      refire_source_ref: weapons.qc:1010
+    notes: 75 damage in deathmatch>3.
+
+  - name: shotgun
+    classname: weapon_shotgun
+    damage: 4
+    refire_seconds: 0.5
+    source_ref: weapons.qc:285
+    props:
+      damage_kind: per_pellet
+      pellet_count: 6
+      pellet_count_source_ref: weapons.qc:311
+      spread: [0.04, 0.04, 0]
+      spread_source_ref: weapons.qc:311
+      ammo_per_shot: 1
+      ammo_per_shot_source_ref: weapons.qc:308
+      ammo_type: shells
+      max_carry_ammo: 100
+      max_carry_ammo_source_ref: items.qc:474
+      refire_source_ref: weapons.qc:1025
+    notes: null
+
+  - name: super_shotgun
+    classname: weapon_supershotgun
+    damage: 4
+    refire_seconds: 0.7
+    source_ref: weapons.qc:285
+    props:
+      damage_kind: per_pellet
+      pellet_count: 14
+      pellet_count_source_ref: weapons.qc:338
+      spread: [0.14, 0.08, 0]
+      spread_source_ref: weapons.qc:338
+      ammo_per_shot: 2
+      ammo_per_shot_source_ref: weapons.qc:336
+      ammo_type: shells
+      refire_source_ref: weapons.qc:1031
+    notes: null
+
+  - name: nailgun
+    classname: weapon_nailgun
+    damage: 9
+    refire_seconds: 0.2
+    source_ref: weapons.qc:797
+    props:
+      ammo_per_shot: 1
+      ammo_per_shot_source_ref: weapons.qc:761
+      ammo_type: nails
+      max_carry_ammo: 200
+      max_carry_ammo_source_ref: items.qc:477
+      projectile: spike
+      projectile_velocity: 1000
+      projectile_velocity_source_ref: weapons.qc:717
+      projectile_lifetime_seconds: 6
+      projectile_lifetime_source_ref: weapons.qc:712
+      refire_source_ref: weapons.qc:759
+      refire_source_ref_player_frames: [player.qc:190, player.qc:203]
+    notes: damage realised on spike_touch. Refire timer is set inside W_FireSpikes at weapons.qc:759 (parallels SNG's weapons.qc:726 inside W_FireSuperSpikes); the player_nail1/player_nail2 frames at player.qc:190/203 also re-set attack_finished after each W_FireSpikes call. Citing the fire-function body for parity with SNG.
+
+  - name: super_nailgun
+    classname: weapon_supernailgun
+    damage: 18
+    refire_seconds: 0.2
+    source_ref: weapons.qc:844
+    props:
+      ammo_per_shot: 2
+      ammo_per_shot_source_ref: weapons.qc:728
+      ammo_type: nails
+      projectile: super_spike
+      projectile_velocity: 1000
+      projectile_velocity_source_ref: weapons.qc:717
+      projectile_lifetime_seconds: 6
+      projectile_lifetime_source_ref: weapons.qc:712
+      refire_source_ref: weapons.qc:726
+    notes: shares spike-launcher with nailgun; damage realised on superspike_touch.
+
+  - name: grenade_launcher
+    classname: weapon_grenadelauncher
+    damage: 0
+    splash_damage: 120
+    splash_radius: 160
+    refire_seconds: 0.6
+    source_ref: weapons.qc:600
+    props:
+      damage_kind: splash_only
+      splash_damage_source_ref: weapons.qc:600
+      splash_radius_source_ref: combat.qc:258
+      splash_radius_formula: damage_plus_40
+      ammo_per_shot: 1
+      ammo_per_shot_source_ref: weapons.qc:634
+      ammo_type: rockets
+      max_carry_ammo: 100
+      max_carry_ammo_source_ref: items.qc:478
+      projectile: grenade
+      projectile_lifetime_seconds: 2.5
+      projectile_lifetime_source_ref: weapons.qc:676
+      refire_seconds_dm4: 1.1
+      refire_seconds_dm4_source_ref: weapons.qc:671
+      refire_source_ref: weapons.qc:1045
+    notes: direct hit deals 0 damage; explosion only.
+
+  - name: rocket_launcher
+    classname: weapon_rocketlauncher
+    damage: 110
+    splash_damage: 120
+    splash_radius: 160
+    refire_seconds: 0.8
+    source_ref: weapons.qc:385
+    props:
+      damage_kind: direct_plus_splash
+      damage_formula: 100_plus_random_times_20
+      splash_damage_source_ref: weapons.qc:397
+      splash_radius_source_ref: combat.qc:258
+      splash_radius_formula: damage_plus_40
+      ammo_per_shot: 1
+      ammo_per_shot_source_ref: weapons.qc:422
+      ammo_type: rockets
+      projectile: rocket
+      projectile_velocity: 1000
+      projectile_velocity_source_ref: weapons.qc:437
+      projectile_lifetime_seconds: 5
+      projectile_lifetime_source_ref: weapons.qc:445
+      refire_source_ref: weapons.qc:1051
+    notes: damage is 100 + random()*20 = 100..120 effective.
+
+  - name: lightning_gun
+    classname: weapon_lightning
+    damage: 30
+    refire_seconds: 0.1
+    source_ref: weapons.qc:586
+    props:
+      damage_kind: per_tick
+      ammo_per_shot: 1
+      ammo_per_shot_source_ref: weapons.qc:569
+      ammo_type: cells
+      max_carry_ammo: 100
+      max_carry_ammo_source_ref: items.qc:480
+      range: 600
+      range_source_ref: weapons.qc:573
+      water_self_damage_dm4: 4000
+      water_self_damage_dm4_source_ref: weapons.qc:539
+      refire_source_ref: weapons.qc:1056
+    notes: in DM4+ discharge in water deals 4000 dmg (instakill).
 
 # Cluster 2: projectiles (4 rows)
 projectiles:
