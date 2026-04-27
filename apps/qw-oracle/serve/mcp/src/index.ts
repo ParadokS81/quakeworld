@@ -12,6 +12,12 @@ import { getConceptNote } from './tools/get-concept-note.ts';
 import { searchEntities } from './tools/search-entities.ts';
 import { lookupMap } from './tools/lookup-map.ts';
 import { searchMaps } from './tools/search-maps.ts';
+import { lookupGameplayEntity } from './tools/lookup-gameplay-entity.ts';
+import { lookupMechanic } from './tools/lookup-mechanic.ts';
+import { searchGameplayEntities } from './tools/search-gameplay-entities.ts';
+import { searchMechanics } from './tools/search-mechanics.ts';
+import type { SearchGameplayEntitiesArgs } from './tools/search-gameplay-entities.ts';
+import type { SearchMechanicsArgs } from './tools/search-mechanics.ts';
 import { knowledgeDb } from './db.ts';
 import type { EntityType } from './types.ts';
 import type { SearchMapsArgs } from './tools/search-maps.ts';
@@ -206,6 +212,66 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         },
       },
     },
+    {
+      name: 'lookup_gameplay_entity',
+      description:
+        'Look up a QuakeWorld game entity (weapon, projectile, item pickup) by name. Returns damage, splash, refire, respawn, ammo, classname, source_ref pointing at the canonical id1 QuakeC line, and any ruleset gate. Case-insensitive. Names use snake_case: rocket_launcher, super_shotgun, megahealth_100, red_armor, quad_damage, pentagram, ring_of_shadows, biosuit, shells_small, pickup_lightning_gun, etc. For a topical search ("which weapons have splash damage", "all powerups with respawn > 60s"), use search_gameplay_entities. For game rules (lava damage, fall damage, telefrag), use lookup_mechanic.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Entity name. Case-insensitive snake_case.' },
+          gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+        },
+        required: ['name'],
+      },
+    },
+    {
+      name: 'lookup_mechanic',
+      description:
+        'Look up a QuakeWorld game-mechanics rule by name. Returns the rule\'s value, kind (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule), source_ref pointing at the canonical id1 QuakeC line, and any ruleset gate. Examples: lava, slime, drowning, fall_damage, telefrag, quad_damage_multiplier, armor_absorb_formula, sv_gravity_default, spawn_invul_dm4, dm4_rules. Case-insensitive. To enumerate by category use search_mechanics with kind filter; for a specific weapon/item use lookup_gameplay_entity.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Mechanic name. Case-insensitive.' },
+          gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+        },
+        required: ['name'],
+      },
+    },
+    {
+      name: 'search_gameplay_entities',
+      description:
+        'Filter QuakeWorld game entities (weapons, projectiles, item pickups) by kind, damage range, splash, ammo type, respawn time, or substring match on name/classname. Returns compact rows ordered by kind+name. Use this for "which weapons have splash damage" (has_splash:true), "all rockets/grenade ammo" (kind:item, ammo_type:rockets), "powerups with respawn > 60s" (kind:item, min_respawn:60), or partial-name search ("rocket" -> rocket_launcher + rocket projectile + rockets_small/large pickups). For full record details follow up with lookup_gameplay_entity.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Substring match on name or classname (case-insensitive).' },
+          kind: { type: 'string', enum: ['item', 'weapon', 'projectile'], description: 'Restrict to one kind.' },
+          has_splash: { type: 'boolean', description: 'Match entities with splash damage > 0 (true) or without (false).' },
+          min_damage: { type: 'number', description: 'Minimum damage column value.' },
+          max_damage: { type: 'number', description: 'Maximum damage column value.' },
+          min_respawn: { type: 'number', description: 'Minimum respawn_seconds.' },
+          max_respawn: { type: 'number', description: 'Maximum respawn_seconds.' },
+          ammo_type: { type: 'string', enum: ['shells','nails','rockets','cells'], description: 'Filter on props_json.ammo_type.' },
+          gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+          limit: { type: 'number', description: 'Max rows. Default 25, max 100.' },
+        },
+      },
+    },
+    {
+      name: 'search_mechanics',
+      description:
+        'Filter QuakeWorld game-mechanics rules by kind or substring. Returns compact rows ordered by kind+name. Use this for "all environmental hazards" (kind:env_hazard), "all spawn rules" (kind:spawn_rule), "anything mentioning quad" (query:quad), or "all death rules" (kind:death_rule). For a specific named rule use lookup_mechanic.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Substring match on name, value_text, or notes (case-insensitive).' },
+          kind: { type: 'string', enum: ['constant','env_hazard','player_stat','powerup_behavior','armor_model','death_rule','spawn_rule','dm_mode_rule'], description: 'Restrict to one kind.' },
+          gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+          limit: { type: 'number', description: 'Max rows. Default 50, max 100.' },
+        },
+      },
+    },
   ],
 }));
 
@@ -242,6 +308,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     case 'search_maps': {
       const response = searchMaps(knowledgeDb, args as SearchMapsArgs);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'lookup_gameplay_entity': {
+      const response = lookupGameplayEntity(knowledgeDb, args as { name: string; gameplay_source?: string });
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'lookup_mechanic': {
+      const response = lookupMechanic(knowledgeDb, args as { name: string; gameplay_source?: string });
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'search_gameplay_entities': {
+      const response = searchGameplayEntities(knowledgeDb, args as SearchGameplayEntitiesArgs);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'search_mechanics': {
+      const response = searchMechanics(knowledgeDb, args as SearchMechanicsArgs);
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }
     default:
