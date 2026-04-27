@@ -1,6 +1,7 @@
 pub mod archive;
 pub mod auth;
 pub mod browse;
+pub mod bulk_import;
 pub mod client_fingerprint;
 pub mod data_root;
 pub mod ezquake;

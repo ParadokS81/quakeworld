@@ -9,6 +9,8 @@ export interface WarehousedVersion {
   size_bytes: number;
   downloaded_at: number;
   source: string;
+  /** Filename-derived variant (e.g. "glsl"). Null for canonical filenames. */
+  variant?: string | null;
 }
 
 export interface WarehouseIndex {

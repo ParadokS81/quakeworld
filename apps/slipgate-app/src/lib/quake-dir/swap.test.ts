@@ -31,10 +31,38 @@ describe("swap wrappers", () => {
       targetVersion: "3.6.9",
       quakeDir: "C:\\QW",
       targetExeName: "ezquake.exe",
+      targetVariant: null,
     });
   });
 
-  test("deleteWarehousedVersion forwards client + version", async () => {
+  test("swapActiveVersion forwards targetVariant when set", async () => {
+    const calls: Array<[string, Record<string, unknown> | undefined]> = [];
+    const invoke = async <T,>(cmd: string, args?: Record<string, unknown>): Promise<T> => {
+      calls.push([cmd, args]);
+      return {
+        previous_sha256: null,
+        previous_was_foreign: false,
+        new_version: "3.6.6",
+        backup_path: null,
+      } as T;
+    };
+    await swapActiveVersion(invoke, {
+      client: "ezquake",
+      targetVersion: "3.6.6",
+      quakeDir: "C:\\QW",
+      targetExeName: "ezquake-glsl.exe",
+      targetVariant: "glsl",
+    });
+    expect(calls[0][1]).toEqual({
+      client: "ezquake",
+      targetVersion: "3.6.6",
+      quakeDir: "C:\\QW",
+      targetExeName: "ezquake-glsl.exe",
+      targetVariant: "glsl",
+    });
+  });
+
+  test("deleteWarehousedVersion forwards client + version + null variant by default", async () => {
     const calls: Array<[string, Record<string, unknown> | undefined]> = [];
     const invoke = async <T,>(cmd: string, args?: Record<string, unknown>): Promise<T> => {
       calls.push([cmd, args]);
@@ -42,8 +70,18 @@ describe("swap wrappers", () => {
     };
     await deleteWarehousedVersion(invoke, "ezquake", "3.6.6");
     expect(calls).toEqual([
-      ["delete_warehoused_version", { client: "ezquake", version: "3.6.6" }],
+      ["delete_warehoused_version", { client: "ezquake", version: "3.6.6", variant: null }],
     ]);
+  });
+
+  test("deleteWarehousedVersion forwards a variant when supplied", async () => {
+    const calls: Array<[string, Record<string, unknown> | undefined]> = [];
+    const invoke = async <T,>(cmd: string, args?: Record<string, unknown>): Promise<T> => {
+      calls.push([cmd, args]);
+      return null as T;
+    };
+    await deleteWarehousedVersion(invoke, "ezquake", "3.6.6", "glsl");
+    expect(calls[0][1]).toEqual({ client: "ezquake", version: "3.6.6", variant: "glsl" });
   });
 
   test("userInitiatedReconcile forwards client + canonicalExePath", async () => {

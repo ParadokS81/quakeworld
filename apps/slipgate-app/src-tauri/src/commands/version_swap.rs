@@ -7,7 +7,8 @@ use sysinfo::System;
 
 use crate::commands::data_root::data_root_path;
 use crate::commands::version_warehouse::{
-    blob_path_for, list_warehoused_versions_at, read_index_at, version_dir_at, write_index_at,
+    active_key, blob_path_for, list_warehoused_versions_at, manifest_dir_at, read_index_at,
+    version_dir_at, write_index_at,
 };
 
 fn is_process_running(exe_name: &str) -> bool {
@@ -51,6 +52,7 @@ pub fn swap_active_version(
     target_version: String,
     quake_dir: String,
     target_exe_name: String,
+    target_variant: Option<String>,
 ) -> Result<SwapResult, String> {
     if is_process_running(&target_exe_name) {
         return Err(format!(
@@ -69,8 +71,17 @@ pub fn swap_active_version(
     let warehoused = list_warehoused_versions_at(&data_root)?;
     let target = warehoused
         .iter()
-        .find(|w| w.client == client && w.version == target_version)
-        .ok_or_else(|| format!("version not in warehouse: {} {}", client, target_version))?;
+        .find(|w| {
+            w.client == client
+                && w.version == target_version
+                && w.variant.as_deref() == target_variant.as_deref()
+        })
+        .ok_or_else(|| {
+            format!(
+                "version not in warehouse: {} {} variant={:?}",
+                client, target_version, target_variant
+            )
+        })?;
     let blob = blob_path_for(&data_root, &target.blob_sha256);
     if !blob.exists() {
         return Err(format!("warehouse blob missing: {}", blob.display()));
@@ -116,7 +127,8 @@ pub fn swap_active_version(
     }
 
     let mut idx = read_index_at(&data_root);
-    idx.active.insert(client.clone(), target_version.clone());
+    let key = active_key(&client, target_variant.as_deref());
+    idx.active.insert(key, target_version.clone());
     idx.last_scan = now_epoch_secs();
     write_index_at(&data_root, &idx)?;
 
@@ -133,30 +145,61 @@ pub fn delete_warehoused_version(
     app: tauri::AppHandle,
     client: String,
     version: String,
+    variant: Option<String>,
 ) -> Result<(), String> {
     let data_root = data_root_path(&app)?;
     let warehoused = list_warehoused_versions_at(&data_root)?;
     let target = warehoused
         .iter()
-        .find(|w| w.client == client && w.version == version)
-        .ok_or_else(|| format!("not in warehouse: {} {}", client, version))?;
+        .find(|w| {
+            w.client == client
+                && w.version == version
+                && w.variant.as_deref() == variant.as_deref()
+        })
+        .ok_or_else(|| format!("not in warehouse: {} {} variant={:?}", client, version, variant))?;
 
     let idx = read_index_at(&data_root);
+    let key = active_key(&client, variant.as_deref());
     if idx
         .active
-        .get(&client)
+        .get(&key)
         .map(|v| v == &version)
         .unwrap_or(false)
     {
         return Err("cannot delete the active version; switch first".into());
     }
 
-    let dir = version_dir_at(&data_root, &client, &version);
-    fs::remove_dir_all(&dir).map_err(|e| format!("remove version dir failed: {}", e))?;
+    // For variants, remove only the variant subdir (vanilla + sibling variants
+    // stay intact). For vanilla, remove just the manifest.json so any sibling
+    // variants under <version>/variants/ remain.
+    if variant.is_some() {
+        let dir = manifest_dir_at(&data_root, &client, &version, variant.as_deref());
+        fs::remove_dir_all(&dir).map_err(|e| format!("remove variant dir failed: {}", e))?;
+    } else {
+        let version_dir = version_dir_at(&data_root, &client, &version);
+        let variants_dir = version_dir.join("variants");
+        let has_siblings = variants_dir.is_dir()
+            && fs::read_dir(&variants_dir)
+                .map(|mut it| it.next().is_some())
+                .unwrap_or(false);
+        if has_siblings {
+            // Remove only the vanilla manifest, keep the variants tree.
+            let m = version_dir.join("manifest.json");
+            if m.exists() {
+                fs::remove_file(&m).map_err(|e| format!("remove manifest failed: {}", e))?;
+            }
+        } else {
+            fs::remove_dir_all(&version_dir)
+                .map_err(|e| format!("remove version dir failed: {}", e))?;
+        }
+    }
 
-    let still_referenced = warehoused
-        .iter()
-        .any(|w| !(w.client == client && w.version == version) && w.blob_sha256 == target.blob_sha256);
+    let still_referenced = warehoused.iter().any(|w| {
+        !(w.client == client
+            && w.version == version
+            && w.variant.as_deref() == variant.as_deref())
+            && w.blob_sha256 == target.blob_sha256
+    });
     if !still_referenced {
         let blob = blob_path_for(&data_root, &target.blob_sha256);
         if blob.exists() {
@@ -186,6 +229,7 @@ mod tests {
         data_root: &Path,
         client: &str,
         target_version: &str,
+        target_variant: Option<&str>,
         quake_dir: &Path,
         target_exe_name: &str,
     ) -> Result<SwapResult, String> {
@@ -193,8 +237,17 @@ mod tests {
         let warehoused = list_warehoused_versions_at(data_root)?;
         let target = warehoused
             .iter()
-            .find(|w| w.client == client && w.version == target_version)
-            .ok_or_else(|| format!("version not in warehouse: {} {}", client, target_version))?;
+            .find(|w| {
+                w.client == client
+                    && w.version == target_version
+                    && w.variant.as_deref() == target_variant
+            })
+            .ok_or_else(|| {
+                format!(
+                    "version not in warehouse: {} {} variant={:?}",
+                    client, target_version, target_variant
+                )
+            })?;
         let blob = blob_path_for(data_root, &target.blob_sha256);
         if !blob.exists() {
             return Err(format!("warehouse blob missing: {}", blob.display()));
@@ -225,8 +278,8 @@ mod tests {
         fs::copy(&blob, &staging).map_err(|e| e.to_string())?;
         fs::rename(&staging, &canonical).map_err(|e| e.to_string())?;
         let mut idx = read_index_at(data_root);
-        idx.active
-            .insert(client.to_string(), target_version.to_string());
+        let key = active_key(client, target_variant);
+        idx.active.insert(key, target_version.to_string());
         idx.last_scan = now_epoch_secs();
         write_index_at(data_root, &idx)?;
         Ok(SwapResult {
@@ -247,13 +300,23 @@ mod tests {
 
         let src_a = make_fake_exe(tmp.path(), "src-a.exe", b"version-a-bytes");
         let src_b = make_fake_exe(tmp.path(), "src-b.exe", b"version-b-bytes");
-        register_version_at(&data_root, "ezquake", "3.6.6", &src_a, "stable", "test").unwrap();
-        register_version_at(&data_root, "ezquake", "3.6.9", &src_b, "stable", "test").unwrap();
+        register_version_at(&data_root, "ezquake", "3.6.6", None, &src_a, "stable", "test")
+            .unwrap();
+        register_version_at(&data_root, "ezquake", "3.6.9", None, &src_b, "stable", "test")
+            .unwrap();
 
         // Pre-place A as the canonical so that swapping to B sees a warehouse-known previous.
         fs::copy(&src_a, quake_dir.join("ezquake.exe")).unwrap();
 
-        let r = swap_at(&data_root, "ezquake", "3.6.9", &quake_dir, "ezquake.exe").unwrap();
+        let r = swap_at(
+            &data_root,
+            "ezquake",
+            "3.6.9",
+            None,
+            &quake_dir,
+            "ezquake.exe",
+        )
+        .unwrap();
         assert!(!r.previous_was_foreign);
         assert!(r.backup_path.is_none());
         assert!(!quake_dir.join("ezquake.bak.exe").exists());
@@ -271,11 +334,19 @@ mod tests {
         fs::create_dir_all(&quake_dir).unwrap();
 
         let src = make_fake_exe(tmp.path(), "src.exe", b"warehoused-bytes");
-        register_version_at(&data_root, "ezquake", "3.6.9", &src, "stable", "test").unwrap();
+        register_version_at(&data_root, "ezquake", "3.6.9", None, &src, "stable", "test").unwrap();
         // Drop a foreign exe (bytes not in warehouse) at the canonical path.
         fs::write(quake_dir.join("ezquake.exe"), b"foreign-stranger-bytes").unwrap();
 
-        let r = swap_at(&data_root, "ezquake", "3.6.9", &quake_dir, "ezquake.exe").unwrap();
+        let r = swap_at(
+            &data_root,
+            "ezquake",
+            "3.6.9",
+            None,
+            &quake_dir,
+            "ezquake.exe",
+        )
+        .unwrap();
         assert!(r.previous_was_foreign);
         assert!(r.backup_path.is_some());
         let bak = quake_dir.join("ezquake.bak.exe");
@@ -292,30 +363,136 @@ mod tests {
         fs::create_dir_all(&data_root).unwrap();
         fs::create_dir_all(&quake_dir).unwrap();
         // No registered versions at all.
-        let r = swap_at(&data_root, "ezquake", "3.6.9", &quake_dir, "ezquake.exe");
+        let r = swap_at(
+            &data_root,
+            "ezquake",
+            "3.6.9",
+            None,
+            &quake_dir,
+            "ezquake.exe",
+        );
         assert!(r.is_err());
     }
 
+    #[test]
+    fn swap_to_variant_writes_to_separate_canonical_slot() {
+        let tmp = TempDir::new().unwrap();
+        let data_root = tmp.path().join("data");
+        let quake_dir = tmp.path().join("qw");
+        fs::create_dir_all(&data_root).unwrap();
+        fs::create_dir_all(&quake_dir).unwrap();
+
+        let src_vanilla = make_fake_exe(tmp.path(), "src-vanilla.exe", b"vanilla-bytes");
+        let src_glsl = make_fake_exe(tmp.path(), "src-glsl.exe", b"glsl-bytes");
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            None,
+            &src_vanilla,
+            "stable",
+            "test",
+        )
+        .unwrap();
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &src_glsl,
+            "stable",
+            "test",
+        )
+        .unwrap();
+
+        // Vanilla swap -> ezquake.exe
+        swap_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            None,
+            &quake_dir,
+            "ezquake.exe",
+        )
+        .unwrap();
+        // glsl swap -> ezquake-glsl.exe (separate canonical slot per D6+D8)
+        swap_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &quake_dir,
+            "ezquake-glsl.exe",
+        )
+        .unwrap();
+
+        // Both files coexist with their respective bytes.
+        assert_eq!(
+            fs::read(quake_dir.join("ezquake.exe")).unwrap(),
+            b"vanilla-bytes"
+        );
+        assert_eq!(
+            fs::read(quake_dir.join("ezquake-glsl.exe")).unwrap(),
+            b"glsl-bytes"
+        );
+
+        // Independent active pointers under client + client:variant keys.
+        let idx = read_index_at(&data_root);
+        assert_eq!(idx.active.get("ezquake").unwrap(), "3.6.6");
+        assert_eq!(idx.active.get("ezquake:glsl").unwrap(), "3.6.6");
+    }
+
     /// Helper mirroring delete_warehoused_version for tests.
-    fn delete_at(data_root: &Path, client: &str, version: &str) -> Result<(), String> {
+    fn delete_at(
+        data_root: &Path,
+        client: &str,
+        version: &str,
+        variant: Option<&str>,
+    ) -> Result<(), String> {
         let warehoused = list_warehoused_versions_at(data_root)?;
         let target = warehoused
             .iter()
-            .find(|w| w.client == client && w.version == version)
-            .ok_or_else(|| format!("not in warehouse: {} {}", client, version))?;
+            .find(|w| {
+                w.client == client && w.version == version && w.variant.as_deref() == variant
+            })
+            .ok_or_else(|| {
+                format!(
+                    "not in warehouse: {} {} variant={:?}",
+                    client, version, variant
+                )
+            })?;
         let idx = read_index_at(data_root);
+        let key = active_key(client, variant);
         if idx
             .active
-            .get(client)
+            .get(&key)
             .map(|v| v == version)
             .unwrap_or(false)
         {
             return Err("cannot delete the active version; switch first".into());
         }
-        let dir = version_dir_at(data_root, client, version);
-        fs::remove_dir_all(&dir).map_err(|e| e.to_string())?;
+        if variant.is_some() {
+            let dir = manifest_dir_at(data_root, client, version, variant);
+            fs::remove_dir_all(&dir).map_err(|e| e.to_string())?;
+        } else {
+            let version_dir = version_dir_at(data_root, client, version);
+            let variants_dir = version_dir.join("variants");
+            let has_siblings = variants_dir.is_dir()
+                && fs::read_dir(&variants_dir)
+                    .map(|mut it| it.next().is_some())
+                    .unwrap_or(false);
+            if has_siblings {
+                let m = version_dir.join("manifest.json");
+                if m.exists() {
+                    fs::remove_file(&m).map_err(|e| e.to_string())?;
+                }
+            } else {
+                fs::remove_dir_all(&version_dir).map_err(|e| e.to_string())?;
+            }
+        }
         let still_referenced = warehoused.iter().any(|w| {
-            !(w.client == client && w.version == version) && w.blob_sha256 == target.blob_sha256
+            !(w.client == client && w.version == version && w.variant.as_deref() == variant)
+                && w.blob_sha256 == target.blob_sha256
         });
         if !still_referenced {
             let blob = blob_path_for(data_root, &target.blob_sha256);
@@ -332,10 +509,12 @@ mod tests {
         let data_root = tmp.path().join("data");
         fs::create_dir_all(&data_root).unwrap();
         let src = make_fake_exe(tmp.path(), "src.exe", b"only-bytes");
-        let entry =
-            register_version_at(&data_root, "ezquake", "3.6.6", &src, "stable", "test").unwrap();
+        let entry = register_version_at(
+            &data_root, "ezquake", "3.6.6", None, &src, "stable", "test",
+        )
+        .unwrap();
 
-        delete_at(&data_root, "ezquake", "3.6.6").unwrap();
+        delete_at(&data_root, "ezquake", "3.6.6", None).unwrap();
 
         assert!(!version_dir_at(&data_root, "ezquake", "3.6.6").exists());
         assert!(!blob_path_for(&data_root, &entry.blob_sha256).exists());
@@ -354,12 +533,12 @@ mod tests {
         fs::create_dir_all(&data_root).unwrap();
         let src1 = make_fake_exe(tmp.path(), "a.exe", b"shared-bytes");
         let src2 = make_fake_exe(tmp.path(), "b.exe", b"shared-bytes");
-        let e1 =
-            register_version_at(&data_root, "ezquake", "v1", &src1, "stable", "test").unwrap();
-        let _e2 =
-            register_version_at(&data_root, "ezquake", "v2", &src2, "stable", "test").unwrap();
+        let e1 = register_version_at(&data_root, "ezquake", "v1", None, &src1, "stable", "test")
+            .unwrap();
+        let _e2 = register_version_at(&data_root, "ezquake", "v2", None, &src2, "stable", "test")
+            .unwrap();
 
-        delete_at(&data_root, "ezquake", "v1").unwrap();
+        delete_at(&data_root, "ezquake", "v1", None).unwrap();
 
         // v2 still references the shared blob; it must survive.
         assert!(blob_path_for(&data_root, &e1.blob_sha256).exists());
@@ -372,13 +551,94 @@ mod tests {
         let data_root = tmp.path().join("data");
         fs::create_dir_all(&data_root).unwrap();
         let src = make_fake_exe(tmp.path(), "src.exe", b"x");
-        register_version_at(&data_root, "ezquake", "3.6.9", &src, "stable", "test").unwrap();
+        register_version_at(&data_root, "ezquake", "3.6.9", None, &src, "stable", "test").unwrap();
         let mut idx = read_index_at(&data_root);
         idx.active
             .insert("ezquake".to_string(), "3.6.9".to_string());
         write_index_at(&data_root, &idx).unwrap();
 
-        let r = delete_at(&data_root, "ezquake", "3.6.9");
+        let r = delete_at(&data_root, "ezquake", "3.6.9", None);
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn delete_variant_keeps_vanilla_intact() {
+        let tmp = TempDir::new().unwrap();
+        let data_root = tmp.path().join("data");
+        fs::create_dir_all(&data_root).unwrap();
+        let src_vanilla = make_fake_exe(tmp.path(), "v.exe", b"vanilla");
+        let src_glsl = make_fake_exe(tmp.path(), "g.exe", b"glsl");
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            None,
+            &src_vanilla,
+            "stable",
+            "test",
+        )
+        .unwrap();
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &src_glsl,
+            "stable",
+            "test",
+        )
+        .unwrap();
+
+        delete_at(&data_root, "ezquake", "3.6.6", Some("glsl")).unwrap();
+
+        // Vanilla manifest still present; variant dir gone.
+        let vanilla_manifest = version_dir_at(&data_root, "ezquake", "3.6.6").join("manifest.json");
+        assert!(vanilla_manifest.exists());
+        let glsl_dir = manifest_dir_at(&data_root, "ezquake", "3.6.6", Some("glsl"));
+        assert!(!glsl_dir.exists());
+        let listed = list_warehoused_versions_at(&data_root).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert!(listed[0].variant.is_none());
+    }
+
+    #[test]
+    fn delete_vanilla_keeps_variant_subdir() {
+        let tmp = TempDir::new().unwrap();
+        let data_root = tmp.path().join("data");
+        fs::create_dir_all(&data_root).unwrap();
+        let src_vanilla = make_fake_exe(tmp.path(), "v.exe", b"vanilla");
+        let src_glsl = make_fake_exe(tmp.path(), "g.exe", b"glsl");
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            None,
+            &src_vanilla,
+            "stable",
+            "test",
+        )
+        .unwrap();
+        register_version_at(
+            &data_root,
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &src_glsl,
+            "stable",
+            "test",
+        )
+        .unwrap();
+
+        delete_at(&data_root, "ezquake", "3.6.6", None).unwrap();
+
+        // Vanilla manifest gone; glsl variant still present.
+        let vanilla_manifest = version_dir_at(&data_root, "ezquake", "3.6.6").join("manifest.json");
+        assert!(!vanilla_manifest.exists());
+        let glsl_manifest = manifest_dir_at(&data_root, "ezquake", "3.6.6", Some("glsl"))
+            .join("manifest.json");
+        assert!(glsl_manifest.exists());
+        let listed = list_warehoused_versions_at(&data_root).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].variant.as_deref(), Some("glsl"));
     }
 }

@@ -16,6 +16,12 @@ pub struct WarehousedVersion {
     pub size_bytes: u64,
     pub downloaded_at: u64,
     pub source: String,
+    /// Filename-derived variant (e.g. "glsl"). None for canonical filenames.
+    /// Decoupled from the version key per D6+D10 so qw-version-resolution
+    /// stays variant-naive and oracle's snapshot consumer reads "3.6.6" as
+    /// one canonical row regardless of variant.
+    #[serde(default)]
+    pub variant: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
@@ -37,6 +43,33 @@ pub fn blobs_dir_at(data_root: &Path) -> PathBuf {
 
 pub fn version_dir_at(data_root: &Path, client: &str, version: &str) -> PathBuf {
     warehouse_root_at(data_root).join(client).join(version)
+}
+
+/// Manifest dir for a specific (client, version, variant). Per D6+D10, variants
+/// nest under `binaries/<client>/<version>/variants/<variant>/`; vanilla
+/// (variant=None) stays at `binaries/<client>/<version>/`.
+pub fn manifest_dir_at(
+    data_root: &Path,
+    client: &str,
+    version: &str,
+    variant: Option<&str>,
+) -> PathBuf {
+    let base = version_dir_at(data_root, client, version);
+    match variant {
+        Some(v) => base.join("variants").join(v),
+        None => base,
+    }
+}
+
+/// Synthesized key for the warehouse index's `active` map. Vanilla entries
+/// remain bare `<client>` for back-compat; variants live at `<client>:<variant>`
+/// so `(client, variant=None)` and `(client, variant=Some("glsl"))` are
+/// independent active pointers (their canonical slots are separate filenames).
+pub fn active_key(client: &str, variant: Option<&str>) -> String {
+    match variant {
+        Some(v) => format!("{}:{}", client, v),
+        None => client.to_string(),
+    }
 }
 
 pub fn index_path_at(data_root: &Path) -> PathBuf {
@@ -94,6 +127,7 @@ pub fn register_version_at(
     data_root: &Path,
     client: &str,
     version: &str,
+    variant: Option<&str>,
     src_exe: &Path,
     channel: &str,
     source: &str,
@@ -107,7 +141,7 @@ pub fn register_version_at(
         fs::copy(src_exe, &blob_path).map_err(|e| format!("blob write failed: {}", e))?;
     }
 
-    let dir = version_dir_at(data_root, client, version);
+    let dir = manifest_dir_at(data_root, client, version, variant);
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let original_exe_name = src_exe
         .file_name()
@@ -124,6 +158,7 @@ pub fn register_version_at(
         size_bytes: metadata.len(),
         downloaded_at: now_epoch_secs(),
         source: source.to_string(),
+        variant: variant.map(|s| s.to_string()),
     };
     let manifest_path = dir.join("manifest.json");
     fs::write(
@@ -132,6 +167,12 @@ pub fn register_version_at(
     )
     .map_err(|e| e.to_string())?;
     Ok(entry)
+}
+
+fn read_manifest_at(path: &Path) -> Result<WarehousedVersion, String> {
+    let text = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    serde_json::from_str::<WarehousedVersion>(&text)
+        .map_err(|e| format!("manifest parse failed at {}: {}", path.display(), e))
 }
 
 pub fn list_warehoused_versions_at(data_root: &Path) -> Result<Vec<WarehousedVersion>, String> {
@@ -156,19 +197,26 @@ pub fn list_warehoused_versions_at(data_root: &Path) -> Result<Vec<WarehousedVer
             if !version_path.is_dir() {
                 continue;
             }
+            // Vanilla manifest at <version>/manifest.json
             let manifest_path = version_path.join("manifest.json");
-            if !manifest_path.exists() {
-                continue;
+            if manifest_path.exists() {
+                out.push(read_manifest_at(&manifest_path)?);
             }
-            let manifest_text = fs::read_to_string(&manifest_path).map_err(|e| e.to_string())?;
-            let entry: WarehousedVersion = serde_json::from_str(&manifest_text).map_err(|e| {
-                format!(
-                    "manifest parse failed at {}: {}",
-                    manifest_path.display(),
-                    e
-                )
-            })?;
-            out.push(entry);
+            // Variant manifests at <version>/variants/<variant>/manifest.json
+            let variants_dir = version_path.join("variants");
+            if variants_dir.is_dir() {
+                for variant_entry in fs::read_dir(&variants_dir).map_err(|e| e.to_string())? {
+                    let variant_entry = variant_entry.map_err(|e| e.to_string())?;
+                    let variant_path = variant_entry.path();
+                    if !variant_path.is_dir() {
+                        continue;
+                    }
+                    let v_manifest = variant_path.join("manifest.json");
+                    if v_manifest.exists() {
+                        out.push(read_manifest_at(&v_manifest)?);
+                    }
+                }
+            }
         }
     }
     Ok(out)
@@ -202,7 +250,23 @@ pub fn import_existing_install(
         .map(|(sv, _)| sv.to_string())
         .unwrap_or(raw);
     let root = data_root_path(&app)?;
-    register_version_at(&root, &client, &version, &exe_path, "imported", "user_import")
+    // Foreign-exe Import affordance: variant inferred from the source filename
+    // (so an import of `ezquake-glsl.exe` warehouses under the glsl variant slot
+    // instead of colliding with vanilla 3.6.6).
+    let filename = exe_path
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let variant = crate::commands::client_fingerprint::variant_from_filename(&filename);
+    register_version_at(
+        &root,
+        &client,
+        &version,
+        variant.as_deref(),
+        &exe_path,
+        "imported",
+        "user_import",
+    )
 }
 
 pub fn register_version(
@@ -214,7 +278,8 @@ pub fn register_version(
     source: &str,
 ) -> Result<WarehousedVersion, String> {
     let root = data_root_path(app)?;
-    register_version_at(&root, client, version, src_exe, channel, source)
+    // Updater path always installs to the canonical filename, so variant is None.
+    register_version_at(&root, client, version, None, src_exe, channel, source)
 }
 
 #[cfg(test)]
@@ -242,6 +307,7 @@ mod tests {
             tmp.path(),
             "ezquake",
             "3.6.9",
+            None,
             &src,
             "stable",
             "github_release",
@@ -251,6 +317,7 @@ mod tests {
         assert_eq!(entry.version, "3.6.9");
         assert_eq!(entry.size_bytes, 17);
         assert_eq!(entry.blob_sha256.len(), 64);
+        assert!(entry.variant.is_none());
         let blob = blob_path_for(tmp.path(), &entry.blob_sha256);
         assert!(blob.exists());
     }
@@ -260,8 +327,10 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let src1 = make_fake_exe(tmp.path(), "a.exe", b"identical");
         let src2 = make_fake_exe(tmp.path(), "b.exe", b"identical");
-        let e1 = register_version_at(tmp.path(), "ezquake", "v1", &src1, "stable", "src").unwrap();
-        let e2 = register_version_at(tmp.path(), "ezquake", "v2", &src2, "stable", "src").unwrap();
+        let e1 = register_version_at(tmp.path(), "ezquake", "v1", None, &src1, "stable", "src")
+            .unwrap();
+        let e2 = register_version_at(tmp.path(), "ezquake", "v2", None, &src2, "stable", "src")
+            .unwrap();
         assert_eq!(e1.blob_sha256, e2.blob_sha256);
         let blob_count = fs::read_dir(blobs_dir_at(tmp.path())).unwrap().count();
         assert_eq!(blob_count, 1);
@@ -282,10 +351,63 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let exe1 = make_fake_exe(tmp.path(), "a.exe", b"a");
         let exe2 = make_fake_exe(tmp.path(), "b.exe", b"b");
-        register_version_at(tmp.path(), "ezquake", "3.6.9", &exe1, "stable", "src").unwrap();
-        register_version_at(tmp.path(), "ktx", "1.45", &exe2, "stable", "src").unwrap();
+        register_version_at(tmp.path(), "ezquake", "3.6.9", None, &exe1, "stable", "src").unwrap();
+        register_version_at(tmp.path(), "ktx", "1.45", None, &exe2, "stable", "src").unwrap();
         let listed = list_warehoused_versions_at(tmp.path()).unwrap();
         assert_eq!(listed.len(), 2);
+    }
+
+    #[test]
+    fn register_with_variant_writes_nested_manifest() {
+        let tmp = TempDir::new().unwrap();
+        let src = make_fake_exe(tmp.path(), "ezquake-glsl.exe", b"glsl-bytes");
+        let entry = register_version_at(
+            tmp.path(),
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &src,
+            "stable",
+            "github_release",
+        )
+        .unwrap();
+        assert_eq!(entry.variant.as_deref(), Some("glsl"));
+        let nested = manifest_dir_at(tmp.path(), "ezquake", "3.6.6", Some("glsl"))
+            .join("manifest.json");
+        assert!(nested.exists());
+        let listed = list_warehoused_versions_at(tmp.path()).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].variant.as_deref(), Some("glsl"));
+    }
+
+    #[test]
+    fn list_finds_vanilla_and_variant_for_same_version() {
+        let tmp = TempDir::new().unwrap();
+        let vanilla = make_fake_exe(tmp.path(), "ezquake.exe", b"vanilla");
+        let glsl = make_fake_exe(tmp.path(), "ezquake-glsl.exe", b"glsl");
+        register_version_at(tmp.path(), "ezquake", "3.6.6", None, &vanilla, "stable", "test")
+            .unwrap();
+        register_version_at(
+            tmp.path(),
+            "ezquake",
+            "3.6.6",
+            Some("glsl"),
+            &glsl,
+            "stable",
+            "test",
+        )
+        .unwrap();
+        let listed = list_warehoused_versions_at(tmp.path()).unwrap();
+        assert_eq!(listed.len(), 2);
+        let variants: Vec<Option<String>> = listed.iter().map(|v| v.variant.clone()).collect();
+        assert!(variants.contains(&None));
+        assert!(variants.contains(&Some("glsl".to_string())));
+    }
+
+    #[test]
+    fn active_key_synthesis() {
+        assert_eq!(active_key("ezquake", None), "ezquake");
+        assert_eq!(active_key("ezquake", Some("glsl")), "ezquake:glsl");
     }
 
     #[test]

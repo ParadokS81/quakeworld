@@ -56,6 +56,8 @@ pub fn run() {
             commands::client_fingerprint::scan_clients_in_dir,
             commands::release_cache::get_release_cache,
             commands::release_cache::refresh_all_release_caches,
+            commands::bulk_import::bulk_import_clients,
+            commands::bulk_import::rename_to_canonical,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())

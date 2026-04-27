@@ -12,6 +12,9 @@ export interface SwapArgs {
   targetVersion: string;
   quakeDir: string;
   targetExeName: string;
+  /** Optional variant suffix; pairs with targetExeName to choose the
+   * `<family>-<variant>.exe` canonical slot under D6+D8. */
+  targetVariant?: string | null;
 }
 
 export async function swapActiveVersion(invoke: InvokeFn, args: SwapArgs): Promise<SwapResult> {
@@ -20,6 +23,7 @@ export async function swapActiveVersion(invoke: InvokeFn, args: SwapArgs): Promi
     targetVersion: args.targetVersion,
     quakeDir: args.quakeDir,
     targetExeName: args.targetExeName,
+    targetVariant: args.targetVariant ?? null,
   });
 }
 
@@ -27,8 +31,9 @@ export async function deleteWarehousedVersion(
   invoke: InvokeFn,
   client: string,
   version: string,
+  variant?: string | null,
 ): Promise<void> {
-  await invoke("delete_warehoused_version", { client, version });
+  await invoke("delete_warehoused_version", { client, version, variant: variant ?? null });
 }
 
 export type ReconcileResult =

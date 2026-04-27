@@ -760,6 +760,7 @@ pub async fn download_and_install_update(
         entry.version.clone(),
         quake_dir_str,
         client_def.exe_name.to_string(),
+        None, // updater installs to canonical filename; no variant
     )?;
 
     let _ = window.emit(
