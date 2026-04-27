@@ -262,9 +262,10 @@ Added 2026-04-18. Walks `<exe_dir>/qw/locs/` and `<exe_dir>/ezquake/locs/`, pars
 Multi-version client management. Three Rust modules under `commands/` plus a `quake-dir/` frontend namespace; full architecture in `docs/QUAKE-DIR-CONTROL.md`.
 
 - `data_root.rs` — `get_data_root()` resolves portable mode (adjacent `data/portable.flag` marker) vs installed mode (`%APPDATA%/com.slipgate.app/`). Single source of truth for where slipgate stores state.
-- `version_warehouse.rs` — content-addressed binary store under `<data-root>/binaries/`. Blobs at `blobs/<sha256>.exe`, per-version manifests at `<client>/<version>/manifest.json`, top-level `index.json` tracks active version per client. `register_version` (used by updater downloads), `list_warehoused_versions`, `read_warehouse_index`, `import_existing_install` (user-imported pre-existing installs).
-- `warehouse_reconcile.rs` — `reconcile_active_version` hashes `<quake-dir>/<canonical_exe>` on launch, looks up the sha256 in the warehouse, and either marks the matching version active, returns a `foreign` result so the UI can offer to import, or clears `active` if the exe is missing.
-- The updater registers freshly downloaded exes into the warehouse before its existing backup+rename swap (Phase 3 will retire the legacy swap and route everything through a single swap module).
+- `version_warehouse.rs` — content-addressed binary store under `<data-root>/binaries/`. Blobs at `blobs/<sha256>.exe`, per-version manifests at `<client>/<version>/manifest.json`, top-level `index.json` tracks active version per client. `register_version` (used by updater downloads), `list_warehoused_versions`, `read_warehouse_index`, `import_existing_install` (user-imported pre-existing installs). Warehouse keys are lowercase by convention (e.g. `ezquake`); user-facing display strings use `ClientDef.name` casing (`ezQuake`).
+- `warehouse_reconcile.rs` — `reconcile_active_version` hashes `<quake-dir>/<canonical_exe>` on launch and on user-initiated path changes, looks up the sha256 in the warehouse, and either marks the matching version active, returns a `foreign` result so the UI can offer to import, or clears `active` if the exe is missing.
+- `version_swap.rs` — the single swap path. `swap_active_version` runs an `is_process_running` guard, applies the foreign-exe backup heuristic (warehouse-known bytes don't get backed up; foreign bytes rename to `<stem>.bak.exe`), copies blob to `<canonical>.new`, atomic-renames into place. `delete_warehoused_version` refuses if active, removes the per-version manifest dir, GC's the blob if no other manifest references it. The updater (`download_and_install_update`) stages downloads under `<data-root>/binaries/.staging/`, calls `register_version`, then `swap_active_version` — it owns no canonical-exe mutation of its own.
+- `VersionWarehouse.tsx` (frontend) — per-client version list with switch + delete buttons, foreign-exe Import affordance at top when reconcile didn't match the current path, stubbed "Add Quake client" button (Phase 3.5 wires it). Row rendering uses a `VersionRowDescriptor` shape with optional Tier 2 (verified) / Tier 3 (unrecognized) slots that Phase 3.5 fills in via release-cache without changing row JSX.
 
 ---
 
@@ -343,7 +344,9 @@ Setup {
 | `list_warehoused_versions` | quake-dir/warehouse.ts | Enumerate registered version manifests |
 | `read_warehouse_index` | quake-dir/warehouse.ts | Read the top-level `index.json` (active version per client + last_scan) |
 | `import_existing_install` | quake-dir/warehouse.ts | Hash + register a user's existing exe into the warehouse |
-| `reconcile_active_version` | quake-dir/firstRunImport.ts | Hash `<quake-dir>/<exe>` on launch, set/update `index.active` |
+| `reconcile_active_version` | quake-dir/firstRunImport.ts + quake-dir/swap.ts | Hash `<quake-dir>/<exe>`, set/update `index.active` (runs on launch + user-initiated path changes) |
+| `swap_active_version` | quake-dir/swap.ts | Copy a warehoused version's blob into the user's quake dir as the canonical exe; foreign-exe backup heuristic; refuses if target client is running |
+| `delete_warehoused_version` | quake-dir/swap.ts | Remove a warehoused version's manifest dir; GC the blob if unreferenced; refuses if active |
 
 ### Events Rust → frontend
 - `config-changed` → `{ exe_path, config_name }` — listened by App.tsx, triggers re-parse
