@@ -21,6 +21,10 @@ const VERSION_TABLE: Record<EntityType, string> = {
 
 const ALL_TYPES: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
 
+// ruleset_versions has no help_desc column (rulesets are enum + restriction
+// flags, not user-facing prose), so description-match must skip it.
+const DESCRIBED_TYPES: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param'];
+
 function buildFilters(args: SearchEntitiesArgs, params: (string | number)[]): string[] {
   const filters: string[] = [];
   if (args.project) {
@@ -62,10 +66,11 @@ function descriptionMatchEntities(
   exclude: Set<string>,
 ): EntityRow[] {
   if (remaining <= 0) return [];
-  const types = args.type ? [args.type] : ALL_TYPES;
+  const types = args.type ? [args.type] : DESCRIBED_TYPES;
   const out: EntityRow[] = [];
   for (const t of types) {
     if (out.length >= remaining) break;
+    if (t === 'ruleset') continue;
     const slots = remaining - out.length;
     const versionTable = VERSION_TABLE[t];
     const params: (string | number)[] = [`%${args.query}%`, t];
