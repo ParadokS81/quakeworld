@@ -186,7 +186,68 @@ weapons:
 
 # Cluster 2: projectiles (4 rows)
 projectiles:
-# (filled by Task 5)
+  - name: spike
+    damage: 9
+    source_ref: weapons.qc:797
+    props:
+      movetype: MOVETYPE_FLYMISSILE
+      movetype_source_ref: weapons.qc:704
+      velocity: 1000
+      velocity_source_ref: weapons.qc:717
+      lifetime_seconds: 6
+      lifetime_source_ref: weapons.qc:712
+      gravity_factor: 0
+    notes: nailgun projectile.
+
+  - name: super_spike
+    damage: 18
+    source_ref: weapons.qc:844
+    props:
+      movetype: MOVETYPE_FLYMISSILE
+      velocity: 1000
+      velocity_source_ref: weapons.qc:717
+      lifetime_seconds: 6
+      lifetime_source_ref: weapons.qc:712
+      gravity_factor: 0
+    notes: super-nailgun projectile.
+
+  - name: rocket
+    damage: 110
+    splash_damage: 120
+    splash_radius: 160
+    source_ref: weapons.qc:385
+    props:
+      movetype: MOVETYPE_FLYMISSILE
+      movetype_source_ref: weapons.qc:431
+      velocity: 1000
+      velocity_source_ref: weapons.qc:437
+      lifetime_seconds: 5
+      lifetime_source_ref: weapons.qc:445
+      gravity_factor: 0
+      damage_formula: 100_plus_random_times_20
+      splash_damage_source_ref: weapons.qc:397
+      splash_radius_source_ref: combat.qc:258
+    notes: direct damage is 100..120 random; splash flat 120.
+
+  - name: grenade
+    damage: 0
+    splash_damage: 120
+    splash_radius: 160
+    source_ref: weapons.qc:600
+    props:
+      movetype: MOVETYPE_BOUNCE
+      movetype_source_ref: weapons.qc:644
+      velocity_forward: 600
+      velocity_up: 200
+      velocity_source_ref: weapons.qc:653
+      lifetime_seconds: 2.5
+      lifetime_source_ref: weapons.qc:676
+      gravity_factor: 1
+      direct_damage: 0
+      direct_damage_source_ref: weapons.qc:612
+      splash_damage_source_ref: weapons.qc:600
+      splash_radius_source_ref: combat.qc:258
+    notes: bounces, affected by gravity, no damage on direct touch.
 
 # Cluster 3: items (25 rows: 3 health + 3 armor + 4 powerups + 8 ammo + 6 weapon-pickups + 1 backpack)
 items:
