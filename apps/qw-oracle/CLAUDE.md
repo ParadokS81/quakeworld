@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v10 (9 entity types + 4 asset relation tables + per-version transition log; v10 widened the project CHECK across 8 tables to admit `qwcl`). **QWCL 2.33 SHIPPED 2026-04-25** as the first cross-codebase port — 186 cvar / 120 command / 58 cmdline_param entities loaded clean alongside ezQuake's 4041; foundational for slipgate-app's planned config converter ("pandoc for configs") mapping QWCL → ezQuake → FTE. Three QWCL-specific handlers under `scripts/extractors/qwcl/` reuse the shared Visitor + walk_tu_dispatch from `extractor_lib`; `PROJECT_HAS_ASSET_BUNDLE` gate skips the asset pipeline for projects without seed taxonomy. ezQuake deep-time walk completed v3.0 → head (14 versions); pre-3.0 era de-scoped on community-security framing. Next: FTE cvars AST extractor.
+**Status:** Active development. Two-database knowledge service for QuakeWorld: a structured-facts layer extracted from engine source (Layer 1) and a 20-year chat corpus (Layer 2). Schema v13 (11 entity types + 4 asset relation tables + per-version transition log + `maps` table in the new `qw` namespace). **Map knowledge layer SHIPPED 2026-04-27** -- 254 maps loaded (38 id1 stock + 216 community), two new MCP tools (`lookup_map`, `search_maps`), snapshot at `apps/slipgate-app/src/lib/config/data/qw-maps.json`. **QWCL 2.33 SHIPPED 2026-04-25** as the first cross-codebase port -- 186 cvar / 120 command / 58 cmdline_param entities loaded clean alongside ezQuake's 4041; foundational for slipgate-app's planned config converter ("pandoc for configs") mapping QWCL → ezQuake → FTE. Three QWCL-specific handlers under `scripts/extractors/qwcl/` reuse the shared Visitor + walk_tu_dispatch from `extractor_lib`; `PROJECT_HAS_ASSET_BUNDLE` gate skips the asset pipeline for projects without seed taxonomy. ezQuake deep-time walk completed v3.0 → head (14 versions); pre-3.0 era de-scoped on community-security framing. FTE Phase 2d-core fully shipped (build-6698: 2482 cvars / 556 commands / 67 macros / 103 cmdline_params).
 
 ## What this is
 
@@ -13,7 +13,7 @@ Oracle maintains two SQLite stores side-by-side:
 
 **Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) lives at `concept-notes/`. Nine notes shipped as of 2026-04-25.
 
-**MCP server** at `serve/mcp/`. Four tools: `lookup_entity` (case-insensitive name lookup across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes), `search_entities` (substring search by name or current help text), `get_concept_note` (Layer 3 retrieval with full frontmatter passthrough), `search_solved_issues` (FTS5 over the chat corpus). Runs under Bun reading both `data/knowledge.db` (Layer 1) and `data/qw.db` (Layer 2) read-only. Tool-description rewrite shipped 2026-04-25 (v0.2.0); the librarian volunteers cross-references in one tool call.
+**MCP server** at `serve/mcp/`. Six tools: `lookup_entity` (case-insensitive name lookup across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes), `search_entities` (substring search by name or current help text), `get_concept_note` (Layer 3 retrieval with full frontmatter passthrough), `search_solved_issues` (FTS5 over the chat corpus), `lookup_map` (full map record + Levenshtein typo suggestion), `search_maps` (15 filter dimensions, popularity-rank sort, items_compact one-liner). Runs under Bun reading both `data/knowledge.db` (Layer 1) and `data/qw.db` (Layer 2) read-only. Tool-description rewrite shipped 2026-04-25 (v0.2.0); the librarian volunteers cross-references in one tool call.
 
 ## Where to find things
 
@@ -26,6 +26,7 @@ Oracle maintains two SQLite stores side-by-side:
 | Layer 1 deep-time extraction roadmap (cliffs ahead, validation loop) | `docs/layer1-extraction-roadmap.md` |
 | Quality grid (regression + anomaly probes) | `scripts/load-knowledge/quality-grid.ts` |
 | Layer 1 extractors (Python + libclang) | `scripts/extractors/<project>/extract.py` (+ `extractors/extractor_lib/` shared) |
+| Map extractor (qw namespace) | `scripts/extractors/qw/` -- Python pipeline: pak_extract, download_maps, fetch_stats, bsp_parser, extract |
 | Layer 1 seed YAMLs (hand-authored taxonomy, path rules, cvar bindings) | `scripts/extractors/<project>/seeds/` |
 | Extractor JSON outputs (versioned in git) | `scripts/extractors/<project>/output/` |
 | Asset bundle (transitional — slipgate-consumer location) | `packages/qw-config/src/data/<project>-asset-bundle.json` |
@@ -105,7 +106,7 @@ bun run scripts/verify-rewrite.ts                         # 24-assertion smoke t
 bunx tsc --noEmit                                         # typecheck
 ```
 
-Supported entity types: `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`, `asset_category`, `flag_bit`.
+Supported entity types: `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`, `asset_category`, `flag_bit`, `cvar_alias`. The `maps` table (schema v13, `qw` namespace) is a flat table outside the entity/version model -- no `entities` row, no per-version snapshot, no `project` column.
 
 ## Always-on rules
 

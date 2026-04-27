@@ -8,6 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
+- [Map knowledge layer SHIPPED](#map-knowledge-layer-shipped) — **NEW 2026-04-27, FULLY SHIPPED 2026-04-27.** Sidequest from a support-channel question oracle couldn't answer. New `maps` table (schema v13), 254 maps loaded (38 id1 stock + 216 maps.qw.nu/base/). Two new MCP tools (`lookup_map`, `search_maps`). Snapshot to slipgate at `apps/slipgate-app/src/lib/config/data/qw-maps.json`. Deferred follow-ups: slipgate map-browser UI, advanced search filters, author seed-YAML curation, automated quarterly stats refresh, future maps.quake.world richer-metadata refactor (release dates, README content).
 - [Cross-engine alias scaffolding + slipgate version-awareness](#cross-engine-alias-scaffolding--slipgate-version-awareness) — **NEW 2026-04-26, sub-threads #2 + #3 SHIPPED later that day.** Umbrella for an arc spanning ezscript extraction, cross-engine alias schema, default-drift triage, and the structural shift that slipgate consumers should be version-aware. Sub-thread #2 (schema spec) + sub-thread #3 (schema migration v11→v12 + ezscript handler + 38 alias entities loaded at FTE@build-6698) closed; sub-thread #5 (slipgate consumer version-awareness) tracked-by Quake Dir Control plan; sub-thread #4 (FTE asset bundle) still open as adjacent track.
 - [Retired cvars in snapshot + stale-config warning UX](#retired-cvars-in-snapshot--stale-config-warning-ux) — **NEW 2026-04-26.** Coupled producer+consumer work blocked on UX design. The `build-snapshot` CLI today emits only entities present at head (2,899 ezquake cvars; 2,835 source_backed + 149 doc_only). 5 retired cvars (`cl_showkeycodes`, `gl_smoothfont`, `keymap_name`, `r_fx_geometry`, `scr_printspeed` — alive in v3.0 through 3.6.2, removed before head) are silently dropped. Use case it blocks: opening an old config in slipgate where `keymap_name "us"` is present and getting a truthful "this was removed in 3.6.5" message instead of generic "unknown cvar" treatment. Defer until the stale-warning UX is on the table.
 - [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — ezQuake deep-time walk reached **v3.0 floor (14 versions: v3.0 through head)** 2026-04-25 late; pre-3.0 era de-scoped on community-security framing. Walk infrastructure shipped same session: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Reusable for FTE/MVDSV/KTX. **QWCL 2.33 SHIPPED 2026-04-25** (first cross-codebase port; 186 cvar / 120 command / 58 cmdline_param at qwcl@2.33; schema v10 widened project CHECK; quality-grid 5/5 F1 PASS). **FTE Phase 2d-core FULLY SHIPPED 2026-04-26** (build-6698 SHA 35843773: 2482 cvars / 556 commands / 67 macros / 103 cmdline_params; schema v11 source_root; ezhud plugin in scope; Pass 1 runtime diff CLOSED -- 114 residual all explained). Remaining: Phase 2d-bundle (asset extraction), Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
@@ -22,6 +23,44 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
+
+---
+
+## Map knowledge layer SHIPPED
+
+**Added:** 2026-04-27. **Status:** Fully shipped. **Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT COUNT(*) FROM maps"` should return `254`. `cat apps/slipgate-app/src/lib/config/data/qw-maps.json | python3 -c "import json,sys; print(len(json.load(sys.stdin)['maps']))"` should return `254`. End-to-end MCP probe via stdio: `cd apps/qw-oracle/serve/mcp && echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_maps","arguments":{"lacks_weapon":["lg"],"limit":5}}}' | bun run src/index.ts` should include povdmm4 in the result list.
+
+### What shipped
+
+- **Schema v13** -- pure-additive `maps` table + 2 indexes. Plan + spec live at `docs/superpowers/{plans,specs}/2026-04-26-qw-oracle-map-knowledge*.md`.
+- **Extractor pipeline** at `apps/qw-oracle/scripts/extractors/qw/`: `pak_extract.py` (pak0/pak1 -> 38 id1 stock BSPs), `download_maps.py` (maps.qw.nu/base/ -> 216 community BSPs), `fetch_stats.py` (stats.quakeworld.nu top-200 popularity), `bsp_parser.py` (entity + texture lump -> normalized item/spawn/feature dicts), `extract.py` (orchestrator -> qw-maps-ast.json).
+- **Loader** `load-maps.ts` + CLI subcommand `npm run load-knowledge -- load-maps`. Idempotent UPSERT keyed on canonical_name.
+- **Snapshot** `build-snapshot --project qw` emits `apps/slipgate-app/src/lib/config/data/qw-maps.json`. New `qw` value in the `Project` union.
+- **MCP tools** `lookup_map(name)` (full record + Levenshtein typo suggestion) + `search_maps(...filters)` (15 filter dimensions, popularity-rank sort, items_compact one-liner).
+- **Tests:** 9 pytest (BSP parser), 3 pytest (PAK extractor), 4 node:test (loader), 13 bun:test (MCP tools) -- all green.
+
+### Deferred follow-ups
+
+- **Slipgate map-browser UI.** Snapshot is shipped; UI is a future arc.
+- **Advanced `search_maps` filters.** Once we see what queries actually land, add what's missing (e.g. has_func_secret, by_year-from-future-metadata).
+- **Author seed-YAML curation.** `seeds/qw-map-seed.yaml` is scaffolded empty. Fill as community-known authors surface.
+- **Automated quarterly stats refresh.** Manual `fetch_stats.py` for now; automate when cron infra exists.
+- **Future maps.quake.world metadata-pass refactor.** When vikpe's site exposes richer per-map metadata (READMEs, release dates, design notes), refactor to consume that source. Spec calls this out as a non-goal for v1.
+- **Locs.** Spec dropped them; slipgate already reads user's local locs for the simulator. Add `map_locs` table only if a future use case (voice-analysis position tagging?) needs oracle-side loc lookup.
+
+### Pressure
+
+None. Sidequest closed. Layer 1 now answers the motivating support-channel question and a class of related ones.
+
+### Related
+
+- Spec: `docs/superpowers/specs/2026-04-26-qw-oracle-map-knowledge-design.md`
+- Plan: `docs/superpowers/plans/2026-04-26-qw-oracle-map-knowledge.md`
+- Schema: `apps/qw-oracle/SCHEMA.md` § "Map knowledge layer"
+- Extractor: `apps/qw-oracle/scripts/extractors/qw/`
+- Loader: `apps/qw-oracle/scripts/load-knowledge/load-maps.ts`
+- MCP tools: `apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts`, `search-maps.ts`
+- Snapshot consumer: `apps/slipgate-app/src/lib/config/data/qw-maps.json`
 
 ---
 

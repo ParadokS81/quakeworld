@@ -7,7 +7,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 ## Conventions
 
 - **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5/v12; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV11ToV12` in order.
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today; `fte` is the next target).
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today; `fte` is the next target). The `qw` namespace (v13) means "the game itself" -- content that exists outside any engine version arc. The `maps` table uses this namespace and has no `project` column; `qw` appears only in the `Project` TS union in `build-snapshot.ts`.
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
 - **Timestamps** are ISO 8601 strings. `extracted_at` is "most recent extraction for this row" — overwritten on re-run. Git history of `knowledge.db` is not recoverable from the row itself (it is gitignored).
@@ -23,7 +23,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 21 tables at schema v12. (v12 widens the entities.type CHECK to admit `cvar_alias` and adds the `cvar_alias_versions` per-version table; no other v11 → v12 changes.)
+Total: 22 tables at schema v12 + v13. (v12 widens the entities.type CHECK to admit `cvar_alias` and adds the `cvar_alias_versions` per-version table. v13 is pure-additive: adds the `maps` table in the new `qw` namespace with 2 indexes. No other v12 → v13 changes.)
 
 ---
 
@@ -434,6 +434,50 @@ Values:
 - `"plugin:<name>"` — entity was registered inside a named plugin under the project's plugin directory (e.g., `"plugin:ezhud"` for FTE's ezQuake-HUD plugin).
 
 `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, and `flag_bit_versions` do NOT carry this field — they are engine-only by definition (plugins do not register cmdline params, key bindings, HUD elements, or rulesets).
+
+---
+
+## Map knowledge layer
+
+### `maps`
+
+The `qw` namespace -- facts about QuakeWorld maps as game content (not engine entities). One row per canonical map name. Schema v13. Distinct from the entity/version model -- maps don't change across engine versions.
+
+| Column | Type | Notes |
+|---|---|---|
+| `canonical_name` | TEXT PK | lowercased BSP basename (`dm3`, `aerowalk`) |
+| `file_name` | TEXT | full filename (`dm3.bsp`) |
+| `display_name` | TEXT NULL | from `worldspawn.message`, with `\n` literals collapsed to spaces |
+| `author` | TEXT NULL | heuristic from message + manual seed override; NULL = unknown |
+| `bsp_version` | TEXT | `V29` or `BSP2` |
+| `bsp_size_bytes` | INTEGER | |
+| `bsp_sha256` | TEXT | full hex |
+| `worldspawn_json` | TEXT | full worldspawn property dump (classname stripped) |
+| `entity_count` | INTEGER | total entity count incl. worldspawn |
+| `class_counts_json` | TEXT | `{classname: count}` for every classname in the map |
+| `item_summary_json` | TEXT | normalized 20-key dict (RA/YA/GA/mh/h25/h15/quad/pent/ring/bio/SSG/NG/SNG/GL/RL/LG/cells/rockets/spikes/shells) |
+| `spawn_summary_json` | TEXT | `{dm,team1,team2,coop,start,intermission}` |
+| `features_json` | TEXT | `{teleporters,has_water,has_lava,has_slime}` |
+| `wads_referenced_json` | TEXT | parsed WAD basenames |
+| `inferred_gamemodes_json` | TEXT | one or more of `1on1`/`2on2`/`4on4`/`ffa` |
+| `popularity_total` | INTEGER NULL | from stats.quakeworld.nu |
+| `popularity_by_mode_json` | TEXT NULL | `{1on1, 2on2, 4on4, ffa}` |
+| `popularity_rank` | INTEGER NULL | 1 = most popular |
+| `notes` | TEXT NULL | seed-curated free-form |
+| `source_bsp_url` | TEXT | where extracted from |
+| `extracted_at` | TEXT | ISO timestamp |
+
+**Natural key:** `canonical_name`. Re-running the loader is idempotent (INSERT ... ON CONFLICT DO UPDATE).
+
+**Populated by:** `load-maps.ts` <- `apps/qw-oracle/scripts/extractors/qw/extract.py` -> `qw-maps-ast.json`. Inputs: BSP files in `data/bsp-cache/` (downloaded from `https://maps.quakeworld.nu/base/` via `download_maps.py`) plus `data/pak-cache/` (extracted from operator's pak0/pak1 via `pak_extract.py`); popularity from `seeds/qw-stats-cache.json` (refreshed by `fetch_stats.py`); manual overrides from `seeds/qw-map-seed.yaml`.
+
+**Consumed by:** MCP tools `lookup_map` + `search_maps`; slipgate via `qw-maps.json` snapshot file emitted by `build-snapshot.ts`.
+
+**Project namespace `qw`:** New as of v13. Distinct from engine project codes (`ezquake`/`fte`/`mvdsv`/`ktx`/`qwcl`). Means "the game itself" -- content that lives outside any engine version arc. The `maps` table has no `project` column; the `qw` namespace appears only in the `Project` TS union for the build-snapshot dispatcher.
+
+**Spec:** `docs/superpowers/specs/2026-04-26-qw-oracle-map-knowledge-design.md`. Plan: `docs/superpowers/plans/2026-04-26-qw-oracle-map-knowledge.md`.
+
+Indexes: `idx_maps_popularity_rank ON (popularity_rank)`, `idx_maps_author ON (author)`.
 
 ---
 
