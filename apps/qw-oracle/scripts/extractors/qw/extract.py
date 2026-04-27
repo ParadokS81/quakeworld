@@ -107,10 +107,12 @@ def collect_bsps(pak_dir: Path, base_dir: Path) -> list[tuple[Path, str]]:
 
 def main() -> int:
     here = Path(__file__).resolve().parent
-    monorepo_root = here.parents[3]
+    # here = .../apps/qw-oracle/scripts/extractors/qw/
+    # parents[2] = qw-oracle (the right anchor for `data/`).
+    qw_oracle_root = here.parents[2]
     ap = argparse.ArgumentParser()
-    ap.add_argument('--pak-dir', type=Path, default=monorepo_root / 'apps' / 'qw-oracle' / 'data' / 'pak-cache')
-    ap.add_argument('--bsp-dir', type=Path, default=monorepo_root / 'apps' / 'qw-oracle' / 'data' / 'bsp-cache')
+    ap.add_argument('--pak-dir', type=Path, default=qw_oracle_root / 'data' / 'pak-cache')
+    ap.add_argument('--bsp-dir', type=Path, default=qw_oracle_root / 'data' / 'bsp-cache')
     ap.add_argument('--stats-cache', type=Path, default=here / 'seeds' / 'qw-stats-cache.json')
     ap.add_argument('--seed', type=Path, default=here / 'seeds' / 'qw-map-seed.yaml')
     ap.add_argument('--out', type=Path, default=here / 'output' / 'qw-maps-ast.json')
