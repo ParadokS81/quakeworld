@@ -18,15 +18,13 @@ Three data layers plus the machinery that fills and serves them.
 
 ### Layers 1-3: the knowledge foundation
 
-- **Layer 1** - `data/knowledge.db`. Source-extracted engine facts. cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset consumption, flag bits. Every fact carries a version range and per-field blame. This is the authoritative "how does the engine actually work" tier.
+- **Layer 1** - `data/knowledge.db`. Two kinds of facts side by side. **Engine facts** (source-extracted from the QW engine ports — cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset consumption, flag bits, cross-engine cvar aliases) carry a version arc and per-field blame; this is the authoritative "how does the engine actually work" tier. **Game-content facts** (the `qw` namespace — maps as of 2026-04-27, future game-content domains as they land) live in flat tables outside the version arc; they describe the game itself, not any particular engine release. See `OVERVIEW.md` § "Domain inventory" for the live coverage table.
 - **Layer 2** - `data/qw.db`. 2.66M community chat messages from QuakeNet IRC (2005-2016, 1.94M) and Quake.World Discord (2016-present, 717K). Raw + FTS5 search index. This is the tribal-knowledge tier: debugging sessions, config discussions, gameplay debates, community history.
 - **Layer 3** - hand-authored concept notes. Bootstrapped 2026-04-22 with two prototype notes. Intended to hold curated patterns, idioms, and explanations that synthesize Layer 1 + Layer 2 into usable guidance (e.g., "the weapon-script pattern," "the teamsay grammar," "the asset-override model"), plus consumer-facing classifier metadata that Layer 1 alone cannot produce (ecosystem provenance, file-type visibility axes). See `concept-notes/README.md` for the authoring template.
 
 ### Backstage: extraction and loading
 
-The extractor fleet (Python + libclang for ezQuake today; AST for FTE / MVDSV / KTX as those ports land) reads authoritative engine source and emits structured JSON. The loader pipeline (`scripts/load-knowledge/`) ingests that JSON into Layer 1, diffs consecutive versions to produce per-field change events, and enriches change events with GitHub PR context.
-
-This machinery is oracle's responsibility even though the extractor scripts currently live in `packages/qw-config/scripts/` for historical reasons (slipgate-app originally scraped ezQuake there; the AST extractors grew in the same folder). When oracle's extraction pipeline is feature-complete, the scripts relocate into oracle's build. See root `VISION.md` § "The emerging ecosystem" for the broader context.
+The extractor fleet reads authoritative engine source (Python + libclang for ezQuake / FTE / QWCL today; tree-sitter for KTX; MVDSV pending) and emits structured JSON. The `qw` namespace uses pure-stdlib Python BSP binary parsing — no compiler. The loader pipeline (`scripts/load-knowledge/`) ingests JSON into Layer 1, diffs consecutive engine versions to produce per-field change events, and enriches change events with GitHub PR context. The qw-config dissolution (Half 1 + Half 2, shipped 2026-04-25) relocated extractors into `apps/qw-oracle/scripts/extractors/` and replaced the legacy slipgate-via-`packages/qw-config/` path with a `build-snapshot` CLI that emits enriched per-project JSONs directly into slipgate's data dir.
 
 ### Serving surfaces: MCP and snapshot distribution
 
@@ -54,7 +52,7 @@ This shape is what keeps the service honest regardless of which consumer product
 The service is the hard part; the consumer products are each straightforward once the foundation exists.
 
 - **Claude Code** (live) - every coding session in the monorepo consumes MCP. Primary consumer today.
-- **slipgate-app** (transitional) - reads `packages/qw-config/src/data/*.json` directly today for its ConfigViewer. Migrates to oracle-snapshot consumption once the extraction pipeline is feature-complete.
+- **slipgate-app** - consumes per-project snapshot JSONs at `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI (qw-config dissolution Half 2, 2026-04-25). Today serves ezQuake / QWCL / qw maps; FTE + MVDSV + KTX land as their extractors close.
 - **quad chatbot mode** (future) - quad is a voice-recording Discord bot today. A chat-over-oracle mode is a future capability on top of MCP.
 - **New chatbot app** (future) - possibly separate from quad. Same MCP surface.
 - **slipgate web help surfaces** (future) - the web-services-family direction (assets.quake.world, maps.quake.world cross-linked to the existing hub.quake.world) will consume oracle snapshots for anything that maps to knowledge-layer facts.
@@ -63,7 +61,7 @@ Digest / newsletter ("what happened while I was away") and time-machine ("what w
 
 ## Current reality
 
-Layer 1 extraction for ezQuake is active and shipping. The schema is stable at v6; head is fully loaded across 10 entity types (3899 entities total) plus 4 asset relation tables. Historical backfill across ezQuake's ~15 release tags is the next major push and is unblocked by the recent extraction-pipeline speedups. FTE, MVDSV, and KTX ports come after.
+Layer 1 covers six namespaces at schema v13: **ezQuake** (10 entity types + 4 asset relation tables, 4015 entities at head, 14-tag deep-time walk to v3.0 floor), **FTE** (5 entity types incl. cross-engine cvar aliases, build-6698 only, asset bundle pending), **QWCL** (3 entity types, single canonical version 2.33), **MVDSV / KTX** (engine ports not started), and **`qw`** (the game itself — 254 maps shipped 2026-04-27, future game-content domains land here). See `OVERVIEW.md` § "Domain inventory" for the live coverage table and current totals.
 
 Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline - tier classification, session segmentation, summarization - has not been the current focus. Layer 3 has its first prototype notes (2026-04-22); broader population is ongoing as consumer questions surface material Layer 1 alone cannot answer.
 
