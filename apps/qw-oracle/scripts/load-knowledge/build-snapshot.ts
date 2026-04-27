@@ -527,6 +527,45 @@ function emitQwMaps(
   return writeJson(join(outputDir, 'qw-maps.json'), out, maps.length);
 }
 
+// ─── qw gameplay emitter ───────────────────────────────────────────────────
+
+function emitGameplay(
+  db: Database.Database,
+  meta: SnapshotMeta,
+  outputDir: string,
+): { count: number; bytes: number } {
+  const sources = db.prepare(`SELECT id, display_name, description, source_root, notes FROM gameplay_sources ORDER BY id`).all();
+  const entities = (db.prepare(`
+    SELECT gameplay_source_id, kind, name, classname,
+           damage, splash_damage, splash_radius, refire_seconds, respawn_seconds,
+           pickup_amount, max_carry, duration_seconds,
+           ruleset_gate_json, source_ref, props_json, notes
+    FROM gameplay_entity_defs
+    ORDER BY gameplay_source_id, kind, name, ruleset_gate_json
+  `).all() as Array<Record<string, unknown>>).map((r) => {
+    const { props_json, ruleset_gate_json, ...rest } = r as { props_json: string; ruleset_gate_json: string };
+    return { ...rest, props: JSON.parse(props_json), ruleset_gate: JSON.parse(ruleset_gate_json) };
+  });
+  const mechanics = (db.prepare(`
+    SELECT gameplay_source_id, kind, name, value_numeric, value_text,
+           ruleset_gate_json, source_ref, props_json, notes
+    FROM gameplay_mechanics
+    ORDER BY gameplay_source_id, kind, name, ruleset_gate_json
+  `).all() as Array<Record<string, unknown>>).map((r) => {
+    const { props_json, ruleset_gate_json, ...rest } = r as { props_json: string; ruleset_gate_json: string };
+    return { ...rest, props: JSON.parse(props_json), ruleset_gate: JSON.parse(ruleset_gate_json) };
+  });
+
+  const payload = {
+    schema_version: 14,
+    generated_at: meta.generated_at,
+    sources,
+    entities,
+    mechanics,
+  };
+  return writeJson(join(outputDir, 'qw-gameplay.json'), payload, entities.length + mechanics.length);
+}
+
 // ─── meta + writer ─────────────────────────────────────────────────────────
 
 interface SnapshotMeta {
@@ -623,6 +662,8 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
     } else if (opts.project === 'qw') {
       const r = emitQwMaps(db, meta, outputDir);
       files.push({ file: 'qw-maps.json', entities: r.count, bytes: r.bytes });
+      const g = emitGameplay(db, meta, outputDir);
+      files.push({ file: 'qw-gameplay.json', entities: g.count, bytes: g.bytes });
     } else {
       throw new Error(`build-snapshot does not yet support project=${opts.project}.`);
     }

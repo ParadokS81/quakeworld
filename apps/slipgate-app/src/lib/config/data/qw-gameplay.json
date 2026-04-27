@@ -1,0 +1,1669 @@
+{
+  "schema_version": 14,
+  "generated_at": "2026-04-27T16:50:08.475Z",
+  "sources": [
+    {
+      "id": "id1",
+      "display_name": "id1 (vanilla QuakeWorld)",
+      "description": "Canonical QuakeWorld gamecode shipped with the original QW source release. Frozen baseline that every mod (KTX, clan-arena, freshteam, etc.) inherits from. Source files at research/repos/qwcl-original/QW/progs/.\n",
+      "source_root": "research/repos/qwcl-original/QW/progs/",
+      "notes": "Engine-side constants (sv_maxspeed=320, friction=4, accelerate=10, stopspeed=100, edgefriction=2) live in the cvars table once each engine's extraction picks them up; not loaded into gameplay_mechanics.\n"
+    }
+  ],
+  "entities": [
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "backpack",
+      "classname": "backpack",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": 120,
+      "source_ref": "items.qc:1656",
+      "notes": "120s lifetime then auto-removed; pickup grants weapon + remaining ammo.",
+      "props": {
+        "drop_rule": "dropped_on_death_if_any_ammo_gt_0",
+        "drop_rule_source_ref": "items.qc:1614",
+        "contents": "current_weapon_plus_all_ammo",
+        "contents_source_ref": "items.qc:1620"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "biosuit",
+      "classname": "item_artifact_envirosuit",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 60,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": 30,
+      "source_ref": "items.qc:1378",
+      "notes": null,
+      "props": {
+        "duration_source_ref": "items.qc:1322",
+        "respawn_source_ref": "items.qc:1308",
+        "effect": "prevents_lava_slime_drown_damage"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "cells_large",
+      "classname": "item_cells",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 12,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:987",
+      "notes": null,
+      "props": {
+        "ammo_type": "cells",
+        "max_carry": 100,
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "cells_small",
+      "classname": "item_cells",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 6,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:993",
+      "notes": null,
+      "props": {
+        "ammo_type": "cells",
+        "max_carry": 100,
+        "max_carry_source_ref": "items.qc:480",
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "green_armor",
+      "classname": "item_armor1",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 100,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:386",
+      "notes": "absorbs 30% of damage up to 100 armor.",
+      "props": {
+        "armortype": 0.3,
+        "armortype_source_ref": "items.qc:386",
+        "armorvalue_cap": 100,
+        "armorvalue_cap_source_ref": "items.qc:387",
+        "classname_source_ref": "items.qc:384",
+        "respawn_source_ref": "items.qc:412"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "health_15_rotten",
+      "classname": "item_health",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 15,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:250",
+      "notes": "T_Heal with ignore=0 caps at max_health (default 100); items.qc:217 is the cap site, items.qc:220 is megahealth's separate ignore=1 path.",
+      "props": {
+        "spawnflag": 1,
+        "spawnflag_meaning": "H_ROTTEN",
+        "classname_source_ref": "items.qc:239",
+        "respawn_source_ref": "items.qc:330",
+        "cap_rule": "clamps_to_max_health_via_T_Heal_ignore_zero",
+        "cap_source_ref": "items.qc:217"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "health_25_normal",
+      "classname": "item_health",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 25,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:269",
+      "notes": null,
+      "props": {
+        "spawnflag": 0,
+        "cap_rule": "clamps_to_max_health_via_T_Heal_ignore_zero",
+        "cap_source_ref": "items.qc:217",
+        "classname_source_ref": "items.qc:239"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "megahealth_100",
+      "classname": "item_health",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 100,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:260",
+      "notes": "respawn_seconds=20 for the basic regen-after-pickup cycle; the megahealth-specific decay-then-regen sequence is separate (5s initial decay tick at items.qc:321, then -1 hp/s back to max, then 20s regen at items.qc:356).",
+      "props": {
+        "spawnflag": 2,
+        "spawnflag_meaning": "H_MEGA",
+        "max_carry": 250,
+        "max_carry_source_ref": "items.qc:291",
+        "cap_rule": "ignore_max_health_up_to_250",
+        "cap_source_ref": "items.qc:220",
+        "healtype": 2,
+        "healtype_source_ref": "items.qc:261",
+        "decay_rule": "minus_1_hp_per_second_back_to_max_health",
+        "decay_rule_source_ref": "items.qc:345",
+        "decay_initial_delay_seconds": 5,
+        "decay_initial_source_ref": "items.qc:321",
+        "respawn_after_decay_seconds": 20,
+        "respawn_after_decay_source_ref": "items.qc:356",
+        "respawn_semantics": "respawn_seconds_field_describes_normal_pickup_cycle_decay_uses_separate_5s_initial_then_20s_regen"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "nails_large",
+      "classname": "item_spikes",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 50,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:928",
+      "notes": null,
+      "props": {
+        "ammo_type": "nails",
+        "max_carry": 200,
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "nails_small",
+      "classname": "item_spikes",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 25,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:934",
+      "notes": null,
+      "props": {
+        "ammo_type": "nails",
+        "max_carry": 200,
+        "max_carry_source_ref": "items.qc:477",
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pentagram",
+      "classname": "item_artifact_invulnerability",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 300,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": 30,
+      "source_ref": "items.qc:1358",
+      "notes": "invul absorbs all damage; 5-minute respawn.",
+      "props": {
+        "mechanic": "damage_blocked_while_invincible_finished_gte_time",
+        "mechanic_source_ref": "combat.qc:184",
+        "duration_source_ref": "items.qc:1328",
+        "respawn_source_ref": "items.qc:1306",
+        "hit_sound": "items/protect3.wav",
+        "hit_sound_source_ref": "combat.qc:188"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_grenade_launcher",
+      "classname": "weapon_grenadelauncher",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 5,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:612",
+      "notes": null,
+      "props": {
+        "ammo_type": "rockets",
+        "dm_gate": "dm_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_lightning_gun",
+      "classname": "weapon_lightning",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 15,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:620",
+      "notes": null,
+      "props": {
+        "ammo_type": "cells",
+        "dm_gate": "dm_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_nailgun",
+      "classname": "weapon_nailgun",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 30,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:580",
+      "notes": "weapon pickups exist on map only when deathmatch <= 3.",
+      "props": {
+        "ammo_type": "nails",
+        "dm_gate": "dm_le_3",
+        "respawn_source_ref": "items.qc:669"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_rocket_launcher",
+      "classname": "weapon_rocketlauncher",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 5,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:604",
+      "notes": null,
+      "props": {
+        "ammo_type": "rockets",
+        "dm_gate": "dm_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_super_nailgun",
+      "classname": "weapon_supernailgun",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 30,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:588",
+      "notes": null,
+      "props": {
+        "ammo_type": "nails",
+        "dm_gate": "dm_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "pickup_super_shotgun",
+      "classname": "weapon_supershotgun",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 5,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:596",
+      "notes": null,
+      "props": {
+        "ammo_type": "shells",
+        "dm_gate": "dm_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "quad_damage",
+      "classname": "item_artifact_super_damage",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 60,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": 30,
+      "source_ref": "items.qc:1417",
+      "notes": "dropped on death only when worldspawn key 'dq' is set.",
+      "props": {
+        "damage_multiplier": 4,
+        "damage_multiplier_dm4": 8,
+        "damage_multiplier_source_ref": "combat.qc:127",
+        "damage_multiplier_dm4_source_ref": "combat.qc:128",
+        "duration_source_ref": "items.qc:1346",
+        "respawn_source_ref": "items.qc:1308",
+        "drop_on_death_gate": "infokey_dq",
+        "drop_on_death_source_ref": "client.qc:552"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "red_armor",
+      "classname": "item_armorInv",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 200,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:398",
+      "notes": "absorbs 80%.",
+      "props": {
+        "armortype": 0.8,
+        "armorvalue_cap": 200,
+        "classname_source_ref": "items.qc:396"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "ring_of_shadows",
+      "classname": "item_artifact_invisibility",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 300,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": 30,
+      "source_ref": "items.qc:1397",
+      "notes": "5-minute respawn.",
+      "props": {
+        "mechanic": "modelindex_eyes_when_invisible_finished_gt_zero",
+        "mechanic_source_ref": "client.qc:991",
+        "duration_source_ref": "items.qc:1334",
+        "drop_on_death_gate": "infokey_dr",
+        "drop_on_death_source_ref": "client.qc:568"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "rockets_large",
+      "classname": "item_rockets",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 10,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:957",
+      "notes": null,
+      "props": {
+        "ammo_type": "rockets",
+        "max_carry": 100,
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "rockets_small",
+      "classname": "item_rockets",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 5,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:963",
+      "notes": null,
+      "props": {
+        "ammo_type": "rockets",
+        "max_carry": 100,
+        "max_carry_source_ref": "items.qc:478",
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "shells_large",
+      "classname": "item_shells",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 40,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:900",
+      "notes": null,
+      "props": {
+        "ammo_type": "shells",
+        "max_carry": 100,
+        "spawnflag_meaning": "WEAPON_BIG2",
+        "respawn_dm3_dm5_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "shells_small",
+      "classname": "item_shells",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 30,
+      "pickup_amount": 20,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:906",
+      "notes": null,
+      "props": {
+        "ammo_type": "shells",
+        "max_carry": 100,
+        "max_carry_source_ref": "items.qc:474",
+        "classname_source_ref": "items.qc:889",
+        "respawn_dm3_dm5_seconds": 15,
+        "respawn_source_ref": "items.qc:868",
+        "respawn_dm3_dm5_source_ref": "items.qc:872"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "item",
+      "name": "yellow_armor",
+      "classname": "item_armor2",
+      "damage": null,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": 20,
+      "pickup_amount": 150,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "items.qc:392",
+      "notes": "absorbs 60%.",
+      "props": {
+        "armortype": 0.6,
+        "armorvalue_cap": 150,
+        "classname_source_ref": "items.qc:390"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "projectile",
+      "name": "grenade",
+      "classname": null,
+      "damage": 0,
+      "splash_damage": 120,
+      "splash_radius": 160,
+      "refire_seconds": null,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:600",
+      "notes": "bounces, affected by gravity, no damage on direct touch.",
+      "props": {
+        "movetype": "MOVETYPE_BOUNCE",
+        "movetype_source_ref": "weapons.qc:644",
+        "velocity_forward": 600,
+        "velocity_up": 200,
+        "velocity_source_ref": "weapons.qc:653",
+        "lifetime_seconds": 2.5,
+        "lifetime_source_ref": "weapons.qc:676",
+        "gravity_factor": 1,
+        "direct_damage": 0,
+        "direct_damage_source_ref": "weapons.qc:612",
+        "splash_damage_source_ref": "weapons.qc:600",
+        "splash_radius_source_ref": "combat.qc:258"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "projectile",
+      "name": "rocket",
+      "classname": null,
+      "damage": 110,
+      "splash_damage": 120,
+      "splash_radius": 160,
+      "refire_seconds": null,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:385",
+      "notes": "direct damage is 100..120 random; splash flat 120.",
+      "props": {
+        "movetype": "MOVETYPE_FLYMISSILE",
+        "movetype_source_ref": "weapons.qc:431",
+        "velocity": 1000,
+        "velocity_source_ref": "weapons.qc:437",
+        "lifetime_seconds": 5,
+        "lifetime_source_ref": "weapons.qc:445",
+        "gravity_factor": 0,
+        "damage_formula": "100_plus_random_times_20",
+        "splash_damage_source_ref": "weapons.qc:397",
+        "splash_radius_source_ref": "combat.qc:258"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "projectile",
+      "name": "spike",
+      "classname": null,
+      "damage": 9,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:797",
+      "notes": "nailgun projectile.",
+      "props": {
+        "movetype": "MOVETYPE_FLYMISSILE",
+        "movetype_source_ref": "weapons.qc:704",
+        "velocity": 1000,
+        "velocity_source_ref": "weapons.qc:717",
+        "lifetime_seconds": 6,
+        "lifetime_source_ref": "weapons.qc:712",
+        "gravity_factor": 0
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "projectile",
+      "name": "super_spike",
+      "classname": null,
+      "damage": 18,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": null,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:844",
+      "notes": "super-nailgun projectile.",
+      "props": {
+        "movetype": "MOVETYPE_FLYMISSILE",
+        "velocity": 1000,
+        "velocity_source_ref": "weapons.qc:717",
+        "lifetime_seconds": 6,
+        "lifetime_source_ref": "weapons.qc:712",
+        "gravity_factor": 0
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "axe",
+      "classname": null,
+      "damage": 20,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.5,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:57",
+      "notes": "75 damage in deathmatch>3.",
+      "props": {
+        "melee_range": 64,
+        "melee_range_source_ref": "weapons.qc:44",
+        "damage_dm_gt_3": 75,
+        "damage_dm_gt_3_source_ref": "weapons.qc:55",
+        "refire_source_ref": "weapons.qc:1010"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "grenade_launcher",
+      "classname": "weapon_grenadelauncher",
+      "damage": 0,
+      "splash_damage": 120,
+      "splash_radius": 160,
+      "refire_seconds": 0.6,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:600",
+      "notes": "direct hit deals 0 damage; explosion only.",
+      "props": {
+        "damage_kind": "splash_only",
+        "splash_damage_source_ref": "weapons.qc:600",
+        "splash_radius_source_ref": "combat.qc:258",
+        "splash_radius_formula": "damage_plus_40",
+        "ammo_per_shot": 1,
+        "ammo_per_shot_source_ref": "weapons.qc:634",
+        "ammo_type": "rockets",
+        "max_carry_ammo": 100,
+        "max_carry_ammo_source_ref": "items.qc:478",
+        "projectile": "grenade",
+        "projectile_lifetime_seconds": 2.5,
+        "projectile_lifetime_source_ref": "weapons.qc:676",
+        "refire_seconds_dm4": 1.1,
+        "refire_seconds_dm4_source_ref": "weapons.qc:671",
+        "refire_source_ref": "weapons.qc:1045"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "lightning_gun",
+      "classname": "weapon_lightning",
+      "damage": 30,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.1,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:586",
+      "notes": "in DM4+ discharge in water deals 4000 dmg (instakill).",
+      "props": {
+        "damage_kind": "per_tick",
+        "ammo_per_shot": 1,
+        "ammo_per_shot_source_ref": "weapons.qc:569",
+        "ammo_type": "cells",
+        "max_carry_ammo": 100,
+        "max_carry_ammo_source_ref": "items.qc:480",
+        "range": 600,
+        "range_source_ref": "weapons.qc:573",
+        "water_self_damage_dm4": 4000,
+        "water_self_damage_dm4_source_ref": "weapons.qc:539",
+        "refire_source_ref": "weapons.qc:1056"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "nailgun",
+      "classname": "weapon_nailgun",
+      "damage": 9,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.2,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:797",
+      "notes": "damage realised on spike_touch. Refire timer is set inside W_FireSpikes at weapons.qc:759 (parallels SNG's weapons.qc:726 inside W_FireSuperSpikes); the player_nail1/player_nail2 frames at player.qc:190/203 also re-set attack_finished after each W_FireSpikes call. Citing the fire-function body for parity with SNG.",
+      "props": {
+        "ammo_per_shot": 1,
+        "ammo_per_shot_source_ref": "weapons.qc:761",
+        "ammo_type": "nails",
+        "max_carry_ammo": 200,
+        "max_carry_ammo_source_ref": "items.qc:477",
+        "projectile": "spike",
+        "projectile_velocity": 1000,
+        "projectile_velocity_source_ref": "weapons.qc:717",
+        "projectile_lifetime_seconds": 6,
+        "projectile_lifetime_source_ref": "weapons.qc:712",
+        "refire_source_ref": "weapons.qc:759",
+        "refire_source_ref_player_frames": [
+          "player.qc:190",
+          "player.qc:203"
+        ]
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "rocket_launcher",
+      "classname": "weapon_rocketlauncher",
+      "damage": 110,
+      "splash_damage": 120,
+      "splash_radius": 160,
+      "refire_seconds": 0.8,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:385",
+      "notes": "damage is 100 + random()*20 = 100..120 effective.",
+      "props": {
+        "damage_kind": "direct_plus_splash",
+        "damage_formula": "100_plus_random_times_20",
+        "splash_damage_source_ref": "weapons.qc:397",
+        "splash_radius_source_ref": "combat.qc:258",
+        "splash_radius_formula": "damage_plus_40",
+        "ammo_per_shot": 1,
+        "ammo_per_shot_source_ref": "weapons.qc:422",
+        "ammo_type": "rockets",
+        "projectile": "rocket",
+        "projectile_velocity": 1000,
+        "projectile_velocity_source_ref": "weapons.qc:437",
+        "projectile_lifetime_seconds": 5,
+        "projectile_lifetime_source_ref": "weapons.qc:445",
+        "refire_source_ref": "weapons.qc:1051"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "shotgun",
+      "classname": "weapon_shotgun",
+      "damage": 4,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.5,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:285",
+      "notes": null,
+      "props": {
+        "damage_kind": "per_pellet",
+        "pellet_count": 6,
+        "pellet_count_source_ref": "weapons.qc:311",
+        "spread": [
+          0.04,
+          0.04,
+          0
+        ],
+        "spread_source_ref": "weapons.qc:311",
+        "ammo_per_shot": 1,
+        "ammo_per_shot_source_ref": "weapons.qc:308",
+        "ammo_type": "shells",
+        "max_carry_ammo": 100,
+        "max_carry_ammo_source_ref": "items.qc:474",
+        "refire_source_ref": "weapons.qc:1025"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "super_nailgun",
+      "classname": "weapon_supernailgun",
+      "damage": 18,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.2,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:844",
+      "notes": "shares spike-launcher with nailgun; damage realised on superspike_touch.",
+      "props": {
+        "ammo_per_shot": 2,
+        "ammo_per_shot_source_ref": "weapons.qc:728",
+        "ammo_type": "nails",
+        "projectile": "super_spike",
+        "projectile_velocity": 1000,
+        "projectile_velocity_source_ref": "weapons.qc:717",
+        "projectile_lifetime_seconds": 6,
+        "projectile_lifetime_source_ref": "weapons.qc:712",
+        "refire_source_ref": "weapons.qc:726"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "weapon",
+      "name": "super_shotgun",
+      "classname": "weapon_supershotgun",
+      "damage": 4,
+      "splash_damage": null,
+      "splash_radius": null,
+      "refire_seconds": 0.7,
+      "respawn_seconds": null,
+      "pickup_amount": null,
+      "max_carry": null,
+      "duration_seconds": null,
+      "source_ref": "weapons.qc:285",
+      "notes": null,
+      "props": {
+        "damage_kind": "per_pellet",
+        "pellet_count": 14,
+        "pellet_count_source_ref": "weapons.qc:338",
+        "spread": [
+          0.14,
+          0.08,
+          0
+        ],
+        "spread_source_ref": "weapons.qc:338",
+        "ammo_per_shot": 2,
+        "ammo_per_shot_source_ref": "weapons.qc:336",
+        "ammo_type": "shells",
+        "refire_source_ref": "weapons.qc:1031"
+      },
+      "ruleset_gate": {}
+    }
+  ],
+  "mechanics": [
+    {
+      "gameplay_source_id": "id1",
+      "kind": "armor_model",
+      "name": "armor_absorb_formula",
+      "value_numeric": null,
+      "value_text": "save_eq_ceil_armortype_times_damage",
+      "source_ref": "combat.qc:134",
+      "notes": "armor depletes first, then health takes the remainder.",
+      "props": {
+        "cap_rule": "if_save_gte_armorvalue_then_save_eq_armorvalue_armor_depleted",
+        "cap_source_ref": "combat.qc:135",
+        "remaining_damage_formula": "take_eq_ceil_damage_minus_save",
+        "remaining_source_ref": "combat.qc:143",
+        "absorb_pct_green": 0.3,
+        "absorb_pct_yellow": 0.6,
+        "absorb_pct_red": 0.8
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "constant",
+      "name": "rocket_jump_multiplier_default",
+      "value_numeric": 1,
+      "value_text": null,
+      "source_ref": "client.qc:517",
+      "notes": "rj=0 disables rocket jumping; rj=1 default; some servers set rj=2.",
+      "props": {
+        "scope": "worldspawn_default",
+        "gate": "infokey_rj",
+        "applies_to": "self_damage_knockback"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "constant",
+      "name": "sv_gravity_default",
+      "value_numeric": 800,
+      "value_text": null,
+      "source_ref": "world.qc:182",
+      "notes": "per-map override on e1m8 (boss fight). The cvar itself is tunable by the engine; this row captures the QC-side default set in worldspawn.",
+      "props": {
+        "scope": "worldspawn_default",
+        "cvar_name": "sv_gravity",
+        "e1m8_override": 100,
+        "e1m8_override_source_ref": "world.qc:180"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "deathtype_enum",
+      "value_numeric": null,
+      "value_text": "nail|supernail|rocket|falling|squish|selfwater|laser",
+      "source_ref": "weapons.qc:796",
+      "notes": "7 deathtypes total. There is NO \"ax\" deathtype (axe uses axhitme boolean at defs.qc:516, set at weapons.qc:52). There is NO \"grenade\" deathtype (grenade explosion goes through T_RadiusDamage which assigns \"rocket\" downstream). \"laser\" exists in misc.qc:319 (laser-trap entities).",
+      "props": {
+        "sources": {
+          "nail": "weapons.qc:796",
+          "supernail": "weapons.qc:843",
+          "rocket": "weapons.qc:389",
+          "falling": "client.qc:1145",
+          "squish": "plats.qc:114",
+          "selfwater": "weapons.qc:538",
+          "laser": "misc.qc:319"
+        },
+        "squish_additional_sites": [
+          "plats.qc:227",
+          "doors.qc:34",
+          "doors.qc:683"
+        ],
+        "no_grenade_deathtype": true,
+        "no_ax_deathtype": true,
+        "ax_uses_axhitme_boolean_instead": "defs.qc:516"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "exit_level_kill",
+      "value_numeric": 50000,
+      "value_text": null,
+      "source_ref": "client.qc:230",
+      "notes": "Distinct from telefrag despite the same 50000 damage. This is the rule\nthat kills you when you touch a trigger_changelevel brush on a server\nwith samelevel=2 (or samelevel=3 on non-start maps). Most servers running\nsingle-player maps in QW deathmatch enable this so randos can't advance\nthe map mid-match. The obituary reads attacker.classname=='trigger_changelevel'\n— same dispatch model as telefrag but different attacker class.\n",
+      "props": {
+        "trigger": "trigger_changelevel_touch_when_samelevel_eq_2_or_3",
+        "trigger_source_ref": "client.qc:228",
+        "gate_check_history": "ZOID_overloaded_samelevel_to_replace_original_quake_noexit",
+        "gate_history_source_ref": "client.qc:226",
+        "attacker_classname": "trigger_changelevel",
+        "attacker_classname_obit_source_ref": "client.qc:1489",
+        "no_deathtype_string": true,
+        "common_setting": "4on4_servers_running_single_player_maps_set_samelevel_to_2",
+        "observable_example": "jumping_into_end_of_level_teleporter_on_e1m2_in_4on4"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "friendly_fire_teamplay_0",
+      "value_numeric": null,
+      "value_text": "all_damage_applies",
+      "source_ref": "combat.qc:199",
+      "notes": "free-for-all.",
+      "props": {
+        "teamplay_value": 0
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "friendly_fire_teamplay_1",
+      "value_numeric": null,
+      "value_text": "same_team_damage_blocked",
+      "source_ref": "combat.qc:199",
+      "notes": "standard teamplay 1.",
+      "props": {
+        "teamplay_value": 1,
+        "condition": "targ_neq_attacker_AND_team_match_AND_team_nonempty"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "friendly_fire_teamplay_2",
+      "value_numeric": null,
+      "value_text": "same_team_damage_blocked_with_neg_frag_penalty",
+      "source_ref": "client.qc:1336",
+      "notes": "teamkill costs 1 frag.",
+      "props": {
+        "teamplay_value": 2,
+        "penalty_frags": -1
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "friendly_fire_teamplay_3",
+      "value_numeric": null,
+      "value_text": "same_team_damage_blocked",
+      "source_ref": "combat.qc:204",
+      "notes": "similar to 1; specific QW variant.",
+      "props": {
+        "teamplay_value": 3
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "death_rule",
+      "name": "telefrag",
+      "value_numeric": 50000,
+      "value_text": null,
+      "source_ref": "triggers.qc:334",
+      "notes": "Real telefrag: when a player teleports onto another player, an invisible\nteledeath entity is spawned at the destination and deals 50000 damage to\nwhoever's standing there. Pent has a special interaction: the teledeath2\npath at triggers.qc:343 routes the kill back to the would-be attacker\n(Satan's-power-deflects message), costing them a frag. No deathtype string\nis assigned; the obituary handler dispatches on attacker.classname.\n",
+      "props": {
+        "trigger": "teleport_destination_overlap",
+        "delivery": "teledeath_entity_T_Damage_50000",
+        "damage_sites": [
+          "triggers.qc:334",
+          "triggers.qc:337",
+          "triggers.qc:343",
+          "triggers.qc:351"
+        ],
+        "teleport_touch_source_ref": "triggers.qc:375",
+        "teledeath_obit_classes": [
+          "teledeath",
+          "teledeath2",
+          "teledeath3"
+        ],
+        "teledeath_obit_source_refs": {
+          "teledeath": "client.qc:1232",
+          "teledeath2": "client.qc:1244",
+          "teledeath3": "client.qc:1256"
+        },
+        "no_deathtype_string": true,
+        "attacker_classname_used_for_obit": true
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "dm_mode_rule",
+      "name": "dm2_rules",
+      "value_numeric": null,
+      "value_text": "respawn_30s_ammo_no_health_respawn",
+      "source_ref": "items.qc:411",
+      "notes": "classic deathmatch mode 2.",
+      "props": {
+        "ammo_respawn_seconds": 30,
+        "ammo_respawn_source_ref": "items.qc:868",
+        "no_health_respawn": true
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "dm_mode_rule",
+      "name": "dm3_rules",
+      "value_numeric": null,
+      "value_text": "15s_ammo_respawn",
+      "source_ref": "items.qc:872",
+      "notes": "half ammo respawn time.",
+      "props": {
+        "ammo_respawn_seconds": 15
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "dm_mode_rule",
+      "name": "dm4_rules",
+      "value_numeric": null,
+      "value_text": "octapower",
+      "source_ref": "client.qc:522",
+      "notes": "DM4 OctaPower preset. The 255-ammo block is gated by the worldspawn 'axe' infokey.",
+      "props": {
+        "start_health": 250,
+        "start_health_source_ref": "client.qc:541",
+        "start_armor_value": 200,
+        "start_armor_value_source_ref": "client.qc:539",
+        "start_armortype": 0.8,
+        "start_armortype_source_ref": "client.qc:540",
+        "spawn_invul_seconds": 3,
+        "spawn_invul_source_ref": "client.qc:544",
+        "loadout_axe_mode_off": {
+          "gate": "infokey_axe_eq_0",
+          "gate_source_ref": "client.qc:525",
+          "all_weapons_minus_gl": true,
+          "all_weapons_source_ref": "client.qc:531",
+          "start_ammo_all_types": 255,
+          "start_ammo_source_ref": "client.qc:527"
+        },
+        "loadout_axe_mode_on": {
+          "gate": "infokey_axe_neq_0",
+          "start_weapons": "shotgun_plus_axe_only",
+          "start_ammo": "default_25_shells",
+          "notes": "axe-mode DM4 inherits the same 250hp/200armor/3s-invul block but skips the 255-ammo + extra-weapons grant."
+        },
+        "quad_multiplier": 8,
+        "quad_multiplier_source_ref": "combat.qc:128",
+        "lg_water_self_damage": 4000,
+        "lg_water_source_ref": "weapons.qc:539",
+        "backpack_bonus_health": 10,
+        "backpack_bonus_source_ref": "items.qc:1475",
+        "bonus_health_threshold": 299,
+        "bonus_threshold_source_ref": "items.qc:1484"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "dm_mode_rule",
+      "name": "dm5_rules",
+      "value_numeric": null,
+      "value_text": "quadmachine",
+      "source_ref": "client.qc:548",
+      "notes": "DM5 Quadmachine preset.",
+      "props": {
+        "start_health": 200,
+        "start_health_source_ref": "client.qc:562",
+        "start_armor_value": 200,
+        "start_armor_value_source_ref": "client.qc:560",
+        "start_armortype": 0.8,
+        "start_armortype_source_ref": "client.qc:561",
+        "spawn_invul_seconds": 3,
+        "spawn_invul_source_ref": "client.qc:565",
+        "all_weapons": true,
+        "all_weapons_source_ref": "client.qc:553",
+        "start_ammo_nails": 80,
+        "start_ammo_nails_source_ref": "client.qc:549",
+        "start_ammo_shells": 30,
+        "start_ammo_shells_source_ref": "client.qc:550",
+        "start_ammo_rockets": 10,
+        "start_ammo_rockets_source_ref": "client.qc:551",
+        "start_ammo_cells": 30,
+        "start_ammo_cells_source_ref": "client.qc:552",
+        "ammo_respawn_seconds": 15,
+        "ammo_respawn_source_ref": "items.qc:872"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "crush_squish",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "plats.qc:114",
+      "notes": "damage value comes from the crushing entity (door/plat dmg field); often instakill if dmg unset. plats.qc:114 is the first concrete deathtype=\"squish\" assignment; client.qc:1268 is the obituary-check site (where the deathtype string is read), not where it's set.",
+      "props": {
+        "deathtype": "squish",
+        "delivery": "T_Damage_with_squish_dtype",
+        "squish_assigners": [
+          "plats.qc:114",
+          "plats.qc:227",
+          "doors.qc:34",
+          "doors.qc:683"
+        ],
+        "obituary_check_source_ref": "client.qc:1268"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "drowning",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "client.qc:797",
+      "notes": "12s grace, then 1s ticks scaling 2->4->6->8->10 dmg.",
+      "props": {
+        "grace_seconds": 12,
+        "grace_source_ref": "client.qc:466",
+        "air_refill_when_waterlevel_lt_3": true,
+        "air_refill_source_ref": "client.qc:790",
+        "starts_when": "air_finished_lt_time",
+        "starts_source_ref": "client.qc:793",
+        "damage_initial": 2,
+        "damage_increment_per_tick": 2,
+        "damage_cap": 10,
+        "damage_source_ref": "client.qc:797",
+        "tick_seconds": 1,
+        "tick_seconds_source_ref": "client.qc:801",
+        "biosuit_blocks": true,
+        "biosuit_source_ref": "client.qc:1089"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "fall_damage",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "client.qc:1146",
+      "notes": "flat 5 dmg above -650 velocity; water absorbs entirely.",
+      "props": {
+        "grace_velocity": -300,
+        "grace_velocity_source_ref": "client.qc:1139",
+        "damage_threshold_velocity": -650,
+        "damage_threshold_source_ref": "client.qc:1143",
+        "damage": 5,
+        "damage_source_ref": "client.qc:1146",
+        "water_absorbs": true,
+        "water_absorbs_source_ref": "client.qc:1141",
+        "deathtype": "falling"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "gib_threshold",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "player.qc:598",
+      "notes": "when health drops below -40 player explodes into gibs instead of ragdoll. Lives in player.qc, not client.qc.",
+      "props": {
+        "threshold_health": -40,
+        "models": [
+          "h_player",
+          "gib1",
+          "gib2",
+          "gib3"
+        ],
+        "models_source_ref": "player.qc:521",
+        "gib_function": "GibPlayer",
+        "gib_function_source_ref": "player.qc:600"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "lava",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "client.qc:825",
+      "notes": "ticks 5x more often than slime; biosuit only slows ticks (does NOT block).",
+      "props": {
+        "damage_per_tick_formula": "10_times_waterlevel",
+        "damage_source_ref": "client.qc:825",
+        "tick_seconds_default": 0.2,
+        "tick_seconds_default_source_ref": "client.qc:823",
+        "tick_seconds_with_biosuit": 1,
+        "tick_seconds_with_biosuit_source_ref": "client.qc:821",
+        "biosuit_blocks": false,
+        "biosuit_attenuates_via": "radsuit_finished_gt_time",
+        "biosuit_source_ref": "client.qc:820"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "slime",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "client.qc:833",
+      "notes": "biosuit fully blocks slime damage.",
+      "props": {
+        "damage_per_tick_formula": "4_times_waterlevel",
+        "damage_source_ref": "client.qc:833",
+        "tick_seconds": 1,
+        "tick_seconds_source_ref": "client.qc:832",
+        "biosuit_blocks": true,
+        "biosuit_source_ref": "client.qc:830"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "env_hazard",
+      "name": "trigger_hurt",
+      "value_numeric": null,
+      "value_text": null,
+      "source_ref": "triggers.qc:548",
+      "notes": "Damage-dealing brush placed by the mapper. self.dmg is per-instance: a void brush\nwith dmg=1000 instakills, a low-damage hazard area at default dmg=5 is just\nattrition. Unlike telefrag/exit_level_kill (50000 dmg), trigger_hurt damage goes\nthrough normal T_Damage so armor and pent both apply. There is no QC handler for\nengine-level out-of-world Z; instead, mappers put a trigger_hurt brush above the\nengine's hard Z floor to catch players first. This is what kills you when you\njump into the void on most maps.\n",
+      "props": {
+        "delivery": "hurt_touch_calls_T_Damage_with_self_dmg",
+        "damage_call_source_ref": "triggers.qc:553",
+        "default_damage": 5,
+        "default_damage_source_ref": "triggers.qc:571",
+        "damage_value_origin": "per_instance_set_by_mapper_in_entity_properties",
+        "retrigger_seconds": 1,
+        "retrigger_source_ref": "triggers.qc:553",
+        "applies_armor": true,
+        "applies_pent": true,
+        "common_uses": [
+          "void_brush_at_map_bottom",
+          "custom_hazard_areas",
+          "mapper_traps"
+        ],
+        "relation_to_engine_out_of_world_z": "well_built_maps_place_high_dmg_trigger_hurt_above_engine_z_floor_so_QC_path_runs_first"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "bbox_max",
+      "value_numeric": null,
+      "value_text": "16 16 32",
+      "source_ref": "defs.qc:330",
+      "notes": "VEC_HULL_MAX.",
+      "props": {
+        "vector": [
+          16,
+          16,
+          32
+        ]
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "bbox_min",
+      "value_numeric": null,
+      "value_text": "-16 -16 -24",
+      "source_ref": "defs.qc:329",
+      "notes": "VEC_HULL_MIN. Bounding box is engine-enforced.",
+      "props": {
+        "vector": [
+          -16,
+          -16,
+          -24
+        ]
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "knockback_factor",
+      "value_numeric": 8,
+      "value_text": null,
+      "source_ref": "combat.qc:171",
+      "notes": "knockback scales with damage. rj cvar multiplies self-damage knockback.",
+      "props": {
+        "formula": "velocity_plus_eq_dir_times_damage_times_8",
+        "rocket_jump_factor_via": "infokey_rj",
+        "rocket_jump_source_ref": "combat.qc:174"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "max_health",
+      "value_numeric": 100,
+      "value_text": null,
+      "source_ref": "client.qc:464",
+      "notes": "clamps health on pickup of normal/rotten.",
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "max_health_with_megahealth",
+      "value_numeric": 250,
+      "value_text": null,
+      "source_ref": "items.qc:220",
+      "notes": "megahealth allows health > max_health up to 250 then decays.",
+      "props": {
+        "decay_rule": "minus_1_hp_per_second_back_to_max_health",
+        "decay_rule_source_ref": "items.qc:343"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_ammo_cells",
+      "value_numeric": 0,
+      "value_text": null,
+      "source_ref": "client.qc:75",
+      "notes": null,
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_ammo_nails",
+      "value_numeric": 0,
+      "value_text": null,
+      "source_ref": "client.qc:73",
+      "notes": null,
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_ammo_rockets",
+      "value_numeric": 0,
+      "value_text": null,
+      "source_ref": "client.qc:74",
+      "notes": null,
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_ammo_shells",
+      "value_numeric": 25,
+      "value_text": null,
+      "source_ref": "client.qc:72",
+      "notes": null,
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_health",
+      "value_numeric": 100,
+      "value_text": null,
+      "source_ref": "client.qc:459",
+      "notes": "standard DM starting health.",
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "start_weapon_default",
+      "value_numeric": null,
+      "value_text": "shotgun_plus_axe",
+      "source_ref": "client.qc:69",
+      "notes": "parm1 = IT_SHOTGUN | IT_AXE (both items granted via bitmask OR on the same line).",
+      "props": {
+        "items_bitmask_source_ref": "client.qc:69"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "player_stat",
+      "name": "view_offset_z",
+      "value_numeric": 22,
+      "value_text": null,
+      "source_ref": "client.qc:502",
+      "notes": "eye height. Engine-side really; surfaced in QC default but often considered engine constant.",
+      "props": {
+        "view_ofs_vec": [
+          0,
+          0,
+          22
+        ]
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "powerup_behavior",
+      "name": "pent_invulnerability_mechanic",
+      "value_numeric": null,
+      "value_text": "invincible_finished_gte_time_returns_before_T_Damage_applies",
+      "source_ref": "combat.qc:184",
+      "notes": "implementation is full damage absorb (not partial).",
+      "props": {
+        "hit_sound": "items/protect3.wav",
+        "hit_sound_source_ref": "combat.qc:188"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "powerup_behavior",
+      "name": "quad_damage_multiplier",
+      "value_numeric": 4,
+      "value_text": null,
+      "source_ref": "combat.qc:130",
+      "notes": "door damage is NOT quaded. combat.qc:127 is the if(deathmatch==4) gate; line 128 is the *8 path; line 130 is the default *4 path.",
+      "props": {
+        "if_check_source_ref": "combat.qc:127",
+        "dm4_multiplier": 8,
+        "dm4_source_ref": "combat.qc:128",
+        "excludes_inflictor_classname": "door",
+        "exclusion_source_ref": "combat.qc:126"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "powerup_behavior",
+      "name": "ring_invisibility_mechanic",
+      "value_numeric": null,
+      "value_text": "modelindex_eyes_when_invisible_finished_gt_zero",
+      "source_ref": "client.qc:991",
+      "notes": "client modelindex swap; partial visibility threshold is engine-side.",
+      "props": {
+        "condition_source_ref": "client.qc:955"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "spawn_rule",
+      "name": "intermission_exit_delay",
+      "value_numeric": 5,
+      "value_text": null,
+      "source_ref": "client.qc:189",
+      "notes": "5-second wait after intermission before any player can advance.",
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "spawn_rule",
+      "name": "respawn_button_press",
+      "value_numeric": null,
+      "value_text": "respawn_on_button_press_after_DEAD_RESPAWNABLE",
+      "source_ref": "client.qc:728",
+      "notes": "id1 respawn requires +attack/+jump press; no auto-respawn timer.",
+      "props": {},
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "spawn_rule",
+      "name": "spawn_invul_default",
+      "value_numeric": 0,
+      "value_text": null,
+      "source_ref": "client.qc:471",
+      "notes": "no spawn invul in DM<=3. Line 470 in client.qc is invisible_finished=0; line 471 is invincible_finished=0.",
+      "props": {
+        "applies_when": "deathmatch_le_3"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "spawn_rule",
+      "name": "spawn_invul_dm4",
+      "value_numeric": 3,
+      "value_text": null,
+      "source_ref": "client.qc:544",
+      "notes": "3-second invul on spawn in OctaPower mode.",
+      "props": {
+        "applies_when": "deathmatch_eq_4"
+      },
+      "ruleset_gate": {}
+    },
+    {
+      "gameplay_source_id": "id1",
+      "kind": "spawn_rule",
+      "name": "spawn_invul_dm5",
+      "value_numeric": 3,
+      "value_text": null,
+      "source_ref": "client.qc:565",
+      "notes": "3-second invul on spawn in Quadmachine mode.",
+      "props": {
+        "applies_when": "deathmatch_eq_5"
+      },
+      "ruleset_gate": {}
+    }
+  ]
+}
