@@ -1,4 +1,6 @@
-# Add Quake Client — Phase 3.5 of Quake Dir Control
+# Add Quake Client — Phase 3.5b of Quake Dir Control
+
+> **PHASE SPLIT (2026-04-27 second-pass review):** This plan is Phase 3.5b — the bulk-import + fingerprinter feature work. Phase 3.5a (`docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`) MUST ship first. 3.5a is a pure information-architecture restructure that absorbs the standalone Clients tab into MyQuake → Domains → Clients; 3.5b builds the new flow inside the new IA. After 3.5a ships, this plan needs a pass-2 revision to absorb (a) the reviewer's F1-F14 findings from the 2026-04-27 second-pass review and (b) four open operator decisions (multi-quake-dir semantics, variant encoding decoupled from version key, release_cache channel modeling, primary-radio uses swap_active_version not reconcile_active_version). Do NOT execute this plan as currently written — it predates both the IA restructure and the F-series findings.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
