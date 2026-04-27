@@ -18,10 +18,13 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
 - [Slipgate SCHEMA.md for snapshot consumer interface](#slipgate-schemamd-for-snapshot-consumer-interface) — **NEW 2026-04-26.** Slipgate's snapshot consumer types (`RawVar`, `RawCommand`, `RawMacro`, etc.) live inline in `apps/slipgate-app/src/lib/config/loaders/ezquake.ts`. The shape is small and single-file today, but the upcoming UI arc surfacing version-arc badges / source_state pills / default_history timelines will benefit from a single typed contract doc paired with oracle's `apps/qw-oracle/docs/entity-types.md` (the producer-side equivalent). Defer until that UI arc starts; revisit if the inline types start to fragment.
-- [Phase 3.5a: Absorb Clients tab into MyQuake → Domains](#phase-35a-absorb-clients-tab-into-myquake--domains--clients) — **NEW 2026-04-27 (late afternoon).** IA restructure surfaced during the 3.5b second-pass review. Standalone Clients tab dissolves into a Clients sub-tab under MyQuake → Domains, sequenced before the 3.5b feature work. Plan at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. Pure relocation: no new components, no behavior changes, no Tauri command changes, no schema changes. ~1-2 hour fresh-terminal session. Tools tab stays separate (operator decision: not strictly Quake-only — FPS / sens / FOV calcs are general FPS-gamer tools).
+- [Phase 3.5a: IA restructure — split Clients tab into Feed + MyQuake → Domains → Clients](#phase-35a-absorb-clients-tab-into-myquake--domains--clients) — **NEW 2026-04-27 (late afternoon), EXPANDED 2026-04-27 (evening).** IA restructure surfaced during the 3.5b second-pass review. The standalone Clients tab dissolves into (a) a new top-level Feed tab hosting the extracted Updates section, and (b) a trimmed Clients sub-tab inside MyQuake → Domains keeping only Installation + Versions. Four sections dropped from the user-facing surface (Input, Video, Launch, Screenshot POC); code retained for future arcs. SideNav stays at 6 tabs (Schedule / Profile / Feed / Tools / MyQuake / Settings — Clients out, Feed in). Tools stays separate (general FPS-gamer tools, not Quake-only); Schedule stays as placeholder (matchscheduler integration parked). Plan at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. ~3-4 hour fresh-terminal session. Sequenced before Phase 3.5b.
 - [Add Quake Client / MyQuake unification — Phase 3.5b feature plan, pending pass-2 revision](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night, RESCOPED 2026-04-27 (afternoon + late afternoon).** This is now Phase 3.5b. Original plan at `docs/superpowers/plans/2026-04-26-add-quake-client.md` was first-pass revised 2026-04-27 afternoon (canonical-only naming + tier-ladder framing absorbed in commit `01e4081`); a pass-2 reviewer in a fresh terminal returned 14 findings (F1-F14). The plan needs a pass-2 revision to absorb (a) the F-series findings and (b) four open operator decisions: multi-quake-dir semantics (warehouse-only-without-claiming-primary leaning), variant encoding decoupled from version key (separate `variant: Option<String>` field on `WarehousedVersion`), release_cache channel modeling (per-channel files leaning), primary-radio uses `swap_active_version` not `reconcile_active_version` to honor user choice. F1 (entry-point ambiguity) dissolves under 3.5a's IA restructure; F2-F14 are still in scope for the pass-2 revision. Do NOT execute the plan as currently written — top-of-file note flags this. Sequenced AFTER 3.5a ships.
 - [Canonical-mode default for warehoused clients](#canonical-mode-default-for-warehoused-clients) — **NEW 2026-04-27, REFRAMED 2026-04-27 (afternoon).** Slipgate writes client binaries only at `<quake-dir>/<family>.exe`. No mode toggle, no opt-out. The earlier "default canonical with messy-mode opt-out" framing was dropped during the second-pass review session — canonical-only is now a *consequence* of the four-tier opt-in ladder (see new `project_slipgate_tier_ladder.md` memory and the "Tier 3 future arcs" entry below) rather than a contested default. Phase 3 already reverted to hardcoded `ezquake.exe` in `f6fe481`. Phase 3.5 plan needs the canonicalize-on-import flow embedded before execution.
 - [Tier 3 future arcs (clean-room migration + asset warehouse + bundle install)](#tier-3-future-arcs-clean-room-migration--asset-warehouse--bundle-install) — **NEW 2026-04-27 (afternoon).** Architectural realization captured during Phase 3.5 second-pass review: the warehouse + swap substrate Phase 2/3 shipped (content-addressed blobs + per-thing manifests + index + atomic-rename swap to canonical slot) generalizes from binaries to any content with identity + versions + canonical slot. Future arcs A/B/C/D — asset warehouse + 1-click texture-set switching, bundle install (slackers_tp / curated nQuake-style), fresh-install / clean-room migration, MyQuake → Domains → Bundles dashboard — all reuse the same primitive at parallel `<data-root>/<kind>/...` roots. Captured here so the framing isn't lost in the gap between Phase 3.5 ship and the first asset/bundle work. Pressure low; substrate is already in place.
+- [Feed tab future content](#feed-tab-future-content) — **NEW 2026-04-27 (evening).** The new Feed top-level tab created in Phase 3.5a hosts only Updates initially. Operator's intended Feed scope: the "what's happening in QW right now" surface — current/upcoming tournaments, developer landscape (active QW projects, recent commits / releases, project announcements), GitHub monitoring of the engine + tooling repos, possibly community announcements. Each future content type is its own arc with its own data source. Captured here so the framing isn't lost between 3.5a ship and the first Feed-content arc.
+- [Screenshot POC → Profile picture generator](#screenshot-poc-profile-picture-generator) — **NEW 2026-04-27 (evening).** The Screenshot POC section was dropped from the user-facing Clients-Domain surface in Phase 3.5a, but the underlying `screenshot.rs` Rust command stays callable. Future arc graduates the POC into Profile as a "Generate profile pictures" feature: 1 button generates 5 standardized screenshots from a slipgate-shipped demo file, all users see the same scene/map/point-in-time so flipping through profiles shows "different visuals depending on user's setup." Operator's stated end-goal. Profile already has placeholder slots for these screenshots.
+- [Tray menu launch](#tray-menu-launch) — **NEW 2026-04-27 (evening).** The Launch section (Server input + Join/Spec/Launch buttons) was dropped from the user-facing Clients-Domain surface in Phase 3.5a per VISION's "Not a game launcher" framing. If launch ever needs to come back (e.g. for the Profile screenshot-generator integration that needs slipgate to spawn ezQuake with specific args, or for any quick-join-from-anywhere UX), the natural home is the system tray menu (right-click → Launch / Join / Spec). Matches the "invisible until needed" tray-app philosophy and doesn't burn screen real estate. No active pressure to resurface.
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
@@ -431,35 +434,42 @@ Medium. Phase 3.5 plan revision is the immediate followup; this entry's reframe 
 
 ## Phase 3.5a: Absorb Clients tab into MyQuake → Domains → Clients
 
-**Added:** 2026-04-27 (late afternoon — surfaced during 3.5b second-pass review when entry-point ambiguity in the bulk-import flow exposed an underlying IA tension).
-**Status:** Plan ready for execution at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. Sequenced BEFORE Phase 3.5b. Pure information-architecture restructure; no behavior changes.
-**Verification first:** `grep -n "Clients" apps/slipgate-app/src/components/SideNav.tsx` should still show the standalone Clients tab today. After 3.5a ships, this should return zero hits in SideNav and instead show Clients as a Domain inside MyQuakeTab.tsx's Domains mode.
+**Added:** 2026-04-27 (late afternoon — surfaced during 3.5b second-pass review when entry-point ambiguity exposed an underlying IA tension). **Expanded:** 2026-04-27 (evening — operator added Feed-tab extraction + four-section drops after walking through the actual Clients-tab UI, screenshot 17:03).
+**Status:** Plan ready for execution at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. Sequenced BEFORE Phase 3.5b. Frontend restructure; no Rust changes; no schema changes.
+**Verification first:** `grep -n "Clients" apps/slipgate-app/src/components/SideNav.tsx` should still show the standalone Clients tab today. After 3.5a ships, SideNav contains Schedule / Profile / Feed / Tools / MyQuake / Settings (Clients out, Feed in); MyQuake → Domains has Clients sub-tab; dropped sections (Input, Video, Launch, Screenshot POC) are not visible anywhere.
 
-### The trigger
+### The triggers
 
-The 2026-04-27 second-pass review of the Phase 3.5b plan surfaced an entry-point contradiction: the plan said "Add Quake client" routes to MyQuake → Browse → Clients filter, but BrowseView is gated on `props.exePath` — meaning a Tier 1 → Tier 2 user (no exe configured yet) lands on a "Pick an ezQuake install in the Clients tab to browse its files" fallback. Circular dead-end.
+**Trigger 1 (afternoon):** The 2026-04-27 second-pass review of the Phase 3.5b plan surfaced an entry-point contradiction: the plan said "Add Quake client" routes to MyQuake → Browse → Clients filter, but BrowseView is gated on `props.exePath` — meaning a Tier 1 → Tier 2 user (no exe configured yet) lands on a "Pick an ezQuake install in the Clients tab to browse its files" fallback. Circular dead-end. The deeper question surfaced: where does client management actually belong in the app? Operator's reframe: "its my quake, my clients" — client management belongs inside MyQuake the same way Configs management already does.
 
-While discussing fixes, the deeper question surfaced: where does client management actually belong in the app? Today's Clients top-level tab + MyQuake top-level tab create cognitive overlap (both are "your quake setup"). Operator's reframe: "its my quake, my clients" — client management belongs inside MyQuake the same way Configs management already does.
+**Trigger 2 (evening):** Walking through the actual Clients-tab UI exposed that it has 7 sections, not the abbreviated count described in docs/OVERVIEW. Four of them don't belong in the new Clients-Domain home: Input + Video are redundant with Profile; Launch contradicts VISION's "Not a game launcher"; Screenshot POC is internal-only and graduates to Profile (profile-picture generator) when ready. Updates needs its own home — operator surfaced the Feed tab idea: a top-level "what's happening in QW right now" surface for tournaments + dev landscape + GitHub monitoring + Updates.
 
-### The decision
+### The decisions
 
-The standalone Clients tab dissolves into a Clients sub-tab inside MyQuake → Domains. The sidebar reduces from 6 tabs (Schedule / Profile / Tools / Clients / MyQuake / Settings) to 5 (Schedule / Profile / Tools / MyQuake / Settings). The Domains list becomes: Clients, Configs, Maps, Matches, Assets.
-
-**Tools stays separate** (operator clarification): FPS optimizer is Quake-specific but sens-recalc and FOV-recalc are general FPS-gamer tools, and future Tools additions might be non-Quake. Don't absorb Tools into MyQuake.
+1. **Standalone Clients tab dissolves.** Replaced by:
+   - **Feed (new top-level tab):** hosts the extracted Updates section. Future content (tournaments, dev landscape, GitHub monitoring) tracked in HANDOVER's "Feed tab future content" entry.
+   - **MyQuake → Domains → Clients (new Domain sub-tab):** hosts Installation + Versions only.
+2. **SideNav stays at 6 tabs:** Schedule / Profile / Feed / Tools / MyQuake / Settings (Clients out, Feed in).
+3. **Four sections dropped from surface:** Input, Video, Launch, Screenshot POC. Code retained in version control; future arcs may resurface them elsewhere.
+4. **Schedule stays as placeholder.** Matchscheduler website integration is parked until the app is closer to ship-ready (per VISION's "Partial: auth built, notifications planned" + operator confirmation 2026-04-27 evening).
+5. **Tools stays separate.** Not Quake-only — sens-recalc and FOV-recalc are general FPS-gamer tools.
 
 ### Why this is structurally right
 
 - **Matches the four-tier opt-in ladder.** MyQuake IS the surface for "your relationship to your quake dir." Browse mode = look at it; Domains mode = manage things in it. Clients-as-a-Domain joins Configs-as-a-Domain naturally.
-- **Eliminates two-tab cognitive overlap.** No more "for THIS thing I go to Clients, for THAT thing I go to MyQuake."
-- **Scales right with future Tier 3 arcs.** Bundle install, asset warehouse, texture-set switching all live in Domains. Clients alongside them = one navigation pattern, one UI grammar across all managed-content surfaces.
-- **The casual user with one client doesn't need a top-level tab dedicated to it.** A single, working ezQuake install just works via the Updater inside Domains → Clients; the surface stays out of the way until needed.
-- **Earns Profile's prominence.** 5-tab sidebar gives the right hierarchy: identity, setup, three utilities. Clients sitting between Tools and MyQuake felt like a peer when it was actually a sub-concern of MyQuake.
+- **Feed is the right home for "world activity."** Updates, tournaments, dev landscape, community announcements — all distinct from MyQuake (your local stuff) and Profile (you). Feed becomes the "what's happening in QW right now" surface.
+- **Drops the redundant overlap.** Input/Video duplicated Profile's mouse + specs surfaces. Launch contradicted VISION's "Not a game launcher." Removing them reduces cognitive surface area.
+- **Scales right with future Tier 3 arcs.** Bundle install, asset warehouse, texture-set switching all live in Domains alongside Clients. One navigation pattern, one UI grammar across all managed-content surfaces. Feed similarly scales for future external-content arcs (tournaments, dev landscape).
 
 ### Scope discipline (what's IN 3.5a)
 
-- Move `ClientsTab.tsx` content into MyQuake → Domains → Clients sub-tab (rename optional to `ClientsDomain.tsx`).
-- Drop Clients from SideNav.
-- Migrate App.tsx tab routing + persisted state.
+- Extract Updates section out of ClientsTab.tsx into a new `UpdatesPanel.tsx`.
+- Create new `FeedTab.tsx` containing Updates only (initial Feed content).
+- Rename `ClientsTab.tsx` → `ClientsDomain.tsx`, trimmed to Installation + Versions sections only.
+- Wire ClientsDomain into MyQuake → Domains → Clients sub-tab.
+- Wire FeedTab into SideNav + App.tsx routing.
+- Drop Input + Video + Launch + Screenshot POC sections from the surface (code retained per critical-context #17 in the plan).
+- Migrate App.tsx tab routing + persisted state (`activeTab="clients"` → `activeTab="myquake"` + Domain `"clients"`).
 - Verify nothing else broke (tsc / bun test / cargo build / Windows manual smoke).
 - Single commit, push to main.
 
@@ -470,18 +480,25 @@ The standalone Clients tab dissolves into a Clients sub-tab inside MyQuake → D
 - No VersionWarehouse component changes (Phase 3's shipped state stays).
 - No Browse-view changes.
 - No store schema changes.
-- No Rust changes (pure frontend refactor).
+- No Rust changes (pure frontend refactor; `screenshot.rs` Rust command stays callable even with no UI surface in 3.5a).
+- No Profile screenshot-generator integration (future arc).
+- No Schedule tab implementation (placeholder stays).
+- No Feed-future content (tournaments / dev landscape / GitHub monitoring — future arc).
 
 ### Pressure
 
-Medium-high. Phase 3.5b waits on this. ~1-2 hour fresh-terminal session.
+Medium-high. Phase 3.5b waits on this. ~3-4 hour fresh-terminal session (expanded from the original 1-2 hour estimate due to the Feed extraction + section drops).
 
 ### Related
 
 - Plan: `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md` (this phase)
 - Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5b — runs after this; pending pass-2 revision)
+- HANDOVER: "Feed tab future content" (the post-3.5a content arc)
+- HANDOVER: "Screenshot POC → Profile picture generator" (where the dropped Screenshot POC eventually graduates)
+- HANDOVER: "Tray menu launch" (where the dropped Launch section may eventually resurface)
 - Memory: `project_slipgate_tier_ladder.md` (the four-tier opt-in ladder framing this restructure embodies)
 - Reference: `apps/slipgate-app/docs/OVERVIEW.md` § The 6 tabs (current IA before 3.5a ships)
+- Reference: `apps/slipgate-app/VISION.md` § "Not a game launcher" (rationale for Launch drop)
 - Memory: `feedback_verify_typescript.md` (mandatory `bunx tsc --noEmit` for slipgate frontend changes)
 
 ---
@@ -626,6 +643,134 @@ Low for now. Phase 3.5 must ship before any of this. Items A and B are the natur
 - Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (parent multi-phase plan; Phases 0-3 shipped; Phase 3.5 wires the binary-domain consumer)
 - Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5 plan being revised)
 - Substrate code: `apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs`, `version_swap.rs`, `warehouse_reconcile.rs` (the modules future arcs parallel)
+
+---
+
+## Feed tab future content
+
+**Added:** 2026-04-27 (evening — surfaced when operator decided to extract the Updates section from the Clients tab into a new Feed tab during Phase 3.5a planning).
+**Status:** Future arcs; not Phase 3.5a scope. Phase 3.5a ships the Feed tab with only the extracted Updates section as initial content. This entry captures the operator's intended Feed scope so the framing isn't lost between 3.5a ship and the first Feed-content arc.
+**Verification first:** After 3.5a ships, `apps/slipgate-app/src/components/FeedTab.tsx` should exist and render only `<UpdatesPanel />`. No tournaments / dev landscape / GitHub monitoring surfaces.
+
+### What Feed is
+
+The "what's happening in QW right now" top-level surface. Distinct from MyQuake (your local quake stuff) and Profile (you). Conceptually a community + tooling activity feed — pulls in external data about Quake-world activity that isn't tied to the user's specific install.
+
+### Future content types (each is its own arc)
+
+**A. Tournaments.** Current + upcoming tournament data, probably consumed from hub.quake.world or a successor catalog. Eventually integrates with Schedule (your matches in scheduled tournaments). Out of scope until matchscheduler integration becomes a priority.
+
+**B. Developer landscape.** Active QW projects (engine forks, server mods, tooling, community sites) with recent activity. Could pull from GitHub for any project with a public repo: ezQuake, FTE, KTX, MVDSV, QWFWD, unezQuake, plus tooling repos like nQuake distfiles, QW Hub, qw-stats, this monorepo, etc. Surface "what shipped recently" / "who's actively committing" / "what's getting attention."
+
+**C. GitHub monitoring.** Subset of (B) but specifically the recent-releases and recent-commits firehose. Useful for "is there a new ezQuake snapshot since yesterday?" beyond the existing Updates section's per-project check. Could surface as a unified activity timeline.
+
+**D. Community announcements.** Possibly. Discord pin scrapes, forum thread highlights, anything moderated as "community-relevant news." Lower-priority because Discord is already where this happens; slipgate doesn't need to compete.
+
+### Operator's framing
+
+Direct quote 2026-04-27: "i would almost create a new entry poiint all together called Feed.. where we can pull in data about current running tournaments, and whats the dewveloper landscape, where we have this github monitoring of the active quake projects."
+
+### Pressure
+
+Low. Phase 3.5a ships the empty Feed shell with Updates inside. Future content arcs land independently when each data source has a clear shape and the operator wants to invest. No specific trigger for any of A/B/C/D yet.
+
+### Related
+
+- HANDOVER: "Phase 3.5a: Absorb Clients tab into MyQuake → Domains → Clients" (the phase that creates the Feed shell)
+- Memory: `project_slipgate_web_services_vision.md` (the assets/maps/hub.quake.world triad — adjacent ecosystem context, but Feed is a different surface from those catalogs; Feed pulls in activity, the catalogs serve content)
+- Memory: `project_slipgate_tier_ladder.md` (Feed is orthogonal to the four-tier ladder — visible at all tiers since it's external content, not local writes)
+
+---
+
+## Screenshot POC → Profile picture generator
+
+**Added:** 2026-04-27 (evening — surfaced when operator decided to drop the Screenshot POC section from the Clients-Domain surface during Phase 3.5a planning).
+**Status:** Future arc; not Phase 3.5a scope. Phase 3.5a removes the Screenshot POC section from the user-facing UI but leaves the `screenshot.rs` Rust command intact and callable. This entry captures the eventual graduation path.
+**Verification first:** After 3.5a ships, `grep -rn "capture_screenshot" apps/slipgate-app/src/` should return zero hits in the frontend (no UI calls the Rust command), but `apps/slipgate-app/src-tauri/src/commands/screenshot.rs` should still exist and `capture_screenshot` should still be registered in `lib.rs` handler block. Profile tab should still have its placeholder screenshot slots (per docs/OVERVIEW's Profile description).
+
+### The use case
+
+Profile pictures for slipgate users — generated from a shipped demo file with standardized scene / map / point-in-time, so flipping through profiles surfaces "different visuals, same scene" depending on each user's video setup (resolution, FOV, texture pack, conchars, HUD, etc.). 1-button-press generates 5 screenshots, replaces or augments the user's profile picture slots.
+
+Operator's stated end-goal 2026-04-27: "for profile pictures, we can press 1 button and it generates 5 screenshots. for all users i our app they will look the same, in terms of same map, point in time etc. from a demo we ship with the app. so when you flip through profiles its the same screenshots just different visuals, depending on users setup."
+
+### Why Profile is the right home
+
+- Output IS profile pictures. The action button should live where the result lives.
+- Profile tab already has placeholder slots for screenshots (per docs/OVERVIEW: "Output section — 'res @ Hz @ FOV' single-liner + screenshot placeholders").
+- Closes a feature loop the Profile tab has been signaling for months.
+- Alternative homes (MyQuake, Tools) don't fit: MyQuake is "your dir," Tools is for utilities, neither is "your identity."
+
+### Concrete shape (when it lands)
+
+- Profile tab gains a "Generate profile pictures" button near the existing screenshot slots.
+- Click → guard "is ezQuake running? close it first" → spawn ezQuake with the shipped demo file + slipgate's mailslot puppet IPC → seek to predefined timestamps → screenshot at each → quit ezQuake → write the 5 PNGs into the user's profile-picture cache → display in the slots.
+- Demo file ships with slipgate (small, GPL-clean, like a 30-second clip on a public-license map; e.g. operator picks a recreated scene from a famous match on dm3 or similar).
+- The 5 timestamps capture different scene types: weapon-up close, enemy-engagement, item-pickup, movement, map-overview. So the 5 screenshots collectively give a sense of how the user's full setup looks.
+
+### Preconditions
+
+- Screenshot POC graduates from "internal-only, hardcoded path" to a real feature (per memory `project_slipgate_screenshot_automation`). Today's blockers: hardcoded `C:/Users/Administrator/projects/slipgate-app/assets/screenshots`, fragile timing, untested-at-scale.
+- Demo file curation: pick the demo, ship it with slipgate, define the timestamps.
+- Profile-tab UI work: the placeholder slots become real, with affordances for replace / regenerate / clear.
+
+### Pressure
+
+Low for now. The screenshot POC works end-to-end on operator's box but isn't user-ready. Profile-picture generation is a polish feature; it shines when slipgate has more users and the profile-card display matters. Until then, parking is fine.
+
+### Related
+
+- HANDOVER: "Phase 3.5a: Absorb Clients tab into MyQuake → Domains → Clients" (the phase that drops Screenshot POC from Clients-Domain)
+- Memory: `project_slipgate_screenshot_automation` (the existing screenshot POC's design + current state)
+- Source: `apps/slipgate-app/src-tauri/src/commands/screenshot.rs` (the Rust command that stays in place)
+- Reference: `apps/slipgate-app/docs/OVERVIEW.md` § Profile tab (the screenshot placeholder slots that this feature fills)
+
+---
+
+## Tray menu launch
+
+**Added:** 2026-04-27 (evening — surfaced when operator decided to drop the Launch section from the Clients-Domain surface during Phase 3.5a planning).
+**Status:** Optional future arc; no specific trigger. Phase 3.5a removes the Launch section (Server input + Join / Spec / Launch buttons) from the user-facing UI per VISION's "Not a game launcher" framing. This entry captures the natural home if launch ever needs to come back.
+**Verification first:** After 3.5a ships, no UI in slipgate spawns ezQuake. Users launch via ezQuake's own desktop shortcut. The `launch_ezquake` Tauri command in `commands/ezquake.rs` stays callable but no frontend code invokes it (except possibly the future Screenshot POC integration when that ships).
+
+### Why Launch was dropped
+
+VISION explicitly: "Not a game launcher. ezQuake handles that. The app can launch ezQuake with arguments, but it does not try to replace the client." The Server-input + Join/Spec/Launch buttons in the Clients tab gave users a quick-connect surface but duplicated functionality available elsewhere (QW Hub website's quick-connect, future `qw://` URL handler, ezQuake's own console). Dropping it shrinks slipgate's responsibility surface to match the stated product positioning.
+
+### When this might come back
+
+Three plausible triggers:
+
+1. **Screenshot POC integration.** When the profile-picture generator ships (HANDOVER entry above), slipgate will need to spawn ezQuake with specific args (load demo, seek to timestamp, screenshot, quit). That uses the same `launch_ezquake` Rust command. If the user-facing surface for that is "click button in Profile," no tray-menu launch is needed; the button does it. If the architecture splits launch into a slipgate-managed surface, the tray menu becomes the home.
+
+2. **Quick-join-from-tray UX desire.** Operator could decide in the future that "right-click slipgate tray → Quick join → server-IP-input" is genuinely useful even though VISION says slipgate isn't a launcher. Tray menu fits "invisible until needed" — visible only when right-clicking the tray icon, doesn't burn UI real estate.
+
+3. **External "Launch in slipgate" deep links.** If hub.quake.world or assets.quake.world ships an "Open in slipgate" button (e.g. for "join this server" or "preview this asset"), slipgate needs an entry point that doesn't require navigating to a specific tab. Tray icon menu OR custom URL protocol handler are the options.
+
+### Why tray over re-adding to a tab
+
+- "Invisible until needed" matches slipgate's tray-app posture.
+- Doesn't compete with VISION's "not a launcher" framing because it's not a primary surface; it's a contextual menu attached to the always-visible tray icon.
+- Cheap to implement: Tauri v2 tray-menu plumbing already exists in `lib.rs` (per docs/OVERVIEW: "System tray — show/hide/quit menu, left-click toggles window, right-click menu"). Adding Launch / Join / Spec entries is a small extension.
+
+### Concrete shape (when it lands)
+
+- Tray right-click menu gains: separator → "Launch ezQuake" / "Join server..." / "Spectate server..."
+- "Launch ezQuake" — spawns the active version directly (no args).
+- "Join / Spectate server..." — opens a small input prompt for IP:PORT, then spawns with the appropriate args. Could reuse the `launch_ezquake` Rust command's existing options.
+- No version-picker in tray; launch always uses the active version (`index.json:active`).
+
+### Pressure
+
+None. No specific trigger. Capture this so the natural home is documented if any future need arises.
+
+### Related
+
+- HANDOVER: "Phase 3.5a: Absorb Clients tab into MyQuake → Domains → Clients" (the phase that drops Launch from Clients-Domain)
+- HANDOVER: "Screenshot POC → Profile picture generator" (one possible trigger for needing slipgate-side launch back)
+- Source: `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` (`launch_ezquake` — the command that stays callable)
+- Source: `apps/slipgate-app/src-tauri/src/lib.rs` (existing tray-menu plumbing)
+- Reference: `apps/slipgate-app/VISION.md` § "Not a game launcher" (the framing that justified the drop)
 
 ---
 
