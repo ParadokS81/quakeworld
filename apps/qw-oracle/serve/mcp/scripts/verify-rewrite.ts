@@ -35,11 +35,13 @@ function check(label: string, ok: boolean, detail?: string) {
 }
 
 const tools = await client.listTools();
-check('listTools returns 4 tools', tools.tools.length === 4, `got ${tools.tools.length}`);
+check('listTools returns 10 tools', tools.tools.length === 10, `got ${tools.tools.length}`);
 
-// 1. Case-fold lookup: the original miss (camelCase input, lowercased storage)
+// 1. Case-fold lookup: the original miss (camelCase input, lowercased storage).
+// Scoped to project=ezquake because the same cvar name now exists in fte too
+// (multi-project loading post-Phase 2d-bundle).
 const r1 = parse(
-  await client.callTool({ name: 'lookup_entity', arguments: { name: 'cl_deadbodyFilter' } }),
+  await client.callTool({ name: 'lookup_entity', arguments: { name: 'cl_deadbodyFilter', project: 'ezquake' } }),
 );
 check('lookup_entity case-fold cl_deadbodyFilter found', r1.results.length === 1 && r1.match_quality !== 'none');
 const e1 = r1.results[0] as Record<string, unknown>;
@@ -64,9 +66,10 @@ check('  - linked to concept:weapon-scripts',
   (e2.linked_concepts as string[]).includes('concept:weapon-scripts'),
   `got ${JSON.stringify(e2.linked_concepts)}`);
 
-// 3. Lookup a cvar with asset relations expected
+// 3. Lookup a cvar with asset relations expected. Scoped to project=ezquake
+// because baseskin also exists in qwcl + fte after multi-project loading.
 const r3 = parse(
-  await client.callTool({ name: 'lookup_entity', arguments: { name: 'baseskin' } }),
+  await client.callTool({ name: 'lookup_entity', arguments: { name: 'baseskin', project: 'ezquake' } }),
 );
 check('lookup_entity baseskin', r3.results.length === 1);
 const e3 = r3.results[0] as Record<string, unknown>;
@@ -116,6 +119,29 @@ const r8 = parse(
   await client.callTool({ name: 'lookup_entity', arguments: { name: 'definitely_not_a_cvar_xyz123' } }),
 );
 check('lookup_entity no-match returns match_quality=none', r8.match_quality === 'none' && r8.results.length === 0);
+
+// 9. Game-mechanics tools (added 2026-04-27, schema v14).
+{
+  const r = await client.callTool({ name: 'lookup_gameplay_entity', arguments: { name: 'rocket_launcher' } });
+  const text = (r.content as Array<{ type: string; text: string }>)[0].text;
+  const parsed = JSON.parse(text);
+  check('dispatcher: lookup_gameplay_entity rocket_launcher', parsed.found === true && parsed.entity.damage === 110);
+}
+{
+  const r = await client.callTool({ name: 'lookup_mechanic', arguments: { name: 'lava' } });
+  const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
+  check('dispatcher: lookup_mechanic lava', parsed.found === true && parsed.mechanic.kind === 'env_hazard');
+}
+{
+  const r = await client.callTool({ name: 'search_gameplay_entities', arguments: { kind: 'weapon', has_splash: true } });
+  const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
+  check('dispatcher: search_gameplay_entities splash weapons = 2', parsed.rows.length === 2);
+}
+{
+  const r = await client.callTool({ name: 'search_mechanics', arguments: { kind: 'env_hazard' } });
+  const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
+  check('dispatcher: search_mechanics env_hazard = 7', parsed.rows.length === 7);
+}
 
 await client.close();
 
