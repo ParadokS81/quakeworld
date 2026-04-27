@@ -76,8 +76,9 @@ def collect_handlers(names: str = "all") -> dict:
     """Lazy import handlers -- added one by one across Tasks 6-12.
     Returns dict[name, handler_instance] for the requested names (or all).
     """
+    from _handler_cvars import CvarsMvdsvHandler
     available: dict = {
-        # Tasks 6-12 will register handlers here as they ship.
+        "cvars": CvarsMvdsvHandler(),
     }
     if names == "all":
         return available

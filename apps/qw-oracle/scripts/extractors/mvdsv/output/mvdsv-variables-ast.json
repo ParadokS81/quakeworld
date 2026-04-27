@@ -1,0 +1,2663 @@
+{
+  "variables": [
+    {
+      "name": "allow_download",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 106,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_demos",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 112,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_maps",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 110,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_models",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 108,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_other",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 113,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_pakmaps",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 111,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_skins",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 107,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_sounds",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 109,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "city",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 179,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "example: \"Stockholm\""
+      }
+    },
+    {
+      "name": "coop",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 172,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "dont delete this variable - it used by mods"
+      }
+    },
+    {
+      "name": "coords",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 180,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "countrycode",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 178,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "example: \"se\""
+      }
+    },
+    {
+      "name": "deathmatch",
+      "ast": {
+        "default_value": "3",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 166,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "developer",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 62,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "show extra messages"
+      }
+    },
+    {
+      "name": "download_map_url",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 115,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "extralogname",
+      "ast": {
+        "default_value": "unset",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 56,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "no sv_ prefix? WTF!"
+      }
+    },
+    {
+      "name": "filterban",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 2022,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "frag_log_type",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 90,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fraglimit",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 160,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fs_cache",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/fs.c",
+        "source_line": 72,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "halflifebsp",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 188,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "hostname",
+      "ast": {
+        "default_value": "unnamed",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 176,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "example: \"QUAKE.SE KTX:28501\""
+      }
+    },
+    {
+      "name": "hostport",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 177,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "example: \"quake.se:28501\""
+      }
+    },
+    {
+      "name": "maxclients",
+      "ast": {
+        "default_value": "24",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 163,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxfps",
+      "ast": {
+        "default_value": "77",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 50,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "It actually should be called maxpps (max packets per second). It was serverinfo variable for quite long time, lets legolize it as cvar. Sad part is what we can't call it like sv_maxfps since clients relay on its name 'maxfps' already."
+      }
+    },
+    {
+      "name": "maxspectators",
+      "ast": {
+        "default_value": "8",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 164,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxvip_spectators",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 165,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 72,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "password for entering the game"
+      }
+    },
+    {
+      "name": "pausable",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 138,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pext_ezquake_verfortrans",
+      "ast": {
+        "default_value": "7814",
+        "flags_raw": "CVAR_NONE",
+        "flag_names": [
+          "CVAR_NONE"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 205,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_airstep",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": "OnChange_pm_airstep",
+        "source_file": "src/sv_phys.c",
+        "source_line": 64,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_bunnyspeedcap",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 61,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_ktjump",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 60,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_pground",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO|CVAR_ROM",
+        "flag_names": [
+          "CVAR_SERVERINFO",
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 65,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_rampjump",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 66,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "pm_slidefix",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 62,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qconsole_log_say",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_qconsolelogsay_var",
+        "source_file": "src/sv_main.c",
+        "source_line": 96,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qtv_maxstreams",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 26,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qtv_password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 27,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qtv_pendingtimeout",
+      "ast": {
+        "default_value": "5",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 28,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": "5  seconds must be enough"
+      }
+    },
+    {
+      "name": "qtv_sayenabled",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 29,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": "allow mod to override GameStarted() logic"
+      }
+    },
+    {
+      "name": "qtv_streamport",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 25,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qtv_streamtimeout",
+      "ast": {
+        "default_value": "45",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 30,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "45 seconds"
+      }
+    },
+    {
+      "name": "qwm_builddate",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3427,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_buildnum",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3425,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_fullname",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3423,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_homepage",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3428,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_name",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3422,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_platform",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3426,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qwm_version",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3424,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_builddate",
+      "ast": {
+        "default_value": "BUILD_DATE",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3419,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_buildnum",
+      "ast": {
+        "default_value": "unknown",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3417,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_fullname",
+      "ast": {
+        "default_value": "SERVER_FULLNAME",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3415,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_homepage",
+      "ast": {
+        "default_value": "SERVER_HOME_URL",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3420,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_name",
+      "ast": {
+        "default_value": "SERVER_NAME",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3414,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_platform",
+      "ast": {
+        "default_value": "QW_PLATFORM_SHORT",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3418,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qws_version",
+      "ast": {
+        "default_value": "SERVER_VERSION",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 3416,
+        "source_column": 16,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "rcon_password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 71,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "password for remote server commands"
+      }
+    },
+    {
+      "name": "registered",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 186,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "samelevel",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 170,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "dont delete this variable - it used by mods"
+      }
+    },
+    {
+      "name": "serverdemo",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO | CVAR_ROM",
+        "flag_names": [
+          "CVAR_SERVERINFO",
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 168,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "showdrop",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/net_chan.c",
+        "source_line": 81,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "showpackets",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/net_chan.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "skill",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 171,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "dont delete this variable - it used by mods"
+      }
+    },
+    {
+      "name": "spectator_password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 102,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "password for entering as a sepctator"
+      }
+    },
+    {
+      "name": "sv_accelerate",
+      "ast": {
+        "default_value": "10",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 50,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_admininfo",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_admininfo_var",
+        "source_file": "src/sv_main.c",
+        "source_line": 121,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_airaccelerate",
+      "ast": {
+        "default_value": "10",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 51,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_allowlastscores",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 126,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_antilag",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 53,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_antilag_no_pred",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "\"negative\" cvar so it doesn't show on serverinfo for no reason"
+      }
+    },
+    {
+      "name": "sv_antilag_projectiles",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 55,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_bigcoords",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 195,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_broadcast_enabled",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "SV_BroadcastEnabledOnChange",
+        "source_file": "src/sv_main.c",
+        "source_line": 145,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_broadcast_sender_validation_enabled",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 146,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_bspversion",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 189,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_cheats",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 25,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_crypt_rcon",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "use SHA1 for encryption of rcon_password and using timestamps Time in seconds during which in rcon command this encryption is valid (change only with master_rcon_password)."
+      }
+    },
+    {
+      "name": "sv_csqc_progname",
+      "ast": {
+        "default_value": "csprogs.dat",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 209,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_debug_antilag",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 80,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_debug_usercmd",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_debug_weapons",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 75,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_default_name",
+      "ast": {
+        "default_value": "unnamed",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 150,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoCacheSize",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 35,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoClearOld",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 37,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoDir",
+      "ast": {
+        "default_value": "demos",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "sv_demoDir_OnChange",
+        "source_file": "src/sv_demo.c",
+        "source_line": 38,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoDirAlt",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "sv_demoDir_OnChange",
+        "source_file": "src/sv_demo.c",
+        "source_line": 39,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoExtraNames",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 44,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoIdlefps",
+      "ast": {
+        "default_value": "10",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 41,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoMaxDirSize",
+      "ast": {
+        "default_value": "102400",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 36,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoMaxSize",
+      "ast": {
+        "default_value": "20480",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 43,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoPrefix",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 46,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoRegexp",
+      "ast": {
+        "default_value": "\\\\.mvd(\\\\.(gz|bz2|rar|zip))?$",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 52,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoSuffix",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 47,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demoUseCache",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 34,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demofps",
+      "ast": {
+        "default_value": "77",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 40,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demopings",
+      "ast": {
+        "default_value": "3",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 42,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_demotxt",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 48,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_downloadchunksperframe",
+      "ast": {
+        "default_value": "30",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 45,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_enable_cmd_minping",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 37,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_extlimits",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 202,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_forcenick",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 182,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_forcespec_onfull",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 142,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_friction",
+      "ast": {
+        "default_value": "4",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 58,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_getrealip",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 140,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_gravity",
+      "ast": {
+        "default_value": "800",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 46,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_hashpasswords",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 79,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_idlesleep",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 144,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_kicktop",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 124,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_kickuserinfospamcount",
+      "ast": {
+        "default_value": "300",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 40,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_kickuserinfospamtime",
+      "ast": {
+        "default_value": "3",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 39,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_loadentfiles",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 148,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": "loads .ent files by default if there"
+      }
+    },
+    {
+      "name": "sv_loadentfiles_dir",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 149,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": "check for .ent file in maps/sv_loadentfiles_dir first then just maps/"
+      }
+    },
+    {
+      "name": "sv_local_addr",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/net.c",
+        "source_line": 42,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_logdir",
+      "ast": {
+        "default_value": ".",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_logdir_var",
+        "source_file": "src/sv_main.c",
+        "source_line": 131,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_login",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_login.c",
+        "source_line": 39,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_login_web",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_login.c",
+        "source_line": 41,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_mapcheck",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 34,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxdownloadrate",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 143,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxlogsize",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 128,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxping",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 36,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxpitch",
+      "ast": {
+        "default_value": "80",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_sv_maxpitch",
+        "source_file": "src/sv_user.c",
+        "source_line": 107,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxrate",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 139,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxspeed",
+      "ast": {
+        "default_value": "320",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 48,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxtic",
+      "ast": {
+        "default_value": "0.1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 49,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "physics time tic"
+      }
+    },
+    {
+      "name": "sv_maxuploadsize",
+      "ast": {
+        "default_value": "1048576",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 42,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_maxvelocity",
+      "ast": {
+        "default_value": "2000",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 44,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_minping",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 35,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_minpitch",
+      "ast": {
+        "default_value": "-70",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_sv_minpitch",
+        "source_file": "src/sv_user.c",
+        "source_line": 108,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_mintic",
+      "ast": {
+        "default_value": "0.013",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 48,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "bound the size of the"
+      }
+    },
+    {
+      "name": "sv_mod_extensions",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 58,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_mod_msg_file",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_NONE",
+        "flag_names": [
+          "CVAR_NONE"
+        ],
+        "on_change": "sv_mod_msg_file_OnChange",
+        "source_file": "src/sv_main.c",
+        "source_line": 153,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_nailhack",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_ents.c",
+        "source_line": 37,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_onDemoRemove",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 51,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_onRecordFinish",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 49,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_paused",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 174,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_pext_mvdsv_serversideweapon",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 199,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_phs",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 137,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_pr2references",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/pr2_exec.c",
+        "source_line": 36,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_progsname",
+      "ast": {
+        "default_value": "qwprogs",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/pr_edict.c",
+        "source_line": 81,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_progtype",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/pr2_exec.c",
+        "source_line": 33,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_rconlim",
+      "ast": {
+        "default_value": "10",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 83,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "rcon bandwith limit: requests per second"
+      }
+    },
+    {
+      "name": "sv_reconnectlimit",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 118,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_registrationinfo",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 183,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "text shown before \"enter login\""
+      }
+    },
+    {
+      "name": "sv_reliable_sound",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 155,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_safestrafe",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 67,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_sayteam_to_spec",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 33,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_serveme_fix",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 192,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_serverip",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 141,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_silentrecord",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_demo.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_specprint",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 117,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_spectalk",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 32,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_spectatormaxspeed",
+      "ast": {
+        "default_value": "500",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 49,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_speedcheck",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 133,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_stopspeed",
+      "ast": {
+        "default_value": "100",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 47,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_timestamplen",
+      "ast": {
+        "default_value": "60",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 82,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_unfake",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 123,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "bliP: 24/9 kickfake to unfake"
+      }
+    },
+    {
+      "name": "sv_use_dns",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 101,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_voip",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 50,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_voip_echo",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_voip_record",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_user.c",
+        "source_line": 52,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_wateraccelerate",
+      "ast": {
+        "default_value": "10",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 57,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_waterfriction",
+      "ast": {
+        "default_value": "4",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_phys.c",
+        "source_line": 59,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_www_address",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/central.c",
+        "source_line": 18,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_www_authkey",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/central.c",
+        "source_line": 19,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sv_www_checkin_period",
+      "ast": {
+        "default_value": "60",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/central.c",
+        "source_line": 20,
+        "source_column": 15,
+        "storage_class": "static",
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_command_line",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 99,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_extrasleep",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 27,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_nostdout",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 26,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_restart_on_error",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 57,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_select_timeout",
+      "ast": {
+        "default_value": "10000",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_sysselecttimeout_var",
+        "source_file": "src/sv_main.c",
+        "source_line": 55,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "microseconds."
+      }
+    },
+    {
+      "name": "sys_simulation",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 61,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "sys_sleep",
+      "ast": {
+        "default_value": "8",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_sys_win.c",
+        "source_line": 29,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "teamplay",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 162,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "telnet_log_level",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "0",
+        "flag_names": [],
+        "on_change": "OnChange_telnetloglevel_var",
+        "source_file": "src/sv_main.c",
+        "source_line": 87,
+        "source_column": 9,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "timelimit",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 161,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "timeout",
+      "ast": {
+        "default_value": "65",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 66,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "seconds without any message"
+      }
+    },
+    {
+      "name": "version",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_ROM",
+        "flag_names": [
+          "CVAR_ROM"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 63,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "vip_password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 103,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "password for entering as a VIP sepctator"
+      }
+    },
+    {
+      "name": "vip_values",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 104,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "vm_rtChecks",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/vm.c",
+        "source_line": 200,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "watervis",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 167,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "zombietime",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/sv_main.c",
+        "source_line": 67,
+        "source_column": 8,
+        "storage_class": null,
+        "trailing_comment": "seconds to sink messages after disconnect"
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 184,
+    "count": 183,
+    "with_flags": 44,
+    "with_onchange": 12,
+    "with_trailing_comment": 29
+  }
+}
