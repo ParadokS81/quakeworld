@@ -10,7 +10,11 @@ import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchSolvedIssues } from './tools/search-solved-issues.ts';
 import { getConceptNote } from './tools/get-concept-note.ts';
 import { searchEntities } from './tools/search-entities.ts';
+import { lookupMap } from './tools/lookup-map.ts';
+import { searchMaps } from './tools/search-maps.ts';
+import { knowledgeDb } from './db.ts';
 import type { EntityType } from './types.ts';
+import type { SearchMapsArgs } from './tools/search-maps.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> concept-notes
@@ -37,7 +41,7 @@ console.error(
 const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
 
 const server = new Server(
-  { name: 'qw-oracle', version: '0.2.0' },
+  { name: 'qw-oracle', version: '0.3.0' },
   { capabilities: { tools: {} } },
 );
 
@@ -138,6 +142,70 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ['query'],
       },
     },
+    {
+      name: 'lookup_map',
+      description:
+        'Look up a QuakeWorld map by canonical name (case-insensitive). Returns rich Layer 1 record: display name, author (when known), BSP version + size + hash, full worldspawn property dump, every entity-classname count, normalized item summary (RA/YA/GA/mh/h25/h15/quad/pent/ring/bio/SSG/NG/SNG/GL/RL/LG/cells/rockets/spikes/shells), spawn-point counts (dm/team1/team2/coop/start/intermission), feature flags (teleporter count, has_water/has_lava/has_slime), referenced WAD textures, inferred gamemodes (1on1/2on2/4on4/ffa from popularity + spawn-count fallback), and popularity stats from stats.quakeworld.nu. Use this when you have a specific map name. For "what map has X" or "maps without X" questions, use search_maps instead.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'Map canonical name (file basename without .bsp), e.g. dm3, aerowalk, povdmm4. Case-insensitive.',
+          },
+        },
+        required: ['name'],
+      },
+    },
+    {
+      name: 'search_maps',
+      description:
+        'Filter QuakeWorld maps by item layout, features, gamemode, popularity, or player capacity. Returns compact rows ordered by popularity rank. Use this for questions like "maps without lightning gun" (lacks_weapon: [lg]), "4on4 maps with quad" (gamemode: 4on4, has_powerup: [quad]), "small 1on1 maps" (gamemode: 1on1, max_dm_spawns: 4), "maps with lava" (has_lava: true). For full record details on a single map, follow up with lookup_map.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          has_weapon: {
+            type: 'array',
+            items: { type: 'string', enum: ['ssg', 'ng', 'sng', 'gl', 'rl', 'lg'] },
+            description: 'Match maps that contain ALL listed weapons. Item codes: ssg (super shotgun), ng (nailgun), sng (super nailgun), gl (grenade launcher), rl (rocket launcher), lg (lightning gun).',
+          },
+          lacks_weapon: {
+            type: 'array',
+            items: { type: 'string', enum: ['ssg', 'ng', 'sng', 'gl', 'rl', 'lg'] },
+            description: 'Match maps that contain NONE of the listed weapons.',
+          },
+          has_powerup: {
+            type: 'array',
+            items: { type: 'string', enum: ['quad', 'pent', 'ring', 'bio'] },
+            description: 'Match maps that contain ALL listed powerups. quad=quad damage, pent=pentagram of protection, ring=ring of shadows, bio=biosuit.',
+          },
+          lacks_powerup: {
+            type: 'array',
+            items: { type: 'string', enum: ['quad', 'pent', 'ring', 'bio'] },
+            description: 'Match maps that contain NONE of the listed powerups.',
+          },
+          has_armor: {
+            type: 'array',
+            items: { type: 'string', enum: ['ra', 'ya', 'ga'] },
+            description: 'Match maps that contain ALL listed armors. ra=red armor, ya=yellow armor, ga=green armor.',
+          },
+          has_water:       { type: 'boolean', description: 'Match maps that contain water (true) or maps without water (false).' },
+          has_lava:        { type: 'boolean', description: 'Match maps that contain lava (true) or maps without lava (false).' },
+          has_slime:       { type: 'boolean', description: 'Match maps that contain slime/acid (true) or maps without slime (false).' },
+          has_teleporters: { type: 'boolean', description: 'Match maps that have at least one teleporter (true) or no teleporters (false).' },
+          gamemode: {
+            type: 'string',
+            enum: ['1on1', '2on2', '4on4', 'ffa'],
+            description: 'Match maps that are popular (or have appropriate spawn count) in this gamemode.',
+          },
+          min_popularity_rank: { type: 'number', description: 'Minimum popularity rank (1 = most popular). Use with max_popularity_rank for ranges.' },
+          max_popularity_rank: { type: 'number', description: 'Maximum popularity rank. Use 50 to limit to top-50 maps.' },
+          min_dm_spawns:       { type: 'number', description: 'Minimum count of info_player_deathmatch entities. Higher = larger maps.' },
+          max_dm_spawns:       { type: 'number', description: 'Maximum count of info_player_deathmatch entities. 4 or fewer = small 1on1 layouts.' },
+          limit:               { type: 'number', description: 'Max results to return. Default 25, max 100.' },
+        },
+      },
+    },
   ],
 }));
 
@@ -166,6 +234,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     case 'get_concept_note': {
       const response = getConceptNote(args as { id: string }, conceptStore);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'lookup_map': {
+      const response = lookupMap(knowledgeDb, args as { name: string });
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    }
+    case 'search_maps': {
+      const response = searchMaps(knowledgeDb, args as SearchMapsArgs);
       return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
     }
     default:
