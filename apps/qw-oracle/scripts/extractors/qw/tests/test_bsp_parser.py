@@ -89,6 +89,9 @@ def test_summarize_map_aerowalk_normalized_items():
     assert items['ng'] == 0
     assert items['quad'] == 0
     assert items['pent'] == 0
+    assert items['mh'] == 1   # one megahealth (item_health spawnflags=2)
+    assert items['h15'] == 0
+    assert items['h25'] == 8  # eight rotting healths (default spawnflags)
     spawns = summary['spawn_summary']
     assert spawns['dm'] == 6
     features = summary['features']
