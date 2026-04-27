@@ -792,7 +792,18 @@ mechanics:
         condition_source_ref: client.qc:955
       notes: client modelindex swap; partial visibility threshold is engine-side.
   armor_models:
-  # (filled by Task 11) - 1 row
+    - name: armor_absorb_formula
+      value_text: save_eq_ceil_armortype_times_damage
+      source_ref: combat.qc:134
+      props:
+        cap_rule: if_save_gte_armorvalue_then_save_eq_armorvalue_armor_depleted
+        cap_source_ref: combat.qc:135
+        remaining_damage_formula: take_eq_ceil_damage_minus_save
+        remaining_source_ref: combat.qc:143
+        absorb_pct_green: 0.3
+        absorb_pct_yellow: 0.6
+        absorb_pct_red: 0.8
+      notes: armor depletes first, then health takes the remainder.
   death_rules:
   # (filled by Task 12) - 7 rows (telefrag/exit_level_kill split + 4 friendly_fire + deathtype_enum)
   spawn_rules:
