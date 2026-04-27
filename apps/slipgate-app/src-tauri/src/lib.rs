@@ -51,6 +51,9 @@ pub fn run() {
             commands::version_swap::swap_active_version,
             commands::version_swap::delete_warehoused_version,
             commands::warehouse_reconcile::reconcile_active_version,
+            commands::client_fingerprint::fingerprint_exe,
+            commands::client_fingerprint::fingerprint_folder,
+            commands::client_fingerprint::scan_clients_in_dir,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())
