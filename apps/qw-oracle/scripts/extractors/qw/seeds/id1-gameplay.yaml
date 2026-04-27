@@ -1,0 +1,60 @@
+# id1 baseline game mechanics for QuakeWorld.
+#
+# Source: research/repos/qwcl-original/QW/progs/ (canonical QW gamecode).
+# Every row carries source_ref of the form "<file>:<line>" pointing into the
+# canonical source. See apps/qw-oracle/docs/game-mechanics-preplan.md
+# Appendix A for the primary-source inventory this YAML is built from.
+#
+# Loader: apps/qw-oracle/scripts/load-knowledge/load-gameplay.ts
+# Schema:  gameplay_sources / gameplay_entity_defs / gameplay_mechanics
+#          (v14, 2026-04-27).
+#
+# Ruleset gating: id1 baseline rows leave ruleset_gate_json empty (loader
+# defaults to '{}'). Cvar-driven differences (DM3 ammo respawn, DM4 starting
+# loadout, etc.) are encoded as separate rows in gameplay_mechanics.dm_mode_rule
+# rather than as gates on the affected entity rows; this keeps weapon/item/
+# projectile rows clean and lets clients filter dm-mode behavior in one place.
+
+gameplay_source:
+  id: id1
+  display_name: id1 (vanilla QuakeWorld)
+  description: >
+    Canonical QuakeWorld gamecode shipped with the original QW source release.
+    Frozen baseline that every mod (KTX, clan-arena, freshteam, etc.) inherits
+    from. Source files at research/repos/qwcl-original/QW/progs/.
+  source_root: research/repos/qwcl-original/QW/progs/
+  notes: >
+    Engine-side constants (sv_maxspeed=320, friction=4, accelerate=10,
+    stopspeed=100, edgefriction=2) live in the cvars table once each engine's
+    extraction picks them up; not loaded into gameplay_mechanics.
+
+# Cluster 1: weapons (8 rows)
+weapons:
+# (filled by Task 4)
+
+# Cluster 2: projectiles (4 rows)
+projectiles:
+# (filled by Task 5)
+
+# Cluster 3: items (25 rows: 3 health + 3 armor + 4 powerups + 8 ammo + 6 weapon-pickups + 1 backpack)
+items:
+# (filled by Tasks 6a-6f)
+
+# Cluster 4: mechanics (41 rows total)
+mechanics:
+  constants:
+  # (filled by Task 7) - 2 rows (sv_gravity_default, rocket_jump_multiplier_default)
+  env_hazards:
+  # (filled by Task 8) - 7 rows (incl. trigger_hurt void-brush mechanic)
+  player_stats:
+  # (filled by Task 9) - 12 rows
+  powerup_behaviors:
+  # (filled by Task 10) - 3 rows
+  armor_models:
+  # (filled by Task 11) - 1 row
+  death_rules:
+  # (filled by Task 12) - 7 rows (telefrag/exit_level_kill split + 4 friendly_fire + deathtype_enum)
+  spawn_rules:
+  # (filled by Task 13) - 5 rows
+  dm_mode_rules:
+  # (filled by Task 14) - 4 rows
