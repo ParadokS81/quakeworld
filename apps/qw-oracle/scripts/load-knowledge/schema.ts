@@ -1251,7 +1251,7 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 / v5 / v6 / v12 additions are idempotent CREATE IF NOT EXISTS --
+  // v2 / v3 / v4 / v5 / v6 / v12 / v13 additions are idempotent CREATE IF NOT EXISTS --
   // safe on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
