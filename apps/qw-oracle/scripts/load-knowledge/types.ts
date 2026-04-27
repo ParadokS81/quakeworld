@@ -265,6 +265,29 @@ export interface ProtocolMessageEntry {
   ast: ProtocolMessageAstBlock | null;
 }
 
+// --- Phase 2e MVDSV: info_key ----------------------------------------------
+// MVDSV-specific info-string keys read from / written to the userinfo,
+// serverinfo, or localinfo dictionaries. The CHECK constraint on
+// info_key_versions.scope restricts scope to those three values.
+
+export interface InfoKeyAstBlock {
+  scope: 'userinfo' | 'serverinfo' | 'localinfo';
+  operations: ('read' | 'write' | 'remove')[];
+  source_file: string | null;
+  source_line: number | null;
+  containing_function: string | null;
+  all_call_sites: {
+    source_file: string | null;
+    source_line: number | null;
+    operation: 'read' | 'write' | 'remove';
+  }[];
+}
+
+export interface InfoKeyEntry {
+  name: string;
+  ast: InfoKeyAstBlock | null;
+}
+
 export interface EntityRow {
   project: Project;
   type: EntityType;
@@ -338,6 +361,24 @@ export interface ProtocolMessageVersionRow {
   source_file: string | null;
   source_line: number | null;
   trailing_comment: string | null;
+  raw_ast_hash: string | null;
+  source_root: string | null;
+  extracted_at: string;
+}
+
+export interface InfoKeyVersionRow {
+  entity_id: number;
+  version: string;
+  // CHECK-constrained at the schema level (userinfo/serverinfo/localinfo);
+  // doc_only rows would have no ast, but isSourceBacked filters those out
+  // before this row builds, so scope is always one of the three valid values
+  // in practice.
+  scope: string;
+  operations: string | null;            // JSON-stringified array of read/write/remove
+  source_file: string | null;
+  source_line: number | null;
+  containing_function: string | null;
+  call_sites_json: string | null;       // JSON-stringified [{source_file, source_line, operation}]
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;

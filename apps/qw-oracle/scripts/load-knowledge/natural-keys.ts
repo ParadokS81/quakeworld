@@ -19,6 +19,7 @@ import type {
   EntityType,
   FlagBitVersionRow,
   HudElementVersionRow,
+  InfoKeyVersionRow,
   KeynameVersionRow,
   MacroVersionRow,
   Project,
@@ -233,6 +234,20 @@ export function upsertProtocolMessageVersion(db: Database.Database, row: Protoco
     ) VALUES (
       @entity_id, @version, @kind, @value, @value_kind,
       @source_file, @source_line, @trailing_comment,
+      @raw_ast_hash, @source_root, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertInfoKeyVersion(db: Database.Database, row: InfoKeyVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO info_key_versions (
+      entity_id, version, scope, operations,
+      source_file, source_line, containing_function, call_sites_json,
+      raw_ast_hash, source_root, extracted_at
+    ) VALUES (
+      @entity_id, @version, @scope, @operations,
+      @source_file, @source_line, @containing_function, @call_sites_json,
       @raw_ast_hash, @source_root, @extracted_at
     )
   `).run(row);

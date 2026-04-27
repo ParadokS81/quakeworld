@@ -91,6 +91,12 @@ import {
   protocolMessageIsSourceBacked,
   upsertProtocolMessageRow,
 } from './load-protocol-messages.js';
+import {
+  INFO_KEY_PAYLOAD_FIELD,
+  buildInfoKeyVersionRow,
+  infoKeyIsSourceBacked,
+  upsertInfoKeyRow,
+} from './load-info-keys.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
@@ -152,9 +158,10 @@ interface TypeAdapter {
   ) => SourceOverrideRow[];
 }
 
-// Partial: protocol_message / info_key / log_template / qc_builtin adapters
-// land in Tasks 14-17 (load-protocol-messages.ts etc.). Until then the
-// missing-adapter branch in loadVersion throws a clear error.
+// Partial: log_template / qc_builtin adapters land in Tasks 16-17. Until
+// then the missing-adapter branch in loadVersion throws a clear error.
+// Task 17 reverts this to the non-Partial form once all four MVDSV
+// types have adapters.
 const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
   cvar: {
     payloadField: CVAR_PAYLOAD_FIELD,
@@ -242,6 +249,13 @@ const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
     isSourceBacked: protocolMessageIsSourceBacked,
     buildRow: buildProtocolMessageVersionRow,
     upsertRow: upsertProtocolMessageRow,
+  },
+  info_key: {
+    payloadField: INFO_KEY_PAYLOAD_FIELD,
+    versionsTable: 'info_key_versions',
+    isSourceBacked: infoKeyIsSourceBacked,
+    buildRow: buildInfoKeyVersionRow,
+    upsertRow: upsertInfoKeyRow,
   },
 };
 
