@@ -685,7 +685,86 @@ mechanics:
         engine's hard Z floor to catch players first. This is what kills you when you
         jump into the void on most maps.
   player_stats:
-  # (filled by Task 9) - 12 rows
+    - name: start_health
+      value_numeric: 100
+      source_ref: client.qc:459
+      props: {}
+      notes: standard DM starting health.
+
+    - name: max_health
+      value_numeric: 100
+      source_ref: client.qc:464
+      props: {}
+      notes: clamps health on pickup of normal/rotten.
+
+    - name: max_health_with_megahealth
+      value_numeric: 250
+      source_ref: items.qc:220
+      props:
+        decay_rule: minus_1_hp_per_second_back_to_max_health
+        decay_rule_source_ref: items.qc:343
+      notes: megahealth allows health > max_health up to 250 then decays.
+
+    - name: start_ammo_shells
+      value_numeric: 25
+      source_ref: client.qc:72
+      props: {}
+      notes: null
+
+    - name: start_ammo_nails
+      value_numeric: 0
+      source_ref: client.qc:73
+      props: {}
+      notes: null
+
+    - name: start_ammo_rockets
+      value_numeric: 0
+      source_ref: client.qc:74
+      props: {}
+      notes: null
+
+    - name: start_ammo_cells
+      value_numeric: 0
+      source_ref: client.qc:75
+      props: {}
+      notes: null
+
+    - name: start_weapon_default
+      value_text: shotgun_plus_axe
+      source_ref: client.qc:69
+      props:
+        items_bitmask_source_ref: client.qc:69
+      notes: parm1 = IT_SHOTGUN | IT_AXE (both items granted via bitmask OR on the same line).
+
+    - name: view_offset_z
+      value_numeric: 22
+      source_ref: client.qc:502
+      props:
+        view_ofs_vec: [0, 0, 22]
+      notes: eye height. Engine-side really; surfaced in QC default but often considered engine constant.
+
+    - name: bbox_min
+      value_text: "-16 -16 -24"
+      source_ref: defs.qc:329
+      props:
+        vector: [-16, -16, -24]
+      notes: VEC_HULL_MIN. Bounding box is engine-enforced.
+
+    - name: bbox_max
+      value_text: "16 16 32"
+      source_ref: defs.qc:330
+      props:
+        vector: [16, 16, 32]
+      notes: VEC_HULL_MAX.
+
+    - name: knockback_factor
+      value_numeric: 8
+      source_ref: combat.qc:171
+      props:
+        formula: velocity_plus_eq_dir_times_damage_times_8
+        rocket_jump_factor_via: infokey_rj
+        rocket_jump_source_ref: combat.qc:174
+      notes: knockback scales with damage. rj cvar multiplies self-damage knockback.
   powerup_behaviors:
   # (filled by Task 10) - 3 rows
   armor_models:
