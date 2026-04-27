@@ -581,7 +581,109 @@ mechanics:
         applies_to: self_damage_knockback
       notes: rj=0 disables rocket jumping; rj=1 default; some servers set rj=2.
   env_hazards:
-  # (filled by Task 8) - 7 rows (incl. trigger_hurt void-brush mechanic)
+    - name: lava
+      source_ref: client.qc:825
+      props:
+        damage_per_tick_formula: 10_times_waterlevel
+        damage_source_ref: client.qc:825
+        tick_seconds_default: 0.2
+        tick_seconds_default_source_ref: client.qc:823
+        tick_seconds_with_biosuit: 1
+        tick_seconds_with_biosuit_source_ref: client.qc:821
+        biosuit_blocks: false
+        biosuit_attenuates_via: radsuit_finished_gt_time
+        biosuit_source_ref: client.qc:820
+      notes: ticks 5x more often than slime; biosuit only slows ticks (does NOT block).
+
+    - name: slime
+      source_ref: client.qc:833
+      props:
+        damage_per_tick_formula: 4_times_waterlevel
+        damage_source_ref: client.qc:833
+        tick_seconds: 1
+        tick_seconds_source_ref: client.qc:832
+        biosuit_blocks: true
+        biosuit_source_ref: client.qc:830
+      notes: biosuit fully blocks slime damage.
+
+    - name: drowning
+      source_ref: client.qc:797
+      props:
+        grace_seconds: 12
+        grace_source_ref: client.qc:466
+        air_refill_when_waterlevel_lt_3: true
+        air_refill_source_ref: client.qc:790
+        starts_when: air_finished_lt_time
+        starts_source_ref: client.qc:793
+        damage_initial: 2
+        damage_increment_per_tick: 2
+        damage_cap: 10
+        damage_source_ref: client.qc:797
+        tick_seconds: 1
+        tick_seconds_source_ref: client.qc:801
+        biosuit_blocks: true
+        biosuit_source_ref: client.qc:1089
+      notes: 12s grace, then 1s ticks scaling 2->4->6->8->10 dmg.
+
+    - name: fall_damage
+      source_ref: client.qc:1146
+      props:
+        grace_velocity: -300
+        grace_velocity_source_ref: client.qc:1139
+        damage_threshold_velocity: -650
+        damage_threshold_source_ref: client.qc:1143
+        damage: 5
+        damage_source_ref: client.qc:1146
+        water_absorbs: true
+        water_absorbs_source_ref: client.qc:1141
+        deathtype: falling
+      notes: flat 5 dmg above -650 velocity; water absorbs entirely.
+
+    - name: crush_squish
+      source_ref: plats.qc:114
+      props:
+        deathtype: squish
+        delivery: T_Damage_with_squish_dtype
+        squish_assigners:
+          - plats.qc:114
+          - plats.qc:227
+          - doors.qc:34
+          - doors.qc:683
+        obituary_check_source_ref: client.qc:1268
+      notes: damage value comes from the crushing entity (door/plat dmg field); often instakill if dmg unset. plats.qc:114 is the first concrete deathtype="squish" assignment; client.qc:1268 is the obituary-check site (where the deathtype string is read), not where it's set.
+
+    - name: gib_threshold
+      source_ref: player.qc:598
+      props:
+        threshold_health: -40
+        models: [h_player, gib1, gib2, gib3]
+        models_source_ref: player.qc:521
+        gib_function: GibPlayer
+        gib_function_source_ref: player.qc:600
+      notes: when health drops below -40 player explodes into gibs instead of ragdoll. Lives in player.qc, not client.qc.
+
+    - name: trigger_hurt
+      source_ref: triggers.qc:548
+      props:
+        delivery: hurt_touch_calls_T_Damage_with_self_dmg
+        damage_call_source_ref: triggers.qc:553
+        default_damage: 5
+        default_damage_source_ref: triggers.qc:571
+        damage_value_origin: per_instance_set_by_mapper_in_entity_properties
+        retrigger_seconds: 1
+        retrigger_source_ref: triggers.qc:553
+        applies_armor: true
+        applies_pent: true
+        common_uses: [void_brush_at_map_bottom, custom_hazard_areas, mapper_traps]
+        relation_to_engine_out_of_world_z: well_built_maps_place_high_dmg_trigger_hurt_above_engine_z_floor_so_QC_path_runs_first
+      notes: |
+        Damage-dealing brush placed by the mapper. self.dmg is per-instance: a void brush
+        with dmg=1000 instakills, a low-damage hazard area at default dmg=5 is just
+        attrition. Unlike telefrag/exit_level_kill (50000 dmg), trigger_hurt damage goes
+        through normal T_Damage so armor and pent both apply. There is no QC handler for
+        engine-level out-of-world Z; instead, mappers put a trigger_hurt brush above the
+        engine's hard Z floor to catch players first. This is what kills you when you
+        jump into the void on most maps.
   player_stats:
   # (filled by Task 9) - 12 rows
   powerup_behaviors:
