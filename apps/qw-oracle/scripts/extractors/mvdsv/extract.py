@@ -82,6 +82,7 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_protocol import ProtocolMvdsvHandler
     from _handler_info_keys import InfoKeysMvdsvHandler
     from _handler_log_templates import LogTemplatesMvdsvHandler
+    from _handler_qc_builtins import QcBuiltinsMvdsvHandler
     available: dict = {
         "cvars": CvarsMvdsvHandler(),
         "commands": CommandsMvdsvHandler(),
@@ -89,6 +90,7 @@ def collect_handlers(names: str = "all") -> dict:
         "protocol": ProtocolMvdsvHandler(),
         "info_keys": InfoKeysMvdsvHandler(),
         "log_templates": LogTemplatesMvdsvHandler(),
+        "qc_builtins": QcBuiltinsMvdsvHandler(),
     }
     if names == "all":
         return available

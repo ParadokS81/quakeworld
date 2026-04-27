@@ -1,0 +1,1178 @@
+{
+  "qc_builtins": [
+    {
+      "name": "sin",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 60,
+        "handler_fn": "PF_sin",
+        "qc_signature": "float(float f) sin = #60;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2783,
+        "trailing_comment": "float(float f) sin = #60;"
+      }
+    },
+    {
+      "name": "cos",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 61,
+        "handler_fn": "PF_cos",
+        "qc_signature": "float(float f) cos = #61;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2784,
+        "trailing_comment": "float(float f) cos = #61;"
+      }
+    },
+    {
+      "name": "sqrt",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 62,
+        "handler_fn": "PF_sqrt",
+        "qc_signature": "float(float f) sqrt = #62;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2785,
+        "trailing_comment": "float(float f) sqrt = #62;"
+      }
+    },
+    {
+      "name": "tokenize",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 84,
+        "handler_fn": "PF_tokenize",
+        "qc_signature": "float(string s) tokenize",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2787,
+        "trailing_comment": "float(string s) tokenize"
+      }
+    },
+    {
+      "name": "argc",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 85,
+        "handler_fn": "PF_argc",
+        "qc_signature": "float() argc",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2788,
+        "trailing_comment": "float() argc"
+      }
+    },
+    {
+      "name": "argv",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 86,
+        "handler_fn": "PF_argv",
+        "qc_signature": "string(float n) argv",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2789,
+        "trailing_comment": "string(float n) argv"
+      }
+    },
+    {
+      "name": "tracebox",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 90,
+        "handler_fn": "PF_tracebox",
+        "qc_signature": "void (vector v1, vector mins, vector maxs, vector v2, float nomonsters, entity ignore) tracebox",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2791,
+        "trailing_comment": "void (vector v1, vector mins, vector maxs, vector v2, float nomonsters, entity ignore) tracebox"
+      }
+    },
+    {
+      "name": "randomvec",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 91,
+        "handler_fn": "PF_randomvec",
+        "qc_signature": "vector() randomvec",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2792,
+        "trailing_comment": "vector() randomvec"
+      }
+    },
+    {
+      "name": "registercvar",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 93,
+        "handler_fn": "PF_registercvar",
+        "qc_signature": "float(string name, string value) registercvar",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2794,
+        "trailing_comment": "float(string name, string value) registercvar"
+      }
+    },
+    {
+      "name": "min",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 94,
+        "handler_fn": "PF_min",
+        "qc_signature": "float(float a, float b, ...) min",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2795,
+        "trailing_comment": "float(float a, float b, ...) min"
+      }
+    },
+    {
+      "name": "max",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 95,
+        "handler_fn": "PF_max",
+        "qc_signature": "float(float a, float b, ...) max",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2796,
+        "trailing_comment": "float(float a, float b, ...) max"
+      }
+    },
+    {
+      "name": "bound",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 96,
+        "handler_fn": "PF_bound",
+        "qc_signature": "float(float min, float value, float max) bound",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2797,
+        "trailing_comment": "float(float min, float value, float max) bound"
+      }
+    },
+    {
+      "name": "pow",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 97,
+        "handler_fn": "PF_pow",
+        "qc_signature": "float(float x, float y) pow",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2798,
+        "trailing_comment": "float(float x, float y) pow"
+      }
+    },
+    {
+      "name": "checkextension",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 99,
+        "handler_fn": "PF_checkextension",
+        "qc_signature": "float(string name) checkextension",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2800,
+        "trailing_comment": "float(string name) checkextension"
+      }
+    },
+    {
+      "name": "cvar_string",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 103,
+        "handler_fn": "PF_cvar_string",
+        "qc_signature": "string(string varname) cvar_string",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2802,
+        "trailing_comment": "string(string varname) cvar_string"
+      }
+    },
+    {
+      "name": "strlen",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 114,
+        "handler_fn": "PF_strlen",
+        "qc_signature": "float(string s) strlen",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2804,
+        "trailing_comment": "float(string s) strlen"
+      }
+    },
+    {
+      "name": "strcat",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 115,
+        "handler_fn": "PF_strcat",
+        "qc_signature": "string(string s1, string s2, ...) strcat",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2805,
+        "trailing_comment": "string(string s1, string s2, ...) strcat"
+      }
+    },
+    {
+      "name": "substr",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 116,
+        "handler_fn": "PF_substr",
+        "qc_signature": "string(string s, float start, float count) substr",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2806,
+        "trailing_comment": "string(string s, float start, float count) substr"
+      }
+    },
+    {
+      "name": "strzone",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 118,
+        "handler_fn": "PF_strzone",
+        "qc_signature": "string(string s) strzone",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2808,
+        "trailing_comment": "string(string s) strzone"
+      }
+    },
+    {
+      "name": "strunzone",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 119,
+        "handler_fn": "PF_strunzone",
+        "qc_signature": "void(string s) strunzone",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2809,
+        "trailing_comment": "void(string s) strunzone"
+      }
+    },
+    {
+      "name": "calltimeofday",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 231,
+        "handler_fn": "PF_calltimeofday",
+        "qc_signature": "void() calltimeofday",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2810,
+        "trailing_comment": "void() calltimeofday"
+      }
+    },
+    {
+      "name": "cvar_string",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 448,
+        "handler_fn": "PF_cvar_string",
+        "qc_signature": "string(string varname) cvar_string",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2811,
+        "trailing_comment": "string(string varname) cvar_string"
+      }
+    },
+    {
+      "name": "setpause",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 531,
+        "handler_fn": "PF_setpause",
+        "qc_signature": "void(float pause) setpause",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2812,
+        "trailing_comment": "void(float pause) setpause"
+      }
+    },
+    {
+      "name": "precache_vwep_model",
+      "ast": {
+        "table_name": "ext_builtins",
+        "builtin_index": 532,
+        "handler_fn": "PF_precache_vwep_model",
+        "qc_signature": "float(string model) precache_vwep_model = #532;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2813,
+        "trailing_comment": "float(string model) precache_vwep_model = #532;"
+      }
+    },
+    {
+      "name": "MapExtFieldPtr",
+      "ast": {
+        "table_name": "ext_syscalls",
+        "builtin_index": 0,
+        "handler_fn": "EXT_MapExtFieldPtr",
+        "qc_signature": null,
+        "source_file": "src/pr2_cmds.c",
+        "source_line": 72,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "SetExtFieldPtr",
+      "ast": {
+        "table_name": "ext_syscalls",
+        "builtin_index": 1,
+        "handler_fn": "EXT_SetExtFieldPtr",
+        "qc_signature": null,
+        "source_file": "src/pr2_cmds.c",
+        "source_line": 73,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "GetExtFieldPtr",
+      "ast": {
+        "table_name": "ext_syscalls",
+        "builtin_index": 2,
+        "handler_fn": "EXT_GetExtFieldPtr",
+        "qc_signature": null,
+        "source_file": "src/pr2_cmds.c",
+        "source_line": 74,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "setsendneeded",
+      "ast": {
+        "table_name": "ext_syscalls",
+        "builtin_index": 3,
+        "handler_fn": "EXT_SetSendNeeded",
+        "qc_signature": null,
+        "source_file": "src/pr2_cmds.c",
+        "source_line": 76,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "makevectors",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 1,
+        "handler_fn": "PF_makevectors",
+        "qc_signature": "void(entity e)\tmakevectors \t\t= #1;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2685,
+        "trailing_comment": "void(entity e)\tmakevectors \t\t= #1;"
+      }
+    },
+    {
+      "name": "setorigin",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 2,
+        "handler_fn": "PF_setorigin",
+        "qc_signature": "void(entity e, vector o) setorigin\t= #2;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2686,
+        "trailing_comment": "void(entity e, vector o) setorigin\t= #2;"
+      }
+    },
+    {
+      "name": "setmodel",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 3,
+        "handler_fn": "PF_setmodel",
+        "qc_signature": "void(entity e, string m) setmodel\t= #3;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2687,
+        "trailing_comment": "void(entity e, string m) setmodel\t= #3;"
+      }
+    },
+    {
+      "name": "setsize",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 4,
+        "handler_fn": "PF_setsize",
+        "qc_signature": "void(entity e, vector min, vector max) setsize = #4;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2688,
+        "trailing_comment": "void(entity e, vector min, vector max) setsize = #4;"
+      }
+    },
+    {
+      "name": "break",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 6,
+        "handler_fn": "PF_break",
+        "qc_signature": "void() break\t\t\t\t\t\t= #6;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2690,
+        "trailing_comment": "void() break\t\t\t\t\t\t= #6;"
+      }
+    },
+    {
+      "name": "random",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 7,
+        "handler_fn": "PF_random",
+        "qc_signature": "float() random\t\t\t\t\t\t= #7;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2691,
+        "trailing_comment": "float() random\t\t\t\t\t\t= #7;"
+      }
+    },
+    {
+      "name": "sound",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 8,
+        "handler_fn": "PF_sound",
+        "qc_signature": "void(entity e, float chan, string samp) sound = #8;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2692,
+        "trailing_comment": "void(entity e, float chan, string samp) sound = #8;"
+      }
+    },
+    {
+      "name": "normalize",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 9,
+        "handler_fn": "PF_normalize",
+        "qc_signature": "vector(vector v) normalize\t\t\t= #9;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2693,
+        "trailing_comment": "vector(vector v) normalize\t\t\t= #9;"
+      }
+    },
+    {
+      "name": "error",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 10,
+        "handler_fn": "PF_error",
+        "qc_signature": "void(string e) error\t\t\t\t= #10;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2694,
+        "trailing_comment": "void(string e) error\t\t\t\t= #10;"
+      }
+    },
+    {
+      "name": "objerror",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 11,
+        "handler_fn": "PF_objerror",
+        "qc_signature": "void(string e) objerror\t\t\t\t= #11;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2695,
+        "trailing_comment": "void(string e) objerror\t\t\t\t= #11;"
+      }
+    },
+    {
+      "name": "vlen",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 12,
+        "handler_fn": "PF_vlen",
+        "qc_signature": "float(vector v) vlen\t\t\t\t= #12;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2696,
+        "trailing_comment": "float(vector v) vlen\t\t\t\t= #12;"
+      }
+    },
+    {
+      "name": "vectoyaw",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 13,
+        "handler_fn": "PF_vectoyaw",
+        "qc_signature": "float(vector v) vectoyaw\t\t= #13;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2697,
+        "trailing_comment": "float(vector v) vectoyaw\t\t= #13;"
+      }
+    },
+    {
+      "name": "spawn",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 14,
+        "handler_fn": "PF_Spawn",
+        "qc_signature": "entity() spawn\t\t\t\t\t\t= #14;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2698,
+        "trailing_comment": "entity() spawn\t\t\t\t\t\t= #14;"
+      }
+    },
+    {
+      "name": "remove",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 15,
+        "handler_fn": "PF_Remove",
+        "qc_signature": "void(entity e) remove\t\t\t\t= #15;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2699,
+        "trailing_comment": "void(entity e) remove\t\t\t\t= #15;"
+      }
+    },
+    {
+      "name": "traceline",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 16,
+        "handler_fn": "PF_traceline",
+        "qc_signature": "float(vector v1, vector v2, float tryents) traceline = #16;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2700,
+        "trailing_comment": "float(vector v1, vector v2, float tryents) traceline = #16;"
+      }
+    },
+    {
+      "name": "clientlist",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 17,
+        "handler_fn": "PF_checkclient",
+        "qc_signature": "entity() clientlist\t\t\t\t\t= #17;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2701,
+        "trailing_comment": "entity() clientlist\t\t\t\t\t= #17;"
+      }
+    },
+    {
+      "name": "find",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 18,
+        "handler_fn": "PF_Find",
+        "qc_signature": "entity(entity start, .string fld, string match) find = #18;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2702,
+        "trailing_comment": "entity(entity start, .string fld, string match) find = #18;"
+      }
+    },
+    {
+      "name": "precache_sound",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 19,
+        "handler_fn": "PF_precache_sound",
+        "qc_signature": "void(string s) precache_sound\t\t= #19;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2703,
+        "trailing_comment": "void(string s) precache_sound\t\t= #19;"
+      }
+    },
+    {
+      "name": "precache_model",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 20,
+        "handler_fn": "PF_precache_model",
+        "qc_signature": "void(string s) precache_model\t\t= #20;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2704,
+        "trailing_comment": "void(string s) precache_model\t\t= #20;"
+      }
+    },
+    {
+      "name": "stuffcmd",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 21,
+        "handler_fn": "PF_stuffcmd",
+        "qc_signature": "void(entity client, string s)stuffcmd = #21;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2705,
+        "trailing_comment": "void(entity client, string s)stuffcmd = #21;"
+      }
+    },
+    {
+      "name": "findradius",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 22,
+        "handler_fn": "PF_findradius",
+        "qc_signature": "entity(vector org, float rad) findradius = #22;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2706,
+        "trailing_comment": "entity(vector org, float rad) findradius = #22;"
+      }
+    },
+    {
+      "name": "bprint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 23,
+        "handler_fn": "PF_bprint",
+        "qc_signature": "void(string s) bprint\t\t\t\t= #23;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2707,
+        "trailing_comment": "void(string s) bprint\t\t\t\t= #23;"
+      }
+    },
+    {
+      "name": "sprint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 24,
+        "handler_fn": "PF_sprint",
+        "qc_signature": "void(entity client, string s) sprint = #24;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2708,
+        "trailing_comment": "void(entity client, string s) sprint = #24;"
+      }
+    },
+    {
+      "name": "dprint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 25,
+        "handler_fn": "PF_dprint",
+        "qc_signature": "void(string s) dprint\t\t\t\t= #25;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2709,
+        "trailing_comment": "void(string s) dprint\t\t\t\t= #25;"
+      }
+    },
+    {
+      "name": "ftos",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 26,
+        "handler_fn": "PF_ftos",
+        "qc_signature": "void(string s) ftos\t\t\t\t= #26;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2710,
+        "trailing_comment": "void(string s) ftos\t\t\t\t= #26;"
+      }
+    },
+    {
+      "name": "vtos",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 27,
+        "handler_fn": "PF_vtos",
+        "qc_signature": "void(string s) vtos\t\t\t\t= #27;",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2711,
+        "trailing_comment": "void(string s) vtos\t\t\t\t= #27;"
+      }
+    },
+    {
+      "name": "coredump",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 28,
+        "handler_fn": "PF_coredump",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2712,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "traceon",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 29,
+        "handler_fn": "PF_traceon",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2713,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "traceoff",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 30,
+        "handler_fn": "PF_traceoff",
+        "qc_signature": "#30",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2714,
+        "trailing_comment": "#30"
+      }
+    },
+    {
+      "name": "eprint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 31,
+        "handler_fn": "PF_eprint",
+        "qc_signature": "void(entity e) debug print an entire entity",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2715,
+        "trailing_comment": "void(entity e) debug print an entire entity"
+      }
+    },
+    {
+      "name": "walkmove",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 32,
+        "handler_fn": "PF_walkmove",
+        "qc_signature": "float(float yaw, float dist) walkmove",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2716,
+        "trailing_comment": "float(float yaw, float dist) walkmove"
+      }
+    },
+    {
+      "name": "droptofloor",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 34,
+        "handler_fn": "PF_droptofloor",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2718,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "lightstyle",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 35,
+        "handler_fn": "PF_lightstyle",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2719,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "rint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 36,
+        "handler_fn": "PF_rint",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2720,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "floor",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 37,
+        "handler_fn": "PF_floor",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2721,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "ceil",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 38,
+        "handler_fn": "PF_ceil",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2722,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "checkbottom",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 40,
+        "handler_fn": "PF_checkbottom",
+        "qc_signature": "#40",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2724,
+        "trailing_comment": "#40"
+      }
+    },
+    {
+      "name": "pointcontents",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 41,
+        "handler_fn": "PF_pointcontents",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2725,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fabs",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 43,
+        "handler_fn": "PF_fabs",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2727,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "aim",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 44,
+        "handler_fn": "PF_aim",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2728,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "cvar",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 45,
+        "handler_fn": "PF_cvar",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2729,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "localcmd",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 46,
+        "handler_fn": "PF_localcmd",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2730,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "nextent",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 47,
+        "handler_fn": "PF_nextent",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2731,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "particle",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 48,
+        "handler_fn": "PF_particle",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2732,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "changeyaw",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 49,
+        "handler_fn": "PF_changeyaw",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2733,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "vectoangles",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 51,
+        "handler_fn": "PF_vectoangles",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2735,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteByte",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 52,
+        "handler_fn": "PF_WriteByte",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2737,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteChar",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 53,
+        "handler_fn": "PF_WriteChar",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2738,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteShort",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 54,
+        "handler_fn": "PF_WriteShort",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2739,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteLong",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 55,
+        "handler_fn": "PF_WriteLong",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2740,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteCoord",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 56,
+        "handler_fn": "PF_WriteCoord",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2741,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteAngle",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 57,
+        "handler_fn": "PF_WriteAngle",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2742,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteString",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 58,
+        "handler_fn": "PF_WriteString",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2743,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "WriteEntity",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 59,
+        "handler_fn": "PF_WriteEntity",
+        "qc_signature": "#59",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2744,
+        "trailing_comment": "#59"
+      }
+    },
+    {
+      "name": "SV_MoveToGoal",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 67,
+        "handler_fn": "SV_MoveToGoal",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2754,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "precache_file",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 68,
+        "handler_fn": "PF_precache_file",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2755,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "makestatic",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 69,
+        "handler_fn": "PF_makestatic",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2756,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "changelevel",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 70,
+        "handler_fn": "PF_changelevel",
+        "qc_signature": "#70",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2758,
+        "trailing_comment": "#70"
+      }
+    },
+    {
+      "name": "cvar_set",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 72,
+        "handler_fn": "PF_cvar_set",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2761,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "centerprint",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 73,
+        "handler_fn": "PF_centerprint",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2762,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "ambientsound",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 74,
+        "handler_fn": "PF_ambientsound",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2764,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "precache_model",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 75,
+        "handler_fn": "PF_precache_model",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2766,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "precache_sound",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 76,
+        "handler_fn": "PF_precache_sound",
+        "qc_signature": "precache_sound2 is different only for qcc",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2767,
+        "trailing_comment": "precache_sound2 is different only for qcc"
+      }
+    },
+    {
+      "name": "precache_file",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 77,
+        "handler_fn": "PF_precache_file",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2768,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "setspawnparms",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 78,
+        "handler_fn": "PF_setspawnparms",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2770,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "logfrag",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 79,
+        "handler_fn": "PF_logfrag",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2772,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "infokey",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 80,
+        "handler_fn": "PF_infokey",
+        "qc_signature": "#80",
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2774,
+        "trailing_comment": "#80"
+      }
+    },
+    {
+      "name": "stof",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 81,
+        "handler_fn": "PF_stof",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2775,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "multicast",
+      "ast": {
+        "table_name": "std_builtins",
+        "builtin_index": 82,
+        "handler_fn": "PF_multicast",
+        "qc_signature": null,
+        "source_file": "src/pr_cmds.c",
+        "source_line": 2776,
+        "trailing_comment": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 97,
+    "count": 97,
+    "by_table": {
+      "ext_builtins": 24,
+      "ext_syscalls": 4,
+      "std_builtins": 69
+    },
+    "with_qc_signature": 58
+  }
+}
