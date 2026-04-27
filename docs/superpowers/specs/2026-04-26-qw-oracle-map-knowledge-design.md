@@ -21,6 +21,8 @@ This is a sidequest scoped to one good sitting. The output unlocks a class of MC
 - **Per-map versioning.** Maps don't change with engine versions. Map revisions (`bravadob5`, `aerowalk2020`) live as separate sibling rows under their own canonical names, not as "version" of the parent. No `_versions` machinery.
 - **Map screenshots.** stats.quakeworld.nu and maps.quake.world both already serve thumbnails; we link rather than mirror.
 - **Author research.** When the BSP doesn't say and we don't know, the field is NULL and the MCP returns "unknown". Curating attribution for hundreds of community maps is its own (out-of-scope) project.
+- **Release dates / readme-derived metadata.** Maps don't carry a release date in the BSP itself, and HTTP `Last-Modified` is a proxy that lies (re-uploads, mirror copies). Skip it entirely. A future maps.quake.world metadata pass will surface README-derived release dates, design notes, and other curated metadata; refactor this layer to consume that richer source when it lands. Until then, no field for it — facts only.
+- **Match-stats integration.** A future Layer N (match stats, with official/unofficial subsets) will enable rich queries like "which maps were popular in 2010", "who dominated dm3 in 4on4 era", "team trends per map". Out of scope here. The static `popularity_total` from stats.quakeworld.nu in v1 is the baseline; richer per-era / per-mode / per-player surfaces wait for that match-stats layer.
 
 ## What we extract
 
@@ -52,7 +54,6 @@ From the BSP **header**:
 - `bsp_size_bytes`, `bsp_sha256` (computed during ingest)
 
 From maps.quakeworld.nu:
-- `release_date` ← HTTP `Last-Modified` header on the .bsp download (proxy; will be wrong for re-uploads but better than nothing)
 - `source_bsp_url` ← URL we fetched from
 
 From stats.quakeworld.nu (one-shot scrape, refresh quarterly):
@@ -79,7 +80,6 @@ CREATE TABLE IF NOT EXISTS maps (
   file_name                TEXT NOT NULL,           -- 'dm3.bsp'
   display_name             TEXT,                    -- worldspawn.message, normalized whitespace
   author                   TEXT,                    -- heuristic + manual override; NULL = unknown
-  release_date             TEXT,                    -- ISO date from Last-Modified
   bsp_version              TEXT NOT NULL,           -- 'V29' or 'BSP2'
   bsp_size_bytes           INTEGER NOT NULL,
   bsp_sha256               TEXT NOT NULL,           -- full hex hash
@@ -126,7 +126,7 @@ Pull list:
 2. Top-100 maps from stats.quakeworld.nu that aren't already in /base/ — supplemental pull from `/all/`. Estimated ~30-40 net adds (stats top-100 has many overlaps with /base/).
 3. Optional manual extras via seed YAML
 
-`download_maps.py` walks the index pages, computes the union of (1) and (2), downloads each .bsp into `data/bsp-cache/`, captures `Last-Modified` headers for `release_date`. Idempotent — skips files already present with matching size.
+`download_maps.py` walks the index pages, computes the union of (1) and (2), downloads each .bsp into `data/bsp-cache/`. Idempotent — skips files already present with matching size.
 
 ### Popularity table
 
@@ -209,7 +209,6 @@ Response shape:
   canonical_name: string;
   display_name: string | null;
   author: string;                    // 'unknown' if NULL in DB
-  release_date: string | null;
   bsp_version: 'V29' | 'BSP2';
   bsp_size_bytes: number;
   worldspawn: Record<string, string>;
