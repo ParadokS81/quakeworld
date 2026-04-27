@@ -237,7 +237,16 @@ def summarize_map(bsp_path: Path) -> dict[str, Any]:
     ws_payload = {k: v for k, v in worldspawn.items() if k != 'classname'}
 
     canonical_name = bsp_path.stem.lower()
-    display_name = worldspawn.get('message')
+    # Normalize message text. BSP entity lump stores newline as the LITERAL two
+    # chars '\' + 'n' (not 0x0A) -- e.g. "Schloss Adler \n\nby Zaka\n". Replace
+    # those + real whitespace runs with a single space so display_name renders
+    # cleanly in MCP output and the author heuristic sees a clean token.
+    raw_message = worldspawn.get('message')
+    if raw_message:
+        unescaped = raw_message.replace('\\n', ' ').replace('\\r', ' ').replace('\\t', ' ')
+        display_name = re.sub(r'\s+', ' ', unescaped).strip()
+    else:
+        display_name = None
     author = _heuristic_author(display_name)
 
     return {
