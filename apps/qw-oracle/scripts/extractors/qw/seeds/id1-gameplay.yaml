@@ -548,6 +548,17 @@ items:
       dm_gate: dm_le_3
     notes: null
 
+  - name: backpack
+    classname: backpack
+    duration_seconds: 120
+    source_ref: items.qc:1656
+    props:
+      drop_rule: dropped_on_death_if_any_ammo_gt_0
+      drop_rule_source_ref: items.qc:1614
+      contents: current_weapon_plus_all_ammo
+      contents_source_ref: items.qc:1620
+    notes: 120s lifetime then auto-removed; pickup grants weapon + remaining ammo.
+
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
