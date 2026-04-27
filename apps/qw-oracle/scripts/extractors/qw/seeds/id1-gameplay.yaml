@@ -252,6 +252,54 @@ projectiles:
 # Cluster 3: items (25 rows: 3 health + 3 armor + 4 powerups + 8 ammo + 6 weapon-pickups + 1 backpack)
 items:
 # (filled by Tasks 6a-6f)
+  - name: health_15_rotten
+    classname: item_health
+    pickup_amount: 15
+    respawn_seconds: 20
+    source_ref: items.qc:250
+    props:
+      spawnflag: 1
+      spawnflag_meaning: H_ROTTEN
+      classname_source_ref: items.qc:239
+      respawn_source_ref: items.qc:330
+      cap_rule: clamps_to_max_health_via_T_Heal_ignore_zero
+      cap_source_ref: items.qc:217
+    notes: T_Heal with ignore=0 caps at max_health (default 100); items.qc:217 is the cap site, items.qc:220 is megahealth's separate ignore=1 path.
+
+  - name: health_25_normal
+    classname: item_health
+    pickup_amount: 25
+    respawn_seconds: 20
+    source_ref: items.qc:269
+    props:
+      spawnflag: 0
+      cap_rule: clamps_to_max_health_via_T_Heal_ignore_zero
+      cap_source_ref: items.qc:217
+      classname_source_ref: items.qc:239
+    notes: null
+
+  - name: megahealth_100
+    classname: item_health
+    pickup_amount: 100
+    respawn_seconds: 20
+    source_ref: items.qc:260
+    props:
+      spawnflag: 2
+      spawnflag_meaning: H_MEGA
+      max_carry: 250
+      max_carry_source_ref: items.qc:291
+      cap_rule: ignore_max_health_up_to_250
+      cap_source_ref: items.qc:220
+      healtype: 2
+      healtype_source_ref: items.qc:261
+      decay_rule: minus_1_hp_per_second_back_to_max_health
+      decay_rule_source_ref: items.qc:345
+      decay_initial_delay_seconds: 5
+      decay_initial_source_ref: items.qc:321
+      respawn_after_decay_seconds: 20
+      respawn_after_decay_source_ref: items.qc:356
+      respawn_semantics: respawn_seconds_field_describes_normal_pickup_cycle_decay_uses_separate_5s_initial_then_20s_regen
+    notes: respawn_seconds=20 for the basic regen-after-pickup cycle; the megahealth-specific decay-then-regen sequence is separate (5s initial decay tick at items.qc:321, then -1 hp/s back to max, then 20s regen at items.qc:356).
 
 # Cluster 4: mechanics (41 rows total)
 mechanics:
