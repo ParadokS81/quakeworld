@@ -1,0 +1,204 @@
+"""Log templates handler for the MVDSV AST extractor.
+
+Detects format-string call sites for server-side log emission and channel-
+discriminates by API name:
+
+  channel='broadcast' -> SV_BroadcastPrintf(level, "fmt", ...)
+                         SV_BroadcastPrintfEx(level, flags, "fmt", ...)
+                         SV_BroadcastCommand("fmt", ...)
+  channel='client'    -> SV_ClientPrintf(cl, level, "fmt", ...)
+  channel='console'   -> Con_Printf("fmt", ...)
+  channel='system'    -> Sys_Printf("fmt", ...)
+
+Note: SV_BroadcastTPrintf and SV_ClientTPrintf do NOT exist in MVDSV
+(verified by Task 1's pass-1 inventory). The plan spec listed them; they're
+absent here. Likewise SV_ClientPrintf2 exists (~14 sites) but is intentionally
+out of scope -- the channel table lists the canonical APIs only.
+
+Canonical entity name format: '<channel>:<format_string_normalized>' where
+format_string_normalized strips the trailing newline so a format like
+'%s entered the game\\n' is addressable as 'broadcast:%s entered the game'.
+The same format string emitted via different APIs becomes different entities
+(channel-discriminated), which preserves per-channel distinction.
+
+Per-call-site dedup: per-file dedup on canonical name; cross-file dedup is
+first-wins by canonical name in finalize.
+
+Multi-line string-literal concatenation: C lets you split a format string
+across multiple adjacent quoted literals (e.g. SV_BroadcastCommand("foo\\n"
+"bar\\n")). libclang's CALL_EXPR.get_arguments() returns ONE arg whose extent
+covers both literals, so the source extent reads as `"foo\\n"\n  "bar\\n"`.
+That happens to start and end with `"` so the simple quote-bracket check
+passes; the outer-quote strip yields a canonical name with the inter-literal
+`"  "` whitespace embedded. We accept that noise rather than try to merge
+adjacent literals -- the row is still addressable, the format_string field
+preserves the raw source form, and the cases are rare in MVDSV.
+
+String escapes inside the format string (e.g. \\n, %s, %d) are kept in their
+raw source-code form. Consumers handle interpretation.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Optional
+
+from clang.cindex import CursorKind
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
+
+
+# (channel, format_string_arg_index) per API spelling. CALL_EXPR cursor
+# spelling matches the function name exactly. Indices are zero-based into
+# the cursor's get_arguments() iterator.
+_CHANNEL_TABLE: dict[str, tuple[str, int]] = {
+    # broadcast: sent to all clients
+    "SV_BroadcastPrintf":   ("broadcast", 1),  # (level, fmt, ...)
+    "SV_BroadcastPrintfEx": ("broadcast", 2),  # (level, flags, fmt, ...)
+    "SV_BroadcastCommand":  ("broadcast", 0),  # (fmt, ...)
+    # client: sent to one client
+    "SV_ClientPrintf":      ("client", 2),     # (cl, level, fmt, ...)
+    # server-side log
+    "Con_Printf":           ("console", 0),    # (fmt, ...)
+    "Sys_Printf":           ("system", 0),     # (fmt, ...)
+}
+
+
+def _read_extent(source_bytes: bytes, extent) -> str:
+    """Return the source text for an AST extent."""
+    if not extent or not extent.start or not extent.end:
+        return ""
+    start = extent.start.offset
+    end = extent.end.offset
+    if start is None or end is None or start < 0 or end < start:
+        return ""
+    try:
+        return source_bytes[start:end].decode("utf-8", errors="replace")
+    except Exception:
+        return ""
+
+
+def _normalize_format(s: str) -> str:
+    """Strip trailing newline (the canonical-name normalization). Also strips
+    leading/trailing whitespace as a defensive measure -- format strings in
+    practice don't have whitespace padding outside the quotes, but the rstrip
+    happens before the strip so canonical names stay tight."""
+    return s.rstrip("\n").strip()
+
+
+class LogTemplatesMvdsvHandler(Visitor):
+    name = "log_templates"
+    output_filename = "mvdsv-log-templates-ast.json"
+    payload_field = "log_templates"
+
+    def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
+        self._repo_root = mvdsv_repo
+        self._src_root = mvdsv_src
+
+    def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
+        super().start_file(source_path=source_path, source_bytes=source_bytes)
+        self._rows: list[dict] = []
+        # Per-file dedup on canonical name. Each call site is visited 3x
+        # because the walker dispatches once per platform variant (server-base
+        # / win / linux); same idiom as the other MVDSV handlers.
+        self._seen_in_file: set[str] = set()
+        self._func_stack: list[str] = []
+
+    def enter_function(self, cursor, variant: str) -> None:
+        self._func_stack.append(cursor.spelling or "?")
+
+    def exit_function(self, cursor, variant: str) -> None:
+        if self._func_stack:
+            self._func_stack.pop()
+
+    def visit_cursor(self, cursor, variant: str) -> None:
+        if cursor.kind != CursorKind.CALL_EXPR:
+            return
+        spelling = cursor.spelling
+        cfg = _CHANNEL_TABLE.get(spelling)
+        if cfg is None:
+            return
+        channel, fmt_idx = cfg
+
+        args = list(cursor.get_arguments())
+        if len(args) <= fmt_idx:
+            return
+
+        text = _read_extent(self.source_bytes, args[fmt_idx].extent).strip()
+        # Bare literal-string check. Multi-line concatenation form
+        # ("foo " "bar") fails this check and is silently skipped.
+        if not (text.startswith('"') and text.endswith('"')):
+            return
+        # Strip outer quotes only -- keep escape sequences as raw source form.
+        format_string = text[1:-1]
+        if not format_string:
+            return
+
+        normalized = _normalize_format(format_string)
+        if not normalized:
+            return
+        canonical = f"{channel}:{normalized}"
+        if canonical in self._seen_in_file:
+            return
+
+        location = cursor.location
+        rel_file = self._relative_source(location.file.name) if location.file else None
+        containing_fn = self._func_stack[-1] if self._func_stack else None
+
+        self._rows.append({
+            "name": canonical,
+            "ast": {
+                "channel": channel,
+                "format_string": format_string,
+                "format_string_normalized": normalized,
+                "source_file": rel_file,
+                "source_line": location.line,
+                "containing_function": containing_fn,
+            },
+        })
+        self._seen_in_file.add(canonical)
+
+    def _relative_source(self, abs_path: str) -> str:
+        """Make source_file repo-relative; fall back to absolute if outside."""
+        try:
+            return str(Path(abs_path).resolve().relative_to(self._repo_root.resolve()))
+        except ValueError:
+            return abs_path
+
+    def end_file(self) -> list[dict]:
+        rows = self._rows
+        self._rows = []
+        self._seen_in_file = set()
+        self._func_stack = []
+        return rows
+
+    def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
+        # Cross-file first-wins dedup by canonical name. Per-file dedup
+        # already collapsed the 3-variant emission inside one walk; this
+        # collapses across .c files.
+        seen: set[str] = set()
+        unique: list[dict] = []
+        for r in all_rows:
+            if r["name"] in seen:
+                continue
+            seen.add(r["name"])
+            unique.append(r)
+        # Sort by (channel, name) for deterministic output.
+        unique.sort(key=lambda r: (r["ast"]["channel"], r["name"]))
+
+        by_channel: dict[str, int] = {}
+        for r in unique:
+            ch = r["ast"]["channel"]
+            by_channel[ch] = by_channel.get(ch, 0) + 1
+
+        return {
+            "log_templates": unique,
+            "_stats": {
+                "source_total": len(all_rows),
+                "count": len(unique),
+                "by_channel": by_channel,
+            },
+        }
