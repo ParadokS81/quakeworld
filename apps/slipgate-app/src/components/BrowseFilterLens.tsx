@@ -6,7 +6,7 @@ interface BrowseFilterLensProps {
   scan: ScanResult;
   filters: BrowseFilterState;
   onFiltersChange: (next: BrowseFilterState) => void;
-  onSwitchToClientsTab: () => void;
+  onSwitchToClientsDomain: () => void;
 }
 
 export default function BrowseFilterLens(props: BrowseFilterLensProps) {
@@ -73,7 +73,7 @@ export default function BrowseFilterLens(props: BrowseFilterLensProps) {
           {(c) => (
             <div
               class={`sg-lens-row ${c.active ? "sg-lens-row-active" : ""} ${props.filters.clients.has(c.name) ? "sg-lens-row-selected" : ""}`}
-              onClick={() => (c.active ? toggleClient(c.name) : props.onSwitchToClientsTab())}
+              onClick={() => (c.active ? toggleClient(c.name) : props.onSwitchToClientsDomain())}
             >
               <span class="sg-lens-indicator">{c.active ? "[*]" : "[ ]"}</span>
               <span>{c.name}</span>

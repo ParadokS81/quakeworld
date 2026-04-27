@@ -400,7 +400,7 @@ export interface ScanResult {
 }
 
 export type BrowseModeName = "browse" | "domains";
-export type BrowseDomainName = "configs" | "maps" | "matches" | "assets";
+export type BrowseDomainName = "clients" | "configs" | "maps" | "matches" | "assets";
 
 export interface BrowseFilterState {
   clients: Set<string>;

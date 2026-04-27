@@ -13,7 +13,7 @@ interface BrowseViewProps {
   profile: ProfileData | null;
   hideDefaults: boolean;
   onOpenInConfigs: (virtualPath: string) => void;
-  onSwitchToClientsTab: () => void;
+  onSwitchToClientsDomain: () => void;
 }
 
 export default function BrowseView(props: BrowseViewProps) {
@@ -119,7 +119,7 @@ export default function BrowseView(props: BrowseViewProps) {
       fallback={
         <div class="flex items-center justify-center h-full text-[var(--sg-text-dim)] text-sm p-8">
           <div>
-            <p>Pick an ezQuake install in the Clients tab to browse its files.</p>
+            <p>Pick an ezQuake install in the Clients domain to browse its files.</p>
           </div>
         </div>
       }
@@ -180,7 +180,7 @@ export default function BrowseView(props: BrowseViewProps) {
                     scan={result()}
                     filters={filters()}
                     onFiltersChange={setFilters}
-                    onSwitchToClientsTab={props.onSwitchToClientsTab}
+                    onSwitchToClientsDomain={props.onSwitchToClientsDomain}
                   />
                 </div>
                 <div class="overflow-auto">

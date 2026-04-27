@@ -92,7 +92,7 @@ export interface ProfilePrefs {
   /** Which top-level view MyQuake shows. */
   my_quake_mode: "browse" | "domains";
   /** Which domain the dir browser is scoped to. */
-  my_quake_domain: "configs" | "maps" | "matches" | "assets";
+  my_quake_domain: "clients" | "configs" | "maps" | "matches" | "assets";
   /** Hide default/unmodified entries in the dir browser. */
   browse_hide_defaults: boolean;
 }
@@ -272,7 +272,7 @@ function migrateProfile(data: any): ProfileData {
         simulator: deserializeSimulator(data.prefs?.simulator),
         my_quake_mode:
           data.prefs?.my_quake_mode === "browse" ? "browse" : "domains",
-        my_quake_domain: (["configs", "maps", "matches", "assets"] as const).includes(
+        my_quake_domain: (["clients", "configs", "maps", "matches", "assets"] as const).includes(
           data.prefs?.my_quake_domain as any,
         )
           ? (data.prefs.my_quake_domain as ProfilePrefs["my_quake_domain"])
@@ -293,7 +293,7 @@ function migrateProfile(data: any): ProfileData {
       simulator: deserializeSimulator(data.prefs.simulator),
       my_quake_mode:
         data.prefs.my_quake_mode === "browse" ? "browse" : "domains",
-      my_quake_domain: (["configs", "maps", "matches", "assets"] as const).includes(
+      my_quake_domain: (["clients", "configs", "maps", "matches", "assets"] as const).includes(
         data.prefs.my_quake_domain as any,
       )
         ? (data.prefs.my_quake_domain as ProfilePrefs["my_quake_domain"])
@@ -308,7 +308,7 @@ function migrateProfile(data: any): ProfileData {
     if (hw.keyboard) profile.setups[0].hardware.keyboard_name = hw.keyboard;
   }
 
-  // Migrate ezQuake path from localStorage (ClientsTab used to save there)
+  // Migrate ezQuake path from localStorage (older ClientsTab used to save there)
   try {
     const savedPath = localStorage.getItem("ezquake_exe_path");
     if (savedPath) {

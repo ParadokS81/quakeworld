@@ -49,17 +49,15 @@ The app opens to a 6-tab vertical sidebar (`SideNav.tsx`). What you see in each 
 
 All pure client-side math. No Tauri calls.
 
-### 4. Clients 🖥️ — *fully functional*
-`ClientsTab.tsx` (674 lines). Install management, updater, launcher.
-- **ezQuake path picker** — browse for `ezquake.exe`, validates it, extracts Windows PE version
-- **Config dropdown** — select which `.cfg` to parse
-- **Live parsed display** — player name, sens, m_yaw, m_pitch, raw input, accel, FOV, effective resolution, max FPS
-- **Updater** — 4 tabs (ezQuake, KTX, MVDSV, QWFWD):
-  - ezQuake + unezQuake are installable (stable + snapshot channels)
-  - KTX/MVDSV/QWFWD are changelog-browsing only (server-side projects)
-  - Parallel "check all" button, release notes accordion, download progress bar, SHA256 verification (stable) or MD5 (snapshots), rename-backup install flow
-- **Launcher** — server IP input + Join / Spec / Launch buttons
-- **Screenshot POC** — internal-only, hardcoded to `C:/Users/Administrator/projects/slipgate-app/assets/screenshots`, not user-facing
+### 4. Feed 📰 — *seeded*
+`FeedTab.tsx`. Top-level "what's happening in QW right now" surface created in Phase 3.5a (2026-04-27). Initial content is the extracted **Updates** panel (`UpdatesPanel.tsx`):
+- 4 sub-tabs (ezQuake, KTX, MVDSV, QWFWD)
+- ezQuake + unezQuake are installable (stable + snapshot channels)
+- KTX/MVDSV/QWFWD are changelog-browsing only (server-side projects)
+- Parallel "Check Now" button, release notes accordion, download progress bar, SHA256 verification (stable) or MD5 (snapshots), rename-backup install flow
+- Empty state when no ezQuake path is configured points the user at MyQuake → Domains → Clients
+
+Future Feed content (HANDOVER "Feed tab future content"): tournaments, developer landscape, GitHub monitoring of QW projects, community announcements. Each future content type is its own arc with its own data source.
 
 ### 5. My Quake 📁 — *Browse + Domains*
 `MyQuakeTab.tsx`. Two top-level mode buttons: **Browse** and **Domains**.
@@ -72,12 +70,15 @@ All pure client-side math. No Tauri calls.
 Backed by a Rust scanner at `src-tauri/src/commands/browse.rs` that reads oracle's ezQuake asset-consumption bundle to drive category classification.
 
 **Domains mode** — hosts domain-specific sub-tabs:
+- **Clients** — active. `ClientsDomain.tsx`. Hosts client setup: list view (one card per recognized client; today only ezQuake) and detail view with **Installation** (path picker, config dropdown, player name) and **Versions** (the Phase 3 VersionWarehouse with Switch / Delete / Add Quake client).
 - **Configs** — active. Hosts the full ConfigViewer (see next section). Drag-drop zone for `.cfg`, `.zip`, `.pak`, `.pk3` files lives here. Dropping a file loads it as the comparison config; dropping again prompts "replace current comparison?" modal.
 - **Maps** — disabled placeholder. Future phase.
-- **Matches** — disabled placeholder. Future phase (demos + screenshots browser with stats).
+- **Matches** — active. Demos + screenshots browser scoped to the quake dir.
 - **Assets** — disabled placeholder. Future phase (textures, skins, sounds, paks browser).
 
-The ConfigViewer itself is unchanged — it now lives inside Domains > Configs rather than at the top level of this tab.
+The ConfigViewer itself is unchanged — it lives inside Domains > Configs rather than at the top level of this tab.
+
+> **Phase 3.5a IA restructure (2026-04-27):** the standalone Clients tab was dissolved. Updates moved to the new Feed tab; Installation + Versions moved to MyQuake → Domains → Clients. Four sections were dropped from the user-facing surface (Input, Video, Launch, Screenshot POC); their code is preserved at `src/components/_dropped-clients-sections.tsx` for future arcs (HANDOVER "Tray menu launch", "Screenshot POC → Profile picture generator"). The `launch_ezquake` and `capture_screenshot` Tauri commands stay callable from Rust.
 
 ### 6. Settings ⚙️ — *fully functional*
 `SettingsTab.tsx` (231 lines).
@@ -326,19 +327,19 @@ Setup {
 | Command | Caller | Purpose |
 |---|---|---|
 | `get_all_specs` | App.tsx | Full hardware scan on mount |
-| `validate_ezquake_path` | ClientsTab | Verify exe + version |
-| `read_ezquake_config` | App.tsx, ClientsTab | Parse single config |
+| `validate_ezquake_path` | ClientsDomain | Verify exe + version |
+| `read_ezquake_config` | App.tsx, ClientsDomain | Parse single config |
 | `scan_local_install` | App.tsx | Walk config chain on load |
 | `scan_dropped_input` | MyQuakeTab | Parse dropped files |
 | `load_config_from_source` | MyQuakeTab, ConfigViewer | Load config from bundle |
 | `classify_chain_binds` | ConfigViewer | Weapon + teamsay classification |
 | `start_config_watch` / `stop_config_watch` | App.tsx | File watcher lifecycle |
-| `check_for_update` | ClientsTab | Query releases + snapshots |
-| `get_release_changelog` | ClientsTab | Fetch KTX/MVDSV/QWFWD changelogs |
-| `download_and_install_update` | ClientsTab | Run the update |
-| `check_client_running` | ClientsTab | Is ezquake.exe running? |
-| `launch_ezquake` | ClientsTab | Spawn game with args |
-| `capture_screenshot` | ClientsTab (POC) | Demo → screenshot automation |
+| `check_for_update` | UpdatesPanel (Feed) | Query releases + snapshots |
+| `get_release_changelog` | UpdatesPanel (Feed) | Fetch KTX/MVDSV/QWFWD changelogs |
+| `download_and_install_update` | UpdatesPanel (Feed) | Run the update |
+| `check_client_running` | UpdatesPanel (Feed) | Is ezquake.exe running? |
+| `launch_ezquake` | (Rust-only after 3.5a; future tray menu) | Spawn game with args |
+| `capture_screenshot` | (Rust-only after 3.5a; future Profile picture-generator) | Demo → screenshot automation |
 | `await_oauth_callback` | auth.ts | Discord OAuth callback |
 | `get_data_root` | quake-dir/dataRoot.ts | Resolve portable vs installed data root |
 | `list_warehoused_versions` | quake-dir/warehouse.ts | Enumerate registered version manifests |
@@ -350,7 +351,7 @@ Setup {
 
 ### Events Rust → frontend
 - `config-changed` → `{ exe_path, config_name }` — listened by App.tsx, triggers re-parse
-- `update-progress` → `UpdateProgress { stage, percent, message }` — listened by ClientsTab
+- `update-progress` → `UpdateProgress { stage, percent, message }` — listened by UpdatesPanel (Feed)
 
 ### Tauri lifecycle hooks (in `lib.rs`)
 - **System tray** — show/hide/quit menu, left-click toggles window, right-click menu
@@ -389,7 +390,7 @@ Things that exist in the codebase but aren't fully alive:
 | MyQuake → Domains → Maps subtab | `MyQuakeTab.tsx` | Disabled placeholder. Future phase |
 | MyQuake → Domains → Matches subtab | `MyQuakeTab.tsx` | Disabled placeholder. Demos + screenshots browser with stats. Future phase |
 | MyQuake → Domains → Assets subtab | `MyQuakeTab.tsx` | Disabled placeholder. Textures, skins, sounds, paks browser. Future phase |
-| Screenshot automation | `screenshot.rs`, `ClientsTab` trigger | POC works end-to-end but has hardcoded Administrator path + fragile timings. Active goal: one-button → 3-5 perfect identical screenshots |
+| Screenshot automation | `screenshot.rs` (Rust command); UI surface dropped in Phase 3.5a | POC works end-to-end but has hardcoded Administrator path + fragile timings. Future home: Profile picture-generator (HANDOVER "Screenshot POC → Profile picture generator") |
 | `equipment_history` field + `addEquipmentHistory()` | `store.ts` | Intentionally parked for future community gear-discussion feature — members can check in with each other about brand/model experience |
 | "View as Primary" for in-archive configs | `ConfigViewer.tsx:555-558` | Known limitation, warns on console. Needs full pak path in `ConfigEntry` to implement |
 | Linux/macOS parity | `system.rs` non-Windows branches | Returns `None`/empty for GPU, display, audio, HID, DDR gen. Windows-only by design |

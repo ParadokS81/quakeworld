@@ -9,7 +9,7 @@ import { runWarehouseBootstrap } from "./lib/quake-dir/firstRunImport";
 import SideNav from "./components/SideNav";
 import ProfileTab from "./components/ProfileTab";
 import ToolsTab from "./components/ToolsTab";
-import ClientsTab from "./components/ClientsTab";
+import FeedTab from "./components/FeedTab";
 import ScheduleTab from "./components/ScheduleTab";
 import SettingsTab from "./components/SettingsTab";
 import MyQuakeTab from "./components/MyQuakeTab";
@@ -155,7 +155,7 @@ function App() {
     setLoading(false);
   });
 
-  /** Called by ClientsTab when a config is loaded (updates both signal and store) */
+  /** Called by ClientsDomain when a config is loaded (updates both signal and store) */
   async function handleConfigLoaded(cfg: EzQuakeConfig, exePath: string, configName: string, version: string | null) {
     setEzConfig(cfg);
     const updated = await updatePrimaryClient({
@@ -174,10 +174,18 @@ function App() {
     }
   }
 
-  /** Called by ProfileTab/ClientsTab to update hardware in the store */
+  /** Called by ProfileTab/ClientsDomain to update hardware in the store */
   async function handleHardwareUpdate(data: Partial<SetupHardware>) {
     const updated = await updatePrimaryHardware(data);
     setProfile(updated);
+  }
+
+  /** Called by FeedTab after a successful update — re-validate exe + reload config. */
+  async function handleAfterUpdate() {
+    const prof = profile();
+    if (prof) {
+      await autoLoadConfig(prof);
+    }
   }
 
   return (
@@ -212,11 +220,10 @@ function App() {
                 savedDpi={profile() ? getPrimarySetup(profile()!).hardware.dpi : null}
               />
             </Match>
-            <Match when={activeTab() === "clients"}>
-              <ClientsTab
-                onConfigLoaded={handleConfigLoaded}
-                monitor={monitor()}
+            <Match when={activeTab() === "feed"}>
+              <FeedTab
                 profile={profile()}
+                onAfterUpdate={handleAfterUpdate}
               />
             </Match>
             <Match when={activeTab() === "myquake"}>
@@ -228,7 +235,7 @@ function App() {
                 compareSource={compareSource()}
                 onCompareSourceChange={setCompareSource}
                 profile={profile()}
-                onSwitchToTab={setActiveTab}
+                onConfigLoaded={handleConfigLoaded}
               />
             </Match>
             <Match when={activeTab() === "settings"}>

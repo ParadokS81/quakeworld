@@ -7,6 +7,7 @@ import { updatePrefs } from "../store";
 import ConfigViewer from "./ConfigViewer";
 import BrowseView from "./BrowseView";
 import MatchesDomain from "./MatchesDomain";
+import ClientsDomain from "./ClientsDomain";
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
@@ -16,7 +17,7 @@ interface MyQuakeTabProps {
   compareSource: ConfigSourceBundle | null;
   onCompareSourceChange: (source: ConfigSourceBundle | null) => void;
   profile: ProfileData | null;
-  onSwitchToTab: (tab: string) => void;
+  onConfigLoaded?: (config: EzQuakeConfig, exePath: string, configName: string, version: string | null) => void;
 }
 
 export default function MyQuakeTab(props: MyQuakeTabProps) {
@@ -272,6 +273,16 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
         <div class="flex items-center gap-1 px-4 pt-2 pb-0 border-b border-[var(--sg-stat-border)]">
           <button
             class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
+              domain() === "clients"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
+                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
+            }`}
+            onClick={() => setDomain("clients")}
+          >
+            Clients
+          </button>
+          <button
+            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
               domain() === "configs"
                 ? "border-[var(--color-primary)] text-[var(--color-primary)]"
                 : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
@@ -317,7 +328,16 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               profile={props.profile}
               hideDefaults={hideDefaults()}
               onOpenInConfigs={handleOpenConfigFromBrowse}
-              onSwitchToClientsTab={() => props.onSwitchToTab("clients")}
+              onSwitchToClientsDomain={() => {
+                setMode("domains");
+                setDomain("clients");
+              }}
+            />
+          </Match>
+          <Match when={mode() === "domains" && domain() === "clients"}>
+            <ClientsDomain
+              onConfigLoaded={props.onConfigLoaded}
+              profile={props.profile}
             />
           </Match>
           <Match when={mode() === "domains" && domain() === "configs"}>
