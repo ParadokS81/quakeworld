@@ -501,6 +501,162 @@ Rationale, primary-source inventory, and KTX schema-fitness check: see `apps/qw-
 
 ---
 
+## v15 (2026-04-27): MVDSV server-side entity types
+
+Phase 2e of the QW knowledge service rollout. Widens the `entities.type` CHECK from 11 to 15 values via the standard entities-rebuild pattern (`ENTITIES_V15_MIGRATION_SQL`, mirroring v11 -> v12) and adds four new per-version tables in `SCHEMA_V15_ADDITIONS_SQL`. Pure-additive: every pre-v15 entity row is preserved, no per-version rows are touched.
+
+The four new types describe the server-side surface that MVDSV (the QuakeWorld dedicated server) exposes -- the wire protocol, the userinfo/serverinfo string-key namespace, the print/log channels that drive game-event broadcasting, and the QuakeC builtin function table that bridges engine code into the QC VM. Once MVDSV Layer 1 extraction lands, these tables become the foundation for two downstream consumers:
+
+- The upcoming **KTX cvars/commands arc (Phase 2e-KTX)** -- KTX is a QC mod hosted by MVDSV; KTX needs the protocol_message + qc_builtin tables to make sense of mod-side cvar registrations and event broadcasts.
+- The **qw_event_log validation oracle** -- the parser is currently frozen at `/home/paradoks/projects/qw-event-log-handoff/` (commit `2c584b4`). It carries an obit-string -> cause taxonomy and WeaponType enum that need to be cross-checked against engine source. Activates after KTX gameplay overrides ship; the validation harness joins the parser's enums against `protocol_message_versions` (svc/clc kinds) and `log_template_versions` (broadcast channel, obit format strings).
+
+### New entity types
+
+| Type | Represents |
+|---|---|
+| `protocol_message` | Wire-protocol byte constants -- server-to-client (`svc_*`), client-to-server (`clc_*`), legacy NetQuake-protocol carry-overs, FTE/MVD protocol-extension bits, `PROTOCOL_VERSION` constants. The defines that govern message parsing on either end of the connection. |
+| `info_key` | userinfo / serverinfo / localinfo string keys read or written via the `Info_*` API family. The namespace through which clients and the server expose mutable string-keyed metadata (`name`, `team`, `*gamedir`, etc.). |
+| `log_template` | Server-side print / log format-string templates from `SV_BroadcastPrintf`, `SV_ClientPrintf`, `Con_Printf`, `Sys_Printf`, etc. Channel-discriminated. The format strings that drive obit lines, status banners, and console output -- the substrate the qw_event_log parser consumes. |
+| `qc_builtin` | QuakeC builtin functions exposed via the `std_builtins[]` / `ext_builtins[]` (and possibly `ext_syscalls[]`) tables in MVDSV's PR2 layer. The engine-side counterparts of QC primitives like `makevectors`, `setorigin`, `centerprint`. |
+
+### `protocol_message_versions`
+
+```sql
+CREATE TABLE IF NOT EXISTS protocol_message_versions (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+  kind             TEXT NOT NULL CHECK (kind IN ('svc','clc','nq','pext_fte','pext_mvd','protocol_version')),
+  value            TEXT,
+  value_kind       TEXT,
+  source_file      TEXT,
+  source_line      INTEGER,
+  trailing_comment TEXT,
+  raw_ast_hash     TEXT,
+  source_root      TEXT,
+  extracted_at     TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_protocol_message_versions_source ON protocol_message_versions(source_file, source_line);
+```
+
+Type-specific columns: `kind` (discriminator -- see table below), `value` (the literal byte / int constant, e.g. `1`, `0x80`, `(1<<3)`), `value_kind` (free-form tag for how the value is expressed -- decimal int, hex int, shift expression, etc.), `trailing_comment` (preserves `// initial connection` style annotation that often documents protocol intent more than the macro name itself).
+
+`kind` discriminator:
+
+| Value | Meaning |
+|---|---|
+| `svc` | Server-to-client message byte. The dispatch byte the client reads to decide what kind of update follows. |
+| `clc` | Client-to-server message byte. Symmetric: the byte the server reads to demux client commands. |
+| `nq` | NetQuake-protocol legacy. Constants carried over from id Software's original Quake protocol that QuakeWorld either reuses or maps around. |
+| `pext_fte` | FTE protocol-extension bit. Bits in the extension bitmask FTE engines negotiate at connect to enable post-id1 features. |
+| `pext_mvd` | MVD protocol-extension bit. Bits negotiated specifically for MVD demo recording / playback channels. |
+| `protocol_version` | Top-level `PROTOCOL_VERSION` integer constants. The protocol-rev numbers themselves, distinct from the per-message dispatch bytes. |
+
+Index: `idx_protocol_message_versions_source ON (source_file, source_line)` -- supports `git blame`-style queries where a tag-pair diff needs to attribute a constant change back to its declaration site.
+
+### `info_key_versions`
+
+```sql
+CREATE TABLE IF NOT EXISTS info_key_versions (
+  entity_id           INTEGER NOT NULL REFERENCES entities(id),
+  version             TEXT NOT NULL,
+  scope               TEXT NOT NULL CHECK (scope IN ('userinfo','serverinfo','localinfo')),
+  operations          TEXT,
+  source_file         TEXT,
+  source_line         INTEGER,
+  containing_function TEXT,
+  call_sites_json     TEXT,
+  raw_ast_hash        TEXT,
+  source_root         TEXT,
+  extracted_at        TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_info_key_versions_source ON info_key_versions(source_file, source_line);
+```
+
+Type-specific columns: `scope` (discriminator -- see table below; informs whether the key is per-client, server-global, or non-public), `operations` (which `Info_*` operations the engine performs on this key -- read / write / remove -- expressed as a compact text tag), `containing_function` (the C function the primary call site sits in -- helps disambiguate keys that appear across many sites), `call_sites_json` (full list of `Info_*` call sites for this key as a JSON array; the primary `source_file:source_line` is one entry, the rest live here).
+
+`scope` discriminator:
+
+| Value | Meaning |
+|---|---|
+| `userinfo` | Per-client info string. Keys clients send up via `setinfo` (e.g. `name`, `team`, `topcolor`) -- the public per-player metadata visible to other clients. |
+| `serverinfo` | Server-global info string. Keys the server exposes globally (e.g. `*gamedir`, `maxclients`, `*version`) -- visible to every connected client. |
+| `localinfo` | Server-local info string. Server-side non-public keys not broadcast to clients. Used for operator-side state that should not leak. |
+
+Index: `idx_info_key_versions_source ON (source_file, source_line)` -- same rationale as `protocol_message_versions`.
+
+### `log_template_versions`
+
+```sql
+CREATE TABLE IF NOT EXISTS log_template_versions (
+  entity_id                INTEGER NOT NULL REFERENCES entities(id),
+  version                  TEXT NOT NULL,
+  channel                  TEXT NOT NULL CHECK (channel IN ('broadcast','client','console','system')),
+  format_string            TEXT NOT NULL,
+  format_string_normalized TEXT NOT NULL,
+  source_file              TEXT,
+  source_line              INTEGER,
+  containing_function      TEXT,
+  raw_ast_hash             TEXT,
+  source_root              TEXT,
+  extracted_at             TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_log_template_versions_source ON log_template_versions(source_file, source_line);
+CREATE INDEX IF NOT EXISTS idx_log_template_versions_channel ON log_template_versions(channel);
+```
+
+Type-specific columns: `channel` (discriminator -- see table below; identifies which print API funneled the template), `format_string` NOT NULL (the verbatim format string passed to the print call -- e.g. `"%s entered the game\n"`), `format_string_normalized` NOT NULL (a canonicalized form -- `%`-specifiers collapsed, whitespace stabilised -- so two textually different but semantically equivalent strings dedupe to the same entity), `containing_function` (the C function holding the print call -- locates obit emitters vs status emitters vs cvar-error emitters).
+
+`channel` discriminator:
+
+| Value | Meaning |
+|---|---|
+| `broadcast` | Sent to all connected clients (`SV_BroadcastPrintf`). The channel obit lines, public chat relays, and round-start banners ride. |
+| `client` | Sent to one specific client (`SV_ClientPrintf`). Per-player feedback -- ruleset rejections, kicked-message reasons, vote prompts. |
+| `console` | Server console / `Con_Printf`. Operator-facing diagnostic output. |
+| `system` | System stdout / `Sys_Printf`. Pre-init or fatal-error output that bypasses the normal console. |
+
+Indexes: `idx_log_template_versions_source ON (source_file, source_line)` (blame queries) and `idx_log_template_versions_channel ON (channel)` (the qw_event_log validation oracle filters to `channel='broadcast'` to scan obit candidates -- a dedicated index keeps that hot path fast across thousands of templates).
+
+### `qc_builtin_versions`
+
+```sql
+CREATE TABLE IF NOT EXISTS qc_builtin_versions (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+  table_name       TEXT NOT NULL,
+  builtin_index    INTEGER NOT NULL,
+  handler_fn       TEXT NOT NULL,
+  qc_signature     TEXT,
+  source_file      TEXT,
+  source_line      INTEGER,
+  trailing_comment TEXT,
+  raw_ast_hash     TEXT,
+  source_root      TEXT,
+  extracted_at     TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_qc_builtin_versions_source ON qc_builtin_versions(source_file, source_line);
+```
+
+Type-specific columns: `table_name` NOT NULL (free-form -- expected MVDSV values are `std_builtins`, `ext_builtins`, possibly `ext_syscalls` for PR2 string-keyed dispatch; left free-form so other engines can declare their own tables without a CHECK rebuild), `builtin_index` INTEGER NOT NULL (the slot the handler occupies in the table -- the actual integer the QC VM dispatches on), `handler_fn` NOT NULL (the C function name the slot points to -- e.g. `PF_makevectors`), `qc_signature` (best-effort QC-side type signature -- `void(vector ang) makevectors`), `trailing_comment` (preserves contextual annotations from the table-initializer source).
+
+No discriminator enum -- `table_name` is free-form to admit future tables without a schema migration.
+
+Index: `idx_qc_builtin_versions_source ON (source_file, source_line)` -- standard blame index.
+
+### Migration shape
+
+`migrateV14ToV15` follows the same pattern as `migrateV11ToV12`: `foreign_keys = OFF` outside the transaction so the entities-table DROP is allowed (every per-type version table FK-references `entities.id`); inside the transaction, drop the entity indexes, run `ENTITIES_V15_MIGRATION_SQL` (rebuild with the widened CHECK + INSERT-SELECT preserves all existing entity rows), run `SCHEMA_V15_ADDITIONS_SQL` (idempotent CREATE IF NOT EXISTS for the four new tables), bump `schema_meta.schema_version` to 15.
+
+On a fresh DB the v1 `entities` CHECK already lists the full v15 type set (the comment at the top of `SCHEMA_V1_SQL` documents this "pre-widen the base CREATE to skip migration on fresh DBs" pattern), so fresh installs stamp v15 directly without running `migrateV14ToV15`. Both paths converge on the same shape.
+
+**Spec:** `docs/superpowers/specs/2026-04-27-mvdsv-extraction-design.md`. Plan: `docs/superpowers/plans/2026-04-27-mvdsv-layer1-extraction.md`. Task 1 inventory notes: `apps/qw-oracle/scripts/extractors/mvdsv/notes-pass-1.md`.
+
+---
+
 ## Related
 
 - Schema code: `scripts/load-knowledge/schema.ts`
