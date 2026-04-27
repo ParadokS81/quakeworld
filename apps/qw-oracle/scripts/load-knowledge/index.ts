@@ -75,6 +75,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'load-gameplay') {
+    await runLoadGameplay(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -120,6 +125,10 @@ Subcommands:
   load-maps     [--json <path>]
                 Load qw-maps-ast.json into the maps table (schema v13).
                 Defaults to scripts/extractors/qw/output/qw-maps-ast.json.
+  load-gameplay [--yaml <path>]
+                Load id1 game-mechanics seed YAML (37 entity defs + 41
+                mechanics) into gameplay_* tables (schema v14). Defaults
+                to scripts/extractors/qw/seeds/id1-gameplay.yaml.
 `.trim());
   process.exit(2);
 }
@@ -502,6 +511,38 @@ async function runLoadMaps(args: string[]): Promise<void> {
   try {
     const result = loadMapsFromFile(db, jsonPath);
     console.log(`load-maps: inserted=${result.inserted} updated=${result.updated} total=${result.total}`);
+  } finally {
+    db.close();
+  }
+}
+
+async function runLoadGameplay(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      yaml: { type: 'string' },
+    },
+  });
+
+  const yamlPath = values.yaml ?? join(__dirname, '..', 'extractors', 'qw', 'seeds', 'id1-gameplay.yaml');
+  const { loadGameplayFromFile } = await import('./load-gameplay.js');
+  const db = openKnowledgeDb();
+  try {
+    const r = loadGameplayFromFile(db, yamlPath);
+    console.log(
+      `load-gameplay: entities inserted=${r.inserted.entities} updated=${r.updated.entities} total=${r.total.entities}; ` +
+      `mechanics inserted=${r.inserted.mechanics} updated=${r.updated.mechanics} total=${r.total.mechanics}`,
+    );
+
+    const expectedEntities = 37;
+    const expectedMechanics = 41;
+    if (r.total.entities !== expectedEntities || r.total.mechanics !== expectedMechanics) {
+      console.error(
+        `load-gameplay: STOP - row-count mismatch. Expected entities=${expectedEntities} mechanics=${expectedMechanics}. ` +
+        `Got entities=${r.total.entities} mechanics=${r.total.mechanics}. Investigate the YAML before re-running.`,
+      );
+      process.exitCode = 1;
+    }
   } finally {
     db.close();
   }
