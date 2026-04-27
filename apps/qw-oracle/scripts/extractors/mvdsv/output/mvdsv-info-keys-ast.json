@@ -1,0 +1,1143 @@
+{
+  "info_keys": [
+    {
+      "name": "*admin",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "remove",
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3890,
+        "containing_function": "OnChange_admininfo_var",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3890,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3892,
+            "operation": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*cheats",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1825,
+        "containing_function": "SV_InitOperatorCommands",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_ccmds.c",
+            "source_line": 1825,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 350,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 354,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*csprogs",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_init.c",
+        "source_line": 221,
+        "containing_function": "SV_LoadCSQC",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 221,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 229,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*csprogsname",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_init.c",
+        "source_line": 224,
+        "containing_function": "SV_LoadCSQC",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 224,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 231,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*csprogssize",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_init.c",
+        "source_line": 223,
+        "containing_function": "SV_LoadCSQC",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 223,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 230,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*gamedir",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/fs.c",
+        "source_line": 561,
+        "containing_function": "FS_InitEx",
+        "all_call_sites": [
+          {
+            "source_file": "src/fs.c",
+            "source_line": 561,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_ccmds.c",
+            "source_line": 1564,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_ccmds.c",
+            "source_line": 1583,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_ccmds.c",
+            "source_line": 1693,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_demo.c",
+            "source_line": 1217,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 318,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*progs",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/pr_edict.c",
+        "source_line": 1187,
+        "containing_function": "PR1_LoadProgs",
+        "all_call_sites": [
+          {
+            "source_file": "src/pr_edict.c",
+            "source_line": 1187,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/vm.c",
+            "source_line": 700,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/vm.c",
+            "source_line": 1225,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*qvm",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/vm.c",
+        "source_line": 1224,
+        "containing_function": "VM_LoadNative",
+        "all_call_sites": [
+          {
+            "source_file": "src/vm.c",
+            "source_line": 1224,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*version",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3684,
+        "containing_function": "SV_InitLocal",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3684,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*z_ext",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3685,
+        "containing_function": "SV_InitLocal",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3685,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "epoch",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_demo.c",
+        "source_line": 1309,
+        "containing_function": "SV_MVD_SendInitialGamestate",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo.c",
+            "source_line": 1309,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "map",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_init.c",
+        "source_line": 659,
+        "containing_function": "SV_SpawnServer",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_init.c",
+            "source_line": 659,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "needpass",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3243,
+        "containing_function": "SV_CheckVars",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3243,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3245,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "status",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 732,
+        "containing_function": "QTVcmd_Say_f",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo_qtv.c",
+            "source_line": 732,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 226,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*VIP",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1437,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1437,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 295,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*auth",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/central.c",
+        "source_line": 217,
+        "containing_function": "Auth_ProcessLoginAttempt",
+        "all_call_sites": [
+          {
+            "source_file": "src/central.c",
+            "source_line": 217,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/central.c",
+            "source_line": 220,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_login.c",
+            "source_line": 644,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*client",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 370,
+        "containing_function": "Cmd_New_f",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 370,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*flag",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/central.c",
+        "source_line": 232,
+        "containing_function": "Auth_ProcessLoginAttempt",
+        "all_call_sites": [
+          {
+            "source_file": "src/central.c",
+            "source_line": 232,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/central.c",
+            "source_line": 234,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_login.c",
+            "source_line": 645,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*qtv",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1399,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1399,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*skill",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 476,
+        "containing_function": "SV_CalcPing",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 476,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*spectator",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "remove",
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1066,
+        "containing_function": "CheckPasswords",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1066,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1364,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 466,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 467,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2710,
+            "operation": "remove"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2711,
+            "operation": "remove"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2795,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2796,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*z_ext",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "remove"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1425,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1425,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1426,
+            "operation": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Qizmo",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1398,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1398,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "address",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 46,
+        "containing_function": "SV_InitStream",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo_qtv.c",
+            "source_line": 46,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bottomcolor",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 639,
+        "containing_function": "SVC_Status",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 639,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 4711,
+        "containing_function": "SV_ExecuteClientMessage",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4711,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dev",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 3995,
+        "containing_function": "SV_ExecuteServerSideWeaponForgetOrder",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 3995,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4040,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4048,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4115,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4216,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drate",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 1568,
+        "containing_function": "Cmd_Download_f",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 1568,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dupe",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3841,
+        "containing_function": "SV_ExtractFromUserinfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3841,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "emodel",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 1009,
+        "containing_function": "Cmd_Begin_f",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 1009,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 1014,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "msg",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3847,
+        "containing_function": "SV_ExtractFromUserinfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3847,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mtu",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1411,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1411,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 45,
+        "containing_function": "SV_InitStream",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo_qtv.c",
+            "source_line": 45,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_login.c",
+            "source_line": 823,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3731,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3762,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3763,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3768,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3769,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3798,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3799,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2401,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "password",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "remove"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1044,
+        "containing_function": "CheckPasswords",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1044,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1075,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1098,
+            "operation": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pmodel",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 1008,
+        "containing_function": "Cmd_Begin_f",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 1008,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 1013,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qul",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 934,
+        "containing_function": "QTVsv_EventToClients",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo_qtv.c",
+            "source_line": 934,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1494,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rate",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 4970,
+        "containing_function": "SV_ClientDownloadComplete",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4970,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "skin",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 660,
+        "containing_function": "SVC_Status",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 660,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sp",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3852,
+        "containing_function": "SV_ExtractFromUserinfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3852,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "spectator",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "remove"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1032,
+        "containing_function": "CheckPasswords",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1032,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1065,
+            "operation": "remove"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1093,
+            "operation": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "name": "streamid",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 47,
+        "containing_function": "SV_InitStream",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_demo_qtv.c",
+            "source_line": 47,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "svf",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 1354,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1354,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 1358,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "team",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 3831,
+        "containing_function": "SV_ExtractFromUserinfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3831,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3833,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 3834,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "topcolor",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/sv_main.c",
+        "source_line": 638,
+        "containing_function": "SVC_Status",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_main.c",
+            "source_line": 638,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "w_rank",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/sv_user.c",
+        "source_line": 4211,
+        "containing_function": "SV_UserSetWeaponRank",
+        "all_call_sites": [
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4211,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4213,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 4444,
+            "operation": "read"
+          }
+        ]
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 98,
+    "count": 45,
+    "by_scope": {
+      "serverinfo": 14,
+      "userinfo": 31
+    }
+  }
+}
