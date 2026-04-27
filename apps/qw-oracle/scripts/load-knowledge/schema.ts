@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -1047,6 +1047,37 @@ CREATE INDEX IF NOT EXISTS idx_cvar_alias_versions_canonical
   ON cvar_alias_versions(target_canonical_id);
 `;
 
+// v13: maps table for community game content. Intentionally flat -- maps do
+// not change with engine version so they don't participate in the
+// entity/version machinery. Spec: docs/superpowers/specs/2026-04-26-qw-oracle-map-knowledge-design.md.
+const SCHEMA_V13_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS maps (
+  canonical_name           TEXT PRIMARY KEY,
+  file_name                TEXT NOT NULL,
+  display_name             TEXT,
+  author                   TEXT,
+  bsp_version              TEXT NOT NULL,
+  bsp_size_bytes           INTEGER NOT NULL,
+  bsp_sha256               TEXT NOT NULL,
+  worldspawn_json          TEXT NOT NULL,
+  entity_count             INTEGER NOT NULL,
+  class_counts_json        TEXT NOT NULL,
+  item_summary_json        TEXT NOT NULL,
+  spawn_summary_json       TEXT NOT NULL,
+  features_json            TEXT NOT NULL,
+  wads_referenced_json     TEXT NOT NULL,
+  inferred_gamemodes_json  TEXT NOT NULL,
+  popularity_total         INTEGER,
+  popularity_by_mode_json  TEXT,
+  popularity_rank          INTEGER,
+  notes                    TEXT,
+  source_bsp_url           TEXT NOT NULL,
+  extracted_at             TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_maps_popularity_rank ON maps(popularity_rank);
+CREATE INDEX IF NOT EXISTS idx_maps_author          ON maps(author);
+`;
+
 const ENTITIES_V12_MIGRATION_SQL = `
 CREATE TABLE entities_v12 (
   id                    INTEGER PRIMARY KEY,
@@ -1139,6 +1170,16 @@ function migrateV11ToV12(db: Database.Database): void {
   }
 }
 
+function migrateV12ToV13(db: Database.Database): void {
+  // Pure-additive: one new table, no CHECK changes, no FK touches.
+  // Follows the v10->v11 pattern (plain transaction, no foreign_keys OFF).
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V13_ADDITIONS_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('13');
+  });
+  txn();
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -1199,6 +1240,10 @@ export function applySchema(db: Database.Database): void {
       migrateV11ToV12(db);
       existingVersion = 12;
     }
+    if (existingVersion === 12 && SCHEMA_VERSION >= 13) {
+      migrateV12ToV13(db);
+      existingVersion = 13;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -1214,4 +1259,5 @@ export function applySchema(db: Database.Database): void {
   db.exec(SCHEMA_V5_ADDITIONS_SQL);
   db.exec(SCHEMA_V6_ADDITIONS_SQL);
   db.exec(SCHEMA_V12_ADDITIONS_SQL);
+  db.exec(SCHEMA_V13_ADDITIONS_SQL);
 }
