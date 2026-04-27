@@ -202,6 +202,96 @@ static cvar_t cl_www_address = { "cl_www_address", "...", CVAR_ROM };
 
 **Validation:** `sqlite3 ... "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` should return exactly one row per name.
 
+### Pattern 9 — Function-banner description harvest
+
+**Source example:**
+```c
+/*
+==================
+SV_Logfile_f
+
+Toggle persistent logfile output.
+==================
+*/
+void SV_Logfile_f(void) { ... }
+```
+
+**Detection:** for each registered handler function (the Cmd_AddCommand second-arg `DECL_REF_EXPR` resolves to a FUNCTION_DECL), walk source bytes backward from the FUNCTION_DECL byte offset to the immediately preceding `/* ... */` block. Parse the banner body skipping decoration lines (`^[=\-]+$`) and bare-identifier lines that just repeat the function name; join remaining lines with single spaces.
+
+**Handler:** MVDSV `_handler_commands.py::_harvest_banner_description()`. Emits the harvested string as `description` on the command row when present.
+
+**Coverage:** ~26-28% on MVDSV's 108 commands. Doesn't fire when the handler function lives in a different .c file than the registration site (cross-file resolution requires Pattern 13). Doesn't fire when the function has no banner. Header-bytes caching when the FUNCTION_DECL lives in a different file than the current TU root.
+
+**Why this matters:** MVDSV ships no help-JSON. Without any description-side data, every command would have `description=NULL`. Banner harvest is the only mechanical way to recover doc strings from MVDSV source.
+
+### Pattern 10 — TU-root cursor intercept for MACRO_DEFINITION
+
+**Source example:**
+```c
+// in src/qwprot/src/protocol.h:
+#define svc_print           8
+#define svc_centerprint     26
+#define FTE_PEXT_HLBSP      0x00000001
+```
+
+**Detection:** by default `walk_tu_dispatch` filters cursors whose `location.file != target_path_str` to keep handlers focused on the current TU. But `MACRO_DEFINITION` cursors hang off the TU root and live in headers, not the TU's .c file. To extract `#define` constants, intercept the TU root cursor specifically and do a one-shot `cursor.get_children()` scan for `CursorKind.MACRO_DEFINITION` cursors, including those whose `location.file` points to allowed header paths (e.g. `src/qwprot/src/protocol.h`).
+
+**Handler:** MVDSV `_handler_protocol_messages.py`. Header-bytes caching ensures trailing-comment harvest from headers different than the current TU root file works without re-reading.
+
+**When you need this:** entity types whose source representation is a `#define` constant rather than a function call. Protocol messages, packet flags, info_key constants, anything where the literal value is the entity.
+
+### Pattern 11 — Table-array recovery through `UNEXPOSED_EXPR` wrappers
+
+**Source example:**
+```c
+// pr_cmds.c:
+builtin_t std_builtins[] = {
+    NULL,            // #0 (placeholder)
+    PF_makevectors,  // #1
+    PF_setorigin,    // #2
+    ...
+};
+```
+
+**Detection:** libclang wraps function-pointer entries in INIT_LIST_EXPR with `UNEXPOSED_EXPR` (function-to-pointer decay). A naive `_read_extent` text-strip works on simple cases but fails when the entry is wrapped or when the entry is itself a `(builtin_t)NULL` or array-spelling cast. Use a recursive subtree walk that descends through `UNEXPOSED_EXPR`, `CSTYLE_CAST_EXPR`, `PAREN_EXPR` until it finds a `DECL_REF_EXPR` (function reference), `INTEGER_LITERAL`, or `STRING_LITERAL`.
+
+**Handler:** MVDSV `_handler_qc_builtins.py::_resolve_*` family. Used for `std_builtins[]`, `ext_builtins[]`, and the `ext_syscalls[]` mixed-type table.
+
+**When you need this:** any C source that initializes an array with function-pointer entries, mixed integer/identifier entries, or anywhere libclang's auto-generated cursor kinds obscure the underlying literal.
+
+### Pattern 12 — Struct-array `Cmd_AddCommand` from non-literal first arg
+
+**Source example:**
+```c
+// sv_init.c (MVDSV):
+log_t logs[] = {
+    { NULL, "logfile",      "qconsole_",  "...", "console",      SV_Logfile_f,        0 },
+    { NULL, "frag_log",     "frag_",      "...", "frag log",     SV_FragLogfile_f,    0 },
+    ...
+};
+// later:
+for (i = 0; i < num_logs; i++)
+    Cmd_AddCommand(logs[i].command, logs[i].function);
+```
+
+**Detection:** `Cmd_AddCommand`'s first arg is `logs[i].command` — a `MEMBER_REF_EXPR` on an array index, never a literal. The call-site detector extracts no name. Recover from the `log_t logs[N]` struct-array literal directly: enumerate the outer `INIT_LIST_EXPR`, descend into each element, pull the field at the registered command-name index.
+
+**Handler:** MVDSV `_handler_commands.py::_extract_log_t_table()`. Pattern parallel to ezQuake's `log_t` (Pattern 4) but registered separately because the MVDSV log_t struct shape and field index differ slightly.
+
+**Add a new struct type:** add an entry to the handler's table-shape map (`{struct_name: (name_idx, fn_idx)}`).
+
+### Pattern 13 — Multiprocessing-safe two-row emission for cross-file resolution
+
+**Source example:** none — this is an architectural pattern for handlers that need to resolve information across .c files.
+
+**Trigger:** a handler wants both a registration site (`Cmd_AddCommand("foo", Foo_f)` in file A) AND the handler function definition (`void Foo_f(void) { ... }` in file B). The registration site is needed to emit the command row; the function-definition site is needed to harvest the banner description (Pattern 9). With multiprocessing-driven extraction, workers process one .c file at a time, so cross-file state can't be shared.
+
+**Fix shape:** workers emit BOTH `_cmd` (registration row, partial) and `_fn_def` (function-definition row carrying the banner) into the per-file output. The controller's `finalize()` step merges: for each `_cmd` row whose handler-function name matches a `_fn_def` row, copy the harvested banner over to the command row. Drop unmerged `_fn_def` rows (they're scaffolding).
+
+**Handler:** MVDSV `_handler_commands.py::finalize()`. `_cmd` rows carry `ast.handler_function_name` keyed against `_fn_def` rows.
+
+**When you need this:** any cross-file reference where the registration site and the resolution target live in different TUs.
+
 ---
 
 ## Multi-variant parse architecture
@@ -389,12 +479,13 @@ Every entity absent from extraction falls into exactly one bucket. The bucket de
 | ezQuake | ~3849 | 0 (no plugins) | ~4 cvars | ~5 HUD-synth subset | 0 |
 | QWCL | 364 | 0 (no plugins) | unknown (small) | 0 | 2 cmdline_params |
 | FTE | 3208 | ~26 cvars | ~27 cvars | ~56 cvars | 0 |
+| MVDSV | 1235 | 0 (no plugins) | ~25 (Cvar_Create + Info_* runtime args) | ~7 (helper-fn-wrapped cmdline params) | 0 (validated against Ciscon's 1.20-dev dump) |
 
 ---
 
 ### Bucket 1 -- Out of scope by design (source roots not visited)
 
-Applies to FTE only. ezQuake and QWCL have no plugin systems; this bucket is empty for them.
+Applies to FTE only. ezQuake, QWCL, and MVDSV have no plugin systems; this bucket is empty for them.
 
 FTE Phase 2d-core visited only the `engine/` tree and the `ezhud` plugin (the QW-competitive bridge plugin). Other plugins are not in SOURCE_ROOTS: `plugins/irc/`, `plugins/jabber/`, `plugins/bullet/`, `plugins/avplug/`, `plugins/cef/`, `plugins/cod/`, `plugins/hl2/`, `plugins/quake3/`, `plugins/serverb/`, `plugins/qi/`, `plugins/ezscript/`, ~17 others.
 
@@ -586,3 +677,4 @@ Update the playbook if new patterns are generalizable.
 ## Changelog
 
 - **2026-04-25** — Initial playbook authored after the ezQuake Layer 1 doc_only audit closed. Captures all eight registration patterns, the 4-variant parse architecture, loader-side cross-type orphan dedup, runtime validation procedure, known limits, and the stepwise porting checklist. Ship target: next engine port can skip the archaeology and work from this.
+- **2026-04-27** — MVDSV Phase 2e SHIPPED. Added Pattern 9 (function-banner harvest), Pattern 10 (TU-root cursor intercept for MACRO_DEFINITION), Pattern 11 (recursive `_resolve_*` AST walks for libclang `UNEXPOSED_EXPR` wrappers), Pattern 12 (`log_t logs[N]` struct-array `Cmd_AddCommand` recovery), Pattern 13 (multiprocessing-safe two-row emission for cross-file resolution). MVDSV row added to per-engine counts table (1235 entities; runtime-validated against Ciscon's 1.20-dev dump with zero extractor gaps). Six loader-side bug fixes shipped during validation: cvars handler `_trailing_comment` switched from `max(rfind(";"), rfind(","))` to `};` literal terminator (commit `8747ad9`); `load-cvars.ts` `default_value` reads `entry.ast.default_value` with fallback to legacy `entry.default` (`9d61924`); `load-cmdline-params.ts` adds flat `ast.source_file/line/column` fallback alongside the nested `ast.usage_sites[0]` form (`a905c22`); Python handler `payload_field` keys harmonized to legacy `vars` and `params` (`9d61924`); `load-version.ts` adds `validLogTemplate` carve-out for canonical names containing `:`/`%`/spaces/escapes (`9d61924`); `load-version.ts` adds `validInfoKey` carve-out accepting leading `*` for QW system keys (`30969c1`, recovered 18 of 45). All six fixes are idempotent and pure-additive — they widen accept-criteria without altering existing rejection paths. Future ports inheriting these fallbacks: any engine emitting flat `ast.*` fields, `*`-prefixed system identifiers, or canonical-but-non-identifier names.
