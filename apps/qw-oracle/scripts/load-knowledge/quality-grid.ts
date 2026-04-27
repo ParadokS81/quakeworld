@@ -861,6 +861,418 @@ function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
+// MVDSV Family 1 — Regression probes
+//
+// Pinned thresholds for the seven MVDSV entity types loaded by Phase 2e.
+// Counts are taken at HEAD (1.20-dev). Bounds are conservative lower-only
+// floors — cvars/commands/etc. only grow over MVDSV's lifecycle, and MVDSV
+// ships no help-JSON, so doc_only complement is zero by construction.
+//
+// Source-of-truth counts at the time these probes were minted:
+//   cvar=183 / command=108 / cmdline_param=11 / protocol_message=105 /
+//   info_key=44 / log_template=691 / qc_builtin=93.
+// ---------------------------------------------------------------------------
+
+function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.cvars_source_backed_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='cvar' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 180;
+  return {
+    name: 'F1.mvdsv.cvars_source_backed_count',
+    family: 'regression',
+    description: `mvdsv source_backed cvar count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed cvars` : `${n} source_backed cvars — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvCommandsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.commands_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='command' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 100;
+  return {
+    name: 'F1.mvdsv.commands_count',
+    family: 'regression',
+    description: `mvdsv source_backed command count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed commands` : `${n} source_backed commands — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvCmdlineParamsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.cmdline_params_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='cmdline_param' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 10;
+  return {
+    name: 'F1.mvdsv.cmdline_params_count',
+    family: 'regression',
+    description: `mvdsv source_backed cmdline_param count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed cmdline params` : `${n} source_backed cmdline params — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvProtocolMessagesCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.protocol_messages_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='protocol_message' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 100;
+  return {
+    name: 'F1.mvdsv.protocol_messages_count',
+    family: 'regression',
+    description: `mvdsv source_backed protocol_message count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed protocol messages` : `${n} source_backed protocol messages — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvInfoKeysCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.info_keys_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='info_key' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 40;
+  return {
+    name: 'F1.mvdsv.info_keys_count',
+    family: 'regression',
+    description: `mvdsv source_backed info_key count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed info keys` : `${n} source_backed info keys — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvLogTemplatesCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.log_templates_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='log_template' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 600;
+  return {
+    name: 'F1.mvdsv.log_templates_count',
+    family: 'regression',
+    description: `mvdsv source_backed log_template count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed log templates` : `${n} source_backed log templates — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.qc_builtins_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='mvdsv' AND type='qc_builtin' AND source_state='source_backed'
+  `).get() as { n: number };
+  const n = row.n;
+  const lo = 90;
+  return {
+    name: 'F1.mvdsv.qc_builtins_count',
+    family: 'regression',
+    description: `mvdsv source_backed qc_builtin count >= ${lo}`,
+    status: n >= lo ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo ? `${n} source_backed qc builtins` : `${n} source_backed qc builtins — below floor ${lo}`,
+    examples: [],
+  };
+}
+
+// MVDSV ships no help-JSON, so every entity must be source_backed. A non-
+// source_backed row would mean a doc_only / source_retired classification
+// crept in via a cross-type collision or a future help-JSON import.
+function probeMvdsvAllSourceBacked(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.all_source_backed', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT type, name, source_state FROM entities
+    WHERE project='mvdsv' AND source_state != 'source_backed'
+    ORDER BY type, name
+  `).all() as { type: string; name: string; source_state: string }[];
+  return {
+    name: 'F1.mvdsv.all_source_backed',
+    family: 'regression',
+    description: 'mvdsv has zero non-source_backed entities (no help-JSON shipped)',
+    status: rows.length === 0 ? 'PASS' : 'FAIL',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all mvdsv entities source_backed' : `${rows.length} non-source_backed mvdsv entities`,
+    examples: rows.slice(0, 5).map(r => `${r.type}:${r.name} (${r.source_state})`),
+  };
+}
+
+// Sanity probe: maxfps default at head must be '77'. This is the canonical
+// MVDSV server-side fps floor and the default value is hard-coded in the
+// source. A change here means either the default genuinely shifted upstream
+// or the cvar handler regressed on default-value extraction.
+function probeMvdsvMaxfpsDefault77(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.sv_maxfps_default_77', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT cv.default_value FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='mvdsv' AND e.name='maxfps' AND cv.version='head'
+  `).get() as { default_value: string | null } | undefined;
+  const got = row?.default_value ?? '<missing>';
+  const ok = got === '77';
+  return {
+    name: 'F1.mvdsv.sv_maxfps_default_77',
+    family: 'regression',
+    description: "mvdsv cvar `maxfps` default_value is '77' at head",
+    status: ok ? 'PASS' : 'FAIL',
+    count: ok ? 0 : 1,
+    summary: ok ? "maxfps default='77'" : `maxfps default='${got}', expected '77'`,
+    examples: [],
+  };
+}
+
+// Sanity probe: svc_print at head must be a 'svc' kind with value '8'. This
+// pins the protocol-message handler's value/kind extraction. svc_print=8 is
+// fixed in the QuakeWorld protocol.
+function probeMvdsvSvcPrintValue8(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.svc_print_value_8', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT pv.value, pv.kind FROM protocol_message_versions pv
+    JOIN entities e ON pv.entity_id=e.id
+    WHERE e.project='mvdsv' AND e.name='svc_print' AND pv.version='head'
+  `).get() as { value: string | null; kind: string } | undefined;
+  const ok = !!row && row.value === '8' && row.kind === 'svc';
+  const summary = ok
+    ? "svc_print kind='svc' value='8'"
+    : `svc_print got kind='${row?.kind ?? '<missing>'}' value='${row?.value ?? '<missing>'}', expected kind='svc' value='8'`;
+  return {
+    name: 'F1.mvdsv.svc_print_value_8',
+    family: 'regression',
+    description: "mvdsv protocol_message `svc_print` is kind='svc' value='8' at head",
+    status: ok ? 'PASS' : 'FAIL',
+    count: ok ? 0 : 1,
+    summary,
+    examples: [],
+  };
+}
+
+// Sanity probe: makevectors qc_builtin at head must live in std_builtins
+// at builtin_index=1. This pins the qc_builtin handler's table_name +
+// builtin_index extraction.
+function probeMvdsvMakevectorsBuiltin1(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT bv.table_name, bv.builtin_index FROM qc_builtin_versions bv
+    JOIN entities e ON bv.entity_id=e.id
+    WHERE e.project='mvdsv' AND e.name='makevectors' AND bv.version='head'
+  `).get() as { table_name: string; builtin_index: number } | undefined;
+  const ok = !!row && row.table_name === 'std_builtins' && row.builtin_index === 1;
+  const summary = ok
+    ? "makevectors table_name='std_builtins' builtin_index=1"
+    : `makevectors got table_name='${row?.table_name ?? '<missing>'}' index=${row?.builtin_index ?? '<missing>'}, expected std_builtins/1`;
+  return {
+    name: 'F1.mvdsv.makevectors_builtin_1',
+    family: 'regression',
+    description: "mvdsv qc_builtin `makevectors` is table_name='std_builtins' builtin_index=1 at head",
+    status: ok ? 'PASS' : 'FAIL',
+    count: ok ? 0 : 1,
+    summary,
+    examples: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// MVDSV Family 2 — Anomaly probes
+// ---------------------------------------------------------------------------
+
+// All four channels (broadcast/client/console/system) must be present in
+// log_template_versions. A missing channel means the log-template handler
+// stopped emitting one entire bucket.
+function probeMvdsvLogTemplateChannelsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F2.mvdsv.log_template_channels_count', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT lv.channel, COUNT(*) AS n FROM log_template_versions lv
+    JOIN entities e ON lv.entity_id=e.id
+    WHERE e.project='mvdsv'
+    GROUP BY lv.channel ORDER BY lv.channel
+  `).all() as { channel: string; n: number }[];
+  const ok = rows.length === 4;
+  return {
+    name: 'F2.mvdsv.log_template_channels_count',
+    family: 'anomaly',
+    description: 'mvdsv log_template channel count is exactly 4 (broadcast/client/console/system)',
+    status: ok ? 'CLEAN' : 'FOUND',
+    count: ok ? 0 : Math.abs(4 - rows.length),
+    summary: ok ? `4 channels present (${rows.map(r => `${r.channel}=${r.n}`).join(', ')})` : `${rows.length} channels: ${rows.map(r => `${r.channel}=${r.n}`).join(', ')}`,
+    examples: rows.map(r => `${r.channel}: ${r.n}`),
+  };
+}
+
+// Distribution gauge for info_key scopes. userinfo and serverinfo are well-
+// populated; localinfo is rare in MVDSV (operator-only). CLEAN if userinfo
+// >25 and serverinfo >=10. Always emit the by-scope counts as informational.
+function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F2.mvdsv.info_key_scopes_distribution', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT iv.scope, COUNT(DISTINCT e.id) AS n FROM info_key_versions iv
+    JOIN entities e ON iv.entity_id=e.id
+    WHERE e.project='mvdsv'
+    GROUP BY iv.scope ORDER BY iv.scope
+  `).all() as { scope: string; n: number }[];
+  const byScope = new Map(rows.map(r => [r.scope, r.n]));
+  const userinfo = byScope.get('userinfo') ?? 0;
+  const serverinfo = byScope.get('serverinfo') ?? 0;
+  const ok = userinfo > 25 && serverinfo >= 10;
+  return {
+    name: 'F2.mvdsv.info_key_scopes_distribution',
+    family: 'anomaly',
+    description: 'mvdsv info_key by-scope distribution: userinfo>25 AND serverinfo>=10',
+    status: ok ? 'CLEAN' : 'FOUND',
+    count: ok ? 0 : 1,
+    summary: ok
+      ? `userinfo=${userinfo} serverinfo=${serverinfo} (localinfo=${byScope.get('localinfo') ?? 0})`
+      : `userinfo=${userinfo} serverinfo=${serverinfo} — below floor (need userinfo>25 AND serverinfo>=10)`,
+    examples: rows.map(r => `${r.scope}: ${r.n}`),
+  };
+}
+
+// All six protocol_message kinds must be present (svc/clc/nq/pext_fte/
+// pext_mvd/protocol_version). A missing kind means the protocol-message
+// handler dropped an entire enum family.
+function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F2.mvdsv.protocol_message_kinds_distribution', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT pv.kind, COUNT(*) AS n FROM protocol_message_versions pv
+    JOIN entities e ON pv.entity_id=e.id
+    WHERE e.project='mvdsv'
+    GROUP BY pv.kind ORDER BY pv.kind
+  `).all() as { kind: string; n: number }[];
+  const expected = ['svc', 'clc', 'nq', 'pext_fte', 'pext_mvd', 'protocol_version'];
+  const present = new Set(rows.map(r => r.kind));
+  const missing = expected.filter(k => !present.has(k));
+  const ok = missing.length === 0;
+  return {
+    name: 'F2.mvdsv.protocol_message_kinds_distribution',
+    family: 'anomaly',
+    description: 'mvdsv protocol_message kinds: all 6 (svc/clc/nq/pext_fte/pext_mvd/protocol_version) present',
+    status: ok ? 'CLEAN' : 'FOUND',
+    count: missing.length,
+    summary: ok
+      ? `all 6 kinds present (${rows.map(r => `${r.kind}=${r.n}`).join(', ')})`
+      : `missing kinds: ${missing.join(', ')}`,
+    examples: rows.map(r => `${r.kind}: ${r.n}`),
+  };
+}
+
+// MVDSV registers QC builtins under exactly three table names:
+// std_builtins, ext_builtins, ext_syscalls. A different distinct count
+// means the qc_builtin handler picked up an unexpected fourth registration
+// table or dropped one of the three.
+function probeMvdsvQcBuiltinTables(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F2.mvdsv.qc_builtin_tables', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT bv.table_name, COUNT(*) AS n FROM qc_builtin_versions bv
+    JOIN entities e ON bv.entity_id=e.id
+    WHERE e.project='mvdsv'
+    GROUP BY bv.table_name ORDER BY bv.table_name
+  `).all() as { table_name: string; n: number }[];
+  const ok = rows.length === 3;
+  return {
+    name: 'F2.mvdsv.qc_builtin_tables',
+    family: 'anomaly',
+    description: 'mvdsv qc_builtin distinct table_name count is exactly 3 (std_builtins/ext_builtins/ext_syscalls)',
+    status: ok ? 'CLEAN' : 'FOUND',
+    count: ok ? 0 : Math.abs(3 - rows.length),
+    summary: ok
+      ? `3 tables present (${rows.map(r => `${r.table_name}=${r.n}`).join(', ')})`
+      : `${rows.length} tables: ${rows.map(r => `${r.table_name}=${r.n}`).join(', ')}`,
+    examples: rows.map(r => `${r.table_name}: ${r.n}`),
+  };
+}
+
+// Coverage gauge: trailing_comment is harvested opportunistically from
+// CVAR_REGISTER lines in the source. Current rate at HEAD is ~19% (35/183).
+// CLEAN if coverage stays >=15%. A drop means the trailing_comment harvest
+// regressed (e.g., re-tokenization broke comment association).
+function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'mvdsv') {
+    return { name: 'F2.mvdsv.trailing_comment_coverage_cvars', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN cv.trailing_comment IS NOT NULL THEN 1 ELSE 0 END) AS with_tc
+    FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='mvdsv' AND cv.version='head'
+  `).get() as { total: number; with_tc: number };
+  const pct = row.total > 0 ? (row.with_tc / row.total) * 100 : 0;
+  const ok = pct >= 15;
+  const pctStr = pct.toFixed(1);
+  return {
+    name: 'F2.mvdsv.trailing_comment_coverage_cvars',
+    family: 'anomaly',
+    description: 'mvdsv cvar trailing_comment coverage at head >= 15%',
+    status: ok ? 'CLEAN' : 'FOUND',
+    count: ok ? 0 : 1,
+    summary: ok
+      ? `${row.with_tc}/${row.total} cvars have trailing_comment (${pctStr}%)`
+      : `${row.with_tc}/${row.total} cvars have trailing_comment (${pctStr}%) — below 15% floor`,
+    examples: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
 
@@ -883,6 +1295,18 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.fte.asset_path_rules_count', family: 'regression', description: '', run: probeFteAssetPathRulesCount },
   { name: 'F1.fte.asset_cvar_bindings_count', family: 'regression', description: '', run: probeFteAssetCvarBindingsCount },
   { name: 'F1.fte.asset_loader_sites_count', family: 'regression', description: '', run: probeFteAssetLoaderSitesCount },
+  // MVDSV count-floor + classification + sanity probes (Phase 2e)
+  { name: 'F1.mvdsv.cvars_source_backed_count', family: 'regression', description: '', run: probeMvdsvCvarsSourceBackedCount },
+  { name: 'F1.mvdsv.commands_count', family: 'regression', description: '', run: probeMvdsvCommandsCount },
+  { name: 'F1.mvdsv.cmdline_params_count', family: 'regression', description: '', run: probeMvdsvCmdlineParamsCount },
+  { name: 'F1.mvdsv.protocol_messages_count', family: 'regression', description: '', run: probeMvdsvProtocolMessagesCount },
+  { name: 'F1.mvdsv.info_keys_count', family: 'regression', description: '', run: probeMvdsvInfoKeysCount },
+  { name: 'F1.mvdsv.log_templates_count', family: 'regression', description: '', run: probeMvdsvLogTemplatesCount },
+  { name: 'F1.mvdsv.qc_builtins_count', family: 'regression', description: '', run: probeMvdsvQcBuiltinsCount },
+  { name: 'F1.mvdsv.all_source_backed', family: 'regression', description: '', run: probeMvdsvAllSourceBacked },
+  { name: 'F1.mvdsv.sv_maxfps_default_77', family: 'regression', description: '', run: probeMvdsvMaxfpsDefault77 },
+  { name: 'F1.mvdsv.svc_print_value_8', family: 'regression', description: '', run: probeMvdsvSvcPrintValue8 },
+  { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', run: probeMvdsvMakevectorsBuiltin1 },
 ];
 
 const ANOMALY_PROBES: Probe[] = [
@@ -902,6 +1326,12 @@ const ANOMALY_PROBES: Probe[] = [
   { name: 'F2.fte.path_rules_all_verified', family: 'anomaly', description: '', run: probeFtePathRulesAllVerified },
   { name: 'F2.fte.cvar_bindings_resolve', family: 'anomaly', description: '', run: probeFteCvarBindingsResolve },
   { name: 'F2.fte.shader_loader_sites_present', family: 'anomaly', description: '', run: probeFteShaderLoaderSitesPresent },
+  // MVDSV distribution + coverage probes (Phase 2e)
+  { name: 'F2.mvdsv.log_template_channels_count', family: 'anomaly', description: '', run: probeMvdsvLogTemplateChannelsCount },
+  { name: 'F2.mvdsv.info_key_scopes_distribution', family: 'anomaly', description: '', run: probeMvdsvInfoKeyScopesDistribution },
+  { name: 'F2.mvdsv.protocol_message_kinds_distribution', family: 'anomaly', description: '', run: probeMvdsvProtocolMessageKindsDistribution },
+  { name: 'F2.mvdsv.qc_builtin_tables', family: 'anomaly', description: '', run: probeMvdsvQcBuiltinTables },
+  { name: 'F2.mvdsv.trailing_comment_coverage_cvars', family: 'anomaly', description: '', run: probeMvdsvTrailingCommentCoverageCvars },
 ];
 
 export interface QualityGridOptions {
