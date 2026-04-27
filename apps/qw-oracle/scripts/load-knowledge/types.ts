@@ -17,7 +17,11 @@ export type EntityType =
   | 'token_primitive'
   | 'asset_category'
   | 'flag_bit'
-  | 'cvar_alias';
+  | 'cvar_alias'
+  | 'protocol_message'
+  | 'info_key'
+  | 'log_template'
+  | 'qc_builtin';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'

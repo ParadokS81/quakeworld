@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -38,19 +38,20 @@ CREATE TABLE IF NOT EXISTS versions (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_versions_ordinal ON versions(project, ordinal);
 
--- The entities.type CHECK lists the full v5 type set (not just v1's four)
+-- The entities.type CHECK lists the full v15 type set (not just v1's four)
 -- because applySchema stamps SCHEMA_VERSION directly on fresh DBs and skips
 -- the migration chain. Migrated DBs rebuild this table via
--- ENTITIES_V2/V3/V5_MIGRATION_SQL, so the widened v1 CHECK is harmless for
--- them and correct for fresh ones. Keep this list in sync with
--- ENTITIES_V5_MIGRATION_SQL (and any future ENTITIES_V*_MIGRATION_SQL).
+-- ENTITIES_V2/V3/V5/V12/V15_MIGRATION_SQL, so the widened v1 CHECK is harmless
+-- for them and correct for fresh ones. Keep this list in sync with
+-- ENTITIES_V15_MIGRATION_SQL (and any future ENTITIES_V*_MIGRATION_SQL).
 CREATE TABLE IF NOT EXISTS entities (
   id                    INTEGER PRIMARY KEY,
   project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
   type                  TEXT NOT NULL CHECK (type IN (
                           'cvar','command','macro','cmdline_param',
                           'keyname','hud_element','ruleset','token_primitive',
-                          'asset_category','flag_bit','cvar_alias'
+                          'asset_category','flag_bit','cvar_alias',
+                          'protocol_message','info_key','log_template','qc_builtin'
                         )),
   name                  TEXT NOT NULL,
   canonical_id          TEXT NOT NULL,
@@ -1167,6 +1168,110 @@ CREATE INDEX idx_entities_name ON entities(name);
 CREATE INDEX idx_entities_type ON entities(project, type);
 `;
 
+// v14 -> v15 widens the entities.type CHECK to admit four new server-side
+// entity types: protocol_message, info_key, log_template, qc_builtin.
+// Standard entities-rebuild pattern (same shape as v11->v12).
+const ENTITIES_V15_MIGRATION_SQL = `
+CREATE TABLE entities_v15 (
+  id                    INTEGER PRIMARY KEY,
+  project               TEXT NOT NULL CHECK (project IN ('ezquake','fte','mvdsv','ktx','qwcl')),
+  type                  TEXT NOT NULL CHECK (type IN (
+                          'cvar','command','macro','cmdline_param',
+                          'keyname','hud_element','ruleset','token_primitive',
+                          'asset_category','flag_bit','cvar_alias',
+                          'protocol_message','info_key','log_template','qc_builtin'
+                        )),
+  name                  TEXT NOT NULL,
+  canonical_id          TEXT NOT NULL,
+  first_seen_version    TEXT NOT NULL,
+  last_seen_version     TEXT NOT NULL,
+  source_state          TEXT NOT NULL DEFAULT 'source_backed'
+                          CHECK (source_state IN ('source_backed','source_retired','doc_only','dynamically_registered')),
+  predecessor_id        INTEGER REFERENCES entities_v15(id),
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (project, type, name),
+  UNIQUE (canonical_id)
+);
+INSERT INTO entities_v15 SELECT * FROM entities;
+DROP TABLE entities;
+ALTER TABLE entities_v15 RENAME TO entities;
+CREATE INDEX idx_entities_name ON entities(name);
+CREATE INDEX idx_entities_type ON entities(project, type);
+`;
+
+// v15 (Phase 2e MVDSV, 2026-04-27).
+// Four new per-version tables for the four new server-side entity types.
+// Pure-additive. The entities.type CHECK widening lives in
+// ENTITIES_V15_MIGRATION_SQL above.
+const SCHEMA_V15_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS protocol_message_versions (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+  kind             TEXT NOT NULL CHECK (kind IN ('svc','clc','nq','pext_fte','pext_mvd','protocol_version')),
+  value            TEXT,
+  value_kind       TEXT,
+  source_file      TEXT,
+  source_line      INTEGER,
+  trailing_comment TEXT,
+  raw_ast_hash     TEXT,
+  source_root      TEXT,
+  extracted_at     TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_protocol_message_versions_source ON protocol_message_versions(source_file, source_line);
+
+CREATE TABLE IF NOT EXISTS info_key_versions (
+  entity_id           INTEGER NOT NULL REFERENCES entities(id),
+  version             TEXT NOT NULL,
+  scope               TEXT NOT NULL CHECK (scope IN ('userinfo','serverinfo','localinfo')),
+  operations          TEXT,
+  source_file         TEXT,
+  source_line         INTEGER,
+  containing_function TEXT,
+  call_sites_json     TEXT,
+  raw_ast_hash        TEXT,
+  source_root         TEXT,
+  extracted_at        TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_info_key_versions_source ON info_key_versions(source_file, source_line);
+
+CREATE TABLE IF NOT EXISTS log_template_versions (
+  entity_id                INTEGER NOT NULL REFERENCES entities(id),
+  version                  TEXT NOT NULL,
+  channel                  TEXT NOT NULL CHECK (channel IN ('broadcast','client','console','system')),
+  format_string            TEXT NOT NULL,
+  format_string_normalized TEXT NOT NULL,
+  source_file              TEXT,
+  source_line              INTEGER,
+  containing_function      TEXT,
+  raw_ast_hash             TEXT,
+  source_root              TEXT,
+  extracted_at             TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_log_template_versions_source ON log_template_versions(source_file, source_line);
+CREATE INDEX IF NOT EXISTS idx_log_template_versions_channel ON log_template_versions(channel);
+
+CREATE TABLE IF NOT EXISTS qc_builtin_versions (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+  table_name       TEXT NOT NULL,
+  builtin_index    INTEGER NOT NULL,
+  handler_fn       TEXT NOT NULL,
+  qc_signature     TEXT,
+  source_file      TEXT,
+  source_line      INTEGER,
+  trailing_comment TEXT,
+  raw_ast_hash     TEXT,
+  source_root      TEXT,
+  extracted_at     TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_qc_builtin_versions_source ON qc_builtin_versions(source_file, source_line);
+`;
+
 function migrateV9ToV10(db: Database.Database): void {
   // Widens the project CHECK on 8 tables to admit 'qwcl'. Standard rebuild
   // pattern; foreign_keys OFF outside the txn so the entities-table drop is
@@ -1253,6 +1358,27 @@ function migrateV13ToV14(db: Database.Database): void {
   txn();
 }
 
+function migrateV14ToV15(db: Database.Database): void {
+  // Like v11->v12, the entities-table CHECK widening requires foreign_keys
+  // OFF outside the transaction so the entities DROP can succeed (every
+  // per-type version table FK-references entities.id).
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_entities_name;
+        DROP INDEX IF EXISTS idx_entities_type;
+      `);
+      db.exec(ENTITIES_V15_MIGRATION_SQL);
+      db.exec(SCHEMA_V15_ADDITIONS_SQL);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('15');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -1321,6 +1447,10 @@ export function applySchema(db: Database.Database): void {
       migrateV13ToV14(db);
       existingVersion = 14;
     }
+    if (existingVersion === 14 && SCHEMA_VERSION >= 15) {
+      migrateV14ToV15(db);
+      existingVersion = 15;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -1328,8 +1458,9 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 / v5 / v6 / v12 / v13 / v14 additions are idempotent CREATE IF NOT EXISTS --
-  // safe on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
+  // v2 / v3 / v4 / v5 / v6 / v12 / v13 / v14 / v15 additions are idempotent
+  // CREATE IF NOT EXISTS -- safe on fresh DBs (where v1 SQL didn't have them)
+  // and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
   db.exec(SCHEMA_V4_ADDITIONS_SQL);
@@ -1338,4 +1469,5 @@ export function applySchema(db: Database.Database): void {
   db.exec(SCHEMA_V12_ADDITIONS_SQL);
   db.exec(SCHEMA_V13_ADDITIONS_SQL);
   db.exec(SCHEMA_V14_ADDITIONS_SQL);
+  db.exec(SCHEMA_V15_ADDITIONS_SQL);
 }

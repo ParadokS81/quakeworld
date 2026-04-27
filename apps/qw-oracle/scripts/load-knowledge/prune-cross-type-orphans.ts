@@ -25,17 +25,21 @@ import type { EntityType, Project } from './types.js';
 
 // Mirror of PER_TYPE_VERSION_TABLE in quality-grid.ts. Keep in sync.
 const PER_TYPE_VERSION_TABLE: Record<EntityType, string> = {
-  cvar:            'cvar_versions',
-  command:         'command_versions',
-  macro:           'macro_versions',
-  cmdline_param:   'cmdline_param_versions',
-  keyname:         'keyname_versions',
-  hud_element:     'hud_element_versions',
-  ruleset:         'ruleset_versions',
-  token_primitive: 'token_primitive_versions',
-  flag_bit:        'flag_bit_versions',
-  asset_category:  'asset_category_versions',
-  cvar_alias:      'cvar_alias_versions',
+  cvar:             'cvar_versions',
+  command:          'command_versions',
+  macro:            'macro_versions',
+  cmdline_param:    'cmdline_param_versions',
+  keyname:          'keyname_versions',
+  hud_element:      'hud_element_versions',
+  ruleset:          'ruleset_versions',
+  token_primitive:  'token_primitive_versions',
+  flag_bit:         'flag_bit_versions',
+  asset_category:   'asset_category_versions',
+  cvar_alias:       'cvar_alias_versions',
+  protocol_message: 'protocol_message_versions',
+  info_key:         'info_key_versions',
+  log_template:     'log_template_versions',
+  qc_builtin:       'qc_builtin_versions',
 };
 
 export interface PruneCrossTypeOrphansOptions {

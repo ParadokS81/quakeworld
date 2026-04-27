@@ -146,7 +146,7 @@ interface TypeAdapter {
   ) => SourceOverrideRow[];
 }
 
-const ADAPTERS: Record<EntityType, TypeAdapter> = {
+const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
   cvar: {
     payloadField: CVAR_PAYLOAD_FIELD,
     versionsTable: 'cvar_versions',
