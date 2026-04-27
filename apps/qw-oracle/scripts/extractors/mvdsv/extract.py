@@ -78,9 +78,11 @@ def collect_handlers(names: str = "all") -> dict:
     """
     from _handler_cvars import CvarsMvdsvHandler
     from _handler_commands import CommandsMvdsvHandler
+    from _handler_cmdline import CmdlineMvdsvHandler
     available: dict = {
         "cvars": CvarsMvdsvHandler(),
         "commands": CommandsMvdsvHandler(),
+        "cmdline": CmdlineMvdsvHandler(),
     }
     if names == "all":
         return available

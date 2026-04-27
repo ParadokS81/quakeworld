@@ -1,0 +1,108 @@
+{
+  "cmdline_params": [
+    {
+      "name": "+gamedir",
+      "ast": {
+        "source_file": "src/fs.c",
+        "source_line": 556,
+        "source_column": 7,
+        "containing_function": "FS_InitEx"
+      }
+    },
+    {
+      "name": "-basedir",
+      "ast": {
+        "source_file": "src/fs.c",
+        "source_line": 523,
+        "source_column": 11,
+        "containing_function": "FS_InitEx"
+      }
+    },
+    {
+      "name": "-d",
+      "ast": {
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 640,
+        "source_column": 6,
+        "containing_function": "SV_System_Init"
+      }
+    },
+    {
+      "name": "-g",
+      "ast": {
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 668,
+        "source_column": 6,
+        "containing_function": "SV_System_Init"
+      }
+    },
+    {
+      "name": "-game",
+      "ast": {
+        "source_file": "src/fs.c",
+        "source_line": 555,
+        "source_column": 12,
+        "containing_function": "FS_InitEx"
+      }
+    },
+    {
+      "name": "-ip",
+      "ast": {
+        "source_file": "src/net.c",
+        "source_line": 1095,
+        "source_column": 11,
+        "containing_function": "TCP_OpenListenSocket"
+      }
+    },
+    {
+      "name": "-noerrormsgbox",
+      "ast": {
+        "source_file": "src/sv_sys_win.c",
+        "source_line": 372,
+        "source_column": 10,
+        "containing_function": "Sys_Quit"
+      }
+    },
+    {
+      "name": "-nopriority",
+      "ast": {
+        "source_file": "src/sv_sys_win.c",
+        "source_line": 643,
+        "source_column": 6,
+        "containing_function": "Sys_Init"
+      }
+    },
+    {
+      "name": "-port",
+      "ast": {
+        "source_file": "src/net.c",
+        "source_line": 1406,
+        "source_column": 6,
+        "containing_function": "NET_InitServer"
+      }
+    },
+    {
+      "name": "-t",
+      "ast": {
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 740,
+        "source_column": 6,
+        "containing_function": "SV_System_Init"
+      }
+    },
+    {
+      "name": "-u",
+      "ast": {
+        "source_file": "src/sv_sys_unix.c",
+        "source_line": 693,
+        "source_column": 6,
+        "containing_function": "SV_System_Init"
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 12,
+    "count": 11,
+    "with_containing_function": 11
+  }
+}
