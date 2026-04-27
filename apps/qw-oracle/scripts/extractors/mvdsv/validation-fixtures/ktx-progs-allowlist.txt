@@ -1,0 +1,14 @@
+dp
+dq
+dr
+extralogname
+frag_log_type
+lock_practice
+srv_practice_mode
+timing_players_action
+timing_players_time
+vip_password
+vip_values
+download_map_url
+password
+pausable
