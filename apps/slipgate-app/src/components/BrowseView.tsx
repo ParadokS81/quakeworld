@@ -1,6 +1,4 @@
-import { createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { createSignal, Show } from "solid-js";
 import type { ScanResult, ScannedFile, BrowseFilterState } from "../types";
 import type { ProfileData } from "../store";
 import BrowseFilterLens from "./BrowseFilterLens";
@@ -12,16 +10,15 @@ interface BrowseViewProps {
   mergedCvars: Record<string, string>;
   profile: ProfileData | null;
   hideDefaults: boolean;
+  scan: ScanResult | null;
+  scanError: string | null;
   onOpenInConfigs: (virtualPath: string) => void;
   onSwitchToClientsDomain: () => void;
+  onRetryScan: () => void;
 }
 
 export default function BrowseView(props: BrowseViewProps) {
-  const [scan, setScan] = createSignal<ScanResult | null>(null);
-  const [loading, setLoading] = createSignal(false);
-  const [error, setError] = createSignal<string | null>(null);
   const [selected, setSelected] = createSignal<ScannedFile | null>(null);
-  const [stale, setStale] = createSignal(false);
   const [filters, setFilters] = createSignal<BrowseFilterState>({
     clients: new Set(),
     gamedirs: new Set(),
@@ -36,83 +33,6 @@ export default function BrowseView(props: BrowseViewProps) {
     return f.clients.size > 0 || f.gamedirs.size > 0 || f.categories.size > 0 || f.search.trim().length > 0;
   };
 
-  async function runScan() {
-    const exe = props.exePath;
-    if (!exe) {
-      setScan(null);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await invoke<ScanResult>("scan_quake_dir", {
-        exePath: exe,
-        mergedCvars: props.mergedCvars,
-      });
-      setScan(result);
-      setStale(false);
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // suppress unused-local error for loading — wired in a later task
-  void loading;
-
-  const [dumping, setDumping] = createSignal(false);
-  const [dumpMsg, setDumpMsg] = createSignal<string | null>(null);
-
-  async function dumpInventory() {
-    const exe = props.exePath;
-    if (!exe) return;
-    setDumping(true);
-    setDumpMsg(null);
-    try {
-      // Relative path resolves against the scan root (exe's parent) in Rust,
-      // so the report lands in <quake-dir>/quake-dir-inventory.md — reachable
-      // from WSL via /mnt/c/... without worrying about runtime CWD.
-      const outPath = "quake-dir-inventory.md";
-      const written = await invoke<string>("dump_inventory_report", {
-        exePath: exe,
-        mergedCvars: props.mergedCvars,
-        outPath,
-      });
-      setDumpMsg(`Wrote ${written}`);
-    } catch (e) {
-      setDumpMsg(`Failed: ${String(e)}`);
-    } finally {
-      setDumping(false);
-    }
-  }
-
-  onMount(runScan);
-
-  createEffect(() => {
-    const exe = props.exePath;
-    // Stop any existing watcher first. Errors are ignored because "nothing to stop" is a valid state.
-    invoke("stop_browse_watch").catch(() => {});
-    if (exe) {
-      invoke("start_browse_watch", { exePath: exe }).catch((e) => console.error(e));
-    }
-  });
-
-  let unlistenStale: (() => void) | null = null;
-  (async () => {
-    unlistenStale = await listen("browse-scan-stale", () => setStale(true));
-  })();
-
-  onCleanup(() => {
-    unlistenStale?.();
-    invoke("stop_browse_watch").catch(() => {});
-  });
-  createEffect(() => {
-    void props.exePath;
-    void Object.keys(props.mergedCvars).length;
-    runScan();
-  });
-
   return (
     <Show
       when={props.exePath}
@@ -125,57 +45,38 @@ export default function BrowseView(props: BrowseViewProps) {
       }
     >
       <Show
-        when={!error()}
+        when={!props.scanError}
         fallback={
           <div class="p-4">
             <div class="bg-red-900/30 border border-red-700 rounded p-3 text-sm">
               <p class="font-semibold text-red-300">Scan failed</p>
-              <p class="text-red-200">{error()}</p>
-              <button class="btn btn-sm btn-outline mt-2" onClick={runScan}>Retry</button>
+              <p class="text-red-200">{props.scanError}</p>
+              <button class="btn btn-sm btn-outline mt-2" onClick={props.onRetryScan}>Retry</button>
             </div>
           </div>
         }
       >
-        <Show when={scan()} fallback={<div class="p-4 text-sm text-[var(--sg-text-dim)]">Scanning...</div>}>
+        <Show when={props.scan} fallback={<div class="p-4 text-sm text-[var(--sg-text-dim)]">Scanning...</div>}>
           {(result) => (
             <div class="flex flex-col h-full">
-              <div class="flex items-center gap-3 px-4 py-2 border-b border-[var(--sg-stat-border)]">
-                <input
-                  class="sg-input text-sm flex-1 max-w-[240px]"
-                  placeholder="search filename or path..."
-                  value={filters().search}
-                  onInput={(e) => setFilters({ ...filters(), search: e.currentTarget.value })}
-                />
-                <Show when={filtersActive()}>
-                  <label class="flex items-center gap-1 text-xs text-[var(--sg-text-dim)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!hideDimmed()}
-                      onChange={(e) => setHideDimmed(!e.currentTarget.checked)}
-                    />
-                    Show all
-                  </label>
-                </Show>
-                <Show when={stale()}>
-                  <span class="text-xs text-amber-400">changes detected</span>
-                </Show>
-                <button class="btn btn-sm btn-outline" onClick={runScan}>
-                  Rescan
-                </button>
-                <button
-                  class="btn btn-sm btn-outline"
-                  onClick={dumpInventory}
-                  disabled={dumping()}
-                  title="Write a markdown inventory report to test-output/quake-dir-inventory.md"
-                >
-                  {dumping() ? "Dumping..." : "Dump inventory"}
-                </button>
-                <Show when={dumpMsg()}>
-                  <span class="text-xs text-[var(--sg-text-dim)] truncate max-w-[320px]">{dumpMsg()}</span>
-                </Show>
-              </div>
               <div class="flex-1 grid grid-cols-[220px_1fr_300px] overflow-hidden">
-                <div class="border-r border-[var(--sg-stat-border)] p-3 overflow-auto">
+                <div class="border-r border-[var(--sg-stat-border)] p-3 overflow-auto flex flex-col gap-3">
+                  <input
+                    class="sg-input text-sm w-full"
+                    placeholder="search filename or path..."
+                    value={filters().search}
+                    onInput={(e) => setFilters({ ...filters(), search: e.currentTarget.value })}
+                  />
+                  <Show when={filtersActive()}>
+                    <label class="flex items-center gap-1 text-xs text-[var(--sg-text-dim)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!hideDimmed()}
+                        onChange={(e) => setHideDimmed(!e.currentTarget.checked)}
+                      />
+                      Show all
+                    </label>
+                  </Show>
                   <BrowseFilterLens
                     scan={result()}
                     filters={filters()}

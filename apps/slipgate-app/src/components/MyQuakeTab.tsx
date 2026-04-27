@@ -1,13 +1,19 @@
-import { createSignal, createEffect, Switch, Match, Show, onCleanup } from "solid-js";
+import { createSignal, createEffect, Switch, Match, Show, onMount, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry, ScanResult, BrowseModeName, BrowseDomainName } from "../types";
+import type { EzQuakeConfig, ConfigSourceBundle, ConfigChain, ConfigEntry, ScanResult, BrowseDomainName } from "../types";
 import type { ProfileData } from "../store";
 import { updatePrefs } from "../store";
 import ConfigViewer from "./ConfigViewer";
 import BrowseView from "./BrowseView";
 import MatchesDomain from "./MatchesDomain";
 import ClientsDomain from "./ClientsDomain";
+
+// activeView replaces the previous (mode + domain) pair: Browse becomes a peer of the Domains
+// in a single flat top-row nav. Profile prefs `my_quake_mode` + `my_quake_domain` stay as the
+// persisted shape (backward-compat); we derive activeView from them on mount and persist back.
+type ActiveView = "browse" | BrowseDomainName;
 
 interface MyQuakeTabProps {
   config: EzQuakeConfig | null;
@@ -21,12 +27,12 @@ interface MyQuakeTabProps {
 }
 
 export default function MyQuakeTab(props: MyQuakeTabProps) {
-  const [mode, setMode] = createSignal<BrowseModeName>(
-    props.profile?.prefs.my_quake_mode ?? "domains"
-  );
-  const [domain, setDomain] = createSignal<BrowseDomainName>(
-    props.profile?.prefs.my_quake_domain ?? "configs"
-  );
+  // Derive initial activeView from persisted prefs.
+  const initialView: ActiveView = (() => {
+    if (props.profile?.prefs.my_quake_mode === "browse") return "browse";
+    return (props.profile?.prefs.my_quake_domain ?? "configs") as ActiveView;
+  })();
+  const [activeView, setActiveView] = createSignal<ActiveView>(initialView);
   const [hideDefaults, setHideDefaults] = createSignal<boolean>(
     props.profile?.prefs.browse_hide_defaults ?? false
   );
@@ -35,36 +41,82 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   const [dropError, setDropError] = createSignal<string | null>(null);
   const [pendingDrop, setPendingDrop] = createSignal<string[] | null>(null);
 
-  const [matchesScan, setMatchesScan] = createSignal<ScanResult | null>(null);
-  async function runMatchesScan() {
+  // Browse / Matches share a single quake-dir scan (lifted from BrowseView so the diagnostic
+  // buttons Rescan + Dump inventory can render in the top nav row).
+  const [scan, setScan] = createSignal<ScanResult | null>(null);
+  const [scanError, setScanError] = createSignal<string | null>(null);
+  const [stale, setStale] = createSignal(false);
+  const [dumping, setDumping] = createSignal(false);
+  const [dumpMsg, setDumpMsg] = createSignal<string | null>(null);
+
+  async function runScan() {
     if (!props.exePath) {
-      setMatchesScan(null);
+      setScan(null);
       return;
     }
+    setScanError(null);
     try {
       const result = await invoke<ScanResult>("scan_quake_dir", {
         exePath: props.exePath,
         mergedCvars: mergedCvarsFromConfig(props.config),
       });
-      setMatchesScan(result);
+      setScan(result);
+      setStale(false);
     } catch (e) {
-      console.error("Matches scan failed:", e);
-      setMatchesScan(null);
+      setScanError(String(e));
     }
   }
-  // Rescan when user enters Matches domain, or when exePath changes while Matches is open.
+
+  async function dumpInventory() {
+    if (!props.exePath) return;
+    setDumping(true);
+    setDumpMsg(null);
+    try {
+      const written = await invoke<string>("dump_inventory_report", {
+        exePath: props.exePath,
+        mergedCvars: mergedCvarsFromConfig(props.config),
+        outPath: "quake-dir-inventory.md",
+      });
+      setDumpMsg(`Wrote ${written}`);
+    } catch (e) {
+      setDumpMsg(`Failed: ${String(e)}`);
+    } finally {
+      setDumping(false);
+    }
+  }
+
+  onMount(runScan);
+
+  // Re-run scan whenever exePath or config-derived cvars change, and (re)bind the watcher.
   createEffect(() => {
-    if (mode() === "domains" && domain() === "matches") {
-      void props.exePath;
-      runMatchesScan();
+    void props.exePath;
+    void Object.keys(mergedCvarsFromConfig(props.config)).length;
+    runScan();
+  });
+
+  createEffect(() => {
+    const exe = props.exePath;
+    invoke("stop_browse_watch").catch(() => {});
+    if (exe) {
+      invoke("start_browse_watch", { exePath: exe }).catch((e) => console.error(e));
     }
   });
 
-  // Persist prefs whenever any of the three signals change
+  let unlistenStale: (() => void) | null = null;
+  (async () => {
+    unlistenStale = await listen("browse-scan-stale", () => setStale(true));
+  })();
+  onCleanup(() => {
+    unlistenStale?.();
+    invoke("stop_browse_watch").catch(() => {});
+  });
+
+  // Persist prefs whenever the active view or hide-defaults toggle changes.
   createEffect(() => {
+    const v = activeView();
     updatePrefs({
-      my_quake_mode: mode(),
-      my_quake_domain: domain(),
+      my_quake_mode: v === "browse" ? "browse" : "domains",
+      my_quake_domain: v === "browse" ? (props.profile?.prefs.my_quake_domain ?? "configs") : v,
       browse_hide_defaults: hideDefaults(),
     }).catch((e) => console.error("Failed to persist MyQuake prefs:", e));
   });
@@ -206,8 +258,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
   }
 
   async function handleOpenConfigFromBrowse(virtualPath: string) {
-    setMode("domains");
-    setDomain("configs");
+    setActiveView("configs");
     const leaf = virtualPath.split("/").pop() ?? virtualPath;
     try {
       const chain = await invoke<ConfigChain>("load_config_from_source", {
@@ -228,119 +279,107 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
     }
   }
 
+  // Flat-nav button class helper.
+  function navBtnClass(view: ActiveView | "browse") {
+    const isActive = activeView() === view;
+    return `px-3 py-1.5 text-sm font-semibold rounded transition-colors cursor-pointer ${
+      isActive
+        ? "bg-base-100 text-[var(--color-primary)] shadow-sm"
+        : "text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
+    }`;
+  }
+
   return (
     <div class="flex flex-col h-full">
-      {/* Top bar: mode toggle + hide-defaults checkbox */}
-      <div class="flex items-center px-4 pt-3 pb-2 border-b border-[var(--sg-stat-border)]">
+      {/* Single flat nav row: Browse | Clients Configs Maps Matches Assets ... Rescan Dump inventory */}
+      <div class="flex items-center gap-3 px-4 pt-3 pb-2 border-b border-[var(--sg-stat-border)]">
         <div class="flex gap-1 bg-base-200 rounded-md p-1">
-          <button
-            class={`px-3 py-1 text-sm font-semibold rounded transition-colors cursor-pointer ${
-              mode() === "browse"
-                ? "bg-base-100 text-[var(--color-primary)] shadow-sm"
-                : "text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
-            }`}
-            onClick={() => setMode("browse")}
-          >
+          <button class={navBtnClass("browse")} onClick={() => setActiveView("browse")}>
             Browse
           </button>
-          <button
-            class={`px-3 py-1 text-sm font-semibold rounded transition-colors cursor-pointer ${
-              mode() === "domains"
-                ? "bg-base-100 text-[var(--color-primary)] shadow-sm"
-                : "text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
-            }`}
-            onClick={() => setMode("domains")}
-          >
-            Domains
-          </button>
-        </div>
-
-        <Show when={mode() === "browse"}>
-          <label class="ml-auto flex items-center gap-2 text-sm text-[var(--sg-text-dim)] cursor-pointer select-none">
-            <input
-              type="checkbox"
-              class="checkbox checkbox-xs"
-              checked={hideDefaults()}
-              onChange={(e) => setHideDefaults(e.currentTarget.checked)}
-            />
-            Show only custom
-          </label>
-        </Show>
-      </div>
-
-      {/* Domains sub-nav - visible only in domains mode */}
-      <Show when={mode() === "domains"}>
-        <div class="flex items-center gap-1 px-4 pt-2 pb-0 border-b border-[var(--sg-stat-border)]">
-          <button
-            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
-              domain() === "clients"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
-            }`}
-            onClick={() => setDomain("clients")}
-          >
+          <span class="w-px bg-[var(--sg-stat-border)] mx-1 self-stretch" aria-hidden="true" />
+          <button class={navBtnClass("clients")} onClick={() => setActiveView("clients")}>
             Clients
           </button>
-          <button
-            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
-              domain() === "configs"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-tab-hover-text)]"
-            }`}
-            onClick={() => setDomain("configs")}
-          >
+          <button class={navBtnClass("configs")} onClick={() => setActiveView("configs")}>
             Configs
           </button>
           <button
-            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
+            class="px-3 py-1.5 text-sm font-semibold rounded transition-colors cursor-not-allowed opacity-40"
             disabled
             title="Coming soon"
           >
             Maps
           </button>
-          <button
-            class={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
-              domain() === "matches"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-                : "border-transparent text-[var(--sg-text-dim)] hover:text-[var(--sg-text-bright)]"
-            }`}
-            onClick={() => setDomain("matches")}
-          >
+          <button class={navBtnClass("matches")} onClick={() => setActiveView("matches")}>
             Matches
           </button>
           <button
-            class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent transition-colors cursor-not-allowed opacity-40"
+            class="px-3 py-1.5 text-sm font-semibold rounded transition-colors cursor-not-allowed opacity-40"
             disabled
             title="Coming soon"
           >
             Assets
           </button>
         </div>
-      </Show>
+
+        {/* Right-aligned diagnostics. Always visible — they operate on the underlying scan that
+            feeds Browse + Domain views. */}
+        <div class="ml-auto flex items-center gap-2">
+          <Show when={activeView() === "browse"}>
+            <label class="flex items-center gap-2 text-sm text-[var(--sg-text-dim)] cursor-pointer select-none mr-2">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-xs"
+                checked={hideDefaults()}
+                onChange={(e) => setHideDefaults(e.currentTarget.checked)}
+              />
+              Show only custom
+            </label>
+          </Show>
+          <Show when={stale()}>
+            <span class="text-xs text-amber-400">changes detected</span>
+          </Show>
+          <Show when={dumpMsg()}>
+            <span class="text-xs text-[var(--sg-text-dim)] truncate max-w-[260px]">{dumpMsg()}</span>
+          </Show>
+          <button class="btn btn-sm btn-outline" onClick={runScan} disabled={!props.exePath}>
+            Rescan
+          </button>
+          <button
+            class="btn btn-sm btn-outline"
+            onClick={dumpInventory}
+            disabled={dumping() || !props.exePath}
+            title="Write a markdown inventory report to <quake-dir>/quake-dir-inventory.md"
+          >
+            {dumping() ? "Dumping..." : "Dump inventory"}
+          </button>
+        </div>
+      </div>
 
       {/* Content pane */}
       <div class="flex-1 overflow-hidden">
         <Switch>
-          <Match when={mode() === "browse"}>
+          <Match when={activeView() === "browse"}>
             <BrowseView
               exePath={props.exePath}
               mergedCvars={mergedCvarsFromConfig(props.config)}
               profile={props.profile}
               hideDefaults={hideDefaults()}
+              scan={scan()}
+              scanError={scanError()}
               onOpenInConfigs={handleOpenConfigFromBrowse}
-              onSwitchToClientsDomain={() => {
-                setMode("domains");
-                setDomain("clients");
-              }}
+              onSwitchToClientsDomain={() => setActiveView("clients")}
+              onRetryScan={runScan}
             />
           </Match>
-          <Match when={mode() === "domains" && domain() === "clients"}>
+          <Match when={activeView() === "clients"}>
             <ClientsDomain
               onConfigLoaded={props.onConfigLoaded}
               profile={props.profile}
             />
           </Match>
-          <Match when={mode() === "domains" && domain() === "configs"}>
+          <Match when={activeView() === "configs"}>
             {/* Re-drop modal */}
             <Show when={pendingDrop()}>
               <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60">
@@ -370,12 +409,12 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
               profile={props.profile}
             />
           </Match>
-          <Match when={mode() === "domains" && domain() === "matches"}>
+          <Match when={activeView() === "matches"}>
             <MatchesDomain
               exePath={props.exePath}
               mergedCvars={mergedCvarsFromConfig(props.config)}
-              scan={matchesScan()}
-              onRescan={runMatchesScan}
+              scan={scan()}
+              onRescan={runScan}
             />
           </Match>
         </Switch>
