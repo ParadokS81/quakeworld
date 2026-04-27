@@ -431,7 +431,9 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       // charset.
       const validTokenPrimitive = options.type === 'token_primitive' && /^\$.+$/.test(nameRaw);
       const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
-      if (!validTokenPrimitive && !validIdentifier) {
+      // QuakeWorld info_key system keys carry a leading '*' (*spectator, *VIP, ...).
+      const validInfoKey = options.type === 'info_key' && /^\*?[a-z0-9_.+\-]+$/.test(name);
+      if (!validTokenPrimitive && !validIdentifier && !validInfoKey) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }
