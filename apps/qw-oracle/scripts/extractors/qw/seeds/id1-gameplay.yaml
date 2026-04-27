@@ -901,6 +901,37 @@ mechanics:
         ax_uses_axhitme_boolean_instead: defs.qc:516
       notes: 7 deathtypes total. There is NO "ax" deathtype (axe uses axhitme boolean at defs.qc:516, set at weapons.qc:52). There is NO "grenade" deathtype (grenade explosion goes through T_RadiusDamage which assigns "rocket" downstream). "laser" exists in misc.qc:319 (laser-trap entities).
   spawn_rules:
-  # (filled by Task 13) - 5 rows
+    - name: spawn_invul_default
+      value_numeric: 0
+      source_ref: client.qc:471
+      props:
+        applies_when: deathmatch_le_3
+      notes: no spawn invul in DM<=3. Line 470 in client.qc is invisible_finished=0; line 471 is invincible_finished=0.
+
+    - name: spawn_invul_dm4
+      value_numeric: 3
+      source_ref: client.qc:544
+      props:
+        applies_when: deathmatch_eq_4
+      notes: 3-second invul on spawn in OctaPower mode.
+
+    - name: spawn_invul_dm5
+      value_numeric: 3
+      source_ref: client.qc:565
+      props:
+        applies_when: deathmatch_eq_5
+      notes: 3-second invul on spawn in Quadmachine mode.
+
+    - name: respawn_button_press
+      value_text: respawn_on_button_press_after_DEAD_RESPAWNABLE
+      source_ref: client.qc:728
+      props: {}
+      notes: id1 respawn requires +attack/+jump press; no auto-respawn timer.
+
+    - name: intermission_exit_delay
+      value_numeric: 5
+      source_ref: client.qc:189
+      props: {}
+      notes: 5-second wait after intermission before any player can advance.
   dm_mode_rules:
   # (filled by Task 14) - 4 rows
