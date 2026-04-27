@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 13;
+export const SCHEMA_VERSION = 14;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -1078,6 +1078,67 @@ CREATE INDEX IF NOT EXISTS idx_maps_popularity_rank ON maps(popularity_rank);
 CREATE INDEX IF NOT EXISTS idx_maps_author          ON maps(author);
 `;
 
+// v14 (game-mechanics, 2026-04-27).
+// Three flat tables outside the entities/per-version model. Mirrors the
+// SCHEMA_V13_ADDITIONS_SQL pattern for the maps table. ruleset_gate_json
+// is NOT NULL DEFAULT '{}' so the unique index has no NULL columns
+// (SQLite treats NULLs as distinct in unique indexes, which would defeat
+// upsert idempotency). KTX overrides in arc 2 store compound gates as
+// JSON like '{"yawn":true,"dm":3}'.
+const SCHEMA_V14_ADDITIONS_SQL = `
+CREATE TABLE IF NOT EXISTS gameplay_sources (
+  id           TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  description  TEXT NOT NULL,
+  source_root  TEXT NOT NULL,
+  notes        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS gameplay_entity_defs (
+  id                     INTEGER PRIMARY KEY,
+  gameplay_source_id     TEXT NOT NULL REFERENCES gameplay_sources(id),
+  kind                   TEXT NOT NULL CHECK (kind IN ('item','weapon','projectile')),
+  name                   TEXT NOT NULL,
+  classname              TEXT,
+  damage                 REAL,
+  splash_damage          REAL,
+  splash_radius          REAL,
+  refire_seconds         REAL,
+  respawn_seconds        REAL,
+  pickup_amount          REAL,
+  max_carry              REAL,
+  duration_seconds       REAL,
+  ruleset_gate_json      TEXT NOT NULL DEFAULT '{}',
+  source_ref             TEXT NOT NULL,
+  props_json             TEXT NOT NULL DEFAULT '{}',
+  notes                  TEXT,
+  UNIQUE (gameplay_source_id, kind, name, ruleset_gate_json)
+);
+CREATE INDEX IF NOT EXISTS idx_gameplay_entity_defs_kind  ON gameplay_entity_defs(kind);
+CREATE INDEX IF NOT EXISTS idx_gameplay_entity_defs_name  ON gameplay_entity_defs(name COLLATE NOCASE);
+CREATE INDEX IF NOT EXISTS idx_gameplay_entity_defs_class ON gameplay_entity_defs(classname);
+
+CREATE TABLE IF NOT EXISTS gameplay_mechanics (
+  id                     INTEGER PRIMARY KEY,
+  gameplay_source_id     TEXT NOT NULL REFERENCES gameplay_sources(id),
+  kind                   TEXT NOT NULL CHECK (kind IN (
+                            'constant','env_hazard','player_stat',
+                            'powerup_behavior','armor_model','death_rule',
+                            'spawn_rule','dm_mode_rule'
+                         )),
+  name                   TEXT NOT NULL,
+  value_numeric          REAL,
+  value_text             TEXT,
+  ruleset_gate_json      TEXT NOT NULL DEFAULT '{}',
+  source_ref             TEXT NOT NULL,
+  props_json             TEXT NOT NULL DEFAULT '{}',
+  notes                  TEXT,
+  UNIQUE (gameplay_source_id, kind, name, ruleset_gate_json)
+);
+CREATE INDEX IF NOT EXISTS idx_gameplay_mechanics_kind ON gameplay_mechanics(kind);
+CREATE INDEX IF NOT EXISTS idx_gameplay_mechanics_name ON gameplay_mechanics(name COLLATE NOCASE);
+`;
+
 const ENTITIES_V12_MIGRATION_SQL = `
 CREATE TABLE entities_v12 (
   id                    INTEGER PRIMARY KEY,
@@ -1180,6 +1241,18 @@ function migrateV12ToV13(db: Database.Database): void {
   txn();
 }
 
+function migrateV13ToV14(db: Database.Database): void {
+  // Pure-additive: three new flat tables. No FKs into pre-v14 tables, no
+  // rebuilds, no foreign_keys toggle needed. SCHEMA_V14_ADDITIONS_SQL is
+  // also executed unconditionally at the end of applySchema (idempotent
+  // CREATE IF NOT EXISTS), so the migration itself only stamps the version.
+  const txn = db.transaction(() => {
+    db.exec(SCHEMA_V14_ADDITIONS_SQL);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('14');
+  });
+  txn();
+}
+
 export function applySchema(db: Database.Database): void {
   // Always (idempotently) ensure v1 tables exist; they don't change between
   // v1 and v2 except for the entities CHECK constraint.
@@ -1244,6 +1317,10 @@ export function applySchema(db: Database.Database): void {
       migrateV12ToV13(db);
       existingVersion = 13;
     }
+    if (existingVersion === 13 && SCHEMA_VERSION >= 14) {
+      migrateV13ToV14(db);
+      existingVersion = 14;
+    }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(
         `schema_meta.schema_version=${existing.value}; loader expects ${SCHEMA_VERSION}. Add a migration.`
@@ -1251,7 +1328,7 @@ export function applySchema(db: Database.Database): void {
     }
   }
 
-  // v2 / v3 / v4 / v5 / v6 / v12 / v13 additions are idempotent CREATE IF NOT EXISTS --
+  // v2 / v3 / v4 / v5 / v6 / v12 / v13 / v14 additions are idempotent CREATE IF NOT EXISTS --
   // safe on fresh DBs (where v1 SQL didn't have them) and on migrated DBs.
   db.exec(SCHEMA_V2_ADDITIONS_SQL);
   db.exec(SCHEMA_V3_ADDITIONS_SQL);
@@ -1260,4 +1337,5 @@ export function applySchema(db: Database.Database): void {
   db.exec(SCHEMA_V6_ADDITIONS_SQL);
   db.exec(SCHEMA_V12_ADDITIONS_SQL);
   db.exec(SCHEMA_V13_ADDITIONS_SQL);
+  db.exec(SCHEMA_V14_ADDITIONS_SQL);
 }

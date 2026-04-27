@@ -1,0 +1,47 @@
+# Spike: do these 5 KTX rows fit the proposed schema cleanly?
+# If any need a free-form column we don't have, schema needs a redesign before v14.
+rows:
+  # 1. Single-gate yawnmode override (axe DMM3 damage)
+  - kind: weapon
+    name: axe
+    gameplay_source_id: ktx
+    damage: 50
+    ruleset_gate_json: '{"yawn":true,"dm":3}'
+    source_ref: weapons.c:128
+    notes: yawnmode-only DMM3 axe damage 50 (vs 20 in non-yawn DMM3 and 75 in DMM4).
+
+  # 2. Compound gate: yawnmode + DMM4 (LG self-kill always)
+  - kind: weapon
+    name: lightning_gun
+    gameplay_source_id: ktx
+    damage: 4000
+    ruleset_gate_json: '{"yawn":true,"dm":4,"in_water":true}'
+    source_ref: weapons.c:1192
+    notes: yawnmode DMM4 lightning discharge in water always kills self with 4000 dmg.
+
+  # 3. Function-dispatch ruleset (CA respawn formula reference)
+  - kind: spawn_rule
+    name: ca_respawn_time
+    gameplay_source_id: ktx
+    value_text: bound_3_teamsize_plus_1_6_then_pow2_per_death
+    ruleset_gate_json: '{"mode":"ca"}'
+    source_ref: clan_arena.c:142
+    notes: formula not literal; see clan_arena.c:142-149 for full algorithm.
+
+  # 4. Cvar-driven KTX behavior (freshteams weapon respawn)
+  - kind: item
+    name: weapon_respawn_default
+    gameplay_source_id: ktx
+    respawn_seconds: 20
+    ruleset_gate_json: '{"freshteams":true}'
+    source_ref: items.c:812
+    notes: gated by k_freshteams_weapon_time cvar (default 20).
+
+  # 5. Compound: instagib + shotgun
+  - kind: weapon
+    name: shotgun
+    gameplay_source_id: ktx
+    damage: 1
+    ruleset_gate_json: '{"instagib":true}'
+    source_ref: weapons.c:839
+    notes: instagib mode shotgun fires single coilgun bullet, 1 dmg = instakill.
