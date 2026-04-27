@@ -8,3 +8,8 @@ exports/
 .env
 dist/
 output/*.json
+
+# Map knowledge layer caches (BSPs and PAKs are not committed)
+data/bsp-cache/
+data/pak-cache/
+scripts/extractors/qw/seeds/qw-stats-cache.json
