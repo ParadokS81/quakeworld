@@ -487,6 +487,67 @@ items:
       respawn_dm3_dm5_seconds: 15
     notes: null
 
+  - name: pickup_nailgun
+    classname: weapon_nailgun
+    pickup_amount: 30
+    respawn_seconds: 30
+    source_ref: items.qc:580
+    props:
+      ammo_type: nails
+      dm_gate: dm_le_3
+      respawn_source_ref: items.qc:669
+    notes: weapon pickups exist on map only when deathmatch <= 3.
+
+  - name: pickup_super_nailgun
+    classname: weapon_supernailgun
+    pickup_amount: 30
+    respawn_seconds: 30
+    source_ref: items.qc:588
+    props:
+      ammo_type: nails
+      dm_gate: dm_le_3
+    notes: null
+
+  - name: pickup_super_shotgun
+    classname: weapon_supershotgun
+    pickup_amount: 5
+    respawn_seconds: 30
+    source_ref: items.qc:596
+    props:
+      ammo_type: shells
+      dm_gate: dm_le_3
+    notes: null
+
+  - name: pickup_rocket_launcher
+    classname: weapon_rocketlauncher
+    pickup_amount: 5
+    respawn_seconds: 30
+    source_ref: items.qc:604
+    props:
+      ammo_type: rockets
+      dm_gate: dm_le_3
+    notes: null
+
+  - name: pickup_grenade_launcher
+    classname: weapon_grenadelauncher
+    pickup_amount: 5
+    respawn_seconds: 30
+    source_ref: items.qc:612
+    props:
+      ammo_type: rockets
+      dm_gate: dm_le_3
+    notes: null
+
+  - name: pickup_lightning_gun
+    classname: weapon_lightning
+    pickup_amount: 15
+    respawn_seconds: 30
+    source_ref: items.qc:620
+    props:
+      ammo_type: cells
+      dm_gate: dm_le_3
+    notes: null
+
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
