@@ -24,6 +24,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
+- [qw-oracle DEVELOPMENT.md missing](#qw-oracle-developmentmd-missing) — **NEW 2026-04-27.** qw-oracle has accumulated multiple project-specific test runners (the ezQuake Path-1 fixtures at `apps/qw-oracle/scripts/extractors/ezquake/tests/test_parameterized_paths.py` and the FTE Path-1 fixtures at `apps/qw-oracle/scripts/extractors/fte/tests/test_fte_asset_paths.py` shipped 2026-04-27) plus per-project verifier scripts (`asset-path-rules-verify.py` for ezQuake and FTE) that don't appear in `CLAUDE.md ## Commands` and have no central index. Partial coverage exists in CLAUDE.md `## Commands` for the loader CLI (`load-version`, `extract-tag`, `quality-grid`, etc.) but not for the test/fixture surfaces or the verifier scripts. Pressure: low — discoverability gap, not a correctness gap.
 
 ---
 
@@ -585,6 +586,51 @@ Two paths:
 ### Pressure
 
 Low. No ezhud feature blocks on this.
+
+---
+
+## qw-oracle DEVELOPMENT.md missing
+
+**Added:** 2026-04-27 (during FTE Phase 2d-bundle wrap-up docs-check).
+**Status:** Discoverability gap. qw-oracle is `Active` but lacks a `DEVELOPMENT.md`. Multiple test runners + verifier scripts live under `scripts/extractors/<project>/` without a central index.
+**Verification first:** `ls apps/qw-oracle/DEVELOPMENT.md` should report no such file. `grep -nE 'test_fte|test_parameterized|asset-path-rules-verify' apps/qw-oracle/CLAUDE.md` should return empty (no command-block coverage of these surfaces).
+
+### What's missing
+
+`apps/qw-oracle/CLAUDE.md` has a `## Commands` block that documents the loader CLI (`load-version`, `extract-tag`, `quality-grid`, `build-snapshot`) and the MCP server boot. It does NOT document:
+
+- **Path-1 fixture test runners.** Two exist today:
+  - `apps/qw-oracle/scripts/extractors/ezquake/tests/test_parameterized_paths.py` (8 fixtures, ezQuake)
+  - `apps/qw-oracle/scripts/extractors/fte/tests/test_fte_asset_paths.py` (3 fixtures, FTE; shipped 2026-04-27)
+- **Path-rules verifiers.** Two project-specific scripts:
+  - `apps/qw-oracle/scripts/extractors/ezquake/asset-path-rules-verify.py`
+  - `apps/qw-oracle/scripts/extractors/fte/asset-path-rules-verify.py`
+- **Direct extractor invocations** for one-off runs (e.g., `python3 apps/qw-oracle/scripts/extractors/fte/extract.py --handlers asset_loader_sites --workers 1`). These get used for ad-hoc verification but aren't named anywhere a fresh contributor can find them.
+
+### What good looks like
+
+A `DEVELOPMENT.md` at `apps/qw-oracle/DEVELOPMENT.md` per the doc-philosophy template. Sections:
+- "Run the loader" (mirror of CLAUDE.md `## Commands`, more verbose with examples)
+- "Run the extractors directly" (per-project Python invocations)
+- "Run the test fixtures" (Path-1 fixture commands per project)
+- "Run the path-rules verifier" (per-project)
+- "End-to-end smoke for a project" (combined recipe: extract + load + quality-grid + spot-check)
+
+When this lands, trim the relevant entries from CLAUDE.md `## Commands` so the two files don't drift.
+
+### Why low pressure
+
+Existing operators (and Claude when given a session of context) find the runners through grep / git history. The gap costs ~30 seconds of search per onboarding event. Worth fixing in a docs-only session, not blocking any feature work.
+
+### Related
+
+- Doc philosophy reference: `~/.claude/skills/docs-check/references/doc-template.md`
+- Sibling Layer 2 doc that DOES exist: `apps/qw-oracle/SCHEMA.md` (schema reference)
+- Sibling Layer 3 stewardship doc: `apps/qw-oracle/concept-notes/OPERATIONS.md`
+
+### Pressure
+
+Low.
 
 ---
 
