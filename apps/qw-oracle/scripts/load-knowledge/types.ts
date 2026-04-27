@@ -757,3 +757,29 @@ export interface SourceOverrideRow {
   override_kind: SourceOverrideKind;
   extracted_at: string;
 }
+
+// --- Phase 2g: maps table --------------------------------------------------
+
+export interface MapRow {
+  canonical_name: string;
+  file_name: string;
+  display_name: string | null;
+  author: string | null;
+  bsp_version: 'V29' | 'BSP2';
+  bsp_size_bytes: number;
+  bsp_sha256: string;
+  worldspawn_json: string;
+  entity_count: number;
+  class_counts_json: string;
+  item_summary_json: string;
+  spawn_summary_json: string;
+  features_json: string;
+  wads_referenced_json: string;
+  inferred_gamemodes_json: string;
+  popularity_total: number | null;
+  popularity_by_mode_json: string | null;
+  popularity_rank: number | null;
+  notes: string | null;
+  source_bsp_url: string;
+  extracted_at: string;
+}
