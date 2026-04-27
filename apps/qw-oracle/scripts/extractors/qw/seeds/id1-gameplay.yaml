@@ -301,6 +301,42 @@ items:
       respawn_semantics: respawn_seconds_field_describes_normal_pickup_cycle_decay_uses_separate_5s_initial_then_20s_regen
     notes: respawn_seconds=20 for the basic regen-after-pickup cycle; the megahealth-specific decay-then-regen sequence is separate (5s initial decay tick at items.qc:321, then -1 hp/s back to max, then 20s regen at items.qc:356).
 
+  - name: green_armor
+    classname: item_armor1
+    pickup_amount: 100
+    respawn_seconds: 20
+    source_ref: items.qc:386
+    props:
+      armortype: 0.3
+      armortype_source_ref: items.qc:386
+      armorvalue_cap: 100
+      armorvalue_cap_source_ref: items.qc:387
+      classname_source_ref: items.qc:384
+      respawn_source_ref: items.qc:412
+    notes: absorbs 30% of damage up to 100 armor.
+
+  - name: yellow_armor
+    classname: item_armor2
+    pickup_amount: 150
+    respawn_seconds: 20
+    source_ref: items.qc:392
+    props:
+      armortype: 0.6
+      armorvalue_cap: 150
+      classname_source_ref: items.qc:390
+    notes: absorbs 60%.
+
+  - name: red_armor
+    classname: item_armorInv
+    pickup_amount: 200
+    respawn_seconds: 20
+    source_ref: items.qc:398
+    props:
+      armortype: 0.8
+      armorvalue_cap: 200
+      classname_source_ref: items.qc:396
+    notes: absorbs 80%.
+
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
