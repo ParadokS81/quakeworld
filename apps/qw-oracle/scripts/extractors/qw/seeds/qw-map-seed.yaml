@@ -1,0 +1,10 @@
+# qw-map-seed.yaml -- manual overrides for the map knowledge layer.
+#
+# Schema:
+#   overrides:
+#     <canonical_name>:
+#       author: "..."   # set when heuristic from worldspawn.message gets nothing or wrong
+#       notes:  "..."   # free-form, surfaced by lookup_map
+#
+# Empty for v1; entries get added as corrections surface.
+overrides: {}
