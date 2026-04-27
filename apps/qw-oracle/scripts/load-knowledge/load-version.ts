@@ -85,6 +85,12 @@ import {
   cvarAliasIsSourceBacked,
   upsertCvarAliasRow,
 } from './load-cvar-aliases.js';
+import {
+  PROTOCOL_MESSAGE_PAYLOAD_FIELD,
+  buildProtocolMessageVersionRow,
+  protocolMessageIsSourceBacked,
+  upsertProtocolMessageRow,
+} from './load-protocol-messages.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
@@ -230,6 +236,13 @@ const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
     buildRow: buildCvarAliasVersionRow,
     upsertRow: upsertCvarAliasRow,
   },
+  protocol_message: {
+    payloadField: PROTOCOL_MESSAGE_PAYLOAD_FIELD,
+    versionsTable: 'protocol_message_versions',
+    isSourceBacked: protocolMessageIsSourceBacked,
+    buildRow: buildProtocolMessageVersionRow,
+    upsertRow: upsertProtocolMessageRow,
+  },
 };
 
 export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
@@ -243,11 +256,34 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
 
   const raw = readFileSync(options.jsonPath, 'utf-8');
   const payload = JSON.parse(raw) as Record<string, unknown>;
-  const rawEntries = (payload as any)[adapter.payloadField] as Record<string, any> | undefined;
-  if (!rawEntries || typeof rawEntries !== 'object') {
+  const rawPayload = (payload as any)[adapter.payloadField];
+  if (!rawPayload || typeof rawPayload !== 'object') {
     throw new Error(
       `Extractor JSON at ${options.jsonPath} has no "${adapter.payloadField}" field for type=${options.type}`
     );
+  }
+
+  // Phase 2e MVDSV: the new-type handlers (protocol_messages, info_keys,
+  // log_templates, qc_builtins) emit Array<{name, ast, ...}> instead of the
+  // dict-by-name shape used by the older extractors. Normalize to the dict
+  // shape the rest of this orchestrator (case-fold merge, key iteration) was
+  // built for. The "first wins" rule mirrors finalize() in the Python
+  // handlers, which already cross-file dedup before emitting.
+  let rawEntries: Record<string, any>;
+  if (Array.isArray(rawPayload)) {
+    rawEntries = {};
+    for (const item of rawPayload) {
+      if (!item || typeof item !== 'object' || typeof item.name !== 'string') {
+        throw new Error(
+          `Extractor JSON at ${options.jsonPath}: array element under "${adapter.payloadField}" missing string "name" field`,
+        );
+      }
+      if (rawEntries[item.name] === undefined) {
+        rawEntries[item.name] = item;
+      }
+    }
+  } else {
+    rawEntries = rawPayload as Record<string, any>;
   }
 
   // Case-fold merge. Source code uses identifiers like `loadFragfile` and

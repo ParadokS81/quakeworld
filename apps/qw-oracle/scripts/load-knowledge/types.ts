@@ -246,6 +246,25 @@ export interface TokenPrimitiveEntry {
   ast: TokenPrimitiveAstBlock | null;
 }
 
+// --- Phase 2e MVDSV: protocol_message ---------------------------------------
+// Server-side macro-defined byte tags exchanged between client and server.
+// Six kinds carry distinct semantics (svc/clc/nq/pext_fte/pext_mvd/protocol_version)
+// and must satisfy the CHECK constraint on protocol_message_versions.kind.
+
+export interface ProtocolMessageAstBlock {
+  kind: 'svc' | 'clc' | 'nq' | 'pext_fte' | 'pext_mvd' | 'protocol_version';
+  value: string | null;
+  value_kind: 'integer' | 'hex' | 'bitshift' | 'expression' | null;
+  source_file: string | null;
+  source_line: number | null;
+  trailing_comment: string | null;
+}
+
+export interface ProtocolMessageEntry {
+  name: string;
+  ast: ProtocolMessageAstBlock | null;
+}
+
 export interface EntityRow {
   project: Project;
   type: EntityType;
@@ -304,6 +323,23 @@ export interface CmdlineParamVersionRow {
   source_line: number | null;
   source_column: number | null;
   raw_ast_hash: string | null;
+  extracted_at: string;
+}
+
+export interface ProtocolMessageVersionRow {
+  entity_id: number;
+  version: string;
+  // CHECK-constrained at the schema level; doc_only rows would have no ast,
+  // but isSourceBacked filters those out before this row builds, so kind is
+  // always one of the six valid values in practice.
+  kind: string;
+  value: string | null;
+  value_kind: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  trailing_comment: string | null;
+  raw_ast_hash: string | null;
+  source_root: string | null;
   extracted_at: string;
 }
 

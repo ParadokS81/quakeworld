@@ -22,6 +22,7 @@ import type {
   KeynameVersionRow,
   MacroVersionRow,
   Project,
+  ProtocolMessageVersionRow,
   RelationChangeRow,
   ReleaseNoteRow,
   RulesetVersionRow,
@@ -219,6 +220,20 @@ export function upsertCmdlineParamVersion(db: Database.Database, row: CmdlinePar
       @entity_id, @version,
       @help_desc, @help_remarks, @arguments, @flags_json, @systems_json,
       @source_file, @source_line, @source_column, @raw_ast_hash, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertProtocolMessageVersion(db: Database.Database, row: ProtocolMessageVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO protocol_message_versions (
+      entity_id, version, kind, value, value_kind,
+      source_file, source_line, trailing_comment,
+      raw_ast_hash, source_root, extracted_at
+    ) VALUES (
+      @entity_id, @version, @kind, @value, @value_kind,
+      @source_file, @source_line, @trailing_comment,
+      @raw_ast_hash, @source_root, @extracted_at
     )
   `).run(row);
 }
