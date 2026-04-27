@@ -231,3 +231,60 @@ def clang_args_fte_vk_for(fte_repo: str) -> list[str]:
     base = clang_args_fte_for(fte_repo)
     base = [a for a in base if a != "-DGLQUAKE"]
     return base + ["-DVKQUAKE"]
+
+
+# ----------------------------------------------------------------------------
+# MVDSV (apps/qw-oracle/scripts/extractors/mvdsv/) -- Phase 2e
+# Server-only QuakeWorld engine. SERVERONLY is always defined; no
+# client/server toggle within MVDSV itself. Three variants: server-base,
+# server+Win, server+Linux. CMakeLists.txt-driven flags ON;
+# NQPROGS / PARANOID / DEBUG_VM / MVD_PEXT1_DEBUG / experimental flags OFF.
+# Protocol-extension bit-shift values (FTE_PEXT_*, MVD_PEXT1_*,
+# PROTOCOL_VERSION_FTE*) come from src/qwprot/src/protocol.h via -I, not
+# from explicit -D defines.
+# ----------------------------------------------------------------------------
+
+_MVDSV_CMAKE_DEFINES: list[str] = [
+    # Sourced from research/repos/mvdsv/CMakeLists.txt:169-186
+    "-DSERVERONLY",
+    "-DUSE_PR2",
+    "-DMVD_PEXT1_SERVERSIDEWEAPON",
+    "-DMVD_PEXT1_SERVERSIDEWEAPON2",
+    "-DFTE_PEXT2_VOICECHAT",
+    "-DWWW_INTEGRATION",
+]
+
+
+def clang_args_mvdsv_for(mvdsv_src_dir: str) -> list[str]:
+    """Server-base variant: SERVERONLY + CMakeLists flags + protocol.h via -I.
+
+    The qwprot submodule at src/qwprot/src/ provides protocol.h, which
+    defines FTE_PEXT_*, MVD_PEXT1_*, and PROTOCOL_VERSION_FTE* bit-shift
+    constants. Including via -I lets clang resolve them from the header
+    rather than supplying explicit -D defines."""
+    qwprot_dir = str(pathlib.Path(mvdsv_src_dir) / "qwprot" / "src")
+    return [
+        "-x", "c",
+        f"-I{mvdsv_src_dir}",
+        f"-I{qwprot_dir}",
+        "-w",
+        *_MVDSV_CMAKE_DEFINES,
+    ]
+
+
+def clang_args_mvdsv_win_for(mvdsv_src_dir: str) -> list[str]:
+    """Server+Win variant: server-base plus Windows platform flags. Reuses
+    the ezQuake stub Windows SDK headers under research/stubs/windows-sdk/."""
+    return clang_args_mvdsv_for(mvdsv_src_dir) + [
+        "-D_WIN32",
+        "-D_MSC_VER=1900",
+        f"-I{_STUBS_WINDOWS}",
+    ]
+
+
+def clang_args_mvdsv_linux_for(mvdsv_src_dir: str) -> list[str]:
+    """Server+Linux variant: server-base plus Linux platform flags."""
+    return clang_args_mvdsv_for(mvdsv_src_dir) + [
+        "-D__linux__",
+        "-D__unix__",
+    ]
