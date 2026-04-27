@@ -522,44 +522,56 @@ head -100 /home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/extractors/e
 
 Identify the existing function shapes for ezQuake (`clang_args_for`, `clang_args_server_for`, `clang_args_win_for`, `clang_args_apple_for`) and FTE (`clang_args_fte_for`, `clang_args_fte_server_for`, etc).
 
-- [ ] **Step 2: Add MVDSV functions**
+- [ ] **Step 2: Verify qwprot submodule is initialized**
 
-At the bottom of `clang_config.py`, add (consult Task 1's notes-pass-1.md for the verified PEXT inventory before pasting; the list below is the spec-time inventory):
+Task 1 surfaced that `research/repos/mvdsv/src/qwprot/` is a git submodule that must be initialized before extraction so `protocol.h` (containing `svc_*`/`clc_*`/`FTE_PEXT_*`/`MVD_PEXT1_*`/`PROTOCOL_VERSION_FTE*` definitions) can be resolved by clang via `-I src/qwprot/src`. The controller already initialized it after Task 1 returned; this step verifies:
+
+```bash
+ls /home/paradoks/projects/quakeworld/research/repos/mvdsv/src/qwprot/src/protocol.h
+```
+
+Expected: file exists. If missing, run `cd /home/paradoks/projects/quakeworld/research/repos/mvdsv && git submodule update --init src/qwprot` to initialize.
+
+- [ ] **Step 3: Add MVDSV functions**
+
+At the bottom of `clang_config.py`, add. The flag list below is sourced from Task 1's `notes-pass-1.md` -- it reflects MVDSV's CMakeLists.txt `target_compile_definitions` plus an `-I src/qwprot/src` for protocol extension constants (defined as bit-shift values in `protocol.h`, not via -D).
 
 ```python
 # ----------------------------------------------------------------------------
-# MVDSV (apps/qw-oracle/scripts/extractors/mvdsv/) — Phase 2e
+# MVDSV (apps/qw-oracle/scripts/extractors/mvdsv/) -- Phase 2e
 # Server-only QuakeWorld engine. SERVERONLY is always defined; no
 # client/server toggle within MVDSV itself. Three variants: server-base,
-# server+Win, server+Linux. Production protocol extensions ON; NQPROGS,
-# PARANOID, DEBUG_VM, MVD_PEXT1_DEBUG OFF.
+# server+Win, server+Linux. CMakeLists.txt-driven flags ON;
+# NQPROGS / PARANOID / DEBUG_VM / MVD_PEXT1_DEBUG / experimental flags OFF.
+# Protocol-extension bit-shift values (FTE_PEXT_*, MVD_PEXT1_*,
+# PROTOCOL_VERSION_FTE*) come from src/qwprot/src/protocol.h via -I, not
+# from explicit -D defines.
 # ----------------------------------------------------------------------------
 
-_MVDSV_PEXT_DEFINES: list[str] = [
+_MVDSV_CMAKE_DEFINES: list[str] = [
+    # Sourced from research/repos/mvdsv/CMakeLists.txt:169-186
     "-DSERVERONLY",
-    # Protocol extensions (modern production server)
-    "-DFTE_PEXT_FLOATCOORDS",
-    "-DFTE_PEXT_TRANS",
-    "-DFTE_PEXT_CSQC",
-    "-DFTE_PEXT_COLOURMOD",
-    "-DFTE_PEXT_CHUNKEDDOWNLOADS",
-    "-DFTE_PEXT2_VOICECHAT",
-    "-DMVD_PEXT1_SERVERSIDEWEAPON",
-    "-DMVD_PEXT1_HIDDEN_MESSAGES",
-    "-DPROTOCOL_VERSION_FTE",
-    "-DPROTOCOL_VERSION_FTE2",
-    "-DPROTOCOL_VERSION_MVD1",
     "-DUSE_PR2",
+    "-DMVD_PEXT1_SERVERSIDEWEAPON",
+    "-DMVD_PEXT1_SERVERSIDEWEAPON2",
+    "-DFTE_PEXT2_VOICECHAT",
     "-DWWW_INTEGRATION",
 ]
 
 
+def _mvdsv_qwprot_include(mvdsv_src_dir: str) -> list[str]:
+    """Include path for the qwprot submodule providing protocol.h."""
+    qwprot = str(Path(mvdsv_src_dir) / "qwprot" / "src")
+    return ["-I", qwprot]
+
+
 def clang_args_mvdsv_for(mvdsv_src_dir: str) -> list[str]:
-    """Server-base variant: SERVERONLY + protocol extensions, no platform flags."""
+    """Server-base variant: SERVERONLY + CMakeLists flags + protocol.h via -I."""
     return [
         "-x", "c",
         "-I", mvdsv_src_dir,
-        *_MVDSV_PEXT_DEFINES,
+        *_mvdsv_qwprot_include(mvdsv_src_dir),
+        *_MVDSV_CMAKE_DEFINES,
     ]
 
 
@@ -1771,9 +1783,17 @@ from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 _API_OP_MAP = {
-    "Info_ValueForKey": "read",
-    "Info_SetValueForKey": "write",
-    "Info_RemoveKey": "remove",
+    # Read APIs (Task 1 verified Info_Get is the dominant MVDSV-local wrapper, 62 sites)
+    "Info_ValueForKey":         "read",
+    "Info_Get":                 "read",
+    # Write APIs
+    "Info_SetValueForKey":      "write",
+    "Info_SetValueForStarKey":  "write",
+    "Info_SetStar":             "write",
+    "Info_Set":                 "write",
+    # Remove APIs
+    "Info_RemoveKey":           "remove",
+    "Info_Remove":              "remove",
 }
 
 
@@ -1972,13 +1992,19 @@ sys.path.insert(0, str(HERE.parent))
 from extractor_lib._visitor import Visitor  # noqa: E402
 
 
+# Format-string argument index per API. Task 1 verified that
+# SV_BroadcastTPrintf and SV_ClientTPrintf do NOT exist in MVDSV
+# (the spec assumed them from ezQuake -- they are absent here).
 _CHANNEL_TABLE: dict[str, tuple[str, int]] = {
-    "SV_BroadcastPrintf": ("broadcast", 1),
-    "SV_BroadcastTPrintf": ("broadcast", 1),
-    "SV_ClientPrintf":    ("client", 2),
-    "SV_ClientTPrintf":   ("client", 2),
-    "Con_Printf":         ("console", 0),
-    "Sys_Printf":         ("system", 0),
+    # broadcast: sent to all clients
+    "SV_BroadcastPrintf":   ("broadcast", 1),  # (level, fmt, ...)
+    "SV_BroadcastPrintfEx": ("broadcast", 2),  # (level, flags, fmt, ...)
+    "SV_BroadcastCommand":  ("broadcast", 0),  # (fmt, ...)
+    # client: sent to one client
+    "SV_ClientPrintf":      ("client", 2),     # (cl, level, fmt, ...)
+    # console + system: server-side log
+    "Con_Printf":           ("console", 0),
+    "Sys_Printf":           ("system", 0),
 }
 
 
@@ -2140,19 +2166,28 @@ Create `apps/qw-oracle/scripts/extractors/mvdsv/_handler_qc_builtins.py`:
 ```python
 """QC builtins handler for the MVDSV AST extractor.
 
-Detects the `pr_builtin` and `pr2_builtin` function-pointer tables and emits
-one row per entry with: index, C handler function name, trailing comment
-(often the QC signature like `void(vector ang) makevectors`), and source
-location.
+Detects MVDSV's two builtin tables and emits one row per entry. Task 1 verified
+the actual table layout (the spec's pr2_builtin[] assumption was wrong):
 
-Pattern shape: VAR_DECL with type `builtin_t[]` and an INIT_LIST_EXPR child.
-Each child of the init list is a UNARY_OPERATOR (address-of) wrapping a
-DECL_REF_EXPR -- or just a DECL_REF_EXPR in some entries. PF_Fixme is the
-common placeholder for unimplemented slots.
+  - `std_builtins[]` at src/pr_cmds.c:2682 -- 83 entries, index = builtin number,
+    PF_Fixme fills unused slots
+  - `ext_builtins[]` at src/pr_cmds.c:2779 -- sparse {int num, func} pairs,
+    24 entries at non-contiguous numbers (#60-#62, #84-#86, #90-#91, ...)
+  - PR2 system uses `ext_syscalls[]` at src/pr2_cmds.c:70 -- string-keyed
+    extension dispatch, qualitatively different. Captured opportunistically
+    if encountered; not the primary target.
 
-Canonical entity name: parsed from the trailing comment if present (the QC
-side name -- everything between '>' and '(' or after the closing ')')
-otherwise the C handler name with PF_/PR2_ prefix stripped.
+Pattern shapes:
+  std_builtins: VAR_DECL with type `builtin_t[]` and INIT_LIST_EXPR. Each
+                child is a UNARY_OPERATOR(&)/DECL_REF_EXPR pointing at the
+                handler function. Index = position in the array.
+  ext_builtins: VAR_DECL with type `apifunc_t[]`/`std_func_t[]` and
+                INIT_LIST_EXPR of struct-init pairs. First field = index
+                literal, second field = function reference.
+
+Canonical entity name: parsed from trailing comment if present (QC name --
+the identifier after the close-paren in `void(vector ang) makevectors = #1`
+style comments), otherwise the C handler name with PF_/PR2_ prefix stripped.
 """
 from __future__ import annotations
 
@@ -2214,7 +2249,8 @@ def _is_builtin_table_decl(cursor) -> bool:
     if cursor.kind != CursorKind.VAR_DECL:
         return False
     spelling = cursor.spelling
-    if spelling not in {"pr_builtin", "pr2_builtin"}:
+    # Task 1 verified the actual table names in MVDSV.
+    if spelling not in {"std_builtins", "ext_builtins", "ext_syscalls"}:
         return False
     return True
 
