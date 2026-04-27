@@ -146,6 +146,9 @@ interface TypeAdapter {
   ) => SourceOverrideRow[];
 }
 
+// Partial: protocol_message / info_key / log_template / qc_builtin adapters
+// land in Tasks 14-17 (load-protocol-messages.ts etc.). Until then the
+// missing-adapter branch in loadVersion throws a clear error.
 const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
   cvar: {
     payloadField: CVAR_PAYLOAD_FIELD,
