@@ -54,6 +54,8 @@ pub fn run() {
             commands::client_fingerprint::fingerprint_exe,
             commands::client_fingerprint::fingerprint_folder,
             commands::client_fingerprint::scan_clients_in_dir,
+            commands::release_cache::get_release_cache,
+            commands::release_cache::refresh_all_release_caches,
         ])
         .manage(commands::watcher::ConfigWatcherState::new())
         .manage(commands::browse::BrowseWatcherState::new())

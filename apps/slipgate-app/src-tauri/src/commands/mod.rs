@@ -6,6 +6,7 @@ pub mod data_root;
 pub mod ezquake;
 pub mod inventory_report;
 pub mod locs;
+pub mod release_cache;
 pub mod scanner;
 pub mod screenshot;
 pub mod system;
