@@ -307,6 +307,26 @@ export interface LogTemplateEntry {
   ast: LogTemplateAstBlock | null;
 }
 
+// --- Phase 2e MVDSV: qc_builtin ---------------------------------------------
+// QuakeC builtin functions exposed to game-mod progs (std_builtins,
+// ext_builtins, ext_syscalls). table_name is free-form text (no CHECK at
+// schema level); table_name + builtin_index + handler_fn are NOT NULL.
+
+export interface QcBuiltinAstBlock {
+  table_name: string;
+  builtin_index: number;
+  handler_fn: string;
+  qc_signature: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  trailing_comment: string | null;
+}
+
+export interface QcBuiltinEntry {
+  name: string;
+  ast: QcBuiltinAstBlock | null;
+}
+
 export interface EntityRow {
   project: Project;
   type: EntityType;
@@ -418,6 +438,26 @@ export interface LogTemplateVersionRow {
   source_file: string | null;
   source_line: number | null;
   containing_function: string | null;
+  raw_ast_hash: string | null;
+  source_root: string | null;
+  extracted_at: string;
+}
+
+export interface QcBuiltinVersionRow {
+  entity_id: number;
+  version: string;
+  // NOT NULL at the schema level; defensive empty-string / -1 fallbacks for
+  // the doc_only edge case (in practice isSourceBacked filters those out
+  // before this builder runs). table_name carries free-form text -- expected
+  // values are std_builtins / ext_builtins / ext_syscalls but no CHECK at
+  // the schema level.
+  table_name: string;
+  builtin_index: number;
+  handler_fn: string;
+  qc_signature: string | null;
+  source_file: string | null;
+  source_line: number | null;
+  trailing_comment: string | null;
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;

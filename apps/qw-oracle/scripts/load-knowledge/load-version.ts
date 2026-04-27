@@ -103,6 +103,12 @@ import {
   logTemplateIsSourceBacked,
   upsertLogTemplateRow,
 } from './load-log-templates.js';
+import {
+  QC_BUILTIN_PAYLOAD_FIELD,
+  buildQcBuiltinVersionRow,
+  qcBuiltinIsSourceBacked,
+  upsertQcBuiltinRow,
+} from './load-qc-builtins.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
@@ -164,10 +170,7 @@ interface TypeAdapter {
   ) => SourceOverrideRow[];
 }
 
-// Partial: qc_builtin adapter lands in Task 17. Until then the missing-
-// adapter branch in loadVersion throws a clear error. Task 17 reverts
-// this to the non-Partial form once all four MVDSV types have adapters.
-const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
+const ADAPTERS: Record<EntityType, TypeAdapter> = {
   cvar: {
     payloadField: CVAR_PAYLOAD_FIELD,
     versionsTable: 'cvar_versions',
@@ -268,6 +271,13 @@ const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
     isSourceBacked: logTemplateIsSourceBacked,
     buildRow: buildLogTemplateVersionRow,
     upsertRow: upsertLogTemplateRow,
+  },
+  qc_builtin: {
+    payloadField: QC_BUILTIN_PAYLOAD_FIELD,
+    versionsTable: 'qc_builtin_versions',
+    isSourceBacked: qcBuiltinIsSourceBacked,
+    buildRow: buildQcBuiltinVersionRow,
+    upsertRow: upsertQcBuiltinRow,
   },
 };
 

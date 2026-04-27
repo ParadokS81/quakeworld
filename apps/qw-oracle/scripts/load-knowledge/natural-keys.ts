@@ -25,6 +25,7 @@ import type {
   MacroVersionRow,
   Project,
   ProtocolMessageVersionRow,
+  QcBuiltinVersionRow,
   RelationChangeRow,
   ReleaseNoteRow,
   RulesetVersionRow,
@@ -263,6 +264,20 @@ export function upsertLogTemplateVersion(db: Database.Database, row: LogTemplate
     ) VALUES (
       @entity_id, @version, @channel, @format_string, @format_string_normalized,
       @source_file, @source_line, @containing_function,
+      @raw_ast_hash, @source_root, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertQcBuiltinVersion(db: Database.Database, row: QcBuiltinVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO qc_builtin_versions (
+      entity_id, version, table_name, builtin_index, handler_fn, qc_signature,
+      source_file, source_line, trailing_comment,
+      raw_ast_hash, source_root, extracted_at
+    ) VALUES (
+      @entity_id, @version, @table_name, @builtin_index, @handler_fn, @qc_signature,
+      @source_file, @source_line, @trailing_comment,
       @raw_ast_hash, @source_root, @extracted_at
     )
   `).run(row);
