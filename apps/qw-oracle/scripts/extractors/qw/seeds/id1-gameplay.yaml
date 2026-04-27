@@ -337,6 +337,60 @@ items:
       classname_source_ref: items.qc:396
     notes: absorbs 80%.
 
+  - name: quad_damage
+    classname: item_artifact_super_damage
+    duration_seconds: 30
+    respawn_seconds: 60
+    source_ref: items.qc:1417
+    props:
+      damage_multiplier: 4
+      damage_multiplier_dm4: 8
+      damage_multiplier_source_ref: combat.qc:127
+      damage_multiplier_dm4_source_ref: combat.qc:128
+      duration_source_ref: items.qc:1346
+      respawn_source_ref: items.qc:1308
+      drop_on_death_gate: infokey_dq
+      drop_on_death_source_ref: client.qc:552
+    notes: dropped on death only when worldspawn key 'dq' is set.
+
+  - name: pentagram
+    classname: item_artifact_invulnerability
+    duration_seconds: 30
+    respawn_seconds: 300
+    source_ref: items.qc:1358
+    props:
+      mechanic: damage_blocked_while_invincible_finished_gte_time
+      mechanic_source_ref: combat.qc:184
+      duration_source_ref: items.qc:1328
+      respawn_source_ref: items.qc:1306
+      hit_sound: items/protect3.wav
+      hit_sound_source_ref: combat.qc:188
+    notes: invul absorbs all damage; 5-minute respawn.
+
+  - name: ring_of_shadows
+    classname: item_artifact_invisibility
+    duration_seconds: 30
+    respawn_seconds: 300
+    source_ref: items.qc:1397
+    props:
+      mechanic: modelindex_eyes_when_invisible_finished_gt_zero
+      mechanic_source_ref: client.qc:991
+      duration_source_ref: items.qc:1334
+      drop_on_death_gate: infokey_dr
+      drop_on_death_source_ref: client.qc:568
+    notes: 5-minute respawn.
+
+  - name: biosuit
+    classname: item_artifact_envirosuit
+    duration_seconds: 30
+    respawn_seconds: 60
+    source_ref: items.qc:1378
+    props:
+      duration_source_ref: items.qc:1322
+      respawn_source_ref: items.qc:1308
+      effect: prevents_lava_slime_drown_damage
+    notes: null
+
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
