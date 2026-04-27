@@ -391,6 +391,102 @@ items:
       effect: prevents_lava_slime_drown_damage
     notes: null
 
+  - name: shells_small
+    classname: item_shells
+    pickup_amount: 20
+    respawn_seconds: 30
+    source_ref: items.qc:906
+    props:
+      ammo_type: shells
+      max_carry: 100
+      max_carry_source_ref: items.qc:474
+      classname_source_ref: items.qc:889
+      respawn_dm3_dm5_seconds: 15
+      respawn_source_ref: items.qc:868
+      respawn_dm3_dm5_source_ref: items.qc:872
+    notes: null
+
+  - name: shells_large
+    classname: item_shells
+    pickup_amount: 40
+    respawn_seconds: 30
+    source_ref: items.qc:900
+    props:
+      ammo_type: shells
+      max_carry: 100
+      spawnflag_meaning: WEAPON_BIG2
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: nails_small
+    classname: item_spikes
+    pickup_amount: 25
+    respawn_seconds: 30
+    source_ref: items.qc:934
+    props:
+      ammo_type: nails
+      max_carry: 200
+      max_carry_source_ref: items.qc:477
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: nails_large
+    classname: item_spikes
+    pickup_amount: 50
+    respawn_seconds: 30
+    source_ref: items.qc:928
+    props:
+      ammo_type: nails
+      max_carry: 200
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: rockets_small
+    classname: item_rockets
+    pickup_amount: 5
+    respawn_seconds: 30
+    source_ref: items.qc:963
+    props:
+      ammo_type: rockets
+      max_carry: 100
+      max_carry_source_ref: items.qc:478
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: rockets_large
+    classname: item_rockets
+    pickup_amount: 10
+    respawn_seconds: 30
+    source_ref: items.qc:957
+    props:
+      ammo_type: rockets
+      max_carry: 100
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: cells_small
+    classname: item_cells
+    pickup_amount: 6
+    respawn_seconds: 30
+    source_ref: items.qc:993
+    props:
+      ammo_type: cells
+      max_carry: 100
+      max_carry_source_ref: items.qc:480
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
+  - name: cells_large
+    classname: item_cells
+    pickup_amount: 12
+    respawn_seconds: 30
+    source_ref: items.qc:987
+    props:
+      ammo_type: cells
+      max_carry: 100
+      respawn_dm3_dm5_seconds: 15
+    notes: null
+
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
