@@ -32,11 +32,27 @@ export interface SetupHardware {
   audio_in_override: string | null;      // null = use auto-detected
 }
 
+/**
+ * A registered quake dir on the user's machine. In Phase 3.5b the only role
+ * is "primary" and `quake_dirs` contains 0 or 1 entries. The plural shape is
+ * intentional per D9 — future Tier-3 arcs (clean-room migration, player
+ * profile bundles) add roles like "secondary-readonly" or "profile" without
+ * a second schema migration.
+ */
+export interface QuakeDirEntry {
+  path: string;
+  role: "primary";
+  label?: string;
+}
+
 export interface Setup {
   name: string;
   primary: boolean;
   client: ClientInfo;
   hardware: SetupHardware;
+  /** Phase 3.5b D9: registered quake dirs. Migrated from `client.exe_path`
+   * parent on first load of an existing v2 profile. */
+  quake_dirs: QuakeDirEntry[];
 }
 
 export interface EquipmentEntry {
@@ -133,7 +149,34 @@ function createDefaultSetup(): Setup {
     primary: true,
     client: { ...DEFAULT_CLIENT },
     hardware: { ...DEFAULT_HARDWARE },
+    quake_dirs: [],
   };
+}
+
+function quakeDirParent(p: string | null | undefined): string | null {
+  if (!p) return null;
+  const idx = Math.max(p.lastIndexOf("\\"), p.lastIndexOf("/"));
+  return idx > 0 ? p.slice(0, idx) : null;
+}
+
+function deriveQuakeDirs(
+  existing: unknown,
+  exePath: string | null | undefined,
+): QuakeDirEntry[] {
+  if (Array.isArray(existing)) {
+    // Already migrated; sanitize entries.
+    const out: QuakeDirEntry[] = [];
+    for (const e of existing as any[]) {
+      if (!e || typeof e.path !== "string" || e.path.length === 0) continue;
+      const entry: QuakeDirEntry = { path: e.path, role: "primary" };
+      if (typeof e.label === "string") entry.label = e.label;
+      out.push(entry);
+    }
+    return out;
+  }
+  const parent = quakeDirParent(exePath);
+  if (!parent) return [];
+  return [{ path: parent, role: "primary" }];
 }
 
 const DEFAULT_IDENTITY: ProfileIdentity = {
@@ -259,12 +302,16 @@ function migrateProfile(data: any): ProfileData {
   if (data.setups && Array.isArray(data.setups)) {
     return {
       identity: { ...DEFAULT_IDENTITY, ...data.identity },
-      setups: data.setups.map((s: any) => ({
-        name: s.name ?? "Desktop",
-        primary: s.primary ?? true,
-        client: { ...DEFAULT_CLIENT, ...s.client },
-        hardware: { ...DEFAULT_HARDWARE, ...s.hardware },
-      })),
+      setups: data.setups.map((s: any) => {
+        const client = { ...DEFAULT_CLIENT, ...s.client };
+        return {
+          name: s.name ?? "Desktop",
+          primary: s.primary ?? true,
+          client,
+          hardware: { ...DEFAULT_HARDWARE, ...s.hardware },
+          quake_dirs: deriveQuakeDirs(s.quake_dirs, client.exe_path),
+        };
+      }),
       equipment_history: data.equipment_history ?? [],
       prefs: {
         ...DEFAULT_PREFS,
@@ -390,6 +437,26 @@ export async function updatePrimaryHardware(data: Partial<SetupHardware>): Promi
   }
   await saveProfile(profile);
   return profile;
+}
+
+/** Set or replace the primary quake dir on the primary setup (D9). */
+export async function setPrimaryQuakeDir(path: string): Promise<ProfileData> {
+  const profile = await loadProfile();
+  const setup = profile.setups.find((s) => s.primary) ?? profile.setups[0];
+  if (setup) {
+    const others = setup.quake_dirs.filter((e) => e.role !== "primary");
+    setup.quake_dirs = [{ path, role: "primary" }, ...others];
+  }
+  await saveProfile(profile);
+  return profile;
+}
+
+/** Read the primary quake dir from the primary setup, if set. */
+export function getPrimaryQuakeDir(profile: ProfileData): string | null {
+  const setup = profile.setups.find((s) => s.primary) ?? profile.setups[0];
+  if (!setup) return null;
+  const entry = setup.quake_dirs.find((e) => e.role === "primary");
+  return entry?.path ?? null;
 }
 
 /** Update prefs */

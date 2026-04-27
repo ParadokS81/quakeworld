@@ -30,6 +30,8 @@ interface Props {
   refreshKey?: number;
   onSwapComplete?: (newVersion: string) => void;
   onImportComplete?: (newVersion: string) => void;
+  /** Phase 3.5b: open the AddClientPanel inside ClientsDomain. */
+  onAddClient?: () => void;
 }
 
 /**
@@ -41,6 +43,7 @@ interface VersionRowDescriptor {
   client: string;
   family: string;
   version: string;
+  variant: string | null;
   channel: string;
   isActive: boolean;
   blob_sha256: string;
@@ -65,16 +68,23 @@ function clientFamilyLabel(client: string): string {
   }
 }
 
+function activeKey(client: string, variant: string | null | undefined): string {
+  return variant ? `${client}:${variant}` : client;
+}
+
 function buildDescriptor(
   v: WarehousedVersion,
-  activeVersion: string | null,
+  activeMap: Record<string, string>,
 ): VersionRowDescriptor {
+  const variant = v.variant ?? null;
+  const key = activeKey(v.client, variant);
   return {
     client: v.client,
     family: clientFamilyLabel(v.client),
     version: v.version,
+    variant,
     channel: v.channel,
-    isActive: v.version === activeVersion,
+    isActive: activeMap[key] === v.version,
     blob_sha256: v.blob_sha256,
     // Phase 3.5 fills these in.
     tier2: undefined,
@@ -99,8 +109,8 @@ export default function VersionWarehouse(props: Props) {
 
   const descriptors = (): VersionRowDescriptor[] => {
     const rows = (versions() ?? []).filter((v) => v.client === props.client);
-    const active = activeVersion();
-    return rows.map((v) => buildDescriptor(v, active));
+    const activeMap = index()?.active ?? {};
+    return rows.map((v) => buildDescriptor(v, activeMap));
   };
 
   const refresh = async () => {
@@ -132,19 +142,32 @@ export default function VersionWarehouse(props: Props) {
     }
   };
 
+  function rowKey(d: VersionRowDescriptor): string {
+    return d.variant ? `${d.version}:${d.variant}` : d.version;
+  }
+
+  function targetExeFor(d: VersionRowDescriptor): string {
+    if (!d.variant) return props.targetExeName;
+    const stem = props.targetExeName.endsWith(".exe")
+      ? props.targetExeName.slice(0, -4)
+      : props.targetExeName;
+    return `${stem}-${d.variant}.exe`;
+  }
+
   const handleSwap = async (d: VersionRowDescriptor) => {
     if (!props.quakeDir) {
       setError("No quake dir configured");
       return;
     }
-    setBusy(`swap:${d.version}`);
+    setBusy(`swap:${rowKey(d)}`);
     setError(null);
     try {
       await swapActiveVersion(invoke, {
         client: props.client,
         targetVersion: d.version,
         quakeDir: props.quakeDir,
-        targetExeName: props.targetExeName,
+        targetExeName: targetExeFor(d),
+        targetVariant: d.variant,
       });
       props.onSwapComplete?.(d.version);
       await refresh();
@@ -156,11 +179,12 @@ export default function VersionWarehouse(props: Props) {
   };
 
   const handleDelete = async (d: VersionRowDescriptor) => {
-    if (!confirm(`Delete ${d.family} ${d.version} from warehouse?`)) return;
-    setBusy(`del:${d.version}`);
+    const label = d.variant ? `${d.family} ${d.version} (${d.variant})` : `${d.family} ${d.version}`;
+    if (!confirm(`Delete ${label} from warehouse?`)) return;
+    setBusy(`del:${rowKey(d)}`);
     setError(null);
     try {
-      await deleteWarehousedVersion(invoke, props.client, d.version);
+      await deleteWarehousedVersion(invoke, props.client, d.version, d.variant);
       await refresh();
     } catch (e) {
       setError(String(e));
@@ -175,8 +199,9 @@ export default function VersionWarehouse(props: Props) {
         <h3 class="text-lg font-semibold">Installed versions</h3>
         <button
           class="btn btn-sm btn-ghost"
-          disabled
-          title="Multi-client management coming in Phase 3.5"
+          disabled={!props.onAddClient}
+          onClick={() => props.onAddClient?.()}
+          title="Bulk-import Quake clients from a folder or specific exe"
         >
           <Plus class="w-4 h-4" />
           Add Quake client
@@ -212,6 +237,9 @@ export default function VersionWarehouse(props: Props) {
               <div class="flex-1 flex items-center gap-2 flex-wrap">
                 <span class="text-sm text-base-content/70">{d.family}</span>
                 <span class="font-mono">{d.version}</span>
+                <Show when={d.variant}>
+                  {(v) => <span class="badge badge-sm badge-ghost">{v()}</span>}
+                </Show>
                 <span class="badge badge-sm">{d.channel}</span>
                 <Show when={d.isActive}>
                   <span class="badge badge-sm badge-success">active</span>
@@ -244,14 +272,14 @@ export default function VersionWarehouse(props: Props) {
                 }
                 onClick={() => handleSwap(d)}
               >
-                {busy() === `swap:${d.version}` ? "Switching..." : "Switch"}
+                {busy() === `swap:${rowKey(d)}` ? "Switching..." : "Switch"}
               </button>
               <button
                 class="btn btn-sm btn-ghost"
                 disabled={d.isActive || busy() !== null}
                 onClick={() => handleDelete(d)}
               >
-                {busy() === `del:${d.version}` ? "..." : "Delete"}
+                {busy() === `del:${rowKey(d)}` ? "..." : "Delete"}
               </button>
             </li>
           )}

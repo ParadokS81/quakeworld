@@ -6,6 +6,7 @@ import type { EzQuakeInstallation, EzQuakeConfig } from "../types";
 import type { ProfileData } from "../store";
 import { getPrimarySetup } from "../store";
 import VersionWarehouse from "./VersionWarehouse";
+import AddClientPanel from "./AddClientPanel";
 import { userInitiatedReconcile } from "../lib/quake-dir/swap";
 
 const WAREHOUSE_CLIENT = "ezquake";
@@ -39,6 +40,7 @@ export default function ClientsDomain(props: ClientsDomainProps) {
   const [config, setConfig] = createSignal<EzQuakeConfig | null>(null);
   const [selectedConfig, setSelectedConfig] = createSignal("config.cfg");
   const [error, setError] = createSignal("");
+  const [addingClient, setAddingClient] = createSignal(false);
 
   // Bump to force VersionWarehouse to re-fetch when external events
   // (path change reconcile, post-swap reload) mutate warehouse state.
@@ -217,25 +219,42 @@ export default function ClientsDomain(props: ClientsDomainProps) {
           <div class="sg-card">
             <div class="sg-card-header">
               <HardDrive size={16} />
-              <span>Versions</span>
+              <span>{addingClient() ? "Add Quake client" : "Versions"}</span>
             </div>
-            <VersionWarehouse
-              client={WAREHOUSE_CLIENT}
-              quakeDir={quakeDirFromExePath(exePath())}
-              targetExeName="ezquake.exe"
-              currentExePath={exePath() || null}
-              refreshKey={warehouseRefreshKey()}
-              onSwapComplete={() => {
-                const p = exePath();
-                if (p) validateAndLoad(p);
-                setWarehouseRefreshKey((k) => k + 1);
-              }}
-              onImportComplete={() => {
-                const p = exePath();
-                if (p) validateAndLoad(p);
-                setWarehouseRefreshKey((k) => k + 1);
-              }}
-            />
+            <Show
+              when={addingClient()}
+              fallback={
+                <VersionWarehouse
+                  client={WAREHOUSE_CLIENT}
+                  quakeDir={quakeDirFromExePath(exePath())}
+                  targetExeName="ezquake.exe"
+                  currentExePath={exePath() || null}
+                  refreshKey={warehouseRefreshKey()}
+                  onAddClient={() => setAddingClient(true)}
+                  onSwapComplete={() => {
+                    const p = exePath();
+                    if (p) validateAndLoad(p);
+                    setWarehouseRefreshKey((k) => k + 1);
+                  }}
+                  onImportComplete={() => {
+                    const p = exePath();
+                    if (p) validateAndLoad(p);
+                    setWarehouseRefreshKey((k) => k + 1);
+                  }}
+                />
+              }
+            >
+              <AddClientPanel
+                profile={props.profile ?? null}
+                onImportComplete={() => {
+                  const p = exePath();
+                  if (p) validateAndLoad(p);
+                  setWarehouseRefreshKey((k) => k + 1);
+                  setAddingClient(false);
+                }}
+                onClose={() => setAddingClient(false)}
+              />
+            </Show>
           </div>
         </Show>
 
