@@ -70,6 +70,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (subcommand === 'load-maps') {
+    await runLoadMaps(rest);
+    return;
+  }
+
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
   }
@@ -112,6 +117,9 @@ Subcommands:
                 Each entity row carries 5 enrichment fields: source_state,
                 first_seen_version, last_seen_version, plus optional
                 default_history and retired_at_version.
+  load-maps     [--json <path>]
+                Load qw-maps-ast.json into the maps table (schema v13).
+                Defaults to scripts/extractors/qw/output/qw-maps-ast.json.
 `.trim());
   process.exit(2);
 }
@@ -478,6 +486,25 @@ async function runBuildSnapshot(args: string[]): Promise<void> {
     outputDir: values.output,
   });
   console.log(JSON.stringify(result, null, 2));
+}
+
+async function runLoadMaps(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      json: { type: 'string' },
+    },
+  });
+
+  const jsonPath = values.json ?? join(__dirname, '..', 'extractors', 'qw', 'output', 'qw-maps-ast.json');
+  const { loadMapsFromFile } = await import('./load-maps.js');
+  const db = openKnowledgeDb();
+  try {
+    const result = loadMapsFromFile(db, jsonPath);
+    console.log(`load-maps: inserted=${result.inserted} updated=${result.updated} total=${result.total}`);
+  } finally {
+    db.close();
+  }
 }
 
 function defaultReviewPath(project: Project, from: string, to: string): string {
