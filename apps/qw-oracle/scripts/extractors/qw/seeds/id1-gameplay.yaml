@@ -766,7 +766,31 @@ mechanics:
         rocket_jump_source_ref: combat.qc:174
       notes: knockback scales with damage. rj cvar multiplies self-damage knockback.
   powerup_behaviors:
-  # (filled by Task 10) - 3 rows
+    - name: quad_damage_multiplier
+      value_numeric: 4
+      source_ref: combat.qc:130
+      props:
+        if_check_source_ref: combat.qc:127
+        dm4_multiplier: 8
+        dm4_source_ref: combat.qc:128
+        excludes_inflictor_classname: door
+        exclusion_source_ref: combat.qc:126
+      notes: door damage is NOT quaded. combat.qc:127 is the if(deathmatch==4) gate; line 128 is the *8 path; line 130 is the default *4 path.
+
+    - name: pent_invulnerability_mechanic
+      value_text: invincible_finished_gte_time_returns_before_T_Damage_applies
+      source_ref: combat.qc:184
+      props:
+        hit_sound: items/protect3.wav
+        hit_sound_source_ref: combat.qc:188
+      notes: implementation is full damage absorb (not partial).
+
+    - name: ring_invisibility_mechanic
+      value_text: modelindex_eyes_when_invisible_finished_gt_zero
+      source_ref: client.qc:991
+      props:
+        condition_source_ref: client.qc:955
+      notes: client modelindex swap; partial visibility threshold is engine-side.
   armor_models:
   # (filled by Task 11) - 1 row
   death_rules:
