@@ -21,6 +21,7 @@ import type {
   HudElementVersionRow,
   InfoKeyVersionRow,
   KeynameVersionRow,
+  LogTemplateVersionRow,
   MacroVersionRow,
   Project,
   ProtocolMessageVersionRow,
@@ -248,6 +249,20 @@ export function upsertInfoKeyVersion(db: Database.Database, row: InfoKeyVersionR
     ) VALUES (
       @entity_id, @version, @scope, @operations,
       @source_file, @source_line, @containing_function, @call_sites_json,
+      @raw_ast_hash, @source_root, @extracted_at
+    )
+  `).run(row);
+}
+
+export function upsertLogTemplateVersion(db: Database.Database, row: LogTemplateVersionRow): void {
+  db.prepare(`
+    INSERT OR REPLACE INTO log_template_versions (
+      entity_id, version, channel, format_string, format_string_normalized,
+      source_file, source_line, containing_function,
+      raw_ast_hash, source_root, extracted_at
+    ) VALUES (
+      @entity_id, @version, @channel, @format_string, @format_string_normalized,
+      @source_file, @source_line, @containing_function,
       @raw_ast_hash, @source_root, @extracted_at
     )
   `).run(row);

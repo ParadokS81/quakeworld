@@ -288,6 +288,25 @@ export interface InfoKeyEntry {
   ast: InfoKeyAstBlock | null;
 }
 
+// --- Phase 2e MVDSV: log_template -------------------------------------------
+// Server-emitted log/print/console template strings, classified by output
+// channel (broadcast/client/console/system). The CHECK constraint on
+// log_template_versions.channel restricts channel to those four values.
+
+export interface LogTemplateAstBlock {
+  channel: 'broadcast' | 'client' | 'console' | 'system';
+  format_string: string;
+  format_string_normalized: string;
+  source_file: string | null;
+  source_line: number | null;
+  containing_function: string | null;
+}
+
+export interface LogTemplateEntry {
+  name: string;
+  ast: LogTemplateAstBlock | null;
+}
+
 export interface EntityRow {
   project: Project;
   type: EntityType;
@@ -379,6 +398,26 @@ export interface InfoKeyVersionRow {
   source_line: number | null;
   containing_function: string | null;
   call_sites_json: string | null;       // JSON-stringified [{source_file, source_line, operation}]
+  raw_ast_hash: string | null;
+  source_root: string | null;
+  extracted_at: string;
+}
+
+export interface LogTemplateVersionRow {
+  entity_id: number;
+  version: string;
+  // CHECK-constrained at the schema level (broadcast/client/console/system);
+  // doc_only rows would have no ast, but isSourceBacked filters those out
+  // before this row builds, so channel is always one of the four valid values
+  // in practice.
+  channel: string;
+  // NOT NULL at the schema level; defensive empty-string fallback for the
+  // same isSourceBacked edge case.
+  format_string: string;
+  format_string_normalized: string;
+  source_file: string | null;
+  source_line: number | null;
+  containing_function: string | null;
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;

@@ -97,6 +97,12 @@ import {
   infoKeyIsSourceBacked,
   upsertInfoKeyRow,
 } from './load-info-keys.js';
+import {
+  LOG_TEMPLATE_PAYLOAD_FIELD,
+  buildLogTemplateVersionRow,
+  logTemplateIsSourceBacked,
+  upsertLogTemplateRow,
+} from './load-log-templates.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import type {
   EntityType,
@@ -158,10 +164,9 @@ interface TypeAdapter {
   ) => SourceOverrideRow[];
 }
 
-// Partial: log_template / qc_builtin adapters land in Tasks 16-17. Until
-// then the missing-adapter branch in loadVersion throws a clear error.
-// Task 17 reverts this to the non-Partial form once all four MVDSV
-// types have adapters.
+// Partial: qc_builtin adapter lands in Task 17. Until then the missing-
+// adapter branch in loadVersion throws a clear error. Task 17 reverts
+// this to the non-Partial form once all four MVDSV types have adapters.
 const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
   cvar: {
     payloadField: CVAR_PAYLOAD_FIELD,
@@ -256,6 +261,13 @@ const ADAPTERS: Partial<Record<EntityType, TypeAdapter>> = {
     isSourceBacked: infoKeyIsSourceBacked,
     buildRow: buildInfoKeyVersionRow,
     upsertRow: upsertInfoKeyRow,
+  },
+  log_template: {
+    payloadField: LOG_TEMPLATE_PAYLOAD_FIELD,
+    versionsTable: 'log_template_versions',
+    isSourceBacked: logTemplateIsSourceBacked,
+    buildRow: buildLogTemplateVersionRow,
+    upsertRow: upsertLogTemplateRow,
   },
 };
 
