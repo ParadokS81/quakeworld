@@ -1,0 +1,983 @@
+{
+  "commands": [
+    {
+      "name": "acc_block",
+      "ast": {
+        "handler_fn": "SV_BlockAccount_f",
+        "source_file": "src/sv_login.c",
+        "source_line": 566,
+        "description": null
+      }
+    },
+    {
+      "name": "acc_create",
+      "ast": {
+        "handler_fn": "SV_CreateAccount_f",
+        "source_file": "src/sv_login.c",
+        "source_line": 562,
+        "description": "acc_create <login> [<password>] if password is not given, login will be used for password login/pass has to be max 16 chars and at least 3, only regular chars are acceptable"
+      }
+    },
+    {
+      "name": "acc_list",
+      "ast": {
+        "handler_fn": "SV_ListAccount_f",
+        "source_file": "src/sv_login.c",
+        "source_line": 564,
+        "description": "shows the list of accounts"
+      }
+    },
+    {
+      "name": "acc_remove",
+      "ast": {
+        "handler_fn": "SV_RemoveAccount_f",
+        "source_file": "src/sv_login.c",
+        "source_line": 563,
+        "description": "acc_remove <login> removes the login"
+      }
+    },
+    {
+      "name": "acc_unblock",
+      "ast": {
+        "handler_fn": "SV_UnblockAccount_f",
+        "source_file": "src/sv_login.c",
+        "source_line": 565,
+        "description": null
+      }
+    },
+    {
+      "name": "addip",
+      "ast": {
+        "handler_fn": "SV_AddIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3617,
+        "description": null
+      }
+    },
+    {
+      "name": "alias",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1070,
+        "description": "Creates a new command that executes a command string (possibly ; seperated)"
+      }
+    },
+    {
+      "name": "cache_print",
+      "ast": {
+        "handler_fn": "Cache_Print",
+        "source_file": "src/zone.c",
+        "source_line": 593,
+        "description": null
+      }
+    },
+    {
+      "name": "cache_report",
+      "ast": {
+        "handler_fn": "Cache_Report",
+        "source_file": "src/zone.c",
+        "source_line": 594,
+        "description": null
+      }
+    },
+    {
+      "name": "cancel",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1939,
+        "description": "Stops recording, and removes the demo"
+      }
+    },
+    {
+      "name": "check_maps",
+      "ast": {
+        "handler_fn": "SV_Check_maps_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1832,
+        "description": null
+      }
+    },
+    {
+      "name": "chmod",
+      "ast": {
+        "handler_fn": "SV_ChmodFile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1853,
+        "description": null
+      }
+    },
+    {
+      "name": "cmdlist",
+      "ast": {
+        "handler_fn": "Cmd_CmdList_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1072,
+        "description": null
+      }
+    },
+    {
+      "name": "cuff",
+      "ast": {
+        "handler_fn": "SV_Cuff_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1847,
+        "description": null
+      }
+    },
+    {
+      "name": "cvardump",
+      "ast": {
+        "handler_fn": "Cvar_CvarList_f",
+        "source_file": "src/cvar.c",
+        "source_line": 565,
+        "description": null
+      }
+    },
+    {
+      "name": "cvarlist",
+      "ast": {
+        "handler_fn": "Cvar_CvarList_f",
+        "source_file": "src/cvar.c",
+        "source_line": 564,
+        "description": null
+      }
+    },
+    {
+      "name": "devmap",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1861,
+        "description": null
+      }
+    },
+    {
+      "name": "easyrecord",
+      "ast": {
+        "handler_fn": "SV_MVDEasyRecord_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1930,
+        "description": "easyrecord [demoname]"
+      }
+    },
+    {
+      "name": "echo",
+      "ast": {
+        "handler_fn": "Cmd_Echo_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1069,
+        "description": "Just prints the rest of the line to the console"
+      }
+    },
+    {
+      "name": "edict",
+      "ast": {
+        "handler_fn": "ED2_PrintEdict_f",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 67,
+        "description": "For debugging, prints a single edicy"
+      }
+    },
+    {
+      "name": "edictcount",
+      "ast": {
+        "handler_fn": "ED_Count",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 69,
+        "description": "For debugging"
+      }
+    },
+    {
+      "name": "edicts",
+      "ast": {
+        "handler_fn": "ED2_PrintEdicts",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 68,
+        "description": "For debugging, prints all the entities in the current server"
+      }
+    },
+    {
+      "name": "exec",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1068,
+        "description": null
+      }
+    },
+    {
+      "name": "floodprot",
+      "ast": {
+        "handler_fn": "SV_Floodprot_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1898,
+        "description": "Sets the gamedir and path to a different directory."
+      }
+    },
+    {
+      "name": "floodprotmsg",
+      "ast": {
+        "handler_fn": "SV_Floodprotmsg_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1899,
+        "description": null
+      }
+    },
+    {
+      "name": "flush",
+      "ast": {
+        "handler_fn": "Cache_Flush",
+        "source_file": "src/zone.c",
+        "source_line": 592,
+        "description": "Throw everything out, so new data will be demand cached"
+      }
+    },
+    {
+      "name": "fraglogfile",
+      "ast": {
+        "handler_fn": "SV_FragLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 223,
+        "description": null
+      }
+    },
+    {
+      "name": "gamedir",
+      "ast": {
+        "handler_fn": "SV_Gamedir_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1893,
+        "description": "Sets the gamedir and path to a different directory."
+      }
+    },
+    {
+      "name": "give",
+      "ast": {
+        "handler_fn": "SV_Give_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1882,
+        "description": null
+      }
+    },
+    {
+      "name": "god",
+      "ast": {
+        "handler_fn": "SV_God_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1881,
+        "description": "Sets client to godmode"
+      }
+    },
+    {
+      "name": "heartbeat",
+      "ast": {
+        "handler_fn": "SV_Heartbeat_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1870,
+        "description": null
+      }
+    },
+    {
+      "name": "hunk_print",
+      "ast": {
+        "handler_fn": "Hunk_Print_f",
+        "source_file": "src/zone.c",
+        "source_line": 596,
+        "description": null
+      }
+    },
+    {
+      "name": "if",
+      "ast": {
+        "handler_fn": "Cmd_If_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1075,
+        "description": null
+      }
+    },
+    {
+      "name": "inc",
+      "ast": {
+        "handler_fn": "Cvar_Inc_f",
+        "source_file": "src/cvar.c",
+        "source_line": 568,
+        "description": null
+      }
+    },
+    {
+      "name": "kick",
+      "ast": {
+        "handler_fn": "SV_Kick_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1835,
+        "description": "Kick a user off of the server"
+      }
+    },
+    {
+      "name": "listip",
+      "ast": {
+        "handler_fn": "SV_ListIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3619,
+        "description": null
+      }
+    },
+    {
+      "name": "load",
+      "ast": {
+        "handler_fn": "SV_LoadGame_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1872,
+        "description": null
+      }
+    },
+    {
+      "name": "localcommand",
+      "ast": {
+        "handler_fn": "SV_LocalCommand_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1857,
+        "description": null
+      }
+    },
+    {
+      "name": "localinfo",
+      "ast": {
+        "handler_fn": "SV_Localinfo_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1886,
+        "description": "Examine or change the localinfo string"
+      }
+    },
+    {
+      "name": "logerrors",
+      "ast": {
+        "handler_fn": "SV_ErrorLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 220,
+        "description": null
+      }
+    },
+    {
+      "name": "logfile",
+      "ast": {
+        "handler_fn": "SV_Logfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 219,
+        "description": null
+      }
+    },
+    {
+      "name": "logplayers",
+      "ast": {
+        "handler_fn": "SV_PlayerLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 224,
+        "description": null
+      }
+    },
+    {
+      "name": "logrcon",
+      "ast": {
+        "handler_fn": "SV_RconLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 221,
+        "description": null
+      }
+    },
+    {
+      "name": "logtelnet",
+      "ast": {
+        "handler_fn": "SV_TelnetLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 222,
+        "description": null
+      }
+    },
+    {
+      "name": "ls",
+      "ast": {
+        "handler_fn": "SV_ListFiles_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1844,
+        "description": "Lists files"
+      }
+    },
+    {
+      "name": "map",
+      "ast": {
+        "handler_fn": "SV_Map_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1859,
+        "description": null
+      }
+    },
+    {
+      "name": "master_rcon_password",
+      "ast": {
+        "handler_fn": "SV_MasterPassword_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1902,
+        "description": null
+      }
+    },
+    {
+      "name": "mod",
+      "ast": {
+        "handler_fn": "PR2_GameConsoleCommand",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 71,
+        "description": null
+      }
+    },
+    {
+      "name": "modfraglogfile",
+      "ast": {
+        "handler_fn": "SV_ModFragLogfile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 225,
+        "description": null
+      }
+    },
+    {
+      "name": "mute",
+      "ast": {
+        "handler_fn": "SV_Mute_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1846,
+        "description": null
+      }
+    },
+    {
+      "name": "noclip",
+      "ast": {
+        "handler_fn": "SV_Noclip_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1883,
+        "description": null
+      }
+    },
+    {
+      "name": "nslookup",
+      "ast": {
+        "handler_fn": "SV_Nslookup_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1831,
+        "description": null
+      }
+    },
+    {
+      "name": "path",
+      "ast": {
+        "handler_fn": "FS_Path_f",
+        "source_file": "src/fs.c",
+        "source_line": 506,
+        "description": null
+      }
+    },
+    {
+      "name": "penaltylist",
+      "ast": {
+        "handler_fn": "SV_ListPenalty_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1849,
+        "description": null
+      }
+    },
+    {
+      "name": "penaltyremove",
+      "ast": {
+        "handler_fn": "SV_RemovePenalty_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1850,
+        "description": null
+      }
+    },
+    {
+      "name": "profile",
+      "ast": {
+        "handler_fn": "PR2_Profile_f",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 70,
+        "description": null
+      }
+    },
+    {
+      "name": "qtv_close",
+      "ast": {
+        "handler_fn": "Qtv_Close_f",
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 1520,
+        "description": null
+      }
+    },
+    {
+      "name": "qtv_list",
+      "ast": {
+        "handler_fn": "Qtv_List_f",
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 1519,
+        "description": null
+      }
+    },
+    {
+      "name": "qtv_status",
+      "ast": {
+        "handler_fn": "Qtv_Status_f",
+        "source_file": "src/sv_demo_qtv.c",
+        "source_line": 1521,
+        "description": null
+      }
+    },
+    {
+      "name": "quit",
+      "ast": {
+        "handler_fn": "SV_Quit_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1876,
+        "description": null
+      }
+    },
+    {
+      "name": "record",
+      "ast": {
+        "handler_fn": "SV_MVD_Record_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1929,
+        "description": "record <demoname>"
+      }
+    },
+    {
+      "name": "removeip",
+      "ast": {
+        "handler_fn": "SV_RemoveIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3618,
+        "description": null
+      }
+    },
+    {
+      "name": "restart",
+      "ast": {
+        "handler_fn": "SV_Restart_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1877,
+        "description": null
+      }
+    },
+    {
+      "name": "rm",
+      "ast": {
+        "handler_fn": "SV_RemoveFile_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1843,
+        "description": "Remove a file"
+      }
+    },
+    {
+      "name": "rmdir",
+      "ast": {
+        "handler_fn": "SV_RemoveDirectory_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1842,
+        "description": "Removes an empty directory"
+      }
+    },
+    {
+      "name": "save",
+      "ast": {
+        "handler_fn": "SV_SaveGame_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1871,
+        "description": null
+      }
+    },
+    {
+      "name": "say",
+      "ast": {
+        "handler_fn": "SV_ConSay_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1875,
+        "description": null
+      }
+    },
+    {
+      "name": "script",
+      "ast": {
+        "handler_fn": "SV_Script_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1954,
+        "description": null
+      }
+    },
+    {
+      "name": "serverinfo",
+      "ast": {
+        "handler_fn": "SV_Serverinfo_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1889,
+        "description": "Examine or change the serverinfo string"
+      }
+    },
+    {
+      "name": "set",
+      "ast": {
+        "handler_fn": "Cvar_Set_f",
+        "source_file": "src/cvar.c",
+        "source_line": 567,
+        "description": null
+      }
+    },
+    {
+      "name": "setmaster",
+      "ast": {
+        "handler_fn": "SV_SetMaster_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1867,
+        "description": "Make a master server current"
+      }
+    },
+    {
+      "name": "snap",
+      "ast": {
+        "handler_fn": "SV_Snap_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1833,
+        "description": null
+      }
+    },
+    {
+      "name": "snapall",
+      "ast": {
+        "handler_fn": "SV_SnapAll_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1834,
+        "description": null
+      }
+    },
+    {
+      "name": "status",
+      "ast": {
+        "handler_fn": "SV_Status_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1838,
+        "description": null
+      }
+    },
+    {
+      "name": "stop",
+      "ast": {
+        "handler_fn": "SV_MVDStop_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1931,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_democancel",
+      "ast": {
+        "handler_fn": "SV_MVD_Cancel_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1941,
+        "description": "Stops recording, and removes the demo"
+      }
+    },
+    {
+      "name": "sv_demoeasyrecord",
+      "ast": {
+        "handler_fn": "SV_MVDEasyRecord_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1935,
+        "description": "easyrecord [demoname]"
+      }
+    },
+    {
+      "name": "sv_demoembedinfo",
+      "ast": {
+        "handler_fn": "SV_MVDEmbedInfo_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1952,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demoinfo",
+      "ast": {
+        "handler_fn": "SV_MVDInfo_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1951,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demoinfoadd",
+      "ast": {
+        "handler_fn": "SV_MVDInfoAdd_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1949,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demoinforemove",
+      "ast": {
+        "handler_fn": "SV_MVDInfoRemove_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1950,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demolist",
+      "ast": {
+        "handler_fn": "SV_DemoList_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1944,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demolistr",
+      "ast": {
+        "handler_fn": "SV_DemoListRegex_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1945,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demolistregex",
+      "ast": {
+        "handler_fn": "SV_DemoListRegex_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1946,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demonumremove",
+      "ast": {
+        "handler_fn": "SV_MVDRemoveNum_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1948,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demorecord",
+      "ast": {
+        "handler_fn": "SV_MVD_Record_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1934,
+        "description": "record <demoname>"
+      }
+    },
+    {
+      "name": "sv_demoremove",
+      "ast": {
+        "handler_fn": "SV_MVDRemove_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1947,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_demostop",
+      "ast": {
+        "handler_fn": "SV_MVDStop_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1936,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_gamedir",
+      "ast": {
+        "handler_fn": "SV_Gamedir",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1894,
+        "description": "Sets the fake *gamedir to a different directory."
+      }
+    },
+    {
+      "name": "sv_lastscores",
+      "ast": {
+        "handler_fn": "SV_LastScores_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1943,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_status",
+      "ast": {
+        "handler_fn": "SV_Status_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1839,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_usercmdtrace",
+      "ast": {
+        "handler_fn": "SV_UserCmdTrace_f",
+        "source_file": "src/sv_demo.c",
+        "source_line": 1956,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_web_get",
+      "ast": {
+        "handler_fn": "Web_GetRequest_f",
+        "source_file": "src/central.c",
+        "source_line": 765,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_web_post",
+      "ast": {
+        "handler_fn": "Web_PostRequest_f",
+        "source_file": "src/central.c",
+        "source_line": 766,
+        "description": null
+      }
+    },
+    {
+      "name": "sv_web_postfile",
+      "ast": {
+        "handler_fn": "Web_PostFileRequest_f",
+        "source_file": "src/central.c",
+        "source_line": 767,
+        "description": null
+      }
+    },
+    {
+      "name": "svadmin",
+      "ast": {
+        "handler_fn": "SV_Admin_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3614,
+        "description": null
+      }
+    },
+    {
+      "name": "toggle",
+      "ast": {
+        "handler_fn": "Cvar_Toggle_f",
+        "source_file": "src/cvar.c",
+        "source_line": 566,
+        "description": null
+      }
+    },
+    {
+      "name": "unalias",
+      "ast": {
+        "handler_fn": "Cmd_UnAlias_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1074,
+        "description": null
+      }
+    },
+    {
+      "name": "unaliasall",
+      "ast": {
+        "handler_fn": "Cmd_UnAliasAll_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1073,
+        "description": null
+      }
+    },
+    {
+      "name": "updatebroadcasts",
+      "ast": {
+        "handler_fn": "SV_BroadcastUpdateServerList_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1868,
+        "description": null
+      }
+    },
+    {
+      "name": "user",
+      "ast": {
+        "handler_fn": "SV_User_f",
+        "source_file": "src/sv_ccmds.c",
+        "source_line": 1890,
+        "description": "Examine a users info strings"
+      }
+    },
+    {
+      "name": "vip_addip",
+      "ast": {
+        "handler_fn": "SV_AddIPVIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3621,
+        "description": null
+      }
+    },
+    {
+      "name": "vip_listip",
+      "ast": {
+        "handler_fn": "SV_ListIPVIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3623,
+        "description": null
+      }
+    },
+    {
+      "name": "vip_removeip",
+      "ast": {
+        "handler_fn": "SV_RemoveIPVIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3622,
+        "description": null
+      }
+    },
+    {
+      "name": "vip_writeip",
+      "ast": {
+        "handler_fn": "SV_WriteIPVIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3624,
+        "description": null
+      }
+    },
+    {
+      "name": "vminfo",
+      "ast": {
+        "handler_fn": "VM_VmInfo_f",
+        "source_file": "src/pr2_exec.c",
+        "source_line": 73,
+        "description": null
+      }
+    },
+    {
+      "name": "wait",
+      "ast": {
+        "handler_fn": "Cmd_Wait_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1071,
+        "description": "Causes execution of the remainder of the command buffer to be delayed until next frame.  This allows commands like: bind g \"impulse 5 ; +attack ; wait ; -attack ; impulse 2\""
+      }
+    },
+    {
+      "name": "writeip",
+      "ast": {
+        "handler_fn": "SV_WriteIP_f",
+        "source_file": "src/sv_main.c",
+        "source_line": 3620,
+        "description": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 112,
+    "function_defs_indexed": 1316,
+    "count": 108,
+    "with_handler": 108,
+    "with_description": 28
+  }
+}
