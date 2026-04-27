@@ -4,7 +4,8 @@ Detects literal `cvar_t` struct-init declarations (Pattern 1):
 
     cvar_t  sv_mintic = {"sv_mintic", "0.013"};
     cvar_t  sv_maxfps = {"maxfps", "77", CVAR_SERVERINFO};
-    static cvar_t sys_select_timeout = {"sys_select_timeout", "10000", 0, OnChange_sysselecttimeout_var};
+    static cvar_t qtv_streamport = {"qtv_streamport", "0"};
+    cvar_t sys_select_timeout = {"sys_select_timeout", "10000", 0, OnChange_sysselecttimeout_var};
 
 MVDSV does NOT use macro-style registrations (FTE-style CVARD/CVARFD), so the
 detection path is the simpler ezQuake variant of Pattern 1. No nested-struct
