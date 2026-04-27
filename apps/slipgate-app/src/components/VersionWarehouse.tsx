@@ -4,6 +4,7 @@ import { Plus } from "lucide-solid";
 import {
   listWarehousedVersions,
   readWarehouseIndex,
+  importExistingInstall,
   type WarehousedVersion,
 } from "../lib/quake-dir/warehouse";
 import {
@@ -16,12 +17,19 @@ interface Props {
   quakeDir: string | null;
   targetExeName: string;
   /**
+   * The exe slipgate is currently pointed at. When this exe's bytes
+   * are not in the warehouse, the panel shows a "Foreign exe — Import"
+   * affordance so the user can ingest it without leaving Phase 3 UI.
+   */
+  currentExePath?: string | null;
+  /**
    * Bumped by parent to force a re-fetch of warehouse state when an
    * external event mutates it (e.g. user-initiated path change running
    * reconcile_active_version).
    */
   refreshKey?: number;
   onSwapComplete?: (newVersion: string) => void;
+  onImportComplete?: (newVersion: string) => void;
 }
 
 /**
@@ -99,6 +107,31 @@ export default function VersionWarehouse(props: Props) {
     await Promise.all([refetchVersions(), refetchIndex()]);
   };
 
+  // Foreign exe = current exe path is set, but reconcile didn't match it
+  // to any warehoused version (active pointer cleared). Reconcile runs on
+  // first-run bootstrap and on user-initiated path change, so by the time
+  // the panel renders the index reflects reality.
+  const isCurrentForeign = (): boolean => {
+    if (!props.currentExePath) return false;
+    if (versions.loading || index.loading) return false;
+    return activeVersion() === null;
+  };
+
+  const handleImportCurrent = async () => {
+    if (!props.currentExePath) return;
+    setBusy("import:current");
+    setError(null);
+    try {
+      const entry = await importExistingInstall(invoke, props.client, props.currentExePath);
+      props.onImportComplete?.(entry.version);
+      await refresh();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const handleSwap = async (d: VersionRowDescriptor) => {
     if (!props.quakeDir) {
       setError("No quake dir configured");
@@ -152,6 +185,24 @@ export default function VersionWarehouse(props: Props) {
 
       <Show when={error()}>
         <div class="alert alert-error text-sm">{error()}</div>
+      </Show>
+
+      <Show when={isCurrentForeign()}>
+        <div class="flex items-center gap-3 p-2 rounded border border-warning/40 bg-warning/5">
+          <div class="flex-1 text-sm">
+            <div class="font-medium">Foreign exe at current path</div>
+            <div class="text-xs text-base-content/60 break-all">
+              {props.currentExePath}
+            </div>
+          </div>
+          <button
+            class="btn btn-sm btn-warning"
+            disabled={busy() !== null}
+            onClick={handleImportCurrent}
+          >
+            {busy() === "import:current" ? "Importing..." : "Import"}
+          </button>
+        </div>
       </Show>
 
       <ul class="space-y-1">

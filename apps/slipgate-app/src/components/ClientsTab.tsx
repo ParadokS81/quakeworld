@@ -18,6 +18,12 @@ function quakeDirFromExePath(p: string | null | undefined): string | null {
   return idx > 0 ? p.slice(0, idx) : null;
 }
 
+function exeBasename(p: string | null | undefined): string {
+  if (!p) return "ezquake.exe";
+  const idx = Math.max(p.lastIndexOf("\\"), p.lastIndexOf("/"));
+  return idx >= 0 ? p.slice(idx + 1) : p;
+}
+
 interface ClientsTabProps {
   onConfigLoaded?: (config: EzQuakeConfig, exePath: string, configName: string, version: string | null) => void;
   monitor?: MonitorInfo | null;
@@ -602,9 +608,15 @@ export default function ClientsTab(props: ClientsTabProps) {
             <VersionWarehouse
               client={WAREHOUSE_CLIENT}
               quakeDir={quakeDirFromExePath(exePath())}
-              targetExeName="ezquake.exe"
+              targetExeName={exeBasename(exePath())}
+              currentExePath={exePath() || null}
               refreshKey={warehouseRefreshKey()}
               onSwapComplete={() => {
+                const p = exePath();
+                if (p) validateAndLoad(p);
+                setWarehouseRefreshKey((k) => k + 1);
+              }}
+              onImportComplete={() => {
                 const p = exePath();
                 if (p) validateAndLoad(p);
                 setWarehouseRefreshKey((k) => k + 1);
