@@ -481,6 +481,52 @@ function emitEzqAssetBundle(
   };
 }
 
+// ─── qw maps emitter ───────────────────────────────────────────────────────
+
+function emitQwMaps(
+  db: Database.Database,
+  meta: SnapshotMeta,
+  outputDir: string,
+): { count: number; bytes: number } {
+  const rows = db.prepare(`
+    SELECT canonical_name, file_name, display_name, author,
+           bsp_version, bsp_size_bytes, bsp_sha256,
+           worldspawn_json, entity_count, class_counts_json,
+           item_summary_json, spawn_summary_json, features_json,
+           wads_referenced_json, inferred_gamemodes_json,
+           popularity_total, popularity_by_mode_json, popularity_rank,
+           notes, source_bsp_url, extracted_at
+    FROM maps
+    ORDER BY canonical_name
+  `).all() as Array<Record<string, unknown>>;
+
+  const maps = rows.map((r) => ({
+    canonical_name: r.canonical_name,
+    file_name: r.file_name,
+    display_name: r.display_name,
+    author: r.author,
+    bsp_version: r.bsp_version,
+    bsp_size_bytes: r.bsp_size_bytes,
+    bsp_sha256: r.bsp_sha256,
+    worldspawn: JSON.parse(r.worldspawn_json as string),
+    entity_count: r.entity_count,
+    class_counts: JSON.parse(r.class_counts_json as string),
+    item_summary: JSON.parse(r.item_summary_json as string),
+    spawn_summary: JSON.parse(r.spawn_summary_json as string),
+    features: JSON.parse(r.features_json as string),
+    wads_referenced: JSON.parse(r.wads_referenced_json as string),
+    inferred_gamemodes: JSON.parse(r.inferred_gamemodes_json as string),
+    popularity_total: r.popularity_total,
+    popularity_by_mode: r.popularity_by_mode_json ? JSON.parse(r.popularity_by_mode_json as string) : null,
+    popularity_rank: r.popularity_rank,
+    notes: r.notes,
+    source_bsp_url: r.source_bsp_url,
+    extracted_at: r.extracted_at,
+  }));
+  const out = { ...meta, maps };
+  return writeJson(join(outputDir, 'qw-maps.json'), out, maps.length);
+}
+
 // ─── meta + writer ─────────────────────────────────────────────────────────
 
 interface SnapshotMeta {
@@ -530,6 +576,7 @@ export interface BuildSnapshotResult {
 }
 
 // Default version per project — qwcl has no `head` (single-commit repo);
+// qw is the version-less game-itself namespace (maps table has no versions row);
 // every other project tracks a moving head snapshot.
 const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   ezquake: 'head',
@@ -537,6 +584,7 @@ const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   mvdsv:   'head',
   ktx:     'head',
   qwcl:    '2.33',
+  qw:      'static',
 };
 
 export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
@@ -546,10 +594,13 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
 
   const db = openDbReadonly();
   try {
-    // Verify the requested version exists for the project.
-    const ver = db.prepare(`SELECT 1 FROM versions WHERE project=? AND version=?`).get(opts.project, version);
-    if (!ver) {
-      throw new Error(`No versions row for ${opts.project}@${version}; run extract-tag first.`);
+    // qw is the static-version namespace (the game itself, not an engine).
+    // It has no row in `versions`; skip the existence check.
+    if (opts.project !== 'qw') {
+      const ver = db.prepare(`SELECT 1 FROM versions WHERE project=? AND version=?`).get(opts.project, version);
+      if (!ver) {
+        throw new Error(`No versions row for ${opts.project}@${version}; run extract-tag first.`);
+      }
     }
 
     const meta = buildMeta(opts.project, version);
@@ -569,6 +620,9 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
       files.push({ file: `${opts.project}-cmdline-params.json`, entities: cl.count, bytes: cl.bytes });
       const ab = emitEzqAssetBundle(opts.project, version, outputDir);
       files.push({ file: `${opts.project}-asset-bundle.json`, entities: ab.count, bytes: ab.bytes });
+    } else if (opts.project === 'qw') {
+      const r = emitQwMaps(db, meta, outputDir);
+      files.push({ file: 'qw-maps.json', entities: r.count, bytes: r.bytes });
     } else {
       throw new Error(`build-snapshot does not yet support project=${opts.project}.`);
     }

@@ -33,6 +33,8 @@ const PROJECT_REPO_PATH: Record<Project, string> = {
   mvdsv:   join(MONOREPO_ROOT, 'research', 'repos', 'mvdsv'),
   ktx:     join(MONOREPO_ROOT, 'research', 'repos', 'ktx'),
   qwcl:    join(MONOREPO_ROOT, 'research', 'repos', 'qwcl-original'),
+  // qw is the game-itself namespace; it has no engine source repo.
+  qw:      '',
 };
 
 const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'extractors');
@@ -43,6 +45,7 @@ const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   mvdsv: null,
   ktx: null,
   qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
+  qw: null,
 };
 
 const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
@@ -51,6 +54,7 @@ const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
   mvdsv:   join(EXTRACTORS_ROOT, 'mvdsv', 'output'),
   ktx:     join(EXTRACTORS_ROOT, 'ktx', 'output'),
   qwcl:    join(EXTRACTORS_ROOT, 'qwcl', 'output'),
+  qw:      '',  // no engine source; maps are extracted separately
 };
 
 // The `head` version is not a git tag — it's a moving snapshot of each
@@ -66,6 +70,7 @@ const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
   mvdsv: 'master',
   ktx: 'master',
   qwcl: 'bf4ac42',
+  qw: '',  // no source repo; extract-tag is not used for qw
 };
 
 // Per-project version-label-to-git-ref aliases. The version label is what
@@ -76,10 +81,11 @@ const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
 // with no tag.
 const PROJECT_VERSION_ALIASES: Record<Project, Record<string, string>> = {
   ezquake: {},
-  fte:     {},
+  fte:     { 'build-6698': '35843773' },
   mvdsv:   {},
   ktx:     {},
   qwcl:    { '2.33': 'bf4ac42' },
+  qw:      {},  // no source repo; no version aliases needed
 };
 
 // Projects with hand-authored asset taxonomy (seed YAMLs + bundle output +
@@ -89,10 +95,11 @@ const PROJECT_VERSION_ALIASES: Record<Project, Record<string, string>> = {
 // FTE/MVDSV/KTX flip to true only after their seed authoring lands.
 const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
   ezquake: true,
-  fte:     false,
+  fte:     true,
   mvdsv:   false,
   ktx:     false,
   qwcl:    false,
+  qw:      false,  // maps table stands alone; no asset bundle taxonomy
 };
 
 // Slipgate absorbed the bundle location during qw-config dissolution Half 2a
@@ -128,17 +135,28 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     cmdline_param: 'qwcl-cmdline-params-ast.json',
   },
   fte: {
-    cvar:          'fte-variables-ast.json',
-    command:       'fte-commands-ast.json',
-    macro:         'fte-macros-ast.json',
-    cmdline_param: 'fte-cmdline-params-ast.json',
-    cvar_alias:    'fte-aliases-ast.json',
+    cvar:           'fte-variables-ast.json',
+    command:        'fte-commands-ast.json',
+    macro:          'fte-macros-ast.json',
+    cmdline_param:  'fte-cmdline-params-ast.json',
+    cvar_alias:     'fte-aliases-ast.json',
+    asset_category: 'fte-asset-bundle.json',
   },
   mvdsv: {},
-  ktx: {},
+  ktx:   {},
+  qw:    {},  // no entity types; maps live in the maps table, not entities
 };
 
-const ASSET_BUNDLE_FILE = 'ezquake-asset-bundle.json';
+// Per-project asset bundle filename. The bundle output dir is shared
+// (BUNDLE_OUTPUT_DIR), but each project produces its own <project>-asset-bundle.json.
+const ASSET_BUNDLE_FILE: Record<Project, string> = {
+  ezquake: 'ezquake-asset-bundle.json',
+  fte:     'fte-asset-bundle.json',
+  mvdsv:   '',  // unused; PROJECT_HAS_ASSET_BUNDLE.mvdsv === false
+  ktx:     '',  // unused; PROJECT_HAS_ASSET_BUNDLE.ktx === false
+  qwcl:    '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qwcl === false
+  qw:      '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qw === false
+};
 
 // Legacy single-purpose extractors not yet folded into the unified driver.
 // Each takes --repo-root + --output; runs against the currently-checked-out
@@ -147,6 +165,12 @@ const LEGACY_EXTRACTORS_EZQUAKE: ReadonlyArray<{ script: string; output: string 
   { script: 'rulesets.py',         output: 'ezquake-rulesets-ast.json' },
   { script: 'token-primitives.py', output: 'ezquake-token-primitives-ast.json' },
   { script: 'flag-bits.py',        output: 'ezquake-flag-bits-ast.json' },
+];
+
+// FTE legacy single-purpose extractors. Just the path-rules verifier today;
+// expand if more land. Same shape and error-handling as the ezQuake set.
+const LEGACY_EXTRACTORS_FTE: ReadonlyArray<{ script: string; output: string }> = [
+  { script: 'asset-path-rules-verify.py', output: 'fte-asset-path-rules-verified.json' },
 ];
 
 const EXTRACTOR_VERSION_DEFAULT = 'clang-ezquake-unified@1.0.0';
@@ -254,6 +278,20 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
         console.warn(`[extract-tag] legacy extractor ${script} exited ${run.status}; continuing`);
       }
     }
+  } else if (options.project === 'fte') {
+    const projectScriptsDir = join(EXTRACTORS_ROOT, 'fte');
+    for (const { script, output } of LEGACY_EXTRACTORS_FTE) {
+      const scriptPath = join(projectScriptsDir, script);
+      const outPath = join(extractorOutputDir, output);
+      const run = spawnSync(
+        'python3',
+        [scriptPath, '--repo-root', repoPath, '--output', outPath],
+        { stdio: 'inherit' },
+      );
+      if (run.status !== 0) {
+        console.warn(`[extract-tag] legacy extractor ${script} exited ${run.status}; continuing`);
+      }
+    }
   }
 
   // 2c. Rebuild the asset bundle for this specific version. The bundle merges
@@ -299,7 +337,7 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
   if (hasAssetBundle) {
-    const bundlePath = join(BUNDLE_OUTPUT_DIR, ASSET_BUNDLE_FILE);
+    const bundlePath = join(BUNDLE_OUTPUT_DIR, ASSET_BUNDLE_FILE[options.project]);
     if (!existsSync(bundlePath)) {
       throw new Error(
         `Asset bundle missing at ${bundlePath}. ` +

@@ -17,6 +17,8 @@ const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   mvdsv:   { owner: 'QW-Group', repo: 'mvdsv' },
   ktx:     { owner: 'QW-Group', repo: 'ktx' },
   qwcl:    null,
+  // qw is the game-itself namespace; no GitHub repo to enrich against.
+  qw:      null,
 };
 
 export interface EnrichOptions {

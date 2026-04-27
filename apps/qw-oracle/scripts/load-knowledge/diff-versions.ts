@@ -57,6 +57,8 @@ const PROJECT_SRC_PREFIX_FALLBACK: Record<Project, string> = {
   // detectSrcPrefix's treeHasDirectory(repo, sha, 'src') returns false and the
   // fallback prefix is the actual repo-relative path.
   qwcl:    'QW/client/',
+  // qw is the game-itself namespace (maps table); it has no engine source tree.
+  qw:      '',
 };
 
 function detectSrcPrefix(
