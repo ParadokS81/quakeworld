@@ -5,6 +5,8 @@
 import { describe, expect, test, beforeAll } from 'bun:test';
 import { Database } from 'bun:sqlite';
 
+import { searchMaps } from './search-maps.ts';
+
 import { lookupMap } from './lookup-map.ts';
 
 // Schema-v13 maps table inlined here (we don't pull from the loader's
@@ -228,5 +230,68 @@ describe('lookupMap', () => {
     expect(r.found).toBe(true);
     if (!r.found) throw new Error('unreachable');
     expect(r.record.author).toBe('unknown');
+  });
+});
+
+describe('searchMaps', () => {
+  let db: Database;
+  beforeAll(() => { db = newDbWithSamples(); });
+
+  test('lacks_weapon: lg returns povdmm4 (no LG)', () => {
+    const r = searchMaps(db, { lacks_weapon: ['lg'] });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names).toContain('povdmm4');
+    expect(names).not.toContain('dm3');
+    expect(names).not.toContain('aerowalk');
+  });
+
+  test('has_powerup: quad returns dm3 only (only one with quad)', () => {
+    const r = searchMaps(db, { has_powerup: ['quad'] });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names).toContain('dm3');
+    expect(names).not.toContain('aerowalk');
+    expect(names).not.toContain('povdmm4');
+  });
+
+  test('gamemode: 4on4 returns dm3 only', () => {
+    const r = searchMaps(db, { gamemode: '4on4' });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names).toEqual(['dm3']);
+  });
+
+  test('gamemode: 1on1 returns aerowalk + povdmm4 ordered by popularity_rank', () => {
+    const r = searchMaps(db, { gamemode: '1on1' });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names[0]).toBe('povdmm4');  // rank 1
+    expect(names).toContain('aerowalk');
+  });
+
+  test('has_water: true returns dm3', () => {
+    const r = searchMaps(db, { has_water: true });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names).toEqual(['dm3']);
+  });
+
+  test('max_dm_spawns: 4 returns povdmm4', () => {
+    const r = searchMaps(db, { max_dm_spawns: 4 });
+    const names = r.results.map((x) => x.canonical_name);
+    expect(names).toContain('povdmm4');
+    expect(names).not.toContain('dm3');
+    expect(names).not.toContain('aerowalk');
+  });
+
+  test('limit caps results', () => {
+    const r = searchMaps(db, { limit: 1 });
+    expect(r.results).toHaveLength(1);
+  });
+
+  test('limit defaults to 25', () => {
+    const r = searchMaps(db, {});
+    expect(r.results.length).toBeLessThanOrEqual(25);
+  });
+
+  test('result row carries items_compact summary string', () => {
+    const r = searchMaps(db, { has_powerup: ['quad'] });
+    expect(r.results[0].items_compact).toContain('quad');
   });
 });
