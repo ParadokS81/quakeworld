@@ -26,9 +26,11 @@ export function buildCmdlineParamVersionRow(
   // manifest entry in cmdline_params_ids.h. Some params (e.g. -nolibpng,
   // -showliberrors) are declared but consumed by library-init code rather
   // than read via COM_CheckParm, so usage_sites is legitimately empty.
+  // MVDSV emits source_file/source_line directly on the ast object (no
+  // manifest, no usage_sites) so fall through to the flat fields.
   const primarySite = ast?.usage_sites?.[0] ?? null;
-  const sourceFile = primarySite?.source_file ?? ast?.manifest_file ?? null;
-  const sourceLine = primarySite?.source_line ?? ast?.manifest_line ?? null;
+  const sourceFile = primarySite?.source_file ?? ast?.manifest_file ?? ast?.source_file ?? null;
+  const sourceLine = primarySite?.source_line ?? ast?.manifest_line ?? ast?.source_line ?? null;
 
   return {
     entity_id: entityId,
@@ -40,7 +42,7 @@ export function buildCmdlineParamVersionRow(
     systems_json: entry.systems ? JSON.stringify(entry.systems) : null,
     source_file: sourceFile,
     source_line: sourceLine,
-    source_column: primarySite?.source_column ?? null,
+    source_column: primarySite?.source_column ?? ast?.source_column ?? null,
     raw_ast_hash,
     extracted_at: now,
   };

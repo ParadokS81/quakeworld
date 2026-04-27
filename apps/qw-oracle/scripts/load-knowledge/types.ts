@@ -154,6 +154,12 @@ export interface CmdlineAstBlock {
   usage_sites: CmdlineUsageSite[];
   usage_count: number;
   undeclared?: boolean;
+  // MVDSV emits the call-site flat on the ast object instead of via
+  // usage_sites/manifest. Optional to keep typecheck clean for both shapes.
+  source_file?: string;
+  source_line?: number;
+  source_column?: number;
+  containing_function?: string | null;
 }
 
 export interface CmdlineParamEntry {
