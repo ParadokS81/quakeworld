@@ -18,7 +18,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
 - [Slipgate SCHEMA.md for snapshot consumer interface](#slipgate-schemamd-for-snapshot-consumer-interface) — **NEW 2026-04-26.** Slipgate's snapshot consumer types (`RawVar`, `RawCommand`, `RawMacro`, etc.) live inline in `apps/slipgate-app/src/lib/config/loaders/ezquake.ts`. The shape is small and single-file today, but the upcoming UI arc surfacing version-arc badges / source_state pills / default_history timelines will benefit from a single typed contract doc paired with oracle's `apps/qw-oracle/docs/entity-types.md` (the producer-side equivalent). Defer until that UI arc starts; revisit if the inline types start to fragment.
 - [Quake Dir Control Phase 3 — refined scope](#quake-dir-control-phase-3--refined-scope) — **NEW 2026-04-26 night.** Phase 3 (swap + UI + delete + foreign backup) ready to execute, with refinements from the late-evening fingerprinter conversation: design version list to anticipate MyQuake unification, include stubbed "Add Quake client" button, apply three-tier identity surfacing principles, address the "mid-session path changes don't re-import" gap with explicit version-list actions.
-- [Add Quake Client / MyQuake unification — Phase 3.5 plan written](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night.** Plan SHIPPED at `docs/superpowers/plans/2026-04-26-add-quake-client.md` (804 lines, commit `509f1e5`). Four sub-phases (~6-8hrs): ClientFingerprint Rust module + release_cache module + MyQuake browser augmentation + Add-Client entry-point flow with default-select-all bulk-import checklist. Seven design decisions (D1-D7) + sixteen engineer gotchas. Position: between Phase 3 (swap+UI+delete) and Phase 4 (oracle snapshot widening) — user-facing multi-client UX before internal diff-viewer plumbing. Operator's plan: start a fresh session for second-pass review, report back any pushback / scope creep before execution.
+- [Add Quake Client / MyQuake unification — Phase 3.5 plan written](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night.** Plan SHIPPED at `docs/superpowers/plans/2026-04-26-add-quake-client.md` (804 lines, commit `509f1e5`). Four sub-phases (~6-8hrs): ClientFingerprint Rust module + release_cache module + MyQuake browser augmentation + Add-Client entry-point flow with default-select-all bulk-import checklist. Seven design decisions (D1-D7) + sixteen engineer gotchas. Position: between Phase 3 (swap+UI+delete) and Phase 4 (oracle snapshot widening) — user-facing multi-client UX before internal diff-viewer plumbing. Operator's plan: start a fresh session for second-pass review, report back any pushback / scope creep before execution. **REFINEMENT 2026-04-27:** see "Canonical-mode default" entry below — Phase 3.5 plan needs explicit canonical-mode-on-import policy + opt-out toggle design before execution.
+- [Canonical-mode default for warehoused clients](#canonical-mode-default-for-warehoused-clients) — **NEW 2026-04-27.** Operator-surfaced design refinement after Phase 3 ship: clean `<family>.exe` per family in quake dir is the right default (shortcuts/launchers stay valid, dir doesn't accumulate cruft, matches stated mission of zero-friction version switching). Opt-out "messy mode" for filename-versioned side-by-side users. Phase 3 reverted its filename-preserving polish back to hardcoded `ezquake.exe`. Phase 3.5 plan needs canonical-mode policy embedded into bulk-import flow before execution — second-pass review is the place to design it.
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
@@ -363,6 +364,73 @@ Medium. Phase 2 is verified working end-to-end on Windows. Phase 3 unblocks the 
 - Memory: `project_quake_dir_control.md` (full multi-phase status)
 - Memory: `reference_three_tier_identity_model.md` (Tier 1/2/3 principles)
 - Memory: `reference_slipgate_devtools_invoke.md` (why filesystem inspection beats devtools for verification)
+
+---
+
+## Canonical-mode default for warehoused clients
+
+**Added:** 2026-04-27 (after Phase 3 Windows smoke surfaced the multi-install + filename-preservation tension).
+**Status:** Design refinement that lands in Phase 3.5 second-pass review — NOT a separate phase. Phase 3 reverted its targetExeName-from-basename polish back to hardcoded `ezquake.exe` so the canonical-mode default holds today; Phase 3.5 implements the full policy + opt-out toggle.
+**Verification first:** `grep -n 'targetExeName' apps/slipgate-app/src/components/ClientsTab.tsx` — should show `targetExeName="ezquake.exe"` hardcoded (commit reverted the basename derivation 2026-04-27). When Phase 3.5 ships canonical-mode, this hardcode gets replaced by `<family>.exe` lookup keyed off `client_def`.
+
+### The model
+
+**Canonical-mode (default):** One clean `<family>.exe` per client family in the user's quake dir (`ezquake.exe`, `fte.exe`, etc.). Warehouse owns all versions in `<data-root>/binaries/blobs/`. Switching versions or updating mutates the canonical file in place, atomic-rename via `version_swap` (already shipped). Shortcuts, batch files, Steam links, Discord rich-presence registrations all keep working forever because the path never changes.
+
+**Messy mode (opt-out):** Per-path tracking, filename preserved on import, switching writes bytes to whatever filename the user is currently pointing at. This is what Phase 3 polish briefly shipped before being reverted — preserves multi-install side-by-side layouts (`ezquake-3.6.6.exe`, `ezquake-3.6.9.exe`, etc.) but produces the misleading-state problem (a file named `ezquake-3.6.6.exe` containing 3.6.9 bytes after a switch).
+
+### Why canonical is the right default (operator's framing)
+
+- **Zero-friction switching matches the stated product mission.** From `reference_three_tier_identity_model.md`: "I want people to get updated clients instead of sitting on old stale stuff out of laziness." Canonical-mode means "switch versions" doesn't break anything the user has set up; nudge succeeds.
+- **Quake dir stays clean.** Today's reality (operator-observed): users accumulate `ezquake.exe`, `ezquake-3.6.6.exe`, `ezquake-3.6.9.exe`, `ezquake-glsl.exe`, plus stale `ezquake-3.6.6-1746834821.exe` timestamp-suffix backups from the old `backup_exe` path. Canonical-mode keeps the dir to one file per family; warehouse is the source of truth for "what versions exist."
+- **Shortcuts and launchers stay valid.** Steam, Windows pinned items, Discord rich-presence, batch files — all reference paths. If `<family>.exe` is canonical and stable, every external integration keeps working across version switches.
+- **Opt-out is honest.** Power users who genuinely want filename-versioned side-by-side installs (some QW community members do) get a toggle; canonical-mode doesn't trap them. **Default opt-IN to canonical, advanced setting opts out.**
+
+### What Phase 3.5 plan needs to absorb
+
+Phase 3.5's plan at `docs/superpowers/plans/2026-04-26-add-quake-client.md` already has the bulk-import flow (scan → checklist → ingest → set-as-primary). Canonical-mode embeds into that flow at task 4.x ("Import selected"):
+
+1. **Profile schema gain.** `clients` map keyed by family: `{ ezquake: { mode: 'canonical' | 'messy', quake_dir: string, primary_exe?: string } }`. Replaces the per-path `exe_path` for canonical-mode entries; messy-mode entries can still store `exe_path` to preserve current Phase 3 behavior. Schema migration on first launch after the Phase 3.5 ship.
+2. **Canonicalize-on-import.** For each ticked entry in the bulk-import checklist:
+   - Hash, write blob, write manifest (existing flow).
+   - **New:** if canonical-mode is on for that family AND the source filename is non-canonical AND no canonical `<family>.exe` exists in the same dir yet → rename source to `<family>.exe`. If canonical exists already → leave the source as-is (warehouse has the bytes; user can delete the dupe later via the panel).
+   - **New:** "Set as primary" radio sets `clients[family].primary_exe` to the canonical path (`<quake_dir>/<family>.exe`).
+3. **Opt-out toggle UI.** Settings tab gains a per-client mode toggle. Default canonical. Switching from canonical → messy: existing canonical file stays, no migration. Switching from messy → canonical: prompt "rename `ezquake-3.6.6.exe` to `ezquake.exe`?" — user-confirmed action.
+4. **Variant filenames (per Phase 3.5 D6).** Filename-suffix variants (`-glsl`, `-debug`) become `<family>-<variant>.exe` canonical names with `version` suffixed `-glsl` etc. Stays consistent with the canonical-naming policy.
+5. **Phase 3 stub button stays disabled until Phase 3.5 ships the bulk-import.** Already true today.
+
+### What this changes in the Phase 3.5 plan as written
+
+Plan-as-written doesn't have an explicit "canonicalize on import" step — operator confirmed 2026-04-27 that the implicit assumption was "preserve user filename" (which is messy-mode). The fresh terminal doing Phase 3.5 second-pass review should:
+
+- Add a new design decision (D8?) to the plan: "Canonical-mode is the default; opt-out via per-client toggle."
+- Update task 4.x ("Import selected") to include the canonicalize-on-import step.
+- Update the profile schema preview / state docs to describe the new `clients[family]` shape.
+- Surface the opt-out toggle in the Settings tab plan (today the plan focuses on MyQuake browser; Settings tab gets a small addition).
+- Decide schema-migration strategy for existing profiles (one-shot migrator on first launch, vs lazy on first read).
+
+### Don't do this in Phase 3
+
+Phase 3 already shipped. The targetExeName=basename polish was reverted 2026-04-27 because preserving the user's `ezquake-3.6.6.exe` filename produced the misleading-state problem (file name says 3.6.6 but bytes are 3.6.9 after a switch). Hardcoded `ezquake.exe` is the canonical-mode default and stays. The foreign-exe Import affordance (also shipped 2026-04-27) stays — it's still valid; canonical-mode just changes what happens *after* import (the rename-to-canonical step). The single-exe Import flow doesn't need to canonicalize today because the user-pointed exe IS the canonical exe by definition (it's already in the canonical-named slot, or we treat it as the source file the user wants to canonicalize next).
+
+### Open questions for Phase 3.5 second-pass
+
+1. **Per-client toggle granularity.** Should canonical-mode be a global slipgate setting, or per-client family? Operator's instinct: per-client (might want canonical for ezQuake daily-use, messy for FTE experimentation). Worth confirming during second-pass.
+2. **What's the canonical filename per family?** `ClientDef.exe_name` already encodes today's choices: `ezquake.exe`, `unezquake.exe`. FTE's canonical name probably `fte.exe` or `ftequake.exe`. Lock during plan refinement.
+3. **First-launch UX after slipgate auto-detects an existing install.** Today first-run import keys off `exePath()`. If that exe is at a non-canonical name in canonical-mode, do we silently rename, prompt, or wait until next user action? Lean toward prompt, since it's a one-time decision the user should be aware of.
+4. **Inverse direction: switching modes after the fact.** If user starts in canonical and switches to messy, current canonical bytes stay as `ezquake.exe`. If user starts in messy with `ezquake-3.6.9.exe` and switches to canonical, do we batch-rename or expect the user to rename manually? Probably "offer to rename now" with a single-button prompt.
+
+### Pressure
+
+Medium. Phase 3.5 second-pass is the next session in the chain; this refinement needs to be absorbed before any Phase 3.5 implementation kicks off. Adding ~200 lines of canonical-mode design to the existing plan is plan-only work, no code yet. Estimate ~1 hour of plan refinement before execution starts.
+
+### Related
+
+- Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5 plan that absorbs this refinement)
+- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (parent multi-phase plan; Phase 3 shipped 2026-04-27)
+- Memory: `reference_three_tier_identity_model.md` (the mission framing canonical-mode supports)
+- Memory: `project_quake_dir_control.md` (Phase 3 fully shipped + polished as of 2026-04-27)
+- Phase 3 final state commits: `9051e4b` through `e157e42` + `3b2d831` (running-check guard) + revert at `<commit-this-entry-lands-in>`
 
 ---
 
