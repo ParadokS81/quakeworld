@@ -934,4 +934,78 @@ mechanics:
       props: {}
       notes: 5-second wait after intermission before any player can advance.
   dm_mode_rules:
-  # (filled by Task 14) - 4 rows
+    - name: dm2_rules
+      value_text: respawn_30s_ammo_no_health_respawn
+      source_ref: items.qc:411
+      props:
+        ammo_respawn_seconds: 30
+        ammo_respawn_source_ref: items.qc:868
+        no_health_respawn: true
+      notes: classic deathmatch mode 2.
+
+    - name: dm3_rules
+      value_text: 15s_ammo_respawn
+      source_ref: items.qc:872
+      props:
+        ammo_respawn_seconds: 15
+      notes: half ammo respawn time.
+
+    - name: dm4_rules
+      value_text: octapower
+      source_ref: client.qc:522
+      props:
+        start_health: 250
+        start_health_source_ref: client.qc:541
+        start_armor_value: 200
+        start_armor_value_source_ref: client.qc:539
+        start_armortype: 0.8
+        start_armortype_source_ref: client.qc:540
+        spawn_invul_seconds: 3
+        spawn_invul_source_ref: client.qc:544
+        loadout_axe_mode_off:
+          gate: infokey_axe_eq_0
+          gate_source_ref: client.qc:525
+          all_weapons_minus_gl: true
+          all_weapons_source_ref: client.qc:531
+          start_ammo_all_types: 255
+          start_ammo_source_ref: client.qc:527
+        loadout_axe_mode_on:
+          gate: infokey_axe_neq_0
+          start_weapons: shotgun_plus_axe_only
+          start_ammo: default_25_shells
+          notes: axe-mode DM4 inherits the same 250hp/200armor/3s-invul block but skips the 255-ammo + extra-weapons grant.
+        quad_multiplier: 8
+        quad_multiplier_source_ref: combat.qc:128
+        lg_water_self_damage: 4000
+        lg_water_source_ref: weapons.qc:539
+        backpack_bonus_health: 10
+        backpack_bonus_source_ref: items.qc:1475
+        bonus_health_threshold: 299
+        bonus_threshold_source_ref: items.qc:1484
+      notes: DM4 OctaPower preset. The 255-ammo block is gated by the worldspawn 'axe' infokey.
+
+    - name: dm5_rules
+      value_text: quadmachine
+      source_ref: client.qc:548
+      props:
+        start_health: 200
+        start_health_source_ref: client.qc:562
+        start_armor_value: 200
+        start_armor_value_source_ref: client.qc:560
+        start_armortype: 0.8
+        start_armortype_source_ref: client.qc:561
+        spawn_invul_seconds: 3
+        spawn_invul_source_ref: client.qc:565
+        all_weapons: true
+        all_weapons_source_ref: client.qc:553
+        start_ammo_nails: 80
+        start_ammo_nails_source_ref: client.qc:549
+        start_ammo_shells: 30
+        start_ammo_shells_source_ref: client.qc:550
+        start_ammo_rockets: 10
+        start_ammo_rockets_source_ref: client.qc:551
+        start_ammo_cells: 30
+        start_ammo_cells_source_ref: client.qc:552
+        ammo_respawn_seconds: 15
+        ammo_respawn_source_ref: items.qc:872
+      notes: DM5 Quadmachine preset.
