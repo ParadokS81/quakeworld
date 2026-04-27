@@ -11,7 +11,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Map knowledge layer SHIPPED](#map-knowledge-layer-shipped) — **NEW 2026-04-27, FULLY SHIPPED 2026-04-27.** Sidequest from a support-channel question oracle couldn't answer. New `maps` table (schema v13), 254 maps loaded (38 id1 stock + 216 maps.qw.nu/base/). Two new MCP tools (`lookup_map`, `search_maps`). Snapshot to slipgate at `apps/slipgate-app/src/lib/config/data/qw-maps.json`. Deferred follow-ups: slipgate map-browser UI, advanced search filters, author seed-YAML curation, automated quarterly stats refresh, future maps.quake.world richer-metadata refactor (release dates, README content).
 - [Cross-engine alias scaffolding + slipgate version-awareness](#cross-engine-alias-scaffolding--slipgate-version-awareness) — **NEW 2026-04-26, sub-threads #2 + #3 SHIPPED later that day.** Umbrella for an arc spanning ezscript extraction, cross-engine alias schema, default-drift triage, and the structural shift that slipgate consumers should be version-aware. Sub-thread #2 (schema spec) + sub-thread #3 (schema migration v11→v12 + ezscript handler + 38 alias entities loaded at FTE@build-6698) closed; sub-thread #5 (slipgate consumer version-awareness) tracked-by Quake Dir Control plan; sub-thread #4 (FTE asset bundle) still open as adjacent track.
 - [Retired cvars in snapshot + stale-config warning UX](#retired-cvars-in-snapshot--stale-config-warning-ux) — **NEW 2026-04-26.** Coupled producer+consumer work blocked on UX design. The `build-snapshot` CLI today emits only entities present at head (2,899 ezquake cvars; 2,835 source_backed + 149 doc_only). 5 retired cvars (`cl_showkeycodes`, `gl_smoothfont`, `keymap_name`, `r_fx_geometry`, `scr_printspeed` — alive in v3.0 through 3.6.2, removed before head) are silently dropped. Use case it blocks: opening an old config in slipgate where `keymap_name "us"` is present and getting a truthful "this was removed in 3.6.5" message instead of generic "unknown cvar" treatment. Defer until the stale-warning UX is on the table.
-- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — **QWCL 2.33 SHIPPED 2026-04-25** + **FTE Phase 2d-core SHIPPED 2026-04-26** + **FTE Phase 2d-bundle SHIPPED 2026-04-27** (28 asset_category + 61 extensions + 13 path_rules + 25 cvar_bindings + 717 loader_sites; quality-grid 30/30; 3 Path-1 fixtures green; two known-limitation entries filed below: plugin v-table + cvar-binding indirection). ezQuake deep-time walk at v3.0 floor. Remaining: Phase 2e MVDSV+KTX, Phase 2g MCP tool upgrades, Phase 2h automation.
+- [Phase 2d-2h: remaining QW knowledge rollout](#phase-2d-2h-remaining-qw-knowledge-rollout) — **QWCL 2.33 SHIPPED 2026-04-25** + **FTE Phase 2d-core SHIPPED 2026-04-26** + **FTE Phase 2d-bundle SHIPPED 2026-04-27** (28 asset_category + 61 extensions + 13 path_rules + 25 cvar_bindings + 717 loader_sites; quality-grid 30/30; 3 Path-1 fixtures green) + **Game-mechanics arc 1 SHIPPED 2026-04-27 evening** (schema v14: gameplay_sources/gameplay_entity_defs/gameplay_mechanics; 37 entities + 41 mechanics from id1 QC; 4 new MCP tools; SERVER_VERSION centralized 12 sites→1; v4 splits: telefrag/exit_level_kill + trigger_hurt env_hazard; commits a3dddc6→6110901). ezQuake deep-time walk at v3.0 floor. Remaining: Phase 2e MVDSV+KTX (next; sequence is MVDSV→KTX cvars→KTX gameplay overrides), Phase 2g MCP tool upgrades, Phase 2h automation.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — P3 from 2026-04-24 sanity-sample calibration. Release-notes using feature full-names (joystick) don't match clusters of abbreviated entity names (joy*). Not a Phase 2f blocker; worth fixing during or before real walks reach affected pairs.
 - [Layer 1 doc_only audit](#layer-1-doc_only-audit--closed-with-one-deferred-row) — **CLOSED 2026-04-25 with one deferred row.** Six extractor patterns + one architectural change + one loader dedup shipped across the session: P1 Cmd_AddLegacyCommand, P2 log_t table, P3 nested cvar_t tables, P5a SERVER_ONLY misplacement, P6 #define resolution, Item A 4-variant parse architecture, Item B cross-type help-JSON orphan prune. Prior retraction was itself wrong (extractor was missing these; the "all 73 cat1 present in AST" claim was based on a second misreading). Doc_only 269 -> 210; zero regressions; +24 newly-discovered command entities; +1 asset cvar binding; +1 cmdline usage. Deferred: `-nopriority` cmdline_param at sv_sys_win.c:645 (requires Windows SDK headers unreachable on Linux libclang). One entry remains until MVDSV/FTE hit the same wall — then stub-headers solution lands in one place.
 - [Interactive HTML dashboard (deferred)](#interactive-html-dashboard-deferred) — Pass 3 shipped as a markdown reshape instead of an HTML dashboard. The dashboard is not killed; it's shelved until a concrete trigger fires. See the entry for unshelve conditions.
@@ -29,7 +29,9 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
 - [qw-oracle DEVELOPMENT.md missing](#qw-oracle-developmentmd-missing) — **NEW 2026-04-27.** qw-oracle has accumulated multiple project-specific test runners (the ezQuake Path-1 fixtures at `apps/qw-oracle/scripts/extractors/ezquake/tests/test_parameterized_paths.py` and the FTE Path-1 fixtures at `apps/qw-oracle/scripts/extractors/fte/tests/test_fte_asset_paths.py` shipped 2026-04-27) plus per-project verifier scripts (`asset-path-rules-verify.py` for ezQuake and FTE) that don't appear in `CLAUDE.md ## Commands` and have no central index. Partial coverage exists in CLAUDE.md `## Commands` for the loader CLI (`load-version`, `extract-tag`, `quality-grid`, etc.) but not for the test/fixture surfaces or the verifier scripts. Pressure: low — discoverability gap, not a correctness gap.
-- [Layer 3 concept note: death rules](#layer-3-concept-note-death-rules) — **NEW 2026-04-27 (evening, plan v4 review).** During v3->v4 review of the game-mechanics plan, the conversation surfaced that "death in QW" is conceptually richer than a single deathtype enum suggests: real telefrag (teleport-overlap), exit-level kill (samelevel/noexit changelevel — what kills you on e1m2's end teleporter in 4on4), trigger_hurt (mapper-controlled void brushes), fall damage, crush/squish, lava/slime ticks, drowning. Once Arc 1 ships and the rows are queryable in Layer 1, this is a strong concept-note candidate (synthesises Layer 1 rows + Layer 2 chat-corpus 20-year history of "noexit lol" jokes into a unified guidance page). Defer until: (a) Arc 1 lands all 7 death_rules + 7 env_hazards rows, AND (b) at least one corpus search confirms there's community discussion to cite. Pressure: low — concept-note bench is already deep.
+- [Layer 3 concept note: death rules](#layer-3-concept-note-death-rules) — **NEW 2026-04-27 (evening), REFRAMED 2026-04-27 (after qw_event_log discovery).** "Death in QW" is conceptually richer than a single deathtype enum: real telefrag (teleport-overlap), exit-level kill (samelevel/noexit changelevel — what kills you on e1m2's end teleporter in 4on4), trigger_hurt (mapper-controlled void brushes), fall damage, crush/squish, lava/slime ticks, drowning. Three-anchor synthesis target: source-truth (Layer 1 deathtype + KTX overrides) + observed-behavior (qw_event_log obit corpus + WeaponType taxonomy as cross-validation oracle) + community testimony (Layer 2 "noexit lol" jokes). Sequence: arc 1 (id1) shipped 2026-04-27; arc 2a MVDSV cvars; arc 2b KTX cvars/commands; arc 2c KTX gameplay overrides (mirrors id1 work, fills `gameplay_source_id='ktx'` rows); arc 3 build qw_event_log validation harness (parser as ground-truth oracle for "what does Layer 1 claim vs what does the parser observe?"); arc 4 author the concept note once all four arcs converge. Pressure: low — concept-note bench is deep, and the build-out sequence forces several quality gates first.
+- [qw_event_log as cross-validation oracle for Layer 1](#qw_event_log-as-cross-validation-oracle-for-layer-1) — **NEW 2026-04-27 (evening).** Operator's earlier collaboration with vikpe + Claude produced a Rust crate (`qw_event_log`) that parses MVDSV demos into structured `GameEvent` streams. The repo is FROZEN at `/home/paradoks/projects/qw-event-log-handoff/` (commit `2c584b4`); was originally PR #5 in vikpe/slipgate, moved to `.bak/` when vikpe decided to rewrite the MVD layer. Three artifacts inside that Oracle wants: `obituary.rs` (47 kill + 12 suicide + 16 world + 12 teamkill obit-string→cause patterns sourced from KTX `client.c` ClientObituary AND id1 `client.qc`), `events.rs` (`WeaponType` enum: clean unified taxonomy spanning vanilla weapons + KTX-promoted distinctions like Discharge/Stomp + environmental + Telefrag + Suicide), `ARCHITECTURE.md` (~350 lines documenting the engine-protocol model: modern KTX kills via MVDSV `DamageDone` hidden message; legacy demos via PRINT obit; environmental = attacker=world). Right framing: NOT a one-shot import but a permanent cross-validation oracle. Once KTX layer1 ships (arc 2c), build a harness that runs the parser over a demo corpus, aggregates observed event types, queries Oracle for the corresponding rows, and outputs a divergence report. Convergence corroborates Layer 1; anomalies are work to do. Generalizes beyond death — same loop applies to weapon damage, spawn rules, mod-specific behavior. Pressure: low; gated on MVDSV→KTX cvars→KTX gameplay overrides shipping first. Non-trivial caveat: the handoff repo is frozen; if vikpe's new `demo_parser` ships before our validation-harness arc, validate against the live version not the frozen snapshot.
+- [SCHEMA.md doc-style inconsistency](#schemamd-doc-style-inconsistency) — **NEW 2026-04-27 (evening).** Task 2 of the game-mechanics arc 1 plan added a `## v14 (2026-04-27): game-mechanics tables (id1 baseline)` section to `apps/qw-oracle/SCHEMA.md`. The plan said to mirror "the v13 section verbatim" but in reality SCHEMA.md does NOT have a `## v13` section — v13 was documented as `## Map knowledge layer` (topical H2 with column-table + bold-prefixed paragraphs), and prior version migrations (v10, v11) appear as `### vN:` H3 sub-sections inside `## Cross-cutting notes`. The v14 section now uses a third style nobody else uses. Two cleanup options: convert v14 into a `## Game mechanics knowledge layer` topical heading parallel to Map knowledge layer; or harmonize the doc to a per-version style (v10/v11 bumped from H3 sub-sections to H2 sections). Operator decides. Also flagged: stale references in conventions paragraph still say "schema v12", migration walk text says "v1→v2→...→v11", table map says "Total: 22 tables at schema v12 + v13" — none reflect v13/v14. Pressure: low — facts are correct, only structure is inconsistent.
 
 ---
 
@@ -1086,5 +1088,113 @@ Low. No downstream work blocked. Can proceed in parallel with Workstream A and B
 - ezquake.com repo cloned: `research/repos/ezquake-docs/`
 - Memory: `memory/project_layer3_two_path_curation.md` (updated 2026-04-23)
 - Git-trail audit finding: 32/33 guide pages last content-edited <= 2022-11-21
+
+---
+
+## qw_event_log as cross-validation oracle for Layer 1
+
+**Added:** 2026-04-27 (evening, surfaced during game-mechanics arc 1 wrap-up conversation).
+**Status:** Captured for later — gated on KTX layer1 (arc 2c) shipping first.
+**Verification first:** `ls /home/paradoks/projects/qw-event-log-handoff/crates/qw_event_log/src/{obituary.rs,events.rs} /home/paradoks/projects/qw-event-log-handoff/crates/qw_event_log/ARCHITECTURE.md` — all three files must exist. If the repo has been deleted or moved, the validation-oracle plan needs a new artifact source.
+
+### What the artifact is
+
+The repo at `/home/paradoks/projects/qw-event-log-handoff/` is the FROZEN handoff snapshot (commit `2c584b4` from vikpe/slipgate, March 2026) of `qw_event_log` — the Rust crate ParadokS authored with vikpe + Claude as PR #5 in vikpe's slipgate workspace. Parses MVDSV `.mvd` demos into structured `GameEvent` streams. Originally for slipgate-internal use; got packaged for Xerial's DEMOPASHA project when vikpe moved it aside to `.bak/` and started a fresh `demo_parser` rewrite.
+
+Three internal artifacts have direct value for Oracle:
+
+1. **`crates/qw_event_log/src/obituary.rs`** — exhaustive obit-string→cause map. 47 KILL_PATTERNS + 12 SUICIDE_PATTERNS + 16 WORLD_PATTERNS + 12 teamkill patterns. Each pattern annotated with a `WeaponType` enum value. Comment in source reads: *"Patterns sourced from KTX `client.c` ClientObituary and original id Software QuakeC `client.qc`."* Mixed origin — most patterns are KTX-only (e.g. `"X was brutalized by Y's quad rocket"`, `"X eats Y's pineapple"`, `"X discharges into the water"`), about 17 are id1-vanilla (`"X drowned"`, `"X was nailed by Y"`, `"X was telefragged by Y"`).
+
+2. **`crates/qw_event_log/src/events.rs`** — `WeaponType` enum providing a clean unified death-cause taxonomy spanning vanilla weapons (RL/GL/LG/NG/SNG/SG/SSG/Axe), KTX-promoted distinctions (Discharge as own category vs id1's "selfwater"; Stomp; Squish), Telefrag, environmental (Lava/Drown/Slime/Fall/Trigger), Suicide (`/kill` command). Notable: `Trigger` covers both the noexit/exit-level kill AND mapper-controlled trigger_hurt — same QC mechanism, different obit strings.
+
+3. **`crates/qw_event_log/ARCHITECTURE.md`** — ~350-line design doc. Documents the engine-protocol model: modern KTX kills flow through MVDSV's `DamageDone` hidden message (type 0x000C); legacy demos pre-DamageDone fall back to PRINT obituary parsing; environmental deaths arrive as `attacker = world` with no Kill event. Decision rationale captured throughout. This is the kind of QW infrastructure knowledge nobody else has packaged this cleanly.
+
+### The validation-oracle role (NOT data import)
+
+Earlier conversation framed this as "import the obit corpus into Layer 1." Operator's revised framing makes the role substantively better: use the parser as a permanent cross-validation oracle for Layer 1, not as a data source.
+
+The loop:
+1. Layer 1 ships hard facts (id1 today; MVDSV+KTX cvars in arc 2a/2b; KTX gameplay overrides in arc 2c — citations against `ktx/src/*.c` and `mvdsv/src/*.c`).
+2. Build a harness that runs `qw_event_log` over a corpus of representative `.mvd` demos and aggregates observed event types: which deathtypes fire, at what frequency, paired with which obit strings.
+3. Query Oracle for the corresponding rows.
+4. Output a divergence report: did the parser observe an obit string Oracle has no row for? Did Oracle claim a death category nothing observed? Either signal is work to do.
+
+Why this is materially better than one-shot import:
+- No need to create speculative Layer 1 rows for KTX-only obit strings before KTX layer1 ships.
+- Parser stays the ground truth for "what actually happens in real games" while Layer 1 stays the ground truth for "what the source code says." Two anchors, complementary.
+- Generalizes beyond deaths. Same loop applies to weapon damage (parser observes hit damage values; Oracle has weapon damage rows), powerup respawn timers, mod-specific spawn rules.
+- Survives `qw_event_log` being frozen: the validation harness can swap to vikpe's new `demo_parser` when it ships, since the role (parse demos, emit structured events) is stable while the implementation churns.
+
+### When to build the harness
+
+Sequence is rigid:
+- Arc 1 (id1 game mechanics): SHIPPED 2026-04-27.
+- Arc 2a (MVDSV cvars + commands): NEXT. Smaller than KTX, validates project-keyed schema works for a third codebase, gives us source-cited rows for `DamageDone` protocol references.
+- Arc 2b (KTX cvars + commands): same extractor pipeline as ezQuake/FTE; reuses libclang + Visitor. KTX is C, not QuakeC.
+- Arc 2c (KTX gameplay overrides): mirrors id1 game-mechanics work but extracted from C. Adds rows with `gameplay_source_id='ktx'` and populated `ruleset_gate_json`. THIS is the prerequisite for the validation harness because KTX-only obit strings need source-cited Layer 1 anchors.
+- Arc 3 (validation harness): `apps/qw-oracle/scripts/validate-against-parser.ts` (or similar). Reads a `.mvd` corpus, runs the Rust parser as a subprocess (`cargo run --example parse_demo`), parses the JSON event stream, queries Layer 1, emits divergence report.
+- Arc 4 (death-rules concept note): Layer 3 note "Death rules in QW" written once arcs 2c + 3 have proven Layer 1 covers what the parser sees.
+
+### Caveats
+
+- **Frozen snapshot risk.** README explicitly states the handoff is the frozen working copy; vikpe's new `demo_parser` will eventually supersede. Validation harness should either (a) point at whichever crate is current at harness-build time, OR (b) include the handoff source in its test fixtures and bump explicitly when newer parser becomes preferred.
+- **Test coverage of the parser is partial.** README: "Tested on MVDSV demos. `.dem` (NetQuake) and `.qwd` (legacy QW) are partially supported by the `quake` crate but not exercised by `qw_event_log`." So validation against legacy QW demos may need the harness to skip those or stamp them as "parser doesn't see" rather than "Layer 1 has a gap."
+- **Don't take a runtime dependency.** The repo is for one-shot tooling: build it locally, run it as a subprocess, parse stdout. Do NOT vendor it as a Cargo dependency in qw-oracle (which is TypeScript anyway), and do NOT fold it back into vikpe/slipgate.
+
+### Related
+
+- HANDOVER: "Layer 3 concept note: death rules" (consumes the harness output)
+- HANDOVER: "Phase 2d-2h: remaining QW knowledge rollout" (drives the prerequisite arcs)
+- Pre-plan: `apps/qw-oracle/docs/game-mechanics-preplan.md` Appendix B (KTX gameplay-override inventory; informs arc 2c work)
+- Frozen-snapshot README: `/home/paradoks/projects/qw-event-log-handoff/README.md` (architecture summary, ParseOptions surface, DEMOPASHA integration notes)
+
+### Pressure
+
+Low. Multiple arcs gate the harness; nothing blocked downstream by this entry's existence. The value is making sure none of this gets forgotten between game-mechanics arc 1 ship and whenever the KTX work starts.
+
+---
+
+## SCHEMA.md doc-style inconsistency
+
+**Added:** 2026-04-27 (evening, surfaced during game-mechanics arc 1 Task 2).
+**Status:** Captured. Operator decides between two reshape options before next SCHEMA.md edit.
+**Verification first:** `grep -nE "^## |^### v" apps/qw-oracle/SCHEMA.md | head -30` — should reveal three competing styles: topical H2 (`## Map knowledge layer`, `## Game mechanics knowledge layer`-target, `## Cross-cutting notes`), per-version H2 (`## v14 (2026-04-27): game-mechanics tables`, currently single-instance), per-version H3 (`### v10:`, `### v11:`).
+
+### What happened
+
+Task 2 of the game-mechanics arc 1 plan instructed: *"Append v14 section after the last v13 sub-heading. Add (matching the format of the v13 section verbatim — read it first):"* followed by a 20-line markdown block. The implementer ran the prerequisite grep, found that no `## v13` section exists in SCHEMA.md, and followed the literal plan instruction anyway — appending a new `## v14 (date): description` H2 section. Commit `8555f96`.
+
+This introduced a third style nobody else uses. The doc previously had two:
+
+- **Topical H2:** `## Map knowledge layer` documents v13's content thematically with a column-table + bold-prefixed paragraphs.
+- **Per-version H3 inside `## Cross-cutting notes`:** `### v10:`, `### v11:` document additive migrations as version-numbered sub-sections.
+
+The v14 entry now reads as a `## v14`-style top-level heading, matching neither.
+
+### What's also stale (out of scope for the immediate fix but worth knowing)
+
+- Conventions paragraph at top of SCHEMA.md says "schema v12".
+- Migration walk text references "v1→v2→...→v11".
+- Table map text says "Total: 22 tables at schema v12 + v13".
+
+None of these were touched by this session. Whoever harmonizes the doc style should also catch these.
+
+### Two reshape options
+
+**Option A — Convert v14 to a topical heading.** Rename `## v14 (2026-04-27): game-mechanics tables (id1 baseline)` to `## Game mechanics knowledge layer`. Restructure the body to match the `## Map knowledge layer` template: column-table summary at the top, bold-prefixed paragraphs explaining each table, design-rationale links to spec/preplan. This makes the doc consistent with v13's style and aligns to "the doc is organized topically, not chronologically" framing.
+
+**Option B — Harmonize to per-version style.** Promote the existing `### v10:` and `### v11:` H3s to H2 sections; relocate the v13 content from `## Map knowledge layer` into `## v13 (2026-04-27): map knowledge layer`; the v14 section already conforms. Ensures every schema bump gets a section, consistently.
+
+Option A keeps the topical framing the doc currently announces (which is friendlier for "what does this DB hold?" reading) and is a smaller edit. Option B is more invasive but produces a chronologically-traceable schema history alongside any topical content.
+
+### Pressure
+
+Low. The v14 facts are correct; only the structure is inconsistent. Address before the next SCHEMA.md edit (e.g. when MVDSV/KTX arc 2 changes the schema again — that's a natural time to sweep).
+
+### Related
+
+- SCHEMA.md current state: `apps/qw-oracle/SCHEMA.md`
+- v14 section added in commit `8555f96`
+- Plan that produced the inconsistency: `docs/superpowers/plans/2026-04-27-qw-oracle-game-mechanics-id1-baseline.md` Task 2
 
 ---
