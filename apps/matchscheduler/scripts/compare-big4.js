@@ -33,22 +33,37 @@ function fetchBig4() {
 }
 
 // Convert CET/CEST time to UTC slotId format (e.g. "21:00:00" on "2026-04-08" -> "tue_1900")
+function stockholmOffsetHours(instant) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Stockholm',
+        hour12: false,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(instant);
+    const get = (t) => Number(parts.find(p => p.type === t).value);
+    let hour = get('hour');
+    if (hour === 24) hour = 0;
+    const wall = Date.UTC(get('year'), get('month') - 1, get('day'),
+                          hour, get('minute'), get('second'));
+    return Math.round((wall - instant.getTime()) / 3600000);
+}
+
 function big4ToSlotId(scheduledDate, scheduledTime) {
+    const ymd = String(scheduledDate).slice(0, 10);
     const [hours, minutes] = scheduledTime.split(':').map(Number);
     const hh = String(hours).padStart(2, '0');
     const mm = String(minutes).padStart(2, '0');
 
-    // Determine CET (UTC+1) or CEST (UTC+2) offset for this date
-    const probe = new Date(`${scheduledDate}T${hh}:${mm}:00Z`);
-    const cetMs = new Date(probe.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
-    const utcMs = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
-    const offsetHours = Math.round((cetMs - utcMs) / 3600000);
+    // Determine CET (UTC+1) or CEST (UTC+2) offset via formatToParts
+    // (avoids Node-20 toLocaleString -> Date round-trip failure on U+202F).
+    const probe = new Date(`${ymd}T${hh}:${mm}:00Z`);
+    const offsetHours = stockholmOffsetHours(probe);
 
     let utcHours = hours - offsetHours;
     let dayOffset = 0;
     if (utcHours < 0) { utcHours += 24; dayOffset = -1; }
 
-    const date = new Date(scheduledDate);
+    const date = new Date(ymd);
     const adjustedDate = new Date(date);
     adjustedDate.setDate(adjustedDate.getDate() + dayOffset);
     const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];

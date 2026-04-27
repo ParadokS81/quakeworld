@@ -54,19 +54,38 @@ function fetchBig4Games() {
  * in Swedish local time (Europe/Stockholm): CET (UTC+1) in winter, CEST (UTC+2) in summer.
  */
 function big4ToUtcDate(scheduledDate, scheduledTime) {
+    // Big4 API returns scheduled_date as a full ISO datetime string
+    // (e.g. "2026-04-28T00:00:00.000Z"), so trim to YYYY-MM-DD before reuse.
+    const ymd = String(scheduledDate).slice(0, 10);
     const [hours, minutes] = scheduledTime.split(':').map(Number);
     const hh = String(hours).padStart(2, '0');
     const mm = String(minutes).padStart(2, '0');
 
-    // Probe the CET/CEST offset for this date (1 for CET, 2 for CEST)
-    const probe = new Date(`${scheduledDate}T${hh}:${mm}:00Z`);
-    const cetMs = new Date(probe.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' })).getTime();
-    const utcMs = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
-    const offsetHours = Math.round((cetMs - utcMs) / 3600000);
+    // Probe the Stockholm offset for this date (1 for CET, 2 for CEST).
+    // Use formatToParts to read Stockholm wall-clock numerics directly --
+    // round-tripping through `new Date(toLocaleString(...))` breaks on Node 20+
+    // because en-US emits U+202F (narrow no-break space) before AM/PM.
+    const probe = new Date(`${ymd}T${hh}:${mm}:00Z`);
+    const offsetHours = stockholmOffsetHours(probe);
 
-    const date = new Date(`${scheduledDate}T00:00:00Z`);
+    const date = new Date(`${ymd}T00:00:00Z`);
     date.setUTCHours(hours - offsetHours, minutes, 0, 0);
     return date;
+}
+
+function stockholmOffsetHours(instant) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Stockholm',
+        hour12: false,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(instant);
+    const get = (t) => Number(parts.find(p => p.type === t).value);
+    let hour = get('hour');
+    if (hour === 24) hour = 0; // Intl quirk: midnight may render as 24
+    const wall = Date.UTC(get('year'), get('month') - 1, get('day'),
+                          hour, get('minute'), get('second'));
+    return Math.round((wall - instant.getTime()) / 3600000);
 }
 
 /**
