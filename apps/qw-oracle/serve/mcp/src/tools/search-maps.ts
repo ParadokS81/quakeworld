@@ -4,8 +4,8 @@
 // small enough that a full table scan + JS-side filter is faster to maintain
 // than building dynamic JSON-extract WHERE clauses and binding parameters.
 import type { Database } from 'bun:sqlite';
+import { SERVER_VERSION } from '../version.ts';
 
-const SERVER_VERSION = '0.3.0';
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 

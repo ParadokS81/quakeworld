@@ -9,8 +9,7 @@
 
 import { corpusDb as db } from '../db.ts';
 import type { SessionHit, SessionMessage, ToolResponse } from '../types.ts';
-
-const SERVER_VERSION = '0.2.0';
+import { SERVER_VERSION } from '../version.ts';
 
 interface SearchSolvedIssuesArgs {
   query: string;

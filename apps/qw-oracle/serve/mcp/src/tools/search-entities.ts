@@ -1,8 +1,7 @@
 import { knowledgeDb } from '../db.ts';
 import { toEntityRecord, type EntityRow } from '../entity-record.ts';
 import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
-
-const SERVER_VERSION = '0.2.0';
+import { SERVER_VERSION } from '../version.ts';
 
 interface SearchEntitiesArgs {
   query: string;

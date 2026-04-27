@@ -1,7 +1,6 @@
 // apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts
 import type { Database } from 'bun:sqlite';
-
-const SERVER_VERSION = '0.3.0';
+import { SERVER_VERSION } from '../version.ts';
 
 export interface MapRecordRow {
   canonical_name: string;

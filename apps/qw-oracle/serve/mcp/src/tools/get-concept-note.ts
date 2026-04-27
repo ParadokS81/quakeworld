@@ -3,8 +3,7 @@
 // typed wrapper around Map.get with the MCP response envelope.
 
 import type { ConceptNote, ToolResponse } from '../types.ts';
-
-const SERVER_VERSION = '0.2.0';
+import { SERVER_VERSION } from '../version.ts';
 
 interface GetConceptNoteArgs {
   id: string;

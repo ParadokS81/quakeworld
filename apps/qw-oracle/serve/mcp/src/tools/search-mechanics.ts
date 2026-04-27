@@ -1,6 +1,5 @@
 import type { Database } from 'bun:sqlite';
-
-const SERVER_VERSION = '0.4.0';
+import { SERVER_VERSION } from '../version.ts';
 
 export type SearchMechanicsArgs = {
   query?: string;

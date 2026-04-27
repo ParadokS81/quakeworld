@@ -5,6 +5,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SERVER_VERSION } from './version.ts';
 import { loadAllConcepts } from './concept-loader.ts';
 import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchSolvedIssues } from './tools/search-solved-issues.ts';
@@ -47,7 +48,7 @@ console.error(
 const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
 
 const server = new Server(
-  { name: 'qw-oracle', version: '0.3.0' },
+  { name: 'qw-oracle', version: SERVER_VERSION },
   { capabilities: { tools: {} } },
 );
 
