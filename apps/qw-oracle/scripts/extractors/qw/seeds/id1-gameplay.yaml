@@ -562,7 +562,24 @@ items:
 # Cluster 4: mechanics (41 rows total)
 mechanics:
   constants:
-  # (filled by Task 7) - 2 rows (sv_gravity_default, rocket_jump_multiplier_default)
+    - name: sv_gravity_default
+      value_numeric: 800
+      source_ref: world.qc:182
+      props:
+        scope: worldspawn_default
+        cvar_name: sv_gravity
+        e1m8_override: 100
+        e1m8_override_source_ref: world.qc:180
+      notes: per-map override on e1m8 (boss fight). The cvar itself is tunable by the engine; this row captures the QC-side default set in worldspawn.
+
+    - name: rocket_jump_multiplier_default
+      value_numeric: 1
+      source_ref: client.qc:517
+      props:
+        scope: worldspawn_default
+        gate: infokey_rj
+        applies_to: self_damage_knockback
+      notes: rj=0 disables rocket jumping; rj=1 default; some servers set rj=2.
   env_hazards:
   # (filled by Task 8) - 7 rows (incl. trigger_hurt void-brush mechanic)
   player_stats:
