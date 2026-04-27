@@ -42,7 +42,7 @@ const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'ext
 const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   ezquake: join(EXTRACTORS_ROOT, 'ezquake', 'extract.py'),
   fte: join(EXTRACTORS_ROOT, 'fte', 'extract.py'),
-  mvdsv: null,
+  mvdsv: join(EXTRACTORS_ROOT, 'mvdsv', 'extract.py'),
   ktx: null,
   qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
   qw: null,
@@ -142,7 +142,15 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     cvar_alias:     'fte-aliases-ast.json',
     asset_category: 'fte-asset-bundle.json',
   },
-  mvdsv: {},
+  mvdsv: {
+    cvar:             'mvdsv-variables-ast.json',
+    command:          'mvdsv-commands-ast.json',
+    cmdline_param:    'mvdsv-cmdline-params-ast.json',
+    protocol_message: 'mvdsv-protocol-messages-ast.json',
+    info_key:         'mvdsv-info-keys-ast.json',
+    log_template:     'mvdsv-log-templates-ast.json',
+    qc_builtin:       'mvdsv-qc-builtins-ast.json',
+  },
   ktx:   {},
   qw:    {},  // no entity types; maps live in the maps table, not entities
 };
