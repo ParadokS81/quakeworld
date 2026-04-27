@@ -50,6 +50,10 @@ export interface AstBlock {
   min_bound: string | null;
   max_bound: string | null;
   trailing_comment: string | null;
+  // MVDSV emits the literal default value inside the ast block (no help-JSON
+  // envelope to carry the ezQuake top-level `default` field). Optional to keep
+  // ezQuake/FTE/QWCL entries (which carry it at the entry level) compatible.
+  default_value?: string | null;
 }
 
 export interface VariableEntry {

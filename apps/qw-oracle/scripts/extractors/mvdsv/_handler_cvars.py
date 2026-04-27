@@ -130,7 +130,7 @@ def _is_cvar_t_decl(cursor) -> bool:
 class CvarsMvdsvHandler(Visitor):
     name = "cvars"
     output_filename = "mvdsv-variables-ast.json"
-    payload_field = "variables"
+    payload_field = "vars"
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -245,6 +245,6 @@ class CvarsMvdsvHandler(Visitor):
             "with_trailing_comment": sum(1 for r in unique if r["ast"].get("trailing_comment")),
         }
         return {
-            "variables": unique,
+            "vars": unique,
             "_stats": stats,
         }

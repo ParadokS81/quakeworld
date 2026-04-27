@@ -433,7 +433,13 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
       // QuakeWorld info_key system keys carry a leading '*' (*spectator, *VIP, ...).
       const validInfoKey = options.type === 'info_key' && /^\*?[a-z0-9_.+\-]+$/.test(name);
-      if (!validTokenPrimitive && !validIdentifier && !validInfoKey) {
+      // log_template "names" are <channel>:<printf-template> -- containing
+      // spaces, %-specifiers, escapes, punctuation. The channel-prefix shape is
+      // verified by the schema-level CHECK on log_template_versions.channel and
+      // by the producer-side normalization. The orchestrator-side identifier
+      // regex would reject every row otherwise.
+      const validLogTemplate = options.type === 'log_template' && /^(broadcast|client|console|system):/i.test(name);
+      if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }

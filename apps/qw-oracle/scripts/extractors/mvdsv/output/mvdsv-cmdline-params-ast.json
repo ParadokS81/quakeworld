@@ -1,5 +1,5 @@
 {
-  "cmdline_params": [
+  "params": [
     {
       "name": "+gamedir",
       "ast": {

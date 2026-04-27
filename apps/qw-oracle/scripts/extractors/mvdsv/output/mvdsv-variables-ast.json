@@ -1,5 +1,5 @@
 {
-  "variables": [
+  "vars": [
     {
       "name": "allow_download",
       "ast": {

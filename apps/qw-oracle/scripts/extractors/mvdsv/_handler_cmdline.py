@@ -58,7 +58,7 @@ def _strip_quotes(s: str) -> str:
 class CmdlineMvdsvHandler(Visitor):
     name = "cmdline"
     output_filename = "mvdsv-cmdline-params-ast.json"
-    payload_field = "cmdline_params"
+    payload_field = "params"
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -150,6 +150,6 @@ class CmdlineMvdsvHandler(Visitor):
             ),
         }
         return {
-            "cmdline_params": unique,
+            "params": unique,
             "_stats": stats,
         }

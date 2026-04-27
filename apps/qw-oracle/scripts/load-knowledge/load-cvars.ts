@@ -43,7 +43,12 @@ export function buildCvarVersionRow(
     help_group_id: entry['group-id'] ?? null,
     help_type: entry.type ?? null,
 
-    default_value: entry.default == null ? null : String(entry.default),
+    // Prefer the help-JSON top-level `default` (ezQuake/FTE convention) but
+    // fall back to ast.default_value for AST-only emitters (MVDSV) which carry
+    // the literal in the ast struct rather than in a help-JSON envelope.
+    default_value: entry.default != null
+      ? String(entry.default)
+      : (ast?.default_value ?? null),
     flags_raw: ast?.flags_raw ?? null,
     flag_names: ast?.flag_names ? JSON.stringify(ast.flag_names) : null,
     on_change: ast?.on_change ?? null,
