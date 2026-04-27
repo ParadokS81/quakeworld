@@ -199,7 +199,7 @@ The originally-considered "default canonical with messy-mode opt-out" framing wa
 
 4. **Steam pins / Discord rich-presence / batch files / shortcuts** all reference paths. Canonical-only means version switches preserve every external integration the user has set up. Preserve-mode breaks all of them on every switch.
 
-**Profile schema gain (small):** Lift `quake_dir` to a top-level `setups[0].quake_dir` field, derived from `client.exe_path` parent on first migration. No `clients[family].mode` field. No mode tracking. The canonical exe per family is fully derivable: `<setups[0].quake_dir>/<family>.exe` (or `<family>-<variant>.exe` for variants). One-shot migrator on profile load handles existing v2 profiles.
+**Profile schema gain (small, plural-shaped per D9):** Add `setups[0].quake_dirs: QuakeDirEntry[]` array (NOT a singular `quake_dir: string`). `QuakeDirEntry` shape: `{ path: string, role: "primary", label?: string }`. In 3.5b only `role: "primary"` exists and the array contains at most one entry. The plural shape is intentional: future Tier-3 arcs (clean-room migration, player-profile bundles) add entries with future role values without further schema migration. Migration: existing v2 profile with `client.exe_path` populated produces `quake_dirs: [{ path: <parent of exe_path>, role: "primary" }]`. One-shot migrator on profile load. The canonical exe per family is fully derivable: `<primary.path>/<family>.exe` (or `<family>-<variant>.exe` for variants).
 
 **No Settings tab toggle.** Drop. Phase 3.5 does NOT add Settings UI for canonical-mode.
 
@@ -207,23 +207,25 @@ The originally-considered "default canonical with messy-mode opt-out" framing wa
 
 **Phase:** Sub-phase 4 (canonicalize-on-import step in the bulk-import flow); profile schema migration is a pre-step in App.tsx mount.
 
-### D9. Multi-quake-dir semantics — bulk-import defaults to warehouse-only without claiming primary
+### D9. Single primary quake dir; bulk-import refuses non-primary picks (schema plural-shaped for future)
 
-**Decision:** When the user opens AddClientPanel and picks a folder for the bulk-import flow, the chosen folder does NOT automatically become the user's primary `setups[0].quake_dir`. Bulk-import only writes to the warehouse (registers blobs + manifests for ticked rows + optionally renames to canonical inside the chosen folder).
+**Decision:** Slipgate manages exactly one primary quake dir. AddClientPanel's folder picker either matches that primary, or sets it on first run. Foreign-dir picks are refused with a friendly error. Schema is plural-shaped (`quake_dirs: QuakeDirEntry[]`) so future Tier-3 arcs (clean-room migration, player-profile bundles) add entries without a second schema migration; in 3.5b the array has exactly one `role: "primary"` entry.
 
-Three cases:
+Three cases under bulk-import:
 
-1. **Profile has no `quake_dir` set yet** (first-launch / fresh-install user): bulk-import IS the moment the user first claims a primary dir. Set `setups[0].quake_dir = <chosen folder>`. AddClientPanel renders "I'll set this folder as your primary Quake dir" notice on the import button.
+1. **Profile has no primary entry yet** (first-launch / fresh-install user): the picker is unrestricted; the picked folder becomes the primary. Set `setups[0].quake_dirs = [{ path: <picked>, role: "primary" }]`. AddClientPanel renders "I'll set this folder as your primary Quake dir" notice.
 
-2. **Profile already has `quake_dir` set, and the chosen folder matches** (after path normalization — case-folding, trailing-slash, symlink resolution): no-op. Just bulk-import.
+2. **Profile has a primary entry, picked folder matches** (after path normalization — case-folding, trailing-slash, symlink resolution): bulk-import proceeds normally — canonicalize-rename inside the dir, swap_active_version for the primary row.
 
-3. **Profile already has `quake_dir` set, and the chosen folder is different**: bulk-import warehouses the chosen folder's binaries WITHOUT changing primary. `setups[0].quake_dir` stays at the existing dir. AddClientPanel renders a sub-bullet on the import button: "Warehouse-only — these binaries will be available in your warehouse but slipgate's active install stays at `<existing_quake_dir>`. To switch slipgate to manage this dir instead, use Settings → Make this my primary Quake dir." (Settings UI for that is future work; in 3.5b the user just doesn't switch.)
+3. **Profile has a primary entry, picked folder is different**: refuse the import. AddClientPanel shows a friendly error: "slipgate is managing `<existing_primary_path>`. The folder you picked is somewhere else. To browse there, change your primary dir first (currently no UI — point slipgate at a new exe via the path picker on Versions, or wait for Tier-3 features)." User navigates back, picks the primary dir, retries.
 
-**Why:** Reviewer's F10 finding flagged that "always overwrite quake_dir when bulk-import dir differs from existing primary" — which was the implied default in pass-1 — silently breaks the user's existing canonical install at the old dir. Steam-pin-points-to-C, slipgate-now-managing-D = bad UX. Warehouse-only-by-default preserves the user's existing setup; promoting a dir to primary is an explicit second action the user takes consciously.
+**Why this is the right shape (replaces pass-1's "warehouse-only-without-claiming"):** Operator clarification 2026-04-27 evening: slipgate isn't designed for multiple simultaneously-managed quake dirs. There's no UI path for it; users don't expect it. The "warehouse-only-from-foreign-dir" path was a footgun (warehoused bytes from `D:\OldQuake\` are silently switchable INTO `C:\Quake`'s canonical slot — surprising). Refusing foreign picks keeps the model honest: one primary, one source of truth, no surprise switches.
 
-This matches the "tier crossing is button-click, not global setting" principle from `project_slipgate_tier_ladder.md`. The user clicks "Add Quake client" to get to Tier 2 (managed versions); they make a separate explicit click ("Make this my primary") to retarget primary. No silent retarget.
+**Why plural-shaped schema even though we're enforcing single primary in 3.5b:** Future Tier-3 arcs need multi-dir support. Clean-room migration produces a fresh slipgate-managed dir; the user's old messy dir might stick around as a `role: "secondary-readonly"` registered dir for browsing. Player-profile bundles might create `role: "profile"` dirs for A/B switching between "your setup" and "Milton's setup" without bulldozing yours. Schema-once: the `quake_dirs: QuakeDirEntry[]` shape accommodates future role values without breaking existing consumers. Migrating from `quake_dir: string` later would force every consumer to update; doing it once now is cheaper.
 
-**Phase:** Sub-phase 4 (path-comparison logic + warehouse-only default in `bulk_import_clients` + AddClientPanel UI labels).
+This matches the "tier crossing is button-click, not global setting" principle from `project_slipgate_tier_ladder.md` — Tier 2 is single-primary; Tier 3 features earn their entries by the user explicitly invoking them.
+
+**Phase:** Sub-phase 4 (refuse-foreign-pick logic in AddClientPanel + `bulk_import_clients` Rust orchestrator validates against existing primary entry; schema migration in store.ts's `migrateProfile()`).
 
 ### D10. Variant decoupled from version-resolution lib (architectural detail)
 
@@ -296,9 +298,9 @@ This is the architectural follow-through on D6's reframe. Two consequences:
 **Modified SolidJS files**:
 - `src/components/ClientsDomain.tsx` — host AddClientPanel as an overlay-or-mode-replacement when the user clicks "Add Quake client" on the existing VersionWarehouse panel (per D1). The Versions section's stubbed button gets wired up; the rest of ClientsDomain stays unchanged.
 - `src/components/VersionWarehouse.tsx` — wire the "Add Quake client" button to set the AddClientPanel-open signal in ClientsDomain (or use a shared signal/context — pick during sub-phase 4).
-- `src/store.ts` — `Setup` interface gains `quake_dir: string | null` field (top-level on Setup, not nested under `client`). Derived from `setups[0].client.exe_path` parent on first migration of a v2 profile. `migrateProfile()` handles the one-shot migration. No `clients[family].mode` field; canonical-only naming (D8) makes per-family mode unnecessary.
+- `src/store.ts` — `Setup` interface gains `quake_dirs: QuakeDirEntry[]` field (top-level on Setup, not nested under `client`). Type: `interface QuakeDirEntry { path: string; role: "primary"; label?: string; }`. In 3.5b only `role: "primary"` exists, array contains 0 or 1 entry. Derived from `setups[0].client.exe_path` parent on first migration of a v2 profile. `migrateProfile()` handles the one-shot migration. Plural-shaped per D9 to accommodate future Tier-3 role values without further migration. No `clients[family].mode` field; canonical-only naming (D8) makes per-family mode unnecessary.
 
-**Profile schema gain (per D8):** as listed above under store.ts. Single new field, single migration step, no schema-version bump (still v2 — duck-typing detects whether `quake_dir` is present).
+**Profile schema gain (per D8 + D9):** as listed above under store.ts. Single new field (`quake_dirs`), single migration step, no schema-version bump (still v2 — duck-typing detects whether `quake_dirs` is present). The role-string-union grows in future arcs (`"primary" | "secondary-readonly" | "profile" | ...`) without changing the array shape.
 
 ---
 
@@ -994,8 +996,14 @@ pub enum CanonicalizeConsent {
 pub struct BulkImportRequest {
     pub rows: Vec<BulkImportRow>,
     pub primary_row_index: Option<usize>, // index into rows; None = no primary set
-    pub quake_dir: String,                 // chosen folder or parent-of-chosen-exe
-    pub set_as_primary_quake_dir: bool,    // per D9 — only true when profile.quake_dir is null OR matches
+    pub quake_dir: String,                 // chosen folder (must match existing primary or be the
+                                            // first primary; AddClientPanel enforces this UI-side
+                                            // and the orchestrator validates Rust-side per D9)
+    pub claim_as_primary: bool,            // per D9 case 1: true ONLY when profile.quake_dirs is
+                                            // empty (first-launch) — populates the primary entry.
+                                            // For case 2 (matches existing primary): false (no-op).
+                                            // For case 3 (mismatch): orchestrator returns error
+                                            // before any work is done.
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -1004,7 +1012,8 @@ pub struct BulkImportResult {
     pub renamed: Vec<(String, String)>, // (from, to) for canonicalize-rename steps that succeeded
     pub skipped_canonicalize: Vec<String>, // source paths that landed in skip-with-toast state
     pub primary_active: Option<String>, // the version that became active (if primary_row_index was set)
-    pub primary_dir_set: bool,          // whether profile.quake_dir was updated
+    pub primary_dir_set: bool,          // whether profile.quake_dirs got the primary entry populated
+                                         // (true only on first-launch claim per D9 case 1)
 }
 
 #[tauri::command]
@@ -1019,8 +1028,27 @@ pub async fn bulk_import_clients(
 Pseudocode:
 
 ```
+# 0. Pre-flight per D9: validate req.quake_dir against the profile's primary entry.
+let profile = read_profile()
+let existing_primary = profile.setups[0].quake_dirs.iter().find(|e| e.role == "primary")
+match existing_primary:
+    None:
+        # D9 case 1: no primary set yet. claim_as_primary must be true; we'll
+        # populate the primary entry at the end. Orchestrator continues.
+        if !req.claim_as_primary:
+            return Err("no primary quake dir set yet but claim_as_primary is false; this is a frontend bug")
+    Some(entry):
+        if path_normalize(&entry.path) == path_normalize(&req.quake_dir):
+            # D9 case 2: matches existing primary. claim_as_primary should be false (no-op).
+            if req.claim_as_primary:
+                # frontend got into a confused state; treat as case 2 anyway
+            (proceed)
+        else:
+            # D9 case 3: mismatch. Refuse before any side-effects.
+            return Err(format!("slipgate manages {}; can't import from {}", entry.path, req.quake_dir))
+
 for (i, row) in req.rows.enumerate():
-    # 1. Hash + register (extends import_existing_install with variant arg)
+    # 1. Hash + register (extends register_version_at with variant arg per D6+D10)
     let manifest = register_version_at(
         client=row.client,
         version=row.version,
@@ -1052,13 +1080,19 @@ if let Some(idx) = req.primary_row_index:
     )?
     result.primary_active = Some(row.version)
 
-# 4. Per D9 — only set quake_dir if explicitly requested (not automatic)
-if req.set_as_primary_quake_dir:
-    update_profile_quake_dir(req.quake_dir)?
+# 4. Per D9 case 1: populate primary entry on first-launch claim
+if existing_primary.is_none() && req.claim_as_primary:
+    let mut updated = profile.clone()
+    updated.setups[0].quake_dirs.push(QuakeDirEntry {
+        path: req.quake_dir.clone(),
+        role: "primary",
+        label: None,
+    })
+    write_profile(&updated)?
     result.primary_dir_set = true
 ```
 
-The frontend (AddClientPanel) decides `set_as_primary_quake_dir` per D9's three cases (no existing primary → true; same dir → true (no-op); different dir → false unless user explicitly opts in via "Make this my primary" affordance — which is future work and stays false in 3.5b).
+The frontend (AddClientPanel) determines `claim_as_primary` per D9's three cases: no existing primary → true; matches existing primary → false; mismatch → AddClientPanel never submits the request (shows error and routes user back to picker). The Rust orchestrator double-checks the validation as a safety net.
 
 - [ ] **Step 3: Implement `rename_to_canonical` helper command (per F12)**
 
@@ -1084,8 +1118,9 @@ Unit tests for the orchestrator using TempDir + mock exe files. Cover:
 - Happy path (3 rows, primary at index 1, all need canonicalize, all consent to Rename)
 - LeaveAsIs path (user declined one rename; that row warehouses but stays at non-canonical filename)
 - Skip path (canonical slot occupied; row's source stays alongside as duplicate)
-- D9 case (a): no existing primary, set_as_primary_quake_dir=true → quake_dir updated
-- D9 case (c): existing primary, different dir, set_as_primary_quake_dir=false → quake_dir unchanged
+- D9 case 1: no existing primary, claim_as_primary=true → primary entry populated
+- D9 case 2: existing primary matches picked dir, claim_as_primary=false → no profile change, import proceeds
+- D9 case 3: existing primary differs from picked dir → orchestrator returns error before any side-effects (validates AddClientPanel's UI-side refuse)
 - D12 case: primary row's swap_active_version is called with correct target_version + target_exe_name
 
 - [ ] **Step 5: Wire commands in lib.rs (`bulk_import_clients`, `rename_to_canonical`); commit**
@@ -1117,14 +1152,14 @@ For each fingerprinter-classified row (Unknown rows already filtered server-side
 - Primary radio (one selected at a time across all rows)
 - Canonicalize-on-import per-row affordance: small text below the row showing which prompt will fire on Import: "Will rename `ezquake-3.6.6.exe` → `ezquake.exe`" (case A), "Will leave at `ezquake-3.6.6.exe` (canonical slot occupied)" (case C), or "Already canonical" (case B). Defaults to case-A consent = Rename; user can toggle individual rows to LeaveAsIs.
 
-Top of checklist: dir-targeting indicator per D9. Three states: "Will set this as your primary Quake dir" (no existing primary), "This matches your primary Quake dir" (same), "Warehouse-only — primary stays at `<existing_dir>`" (different).
+Top of checklist: dir-targeting indicator per D9. Two states (foreign-dir picks are intercepted before reaching the checklist): "Will set this as your primary Quake dir" (no existing primary — D9 case 1) OR "Managing primary: `<path>`" (matches existing primary — D9 case 2). The foreign-dir case (D9 case 3) is intercepted at the picker level: AddClientPanel detects the mismatch immediately after the user picks, shows an inline error toast ("slipgate manages `<existing_primary>`. The folder you picked is somewhere else. Pick your primary dir, or set a new one by clearing the existing primary first."), and routes the user back to the picker without ever rendering the checklist.
 
 Bottom: "Import N selected" button (count updates live).
 
 - [ ] **Step 4: Wire to `bulk_import_clients`**
 
 On Import click:
-1. Build `BulkImportRequest` from current row state (selected rows, primary radio, quake_dir, set_as_primary_quake_dir flag from D9 logic).
+1. Build `BulkImportRequest` from current row state (selected rows, primary radio, quake_dir, claim_as_primary flag set per D9 logic: true if no existing primary, false if matches existing primary; mismatch case never reaches Import — AddClientPanel intercepts at picker time).
 2. Call `bulk_import_clients` via the frontend wrapper.
 3. Show a result toast: "Imported N clients; <client>-<version> is now active". On error, show the error message and don't navigate away.
 4. On success, set `addingClient = false` to dismiss the panel; ClientsDomain re-renders Versions list which now includes the new manifests.
@@ -1183,7 +1218,7 @@ Sub-phase 1 ships the fingerprinter (with F4 variant decoupling, F6 fteqw.exe ca
 
 Three-tier identity (D5 + F14): Tier-2 nudge fires only for client-channels with live cache data (ezQuake stable, unezQuake stable, KTX/MVDSV/QWFWD stable). FTE + ezQuake snapshot render identity but skip Tier-2 verdict per the stub-state branches in `ClientImportRow`. This is honest — F14 acknowledges 3.5b ships partial Tier-2 coverage; future arcs widen.
 
-Bulk import: D2 default-select-all + sub-phase 4 checklist UI cover this exactly. Canonical-only naming (D8) embeds via `bulk_import_clients`'s per-row CanonicalizeConsent flow (Rename / LeaveAsIs / Skip with toast for canonical-slot-occupied). Profile gains `setups[0].quake_dir` only when D9's three cases warrant (no existing primary, or matching dir, or explicit user opt-in via future "Make this my primary" — out of 3.5b scope).
+Bulk import: D2 default-select-all + sub-phase 4 checklist UI cover this exactly. Canonical-only naming (D8) embeds via `bulk_import_clients`'s per-row CanonicalizeConsent flow (Rename / LeaveAsIs / Skip with toast for canonical-slot-occupied). Profile gains `setups[0].quake_dirs` (plural-shaped per D9) with the primary entry populated on first-launch claim only; foreign-dir picks are refused at the picker level.
 
 Variant decoupling (D6 + D10 + F4): variants stored as `variant: Option<String>` on `WarehousedVersion`; nested manifest path under `binaries/<client>/<version>/variants/<variant>/manifest.json`; version-resolution lib stays variant-naive; oracle's snapshot consumer reads "ezQuake 3.6.6" as one canonical row regardless of variant. Architectural cleanliness for Phase 4/5.
 
@@ -1204,7 +1239,10 @@ Position in bigger picture: this phase is the first explicit Tier 1 → Tier 2 c
 - **Updater consolidation onto release_cache.** Per D3, updater stays as-is in 3.5b. Consolidation is a deferred future cleanup arc with a functional trigger (release-notes panel or similar).
 - **Settings tab opt-out toggle for canonical-mode.** Per D8, there is no toggle. The four-tier opt-in ladder makes "users who don't want slipgate to canonicalize their files" a Tier 0/1 lifestyle choice, not a Tier 2 mode preference.
 - **Mode-switching prompts** ("you're in messy mode, want to switch to canonical?"). Per D8, there are no modes.
-- **"Make this my primary Quake dir" affordance.** Per D9, when a user bulk-imports from a folder that doesn't match their existing primary, the import is warehouse-only and primary stays where it is. The explicit "Make this my primary" action is future work (likely a small Settings-tab control or an option inside AddClientPanel). 3.5b ships warehouse-only-by-default; users who want to retarget primary do it manually outside slipgate (point slipgate at the new exe via the existing path picker).
+- **Multi-quake-dir UI affordances.** Per D9, slipgate enforces single-primary in 3.5b. Foreign-dir bulk-import picks are refused. Users who want to retarget primary point slipgate at a new exe via the existing path picker on Versions; the parent dir of that exe becomes the new primary on first import after the change. A future Settings-tab "Quake dirs" manager (with explicit add/remove/promote actions) lands when Tier-3 arcs need it (clean-room migration, player-profile bundles). The schema is plural-shaped (`quake_dirs: QuakeDirEntry[]`) to accommodate future role values without further migration.
+- **"Make this my primary Quake dir" affordance** specifically. Same reasoning. 3.5b refuses foreign picks; doesn't offer in-flow retargeting.
+- **Player profiles / share-via-hashlist features.** Surfaced in design conversation 2026-04-27 evening as a future arc (load Milton's setup by hash list, swap between own profile and another's, dedupe against locally-existing assets). See HANDOVER's "Player profiles (bundle-shaped, share-via-hashlist)" entry. Bundle-shaped infrastructure shared with the slackers_tp-style bundle install future arc; not 3.5b scope.
+- **Clean-room extraction / migration.** Future Tier-3 arc that produces a fresh slipgate-managed dir from an existing messy one. Captured in HANDOVER's "Tier 3 future arcs" entry. Not 3.5b scope; the plural-shaped `quake_dirs` schema is the substrate that makes it cheap to land later.
 - **Delete-from-disk action on warehoused / non-warehoused exes** (per F11). The Phase-3 VersionWarehouse rows already have a Delete button (which removes the warehouse manifest + GC's the blob if unreferenced); a separate "Delete the source exe from disk" action was sketched in pass-1 but is deferred to a future arc. Reasoning: it's destructive, needs careful safety guards (refuse if path matches the canonical slot, refuse if path matches an active version's source), and isn't load-bearing for 3.5b's goal. Users with leftover non-canonical exes after import can delete via Windows Explorer for now.
 - **Tier-2 nudge for FTE + ezQuake snapshot.** Per F14, those rows render identity (family + version) but skip the upgrade-nudge UX in 3.5b — their cache stubs return empty. Future arcs (FTE: scrape fte.triptohell.info; ezQuake snapshot: integrate the existing updater scraper into release_cache) widen Tier-2 coverage.
 - **Asset warehouse / 1-click texture-set switching / bundle install / clean-room migration.** All Tier 3 future arcs that share Phase 2/3's warehouse substrate. Captured in HANDOVER's "Tier 3 future arcs" entry. Phase 3.5b establishes the precedents (action grammar, AddClientPanel shell, canonicalize-on-import flow, swap-not-reconcile pattern) but does not implement any non-binary content management.
