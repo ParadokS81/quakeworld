@@ -107,21 +107,21 @@ cvar_bindings:
 
   # -- Demo storage -----------------------------------------------------
 
-  - cvar: sv_demoDir
+  - cvar: sv_demodir
     category: demo
     path_pattern: "{value}/"
     load_trigger: on_demand
     source_ref: "engine/client/cl_demo.c:1862"
-    notes: "FS_OpenVFS(va(\"%s/...\", sv_demoDir.string), ...). Directory under which client demos are recorded and read."
+    notes: "FS_OpenVFS(va(\"%s/...\", sv_demoDir.string), ...). Directory under which client demos are recorded and read. Cvar name is case-insensitive in QW; DB canonical is lowercase."
 
-  - cvar: sv_demoDirAlt
+  - cvar: sv_demodiralt
     category: demo
     path_pattern: "{value}/"
     load_trigger: on_demand
     source_ref: "engine/server/sv_user.c:3513"
     notes: "Alternate demo directory consulted by SV_LocateDownload during demo download serving."
 
-  - cvar: sv_demoUseCache
+  - cvar: sv_demousecache
     category: demo
     path_pattern: "{value}"
     load_trigger: on_demand

@@ -1017,33 +1017,33 @@
       "raw_ast_hash": null
     },
     {
-      "cvar_canonical_id": "fte:cvar:sv_demoDir",
+      "cvar_canonical_id": "fte:cvar:sv_demodir",
       "category_id": "fte:asset_category:demo",
       "path_pattern": "{value}/",
       "load_trigger": "on_demand",
-      "confidence": "auto_confirms_seed",
+      "confidence": "seed",
       "source_ref": "engine/client/cl_demo.c:1862",
-      "notes": "FS_OpenVFS(va(\"%s/...\", sv_demoDir.string), ...). Directory under which client demos are recorded and read.",
+      "notes": "FS_OpenVFS(va(\"%s/...\", sv_demoDir.string), ...). Directory under which client demos are recorded and read. Cvar name is case-insensitive in QW; DB canonical is lowercase. | AST did not corroborate; seed retained as source of truth",
       "raw_ast_hash": null
     },
     {
-      "cvar_canonical_id": "fte:cvar:sv_demoDirAlt",
+      "cvar_canonical_id": "fte:cvar:sv_demodiralt",
       "category_id": "fte:asset_category:demo",
       "path_pattern": "{value}/",
       "load_trigger": "on_demand",
-      "confidence": "auto_confirms_seed",
+      "confidence": "seed",
       "source_ref": "engine/server/sv_user.c:3513",
-      "notes": "Alternate demo directory consulted by SV_LocateDownload during demo download serving.",
+      "notes": "Alternate demo directory consulted by SV_LocateDownload during demo download serving. | AST did not corroborate; seed retained as source of truth",
       "raw_ast_hash": null
     },
     {
-      "cvar_canonical_id": "fte:cvar:sv_demoUseCache",
+      "cvar_canonical_id": "fte:cvar:sv_demousecache",
       "category_id": "fte:asset_category:demo",
       "path_pattern": "{value}",
       "load_trigger": "on_demand",
-      "confidence": "auto_confirms_seed",
+      "confidence": "seed",
       "source_ref": "engine/server/sv_mvd.c:1317",
-      "notes": "Demo-cache directory used by SV_MVD_InitRecordFile.",
+      "notes": "Demo-cache directory used by SV_MVD_InitRecordFile. | AST did not corroborate; seed retained as source of truth",
       "raw_ast_hash": null
     },
     {
@@ -17288,8 +17288,8 @@
     "loader_sites": 717,
     "reconciliation": {
       "seed_retained": 22,
-      "seed_upgraded_to_auto_confirms": 18,
-      "seed_not_corroborated": 4,
+      "seed_upgraded_to_auto_confirms": 15,
+      "seed_not_corroborated": 7,
       "auto_orphans": 3
     }
   }

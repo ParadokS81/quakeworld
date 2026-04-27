@@ -675,6 +675,192 @@ function probeFteNoInflatedFlags(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
+// FTE asset probes (Phase 2d-bundle) — F1 count + F2 anomaly
+// ---------------------------------------------------------------------------
+
+function probeFteAssetCategoriesCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.asset_categories_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='asset_category'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [25, 35];
+  return {
+    name: 'F1.fte.asset_categories_count',
+    family: 'regression',
+    description: `fte asset_category entities in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} asset_category entities (in range)` : `${n} asset_category entities — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteAssetExtensionsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.asset_extensions_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_extensions WHERE project='fte'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [50, 100];
+  return {
+    name: 'F1.fte.asset_extensions_count',
+    family: 'regression',
+    description: `fte asset_extensions rows in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} asset_extensions (in range)` : `${n} asset_extensions — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteAssetPathRulesCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.asset_path_rules_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_path_rules WHERE project='fte'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [10, 20];
+  return {
+    name: 'F1.fte.asset_path_rules_count',
+    family: 'regression',
+    description: `fte asset_path_rules rows in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} asset_path_rules (in range)` : `${n} asset_path_rules — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteAssetCvarBindingsCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.asset_cvar_bindings_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_cvar_bindings WHERE project='fte'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [20, 50];
+  return {
+    name: 'F1.fte.asset_cvar_bindings_count',
+    family: 'regression',
+    description: `fte asset_cvar_bindings rows in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} asset_cvar_bindings (in range)` : `${n} asset_cvar_bindings — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+function probeFteAssetLoaderSitesCount(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F1.fte.asset_loader_sites_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_loader_sites WHERE project='fte'`).get() as { n: number };
+  const n = row.n;
+  const [lo, hi] = [600, 1200];
+  return {
+    name: 'F1.fte.asset_loader_sites_count',
+    family: 'regression',
+    description: `fte asset_loader_sites rows in range [${lo}, ${hi}]`,
+    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    count: n,
+    summary: n >= lo && n <= hi ? `${n} asset_loader_sites (in range)` : `${n} asset_loader_sites — outside [${lo}, ${hi}]`,
+    examples: [],
+  };
+}
+
+// Guard: every fte loader site must have source_file set. A NULL means
+// the handler emitted a row without a source location, which is malformed.
+function probeFteLoaderSitesHaveSourceFile(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.loader_sites_have_source_file', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT canonical_id, function_name FROM asset_loader_sites
+    WHERE project='fte' AND (source_file IS NULL OR source_file = '')
+    LIMIT 10
+  `).all() as { canonical_id: string; function_name: string }[];
+  return {
+    name: 'F2.fte.loader_sites_have_source_file',
+    family: 'anomaly',
+    description: 'fte asset_loader_sites rows with NULL/empty source_file',
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all fte loader sites have source_file' : `${rows.length} loader sites missing source_file`,
+    examples: rows.map(r => `${r.canonical_id} (fn=${r.function_name})`),
+  };
+}
+
+// Guard: every fte path_rule must have source_verified=1. The verifier
+// runs at every extract-tag and stamps source_verified=0 when a citation
+// fails to resolve to a function-internal line.
+function probeFtePathRulesAllVerified(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.path_rules_all_verified', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT canonical_id, source_ref FROM asset_path_rules
+    WHERE project='fte' AND source_verified = 0
+    LIMIT 10
+  `).all() as { canonical_id: string; source_ref: string }[];
+  return {
+    name: 'F2.fte.path_rules_all_verified',
+    family: 'anomaly',
+    description: 'fte asset_path_rules rows with source_verified=0',
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all fte path_rules verified' : `${rows.length} path_rules unverified`,
+    examples: rows.map(r => `${r.canonical_id} -> ${r.source_ref}`),
+  };
+}
+
+// Guard: every fte asset_cvar_bindings row must reference an existing
+// cvar entity. A NULL join means the seed cited a stale cvar name.
+function probeFteCvarBindingsResolve(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.cvar_bindings_resolve', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT ab.cvar_canonical_id FROM asset_cvar_bindings ab
+    LEFT JOIN entities e ON e.canonical_id = ab.cvar_canonical_id
+    WHERE ab.project = 'fte' AND e.id IS NULL
+    LIMIT 10
+  `).all() as { cvar_canonical_id: string }[];
+  return {
+    name: 'F2.fte.cvar_bindings_resolve',
+    family: 'anomaly',
+    description: 'fte asset_cvar_bindings rows whose cvar does not resolve to an entities row',
+    status: rows.length === 0 ? 'CLEAN' : 'FOUND',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all fte cvar_bindings resolve to a real cvar entity' : `${rows.length} stale cvar references`,
+    examples: rows.map(r => r.cvar_canonical_id),
+  };
+}
+
+// Guard: shader registrations are FTE-specific (no ezQuake counterpart) and
+// the AST artifact at build-6698 surfaced 134 R_RegisterShader + 16 R_LoadShader
+// = ~150 rows. Threshold conservatively at >=80 to catch a regression where
+// the handler stops emitting shader sites entirely.
+function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): ProbeResult {
+  if (ctx.project !== 'fte') {
+    return { name: 'F2.fte.shader_loader_sites_present', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM asset_loader_sites
+    WHERE project='fte' AND function_name IN ('R_RegisterShader','R_LoadShader')
+  `).get() as { n: number };
+  const n = row.n;
+  return {
+    name: 'F2.fte.shader_loader_sites_present',
+    family: 'anomaly',
+    description: 'fte shader-registration loader sites must remain >=80 (regression guard)',
+    status: n >= 80 ? 'CLEAN' : 'FOUND',
+    count: n >= 80 ? 0 : 1,
+    summary: n >= 80 ? `${n} shader-registration loader sites` : `only ${n} shader loader sites — expected >=80`,
+    examples: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
 
@@ -691,6 +877,12 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.fte.commands_count', family: 'regression', description: '', run: probeFteCommandsCount },
   { name: 'F1.fte.macros_count', family: 'regression', description: '', run: probeFteMacrosCount },
   { name: 'F1.fte.cmdline_count', family: 'regression', description: '', run: probeFteCmdlineCount },
+  // FTE asset count-range probes (Phase 2d-bundle)
+  { name: 'F1.fte.asset_categories_count', family: 'regression', description: '', run: probeFteAssetCategoriesCount },
+  { name: 'F1.fte.asset_extensions_count', family: 'regression', description: '', run: probeFteAssetExtensionsCount },
+  { name: 'F1.fte.asset_path_rules_count', family: 'regression', description: '', run: probeFteAssetPathRulesCount },
+  { name: 'F1.fte.asset_cvar_bindings_count', family: 'regression', description: '', run: probeFteAssetCvarBindingsCount },
+  { name: 'F1.fte.asset_loader_sites_count', family: 'regression', description: '', run: probeFteAssetLoaderSitesCount },
 ];
 
 const ANOMALY_PROBES: Probe[] = [
@@ -705,6 +897,11 @@ const ANOMALY_PROBES: Probe[] = [
   { name: 'F2.fte.plugin_ezhud_source_file_prefix', family: 'anomaly', description: '', run: probeFtePluginEzhudSourceFilePrefix },
   { name: 'F2.fte.engine_no_plugin_source_files', family: 'anomaly', description: '', run: probeFteEngineNoPluginSourceFiles },
   { name: 'F2.fte.no_inflated_flags', family: 'anomaly', description: '', run: probeFteNoInflatedFlags },
+  // FTE asset anomaly probes (Phase 2d-bundle)
+  { name: 'F2.fte.loader_sites_have_source_file', family: 'anomaly', description: '', run: probeFteLoaderSitesHaveSourceFile },
+  { name: 'F2.fte.path_rules_all_verified', family: 'anomaly', description: '', run: probeFtePathRulesAllVerified },
+  { name: 'F2.fte.cvar_bindings_resolve', family: 'anomaly', description: '', run: probeFteCvarBindingsResolve },
+  { name: 'F2.fte.shader_loader_sites_present', family: 'anomaly', description: '', run: probeFteShaderLoaderSitesPresent },
 ];
 
 export interface QualityGridOptions {

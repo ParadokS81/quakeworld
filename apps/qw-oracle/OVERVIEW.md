@@ -28,7 +28,7 @@ The single source of truth for "what does Oracle currently know about?". Update 
 | Namespace | Project / domain | Model | Entity types / tables | Counts (head / canonical) | Status |
 |---|---|---|---|---|---|
 | `ezquake` | engine | per-version arc | 10 entity types + 4 asset relation tables | 4015 entities (2989 cvar + 560 cmd + 68 macro + 76 cmdline + 148 keyname + 85 hud_element + 6 ruleset + 33 token_primitive + 50 flag_bit + 26 asset_category) | head + 14-tag deep-time walk |
-| `fte` | engine | per-version arc | 5 entity types (cvar / command / macro / cmdline_param / cvar_alias) | 3267 entities (2482 cvar — 1397 engine + 1085 plugin:ezhud — / 556 command / 67 macro / 108 cmdline_param / 38 cvar_alias) | Phase 2d-core SHIPPED 2026-04-26 (build-6698 / SHA 35843773); Phase 2d-bundle (asset extraction) pending |
+| `fte` | engine | per-version arc | 5 entity types (cvar / command / macro / cmdline_param / cvar_alias) + asset bundle | 3267 entities (2482 cvar — 1397 engine + 1085 plugin:ezhud — / 556 command / 67 macro / 108 cmdline_param / 38 cvar_alias) + 28 asset_category + 25 asset_cvar_bindings + 13 asset_path_rules + 61 asset_extensions + 717 asset_loader_sites | Phase 2d-core SHIPPED 2026-04-26 (build-6698 / SHA 35843773); Phase 2d-bundle SHIPPED 2026-04-27 |
 | `qwcl` | engine | per-version arc | 3 entity types (cvar / command / cmdline_param) | 380 entities (187 cvar + 121 command + 72 cmdline_param) | shipped 2026-04-25 (single tag `2.33`, no asset taxonomy) |
 | `mvdsv` | engine (server) | per-version arc | -- | -- | not started |
 | `ktx` | engine (mod, QuakeC) | per-version arc | -- | -- | not started; tree-sitter spike done |
@@ -46,7 +46,7 @@ Deep-time walk floor for ezQuake is `v3.0` (2016-06-04); pre-3.0 era is **delibe
 - **v9** (2026-04-25): added `source_retired_at_version` to the transitions reason CHECK.
 
 **Still open on Layer 1:**
-- **Phase 2d-bundle FTE asset extraction.** Phase 2d-core (engine + ezhud plugin) shipped; the asset bundle (extensions + cvar bindings + loader sites + path rules) is its own session. Largest among QW engines.
+- **Phase 2d-bundle FTE asset extraction.** SHIPPED 2026-04-27. Counts on the FTE row above. Five hand-authored seed YAMLs at `scripts/extractors/fte/seeds/` + two AST handlers + path-rules verifier; bundle reconciles to `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json`. Quality-grid extended to 30 probes; 3 Path-1 fixtures green.
 - **Phase 2e MVDSV + KTX.** MVDSV is small (~189 cvars, same struct form as ezQuake). KTX is tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike).
 - **Phase 2f historical backfill.** Walk infrastructure shipped 2026-04-25 (`extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version backfill_match detection). Reusable across FTE/MVDSV/KTX walks. Pre-3.0 ezQuake era explicitly out of scope. HANDOVER entry: `Phase 2d-2h: remaining QW knowledge rollout`.
 - **Phase 2g MCP tool upgrades.** Add `version` / `as_of` parameters to existing tools, add `get_entity_history`, add version/date filters on `search_entities`.
