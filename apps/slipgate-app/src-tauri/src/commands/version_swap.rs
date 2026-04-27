@@ -3,11 +3,24 @@ use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 use sha2::{Digest, Sha256};
+use sysinfo::System;
 
 use crate::commands::data_root::data_root_path;
 use crate::commands::version_warehouse::{
     blob_path_for, list_warehoused_versions_at, read_index_at, version_dir_at, write_index_at,
 };
+
+fn is_process_running(exe_name: &str) -> bool {
+    let mut sys = System::new();
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    let target = exe_name.to_lowercase();
+    sys.processes().values().any(|p| {
+        p.name()
+            .to_str()
+            .map(|n| n.to_lowercase() == target)
+            .unwrap_or(false)
+    })
+}
 
 #[derive(Serialize, Clone, Debug)]
 pub struct SwapResult {
@@ -39,6 +52,13 @@ pub fn swap_active_version(
     quake_dir: String,
     target_exe_name: String,
 ) -> Result<SwapResult, String> {
+    if is_process_running(&target_exe_name) {
+        return Err(format!(
+            "{} is currently running. Close it before switching versions.",
+            target_exe_name
+        ));
+    }
+
     let data_root = data_root_path(&app)?;
     let quake_dir = PathBuf::from(&quake_dir);
     if !quake_dir.exists() {
