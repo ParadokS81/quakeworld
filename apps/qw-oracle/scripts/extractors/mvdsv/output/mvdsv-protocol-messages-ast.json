@@ -1,0 +1,1179 @@
+{
+  "protocol_messages": [
+    {
+      "name": "clc_bad",
+      "ast": {
+        "kind": "clc",
+        "value": "0",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 250,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "clc_delta",
+      "ast": {
+        "kind": "clc",
+        "value": "5",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 255,
+        "trailing_comment": "[byte] sequence number, requests delta compression of message"
+      }
+    },
+    {
+      "name": "clc_move",
+      "ast": {
+        "kind": "clc",
+        "value": "3",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 253,
+        "trailing_comment": "[[usercmd_t]"
+      }
+    },
+    {
+      "name": "clc_mvd_debug",
+      "ast": {
+        "kind": "clc",
+        "value": "201",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 77,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "clc_mvd_debug_type_antilag",
+      "ast": {
+        "kind": "clc",
+        "value": "1",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 78,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "clc_mvd_debug_type_weapon",
+      "ast": {
+        "kind": "clc",
+        "value": "2",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 79,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "clc_mvd_weapon",
+      "ast": {
+        "kind": "clc",
+        "value": "200",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 264,
+        "trailing_comment": "server-side weapon selection"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_forget_ranking",
+      "ast": {
+        "kind": "clc",
+        "value": "4",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 271,
+        "trailing_comment": "forget priority list after initial selection (requires extra byte for age)"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_full_impulse",
+      "ast": {
+        "kind": "clc",
+        "value": "128",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 280,
+        "trailing_comment": "if set, each weapon set as a byte, rather than packing two into one"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_hide_axe",
+      "ast": {
+        "kind": "clc",
+        "value": "8",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 274,
+        "trailing_comment": "on subsequent -attack, hide weapon and switch to axe"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_hide_sg",
+      "ast": {
+        "kind": "clc",
+        "value": "16",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 275,
+        "trailing_comment": "on subsequent -attack, hide weapon and switch to sg"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_mode_iffiring",
+      "ast": {
+        "kind": "clc",
+        "value": "2",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 270,
+        "trailing_comment": "don't wait for -attack before pre-selecting weapon"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_mode_presel",
+      "ast": {
+        "kind": "clc",
+        "value": "1",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 269,
+        "trailing_comment": "preselect (don't send impulses until -attack/+attack)"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_reset_on_death",
+      "ast": {
+        "kind": "clc",
+        "value": "32",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 276,
+        "trailing_comment": "on death, go back to 2 1"
+      }
+    },
+    {
+      "name": "clc_mvd_weapon_switching",
+      "ast": {
+        "kind": "clc",
+        "value": "64",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 277,
+        "trailing_comment": "if not set, disable all server-side weapon switching"
+      }
+    },
+    {
+      "name": "clc_nop",
+      "ast": {
+        "kind": "clc",
+        "value": "1",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 251,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "clc_stringcmd",
+      "ast": {
+        "kind": "clc",
+        "value": "4",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 254,
+        "trailing_comment": "[string] message"
+      }
+    },
+    {
+      "name": "clc_tmove",
+      "ast": {
+        "kind": "clc",
+        "value": "6",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 256,
+        "trailing_comment": "teleport request, spectator only"
+      }
+    },
+    {
+      "name": "clc_upload",
+      "ast": {
+        "kind": "clc",
+        "value": "7",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 257,
+        "trailing_comment": "teleport request, spectator only"
+      }
+    },
+    {
+      "name": "clc_voicechat",
+      "ast": {
+        "kind": "clc",
+        "value": "83",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 260,
+        "trailing_comment": "FTE voice chat."
+      }
+    },
+    {
+      "name": "nq_svc_clientdata",
+      "ast": {
+        "kind": "nq",
+        "value": "15",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 176,
+        "trailing_comment": "<shortbits + data>"
+      }
+    },
+    {
+      "name": "nq_svc_cutscene",
+      "ast": {
+        "kind": "nq",
+        "value": "34",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 203,
+        "trailing_comment": "same as svc_smallkick"
+      }
+    },
+    {
+      "name": "nq_svc_particle",
+      "ast": {
+        "kind": "nq",
+        "value": "18",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 179,
+        "trailing_comment": "[vec3] <variable>"
+      }
+    },
+    {
+      "name": "nq_svc_setview",
+      "ast": {
+        "kind": "nq",
+        "value": "5",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 164,
+        "trailing_comment": "[short] entity number"
+      }
+    },
+    {
+      "name": "nq_svc_signonnum",
+      "ast": {
+        "kind": "nq",
+        "value": "25",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 188,
+        "trailing_comment": "[byte]  used for the signon sequence"
+      }
+    },
+    {
+      "name": "nq_svc_time",
+      "ast": {
+        "kind": "nq",
+        "value": "7",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 166,
+        "trailing_comment": "[float] server time"
+      }
+    },
+    {
+      "name": "nq_svc_updatecolors",
+      "ast": {
+        "kind": "nq",
+        "value": "17",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 178,
+        "trailing_comment": "[byte] [byte] [byte]"
+      }
+    },
+    {
+      "name": "nq_svc_updatename",
+      "ast": {
+        "kind": "nq",
+        "value": "13",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 174,
+        "trailing_comment": "[byte] [string]"
+      }
+    },
+    {
+      "name": "nq_svc_version",
+      "ast": {
+        "kind": "nq",
+        "value": "4",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 163,
+        "trailing_comment": "[long] server version"
+      }
+    },
+    {
+      "name": "FTE_PEXT_256PACKETENTITIES",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x01000000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 45,
+        "trailing_comment": "Client can recieve 256 packet entities."
+      }
+    },
+    {
+      "name": "FTE_PEXT_CHUNKEDDOWNLOADS",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x20000000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 46,
+        "trailing_comment": "alternate file download method. Hopefully it'll give"
+      }
+    },
+    {
+      "name": "FTE_PEXT_COLOURMOD",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00080000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 44,
+        "trailing_comment": "Sends three bytes of color modification for an entity"
+      }
+    },
+    {
+      "name": "FTE_PEXT_CSQC",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x40000000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 48,
+        "trailing_comment": "csqc additions"
+      }
+    },
+    {
+      "name": "FTE_PEXT_DPFLAGS",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x80000000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 49,
+        "trailing_comment": "extra flags for viewmodel/externalmodel and possible other persistant style flags."
+      }
+    },
+    {
+      "name": "FTE_PEXT_ENTITYDBL",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00002000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 40,
+        "trailing_comment": "max of 1024 ents instead of 512"
+      }
+    },
+    {
+      "name": "FTE_PEXT_ENTITYDBL2",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00004000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 41,
+        "trailing_comment": "max of 1024 ents instead of 512"
+      }
+    },
+    {
+      "name": "FTE_PEXT_FLOATCOORDS",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00008000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 42,
+        "trailing_comment": "supports floating point origins."
+      }
+    },
+    {
+      "name": "FTE_PEXT_HLBSP",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00000200",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 38,
+        "trailing_comment": "stops fte servers from complaining"
+      }
+    },
+    {
+      "name": "FTE_PEXT_MODELDBL",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00001000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 39,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "FTE_PEXT_SPAWNSTATIC2",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00400000",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 43,
+        "trailing_comment": "Sends an entity delta instead of a baseline."
+      }
+    },
+    {
+      "name": "FTE_PEXT_TRANS",
+      "ast": {
+        "kind": "pext_fte",
+        "value": "0x00000008",
+        "value_kind": "hex",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 34,
+        "trailing_comment": ".alpha support"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_ANTILAG_CLIENTPOS",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "128",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 76,
+        "trailing_comment": "flag set on the playernum if the client positions are also included"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_DEBUG",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": null,
+        "value_kind": null,
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 75,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "MVD_PEXT1_DEBUG_ANTILAG",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( 1 << 4 )",
+        "value_kind": "bitshift",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 69,
+        "trailing_comment": "Send predicted positions to server (compare to antilagged positions)"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_DEBUG_WEAPON",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( 1 << 3 )",
+        "value_kind": "bitshift",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 68,
+        "trailing_comment": "Send weapon-choice explanation to server for logging"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_FLOATCOORDS",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( 1 << 0 )",
+        "value_kind": "bitshift",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 65,
+        "trailing_comment": "FTE_PEXT_FLOATCOORDS but for entity/player coords only"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_HIDDEN_MESSAGES",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( 1 << 5 )",
+        "value_kind": "bitshift",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 70,
+        "trailing_comment": "dem_multiple(0) packets are in format (<length> <type-id>+ <packet-data>)*"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_HIGHLAGTELEPORT",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( 1 << 1 )",
+        "value_kind": "bitshift",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 66,
+        "trailing_comment": "Adjust movement direction for frames following teleport"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_INCLUDEINMVD",
+      "ast": {
+        "kind": "pext_mvd",
+        "value": "( MVD_PEXT1_HIDDEN_MESSAGES )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 82,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION",
+      "ast": {
+        "kind": "protocol_version",
+        "value": "28",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 24,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_FTE",
+      "ast": {
+        "kind": "protocol_version",
+        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( 'X' << 24 ) )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 29,
+        "trailing_comment": "fte extensions."
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_FTE2",
+      "ast": {
+        "kind": "protocol_version",
+        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( '2' << 24 ) )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 30,
+        "trailing_comment": "fte extensions."
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_MVD1",
+      "ast": {
+        "kind": "protocol_version",
+        "value": "( ( 'M' << 0 ) + ( 'V' << 8 ) + ( 'D' << 16 ) + ( '1' << 24 ) )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 31,
+        "trailing_comment": "mvdsv extensions"
+      }
+    },
+    {
+      "name": "svc_bad",
+      "ast": {
+        "kind": "svc",
+        "value": "0",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 159,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_bigkick",
+      "ast": {
+        "kind": "svc",
+        "value": "35",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 206,
+        "trailing_comment": "set client punchangle to 4"
+      }
+    },
+    {
+      "name": "svc_cdtrack",
+      "ast": {
+        "kind": "svc",
+        "value": "32",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 200,
+        "trailing_comment": "[byte] track"
+      }
+    },
+    {
+      "name": "svc_centerprint",
+      "ast": {
+        "kind": "svc",
+        "value": "26",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 190,
+        "trailing_comment": "[string] to put in center of the screen"
+      }
+    },
+    {
+      "name": "svc_chokecount",
+      "ast": {
+        "kind": "svc",
+        "value": "44",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 221,
+        "trailing_comment": "[byte] packets choked"
+      }
+    },
+    {
+      "name": "svc_damage",
+      "ast": {
+        "kind": "svc",
+        "value": "19",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 180,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_deltapacketentities",
+      "ast": {
+        "kind": "svc",
+        "value": "48",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 225,
+        "trailing_comment": "[...]"
+      }
+    },
+    {
+      "name": "svc_disconnect",
+      "ast": {
+        "kind": "svc",
+        "value": "2",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 161,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_download",
+      "ast": {
+        "kind": "svc",
+        "value": "41",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 218,
+        "trailing_comment": "[short] size [size bytes]"
+      }
+    },
+    {
+      "name": "svc_entgravity",
+      "ast": {
+        "kind": "svc",
+        "value": "50",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 227,
+        "trailing_comment": "gravity change, for prediction"
+      }
+    },
+    {
+      "name": "svc_finale",
+      "ast": {
+        "kind": "svc",
+        "value": "31",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 198,
+        "trailing_comment": "[string] text"
+      }
+    },
+    {
+      "name": "svc_foundsecret",
+      "ast": {
+        "kind": "svc",
+        "value": "28",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 193,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_fte_csqcentities",
+      "ast": {
+        "kind": "svc",
+        "value": "76",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 239,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_fte_modellistshort",
+      "ast": {
+        "kind": "svc",
+        "value": "60",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 234,
+        "trailing_comment": "[strings]"
+      }
+    },
+    {
+      "name": "svc_fte_spawnbaseline2",
+      "ast": {
+        "kind": "svc",
+        "value": "66",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 237,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_fte_spawnstatic2",
+      "ast": {
+        "kind": "svc",
+        "value": "21",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 183,
+        "trailing_comment": "@!@!@!"
+      }
+    },
+    {
+      "name": "svc_fte_voicechat",
+      "ast": {
+        "kind": "svc",
+        "value": "84",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 244,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_intermission",
+      "ast": {
+        "kind": "svc",
+        "value": "30",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 197,
+        "trailing_comment": "[vec3_t] origin [vec3_t] angle"
+      }
+    },
+    {
+      "name": "svc_killedmonster",
+      "ast": {
+        "kind": "svc",
+        "value": "27",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 192,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_lightstyle",
+      "ast": {
+        "kind": "svc",
+        "value": "12",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 173,
+        "trailing_comment": "[byte] [string]"
+      }
+    },
+    {
+      "name": "svc_maxspeed",
+      "ast": {
+        "kind": "svc",
+        "value": "49",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 226,
+        "trailing_comment": "maxspeed change, for prediction"
+      }
+    },
+    {
+      "name": "svc_modellist",
+      "ast": {
+        "kind": "svc",
+        "value": "45",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 222,
+        "trailing_comment": "[strings]"
+      }
+    },
+    {
+      "name": "svc_muzzleflash",
+      "ast": {
+        "kind": "svc",
+        "value": "39",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 213,
+        "trailing_comment": "[short] entity"
+      }
+    },
+    {
+      "name": "svc_nails",
+      "ast": {
+        "kind": "svc",
+        "value": "43",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 220,
+        "trailing_comment": "[byte] num [48 bits] xyzpy 12 12 12 4 8"
+      }
+    },
+    {
+      "name": "svc_nails2",
+      "ast": {
+        "kind": "svc",
+        "value": "54",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 231,
+        "trailing_comment": "[byte] num [52 bits] nxyzpy 8 12 12 12 4 8"
+      }
+    },
+    {
+      "name": "svc_nop",
+      "ast": {
+        "kind": "svc",
+        "value": "1",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 160,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_packetentities",
+      "ast": {
+        "kind": "svc",
+        "value": "47",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 224,
+        "trailing_comment": "[...]"
+      }
+    },
+    {
+      "name": "svc_playerinfo",
+      "ast": {
+        "kind": "svc",
+        "value": "42",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 219,
+        "trailing_comment": "variable"
+      }
+    },
+    {
+      "name": "svc_print",
+      "ast": {
+        "kind": "svc",
+        "value": "8",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 167,
+        "trailing_comment": "[byte] id [string] null terminated string"
+      }
+    },
+    {
+      "name": "svc_qizmovoice",
+      "ast": {
+        "kind": "svc",
+        "value": "83",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 241,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_sellscreen",
+      "ast": {
+        "kind": "svc",
+        "value": "33",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 201,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_serverdata",
+      "ast": {
+        "kind": "svc",
+        "value": "11",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 172,
+        "trailing_comment": "[long] protocol ..."
+      }
+    },
+    {
+      "name": "svc_serverinfo",
+      "ast": {
+        "kind": "svc",
+        "value": "52",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 229,
+        "trailing_comment": "serverinfo"
+      }
+    },
+    {
+      "name": "svc_setangle",
+      "ast": {
+        "kind": "svc",
+        "value": "10",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 170,
+        "trailing_comment": "[angle3] set the view angle to this absolute value"
+      }
+    },
+    {
+      "name": "svc_setinfo",
+      "ast": {
+        "kind": "svc",
+        "value": "51",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 228,
+        "trailing_comment": "setinfo on a client"
+      }
+    },
+    {
+      "name": "svc_setpause",
+      "ast": {
+        "kind": "svc",
+        "value": "24",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 187,
+        "trailing_comment": "[byte] on / off"
+      }
+    },
+    {
+      "name": "svc_smallkick",
+      "ast": {
+        "kind": "svc",
+        "value": "34",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 205,
+        "trailing_comment": "set client punchangle to 2"
+      }
+    },
+    {
+      "name": "svc_sound",
+      "ast": {
+        "kind": "svc",
+        "value": "6",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 165,
+        "trailing_comment": "<see code>"
+      }
+    },
+    {
+      "name": "svc_soundlist",
+      "ast": {
+        "kind": "svc",
+        "value": "46",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 223,
+        "trailing_comment": "[strings]"
+      }
+    },
+    {
+      "name": "svc_spawnbaseline",
+      "ast": {
+        "kind": "svc",
+        "value": "22",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 184,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_spawnstatic",
+      "ast": {
+        "kind": "svc",
+        "value": "20",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 182,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "svc_spawnstaticsound",
+      "ast": {
+        "kind": "svc",
+        "value": "29",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 195,
+        "trailing_comment": "[coord3] [byte] samp [byte] vol [byte] aten"
+      }
+    },
+    {
+      "name": "svc_stopsound",
+      "ast": {
+        "kind": "svc",
+        "value": "16",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 177,
+        "trailing_comment": "<see code>"
+      }
+    },
+    {
+      "name": "svc_stufftext",
+      "ast": {
+        "kind": "svc",
+        "value": "9",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 168,
+        "trailing_comment": "[string] stuffed into client's console buffer"
+      }
+    },
+    {
+      "name": "svc_temp_entity",
+      "ast": {
+        "kind": "svc",
+        "value": "23",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 186,
+        "trailing_comment": "variable"
+      }
+    },
+    {
+      "name": "svc_updateentertime",
+      "ast": {
+        "kind": "svc",
+        "value": "37",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 209,
+        "trailing_comment": "[byte] [float]"
+      }
+    },
+    {
+      "name": "svc_updatefrags",
+      "ast": {
+        "kind": "svc",
+        "value": "14",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 175,
+        "trailing_comment": "[byte] [short]"
+      }
+    },
+    {
+      "name": "svc_updateping",
+      "ast": {
+        "kind": "svc",
+        "value": "36",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 208,
+        "trailing_comment": "[byte] [short]"
+      }
+    },
+    {
+      "name": "svc_updatepl",
+      "ast": {
+        "kind": "svc",
+        "value": "53",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 230,
+        "trailing_comment": "[byte] [byte]"
+      }
+    },
+    {
+      "name": "svc_updatestat",
+      "ast": {
+        "kind": "svc",
+        "value": "3",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 162,
+        "trailing_comment": "[byte] [byte]"
+      }
+    },
+    {
+      "name": "svc_updatestatlong",
+      "ast": {
+        "kind": "svc",
+        "value": "38",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 211,
+        "trailing_comment": "[byte] [long]"
+      }
+    },
+    {
+      "name": "svc_updateuserinfo",
+      "ast": {
+        "kind": "svc",
+        "value": "40",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 215,
+        "trailing_comment": "[byte] slot [long] uid"
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 5145,
+    "count": 105,
+    "by_kind": {
+      "clc": 20,
+      "nq": 9,
+      "pext_fte": 12,
+      "pext_mvd": 8,
+      "protocol_version": 4,
+      "svc": 52
+    },
+    "by_value_kind": {
+      "integer": 83,
+      "hex": 12,
+      "none": 1,
+      "bitshift": 5,
+      "expression": 4
+    },
+    "with_trailing_comment": 83
+  }
+}

@@ -79,10 +79,12 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_cvars import CvarsMvdsvHandler
     from _handler_commands import CommandsMvdsvHandler
     from _handler_cmdline import CmdlineMvdsvHandler
+    from _handler_protocol import ProtocolMvdsvHandler
     available: dict = {
         "cvars": CvarsMvdsvHandler(),
         "commands": CommandsMvdsvHandler(),
         "cmdline": CmdlineMvdsvHandler(),
+        "protocol": ProtocolMvdsvHandler(),
     }
     if names == "all":
         return available
