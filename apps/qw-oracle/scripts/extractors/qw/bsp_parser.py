@@ -155,6 +155,12 @@ def _normalize_health_counts(entities: list[dict[str, str]]) -> tuple[int, int, 
     return mh, h25, h15
 
 
+def _clean_message(raw: str) -> str:
+    """Strip BSP escape sequences (\\n / \\r / \\t literals) and collapse whitespace."""
+    unescaped = raw.replace('\\n', ' ').replace('\\r', ' ').replace('\\t', ' ')
+    return re.sub(r'\s+', ' ', unescaped).strip()
+
+
 def _heuristic_author(message: str | None) -> str | None:
     """Best-effort author extraction from worldspawn.message (e.g. 'Bravado - by foogs [remake]').
 
@@ -233,21 +239,22 @@ def summarize_map(bsp_path: Path) -> dict[str, Any]:
         'has_slime': any('slime' in n.lower() for n in star_textures),
     }
 
-    # Worldspawn payload: drop classname (redundant), keep everything else verbatim.
-    ws_payload = {k: v for k, v in worldspawn.items() if k != 'classname'}
-
     canonical_name = bsp_path.stem.lower()
     # Normalize message text. BSP entity lump stores newline as the LITERAL two
     # chars '\' + 'n' (not 0x0A) -- e.g. "Schloss Adler \n\nby Zaka\n". Replace
     # those + real whitespace runs with a single space so display_name renders
-    # cleanly in MCP output and the author heuristic sees a clean token.
+    # cleanly in MCP output and the author heuristic sees a clean token. Other
+    # worldspawn keys (wad, _sun_mangle, etc.) keep whitespace verbatim because
+    # it carries meaning there.
     raw_message = worldspawn.get('message')
-    if raw_message:
-        unescaped = raw_message.replace('\\n', ' ').replace('\\r', ' ').replace('\\t', ' ')
-        display_name = re.sub(r'\s+', ' ', unescaped).strip()
-    else:
-        display_name = None
+    display_name = _clean_message(raw_message) if raw_message else None
     author = _heuristic_author(display_name)
+
+    # Worldspawn payload: drop classname (redundant); rewrite message with the
+    # cleaned form so the raw dump matches display_name.
+    ws_payload = {k: v for k, v in worldspawn.items() if k != 'classname'}
+    if display_name is not None:
+        ws_payload['message'] = display_name
 
     return {
         'canonical_name': canonical_name,

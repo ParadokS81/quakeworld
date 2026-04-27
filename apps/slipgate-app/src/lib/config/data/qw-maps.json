@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-27T11:01:03.139Z",
-  "oracle_commit": "f88afdfa7bbb9477770657079011f3d124734aae",
+  "generated_at": "2026-04-27T11:25:20.212Z",
+  "oracle_commit": "9a26b424f1dce1ed8ad2fc5a84b78752b3848778",
   "knowledge_db_schema_version": 13,
   "project": "qw",
   "version": "static",
@@ -15,7 +15,7 @@
       "bsp_size_bytes": 400060,
       "bsp_sha256": "56d75f60a05b4d2cf2b33cb8eb407613ad2a58223bca59027a9e042b74923368",
       "worldspawn": {
-        "message": "So you want to bunny? by zedii\\n(unfreeze map by typing freeze)"
+        "message": "So you want to bunny? by zedii (unfreeze map by typing freeze)"
       },
       "entity_count": 143,
       "class_counts": {
@@ -73,7 +73,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/2bfree.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "a2",
@@ -162,7 +162,7 @@
       "popularity_rank": 23,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/a2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "aerowalk",
@@ -252,7 +252,7 @@
       "popularity_rank": 4,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/aerowalk.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "aerowalk2020",
@@ -340,7 +340,7 @@
       "popularity_rank": 131,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/aerowalk2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "amphi",
@@ -415,7 +415,7 @@
       "popularity_rank": 25,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/amphi.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "analog",
@@ -534,7 +534,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/analog.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "anarena",
@@ -617,7 +617,7 @@
       "popularity_rank": 146,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/anarena.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "anruin",
@@ -697,7 +697,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/anruin.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "antemple",
@@ -772,7 +772,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/antemple.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "arena3",
@@ -783,7 +783,7 @@
       "bsp_size_bytes": 156872,
       "bsp_sha256": "6758786d6cae488aa73c0bc616ae75f350fa66e469bc6580880fb872b4dbf90e",
       "worldspawn": {
-        "message": "Terrain  : by Drastic_Man",
+        "message": "Terrain : by Drastic_Man",
         "worldtype": "0",
         "sounds": "-1",
         "light": "0"
@@ -846,7 +846,7 @@
       "popularity_rank": 87,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/arena3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "arena5",
@@ -923,7 +923,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/arena5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "arenax",
@@ -995,7 +995,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/arenax.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ava",
@@ -1097,7 +1097,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ava.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "barrel",
@@ -1186,7 +1186,7 @@
       "popularity_rank": 48,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/barrel.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "blessed",
@@ -1273,7 +1273,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/blessed.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "bloodfest",
@@ -1340,7 +1340,7 @@
       "popularity_rank": 26,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/bloodfest.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "bloodrun2020",
@@ -1429,7 +1429,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/bloodrun2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "boom",
@@ -1512,7 +1512,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/boom.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "bravado",
@@ -1626,7 +1626,7 @@
       "popularity_rank": 9,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/bravado.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "bravado2020",
@@ -1733,7 +1733,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/bravado2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "bsdm6",
@@ -1824,7 +1824,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/bsdm6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "capit",
@@ -1911,7 +1911,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/capit.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "catalyst",
@@ -2006,7 +2006,7 @@
       "popularity_rank": 27,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/catalyst.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "catwalk2",
@@ -2017,7 +2017,7 @@
       "bsp_size_bytes": 1581440,
       "bsp_sha256": "3575d033256b76161603686318cecb49d40d34620985cc18a5ed07a5d75b02ef",
       "worldspawn": {
-        "message": "The Catwalk \\n\\nversion: 2\\nModified by: zanne"
+        "message": "The Catwalk version: 2 Modified by: zanne"
       },
       "entity_count": 76,
       "class_counts": {
@@ -2090,7 +2090,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/catwalk2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "claustrophobopolis2020",
@@ -2183,7 +2183,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/claustrophobopolis2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cmt1b",
@@ -2197,7 +2197,7 @@
         "worldtype": "1",
         "sounds": "1",
         "light": "30",
-        "message": "Silverdome\\n\\nby Zaka\\n\\n"
+        "message": "Silverdome by Zaka"
       },
       "entity_count": 524,
       "class_counts": {
@@ -2279,7 +2279,7 @@
       "popularity_rank": 114,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cmt1b.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cmt2",
@@ -2292,7 +2292,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "80",
-        "message": "the Sacrifice\\nby Gromm",
+        "message": "the Sacrifice by Gromm",
         "wad": "textures.wad;c:\\!worldcraft\\newwad1.wad;c:\\!worldcraft\\neh.wad;c:\\!worldcraft\\newwad.wad;"
       },
       "entity_count": 115,
@@ -2373,7 +2373,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cmt2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cmt3",
@@ -2470,7 +2470,7 @@
       "popularity_rank": 63,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cmt3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cmt4",
@@ -2568,7 +2568,7 @@
       "popularity_rank": 30,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cmt4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cmt5b",
@@ -2665,7 +2665,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cmt5b.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cpm1qw",
@@ -2676,7 +2676,7 @@
       "bsp_size_bytes": 948896,
       "bsp_sha256": "10cf93054919273d1ff5a5fb361c603eefa48af9f89f19cbd34425091224200a",
       "worldspawn": {
-        "message": "WickedbySamoN (original by FxR|Jude)",
+        "message": "Wicked by SamoN (original by FxR|Jude)",
         "wad": "gfx/QuArK.wad"
       },
       "entity_count": 394,
@@ -2750,7 +2750,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cpm1qw.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cpm3a",
@@ -2835,7 +2835,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cpm3a.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "cpm3qw",
@@ -2848,7 +2848,7 @@
       "worldspawn": {
         "wad": "TEXTURES.wad",
         "light": "60",
-        "message": "Jude's CPM3 for QW\\nBy Povo-Hat"
+        "message": "Jude's CPM3 for QW By Povo-Hat"
       },
       "entity_count": 131,
       "class_counts": {
@@ -2921,7 +2921,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/cpm3qw.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf1",
@@ -3023,7 +3023,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2",
@@ -3115,7 +3115,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m1",
@@ -3219,7 +3219,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m2",
@@ -3321,7 +3321,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m3",
@@ -3417,7 +3417,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m4",
@@ -3513,7 +3513,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m5",
@@ -3626,7 +3626,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m6",
@@ -3723,7 +3723,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m7",
@@ -3827,7 +3827,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m7.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf2m8",
@@ -3920,7 +3920,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf2m8.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf3",
@@ -4021,7 +4021,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf4",
@@ -4118,7 +4118,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf5",
@@ -4215,7 +4215,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf6",
@@ -4316,7 +4316,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf7",
@@ -4418,7 +4418,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf7.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctf8",
@@ -4514,7 +4514,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctf8.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ctl8",
@@ -4609,7 +4609,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ctl8.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dad",
@@ -4622,7 +4622,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "10",
-        "message": "Dad`s Playground\\n",
+        "message": "Dad`s Playground",
         "_sunlight2": "30",
         "_sunlight": "1",
         "wad": "c:\\pelit\\quake\\bsp2wad\\painmon1.wad"
@@ -4698,7 +4698,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dad.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dad2",
@@ -4712,7 +4712,7 @@
         "angle": "200",
         "sounds": "1",
         "light": "10",
-        "message": "Dad`s Playground 2\\n",
+        "message": "Dad`s Playground 2",
         "_sunlight": "90",
         "_sunlight2": "30",
         "_sun_mangle": "200 -75 0",
@@ -4796,7 +4796,7 @@
       "popularity_rank": 110,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dad2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "death32c",
@@ -4898,7 +4898,7 @@
       "popularity_rank": 55,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/death32c.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "death6",
@@ -4990,7 +4990,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/death6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "debello",
@@ -5086,7 +5086,7 @@
       "popularity_rank": 68,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/debello.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "del1",
@@ -5167,7 +5167,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/del1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm1",
@@ -5260,7 +5260,7 @@
       "popularity_rank": 118,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm2",
@@ -5358,7 +5358,7 @@
       "popularity_rank": 5,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm2dmm4",
@@ -5441,7 +5441,7 @@
       "popularity_rank": 13,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm2dmm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm3",
@@ -5542,7 +5542,7 @@
       "popularity_rank": 10,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm3hill",
@@ -5619,7 +5619,7 @@
       "popularity_rank": 57,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm3hill.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm4",
@@ -5716,7 +5716,7 @@
       "popularity_rank": 3,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm4dmm4",
@@ -5795,7 +5795,7 @@
       "popularity_rank": 117,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm4dmm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm4ish",
@@ -5886,7 +5886,7 @@
       "popularity_rank": 62,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm4ish.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm5",
@@ -5983,7 +5983,7 @@
       "popularity_rank": 133,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm5a",
@@ -6075,7 +6075,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm5a.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm6",
@@ -6173,7 +6173,7 @@
       "popularity_rank": 7,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dm6dmm4",
@@ -6251,7 +6251,7 @@
       "popularity_rank": 91,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dm6dmm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dmm4_1",
@@ -6324,7 +6324,7 @@
       "popularity_rank": 42,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dmm4_1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dmz1%2b%2b",
@@ -6422,7 +6422,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dmz1%2B%2B.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "doomed",
@@ -6436,7 +6436,7 @@
         "worldtype": "2",
         "sounds": "1",
         "light": "10",
-        "message": "Doomed\\nby Zaka\\n\\n",
+        "message": "Doomed by Zaka",
         "wad": "c:\\pelit\\quake\\bsp2wad\\doomars3.wad"
       },
       "entity_count": 184,
@@ -6514,7 +6514,7 @@
       "popularity_rank": 99,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/doomed.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dropout",
@@ -6608,7 +6608,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dropout.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "dungeonsurf",
@@ -6682,7 +6682,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/dungeonsurf.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m1",
@@ -6793,7 +6793,7 @@
       "popularity_rank": 138,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m2",
@@ -6910,7 +6910,7 @@
       "popularity_rank": 14,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m3",
@@ -7025,7 +7025,7 @@
       "popularity_rank": 159,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m4",
@@ -7144,7 +7144,7 @@
       "popularity_rank": 195,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m5",
@@ -7262,7 +7262,7 @@
       "popularity_rank": 61,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m6",
@@ -7371,7 +7371,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m7",
@@ -7474,7 +7474,7 @@
       "popularity_rank": 56,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e1m8",
@@ -7575,7 +7575,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m1",
@@ -7689,7 +7689,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m2",
@@ -7807,7 +7807,7 @@
       "popularity_rank": 78,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m2tdm",
@@ -7820,7 +7820,7 @@
       "worldspawn": {
         "worldtype": "0",
         "sounds": "8",
-        "message": "the Ogre Citadel\\n\\nTDM edition by Qurnel",
+        "message": "the Ogre Citadel TDM edition by Qurnel",
         "wad": "d:\\qstuff\\qwads\\single.wad;d:\\qstuff\\qwads\\q3texpak.wad;d:\\qstuff\\qwads\\scrap.wad;d:\\qstuff\\qwads\\ukpak3.wad;d:\\qstuff\\"
       },
       "entity_count": 222,
@@ -7913,7 +7913,7 @@
       "popularity_rank": 120,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/e2m2tdm.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m3",
@@ -8026,7 +8026,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m4",
@@ -8140,7 +8140,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m5",
@@ -8250,7 +8250,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m6",
@@ -8363,7 +8363,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e2m7",
@@ -8484,7 +8484,7 @@
       "popularity_rank": 144,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m1",
@@ -8600,7 +8600,7 @@
       "popularity_rank": 127,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m2",
@@ -8710,7 +8710,7 @@
       "popularity_rank": 143,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m3",
@@ -8819,7 +8819,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m4",
@@ -8929,7 +8929,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m5",
@@ -9038,7 +9038,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m6",
@@ -9154,7 +9154,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e3m7",
@@ -9265,7 +9265,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m1",
@@ -9380,7 +9380,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m2",
@@ -9491,7 +9491,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m3",
@@ -9609,7 +9609,7 @@
       "popularity_rank": 51,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m4",
@@ -9726,7 +9726,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m5",
@@ -9843,7 +9843,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m6",
@@ -9961,7 +9961,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m7",
@@ -10081,7 +10081,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "e4m8",
@@ -10196,7 +10196,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "end",
@@ -10305,7 +10305,7 @@
       "popularity_rank": 2,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "endif",
@@ -10382,7 +10382,7 @@
       "popularity_rank": 8,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/endif.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "escape2a",
@@ -10454,7 +10454,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/escape2a.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "fabrik",
@@ -10558,7 +10558,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/fabrik.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "fmc",
@@ -10646,7 +10646,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/fmc.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "four",
@@ -10742,7 +10742,7 @@
       "popularity_rank": 37,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/four.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "fragyard",
@@ -10824,7 +10824,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/fragyard.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "frenzy",
@@ -10912,7 +10912,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/frenzy.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "frobodm2",
@@ -11003,7 +11003,7 @@
       "popularity_rank": 50,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/frobodm2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "genocide",
@@ -11089,7 +11089,7 @@
       "popularity_rank": 101,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/genocide.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "gym",
@@ -11178,7 +11178,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/gym.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hammerv3",
@@ -11252,7 +11252,7 @@
       "popularity_rank": 31,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hammerv3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hate",
@@ -11343,7 +11343,7 @@
       "popularity_rank": 192,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hate.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "head",
@@ -11425,7 +11425,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/head.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "head-shot",
@@ -11436,7 +11436,7 @@
       "bsp_size_bytes": 1151628,
       "bsp_sha256": "dec636c339e57da32001a388d68dddf16e1d5c73e4a5b0241d5b651ce214e877",
       "worldspawn": {
-        "message": "Head Shot - By Tiddles  (thanks for the help - buffy, iced, fucu, and bain)",
+        "message": "Head Shot - By Tiddles (thanks for the help - buffy, iced, fucu, and bain)",
         "wad": "d:\\games2\\quake\\new folder\\texs.wad;d:\\games2\\quake\\new folder\\fatal blow.wad;d:\\games2\\quake\\new folder\\pdm1.wad;d:\\ga"
       },
       "entity_count": 184,
@@ -11519,7 +11519,7 @@
       "popularity_rank": 44,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/head-shot.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hex",
@@ -11617,7 +11617,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hex.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hippos",
@@ -11694,7 +11694,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hippos.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hohoho",
@@ -11786,7 +11786,7 @@
       "popularity_rank": 94,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hohoho.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hook",
@@ -11799,7 +11799,7 @@
       "worldspawn": {
         "sounds": "10",
         "light": "0",
-        "message": "Hook in Mouth   by Vondur",
+        "message": "Hook in Mouth by Vondur",
         "worldtype": "2",
         "wad": "d:\\wads\\quake.wad;d:\\wads\\quake2.wad;d:\\wads\\zerstorer.wad;d:\\wads\\hookbw.wad"
       },
@@ -11897,7 +11897,7 @@
       "popularity_rank": 52,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hook.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "hoppa2",
@@ -11972,7 +11972,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/hoppa2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ht_almostlost",
@@ -11996,7 +11996,7 @@
         "_sunlight_color": ".9 1 .8",
         "_sunlight_color2": ".9 1 .7",
         "_sunlight_color3": "1 .6 .2",
-        "message": "Almost Lost - by ID Software\\n\\n Project Q1Q3 - HammerTime edition\\n QW conversion by Mick and Lurq\\n",
+        "message": "Almost Lost - by ID Software Project Q1Q3 - HammerTime edition QW conversion by Mick and Lurq",
         "wad": "q1q3lurq.wad"
       },
       "entity_count": 152,
@@ -12076,7 +12076,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ht_almostlost.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "italy_beta1",
@@ -12174,7 +12174,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/italy_beta1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqdf1",
@@ -12245,7 +12245,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqdf1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqdf2",
@@ -12321,7 +12321,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqdf2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqdf3",
@@ -12392,7 +12392,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqdf3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqfs1",
@@ -12464,7 +12464,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqfs1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqfs2",
@@ -12538,7 +12538,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqfs2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqfs3",
@@ -12610,7 +12610,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqfs3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "jqrace1",
@@ -12681,7 +12681,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/jqrace1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "kenya",
@@ -12765,7 +12765,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/kenya.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "kjdm7",
@@ -12845,7 +12845,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/kjdm7.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "leaks",
@@ -12935,7 +12935,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/leaks.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "maphub_v1",
@@ -12952,7 +12952,7 @@
         "_dirt": "1",
         "_generator": "J.A.C.K. 1.1.1064 (vpQuake)",
         "mapversion": "220",
-        "message": "maphub \u0005 September 2020 \u0005 by bps \\nforum thread: https://www.quakeworld.nu/forum/topic/7523/109278",
+        "message": "maphub \u0005 September 2020 \u0005 by bps forum thread: https://www.quakeworld.nu/forum/topic/7523/109278",
         "sounds": "4",
         "wad": "/Users/cedjn/Dropbox/QW/qwMapping/s8-16.wad;/Users/cedjn/Dropbox/QW/qwMapping/Q-newtest.wad;/Users/cedjn/Dropbox/QW/qwMapping/quake_map_source/id1_complete_wads/JR_MED.WAD",
         "worldtype": "0"
@@ -13029,7 +13029,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/maphub_v1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "mirage_beta1",
@@ -13158,7 +13158,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/mirage_beta1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "monsoon",
@@ -13171,7 +13171,7 @@
       "worldspawn": {
         "_sunlight_mangle": "270 -60",
         "angle": "90",
-        "message": "Monsoon by Lukin (xtn's remix) // Q1 Conversion by Mick // Modification for Thunderdome ",
+        "message": "Monsoon by Lukin (xtn's remix) // Q1 Conversion by Mick // Modification for Thunderdome",
         "_sunlight": "200"
       },
       "entity_count": 277,
@@ -13250,7 +13250,7 @@
       "popularity_rank": 32,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/monsoon.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "mvdsv-kg",
@@ -13331,7 +13331,7 @@
       "popularity_rank": 175,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/mvdsv-kg.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "nacmidair",
@@ -13403,7 +13403,7 @@
       "popularity_rank": 17,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/nacmidair.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ninerooms",
@@ -13415,7 +13415,7 @@
       "bsp_sha256": "500b61cefbf6623622737bd3622fc8acb02b55dd7aa00bf0583b3cb4ed928a0c",
       "worldspawn": {
         "wad": "c:\\spel\\nQuake\\id1\\q3base.wad;c:\\spel\\nQuake\\id1\\idbase_mega.wad;c:\\spel\\nQuake\\id1\\phex.wad",
-        "message": "ninerooms, by phex (2013)\\nRules:\\n1. Use only weapons available to that room.\\n2. Godmode.\\n3. Infinite ammo."
+        "message": "ninerooms, by phex (2013) Rules: 1. Use only weapons available to that room. 2. Godmode. 3. Infinite ammo."
       },
       "entity_count": 330,
       "class_counts": {
@@ -13482,7 +13482,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ninerooms.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "noentry",
@@ -13558,7 +13558,7 @@
       "popularity_rank": 39,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/noentry.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "obsidian",
@@ -13583,7 +13583,7 @@
         "_sunlight_color2": "180 255 255",
         "_sunlight_color3": "96 255 160",
         "_sunlight_penumbra": "8",
-        "message": "Obsidian\\nby queen*\\n\\n Layout and Geometry by queen*\\n Texturing and Polish by lurq ",
+        "message": "Obsidian by queen* Layout and Geometry by queen* Texturing and Polish by lurq",
         "wad": "C:/Games/nQuake/qw/maps/WADs/obsidian.wad"
       },
       "entity_count": 158,
@@ -13661,7 +13661,7 @@
       "popularity_rank": 172,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/obsidian.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "oldcrat",
@@ -13672,7 +13672,7 @@
       "bsp_size_bytes": 199980,
       "bsp_sha256": "8974eb90cb0b978abc14f239f1b9e9dfdd8dfbbda7d5a4ac6d7489376e621604",
       "worldspawn": {
-        "message": "Old Crater",
+        "message": "Old Crater",
         "worldtype": "0"
       },
       "entity_count": 107,
@@ -13735,7 +13735,7 @@
       "popularity_rank": 35,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/oldcrat.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "outpost",
@@ -13809,7 +13809,7 @@
       "popularity_rank": 22,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/outpost.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "oxid",
@@ -13900,7 +13900,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/oxid.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "panzer",
@@ -13996,7 +13996,7 @@
       "popularity_rank": 75,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/panzer.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pdm18",
@@ -14076,7 +14076,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pdm18.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pillar",
@@ -14163,7 +14163,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pillar.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pkeg",
@@ -14174,7 +14174,7 @@
       "bsp_size_bytes": 461120,
       "bsp_sha256": "db89088137141d2fd1b2c26ed004359f15ab69b33f84c823ce75295acab41e79",
       "worldspawn": {
-        "message": "powder keg\\nby Mr\u000fÆribbleÓ\u0010 modified by qurnel\\nèôôðº¯¯÷÷÷®ðìáîåôñõáëå®ãïí¯æòéâ¯",
+        "message": "powder keg by Mr\u000fÆribbleÓ\u0010 modified by qurnel èôôðº¯¯÷÷÷®ðìáîåôñõáëå®ãïí¯æòéâ¯",
         "wad": "\\qstuff\\qwads\\a\\textures.hlwad;\\qstuff\\qwads\\b\\q3texpak.hlwad;\\qstuff\\qwads\\b\\ukpak3.hlwad;\\qstuff\\qwads\\b\\cr8_set.hlwa"
       },
       "entity_count": 127,
@@ -14253,7 +14253,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pkeg.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pkeg1",
@@ -14266,7 +14266,7 @@
       "worldspawn": {
         "worldtype": "0",
         "sounds": "0",
-        "message": "powder keg\\nby Mr\u000fÆribbleÓ\u0010\\nèôôðº¯¯÷÷÷®ðìáîåôñõáëå®ãïí¯æòéâ¯",
+        "message": "powder keg by Mr\u000fÆribbleÓ\u0010 èôôðº¯¯÷÷÷®ðìáîåôñõáëå®ãïí¯æòéâ¯",
         "spawnflags": "0",
         "wad": "Wads\\fribdev1.wad"
       },
@@ -14349,7 +14349,7 @@
       "popularity_rank": 15,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pkeg1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pm4",
@@ -14438,7 +14438,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pound",
@@ -14521,7 +14521,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pound.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "povdmm4",
@@ -14534,7 +14534,7 @@
       "worldspawn": {
         "worldtype": "1",
         "sounds": "0",
-        "message": "DMM4 Arena\\nBy Povo-Hat (http://povo-hat.besmella-quake.com)\\n"
+        "message": "DMM4 Arena By Povo-Hat (http://povo-hat.besmella-quake.com)"
       },
       "entity_count": 26,
       "class_counts": {
@@ -14597,7 +14597,7 @@
       "popularity_rank": 1,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/povdmm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "povdmm4b",
@@ -14610,7 +14610,7 @@
       "worldspawn": {
         "worldtype": "1",
         "sounds": "0",
-        "message": "DMM4 Arena\\nLG-Only Povo-Hat by Zedii"
+        "message": "DMM4 Arena LG-Only Povo-Hat by Zedii"
       },
       "entity_count": 16,
       "class_counts": {
@@ -14669,7 +14669,7 @@
       "popularity_rank": 16,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/povdmm4b.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "pushdmm4",
@@ -14681,7 +14681,7 @@
       "bsp_sha256": "ae97917d20aaab2dd573a72c46c8c8cdbcfda468d7e14d53676d1b309350eafe",
       "worldspawn": {
         "wad": "id1/textures.wad",
-        "message": "DMM4 Skeet Shoot\\nPovo-Hat"
+        "message": "DMM4 Skeet Shoot Povo-Hat"
       },
       "entity_count": 36,
       "class_counts": {
@@ -14745,7 +14745,7 @@
       "popularity_rank": 69,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/pushdmm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1dm17",
@@ -14839,7 +14839,7 @@
       "popularity_rank": 107,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1dm17.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3almostlost",
@@ -14854,7 +14854,7 @@
         "_sun_mangle": "270 -60",
         "_sunlight": "180",
         "wad": "q3tools.wad;qltex1.wad;qltex2.wad;qltex3.wad;q3base.wad;q3gothic.wad;q3other.wad",
-        "message": "Almost Lost - by ID Software\\n\\nProject Q1Q3\\nQW conversion by Mick 2014\\nqw.nu/forum/topic/6152"
+        "message": "Almost Lost - by ID Software Project Q1Q3 QW conversion by Mick 2014 qw.nu/forum/topic/6152"
       },
       "entity_count": 278,
       "class_counts": {
@@ -14939,7 +14939,7 @@
       "popularity_rank": 196,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3almostlost.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3cpm4_beta4",
@@ -15026,7 +15026,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3cpm4_beta4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3evolution_beta2",
@@ -15038,7 +15038,7 @@
       "bsp_sha256": "68d8951268b2a78597d2cb176332b381d715111c78b463ea7b46dd1953267195",
       "worldspawn": {
         "wad": "\\games\\quakeworld\\#mapeditor\\#other editors\\worldcraft\\textures\\q3.hlwad;\\games\\quakeworld\\#mapeditor\\#other editors\\wo",
-        "message": "Evolution by Till Merker\\n\\nProject Q1Q3\\nQW conversion by Mick 2014\\nquakeworld.nu/forum/topic/6152",
+        "message": "Evolution by Till Merker Project Q1Q3 QW conversion by Mick 2014 quakeworld.nu/forum/topic/6152",
         "_sunlight": "150",
         "_sun_mangle": "270 -60 0"
       },
@@ -15113,7 +15113,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3evolution_beta2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3hektik",
@@ -15203,7 +15203,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3hektik.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3monsoon",
@@ -15291,7 +15291,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3monsoon.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3ospdm5",
@@ -15384,7 +15384,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3ospdm5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3phrantic",
@@ -15470,7 +15470,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3phrantic.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3solid",
@@ -15557,7 +15557,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3solid.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3thunderstruck",
@@ -15646,7 +15646,7 @@
       "popularity_rank": 183,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3thunderstruck.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3toxicity",
@@ -15660,7 +15660,7 @@
         "_sun_mangle": "270 -85",
         "_sunlight": "200",
         "angle": "90",
-        "message": "Toxicity by thefury\\n\\nQW conversion by Mick & Thuriam 2015-19\\n\\nquakeworld.nu/forum/topic/7316\\n\\nProject Q1Q3\\n\\nquakeworld.nu/forum/topic/6152",
+        "message": "Toxicity by thefury QW conversion by Mick & Thuriam 2015-19 quakeworld.nu/forum/topic/7316 Project Q1Q3 quakeworld.nu/forum/topic/6152",
         "wad": "C:/QuakeDev/wads/q3tools.wad;C:/QuakeDev/wads/toxicity.wad"
       },
       "entity_count": 199,
@@ -15734,7 +15734,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3toxicity.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q1q3vertical_beta5",
@@ -15833,7 +15833,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q1q3vertical_beta5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q3dm6ish",
@@ -15920,7 +15920,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q3dm6ish.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "q3dm6qw",
@@ -16012,7 +16012,7 @@
       "popularity_rank": 77,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/q3dm6qw.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "qcon1",
@@ -16024,7 +16024,7 @@
       "bsp_sha256": "a17ac88a01e747ff6c1f1786cd74c016a9fa4abaec982724270ab7ea13977061",
       "worldspawn": {
         "wad": "g1.wad",
-        "message": "Fragstar Deathmatch One\\nQuakeCon 97 Tournament Map\\nby Dennis Kaltwasser (headshot)"
+        "message": "Fragstar Deathmatch One QuakeCon 97 Tournament Map by Dennis Kaltwasser (headshot)"
       },
       "entity_count": 103,
       "class_counts": {
@@ -16098,7 +16098,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/qcon1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "qh",
@@ -16198,7 +16198,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/qh.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "qtdm3",
@@ -16303,7 +16303,7 @@
       "popularity_rank": 129,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/qtdm3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race1",
@@ -16371,7 +16371,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race10",
@@ -16448,7 +16448,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race10.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race11",
@@ -16525,7 +16525,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race11.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race12",
@@ -16600,7 +16600,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race12.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race13",
@@ -16691,7 +16691,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race13.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race14",
@@ -16766,7 +16766,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race14.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race15",
@@ -16781,7 +16781,7 @@
         "_sunlight": "300",
         "_sunlight2": "100",
         "mapversion": "220",
-        "message": "Abandoned Place by anni  (Febuary 2020) ",
+        "message": "Abandoned Place by anni (Febuary 2020)",
         "wad": "C:/Spiele/TrenchBroom-Win32-v2.0.5-Release/wads/chicosruin.wad;C:/Spiele/TrenchBroom-Win32-v2.0.5-Release/wads/skies.wad;C:/Spiele/TrenchBroom-Win32-v2.0.5-Release/wads/liquids.wad"
       },
       "entity_count": 50,
@@ -16844,7 +16844,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race15.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race2",
@@ -16912,7 +16912,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race3",
@@ -16980,7 +16980,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race4",
@@ -17048,7 +17048,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race5",
@@ -17116,7 +17116,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race6",
@@ -17184,7 +17184,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race7",
@@ -17252,7 +17252,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race7.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race8",
@@ -17320,7 +17320,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race8.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "race9",
@@ -17389,7 +17389,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/race9.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rampage",
@@ -17474,7 +17474,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rampage.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rampcity",
@@ -17548,7 +17548,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rampcity.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rawspeed",
@@ -17619,7 +17619,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rawspeed.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rf2test",
@@ -17719,7 +17719,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rf2test.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rj3",
@@ -17730,7 +17730,7 @@
       "bsp_size_bytes": 438636,
       "bsp_sha256": "1507e922ce8d5e2ea2dedf59f4d87f4981b5c31595cb86409103ca71dc446d40",
       "worldspawn": {
-        "message": "\\nÒïãëåôêõíð  âù Antimatter\\n\\n(Designed for localinfo rj 1)\\n",
+        "message": "Òïãëåôêõíð  âù Antimatter (Designed for localinfo rj 1)",
         "sounds": "5",
         "worldtype": "2"
       },
@@ -17793,7 +17793,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rj3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rocka",
@@ -17807,7 +17807,7 @@
         "_dirt": "1",
         "_sunlight": "40",
         "_sunlight_color": "134 139 208",
-        "message": "ROCK  - by alice",
+        "message": "ROCK - by alice",
         "wad": "C:/QuakeDev/wads/rock.wad;C:/QuakeDev/wads/fabrik.wad"
       },
       "entity_count": 417,
@@ -17889,7 +17889,7 @@
       "popularity_rank": 171,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rocka.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "rwild",
@@ -17987,7 +17987,7 @@
       "popularity_rank": 33,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/rwild.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "sacredb1",
@@ -18000,7 +18000,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "30",
-        "message": "Sacred (beta 1)\\n",
+        "message": "Sacred (beta 1)",
         "wad": "c:\\pelit\\quake\\bsp2wad\\pksac1.wad;c:\\pelit\\quake\\bsp2wad\\newcas2.wad"
       },
       "entity_count": 145,
@@ -18074,7 +18074,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/sacredb1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "scar",
@@ -18164,7 +18164,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/scar.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "scarlet",
@@ -18256,7 +18256,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/scarlet.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "schduel",
@@ -18271,7 +18271,7 @@
         "_sun_mangle": "338 -50 0",
         "_sunlight_color": "140 190 252",
         "_sunlight": "160",
-        "message": "Schloss Duel\\nby Zaka\\n",
+        "message": "Schloss Duel by Zaka",
         "sounds": "1",
         "light": "20"
       },
@@ -18354,7 +18354,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/schduel.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "schloss",
@@ -18367,7 +18367,7 @@
       "worldspawn": {
         "light": "20",
         "sounds": "1",
-        "message": "Schloss Adler \\n\\nby Zaka\\n",
+        "message": "Schloss Adler by Zaka",
         "_sunlight": "160",
         "_sunlight_color": "140 190 252",
         "_sun_mangle": "338 -50 0"
@@ -18451,7 +18451,7 @@
       "popularity_rank": 20,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/schloss.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "sew",
@@ -18535,7 +18535,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/sew.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "shifter",
@@ -18629,7 +18629,7 @@
       "popularity_rank": 21,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/shifter.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "shine",
@@ -18642,7 +18642,7 @@
       "worldspawn": {
         "worldtype": "0",
         "_sunlight": "80",
-        "message": "theshinebyúøã"
+        "message": "the shine by úøã"
       },
       "entity_count": 174,
       "class_counts": {
@@ -18719,7 +18719,7 @@
       "popularity_rank": 43,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/shine.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "skull",
@@ -18732,7 +18732,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "30",
-        "message": "Skull Hunt\\n\\nby Zaka\\n"
+        "message": "Skull Hunt by Zaka"
       },
       "entity_count": 88,
       "class_counts": {
@@ -18811,7 +18811,7 @@
       "popularity_rank": 12,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/skull.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide1",
@@ -18899,7 +18899,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide2",
@@ -18987,7 +18987,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide3",
@@ -19081,7 +19081,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide4",
@@ -19161,7 +19161,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide5",
@@ -19250,7 +19250,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide5.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide6",
@@ -19346,7 +19346,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide7",
@@ -19449,7 +19449,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide7.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide8",
@@ -19556,7 +19556,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide8.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slide9",
@@ -19642,7 +19642,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slide9.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "slstart",
@@ -19737,7 +19737,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/slstart.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "sm4",
@@ -19825,7 +19825,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/sm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "softbox",
@@ -19910,7 +19910,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/softbox.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "speed",
@@ -19973,7 +19973,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/speed.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "speedrush",
@@ -20075,7 +20075,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/speedrush.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "spinev2",
@@ -20087,7 +20087,7 @@
       "bsp_sha256": "394cfc3b2046f671fc776b75000a605ff9a9dad4fb69ac87d0cb9f2710ff82a5",
       "worldspawn": {
         "sounds": "0",
-        "message": "spine v2\\nqonference '98 tournament map\\nrev. 2.0\\nby headshot"
+        "message": "spine v2 qonference '98 tournament map rev. 2.0 by headshot"
       },
       "entity_count": 252,
       "class_counts": {
@@ -20166,7 +20166,7 @@
       "popularity_rank": 19,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/spinev2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "spitfire",
@@ -20265,7 +20265,7 @@
       "popularity_rank": 124,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/spitfire.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ssj",
@@ -20334,7 +20334,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ssj.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "start",
@@ -20445,7 +20445,7 @@
       "popularity_rank": 88,
       "notes": null,
       "source_bsp_url": "pak0/pak1 stock id1",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "subslide",
@@ -20515,7 +20515,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/subslide.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "subterfuge",
@@ -20608,7 +20608,7 @@
       "popularity_rank": 84,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/subterfuge.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "thebadplace2020",
@@ -20698,7 +20698,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/thebadplace2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "thedarkzone2020",
@@ -20789,7 +20789,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/thedarkzone2020.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "toxicity",
@@ -20913,7 +20913,7 @@
       "popularity_rank": 65,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/toxicity.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "toxicity_test2",
@@ -20924,7 +20924,7 @@
       "bsp_size_bytes": 3608156,
       "bsp_sha256": "8d7c59d47e61f0333e9c1d1936c05aacb983be54b6f1a4d9aa92085b36ef3660",
       "worldspawn": {
-        "message": "Toxicity by thefury\\nQW conversion by Mick & Thuriam 2015-19\\nquakeworld.nu/forum/topic/7316\\nProject Q1Q3\\nquakeworld.nu/forum/topic/6152\\nThunderdome 11 modification"
+        "message": "Toxicity by thefury QW conversion by Mick & Thuriam 2015-19 quakeworld.nu/forum/topic/7316 Project Q1Q3 quakeworld.nu/forum/topic/6152 Thunderdome 11 modification"
       },
       "entity_count": 202,
       "class_counts": {
@@ -20998,7 +20998,7 @@
       "popularity_rank": 102,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/toxicity_test2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "travelert6",
@@ -21094,7 +21094,7 @@
       "popularity_rank": 64,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/travelert6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "trick",
@@ -21161,7 +21161,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/trick.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "trick1",
@@ -21228,7 +21228,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/trick1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "tridm3",
@@ -21239,7 +21239,7 @@
       "bsp_size_bytes": 570852,
       "bsp_sha256": "af059a8f1166bbb9df1a2e8cb6d24263e2900ba289506cd1edb41196e1f4cb71",
       "worldspawn": {
-        "message": "Recycled [crapyard edition]\\nby ztn & ninja",
+        "message": "Recycled [crapyard edition] by ztn & ninja",
         "sounds": "1",
         "light": "0",
         "worldtype": "2"
@@ -21319,7 +21319,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/tridm3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "trix",
@@ -21384,7 +21384,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/trix.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "tuhnu1",
@@ -21397,7 +21397,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "0",
-        "message": "Tuhnu (version 1)\\nby Zaka\\n",
+        "message": "Tuhnu (version 1) by Zaka",
         "wad": "c:\\pelit\\quake\\bsp2wad\\blank1.wad;c:\\pelit\\quake\\bsp2wad\\newcas2.wad;c:\\pelit\\quake\\bsp2wad\\sandis4.wad;c:\\pelit\\quake\\"
       },
       "entity_count": 118,
@@ -21475,7 +21475,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/tuhnu1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ukpak2",
@@ -21562,7 +21562,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ukpak2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ultrav",
@@ -21658,7 +21658,7 @@
       "popularity_rank": 11,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ultrav.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "vdm3v3",
@@ -21671,7 +21671,7 @@
       "worldspawn": {
         "sounds": "1",
         "light": "100",
-        "message": "Zaka's favourite map v 2.0     by vio",
+        "message": "Zaka's favourite map v 2.0 by vio",
         "worldtype": "2"
       },
       "entity_count": 186,
@@ -21748,7 +21748,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/vdm3v3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "vrkcoop1",
@@ -21854,7 +21854,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/vrkcoop1.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "way2ez",
@@ -21927,7 +21927,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/way2ez.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "way2ez2",
@@ -22003,7 +22003,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/way2ez2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "xm00s19",
@@ -22125,7 +22125,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/xm00s19.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "xmastree",
@@ -22221,7 +22221,7 @@
       "popularity_rank": 108,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/xmastree.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "zediit",
@@ -22300,7 +22300,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/zediit.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "zerg",
@@ -22400,7 +22400,7 @@
       "popularity_rank": 198,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/zerg.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "zjumps",
@@ -22470,7 +22470,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/zjumps.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztndm3",
@@ -22563,7 +22563,7 @@
       "popularity_rank": 6,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztndm3.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztndm3q",
@@ -22574,7 +22574,7 @@
       "bsp_size_bytes": 435032,
       "bsp_sha256": "c4252c3d333efb85f73d7cf84e7c4db1a1b8cb0cf36db2b190a46c1ce19225c2",
       "worldspawn": {
-        "message": "Blood Run by ztn\\n\\nmodified by qurnel",
+        "message": "Blood Run by ztn modified by qurnel",
         "light": "0",
         "wad": "d:\\qstuff\\qwads\\single.wad;d:\\qstuff\\qwads\\q3texpak.wad;d:\\qstuff\\qwads\\scrap.wad;d:\\qstuff\\qwads\\ukpak3.wad;d:\\qstuff\\"
       },
@@ -22661,7 +22661,7 @@
       "popularity_rank": 79,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztndm3q.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztndm4",
@@ -22758,7 +22758,7 @@
       "popularity_rank": 24,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztndm4.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztndm6",
@@ -22856,7 +22856,7 @@
       "popularity_rank": 18,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztndm6.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztrain",
@@ -22922,7 +22922,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztrain.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztrain2",
@@ -22988,7 +22988,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztrain2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztricks",
@@ -23056,7 +23056,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztricks.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     },
     {
       "canonical_name": "ztricks2",
@@ -23124,7 +23124,7 @@
       "popularity_rank": null,
       "notes": null,
       "source_bsp_url": "https://maps.quakeworld.nu/base/ztricks2.bsp",
-      "extracted_at": "2026-04-27T10:47:40Z"
+      "extracted_at": "2026-04-27T11:25:18Z"
     }
   ]
 }
