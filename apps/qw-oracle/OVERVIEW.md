@@ -33,7 +33,7 @@ The single source of truth for "what does Oracle currently know about?". Update 
 | `mvdsv` | engine (server) | per-version arc | -- | -- | not started |
 | `ktx` | engine (mod, QuakeC) | per-version arc | -- | -- | not started; tree-sitter spike done |
 | `qw` | game content (the game itself) | flat per-domain tables | `maps` (1 table, 1 row per canonical map) | 254 maps (38 id1 stock from pak0/pak1 + 216 from maps.qw.nu/base/) | shipped 2026-04-27 |
-| `gameplay_*` (qw namespace) | id1 baseline game mechanics: 8 weapons + 4 projectiles + 25 items + 41 mechanics (incl. telefrag/exit_level_kill split + trigger_hurt void-brush). Schema v14 (2026-04-27). KTX overrides queued as arc 2. |
+| `qw` | game mechanics (id1 baseline) | flat polymorphic tables | `gameplay_sources` (registry) + `gameplay_entity_defs` (kind: item/weapon/projectile) + `gameplay_mechanics` (kind: constant/env_hazard/player_stat/powerup_behavior/armor_model/death_rule/spawn_rule/dm_mode_rule) | 37 entities + 41 mechanics from qwcl-original/QW/progs/. v4 splits: telefrag (triggers.qc:334) vs exit_level_kill (client.qc:230); trigger_hurt env_hazard for void-brush mechanism | shipped 2026-04-27 (schema v14); KTX overrides queued as arc 2 |
 
 **Tags loaded:** ezQuake 15 rows in `versions` (14 release tags `v3.0` / `v3.0.1` / `3.1` / `3.2` / `3.2.1` / `3.2.2` / `3.2.3` / `3.6.0` / `3.6.1` / `3.6.2` / `3.6.5` / `3.6.6` / `3.6.8` / `3.6.9` plus `head`). FTE: `build-6698`. QWCL: `2.33` (single-commit repo; canonical version label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES`). The `qw` namespace has no `versions` row — maps don't change with engine versions, so `build-snapshot --project qw` uses the sentinel version `static`.
 

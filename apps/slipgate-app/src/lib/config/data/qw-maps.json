@@ -1,8 +1,8 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-27T11:25:20.212Z",
-  "oracle_commit": "9a26b424f1dce1ed8ad2fc5a84b78752b3848778",
-  "knowledge_db_schema_version": 13,
+  "generated_at": "2026-04-27T16:50:08.475Z",
+  "oracle_commit": "019a99bcfdd1d634d63027e0942600a8b8c72420",
+  "knowledge_db_schema_version": 14,
   "project": "qw",
   "version": "static",
   "maps": [
