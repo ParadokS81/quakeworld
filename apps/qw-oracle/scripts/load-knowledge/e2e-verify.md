@@ -655,3 +655,39 @@ GROUP BY change_kind;
   literal matches for Cvar_SetDefault / Cvar_ForceSet / Cvar_LockDefault. Macro-
   expanded or array-subscript forms (`&cvars[i]`) won't match; those fall back to
   the cvar declaration blame. YAGNI until evidence demands an AST walk.
+
+---
+
+## Arc: game-mechanics Layer 1 (id1 baseline, schema v14, 2026-04-27)
+
+### Loader stop conditions (npm run load-knowledge -- load-gameplay)
+
+- First run: `entities inserted=37 updated=0 total=37; mechanics inserted=41 updated=0 total=41`
+- Second run (idempotency): `entities inserted=0 updated=37 total=37; mechanics inserted=0 updated=41 total=41`
+- If totals differ from 37/41, the YAML inventory diverges from the canonical source-cited count; investigate before proceeding.
+
+### Spot-checked rows (canonical id1 from qwcl-original/QW/progs/)
+
+```sql
+-- Rocket launcher: damage 110, splash 120, splash_radius 160, refire 0.8s
+SELECT name, damage, splash_damage, splash_radius, refire_seconds, source_ref
+FROM gameplay_entity_defs WHERE name='rocket_launcher';
+-- Expected: weapons.qc:385
+
+-- Quad: 30s duration, 60s respawn
+SELECT name, duration_seconds, respawn_seconds, source_ref
+FROM gameplay_entity_defs WHERE name='quad_damage';
+-- Expected: items.qc:1417
+
+-- Gib threshold lives in player.qc, not client.qc
+SELECT name, source_ref FROM gameplay_mechanics WHERE name='gib_threshold';
+-- Expected: player.qc:598
+
+-- Spawn invul default lives at client.qc:471, not 470
+SELECT name, source_ref FROM gameplay_mechanics WHERE name='spawn_invul_default';
+-- Expected: client.qc:471
+```
+
+### MCP server assertions (apps/qw-oracle/serve/mcp/scripts/verify-gameplay.ts)
+
+12 assertions covering case-insensitivity, missing-entity handling, telefrag/exit_level_kill split, trigger_hurt presence, splash-weapon search, env_hazard count (7), death_rule count (7), and citation-bug regressions.
