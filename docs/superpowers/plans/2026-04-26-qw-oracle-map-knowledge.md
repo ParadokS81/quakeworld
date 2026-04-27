@@ -787,12 +787,12 @@ def parse_texture_names(data: bytes, offset: int, size: int) -> list[str]:
 def _normalize_health_counts(entities: list[dict[str, str]]) -> tuple[int, int, int]:
     """Return (mh, h25, h15) from item_health entities + their spawnflags.
 
-    Quake item_health spawnflags:
-      0  = default rotting health (h25)
-      1  = SPAWNFLAG_SUPERHEALTH (mh, megahealth +100 over time)
-      2  = SPAWNFLAG_ROTTEN (h15)
-    Some maps use bit-or values; treat any spawnflag containing bit 1 = mh,
-    bit 2 = h15, otherwise h25.
+    Quake QC item_health spawnflags (from progs/items.qc):
+      H_ROTTEN = 1  -> small health (h15)   - spawnflag bit 0 / value 1
+      H_MEGA   = 2  -> megahealth (mh)      - spawnflag bit 1 / value 2
+      default  0    -> rotting health (h25)
+    H_MEGA wins if both bits are set (matches the QC IF/ELSEIF order;
+    defensive — well-formed maps don't set both).
     """
     mh = h25 = h15 = 0
     for e in entities:
@@ -802,9 +802,9 @@ def _normalize_health_counts(entities: list[dict[str, str]]) -> tuple[int, int, 
             flags = int(e.get('spawnflags', '0') or '0')
         except ValueError:
             flags = 0
-        if flags & 1:
+        if flags & 2:
             mh += 1
-        elif flags & 2:
+        elif flags & 1:
             h15 += 1
         else:
             h25 += 1
