@@ -481,6 +481,26 @@ Indexes: `idx_maps_popularity_rank ON (popularity_rank)`, `idx_maps_author ON (a
 
 ---
 
+## v14 (2026-04-27): game-mechanics tables (id1 baseline)
+
+Adds three flat tables (no `qw_` prefix to match the existing `maps` precedent). Outside the entities/per-version model.
+
+- **`gameplay_sources`** - registry of gameplay sources (`id1` baseline, `ktx` overrides in arc 2, future mods). Stable string ID, display name, source-tree root, free-form notes.
+
+- **`gameplay_entity_defs`** - polymorphic table for game entities. `kind in (item, weapon, projectile)`. Indexable common columns (damage, splash_damage, splash_radius, refire_seconds, respawn_seconds, pickup_amount, max_carry, duration_seconds, classname). `props_json` carries kind-specific fields. `source_ref` is the file:line citation.
+
+- **`gameplay_mechanics`** - polymorphic table for game rules. `kind in (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule)`. Indexable common columns (value_numeric, value_text). Same source_ref discipline.
+
+Both polymorphic tables share `ruleset_gate_json TEXT NOT NULL DEFAULT '{}'`. The default empty object is used by id1 baseline rows and by KTX rows that apply unconditionally; KTX overrides with mode/yawnmode/dmm gates serialise as JSON like `{"yawn":true,"dm":3}` and join into the same row identity. The `NOT NULL DEFAULT` is load-bearing: SQLite treats NULL columns in unique indexes as distinct, which would defeat upsert idempotency. By keeping the column always non-NULL, `ON CONFLICT (gameplay_source_id, kind, name, ruleset_gate_json) DO UPDATE` works as expected for re-runs.
+
+Migration is pure-additive (no rebuilds, no FK toggling). Function: `migrateV13ToV14`. Pattern: new `SCHEMA_V14_ADDITIONS_SQL` constant + appended `db.exec(...)` in `applySchema`, mirroring `SCHEMA_V13_ADDITIONS_SQL`.
+
+Engine-tunable cvars (`sv_maxspeed`, `sv_friction`, `sv_accelerate`, etc.) are deliberately NOT in `gameplay_mechanics`. They live in the `cvars` table (engine-config track) once each engine's extraction tags surface them. Only QC-defined gameplay constants (e.g. `sv_gravity` set in worldspawn QC at world.qc:182) belong here.
+
+Rationale, primary-source inventory, and KTX schema-fitness check: see `apps/qw-oracle/docs/game-mechanics-preplan.md` (Appendices A and B).
+
+---
+
 ## Related
 
 - Schema code: `scripts/load-knowledge/schema.ts`
