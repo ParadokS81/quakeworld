@@ -89,10 +89,19 @@ def _trailing_comment(source_bytes: bytes, line: int) -> Optional[str]:
     if line - 1 < 0 or line - 1 >= len(lines):
         return None
     raw = lines[line - 1]
-    # Anchor to the terminator of the declaration so we don't pick up
-    # in-line comments that fall inside the struct-init braces.
-    terminator_idx = max(raw.rfind(";"), raw.rfind(","))
-    tail = raw[terminator_idx + 1:] if terminator_idx >= 0 else raw
+    # Anchor to the closing `};` of the cvar struct-init declaration so we don't
+    # pick up in-brace text. Anchoring on `,` (an earlier attempt to support
+    # multi-line decls that don't exist in MVDSV) is unsafe: a `,` inside the
+    # trailing comment string (e.g. `// example: "59.3327,18.0656"`) can be
+    # rightmost on the line and silently truncate the comment to nothing.
+    close_idx = raw.rfind("};")
+    if close_idx >= 0:
+        tail = raw[close_idx + 2:]
+    else:
+        # Defensive fallback: if no `};` (shouldn't happen for MVDSV cvars),
+        # anchor on the last `;`.
+        semi_idx = raw.rfind(";")
+        tail = raw[semi_idx + 1:] if semi_idx >= 0 else raw
     tail = tail.strip()
 
     if tail.startswith("//"):

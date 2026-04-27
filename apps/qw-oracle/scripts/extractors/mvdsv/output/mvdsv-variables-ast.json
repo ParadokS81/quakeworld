@@ -155,7 +155,7 @@
         "source_line": 180,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "example: \"59.3327,18.0656\""
       }
     },
     {
@@ -1493,7 +1493,7 @@
         "source_line": 182,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "0 - don't force; 1 - as login;"
       }
     },
     {
@@ -1563,7 +1563,7 @@
         "source_line": 79,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "0 - plain passwords; 1 - hashed passwords"
       }
     },
     {
@@ -1691,7 +1691,7 @@
         "source_line": 39,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "if enabled, login required"
       }
     },
     {
@@ -1705,7 +1705,7 @@
         "source_line": 41,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "0=local files, 1=auth via website (bans can be in local files), 2=mandatory auth (must have account in local files)"
       }
     },
     {
@@ -2289,7 +2289,7 @@
         "source_line": 101,
         "source_column": 8,
         "storage_class": null,
-        "trailing_comment": null
+        "trailing_comment": "1 - use DNS lookup in status command, 0 - don't use"
       }
     },
     {
@@ -2658,6 +2658,6 @@
     "count": 183,
     "with_flags": 44,
     "with_onchange": 12,
-    "with_trailing_comment": 29
+    "with_trailing_comment": 35
   }
 }
