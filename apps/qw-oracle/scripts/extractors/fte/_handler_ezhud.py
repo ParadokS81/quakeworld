@@ -28,6 +28,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._cvar_shared import normalize_flags_raw  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +198,7 @@ class EzhudFteHandler(Visitor):
                 "source_line": row.get("source_line"),
                 "source_column": None,
                 "storage_class": None,
-                "flags_raw": None,
+                "flags_raw": normalize_flags_raw(None),
                 "flag_names": [],
                 "on_change": None,
                 "group_name_in_source": None,
