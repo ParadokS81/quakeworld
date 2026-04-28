@@ -160,16 +160,67 @@ For each row, open the source at `source_file:source_line` and compare every fie
 
 ### 3.2 Cross-project field-shape audit
 
-When validating multiple projects, check that the same field type is stored the same way across projects. Example: if MVDSV stores `flags_raw` as empty string for absent flags but FTE stores `"0"`, that's a representation divergence (this is the gap the v17 arc closed for cvars; check it stayed closed).
+When validating multiple projects, check that the same field type is stored the same way across projects. Two checks run as a pair: a regression bar (3.2.1) catches the immediate failure shapes; a positive contract (3.2.2) gates on the canonical post-v17 form.
+
+#### 3.2.1 Regression bar (negative shape check)
 
 ```bash
+DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
 for proj in mvdsv ezquake fte qwcl; do
   echo "=== $proj ==="
-  sqlite3 "$DB" "SELECT flags_raw, COUNT(*) FROM cvar_versions cv JOIN entities e ON cv.entity_id=e.id WHERE e.project='$proj' AND (flags_raw IN ('0', 'CVAR_NONE')) GROUP BY flags_raw;"
+  sqlite3 "$DB" "SELECT flags_raw, COUNT(*) FROM cvar_versions cv
+                 JOIN entities e ON cv.entity_id=e.id
+                 WHERE e.project='$proj'
+                   AND e.source_state='source_backed'
+                   AND (flags_raw IN ('0', 'CVAR_NONE') OR flags_raw IS NULL)
+                 GROUP BY flags_raw;"
 done
 ```
 
-**Acceptance:** zero rows in all projects (post-v17 normalization rule).
+**Acceptance:** zero rows in all four projects. Catches the post-v17 sentinel-form contract violations PLUS the IS-NULL shape that escaped the original check (the failure mode that surfaced 1085 FTE source_backed rows in the 2026-04-28 Mode B FTE validation).
+
+#### 3.2.2 Positive contract (positive shape check)
+
+For `source_state = 'source_backed'` cvars in `project IN ('ezquake', 'fte', 'mvdsv')`: `flags_raw` MUST be non-NULL AND either `''` (empty, the post-v17 sentinel) OR match `^[A-Z0-9_]+( \| [A-Z0-9_]+)*$` (CVAR_* identifiers joined by ` | `).
+
+```bash
+DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
+sqlite3 "$DB" "SELECT
+                 e.project,
+                 cv.source_root,
+                 COUNT(*) AS violation_count,
+                 GROUP_CONCAT(DISTINCT cv.flags_raw) AS sample_shapes
+               FROM cvar_versions cv
+               JOIN entities e ON cv.entity_id=e.id
+               WHERE e.project IN ('ezquake', 'fte', 'mvdsv')
+                 AND e.source_state='source_backed'
+                 AND NOT (
+                   cv.flags_raw IS NOT NULL
+                   AND (
+                     cv.flags_raw = ''
+                     OR cv.flags_raw GLOB '[A-Z0-9_]*'
+                   )
+                 )
+               GROUP BY e.project, cv.source_root
+               ORDER BY violation_count DESC;"
+```
+
+(GLOB is used as a regex-lite filter; the executing shell may also pipe to `grep -E '^[A-Z0-9_]+( \| [A-Z0-9_]+)*$'` for a stricter match. Per-project + per-source-root breakdown columns make findings actionable: "FTE has 1085 violations in plugin:ezhud" vs "ezQuake has 0 violations" tells the operator exactly where to look.)
+
+**QWCL carve-out rationale.** QWCL's 1996-vintage `cvar_t` emits lowercase boolean field values (`"true"`, `"false"`, `"true | false"` post-Phase-6 W3 normalization). The 3.2.2 contract's domain is post-v17 CVAR_* bitmask normalization; QWCL's flag-field semantic isn't in that domain. Carve-out is cleaner than widening the regex (admits typos like `cvar_archive` lowercase) or renormalizing QWCL (invasive, breaks source-truth representation). "QWCL `flags_raw` shape positive contract" is captured as future-arc work in the candidate-positive-contracts list below.
+
+**Acceptance:** zero rows. Any non-empty output is a finding -- either a handler is bypassing the lifted normalizer (the failure mode this contract is designed to catch) or a new flag-name shape needs to be admitted to the regex.
+
+#### Candidate positive contracts (future-arc work)
+
+The 3.2.2 contract gates only on `flags_raw`. Other fields with similar lift/contract gaps that may need positive contracts in future arcs:
+
+- `default_value` C-escape interpretation across all four projects (post-v17 unescape contract; today gated only by hand-spot-check during Mode B).
+- `info_key` canonical name shape (`<bare>:<scope>` post-v17 reshape; today gated by `validInfoKey` carve-out in load-version.ts).
+- `qc_builtin` canonical name shape (`<bare>:<table>` post-v18 reshape).
+- `handler_fn` shape across cvars + commands + macros (today carries no positive contract).
+- Description fields (cvars, commands, macros, hud_elements; today carry no shape gate).
+- QWCL `flags_raw` shape (lowercase boolean field values) -- distinct from the post-v17 CVAR_* contract.
 
 ---
 
