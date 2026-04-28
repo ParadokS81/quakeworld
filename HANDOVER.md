@@ -35,6 +35,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [SCHEMA.md doc-style inconsistency](#schemamd-doc-style-inconsistency) — **NEW 2026-04-27 (evening).** Task 2 of the game-mechanics arc 1 plan added a `## v14 (2026-04-27): game-mechanics tables (id1 baseline)` section to `apps/qw-oracle/SCHEMA.md`. The plan said to mirror "the v13 section verbatim" but in reality SCHEMA.md does NOT have a `## v13` section — v13 was documented as `## Map knowledge layer` (topical H2 with column-table + bold-prefixed paragraphs), and prior version migrations (v10, v11) appear as `### vN:` H3 sub-sections inside `## Cross-cutting notes`. The v14 section now uses a third style nobody else uses. Two cleanup options: convert v14 into a `## Game mechanics knowledge layer` topical heading parallel to Map knowledge layer; or harmonize the doc to a per-version style (v10/v11 bumped from H3 sub-sections to H2 sections). Operator decides. Also flagged: stale references in conventions paragraph still say "schema v12", migration walk text says "v1→v2→...→v11", table map says "Total: 22 tables at schema v12 + v13" — none reflect v13/v14. Pressure: low — facts are correct, only structure is inconsistent.
 - [FTE asset bundle consumer wiring](#fte-asset-bundle-consumer-wiring) — **NEW 2026-04-27 (orchestrator wrap-up).** Producer-side `fte-asset-bundle.json` shipped with Phase 2d-bundle but `apps/slipgate-app/src/lib/assets/bundle.ts:2` hardcodes the ezQuake import. The MyQuake → Browse classifier currently classifies every quake-dir file using ezQuake rules only; FTE-specific surfaces (shaders, heightmaps, .po localization, FTE path conventions) bucket as "other" instead of being properly categorized. Half-day to a day of slipgate work; pressure low (asset overlap is ~70%, classifier still does most useful work). Worth doing when a slipgate-side arc next touches the asset classifier (Phase 3.5a MyQuake → Domains restructure or whichever Tier 3 future arc lands first).
 - [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) -- **NEW 2026-04-28.** Six small residuals from the MVDSV Phase 2e follow-up arc (schema v15->v17): pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only); qc_builtin cross-scope name collisions (4 entries silently dropped today, Pattern-14 fix would extend); 14 historical-version ezquake `sv_demoregexp` rows still raw (auto-resolves on next deep-time walk); `validInfoKey` regex hard-codes scope alphabet; `pext_*_alias` classifier falls through for non-numeric expressions; FTE/QWCL `_handler_cvars.py` lack defensive `_normalize_flags_raw`. All low pressure; do-when-touched.
+- [Slipgate Managed Mode pivot — multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) — **NEW 2026-04-28.** Phase 3.5b shipped + first-Windows-smoke fixes shipped (`121b2ba` PE numeric version + FTE no-hyphen server detection + canonical-rename collision resolution; `fc2541f` FTE arch-as-variant preserving `fteqw64.exe`). During the wrap-up conversation, the architecture pivoted: slipgate-IS-quakedir (the data warehouse IS the Quake install). Phase 4/5 (binary diff viewer) DEFERRED — superseded by profile-vs-profile diff in the new arc. Three project-level docs captured: vision (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`), architecture (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`), roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`). Eight implementation arcs (A-H) sequenced; V1 = A+B+D+E+C-minimal (asset warehouse + profile manifest + materializer + clean-room migration + watcher + minimal switch UI). V1+ = F+G+C-full+H (lossless export + version history + full profile UI + cloud catalog). Operator estimate: 1 week to V1. Pre-arc tail: TAIL-1 wrap FTE asset bundle consumer wiring (the existing HANDOVER entry "FTE asset bundle consumer wiring" — promoted from low-pressure to load-bearing because Arc D's classifier needs it). Existing HANDOVER entries superseded by this arc but left in place for context: "Add Quake Client / MyQuake unification" (3.5b shipped), "Canonical-mode default for warehoused clients" (resolved by 3.5b), "Tier 3 future arcs" (folded into Managed Mode roadmap), "Player profiles (bundle-shaped)" (folded as Arc B + Arc H). Docs-check at next session wrap-up should clean those entries.
 
 ---
 
@@ -1327,4 +1328,88 @@ All six residuals are low pressure. None block any consumer today. Captured here
 - Plan: `docs/superpowers/plans/2026-04-28-mvdsv-phase2e-followups.md`
 - Schema: `apps/qw-oracle/SCHEMA.md` v16 + v17 sections
 - Pattern catalog: `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` Pattern 14
+
+---
+
+## Slipgate Managed Mode pivot — multi-arc project opened
+
+**Added:** 2026-04-28. **Status:** Pivot confirmed by operator; vision + architecture + roadmap docs drafted. Pre-arc tail item identified (TAIL-1: FTE asset bundle wiring). First arc (A: asset warehouse substrate) not yet started.
+
+**Verification first:** Confirm the three new docs exist:
+```
+ls docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md
+ls docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md
+ls docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md
+```
+
+### What changed
+
+The architecture for slipgate's product positioning shifted during the conversation immediately following the Phase 3.5b ship. The companion-app framing ("slipgate analyses + manages your existing quake dir") collapsed into slipgate-IS-quakedir ("the data warehouse IS your Quake install").
+
+This collapse was driven by the operator's empirical observation that a minimum viable Quake install is just `id1/pak0.pak` + `id1/pak1.pak` + a client. Everything else is content layered on top — and that content is precisely what the data warehouse pattern (shipped in Phase 3.5b for binaries) generalizes to handle.
+
+The architecture is structurally identical to Git, NixOS, OSTree: content-addressed blobs (sha256-keyed) + per-thing manifests + materialization-as-view. Profiles become manifests; switching profiles becomes selecting which manifest to materialize against the engine's `-basedir`. Edits become register-new-blob + manifest-update. History falls out for free. Lossless export ("walk away with a portable Quake dir") falls out for free. Side-by-side profile diff (the "config compare at quakedir level") falls out for free.
+
+### Project structure
+
+The pivot is a project, not a feature. Three foundational docs capture the design:
+
+1. **Vision** (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`) — product positioning, two-mode framing (Light vs Managed), load-bearing properties (lossless export pledge, non-destructive migration, SHA256 governance, web/desktop split), what this is and isn't, end-to-end scenarios.
+
+2. **Architecture** (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`) — data model, storage layout, content taxonomy (5 buckets: stock / user-asset / user-content / cache-ephemera / engine-runtime), six primitive operations (register/materialize/swap/export/fork/merge), filesystem watcher contract (4-case dispatch), engine integration, SHA256 governance, cloud catalog interaction, migration algorithm.
+
+3. **Roadmap** (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`) — eight implementation arcs (A-H), dependency graph, V1 vs V1+ scope, per-arc summaries, recommended next-session sequence, timeline expectation.
+
+### Implementation arcs
+
+- **Arc A** — Asset warehouse substrate (parallel to binary warehouse). 1-2 days.
+- **Arc B** — Profile manifest + materializer (hardlink-or-copy + cross-volume fallback). 4-6 days.
+- **Arc C-minimal** — Profile switch UI (V1). 2-3 days.
+- **Arc D** — Migration on-ramp + clean-room extractor + config sanitization. 1 week+ (largest arc).
+- **Arc E** — Filesystem watcher + classifier + mod-fingerprint registry. 4-5 days.
+- **Arc F** — Lossless export. 1-2 days. (V1+)
+- **Arc G** — Version history (per-config IDE-shaped restore). 3-4 days. (V1+)
+- **Arc C-full** — Full profile UI (browse, side-by-side diff, fork, history view). 1 week+. (V1+)
+- **Arc H** — Cloud catalog hookup. 1 week+. (V1+)
+
+V1 = A+B+D+E+C-minimal (working Managed mode end-to-end). Operator estimate: ~1 week of focused implementation.
+
+### Pre-arc tail (TAIL-1)
+
+The existing HANDOVER entry "FTE asset bundle consumer wiring" is promoted from low-pressure to load-bearing. Arc D's clean-room migration classifier needs FTE-aware path/asset rules to work for any user with FTE in their dir. Wrap before Arc A starts. Half-day to one-day item.
+
+### Items superseded by this pivot (cleanup at docs-check)
+
+These existing HANDOVER entries are superseded but left in place for context:
+
+- "Add Quake Client / MyQuake unification" — Phase 3.5b shipped
+- "Canonical-mode default for warehoused clients" — resolved by Phase 3.5b's canonical-only design
+- "Tier 3 future arcs (clean-room migration + asset warehouse + bundle install)" — folded into Managed Mode roadmap as Arcs A/B/D/E/F/G
+- "Player profiles (bundle-shaped, share-via-hashlist)" — folded into Managed Mode roadmap as Arcs B+H
+
+Docs-check at next session wrap-up should evaluate each for clean deletion.
+
+### Recommended next-session sequence
+
+1. Wrap TAIL-1 (FTE asset bundle wiring) — half-day to one day
+2. Brainstorm Arc A + Arc B together (substrate co-design)
+3. Write + execute Arc A
+4. Write + execute Arc B
+5. Brainstorm Arc D + Arc E together (classifier shared)
+6. Write + execute Arc D
+7. Write + execute Arc E
+8. Write + execute Arc C-minimal
+9. V1 ships; F/G/C-full/H follow as time and demand allow
+
+### Pressure
+
+High. This is the new main arc. All other slipgate-side work (binary version diff viewer Phase 4/5, retired-cvars stale-warning UX, etc.) is deferred until V1 ships or until the new arc creates demand for them.
+
+### Related
+
+- **Vision:** `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`
+- **Architecture:** `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`
+- **Roadmap:** `docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`
+- **Memory:** `project_slipgate_tier_ladder.md` — the four-tier intuition the two-mode framing distills
+- **Phase 3.5b plan:** `docs/superpowers/plans/2026-04-26-add-quake-client.md` — binary half of the warehouse substrate
 
