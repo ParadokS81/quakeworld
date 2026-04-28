@@ -17,8 +17,9 @@
 
 > **Brainstorm progress:**
 > - **Pass 1 (substrate and storage): COMPLETE 2026-04-28.** Six sub-questions ratified and drained into architecture spec body. Decisions: SHA-only unified blob store with two-char fanout (`<data-root>/blobs/<sha[:2]>/<sha>.bin`); per-blob sidecar metadata (`<sha>.meta.json`); refcount index for GC; pure refactor of `version_warehouse.rs` into generic `content_warehouse.rs` with one-shot data migration; single-process invariant via Tauri single-instance plugin + `<data-root>/.lock` lockfile + single global async mutex; manifest-as-truth GC with tree-consistency-at-rematerialization; lossless-export pledge tests 1+2 in CI from Arc A/B, test 3 from Arc F. Bonus: export-anything-in-any-format primitive generalization, active-vs-launched profile distinction, manifest backup as first-class UX.
-> - **Pass 2 (manifest schema + materializer modes + gamedir target_paths): NOT YET STARTED.** Will resolve manifest format ratification, history retention defaults, atomic-vs-in-place materialization, gamedir-aware target_paths.
-> - **Passes 3-6 deferred** to later sessions: classifier + sixth bucket (D/E shared), watcher contract (E), cloud catalog data shape (H), launch UX + runtime swap classes (C / Pass 5).
+> - **Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention): COMPLETE 2026-04-28.** Five sub-passes ratified and drained into architecture spec body. Decisions: manifest schema (id/name separation, schema_version, canonical-JSON SHA, atomic write + corruption recovery via creation-backup + history + tree-rebuild), entry shape (required sha256/target_path/role; optional size/added_via; registry-based role taxonomy refreshable from catalog; cross-platform path rules; reject duplicate target_paths at write; selectable_subsets dropped from V1; engine_compatibility field dropped — runtime per-cvar warnings from Layer 1 instead), declared_gamedirs (ordered list, first = primary, picker only when 2+; KTX correction — KTX is server-side, runs in qw/), atomic materialization (build-new-and-swap via temp tree + atomic rename, trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern), history retention (living-file-vs-immutable-artifact principle, 500 auto-versions/config, 10 snapshots/asset, checkpoints exempt from prune, two save paths external-watcher-debounce vs internal-save-button, full-manifest storage). Surfaced for Pass 3+: configs-as-living-files vs assets-as-immutable-artifacts (now a principle); seventh bucket candidate `user-library` for shared base content (maps, locs); slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables — asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, classifier heuristics, Layer 1 data); manifest-unfiltered-publish + import-time-filtering principle.
+> - **Pass 3 (classifier + bucket taxonomy refinements): NOT YET STARTED.** Originally scoped as "classifier + sixth bucket (user-private)." Pass 2 expanded scope: also resolves seventh-bucket boundary (user-library for shared base content; what materialization shape — auto-include-in-every-manifest, separate shared library, or inherit-from-base); configs-vs-art-as-assets distinction (authorship/credit/license metadata divergence); first concrete cut at the slipgate self-knowledge surface (which knowledge tables are V1 vs later); refined classifier rules for Arc D migration (maps/locs land in user-library, not user-asset).
+> - **Passes 4-6 deferred** to later sessions: watcher contract (E / Pass 4), cloud catalog data shape (H / Pass 6), launch UX + runtime swap classes (C / Pass 5).
 
 ---
 
@@ -140,19 +141,18 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 **Scope:** Profile manifest schema (JSON), materializer that maps a manifest to a directory tree using hardlink-or-copy. `Profile` data type in store.ts. CRUD operations (`create_profile`, `update_manifest`, `delete_profile`). Active profile tracking. Tree validation (verify manifest matches materialized state).
 
-**Key design decisions from this session:**
-- Manifests are JSON, KB-scale, version-stamped with `parent_manifest_sha`
-- Materializer modes: `hardlink_required` (fast, same-volume), `hardlink_preferred` (with copy fallback), `copy_only` (used by lossless export)
-- Tree path: `<data-root>/profiles/<id>/tree/`
-- Active profile: `<data-root>/active-profile.json` pointer
-- Profile manifests can be retained as historical chain (→ Arc G)
+**Key design decisions (Pass 1 + Pass 2 ratified):**
+- Manifests are JSON, KB-scale, canonicalized for deterministic SHA, version-stamped with `parent_manifest_sha`, schema_version field for future migration
+- Materializer modes (Pass 1): `hardlink` (active-tree, single-volume by construction) and `copy` (lossless export). `hardlink_preferred` middle case dropped.
+- Atomic materialization (Pass 2.4): build-new-and-swap (temp tree + atomic rename), trust-existing-tree fast path, watcher self-skip via hash, UI busy-state pattern as primary serializer
+- Tree path: `<data-root>/profiles/<uuid>/tree/`
+- Active profile: `<data-root>/active-profile.json` pointer (uuid, mutable name separately tracked in manifest)
+- Profile manifests retained as historical chain under `manifest-history/<timestamp>-<sha>.json` (full manifests, no deltas) — drives Arc G
+- Registry-based role taxonomy refreshable from catalog (no hardcoded enum)
 
-**Implementation cost estimate:** 4-6 days. The materializer's hardlink-or-copy logic with cross-volume fallback handling is the meaty part. Manifest CRUD is straightforward.
+**Implementation cost estimate:** 4-6 days. The materializer's atomic-swap + trust-existing-tree logic + UI busy-state plumbing is the meaty part. Manifest CRUD + validation + corruption recovery is straightforward but needs the migration-registry framing.
 
-**Open questions for arc brainstorm:**
-- JSON vs binary format for manifests at scale (default JSON, switch only if perf demands)
-- Per-profile sub-profile layout (entries-by-role indexes for fast lookups)
-- Atomic materialization: temp tree + atomic-rename, or in-place with rollback?
+**No open questions remaining for this arc** — Pass 2 ratified the manifest schema, atomic materialization semantics, and history retention. Implementation can proceed when sequenced.
 
 ---
 

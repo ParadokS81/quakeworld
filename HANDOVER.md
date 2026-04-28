@@ -33,7 +33,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Per-project Mode B validation synthesis follow-ups](#per-project-mode-b-validation-synthesis-follow-ups) -- **NEW 2026-04-28.** Three Mode B per-project deep validations shipped (ezQuake@head / FTE@build-6698 / QWCL@2.33) companion to the cross-extractor audit. Total: 0 critical, 6 important, 13 nits across 20 findings. Three cross-cutting items (S-01 FTE Phase 2 convergence gap — 1085 source-backed FTE cvars carry `flags_raw IS NULL` instead of empty string + missing `unescape_c_string` adoption; S-02 D.1.8 lifecycle hooks confirmed open; S-03 uneven F1 probe coverage — qwcl has zero project-keyed equality probes) and three per-project items (F-EZQ-01 trailing-comment look-ahead misattribution affecting ~34% of ezquake cvar comments, 78 of 230 rows wrong; F-EZQ-03 + F-QWCL-06 `command_versions.registration_file` + `macro_versions.registration_file` columns misnamed schema migration; F-QWCL-01 doc drift drained-now in synthesis commit). Recommended next-arc shape: Arc A "cross-extractor Phase 6: FTE convergence + grid uplift" (S-01 + S-03) and Arc B "ezquake trailing-comment + registration_file rename" (F-EZQ-01 + F-EZQ-03). Synthesis report: `docs/superpowers/reviews/2026-04-28-per-project-validation-synthesis.md`; per-project reports + plans linked from synthesis.
 - [Cross-extractor Phase 6 residuals](#cross-extractor-phase-6-residuals) -- **NEW 2026-04-28.** Three follow-ups from the Phase 6 arc that didn't fit scope. (1) D.1.8 lifecycle hooks gap (restated; FTE commands/macros/cmdline + MVDSV commands lack `enter_function`/`exit_function` -- `enclosing_function`/`registration_file` columns NULL on those rows; lift across missing handlers when touched). (2) Broader positive-contract coverage (handler_fn, descriptions, default_value C-escape interpretation, info_key/qc_builtin canonical names, QWCL flags_raw lowercase boolean shape) -- see `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` Section 3.2 candidate-positive-contracts list. Phase 6 closed `flags_raw` only. (3) Deep-time-walk re-extract obligation -- any future FTE or QWCL historical-version load must re-extract under post-Phase-6 handlers (otherwise pre-Phase-6 historical versions carry the wrong-shape `flags_raw` the prior arc emitted). FTE today has only build-6698; QWCL only 2.33; obligation activates when a multi-version walk is scheduled. Phase 6 spec at `docs/superpowers/specs/2026-04-28-cross-extractor-phase6-fte-convergence-grid-uplift-design.md`; arc commits `baf3b33` -> W6.
 - [Cross-extractor Phase 6 ezquake exemptions](#cross-extractor-phase-6-ezquake-exemptions) -- **NEW 2026-04-28.** Three structural findings the Phase 6 3.2.2 positive contract surfaced in ezquake (the contract's gate is doing exactly its job; bugs becoming visible IS the Phase 6 success criterion). (1) **Source_state misclassification** -- 32 HEAD entities (27 cvar + 4 command + 1 cmdline_param) and 382 all-versions entities (333 cvar + 41 command + 8 cmdline_param) marked `source_state='source_backed'` despite having NULL `source_file`. Help-JSON-only entries (e.g., `auth_timeout`, `gl_motion_blur*`, `sv_*`, `telnet_password`) should be `doc_only`. Wider than 27 cvars -- non-cvar surface confirms classifier-layer bug, not a `flags_raw` issue. Fix lives in `load-version.ts` `cvarIsSourceBacked` predicate (or upstream entity-emit), NOT in `extractor_lib/normalize_flags_raw`. Different layer than Phase 6's lift surface. (2) **Legacy cvar_t boolean shape** -- exactly 7 `r_bloom_*` rows in `research/repos/ezquake-source/src/glc_bloom.c` use 3-field `cvar_t` initializer (`{"name", "default", true}`) where the third field is a literal `true` boolean (legacy CVAR_ARCHIVE shape). Same structural pattern as QWCL's 1996-vintage `cvar_t` (already carved out of 3.2.2). Needs handler normalization (boolean -> empty/CVAR_ARCHIVE) or contract widening. Cross-link to "QWCL `flags_raw` shape" in the runbook's candidate-positive-contracts list. Narrow surface, contained file. (3) **Historical-tag stale shapes** -- ezquake tags v3.0.x through 3.6.x carry pre-Phase-6 `flags_raw` shapes (~31,600 rows: ~2,070-2,425 NULL per version + 7 `'true'` per version across 14 historical tags). HEAD already extracted post-W1 cleanly modulo (1) and (2); historical tags need a deep-time re-extract under post-Phase-6 handlers. Cost is small (~7 min for 14 tags via `extract-tag` per version); entry can close on any future arc that touches ezquake. Subsumes and supersedes the Phase 6 spec's deep-time-walk obligation for ezquake specifically (the spec's obligation entry above remains open for FTE+QWCL).
-- [Slipgate Managed Mode pivot — multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) — **NEW 2026-04-28.** Phase 3.5b shipped + first-Windows-smoke fixes shipped (`121b2ba` PE numeric version + FTE no-hyphen server detection + canonical-rename collision resolution; `fc2541f` FTE arch-as-variant preserving `fteqw64.exe`). During the wrap-up conversation, the architecture pivoted: slipgate-IS-quakedir (the data warehouse IS the Quake install). Phase 4/5 (binary diff viewer) DEFERRED — superseded by profile-vs-profile diff in the new arc. Three project-level docs captured: vision (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`), architecture (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`), roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`). Eight implementation arcs (A-H) sequenced; V1 = A+B+D+E+C-minimal (asset warehouse + profile manifest + materializer + clean-room migration + watcher + minimal switch UI). V1+ = F+G+C-full+H (lossless export + version history + full profile UI + cloud catalog). Operator estimate: 1 week to V1. Pre-arc tail: TAIL-1 wrap FTE asset bundle consumer wiring (the existing HANDOVER entry "FTE asset bundle consumer wiring" — promoted from low-pressure to load-bearing because Arc D's classifier needs it). Existing HANDOVER entries superseded by this arc but left in place for context: "Add Quake Client / MyQuake unification" (3.5b shipped), "Canonical-mode default for warehoused clients" (resolved by 3.5b), "Tier 3 future arcs" (folded into Managed Mode roadmap), "Player profiles (bundle-shaped)" (folded as Arc B + Arc H). Docs-check at next session wrap-up should clean those entries.
+- [Slipgate Managed Mode pivot — multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) — **NEW 2026-04-28; UPDATED 2026-04-28 Pass 2 complete.** Architecture pivoted to slipgate-IS-quakedir (data warehouse IS the Quake install). Phase 4/5 (binary diff viewer) DEFERRED — superseded by profile-vs-profile diff. Three project-level docs (vision/architecture/roadmap) captured. Eight implementation arcs (A-H); V1 = A+B+D+E+C-minimal (~1 week per operator estimate). Brainstorm Pass 1 (substrate + storage) and Pass 2 (manifest schema + materializer mechanics + gamedirs + history) COMPLETE and drained into architecture spec body. Pre-arc tail TAIL-1 (FTE asset bundle wiring) SHIPPED 2026-04-28 (commit `6d6cd1c`). **Next session: Pass 3 brainstorm** (classifier + bucket-taxonomy refinements + slipgate self-knowledge surface first cut). Pass 3 scope expanded during Pass 2: resolves seventh-bucket `user-library` (shared base content like maps/locs), configs-vs-art-as-assets distinction, `private.json` schema, refined Arc D classifier rules. Carry-forward orchestrator brief shape mirrors the Pass 2 brief; fresh-context terminal can pick up. Existing HANDOVER entries superseded and left in place for context-cleanup at docs-check (Phase 3.5b items, Tier 3, Player profiles, FTE asset bundle).
 
 ---
 
@@ -1063,7 +1063,9 @@ All six residuals are low pressure. None block any consumer today. Captured here
 
 ## Slipgate Managed Mode pivot — multi-arc project opened
 
-**Added:** 2026-04-28. **Status:** Pivot confirmed by operator; vision + architecture + roadmap docs drafted. Pre-arc tail item identified (TAIL-1: FTE asset bundle wiring). First arc (A: asset warehouse substrate) not yet started.
+**Added:** 2026-04-28. **Updated:** 2026-04-28 (Pass 2 complete; Pass 3 scoped; doc drains landed; TAIL-1 shipped earlier in same date).
+
+**Status:** Brainstorm Pass 1 (substrate + storage) and Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention) complete and drained into architecture spec body. Pre-arc tail item TAIL-1 (FTE asset bundle wiring) shipped 2026-04-28 (commit `6d6cd1c`). Next session: Pass 3 brainstorm (classifier + bucket-taxonomy refinements + first cut at slipgate self-knowledge surface). First implementation arc (A: asset warehouse substrate) follows after brainstorm passes 3-6 complete.
 
 **Verification first:** Confirm the three new docs exist:
 ```
@@ -1106,7 +1108,34 @@ V1 = A+B+D+E+C-minimal (working Managed mode end-to-end). Operator estimate: ~1 
 
 ### Pre-arc tail (TAIL-1)
 
-The existing HANDOVER entry "FTE asset bundle consumer wiring" is promoted from low-pressure to load-bearing. Arc D's clean-room migration classifier needs FTE-aware path/asset rules to work for any user with FTE in their dir. Wrap before Arc A starts. Half-day to one-day item.
+The existing HANDOVER entry "FTE asset bundle consumer wiring" was promoted from low-pressure to load-bearing because Arc D's clean-room migration classifier needs FTE-aware path/asset rules. **SHIPPED 2026-04-28** in commit `6d6cd1c` (`feat(slipgate): TAIL-1 FTE asset bundle wiring + Phase 3.5b doc catchup`). No remaining pre-arc work.
+
+### Brainstorm Pass 1 outcomes (drained 2026-04-28)
+
+Six sub-questions resolved + bonuses. Drained into architecture spec body. Highlights:
+- SHA-only unified blob store under `<data-root>/blobs/<sha[:2]>/<sha>.bin` (two-char fanout)
+- Per-blob `<sha>.meta.json` sidecars; `.refcounts.json` index for GC
+- Single-process invariant (Tauri single-instance + `<data-root>/.lock` + global async mutex)
+- Manifest-as-truth GC with tree-consistency-at-rematerialization
+- Materializer modes simplified to `hardlink` (active) and `copy` (export); no fallback middle case
+- Lossless-export pledge tests (1+2 in CI from Arc A/B, test 3 from Arc F)
+- Active-vs-launched profile distinction + export-anything primitive generalization
+
+### Brainstorm Pass 2 outcomes (drained 2026-04-28)
+
+Five sub-passes resolved (manifest schema, entry shape, declared_gamedirs, atomic materialization, history retention). Drained into architecture spec body. Highlights:
+- Manifest schema: `id` (uuid, immutable) + `name` (mutable label) + `schema_version: 1`; canonicalized JSON for SHA computation; atomic write (temp+rename+fsync) + creation-backup + corruption recovery sequence (history → tree-rebuild)
+- Entry shape: required `sha256`+`target_path`+`role`; optional `size`+`added_via`; `selectable_subsets` and `engine_compatibility` dropped (computed at runtime from Layer 1 + role field)
+- Role taxonomy is registry-based (refreshable from catalog), not hardcoded
+- declared_gamedirs ordered (first = primary), picker only when 2+ declared, KTX correction (server-side, runs in qw/)
+- Atomic materialization: build-new-and-swap, trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern
+- History retention: living-file-vs-immutable-artifact principle (configs 500/profile, assets 10 snapshots/asset, checkpoints exempt from prune); two save paths (watcher debounce vs internal save button); full-manifest storage
+
+**Pass 2 surfaced principles (load-bearing for later passes):**
+- Manifest is unfiltered snapshot at publish; filtering happens at consumption (import modal)
+- Configs are living files; assets are immutable artifacts (drives retention + Pass 3 bucket work)
+- Seventh content-taxonomy bucket candidate: `user-library` for shared base content (maps, locs)
+- Slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables — placeholder section in architecture spec; accretes Passes 3-6)
 
 ### Items superseded by this pivot (cleanup at docs-check)
 
@@ -1116,20 +1145,21 @@ These existing HANDOVER entries are superseded but left in place for context:
 - "Canonical-mode default for warehoused clients" — resolved by Phase 3.5b's canonical-only design
 - "Tier 3 future arcs (clean-room migration + asset warehouse + bundle install)" — folded into Managed Mode roadmap as Arcs A/B/D/E/F/G
 - "Player profiles (bundle-shaped, share-via-hashlist)" — folded into Managed Mode roadmap as Arcs B+H
+- "FTE asset bundle consumer wiring" — shipped as TAIL-1 (`6d6cd1c`)
 
 Docs-check at next session wrap-up should evaluate each for clean deletion.
 
 ### Recommended next-session sequence
 
-1. Wrap TAIL-1 (FTE asset bundle wiring) — half-day to one day
-2. Brainstorm Arc A + Arc B together (substrate co-design)
-3. Write + execute Arc A
-4. Write + execute Arc B
-5. Brainstorm Arc D + Arc E together (classifier shared)
-6. Write + execute Arc D
-7. Write + execute Arc E
-8. Write + execute Arc C-minimal
-9. V1 ships; F/G/C-full/H follow as time and demand allow
+1. **Brainstorm Pass 3** — classifier + bucket-taxonomy refinements + first cut at slipgate self-knowledge surface. Pass 3 scope expanded during Pass 2: now resolves seventh-bucket boundary (user-library, shared base content, materialization shape), configs-vs-art-as-assets distinction (authorship/credit metadata), `private.json` schema (sixth-bucket), refined classifier rules for Arc D (maps/locs land in user-library not user-asset). Estimate: 1.5-2 hours focused brainstorm + drain. Carry-forward orchestrator brief similar in shape to Pass 2 brief — a fresh-context terminal can pick up.
+2. Brainstorm Pass 4 — watcher contract details (foreground-only confirmation, dispatch case 5 for user-private, mod-fingerprint registry hosting).
+3. Brainstorm Pass 5 — runtime swap class taxonomy + multi-instance launch UX + manifest backup UX.
+4. Brainstorm Pass 6 — cloud catalog data shape (Arc H scope; locks blob layout contracts).
+5. Write + execute Arc A (asset warehouse substrate) — 1-2 days.
+6. Write + execute Arc B (profile manifest + materializer) — 4-6 days.
+7. Write + execute Arc D + Arc E in tandem (classifier shared).
+8. Write + execute Arc C-minimal — 2-3 days. V1 ships.
+9. F / G / C-full / H follow as time and demand allow.
 
 ### Pressure
 

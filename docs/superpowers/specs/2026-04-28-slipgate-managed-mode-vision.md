@@ -10,7 +10,14 @@
 > - **Mod / singleplayer / expansion launcher anchored.** Profile manifests declare which gamedirs they expect (`declared_gamedirs`); launcher gains a per-launch gamedir picker. Future-extensible to mod/expansion management without architectural rework. (Detailed in architecture spec.)
 > - **Offline-first classifier.** The watcher's asset classifier ships fully functional offline using local heuristics; cloud catalog augments with SHA-keyed lookups when online. User-confirmed unknown-SHA classifications flow back to the catalog as moderated submission candidates. Cloud is opt-in; offline mode never degrades to non-functional. (Detailed in architecture spec.)
 >
-> The body of this document remains accurate; these items extend the design surface and will be integrated after the Arc A+B brainstorm passes complete.
+> **Pass 2 status (2026-04-28): COMPLETE.** Manifest schema, materializer mechanics, gamedir handling, and history retention all drained into the architecture spec. Two new product principles surfaced and captured during Pass 2:
+>
+> - **Manifest is a complete unfiltered snapshot; filtering happens at consumption.** When a profile is published or shared, the manifest captures the full state of the user's quakedir. Filtering is the import-side concern — the receiving user picks what to actually pull (configs + customizations + map textures for maps you already have are defaults; opt-in for large unrelated assets). Mirrors the lossless-export pledge from the publishing side.
+> - **Configs are living files; assets are immutable artifacts.** Configs are continuously edited; their history is dense and worth keeping (default 500 versions per config). Assets, once registered, are identified by their bytes — "changing" an asset just creates a new asset with a different SHA. Retention policy flexes accordingly. This is a load-bearing dichotomy that drives Pass 3's bucket-taxonomy refinement and Arc H's catalog metadata schema.
+>
+> Pass 2 also surfaced two carry-forwards: a candidate seventh content-taxonomy bucket `user-library` for shared base content (maps, locs, similar profile-orthogonal accumulated content), and a cross-cutting "slipgate self-knowledge surface" pattern (bundled-and-refreshable knowledge tables: asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, etc.). Both detailed in the architecture spec; Pass 3 will refine.
+>
+> The body of this document remains accurate; these items extend the design surface and are now reflected in the architecture spec.
 
 ---
 
