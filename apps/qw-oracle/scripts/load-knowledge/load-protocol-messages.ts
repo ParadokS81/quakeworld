@@ -31,9 +31,13 @@ export function buildProtocolMessageVersionRow(
   return {
     entity_id: entityId,
     version,
-    // CHECK-constrained: must be one of svc/clc/nq/pext_fte/pext_mvd/protocol_version.
-    // Defensive empty fallback for doc_only rows; in practice they're filtered
-    // out by isSourceBacked before reaching this builder.
+    // CHECK-constrained at schema v16: one of the 13 kinds (svc / clc / nq;
+    // pext_fte_bit / pext_fte_const / pext_fte_alias / pext_fte_marker;
+    // pext_mvd_bit / pext_mvd_const / pext_mvd_alias / pext_mvd_marker;
+    // protocol_version / protocol_extension_id). The handler emits the
+    // final kind directly -- no further classification happens here.
+    // Defensive empty fallback for doc_only rows; in practice they're
+    // filtered out by isSourceBacked before reaching this builder.
     kind: ast?.kind ?? '',
     value: ast?.value ?? null,
     value_kind: ast?.value_kind ?? null,

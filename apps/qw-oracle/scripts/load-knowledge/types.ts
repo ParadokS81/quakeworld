@@ -258,11 +258,29 @@ export interface TokenPrimitiveEntry {
 
 // --- Phase 2e MVDSV: protocol_message ---------------------------------------
 // Server-side macro-defined byte tags exchanged between client and server.
-// Six kinds carry distinct semantics (svc/clc/nq/pext_fte/pext_mvd/protocol_version)
-// and must satisfy the CHECK constraint on protocol_message_versions.kind.
+// Schema v16 (Phase C 2026-04-28) widens the kind union from 6 to 13 to
+// disambiguate heterogeneous-bag classifications. PROTOCOL_VERSION (wire
+// protocol revision) splits from PROTOCOL_VERSION_FTE/FTE2/MVD1 (extension
+// ids); pext_fte and pext_mvd subdivide into _bit / _const / _alias /
+// _marker by macro-body shape so bit flags, plain ints, alias macros, and
+// no-value markers are distinguishable in queries. The 13 values must
+// satisfy the CHECK constraint on protocol_message_versions.kind.
 
 export interface ProtocolMessageAstBlock {
-  kind: 'svc' | 'clc' | 'nq' | 'pext_fte' | 'pext_mvd' | 'protocol_version';
+  kind:
+    | 'svc'
+    | 'clc'
+    | 'nq'
+    | 'pext_fte_bit'
+    | 'pext_fte_const'
+    | 'pext_fte_alias'
+    | 'pext_fte_marker'
+    | 'pext_mvd_bit'
+    | 'pext_mvd_const'
+    | 'pext_mvd_alias'
+    | 'pext_mvd_marker'
+    | 'protocol_version'
+    | 'protocol_extension_id';
   value: string | null;
   value_kind: 'integer' | 'hex' | 'bitshift' | 'expression' | null;
   source_file: string | null;
@@ -294,7 +312,14 @@ export interface InfoKeyAstBlock {
 }
 
 export interface InfoKeyEntry {
+  // Phase B 2026-04-28: canonical name is `<bare>:<scope>` so cross-scope
+  // registrations of the same key (e.g. `*z_ext:serverinfo` and
+  // `*z_ext:userinfo`) survive the entities table's UNIQUE(project, type,
+  // name) constraint. The unsuffixed form is preserved in `bare_name`;
+  // MCP `lookup_entity` falls back to a `name LIKE '<bare>:%'` prefix
+  // match for type=info_key when the queried name has no `:`.
   name: string;
+  bare_name: string;
   ast: InfoKeyAstBlock | null;
 }
 

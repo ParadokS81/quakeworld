@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 15;
+export const SCHEMA_VERSION = 16;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -1204,11 +1204,24 @@ CREATE INDEX idx_entities_type ON entities(project, type);
 // Four new per-version tables for the four new server-side entity types.
 // Pure-additive. The entities.type CHECK widening lives in
 // ENTITIES_V15_MIGRATION_SQL above.
+//
+// v16 update (2026-04-28): the inline kind CHECK on protocol_message_versions
+// below carries the WIDENED v16 13-kind list (not the original v15 6-kind
+// list). Fresh DBs land on this CREATE IF NOT EXISTS via applySchema and
+// therefore start with the v16 CHECK directly -- the documented "fresh DB
+// vs migrated DB" pattern (mirrors how SCHEMA_V1_SQL's entities.type CHECK
+// already lists the full v15 set). Migrated DBs reach the same shape via
+// PROTOCOL_MESSAGE_KIND_V16_MIGRATION_SQL (rebuild with the widened CHECK).
 const SCHEMA_V15_ADDITIONS_SQL = `
 CREATE TABLE IF NOT EXISTS protocol_message_versions (
   entity_id        INTEGER NOT NULL REFERENCES entities(id),
   version          TEXT NOT NULL,
-  kind             TEXT NOT NULL CHECK (kind IN ('svc','clc','nq','pext_fte','pext_mvd','protocol_version')),
+  kind             TEXT NOT NULL CHECK (kind IN (
+                     'svc','clc','nq',
+                     'pext_fte_bit','pext_fte_const','pext_fte_alias','pext_fte_marker',
+                     'pext_mvd_bit','pext_mvd_const','pext_mvd_alias','pext_mvd_marker',
+                     'protocol_version','protocol_extension_id'
+                   )),
   value            TEXT,
   value_kind       TEXT,
   source_file      TEXT,
@@ -1271,6 +1284,139 @@ CREATE TABLE IF NOT EXISTS qc_builtin_versions (
 );
 CREATE INDEX IF NOT EXISTS idx_qc_builtin_versions_source ON qc_builtin_versions(source_file, source_line);
 `;
+
+// v15 -> v16 (Phase B + Phase C, 2026-04-28).
+// Phase B (info_key cross-scope split): backfills existing v15 info_key
+// entity names from `<bare>` to `<bare>:<scope>` so cross-scope dups can
+// coexist under the entities UNIQUE(project, type, name) constraint. The
+// next extract-tag idempotently re-upserts (existing 44 entities renamed
+// match the extracted suffixed names; the missing `*z_ext:userinfo` is
+// INSERTed fresh by the natural-keys upsert path).
+//
+// Phase C (protocol_message kind taxonomy): rebuilds protocol_message_versions
+// with the widened 13-value kind CHECK (was 6: svc/clc/nq/pext_fte/pext_mvd/
+// protocol_version -> now: svc/clc/nq + 4 pext_fte_* + 4 pext_mvd_* +
+// protocol_version + protocol_extension_id). Existing v15 rows are mapped
+// to the new taxonomy DURING the rebuild's INSERT INTO ... SELECT, using
+// fields already on the row (value_kind for pext_* subdivision, entity name
+// for protocol_version vs protocol_extension_id). After the rebuild, the
+// next extract-tag idempotently re-upserts with the handler-emitted kinds;
+// any drift between the migration's mapping and the handler's classification
+// (which sees the macro body directly) self-corrects.
+//
+// The transform happens inside the INSERT instead of an in-place UPDATE
+// because the OLD CHECK on protocol_message_versions still rejects the new
+// kind values during a pre-rebuild UPDATE. Doing the transform during the
+// INSERT means the values land directly in the new table whose CHECK accepts
+// them.
+const PROTOCOL_MESSAGE_KIND_V16_MIGRATION_SQL = `
+CREATE TABLE protocol_message_versions_v16 (
+  entity_id        INTEGER NOT NULL REFERENCES entities(id),
+  version          TEXT NOT NULL,
+  kind             TEXT NOT NULL CHECK (kind IN (
+                     'svc','clc','nq',
+                     'pext_fte_bit','pext_fte_const','pext_fte_alias','pext_fte_marker',
+                     'pext_mvd_bit','pext_mvd_const','pext_mvd_alias','pext_mvd_marker',
+                     'protocol_version','protocol_extension_id'
+                   )),
+  value            TEXT,
+  value_kind       TEXT,
+  source_file      TEXT,
+  source_line      INTEGER,
+  trailing_comment TEXT,
+  raw_ast_hash     TEXT,
+  source_root      TEXT,
+  extracted_at     TEXT NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+-- Map old 6-kind values to the new 13-kind taxonomy as the rows flow into
+-- the new table. svc/clc/nq pass through unchanged. pext_fte / pext_mvd
+-- subdivide by value_kind: 'bitshift' -> _bit, 'integer'/'hex' -> _const,
+-- 'expression' -> _alias, NULL -> _marker. protocol_version splits by
+-- entity name: PROTOCOL_VERSION (exact) stays; PROTOCOL_VERSION_* (suffixed)
+-- becomes protocol_extension_id.
+INSERT INTO protocol_message_versions_v16 (
+  entity_id, version, kind, value, value_kind,
+  source_file, source_line, trailing_comment,
+  raw_ast_hash, source_root, extracted_at
+)
+SELECT
+  pmv.entity_id,
+  pmv.version,
+  CASE pmv.kind
+    WHEN 'svc' THEN 'svc'
+    WHEN 'clc' THEN 'clc'
+    WHEN 'nq'  THEN 'nq'
+    WHEN 'pext_fte' THEN
+      CASE pmv.value_kind
+        WHEN 'bitshift'   THEN 'pext_fte_bit'
+        WHEN 'integer'    THEN 'pext_fte_const'
+        WHEN 'hex'        THEN 'pext_fte_const'
+        WHEN 'expression' THEN 'pext_fte_alias'
+        ELSE                   'pext_fte_marker'
+      END
+    WHEN 'pext_mvd' THEN
+      CASE pmv.value_kind
+        WHEN 'bitshift'   THEN 'pext_mvd_bit'
+        WHEN 'integer'    THEN 'pext_mvd_const'
+        WHEN 'hex'        THEN 'pext_mvd_const'
+        WHEN 'expression' THEN 'pext_mvd_alias'
+        ELSE                   'pext_mvd_marker'
+      END
+    WHEN 'protocol_version' THEN
+      CASE
+        WHEN (SELECT name FROM entities WHERE id = pmv.entity_id) = 'PROTOCOL_VERSION'
+          THEN 'protocol_version'
+        ELSE 'protocol_extension_id'
+      END
+    -- Pass through any already-widened values (covers re-runs and
+    -- already-v16-shaped rows that happen to be present).
+    ELSE pmv.kind
+  END AS kind,
+  pmv.value, pmv.value_kind,
+  pmv.source_file, pmv.source_line, pmv.trailing_comment,
+  pmv.raw_ast_hash, pmv.source_root, pmv.extracted_at
+FROM protocol_message_versions pmv;
+DROP TABLE protocol_message_versions;
+ALTER TABLE protocol_message_versions_v16 RENAME TO protocol_message_versions;
+CREATE INDEX idx_protocol_message_versions_source ON protocol_message_versions(source_file, source_line);
+`;
+
+function migrateV15ToV16(db: Database.Database): void {
+  // CHECK widening on protocol_message_versions requires foreign_keys OFF
+  // outside the txn (same FK-safety pattern as ASSET_LOADER_SITES_V8 and
+  // the entities-table rebuilds).
+  //
+  // The Phase B info_key UPDATE is data-only and txn-safe; the WHERE
+  // NOT LIKE '%:%' guard skips rows already migrated, so re-running this
+  // migration on an already-migrated DB is a no-op.
+  db.pragma('foreign_keys = OFF');
+  try {
+    const txn = db.transaction(() => {
+      db.exec(`DROP INDEX IF EXISTS idx_protocol_message_versions_source;`);
+      db.exec(PROTOCOL_MESSAGE_KIND_V16_MIGRATION_SQL);
+
+      // Phase B backfill: rewrite info_key entity names to the suffixed
+      // `<bare>:<scope>` form. The WHERE NOT LIKE '%:%' guard skips rows
+      // already migrated, so this is idempotent. The subselect picks
+      // exactly one scope per entity_id (`LIMIT 1`); for v15 rows there's
+      // one info_key_versions row per entity (single-version 'head' load),
+      // so that's deterministic.
+      db.exec(`
+        UPDATE entities
+           SET name = name || ':' || (
+             SELECT scope FROM info_key_versions
+              WHERE entity_id = entities.id LIMIT 1
+           )
+         WHERE project='mvdsv' AND type='info_key' AND name NOT LIKE '%:%';
+      `);
+      db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('16');
+    });
+    txn();
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+}
 
 function migrateV9ToV10(db: Database.Database): void {
   // Widens the project CHECK on 8 tables to admit 'qwcl'. Standard rebuild
@@ -1450,6 +1596,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 14 && SCHEMA_VERSION >= 15) {
       migrateV14ToV15(db);
       existingVersion = 15;
+    }
+    if (existingVersion === 15 && SCHEMA_VERSION >= 16) {
+      migrateV15ToV16(db);
+      existingVersion = 16;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

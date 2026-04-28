@@ -6,11 +6,28 @@ import { SERVER_VERSION } from '../version.ts';
 interface LookupEntityArgs {
   name: string;
   project?: string;
-  type?: EntityType;
+  // The MCP-side EntityType union is the user-facing 5-type set. info_key
+  // (Phase 2e MVDSV) is one of the v15+ server-side types not yet exposed
+  // in the MCP enum; the bare-name fallback below recognises it as a raw
+  // string. Keeping the type field as `EntityType | string` lets the
+  // dispatcher pass `info_key` through without widening the MCP enum.
+  type?: EntityType | string;
 }
 
 function fetchEntities(args: LookupEntityArgs): EntityRow[] {
-  const filters: string[] = ['name = ?1 COLLATE NOCASE'];
+  // Phase B 2026-04-28: info_key entities carry the canonical name
+  // `<bare>:<scope>` so cross-scope dups (e.g. *z_ext:serverinfo and
+  // *z_ext:userinfo) survive the entities UNIQUE(project, type, name)
+  // constraint. When a caller queries `name='*z_ext'` with `type='info_key'`
+  // and the bare form has no `:`, return ALL rows whose name starts with
+  // `<bare>:` rather than requiring the caller to know the scope suffix.
+  // For other types the exact-match path is preserved.
+  const isInfoKeyBareLookup =
+    args.type === 'info_key' && !args.name.includes(':');
+  const nameClause = isInfoKeyBareLookup
+    ? "name LIKE ?1 || ':%' COLLATE NOCASE"
+    : 'name = ?1 COLLATE NOCASE';
+  const filters: string[] = [nameClause];
   const params: (string | number)[] = [args.name];
   if (args.project) {
     filters.push(`project = ?${params.length + 1}`);

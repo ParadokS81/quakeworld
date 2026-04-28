@@ -322,7 +322,7 @@
     {
       "name": "FTE_PEXT_256PACKETENTITIES",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x01000000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -333,7 +333,7 @@
     {
       "name": "FTE_PEXT_CHUNKEDDOWNLOADS",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x20000000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -344,7 +344,7 @@
     {
       "name": "FTE_PEXT_COLOURMOD",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00080000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -355,7 +355,7 @@
     {
       "name": "FTE_PEXT_CSQC",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x40000000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -366,7 +366,7 @@
     {
       "name": "FTE_PEXT_DPFLAGS",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x80000000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -377,7 +377,7 @@
     {
       "name": "FTE_PEXT_ENTITYDBL",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00002000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -388,7 +388,7 @@
     {
       "name": "FTE_PEXT_ENTITYDBL2",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00004000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -399,7 +399,7 @@
     {
       "name": "FTE_PEXT_FLOATCOORDS",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00008000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -410,7 +410,7 @@
     {
       "name": "FTE_PEXT_HLBSP",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00000200",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -421,7 +421,7 @@
     {
       "name": "FTE_PEXT_MODELDBL",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00001000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -432,7 +432,7 @@
     {
       "name": "FTE_PEXT_SPAWNSTATIC2",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00400000",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -443,7 +443,7 @@
     {
       "name": "FTE_PEXT_TRANS",
       "ast": {
-        "kind": "pext_fte",
+        "kind": "pext_fte_const",
         "value": "0x00000008",
         "value_kind": "hex",
         "source_file": "src/qwprot/src/protocol.h",
@@ -452,31 +452,20 @@
       }
     },
     {
-      "name": "MVD_PEXT1_ANTILAG_CLIENTPOS",
+      "name": "MVD_PEXT1_INCLUDEINMVD",
       "ast": {
-        "kind": "pext_mvd",
-        "value": "128",
-        "value_kind": "integer",
+        "kind": "pext_mvd_alias",
+        "value": "( MVD_PEXT1_HIDDEN_MESSAGES )",
+        "value_kind": "expression",
         "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 76,
-        "trailing_comment": "flag set on the playernum if the client positions are also included"
-      }
-    },
-    {
-      "name": "MVD_PEXT1_DEBUG",
-      "ast": {
-        "kind": "pext_mvd",
-        "value": null,
-        "value_kind": null,
-        "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 75,
+        "source_line": 82,
         "trailing_comment": null
       }
     },
     {
       "name": "MVD_PEXT1_DEBUG_ANTILAG",
       "ast": {
-        "kind": "pext_mvd",
+        "kind": "pext_mvd_bit",
         "value": "( 1 << 4 )",
         "value_kind": "bitshift",
         "source_file": "src/qwprot/src/protocol.h",
@@ -487,7 +476,7 @@
     {
       "name": "MVD_PEXT1_DEBUG_WEAPON",
       "ast": {
-        "kind": "pext_mvd",
+        "kind": "pext_mvd_bit",
         "value": "( 1 << 3 )",
         "value_kind": "bitshift",
         "source_file": "src/qwprot/src/protocol.h",
@@ -498,7 +487,7 @@
     {
       "name": "MVD_PEXT1_FLOATCOORDS",
       "ast": {
-        "kind": "pext_mvd",
+        "kind": "pext_mvd_bit",
         "value": "( 1 << 0 )",
         "value_kind": "bitshift",
         "source_file": "src/qwprot/src/protocol.h",
@@ -509,7 +498,7 @@
     {
       "name": "MVD_PEXT1_HIDDEN_MESSAGES",
       "ast": {
-        "kind": "pext_mvd",
+        "kind": "pext_mvd_bit",
         "value": "( 1 << 5 )",
         "value_kind": "bitshift",
         "source_file": "src/qwprot/src/protocol.h",
@@ -520,7 +509,7 @@
     {
       "name": "MVD_PEXT1_HIGHLAGTELEPORT",
       "ast": {
-        "kind": "pext_mvd",
+        "kind": "pext_mvd_bit",
         "value": "( 1 << 1 )",
         "value_kind": "bitshift",
         "source_file": "src/qwprot/src/protocol.h",
@@ -529,14 +518,58 @@
       }
     },
     {
-      "name": "MVD_PEXT1_INCLUDEINMVD",
+      "name": "MVD_PEXT1_ANTILAG_CLIENTPOS",
       "ast": {
-        "kind": "pext_mvd",
-        "value": "( MVD_PEXT1_HIDDEN_MESSAGES )",
+        "kind": "pext_mvd_const",
+        "value": "128",
+        "value_kind": "integer",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 76,
+        "trailing_comment": "flag set on the playernum if the client positions are also included"
+      }
+    },
+    {
+      "name": "MVD_PEXT1_DEBUG",
+      "ast": {
+        "kind": "pext_mvd_marker",
+        "value": null,
+        "value_kind": null,
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 75,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_FTE",
+      "ast": {
+        "kind": "protocol_extension_id",
+        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( 'X' << 24 ) )",
         "value_kind": "expression",
         "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 82,
-        "trailing_comment": null
+        "source_line": 29,
+        "trailing_comment": "fte extensions."
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_FTE2",
+      "ast": {
+        "kind": "protocol_extension_id",
+        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( '2' << 24 ) )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 30,
+        "trailing_comment": "fte extensions."
+      }
+    },
+    {
+      "name": "PROTOCOL_VERSION_MVD1",
+      "ast": {
+        "kind": "protocol_extension_id",
+        "value": "( ( 'M' << 0 ) + ( 'V' << 8 ) + ( 'D' << 16 ) + ( '1' << 24 ) )",
+        "value_kind": "expression",
+        "source_file": "src/qwprot/src/protocol.h",
+        "source_line": 31,
+        "trailing_comment": "mvdsv extensions"
       }
     },
     {
@@ -548,39 +581,6 @@
         "source_file": "src/qwprot/src/protocol.h",
         "source_line": 24,
         "trailing_comment": null
-      }
-    },
-    {
-      "name": "PROTOCOL_VERSION_FTE",
-      "ast": {
-        "kind": "protocol_version",
-        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( 'X' << 24 ) )",
-        "value_kind": "expression",
-        "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 29,
-        "trailing_comment": "fte extensions."
-      }
-    },
-    {
-      "name": "PROTOCOL_VERSION_FTE2",
-      "ast": {
-        "kind": "protocol_version",
-        "value": "( ( 'F' << 0 ) + ( 'T' << 8 ) + ( 'E' << 16 ) + ( '2' << 24 ) )",
-        "value_kind": "expression",
-        "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 30,
-        "trailing_comment": "fte extensions."
-      }
-    },
-    {
-      "name": "PROTOCOL_VERSION_MVD1",
-      "ast": {
-        "kind": "protocol_version",
-        "value": "( ( 'M' << 0 ) + ( 'V' << 8 ) + ( 'D' << 16 ) + ( '1' << 24 ) )",
-        "value_kind": "expression",
-        "source_file": "src/qwprot/src/protocol.h",
-        "source_line": 31,
-        "trailing_comment": "mvdsv extensions"
       }
     },
     {
@@ -1162,17 +1162,21 @@
     "by_kind": {
       "clc": 20,
       "nq": 9,
-      "pext_fte": 12,
-      "pext_mvd": 8,
-      "protocol_version": 4,
+      "pext_fte_const": 12,
+      "pext_mvd_alias": 1,
+      "pext_mvd_bit": 5,
+      "pext_mvd_const": 1,
+      "pext_mvd_marker": 1,
+      "protocol_extension_id": 3,
+      "protocol_version": 1,
       "svc": 52
     },
     "by_value_kind": {
       "integer": 83,
       "hex": 12,
-      "none": 1,
+      "expression": 4,
       "bitshift": 5,
-      "expression": 4
+      "none": 1
     },
     "with_trailing_comment": 83
   }

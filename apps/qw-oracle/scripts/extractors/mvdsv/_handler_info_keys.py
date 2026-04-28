@@ -47,19 +47,30 @@ the fork-merge boundary, which it doesn't).
 Output entity shape (one row per unique (name, scope) tuple):
 
     {
-      "name": "team",
+      "name": "*z_ext:serverinfo",
+      "bare_name": "*z_ext",
       "ast": {
-        "scope": "userinfo",
+        "scope": "serverinfo",
         "operations": ["read", "write"],
-        "source_file": "src/sv_user.c",  // first-seen site (anchor)
-        "source_line": 567,
-        "containing_function": "SV_ParseStringCmd",
+        "source_file": "src/sv_main.c",  // first-seen site (anchor)
+        "source_line": 1234,
+        "containing_function": "SV_InitLocal",
         "all_call_sites": [
           {"source_file": ..., "source_line": ..., "operation": "read"},
           ...
         ]
       }
     }
+
+CANONICAL NAME CONVENTION (Phase B 2026-04-28). The emitted `name` field is
+the suffixed form `<bare>:<scope>` so cross-scope registrations of the same
+key (e.g. `*z_ext` registered as both serverinfo via SV_InitLocal AND
+userinfo via SVC_DirectConnect) survive the entities table's
+UNIQUE(project, type, name) constraint. The unsuffixed form is preserved
+in `bare_name` at the top level (parallels `name`) so downstream consumers
+can still lookup by the unsuffixed form. The MCP `lookup_entity` tool
+falls back to a `name LIKE '<bare>:%'` prefix match for type=info_key
+when the queried name has no `:`.
 """
 from __future__ import annotations
 
@@ -231,8 +242,12 @@ class InfoKeysMvdsvHandler(Visitor):
             }
             existing = aggregated.get(agg_key)
             if existing is None:
+                # Canonical name is `<bare>:<scope>` (Phase B 2026-04-28). The
+                # bare name is preserved at the top level so MCP lookups can
+                # query by the unsuffixed form via prefix match.
                 aggregated[agg_key] = {
-                    "name": r["name"],
+                    "name": f"{r['name']}:{r['scope']}",
+                    "bare_name": r["name"],
                     "ast": {
                         "scope": r["scope"],
                         "operations": [r["op"]],

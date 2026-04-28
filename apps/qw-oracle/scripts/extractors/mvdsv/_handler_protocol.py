@@ -3,15 +3,35 @@
 Detects #define constants for protocol-message bytes and protocol-version
 constants. libclang under PARSE_DETAILED_PROCESSING_RECORD exposes
 MACRO_DEFINITION cursors as top-level children of the TRANSLATION_UNIT root.
-We filter by name prefix to one of seven discriminator kinds:
+We filter by name prefix to one of the discriminator kind FAMILIES, then
+subdivide pext_fte / pext_mvd by macro body shape (Phase C 2026-04-28):
 
-  - 'svc_'                -> kind='svc'   (server-to-client message byte)
-  - 'clc_'                -> kind='clc'   (client-to-server message byte)
-  - 'nq_'                 -> kind='nq'    (NQ-protocol legacy message byte)
-  - 'FTE_PEXT_'           -> kind='pext_fte'
-  - 'FTE_PEXT2_'          -> kind='pext_fte'
-  - 'MVD_PEXT'            -> kind='pext_mvd'
-  - 'PROTOCOL_VERSION'    -> kind='protocol_version'
+Family map (by name prefix):
+  - 'svc_'                -> family='svc'
+  - 'clc_'                -> family='clc'
+  - 'nq_'                 -> family='nq'
+  - 'FTE_PEXT_' / 'FTE_PEXT2_' -> family='pext_fte'
+  - 'MVD_PEXT'            -> family='pext_mvd'
+  - 'PROTOCOL_VERSION'    -> kind='protocol_version' (exact match)
+  - 'PROTOCOL_VERSION_*'  -> kind='protocol_extension_id' (suffixed)
+
+Final 'kind' written to the row:
+  - svc / clc / nq                 -> family as-is
+  - protocol_version               -> wire-protocol revision integer
+  - protocol_extension_id          -> FTE/FTE2/MVD1 protocol-extension id macros
+  - pext_fte / pext_mvd subdivide by macro body shape:
+      empty body                   -> <family>_marker
+      bitshift `( 1 << N )`        -> <family>_bit
+      integer / hex literal        -> <family>_const
+      identifier-in-parens / other -> <family>_alias
+
+This subdivision preserves a count-stable total (every row keeps a kind)
+while making the heterogeneous-bag distinction queryable: bit flags vs.
+plain ints vs. alias macros vs. empty markers each have their own kind.
+The 13 final values are listed in the schema v16 protocol_message_versions
+CHECK; future non-identifier expressions in pext_* should re-evaluate the
+"alias" classification (today the only such row is
+`MVD_PEXT1_INCLUDEINMVD = ( MVD_PEXT1_HIDDEN_MESSAGES )`).
 
 Value extraction: read the macro tokens after the name and emit the raw text
 plus a value_kind discriminator ('integer', 'bitshift', 'hex', 'expression').
@@ -55,7 +75,10 @@ _BITSHIFT_RE = re.compile(r"^\(?1<<\d+\)?$")
 
 
 def _kind_for(name: str) -> Optional[str]:
-    """Map a macro name to its protocol-message kind, or None to skip.
+    """Map a macro name to its protocol-message family/kind, or None to skip.
+    Phase C 2026-04-28: returns the family for pext_* (later subdivided by
+    body shape in `_handle_macro`); returns the final kind for everything
+    else. PROTOCOL_VERSION (exact) splits from PROTOCOL_VERSION_* (suffixed).
     Order matters only for non-overlapping prefixes; nq_svc_* starts with
     `nq_` and never matches `svc_` because Python `startswith` checks the
     leading bytes, not a substring.
@@ -70,9 +93,21 @@ def _kind_for(name: str) -> Optional[str]:
         return "pext_fte"
     if name.startswith("MVD_PEXT"):
         return "pext_mvd"
-    if name.startswith("PROTOCOL_VERSION"):
+    # PROTOCOL_VERSION (exact) is the wire-protocol revision integer; the
+    # PROTOCOL_VERSION_FTE / FTE2 / MVD1 suffixed forms are extension-id
+    # macros, not protocol revisions. Split them so consumers can query each
+    # surface independently.
+    if name == "PROTOCOL_VERSION":
         return "protocol_version"
+    if name.startswith("PROTOCOL_VERSION_"):
+        return "protocol_extension_id"
     return None
+
+
+# Identifier inside optional outer parens. Used to classify
+# `( MVD_PEXT1_HIDDEN_MESSAGES )` style alias macros where the body is a
+# single identifier reference rather than a literal value.
+_IDENT_IN_PARENS_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def _classify_value(raw: str) -> str:
@@ -164,6 +199,41 @@ class ProtocolMvdsvHandler(Visitor):
         else:
             value_raw = None
         value_kind = _classify_value(value_raw) if value_raw else None
+
+        # Phase C 2026-04-28: subdivide pext_fte / pext_mvd families by
+        # macro body shape. The base family classifies the namespace; the
+        # body-shape suffix distinguishes bit flags / plain ints / alias
+        # macros / empty markers in a single discriminator column. The
+        # 13-kind list lives in the v16 protocol_message_versions CHECK.
+        if kind in ("pext_fte", "pext_mvd"):
+            if value_raw is None:
+                # Empty body: `#define MVD_PEXT1_DEBUG` (no value tokens).
+                # Marker macros define a name without committing to a value
+                # yet; the slot is reserved for a future build.
+                kind = f"{kind}_marker"
+            elif value_kind == "bitshift":
+                kind = f"{kind}_bit"
+            elif value_kind in ("integer", "hex"):
+                kind = f"{kind}_const"
+            else:
+                # `expression` value_kind. Today the only example is
+                # `MVD_PEXT1_INCLUDEINMVD = ( MVD_PEXT1_HIDDEN_MESSAGES )`,
+                # an identifier-in-parens alias. Reclassify as alias for
+                # any non-numeric expression. If a future non-identifier
+                # expression appears in pext_* (e.g. an arithmetic mask
+                # `( A | B )`), the "alias" label may need to refine to a
+                # distinct "expression" subdivision -- check the body shape
+                # against `_IDENT_IN_PARENS_RE` to detect that case.
+                stripped = value_raw.strip().strip("()").strip()
+                if not _IDENT_IN_PARENS_RE.match(stripped):
+                    # Defensive log: no row is dropped, but flag for review.
+                    print(
+                        f"[handler_protocol] pext_* expression body not "
+                        f"identifier-in-parens: {name} = {value_raw!r}; "
+                        f"classifying as alias",
+                        file=sys.stderr,
+                    )
+                kind = f"{kind}_alias"
 
         location = cursor.location
         if location.file is None:

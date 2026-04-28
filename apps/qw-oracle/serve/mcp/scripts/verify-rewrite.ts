@@ -120,7 +120,30 @@ const r8 = parse(
 );
 check('lookup_entity no-match returns match_quality=none', r8.match_quality === 'none' && r8.results.length === 0);
 
-// 9. Game-mechanics tools (added 2026-04-27, schema v14).
+// 9. info_key cross-scope smoke (added 2026-04-28, schema v16). The entities
+// canonical name carries `<bare>:<scope>` so the same key registered in
+// multiple scopes survives the UNIQUE(project, type, name) constraint.
+// `*z_ext` registers as both serverinfo (SV_InitLocal) and userinfo
+// (SVC_DirectConnect) -- looking up the bare name with type=info_key must
+// return both rows via the prefix-match fallback.
+{
+  const r = parse(
+    await client.callTool({
+      name: 'lookup_entity',
+      arguments: { name: '*z_ext', type: 'info_key', project: 'mvdsv' },
+    }),
+  );
+  check('info_key cross-scope: *z_ext returns 2 rows', r.results.length === 2,
+    `got ${r.results.length}`);
+  const scopes = (r.results as Record<string, unknown>[])
+    .map(e => (e.name as string).split(':')[1])
+    .sort();
+  check('  - scopes are serverinfo + userinfo',
+    JSON.stringify(scopes) === JSON.stringify(['serverinfo', 'userinfo']),
+    `got ${JSON.stringify(scopes)}`);
+}
+
+// 10. Game-mechanics tools (added 2026-04-27, schema v14).
 {
   const r = await client.callTool({ name: 'lookup_gameplay_entity', arguments: { name: 'rocket_launcher' } });
   const text = (r.content as Array<{ type: string; text: string }>)[0].text;

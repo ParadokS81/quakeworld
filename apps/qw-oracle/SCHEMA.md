@@ -657,6 +657,100 @@ On a fresh DB the v1 `entities` CHECK already lists the full v15 type set (the c
 
 ---
 
+## v16 (2026-04-28): info_key cross-scope split + protocol_message kind taxonomy
+
+Phase B + Phase C of the MVDSV Phase 2e follow-up. Two changes ride one schema bump because they share the migration step.
+
+### Phase B: info_key canonical name carries the scope suffix
+
+The `entities` table's `UNIQUE(project, type, name)` constraint collapsed cross-scope registrations of the same info-string key. `*z_ext` registers in MVDSV as both serverinfo (via `SV_InitLocal` at `src/sv_main.c:3685`) and userinfo (via `SVC_DirectConnect` at `src/sv_main.c:1425`). At v15 only the serverinfo row survived; the userinfo registration was silently dropped.
+
+Phase B fixes this by making the canonical info_key name `<bare>:<scope>` (e.g. `*z_ext:serverinfo`, `*z_ext:userinfo`). The unsuffixed form is preserved on the JSON entry as `bare_name` so MCP `lookup_entity` can fall back to a `name LIKE '<bare>:%' COLLATE NOCASE` prefix match when type=info_key and the queried name has no `:`.
+
+Where the change lives:
+- `_handler_info_keys.py::finalize` emits `name = "<bare>:<scope>"` and adds `bare_name` at the top level of the entry.
+- `InfoKeyEntry` (TS) gains a `bare_name: string` field.
+- `load-version.ts` array-to-dict normalization warns on duplicate names (belt-and-braces; should not fire today).
+- `lookup-entity.ts` adds the prefix-match fallback for type=info_key bare lookups.
+
+The migration backfills v15 info_key entity names to the suffixed form via a one-shot `UPDATE entities ... SET name = name || ':' || (SELECT scope FROM info_key_versions ...) WHERE project='mvdsv' AND type='info_key' AND name NOT LIKE '%:%'`. The next `extract-tag --project mvdsv --version head` idempotently re-upserts: the existing 44 entities renamed match the extracted suffixed names, and the missing `*z_ext:userinfo` row is INSERTed fresh. After re-extraction the table holds 45 info_key rows.
+
+### Phase C: protocol_message kinds widen from 6 to 13
+
+The v15 kind discriminator on `protocol_message_versions` lumped heterogeneous-bag classifications under single labels:
+- `protocol_version` mixed the wire-protocol revision integer (`PROTOCOL_VERSION = 28`) with three FTE/MVD extension-id macros (`PROTOCOL_VERSION_FTE/FTE2/MVD1`).
+- `pext_mvd` mixed bit flags (`MVD_PEXT1_FLOATCOORDS = (1 << 0)`), plain ints (`MVD_PEXT1_ANTILAG_CLIENTPOS = 128`), aliases (`MVD_PEXT1_INCLUDEINMVD = ( MVD_PEXT1_HIDDEN_MESSAGES )`), and empty markers (`MVD_PEXT1_DEBUG`).
+- Same heterogeneity affected `pext_fte` (12 entries; all hex consts at HEAD but the type system should still discriminate body shape symmetrically with pext_mvd for future builds).
+
+Phase C splits the kind discriminator into 13 values:
+
+| v15 kind | v16 kind(s) | Discriminator |
+|---|---|---|
+| `svc` | `svc` | unchanged |
+| `clc` | `clc` | unchanged |
+| `nq` | `nq` | unchanged |
+| `pext_fte` | `pext_fte_bit` / `pext_fte_const` / `pext_fte_alias` / `pext_fte_marker` | macro body shape |
+| `pext_mvd` | `pext_mvd_bit` / `pext_mvd_const` / `pext_mvd_alias` / `pext_mvd_marker` | macro body shape |
+| `protocol_version` | `protocol_version` (PROTOCOL_VERSION exact) / `protocol_extension_id` (PROTOCOL_VERSION_*) | name shape |
+
+The pext_* body-shape discriminator:
+- `_bit`: `( 1 << N )` bitshift expressions (bit flags negotiated in the extension bitmask).
+- `_const`: integer or hex literal bodies (plain numeric constants).
+- `_alias`: identifier-in-parens bodies (one macro reusing another's value).
+- `_marker`: empty body (`#define MVD_PEXT1_DEBUG`) -- reserved slot, no value committed yet.
+
+Today's distribution at the 2026-01-04 mvdsv head snapshot (105 rows total):
+- `svc=52`, `clc=20`, `nq=9` (unchanged)
+- `pext_fte_const=12` (all 12 FTE entries are hex consts at HEAD; the other three `pext_fte_*` kinds have zero rows but are reserved)
+- `pext_mvd_bit=5`, `pext_mvd_const=1`, `pext_mvd_alias=1`, `pext_mvd_marker=1`
+- `protocol_version=1`, `protocol_extension_id=3`
+
+### Migration shape
+
+`migrateV15ToV16` rebuilds `protocol_message_versions` with the widened CHECK using the standard FK-safety pattern (`foreign_keys = OFF` outside the txn). Before the rebuild, in-place UPDATEs map old kind values to the new taxonomy using fields already on the row:
+
+```sql
+-- pext_fte / pext_mvd subdivide by value_kind
+UPDATE protocol_message_versions
+   SET kind = CASE value_kind
+     WHEN 'bitshift'   THEN 'pext_mvd_bit'
+     WHEN 'integer'    THEN 'pext_mvd_const'
+     WHEN 'hex'        THEN 'pext_mvd_const'
+     WHEN 'expression' THEN 'pext_mvd_alias'
+     ELSE                   'pext_mvd_marker'
+   END
+ WHERE kind = 'pext_mvd';
+-- ... and symmetrically for pext_fte ...
+
+-- protocol_version vs protocol_extension_id splits by entity name
+UPDATE protocol_message_versions
+   SET kind = 'protocol_extension_id'
+ WHERE kind = 'protocol_version'
+   AND entity_id IN (
+     SELECT id FROM entities
+      WHERE name LIKE 'PROTOCOL_VERSION_%' AND name != 'PROTOCOL_VERSION'
+   );
+```
+
+After the in-place mapping, `INSERT INTO protocol_message_versions_v16 SELECT * FROM protocol_message_versions` works against the new CHECK without rejection. A defensive count-check between the UPDATE step and the rebuild aborts with a precise error message if any unexpected kind value survives.
+
+The Phase B info_key name UPDATE is data-only and rides the same transaction. Both backfills are idempotent thanks to `WHERE NOT LIKE '%:%'` and `WHERE kind = 'pext_mvd'`-style guards, so re-running the migration on an already-migrated DB is a no-op.
+
+`SCHEMA_V15_ADDITIONS_SQL`'s inline `protocol_message_versions.kind` CHECK has been widened to the v16 13-kind list so fresh DBs land on the v16 shape directly via the `CREATE IF NOT EXISTS` path -- the documented "fresh DB vs migrated DB" pattern (mirrors `SCHEMA_V1_SQL`'s `entities.type` CHECK already listing the full v15 type set).
+
+### MCP and quality-grid wiring
+
+- `lookup_entity` adds a bare-name prefix fallback for type=info_key (described above). Tool description updated.
+- `verify-rewrite.ts` adds a cross-scope smoke that calls `lookup_entity({name: '*z_ext', type: 'info_key', project: 'mvdsv'})` and asserts 2 rows with scopes serverinfo + userinfo.
+- `F1.mvdsv.info_keys_count` expected count bumped 44 -> 45.
+- `F2.mvdsv.protocol_message_kinds_distribution` expected list widened to 13 kinds. The probe asserts that every observed kind is in the expected set (rather than that every expected kind has rows) since some kinds may have zero rows at HEAD.
+
+### Spec / plan
+
+- Plan: `docs/superpowers/plans/2026-04-28-mvdsv-phase2e-followups.md` (Phase B + Phase C).
+
+---
+
 ## Related
 
 - Schema code: `scripts/load-knowledge/schema.ts`

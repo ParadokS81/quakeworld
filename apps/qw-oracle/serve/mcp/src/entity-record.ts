@@ -18,12 +18,24 @@ export interface EntityRow {
   last_seen_version: string;
 }
 
-const VERSION_TABLE: Record<EntityType, string> = {
+// Phase 2e MVDSV (schema v15) added four server-side entity types whose
+// per-version tables aren't in the user-facing 5-type EntityType union.
+// The map here uses a string key so info_key lookups (Phase B 2026-04-28
+// cross-scope split) can resolve their version table without widening the
+// MCP-side EntityType. Unknown entity types fall through to an empty
+// version-data record below (`if (!row) ...`).
+const VERSION_TABLE: Record<string, string> = {
   cvar: 'cvar_versions',
   command: 'command_versions',
   macro: 'macro_versions',
   cmdline_param: 'cmdline_param_versions',
   ruleset: 'ruleset_versions',
+  // v15+ server-side types. Wired up so MCP lookup_entity can return rich
+  // records for these too.
+  info_key: 'info_key_versions',
+  protocol_message: 'protocol_message_versions',
+  log_template: 'log_template_versions',
+  qc_builtin: 'qc_builtin_versions',
 };
 
 const CONSUMED_VERSION_KEYS = new Set([
@@ -42,6 +54,23 @@ const CONSUMED_VERSION_KEYS = new Set([
 
 function fetchVersionData(entity: EntityRow): EntityVersionData {
   const table = VERSION_TABLE[entity.type];
+  if (!table) {
+    // Unknown entity type (e.g. token_primitive, hud_element, keyname,
+    // asset_category, flag_bit, cvar_alias). Return the empty stub so the
+    // wrapping record still carries identity + linked_concepts even when
+    // the per-type version table isn't wired into the MCP record builder.
+    return {
+      version: entity.last_seen_version,
+      help_desc: null,
+      help_remarks: null,
+      help_type: null,
+      default_value: null,
+      flag_names: null,
+      source_file: null,
+      source_line: null,
+      type_specific: {},
+    };
+  }
   const row = knowledgeDb
     .prepare(`SELECT * FROM ${table} WHERE entity_id = ? AND version = ?`)
     .get(entity.id, entity.last_seen_version) as Record<string, unknown> | undefined;

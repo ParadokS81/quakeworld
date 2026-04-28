@@ -316,6 +316,16 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       }
       if (rawEntries[item.name] === undefined) {
         rawEntries[item.name] = item;
+      } else {
+        // Belt-and-braces (Phase B 2026-04-28): future cross-X dups in any
+        // entity type should not disappear silently. With the info_key
+        // `<bare>:<scope>` suffixing in place, this branch should not fire
+        // for info_key today; if it does for any type, the canonical name
+        // emitted by the handler isn't carrying enough discriminator.
+        console.warn(
+          `[load-version] dropped duplicate name "${item.name}" in ${options.type} payload — ` +
+          `cross-scope or cross-shape collision; canonical name should include scope/shape suffix`,
+        );
       }
     }
   } else {
@@ -432,7 +442,10 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       const validTokenPrimitive = options.type === 'token_primitive' && /^\$.+$/.test(nameRaw);
       const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
       // QuakeWorld info_key system keys carry a leading '*' (*spectator, *VIP, ...).
-      const validInfoKey = options.type === 'info_key' && /^\*?[a-z0-9_.+\-]+$/.test(name);
+      // Phase B 2026-04-28 (schema v16): info_key canonical names include a
+      // `:<scope>` suffix so cross-scope dups can coexist under the entities
+      // UNIQUE(project, type, name) constraint. The colon is admitted here.
+      const validInfoKey = options.type === 'info_key' && /^\*?[a-z0-9_.+\-]+:(userinfo|serverinfo|localinfo)$/.test(name);
       // log_template "names" are <channel>:<printf-template> -- containing
       // spaces, %-specifiers, escapes, punctuation. The channel-prefix shape is
       // verified by the schema-level CHECK on log_template_versions.channel and

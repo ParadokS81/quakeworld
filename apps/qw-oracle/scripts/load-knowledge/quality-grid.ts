@@ -964,7 +964,11 @@ function probeMvdsvInfoKeysCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='info_key' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const expected = 44;
+  // Phase B 2026-04-28: bumped 44 -> 45. The Phase B `<bare>:<scope>` rename
+  // recovered the second `*z_ext` registration (userinfo via SVC_DirectConnect)
+  // that pre-Phase-B had been collapsed into the serverinfo row by the
+  // entities UNIQUE(project, type, name) constraint.
+  const expected = 45;
   return {
     name: 'F1.mvdsv.info_keys_count',
     family: 'regression',
@@ -1180,9 +1184,14 @@ function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): ProbeResult {
   };
 }
 
-// All six protocol_message kinds must be present (svc/clc/nq/pext_fte/
-// pext_mvd/protocol_version). A missing kind means the protocol-message
-// handler dropped an entire enum family.
+// Phase C 2026-04-28: schema v16 widens kinds from 6 to 13 to disambiguate
+// heterogeneous-bag classifications. Some of the new kinds may have zero rows
+// at HEAD (e.g. `pext_fte_bit` -- all 12 FTE entries are hex consts at the
+// 2026-01-04 mvdsv snapshot). The probe asserts that every observed kind is
+// in the expected set rather than that every expected kind has rows. A new
+// kind appearing in the DB that's NOT in the expected list means an
+// extractor has emitted an unrecognized classification -- those are the
+// failures to surface.
 function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): ProbeResult {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.protocol_message_kinds_distribution', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
@@ -1193,19 +1202,26 @@ function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): ProbeRes
     WHERE e.project='mvdsv'
     GROUP BY pv.kind ORDER BY pv.kind
   `).all() as { kind: string; n: number }[];
-  const expected = ['svc', 'clc', 'nq', 'pext_fte', 'pext_mvd', 'protocol_version'];
-  const present = new Set(rows.map(r => r.kind));
-  const missing = expected.filter(k => !present.has(k));
-  const ok = missing.length === 0;
+  const expected = [
+    'svc', 'clc', 'nq',
+    'pext_fte_bit', 'pext_fte_const', 'pext_fte_alias', 'pext_fte_marker',
+    'pext_mvd_bit', 'pext_mvd_const', 'pext_mvd_alias', 'pext_mvd_marker',
+    'protocol_version', 'protocol_extension_id',
+  ];
+  const expectedSet = new Set(expected);
+  const unexpected = rows.map(r => r.kind).filter(k => !expectedSet.has(k));
+  const ok = unexpected.length === 0;
   return {
     name: 'F2.mvdsv.protocol_message_kinds_distribution',
     family: 'anomaly',
-    description: 'mvdsv protocol_message kinds: all 6 (svc/clc/nq/pext_fte/pext_mvd/protocol_version) present',
+    description:
+      'mvdsv protocol_message kinds: every observed kind is in the v16 13-kind set ' +
+      '(svc/clc/nq + 4 pext_fte_* + 4 pext_mvd_* + protocol_version + protocol_extension_id)',
     status: ok ? 'CLEAN' : 'FOUND',
-    count: missing.length,
+    count: unexpected.length,
     summary: ok
-      ? `all 6 kinds present (${rows.map(r => `${r.kind}=${r.n}`).join(', ')})`
-      : `missing kinds: ${missing.join(', ')}`,
+      ? `${rows.length}/13 kinds observed (${rows.map(r => `${r.kind}=${r.n}`).join(', ')})`
+      : `unexpected kinds: ${unexpected.join(', ')}`,
     examples: rows.map(r => `${r.kind}: ${r.n}`),
   };
 }

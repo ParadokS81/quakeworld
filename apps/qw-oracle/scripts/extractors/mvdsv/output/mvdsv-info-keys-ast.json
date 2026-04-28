@@ -1,7 +1,8 @@
 {
   "info_keys": [
     {
-      "name": "*admin",
+      "name": "*admin:serverinfo",
+      "bare_name": "*admin",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -26,7 +27,8 @@
       }
     },
     {
-      "name": "*cheats",
+      "name": "*cheats:serverinfo",
+      "bare_name": "*cheats",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -55,7 +57,8 @@
       }
     },
     {
-      "name": "*csprogs",
+      "name": "*csprogs:serverinfo",
+      "bare_name": "*csprogs",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -79,7 +82,8 @@
       }
     },
     {
-      "name": "*csprogsname",
+      "name": "*csprogsname:serverinfo",
+      "bare_name": "*csprogsname",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -103,7 +107,8 @@
       }
     },
     {
-      "name": "*csprogssize",
+      "name": "*csprogssize:serverinfo",
+      "bare_name": "*csprogssize",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -127,7 +132,8 @@
       }
     },
     {
-      "name": "*gamedir",
+      "name": "*gamedir:serverinfo",
+      "bare_name": "*gamedir",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -172,7 +178,8 @@
       }
     },
     {
-      "name": "*progs",
+      "name": "*progs:serverinfo",
+      "bare_name": "*progs",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -201,7 +208,8 @@
       }
     },
     {
-      "name": "*qvm",
+      "name": "*qvm:serverinfo",
+      "bare_name": "*qvm",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -220,7 +228,8 @@
       }
     },
     {
-      "name": "*version",
+      "name": "*version:serverinfo",
+      "bare_name": "*version",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -239,7 +248,8 @@
       }
     },
     {
-      "name": "*z_ext",
+      "name": "*z_ext:serverinfo",
+      "bare_name": "*z_ext",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -258,7 +268,8 @@
       }
     },
     {
-      "name": "epoch",
+      "name": "epoch:serverinfo",
+      "bare_name": "epoch",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -277,7 +288,8 @@
       }
     },
     {
-      "name": "map",
+      "name": "map:serverinfo",
+      "bare_name": "map",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -296,7 +308,8 @@
       }
     },
     {
-      "name": "needpass",
+      "name": "needpass:serverinfo",
+      "bare_name": "needpass",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -320,7 +333,8 @@
       }
     },
     {
-      "name": "status",
+      "name": "status:serverinfo",
+      "bare_name": "status",
       "ast": {
         "scope": "serverinfo",
         "operations": [
@@ -344,7 +358,8 @@
       }
     },
     {
-      "name": "*VIP",
+      "name": "*VIP:userinfo",
+      "bare_name": "*VIP",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -368,7 +383,8 @@
       }
     },
     {
-      "name": "*auth",
+      "name": "*auth:userinfo",
+      "bare_name": "*auth",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -398,7 +414,8 @@
       }
     },
     {
-      "name": "*client",
+      "name": "*client:userinfo",
+      "bare_name": "*client",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -417,7 +434,8 @@
       }
     },
     {
-      "name": "*flag",
+      "name": "*flag:userinfo",
+      "bare_name": "*flag",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -447,7 +465,8 @@
       }
     },
     {
-      "name": "*qtv",
+      "name": "*qtv:userinfo",
+      "bare_name": "*qtv",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -466,7 +485,8 @@
       }
     },
     {
-      "name": "*skill",
+      "name": "*skill:userinfo",
+      "bare_name": "*skill",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -485,7 +505,8 @@
       }
     },
     {
-      "name": "*spectator",
+      "name": "*spectator:userinfo",
+      "bare_name": "*spectator",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -540,7 +561,8 @@
       }
     },
     {
-      "name": "*z_ext",
+      "name": "*z_ext:userinfo",
+      "bare_name": "*z_ext",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -565,7 +587,8 @@
       }
     },
     {
-      "name": "Qizmo",
+      "name": "Qizmo:userinfo",
+      "bare_name": "Qizmo",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -584,7 +607,8 @@
       }
     },
     {
-      "name": "address",
+      "name": "address:userinfo",
+      "bare_name": "address",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -603,7 +627,8 @@
       }
     },
     {
-      "name": "bottomcolor",
+      "name": "bottomcolor:userinfo",
+      "bare_name": "bottomcolor",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -622,7 +647,8 @@
       }
     },
     {
-      "name": "chat",
+      "name": "chat:userinfo",
+      "bare_name": "chat",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -641,7 +667,8 @@
       }
     },
     {
-      "name": "dev",
+      "name": "dev:userinfo",
+      "bare_name": "dev",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -680,7 +707,8 @@
       }
     },
     {
-      "name": "drate",
+      "name": "drate:userinfo",
+      "bare_name": "drate",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -699,7 +727,8 @@
       }
     },
     {
-      "name": "dupe",
+      "name": "dupe:userinfo",
+      "bare_name": "dupe",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -718,7 +747,8 @@
       }
     },
     {
-      "name": "emodel",
+      "name": "emodel:userinfo",
+      "bare_name": "emodel",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -742,7 +772,8 @@
       }
     },
     {
-      "name": "msg",
+      "name": "msg:userinfo",
+      "bare_name": "msg",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -761,7 +792,8 @@
       }
     },
     {
-      "name": "mtu",
+      "name": "mtu:userinfo",
+      "bare_name": "mtu",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -780,7 +812,8 @@
       }
     },
     {
-      "name": "name",
+      "name": "name:userinfo",
+      "bare_name": "name",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -845,7 +878,8 @@
       }
     },
     {
-      "name": "password",
+      "name": "password:userinfo",
+      "bare_name": "password",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -875,7 +909,8 @@
       }
     },
     {
-      "name": "pmodel",
+      "name": "pmodel:userinfo",
+      "bare_name": "pmodel",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -899,7 +934,8 @@
       }
     },
     {
-      "name": "qul",
+      "name": "qul:userinfo",
+      "bare_name": "qul",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -923,7 +959,8 @@
       }
     },
     {
-      "name": "rate",
+      "name": "rate:userinfo",
+      "bare_name": "rate",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -942,7 +979,8 @@
       }
     },
     {
-      "name": "skin",
+      "name": "skin:userinfo",
+      "bare_name": "skin",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -961,7 +999,8 @@
       }
     },
     {
-      "name": "sp",
+      "name": "sp:userinfo",
+      "bare_name": "sp",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -980,7 +1019,8 @@
       }
     },
     {
-      "name": "spectator",
+      "name": "spectator:userinfo",
+      "bare_name": "spectator",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -1010,7 +1050,8 @@
       }
     },
     {
-      "name": "streamid",
+      "name": "streamid:userinfo",
+      "bare_name": "streamid",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -1029,7 +1070,8 @@
       }
     },
     {
-      "name": "svf",
+      "name": "svf:userinfo",
+      "bare_name": "svf",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -1053,7 +1095,8 @@
       }
     },
     {
-      "name": "team",
+      "name": "team:userinfo",
+      "bare_name": "team",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -1083,7 +1126,8 @@
       }
     },
     {
-      "name": "topcolor",
+      "name": "topcolor:userinfo",
+      "bare_name": "topcolor",
       "ast": {
         "scope": "userinfo",
         "operations": [
@@ -1102,7 +1146,8 @@
       }
     },
     {
-      "name": "w_rank",
+      "name": "w_rank:userinfo",
+      "bare_name": "w_rank",
       "ast": {
         "scope": "userinfo",
         "operations": [

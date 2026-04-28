@@ -7,6 +7,13 @@
 // reach buildRow because isSourceBacked filters them upstream. The two
 // array-shaped ast fields (operations, all_call_sites) are JSON-stringified
 // for storage in SQLite TEXT columns.
+//
+// Phase B 2026-04-28: entry.name is the suffixed `<bare>:<scope>` canonical
+// form (per InfoKeyEntry). It flows through load-version.ts unchanged into
+// entities.name so cross-scope registrations of the same key survive the
+// UNIQUE(project, type, name) constraint. The schema v16 migration
+// backfills pre-v15 unsuffixed rows to the suffixed form before the next
+// extract-tag idempotently re-upserts.
 
 import { createHash } from 'crypto';
 import type Database from 'better-sqlite3';
