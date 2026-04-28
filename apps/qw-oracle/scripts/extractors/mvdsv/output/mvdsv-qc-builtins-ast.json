@@ -1,7 +1,8 @@
 {
   "qc_builtins": [
     {
-      "name": "sin",
+      "name": "sin:ext_builtins",
+      "bare_name": "sin",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 60,
@@ -13,7 +14,8 @@
       }
     },
     {
-      "name": "cos",
+      "name": "cos:ext_builtins",
+      "bare_name": "cos",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 61,
@@ -25,7 +27,8 @@
       }
     },
     {
-      "name": "sqrt",
+      "name": "sqrt:ext_builtins",
+      "bare_name": "sqrt",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 62,
@@ -37,7 +40,8 @@
       }
     },
     {
-      "name": "tokenize",
+      "name": "tokenize:ext_builtins",
+      "bare_name": "tokenize",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 84,
@@ -49,7 +53,8 @@
       }
     },
     {
-      "name": "argc",
+      "name": "argc:ext_builtins",
+      "bare_name": "argc",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 85,
@@ -61,7 +66,8 @@
       }
     },
     {
-      "name": "argv",
+      "name": "argv:ext_builtins",
+      "bare_name": "argv",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 86,
@@ -73,7 +79,8 @@
       }
     },
     {
-      "name": "tracebox",
+      "name": "tracebox:ext_builtins",
+      "bare_name": "tracebox",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 90,
@@ -85,7 +92,8 @@
       }
     },
     {
-      "name": "randomvec",
+      "name": "randomvec:ext_builtins",
+      "bare_name": "randomvec",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 91,
@@ -97,7 +105,8 @@
       }
     },
     {
-      "name": "registercvar",
+      "name": "registercvar:ext_builtins",
+      "bare_name": "registercvar",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 93,
@@ -109,7 +118,8 @@
       }
     },
     {
-      "name": "min",
+      "name": "min:ext_builtins",
+      "bare_name": "min",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 94,
@@ -121,7 +131,8 @@
       }
     },
     {
-      "name": "max",
+      "name": "max:ext_builtins",
+      "bare_name": "max",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 95,
@@ -133,7 +144,8 @@
       }
     },
     {
-      "name": "bound",
+      "name": "bound:ext_builtins",
+      "bare_name": "bound",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 96,
@@ -145,7 +157,8 @@
       }
     },
     {
-      "name": "pow",
+      "name": "pow:ext_builtins",
+      "bare_name": "pow",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 97,
@@ -157,7 +170,8 @@
       }
     },
     {
-      "name": "checkextension",
+      "name": "checkextension:ext_builtins",
+      "bare_name": "checkextension",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 99,
@@ -169,7 +183,8 @@
       }
     },
     {
-      "name": "cvar_string",
+      "name": "cvar_string:ext_builtins",
+      "bare_name": "cvar_string",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 103,
@@ -181,7 +196,8 @@
       }
     },
     {
-      "name": "strlen",
+      "name": "strlen:ext_builtins",
+      "bare_name": "strlen",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 114,
@@ -193,7 +209,8 @@
       }
     },
     {
-      "name": "strcat",
+      "name": "strcat:ext_builtins",
+      "bare_name": "strcat",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 115,
@@ -205,7 +222,8 @@
       }
     },
     {
-      "name": "substr",
+      "name": "substr:ext_builtins",
+      "bare_name": "substr",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 116,
@@ -217,7 +235,8 @@
       }
     },
     {
-      "name": "strzone",
+      "name": "strzone:ext_builtins",
+      "bare_name": "strzone",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 118,
@@ -229,7 +248,8 @@
       }
     },
     {
-      "name": "strunzone",
+      "name": "strunzone:ext_builtins",
+      "bare_name": "strunzone",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 119,
@@ -241,7 +261,8 @@
       }
     },
     {
-      "name": "calltimeofday",
+      "name": "calltimeofday:ext_builtins",
+      "bare_name": "calltimeofday",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 231,
@@ -253,7 +274,8 @@
       }
     },
     {
-      "name": "cvar_string",
+      "name": "cvar_string:ext_builtins",
+      "bare_name": "cvar_string",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 448,
@@ -265,7 +287,8 @@
       }
     },
     {
-      "name": "setpause",
+      "name": "setpause:ext_builtins",
+      "bare_name": "setpause",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 531,
@@ -277,7 +300,8 @@
       }
     },
     {
-      "name": "precache_vwep_model",
+      "name": "precache_vwep_model:ext_builtins",
+      "bare_name": "precache_vwep_model",
       "ast": {
         "table_name": "ext_builtins",
         "builtin_index": 532,
@@ -289,7 +313,8 @@
       }
     },
     {
-      "name": "MapExtFieldPtr",
+      "name": "MapExtFieldPtr:ext_syscalls",
+      "bare_name": "MapExtFieldPtr",
       "ast": {
         "table_name": "ext_syscalls",
         "builtin_index": 0,
@@ -301,7 +326,8 @@
       }
     },
     {
-      "name": "SetExtFieldPtr",
+      "name": "SetExtFieldPtr:ext_syscalls",
+      "bare_name": "SetExtFieldPtr",
       "ast": {
         "table_name": "ext_syscalls",
         "builtin_index": 1,
@@ -313,7 +339,8 @@
       }
     },
     {
-      "name": "GetExtFieldPtr",
+      "name": "GetExtFieldPtr:ext_syscalls",
+      "bare_name": "GetExtFieldPtr",
       "ast": {
         "table_name": "ext_syscalls",
         "builtin_index": 2,
@@ -325,7 +352,8 @@
       }
     },
     {
-      "name": "setsendneeded",
+      "name": "setsendneeded:ext_syscalls",
+      "bare_name": "setsendneeded",
       "ast": {
         "table_name": "ext_syscalls",
         "builtin_index": 3,
@@ -337,7 +365,8 @@
       }
     },
     {
-      "name": "makevectors",
+      "name": "makevectors:std_builtins",
+      "bare_name": "makevectors",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 1,
@@ -349,7 +378,8 @@
       }
     },
     {
-      "name": "setorigin",
+      "name": "setorigin:std_builtins",
+      "bare_name": "setorigin",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 2,
@@ -361,7 +391,8 @@
       }
     },
     {
-      "name": "setmodel",
+      "name": "setmodel:std_builtins",
+      "bare_name": "setmodel",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 3,
@@ -373,7 +404,8 @@
       }
     },
     {
-      "name": "setsize",
+      "name": "setsize:std_builtins",
+      "bare_name": "setsize",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 4,
@@ -385,7 +417,8 @@
       }
     },
     {
-      "name": "break",
+      "name": "break:std_builtins",
+      "bare_name": "break",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 6,
@@ -397,7 +430,8 @@
       }
     },
     {
-      "name": "random",
+      "name": "random:std_builtins",
+      "bare_name": "random",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 7,
@@ -409,7 +443,8 @@
       }
     },
     {
-      "name": "sound",
+      "name": "sound:std_builtins",
+      "bare_name": "sound",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 8,
@@ -421,7 +456,8 @@
       }
     },
     {
-      "name": "normalize",
+      "name": "normalize:std_builtins",
+      "bare_name": "normalize",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 9,
@@ -433,7 +469,8 @@
       }
     },
     {
-      "name": "error",
+      "name": "error:std_builtins",
+      "bare_name": "error",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 10,
@@ -445,7 +482,8 @@
       }
     },
     {
-      "name": "objerror",
+      "name": "objerror:std_builtins",
+      "bare_name": "objerror",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 11,
@@ -457,7 +495,8 @@
       }
     },
     {
-      "name": "vlen",
+      "name": "vlen:std_builtins",
+      "bare_name": "vlen",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 12,
@@ -469,7 +508,8 @@
       }
     },
     {
-      "name": "vectoyaw",
+      "name": "vectoyaw:std_builtins",
+      "bare_name": "vectoyaw",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 13,
@@ -481,7 +521,8 @@
       }
     },
     {
-      "name": "spawn",
+      "name": "spawn:std_builtins",
+      "bare_name": "spawn",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 14,
@@ -493,7 +534,8 @@
       }
     },
     {
-      "name": "remove",
+      "name": "remove:std_builtins",
+      "bare_name": "remove",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 15,
@@ -505,7 +547,8 @@
       }
     },
     {
-      "name": "traceline",
+      "name": "traceline:std_builtins",
+      "bare_name": "traceline",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 16,
@@ -517,7 +560,8 @@
       }
     },
     {
-      "name": "clientlist",
+      "name": "clientlist:std_builtins",
+      "bare_name": "clientlist",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 17,
@@ -529,7 +573,8 @@
       }
     },
     {
-      "name": "find",
+      "name": "find:std_builtins",
+      "bare_name": "find",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 18,
@@ -541,7 +586,8 @@
       }
     },
     {
-      "name": "precache_sound",
+      "name": "precache_sound:std_builtins",
+      "bare_name": "precache_sound",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 19,
@@ -553,7 +599,8 @@
       }
     },
     {
-      "name": "precache_model",
+      "name": "precache_model:std_builtins",
+      "bare_name": "precache_model",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 20,
@@ -565,7 +612,8 @@
       }
     },
     {
-      "name": "stuffcmd",
+      "name": "stuffcmd:std_builtins",
+      "bare_name": "stuffcmd",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 21,
@@ -577,7 +625,8 @@
       }
     },
     {
-      "name": "findradius",
+      "name": "findradius:std_builtins",
+      "bare_name": "findradius",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 22,
@@ -589,7 +638,8 @@
       }
     },
     {
-      "name": "bprint",
+      "name": "bprint:std_builtins",
+      "bare_name": "bprint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 23,
@@ -601,7 +651,8 @@
       }
     },
     {
-      "name": "sprint",
+      "name": "sprint:std_builtins",
+      "bare_name": "sprint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 24,
@@ -613,7 +664,8 @@
       }
     },
     {
-      "name": "dprint",
+      "name": "dprint:std_builtins",
+      "bare_name": "dprint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 25,
@@ -625,7 +677,8 @@
       }
     },
     {
-      "name": "ftos",
+      "name": "ftos:std_builtins",
+      "bare_name": "ftos",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 26,
@@ -637,7 +690,8 @@
       }
     },
     {
-      "name": "vtos",
+      "name": "vtos:std_builtins",
+      "bare_name": "vtos",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 27,
@@ -649,7 +703,8 @@
       }
     },
     {
-      "name": "coredump",
+      "name": "coredump:std_builtins",
+      "bare_name": "coredump",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 28,
@@ -661,7 +716,8 @@
       }
     },
     {
-      "name": "traceon",
+      "name": "traceon:std_builtins",
+      "bare_name": "traceon",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 29,
@@ -673,7 +729,8 @@
       }
     },
     {
-      "name": "traceoff",
+      "name": "traceoff:std_builtins",
+      "bare_name": "traceoff",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 30,
@@ -685,7 +742,8 @@
       }
     },
     {
-      "name": "eprint",
+      "name": "eprint:std_builtins",
+      "bare_name": "eprint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 31,
@@ -697,7 +755,8 @@
       }
     },
     {
-      "name": "walkmove",
+      "name": "walkmove:std_builtins",
+      "bare_name": "walkmove",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 32,
@@ -709,7 +768,8 @@
       }
     },
     {
-      "name": "droptofloor",
+      "name": "droptofloor:std_builtins",
+      "bare_name": "droptofloor",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 34,
@@ -721,7 +781,8 @@
       }
     },
     {
-      "name": "lightstyle",
+      "name": "lightstyle:std_builtins",
+      "bare_name": "lightstyle",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 35,
@@ -733,7 +794,8 @@
       }
     },
     {
-      "name": "rint",
+      "name": "rint:std_builtins",
+      "bare_name": "rint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 36,
@@ -745,7 +807,8 @@
       }
     },
     {
-      "name": "floor",
+      "name": "floor:std_builtins",
+      "bare_name": "floor",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 37,
@@ -757,7 +820,8 @@
       }
     },
     {
-      "name": "ceil",
+      "name": "ceil:std_builtins",
+      "bare_name": "ceil",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 38,
@@ -769,7 +833,8 @@
       }
     },
     {
-      "name": "checkbottom",
+      "name": "checkbottom:std_builtins",
+      "bare_name": "checkbottom",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 40,
@@ -781,7 +846,8 @@
       }
     },
     {
-      "name": "pointcontents",
+      "name": "pointcontents:std_builtins",
+      "bare_name": "pointcontents",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 41,
@@ -793,7 +859,8 @@
       }
     },
     {
-      "name": "fabs",
+      "name": "fabs:std_builtins",
+      "bare_name": "fabs",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 43,
@@ -805,7 +872,8 @@
       }
     },
     {
-      "name": "aim",
+      "name": "aim:std_builtins",
+      "bare_name": "aim",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 44,
@@ -817,7 +885,8 @@
       }
     },
     {
-      "name": "cvar",
+      "name": "cvar:std_builtins",
+      "bare_name": "cvar",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 45,
@@ -829,7 +898,8 @@
       }
     },
     {
-      "name": "localcmd",
+      "name": "localcmd:std_builtins",
+      "bare_name": "localcmd",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 46,
@@ -841,7 +911,8 @@
       }
     },
     {
-      "name": "nextent",
+      "name": "nextent:std_builtins",
+      "bare_name": "nextent",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 47,
@@ -853,7 +924,8 @@
       }
     },
     {
-      "name": "particle",
+      "name": "particle:std_builtins",
+      "bare_name": "particle",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 48,
@@ -865,7 +937,8 @@
       }
     },
     {
-      "name": "changeyaw",
+      "name": "changeyaw:std_builtins",
+      "bare_name": "changeyaw",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 49,
@@ -877,7 +950,8 @@
       }
     },
     {
-      "name": "vectoangles",
+      "name": "vectoangles:std_builtins",
+      "bare_name": "vectoangles",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 51,
@@ -889,7 +963,8 @@
       }
     },
     {
-      "name": "WriteByte",
+      "name": "WriteByte:std_builtins",
+      "bare_name": "WriteByte",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 52,
@@ -901,7 +976,8 @@
       }
     },
     {
-      "name": "WriteChar",
+      "name": "WriteChar:std_builtins",
+      "bare_name": "WriteChar",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 53,
@@ -913,7 +989,8 @@
       }
     },
     {
-      "name": "WriteShort",
+      "name": "WriteShort:std_builtins",
+      "bare_name": "WriteShort",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 54,
@@ -925,7 +1002,8 @@
       }
     },
     {
-      "name": "WriteLong",
+      "name": "WriteLong:std_builtins",
+      "bare_name": "WriteLong",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 55,
@@ -937,7 +1015,8 @@
       }
     },
     {
-      "name": "WriteCoord",
+      "name": "WriteCoord:std_builtins",
+      "bare_name": "WriteCoord",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 56,
@@ -949,7 +1028,8 @@
       }
     },
     {
-      "name": "WriteAngle",
+      "name": "WriteAngle:std_builtins",
+      "bare_name": "WriteAngle",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 57,
@@ -961,7 +1041,8 @@
       }
     },
     {
-      "name": "WriteString",
+      "name": "WriteString:std_builtins",
+      "bare_name": "WriteString",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 58,
@@ -973,7 +1054,8 @@
       }
     },
     {
-      "name": "WriteEntity",
+      "name": "WriteEntity:std_builtins",
+      "bare_name": "WriteEntity",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 59,
@@ -985,7 +1067,8 @@
       }
     },
     {
-      "name": "SV_MoveToGoal",
+      "name": "SV_MoveToGoal:std_builtins",
+      "bare_name": "SV_MoveToGoal",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 67,
@@ -997,7 +1080,8 @@
       }
     },
     {
-      "name": "precache_file",
+      "name": "precache_file:std_builtins",
+      "bare_name": "precache_file",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 68,
@@ -1009,7 +1093,8 @@
       }
     },
     {
-      "name": "makestatic",
+      "name": "makestatic:std_builtins",
+      "bare_name": "makestatic",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 69,
@@ -1021,7 +1106,8 @@
       }
     },
     {
-      "name": "changelevel",
+      "name": "changelevel:std_builtins",
+      "bare_name": "changelevel",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 70,
@@ -1033,7 +1119,8 @@
       }
     },
     {
-      "name": "cvar_set",
+      "name": "cvar_set:std_builtins",
+      "bare_name": "cvar_set",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 72,
@@ -1045,7 +1132,8 @@
       }
     },
     {
-      "name": "centerprint",
+      "name": "centerprint:std_builtins",
+      "bare_name": "centerprint",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 73,
@@ -1057,7 +1145,8 @@
       }
     },
     {
-      "name": "ambientsound",
+      "name": "ambientsound:std_builtins",
+      "bare_name": "ambientsound",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 74,
@@ -1069,7 +1158,8 @@
       }
     },
     {
-      "name": "precache_model",
+      "name": "precache_model:std_builtins",
+      "bare_name": "precache_model",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 75,
@@ -1081,7 +1171,8 @@
       }
     },
     {
-      "name": "precache_sound",
+      "name": "precache_sound:std_builtins",
+      "bare_name": "precache_sound",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 76,
@@ -1093,7 +1184,8 @@
       }
     },
     {
-      "name": "precache_file",
+      "name": "precache_file:std_builtins",
+      "bare_name": "precache_file",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 77,
@@ -1105,7 +1197,8 @@
       }
     },
     {
-      "name": "setspawnparms",
+      "name": "setspawnparms:std_builtins",
+      "bare_name": "setspawnparms",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 78,
@@ -1117,7 +1210,8 @@
       }
     },
     {
-      "name": "logfrag",
+      "name": "logfrag:std_builtins",
+      "bare_name": "logfrag",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 79,
@@ -1129,7 +1223,8 @@
       }
     },
     {
-      "name": "infokey",
+      "name": "infokey:std_builtins",
+      "bare_name": "infokey",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 80,
@@ -1141,7 +1236,8 @@
       }
     },
     {
-      "name": "stof",
+      "name": "stof:std_builtins",
+      "bare_name": "stof",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 81,
@@ -1153,7 +1249,8 @@
       }
     },
     {
-      "name": "multicast",
+      "name": "multicast:std_builtins",
+      "bare_name": "multicast",
       "ast": {
         "table_name": "std_builtins",
         "builtin_index": 82,

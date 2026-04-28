@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 17;
+export const SCHEMA_VERSION = 18;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -1401,6 +1401,33 @@ function migrateV16ToV17(db: Database.Database): void {
   txn();
 }
 
+// v17 -> v18 (Phase 2 task 2.4, 2026-04-28).
+// qc_builtin canonical name backfill: rewrite mvdsv qc_builtin entity names
+// from `<bare>` to `<bare>:<table_name>` to mirror info_key Phase B's
+// `:<scope>` shape. The audit (D.1.10) predicted this would recover 4
+// previously-collided "cross-scope" entities; on closer inspection those
+// 4 (cvar_string / precache_model / precache_sound / precache_file) are
+// intra-table multi-index registrations, not cross-table. The :<table>
+// suffix alone doesn't disambiguate them; recovering them needs handler-side
+// aggregation (deferred to HANDOVER). The structural change still stands as
+// alignment with info_key. The next extract-tag re-upserts the existing 93
+// entities under their suffixed names. The WHERE NOT LIKE '%:%' guard makes
+// this idempotent.
+function migrateV17ToV18(db: Database.Database): void {
+  const txn = db.transaction(() => {
+    db.exec(`
+      UPDATE entities
+         SET name = name || ':' || (
+           SELECT table_name FROM qc_builtin_versions
+            WHERE entity_id = entities.id LIMIT 1
+         )
+       WHERE project='mvdsv' AND type='qc_builtin' AND name NOT LIKE '%:%';
+    `);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('18');
+  });
+  txn();
+}
+
 function migrateV15ToV16(db: Database.Database): void {
   // CHECK widening on protocol_message_versions requires foreign_keys OFF
   // outside the txn (same FK-safety pattern as ASSET_LOADER_SITES_V8 and
@@ -1623,6 +1650,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 16 && SCHEMA_VERSION >= 17) {
       migrateV16ToV17(db);
       existingVersion = 17;
+    }
+    if (existingVersion === 17 && SCHEMA_VERSION >= 18) {
+      migrateV17ToV18(db);
+      existingVersion = 18;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

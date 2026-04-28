@@ -40,6 +40,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._cvar_shared import normalize_flags_raw  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -494,7 +495,7 @@ class CvarsFteHandler(Visitor):
                 "source_column": None,
                 "storage_class": None,
                 # flags_raw: join CVAR_* flag tokens as space-separated string
-                "flags_raw": " | ".join(flags_list) if flags_list else None,
+                "flags_raw": normalize_flags_raw(" | ".join(flags_list) if flags_list else None),
                 "flag_names": flags_list,
                 "on_change": row.get("callback"),
                 "group_name_in_source": row.get("group"),

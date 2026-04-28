@@ -2223,7 +2223,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": ", CVAR_INIT"
       },
       "desc": "This sets whether to confirm on quit or quit with no confirmation.",
       "values": [
@@ -2275,7 +2275,7 @@
         "group_name_in_source": "Crosshair Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "gamma updates are expensive in hw: update at lower fps, otherwise drops are severe"
       },
       "desc": "This variable allows you to move the position of the crosshair on the Y-axis by the specified amount of pixels."
     },
@@ -2570,7 +2570,7 @@
         "group_name_in_source": "Network Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "can be 0, 1, or 2"
       },
       "desc": "Allows random deviation to be added to /cl_delay_packet delay.",
       "remarks": "Specified in ms.  Makes /cl_delay_packet better simulate high-ping connections."
@@ -3619,7 +3619,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0 is good for indep-phys, 1 is good for old-phys"
       },
       "desc": "Rotating models bob up and down like in Quake3."
     },
@@ -4292,7 +4292,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "this var has effect only if cl_nolerp is 1 and indep-phys enabled"
+        "trailing_comment": "0 is good for indep-phys, 1 is good for old-phys"
       },
       "desc": "Allows you to disable the linear interpolation (lerp) of objects in the game.\nInformation about objects' states arrive periodically via the net connection. By default between these moments the client tries to interpolate where the objects are. After the new packet arrives client corrects the position of the object.\nIf the interpolation is disabled, client will leave object in the state described in the last received packet until a new one arrives.",
       "values": [
@@ -4832,7 +4832,7 @@
         "group_name_in_source": "Network Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "server-side adjustment of yaw angle through teleports"
+        "trailing_comment": "if set, user will be warned when saving demos that are not backwards compatible"
       },
       "desc": "If set, warning will be displayed when recording a demo that is not backwards compatible with old clients."
     },
@@ -5419,7 +5419,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "allow/disallow protocol extensions at all."
+        "trailing_comment": "can be 0, 1, or 2"
       },
       "desc": "This variable toggles the display of current net info.",
       "values": [
@@ -5796,7 +5796,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Enables voip playback from other clients connected to server."
+        "trailing_comment": "Multiplier applied while capturing, to avoid your audio from being heard by others."
       }
     },
     "cl_voip_demorecord": {
@@ -5924,7 +5924,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "horizontal coordinate"
+        "trailing_comment": "Show speech volume above the hud.  0 = hide, 1=when transmitting, 2=even when voice-activation not triggered"
       },
       "desc": "Shows your speech volume above the at the bottom-left of the screen.",
       "values": [
@@ -6795,7 +6795,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "values: old style, current + default values , current only, default only, current + default if changed, none."
       },
       "desc": "Orange text, LEDs and special chars with [Ctrl] key - kind of MQWCL behaviour when set to 1.",
       "values": [
@@ -7121,7 +7121,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "values: old style, current + default values , current only, default only, current + default if changed, none."
       },
       "desc": "When enabled, allows you to use the tilde key also in the console and when typing messages.",
       "remarks": "To exit the console with con_tilde_mode 1, use Escape.",
@@ -8122,7 +8122,7 @@
         "group_name_in_source": "Demo Handling",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": ", CVAR_INIT"
       },
       "desc": "This toggles whether the client should always record pings into the demo or only when the player died and show(team)scores are being shown (QWCL default).",
       "values": [
@@ -9525,7 +9525,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": "This is the one to adjust if you notice flicker on lift @ e1m1 for instance, for z-fighting"
       },
       "desc": "Offset drawing of entity models to stop z-fighting.",
       "remarks": "Disabled for qcon (can cause flickering areas, most often on Intel cards).",
@@ -10132,7 +10132,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "This is the one to adjust if you notice flicker on lift @ e1m1 for instance, for z-fighting"
       },
       "desc": "Toggles an extra layer of fine detail over world textures.",
       "remarks": "Can impact performance on weak GPUs."
@@ -12488,7 +12488,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0: off, 1: on, 2: in water only"
       },
       "desc": "Enables a flashing layer over players carrying powerups."
     },
@@ -13633,7 +13633,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0 - don't force; 1 - as login;"
       },
       "desc": "Server variable, changes the name of the server displayed in server browsers and server lists."
     },
@@ -51256,7 +51256,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0: off, 1: dm & single-player, 2: single-player only"
       },
       "desc": "Enables fog.",
       "remarks": "See also other r_fx_fog cvars for fine-tuning.",
@@ -51833,7 +51833,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "default 2, as CL_DecayLights() used to get called twice per frame"
       },
       "desc": "Determines how fast lights decay (radius decreases).\nMinimum value 1 (QWCL)"
     },
@@ -52564,7 +52564,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "default 2, as CL_DecayLights() used to get called twice per frame"
       },
       "desc": "Adds transparency to the lightning gun beam (shaft).",
       "remarks": "Disabled in ruleset smackdown and smackdrive.",
@@ -52734,7 +52734,7 @@
         "group_name_in_source": "Turbulency and Sky Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "This is the one to adjust if you notice flicker on lift @ e1m1 for instance, for z-fighting"
       },
       "desc": "Sets the scale factor of skybox animation if above 0, and skybox has an animation configuration.",
       "remarks": "Specifying a value above 1.0 will increase the pace of the configured animation."
@@ -53187,7 +53187,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "use this color for frag which u done"
+        "trailing_comment": "team kill, on ur team"
       },
       "desc": "Color to use when reporting a teamkill by current player's team."
     },
@@ -53210,7 +53210,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "use this color for frag which u done"
+        "trailing_comment": "team kill, not on ur team"
       },
       "desc": "Color to use when reporting an opponent's teamkill."
     },
@@ -54566,7 +54566,7 @@
         "group_name_in_source": "Chat Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": ", CVAR_INIT"
       },
       "desc": "Controls usage of s_mm*, s_chat_*, s_otherchat_* and s_spec_* variables.",
       "values": [
@@ -54678,7 +54678,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "If > 11, default sounds are noticeably different."
       },
       "desc": "Sets the audio sampling rate.\nIn ezQuake, this introduces artifacts which give a \"crisper\"/\"grainy\" feel to some sounds, as the interpolation is not perfect. All the original sounds are 11k, except for shaft which is 22k and will sound different when setting s_khz over 11.",
       "remarks": "If you dislike the changes in sound, you can i.e. convert the shaft sounds down to 11k (and fail \"f_modified\" checks), go back to s_khz 11, or use s_linearresample for perfect resampling.",
@@ -54720,7 +54720,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "If > 11, default sounds are noticeably different."
       },
       "desc": "Controls whether to resample sounds to s_khz with perfect quality. This cleans up any artifacts resulting from the default interpolation.",
       "remarks": "Resampling takes place as the sounds are loaded.",
@@ -54756,7 +54756,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "If > 11, default sounds are noticeably different."
       },
       "desc": "Same as s_linearresample, but specifically for VOIP audio streams."
     },
@@ -55683,7 +55683,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "when enabled, forces \"new ping\" (udp qw query packet, multithreaded) to be used"
       },
       "desc": "This determines how often ezQuake should try to retrieve information from a master server until it is considered to be not responding."
     },
@@ -55704,7 +55704,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "when enabled, forces \"new ping\" (udp qw query packet, multithreaded) to be used"
       },
       "desc": "This determines how long ezQuake will wait for a reply when trying to retrieve information from a master server until the attempt times out."
     },
@@ -55725,7 +55725,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "not in menu"
+        "trailing_comment": "when enabled, forces \"new ping\" (udp qw query packet, multithreaded) to be used"
       },
       "desc": "Disable ICMP pinging in server browser and use UDP QW Ping packet to query servers for their ping (multithreaded).",
       "values": [
@@ -57157,7 +57157,7 @@
         "group_name_in_source": "Menu",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "so crosshair does't affected by +showscores, or vice versa"
       },
       "desc": "Level of transparency of the cursor used in menus and HUD editor."
     },
@@ -57459,7 +57459,7 @@
         "group_name_in_source": "View Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "disables hud rendering"
+        "trailing_comment": "When using reduced viewsize, reduce vertical fov or letterbox the screen"
       },
       "desc": "Determines how to keep aspect ratio correct when viewsize is reduced.",
       "values": [
@@ -58816,7 +58816,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "don't hide notification messages in intermission"
+        "trailing_comment": "so crosshair does't affected by +showscores, or vice versa"
       },
       "desc": "Allows you to force the display of the crosshair when in menus or in scoreboard.",
       "values": [
@@ -60639,7 +60639,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "If set, don't send broadcast messages, entities or player info to ServeMe bot"
       }
     },
     "sv_cheats": {
@@ -61179,7 +61179,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "text shown before \"enter login\""
+        "trailing_comment": "0 - don't force; 1 - as login;"
       }
     },
     "sv_forcenqprogs": {
@@ -61312,7 +61312,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "use SHA1 for encryption of rcon_password and using timestamps"
+        "trailing_comment": "0 - plain passwords; 1 - hashed passwords"
       }
     },
     "sv_highchars": {
@@ -61504,7 +61504,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "if enabled, login required"
       }
     },
     "sv_login_web": {
@@ -61524,7 +61524,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0=local files, 1=auth via website (bans can be in local files), 2=mandatory auth (must have account in local files)"
       }
     },
     "sv_mapcheck": {
@@ -62081,7 +62081,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "0 = standard, 1 = pr2 mods set string_t fields as byte offsets to location of actual strings"
       }
     },
     "sv_qwfwd_port": {
@@ -62484,7 +62484,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "password for entering as a sepctator"
+        "trailing_comment": "1 - use DNS lookup in status command, 0 - don't use"
       }
     },
     "sv_use_internal_cmd_dl": {
@@ -62509,7 +62509,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "Record voicechat into mvds. Requires player support. 0=noone, 1=everyone, 2=spectators only."
       }
     },
     "sv_voip_echo": {
@@ -62549,7 +62549,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "Echo voice packets back to their sender, a debug/test setting."
       }
     },
     "sv_wateraccelerate": {
@@ -62685,7 +62685,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "1 - use DNS lookup in status command, 0 - don't use"
       }
     },
     "sys_disableWinKeys": {
@@ -64791,7 +64791,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "not so important, so let's not have it spam msg need"
       },
       "desc": "Customizes the %u macro."
     },
@@ -64854,7 +64854,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "not so important, so let's not have it spam msg need"
       },
       "desc": "Customizes the %u macro."
     },
@@ -64917,7 +64917,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "not so important, so let's not have it spam msg need"
       },
       "desc": "Customizes the %u macro."
     },
@@ -64938,7 +64938,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": null
+        "trailing_comment": "not so important, so let's not have it spam msg need"
       },
       "desc": "Customizes the %u macro."
     },

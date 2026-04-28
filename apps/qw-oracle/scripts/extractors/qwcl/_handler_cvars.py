@@ -34,6 +34,10 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._cvar_shared import (  # noqa: E402
+    normalize_flags_raw,
+    unescape_c_string,
+)
 
 
 def _strip_quotes(s: str) -> str:
@@ -98,7 +102,7 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     name_raw = _read_extent(source_bytes, fields[0].extent).strip()
     default_raw = _read_extent(source_bytes, fields[1].extent).strip()
     name = _strip_quotes(name_raw)
-    default = _strip_quotes(default_raw)
+    default = unescape_c_string(_strip_quotes(default_raw))
     if not name:
         return None
 
@@ -120,7 +124,7 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     if info is True:
         flag_names.append("INFO")
 
-    flags_raw: Optional[str] = ", ".join(flags_raw_parts) if flags_raw_parts else None
+    flags_raw: Optional[str] = normalize_flags_raw(", ".join(flags_raw_parts) if flags_raw_parts else None)
 
     return {
         "cvar_name": name,

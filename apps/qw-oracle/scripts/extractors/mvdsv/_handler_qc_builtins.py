@@ -392,8 +392,12 @@ class QcBuiltinsMvdsvHandler(Visitor):
             qc_signature = trailing
 
         rel_file = self._relative_source(location.file.name) if location.file else None
+        # Canonical name carries the scope (table) so cross-table dups (e.g.
+        # `cvar_string` in std + ext_builtins) survive (Phase 2 task 2.4,
+        # schema v18 migration; mirrors info_key Phase B at v16).
         self._rows.append({
-            "name": qc_name,
+            "name": f"{qc_name}:{table_name}",
+            "bare_name": qc_name,
             "ast": {
                 "table_name": table_name,
                 "builtin_index": builtin_index,

@@ -15,9 +15,9 @@ flags_raw normalization (Phase D Task 9): the source forms `cvar_t {"x", "0"}`
 `cvar_t {"x", "0", CVAR_NONE}` all carry the same semantic state -- "no flags
 set". The handler emits an empty string `""` as the canonical form for all
 three so consumer queries `WHERE flags_raw = ''` see every unflagged cvar
-without an OR clause. `_normalize_flags_raw` is the single chokepoint for
-the rule; every emission site routes the raw extent through it before
-storage.
+without an OR clause. `extractor_lib._cvar_shared.normalize_flags_raw` is
+the single chokepoint for the rule; every emission site routes the raw
+extent through it before storage.
 """
 from __future__ import annotations
 
@@ -33,9 +33,13 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._cvar_shared import (  # noqa: E402
+    normalize_flags_raw,
+    parse_flag_names,
+    unescape_c_string,
+)
 
 
-_FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")
 _CVAR_DEFAULT_CALL_RE = re.compile(r"Cvar_(SetDefaultAndValue|ResetVar)\s*\(\s*&?(\w+)")
 _HUD_GROUP_NAME = "MQWCL HUD"
 
@@ -44,79 +48,6 @@ def _strip_quotes(s: str) -> str:
     s = s.strip()
     if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
         return s[1:-1]
-    return s
-
-
-def _unescape_c_string(s: str) -> str:
-    """Interpret standard C escape sequences in `s` to canonicalise a cvar
-    default to its runtime form.
-
-    Recognised escapes:
-      - ``\\\\`` -> ``\\`` (single backslash)
-      - ``\\"``  -> ``"`` (double quote)
-      - ``\\n``  -> newline
-      - ``\\t``  -> tab
-      - ``\\r``  -> carriage return
-      - ``\\0``  -> null
-
-    Unknown ``\\x`` sequences are passed through verbatim (the backslash
-    plus the next character) rather than dropped, so we never lose data
-    on a sequence we don't recognise. ``\\`` at the end of the string is
-    also passed through verbatim.
-
-    Composes with :func:`_strip_quotes`: callers strip outer quotes first
-    (e.g. extracting `"\\\\."` -> `\\\\.`), then unescape the body
-    (`\\\\.` -> `\\.`). Apply only to default_value extents; cvar names
-    and flags don't typically contain escapes.
-    """
-    if not s or "\\" not in s:
-        return s
-    out: list[str] = []
-    i = 0
-    n = len(s)
-    while i < n:
-        c = s[i]
-        if c != "\\" or i + 1 >= n:
-            out.append(c)
-            i += 1
-            continue
-        nxt = s[i + 1]
-        if nxt == "\\":
-            out.append("\\")
-        elif nxt == '"':
-            out.append('"')
-        elif nxt == "n":
-            out.append("\n")
-        elif nxt == "t":
-            out.append("\t")
-        elif nxt == "r":
-            out.append("\r")
-        elif nxt == "0":
-            out.append("\0")
-        else:
-            out.append("\\")
-            out.append(nxt)
-        i += 2
-    return "".join(out)
-
-
-def _normalize_flags_raw(raw: Optional[str]) -> str:
-    """Canonicalise the cvar_t flags-field source extent.
-
-    Returns the empty string `""` for any source form that means "no flags
-    set": missing field, empty extent, the literal `0`, or `CVAR_NONE`. All
-    other source forms pass through stripped (the trailing whitespace clean-up
-    is preserved so flag-token regexes still match cleanly).
-
-    Phase D Task 9 chose `""` over `None` because consumer queries are
-    cleaner with a single sentinel form (`WHERE flags_raw = ''`) than with
-    the nullable mix that pre-Phase-D extracts produced.
-    """
-    if raw is None:
-        return ""
-    s = raw.strip()
-    if not s or s == "0" or s == "CVAR_NONE":
-        return ""
     return s
 
 
@@ -129,10 +60,6 @@ def _read_extent(source_bytes: bytes, extent) -> str:
         return source_bytes[start:end].decode("utf-8", errors="replace")
     except Exception:
         return ""
-
-
-def _parse_flag_names(raw: str) -> list[str]:
-    return list(dict.fromkeys(_FLAG_NAME_RE.findall(raw)))
 
 
 def _resolve_var_ref(cursor) -> Optional[str]:
@@ -220,12 +147,12 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     name_raw = _read_extent(source_bytes, fields[0].extent).strip()
     default_raw = _read_extent(source_bytes, fields[1].extent).strip()
     name = _strip_quotes(name_raw)
-    default = _unescape_c_string(_strip_quotes(default_raw))
+    default = unescape_c_string(_strip_quotes(default_raw))
     flags_raw: str = ""
     flag_names: list[str] = []
     if len(fields) >= 3:
-        flags_raw = _normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
-        flag_names = _parse_flag_names(flags_raw)
+        flags_raw = normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
+        flag_names = parse_flag_names(flags_raw)
     on_change: Optional[str] = None
     if len(fields) >= 4:
         ref = fields[3].referenced
@@ -320,12 +247,12 @@ def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
                 # Empty-name slot = unused placeholder (e.g. rlpack has no
                 # fullbright cvar — element init literal is {"", "0"}).
                 continue
-            default = _unescape_c_string(_strip_quotes(_read_extent(source_bytes, inner[1].extent).strip()))
+            default = unescape_c_string(_strip_quotes(_read_extent(source_bytes, inner[1].extent).strip()))
             flags_raw: str = ""
             flag_names: list[str] = []
             if len(inner) >= 3:
-                flags_raw = _normalize_flags_raw(_read_extent(source_bytes, inner[2].extent))
-                flag_names = _parse_flag_names(flags_raw)
+                flags_raw = normalize_flags_raw(_read_extent(source_bytes, inner[2].extent))
+                flag_names = parse_flag_names(flags_raw)
             on_change: Optional[str] = None
             if len(inner) >= 4:
                 ref = inner[3].referenced
@@ -377,12 +304,12 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
             continue
         default = ""
         if len(fields) >= 2:
-            default = _unescape_c_string(_strip_quotes(_read_extent(source_bytes, fields[1].extent).strip()))
+            default = unescape_c_string(_strip_quotes(_read_extent(source_bytes, fields[1].extent).strip()))
         flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = _normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
-            flag_names = _parse_flag_names(flags_raw)
+            flags_raw = normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
+            flag_names = parse_flag_names(flags_raw)
         on_change: Optional[str] = None
         if len(fields) >= 4:
             ref = fields[3].referenced
@@ -761,8 +688,16 @@ def _attach_trailing_comments(cvars: list[dict], ezq_src: Path) -> int:
             if idx < 0 or idx >= len(lines):
                 continue
             l = lines[idx]
-            terminator_idx = max(l.rfind(";"), l.rfind(","))
-            tail = l[terminator_idx + 1:] if terminator_idx >= 0 else l
+            # Anchor on the closing `};` of the struct-init so a `,` inside
+            # the trailing comment (e.g. `// example: "59,18"`) does not
+            # silently truncate. Mirrors mvdsv `_trailing_comment` post-v17
+            # (commit 8747ad9) and audit finding D.1.4.
+            close_idx = l.rfind("};")
+            if close_idx >= 0:
+                tail = l[close_idx + 2:]
+            else:
+                semi_idx = l.rfind(";")
+                tail = l[semi_idx + 1:] if semi_idx >= 0 else l
             tail = tail.strip()
             if tail.startswith("//"):
                 cv["trailing_comment"] = tail[2:].strip()

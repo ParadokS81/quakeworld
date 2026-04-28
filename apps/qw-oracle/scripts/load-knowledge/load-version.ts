@@ -452,7 +452,11 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       // by the producer-side normalization. The orchestrator-side identifier
       // regex would reject every row otherwise.
       const validLogTemplate = options.type === 'log_template' && /^(broadcast|client|console|system):/i.test(name);
-      if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate) {
+      // Phase 2 task 2.4 (schema v18): qc_builtin canonical names carry a
+      // `:<table_name>` suffix so cross-table dups (e.g. `cvar_string` in
+      // std + ext_builtins) can coexist. Mirrors info_key Phase B at v16.
+      const validQcBuiltin = options.type === 'qc_builtin' && /^[a-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/.test(name);
+      if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate && !validQcBuiltin) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }

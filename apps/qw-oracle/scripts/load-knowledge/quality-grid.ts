@@ -1010,6 +1010,13 @@ function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='qc_builtin' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
+  // v18 (Phase 2 task 2.4) added `:<table_name>` suffix to qc_builtin canonical
+  // names mirroring info_key Phase B's `:<scope>` shape. The audit predicted
+  // 93 -> 97 from "cross-scope" recovery, but inspection shows the 4 dropped
+  // duplicates (cvar_string / precache_model / precache_sound / precache_file)
+  // are intra-table multi-index registrations, not cross-table. Recovering
+  // those 4 needs handler-side aggregation (an `all_call_sites_json`-style
+  // shape mirroring info_key Phase B); deferred to HANDOVER. Count stays 93.
   const expected = 93;
   return {
     name: 'F1.mvdsv.qc_builtins_count',
@@ -1105,10 +1112,11 @@ function probeMvdsvMakevectorsBuiltin1(ctx: ProbeContext): ProbeResult {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
+  // v18 (Phase 2 task 2.4): qc_builtin canonical names carry `:<table_name>` suffix.
   const row = ctx.db.prepare(`
     SELECT bv.table_name, bv.builtin_index FROM qc_builtin_versions bv
     JOIN entities e ON bv.entity_id=e.id
-    WHERE e.project='mvdsv' AND e.name='makevectors' AND bv.version='head'
+    WHERE e.project='mvdsv' AND e.name='makevectors:std_builtins' AND bv.version='head'
   `).get() as { table_name: string; builtin_index: number } | undefined;
   const ok = !!row && row.table_name === 'std_builtins' && row.builtin_index === 1;
   const summary = ok

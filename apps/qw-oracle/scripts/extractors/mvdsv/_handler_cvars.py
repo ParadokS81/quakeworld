@@ -23,7 +23,7 @@ Flag inventory (per src/cvar.h, Pass 1):
 flags_raw normalization (Phase D Task 9): the literal-zero (`0`) and
 `CVAR_NONE` source forms both mean "no flags set" and the absent third arg
 means the same thing. The handler emits `""` (empty string) as the canonical
-form in all three cases. `_normalize_flags_raw` below is the single
+form in all three cases. `extractor_lib._cvar_shared.normalize_flags_raw` is the single
 chokepoint for the rule, mirroring extractor_lib/handler_cvars.py's
 ezQuake-side helper.
 """
@@ -40,9 +40,11 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
-
-
-_FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")
+from extractor_lib._cvar_shared import (  # noqa: E402
+    normalize_flags_raw,
+    parse_flag_names,
+    unescape_c_string,
+)
 
 
 def _read_extent(source_bytes: bytes, extent) -> str:
@@ -61,83 +63,6 @@ def _strip_quotes(s: str) -> str:
     s = s.strip()
     if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
         return s[1:-1]
-    return s
-
-
-def _unescape_c_string(s: str) -> str:
-    """Interpret standard C escape sequences in `s` to canonicalise a cvar
-    default to its runtime form.
-
-    Recognised escapes:
-      - ``\\\\`` -> ``\\`` (single backslash)
-      - ``\\"``  -> ``"`` (double quote)
-      - ``\\n``  -> newline
-      - ``\\t``  -> tab
-      - ``\\r``  -> carriage return
-      - ``\\0``  -> null
-
-    Unknown ``\\x`` sequences are passed through verbatim (the backslash
-    plus the next character) rather than dropped, so we never lose data
-    on a sequence we don't recognise. ``\\`` at the end of the string is
-    also passed through verbatim.
-
-    Composes with :func:`_strip_quotes`: callers strip outer quotes first,
-    then unescape the body. Apply only to default_value extents; cvar
-    names and flags don't typically contain escapes.
-
-    Mirrors extractor_lib/handler_cvars._unescape_c_string. The duplication
-    matches the existing _normalize_flags_raw split: tiny payoff to share,
-    and the MVDSV handler is engine-private.
-    """
-    if not s or "\\" not in s:
-        return s
-    out: list[str] = []
-    i = 0
-    n = len(s)
-    while i < n:
-        c = s[i]
-        if c != "\\" or i + 1 >= n:
-            out.append(c)
-            i += 1
-            continue
-        nxt = s[i + 1]
-        if nxt == "\\":
-            out.append("\\")
-        elif nxt == '"':
-            out.append('"')
-        elif nxt == "n":
-            out.append("\n")
-        elif nxt == "t":
-            out.append("\t")
-        elif nxt == "r":
-            out.append("\r")
-        elif nxt == "0":
-            out.append("\0")
-        else:
-            out.append("\\")
-            out.append(nxt)
-        i += 2
-    return "".join(out)
-
-
-def _parse_flag_names(raw: Optional[str]) -> list[str]:
-    if not raw:
-        return []
-    return list(dict.fromkeys(_FLAG_NAME_RE.findall(raw)))
-
-
-def _normalize_flags_raw(raw: Optional[str]) -> str:
-    """Canonicalise the cvar_t flags-field source extent (Phase D Task 9).
-
-    Returns `""` for any source form that means "no flags": missing field,
-    empty extent, the literal `0`, or `CVAR_NONE`. All other forms pass
-    through stripped. Mirrors extractor_lib/handler_cvars._normalize_flags_raw.
-    """
-    if raw is None:
-        return ""
-    s = raw.strip()
-    if not s or s == "0" or s == "CVAR_NONE":
-        return ""
     return s
 
 
@@ -275,13 +200,13 @@ class CvarsMvdsvHandler(Visitor):
             return
 
         default_raw = _read_extent(self.source_bytes, fields[1].extent).strip()
-        default_value = _unescape_c_string(_strip_quotes(default_raw))
+        default_value = unescape_c_string(_strip_quotes(default_raw))
 
         flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = _normalize_flags_raw(_read_extent(self.source_bytes, fields[2].extent))
-            flag_names = _parse_flag_names(flags_raw)
+            flags_raw = normalize_flags_raw(_read_extent(self.source_bytes, fields[2].extent))
+            flag_names = parse_flag_names(flags_raw)
 
         on_change: Optional[str] = None
         if len(fields) >= 4:
