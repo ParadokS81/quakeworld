@@ -841,7 +841,7 @@
       }
     },
     "bind": {
-      "desc": "Changes the action associated with each keyboard button. Use eg \\\"bind ctrl+shift+alt+k kill\\\" for special modifiers (should be used only after more basic modifiers).",
+      "desc": "Changes the action associated with each keyboard button. Use eg \"bind ctrl+shift+alt+k kill\" for special modifiers (should be used only after more basic modifiers).",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Key_Bind_f",
@@ -925,7 +925,7 @@
       }
     },
     "capturedemo": {
-      "desc": "capturedemo foo.dem foo.avi - Captures a named demo to a named video file.\\nDemo capturing is performed offscreen when possible, allowing arbitrary video sizes or smooth captures on underpowered hardware.",
+      "desc": "capturedemo foo.dem foo.avi - Captures a named demo to a named video file.\nDemo capturing is performed offscreen when possible, allowing arbitrary video sizes or smooth captures on underpowered hardware.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Media_RecordDemo_f",
@@ -1321,7 +1321,7 @@
       }
     },
     "conecho": {
-      "desc": "conecho consolename The Text To Echo\\nEchos text to a named console instead of just the main one.",
+      "desc": "conecho consolename The Text To Echo\nEchos text to a named console instead of just the main one.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Cmd_ConEcho_f",
@@ -1333,7 +1333,7 @@
       }
     },
     "conecho_center": {
-      "desc": "conecho_center consolename The Text To Echo\\nUse \\\"\\\" for the main console.\\nAny added lines will be aligned to the middle of the console.",
+      "desc": "conecho_center consolename The Text To Echo\nUse \"\" for the main console.\nAny added lines will be aligned to the middle of the console.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Cmd_ConEchoCenter_f",
@@ -1345,7 +1345,7 @@
       }
     },
     "conmenu": {
-      "desc": "conmenu <callback>\\nCreates a new (built-in) scripted menu. any following commands that define scipted menu items will add their items to this new menu. The callback will be called with argument 'cancel' when the menu is closed.",
+      "desc": "conmenu <callback>\nCreates a new (built-in) scripted menu. any following commands that define scipted menu items will add their items to this new menu. The callback will be called with argument 'cancel' when the menu is closed.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "M_MenuS_Script_f",
@@ -1357,7 +1357,7 @@
       }
     },
     "connect": {
-      "desc": "connect scheme://address:port\\nConnect to a server. Use a scheme of rtc[s]://broker/gamename to connect via a webrtc broker.Use a scheme of ws[s]://server to connect via websockets.Use a scheme of tcp:// or tls:// to connect via non-udp protocols.Use a scheme of dtls://server to connect securely.Use irc://network:6667/user[@channel] to connect via an irc server. Not recommended.\\nDefault port is port . NQ:. QW:. Q2:. Q3:.",
+      "desc": "connect scheme://address:port\nConnect to a server. Use a scheme of rtc[s]://broker/gamename to connect via a webrtc broker.Use a scheme of ws[s]://server to connect via websockets.Use a scheme of tcp:// or tls:// to connect via non-udp protocols.Use a scheme of dtls://server to connect securely.Use irc://network:6667/user[@channel] to connect via an irc server. Not recommended.\nDefault port is port . NQ:. QW:. Q2:. Q3:.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "CL_Connect_f",
@@ -1369,7 +1369,7 @@
       }
     },
     "connectbr": {
-      "desc": "connect address:port\\nConnect to a qw server using the best route we can detect.",
+      "desc": "connect address:port\nConnect to a qw server using the best route we can detect.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "CL_ConnectBestRoute_f",
@@ -3385,7 +3385,7 @@
       }
     },
     "menucombos": {
-      "desc": "x y caption cvarname [caption0] [value0] [caption1] [value1] ...\\nif 'caption0' is { then the options will be parsed from trailing lines\\n",
+      "desc": "x y caption cvarname [caption0] [value0] [caption1] [value1] ...\nif 'caption0' is { then the options will be parsed from trailing lines\n",
       "source_root": "engine",
       "ast": {
         "handler_fn": "M_MenuS_Combos_f",
@@ -3625,7 +3625,7 @@
       }
     },
     "mod_terrain_convert": {
-      "desc": "mod_terrain_convert [mapname] [texkill]\\nConvert a terrain to the current format. If texkill is specified, only tiles with the named texture will be converted, and tiles with that texture will be stripped. This is a slow operation.",
+      "desc": "mod_terrain_convert [mapname] [texkill]\nConvert a terrain to the current format. If texkill is specified, only tiles with the named texture will be converted, and tiles with that texture will be stripped. This is a slow operation.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Mod_Terrain_Convert_f",
@@ -4249,7 +4249,7 @@
       }
     },
     "profile_ssqc": {
-      "desc": "Displays how much time has been spent in various QC functions since this command was last used.\\nIf pr_enable_profiling is set, profiling will be enabled automatically, and can be used to list spawn functions.\\nAdd an arg with value 1 if you wish to avoid purging timing information.",
+      "desc": "Displays how much time has been spent in various QC functions since this command was last used.\nIf pr_enable_profiling is set, profiling will be enabled automatically, and can be used to list spawn functions.\nAdd an arg with value 1 if you wish to avoid purging timing information.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "PR_SSProfile_f",
@@ -5029,7 +5029,7 @@
       }
     },
     "screenshot_360": {
-      "desc": "screenshot_360 <name> [width] [height]\\nTakes an equirectangular screenshot.",
+      "desc": "screenshot_360 <name> [width] [height]\nTakes an equirectangular screenshot.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ScreenShot_Mega_f",
@@ -5041,7 +5041,7 @@
       }
     },
     "screenshot_cubemap": {
-      "desc": "screenshot_cubemap <name> [size]\\nTakes 6 screenshots forming a single cubemap.",
+      "desc": "screenshot_cubemap <name> [size]\nTakes 6 screenshots forming a single cubemap.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ScreenShot_Cubemap_f",
@@ -5053,7 +5053,7 @@
       }
     },
     "screenshot_mega": {
-      "desc": "screenshot_mega <name> [width] [height]\\nTakes a screenshot with explicit sizes that are not tied to the size of your monitor, allowing for true monstrosities.",
+      "desc": "screenshot_mega <name> [width] [height]\nTakes a screenshot with explicit sizes that are not tied to the size of your monitor, allowing for true monstrosities.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ScreenShot_Mega_f",
@@ -5065,7 +5065,7 @@
       }
     },
     "screenshot_stereo": {
-      "desc": "screenshot_stereo <name> [width] [height]\\nTakes a simple stereo screenshot.",
+      "desc": "screenshot_stereo <name> [width] [height]\nTakes a simple stereo screenshot.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ScreenShot_Mega_f",
@@ -5077,7 +5077,7 @@
       }
     },
     "screenshot_vr": {
-      "desc": "screenshot_vr <name> [width]\\nTakes a spherical stereoscopic panorama image, for viewing with VR displays.",
+      "desc": "screenshot_vr <name> [width]\nTakes a spherical stereoscopic panorama image, for viewing with VR displays.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ScreenShot_VR_f",
@@ -5281,7 +5281,7 @@
       }
     },
     "showpic": {
-      "desc": "showpic <imagename> <placename> <x> <y> <zone> [width] [height] [touchcommand]\\nDisplays an image onscreen, that potentially has a key binding attached to it when clicked/touched.\\nzone should be one of: TL, TR, BL, BR, MM, TM, BM, ML, MR. This serves as an extra offset to move the image around the screen without any foreknowledge of the screen resolution.",
+      "desc": "showpic <imagename> <placename> <x> <y> <zone> [width] [height] [touchcommand]\nDisplays an image onscreen, that potentially has a key binding attached to it when clicked/touched.\nzone should be one of: TL, TR, BL, BR, MM, TM, BM, ML, MR. This serves as an extra offset to move the image around the screen without any foreknowledge of the screen resolution.",
       "source_root": "engine",
       "ast": {
         "handler_fn": "SCR_ShowPic_Script_f",
@@ -5977,7 +5977,7 @@
       }
     },
     "sys_register_file_associations": {
-      "desc": "Register FTE as the default handler for various file+protocol types, using FreeDesktop standards.\\n",
+      "desc": "Register FTE as the default handler for various file+protocol types, using FreeDesktop standards.\n",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Sys_Register_File_Associations_f",
@@ -6049,7 +6049,7 @@
       }
     },
     "toggle": {
-      "desc": "Toggles a cvar between two values\\ntoggle CVARNAME [newval [altval]]",
+      "desc": "Toggles a cvar between two values\ntoggle CVARNAME [newval [altval]]",
       "source_root": "engine",
       "ast": {
         "handler_fn": "Cmd_toggle_f",

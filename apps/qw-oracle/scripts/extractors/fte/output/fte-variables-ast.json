@@ -62,7 +62,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "The possible audio capture devices, in \\\"value\\\" \\\"description\\\" pairs, for gamecode to read.",
+      "desc": "The possible audio capture devices, in \"value\" \"description\" pairs, for gamecode to read.",
       "source_root": "engine"
     },
     "_pext_infoblobs": {
@@ -172,7 +172,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "The possible audio output devices, in \\\"value\\\" \\\"description\\\" pairs, for gamecode to read.",
+      "desc": "The possible audio output devices, in \"value\" \"description\" pairs, for gamecode to read.",
       "source_root": "engine"
     },
     "_vid_renderer_opts": {
@@ -196,7 +196,7 @@
         "trailing_comment": null
       },
       "default": null,
-      "desc": "The possible video renderer apis, in \\\"value\\\" \\\"description\\\" pairs, for gamecode to read.",
+      "desc": "The possible video renderer apis, in \"value\" \"description\" pairs, for gamecode to read.",
       "source_root": "engine"
     },
     "allow_download": {
@@ -240,7 +240,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "1 allows downloading of config files, either with the extension .cfg or in the subdir configs/.\\nTHIS IS DANGEROUS AS IT CAN ALLOW PEOPLE TO READ YOUR RCON PASSWORD ETC.",
+      "desc": "1 allows downloading of config files, either with the extension .cfg or in the subdir configs/.\nTHIS IS DANGEROUS AS IT CAN ALLOW PEOPLE TO READ YOUR RCON PASSWORD ETC.",
       "source_root": "engine"
     },
     "allow_download_copyrighted": {
@@ -263,7 +263,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0 blocks download of packages that are considered copyrighted. Specifically, this means packages with a leading 'pak' prefix on the filename.\\nIf you take your copyrights seriously, you should also set allow_download_pakmaps 0 and allow_download_pakcontents 0.",
+      "desc": "0 blocks download of packages that are considered copyrighted. Specifically, this means packages with a leading 'pak' prefix on the filename.\nIf you take your copyrights seriously, you should also set allow_download_pakmaps 0 and allow_download_pakcontents 0.",
       "source_root": "engine"
     },
     "allow_download_demos": {
@@ -329,7 +329,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "1 permits downloading files with the extension .log\\nTHIS IS DANGEROUS AS IT POTENTIALLY ALLOWS PEOPLE TO SEE PASSWORDS OR OTHER PRIVATE INFORMATION.\\nNote that it can be switch on/off via rcon.",
+      "desc": "1 permits downloading files with the extension .log\nTHIS IS DANGEROUS AS IT POTENTIALLY ALLOWS PEOPLE TO SEE PASSWORDS OR OTHER PRIVATE INFORMATION.\nNote that it can be switch on/off via rcon.",
       "source_root": "engine"
     },
     "allow_download_maps": {
@@ -436,7 +436,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: clients may not download non-map files within the server's packages.\\n1: clients may download such files so long as the package is not deemed copyrighted, for compat with old clients that do not support package downloads.\\n2: client may download such files regardless of copyright state (WARNING! ONLY for consistency with vanilla QuakeWorld!).",
+      "desc": "0: clients may not download non-map files within the server's packages.\n1: clients may download such files so long as the package is not deemed copyrighted, for compat with old clients that do not support package downloads.\n2: client may download such files regardless of copyright state (WARNING! ONLY for consistency with vanilla QuakeWorld!).",
       "source_root": "engine"
     },
     "allow_download_pakmaps": {
@@ -459,7 +459,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: clients may not download map files within the server's packages.\\n1: clients may download such files so long as the package is not deemed copyrighted, for compat with old clients that do not support package downloads.\\n2: client may download such files regardless of copyright state (WARNING! Should never be used!).",
+      "desc": "0: clients may not download map files within the server's packages.\n1: clients may download such files so long as the package is not deemed copyrighted, for compat with old clients that do not support package downloads.\n2: client may download such files regardless of copyright state (WARNING! Should never be used!).",
       "source_root": "engine"
     },
     "allow_download_particles": {
@@ -501,7 +501,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "If set to 1, packages that contain files needed during spawn functions will be become 'referenced' and automatically downloaded to clients.\\nThis cvar should probably not be set if you have large packages that provide replacement pickup models on public servers.\\nThe path command will show a '(ref)' tag next to packages which clients will automatically attempt to download.",
+      "desc": "If set to 1, packages that contain files needed during spawn functions will be become 'referenced' and automatically downloaded to clients.\nThis cvar should probably not be set if you have large packages that provide replacement pickup models on public servers.\nThe path command will show a '(ref)' tag next to packages which clients will automatically attempt to download.",
       "source_root": "engine"
     },
     "allow_download_root": {
@@ -954,7 +954,7 @@
         "trailing_comment": null
       },
       "default": "tga",
-      "desc": "the compression/encoding codec to use.\\nWith raw capturing, this should be one of tga,png,jpg,pcx (ie: screenshot extensions).",
+      "desc": "the compression/encoding codec to use.\nWith raw capturing, this should be one of tga,png,jpg,pcx (ie: screenshot extensions).",
       "source_root": "engine"
     },
     "capturedemoheight": {
@@ -1481,7 +1481,7 @@
         "trailing_comment": null
       },
       "default": "auto",
-      "desc": "Specifies the default tracking mode at the start of the map. Use the 'autotrack' command to reset/apply an auto-tracking mode without changing the default.\\nValid values are: high, ^hkiller^h, mod, user. Other values are treated as weighting scripts for mvd playback, where available.",
+      "desc": "Specifies the default tracking mode at the start of the map. Use the 'autotrack' command to reset/apply an auto-tracking mode without changing the default.\nValid values are: high, ^hkiller^h, mod, user. Other values are treated as weighting scripts for mvd playback, where available.",
       "source_root": "engine"
     },
     "cl_autotrack_team": {
@@ -1840,7 +1840,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "0(nq) - everything is assumed to be a console command. prefix with 'say', or just use a messagemode bind\\n1(q3) - everything is assumed to be chat, unless its prefixed with a /\\n2(qw) - anything explicitly recognised as a command will be used as a command, anything unrecognised will be a chat message.\\n/ prefix is supported in all cases.\\nctrl held when pressing enter always makes any implicit chat into team chat instead.",
+      "desc": "0(nq) - everything is assumed to be a console command. prefix with 'say', or just use a messagemode bind\n1(q3) - everything is assumed to be chat, unless its prefixed with a /\n2(qw) - anything explicitly recognised as a command will be used as a command, anything unrecognised will be a chat message.\n/ prefix is supported in all cases.\nctrl held when pressing enter always makes any implicit chat into team chat instead.",
       "source_root": "engine"
     },
     "cl_chatsound": {
@@ -2015,7 +2015,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls whether to send a hash instead of sending your rcon password as plain-text. Set to 1 for security, or 0 for backwards compatibility.\\nYour command and any responses will still be sent as plain text.\\nInstead, it is recommended to use rcon ONLY via dtls/tls/wss connections.",
+      "desc": "Controls whether to send a hash instead of sending your rcon password as plain-text. Set to 1 for security, or 0 for backwards compatibility.\nYour command and any responses will still be sent as plain text.\nInstead, it is recommended to use rcon ONLY via dtls/tls/wss connections.",
       "source_root": "engine"
     },
     "cl_csqc_nodeprecate": {
@@ -2185,7 +2185,7 @@
         "trailing_comment": null
       },
       "default": "27500",
-      "desc": "The default port used to connect to servers.\\nQW: , NQ: , Q2: , Q3: .",
+      "desc": "The default port used to connect to servers.\nQW: , NQ: , Q2: , Q3: .",
       "source_root": "engine"
     },
     "cl_delay_packets": {
@@ -2318,7 +2318,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies an http location prefix for map downloads. EG: \\\"http://example.com/path/gamemaps/\\\"",
+      "desc": "Specifies an http location prefix for map downloads. EG: \"http://example.com/path/gamemaps/\"",
       "source_root": "engine"
     },
     "cl_download_packages": {
@@ -2365,7 +2365,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Follow download redirection to download packages instead of individual files. Also allows the server to send nearly arbitary download commands.\\n2: allows redirection only to named packages files (and demos/*.mvd), which is a bit safer.",
+      "desc": "Follow download redirection to download packages instead of individual files. Also allows the server to send nearly arbitary download commands.\n2: allows redirection only to named packages files (and demos/*.mvd), which is a bit safer.",
       "source_root": "engine"
     },
     "cl_download_wait": {
@@ -3079,7 +3079,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "If 2, will act as 1 when playing demos/singleplayer and otherwise act as if set to 0 (ie: deathmatch).\\nIf 1, interpolation will run in the past, resulting in really smooth movement at the cost of latency (even on bunchy german ISDNs).\\nIf 0, interpolation will be based upon packet arrival times and may judder due to packet loss.",
+      "desc": "If 2, will act as 1 when playing demos/singleplayer and otherwise act as if set to 0 (ie: deathmatch).\nIf 1, interpolation will run in the past, resulting in really smooth movement at the cost of latency (even on bunchy german ISDNs).\nIf 0, interpolation will be based upon packet arrival times and may judder due to packet loss.",
       "source_root": "engine"
     },
     "cl_loopbackprotocol": {
@@ -3359,7 +3359,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "value 0: permits \\\\r chars in chat messages\\nvalue 1: blocks all \\\\r chars\\nvalue 2: allows \\\\r chars, but only from teammates",
+      "desc": "value 0: permits \\r chars in chat messages\nvalue 1: blocks all \\r chars\nvalue 2: allows \\r chars, but only from teammates",
       "source_root": "engine"
     },
     "cl_nolerp": {
@@ -3637,7 +3637,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "If 1, enables prediction based upon partial input frames which can change over time resulting in a swimmy feel but does not need to interpolate. If 0, prediction will stay in the past and thus use only completed frames. Interpolation will then be used to smooth movement.\\nThis cvar only applies when video and input frames are independant (ie: cl_netfps is set).",
+      "desc": "If 1, enables prediction based upon partial input frames which can change over time resulting in a swimmy feel but does not need to interpolate. If 0, prediction will stay in the past and thus use only completed frames. Interpolation will then be used to smooth movement.\nThis cvar only applies when video and input frames are independant (ie: cl_netfps is set).",
       "source_root": "engine"
     },
     "cl_predict_players": {
@@ -3805,7 +3805,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0=standard quake rules.\\n1=clients should prefer files within packages present on the server.\\n2=clients should use *only* files within packages present on the server.\\nDue to quake 1.01/1.06 differences, a setting of 2 is only reliable with total conversions.\\nIf sv_pure is set, the client will prefer the highest value set.",
+      "desc": "0=standard quake rules.\n1=clients should prefer files within packages present on the server.\n2=clients should use *only* files within packages present on the server.\nDue to quake 1.01/1.06 differences, a setting of 2 is only reliable with total conversions.\nIf sv_pure is set, the client will prefer the highest value set.",
       "source_root": "engine"
     },
     "cl_queueimpulses": {
@@ -4042,7 +4042,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Send a randomly generated 'globally unique' id to servers, which can be used by servers for score rankings and stuff. Different servers will see different guids. Delete the 'qkey' file in order to appear as a different user.\\nIf set to 2, all servers will see the same guid. Be warned that this can show other people the guid that you're using.",
+      "desc": "Send a randomly generated 'globally unique' id to servers, which can be used by servers for score rankings and stuff. Different servers will see different guids. Delete the 'qkey' file in order to appear as a different user.\nIf set to 2, all servers will see the same guid. Be warned that this can show other people the guid that you're using.",
       "source_root": "engine"
     },
     "cl_serveraddress": {
@@ -4193,7 +4193,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Enables splitscreen support. See also: allow_splitscreen, in_rawinput*, the \\\"p\\\" command.",
+      "desc": "Enables splitscreen support. See also: allow_splitscreen, in_rawinput*, the \"p\" command.",
       "source_root": "engine"
     },
     "cl_standardchat": {
@@ -4436,7 +4436,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: Do nothing.\\n1: Check whether our protocol scheme is registered and prompt the user to register associations.\\n2: Always re-register on every startup, without prompting. Sledgehammer style.",
+      "desc": "0: Do nothing.\n1: Check whether our protocol scheme is registered and prompt the user to register associations.\n2: Always re-register on every startup, without prompting. Sledgehammer style.",
       "source_root": "engine"
     },
     "cl_voip_autogain": {
@@ -4667,7 +4667,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Sends voice-over-ip data to the server whenever it is set.\\n0: only send voice if +voip is pressed.\\n1: voice activation.\\n2: constantly send.\\n+4: Do not send to game, only to rtp sessions.",
+      "desc": "Sends voice-over-ip data to the server whenever it is set.\n0: only send voice if +voip is pressed.\n1: voice activation.\n2: constantly send.\n+4: Do not send to game, only to rtp sessions.",
       "source_root": "engine"
     },
     "cl_voip_showmeter": {
@@ -4863,7 +4863,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "HACK: Attempt to switch weapon to another in order to cheat your killer out of any possible weapon upgrades.\\n0: original behaviour\\n1: switch away when +attack/+fire is released\\n2: switch away only in deathmatch\\n",
+      "desc": "HACK: Attempt to switch weapon to another in order to cheat your killer out of any possible weapon upgrades.\n0: original behaviour\n1: switch away when +attack/+fire is released\n2: switch away only in deathmatch\n",
       "source_root": "engine"
     },
     "cl_weaponhide_preference": {
@@ -5225,7 +5225,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Specifies whether to print centerprints on the console.\\n0: never\\n1: single-player or coop only.\\n2: always.",
+      "desc": "Specifies whether to print centerprints on the console.\n0: never\n1: single-player or coop only.\n2: always.",
       "source_root": "engine"
     },
     "con_maxlines": {
@@ -5500,7 +5500,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: allow console to pounce on the user\\n1: console stays hidden unless explicitly invoked\\n2:toggleconsole command no longer works\\n3: shift+escape key no longer works",
+      "desc": "0: allow console to pounce on the user\n1: console stays hidden unless explicitly invoked\n2:toggleconsole command no longer works\n3: shift+escape key no longer works",
       "source_root": "engine"
     },
     "con_textfont": {
@@ -5524,7 +5524,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies the font file to use. a value such as FONT:ALTFONT specifies an alternative font to be used when ^^a is used.\\nWhen using TTF fonts, you will likely need to scale text to at least 150% - vid_conautoscale 1.5 will do this.\\nTTF fonts may be loaded from your windows directory. \\'gl_font cour?col=1,1,1:couri?col=0,1,0\\' loads eg: c:\\\\windows\\\\fonts\\\\cour.ttf, and uses the italic version of courier for alternative text, with specific colour tints.",
+      "desc": "Specifies the font file to use. a value such as FONT:ALTFONT specifies an alternative font to be used when ^^a is used.\nWhen using TTF fonts, you will likely need to scale text to at least 150% - vid_conautoscale 1.5 will do this.\nTTF fonts may be loaded from your windows directory. \\'gl_font cour?col=1,1,1:couri?col=0,1,0\\' loads eg: c:\\windows\\fonts\\cour.ttf, and uses the italic version of courier for alternative text, with specific colour tints.",
       "source_root": "engine"
     },
     "con_textsize": {
@@ -6176,7 +6176,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "When set, cripples strcat (and related function) string lengths to the value specified.\\nSet to 16383 to replicate DP's limit, otherwise leave as 0 to avoid limits.",
+      "desc": "When set, cripples strcat (and related function) string lengths to the value specified.\nSet to 16383 to replicate DP's limit, otherwise leave as 0 to avoid limits.",
       "source_root": "engine"
     },
     "drate": {
@@ -6290,7 +6290,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "make sure that each line ends with a \\\\r (on save). Empty will be assumed to be 1 on windows and 0 otherwise.",
+      "desc": "make sure that each line ends with a \\r (on save). Empty will be assumed to be 1 on windows and 0 otherwise.",
       "source_root": "engine"
     },
     "edit_stripcr": {
@@ -6311,7 +6311,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "remove \\\\r from eols (on load)",
+      "desc": "remove \\r from eols (on load)",
       "source_root": "engine"
     },
     "enemycolor": {
@@ -6353,7 +6353,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Attempt compatibility with ezquake's text markup.0: disabled.\\n1: Handle markup ampersand markup.\\n2: Handle chevron markup (only in echo commands, for config compat, because its just too unreliable otherwise).",
+      "desc": "Attempt compatibility with ezquake's text markup.0: disabled.\n1: Handle markup ampersand markup.\n2: Handle chevron markup (only in echo commands, for config compat, because its just too unreliable otherwise).",
       "source_root": "engine"
     },
     "fbskins": {
@@ -6506,7 +6506,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Bitmask\\n1: killer+killee names.\\n2: killer+killee teams\\n4:timestamp.\\n8:killer weapon\\n16:killer+killee guid.\\nFor compatibility, use 1(vanilla) or 7(mvdsv).",
+      "desc": "Bitmask\n1: killer+killee names.\n2: killer+killee teams\n4:timestamp.\n8:killer weapon\n16:killer+killee guid.\nFor compatibility, use 1(vanilla) or 7(mvdsv).",
       "source_root": "engine"
     },
     "fraglog_public": {
@@ -6575,7 +6575,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: Do individual lookups.\\n1: Scan all files for accelerated lookups. This provides a performance boost on windows and avoids case sensitivity issues on linux.\\n2: like 1, but don't bother checking for external changes (avoiding the cost of rebuild the cache).",
+      "desc": "0: Do individual lookups.\n1: Scan all files for accelerated lookups. This provides a performance boost on windows and avoids case sensitivity issues on linux.\n2: like 1, but don't bother checking for external changes (avoiding the cost of rebuild the cache).",
       "source_root": "engine"
     },
     "fs_game": {
@@ -6645,7 +6645,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: Show system paths in console prints that might appear in screenshots or video capture.\\n1: Replace the start of filenames in console prints with generic prefixes that cannot leak private info like your operating system's user name.",
+      "desc": "0: Show system paths in console prints that might appear in screenshots or video capture.\n1: Replace the start of filenames in console prints with generic prefixes that cannot leak private info like your operating system's user name.",
       "source_root": "engine"
     },
     "fs_homepath": {
@@ -6691,7 +6691,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Disables automatic re-execing configs on gamedir switches.\\nThis means your cvar defaults etc may be from the wrong mod, and cfg_save will leave that stuff corrupted!",
+      "desc": "Disables automatic re-execing configs on gamedir switches.\nThis means your cvar defaults etc may be from the wrong mod, and cfg_save will leave that stuff corrupted!",
       "source_root": "engine"
     },
     "fs_packageprioritisation": {
@@ -6715,7 +6715,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Favours the package that is:\\n0: Most recently modified\\n1: Is alphabetically last (favour z over a, 9 over 0).",
+      "desc": "Favours the package that is:\n0: Most recently modified\n1: Is alphabetically last (favour z over a, 9 over 0).",
       "source_root": "engine"
     },
     "gamecfg": {
@@ -6959,7 +6959,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Specifies how sprites are blended.\\n0: Alpha tested.\\n1: Premultiplied blend.\\n2: Additive blend.",
+      "desc": "Specifies how sprites are blended.\n0: Alpha tested.\n1: Premultiplied blend.\n2: Additive blend.",
       "source_root": "engine"
     },
     "gl_compress": {
@@ -7162,7 +7162,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies the font file to use. a value such as FONT:ALTFONT specifies an alternative font to be used when ^^a is used.\\nWhen using TTF fonts, you will likely need to scale text to at least 150% - vid_conautoscale 1.5 will do this.\\nTTF fonts may be loaded from your windows directory. \\'gl_font cour?col=1,1,1:couri?col=0,1,0\\' loads eg: c:\\\\windows\\\\fonts\\\\cour.ttf, and uses the italic version of courier for alternative text, with specific colour tints.",
+      "desc": "Specifies the font file to use. a value such as FONT:ALTFONT specifies an alternative font to be used when ^^a is used.\nWhen using TTF fonts, you will likely need to scale text to at least 150% - vid_conautoscale 1.5 will do this.\nTTF fonts may be loaded from your windows directory. \\'gl_font cour?col=1,1,1:couri?col=0,1,0\\' loads eg: c:\\windows\\fonts\\cour.ttf, and uses the italic version of courier for alternative text, with specific colour tints.",
       "source_root": "engine"
     },
     "gl_immutable_buffers": {
@@ -7792,7 +7792,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls whether temporary whole-screen colour changes should be honoured or not. Change gl_cshiftpercent if you want to adjust the intensity.\\nThis does not affect v_cshift commands sent from the server.",
+      "desc": "Controls whether temporary whole-screen colour changes should be honoured or not. Change gl_cshiftpercent if you want to adjust the intensity.\nThis does not affect v_cshift commands sent from the server.",
       "source_root": "engine"
     },
     "gl_polyblend_edgesize": {
@@ -8086,7 +8086,7 @@
         "trailing_comment": null
       },
       "default": "GL_LINEAR_MIPMAP_LINEAR",
-      "desc": "Specifies how world/model textures appear. Typically 3 letters eg nll or lll.\\nFirst letter can be l(inear) or n(earest) and says how to upscale low-res textures (n for the classic look - often favoured for embedded textures, l for blurry - best for high-res textures).\\nThe middle letter can be set to '.' to disable mipmaps, or n for ugly banding with distance, or l for smooth mipmap transitions.\\nThe third letter says what to do when the texture is too high resolution, and should generally be set to 'l' to reduce sparkles including when aiming for the classic lego look.",
+      "desc": "Specifies how world/model textures appear. Typically 3 letters eg nll or lll.\nFirst letter can be l(inear) or n(earest) and says how to upscale low-res textures (n for the classic look - often favoured for embedded textures, l for blurry - best for high-res textures).\nThe middle letter can be set to '.' to disable mipmaps, or n for ugly banding with distance, or l for smooth mipmap transitions.\nThe third letter says what to do when the texture is too high resolution, and should generally be set to 'l' to reduce sparkles including when aiming for the classic lego look.",
       "source_root": "engine"
     },
     "gl_texturemode2d": {
@@ -8155,7 +8155,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "For gamecode to know which hand to fire from.\\n0: Right\\n1: Left\\n2: Chest",
+      "desc": "For gamecode to know which hand to fire from.\n0: Right\n1: Left\n2: Chest",
       "source_root": "engine"
     },
     "host_speeds": {
@@ -30704,7 +30704,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Provides a way to reduce inbound spam from flooding out your chat (dupe messages are ignored).\\n0: No inbound flood protection.\\n1: Duplicate non-team messages will be filtered.\\n2: ALL duplicate messages will be filtered",
+      "desc": "Provides a way to reduce inbound spam from flooding out your chat (dupe messages are ignored).\n0: No inbound flood protection.\n1: Duplicate non-team messages will be filtered.\n2: ALL duplicate messages will be filtered",
       "source_root": "engine"
     },
     "ignore_flood_duration": {
@@ -30767,7 +30767,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: Don't ignore chat from enemies.\\n1: Always ignore chat from opponents (note: can also ignore f_ruleset checks).\\n2: Ignore chat from opponents only during a match (requires servers that actually reports match state).\\n",
+      "desc": "0: Don't ignore chat from enemies.\n1: Always ignore chat from opponents (note: can also ignore f_ruleset checks).\n2: Ignore chat from opponents only during a match (requires servers that actually reports match state).\n",
       "source_root": "engine"
     },
     "ignore_qizmo_spec": {
@@ -30809,7 +30809,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: Never ignore spectators.\\n1: Ignore spectators only when playing.\\n2: Always ignore spectators even when spectating.",
+      "desc": "0: Never ignore spectators.\n1: Ignore spectators only when playing.\n2: Always ignore spectators even when spectating.",
       "source_root": "engine"
     },
     "in_builtinkeymap": {
@@ -31090,7 +31090,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Enables the use of xinput for controllers.\\nNote that if you have a headset plugged in, that headset will be used for audio playback if no specific audio device is configured.",
+      "desc": "Enables the use of xinput for controllers.\nNote that if you have a headset plugged in, that headset will be used for audio playback if no specific audio device is configured.",
       "source_root": "engine"
     },
     "ipautodump": {
@@ -31158,7 +31158,7 @@
         "trailing_comment": null
       },
       "default": "turnright",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisr_scale": {
@@ -31200,7 +31200,7 @@
         "trailing_comment": null
       },
       "default": "lookup",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisu_scale": {
@@ -31242,7 +31242,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisv_scale": {
@@ -31284,7 +31284,7 @@
         "trailing_comment": null
       },
       "default": "moveright",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisx_scale": {
@@ -31326,7 +31326,7 @@
         "trailing_comment": null
       },
       "default": "moveback",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisy_scale": {
@@ -31368,7 +31368,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Provides a way to remap each joystick/controller axis.\\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
+      "desc": "Provides a way to remap each joystick/controller axis.\nShould be set to one of: moveforward, moveback, lookup, lookdown, turnleft, turnright, moveleft, moveright, moveup, movedown, rollleft, rollright",
       "source_root": "engine"
     },
     "joyadvaxisz_scale": {
@@ -31410,7 +31410,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Scales joystick/controller sensitivity non-linearly to increase precision in the center.\\nA value of 1 is linear.",
+      "desc": "Scales joystick/controller sensitivity non-linearly to increase precision in the center.\nA value of 1 is linear.",
       "source_root": "engine"
     },
     "joyforwardsensitivity": {
@@ -31494,7 +31494,7 @@
         "trailing_comment": null
       },
       "default": "0.19",
-      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\\nThe joystick threshholds are how much of the total values to ignore.",
+      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\nThe joystick threshholds are how much of the total values to ignore.",
       "source_root": "engine"
     },
     "joyradialdeadzone": {
@@ -31515,7 +31515,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Treat controller dead zones as a pair, rather than per-axis.\\n0: treat joystick axis independantly (square).\\n1: treat the axis together, radially.\\n2: do not handle deadzones (prefiltered).",
+      "desc": "Treat controller dead zones as a pair, rather than per-axis.\n0: treat joystick axis independantly (square).\n1: treat the axis together, radially.\n2: do not handle deadzones (prefiltered).",
       "source_root": "engine"
     },
     "joyrollsensitivity": {
@@ -31557,7 +31557,7 @@
         "trailing_comment": null
       },
       "default": "0.118",
-      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\\nThe joystick threshholds are how much of the total values to ignore.",
+      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\nThe joystick threshholds are how much of the total values to ignore.",
       "source_root": "engine"
     },
     "joysidesensitivity": {
@@ -31706,7 +31706,7 @@
         "trailing_comment": null
       },
       "default": "0.19",
-      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\\nThe joystick threshholds are how much of the total values to ignore.",
+      "desc": "Values reported near the center of the analog joystick/controller are often erroneous and undesired.\nThe joystick threshholds are how much of the total values to ignore.",
       "source_root": "engine"
     },
     "lang": {
@@ -32296,7 +32296,7 @@
         "trailing_comment": null
       },
       "default": "7",
-      "desc": "Bitfield describing what to convert/strip. If 0, exact byte representation will be used.\\n&1: Dequakify text.\\n&2: Strip special markup.\\n&4: Strip ansi control codes.",
+      "desc": "Bitfield describing what to convert/strip. If 0, exact byte representation will be used.\n&1: Dequakify text.\n&2: Strip special markup.\n&4: Strip ansi control codes.",
       "source_root": "engine"
     },
     "log_rotate_files": {
@@ -32476,7 +32476,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Used when m_accel_style is 1.\\nAcceleration will not be active until the mouse movement exceeds this speed (counts per millisecond). Negative values are supported, which has the effect of causing higher rates of acceleration to happen at lower velocities.",
+      "desc": "Used when m_accel_style is 1.\nAcceleration will not be active until the mouse movement exceeds this speed (counts per millisecond). Negative values are supported, which has the effect of causing higher rates of acceleration to happen at lower velocities.",
       "source_root": "engine"
     },
     "m_accel_power": {
@@ -32497,7 +32497,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Used when m_accel_style is 1.\\nValues 1 or below are dumb. 2 is linear and the default. 99% of accel users use this. Above 2 begins to amplify exponentially and you will get more acceleration at higher velocities. Great if you want low accel for slow movements, and high accel for fast movements. Good in combination with a sensitivity cap.",
+      "desc": "Used when m_accel_style is 1.\nValues 1 or below are dumb. 2 is linear and the default. 99% of accel users use this. Above 2 begins to amplify exponentially and you will get more acceleration at higher velocities. Great if you want low accel for slow movements, and high accel for fast movements. Good in combination with a sensitivity cap.",
       "source_root": "engine"
     },
     "m_accel_senscap": {
@@ -32518,7 +32518,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Used when m_accel_style is 1.\\nSets an upper limit on the amplified mouse movement. Great for tuning acceleration around lower velocities while still remaining in control of fast motion such as flicking.",
+      "desc": "Used when m_accel_style is 1.\nSets an upper limit on the amplified mouse movement. Great for tuning acceleration around lower velocities while still remaining in control of fast motion such as flicking.",
       "source_root": "engine"
     },
     "m_accel_style": {
@@ -32583,7 +32583,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: ignore mousewheels in apis where it is abiguous.\\n1: Use mousewheel when it is treated as a third axis. Motion above a threshold is ignored, to avoid issues with an unknown threshold.\\n2: Like 1, but excess motion is retained. The threshold specifies exact z-axis distance per notice.",
+      "desc": "0: ignore mousewheels in apis where it is abiguous.\n1: Use mousewheel when it is treated as a third axis. Motion above a threshold is ignored, to avoid issues with an unknown threshold.\n2: Like 1, but excess motion is retained. The threshold specifies exact z-axis distance per notice.",
       "source_root": "engine"
     },
     "m_forcewheel_threshold": {
@@ -32830,7 +32830,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: entire screen changes angles only.\\n1: right hand side controls strafing.\\n2:left hand side strafes.",
+      "desc": "0: entire screen changes angles only.\n1: right hand side controls strafing.\n2:left hand side strafes.",
       "source_root": "engine"
     },
     "m_yaw": {
@@ -33373,7 +33373,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls how the model's axis are interpreted.\\n0: x=forward, z=up (Quake)\\n1: x=forward, y=up\\n2: z=forward, y=up",
+      "desc": "Controls how the model's axis are interpreted.\n0: x=forward, z=up (Quake)\n1: x=forward, y=up\n2: z=forward, y=up",
       "source_root": "engine"
     },
     "mod_precache": {
@@ -33394,7 +33394,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls when models are loaded.\\n0: Load them only when they're actually needed.\\n1: Load them upfront.\\n2: Lazily load them to shorten load times at the risk of brief stuttering during only the start of the map.",
+      "desc": "Controls when models are loaded.\n0: Load them only when they're actually needed.\n1: Load them upfront.\n2: Lazily load them to shorten load times at the risk of brief stuttering during only the start of the map.",
       "source_root": "engine"
     },
     "mod_terrain_ambient": {
@@ -33866,7 +33866,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "If enabled, accept connection requests from the quake2-remaster engine on our listening udp ports.\\nNote that this defaults to disabled due to it being highly vulnerable to applification attacks.",
+      "desc": "If enabled, accept connection requests from the quake2-remaster engine on our listening udp ports.\nNote that this defaults to disabled due to it being highly vulnerable to applification attacks.",
       "source_root": "engine"
     },
     "net_enable_dtls": {
@@ -33887,7 +33887,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Controls serverside dtls support.\\n0: dtls blocked, not advertised.\\n1: clientside choice.\\n2: used where possible (recommended setting).\\n3: disallow non-dtls clients (sv_port_tcp should be eg tls://[::]:27500 to also disallow unencrypted tcp connections).",
+      "desc": "Controls serverside dtls support.\n0: dtls blocked, not advertised.\n1: clientside choice.\n2: used where possible (recommended setting).\n3: disallow non-dtls clients (sv_port_tcp should be eg tls://[::]:27500 to also disallow unencrypted tcp connections).",
       "source_root": "engine"
     },
     "net_enable_http": {
@@ -33950,7 +33950,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Controls whether inbound qtv requests will be honoured (both proxies and clients using qtvplay).\\n0: Don't accept qtv connections.\\n1: Accept connections.\\n2: Accept qtv connections only from host-scopped addresses (read: 127.*.*.*, ::1, or unix sockets).",
+      "desc": "Controls whether inbound qtv requests will be honoured (both proxies and clients using qtvplay).\n0: Don't accept qtv connections.\n1: Accept connections.\n2: Accept qtv connections only from host-scopped addresses (read: 127.*.*.*, ::1, or unix sockets).",
       "source_root": "engine"
     },
     "net_enable_rtcbroker": {
@@ -34216,7 +34216,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: Hide messy details.\\n1: Show new candidates.\\n2: Show each connectivity test.",
+      "desc": "0: Hide messy details.\n1: Show new candidates.\n2: Show each connectivity test.",
       "source_root": "engine"
     },
     "net_ice_exchangeprivateips": {
@@ -35581,7 +35581,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls autoupdates, can only be changed via the downloads menu.\\n0: off.\\n1: enabled (stable only).\\n2: enabled (unstable).\\nNote that autoupdate will still prompt the user to actually apply the changes.",
+      "desc": "Controls autoupdates, can only be changed via the downloads menu.\n0: off.\n1: enabled (stable only).\n2: enabled (unstable).\nNote that autoupdate will still prompt the user to actually apply the changes.",
       "source_root": "engine"
     },
     "plug_loaddefault": {
@@ -35602,7 +35602,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: Load plugins only via explicit plug_load commands\\n1: Load built-in plugins and those selected via the package manager\\n2: Scan for misc plugins, loading all that can be found, but not built-ins.\\n3: Scan for plugins, and then load any built-ins",
+      "desc": "0: Load plugins only via explicit plug_load commands\n1: Load built-in plugins and those selected via the package manager\n2: Scan for misc plugins, loading all that can be found, but not built-ins.\n3: Scan for plugins, and then load any built-ins",
       "source_root": "engine"
     },
     "plug_sbar": {
@@ -35623,7 +35623,7 @@
         "trailing_comment": null
       },
       "default": "3",
-      "desc": "Controls whether plugins are allowed to draw the hud, rather than the engine (when allowed by csqc). This is typically used to permit the ezhud plugin without needing to bother unloading it.\\n=0: never use hud plugins.\\n&1: Use hud plugins in deathmatch.\\n&2: Use hud plugins in singleplayer/coop.\\n=3: Always use hud plugins (when loaded).",
+      "desc": "Controls whether plugins are allowed to draw the hud, rather than the engine (when allowed by csqc). This is typically used to permit the ezhud plugin without needing to bother unloading it.\n=0: never use hud plugins.\n&1: Use hud plugins in deathmatch.\n&2: Use hud plugins in singleplayer/coop.\n=3: Always use hud plugins (when loaded).",
       "source_root": "engine"
     },
     "pm_airstep": {
@@ -36314,7 +36314,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "As part of its nq/qw/h2/csqc support, FTE remaps QC fields to match an internal order. This is a faster way to handle extended fields. However, some QCCs are buggy and don't report all field defs.\\n0: do nothing. QCC must be well behaved.\\n1: Duplicate engine fields, remap the ones we can to known offsets. This is sufficient for QCCX/FrikQCC mods that use hardcoded or even occasional calculated offsets (fixes ktpro).\\n2: Scan the mod for field accessing instructions, and assume those are the fields (and that they don't alias non-fields). This can be used to work around gmqcc's WTFs (fixes xonotic).",
+      "desc": "As part of its nq/qw/h2/csqc support, FTE remaps QC fields to match an internal order. This is a faster way to handle extended fields. However, some QCCs are buggy and don't report all field defs.\n0: do nothing. QCC must be well behaved.\n1: Duplicate engine fields, remap the ones we can to known offsets. This is sufficient for QCCX/FrikQCC mods that use hardcoded or even occasional calculated offsets (fixes ktpro).\n2: Scan the mod for field accessing instructions, and assume those are the fields (and that they don't alias non-fields). This can be used to work around gmqcc's WTFs (fixes xonotic).",
       "source_root": "engine"
     },
     "pr_gc_threaded": {
@@ -37335,7 +37335,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Scaler for clutter counts. 0 disables clutter completely.\\nClutter requires shaders with 'fte_clutter MODEL SPACING SCALEMIN SCALEMAX ZOFS ANGLEMIN ANGLEMAX' terms",
+      "desc": "Scaler for clutter counts. 0 disables clutter completely.\nClutter requires shaders with 'fte_clutter MODEL SPACING SCALEMIN SCALEMAX ZOFS ANGLEMIN ANGLEMAX' terms",
       "source_root": "engine"
     },
     "r_clutter_distance": {
@@ -37471,7 +37471,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies that coronas should be occluded more carefully.\\n0: No occlusion, at all.\\n1: BSP occlusion only (simple tracelines).\\n2: non-bsp occlusion also (complex tracelines).\\n3: Depthbuffer reads (forces synchronisation).\\n4: occlusion queries.",
+      "desc": "Specifies that coronas should be occluded more carefully.\n0: No occlusion, at all.\n1: BSP occlusion only (simple tracelines).\n2: non-bsp occlusion also (complex tracelines).\n3: Depthbuffer reads (forces synchronisation).\n4: occlusion queries.",
       "source_root": "engine"
     },
     "r_decal_noperpendicular": {
@@ -37516,7 +37516,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Enables bumpmapping based upon precomputed light directions.\\n0=off\\n1=use if available\\n2=auto-generate (if possible)",
+      "desc": "Enables bumpmapping based upon precomputed light directions.\n0=off\n1=use if available\n2=auto-generate (if possible)",
       "source_root": "engine"
     },
     "r_dimlight_colour": {
@@ -37625,7 +37625,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Controls whether to draw entities or not.\\n0: Draw no entities.\\n1: Draw everything as normal.\\n2: Draw everything but bmodels.\\n3: Draw bmodels only.",
+      "desc": "Controls whether to draw entities or not.\n0: Draw no entities.\n1: Draw everything as normal.\n2: Draw everything but bmodels.\n3: Draw bmodels only.",
       "source_root": "engine"
     },
     "r_drawflame": {
@@ -37739,7 +37739,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: no standard dlights at all.\\n1: coloured dlights will be used, they may show through walls. These are not realtime things.\\n2: The dlights will be forced to monochrome (this does not affect coronas/flashblends/rtlights attached to the same light).",
+      "desc": "0: no standard dlights at all.\n1: coloured dlights will be used, they may show through walls. These are not realtime things.\n2: The dlights will be forced to monochrome (this does not affect coronas/flashblends/rtlights attached to the same light).",
       "source_root": "engine"
     },
     "r_editlights": {
@@ -38182,7 +38182,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "0: Never cull entities by fog...\\n1: Automatically cull entities according to fog.\\n2: Force fog culling regardless ",
+      "desc": "0: Never cull entities by fog...\n1: Automatically cull entities according to fog.\n2: Force fog culling regardless ",
       "source_root": "engine"
     },
     "r_fog_exp2": {
@@ -38335,7 +38335,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Reduce the shader to a single texture, and then make stuff up about its mother. The resulting fist fight results in more colour when you shine a light upon its face.\\nSet to 2 to ignore 'depthfunc equal' and 'tcmod scale' in order to tolerate bizzare shaders made for a bizzare engine.\\nBecause most shaders made for DP are by people who _clearly_ have no idea what the heck they're doing, you'll typically need the '2' setting.",
+      "desc": "Reduce the shader to a single texture, and then make stuff up about its mother. The resulting fist fight results in more colour when you shine a light upon its face.\nSet to 2 to ignore 'depthfunc equal' and 'tcmod scale' in order to tolerate bizzare shaders made for a bizzare engine.\nBecause most shaders made for DP are by people who _clearly_ have no idea what the heck they're doing, you'll typically need the '2' setting.",
       "source_root": "engine"
     },
     "r_fullbright": {
@@ -38969,7 +38969,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Ignores when textures were loaded from map-specific paths.\\n0: textures/foo/tex.tga will not be confused with textures/foo/tex.tga.\\n1: The same texture might be loaded multiple times over.",
+      "desc": "Ignores when textures were loaded from map-specific paths.\n0: textures/foo/tex.tga will not be confused with textures/foo/tex.tga.\n1: The same texture might be loaded multiple times over.",
       "source_root": "engine"
     },
     "r_image_downloadsizelimit": {
@@ -39034,7 +39034,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Retain unused images in memory for slightly faster map loading.\\n0: Redundant images will be purged after each map change.\\n1: Images will be retained until vid_reload (potentially consuming a lot of ram).",
+      "desc": "Retain unused images in memory for slightly faster map loading.\n0: Redundant images will be purged after each map change.\n1: Images will be retained until vid_reload (potentially consuming a lot of ram).",
       "source_root": "engine"
     },
     "r_lavaalpha": {
@@ -39328,7 +39328,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Whether to load lit files.\\n0: Do not load external rgb lightmap data.\\n1: Load but don't generate.\\n2: Generate ldr lighting (if none found).\\n3: Generate hdr lighting (if none found).\\nNote that regeneration of lightmap data may be unreliable if the map was made for more advanced lighting tools.\\nDeluxemap information will also be generated, as appropriate.",
+      "desc": "Whether to load lit files.\n0: Do not load external rgb lightmap data.\n1: Load but don't generate.\n2: Generate ldr lighting (if none found).\n3: Generate hdr lighting (if none found).\nNote that regeneration of lightmap data may be unreliable if the map was made for more advanced lighting tools.\nDeluxemap information will also be generated, as appropriate.",
       "source_root": "engine"
     },
     "r_loadsurfenvmaps": {
@@ -40386,7 +40386,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: regular perspective.\\n1: stereographic.\\n2: fisheye.\\n3: panoramic.\\n4: lambert azimuthal equal-area.\\n5: equirectangular.\\n6: panini.",
+      "desc": "0: regular perspective.\n1: stereographic.\n2: fisheye.\n3: panoramic.\n4: lambert azimuthal equal-area.\n5: equirectangular.\n6: panini.",
       "source_root": "engine"
     },
     "r_redlight_colour": {
@@ -40891,7 +40891,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Controls default loading of map-based realtime lights.\\n0: Load explicit .rtlight files only.\\n1: Load explicit lights then try fallback to parsing the entities lump.\\n2: Load only the entities lump.",
+      "desc": "Controls default loading of map-based realtime lights.\n0: Load explicit .rtlight files only.\n1: Load explicit lights then try fallback to parsing the entities lump.\n2: Load only the entities lump.",
       "source_root": "engine"
     },
     "r_shadow_realtime_world_lightmaps": {
@@ -41529,7 +41529,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Value 0 = Off.\\nValue 1 = Attempt hardware acceleration. Requires vid_restart.\\nValue 2 = red/cyan.\\nValue 3 = red/blue.\\nValue 4=red/green.\\nValue 5=eye strain.",
+      "desc": "Value 0 = Off.\nValue 1 = Attempt hardware acceleration. Requires vid_restart.\nValue 2 = red/cyan.\nValue 3 = red/blue.\nValue 4=red/green.\nValue 5=eye strain.",
       "source_root": "engine"
     },
     "r_stereo_separation": {
@@ -41686,7 +41686,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Controls whether to generate+reuse a scene cache over multiple frames. This is generated on a separate thread to avoid any associated costs. This can significantly boost framerates on complex maps, but can also stress the gpu more (performance tradeoff that varies per map). An outdated cache may be used if the cache takes too long to build (eg: lightmap animations), which could cause the odd glitch when moving fast (but retain more consistent framerates - another tradeoff).\\n0: Tranditional quake rendering.\\n1: Generate+Use the scene cache.",
+      "desc": "Controls whether to generate+reuse a scene cache over multiple frames. This is generated on a separate thread to avoid any associated costs. This can significantly boost framerates on complex maps, but can also stress the gpu more (performance tradeoff that varies per map). An outdated cache may be used if the cache takes too long to build (eg: lightmap animations), which could cause the odd glitch when moving fast (but retain more consistent framerates - another tradeoff).\n0: Tranditional quake rendering.\n1: Generate+Use the scene cache.",
       "source_root": "engine"
     },
     "r_tessellation": {
@@ -41774,7 +41774,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "how long it takes for r_tracker messages to fully fade once they start fading\\n",
+      "desc": "how long it takes for r_tracker messages to fully fade once they start fading\n",
       "source_root": "engine"
     },
     "r_tracker_frags": {
@@ -41795,7 +41795,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: like vanilla quake\\n1: shows only your kills/deaths\\n2: shows all kills\\n",
+      "desc": "0: like vanilla quake\n1: shows only your kills/deaths\n2: shows all kills\n",
       "source_root": "engine"
     },
     "r_tracker_lines": {
@@ -41816,7 +41816,7 @@
         "trailing_comment": null
       },
       "default": "8",
-      "desc": "number of r_tracker messages to display\\n",
+      "desc": "number of r_tracker messages to display\n",
       "source_root": "engine"
     },
     "r_tracker_time": {
@@ -41837,7 +41837,7 @@
         "trailing_comment": null
       },
       "default": "4",
-      "desc": "how long it takes for r_tracker messages to start fading\\n",
+      "desc": "how long it takes for r_tracker messages to start fading\n",
       "source_root": "engine"
     },
     "r_tracker_w": {
@@ -41858,7 +41858,7 @@
         "trailing_comment": null
       },
       "default": "0.5",
-      "desc": "width of the r_tracker messages, as a fraction of the screen's width, eg 0.5\\n",
+      "desc": "width of the r_tracker messages, as a fraction of the screen's width, eg 0.5\n",
       "source_root": "engine"
     },
     "r_tracker_x": {
@@ -41879,7 +41879,7 @@
         "trailing_comment": null
       },
       "default": "0.5",
-      "desc": "left position of the r_tracker messages, as a fraction of the screen's width, eg 0.5\\n",
+      "desc": "left position of the r_tracker messages, as a fraction of the screen's width, eg 0.5\n",
       "source_root": "engine"
     },
     "r_tracker_y": {
@@ -41900,7 +41900,7 @@
         "trailing_comment": null
       },
       "default": "0.333",
-      "desc": "top position of the r_tracker messages, as a fraction of the screen's height, eg 0.333\\n",
+      "desc": "top position of the r_tracker messages, as a fraction of the screen's height, eg 0.333\n",
       "source_root": "engine"
     },
     "r_vertexdlights": {
@@ -42081,7 +42081,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Changes how water, and teleporters are drawn. Possible values are:\\n0: fastturb-style block colour.\\n1: regular q1-style water.\\n2: refraction(ripply and transparent)\\n3: refraction with reflection at an angle\\n4: ripplemapped without reflections (requires particle effects)\\n5: ripples+reflections",
+      "desc": "Changes how water, and teleporters are drawn. Possible values are:\n0: fastturb-style block colour.\n1: regular q1-style water.\n2: refraction(ripply and transparent)\n3: refraction with reflection at an angle\n4: ripplemapped without reflections (requires particle effects)\n5: ripples+reflections",
       "source_root": "engine"
     },
     "r_waterwarp": {
@@ -42405,7 +42405,7 @@
         "trailing_comment": null
       },
       "default": "none",
-      "desc": "Known rulesets are:\\nnone: no explicit rules, all 'minor cheats' are allowed.\\nstrict: equivelent to the smackdown ruleset. Note that this will block certain graphical enhancements too.",
+      "desc": "Known rulesets are:\nnone: no explicit rules, all 'minor cheats' are allowed.\nstrict: equivelent to the smackdown ruleset. Note that this will block certain graphical enhancements too.",
       "source_root": "engine"
     },
     "ruleset_allow_fbmodels": {
@@ -42768,7 +42768,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "0: OpenAL works (generally as the highest priority).\\n1: OpenAL will be used only when a specific device is selected.\\n2: Don't allow ANY use of OpenAl.\\nWith OpenAL disabled, audio ouput will fall back to platform-specific output, avoiding miscilaneous third-party openal limitation bugs.",
+      "desc": "0: OpenAL works (generally as the highest priority).\n1: OpenAL will be used only when a specific device is selected.\n2: Don't allow ANY use of OpenAl.\nWith OpenAL disabled, audio ouput will fall back to platform-specific output, avoiding miscilaneous third-party openal limitation bugs.",
       "source_root": "engine"
     },
     "s_al_distancemodel": {
@@ -42789,7 +42789,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Controls how sounds fade with distance.\\n0: Inverse (most realistic)\\n1: Inverse Clamped\\n2: Linear (Quake-like)\\n3: Linear Clamped\\n4: Exponential\\n5: Exponential Clamped\\n6: None",
+      "desc": "Controls how sounds fade with distance.\n0: Inverse (most realistic)\n1: Inverse Clamped\n2: Linear (Quake-like)\n3: Linear Clamped\n4: Exponential\n5: Exponential Clamped\n6: None",
       "source_root": "engine"
     },
     "s_al_dopplerfactor": {
@@ -42831,7 +42831,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Enables use of HRTF, and which HRTF table to use.\\nempty: auto, depending on openal config to enable it.\\n\\0: force off.\\n1: Use the default HRTF.",
+      "desc": "Enables use of HRTF, and which HRTF table to use.\nempty: auto, depending on openal config to enable it.\n\u0000: force off.\n1: Use the default HRTF.",
       "source_root": "engine"
     },
     "s_al_reference_distance": {
@@ -43049,7 +43049,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "This is the sound device(s) to use, in the form of driver:device.\\nIf desired, multiple devices can be listed in space-seperated (quoted) tokens. _s_device_opts contains any enumerated options.\\nIn all seriousness, use the menu to set this if you wish to keep your hair.",
+      "desc": "This is the sound device(s) to use, in the form of driver:device.\nIf desired, multiple devices can be listed in space-seperated (quoted) tokens. _s_device_opts contains any enumerated options.\nIn all seriousness, use the menu to set this if you wish to keep your hair.",
       "source_root": "engine"
     },
     "s_doppler": {
@@ -44190,7 +44190,7 @@
         "trailing_comment": null
       },
       "default": "126",
-      "desc": "Mask of bits for weapon icons to actually show.\\n+1: Shotgun.\\n+2: Super Shotgun.\\n+4: Nail Gun.\\n+8: Super Nail Gun.\\n+16: Grenade Launcher.\\n+32: Rocket Launcher.\\n+64: Lightning\\nShowing only RL and GL is 96\\n",
+      "desc": "Mask of bits for weapon icons to actually show.\n+1: Shotgun.\n+2: Super Shotgun.\n+4: Nail Gun.\n+8: Super Nail Gun.\n+16: Grenade Launcher.\n+32: Rocket Launcher.\n+64: Lightning\nShowing only RL and GL is 96\n",
       "source_root": "engine"
     },
     "scr_centersbar": {
@@ -44339,7 +44339,7 @@
         "trailing_comment": null
       },
       "default": "4",
-      "desc": "Controls what the fov cvar actually controls:\\n0: largest axis (ultra-wide monitors means less height will be visible).\\n1: smallest axis (ultra-wide monitors will distort at the edges).\\n2: horizontal axis.\\n3: vertical axis.\\n4: 4:3 horizontal axis, padded for wider resolutions (for a more classic fov)",
+      "desc": "Controls what the fov cvar actually controls:\n0: largest axis (ultra-wide monitors means less height will be visible).\n1: smallest axis (ultra-wide monitors will distort at the edges).\n2: horizontal axis.\n3: vertical axis.\n4: 4:3 horizontal axis, padded for wider resolutions (for a more classic fov)",
       "source_root": "engine"
     },
     "scr_loadingrefresh": {
@@ -44381,7 +44381,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Controls the aspect of levelshot images.\\n0: Use source image's aspect.\\n1: Force 4:3 aspect (ignore image's aspect), for best q3 compat.\\n2: Ignore aspect considerations and just smear it over the entire screen.\\n-1: Disable levelshot use.",
+      "desc": "Controls the aspect of levelshot images.\n0: Use source image's aspect.\n1: Force 4:3 aspect (ignore image's aspect), for best q3 compat.\n2: Ignore aspect considerations and just smear it over the entire screen.\n-1: Disable levelshot use.",
       "source_root": "engine"
     },
     "scr_loadingscreen_picture": {
@@ -44654,7 +44654,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Display flag caps+touches on the scoreboard, where our fragfile.dat supports them.\\n0: off\\n1: on\\n2: on only if someone appears to have interacted with a flag.",
+      "desc": "Display flag caps+touches on the scoreboard, where our fragfile.dat supports them.\n0: off\n1: on\n2: on only if someone appears to have interacted with a flag.",
       "source_root": "engine"
     },
     "scr_scoreboard_showfrags": {
@@ -44696,7 +44696,7 @@
         "trailing_comment": null
       },
       "default": "3",
-      "desc": "Display health information when playing mvd/qtv streams.\\n0: off\\n1: on\\n2: show armour too. 3: combined health ('+' says more armour than health allows).",
+      "desc": "Display health information when playing mvd/qtv streams.\n0: off\n1: on\n2: show armour too. 3: combined health ('+' says more armour than health allows).",
       "source_root": "engine"
     },
     "scr_scoreboard_showlocation": {
@@ -44992,7 +44992,7 @@
         "trailing_comment": null
       },
       "default": "png",
-      "desc": "This specifies the default extension(and thus file format) for screenshots.\\nKnown extensions are: png, jpg/jpeg, bmp, pcx, tga, ktx, dds.",
+      "desc": "This specifies the default extension(and thus file format) for screenshots.\nKnown extensions are: png, jpg/jpeg, bmp, pcx, tga, ktx, dds.",
       "source_root": "engine"
     },
     "scr_turtlefps": {
@@ -45187,7 +45187,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Displays the current framerate on-screen.\\n0: Off.\\n1: framerate average over a second.\\n2: Show a frametimes graph (with additional timing info).\\n-1: Normalized graph that focuses on the variation ignoring base times.",
+      "desc": "Displays the current framerate on-screen.\n0: Off.\n1: framerate average over a second.\n2: Show a frametimes graph (with additional timing info).\n-1: Normalized graph that focuses on the variation ignoring base times.",
       "source_root": "engine"
     },
     "show_fps_x": {
@@ -45729,7 +45729,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Attempt to backdate impacts to compensate for lag via the MOVE_ANTILAG feature.\\n0=completely off.\\n1=mod-controlled (default).\\n2=forced, which might break certain uses of traceline.\\n3=Also attempt to recalculate trace start positions to avoid lagged knockbacks.",
+      "desc": "Attempt to backdate impacts to compensate for lag via the MOVE_ANTILAG feature.\n0=completely off.\n1=mod-controlled (default).\n2=forced, which might break certain uses of traceline.\n3=Also attempt to recalculate trace start positions to avoid lagged knockbacks.",
       "source_root": "engine"
     },
     "sv_antilag_frac": {
@@ -45838,7 +45838,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Uses floats for coordinates instead of 16bit values.\\nAlso boosts angle precision, so can be useful even on small maps.\\nAffects clients thusly:\\nQW: enforces a mandatory protocol extension\\nDP: enables DPP7 protocol support\\nNQ: uses RMQ protocol (protocol 999).",
+      "desc": "Uses floats for coordinates instead of 16bit values.\nAlso boosts angle precision, so can be useful even on small maps.\nAffects clients thusly:\nQW: enforces a mandatory protocol extension\nDP: enables DPP7 protocol support\nNQ: uses RMQ protocol (protocol 999).",
       "source_root": "engine"
     },
     "sv_brokenmovetypes": {
@@ -45991,7 +45991,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Controls whether the rcon password must be hashed or not. Hashed passwords also partially prevent replay attacks, but does NOT prevent malicious actors from reading the commands/results.\\n0: completely insecure. ONLY allows plain-text passwords. Do not use.\\n1: Mandatory hashing (recommended).\\nEmpty: Allow either, whether the password is secure or not is purely the client's responsibility/fault. Only use this for comptibility with old clients.",
+      "desc": "Controls whether the rcon password must be hashed or not. Hashed passwords also partially prevent replay attacks, but does NOT prevent malicious actors from reading the commands/results.\n0: completely insecure. ONLY allows plain-text passwords. Do not use.\n1: Mandatory hashing (recommended).\nEmpty: Allow either, whether the password is secure or not is purely the client's responsibility/fault. Only use this for comptibility with old clients.",
       "source_root": "engine"
     },
     "sv_csqc_progname": {
@@ -46100,7 +46100,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies whether to compress demos as they're recorded.\\n0 = no compression.\\n1 = gzip compression.",
+      "desc": "Specifies whether to compress demos as they're recorded.\n0 = no compression.\n1 = gzip compression.",
       "source_root": "engine"
     },
     "sv_demoAutoPrefix": {
@@ -46142,7 +46142,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "If set, automatically record demos.\\n-1: record on client connection only.\\n1+: record once there's this many active players on the server (or if connected to a remote server).",
+      "desc": "If set, automatically record demos.\n-1: record on client connection only.\n1+: record once there's this many active players on the server (or if connected to a remote server).",
       "source_root": "engine"
     },
     "sv_demoCacheSize": {
@@ -46247,7 +46247,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Enables protocol extensions within MVDs. This will cause older/non-fte clients to error upon playback.\\n0: off.\\n1: all extensions.\\n2: extensions also supported by a certain other engine.",
+      "desc": "Enables protocol extensions within MVDs. This will cause older/non-fte clients to error upon playback.\n0: off.\n1: all extensions.\n2: extensions also supported by a certain other engine.",
       "source_root": "engine"
     },
     "sv_demoExtraNames": {
@@ -46734,7 +46734,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Specifies the port range for the server to create listening sockets for 'active' ftp connections, to work around NAT/firewall issues.\\nMost FTP clients should use passive connections, but there's still some holdouts like windows.",
+      "desc": "Specifies the port range for the server to create listening sockets for 'active' ftp connections, to work around NAT/firewall issues.\nMost FTP clients should use passive connections, but there's still some holdouts like windows.",
       "source_root": "engine"
     },
     "sv_fulllevel": {
@@ -47091,7 +47091,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Attempt to obtain a more reliable IP for clients, rather than just their proxy.\\n0: Don't attempt.\\n1: Unreliable checks.\\n2: Validate if possible.\\n3: Mandatory validation.",
+      "desc": "Attempt to obtain a more reliable IP for clients, rather than just their proxy.\n0: Don't attempt.\n1: Unreliable checks.\n2: Validate if possible.\n3: Mandatory validation.",
       "source_root": "engine"
     },
     "sv_gravity": {
@@ -47238,7 +47238,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Allows the server to respond with the DP-specific handshake protocol.\\nWarning: this can potentially get confused with quake2, and results in race conditions with both vanilla netquake and quakeworld protocols.\\nOn the plus side, DP clients can usually be identified correctly, enabling a model+sound limit boost.",
+      "desc": "Allows the server to respond with the DP-specific handshake protocol.\nWarning: this can potentially get confused with quake2, and results in race conditions with both vanilla netquake and quakeworld protocols.\nOn the plus side, DP clients can usually be identified correctly, enabling a model+sound limit boost.",
       "source_root": "engine"
     },
     "sv_listen_nq": {
@@ -47259,7 +47259,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Allow new (net)quake clients to connect to the server.\\n0 = don't let them in.\\n1 = allow them in (WARNING: this allows 'qsmurf' DOS attacks).\\n2 = accept (net)quake clients by emulating a challenge (as secure as QW/Q2 but does not fully conform to the NQ protocol).\\nYou may also need to set net_enable_dtls if you wish for the rerelease's client to connect.",
+      "desc": "Allow new (net)quake clients to connect to the server.\n0 = don't let them in.\n1 = allow them in (WARNING: this allows 'qsmurf' DOS attacks).\n2 = accept (net)quake clients by emulating a challenge (as secure as QW/Q2 but does not fully conform to the NQ protocol).\nYou may also need to set net_enable_dtls if you wish for the rerelease's client to connect.",
       "source_root": "engine"
     },
     "sv_listen_qw": {
@@ -47385,7 +47385,7 @@
         "trailing_comment": null
       },
       "default": "500000",
-      "desc": "This cvar controls the maximum number of bytes sent to each player per second while that player is downloading.\\nIf this cvar is set to 0, there will be NO CAP for download rates (if the user's drate is empty/0 too, then expect really fast+abusive downloads that could potentially be considered denial of service attacks)",
+      "desc": "This cvar controls the maximum number of bytes sent to each player per second while that player is downloading.\nIf this cvar is set to 0, there will be NO CAP for download rates (if the user's drate is empty/0 too, then expect really fast+abusive downloads that could potentially be considered denial of service attacks)",
       "source_root": "engine"
     },
     "sv_maxrate": {
@@ -47746,7 +47746,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specify maximum number of player/spectator/bot slots, new value takes effect on the next map (this may result in players getting kicked). This should generally be set to maxclients+maxspectators. Leave blank for a default value.\\nMaximum value of . Values above 16 will result in issues with vanilla NQ clients. Effective values other than 32 will result in issues with vanilla QW clients.",
+      "desc": "Specify maximum number of player/spectator/bot slots, new value takes effect on the next map (this may result in players getting kicked). This should generally be set to maxclients+maxspectators. Leave blank for a default value.\nMaximum value of . Values above 16 will result in issues with vanilla NQ clients. Effective values other than 32 will result in issues with vanilla QW clients.",
       "source_root": "engine"
     },
     "sv_port": {
@@ -47941,7 +47941,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies the default protocol to use for new NQ clients. This is only relevent for clients that do not report their supported protocols. Supported values are\\n0 = autodetect\\n15 = vanilla\\n666 = fitzquake\\n999 = rmq protocol\\nThe sv_bigcoords cvar forces upgrades as required.",
+      "desc": "Specifies the default protocol to use for new NQ clients. This is only relevent for clients that do not report their supported protocols. Supported values are\n0 = autodetect\n15 = vanilla\n666 = fitzquake\n999 = rmq protocol\nThe sv_bigcoords cvar forces upgrades as required.",
       "source_root": "engine"
     },
     "sv_public": {
@@ -47962,7 +47962,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "-1: Fully blocks all inbound connections.\\n0: Disable subscribing to master servers (for private lan-only games).\\n1: Subscribe to public master servers. Your IP address will be listed publicly. Make sure your Router/NAT+Firewall are set to allow inbound connections.\\n2: Subscribe to a broker master, allowing firewall hole punching.",
+      "desc": "-1: Fully blocks all inbound connections.\n0: Disable subscribing to master servers (for private lan-only games).\n1: Subscribe to public master servers. Your IP address will be listed publicly. Make sure your Router/NAT+Firewall are set to allow inbound connections.\n2: Subscribe to a broker master, allowing firewall hole punching.",
       "source_root": "engine"
     },
     "sv_pupglow": {
@@ -48008,7 +48008,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "The most evil cvar in the world, many clients will ignore this.\\n0=standard quake rules.\\n1=clients should prefer files within packages present on the server.\\n2=clients should use *only* files within packages present on the server.\\nDue to quake 1.01/1.06 differences, a setting of 2 only works in total conversions.",
+      "desc": "The most evil cvar in the world, many clients will ignore this.\n0=standard quake rules.\n1=clients should prefer files within packages present on the server.\n2=clients should use *only* files within packages present on the server.\nDue to quake 1.01/1.06 differences, a setting of 2 only works in total conversions.",
       "source_root": "engine"
     },
     "sv_pushplayers": {
@@ -48264,7 +48264,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Specifies the format used for the saved game.\\n0=legacy.\\n1=fte\\n2=binary",
+      "desc": "Specifies the format used for the saved game.\n0=legacy.\n1=fte\n2=binary",
       "source_root": "engine"
     },
     "sv_serverip": {
@@ -48390,7 +48390,7 @@
         "trailing_comment": null
       },
       "default": "3",
-      "desc": "Bitfield that controls which player events spectators see when tracking that player.\\n&1: spectators will see centerprints.\\n&2: spectators will see sprints (pickup messages etc).\\n&4: spectators will receive console commands, this is potentially risky.\\nIndividual spectators can use 'setinfo sp foo' to limit this setting.",
+      "desc": "Bitfield that controls which player events spectators see when tracking that player.\n&1: spectators will see centerprints.\n&2: spectators will see sprints (pickup messages etc).\n&4: spectators will receive console commands, this is potentially risky.\nIndividual spectators can use 'setinfo sp foo' to limit this setting.",
       "source_root": "engine"
     },
     "sv_spectalk": {
@@ -48847,7 +48847,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Controls which system clock to base timings from.\\n0: auto\\n1: gettimeofday (may be discontinuous).\\n2: monotonic.",
+      "desc": "Controls which system clock to base timings from.\n0: auto\n1: gettimeofday (may be discontinuous).\n2: monotonic.",
       "source_root": "engine"
     },
     "sys_colorconsole": {
@@ -49044,7 +49044,7 @@
         "trailing_comment": null
       },
       "default": "landscape",
-      "desc": "Specifies what angle to render quake at.\\nValid values are: sensor (autodetect), landscape, portrait, reverselandscape, reverseportrait",
+      "desc": "Specifies what angle to render quake at.\nValid values are: sensor (autodetect), landscape, portrait, reverselandscape, reverseportrait",
       "source_root": "engine"
     },
     "sys_osk": {
@@ -50672,7 +50672,7 @@
         "trailing_comment": null
       },
       "default": "1",
-      "desc": "Text to speech\\n0: off\\n1: Read only chat messages with a leading 'tts ' prefix.\\n2: Read all chat messages\\n3: Read every single console print.",
+      "desc": "Text to speech\n0: off\n1: Read only chat messages with a leading 'tts ' prefix.\n2: Read all chat messages\n3: Read every single console print.",
       "source_root": "engine"
     },
     "utf8_enable": {
@@ -52172,7 +52172,7 @@
         "trailing_comment": null
       },
       "default": "2",
-      "desc": "Specifies whether the game should be fullscreen or not (requires vid_restart).\\n0: Run in a resizable window, which can be manually maximized (with borders).\\n1: Traditional fullscreen-exclusive video mode with mode switching and everything.\\n2: Simply maximize the window and hide any borders without interfering with any other parts of the system.",
+      "desc": "Specifies whether the game should be fullscreen or not (requires vid_restart).\n0: Run in a resizable window, which can be manually maximized (with borders).\n1: Traditional fullscreen-exclusive video mode with mode switching and everything.\n2: Simply maximize the window and hide any borders without interfering with any other parts of the system.",
       "source_root": "engine"
     },
     "vid_gl_context_compatibility": {
@@ -52500,7 +52500,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "-1: Only the framebuffer should use sRGB colourspace, textures and colours will be assumed to be linear. This has the effect of just brightening the screen according to a gamma ramp of about 2.2 (or .45 in quake's backwards gamma terms).\\n0: Off. Colour blending will be wrong, you're likely to see obvious banding.\\n1: Use sRGB extensions/support to ensure that the lighting aproximately matches real-world lighting (required for PBR).\\n2: Attempt to use a linear floating-point framebuffer, which should enable monitor support for HDR.\\nNote that driver behaviour varies by a disturbing amount, and much of the documentation conflicts with itself (the term 'linear' is awkward when the eye's perception of linear is non-linear).",
+      "desc": "-1: Only the framebuffer should use sRGB colourspace, textures and colours will be assumed to be linear. This has the effect of just brightening the screen according to a gamma ramp of about 2.2 (or .45 in quake's backwards gamma terms).\n0: Off. Colour blending will be wrong, you're likely to see obvious banding.\n1: Use sRGB extensions/support to ensure that the lighting aproximately matches real-world lighting (required for PBR).\n2: Attempt to use a linear floating-point framebuffer, which should enable monitor support for HDR.\nNote that driver behaviour varies by a disturbing amount, and much of the documentation conflicts with itself (the term 'linear' is awkward when the eye's perception of linear is non-linear).",
       "source_root": "engine"
     },
     "vid_triplebuffer": {
@@ -52817,7 +52817,7 @@
         "trailing_comment": null
       },
       "default": "",
-      "desc": "Configures which dynamic buffers are copied into gpu memory for rendering, instead of reading from shared memory. Empty for default settings.\\nAccepted chars are u(niform), e(lements), v(ertex), 0(none).",
+      "desc": "Configures which dynamic buffers are copied into gpu memory for rendering, instead of reading from shared memory. Empty for default settings.\nAccepted chars are u(niform), e(lements), v(ertex), 0(none).",
       "source_root": "engine"
     },
     "vk_submissionthread": {
@@ -53055,7 +53055,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "When set, attempts to take exclusive control of the output device, to the detriment of other programs (causing errors or even crashes in them).\\nExclusive mode leaves the game free to change the hardware's playback details, instead of being required to use a single system-wide 'mixer' rate.\\nIt should also reduce latency a little.",
+      "desc": "When set, attempts to take exclusive control of the output device, to the detriment of other programs (causing errors or even crashes in them).\nExclusive mode leaves the game free to change the hardware's playback details, instead of being required to use a single system-wide 'mixer' rate.\nIt should also reduce latency a little.",
       "source_root": "engine"
     },
     "wasapi_forcechannels": {
@@ -53076,7 +53076,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Attempts to force snd_numchannels instead of using the system's default channel count.\\nFor this to work, you will need to set wasapi_exclusive 1",
+      "desc": "Attempts to force snd_numchannels instead of using the system's default channel count.\nFor this to work, you will need to set wasapi_exclusive 1",
       "source_root": "engine"
     },
     "wasapi_forcerate": {
@@ -53097,7 +53097,7 @@
         "trailing_comment": null
       },
       "default": "0",
-      "desc": "Attempts to force snd_khz instead of using the system's default channel count.\\nFor this to work, you will need to set wasapi_exclusive 1",
+      "desc": "Attempts to force snd_khz instead of using the system's default channel count.\nFor this to work, you will need to set wasapi_exclusive 1",
       "source_root": "engine"
     },
     "watervis": {

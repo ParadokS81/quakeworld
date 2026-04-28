@@ -29,6 +29,10 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._cvar_shared import normalize_flags_raw  # noqa: E402
+from extractor_lib._source import (  # noqa: E402
+    concat_string_literals,
+    concat_string_literals_compact,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -74,27 +78,6 @@ def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
 
 
-def _concat_string_literals(tokens: list[str]) -> Optional[str]:
-    """C adjacent-string-literal concatenation.
-
-    ["\"foo\"", "\"bar\""] -> "foobar"
-    Returns None if no string-literal tokens found (e.g. NULL arg).
-    """
-    parts = []
-    for t in tokens:
-        t = t.strip()
-        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
-            # Unescape basic C escape sequences for readability.
-            inner = t[1:-1]
-            inner = inner.replace("\\n", " ").replace("\\t", " ").replace('\\"', '"')
-            parts.append(inner)
-        elif t in ("NULL", "((void", "((("):
-            return None
-    if not parts:
-        return None
-    return "".join(parts)
-
-
 def _resolve_default(tokens: list[str]) -> str:
     """Extract the default value from a cursor's token list.
 
@@ -103,7 +86,7 @@ def _resolve_default(tokens: list[str]) -> str:
     stores the identifier name as-is -- downstream readers know it's a
     #define reference.
     """
-    string_val = _concat_string_literals(tokens)
+    string_val = concat_string_literals(tokens)
     if string_val is not None:
         return string_val
 
@@ -252,7 +235,7 @@ class EzhudFteHandler(Visitor):
 
         # Arg[0]: element name
         elem_name_tokens = _tokens_of(args[0])
-        elem_name = _concat_string_literals(elem_name_tokens)
+        elem_name = concat_string_literals(elem_name_tokens)
         if not elem_name:
             return
 
@@ -265,7 +248,7 @@ class EzhudFteHandler(Visitor):
         # Arg[2]: description
         description = ""
         if len(args) > 2:
-            desc_val = _concat_string_literals(_tokens_of(args[2]))
+            desc_val = concat_string_literals_compact(_tokens_of(args[2]))
             if desc_val:
                 description = desc_val
 
@@ -310,7 +293,7 @@ class EzhudFteHandler(Visitor):
         idx = 16
         while idx + 1 < len(args):
             param_name_tokens = _tokens_of(args[idx])
-            param_name = _concat_string_literals(param_name_tokens)
+            param_name = concat_string_literals(param_name_tokens)
             if not param_name:
                 break  # NULL terminator reached
 
@@ -345,7 +328,7 @@ class EzhudFteHandler(Visitor):
             return
 
         name_tokens = _tokens_of(args[0])
-        cvar_name = _concat_string_literals(name_tokens)
+        cvar_name = concat_string_literals(name_tokens)
         if not cvar_name:
             return
 
@@ -359,7 +342,7 @@ class EzhudFteHandler(Visitor):
 
         description = None
         if len(args) > 3:
-            description = _concat_string_literals(_tokens_of(args[3]))
+            description = concat_string_literals_compact(_tokens_of(args[3]))
 
         source_file = cursor.location.file.name if cursor.location.file else None
         source_line = cursor.location.line

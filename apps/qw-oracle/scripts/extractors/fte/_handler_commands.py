@@ -26,6 +26,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import concat_string_literals  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -46,23 +47,6 @@ CMD_ADDERS: dict[str, tuple[int, Optional[int], bool]] = {
 # ---------------------------------------------------------------------------
 # String literal + function-ref helpers (same pattern as cvars handler)
 # ---------------------------------------------------------------------------
-
-def _concat_string_literals(tokens: list[str]) -> Optional[str]:
-    """Reconstruct a C string value from adjacent string-literal tokens.
-
-    Returns None for NULL / empty / non-string arguments.
-    """
-    parts = []
-    for t in tokens:
-        t = t.strip()
-        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
-            parts.append(t[1:-1])
-        elif t in ("NULL", "(((", "((void"):
-            return None
-    if not parts:
-        return None
-    return "".join(parts)
-
 
 def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
@@ -105,7 +89,7 @@ class CommandsFteHandler(Visitor):
             return
 
         # arg[0] is always the command name string literal
-        cmd_name = _concat_string_literals(_tokens_of(args[0]))
+        cmd_name = concat_string_literals(_tokens_of(args[0]))
         if not cmd_name:
             return
 
@@ -117,7 +101,7 @@ class CommandsFteHandler(Visitor):
         # Description (or None)
         description: Optional[str] = None
         if desc_idx is not None and len(args) > desc_idx:
-            description = _concat_string_literals(_tokens_of(args[desc_idx]))
+            description = concat_string_literals(_tokens_of(args[desc_idx]))
 
         # Handler function reference
         handler: Optional[str] = None
@@ -127,7 +111,7 @@ class CommandsFteHandler(Visitor):
         # For Cmd_AddCommandOld: arg[2] is the redirect target
         legacy_alias_of: Optional[str] = None
         if is_old and len(args) > 2:
-            legacy_alias_of = _concat_string_literals(_tokens_of(args[2]))
+            legacy_alias_of = concat_string_literals(_tokens_of(args[2]))
 
         row: dict = {
             "name": cmd_name,

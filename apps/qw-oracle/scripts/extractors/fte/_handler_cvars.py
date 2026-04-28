@@ -41,6 +41,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._cvar_shared import normalize_flags_raw  # noqa: E402
+from extractor_lib._source import concat_string_literals  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -95,24 +96,6 @@ def _flags_tokens_of_init_list(init_list_node, var_decl_tokens: list) -> list[st
         and spelling != "CVAR_t"
         and ext.start.offset <= start < ext.end.offset
     ]
-
-
-def _concat_string_literals(tokens: list[str]) -> Optional[str]:
-    """C adjacent-string-literal concatenation.
-
-    ["\"foo\"", "\"bar\""] -> "foobar"
-    Returns None if there are no string-literal tokens (e.g. NULL arg).
-    """
-    parts = []
-    for t in tokens:
-        t = t.strip()
-        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
-            parts.append(t[1:-1])
-        elif t in ("NULL", "(((", "((void"):
-            return None
-    if not parts:
-        return None
-    return "".join(parts)
 
 
 def _flags_from_tokens(tokens: list[str]) -> list[str]:
@@ -176,7 +159,7 @@ def _extract_cvar_fields(node) -> Optional[dict]:
         return None
 
     # Field 0: cvar name
-    name = _concat_string_literals(_tokens_of(fields[0])) if len(fields) > 0 else None
+    name = concat_string_literals(_tokens_of(fields[0])) if len(fields) > 0 else None
     if not name:
         return None
 
@@ -187,7 +170,7 @@ def _extract_cvar_fields(node) -> Optional[dict]:
     flags = _flags_tokens_of_var_decl(node)
 
     # Field 7: alias / ConsoleName2
-    alias = _concat_string_literals(_tokens_of(fields[7])) if len(fields) > 7 else None
+    alias = concat_string_literals(_tokens_of(fields[7])) if len(fields) > 7 else None
 
     # Field 8: callback -- resolve FUNCTION_DECL reference
     callback = None
@@ -197,10 +180,10 @@ def _extract_cvar_fields(node) -> Optional[dict]:
             callback = ref.spelling
 
     # Field 9: description
-    description = _concat_string_literals(_tokens_of(fields[9])) if len(fields) > 9 else None
+    description = concat_string_literals(_tokens_of(fields[9])) if len(fields) > 9 else None
 
     # Field 10: default value
-    default = _concat_string_literals(_tokens_of(fields[10])) if len(fields) > 10 else None
+    default = concat_string_literals(_tokens_of(fields[10])) if len(fields) > 10 else None
 
     return {
         "name": name,
@@ -231,7 +214,7 @@ def _extract_cvar_from_init_list(init_list, var_decl_tokens: list) -> Optional[d
         return None
 
     # Field 0: cvar name -- must be a string literal
-    name = _concat_string_literals(_tokens_of(fields[0]))
+    name = concat_string_literals(_tokens_of(fields[0]))
     if not name:
         return None
 
@@ -239,7 +222,7 @@ def _extract_cvar_from_init_list(init_list, var_decl_tokens: list) -> Optional[d
     flags = _flags_tokens_of_init_list(init_list, var_decl_tokens)
 
     # Field 7: alias / ConsoleName2
-    alias = _concat_string_literals(_tokens_of(fields[7]))
+    alias = concat_string_literals(_tokens_of(fields[7]))
 
     # Field 8: callback -- resolve FUNCTION_DECL reference
     callback = None
@@ -248,10 +231,10 @@ def _extract_cvar_from_init_list(init_list, var_decl_tokens: list) -> Optional[d
         callback = ref.spelling
 
     # Field 9: description
-    description = _concat_string_literals(_tokens_of(fields[9]))
+    description = concat_string_literals(_tokens_of(fields[9]))
 
     # Field 10: default value -- must be a string literal for a valid cvar
-    default = _concat_string_literals(_tokens_of(fields[10]))
+    default = concat_string_literals(_tokens_of(fields[10]))
 
     loc = init_list.location
     return {

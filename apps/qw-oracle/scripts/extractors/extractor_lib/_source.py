@@ -87,3 +87,72 @@ def strip_array_and_qualifiers(tspell: str) -> str:
         if s.startswith(q):
             s = s[len(q):].strip()
     return s
+
+
+# ---------------------------------------------------------------------------
+# String-literal concatenation (post-v17 contract)
+# ---------------------------------------------------------------------------
+
+def _strip_and_concat(tokens: list[str]) -> tuple[Optional[list[str]], bool]:
+    """Strip outer quotes from string-literal tokens; collect inner bodies.
+
+    Returns (parts, all_literal):
+      parts       -- list of inner string bodies (post-quote-strip,
+                     pre-escape-interpretation), or None if a non-string-literal
+                     terminator (NULL, (((, ((void) was hit OR no parts collected.
+      all_literal -- True if every input token was a string literal; False if
+                     any non-literal-and-non-terminator token surfaced.
+
+    Caller decides whether to abort emission, fall back, or skip based on the
+    boolean. Internal building block for concat_string_literals and
+    concat_string_literals_compact.
+    """
+    parts: list[str] = []
+    all_literal = True
+    for t in tokens:
+        t = t.strip()
+        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
+            parts.append(t[1:-1])
+        elif t in ("NULL", "(((", "((void"):
+            return None, False
+        else:
+            all_literal = False
+    if not parts:
+        return None, all_literal
+    return parts, all_literal
+
+
+def concat_string_literals(tokens: list[str]) -> Optional[str]:
+    """Canonical source-truth concatenation. Applies unescape_c_string.
+
+    Composes _strip_and_concat with unescape_c_string. Use for cvar names,
+    descriptions, default values, command names, macro names -- any field
+    whose contract is "preserve source-truth meaning of escapes" (post-v17).
+
+    Returns None for NULL terminator or no-string-literals input.
+    """
+    from extractor_lib._cvar_shared import unescape_c_string
+    parts, _all_literal = _strip_and_concat(tokens)
+    if parts is None:
+        return None
+    return unescape_c_string("".join(parts))
+
+
+def concat_string_literals_compact(tokens: list[str]) -> Optional[str]:
+    """Description-compaction concatenation.
+
+    Replaces \\n / \\t with space, \\" with ". Use for description-domain fields
+    where newlines should collapse for single-line display (HUD_Register
+    descriptions, ezscript description args).
+
+    Does NOT call unescape_c_string -- the compact policy is intentionally
+    different from canonical (e.g. \\\\ passes through verbatim).
+
+    Returns None for NULL terminator or no-string-literals input.
+    """
+    parts, _all_literal = _strip_and_concat(tokens)
+    if parts is None:
+        return None
+    body = "".join(parts)
+    body = body.replace("\\n", " ").replace("\\t", " ").replace('\\"', '"')
+    return body

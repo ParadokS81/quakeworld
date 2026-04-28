@@ -27,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._source import concat_string_literals  # noqa: E402
 
 
 SEED_FILENAME = "ezscript-drift-369-vs-build-6698.tsv"
@@ -36,20 +37,6 @@ VERIFIED_MIMICS_VERSION = "3.6.9"
 
 def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
-
-
-def _concat_string_literals(tokens: list[str]) -> Optional[str]:
-    """C adjacent-string-literal concatenation. Mirrors the ezhud helper."""
-    parts = []
-    for t in tokens:
-        t = t.strip()
-        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
-            inner = t[1:-1]
-            inner = inner.replace("\\n", " ").replace("\\t", " ").replace('\\"', '"')
-            parts.append(inner)
-    if not parts:
-        return None
-    return "".join(parts)
 
 
 def _find_strcmp_lhs(cursor) -> Optional[str]:
@@ -62,7 +49,7 @@ def _find_strcmp_lhs(cursor) -> Optional[str]:
     if cursor.kind == CursorKind.CALL_EXPR and cursor.spelling == "strcmp":
         args = list(cursor.get_arguments())
         if args:
-            return _concat_string_literals(_tokens_of(args[0]))
+            return concat_string_literals(_tokens_of(args[0]))
     for child in cursor.get_children():
         result = _find_strcmp_lhs(child)
         if result is not None:
@@ -75,7 +62,7 @@ def _find_string_literal_in_subtree(cursor) -> Optional[str]:
     the only string literal there is the RHS of `cvar = "..."`.
     """
     if cursor.kind == CursorKind.STRING_LITERAL:
-        return _concat_string_literals(_tokens_of(cursor))
+        return concat_string_literals(_tokens_of(cursor))
     for child in cursor.get_children():
         result = _find_string_literal_in_subtree(child)
         if result is not None:

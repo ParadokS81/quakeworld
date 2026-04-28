@@ -36,6 +36,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import concat_string_literals  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -66,20 +67,6 @@ def _parse_macrod_descs(source_bytes: bytes) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # String literal + function-ref helpers (same pattern as commands handler)
 # ---------------------------------------------------------------------------
-
-def _concat_string_literals(tokens: list[str]) -> Optional[str]:
-    """Reconstruct a C string value from adjacent string-literal tokens."""
-    parts = []
-    for t in tokens:
-        t = t.strip()
-        if t.startswith('"') and t.endswith('"') and len(t) >= 2:
-            parts.append(t[1:-1])
-        elif t in ("NULL", "(((", "((void"):
-            return None
-    if not parts:
-        return None
-    return "".join(parts)
-
 
 def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
@@ -121,7 +108,7 @@ class MacrosFteHandler(Visitor):
             return
 
         # arg[0]: macro name string literal
-        macro_name = _concat_string_literals(_tokens_of(args[0]))
+        macro_name = concat_string_literals(_tokens_of(args[0]))
         if not macro_name:
             return
 
