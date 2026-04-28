@@ -246,7 +246,7 @@
         "source_line": 76,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -2041,7 +2041,7 @@
         "source_line": 79,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -2064,7 +2064,7 @@
         "source_line": 72,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -2087,7 +2087,7 @@
         "source_line": 78,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -2150,7 +2150,7 @@
         "source_line": 70,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "false, true",
+        "flags_raw": "false | true",
         "flag_names": [
           "INFO"
         ],
@@ -2832,7 +2832,7 @@
         "source_line": 77,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -3137,7 +3137,7 @@
         "source_line": 74,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -3200,7 +3200,7 @@
         "source_line": 71,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "false, true",
+        "flags_raw": "false | true",
         "flag_names": [
           "INFO"
         ],
@@ -3242,7 +3242,7 @@
         "source_line": 73,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
@@ -3265,7 +3265,7 @@
         "source_line": 75,
         "source_column": 8,
         "storage_class": "none",
-        "flags_raw": "true, true",
+        "flags_raw": "true | true",
         "flag_names": [
           "ARCHIVE",
           "INFO"
