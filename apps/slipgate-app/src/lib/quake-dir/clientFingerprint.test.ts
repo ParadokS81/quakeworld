@@ -80,4 +80,10 @@ describe("clientFingerprint family helpers", () => {
     expect(familyCanonicalExe("fte", null)).toBe("fteqw.exe");
     expect(familyCanonicalExe("unknown", null)).toBeNull();
   });
+
+  test("familyCanonicalExe attaches FTE arch without a hyphen", () => {
+    // Triptohell ships `fteqw64.exe`, not `fteqw-64.exe`.
+    expect(familyCanonicalExe("fte", "64")).toBe("fteqw64.exe");
+    expect(familyCanonicalExe("fte", "32")).toBe("fteqw32.exe");
+  });
 });

@@ -40,6 +40,10 @@ pub struct PeStrings {
 // like myezquake-test.exe. Add suffixes back when concrete cases arrive.
 const KNOWN_VARIANT_SUFFIXES: &[&str] = &["glsl"];
 
+// FTE-specific: arch suffix attached without a hyphen
+// (`fteqw64.exe`, `fteqw32.exe`). Matches triptohell's release convention.
+const FTE_ARCH_SUFFIXES: &[&str] = &["32", "64"];
+
 #[cfg(target_os = "windows")]
 const STRING_KEYS: &[&str] = &[
     "CompanyName",
@@ -243,6 +247,14 @@ pub fn classify_from_pe_strings(pe: &PeStrings, filename: &str) -> ClientKind {
 }
 
 pub fn variant_from_filename(filename: &str) -> Option<String> {
+    variant_for_kind(ClientKind::Unknown, filename)
+}
+
+/// Family-aware variant detection. Only FTE recognizes the no-hyphen
+/// arch suffixes (`fteqw64`, `fteqw32`) — using `Unknown` falls back to
+/// the hyphen-only `glsl` style so we don't false-positive on user files
+/// like `mygame64.exe`.
+pub fn variant_for_kind(kind: ClientKind, filename: &str) -> Option<String> {
     let stem = filename
         .to_ascii_lowercase()
         .trim_end_matches(".exe")
@@ -252,12 +264,26 @@ pub fn variant_from_filename(filename: &str) -> Option<String> {
             return Some((*suffix).to_string());
         }
     }
+    if matches!(kind, ClientKind::Fte) {
+        for suffix in FTE_ARCH_SUFFIXES {
+            if stem.ends_with(suffix) {
+                let head = &stem[..stem.len() - suffix.len()];
+                // The character right before the arch must be a letter so
+                // we don't strip "64" out of e.g. "v6.4" or "build64bit".
+                if head.chars().last().map(|c| c.is_ascii_alphabetic()).unwrap_or(false) {
+                    return Some((*suffix).to_string());
+                }
+            }
+        }
+    }
     None
 }
 
 /// The canonical exe filename slipgate writes for a family + variant.
-/// FTE family canonical is `fteqw.exe` (verified at
-/// research/repos/fteqw/CMakeLists.txt:1148), NOT `fte.exe`.
+/// FTE base is `fteqw` (verified at research/repos/fteqw/CMakeLists.txt:1148),
+/// NOT `fte`. FTE attaches the arch variant without a hyphen
+/// (`fteqw64.exe`, `fteqw32.exe`) to match triptohell's release filenames.
+/// Other families use a hyphen separator (`ezquake-glsl.exe`).
 pub fn family_canonical_exe(kind: ClientKind, variant: Option<&str>) -> Option<String> {
     let base = match kind {
         ClientKind::EzQuake => "ezquake",
@@ -266,7 +292,10 @@ pub fn family_canonical_exe(kind: ClientKind, variant: Option<&str>) -> Option<S
         ClientKind::Unknown => return None,
     };
     Some(match variant {
-        Some(v) => format!("{}-{}.exe", base, v),
+        Some(v) => match kind {
+            ClientKind::Fte => format!("{}{}.exe", base, v),
+            _ => format!("{}-{}.exe", base, v),
+        },
         None => format!("{}.exe", base),
     })
 }
@@ -278,7 +307,7 @@ pub fn fingerprint(path: &Path) -> ClientFingerprint {
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
     let kind = classify_from_pe_strings(&pe, &filename);
-    let variant = variant_from_filename(&filename);
+    let variant = variant_for_kind(kind, &filename);
 
     // Prefer VS_FIXEDFILEINFO numeric ("3.6.9.7949") because StringFileInfo
     // ProductVersion / FileVersion are unreliable in the wild (ezQuake stamps
@@ -474,6 +503,35 @@ mod tests {
     }
 
     #[test]
+    fn variant_fte_arch_detected_only_for_fte_family() {
+        // FTE: arch attached without a hyphen, per triptohell convention.
+        assert_eq!(
+            variant_for_kind(ClientKind::Fte, "fteqw64.exe"),
+            Some("64".to_string())
+        );
+        assert_eq!(
+            variant_for_kind(ClientKind::Fte, "FTEQW32.exe"),
+            Some("32".to_string())
+        );
+        assert_eq!(variant_for_kind(ClientKind::Fte, "fteqw.exe"), None);
+        // Other families: numeric arch suffixes are NOT variants — too easy
+        // to false-positive on user filenames like `mygame64.exe`.
+        assert_eq!(variant_for_kind(ClientKind::EzQuake, "mygame64.exe"), None);
+        assert_eq!(variant_for_kind(ClientKind::Unknown, "fteqw64.exe"), None);
+    }
+
+    #[test]
+    fn variant_fte_arch_does_not_strip_inside_words() {
+        // The character before the arch digits must be alphabetic. Refuse
+        // matches where the preceding char is a digit / dot / hyphen so we
+        // don't accidentally peel "64" off "build-2.4.6.4.exe" or similar.
+        assert_eq!(
+            variant_for_kind(ClientKind::Fte, "fteqw-2.4.6.4.exe"),
+            None
+        );
+    }
+
+    #[test]
     fn family_canonical_exe_mapping() {
         // F6: FTE family canonical is fteqw.exe, NOT fte.exe.
         assert_eq!(
@@ -493,5 +551,19 @@ mod tests {
             Some("fteqw.exe".to_string())
         );
         assert_eq!(family_canonical_exe(ClientKind::Unknown, None), None);
+    }
+
+    #[test]
+    fn family_canonical_exe_fte_arch_no_hyphen() {
+        // FTE attaches arch without a hyphen to match triptohell's
+        // release filenames (`fteqw64.exe`, NOT `fteqw-64.exe`).
+        assert_eq!(
+            family_canonical_exe(ClientKind::Fte, Some("64")),
+            Some("fteqw64.exe".to_string())
+        );
+        assert_eq!(
+            family_canonical_exe(ClientKind::Fte, Some("32")),
+            Some("fteqw32.exe".to_string())
+        );
     }
 }

@@ -77,7 +77,10 @@ export function familyClientKey(kind: ClientKind): string | null {
   }
 }
 
-/** Mirror of Rust's family_canonical_exe. FTE is `fteqw.exe`, not `fte.exe`. */
+/** Mirror of Rust's family_canonical_exe. FTE base is `fteqw` and attaches
+ * arch variants without a hyphen (`fteqw64.exe`) to match triptohell's
+ * release filenames. Other families use a hyphen separator
+ * (`ezquake-glsl.exe`). */
 export function familyCanonicalExe(
   kind: ClientKind,
   variant: string | null,
@@ -96,5 +99,6 @@ export function familyCanonicalExe(
     case "unknown":
       return null;
   }
-  return variant ? `${base}-${variant}.exe` : `${base}.exe`;
+  if (!variant) return `${base}.exe`;
+  return kind === "fte" ? `${base}${variant}.exe` : `${base}-${variant}.exe`;
 }
