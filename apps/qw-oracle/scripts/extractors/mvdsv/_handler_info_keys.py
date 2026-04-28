@@ -86,25 +86,6 @@ sys.path.insert(0, str(HERE.parent))
 from extractor_lib._visitor import Visitor  # noqa: E402
 
 
-# Eight Info_* APIs -> operation discriminator. Names are exact (CALL_EXPR
-# spellings). Wrappers like Info_RemoveAll / Info_RemovePrefixedKeys
-# (key-list variants) are intentionally NOT here -- they don't take a
-# literal-string key and aren't per-key call sites.
-_API_OP_MAP: dict[str, str] = {
-    # Read APIs
-    "Info_ValueForKey":         "read",
-    "Info_Get":                 "read",
-    # Write APIs
-    "Info_SetValueForKey":      "write",
-    "Info_SetValueForStarKey":  "write",
-    "Info_SetStar":             "write",
-    "Info_Set":                 "write",
-    # Remove APIs
-    "Info_RemoveKey":           "remove",
-    "Info_Remove":              "remove",
-}
-
-
 def _read_extent(source_bytes: bytes, extent) -> str:
     """Return the source text for an AST extent."""
     start = extent.start.offset
@@ -137,9 +118,48 @@ def _classify_scope(first_arg_text: str) -> Optional[str]:
 
 
 class InfoKeysMvdsvHandler(Visitor):
+    """MVDSV info-keys handler (Info_* C-API call detection).
+
+    Target consumer fork: antilag-mvdsv. Antilag may add custom userinfo
+    keys for per-client tuning; the API_OP_MAP class attribute is the
+    primary override surface for that.
+
+    Fork override hooks:
+      - API_OP_MAP: dict mapping `Info_*` API spelling -> read/write/remove
+        operation. Override at the class level to add fork-specific Info_
+        wrappers (e.g. an antilag-specific accessor).
+      - visit_cursor: dispatches API_OP_MAP entries; classifies scope
+        from first-arg source text; requires a literal-string key.
+        Override to extend non-literal-key recovery (Pattern 2 data flow).
+      - finalize: aggregates primitive call-site rows into one entity per
+        (name, scope) pair with all_call_sites fanout. Override to widen
+        the aggregation key (e.g. include containing-function).
+      - _classify_scope (module-level): substring-driven scope classifier
+        on first-arg source text. Override only if the fork ships a new
+        info storage scope.
+    """
     name = "info_keys"
     output_filename = "mvdsv-info-keys-ast.json"
     payload_field = "info_keys"
+
+    # Eight Info_* APIs -> operation discriminator. Names are exact
+    # (CALL_EXPR spellings). Wrappers like Info_RemoveAll /
+    # Info_RemovePrefixedKeys (key-list variants) are intentionally NOT
+    # here -- they don't take a literal-string key and aren't per-key
+    # call sites. Subclasses extend to add fork-specific Info_ wrappers.
+    API_OP_MAP: dict = {
+        # Read APIs
+        "Info_ValueForKey":         "read",
+        "Info_Get":                 "read",
+        # Write APIs
+        "Info_SetValueForKey":      "write",
+        "Info_SetValueForStarKey":  "write",
+        "Info_SetStar":             "write",
+        "Info_Set":                 "write",
+        # Remove APIs
+        "Info_RemoveKey":           "remove",
+        "Info_Remove":              "remove",
+    }
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -164,11 +184,12 @@ class InfoKeysMvdsvHandler(Visitor):
         if self._func_stack:
             self._func_stack.pop()
 
+    # Fork override hook: extend Info_* dispatch or non-literal-key recovery
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
         spelling = cursor.spelling
-        if spelling not in _API_OP_MAP:
+        if spelling not in self.API_OP_MAP:
             return
 
         args = list(cursor.get_arguments())
@@ -189,7 +210,7 @@ class InfoKeysMvdsvHandler(Visitor):
         if not key_name:
             return
 
-        op = _API_OP_MAP[spelling]
+        op = self.API_OP_MAP[spelling]
         location = cursor.location
         rel_file = self._relative_source(location.file.name) if location.file else None
         containing_fn = self._func_stack[-1] if self._func_stack else None
@@ -227,6 +248,7 @@ class InfoKeysMvdsvHandler(Visitor):
         self._func_stack = []
         return rows
 
+    # Fork override hook: alter (name, scope) aggregation key or call-site fanout shape
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # Approach B aggregation: walk every primitive row and bucket by
         # (name, scope). The first row for each bucket becomes the anchor

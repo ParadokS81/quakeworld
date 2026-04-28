@@ -148,6 +148,29 @@ def _trailing_comment(source_bytes: bytes, line: int) -> Optional[str]:
 
 
 class ProtocolMvdsvHandler(Visitor):
+    """MVDSV protocol-messages handler (MACRO_DEFINITION harvest).
+
+    Target consumer fork: antilag-mvdsv. Antilag in particular is likely
+    to add new protocol-extension flags (a typical fork divergence point);
+    this handler's family-prefix detection is the override surface.
+
+    Fork override hooks:
+      - visit_cursor: TU-root cursor intercept that scans MACRO_DEFINITION
+        children directly (because the walker filters out macros from
+        included headers). Override to add new macro-name-prefix families.
+      - _handle_macro: per-macro classification + body-shape subdivision
+        for pext_fte / pext_mvd. Override to add new pext_* subdivisions
+        or to redefine the bit-flag / const / alias / marker rules.
+      - finalize: cross-file/cross-worker dedup + by-kind / by-value-kind
+        stats. Short.
+      - _kind_for (module-level): the family-prefix dispatch. If the fork
+        introduces a new prefix family (e.g. `ANTILAG_PEXT_`), extend
+        `_kind_for`. Class-level override is cleaner -- subclass can
+        replace the helper call inside `_handle_macro`.
+      - _classify_value (module-level): integer / hex / bitshift /
+        expression discriminator. Override only if the fork ships a new
+        body-shape category.
+    """
     name = "protocol"
     output_filename = "mvdsv-protocol-messages-ast.json"
     payload_field = "protocol_messages"
@@ -165,6 +188,7 @@ class ProtocolMvdsvHandler(Visitor):
         self._rows: list[dict] = []
         self._seen_in_file: set[str] = set()
 
+    # Fork override hook: extend TU-root macro scan or add new macro-name families
     def visit_cursor(self, cursor, variant: str) -> None:
         # The walker dispatches visit_cursor for every cursor inside the
         # target .c file, plus the TU root (whose location.file is None and
@@ -180,6 +204,7 @@ class ProtocolMvdsvHandler(Visitor):
                 continue
             self._handle_macro(child)
 
+    # Fork override hook: alter per-family classification or pext_* body-shape subdivision
     def _handle_macro(self, cursor) -> None:
         name = cursor.spelling
         if not name:

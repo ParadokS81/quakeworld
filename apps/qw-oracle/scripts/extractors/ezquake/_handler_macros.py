@@ -89,8 +89,27 @@ def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
 
 
 class MacrosEzquakeHandler(Visitor):
+    """ezQuake macros handler (Pattern 1 detection on Cmd_AddMacro*).
+
+    Target consumer fork: unezQuake.
+
+    Fork override hooks:
+      - REGISTRATION_APIS: tuple of API names dispatched by visit_cursor.
+        Override to add fork-specific macro-registration APIs.
+      - visit_cursor: Cmd_AddMacro / Cmd_AddMacroEx call detection +
+        macro_<id> enum-constant resolution. Override to handle new
+        identification shapes (e.g. a string-keyed registration variant).
+      - finalize: declared-vs-registered reconciliation against the
+        macro_ids.h manifest plus help-JSON merge. Override to alter the
+        manifest cross-check or to widen the entry shape.
+      - setup: parses macro_ids.h via `_MACRO_DEF_RE`. If the fork
+        introduces a new manifest header or layout, override setup.
+    """
     name = "macros"
     output_filename = "ezquake-macros-ast.json"
+
+    # Registration API surface. Subclasses extend to add fork APIs.
+    REGISTRATION_APIS: tuple = ("Cmd_AddMacro", "Cmd_AddMacroEx")
 
     def __init__(self):
         self._declared: list[str] = []
@@ -121,11 +140,12 @@ class MacrosEzquakeHandler(Visitor):
     def exit_function(self, cursor, variant: str) -> None:
         self._func_stack.pop()
 
+    # Fork override hook: extend Cmd_AddMacro / Cmd_AddMacroEx dispatch
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
         sp = cursor.spelling
-        if sp not in ("Cmd_AddMacro", "Cmd_AddMacroEx"):
+        if sp not in self.REGISTRATION_APIS:
             return
         args = list(cursor.get_arguments())
         if len(args) < 2:
@@ -166,6 +186,7 @@ class MacrosEzquakeHandler(Visitor):
         self._seen_in_file = set()
         return rows
 
+    # Fork override hook: alter manifest reconciliation or help-JSON merge
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         registrations: dict[str, dict] = {}
         for row in all_rows:

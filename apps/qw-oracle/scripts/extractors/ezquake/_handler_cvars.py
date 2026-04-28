@@ -38,7 +38,6 @@ from extractor_lib._visitor import Visitor  # noqa: E402
 _FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")
 _CVAR_DEFAULT_CALL_RE = re.compile(r"Cvar_(SetDefaultAndValue|ResetVar)\s*\(\s*&?(\w+)")
 _HUD_GROUP_NAME = "MQWCL HUD"
-_GROUP_CALL_NAMES = ("Cvar_SetCurrentGroup", "Cvar_ResetCurrentGroup", "Cvar_Register", "HUD_Register")
 
 
 def _strip_quotes(s: str) -> str:
@@ -477,8 +476,37 @@ def _synthesize_hud_cvars(call_cursor, args, source_bytes: bytes, file_name: str
 
 
 class CvarsEzquakeHandler(Visitor):
+    """ezQuake cvars handler (Pattern 1 + Pattern 2 + Pattern 3 detection).
+
+    Target consumer fork: unezQuake.
+
+    Fork override hooks:
+      - GROUP_CALL_NAMES: registration-call dispatch tuple. Override at the
+        class level to extend or replace the registration API surface
+        (e.g. add a fork-specific Cvar_RegisterEx).
+      - visit_cursor: cvar_t VAR_DECL detection (scalar / array / nested
+        table) plus CALL_EXPR dispatch on GROUP_CALL_NAMES. Override to
+        add fork-specific patterns (e.g. new container-struct shapes).
+      - end_file: per-file group-tracking ordering and HUD synthesis.
+        Override if the fork changes group-tracking semantics.
+      - finalize: cross-file dedup + help-JSON merge + group assignment +
+        default-call-site scan. Long; if the fork only needs to alter one
+        phase, refactor into protected _phase_* helpers first.
+      - _NESTED_CVAR_TABLE_TYPES (module-level, Pattern 3): if the fork
+        adds new nested-cvar container struct types, extend this map. The
+        free function `_extract_nested_cvar_table` consumes it, so a class
+        attribute would require restructuring -- leave at module scope.
+    """
     name = "cvars"
     output_filename = "ezquake-variables-ast.json"
+
+    # Registration-call dispatch tuple. Subclasses extend to add fork APIs.
+    GROUP_CALL_NAMES: tuple = (
+        "Cvar_SetCurrentGroup",
+        "Cvar_ResetCurrentGroup",
+        "Cvar_Register",
+        "HUD_Register",
+    )
 
     def __init__(self):
         self._group_defs: dict[str, str] = {}
@@ -505,6 +533,7 @@ class CvarsEzquakeHandler(Visitor):
         # because the cursor's get_arguments() generator may not be re-usable.
         self._calls: list[tuple] = []
 
+    # Fork override hook: extend cvar_t VAR_DECL / Cvar_Register / HUD_Register dispatch
     def visit_cursor(self, cursor, variant: str) -> None:
         kind = cursor.kind
         if kind == CursorKind.VAR_DECL:
@@ -551,7 +580,7 @@ class CvarsEzquakeHandler(Visitor):
         # Calls: client TU only.
         if kind == CursorKind.CALL_EXPR and variant == "client":
             sp = cursor.spelling
-            if sp in _GROUP_CALL_NAMES:
+            if sp in self.GROUP_CALL_NAMES:
                 args = list(cursor.get_arguments())
                 self._calls.append((cursor.location.offset, sp, args, cursor))
 
@@ -583,6 +612,7 @@ class CvarsEzquakeHandler(Visitor):
         self._calls = []
         return rows
 
+    # Fork override hook: alter help-JSON merge, group assignment, or trailing-comment scan
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         deduped: dict[str, dict] = {}
         for cv in all_rows:

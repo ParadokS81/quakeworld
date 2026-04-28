@@ -144,12 +144,31 @@ def _extract_keynames_from_tu(tu, source_bytes: bytes, target_path: str, label: 
 
 
 class KeynamesEzquakeHandler:
+    """ezQuake keynames handler (single-file, dual-parse override).
+
+    Target consumer fork: unezQuake. Structurally distinct from the other
+    ezQuake handlers: NOT a Visitor subclass; implements `process_file`
+    directly because keys.c needs a minimal CLANG_ARGS set + an __APPLE__
+    variant rather than the driver's client/server dispatch.
+
+    Fork override hooks:
+      - process_file: spins up its own Index and parses keys.c twice
+        (default + apple). Override to add new build-platform variants
+        (e.g. a fork that targets a different OS) or to relocate keys.c.
+      - finalize: merges default + apple entries with default-wins
+        precedence. Override to alter the merge precedence policy.
+      - _KEYNAMES_CLANG_ARGS_BASE (module-level): minimal clang args for
+        keys.c. If the fork needs additional compile-time defines for
+        the keynames table to expose, extend this list. Class-level
+        override is cleaner; consider hoisting if pressured.
+    """
     name = "keynames"
     output_filename = "ezquake-keynames-ast.json"
 
     def __init__(self):
         self._processed = False
 
+    # Fork override hook: add new build-platform variants or relocate keys.c
     def process_file(
         self,
         *,

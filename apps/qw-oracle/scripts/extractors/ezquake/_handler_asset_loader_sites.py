@@ -482,6 +482,31 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
 
 
 class AssetLoaderSitesEzquakeHandler(Visitor):
+    """ezQuake asset loader-sites handler (Pattern 5/12 detection).
+
+    Target consumer fork: unezQuake. The richest extraction surface in the
+    suite -- 13+ classification axes (path source, format function,
+    template, parameters, extension, category, confidence, trigger,
+    dev_only). Forks that ship new loader primitives or new asset
+    categories will likely override here.
+
+    Fork override hooks:
+      - visit_cursor: detects every CALL_EXPR to a LOADER_FUNCTIONS member
+        and collects classification fields. Override to widen the loader-
+        site detection (e.g. add a fork-specific loader API).
+      - finalize: dedup + canonical_id assignment + summary stats. Short.
+      - LOADER_FUNCTIONS / GENERIC_FS_PRIMITIVES / FUNCTION_TO_CATEGORY /
+        EXT_TO_CATEGORY / ENCLOSING_FN_CATEGORY_RULES / TRIGGER_RULES /
+        DEV_ONLY_RULES / FORMAT_FUNCTIONS (module-level): the eight
+        classification surfaces a fork is most likely to extend. Each
+        operates as a free-function input today; hoisting any to the
+        class would force restructuring the helper graph -- defer until
+        a fork actually pressures it.
+      - _classify_first_arg / _classify_parameterized_call (module-level
+        helpers): the path-source classifier. Fork override would route
+        through subclassing visit_cursor and substituting the helper
+        call.
+    """
     name = "asset-loader-sites"
     output_filename = "ezquake-asset-loader-sites-ast.json"
 
@@ -537,6 +562,7 @@ class AssetLoaderSitesEzquakeHandler(Visitor):
     def exit_compound(self, cursor, variant: str) -> None:
         self._compound_stack.pop()
 
+    # Fork override hook: extend LOADER_FUNCTIONS dispatch or path-classification
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
@@ -622,6 +648,7 @@ class AssetLoaderSitesEzquakeHandler(Visitor):
         self._func_stack = []
         return rows
 
+    # Fork override hook: alter canonical_id assignment or summary stats
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         dedup: dict[tuple[str, str, int, int], dict] = {}
         for s in all_rows:

@@ -92,6 +92,30 @@ def _resolve_cvar_string_ref(member_ref_cursor) -> Optional[str]:
 
 
 class AssetCvarBindingsEzquakeHandler(Visitor):
+    """ezQuake asset cvar-bindings handler (per-compound scope pairing).
+
+    Target consumer fork: unezQuake. Asset extraction is the surface most
+    likely to drift between forks (different asset categories, new loader
+    primitives, custom asset directories), so override hooks here are
+    deliberately exposed.
+
+    Fork override hooks:
+      - visit_cursor: collects MEMBER_REF_EXPR cvar.string refs and
+        CALL_EXPR loader calls into the current scope. Override to widen
+        the cvar-ref recognition (e.g. fork uses a different member name).
+      - exit_compound: pairs (cvar_refs x loader_calls) within a single
+        compound scope and emits one binding per pair. Override to alter
+        the pairing policy (e.g. require contiguous statements).
+      - finalize: sort bindings + emit summary. Short.
+      - LOADER_FUNCTIONS / FUNCTION_TO_CATEGORY (module-level): the fork's
+        loader API surface and category routing. Hoisting these to the
+        class is a clean override surface; deferred because the same sets
+        are duplicated in _handler_asset_loader_sites.py and a unified
+        hoist would cross both handlers (out of scope here).
+      - TRIGGER_RULES (module-level): regex-driven enclosing-function ->
+        trigger classification. Fork can extend by overriding
+        `_classify_load_trigger`.
+    """
     name = "asset-cvar-bindings"
     output_filename = "ezquake-asset-cvar-bindings-ast.json"
 
@@ -143,6 +167,7 @@ class AssetCvarBindingsEzquakeHandler(Visitor):
     def enter_compound(self, cursor, variant: str) -> None:
         self._scope_stack.append(([], []))
 
+    # Fork override hook: alter scope-pairing policy or category routing
     def exit_compound(self, cursor, variant: str) -> None:
         cvar_refs, loader_calls = self._scope_stack.pop()
         if not (cvar_refs and loader_calls):
@@ -170,6 +195,7 @@ class AssetCvarBindingsEzquakeHandler(Visitor):
                     "notes": None,
                 })
 
+    # Fork override hook: extend cvar.string ref recognition or loader-call detection
     def visit_cursor(self, cursor, variant: str) -> None:
         kind = cursor.kind
         if kind == CursorKind.MEMBER_REF_EXPR:

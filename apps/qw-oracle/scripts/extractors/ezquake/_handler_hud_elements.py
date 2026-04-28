@@ -176,6 +176,25 @@ def _synthesize_owned_cvar_names(name: str, args: list, source_bytes: bytes) -> 
 
 
 class HudElementsEzquakeHandler(Visitor):
+    """ezQuake HUD-elements handler (Pattern 1 detection on HUD_Register).
+
+    Target consumer fork: unezQuake. ezQuake's HUD system is unique enough
+    that a fork is likely to either keep it untouched or replace it
+    wholesale; partial overrides should be rare.
+
+    Fork override hooks:
+      - visit_cursor: HUD_Register call detection (16+ args) plus owned-
+        cvar synthesis. Override only if the fork changes the HUD_Register
+        argument shape.
+      - finalize: cross-file dedup + field-source-line attachment. Short
+        and well-bounded; override to add new HUD-element fields or
+        change ordering.
+      - setup: parses hud.h via `HUD_T_C_TO_SCHEMA_NAME`. Override if the
+        fork relocates or restructures the hud_t struct definition.
+      - HUD_T_C_TO_SCHEMA_NAME (module-level): if the fork renames a
+        hud_t field, extend or replace this map. Class-level override is
+        cleaner -- consider hoisting if pressured.
+    """
     name = "hud-elements"
     output_filename = "ezquake-hud-elements-ast.json"
 
@@ -216,6 +235,7 @@ class HudElementsEzquakeHandler(Visitor):
             return
         self._func_stack.pop()
 
+    # Fork override hook: extend HUD_Register dispatch or arg-shape parsing
     def visit_cursor(self, cursor, variant: str) -> None:
         # SINGLE-parse: client-only, matches legacy behavior.
         if variant != "client":
@@ -260,6 +280,7 @@ class HudElementsEzquakeHandler(Visitor):
         self._func_stack = []
         return rows
 
+    # Fork override hook: alter cross-file dedup or hud-element field shape
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         deduped: dict[str, dict] = {}
         for el in all_rows:

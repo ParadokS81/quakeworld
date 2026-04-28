@@ -246,9 +246,37 @@ def _function_banner(source_bytes: bytes, fn_def_offset: int) -> Optional[str]:
 
 
 class CommandsMvdsvHandler(Visitor):
+    """MVDSV commands handler (Pattern 1 + Pattern 4 + banner-harvest).
+
+    Target consumer fork: antilag-mvdsv.
+
+    MVDSV uses ONLY `Cmd_AddCommand` (no Cmd_AddCommandD or
+    Cmd_AddLegacyCommand). Description harvest comes from Doom-style
+    function banners rather than help-JSON.
+
+    Fork override hooks:
+      - REGISTRATION_API: spelling of the cmd-registration API. Override
+        at the class level if the fork adds a description-bearing variant
+        (e.g. Cmd_AddCommandD).
+      - visit_cursor: dispatches FUNCTION_DECL banner harvest, VAR_DECL
+        struct-array dispatch, and Cmd_AddCommand call detection. Override
+        to add new registration shapes.
+      - finalize: partitions _fn_def vs _cmd rows, joins handler ->
+        description, applies cross-file first-wins dedup. Override to
+        alter the description-resolution policy.
+      - _function_banner: parses Doom-style `/* === Title === Body === */`
+        comment blocks. Override if the fork uses a different banner
+        decoration scheme.
+      - _COMMAND_TABLE_TYPES (module-level, Pattern 4): if the fork adds
+        new (name, handler) struct-array tables, extend this map. The
+        free function `_extract_command_table` consumes it.
+    """
     name = "commands"
     output_filename = "mvdsv-commands-ast.json"
     payload_field = "commands"
+
+    # Cmd-registration API spelling. Subclasses override to add fork variants.
+    REGISTRATION_API: str = "Cmd_AddCommand"
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -263,6 +291,7 @@ class CommandsMvdsvHandler(Visitor):
         self._seen_fns_in_file: set[str] = set()
         self._rows: list[dict] = []
 
+    # Fork override hook: extend Cmd_AddCommand dispatch / banner harvest
     def visit_cursor(self, cursor, variant: str) -> None:
         kind = cursor.kind
 
@@ -309,7 +338,7 @@ class CommandsMvdsvHandler(Visitor):
             return
 
         # ---- Detect Cmd_AddCommand call sites.
-        if kind != CursorKind.CALL_EXPR or cursor.spelling != "Cmd_AddCommand":
+        if kind != CursorKind.CALL_EXPR or cursor.spelling != self.REGISTRATION_API:
             return
 
         args = list(cursor.get_arguments())
@@ -353,6 +382,7 @@ class CommandsMvdsvHandler(Visitor):
         self._seen_fns_in_file = set()
         return rows
 
+    # Fork override hook: alter handler -> description resolution or dedup policy
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # Partition into command rows and function-def rows.
         fn_descriptions: dict[str, Optional[str]] = {}

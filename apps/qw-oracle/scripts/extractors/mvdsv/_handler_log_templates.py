@@ -56,22 +56,6 @@ sys.path.insert(0, str(HERE.parent))
 from extractor_lib._visitor import Visitor  # noqa: E402
 
 
-# (channel, format_string_arg_index) per API spelling. CALL_EXPR cursor
-# spelling matches the function name exactly. Indices are zero-based into
-# the cursor's get_arguments() iterator.
-_CHANNEL_TABLE: dict[str, tuple[str, int]] = {
-    # broadcast: sent to all clients
-    "SV_BroadcastPrintf":   ("broadcast", 1),  # (level, fmt, ...)
-    "SV_BroadcastPrintfEx": ("broadcast", 2),  # (level, flags, fmt, ...)
-    "SV_BroadcastCommand":  ("broadcast", 0),  # (fmt, ...)
-    # client: sent to one client
-    "SV_ClientPrintf":      ("client", 2),     # (cl, level, fmt, ...)
-    # server-side log
-    "Con_Printf":           ("console", 0),    # (fmt, ...)
-    "Sys_Printf":           ("system", 0),     # (fmt, ...)
-}
-
-
 def _read_extent(source_bytes: bytes, extent) -> str:
     """Return the source text for an AST extent."""
     if not extent or not extent.start or not extent.end:
@@ -95,9 +79,45 @@ def _normalize_format(s: str) -> str:
 
 
 class LogTemplatesMvdsvHandler(Visitor):
+    """MVDSV log-templates handler (format-string call-site detection).
+
+    Target consumer fork: antilag-mvdsv. A fork that adds new logging
+    primitives (e.g. an antilag-specific replay-event channel) needs the
+    CHANNEL_TABLE override to surface them.
+
+    Fork override hooks:
+      - CHANNEL_TABLE: dict mapping API spelling -> (channel,
+        format_string_arg_index). Override at the class level to add
+        fork-specific log primitives.
+      - visit_cursor: dispatches CHANNEL_TABLE entries; extracts the
+        format-string literal at the indicated argument index. Override
+        to handle non-literal format strings (Pattern 2).
+      - finalize: cross-file aggregation by canonical name with
+        all_call_sites fanout. Override to alter the canonical-name
+        normalization (e.g. preserve trailing newlines).
+      - _normalize_format (module-level): canonical-name normalisation
+        rule. Strips trailing newline + outer whitespace. Override only
+        if the fork requires a different normalization policy.
+    """
     name = "log_templates"
     output_filename = "mvdsv-log-templates-ast.json"
     payload_field = "log_templates"
+
+    # API spelling -> (channel, format_string_arg_index). CALL_EXPR cursor
+    # spelling matches the function name exactly. Indices are zero-based
+    # into the cursor's get_arguments() iterator. Subclasses extend to add
+    # fork-specific log primitives.
+    CHANNEL_TABLE: dict = {
+        # broadcast: sent to all clients
+        "SV_BroadcastPrintf":   ("broadcast", 1),  # (level, fmt, ...)
+        "SV_BroadcastPrintfEx": ("broadcast", 2),  # (level, flags, fmt, ...)
+        "SV_BroadcastCommand":  ("broadcast", 0),  # (fmt, ...)
+        # client: sent to one client
+        "SV_ClientPrintf":      ("client", 2),     # (cl, level, fmt, ...)
+        # server-side log
+        "Con_Printf":           ("console", 0),    # (fmt, ...)
+        "Sys_Printf":           ("system", 0),     # (fmt, ...)
+    }
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -119,11 +139,12 @@ class LogTemplatesMvdsvHandler(Visitor):
         if self._func_stack:
             self._func_stack.pop()
 
+    # Fork override hook: extend CHANNEL_TABLE dispatch or non-literal-fmt recovery
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
         spelling = cursor.spelling
-        cfg = _CHANNEL_TABLE.get(spelling)
+        cfg = self.CHANNEL_TABLE.get(spelling)
         if cfg is None:
             return
         channel, fmt_idx = cfg
@@ -185,6 +206,7 @@ class LogTemplatesMvdsvHandler(Visitor):
         self._func_stack = []
         return rows
 
+    # Fork override hook: alter cross-file aggregation or canonical-name normalization
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # Cross-file aggregation by canonical name. Per-file dedup already
         # collapsed the 3-variant emission inside one walk. Across .c files

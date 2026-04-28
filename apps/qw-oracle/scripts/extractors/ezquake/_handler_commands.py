@@ -219,8 +219,33 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
 # ----- Handler --------------------------------------------------------------
 
 class CommandsEzquakeHandler(Visitor):
+    """ezQuake commands handler (Pattern 1 + Pattern 4 detection).
+
+    Target consumer fork: unezQuake.
+
+    Fork override hooks:
+      - REGISTRATION_APIS: tuple of API names dispatched by visit_cursor.
+        Override at the class level to add fork-specific registration APIs
+        (e.g. Cmd_AddCommandD with a description arg).
+      - visit_cursor: VAR_DECL struct-array dispatch + Cmd_AddCommand /
+        Cmd_AddLegacyCommand call detection. Override to handle new
+        registration shapes.
+      - finalize: cross-file dedup + help-JSON merge + group assignment.
+        Override to alter the help-only fallback policy or add new
+        per-command fields.
+      - _COMMAND_TABLE_TYPES (module-level, Pattern 4): if the fork adds
+        new command-table struct types, extend this map. The free function
+        `_extract_command_table` consumes it -- class-level override would
+        require restructuring the helper.
+      - _assign_group / GROUPS (module-level): heuristic group-assignment
+        rules. If the fork ships new command families that need their own
+        group, extend the GROUPS list and add a rule to `_assign_group`.
+    """
     name = "commands"
     output_filename = "ezquake-commands-ast.json"
+
+    # Registration API surface. Subclasses extend to add fork APIs.
+    REGISTRATION_APIS: tuple = ("Cmd_AddCommand", "Cmd_AddLegacyCommand")
 
     def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
         super().start_file(source_path=source_path, source_bytes=source_bytes)
@@ -243,6 +268,7 @@ class CommandsEzquakeHandler(Visitor):
     def exit_function(self, cursor, variant: str) -> None:
         self._func_stack.pop()
 
+    # Fork override hook: extend Cmd_AddCommand / Cmd_AddLegacyCommand dispatch
     def visit_cursor(self, cursor, variant: str) -> None:
         kind = cursor.kind
         if kind == CursorKind.VAR_DECL:
@@ -257,7 +283,7 @@ class CommandsEzquakeHandler(Visitor):
         if kind != CursorKind.CALL_EXPR:
             return
         sp = cursor.spelling
-        if sp not in ("Cmd_AddCommand", "Cmd_AddLegacyCommand"):
+        if sp not in self.REGISTRATION_APIS:
             return
         args = list(cursor.get_arguments())
         if len(args) < 2:
@@ -304,6 +330,7 @@ class CommandsEzquakeHandler(Visitor):
         self._seen_in_file = set()
         return rows
 
+    # Fork override hook: alter help-JSON merge or help-only fallback policy
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         help_json_path = repo_root / "help_commands.json"
         help_data: dict = json.loads(help_json_path.read_text(encoding="utf-8"))

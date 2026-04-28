@@ -71,12 +71,6 @@ from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 _PREFIX_STRIP_RE = re.compile(r"^(PF_|PR2_|EXT_)")
 
-# The three target table names. VAR_DECL.spelling matches exactly; identifiers
-# at file scope are unique so a name match is sufficient.
-_BUILTIN_TABLES: frozenset = frozenset({
-    "std_builtins", "ext_builtins", "ext_syscalls",
-})
-
 
 def _read_extent(source_bytes: bytes, extent) -> str:
     """Return the source text for an AST extent."""
@@ -223,9 +217,42 @@ def _assert_not_designated_init(entry) -> None:
 
 
 class QcBuiltinsMvdsvHandler(Visitor):
+    """MVDSV QC-builtins handler (PF_*/PR2_*/EXT_* table extraction).
+
+    Target consumer fork: antilag-mvdsv. A fork that adds new QC builtins
+    via a fork-specific extension table needs the BUILTIN_TABLES override
+    plus a matching `_extract_*` helper.
+
+    Fork override hooks:
+      - BUILTIN_TABLES: frozenset of VAR_DECL spellings the handler walks.
+        Override at the class level to add new builtin tables.
+      - visit_cursor: dispatches to per-table extractors based on the
+        VAR_DECL spelling. Override to add a new table via a new
+        `_extract_<table>` helper.
+      - _extract_std_builtins: positional `builtin_t array[N]` shape with
+        index = position. Override to widen the placeholder filter
+        (currently only `PF_Fixme` is skipped).
+      - _extract_ext_builtins: sparse `{int num, builtin_t func}` struct
+        shape with explicit builtin number. Override if the fork uses a
+        different numbering convention.
+      - _extract_ext_syscalls: string-keyed `{char *name, syscall_t fn}`
+        shape. Override if the fork uses a different key shape.
+      - _emit_row: canonical-name resolution (trailing-comment QC name,
+        falling back to handler-fn with prefix strip). Override to alter
+        the name-resolution policy.
+      - finalize: cross-file dedup by (table_name, builtin_index) plus
+        per-table stats. Short.
+    """
     name = "qc_builtins"
     output_filename = "mvdsv-qc-builtins-ast.json"
     payload_field = "qc_builtins"
+
+    # The target table names. VAR_DECL.spelling matches exactly;
+    # identifiers at file scope are unique so a name match is sufficient.
+    # Subclasses extend to add fork-specific builtin tables.
+    BUILTIN_TABLES: frozenset = frozenset({
+        "std_builtins", "ext_builtins", "ext_syscalls",
+    })
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -239,11 +266,12 @@ class QcBuiltinsMvdsvHandler(Visitor):
         # the cvars/commands/info_keys handlers.
         self._seen_in_file: set[tuple[str, int]] = set()
 
+    # Fork override hook: extend BUILTIN_TABLES dispatch or add new _extract_<table> helper
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.VAR_DECL:
             return
         name = cursor.spelling
-        if name not in _BUILTIN_TABLES:
+        if name not in self.BUILTIN_TABLES:
             return
         # Find the INIT_LIST_EXPR child (the array initializer).
         init_list = None
@@ -337,6 +365,7 @@ class QcBuiltinsMvdsvHandler(Visitor):
                 qc_name_override=extname,
             )
 
+    # Fork override hook: alter QC-name resolution or row shape
     def _emit_row(
         self,
         *,

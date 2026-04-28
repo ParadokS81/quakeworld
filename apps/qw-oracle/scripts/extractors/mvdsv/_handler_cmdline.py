@@ -56,9 +56,36 @@ def _strip_quotes(s: str) -> str:
 
 
 class CmdlineMvdsvHandler(Visitor):
+    """MVDSV cmdline-params handler (Pattern 1 detection on COM_CheckParm).
+
+    Target consumer fork: antilag-mvdsv.
+
+    MVDSV does NOT have a manifest header (no `cmdline_params_ids.h`
+    equivalent) and does NOT use `COM_CheckParmOffset` -- only the
+    literal-string-arg shape is detected.
+
+    Fork override hooks:
+      - DETECTION_API: spelling of the parm-check API. Override at the
+        class level if the fork ships a wider check (e.g. adds
+        COM_CheckParmOffset).
+      - PARAM_PREFIXES: prefix tuple for legitimate cmdline switches
+        (default `-` and `+`). Override if the fork ships switches with
+        a different prefix.
+      - visit_cursor: detects literal-string COM_CheckParm sites with
+        prefix filtering. Override to widen detection (e.g. resolve
+        wrapper functions returning literal strings -- Pattern 2).
+      - finalize: cross-file first-wins dedup. Short.
+    """
     name = "cmdline"
     output_filename = "mvdsv-cmdline-params-ast.json"
     payload_field = "params"
+
+    # Parm-check API spelling. Subclasses override to add fork variants.
+    DETECTION_API: str = "COM_CheckParm"
+
+    # Legitimate cmdline-switch prefixes. `-` covers modern switches, `+`
+    # covers the `+gamedir` Quake-engine convention.
+    PARAM_PREFIXES: tuple = ("-", "+")
 
     def setup(self, *, mvdsv_repo: Path, mvdsv_src: Path) -> None:
         self._repo_root = mvdsv_repo
@@ -77,8 +104,9 @@ class CmdlineMvdsvHandler(Visitor):
         if self._func_stack:
             self._func_stack.pop()
 
+    # Fork override hook: extend COM_CheckParm dispatch or prefix filtering
     def visit_cursor(self, cursor, variant: str) -> None:
-        if cursor.kind != CursorKind.CALL_EXPR or cursor.spelling != "COM_CheckParm":
+        if cursor.kind != CursorKind.CALL_EXPR or cursor.spelling != self.DETECTION_API:
             return
 
         args = list(cursor.get_arguments())
@@ -97,7 +125,7 @@ class CmdlineMvdsvHandler(Visitor):
         # Sanity: cmdline params in MVDSV start with `-` (modern switches) or
         # `+` (legacy `+gamedir` Quake-engine convention). Anything else is
         # either a parse artefact or non-cmdline use of COM_CheckParm.
-        if not (name.startswith("-") or name.startswith("+")):
+        if not name.startswith(self.PARAM_PREFIXES):
             return
         if name in self._seen_in_file:
             return
@@ -131,6 +159,7 @@ class CmdlineMvdsvHandler(Visitor):
         self._func_stack = []
         return rows
 
+    # Fork override hook: alter cross-file dedup or summary stats
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # Cross-file first-wins dedup by canonical name. Same convention as
         # the cvars / commands handlers.

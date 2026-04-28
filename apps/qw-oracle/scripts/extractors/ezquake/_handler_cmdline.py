@@ -80,8 +80,27 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
 
 
 class CmdlineEzquakeHandler(Visitor):
+    """ezQuake cmdline-params handler (COM_CheckParm* call detection).
+
+    Target consumer fork: unezQuake.
+
+    Fork override hooks:
+      - DETECTION_APIS: tuple of API names dispatched by visit_cursor.
+        Override to add fork-specific cmdline-check APIs.
+      - visit_cursor: COM_CheckParm / COM_CheckParmOffset detection plus
+        `cmdline_param_*` enum-constant resolution. Override to capture
+        new param-identification shapes.
+      - finalize: manifest cross-check against cmdline_params_ids.h plus
+        help-JSON merge plus undeclared-source-only fallback. Override to
+        alter the manifest reconciliation policy.
+      - setup: parses cmdline_params_ids.h via `_MANIFEST_RE`. Override if
+        the fork introduces a new manifest layout.
+    """
     name = "cmdline"
     output_filename = "ezquake-cmdline-params-ast.json"
+
+    # Cmdline-check API surface. Subclasses extend to add fork APIs.
+    DETECTION_APIS: tuple = ("COM_CheckParm", "COM_CheckParmOffset")
 
     def __init__(self):
         self._manifest: list[dict] = []
@@ -121,11 +140,12 @@ class CmdlineEzquakeHandler(Visitor):
     def exit_function(self, cursor, variant: str) -> None:
         self._func_stack.pop()
 
+    # Fork override hook: extend COM_CheckParm / COM_CheckParmOffset dispatch
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
         sp = cursor.spelling
-        if sp not in ("COM_CheckParm", "COM_CheckParmOffset"):
+        if sp not in self.DETECTION_APIS:
             return
         loc = cursor.location
         loc_key = (loc.line, loc.column)
@@ -163,6 +183,7 @@ class CmdlineEzquakeHandler(Visitor):
         self._seen_locations = set()
         return rows
 
+    # Fork override hook: alter manifest reconciliation or undeclared-source fallback
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         usage_by_key: dict[str, list[dict]] = {}
         for row in all_rows:

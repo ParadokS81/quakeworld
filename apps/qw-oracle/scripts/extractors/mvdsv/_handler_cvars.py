@@ -215,6 +215,26 @@ def _is_cvar_t_decl(cursor) -> bool:
 
 
 class CvarsMvdsvHandler(Visitor):
+    """MVDSV cvars handler (Pattern 1 detection on `cvar_t` struct-init).
+
+    Target consumer fork: antilag-mvdsv.
+
+    MVDSV does NOT use macro-style registrations (no FTE-style CVARD/CVARFD)
+    and does NOT have nested-cvar container types -- the dispatch path is
+    the simpler `cvar_t name = {...}` shape.
+
+    Fork override hooks:
+      - visit_cursor: cvar_t VAR_DECL detection plus INIT_LIST_EXPR field
+        extraction. Override to handle new container types (e.g. if the
+        fork introduces a nested-cvar struct shape similar to ezQuake's
+        custom_model_color_t -- see `_NESTED_CVAR_TABLE_TYPES` in the
+        ezQuake handler for the recipe).
+      - finalize: cross-file first-wins dedup + summary stats. Short.
+        Override to alter dedup policy or expand stats.
+      - _trailing_comment: anchored on `};` close of the cvar struct-init.
+        Override if the fork uses a different cvar declaration shape that
+        needs a different anchor.
+    """
     name = "cvars"
     output_filename = "mvdsv-variables-ast.json"
     payload_field = "vars"
@@ -228,6 +248,7 @@ class CvarsMvdsvHandler(Visitor):
         self._rows: list[dict] = []
         self._seen_in_file: set[str] = set()
 
+    # Fork override hook: extend cvar_t VAR_DECL detection or add nested-cvar containers
     def visit_cursor(self, cursor, variant: str) -> None:
         if not _is_cvar_t_decl(cursor):
             return
@@ -309,6 +330,7 @@ class CvarsMvdsvHandler(Visitor):
         self._seen_in_file = set()
         return rows
 
+    # Fork override hook: alter cross-file dedup policy or summary-stats shape
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # First-wins dedup by canonical name across all files. Across the 3
         # variants (server-base / win / linux) the same declaration appears
