@@ -294,6 +294,22 @@ for (i = 0; i < num_logs; i++)
 
 ---
 
+### Pattern 14 -- Natural-key includes scope when an identifier carries multiple semantic surfaces
+
+**Source example:** MVDSV `*z_ext` -- registers as serverinfo via `SV_InitLocal` at `src/sv_main.c:3685` AND as userinfo via `SVC_DirectConnect` at `src/sv_main.c:1425`. Same bare key, two distinct semantic surfaces.
+
+**Trigger:** the `entities` table's `UNIQUE(project, type, name)` constraint collapses cross-scope registrations of the same identifier. The second registration silently loses; only one row survives. Symptom surfaces during load as a `[load-version] dropped duplicate name` warning (added in Phase B), or -- before that warning existed -- as a runtime entity count that's lower than the AST-extracted row count without an obvious explanation.
+
+**Fix shape:** make the canonical entity name `<bare>:<scope>` (e.g. `*z_ext:serverinfo`, `*z_ext:userinfo`) so the unique constraint disambiguates. Keep the unsuffixed identifier as `bare_name` at the top level of the JSON entry so downstream consumers (MCP `lookup_entity`, search) can fall back to a `name LIKE '<bare>:%' COLLATE NOCASE` prefix match when the queried name has no `:`.
+
+**Handler:** MVDSV `_handler_info_keys.py::finalize` emits `name = "<bare>:<scope>"` and adds `bare_name` at the top level. `InfoKeyEntry` (TS) gains a `bare_name: string` field. `lookup-entity.ts` adds the prefix-match fallback.
+
+**Where it applies:** any entity type where the same identifier can register with semantically distinct scopes/contexts. Apply when the AST extractor produces N rows and the loader inserts <N entities without a deletion explanation. Migration shape: backfill existing rows via one-shot `UPDATE entities ... SET name = name || ':' || (SELECT scope FROM <type>_versions ...) WHERE project=? AND type=? AND name NOT LIKE '%:%'`.
+
+**Known follow-up trigger:** 4 mvdsv qc_builtin names (`cvar_string`, `precache_model`, `precache_sound`, `precache_file`) register in both `std_builtins` and `ext_builtins` and are silently dropped today (the `[load-version] dropped duplicate name` warning surfaces them at load time). Same architectural shape; the same suffix fix would extend cleanly when qc_builtin gets next attention.
+
+---
+
 ## Multi-variant parse architecture
 
 The unified driver runs FOUR libclang passes per source file: client, server, Windows-client, Apple-client. All four feed the same set of Visitor handlers through `walk_tu_dispatch`.

@@ -772,6 +772,26 @@ The Phase B info_key name `UPDATE entities ... SET name = name || ':' || ...` ri
 
 ---
 
+## v17 (2026-04-28): log_template_versions gains all_call_sites_json
+
+Phase D of the MVDSV Phase 2e follow-up arc. Single-column additive migration -- pure ALTER, no rebuild required.
+
+The Phase 2e v15 schema stored only the first registration site for each `(channel, format_string)` log_template tuple in `log_template_versions.source_file` / `source_line` / `containing_function`. High-fanout templates -- e.g. the `Log_FlushSafe`-style `"%s\n"` console template registered from dozens of call sites -- collapsed into a single citation, hiding the call-site fanout that actually exists in the source.
+
+v17 adds parity with `info_key_versions.all_call_sites_json`: a JSON array column on `log_template_versions` capturing every `(source_file, source_line, containing_function)` triple that registered the template at this version. The original three top-level columns continue to carry the first / canonical citation for backward compatibility.
+
+```sql
+ALTER TABLE log_template_versions ADD COLUMN all_call_sites_json TEXT;
+```
+
+NULL is allowed for v16-era rows that pre-date the column; the next `extract-tag` re-upsert populates the JSON for any re-loaded version. `_handler_log_templates.py` emits the array; `load-log-templates.ts` carries it through to the natural-keys upsert.
+
+The migration step is a single line in `migrateV16ToV17`. No FK rebuild, no `INSERT ... SELECT`, no CHECK changes -- just one `ALTER TABLE`.
+
+- Plan: `docs/superpowers/plans/2026-04-28-mvdsv-phase2e-followups.md` (Phase D).
+
+---
+
 ## Related
 
 - Schema code: `scripts/load-knowledge/schema.ts`
