@@ -3,7 +3,6 @@
 Houses the cross-project building blocks that every extractor reuses:
   - clang_config.py    libclang flag profiles per project + variant
   - _visitor.py        Visitor protocol + walk_tu_dispatch shared walker
-  - _base.py           Handler protocol (legacy non-Visitor handlers)
   - _resolve.py        cursor-resolution helpers (resolve_fn_ref)
 
 Project-specific handlers live in <project>/_handler_*.py, not here. See

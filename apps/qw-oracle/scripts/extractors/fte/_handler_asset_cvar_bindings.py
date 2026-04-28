@@ -92,7 +92,7 @@ def _resolve_cvar_string_ref(member_ref_cursor) -> Optional[str]:
     return ref.spelling
 
 
-class AssetCvarBindingsHandler(Visitor):
+class AssetCvarBindingsFteHandler(Visitor):
     name = "asset-cvar-bindings"
     output_filename = "fte-asset-cvar-bindings-ast.json"
 

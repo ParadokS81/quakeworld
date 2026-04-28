@@ -487,7 +487,7 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
     return "unknown", None, None, None
 
 
-class AssetLoaderSitesHandler(Visitor):
+class AssetLoaderSitesFteHandler(Visitor):
     name = "asset-loader-sites"
     output_filename = "fte-asset-loader-sites-ast.json"
 

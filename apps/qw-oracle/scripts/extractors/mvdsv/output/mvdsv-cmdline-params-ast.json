@@ -6,7 +6,7 @@
         "source_file": "src/fs.c",
         "source_line": 556,
         "source_column": 7,
-        "containing_function": "FS_InitEx"
+        "enclosing_function": "FS_InitEx"
       }
     },
     {
@@ -15,7 +15,7 @@
         "source_file": "src/fs.c",
         "source_line": 523,
         "source_column": 11,
-        "containing_function": "FS_InitEx"
+        "enclosing_function": "FS_InitEx"
       }
     },
     {
@@ -24,7 +24,7 @@
         "source_file": "src/sv_sys_unix.c",
         "source_line": 640,
         "source_column": 6,
-        "containing_function": "SV_System_Init"
+        "enclosing_function": "SV_System_Init"
       }
     },
     {
@@ -33,7 +33,7 @@
         "source_file": "src/sv_sys_unix.c",
         "source_line": 668,
         "source_column": 6,
-        "containing_function": "SV_System_Init"
+        "enclosing_function": "SV_System_Init"
       }
     },
     {
@@ -42,7 +42,7 @@
         "source_file": "src/fs.c",
         "source_line": 555,
         "source_column": 12,
-        "containing_function": "FS_InitEx"
+        "enclosing_function": "FS_InitEx"
       }
     },
     {
@@ -51,7 +51,7 @@
         "source_file": "src/net.c",
         "source_line": 1095,
         "source_column": 11,
-        "containing_function": "TCP_OpenListenSocket"
+        "enclosing_function": "TCP_OpenListenSocket"
       }
     },
     {
@@ -60,7 +60,7 @@
         "source_file": "src/sv_sys_win.c",
         "source_line": 372,
         "source_column": 10,
-        "containing_function": "Sys_Quit"
+        "enclosing_function": "Sys_Quit"
       }
     },
     {
@@ -69,7 +69,7 @@
         "source_file": "src/sv_sys_win.c",
         "source_line": 643,
         "source_column": 6,
-        "containing_function": "Sys_Init"
+        "enclosing_function": "Sys_Init"
       }
     },
     {
@@ -78,7 +78,7 @@
         "source_file": "src/net.c",
         "source_line": 1406,
         "source_column": 6,
-        "containing_function": "NET_InitServer"
+        "enclosing_function": "NET_InitServer"
       }
     },
     {
@@ -87,7 +87,7 @@
         "source_file": "src/sv_sys_unix.c",
         "source_line": 740,
         "source_column": 6,
-        "containing_function": "SV_System_Init"
+        "enclosing_function": "SV_System_Init"
       }
     },
     {
@@ -96,13 +96,13 @@
         "source_file": "src/sv_sys_unix.c",
         "source_line": 693,
         "source_column": 6,
-        "containing_function": "SV_System_Init"
+        "enclosing_function": "SV_System_Init"
       }
     }
   ],
   "_stats": {
     "source_total": 12,
     "count": 11,
-    "with_containing_function": 11
+    "with_enclosing_function": 11
   }
 }

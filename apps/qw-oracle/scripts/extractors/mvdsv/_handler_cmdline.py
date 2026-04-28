@@ -15,7 +15,7 @@ rather than a literal. Those return literal strings internally; recovering
 their param names would require Pattern 2 (function-body string-literal
 return-value harvest) and is out of scope here.
 
-The `containing_function` field is harvested via the walker's
+The `enclosing_function` field is harvested via the walker's
 `enter_function` / `exit_function` hooks (top-of-stack at the call site).
 
 Per-file dedup on parameter name across all 3 platform variants
@@ -132,7 +132,7 @@ class CmdlineMvdsvHandler(Visitor):
 
         location = cursor.location
         rel_file = self._relative_source(location.file.name) if location.file else None
-        containing_fn = self._func_stack[-1] if self._func_stack else None
+        enclosing_fn = self._func_stack[-1] if self._func_stack else None
 
         self._rows.append({
             "name": name,
@@ -140,7 +140,7 @@ class CmdlineMvdsvHandler(Visitor):
                 "source_file": rel_file,
                 "source_line": location.line,
                 "source_column": location.column,
-                "containing_function": containing_fn,
+                "enclosing_function": enclosing_fn,
             },
         })
         self._seen_in_file.add(name)
@@ -174,8 +174,8 @@ class CmdlineMvdsvHandler(Visitor):
         stats = {
             "source_total": len(all_rows),
             "count": len(unique),
-            "with_containing_function": sum(
-                1 for r in unique if r["ast"].get("containing_function")
+            "with_enclosing_function": sum(
+                1 for r in unique if r["ast"].get("enclosing_function")
             ),
         }
         return {

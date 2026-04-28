@@ -28,7 +28,7 @@ from clang.cindex import Config, Index, TranslationUnit  # noqa: E402
 Config.set_library_file("libclang-18.so.1")
 
 from extractor_lib._visitor import walk_tu_dispatch  # noqa: E402
-from _handler_asset_loader_sites import AssetLoaderSitesHandler  # noqa: E402
+from _handler_asset_loader_sites import AssetLoaderSitesFteHandler  # noqa: E402
 
 # Plain C-frontend invocation is enough -- fixtures are self-contained and
 # don't pull in FTE engine headers.
@@ -40,7 +40,7 @@ _PARSE_OPTS = (
 
 
 def _extract_sites(c_path: Path) -> list[dict]:
-    handler = AssetLoaderSitesHandler()
+    handler = AssetLoaderSitesFteHandler()
     # No setup() so cvar_ident_map stays empty -- fixtures don't rely on it.
 
     idx = Index.create()
