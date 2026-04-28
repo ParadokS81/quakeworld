@@ -4,6 +4,22 @@
 >
 > **Reading order:** Read VISION first for the why. Read this for the how. Read ROADMAP for the when.
 
+> **Update 2026-04-28 (pre-Pass-1 anchor):** Six decisions ratified during the orchestrator briefing extend this document before the Arc A+B brainstorm Pass 1. They are summarized below as anchor points; the body is being revised pass-by-pass to integrate them as brainstorm work crystallizes. Until each pass is drained, where the body and this anchor diverge, the anchor is authoritative.
+>
+> **Pass 1 status: COMPLETE 2026-04-28.** Substrate and storage decisions drained into body — see Storage Layout (Unified blob store, Layout decisions ratified, Process model, Implementation note), Primitive operations (register/materialize/export updated), Active profile vs launched profiles, Garbage collection (manifest-as-truth + refcount), Lossless-export pledge protection. Item 1 below is now in body; items 2-6 remain pending later passes.
+>
+> 1. **Materializer modes simplify.** Two modes only: `hardlink` (active-tree materialization) and `copy` (lossless export). The `hardlink_preferred` fallback middle case is dropped — under slipgate-IS-quakedir, active-tree materialization is single-volume by construction. Edge case: data roots on filesystems without hardlink support (FAT32 / exFAT / some network mounts) blocked at install with a precondition check, not silent copy fallback. **DRAINED into Storage Layout + Primitive Operations 2026-04-28.**
+>
+> 2. **Sixth content-taxonomy bucket: `user-private` (in-tree, unmanaged).** Files in the materialized tree that are NOT in any manifest and NOT classified into the other five buckets, but the user has marked as "respect, don't touch" (private notes, personal subfolders, half-finished experiments). Preserved across rematerialization, not warehoused, not exported, not synced. Tracked via `<data-root>/profiles/<id>/private.json` listing relative paths. (Affects: Content Taxonomy, Filesystem Watcher Contract — adds a fifth dispatch case "untracked + user-private" alongside the existing four.)
+>
+> 3. **Manifest gains `declared_gamedirs: string[]`.** Lists the gamedirs the profile expects to materialize ("qw", "ktx", "painkeep", etc.). Launcher offers a per-launch gamedir picker when length > 1. Anchors a future mod/singleplayer/expansion launcher (Painkeep-as-gamedir, hipnotic/rogue expansions) on the same primitive at near-zero cost. (Affects: Manifest as Profile, Engine Integration.)
+>
+> 4. **Cloud-SHA-lookup is load-bearing for the classifier long-run.** Arc E (watcher) ships with local-heuristic classification + deferred submission queue for unknown SHAs. Arc H (cloud catalog) augments lookups with catalog metadata when online. Two-way collaboration: user-confirmed classifications flow back as moderated submission candidates. Offline mode keeps full classifier functionality with reduced precision. Implication: Arc H's catalog data shape must be brainstormed alongside Arc A/B/D/E (locked at design time; can still ship as a later implementation arc). (Affects: Cloud Catalog Interaction, Filesystem Watcher Contract.)
+>
+> 5. **Runtime swap class taxonomy.** Class 1: cfg-only swap (HUD, binds, aliases) — mailslot-driven `exec` / `cfg_load`, no engine restart. Class 2: visual-asset swap (textures, skins, sounds) — `vid_restart` or next-mapchange, mixed reload-cost per asset category, taxonomy required. Class 3: full profile swap (different stock paks, binaries, gamedirs) — engine restart required. V1 ships Class 1 deliberate, Class 2 empirical case-by-case, Class 3 default UX = "engine restart required." Mailslot is ezQuake-specific (`\\.\mailslot\ezquake`); FTE IPC TBD. Mailslot ruleset-gating to be verified against ezQuake source via qw-oracle before tournament-context features. (Affects: Engine Integration — new subsection.)
+>
+> 6. **(Roadmap-only)** Brainstorm scope covers the full surface (Arcs A through H), not just V1 substrate. Pre-launch greenfield with no production code and no users means design coherence requires committing to cross-arc contracts up front. V1/V1+ remains the implementation-sequence axis but is no longer the design-scope axis.
+
 ---
 
 ## Foundational concepts
@@ -89,11 +105,16 @@ The tree is what the engine launches against (`ezquake -basedir <data-root>/prof
 
 The tree is **derived state**. Wiping it and rematerializing from the manifest produces a byte-identical result. The manifest is the source of truth; the tree is a cached materialization.
 
-### Active profile
+### Active profile vs launched profiles
 
-At any time, exactly one profile is "active." The active profile's tree is the one engines launch against. Users switch profiles by pointing slipgate (and any shortcuts) at a different profile's tree.
+Two concepts that can differ at any moment:
 
-The active profile is recorded in `<data-root>/active-profile.json`:
+- **Active profile** — the profile slipgate's UI is currently focused on (ConfigViewer, MyQuake, edits operate against it). Exactly one. Recorded in `<data-root>/active-profile.json`.
+- **Launched profiles** — the set of profiles with a running engine instance. Zero or more concurrently. ezQuake supports multiple engine instances natively (real use case: idle in a 4on4 server while playing 1on1 in a second instance). Each launched instance binds to its own profile's tree via `-basedir`.
+
+The two sets can diverge. A user can launch profile X, then switch slipgate's UI focus to profile Y for editing. X's engine continues; slipgate's UI reflects Y. Profile switching in the UI sense (`swap_active_profile`) updates the active pointer. Profile launching is a separate operation covered in Engine integration.
+
+`<data-root>/active-profile.json`:
 
 ```json
 {
@@ -102,61 +123,65 @@ The active profile is recorded in `<data-root>/active-profile.json`:
 }
 ```
 
-Profile switching is updating this pointer (and re-pointing any active-profile-bound shortcuts at the new tree path). Tree materialization is independent of activeness — multiple profiles can be materialized simultaneously, only one is "active" at a moment.
+Tree materialization is independent of both activeness and launched-state — multiple profiles can be materialized simultaneously regardless of which is active or launched.
 
 ---
 
 ## Storage layout
 
-The complete data root structure:
+The complete data root structure (Pass 1 ratified):
 
 ```
-<data-root>/                      ← slipgate's managed install root
-  active-profile.json             ← which profile is currently active
-  active-profile-history.json     ← audit log of activeness transitions
+<data-root>/                          ← slipgate's managed install root
+  .lock                               ← single-process invariant (PID + hostname + timestamp)
+  active-profile.json                 ← which profile slipgate's UI is focused on
+  active-profile-history.json         ← audit log of activeness transitions
   
-  blobs/                          ← content-addressed storage; immutable
-    <sha256>.bin                  ← one file per unique blob (any content type)
+  blobs/                              ← UNIFIED content-addressed storage; immutable; any content type
+    .refcounts.json                   ← cached SHA -> ref-count index for GC; rebuildable from manifest walk
+    ab/                               ← two-char fanout by SHA prefix (256 buckets)
+      abcdef0123...bin                ← the blob bytes
+      abcdef0123...meta.json          ← per-blob sidecar (first-seen path, source, role-history, content-type-hint)
+    cd/
+      cdef4567...bin
+      cdef4567...meta.json
     ...
   
-  profiles/                       ← per-profile state
+  profiles/                           ← per-profile state
     <profile-name-or-uuid>/
-      manifest.json               ← source of truth for profile contents
-      manifest-history/           ← optional: prior manifest versions for git-style history
+      manifest.json                   ← source of truth for profile contents
+      manifest-history/               ← prior manifest versions (per-config retention + snapshot retention)
         <timestamp>-<sha>.json
         ...
-      tree/                       ← MATERIALIZED dir; engine launches against this
+      private.json                    ← user-private (in-tree, unmanaged) file paths to respect on rematerialization
+      tree/                           ← MATERIALIZED dir; engine launches against this
         id1/
-          pak0.pak                ← hardlink to ../../../blobs/<sha>.bin
+          pak0.pak                    ← hardlink to ../../../../blobs/ab/<sha>.bin
           ...
         qw/
-          config.cfg              ← hardlink
+          config.cfg                  ← hardlink
           ...
-        ezquake.exe               ← hardlink to a binary warehouse blob (see binaries/)
+        ezquake.exe                   ← hardlink to a binary blob in unified blobs/
         ...
   
-  binaries/                       ← Phase 3.5b shipped: client binaries warehouse
-    blobs/                        ← per Phase 3.5b layout (existed before this arc)
-      <sha256>.exe
-    <client>/                     ← e.g. ezquake/, fteqw/
-      <version>/                  ← e.g. 3.6.9/
-        manifest.json
-        variants/                 ← per-variant nested manifests
+  binaries/                           ← Phase 3.5b binary METADATA (blobs themselves live in unified blobs/)
+    <client>/                         ← e.g. ezquake/, fteqw/
+      <version>/                      ← e.g. 3.6.9/
+        manifest.json                 ← references binary blob by SHA into unified blobs/
+        variants/
           <variant>/
             manifest.json
-    index.json                    ← active version per (client, variant)
+    index.json                        ← active version per (client, variant)
   
-  assets/                         ← NEW IN MANAGED ARC: parallel to binaries/
-    blobs/                        ← OR: shared blob store with binaries/ at <data-root>/blobs/?
-      <sha256>.bin                  See "shared-vs-split blob store" below
-    by-category/                  ← optional: indexed views of warehoused assets
+  assets/                             ← asset metadata + indexes (blobs themselves live in unified blobs/)
+    by-category/                      ← optional: indexed views of warehoused assets (UI helper, derived)
       textures/
       sounds/
       configs/
       ...
-    catalog-cache/                ← cached metadata from cloud catalog
+    catalog-cache/                    ← cached metadata from cloud catalog (Arc H)
   
-  user-content/                   ← profile-orthogonal content
+  user-content/                       ← profile-orthogonal content (NOT warehoused, NOT in any manifest)
     demos/
       server-downloaded/
         <server-host>/<date>/
@@ -171,38 +196,51 @@ The complete data root structure:
       <profile-id>/
         <log-files>
   
-  mod-cache/                      ← quarantined per-mod content (TF, CTF, etc.)
+  mod-cache/                          ← quarantined per-mod content (TF, CTF, etc.)
     tf/
       qw/
-        progs/tfprogs.dat         ← classified TF mod content
+        progs/tfprogs.dat
         maps/...
         sounds/...
     ctf/
       ...
   
-  release-cache/                  ← Phase 3.5b shipped: GitHub Releases per-channel
+  release-cache/                      ← Phase 3.5b shipped: GitHub Releases per-channel
     <client>-<channel>.json
   
-  trash/                          ← deferred-deletion buffer for safety
-    blobs/<sha>.bin               ← entries pending GC sweep
-    profiles-orphaned/            ← deleted profiles' manifests, recoverable
+  trash/                              ← deferred-deletion buffer for safety
+    blobs/<sha[:2]>/<sha>.bin         ← entries pending GC sweep (default 30-day retention)
+    profiles-orphaned/                ← deleted profiles' manifests, recoverable
 ```
 
-### Shared-vs-split blob store
+### Unified blob store (Pass 1 ratified)
 
-Open architectural decision (resolved during ARC-A brainstorming): should `binaries/blobs/` and `assets/blobs/` be unified into a single top-level `blobs/` directory, or stay split?
+The blob store is unified across content types. The original draft proposed split `binaries/blobs/` + `assets/blobs/`; Pass 1 collapses this into a single `<data-root>/blobs/` containing all content-addressed bytes regardless of intended use. A binary IS just bytes; an asset IS just bytes; splitting by intended use was the wrong abstraction.
 
-**Arguments for unifying:**
-- True content-addressing should be content-type-agnostic (a binary IS just bytes; an asset IS just bytes). Splitting by intended use is a category mistake.
-- Future content types (bundles, profile snapshots, etc.) shouldn't each get their own blob store.
-- Unified GC is simpler.
+Phase 3.5b's existing `binaries/blobs/<sha>.exe` data migrates to the unified layout via a one-shot conversion script on first launch of the new schema. Domain-specific metadata (per-client version manifests, per-variant manifests, `binaries/index.json`) remains in `<data-root>/binaries/<client>/<version>/...` and references blobs by SHA into the unified store. Same for `<data-root>/assets/` which holds metadata indexes and catalog cache but no longer a blob store of its own.
 
-**Arguments for splitting:**
-- Phase 3.5b shipped with `binaries/blobs/`. Migrating that data to a unified location is non-trivial and risky.
-- Operational separation: nuke all assets to free space, leaving binaries intact.
-- Different lifecycle: binaries get pruned by version policy; assets get pruned by reference-counting.
+### Layout decisions ratified in Pass 1
 
-**Recommended decision (to ratify during ARC-A brainstorming):** unify into top-level `blobs/`. Migrate Phase 3.5b's data with a one-shot conversion script. The category-mistake argument is load-bearing for the architecture's coherence; the operational concerns are addressable with metadata indexes (`blobs-meta.json` recording original-extension and content-type per blob if needed).
+**Two-char fanout.** Blobs are nested under a two-character SHA-prefix directory (`<data-root>/blobs/<sha[:2]>/<sha>.bin`). 256 evenly-distributed buckets (SHA hex distribution is uniform). Handles realistic blob counts (6K-50K typical, 100K+ outlier) without filesystem performance degradation. Standard pattern (Git, Nix, OSTree, IPFS).
+
+**Per-blob sidecar metadata.** Each blob carries a sibling `<sha>.meta.json` in the same fanout bucket. Sidecar records first-seen path, source (migration / cloud-import / user-drop / engine-write), role-history (which manifests have referenced it under what role), content-type-hint, timestamps. Recovery story: blob + sidecar are co-located; `cp -r blobs/` captures both; partial corruption affects one blob's metadata only; editable in any text editor for emergency recovery.
+
+**Refcount index.** `<data-root>/blobs/.refcounts.json` caches `{sha → ref-count}` updated on every manifest add/remove. GC consults the index instead of walking all manifests on every sweep. Rebuildable from a full manifest walk if corrupted.
+
+### Process model (Pass 1 ratified)
+
+Single slipgate process invariant. Two layers protect this:
+
+- **Tauri single-instance plugin** (`tauri-plugin-single-instance`, v2). OS-level: second-launch signals the first to focus its window and exits. Catches the common case.
+- **Data-root lockfile** at `<data-root>/.lock` holding PID + hostname + timestamp. Catches anything escaping the OS-level layer (IDE-launched dev binary alongside production install, manual binary execution, weird shortcut configurations). Stale-lock detection: file age + PID liveness on same hostname; force-unlock prompt if stale.
+
+Within the slipgate process, a single global async mutex (`tokio::sync::Mutex`) serializes warehouse + manifest writes. Reads are concurrent. The volume of contended operations is modest; per-resource locks are not justified for V1. Refinement happens later if profiling shows contention.
+
+Multi-process upgrade path: if V1+ ever adds a background watcher service, the lockfile relaxes to per-resource atomic-rename + compare-and-swap on a manifest version token. The current design is forward-compatible.
+
+### Implementation note (Pass 1 ratified)
+
+Phase 3.5b's `version_warehouse.rs` (~1500 lines, 142 Rust tests) refactors into a generic `content_warehouse.rs` consuming the unified blob store. The binary domain keeps its API (`register_version_at`, `swap_active_version`) as a thin wrapper. The asset domain gets a parallel thin wrapper (`asset_warehouse.rs`) on top of the same generic warehouse. One-shot data migration script handles the existing `binaries/blobs/<sha>.exe` → `<data-root>/blobs/<sha[:2]>/<sha>.bin` conversion at first launch.
 
 ---
 
@@ -322,24 +360,43 @@ Six operations are sufficient to build every Managed-mode feature. Each is a sma
 
 ### `register(bytes) -> sha256`
 
-Hash bytes, write to `blobs/<sha>.bin` if not already present, return the SHA. Idempotent: registering the same bytes twice returns the same SHA without rewriting.
+Hash bytes, write to `blobs/<sha[:2]>/<sha>.bin` if not already present, write/update sidecar `<sha>.meta.json`, increment refcount index, return the SHA. Idempotent: registering the same bytes twice returns the same SHA without rewriting the blob.
 
 ### `materialize(manifest, target_dir, mode) -> Result<()>`
 
-For each manifest entry, ensure a hardlink (or copy, depending on mode) exists at `target_dir/<entry.target_path>` pointing at `blobs/<entry.sha256>.bin`. Idempotent.
+For each manifest entry, ensure a hardlink (or copy, depending on mode) exists at `target_dir/<entry.target_path>` pointing at `blobs/<entry.sha[:2]>/<entry.sha>.bin`. Idempotent. Removes orphan tree hardlinks (entries present in tree but not in current manifest) — this is the tree-consistency enforcement point.
 
-Modes:
-- `hardlink_required`: fail if hardlink can't be created (cross-volume, filesystem doesn't support, etc.)
-- `hardlink_preferred`: try hardlink, fall back to reflink (COW), fall back to copy
-- `copy_only`: always copy (used for lossless export — survives slipgate uninstall)
+Modes (Pass 1 ratified, simplified from earlier draft):
+- `hardlink`: active-tree materialization. Single-volume by construction under slipgate-IS-quakedir, so hardlinks always work for normal operation. Install-time precondition rejects data roots on non-hardlink-capable filesystems (FAT32, exFAT, some network mounts) rather than silent fallback.
+- `copy`: lossless export. Survives slipgate uninstall. Used by the export primitive.
 
 ### `swap_active_profile(target_profile_id) -> Result<()>`
 
-Update `active-profile.json` to point at the target. Re-point any active-profile-bound shortcuts (Steam pin, desktop icon, etc.). Optionally re-materialize the target's tree if it's been GC'd or never materialized.
+Update `active-profile.json` to point at the target (UI-focus sense). Re-point any active-profile-bound shortcuts. Optionally re-materialize the target's tree if it's been GC'd or never materialized. Does NOT close any running engine instance — engine instances are independent of UI active-profile (see Active vs Launched).
 
-### `export(profile_id, target_dir) -> Result<()>`
+### `launch_profile(profile_id, mode) -> Result<EngineHandle>`
 
-`materialize(manifest_for(profile_id), target_dir, mode=copy_only)`. Produces a fully-functional standalone Quake dir at `target_dir` that survives slipgate uninstall.
+Launch an engine instance against a profile's materialized tree.
+
+Modes:
+- `swap-active`: Class 3 swap. If an engine is currently running against any profile, prompt user; on confirm, close that instance, switch active to target, launch target.
+- `new-instance`: launch a parallel engine bound to target's tree without affecting other launched instances (uses ezQuake's native multi-instance support).
+
+The class taxonomy (Class 1 cfg-only / Class 2 vid_restart / Class 3 engine-restart) governs whether a profile-merge or asset-swap operation can avoid `launch_profile` entirely (Class 1 uses mailslot-driven runtime cfg push; details in Engine integration).
+
+### `export(blob_refs, target, format) -> Result<()>`
+
+Generalized from the original draft's profile-only export. Exports an arbitrary set of `(sha, target_path, role?)` tuples to a target location in a chosen format.
+
+- `blob_refs`: drawn from a manifest, OR composed ad-hoc, OR filtered by selector
+- `target`: filesystem destination (directory for tree formats, file path for archive formats)
+- `format` (Pass 1 ratified, format-extensible):
+  - `raw_tree`: directory tree using `materialize(mode=copy)`. The lossless-export pledge specifically ships as this format. Required for V1.
+  - `pk3` / `zip`: archive packagers consuming the same blob_refs. Small additive code; community-standard sharing format. Likely in V1+ as a follow-up to Arc F.
+  - `pak`: Quake's binary pak format. Custom writer; later if requested.
+  - `tar.gz` and similar: trivial siblings of pk3.
+
+Profile export is the specialization `export(manifest_entries(profile), target, format=raw_tree)`. "Share these textures as a pk3" is the same primitive with a filtered blob_refs and a pk3 packager.
 
 ### `fork(parent_profile_id, modifications) -> new_profile_id`
 
@@ -545,17 +602,50 @@ Every manifest stores `parent_manifest_sha` and optionally `forked_from_profile_
 
 None of this is user-visible until ARC-C's polish phase, but the data structure supports it from day one.
 
-### Garbage collection
+### Garbage collection (Pass 1 ratified)
 
-A periodic sweep walks all manifests (current + retained historical) computing the live blob set, then deletes any blobs not in that set.
+**Source of truth: manifests.** GC walks all manifests (current + retained history) and computes the set of SHAs referenced by any manifest entry. Anything in `<data-root>/blobs/` not in that set is unreferenced and eligible for deletion. The materialized tree's hardlinks are NOT a truth source — the tree is derived state, not authoritative for liveness.
 
-GC frequency: weekly idle, plus on-demand "Reclaim space" button.
+This decision is load-bearing for Arc G (per-config IDE-shaped restore): retained historical manifests reference older blobs that aren't in any current tree. nlink-as-truth would delete those blobs and break Restore-from-history; manifest-as-truth preserves them correctly.
 
-GC safety:
-- Never delete during active materialization
-- Never delete blobs referenced by `mod-cache/` (those are quarantined, may be promoted)
+**Refcount index for performance.** Walking all manifests on every sweep is bounded but not free. `<data-root>/blobs/.refcounts.json` caches `{sha → ref-count}` and updates on every manifest add/remove. GC reads the index, deletes anything with refcount zero. Index is rebuildable from a full manifest walk if it gets corrupted.
+
+**Tree consistency at rematerialization, not GC.** Removing orphan tree hardlinks (entries in a tree but not in its current manifest) happens during `materialize()`, not during GC. `materialize()` is idempotent and removes-and-recreates tree entries to match the manifest. This naturally drops nlink to zero on truly orphaned blobs (no current manifest reference + no other tree reference) and the kernel frees the inode. Blobs still in retained history retain their warehouse name and stay alive.
+
+**GC frequency:** weekly idle sweep + on-demand "Reclaim space" button. Both supported (architecture spec earlier listed this as an open question; Pass 1 confirms both).
+
+**GC safety:**
+- Never delete during active materialization (mutex-coordinated)
+- Never delete blobs referenced by `mod-cache/` (quarantined, may be promoted to user-asset)
 - Never delete recently-created blobs (within last 24h) — gives the watcher's debouncing window safety margin
-- Move-to-`trash/` first; permanent delete only after configurable retention (default 30 days)
+- Move-to-`<data-root>/trash/blobs/<sha[:2]>/<sha>.bin` first; permanent delete only after configurable retention (default 30 days)
+
+**Edge case — manual tree deletion.** If the user manually `rm -rf`'s a profile tree via Explorer/shell, the orphan tree hardlinks vanish but the warehouse blobs stay live (still referenced by manifest). On next slipgate launch, the watcher sees Case 4 (tracked + file deleted) for every entry. UI prompts: "Profile X tree is gone. Restore from manifest, or delete the profile?" Both options are valid; manifest-as-truth is what makes Restore possible.
+
+### Lossless-export pledge protection (Pass 1 ratified)
+
+The lossless-export pledge — "press one button, walk away with a portable Quake dir, no slipgate needed" — is the architecture's most load-bearing user-facing promise. Three automated tests pin it.
+
+**Test 1 — round-trip integrity (CI from Arc A/B onward).**
+1. Build a synthetic profile: stock paks + a few user-asset blobs + a config
+2. `export(profile, target=tempdir, format=raw_tree)` (copy mode)
+3. Hash every file in tempdir; compare against expected hashes
+4. Assert: no missing entries, no extras, no wrong hashes
+
+**Test 2 — zero slipgate residue (CI from Arc A/B onward).**
+1. Run export
+2. Walk export tree; assert absence of any slipgate-specific files: no `manifest.json`, no `.meta.json` sidecars, no `.lock`, no `.refcounts.json`, no `private.json`, no `slipgate.*`
+3. The export is "just files"; nothing slipgate-specific peeks through
+
+**Test 3 — post-uninstall launch smoke (CI from Arc F onward).**
+1. Run export to a temp location
+2. Wipe the slipgate data root entirely (simulating uninstall)
+3. Launch ezQuake against the export with `-basedir <export-path>`
+4. Assert: engine launches, reads its config, reaches main menu (or runs a known headless smoke check)
+
+Test 3 is the pledge in machine-checkable form — it either works or it doesn't. Tests 1+2 are byte-comparison only and trivially fast (~ms). Test 3 needs an engine binary in CI and ~5s of runtime; gated to release-candidate level once Arc F lands.
+
+These tests run on every PR that touches Arc A, B, F, or anything affecting materialization. Pledge regressions get caught at PR time, not in production.
 
 ---
 
@@ -677,25 +767,32 @@ The architecture's bandwidth bill scales with novel assets per profile, not tota
 
 ---
 
-## Open architectural questions (to ratify in arc brainstorming)
+## Open architectural questions
 
-1. **Shared-vs-split blob store** — `binaries/blobs/` and `assets/blobs/` unified or separate? See "Shared-vs-split blob store" above. Recommended: unify.
+### Pass 1 status
 
-2. **Manifest format ratification** — JSON ergonomics are good but verbose for KB-scale data. Sticking with JSON unless concrete reason emerges.
+Pass 1 (substrate and storage) ratified the following original-draft questions:
 
-3. **History retention policy defaults** — keep last N versions, last N days, or last N MB? Operator preference + storage budget. Recommended: per-config keep last 100 versions, per-asset keep last 10 snapshots, retention configurable.
+- **Shared-vs-split blob store** — RESOLVED: unified `<data-root>/blobs/` with two-char fanout. See Storage Layout.
+- **GC trigger: idle-time scheduled, on-demand, or both?** — RESOLVED: both (weekly idle sweep + on-demand "Reclaim space" button). See Garbage Collection.
 
-4. **Watcher implementation: foreground-only or background service?** Foreground-only (slipgate must be open) is simpler. Background service allows always-on management but adds Windows service complexity. Recommended: foreground-only for v1.
+Pass 1 also added six storage-layer decisions not in the original list, all now in body: per-blob sidecar metadata, refcount index, single-process invariant + lockfile, content_warehouse refactor, materializer modes simplification (hardlink + copy), lossless-export pledge tests.
 
-5. **GC trigger: idle-time scheduled, on-demand, or both?** Both. Auto-sweep weekly during idle; "Reclaim space" button always available.
+### Still open (resolution targeted in later passes)
 
-6. **Profile-orthogonal user-content directory structure** — by-profile subdirs vs flat with metadata? Recommended: by-profile subdirs for filesystem clarity, with cross-profile views computed in the UI.
+1. **Manifest format ratification** — JSON ergonomics are good but verbose for KB-scale data. Sticking with JSON unless concrete reason emerges. (Pass 2.)
 
-7. **Mod fingerprint registry hosting** — qw-oracle Layer 3 vs assets.quake.world vs slipgate-bundled? Recommended: bundled-with-slipgate as a baseline, augmentable from a community-curated cloud source.
+2. **History retention policy defaults** — keep last N versions, last N days, or last N MB? Operator preference + storage budget. Recommended: per-config keep last 100 versions, per-asset keep last 10 snapshots, retention configurable. (Pass 2.)
 
-8. **Engine launching: slipgate-launches vs user-launches-via-shortcut?** Both. Slipgate's UI has a Play button (active profile). User can also create OS-level shortcuts pointing at engine.exe with `-basedir` set. Shortcut creation is a UI helper.
+3. **Watcher implementation: foreground-only or background service?** Foreground-only (slipgate must be open) is simpler. Background service allows always-on management but adds Windows service complexity. Pass 1 confirms foreground-only for V1; Process Model design is forward-compatible to background-service later. (Pass 4 final ratification.)
 
-These questions need resolution during their respective arc brainstorms (mostly ARC-A and ARC-B).
+4. **Profile-orthogonal user-content directory structure** — by-profile subdirs vs flat with metadata? Recommended: by-profile subdirs for filesystem clarity, with cross-profile views computed in the UI. (Pass 3.)
+
+5. **Mod fingerprint registry hosting** — qw-oracle Layer 3 vs assets.quake.world vs slipgate-bundled? Recommended: bundled-with-slipgate as a baseline, augmentable from a community-curated cloud source. (Pass 3.)
+
+6. **Engine launching: slipgate-launches vs user-launches-via-shortcut?** Both. Slipgate's UI has a Play button (active profile or "launch in new instance"). User can also create OS-level shortcuts pointing at engine.exe with `-basedir` set. Shortcut creation is a UI helper. (Pass 5 — runtime swap classes + multi-instance launch UX.)
+
+7. **Manifest backup UX** — surfaced in Pass 1 from the seed-phrase analogy. The manifest is disproportionately valuable (KB-scale, fully reconstructable from). UX should elevate backup state ("last backed up: 14 days ago, 3 backup locations") and offer multiple mechanisms (cloud catalog, local file export, "email me a copy"). (Pass 5 / Arc C-minimal.)
 
 ---
 

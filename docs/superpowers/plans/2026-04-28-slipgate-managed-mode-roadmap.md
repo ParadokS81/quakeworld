@@ -8,6 +8,18 @@
 >
 > **Project framing:** This is a project, not a feature. Multi-arc work scoped at ~1 week of focused implementation per operator estimate (calibrated against Phase 3.5b's pace). Each arc gets its own brainstorm + spec + plan; this document captures the dependency graph, v1 scope, status, and per-arc summaries.
 
+> **Update 2026-04-28 (pre-Pass-1 anchor):** Two roadmap-level decisions ratified during orchestrator briefing before the Arc A+B brainstorm Pass 1:
+>
+> - **Brainstorm scope covers the full surface.** With no production code and no users, design coherence requires committing to cross-arc contracts (Arcs A through H) up front. V1/V1+ remains the implementation-sequence axis (which arc ships first) but is no longer the design-scope axis (every arc's contract gets locked before any arc implements). The "co-brainstorm with Arc A+B" recommendation expands accordingly: 5-7 brainstorm passes covering substrate (A) + manifest/materializer (B) + classifier and bucket-six (D/E shared) + watcher contract (E) + cloud catalog data shape (H, just enough to lock A's blob layout) + UI primitives (C, just enough to constrain B's manifest).
+> - **Arc H's catalog data shape is design-critical, not V1+ deferrable.** Cloud-SHA-lookup augments Arc E's classifier (architecture spec, decision 4); Arc H's data exchange format must be brainstormed alongside A/B/D/E so blob layouts and classifier interfaces don't paint into a corner. Arc H can still ship as a later implementation arc, but its data shape locks early.
+>
+> The dependency graph in this document remains accurate. The V1 vs V1+ split as an implementation-priority axis remains valid. The detailed body will be revised after brainstorm passes complete.
+
+> **Brainstorm progress:**
+> - **Pass 1 (substrate and storage): COMPLETE 2026-04-28.** Six sub-questions ratified and drained into architecture spec body. Decisions: SHA-only unified blob store with two-char fanout (`<data-root>/blobs/<sha[:2]>/<sha>.bin`); per-blob sidecar metadata (`<sha>.meta.json`); refcount index for GC; pure refactor of `version_warehouse.rs` into generic `content_warehouse.rs` with one-shot data migration; single-process invariant via Tauri single-instance plugin + `<data-root>/.lock` lockfile + single global async mutex; manifest-as-truth GC with tree-consistency-at-rematerialization; lossless-export pledge tests 1+2 in CI from Arc A/B, test 3 from Arc F. Bonus: export-anything-in-any-format primitive generalization, active-vs-launched profile distinction, manifest backup as first-class UX.
+> - **Pass 2 (manifest schema + materializer modes + gamedir target_paths): NOT YET STARTED.** Will resolve manifest format ratification, history retention defaults, atomic-vs-in-place materialization, gamedir-aware target_paths.
+> - **Passes 3-6 deferred** to later sessions: classifier + sixth bucket (D/E shared), watcher contract (E), cloud catalog data shape (H), launch UX + runtime swap classes (C / Pass 5).
+
 ---
 
 ## TL;DR

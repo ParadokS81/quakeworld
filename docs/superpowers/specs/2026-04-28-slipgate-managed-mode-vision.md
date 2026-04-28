@@ -4,6 +4,14 @@
 >
 > **Status:** Vision approved by operator. Implementation arcs queued. Phase 3.5b's binary management remains valid as Light-mode functionality; Managed mode is the new product surface being built on top of the same warehouse substrate.
 
+> **Update 2026-04-28 (pre-Pass-1 anchor):** Three product properties added during orchestrator briefing before the Arc A+B brainstorm:
+>
+> - **Sixth content category — user-private files.** Slipgate respects user-private content in the materialized tree (private notes, personal folders, half-finished experiments) without warehousing or exporting it. Not all files in the tree are profile content; users can keep personal assets the system leaves alone. (Detailed in architecture spec.)
+> - **Mod / singleplayer / expansion launcher anchored.** Profile manifests declare which gamedirs they expect (`declared_gamedirs`); launcher gains a per-launch gamedir picker. Future-extensible to mod/expansion management without architectural rework. (Detailed in architecture spec.)
+> - **Offline-first classifier.** The watcher's asset classifier ships fully functional offline using local heuristics; cloud catalog augments with SHA-keyed lookups when online. User-confirmed unknown-SHA classifications flow back to the catalog as moderated submission candidates. Cloud is opt-in; offline mode never degrades to non-functional. (Detailed in architecture spec.)
+>
+> The body of this document remains accurate; these items extend the design surface and will be integrated after the Arc A+B brainstorm passes complete.
+
 ---
 
 ## TL;DR
