@@ -620,6 +620,8 @@ Type-specific columns: `channel` (discriminator -- see table below; identifies w
 
 Indexes: `idx_log_template_versions_source ON (source_file, source_line)` (blame queries) and `idx_log_template_versions_channel ON (channel)` (the qw_event_log validation oracle filters to `channel='broadcast'` to scan obit candidates -- a dedicated index keeps that hot path fast across thousands of templates).
 
+**Escape-preservation contract.** `format_string` is stored in raw source-code form -- the literal text that appeared between the C double-quotes, with backslash escapes left intact (`\n`, `\"`, `\\`, etc.). Consumers handle escape interpretation themselves. This contrasts with `cvar_versions.default_value`, which has C escapes interpreted at extraction time (post-v17 contract; see `extractor_lib._cvar_shared.unescape_c_string`). The asymmetry is intentional: log-template format strings carry semantically meaningful `%`-specifiers and `\n`-line-breaks that downstream consumers (the qw_event_log validation oracle, format-string analysis tooling) need to inspect per call site, while cvar default values are runtime string values whose escapes must already be resolved before they reach the loader.
+
 ### `qc_builtin_versions`
 
 ```sql

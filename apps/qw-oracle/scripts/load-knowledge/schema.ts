@@ -12,6 +12,16 @@ export const SCHEMA_VERSION = 18;
 // place head after every tagged release. See `versions` table comment.
 export const HEAD_ORDINAL = 999999;
 
+// Canonical alphabets for entity-type discriminator suffixes. Mirrored by
+// the SQL-level CHECK constraints on info_key_versions.scope and
+// log_template_versions.channel (which can't reference TS exports because
+// DDL doesn't admit interpolation). Treat these exports as the JS-side
+// source of truth -- load-version.ts consumes them when validating
+// canonical names. Audit D.4.1 + D.4.2 (2026-04-28): keep exports in sync
+// with the literal CHECK values when adding a new scope/channel.
+export const INFO_KEY_SCOPES = ['userinfo', 'serverinfo', 'localinfo'] as const;
+export const LOG_TEMPLATE_CHANNELS = ['broadcast', 'client', 'console', 'system'] as const;
+
 const SCHEMA_V1_SQL = `
 CREATE TABLE IF NOT EXISTS schema_meta (
   key    TEXT PRIMARY KEY,

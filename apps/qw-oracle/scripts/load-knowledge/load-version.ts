@@ -110,12 +110,21 @@ import {
   upsertQcBuiltinRow,
 } from './load-qc-builtins.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
+import { INFO_KEY_SCOPES, LOG_TEMPLATE_CHANNELS } from './schema.js';
 import type {
   EntityType,
   Project,
   SourceOverrideRow,
   SourceState,
 } from './types.js';
+
+const INFO_KEY_NAME_RE = new RegExp(
+  `^\\*?[a-z0-9_.+\\-]+:(${INFO_KEY_SCOPES.join('|')})$`
+);
+const LOG_TEMPLATE_NAME_RE = new RegExp(
+  `^(${LOG_TEMPLATE_CHANNELS.join('|')}):`,
+  'i'
+);
 
 export interface LoadVersionOptions {
   db: Database.Database;
@@ -445,13 +454,13 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       // Phase B 2026-04-28 (schema v16): info_key canonical names include a
       // `:<scope>` suffix so cross-scope dups can coexist under the entities
       // UNIQUE(project, type, name) constraint. The colon is admitted here.
-      const validInfoKey = options.type === 'info_key' && /^\*?[a-z0-9_.+\-]+:(userinfo|serverinfo|localinfo)$/.test(name);
+      const validInfoKey = options.type === 'info_key' && INFO_KEY_NAME_RE.test(name);
       // log_template "names" are <channel>:<printf-template> -- containing
       // spaces, %-specifiers, escapes, punctuation. The channel-prefix shape is
       // verified by the schema-level CHECK on log_template_versions.channel and
       // by the producer-side normalization. The orchestrator-side identifier
       // regex would reject every row otherwise.
-      const validLogTemplate = options.type === 'log_template' && /^(broadcast|client|console|system):/i.test(name);
+      const validLogTemplate = options.type === 'log_template' && LOG_TEMPLATE_NAME_RE.test(name);
       // Phase 2 task 2.4 (schema v18): qc_builtin canonical names carry a
       // `:<table_name>` suffix so cross-table dups (e.g. `cvar_string` in
       // std + ext_builtins) can coexist. Mirrors info_key Phase B at v16.

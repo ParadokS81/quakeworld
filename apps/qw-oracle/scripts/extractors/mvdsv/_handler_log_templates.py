@@ -40,7 +40,9 @@ adjacent literals -- the row is still addressable, the format_string field
 preserves the raw source form, and the cases are rare in MVDSV.
 
 String escapes inside the format string (e.g. \\n, %s, %d) are kept in their
-raw source-code form. Consumers handle interpretation.
+raw source-code form. Consumers handle interpretation. See SCHEMA.md
+`log_template_versions` "Escape-preservation contract" for the rationale and
+the contrast with cvar `default_value` post-v17 escape interpretation.
 """
 from __future__ import annotations
 

@@ -58,6 +58,10 @@ class CmdlineFteHandler(Visitor):
             return
 
         name = literal_string(args[0], self.source_bytes)
+        # Audit D.1.6 (2026-04-28): MVDSV's cmdline handler accepts `-` and
+        # `+` prefixes (`+gamedir` Quake convention). FTE engine source has
+        # zero `COM_CheckParm("+...")` call sites (verified via grep), so
+        # the single-prefix filter here is policy-correct, not a divergence.
         if name is None or not name.startswith("-"):
             return
 
