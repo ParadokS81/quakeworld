@@ -206,11 +206,14 @@ If the arc touched `load-version.ts`:
 
 ### 4.4 Cross-project sibling-handler shape audit
 
-When validating cross-project, line up the same handler across all four projects (e.g., `_handler_cvars.py` in ezquake/fte/qwcl/mvdsv). Look for:
+When validating cross-project, line up the same handler across all four projects (e.g., `_handler_cvars.py` in ezquake/fte/qwcl/mvdsv). After the 2026-04-28 architecture consolidation, every project follows the same `<project>/_handler_*.py` shape, so divergences are now apples-to-apples comparisons. See `EXTRACTOR-PLAYBOOK.md` § Three-tier handler architecture for the full model.
+
+Look for:
 - Helpers with the same name but different fallback policies (e.g., `_resolve_fn_ref` divergence between commands and qc_builtins, fixed in v17 by lifting to `extractor_lib/_resolve.py`).
-- Defensive normalization present in one project but not others (e.g., `flags_raw` post-v17: only mvdsv normalizes; FTE/QWCL inherit from `extractor_lib/handler_cvars.py` so the rule is shared).
+- Defensive normalization present in one project but not others (e.g., `flags_raw` post-v17: ezquake's and mvdsv's `_handler_cvars.py` both normalize via `_normalize_flags_raw`; FTE and QWCL handlers should converge if they don't already).
 - Diverging schemas of emitted rows for the same logical entity.
 - Duplicated regex constants that should live in `extractor_lib/`.
+- Class-level fork-override hooks (`REGISTRATION_APIS`, `DETECTION_APIS`, etc.) that exist on one project's handler but not its sibling — usually means an API name is buried in a regex on the unhoisted side.
 
 **Acceptance:** every divergence has a written justification (in a docstring or a memory entry). Undocumented divergences are findings.
 

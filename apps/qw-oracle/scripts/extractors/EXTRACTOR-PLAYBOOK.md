@@ -69,6 +69,67 @@ Key invariants:
 
 ---
 
+## Three-tier handler architecture
+
+After the 2026-04-28 architecture consolidation, all four current projects (ezQuake, FTE, QWCL, MVDSV) follow the same project-private handler shape. The shape has three tiers; pick the right tier when adding handler logic.
+
+| Tier | Lives in | Examples | Rule |
+|---|---|---|---|
+| 1. Shared infrastructure | `extractor_lib/_*.py`, `clang_config.py` | `_visitor.py`, `_base.py`, `_resolve.py`, `clang_config.py` | ALWAYS shared. Every project imports. |
+| 2. Family-base handlers | `extractor_lib/handler_<family>_<type>.py` | (none today; e.g. `handler_ezquake_family_cvars.py` after unezQuake ships) | Lift on second consumer if subclass coupling is tight. Refactor-on-demand, not pre-design. |
+| 3. Project handlers | `<project>/_handler_*.py` | All current handlers | Default home for every project's handlers. Forks subclass directly from parent. |
+
+### Rule of second consumer
+
+Don't lift to Tier 2 until a second project actually exists. Speculative family-base classes get the abstraction wrong — the only way to design a stable shared interface is by reading two real consumers side-by-side. The 2026-04-28 consolidation arc intentionally stopped at exposing override surfaces; lifting waits for the actual fork to land.
+
+### Fork import pattern
+
+When unezQuake ships, its handlers will live at `unezquake/_handler_*.py` and import from the parent project:
+
+```python
+import sys
+from pathlib import Path
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402 (Tier 1 import)
+sys.path.insert(0, str(HERE.parent / "ezquake"))
+from _handler_cvars import CvarsEzquakeHandler  # noqa: E402 (parent project)
+
+
+class CvarsUnezquakeHandler(CvarsEzquakeHandler):
+    name = "cvars"  # same handler name -> same output filename
+    REGISTRATION_APIS = CvarsEzquakeHandler.REGISTRATION_APIS + ("Cvar_RegisterFork",)
+    # Override only the methods that differ.
+```
+
+If subclass overrides exceed ~30% of methods, lift the parent's overridable surface to Tier 2 (`extractor_lib/handler_<family>_<type>.py`) and have both projects subclass that.
+
+### Cross-codebase port pattern (different from fork)
+
+When porting a wholly distinct codebase (FTE was a fresh port from ezQuake; KTX-after-tree-sitter will be another), do NOT inherit from any parent project. Start fresh in `<project>/_handler_*.py`, inherit from `Visitor` only:
+
+```python
+from extractor_lib._visitor import Visitor
+
+class CvarsKtxHandler(Visitor):
+    # Build registration detection from scratch. The engine's APIs differ
+    # enough that subclassing ezQuake handlers would obscure more than it
+    # shares; copy-and-adapt is cleaner.
+    ...
+```
+
+The fork case (subclass parent) and the cross-codebase port case (subclass `Visitor`) cover every scenario the four-project shape can produce. If you find yourself wanting both at once, you have a Tier 2 candidate.
+
+### Concrete examples
+
+- ezQuake → unezQuake (planned): import-and-subclass. Override `REGISTRATION_APIS`, override `_extract_cvar_decl` if the fork adds new container types, leave finalize alone unless the fork changes dedup or help-JSON merge policy.
+- MVDSV → antilag-mvdsv (planned): same shape. Pay extra attention to `_handler_info_keys.py` and `_handler_qc_builtins.py` — those carry the heaviest project-specific coupling and are the most likely override surfaces.
+- FTE → ezQuake-FTE bridge (historical, not pursued): would have been a cross-codebase port (different parser, different runtime model), not a fork.
+
+---
+
 ## Registration pattern catalog
 
 The eight classes of source constructs the ezQuake extractors handle. When porting to a new engine, inventory the registration APIs in use and map each to a pattern here; anything unmapped is either a new pattern (needs a new handler branch) or deferred until pressure.
@@ -571,6 +632,21 @@ Stepwise checklist. Expect 1-3 days per engine depending on how many new registr
 - Engine has `help_*.json` files? If yes, note where they live relative to the source root. If no, you'll only have source-backed rows (no `doc_only` complement; help-JSON augments desc/remarks).
 - You can boot the engine somehow to produce `cvarlist` / `cmdlist` dumps for validation. If not, plan for lower-confidence initial ship.
 
+### 0a. Is this a fork or a cross-codebase port?
+
+Before inventorying APIs, decide which path applies. The two paths share the validation steps (7-10) but diverge sharply on steps 1-6.
+
+**Fork (e.g., unezQuake → ezQuake, antilag-mvdsv → MVDSV):** the new project shares >70% of its source with a parent and tracks parent updates. The fork case:
+- Start in `<fork>/_handler_*.py`. Each handler imports from the parent project's handler and subclasses it (see [Three-tier handler architecture](#three-tier-handler-architecture) § Fork import pattern).
+- Inventory the deltas — what the fork adds, removes, or renames at the registration-API level — before writing handler code.
+- Override only what differs. Most methods inherit cleanly. Hoist a constant in the parent first if the fork's only need is a different registration-API tuple.
+- If subclass overrides exceed ~30% of methods, lift the parent's overridable surface to Tier 2 (`extractor_lib/handler_<family>_<type>.py`) and have both projects subclass that.
+- Skip steps 1-3 below; they're mostly inherited from the parent. Resume at step 4 (handler authoring) for the fork-specific deltas, then skip to step 7 (validation).
+
+**Cross-codebase port (e.g., FTE was a fresh port; future engines like KTX-after-tree-sitter):** start fresh in `<project>/_handler_*.py`. Inherit from `Visitor` only (no parent project import). Steps 1-9 below apply unchanged.
+
+When in doubt: read the parent and the candidate side-by-side. If the registration APIs and struct shapes match closely, fork. If they diverge fundamentally (different parser, different runtime model, different language), port.
+
 ### 1. Inventory the registration APIs
 
 ```bash
@@ -693,4 +769,5 @@ Update the playbook if new patterns are generalizable.
 ## Changelog
 
 - **2026-04-25** — Initial playbook authored after the ezQuake Layer 1 doc_only audit closed. Captures all eight registration patterns, the 4-variant parse architecture, loader-side cross-type orphan dedup, runtime validation procedure, known limits, and the stepwise porting checklist. Ship target: next engine port can skip the archaeology and work from this.
+- **2026-04-28** — Extractor architecture consolidation. ezQuake handlers relocated from `extractor_lib/handler_*.py` to `ezquake/_handler_*.py` matching the canonical project-private shape used by FTE/QWCL/MVDSV. Three-tier handler architecture section added (shared infrastructure / family-base / project-private). Fork-vs-port subsection added to the porting checklist. Subclassing-readiness audit on ezQuake + MVDSV handlers exposes fork override hooks via class docstrings, `# Fork override hook:` comments, and class-level registration-API tuple hoists. Sets up unezQuake (ezQuake fork) and antilag-mvdsv (MVDSV fork) for clean fork onboarding via direct subclassing. Plan: `docs/superpowers/plans/2026-04-28-extractor-architecture-consolidation.md`.
 - **2026-04-27** — MVDSV Phase 2e SHIPPED. Added Pattern 9 (function-banner harvest), Pattern 10 (TU-root cursor intercept for MACRO_DEFINITION), Pattern 11 (recursive `_resolve_*` AST walks for libclang `UNEXPOSED_EXPR` wrappers), Pattern 12 (`log_t logs[N]` struct-array `Cmd_AddCommand` recovery), Pattern 13 (multiprocessing-safe two-row emission for cross-file resolution). MVDSV row added to per-engine counts table (1235 entities; runtime-validated against Ciscon's 1.20-dev dump with zero extractor gaps). Six loader-side bug fixes shipped during validation: cvars handler `_trailing_comment` switched from `max(rfind(";"), rfind(","))` to `};` literal terminator (commit `8747ad9`); `load-cvars.ts` `default_value` reads `entry.ast.default_value` with fallback to legacy `entry.default` (`9d61924`); `load-cmdline-params.ts` adds flat `ast.source_file/line/column` fallback alongside the nested `ast.usage_sites[0]` form (`a905c22`); Python handler `payload_field` keys harmonized to legacy `vars` and `params` (`9d61924`); `load-version.ts` adds `validLogTemplate` carve-out for canonical names containing `:`/`%`/spaces/escapes (`9d61924`); `load-version.ts` adds `validInfoKey` carve-out accepting leading `*` for QW system keys (`30969c1`, recovered 18 of 45). All six fixes are idempotent and pure-additive — they widen accept-criteria without altering existing rejection paths. Future ports inheriting these fallbacks: any engine emitting flat `ast.*` fields, `*`-prefixed system identifiers, or canonical-but-non-identifier names.
