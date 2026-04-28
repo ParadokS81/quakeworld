@@ -64,6 +64,62 @@ def _strip_quotes(s: str) -> str:
     return s
 
 
+def _unescape_c_string(s: str) -> str:
+    """Interpret standard C escape sequences in `s` to canonicalise a cvar
+    default to its runtime form.
+
+    Recognised escapes:
+      - ``\\\\`` -> ``\\`` (single backslash)
+      - ``\\"``  -> ``"`` (double quote)
+      - ``\\n``  -> newline
+      - ``\\t``  -> tab
+      - ``\\r``  -> carriage return
+      - ``\\0``  -> null
+
+    Unknown ``\\x`` sequences are passed through verbatim (the backslash
+    plus the next character) rather than dropped, so we never lose data
+    on a sequence we don't recognise. ``\\`` at the end of the string is
+    also passed through verbatim.
+
+    Composes with :func:`_strip_quotes`: callers strip outer quotes first,
+    then unescape the body. Apply only to default_value extents; cvar
+    names and flags don't typically contain escapes.
+
+    Mirrors extractor_lib/handler_cvars._unescape_c_string. The duplication
+    matches the existing _normalize_flags_raw split: tiny payoff to share,
+    and the MVDSV handler is engine-private.
+    """
+    if not s or "\\" not in s:
+        return s
+    out: list[str] = []
+    i = 0
+    n = len(s)
+    while i < n:
+        c = s[i]
+        if c != "\\" or i + 1 >= n:
+            out.append(c)
+            i += 1
+            continue
+        nxt = s[i + 1]
+        if nxt == "\\":
+            out.append("\\")
+        elif nxt == '"':
+            out.append('"')
+        elif nxt == "n":
+            out.append("\n")
+        elif nxt == "t":
+            out.append("\t")
+        elif nxt == "r":
+            out.append("\r")
+        elif nxt == "0":
+            out.append("\0")
+        else:
+            out.append("\\")
+            out.append(nxt)
+        i += 2
+    return "".join(out)
+
+
 def _parse_flag_names(raw: Optional[str]) -> list[str]:
     if not raw:
         return []
@@ -198,7 +254,7 @@ class CvarsMvdsvHandler(Visitor):
             return
 
         default_raw = _read_extent(self.source_bytes, fields[1].extent).strip()
-        default_value = _strip_quotes(default_raw)
+        default_value = _unescape_c_string(_strip_quotes(default_raw))
 
         flags_raw: str = ""
         flag_names: list[str] = []

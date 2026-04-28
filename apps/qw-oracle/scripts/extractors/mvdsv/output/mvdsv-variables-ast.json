@@ -1357,7 +1357,7 @@
     {
       "name": "sv_demoRegexp",
       "ast": {
-        "default_value": "\\\\.mvd(\\\\.(gz|bz2|rar|zip))?$",
+        "default_value": "\\.mvd(\\.(gz|bz2|rar|zip))?$",
         "flags_raw": "",
         "flag_names": [],
         "on_change": null,

@@ -44,6 +44,59 @@ def _strip_quotes(s: str) -> str:
     return s
 
 
+def _unescape_c_string(s: str) -> str:
+    """Interpret standard C escape sequences in `s` to canonicalise a cvar
+    default to its runtime form.
+
+    Recognised escapes:
+      - ``\\\\`` -> ``\\`` (single backslash)
+      - ``\\"``  -> ``"`` (double quote)
+      - ``\\n``  -> newline
+      - ``\\t``  -> tab
+      - ``\\r``  -> carriage return
+      - ``\\0``  -> null
+
+    Unknown ``\\x`` sequences are passed through verbatim (the backslash
+    plus the next character) rather than dropped, so we never lose data
+    on a sequence we don't recognise. ``\\`` at the end of the string is
+    also passed through verbatim.
+
+    Composes with :func:`_strip_quotes`: callers strip outer quotes first
+    (e.g. extracting `"\\\\."` -> `\\\\.`), then unescape the body
+    (`\\\\.` -> `\\.`). Apply only to default_value extents; cvar names
+    and flags don't typically contain escapes.
+    """
+    if not s or "\\" not in s:
+        return s
+    out: list[str] = []
+    i = 0
+    n = len(s)
+    while i < n:
+        c = s[i]
+        if c != "\\" or i + 1 >= n:
+            out.append(c)
+            i += 1
+            continue
+        nxt = s[i + 1]
+        if nxt == "\\":
+            out.append("\\")
+        elif nxt == '"':
+            out.append('"')
+        elif nxt == "n":
+            out.append("\n")
+        elif nxt == "t":
+            out.append("\t")
+        elif nxt == "r":
+            out.append("\r")
+        elif nxt == "0":
+            out.append("\0")
+        else:
+            out.append("\\")
+            out.append(nxt)
+        i += 2
+    return "".join(out)
+
+
 def _normalize_flags_raw(raw: Optional[str]) -> str:
     """Canonicalise the cvar_t flags-field source extent.
 
@@ -164,7 +217,7 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     name_raw = _read_extent(source_bytes, fields[0].extent).strip()
     default_raw = _read_extent(source_bytes, fields[1].extent).strip()
     name = _strip_quotes(name_raw)
-    default = _strip_quotes(default_raw)
+    default = _unescape_c_string(_strip_quotes(default_raw))
     flags_raw: str = ""
     flag_names: list[str] = []
     if len(fields) >= 3:
@@ -264,7 +317,7 @@ def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
                 # Empty-name slot = unused placeholder (e.g. rlpack has no
                 # fullbright cvar — element init literal is {"", "0"}).
                 continue
-            default = _strip_quotes(_read_extent(source_bytes, inner[1].extent).strip())
+            default = _unescape_c_string(_strip_quotes(_read_extent(source_bytes, inner[1].extent).strip()))
             flags_raw: str = ""
             flag_names: list[str] = []
             if len(inner) >= 3:
@@ -321,7 +374,7 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
             continue
         default = ""
         if len(fields) >= 2:
-            default = _strip_quotes(_read_extent(source_bytes, fields[1].extent).strip())
+            default = _unescape_c_string(_strip_quotes(_read_extent(source_bytes, fields[1].extent).strip()))
         flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:

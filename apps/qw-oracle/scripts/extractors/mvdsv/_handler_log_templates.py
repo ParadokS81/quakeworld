@@ -133,8 +133,13 @@ class LogTemplatesMvdsvHandler(Visitor):
             return
 
         text = _read_extent(self.source_bytes, args[fmt_idx].extent).strip()
-        # Bare literal-string check. Multi-line concatenation form
-        # ("foo " "bar") fails this check and is silently skipped.
+        # Bare literal-string check. Concatenated literals like
+        # ("foo " "bar") DO pass this check (text starts with the opening
+        # `"` of the first literal and ends with the closing `"` of the
+        # last) so they are captured -- the canonical name embeds the
+        # inter-literal `"  "` whitespace as noise. Only call sites whose
+        # format-string arg is not a bare quoted literal (e.g. a `va()`
+        # call, an identifier, a ternary) fail the check and get skipped.
         if not (text.startswith('"') and text.endswith('"')):
             return
         # Strip outer quotes only -- keep escape sequences as raw source form.

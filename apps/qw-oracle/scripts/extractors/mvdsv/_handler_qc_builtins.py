@@ -176,6 +176,12 @@ def _resolve_integer_literal(arg_cursor, source_bytes: bytes) -> Optional[int]:
     value. The token text is read from the source extent (libclang's
     get_tokens() of an INTEGER_LITERAL is reliable but extent reading is
     consistent with the rest of the handler).
+
+    Forward-looking: parsing uses ``int(text, 0)`` so any C integer literal
+    form (decimal, ``0x1F`` hex, ``0o17`` octal, ``0b11111`` binary, plus
+    the C-style ``017`` octal prefix) is auto-detected from the prefix.
+    Bare integers without a prefix still parse as decimal. No MVDSV entry
+    uses hex/octal/binary today; this is insurance against future revisions.
     """
     stack = [arg_cursor]
     while stack:
@@ -183,11 +189,37 @@ def _resolve_integer_literal(arg_cursor, source_bytes: bytes) -> Optional[int]:
         if n.kind == CursorKind.INTEGER_LITERAL:
             text = _read_extent(source_bytes, n.extent).strip().rstrip(",")
             try:
-                return int(text)
+                return int(text, 0)
             except ValueError:
                 return None
         stack.extend(list(n.get_children()))
     return None
+
+
+def _assert_not_designated_init(entry) -> None:
+    """Raise AssertionError if `entry` looks like a designated-initializer.
+
+    libclang exposes ``[5] = PF_foo`` as a child whose token stream begins
+    with ``[ INT_LITERAL ] =``. Positional init (e.g. ``PF_foo,`` or
+    ``{60, PF_sin},``) never has an ``=`` among its first 4 tokens. We
+    scan only the head of the token stream so the check is cheap and
+    cannot trigger on an unrelated ``=`` deep in a struct sub-init.
+    """
+    try:
+        tokens = list(entry.get_tokens())
+    except Exception:
+        return
+    head = tokens[:4]
+    for tok in head:
+        if tok.spelling == "=":
+            file_name = (
+                entry.location.file.name if entry.location.file else "?"
+            )
+            raise AssertionError(
+                f"std_builtins designated initializer at "
+                f"{file_name}:{entry.location.line} -- handler assumes "
+                f"positional init"
+            )
 
 
 class QcBuiltinsMvdsvHandler(Visitor):
@@ -231,8 +263,19 @@ class QcBuiltinsMvdsvHandler(Visitor):
 
     def _extract_std_builtins(self, init_list) -> None:
         """std_builtins[] -- index = position in the array (the QC builtin
-        number). PF_Fixme entries (placeholder slots) are skipped."""
+        number). PF_Fixme entries (placeholder slots) are skipped.
+
+        Defensive guard against designated-initializer syntax. The current
+        contract is positional init (entry N at array position N). A future
+        MVDSV revision could switch to ``[5] = PF_foo`` form which would
+        silently desynchronize positional indices from real builtin numbers.
+        We scan each entry's tokens for an early ``=`` -- positional init
+        never produces one inside an entry; designated init always does
+        (between the bracketed designator and the value). Loud failure
+        beats silent index drift.
+        """
         for index, entry in enumerate(init_list.get_children()):
+            _assert_not_designated_init(entry)
             handler_fn = resolve_fn_ref(entry)
             if not handler_fn:
                 continue
