@@ -450,10 +450,11 @@ function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
 // ---------------------------------------------------------------------------
 // FTE Family 1 — Regression probes
 //
-// Ranges centered on post-Pattern-3-fix counts (2482 cvars / 556 commands /
-// 67 macros / 103 cmdline_params) with +-15% tolerance. Pattern 3 fix
-// recovered 103 nested cvar_t array / container-struct cvars; engine count
-// rose from 1294 to 1397.
+// Counts below are load-bearing equality assertions, not cushioned ranges.
+// This probe file is the canonical source-of-truth: bump the expected values
+// whenever entity counts shift deliberately (a legitimate source-truth update
+// such as a new FTE build snapshot), so that any unexpected drift fails
+// loudly as an extractor regression rather than slipping through a tolerance.
 // ---------------------------------------------------------------------------
 
 function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
@@ -462,14 +463,14 @@ function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cvar'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [2110, 2855];
+  const expected = 2482;
   return {
     name: 'F1.fte.cvars_count',
     family: 'regression',
-    description: `total fte cvar entities in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `total fte cvar entities equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} cvars (in range)` : `${n} cvars — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} cvars` : `${n} cvars (expected ${expected})`,
     examples: [],
   };
 }
@@ -484,14 +485,14 @@ function probeFteEngineCvars(ctx: ProbeContext): ProbeResult {
     WHERE e.project='fte' AND cv.source_root='engine'
   `).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [1187, 1606];
+  const expected = 1397;
   return {
     name: 'F1.fte.engine_cvars',
     family: 'regression',
-    description: `fte cvar_versions rows with source_root='engine' in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte cvar_versions rows with source_root='engine' equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} engine cvar rows (in range)` : `${n} engine cvar rows — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} engine cvar rows` : `${n} engine cvar rows (expected ${expected})`,
     examples: [],
   };
 }
@@ -506,14 +507,14 @@ function probeFtePluginEzhudCvars(ctx: ProbeContext): ProbeResult {
     WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
   `).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [900, 1250];
+  const expected = 1085;
   return {
     name: 'F1.fte.plugin_ezhud_cvars',
     family: 'regression',
-    description: `fte cvar_versions rows with source_root='plugin:ezhud' in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte cvar_versions rows with source_root='plugin:ezhud' equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} plugin:ezhud cvar rows (in range)` : `${n} plugin:ezhud cvar rows — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} plugin:ezhud cvar rows` : `${n} plugin:ezhud cvar rows (expected ${expected})`,
     examples: [],
   };
 }
@@ -524,14 +525,14 @@ function probeFteCommandsCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='command'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [470, 650];
+  const expected = 556;
   return {
     name: 'F1.fte.commands_count',
     family: 'regression',
-    description: `total fte command entities in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `total fte command entities equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} commands (in range)` : `${n} commands — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} commands` : `${n} commands (expected ${expected})`,
     examples: [],
   };
 }
@@ -542,14 +543,14 @@ function probeFteMacrosCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='macro'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [55, 80];
+  const expected = 67;
   return {
     name: 'F1.fte.macros_count',
     family: 'regression',
-    description: `total fte macro entities in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `total fte macro entities equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} macros (in range)` : `${n} macros — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} macros` : `${n} macros (expected ${expected})`,
     examples: [],
   };
 }
@@ -560,14 +561,14 @@ function probeFteCmdlineCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cmdline_param'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [85, 120];
+  const expected = 108;
   return {
     name: 'F1.fte.cmdline_count',
     family: 'regression',
-    description: `total fte cmdline_param entities in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `total fte cmdline_param entities equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} cmdline params (in range)` : `${n} cmdline params — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} cmdline params` : `${n} cmdline params (expected ${expected})`,
     examples: [],
   };
 }
@@ -684,14 +685,14 @@ function probeFteAssetCategoriesCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='asset_category'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [25, 35];
+  const expected = 28;
   return {
     name: 'F1.fte.asset_categories_count',
     family: 'regression',
-    description: `fte asset_category entities in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte asset_category entities equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} asset_category entities (in range)` : `${n} asset_category entities — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} asset_category entities` : `${n} asset_category entities (expected ${expected})`,
     examples: [],
   };
 }
@@ -702,14 +703,14 @@ function probeFteAssetExtensionsCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_extensions WHERE project='fte'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [50, 100];
+  const expected = 61;
   return {
     name: 'F1.fte.asset_extensions_count',
     family: 'regression',
-    description: `fte asset_extensions rows in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte asset_extensions rows equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} asset_extensions (in range)` : `${n} asset_extensions — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} asset_extensions` : `${n} asset_extensions (expected ${expected})`,
     examples: [],
   };
 }
@@ -720,14 +721,14 @@ function probeFteAssetPathRulesCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_path_rules WHERE project='fte'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [10, 20];
+  const expected = 13;
   return {
     name: 'F1.fte.asset_path_rules_count',
     family: 'regression',
-    description: `fte asset_path_rules rows in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte asset_path_rules rows equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} asset_path_rules (in range)` : `${n} asset_path_rules — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} asset_path_rules` : `${n} asset_path_rules (expected ${expected})`,
     examples: [],
   };
 }
@@ -738,14 +739,14 @@ function probeFteAssetCvarBindingsCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_cvar_bindings WHERE project='fte'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [20, 50];
+  const expected = 25;
   return {
     name: 'F1.fte.asset_cvar_bindings_count',
     family: 'regression',
-    description: `fte asset_cvar_bindings rows in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte asset_cvar_bindings rows equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} asset_cvar_bindings (in range)` : `${n} asset_cvar_bindings — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} asset_cvar_bindings` : `${n} asset_cvar_bindings (expected ${expected})`,
     examples: [],
   };
 }
@@ -756,14 +757,14 @@ function probeFteAssetLoaderSitesCount(ctx: ProbeContext): ProbeResult {
   }
   const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_loader_sites WHERE project='fte'`).get() as { n: number };
   const n = row.n;
-  const [lo, hi] = [600, 1200];
+  const expected = 717;
   return {
     name: 'F1.fte.asset_loader_sites_count',
     family: 'regression',
-    description: `fte asset_loader_sites rows in range [${lo}, ${hi}]`,
-    status: n >= lo && n <= hi ? 'PASS' : 'FAIL',
+    description: `fte asset_loader_sites rows equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo && n <= hi ? `${n} asset_loader_sites (in range)` : `${n} asset_loader_sites — outside [${lo}, ${hi}]`,
+    summary: n === expected ? `${n} asset_loader_sites` : `${n} asset_loader_sites (expected ${expected})`,
     examples: [],
   };
 }
@@ -863,14 +864,11 @@ function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): ProbeResult {
 // ---------------------------------------------------------------------------
 // MVDSV Family 1 — Regression probes
 //
-// Pinned thresholds for the seven MVDSV entity types loaded by Phase 2e.
-// Counts are taken at HEAD (1.20-dev). Bounds are conservative lower-only
-// floors — cvars/commands/etc. only grow over MVDSV's lifecycle, and MVDSV
-// ships no help-JSON, so doc_only complement is zero by construction.
-//
-// Source-of-truth counts at the time these probes were minted:
-//   cvar=183 / command=108 / cmdline_param=11 / protocol_message=105 /
-//   info_key=44 / log_template=691 / qc_builtin=93.
+// Counts below are load-bearing equality assertions, not lower-only floors.
+// The values pinned in each probe are today's source-of-truth at HEAD;
+// update them whenever the MVDSV source legitimately changes (a new tag
+// snapshot, an upstream addition that genuinely lands new entities) so
+// that any unexpected drift fails loudly as an extractor regression.
 // ---------------------------------------------------------------------------
 
 function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): ProbeResult {
@@ -882,14 +880,14 @@ function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='cvar' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 180;
+  const expected = 183;
   return {
     name: 'F1.mvdsv.cvars_source_backed_count',
     family: 'regression',
-    description: `mvdsv source_backed cvar count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed cvar count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed cvars` : `${n} source_backed cvars — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed cvars` : `${n} source_backed cvars (expected ${expected})`,
     examples: [],
   };
 }
@@ -903,14 +901,14 @@ function probeMvdsvCommandsCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='command' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 100;
+  const expected = 108;
   return {
     name: 'F1.mvdsv.commands_count',
     family: 'regression',
-    description: `mvdsv source_backed command count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed command count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed commands` : `${n} source_backed commands — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed commands` : `${n} source_backed commands (expected ${expected})`,
     examples: [],
   };
 }
@@ -924,14 +922,14 @@ function probeMvdsvCmdlineParamsCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='cmdline_param' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 10;
+  const expected = 11;
   return {
     name: 'F1.mvdsv.cmdline_params_count',
     family: 'regression',
-    description: `mvdsv source_backed cmdline_param count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed cmdline_param count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed cmdline params` : `${n} source_backed cmdline params — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed cmdline params` : `${n} source_backed cmdline params (expected ${expected})`,
     examples: [],
   };
 }
@@ -945,14 +943,14 @@ function probeMvdsvProtocolMessagesCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='protocol_message' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 100;
+  const expected = 105;
   return {
     name: 'F1.mvdsv.protocol_messages_count',
     family: 'regression',
-    description: `mvdsv source_backed protocol_message count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed protocol_message count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed protocol messages` : `${n} source_backed protocol messages — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed protocol messages` : `${n} source_backed protocol messages (expected ${expected})`,
     examples: [],
   };
 }
@@ -966,14 +964,14 @@ function probeMvdsvInfoKeysCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='info_key' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 40;
+  const expected = 44;
   return {
     name: 'F1.mvdsv.info_keys_count',
     family: 'regression',
-    description: `mvdsv source_backed info_key count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed info_key count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed info keys` : `${n} source_backed info keys — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed info keys` : `${n} source_backed info keys (expected ${expected})`,
     examples: [],
   };
 }
@@ -987,14 +985,14 @@ function probeMvdsvLogTemplatesCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='log_template' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 600;
+  const expected = 691;
   return {
     name: 'F1.mvdsv.log_templates_count',
     family: 'regression',
-    description: `mvdsv source_backed log_template count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed log_template count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed log templates` : `${n} source_backed log templates — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed log templates` : `${n} source_backed log templates (expected ${expected})`,
     examples: [],
   };
 }
@@ -1008,14 +1006,14 @@ function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): ProbeResult {
     WHERE project='mvdsv' AND type='qc_builtin' AND source_state='source_backed'
   `).get() as { n: number };
   const n = row.n;
-  const lo = 90;
+  const expected = 93;
   return {
     name: 'F1.mvdsv.qc_builtins_count',
     family: 'regression',
-    description: `mvdsv source_backed qc_builtin count >= ${lo}`,
-    status: n >= lo ? 'PASS' : 'FAIL',
+    description: `mvdsv source_backed qc_builtin count equals ${expected}`,
+    status: n === expected ? 'PASS' : 'FAIL',
     count: n,
-    summary: n >= lo ? `${n} source_backed qc builtins` : `${n} source_backed qc builtins — below floor ${lo}`,
+    summary: n === expected ? `${n} source_backed qc builtins` : `${n} source_backed qc builtins (expected ${expected})`,
     examples: [],
   };
 }
