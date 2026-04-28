@@ -2,8 +2,8 @@
 
 What ezQuake's libclang-based extractor does NOT capture, organized by the 4-bucket framework. Refresh whenever a re-extraction or runtime validation diff surfaces new gaps.
 
-**Last reviewed:** 2026-04-26 (post-stub-headers, post-Pattern-3 cross-engine fixes).
-**Extraction total:** ~3849 entities.
+**Last reviewed:** 2026-04-28 (post-cross-extractor-arc, post-Mode-B-validation).
+**Extraction total:** 4042 entities at head (post-arc canonical state).
 
 ---
 

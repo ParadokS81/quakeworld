@@ -1,9 +1,9 @@
 # QWCL Extractor -- Out of Scope
 
-QWCL is the 1996 original QuakeWorld client: single codebase, single version. The corpus is small (364 total entities: 186 cvar / 120 command / 58 cmdline_param). Most extractor capabilities apply directly.
+QWCL is the 1996 original QuakeWorld client: single codebase, single version. The corpus is small (380 total entities: 187 cvar / 121 command / 72 cmdline_param). Most extractor capabilities apply directly.
 
-**Last reviewed:** 2026-04-26 (post-stub-headers).
-**Extraction total:** 364 entities.
+**Last reviewed:** 2026-04-28 (post-cross-extractor-arc, post-Mode-B-validation).
+**Extraction total:** 380 entities.
 
 ---
 

@@ -2,8 +2,8 @@
 
 FTE has the largest extraction surface among the QW engines and the most preprocessor variation. Phase 2d-core completed 2026-04-26 with 3208 entities loaded (1397 engine + 1085 ezhud plugin cvars, plus commands, macros, cmdline_params). Pass 1 runtime cvarlist diff identified 114 runtime-only entries, all categorized below.
 
-**Last reviewed:** 2026-04-26 (post-stub-headers, post-Pattern-3 fix, post-parallelization).
-**Extraction total:** 3208 entities.
+**Last reviewed:** 2026-04-28 (post-cross-extractor-arc, post-Mode-B-validation).
+**Extraction total:** 3208 entities (build-6698: 2482 cvar + 556 command + 67 macro + 108 cmdline_param + cvar_alias 38 + asset surface).
 
 ---
 
