@@ -707,34 +707,55 @@ Today's distribution at the 2026-01-04 mvdsv head snapshot (105 rows total):
 
 ### Migration shape
 
-`migrateV15ToV16` rebuilds `protocol_message_versions` with the widened CHECK using the standard FK-safety pattern (`foreign_keys = OFF` outside the txn). Before the rebuild, in-place UPDATEs map old kind values to the new taxonomy using fields already on the row:
+`migrateV15ToV16` rebuilds `protocol_message_versions` with the widened CHECK using the standard FK-safety pattern (`foreign_keys = OFF` outside the txn). The kind transform happens INLINE during the rebuild's `INSERT INTO ... SELECT` step rather than as a pre-rebuild `UPDATE` -- the OLD `CHECK` on `protocol_message_versions.kind` still rejects the new 13-value vocabulary, so any pre-rebuild `UPDATE` would fail. Mapping the values during the `INSERT` lands them directly in the new table whose CHECK accepts them.
+
+The rebuild order:
+
+1. `CREATE TABLE protocol_message_versions_v16` with the widened 13-value `kind` CHECK.
+2. `INSERT INTO protocol_message_versions_v16 SELECT ...` from the old table, mapping `kind` via a `CASE` expression that subdivides `pext_fte` / `pext_mvd` by `value_kind` and splits `protocol_version` by entity name. `svc` / `clc` / `nq` pass through unchanged. Already-widened values (re-run safety) pass through via the `ELSE pmv.kind` arm.
+3. `DROP TABLE protocol_message_versions` (the old shape).
+4. `ALTER TABLE protocol_message_versions_v16 RENAME TO protocol_message_versions`.
+5. Recreate `idx_protocol_message_versions_source`.
+
+The mapping inside the `INSERT`:
 
 ```sql
--- pext_fte / pext_mvd subdivide by value_kind
-UPDATE protocol_message_versions
-   SET kind = CASE value_kind
-     WHEN 'bitshift'   THEN 'pext_mvd_bit'
-     WHEN 'integer'    THEN 'pext_mvd_const'
-     WHEN 'hex'        THEN 'pext_mvd_const'
-     WHEN 'expression' THEN 'pext_mvd_alias'
-     ELSE                   'pext_mvd_marker'
-   END
- WHERE kind = 'pext_mvd';
--- ... and symmetrically for pext_fte ...
-
--- protocol_version vs protocol_extension_id splits by entity name
-UPDATE protocol_message_versions
-   SET kind = 'protocol_extension_id'
- WHERE kind = 'protocol_version'
-   AND entity_id IN (
-     SELECT id FROM entities
-      WHERE name LIKE 'PROTOCOL_VERSION_%' AND name != 'PROTOCOL_VERSION'
-   );
+INSERT INTO protocol_message_versions_v16 (...)
+SELECT
+  pmv.entity_id, pmv.version,
+  CASE pmv.kind
+    WHEN 'svc' THEN 'svc'
+    WHEN 'clc' THEN 'clc'
+    WHEN 'nq'  THEN 'nq'
+    WHEN 'pext_fte' THEN
+      CASE pmv.value_kind
+        WHEN 'bitshift'   THEN 'pext_fte_bit'
+        WHEN 'integer'    THEN 'pext_fte_const'
+        WHEN 'hex'        THEN 'pext_fte_const'
+        WHEN 'expression' THEN 'pext_fte_alias'
+        ELSE                   'pext_fte_marker'
+      END
+    WHEN 'pext_mvd' THEN
+      CASE pmv.value_kind
+        WHEN 'bitshift'   THEN 'pext_mvd_bit'
+        WHEN 'integer'    THEN 'pext_mvd_const'
+        WHEN 'hex'        THEN 'pext_mvd_const'
+        WHEN 'expression' THEN 'pext_mvd_alias'
+        ELSE                   'pext_mvd_marker'
+      END
+    WHEN 'protocol_version' THEN
+      CASE
+        WHEN (SELECT name FROM entities WHERE id = pmv.entity_id) = 'PROTOCOL_VERSION'
+          THEN 'protocol_version'
+        ELSE 'protocol_extension_id'
+      END
+    ELSE pmv.kind
+  END AS kind,
+  pmv.value, pmv.value_kind, pmv.source_file, pmv.source_line, ...
+FROM protocol_message_versions pmv;
 ```
 
-After the in-place mapping, `INSERT INTO protocol_message_versions_v16 SELECT * FROM protocol_message_versions` works against the new CHECK without rejection. A defensive count-check between the UPDATE step and the rebuild aborts with a precise error message if any unexpected kind value survives.
-
-The Phase B info_key name UPDATE is data-only and rides the same transaction. Both backfills are idempotent thanks to `WHERE NOT LIKE '%:%'` and `WHERE kind = 'pext_mvd'`-style guards, so re-running the migration on an already-migrated DB is a no-op.
+The Phase B info_key name `UPDATE entities ... SET name = name || ':' || ...` rides the same transaction (data-only, no schema change). The `WHERE ... name NOT LIKE '%:%'` guard makes it idempotent; re-running the migration on an already-migrated DB is a no-op.
 
 `SCHEMA_V15_ADDITIONS_SQL`'s inline `protocol_message_versions.kind` CHECK has been widened to the v16 13-kind list so fresh DBs land on the v16 shape directly via the `CREATE IF NOT EXISTS` path -- the documented "fresh DB vs migrated DB" pattern (mirrors `SCHEMA_V1_SQL`'s `entities.type` CHECK already listing the full v15 type set).
 

@@ -44,20 +44,20 @@ once in `finalize` in the parent, after worker results merge. This avoids
 cross-process state (Approach A would require accumulator state to survive
 the fork-merge boundary, which it doesn't).
 
-Output entity shape (one row per unique (name, scope) tuple):
+Output entity shape (one row per unique (name, scope) tuple). Example uses
+the canonical `*z_ext:serverinfo` registration at SV_InitLocal:
 
     {
       "name": "*z_ext:serverinfo",
       "bare_name": "*z_ext",
       "ast": {
         "scope": "serverinfo",
-        "operations": ["read", "write"],
+        "operations": ["write"],
         "source_file": "src/sv_main.c",  // first-seen site (anchor)
-        "source_line": 1234,
+        "source_line": 3685,
         "containing_function": "SV_InitLocal",
         "all_call_sites": [
-          {"source_file": ..., "source_line": ..., "operation": "read"},
-          ...
+          {"source_file": "src/sv_main.c", "source_line": 3685, "operation": "write"}
         ]
       }
     }
