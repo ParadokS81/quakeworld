@@ -51,6 +51,16 @@ const STRING_KEYS: &[&str] = &[
     "InternalName",
 ];
 
+/// Authoritative version source: read VS_FIXEDFILEINFO numeric (same as
+/// `ezquake.rs:read_exe_version`) and format as a 4-component dotted string.
+/// StringFileInfo's ProductVersion / FileVersion are unreliable in practice:
+/// ezQuake stamps a git-commit SHA into ProductVersion, and Windows
+/// FileVersion strings often use comma separators ("1, 4, 4, 7794") which
+/// `parse_pe_version` can't normalize.
+pub fn read_numeric_version(path: &Path) -> Option<String> {
+    crate::commands::ezquake::read_exe_version(path)
+}
+
 #[cfg(target_os = "windows")]
 pub fn read_pe_strings(path: &Path) -> Option<PeStrings> {
     use windows::core::PCWSTR;
@@ -192,9 +202,16 @@ pub fn classify_from_pe_strings(pe: &PeStrings, filename: &str) -> ClientKind {
             .to_ascii_lowercase()
             .trim_end_matches(".exe")
             .to_string();
+        // FTE ships server builds under several naming conventions:
+        // - hyphen-prefixed: `fteqw-sv.exe`, foo `-sv.exe`
+        // - hyphen-server:   `fteqw-server.exe`
+        // - no-hyphen:       `FTEQWSV64.exe`, `fteqwsv.exe`, `qwsv.exe`
+        // The hyphen-less `qwsv` substring catches modern Windows release
+        // names from triptohell. Defense-in-depth via FileDescription too.
         let is_server = stem.starts_with("fteqw-sv")
             || stem.ends_with("-sv")
             || stem.contains("-server")
+            || stem.contains("qwsv")
             || pe
                 .file_description
                 .as_deref()
@@ -263,10 +280,16 @@ pub fn fingerprint(path: &Path) -> ClientFingerprint {
     let kind = classify_from_pe_strings(&pe, &filename);
     let variant = variant_from_filename(&filename);
 
-    let version = pe
-        .product_version
-        .clone()
-        .or_else(|| pe.file_version.clone());
+    // Prefer VS_FIXEDFILEINFO numeric ("3.6.9.7949") because StringFileInfo
+    // ProductVersion / FileVersion are unreliable in the wild (ezQuake stamps
+    // commit SHAs into ProductVersion; Windows convention sometimes formats
+    // FileVersion with commas like "1, 4, 4, 7794"). Fall back to the string
+    // fields only when the numeric block is missing.
+    let version = read_numeric_version(path).or_else(|| {
+        pe.product_version
+            .clone()
+            .or_else(|| pe.file_version.clone())
+    });
 
     ClientFingerprint {
         kind,
@@ -395,6 +418,25 @@ mod tests {
         assert_eq!(
             classify_from_pe_strings(&p, "fteqw.exe"),
             ClientKind::Unknown
+        );
+    }
+
+    #[test]
+    fn classify_fte_server_build_excluded_by_no_hyphen_qwsv() {
+        // Modern triptohell ships e.g. FTEQWSV64.exe (camelcase, no hyphen).
+        // The bare "qwsv" substring should still classify as server.
+        let p = pe("FTE QW", "ftequake", "01.20");
+        assert_eq!(
+            classify_from_pe_strings(&p, "FTEQWSV64.exe"),
+            ClientKind::Unknown
+        );
+        assert_eq!(
+            classify_from_pe_strings(&p, "fteqwsv.exe"),
+            ClientKind::Unknown
+        );
+        assert_eq!(
+            classify_from_pe_strings(&p, "FTEQW64.exe"),
+            ClientKind::Fte
         );
     }
 

@@ -192,12 +192,22 @@ export default function AddClientPanel(props: Props) {
           preview,
         });
       }
+
       // Default primary: first row with Tier-2 "verified", else first row.
       if (enriched.length > 0) {
         let pIdx = enriched.findIndex((r) => r.tier2.kind === "verified");
         if (pIdx < 0) pIdx = 0;
         enriched[pIdx].state.isPrimary = true;
       }
+
+      // Collision pass: multiple rows can target the same canonical filename
+      // (e.g. four different ezQuake versions all wanting `ezquake.exe`).
+      // Only one row per canonical-filename gets `will_rename`; the rest get
+      // `slot_occupied` so the user sees the situation honestly. Preference:
+      // (1) the row already at the canonical filename, (2) the primary row,
+      // (3) the first row in the group.
+      resolveCanonicalCollisions(enriched);
+
       setRows(enriched);
     } catch (e) {
       setError(String(e));
@@ -237,21 +247,70 @@ export default function AddClientPanel(props: Props) {
     }
     const sep = sourcePath.includes("\\") ? "\\" : "/";
     const target = `${dir.replace(/[\\/]+$/, "")}${sep}${canonicalFilename}`;
-    // Bail out of the rename if the canonical slot is already occupied by a
-    // different file. We can't probe the filesystem from the frontend; the
-    // common case (the operator's own ezquake.exe sitting alongside the
-    // versioned exes) shows up as a separate scanned row so we can detect
-    // it here without a Tauri roundtrip.
     return { kind: "will_rename", from: sourcePath, to: target };
   }
 
+  function resolveCanonicalCollisions(rows: RowModel[]): void {
+    // Group rows by their target canonical filename (case-insensitive).
+    const groups = new Map<string, number[]>();
+    for (let i = 0; i < rows.length; i++) {
+      const key = rows[i].canonicalFilename.toLowerCase();
+      const list = groups.get(key) ?? [];
+      list.push(i);
+      groups.set(key, list);
+    }
+    for (const [, indices] of groups) {
+      if (indices.length < 2) continue;
+      // Pick the winner: already_canonical first, then primary, then first.
+      let winner = indices.find(
+        (i) => rows[i].preview.kind === "already_canonical",
+      );
+      if (winner === undefined) {
+        winner = indices.find((i) => rows[i].state.isPrimary);
+      }
+      if (winner === undefined) winner = indices[0];
+
+      // Demote the losers: their preview switches to slot_occupied so the
+      // user sees that the orchestrator will leave them at non-canonical
+      // filenames. Their consent flips to leave_as_is.
+      for (const i of indices) {
+        if (i === winner) continue;
+        const r = rows[i];
+        if (r.preview.kind === "already_canonical") continue; // can't lose
+        rows[i] = {
+          ...r,
+          preview: { kind: "slot_occupied", canonical: r.canonicalFilename },
+          state: { ...r.state, consent: "leave_as_is" },
+        };
+      }
+    }
+  }
+
   function setPrimaryByIndex(idx: number) {
-    setRows((rs) =>
-      rs.map((r, i) => ({
-        ...r,
-        state: { ...r.state, isPrimary: i === idx },
-      })),
-    );
+    setRows((rs) => {
+      // Reset all previews to their natural state, flip the primary, then
+      // re-resolve collisions. This way the primary tiebreaker actually
+      // moves the rename badge to the row the user just selected.
+      const reset = rs.map((r, i) => {
+        const dir = pickedDir() ?? "";
+        return {
+          ...r,
+          state: { ...r.state, isPrimary: i === idx },
+          preview: previewFor(dir, r.scanned.path, r.canonicalFilename),
+        };
+      });
+      // Re-apply the consent based on the natural preview.
+      for (const r of reset) {
+        r.state.consent =
+          r.preview.kind === "will_rename"
+            ? "rename"
+            : r.preview.kind === "slot_occupied"
+              ? "leave_as_is"
+              : "skip";
+      }
+      resolveCanonicalCollisions(reset);
+      return reset;
+    });
   }
 
   function toggleSelectedByIndex(idx: number) {
