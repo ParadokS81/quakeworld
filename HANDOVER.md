@@ -31,7 +31,111 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) -- **NEW 2026-04-28. PARTIALLY SUPERSEDED 2026-04-28** by the cross-extractor pattern audit follow-up arc. Of the six original residuals: **4 are now scoped into `docs/superpowers/plans/2026-04-28-cross-extractor-shared-lib-arc.md`** (qc_builtin cross-scope collisions → Phase 2 with schema v18 migration + handler canonicalization; `validInfoKey` regex alphabet → Phase 5 with schema export sync; FTE+QWCL `_handler_cvars.py` defensive normalization → Phase 2 with `_cvar_shared` lift; `pext_*_alias` classifier — verified by Subagent 3 to NOT be a silent drop, the catch-all alias bucket is correct, can close from this list). **2 remain**: pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only); 14 historical-version ezquake `sv_demoregexp` rows still raw (auto-resolves on next deep-time walk). Both still low pressure; do-when-touched.
 - [Cross-extractor pattern audit follow-up arc](#cross-extractor-pattern-audit-follow-up-arc) -- **NEW 2026-04-28. PARTIALLY SHIPPED 2026-04-28.** Five phases shipped (commits `566c5be` Phase 0 small patches; `08aa5b1` Phase 1 resolve_fn_ref lift; `4a98573` Phase 2 cvars normalization + schema v18; `64e32e3` Phase 3 string-shape helpers lift; `1a00704` Phase 4 FTE cmdline policy doc + Phase 5 alphabet exports + log_template SCHEMA.md note). All four projects pass quality grid clean. New deferred follow-ups (added below): Task 3.5 asset-helper lift requires design work (not a mechanical move — helpers close over project-specific data tables `TRIGGER_RULES` / `EXT_TO_CATEGORY` / `ENCLOSING_FN_CATEGORY_RULES` that differ per project); qc_builtin intra-table multi-index aggregation (audit D.1.10's predicted "cross-scope" recovery turned out to be intra-table multi-index; the schema v18 `:<table>` suffix is a structural alignment with info_key but doesn't disambiguate the 4 dropped dups — needs handler-side aggregation mirroring info_key Phase B `all_call_sites_json`). Original 13 audit-deferred residuals still apply (low pressure): FTE/QWCL fork-override hook documentation absent; FTE `enter_function`/`exit_function` lifecycle gap; ezquake cvars last-wins-vs-first-wins inconsistency; ProtocolMvdsvHandler module-level `_kind_for`; ezhud `_resolve_default` heuristic; ezquake `_resolve_enum_constant` intra-project duplicate; cvar_alias `differ_safe` dead-allow at extraction layer; `validIdentifier` regex blocks `:` separator; ezquake/qwcl missing `Config.set_library_file` call; handler-registry pattern divergence; ezquake `_split_handlers` legacy path; OUT_OF_SCOPE.md stale dates (CLOSED 2026-04-28: ezquake/fte/qwcl bumped to 2026-04-28 in synthesis commit); ezquake/fte/qwcl missing `validation-fixtures/`. Sequencing: per-project deep validations SHIPPED 2026-04-28 (see new entry below).
 - [Per-project Mode B validation synthesis follow-ups](#per-project-mode-b-validation-synthesis-follow-ups) -- **NEW 2026-04-28.** Three Mode B per-project deep validations shipped (ezQuake@head / FTE@build-6698 / QWCL@2.33) companion to the cross-extractor audit. Total: 0 critical, 6 important, 13 nits across 20 findings. Three cross-cutting items (S-01 FTE Phase 2 convergence gap — 1085 source-backed FTE cvars carry `flags_raw IS NULL` instead of empty string + missing `unescape_c_string` adoption; S-02 D.1.8 lifecycle hooks confirmed open; S-03 uneven F1 probe coverage — qwcl has zero project-keyed equality probes) and three per-project items (F-EZQ-01 trailing-comment look-ahead misattribution affecting ~34% of ezquake cvar comments, 78 of 230 rows wrong; F-EZQ-03 + F-QWCL-06 `command_versions.registration_file` + `macro_versions.registration_file` columns misnamed schema migration; F-QWCL-01 doc drift drained-now in synthesis commit). Recommended next-arc shape: Arc A "cross-extractor Phase 6: FTE convergence + grid uplift" (S-01 + S-03) and Arc B "ezquake trailing-comment + registration_file rename" (F-EZQ-01 + F-EZQ-03). Synthesis report: `docs/superpowers/reviews/2026-04-28-per-project-validation-synthesis.md`; per-project reports + plans linked from synthesis.
+- [Cross-extractor Phase 6 residuals](#cross-extractor-phase-6-residuals) -- **NEW 2026-04-28.** Three follow-ups from the Phase 6 arc that didn't fit scope. (1) D.1.8 lifecycle hooks gap (restated; FTE commands/macros/cmdline + MVDSV commands lack `enter_function`/`exit_function` -- `enclosing_function`/`registration_file` columns NULL on those rows; lift across missing handlers when touched). (2) Broader positive-contract coverage (handler_fn, descriptions, default_value C-escape interpretation, info_key/qc_builtin canonical names, QWCL flags_raw lowercase boolean shape) -- see `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` Section 3.2 candidate-positive-contracts list. Phase 6 closed `flags_raw` only. (3) Deep-time-walk re-extract obligation -- any future FTE or QWCL historical-version load must re-extract under post-Phase-6 handlers (otherwise pre-Phase-6 historical versions carry the wrong-shape `flags_raw` the prior arc emitted). FTE today has only build-6698; QWCL only 2.33; obligation activates when a multi-version walk is scheduled. Phase 6 spec at `docs/superpowers/specs/2026-04-28-cross-extractor-phase6-fte-convergence-grid-uplift-design.md`; arc commits `baf3b33` -> W6.
+- [Cross-extractor Phase 6 ezquake exemptions](#cross-extractor-phase-6-ezquake-exemptions) -- **NEW 2026-04-28.** Three structural findings the Phase 6 3.2.2 positive contract surfaced in ezquake (the contract's gate is doing exactly its job; bugs becoming visible IS the Phase 6 success criterion). (1) **Source_state misclassification** -- 32 HEAD entities (27 cvar + 4 command + 1 cmdline_param) and 382 all-versions entities (333 cvar + 41 command + 8 cmdline_param) marked `source_state='source_backed'` despite having NULL `source_file`. Help-JSON-only entries (e.g., `auth_timeout`, `gl_motion_blur*`, `sv_*`, `telnet_password`) should be `doc_only`. Wider than 27 cvars -- non-cvar surface confirms classifier-layer bug, not a `flags_raw` issue. Fix lives in `load-version.ts` `cvarIsSourceBacked` predicate (or upstream entity-emit), NOT in `extractor_lib/normalize_flags_raw`. Different layer than Phase 6's lift surface. (2) **Legacy cvar_t boolean shape** -- exactly 7 `r_bloom_*` rows in `research/repos/ezquake-source/src/glc_bloom.c` use 3-field `cvar_t` initializer (`{"name", "default", true}`) where the third field is a literal `true` boolean (legacy CVAR_ARCHIVE shape). Same structural pattern as QWCL's 1996-vintage `cvar_t` (already carved out of 3.2.2). Needs handler normalization (boolean -> empty/CVAR_ARCHIVE) or contract widening. Cross-link to "QWCL `flags_raw` shape" in the runbook's candidate-positive-contracts list. Narrow surface, contained file. (3) **Historical-tag stale shapes** -- ezquake tags v3.0.x through 3.6.x carry pre-Phase-6 `flags_raw` shapes (~31,600 rows: ~2,070-2,425 NULL per version + 7 `'true'` per version across 14 historical tags). HEAD already extracted post-W1 cleanly modulo (1) and (2); historical tags need a deep-time re-extract under post-Phase-6 handlers. Cost is small (~7 min for 14 tags via `extract-tag` per version); entry can close on any future arc that touches ezquake. Subsumes and supersedes the Phase 6 spec's deep-time-walk obligation for ezquake specifically (the spec's obligation entry above remains open for FTE+QWCL).
 - [Slipgate Managed Mode pivot — multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) — **NEW 2026-04-28.** Phase 3.5b shipped + first-Windows-smoke fixes shipped (`121b2ba` PE numeric version + FTE no-hyphen server detection + canonical-rename collision resolution; `fc2541f` FTE arch-as-variant preserving `fteqw64.exe`). During the wrap-up conversation, the architecture pivoted: slipgate-IS-quakedir (the data warehouse IS the Quake install). Phase 4/5 (binary diff viewer) DEFERRED — superseded by profile-vs-profile diff in the new arc. Three project-level docs captured: vision (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`), architecture (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`), roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`). Eight implementation arcs (A-H) sequenced; V1 = A+B+D+E+C-minimal (asset warehouse + profile manifest + materializer + clean-room migration + watcher + minimal switch UI). V1+ = F+G+C-full+H (lossless export + version history + full profile UI + cloud catalog). Operator estimate: 1 week to V1. Pre-arc tail: TAIL-1 wrap FTE asset bundle consumer wiring (the existing HANDOVER entry "FTE asset bundle consumer wiring" — promoted from low-pressure to load-bearing because Arc D's classifier needs it). Existing HANDOVER entries superseded by this arc but left in place for context: "Add Quake Client / MyQuake unification" (3.5b shipped), "Canonical-mode default for warehoused clients" (resolved by 3.5b), "Tier 3 future arcs" (folded into Managed Mode roadmap), "Player profiles (bundle-shaped)" (folded as Arc B + Arc H). Docs-check at next session wrap-up should clean those entries.
+
+---
+
+## Cross-extractor Phase 6 residuals
+
+**Added:** 2026-04-28. **Status:** Open follow-ups from the Phase 6 arc.
+
+Three items defined out-of-scope by the Phase 6 spec but worth tracking so they don't get lost.
+
+### D.1.8 lifecycle hooks gap (restate)
+
+FTE `_handler_commands.py`, `_handler_macros.py`, `_handler_cmdline.py` and MVDSV `_handler_commands.py` do not implement `enter_function` / `exit_function` Visitor lifecycle hooks. Result: `enclosing_function` and `registration_file` columns are NULL on those rows. Already tracked under "Cross-extractor pattern audit follow-up arc -- Original 13 audit-deferred residuals." The Phase 6 spec restates it for visibility because the missing-hook surface intersects with the per-handler routing audit table the arc actually used. Per-arc fix would lift Visitor's lifecycle hooks across the missing handlers; deferred from Phase 6.
+
+### Broader positive-contract coverage
+
+The Phase 6 runbook 3.2.2 contract gates only on `flags_raw` for `source_state='source_backed'` cvars in `project IN ('ezquake', 'fte', 'mvdsv')`. Other fields with similar lift/contract gaps that may need positive contracts in future arcs:
+
+- `default_value` C-escape interpretation across all four projects (post-v17 unescape contract; today gated only by hand-spot-check).
+- `info_key` canonical name shape (`<bare>:<scope>` post-v17; today gated by `validInfoKey` carve-out).
+- `qc_builtin` canonical name shape (`<bare>:<table>` post-v18 reshape).
+- `handler_fn` shape across cvars + commands + macros (today carries no positive contract).
+- Description fields (cvars, commands, macros, hud_elements; today carry no shape gate).
+- QWCL `flags_raw` shape (lowercase boolean field values) -- distinct from the post-v17 CVAR_* contract (and from the ezquake legacy boolean shape captured in the next entry).
+
+See `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` Section 3.2 candidate-positive-contracts list (kept in sync with this entry).
+
+### Deep-time-walk re-extract obligation (FTE + QWCL)
+
+FTE today has only `build-6698`; QWCL only `2.33`. A future deep-time walk on either project must re-extract under post-Phase-6 handlers (otherwise pre-Phase-6 historical versions would carry wrong-shape `flags_raw` the prior arc would have emitted). The obligation activates when a multi-version walk is scheduled; until then this entry just records the constraint so it's not forgotten at scheduling time. (The companion ezquake-specific obligation -- 14 already-loaded historical tags need re-extract -- is captured separately in the ezquake-exemptions entry below.)
+
+---
+
+## Cross-extractor Phase 6 ezquake exemptions
+
+**Added:** 2026-04-28. **Status:** Three structural findings the Phase 6 verification layer surfaced in ezquake; out-of-scope for Phase 6 (FTE+QWCL+MVDSV-scoped) but the gate's value is exactly that it surfaces them. Each exemption has its own clean SQL signature and can be addressed independently.
+
+The Phase 6 acceptance criterion #1 ("zero violations across all four projects") is softened in this commit body to "zero violations EXCEPT documented HANDOVER exemptions." Two of the three exemptions (1) and (2) are current-handler issues; (3) is stale-data carry-forward.
+
+**Verification queries** for each exemption are listed inline so a future drainer can spot-check actual-vs-recorded counts before starting.
+
+### (1) Source_state misclassification
+
+32 HEAD entities and 382 all-versions entities marked `source_state='source_backed'` despite having NULL `source_file`. Help-JSON-only cvars/commands/cmdline_params (e.g., `auth_timeout`, `gl_motion_blur*`, `sv_cpserver`, `telnet_password`) should classify as `doc_only`.
+
+```bash
+DB=apps/qw-oracle/data/knowledge.db
+sqlite3 "$DB" "SELECT 'cvar' AS type, COUNT(*) FROM entities e JOIN cvar_versions v ON e.id=v.entity_id WHERE e.project='ezquake' AND e.source_state='source_backed' AND v.source_file IS NULL AND v.version='head'
+               UNION ALL
+               SELECT 'command', COUNT(*) FROM entities e JOIN command_versions v ON e.id=v.entity_id WHERE e.project='ezquake' AND e.source_state='source_backed' AND v.source_file IS NULL AND v.version='head'
+               UNION ALL
+               SELECT 'cmdline_param', COUNT(*) FROM entities e JOIN cmdline_param_versions v ON e.id=v.entity_id WHERE e.project='ezquake' AND e.source_state='source_backed' AND v.source_file IS NULL AND v.version='head';"
+```
+
+Recorded 2026-04-28: cvar=27, command=4, cmdline_param=1, macro=0. All-versions: cvar=333, command=41, cmdline_param=8, macro=0.
+
+Different layer than Phase 6's `extractor_lib` lift surface. Fix probably lives in `apps/qw-oracle/scripts/load-knowledge/load-version.ts` `cvarIsSourceBacked` predicate (or upstream in the entity-emit pipeline). Symptoms: any entity row where `source_file IS NULL` should not count as `source_backed`.
+
+### (2) Legacy cvar_t boolean shape
+
+7 r_bloom_* rows in `research/repos/ezquake-source/src/glc_bloom.c` use 3-field `cvar_t` initializer where the third field is a literal `true` boolean (legacy CVAR_ARCHIVE shape):
+
+```c
+cvar_t r_bloom              = { "r_bloom", "0", true };
+cvar_t r_bloom_alpha        = { "r_bloom_alpha", "0.5", true };
+cvar_t r_bloom_diamond_size = { "r_bloom_diamond_size", "8", true };
+cvar_t r_bloom_intensity    = { "r_bloom_intensity", "1", true };
+cvar_t r_bloom_darken       = { "r_bloom_darken", "3", true };
+cvar_t r_bloom_sample_size  = { "r_bloom_sample_size", "256", true };
+cvar_t r_bloom_fast_sample  = { "r_bloom_fast_sample", "0", true };
+```
+
+```bash
+DB=apps/qw-oracle/data/knowledge.db
+sqlite3 "$DB" "SELECT cv.flags_raw, cv.source_file, COUNT(*) FROM cvar_versions cv JOIN entities e ON cv.entity_id=e.id WHERE e.project='ezquake' AND cv.version='head' AND cv.flags_raw IN ('true','false') GROUP BY cv.flags_raw, cv.source_file;"
+```
+
+Recorded 2026-04-28: 7 rows with `flags_raw='true'`, all from `glc_bloom.c`, zero with `'false'`.
+
+Same structural pattern as QWCL's 1996-vintage `cvar_t` (already carved out of the 3.2.2 contract -- see runbook). Two paths: handler normalization (`true` -> empty / `CVAR_ARCHIVE`) or contract widening. The runbook's candidate-positive-contracts list already captures "QWCL `flags_raw` shape (lowercase boolean field values)" -- the ezquake legacy shape converges with that entry. A single arc could close both QWCL and ezquake legacy shapes together.
+
+### (3) Historical-tag stale shapes
+
+ezquake tags v3.0.x through 3.6.x (14 historical versions) were extracted on 2026-04-25 under pre-Phase-6 handlers. They carry stale `flags_raw` shapes:
+
+```bash
+DB=apps/qw-oracle/data/knowledge.db
+sqlite3 "$DB" "SELECT cv.version, cv.flags_raw, COUNT(*) AS n FROM cvar_versions cv JOIN entities e ON cv.entity_id=e.id WHERE e.project='ezquake' AND e.source_state='source_backed' AND (cv.flags_raw IS NULL OR cv.flags_raw='true') GROUP BY cv.version, cv.flags_raw ORDER BY cv.version;"
+```
+
+Recorded 2026-04-28: ~31,600 rows total across 14 historical versions (~2,070-2,425 NULL per version + 7 `'true'` per version across 15 versions including HEAD = 105 'true' rows). HEAD's 27 NULL + 7 'true' rows are subsumed into exemptions (1) and (2) above.
+
+Fix is mechanical: re-extract each historical tag under post-Phase-6 handlers via:
+
+```bash
+for v in v3.0 v3.0.1 3.1 3.2 3.2.1 3.2.2 3.2.3 3.6.0 3.6.1 3.6.2 3.6.5 3.6.6 3.6.8 3.6.9; do
+  npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- extract-tag --project ezquake --version "$v"
+done
+```
+
+Estimated cost: ~7 minutes wall time for 14 tags. Entry can close on any future arc that touches ezquake (no dedicated arc needed). Subsumes and supersedes the deep-time-walk obligation for ezquake specifically; the FTE+QWCL obligation in the residuals entry above stands separately.
+
+After re-extract, the 3.2.2 positive contract should drop from 31634 to 34 (the residual 27 NULL + 7 'true' from exemptions (1) and (2)).
 
 ---
 

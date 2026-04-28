@@ -1494,6 +1494,107 @@ const QWCL_FLOOR_PROBES: Probe[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Phase 6 anchor probes (2026-04-28) — per-project load-bearing invariants
+// ---------------------------------------------------------------------------
+
+function probeEzquakeGlLightmodePingPong(ctx: ProbeContext): ProbeResult {
+  const name = 'F1.ezquake.anchor.gl_lightmode_ping_pong';
+  if (ctx.project !== 'ezquake') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ezquake project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(DISTINCT cv.default_value || ':' || cv.version) AS n
+    FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='ezquake' AND e.name='gl_lightmode'
+  `).get() as { n: number };
+  const expected = 15;
+  const actual = row.n;
+  return {
+    name,
+    family: 'regression',
+    description: `gl_lightmode distinct (default_value, version) tuples equals ${expected}`,
+    status: actual === expected ? 'PASS' : 'FAIL',
+    count: actual,
+    summary: `gl_lightmode distinct (default_value,version) tuples: actual=${actual}, expected=${expected}`,
+    examples: [],
+  };
+}
+
+function probeEzquakeDocOnlyCount(ctx: ProbeContext): ProbeResult {
+  const name = 'F1.ezquake.anchor.doc_only_count';
+  if (ctx.project !== 'ezquake') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ezquake project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='ezquake' AND source_state='doc_only'
+  `).get() as { n: number };
+  const expected = 194;
+  const actual = row.n;
+  return {
+    name,
+    family: 'regression',
+    description: `total ezquake doc_only entities equals ${expected}`,
+    status: actual === expected ? 'PASS' : 'FAIL',
+    count: actual,
+    summary: `ezquake doc_only entities: actual=${actual}, expected=${expected}`,
+    examples: [],
+  };
+}
+
+function probeQwclAllSourceBacked(ctx: ProbeContext): ProbeResult {
+  const name = 'F1.qwcl.anchor.all_source_backed';
+  if (ctx.project !== 'qwcl') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not qwcl project)', examples: [] };
+  }
+  const row = ctx.db.prepare(`
+    SELECT COUNT(*) AS n FROM entities
+    WHERE project='qwcl' AND source_state != 'source_backed'
+  `).get() as { n: number };
+  const actual = row.n;
+  return {
+    name,
+    family: 'regression',
+    description: 'qwcl has no help-JSON, so every entity must be source_backed',
+    status: actual === 0 ? 'PASS' : 'FAIL',
+    count: actual,
+    summary: `qwcl entities with non-source_backed state: actual=${actual}, expected=0`,
+    examples: [],
+  };
+}
+
+function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): ProbeResult {
+  const name = 'F1.fte.anchor.engine_vs_plugin_ezhud_split';
+  if (ctx.project !== 'fte') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
+  }
+  const rows = ctx.db.prepare(`
+    SELECT cv.source_root, COUNT(*) AS n
+    FROM cvar_versions cv
+    JOIN entities e ON cv.entity_id=e.id
+    WHERE e.project='fte'
+    GROUP BY cv.source_root
+  `).all() as { source_root: string; n: number }[];
+  const counts: Record<string, number> = {};
+  for (const r of rows) counts[r.source_root] = r.n;
+  const expectedEngine = 1397;
+  const expectedPluginEzhud = 1085;
+  const actualEngine = counts['engine'] ?? 0;
+  const actualPluginEzhud = counts['plugin:ezhud'] ?? 0;
+  const ok = actualEngine === expectedEngine && actualPluginEzhud === expectedPluginEzhud;
+  return {
+    name,
+    family: 'regression',
+    description: `fte cvar_versions split: engine=${expectedEngine} + plugin:ezhud=${expectedPluginEzhud}`,
+    status: ok ? 'PASS' : 'FAIL',
+    count: actualEngine + actualPluginEzhud,
+    summary: `engine: actual=${actualEngine} expected=${expectedEngine}, plugin:ezhud: actual=${actualPluginEzhud} expected=${expectedPluginEzhud}`,
+    examples: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
 
@@ -1534,6 +1635,11 @@ const REGRESSION_PROBES: Probe[] = [
   ...FTE_FLOOR_PROBES,
   ...MVDSV_FLOOR_PROBES,
   ...QWCL_FLOOR_PROBES,
+  // Phase 6 anchor probes (added 2026-04-28) — per-project load-bearing invariants.
+  { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },
+  { name: 'F1.ezquake.anchor.doc_only_count', family: 'regression', description: '', run: probeEzquakeDocOnlyCount },
+  { name: 'F1.qwcl.anchor.all_source_backed', family: 'regression', description: '', run: probeQwclAllSourceBacked },
+  { name: 'F1.fte.anchor.engine_vs_plugin_ezhud_split', family: 'regression', description: '', run: probeFteEngineVsPluginEzhudSplit },
 ];
 
 const ANOMALY_PROBES: Probe[] = [
