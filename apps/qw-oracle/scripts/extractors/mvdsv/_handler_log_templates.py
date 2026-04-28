@@ -54,20 +54,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    if not extent or not extent.start or not extent.end:
-        return ""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
+from extractor_lib._source import read_extent  # noqa: E402
 
 
 def _normalize_format(s: str) -> str:
@@ -153,7 +140,7 @@ class LogTemplatesMvdsvHandler(Visitor):
         if len(args) <= fmt_idx:
             return
 
-        text = _read_extent(self.source_bytes, args[fmt_idx].extent).strip()
+        text = read_extent(self.source_bytes, args[fmt_idx].extent).strip()
         # Bare literal-string check. Concatenated literals like
         # ("foo " "bar") DO pass this check (text starts with the opening
         # `"` of the first literal and ends with the closing `"` of the

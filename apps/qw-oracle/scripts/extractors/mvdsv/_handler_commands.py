@@ -78,29 +78,15 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import (  # noqa: E402
+    read_extent,
+    strip_array_and_qualifiers,
+    strip_quotes,
+)
 
 
 _DECORATION_RE = re.compile(r"^[=\-]+$")
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
 
 
 # `_resolve_fn_ref` was lifted to `extractor_lib/_resolve.py` (Phase D Task 9)
@@ -110,15 +96,6 @@ def _strip_quotes(s: str) -> str:
 # unresolved reference; the unified helper keeps the spelling so MVDSV's
 # Cmd_AddCommand handler-fn names survive even when the type-graph is
 # incomplete.
-
-
-def _strip_array_and_qualifiers(tspell: str) -> str:
-    """Reduce a type spelling like `log_t[7]` or `const log_t[]` to `log_t`."""
-    s = tspell.split("[", 1)[0].strip()
-    for q in ("const ", "static "):
-        if s.startswith(q):
-            s = s[len(q):].strip()
-    return s
 
 
 # Struct-array tables whose elements register a command via for-loop iteration
@@ -141,7 +118,7 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
     pseudo-call-site row per array element. Mirrors ezQuake's
     _extract_command_table; the row shape matches what visit_cursor produces
     for normal Cmd_AddCommand call sites."""
-    base = _strip_array_and_qualifiers(node.type.spelling)
+    base = strip_array_and_qualifiers(node.type.spelling)
     idx_pair = _COMMAND_TABLE_TYPES.get(base)
     if idx_pair is None:
         return []
@@ -166,8 +143,8 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
         fields = list(init.get_children())
         if len(fields) <= max(name_idx, handler_idx):
             continue
-        name_raw = _read_extent(source_bytes, fields[name_idx].extent).strip()
-        name = _strip_quotes(name_raw)
+        name_raw = read_extent(source_bytes, fields[name_idx].extent).strip()
+        name = strip_quotes(name_raw)
         if not name:
             continue
         handler = resolve_fn_ref(fields[handler_idx])
@@ -345,8 +322,8 @@ class CommandsMvdsvHandler(Visitor):
         if len(args) < 2:
             return
 
-        name_raw = _read_extent(self.source_bytes, args[0].extent).strip()
-        name = _strip_quotes(name_raw)
+        name_raw = read_extent(self.source_bytes, args[0].extent).strip()
+        name = strip_quotes(name_raw)
         # Reject parse artefacts: non-literal first args (e.g. `logs[i].command`)
         # produce text like `logs[i].command` here. The struct-array dispatch
         # above recovers these registrations from the array declaration.

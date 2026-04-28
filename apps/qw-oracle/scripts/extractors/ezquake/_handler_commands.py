@@ -18,6 +18,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import literal_string, strip_array_and_qualifiers  # noqa: E402
 
 
 # `#define NAME "string literal"` — used to resolve Cmd_AddCommand calls whose
@@ -104,44 +105,6 @@ def _assign_group(name: str, deprecated: bool) -> str:
 
 # ----- per-file visit helpers -----------------------------------------------
 
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    extent = arg_cursor.extent
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return None
-    try:
-        text = source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return None
-
-    parts = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i] in " \t\n\r":
-            i += 1
-        if i >= len(text):
-            break
-        if text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
-
-
 # Struct-array tables whose elements register a command via for-loop iteration.
 # Each entry maps the underlying struct-type name to (name_field_index,
 # handler_field_index) for the nested initializer. sv_ccmds.c defines
@@ -155,16 +118,8 @@ _COMMAND_TABLE_TYPES: dict[str, tuple[int, int]] = {
 }
 
 
-def _strip_array_and_qualifiers(tspell: str) -> str:
-    s = tspell.split("[", 1)[0].strip()
-    for q in ("const ", "static "):
-        if s.startswith(q):
-            s = s[len(q):].strip()
-    return s
-
-
 def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
-    base = _strip_array_and_qualifiers(node.type.spelling)
+    base = strip_array_and_qualifiers(node.type.spelling)
     idx_pair = _COMMAND_TABLE_TYPES.get(base)
     if idx_pair is None:
         return []
@@ -190,7 +145,7 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
         fields = list(init.get_children())
         if len(fields) <= max(name_idx, handler_idx):
             continue
-        name = _literal_string(fields[name_idx], source_bytes)
+        name = literal_string(fields[name_idx], source_bytes)
         if not name:
             continue
         handler = resolve_fn_ref(fields[handler_idx])
@@ -277,7 +232,7 @@ class CommandsEzquakeHandler(Visitor):
         args = list(cursor.get_arguments())
         if len(args) < 2:
             return
-        name = _literal_string(args[0], self.source_bytes)
+        name = literal_string(args[0], self.source_bytes)
         if not name:
             # Fallback: all-caps identifier likely a #define'd string macro.
             extent = args[0].extent
@@ -295,7 +250,7 @@ class CommandsEzquakeHandler(Visitor):
             # Cmd_AddLegacyCommand("old_name", "new_name") — proxy alias with no
             # direct handler. arg[1] is the target command name as a literal.
             handler = None
-            legacy_alias_of = _literal_string(args[1], self.source_bytes)
+            legacy_alias_of = literal_string(args[1], self.source_bytes)
         loc = cursor.location
         build_variant = "client" if variant == "client" else "server-build"
         row = {

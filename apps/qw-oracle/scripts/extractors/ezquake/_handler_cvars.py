@@ -38,28 +38,16 @@ from extractor_lib._cvar_shared import (  # noqa: E402
     parse_flag_names,
     unescape_c_string,
 )
+from extractor_lib._source import (  # noqa: E402
+    literal_string,
+    read_extent,
+    strip_array_and_qualifiers,
+    strip_quotes,
+)
 
 
 _CVAR_DEFAULT_CALL_RE = re.compile(r"Cvar_(SetDefaultAndValue|ResetVar)\s*\(\s*&?(\w+)")
 _HUD_GROUP_NAME = "MQWCL HUD"
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
 
 
 def _resolve_var_ref(cursor) -> Optional[str]:
@@ -74,42 +62,11 @@ def _resolve_var_ref(cursor) -> Optional[str]:
     return None
 
 
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    text = _read_extent(source_bytes, arg_cursor.extent).strip()
-    if not (text.startswith('"') or text.startswith('L"')):
-        return None
-    parts: list[str] = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i].isspace():
-            i += 1
-        if i < len(text) and text[i] == "L":
-            i += 1
-        if i < len(text) and text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
-
-
 def _literal_or_raw(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    s = _literal_string(arg_cursor, source_bytes)
+    s = literal_string(arg_cursor, source_bytes)
     if s is not None:
         return s
-    raw = _read_extent(source_bytes, arg_cursor.extent).strip()
+    raw = read_extent(source_bytes, arg_cursor.extent).strip()
     if not raw or raw == "NULL":
         return None
     return raw
@@ -144,14 +101,14 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     fields = list(init_list.get_children())
     if len(fields) < 2:
         return None
-    name_raw = _read_extent(source_bytes, fields[0].extent).strip()
-    default_raw = _read_extent(source_bytes, fields[1].extent).strip()
-    name = _strip_quotes(name_raw)
-    default = unescape_c_string(_strip_quotes(default_raw))
+    name_raw = read_extent(source_bytes, fields[0].extent).strip()
+    default_raw = read_extent(source_bytes, fields[1].extent).strip()
+    name = strip_quotes(name_raw)
+    default = unescape_c_string(strip_quotes(default_raw))
     flags_raw: str = ""
     flag_names: list[str] = []
     if len(fields) >= 3:
-        flags_raw = normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
+        flags_raw = normalize_flags_raw(read_extent(source_bytes, fields[2].extent))
         flag_names = parse_flag_names(flags_raw)
     on_change: Optional[str] = None
     if len(fields) >= 4:
@@ -159,7 +116,7 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
         if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
             on_change = ref.spelling
         else:
-            on_change = _read_extent(source_bytes, fields[3].extent).strip() or None
+            on_change = read_extent(source_bytes, fields[3].extent).strip() or None
     return {
         "cvar_name": name,
         "c_ident": node.spelling,
@@ -193,16 +150,8 @@ _NESTED_CVAR_TABLE_TYPES: dict[str, list[int]] = {
 }
 
 
-def _strip_array_and_qualifiers(tspell: str) -> str:
-    s = tspell.split("[", 1)[0].strip()
-    for q in ("const ", "static "):
-        if s.startswith(q):
-            s = s[len(q):].strip()
-    return s
-
-
 def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
-    base = _strip_array_and_qualifiers(node.type.spelling)
+    base = strip_array_and_qualifiers(node.type.spelling)
     indices = _NESTED_CVAR_TABLE_TYPES.get(base)
     if indices is None:
         return []
@@ -242,16 +191,16 @@ def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
             inner = list(cvar_init.get_children())
             if len(inner) < 2:
                 continue
-            name = _strip_quotes(_read_extent(source_bytes, inner[0].extent).strip())
+            name = strip_quotes(read_extent(source_bytes, inner[0].extent).strip())
             if not name:
                 # Empty-name slot = unused placeholder (e.g. rlpack has no
                 # fullbright cvar — element init literal is {"", "0"}).
                 continue
-            default = unescape_c_string(_strip_quotes(_read_extent(source_bytes, inner[1].extent).strip()))
+            default = unescape_c_string(strip_quotes(read_extent(source_bytes, inner[1].extent).strip()))
             flags_raw: str = ""
             flag_names: list[str] = []
             if len(inner) >= 3:
-                flags_raw = normalize_flags_raw(_read_extent(source_bytes, inner[2].extent))
+                flags_raw = normalize_flags_raw(read_extent(source_bytes, inner[2].extent))
                 flag_names = parse_flag_names(flags_raw)
             on_change: Optional[str] = None
             if len(inner) >= 4:
@@ -299,16 +248,16 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
         fields = list(init.get_children())
         if len(fields) < 1:
             continue
-        name = _strip_quotes(_read_extent(source_bytes, fields[0].extent).strip())
+        name = strip_quotes(read_extent(source_bytes, fields[0].extent).strip())
         if not name:
             continue
         default = ""
         if len(fields) >= 2:
-            default = unescape_c_string(_strip_quotes(_read_extent(source_bytes, fields[1].extent).strip()))
+            default = unescape_c_string(strip_quotes(read_extent(source_bytes, fields[1].extent).strip()))
         flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
+            flags_raw = normalize_flags_raw(read_extent(source_bytes, fields[2].extent))
             flag_names = parse_flag_names(flags_raw)
         on_change: Optional[str] = None
         if len(fields) >= 4:
@@ -316,7 +265,7 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
             if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
                 on_change = ref.spelling
             else:
-                on_change = _read_extent(source_bytes, fields[3].extent).strip() or None
+                on_change = read_extent(source_bytes, fields[3].extent).strip() or None
         out.append({
             "cvar_name": name,
             "c_ident": f"{node.spelling}[{i}]",
@@ -339,7 +288,7 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
 def _synthesize_hud_cvars(call_cursor, args, source_bytes: bytes, file_name: str) -> list[dict]:
     if len(args) < 16:
         return []
-    name = _literal_string(args[0], source_bytes)
+    name = literal_string(args[0], source_bytes)
     if not name or not re.fullmatch(r"[a-z][a-z0-9_]*", name):
         return []
     show = _literal_or_raw(args[7], source_bytes)
@@ -391,7 +340,7 @@ def _synthesize_hud_cvars(call_cursor, args, source_bytes: bytes, file_name: str
     out.append(mk("item_opacity", item_opacity if item_opacity is not None else "1"))
     i = 16
     while i + 1 < len(args):
-        suffix = _literal_string(args[i], source_bytes)
+        suffix = literal_string(args[i], source_bytes)
         if suffix is None:
             break
         default = _literal_or_raw(args[i + 1], source_bytes)
@@ -467,7 +416,7 @@ class CvarsEzquakeHandler(Visitor):
             tspell = cursor.type.spelling
             is_cvar_scalar = bool(re.fullmatch(r"(?:const\s+)?cvar_t", tspell))
             is_cvar_array = bool(re.fullmatch(r"(?:const\s+)?cvar_t\s*\[\d*\]", tspell))
-            is_nested_table = _strip_array_and_qualifiers(tspell) in _NESTED_CVAR_TABLE_TYPES
+            is_nested_table = strip_array_and_qualifiers(tspell) in _NESTED_CVAR_TABLE_TYPES
             if is_nested_table:
                 for elem in _extract_nested_cvar_table(cursor, self.source_bytes):
                     if elem["cvar_name"] in self._seen_names:
@@ -519,7 +468,7 @@ class CvarsEzquakeHandler(Visitor):
         for _, nm, args, call_cursor in self._calls:
             if nm == "Cvar_SetCurrentGroup":
                 if args:
-                    tok = _read_extent(self.source_bytes, args[0].extent).strip()
+                    tok = read_extent(self.source_bytes, args[0].extent).strip()
                     current_group = self._group_defs.get(tok)
             elif nm == "Cvar_ResetCurrentGroup":
                 current_group = None

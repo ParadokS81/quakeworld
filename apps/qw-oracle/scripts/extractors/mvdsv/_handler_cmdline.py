@@ -34,25 +34,10 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
+from extractor_lib._source import (  # noqa: E402
+    read_extent,
+    strip_quotes,
+)
 
 
 class CmdlineMvdsvHandler(Visitor):
@@ -113,13 +98,13 @@ class CmdlineMvdsvHandler(Visitor):
         if not args:
             return
 
-        text = _read_extent(self.source_bytes, args[0].extent).strip()
+        text = read_extent(self.source_bytes, args[0].extent).strip()
         # Require a literal-quoted first argument. Non-literal args (variables,
         # macros) are skipped -- MVDSV's COM_CheckParm sites all use literal
         # strings (verified Pass 1).
         if not (text.startswith('"') and text.endswith('"')):
             return
-        name = _strip_quotes(text)
+        name = strip_quotes(text)
         if not name:
             return
         # Sanity: cmdline params in MVDSV start with `-` (modern switches) or

@@ -21,54 +21,10 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._source import literal_string
 
 
 CMDLINE_FNS = {"COM_CheckParm"}
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    """Extract the C string value from a string-literal cursor.
-
-    Handles adjacent string-literal concatenation ("a" "b" -> "ab").
-    Returns None for non-literal or non-string arguments.
-    """
-    text = _read_extent(source_bytes, arg_cursor.extent).strip()
-    if not text.startswith('"'):
-        return None
-    parts: list[str] = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i].isspace():
-            i += 1
-        if i < len(text) and text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
 
 
 class CmdlineFteHandler(Visitor):
@@ -101,7 +57,7 @@ class CmdlineFteHandler(Visitor):
         if not args:
             return
 
-        name = _literal_string(args[0], self.source_bytes)
+        name = literal_string(args[0], self.source_bytes)
         if name is None or not name.startswith("-"):
             return
 

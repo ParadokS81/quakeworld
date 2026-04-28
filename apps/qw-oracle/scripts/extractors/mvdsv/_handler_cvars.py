@@ -40,30 +40,15 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._source import (  # noqa: E402
+    read_extent,
+    strip_quotes,
+)
 from extractor_lib._cvar_shared import (  # noqa: E402
     normalize_flags_raw,
     parse_flag_names,
     unescape_c_string,
 )
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
 
 
 def _storage_str(storage_class) -> Optional[str]:
@@ -192,20 +177,20 @@ class CvarsMvdsvHandler(Visitor):
         if len(fields) < 2:
             return
 
-        name_raw = _read_extent(self.source_bytes, fields[0].extent).strip()
-        name = _strip_quotes(name_raw)
+        name_raw = read_extent(self.source_bytes, fields[0].extent).strip()
+        name = strip_quotes(name_raw)
         if not name:
             return
         if name in self._seen_in_file:
             return
 
-        default_raw = _read_extent(self.source_bytes, fields[1].extent).strip()
-        default_value = unescape_c_string(_strip_quotes(default_raw))
+        default_raw = read_extent(self.source_bytes, fields[1].extent).strip()
+        default_value = unescape_c_string(strip_quotes(default_raw))
 
         flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = normalize_flags_raw(_read_extent(self.source_bytes, fields[2].extent))
+            flags_raw = normalize_flags_raw(read_extent(self.source_bytes, fields[2].extent))
             flag_names = parse_flag_names(flags_raw)
 
         on_change: Optional[str] = None
@@ -217,7 +202,7 @@ class CvarsMvdsvHandler(Visitor):
                 # Fallback to source extent if libclang couldn't resolve the
                 # function reference (rare for MVDSV; on_change is always a
                 # plain identifier in this codebase).
-                on_change = _read_extent(self.source_bytes, fields[3].extent).strip() or None
+                on_change = read_extent(self.source_bytes, fields[3].extent).strip() or None
 
         location = cursor.location
         storage_class = _storage_str(cursor.storage_class)

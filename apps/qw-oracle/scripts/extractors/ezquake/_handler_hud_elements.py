@@ -17,6 +17,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import literal_string, read_extent  # noqa: E402
 
 
 HUD_T_C_TO_SCHEMA_NAME = {
@@ -39,53 +40,11 @@ _HUD_FP_FIELD_RE = re.compile(
 )
 
 
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    text = _read_extent(source_bytes, arg_cursor.extent).strip()
-    if not (text.startswith('"') or text.startswith('L"')):
-        return None
-    parts: list[str] = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i].isspace():
-            i += 1
-        if i < len(text) and text[i] == "L":
-            i += 1
-        if i < len(text) and text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
-
-
 def _literal_or_raw(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    s = _literal_string(arg_cursor, source_bytes)
+    s = literal_string(arg_cursor, source_bytes)
     if s is not None:
         return s
-    raw = _read_extent(source_bytes, arg_cursor.extent).strip()
+    raw = read_extent(source_bytes, arg_cursor.extent).strip()
     if not raw or raw == "NULL":
         return None
     return raw
@@ -147,7 +106,7 @@ def _synthesize_owned_cvar_names(name: str, args: list, source_bytes: bytes) -> 
     out.append(f"hud_{name}_item_opacity")
     i = 16
     while i + 1 < len(args):
-        suffix = _literal_string(args[i], source_bytes)
+        suffix = literal_string(args[i], source_bytes)
         if suffix is None:
             break
         default = _literal_or_raw(args[i + 1], source_bytes)
@@ -236,14 +195,14 @@ class HudElementsEzquakeHandler(Visitor):
         args = list(cursor.get_arguments())
         if len(args) < 16:
             return
-        name = _literal_string(args[0], self.source_bytes)
+        name = literal_string(args[0], self.source_bytes)
         if not name or not re.fullmatch(r"[a-z][a-z0-9_]*", name):
             return
-        alias = _literal_string(args[1], self.source_bytes)
-        description = _literal_string(args[2], self.source_bytes)
-        flags_raw = _read_extent(self.source_bytes, args[3].extent).strip()
-        min_state_raw = _read_extent(self.source_bytes, args[4].extent).strip()
-        draw_order_raw = _read_extent(self.source_bytes, args[5].extent).strip()
+        alias = literal_string(args[1], self.source_bytes)
+        description = literal_string(args[2], self.source_bytes)
+        flags_raw = read_extent(self.source_bytes, args[3].extent).strip()
+        min_state_raw = read_extent(self.source_bytes, args[4].extent).strip()
+        draw_order_raw = read_extent(self.source_bytes, args[5].extent).strip()
         draw_fn = resolve_fn_ref(args[6])
         owned = _synthesize_owned_cvar_names(name, args, self.source_bytes)
         loc = cursor.location

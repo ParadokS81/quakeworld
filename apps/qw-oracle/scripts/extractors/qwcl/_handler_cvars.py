@@ -34,28 +34,14 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._source import (  # noqa: E402
+    read_extent,
+    strip_quotes,
+)
 from extractor_lib._cvar_shared import (  # noqa: E402
     normalize_flags_raw,
     unescape_c_string,
 )
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
 
 
 def _storage_str(storage_class) -> str:
@@ -99,10 +85,10 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     fields = list(init_list.get_children())
     if len(fields) < 2:
         return None
-    name_raw = _read_extent(source_bytes, fields[0].extent).strip()
-    default_raw = _read_extent(source_bytes, fields[1].extent).strip()
-    name = _strip_quotes(name_raw)
-    default = unescape_c_string(_strip_quotes(default_raw))
+    name_raw = read_extent(source_bytes, fields[0].extent).strip()
+    default_raw = read_extent(source_bytes, fields[1].extent).strip()
+    name = strip_quotes(name_raw)
+    default = unescape_c_string(strip_quotes(default_raw))
     if not name:
         return None
 
@@ -110,11 +96,11 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     info: Optional[bool] = None
     flags_raw_parts: list[str] = []
     if len(fields) >= 3:
-        a_raw = _read_extent(source_bytes, fields[2].extent).strip()
+        a_raw = read_extent(source_bytes, fields[2].extent).strip()
         flags_raw_parts.append(a_raw)
         archive = _bool_field(a_raw)
     if len(fields) >= 4:
-        i_raw = _read_extent(source_bytes, fields[3].extent).strip()
+        i_raw = read_extent(source_bytes, fields[3].extent).strip()
         flags_raw_parts.append(i_raw)
         info = _bool_field(i_raw)
 

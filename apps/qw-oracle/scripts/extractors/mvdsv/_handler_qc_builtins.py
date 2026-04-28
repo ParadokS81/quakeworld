@@ -67,23 +67,10 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import read_extent  # noqa: E402
 
 
 _PREFIX_STRIP_RE = re.compile(r"^(PF_|PR2_|EXT_)")
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    if not extent or not extent.start or not extent.end:
-        return ""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
 
 
 def _trailing_comment_at_line(source_bytes: bytes, line: int) -> Optional[str]:
@@ -158,7 +145,7 @@ def _resolve_string_literal(arg_cursor, source_bytes: bytes) -> Optional[str]:
     while stack:
         n = stack.pop()
         if n.kind == CursorKind.STRING_LITERAL:
-            text = _read_extent(source_bytes, n.extent).strip()
+            text = read_extent(source_bytes, n.extent).strip()
             if text.startswith('"') and text.endswith('"'):
                 return text[1:-1] or None
         stack.extend(list(n.get_children()))
@@ -181,7 +168,7 @@ def _resolve_integer_literal(arg_cursor, source_bytes: bytes) -> Optional[int]:
     while stack:
         n = stack.pop()
         if n.kind == CursorKind.INTEGER_LITERAL:
-            text = _read_extent(source_bytes, n.extent).strip().rstrip(",")
+            text = read_extent(source_bytes, n.extent).strip().rstrip(",")
             try:
                 return int(text, 0)
             except ValueError:

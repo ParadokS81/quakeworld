@@ -13,7 +13,6 @@ group bucket "misc" since the ezQuake-era prefix-based group taxonomy
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from clang.cindex import CursorKind
 
@@ -23,49 +22,12 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import literal_string  # noqa: E402
 
 
 GROUPS = [
     {"id": "misc", "name": "Miscellaneous"},
 ]
-
-
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    extent = arg_cursor.extent
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return None
-    try:
-        text = source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return None
-
-    parts: list[str] = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i] in " \t\n\r":
-            i += 1
-        if i >= len(text):
-            break
-        if text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
 
 
 class CommandsQwclHandler(Visitor):
@@ -92,7 +54,7 @@ class CommandsQwclHandler(Visitor):
         args = list(cursor.get_arguments())
         if len(args) < 2:
             return
-        name = _literal_string(args[0], self.source_bytes)
+        name = literal_string(args[0], self.source_bytes)
         if not name or name in self._seen_in_file:
             return
         handler = resolve_fn_ref(args[1])

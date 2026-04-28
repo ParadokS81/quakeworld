@@ -84,18 +84,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    """Return the source text for an AST extent."""
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
+from extractor_lib._source import read_extent  # noqa: E402
 
 
 def _classify_scope(first_arg_text: str) -> Optional[str]:
@@ -197,13 +186,13 @@ class InfoKeysMvdsvHandler(Visitor):
             return
 
         # Classify scope from first-arg source text.
-        first_text = _read_extent(self.source_bytes, args[0].extent)
+        first_text = read_extent(self.source_bytes, args[0].extent)
         scope = _classify_scope(first_text)
         if scope is None:
             return
 
         # Require a literal-string second arg (the key name).
-        second_text = _read_extent(self.source_bytes, args[1].extent).strip()
+        second_text = read_extent(self.source_bytes, args[1].extent).strip()
         if not (second_text.startswith('"') and second_text.endswith('"')):
             return
         key_name = second_text[1:-1]

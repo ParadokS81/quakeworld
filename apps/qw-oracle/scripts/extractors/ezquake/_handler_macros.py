@@ -18,20 +18,10 @@ sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
 from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
+from extractor_lib._source import literal_string, read_extent  # noqa: E402
 
 
 _MACRO_DEF_RE = re.compile(r"^\s*MACRO_DEF\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)", re.MULTILINE)
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
 
 
 def _resolve_enum_constant(arg_cursor) -> Optional[str]:
@@ -44,37 +34,6 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
                 return ref.spelling
         stack.extend(list(n.get_children()))
     return None
-
-
-def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
-    text = _read_extent(source_bytes, arg_cursor.extent).strip()
-    if not (text.startswith('"') or text.startswith('L"')):
-        return None
-    parts: list[str] = []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i].isspace():
-            i += 1
-        if i < len(text) and text[i] == "L":
-            i += 1
-        if i < len(text) and text[i] == '"':
-            i += 1
-            buf = []
-            while i < len(text):
-                c = text[i]
-                if c == "\\" and i + 1 < len(text):
-                    buf.append(text[i + 1])
-                    i += 2
-                    continue
-                if c == '"':
-                    i += 1
-                    break
-                buf.append(c)
-                i += 1
-            parts.append("".join(buf))
-        else:
-            break
-    return "".join(parts) if parts else None
 
 
 class MacrosEzquakeHandler(Visitor):
@@ -144,7 +103,7 @@ class MacrosEzquakeHandler(Visitor):
         if enum_name and enum_name.startswith("macro_"):
             public_name = enum_name[len("macro_"):]
         else:
-            lit = _literal_string(args[0], self.source_bytes)
+            lit = literal_string(args[0], self.source_bytes)
             if lit:
                 public_name = lit
         if not public_name or public_name in self._seen_in_file:
@@ -152,7 +111,7 @@ class MacrosEzquakeHandler(Visitor):
         handler = resolve_fn_ref(args[1])
         teamplay_raw: Optional[str] = None
         if sp == "Cmd_AddMacroEx" and len(args) >= 3:
-            teamplay_raw = _read_extent(self.source_bytes, args[2].extent).strip() or None
+            teamplay_raw = read_extent(self.source_bytes, args[2].extent).strip() or None
         loc = cursor.location
         build_variant = "client" if variant == "client" else "server-build"
         self._rows.append({

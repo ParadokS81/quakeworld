@@ -22,6 +22,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._source import read_extent, strip_quotes  # noqa: E402
 
 
 LOADER_FUNCTIONS: set[str] = {
@@ -130,24 +131,6 @@ FORMAT_FUNCTIONS: dict[str, int] = {
 }
 
 
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
-
-
 def _classify_load_trigger(enclosing: Optional[str]) -> str:
     if not enclosing:
         return "unknown"
@@ -239,7 +222,7 @@ def _conversion_slots(fmt: str) -> list[str]:
 
 
 def _extract_expression_snippet(cursor, source_bytes: bytes) -> str:
-    text = _read_extent(source_bytes, cursor.extent).strip()
+    text = read_extent(source_bytes, cursor.extent).strip()
     return " ".join(text.split())
 
 
@@ -295,7 +278,7 @@ def _classify_parameterized_call(call_cursor, source_bytes: bytes):
         lit_node = ch[0]
     if lit_node.kind != CursorKind.STRING_LITERAL:
         return None
-    template = _strip_quotes(_read_extent(source_bytes, lit_node.extent).strip())
+    template = strip_quotes(read_extent(source_bytes, lit_node.extent).strip())
     slots = _conversion_slots(template)
     variadic = args[fmt_idx + 1: fmt_idx + 1 + len(slots)]
     parameters: list[dict] = []
@@ -441,7 +424,7 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
         node = ch[0]
 
     if node.kind == CursorKind.STRING_LITERAL:
-        lit = _strip_quotes(_read_extent(source_bytes, node.extent).strip())
+        lit = strip_quotes(read_extent(source_bytes, node.extent).strip())
         return "literal", lit, None, None
 
     cvar_ident = _resolve_cvar_ref(arg_cursor)

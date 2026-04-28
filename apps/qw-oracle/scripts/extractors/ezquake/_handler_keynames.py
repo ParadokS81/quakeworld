@@ -14,10 +14,16 @@ against a file the driver was going to parse anyway, which is fine.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Any, Optional
 
 from clang.cindex import CursorKind, Index, TranslationUnit
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._source import read_extent, strip_quotes  # noqa: E402
 
 
 # Minimal args that match the legacy keynames extractor exactly.
@@ -33,24 +39,6 @@ _PARSE_OPTS = (
     TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
     | TranslationUnit.PARSE_INCOMPLETE
 )
-
-
-def _read_extent(source_bytes: bytes, extent) -> str:
-    start = extent.start.offset
-    end = extent.end.offset
-    if start is None or end is None or start < 0 or end < start:
-        return ""
-    try:
-        return source_bytes[start:end].decode("utf-8", errors="replace")
-    except Exception:
-        return ""
-
-
-def _strip_quotes(s: str) -> str:
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
 
 
 def _resolve_enum(cursor):
@@ -115,14 +103,14 @@ def _extract_keynames_from_tu(tu, source_bytes: bytes, target_path: str, label: 
                 fields = list(inner.get_children())
                 if len(fields) < 2:
                     continue
-                name_raw = _read_extent(source_bytes, fields[0].extent).strip()
+                name_raw = read_extent(source_bytes, fields[0].extent).strip()
                 if not (name_raw.startswith('"') and name_raw.endswith('"')):
                     continue
-                name = _strip_quotes(name_raw)
+                name = strip_quotes(name_raw)
                 if not name:
                     continue
                 ident, numeric = _resolve_enum(fields[1])
-                raw_second = _read_extent(source_bytes, fields[1].extent).strip()
+                raw_second = read_extent(source_bytes, fields[1].extent).strip()
                 if ident is None and numeric is None:
                     numeric = _resolve_literal_value(raw_second)
                 key_code_ident = ident if ident is not None else raw_second
