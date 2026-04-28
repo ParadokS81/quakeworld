@@ -26,7 +26,7 @@ This arc hardens a defense-in-depth gap surfaced by the three Mode B validations
 1. **Handler layer** -- ezhud `flags_raw: None` bypass (1085 actual wrong rows from `plugins/ezhud/*.c`: 1080 from `hud_common.c`, 4 from `hud_editor.c`, 1 from `ezquakeisms.c`) + FTE `_concat_string_literals` token-walk bypass (latent unescape gap across cvars, commands, macros, ezhud, ezscript handlers -- five private copies, not the three Mode B initially flagged).
 2. **Verification layer** -- Runbook Section 3.2 `flags_raw IN ('0', 'CVAR_NONE')` check missed `IS NULL` (the failure shape that actually happened) and has no positive contract.
 3. **Grid layer** -- Two distinct gaps:
-   - (a) The **universal mechanical floor** (entity_type x {count, source_state}) doesn't exist today; this arc introduces it across all four projects.
+   - (a) The **universal mechanical floor** (entity_type x {count, source_state}) doesn't exist today; this arc introduces it across all four projects, with per-project counts derived from a pre-Phase-3 SQL verification step (initial estimate ~54-58 probes total) rather than spec-hardcoded numbers.
    - (b) **Per-project anchor** coverage is uneven: mvdsv 22, fte 11, ezquake 6, qwcl 0; this arc adds anchors for Mode B's load-bearing invariants.
 
 **Out of scope (HANDOVER):**
@@ -124,14 +124,21 @@ Without this audit table the executing terminal would guess and the Phase 1 cont
 `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` Section 3.2 splits:
 
 - **3.2.1 Regression bar (minimal patch).** Existing query gains `OR flags_raw IS NULL`. Catches the IS-NULL shape that escaped this time.
-- **3.2.2 Positive contract.** For `source_state = 'source_backed'` cvars: `flags_raw` MUST be non-NULL AND (`''` (empty, the post-v17 sentinel) OR match `/^[A-Z0-9_]+( \| [A-Z0-9_]+)*$/`). Output: same shape as existing 3.2 stderr (table-formatted), with per-project + per-source-root breakdown columns when violations fire -- "FTE has 1085 violations in plugin:ezhud" is what makes the finding actionable.
-- Section 3.2 footer captures the **candidate positive contracts** list for future runbook expansion: `default_value` C-escape interpretation, `info_key` canonical name shape, `qc_builtin` canonical name shape (post-v18), `handler_fn` shape, description fields.
+- **3.2.2 Positive contract.** For `source_state = 'source_backed'` cvars in `project IN ('ezquake', 'fte', 'mvdsv')`: `flags_raw` MUST be non-NULL AND (`''` (empty, the post-v17 sentinel) OR match `/^[A-Z0-9_]+( \| [A-Z0-9_]+)*$/`). Output: same shape as existing 3.2 stderr (table-formatted), with per-project + per-source-root breakdown columns when violations fire -- "FTE has 1085 violations in plugin:ezhud" is what makes the finding actionable.
+- **QWCL carve-out rationale.** QWCL's 1996-vintage `cvar_t` emits lowercase boolean field values (`"true"`, `"false"`, `"true, true"` -- post-W3 normalized to `"true | false"`). The 3.2.2 contract's domain is post-v17 CVAR_* bitmask normalization; QWCL's flag-field semantic isn't in that domain. Carve-out is cleaner than widening the regex (admits typos like `cvar_archive` lowercase) or renormalizing QWCL (invasive, breaks source-truth representation). "QWCL `flags_raw` shape positive contract" is added to the candidate-positive-contracts list as future-arc work.
+- Section 3.2 footer captures the **candidate positive contracts** list for future runbook expansion: `default_value` C-escape interpretation, `info_key` canonical name shape, `qc_builtin` canonical name shape (post-v18), `handler_fn` shape, description fields, **QWCL `flags_raw` shape (lowercase boolean field values)**.
 
 ### 2.7 Grid uplift
 
 `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` gains:
 
-- **Universal floor (58 probes exactly):** entity_type x {count, source_state} for every entity type each project loads. Per-project breakdown: ezquake +22 (11 entity types x 2), fte +16 (8 types x 2), mvdsv +14 (7 types x 2), qwcl +6 (3 types x 2). Cross-walk is NOT in the floor -- per-project anchor only (mvdsv has scope/channel/table distributions; FTE has engine vs plugin source-root split; ezquake + qwcl have no natural cross-walk dimension).
+- **Universal floor:** entity_type x {count, source_state} for every entity type each project loads. **Pre-Phase-3 verification step (mandatory)** to lock per-project counts:
+  ```
+  sqlite3 "$DB" "SELECT project, type, COUNT(*) FROM entities
+                 GROUP BY project, type HAVING COUNT(*) > 0
+                 ORDER BY project, type;"
+  ```
+  Per-project counts are derived from this output, not from the spec's estimated breakdown. Initial estimate (subject to verification): ezquake ~20-22, fte ~14-16, mvdsv ~14, qwcl ~6 (~54-58 total). Pre-step closes a silent-dead-probe failure mode: probes written for entity types a project doesn't load would assert `COUNT=0` and PASS forever. Cross-walk is NOT in the floor -- per-project anchor only (mvdsv has scope/channel/table distributions; FTE has engine vs plugin source-root split; ezquake + qwcl have no natural cross-walk dimension).
 - **Per-project anchors (exactly 4):**
   - ezquake `gl_lightmode` ping-pong as F1 equality (currently F2 informational).
   - ezquake `doc_only=194` as F1 equality.
@@ -203,7 +210,8 @@ W3: QWCL `, ` -> ` | ` join
 ### Phase 3 (grid uplift, two commits)
 
 ```
-W5: floor probes (58 across four projects)
+W5: floor probes (count derived from pre-Phase-3 SQL verification step;
+    initial estimate 54-58 across four projects)
       v npm run quality-grid -- --project ezquake (then fte, mvdsv, qwcl)
       v all PASS at equality with current loaded counts
       v commit captures the new probe inventory + per-project seed comment block
@@ -251,7 +259,7 @@ Within Phase 3: W5 (floor) before W6 (anchors). Floor establishes equality count
 - [ ] Zero private `_concat_string_literals` copies remain in `apps/qw-oracle/scripts/extractors/fte/_handler_*.py` (`grep -c "^def _concat_string_literals" fte/_handler_*.py` = 0 across all five files).
 - [ ] Zero `flags_raw IS NULL` rows for `source_state = 'source_backed'` cvars across all four projects.
 - [ ] QWCL emits canonical ` | ` separator.
-- [ ] Quality grid has universal floor (58 entity_type x {count, source_state} probes) across all four projects: ezquake +22, fte +16, mvdsv +14, qwcl +6.
+- [ ] Quality grid has universal floor of entity_type x {count, source_state} probes across all four projects, with per-project counts derived from the pre-Phase-3 SQL verification step (recorded in commit body and the per-project comment block in `quality-grid.ts`).
 - [ ] Per-project anchor probes shipped: ezQuake `gl_lightmode` ping-pong (F1 equality), ezQuake `doc_only=194` (F1 equality), QWCL all-source-backed invariant, FTE engine-vs-plugin:ezhud count split. Exactly four; any fifth candidate to HANDOVER.
 - [ ] `quality-grid.ts` includes a per-project comment block near floor probe definitions documenting seed expected values + date + the SQL query used to derive them (audit trail for the magic constants).
 - [ ] Runbook Section 3.2.1 + 3.2.2 documented; "candidate positive contracts" list captures `default_value` C-escape interpretation, `info_key` / `qc_builtin` canonical names, `handler_fn` shape, descriptions as future-arc work.
