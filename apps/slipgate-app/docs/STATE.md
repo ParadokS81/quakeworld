@@ -48,6 +48,16 @@ Setup {
   primary: boolean
   client: ClientInfo      // exe_path, config_name, version, update_channel
   hardware: SetupHardware // dpi, mouse/mousepad/keyboard, grip/aim, overrides
+  quake_dirs: QuakeDirEntry[]  // Phase 3.5b D9: registered quake dirs (0 or 1
+                                //   entries today, plural-shaped for future
+                                //   Tier-3 multi-dir / clean-room migration roles)
+}
+
+QuakeDirEntry {
+  path: string
+  role: "primary"         // role-string union extends in future arcs
+                          //   ("secondary-readonly", "profile", etc.)
+  label?: string          // optional user-facing name
 }
 
 SimulatorPrefs {
@@ -83,13 +93,19 @@ The distinction matters: auto-detected values (from `get_all_specs()`) are ephem
 
 ## Schema migration
 
-`migrateProfile()` in store.ts handles schema upgrades. Today there is one migration:
+`migrateProfile()` in store.ts handles schema upgrades. Two migrations are live:
 
 - **v1 to v2**: v1 had top-level `hardware` and `setup` keys. v2 introduced the `setups[]` array. Detection is by duck-typing: if `data.setups` exists and is an array, it is v2. Otherwise it is v1 and gets migrated.
+- **v2 quake_dirs gain (2026-04-28, Phase 3.5b D9)**: existing v2 profiles are augmented in place with `setups[*].quake_dirs[]`. Detection is duck-typed: if `setup.quake_dirs` is an array it's already migrated; otherwise `deriveQuakeDirs()` synthesizes a single primary entry from the parent dir of `setup.client.exe_path` (when set), or empty array. No schema-version bump because the field is purely additive and consumers tolerate empty.
 
 Known issue (from HEALTH.md): there is no `schema_version` field. When v3 arrives, `migrateProfile()` will have to duck-type v2 vs v3 unless a version field is added first. The HEALTH report recommends adding `schema_version: 2` now to prevent future ambiguity.
 
 `migrateProfile()` also rescues `ezquake_exe_path` from an old `localStorage` key (from before the profile store existed) and migrates it into `setups[0].client.exe_path`.
+
+### `quake_dirs[]` consumers
+
+- `setPrimaryQuakeDir(path)` — set or replace the primary entry on the primary setup (used by `AddClientPanel` after a successful first-launch claim per D9 case 1).
+- `getPrimaryQuakeDir(profile)` — read helper used by `AddClientPanel` to decide D9 dispatch (no-primary / matches-primary / foreign-refuse).
 
 ## Non-profile state (not persisted)
 

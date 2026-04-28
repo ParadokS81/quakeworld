@@ -12,6 +12,8 @@ WINDOWS="/mnt/c/Users/Administrator/projects/slipgate-app"
 mkdir -p "$MONOREPO/src-tauri/resources"
 cp "$MONOREPO/src/lib/config/data/ezquake-asset-bundle.json" \
    "$MONOREPO/src-tauri/resources/ezquake-asset-bundle.json"
+cp "$MONOREPO/src/lib/config/data/fte-asset-bundle.json" \
+   "$MONOREPO/src-tauri/resources/fte-asset-bundle.json"
 
 rsync -a --delete \
   --exclude 'target/' \

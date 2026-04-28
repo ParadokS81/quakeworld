@@ -90,14 +90,15 @@ pub struct Bundle {
     pub asset_loader_sites: Vec<BundleLoaderSite>,
 }
 
-// Bundle file is copied into src-tauri/resources/ by scripts/sync-rust.sh from
+// Bundle files are copied into src-tauri/resources/ by scripts/sync-rust.sh from
 // src/lib/config/data/. The copy keeps the include path self-contained inside
 // src-tauri/ so the Windows build mirror (which only syncs src-tauri/) can compile.
-const BUNDLE_JSON: &str = include_str!("../../resources/ezquake-asset-bundle.json");
+const EZQUAKE_BUNDLE_JSON: &str = include_str!("../../resources/ezquake-asset-bundle.json");
+const FTE_BUNDLE_JSON: &str = include_str!("../../resources/fte-asset-bundle.json");
 
-fn load_bundle() -> Bundle {
-    serde_json::from_str(BUNDLE_JSON).unwrap_or_else(|e| {
-        eprintln!("[browse] bundle parse failed: {}. Browse will classify everything as other.", e);
+fn parse_bundle(json: &str, label: &str) -> Bundle {
+    serde_json::from_str(json).unwrap_or_else(|e| {
+        eprintln!("[browse] {} bundle parse failed: {}. Files matched against this bundle will fall through to other.", label, e);
         Bundle {
             project: String::new(),
             client_defaults: ClientDefaults::default(),
@@ -109,12 +110,15 @@ fn load_bundle() -> Bundle {
     })
 }
 
-/// Load every asset bundle shipped with slipgate. Today there's only one (ezquake),
-/// but the scanner's pipeline iterates this list so adding FTE / MVDSV / KTX bundles
-/// later is data-only: drop the JSON into src/lib/config/data/, mirror it into
-/// src-tauri/resources/, register a new include_str! here.
+/// Load every asset bundle shipped with slipgate. Order is precedence-bearing:
+/// ezQuake first so its rules win first-match category classification on shared
+/// semantics. Adding MVDSV / KTX later is data-only: drop the JSON into
+/// src/lib/config/data/, mirror it via sync-rust.sh, register another include_str!.
 fn load_bundles() -> Vec<Bundle> {
-    vec![load_bundle()]
+    vec![
+        parse_bundle(EZQUAKE_BUNDLE_JSON, "ezquake"),
+        parse_bundle(FTE_BUNDLE_JSON, "fte"),
+    ]
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -379,11 +383,14 @@ fn push_unique(v: &mut Vec<String>, s: &str) {
     }
 }
 
-/// Secondary classifier pass: per-client rules override bundle-derived category when they fire.
-/// - Demo extension (from client_defaults.demo_extensions) -> category = demo.
-/// - Screenshot dir name on any ancestor folder + image extension -> category = screenshot.
-/// - Screenshot filename prefix + image extension -> category = screenshot.
-/// Each successful match appends the bundle's project to matched_rules_by.
+/// Secondary classifier pass: per-client rules can set category when extension-matching
+/// did not. With multiple bundles in scope, bundle ORDER is precedence-bearing — the first
+/// bundle whose rule fires owns the category, later bundles only contribute provenance via
+/// matched_rules_by. The category_id is namespaced to the winning bundle's project so the
+/// UI can render per-engine semantics distinctly.
+/// - Demo extension (from client_defaults.demo_extensions) -> category = <project>:demo.
+/// - Screenshot dir name on any ancestor folder + image extension -> category = <project>:screenshot.
+/// - Screenshot filename prefix + image extension -> category = <project>:screenshot.
 pub fn apply_client_rules(file: &mut ScannedFile, bundles: &[Bundle]) {
     let lower_path = file.virtual_path.to_lowercase();
     let (_parent, leaf_stem, leaf_ext) = split_virtual_path(&lower_path);
@@ -399,7 +406,9 @@ pub fn apply_client_rules(file: &mut ScannedFile, bundles: &[Bundle]) {
             .iter()
             .any(|e| leaf_ext == e.to_lowercase());
         if demo_hit {
-            file.category_id = Some("ezquake:asset_category:demo".to_string());
+            if file.category_id.is_none() {
+                file.category_id = Some(format!("{}:asset_category:demo", project));
+            }
             push_unique(&mut file.matched_rules_by, project);
             continue;
         }
@@ -423,7 +432,9 @@ pub fn apply_client_rules(file: &mut ScannedFile, bundles: &[Bundle]) {
             .any(|p| leaf_stem.starts_with(&p.to_lowercase()));
 
         if sshot_dir_hit || prefix_hit {
-            file.category_id = Some("ezquake:asset_category:screenshot".to_string());
+            if file.category_id.is_none() {
+                file.category_id = Some(format!("{}:asset_category:screenshot", project));
+            }
             push_unique(&mut file.matched_rules_by, project);
         }
     }
@@ -501,7 +512,23 @@ pub async fn scan_quake_dir(
     let root_str = root.to_string_lossy().to_string();
 
     let bundles = load_bundles();
-    let bundle = &bundles[0];
+    // Flatten per-bundle rules into single slices in bundle iteration order
+    // (ezquake-then-fte). classify_extension's first-match-wins behavior gives
+    // ezQuake precedence on shared extensions automatically. Indices into
+    // flat_cvar_bindings round-trip through ScannedFile.consumed_by.cvar_bindings,
+    // so the TS-side bundle.ts MUST hydrate cvar_bindings in the same order.
+    let flat_extensions: Vec<BundleExtension> = bundles
+        .iter()
+        .flat_map(|b| b.asset_extensions.iter().cloned())
+        .collect();
+    let flat_loader_sites: Vec<BundleLoaderSite> = bundles
+        .iter()
+        .flat_map(|b| b.asset_loader_sites.iter().cloned())
+        .collect();
+    let flat_cvar_bindings: Vec<BundleCvarBinding> = bundles
+        .iter()
+        .flat_map(|b| b.asset_cvar_bindings.iter().cloned())
+        .collect();
     let mut warnings: Vec<ScanWarning> = Vec::new();
 
     let loose = walk_loose_files(&root).map_err(|e| format!("walk failed: {}", e))?;
@@ -551,14 +578,14 @@ pub async fn scan_quake_dir(
     let mut files: Vec<ScannedFile> = Vec::with_capacity(candidates.len());
     for (i, (vp, container, size, mtime)) in candidates.into_iter().enumerate() {
         let normalized = normalize_for_lifo(&vp, &container);
-        let category_id = classify_extension(&normalized, &bundle.asset_extensions);
+        let category_id = classify_extension(&normalized, &flat_extensions);
         let confidence = match (&category_id, &container) {
             (None, _) => Confidence::Unclassified,
             (Some(_), Container::Loose) => Confidence::Heuristic,
             (Some(_), Container::Archive { .. }) => Confidence::Heuristic,
         };
-        let loader_matches = match_loader_sites(&normalized, &bundle.asset_loader_sites);
-        let cvar_matches = match_cvar_bindings(&normalized, &bundle.asset_cvar_bindings, &merged_cvars);
+        let loader_matches = match_loader_sites(&normalized, &flat_loader_sites);
+        let cvar_matches = match_cvar_bindings(&normalized, &flat_cvar_bindings, &merged_cvars);
         let confidence = if !loader_matches.is_empty() {
             Confidence::Certain
         } else if !cvar_matches.is_empty() {
@@ -596,7 +623,7 @@ pub async fn scan_quake_dir(
     compute_match_groups(&mut files, &bundles);
 
     let unresolved_external_refs =
-        find_external_refs(&bundle.asset_cvar_bindings, &merged_cvars, &root_str);
+        find_external_refs(&flat_cvar_bindings, &merged_cvars, &root_str);
 
     let clients_detected = vec![ClientInfo {
         name: "ezquake".to_string(),
