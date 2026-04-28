@@ -1295,6 +1295,205 @@ function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): ProbeResult 
 }
 
 // ---------------------------------------------------------------------------
+// Floor probes (Phase 6, 2026-04-28) — universal mechanical floor
+// ---------------------------------------------------------------------------
+//
+// Every (project, type) entity row gets a count probe + a source_state
+// distribution probe. Closes the silent-dead-probe failure mode: probes
+// for unloaded entity types would assert COUNT=0 and PASS forever.
+//
+// Seed values captured 2026-04-28 (post-W3, schema v18) from:
+//   sqlite3 "$DB" "SELECT project, type, COUNT(*) FROM entities
+//                  GROUP BY project, type HAVING COUNT(*) > 0
+//                  ORDER BY project, type;"
+//
+// Per-project entity counts:
+//   ezquake: asset_category=26, cmdline_param=77, command=560, cvar=2989,
+//            flag_bit=50, hud_element=85, keyname=148, macro=68, ruleset=6,
+//            token_primitive=33  (10 types)
+//   fte:     asset_category=28, cmdline_param=108, command=556, cvar=2482,
+//            cvar_alias=38, macro=67  (6 types)
+//   mvdsv:   cmdline_param=11, command=108, cvar=183, info_key=45,
+//            log_template=691, protocol_message=105, qc_builtin=93  (7 types)
+//   qwcl:    cmdline_param=72, command=121, cvar=187  (3 types)
+//   total: 26 (project, type) pairs -> 52 floor probes (count + source_state).
+//
+// Source_state distributions captured from:
+//   sqlite3 "$DB" "SELECT project, type, source_state, COUNT(*) FROM entities
+//                  GROUP BY project, type, source_state HAVING COUNT(*) > 0
+//                  ORDER BY project, type, source_state;"
+//
+//   ezquake: cmdline_param  doc_only=2 source_backed=75
+//            command        doc_only=41 source_backed=511 source_retired=8
+//            cvar           doc_only=149 source_backed=2835 source_retired=5
+//            macro          doc_only=2 source_backed=66
+//            (others: source_backed only)
+//   fte/mvdsv/qwcl: every type all source_backed.
+//
+// When an entity-type count legitimately changes (new entities loaded,
+// schema migration shifts row counts, etc.), update both the probe's
+// `expected` constant AND this comment block. Failure messages surface
+// actual-vs-expected naturally so drift is loud.
+
+export function makeFloorCountProbe(
+  project: Project,
+  type: string,
+  expected: number,
+): Probe {
+  const name = `F1.${project}.floor.${type}_count`;
+  return {
+    name,
+    family: 'regression',
+    description: `Floor count probe: entities[project=${project}, type=${type}] equals ${expected}.`,
+    run: (ctx: ProbeContext): ProbeResult => {
+      if (ctx.project !== project) {
+        return {
+          name,
+          family: 'regression',
+          description: '',
+          status: 'PASS',
+          count: 0,
+          summary: `skipped (not ${project} project)`,
+          examples: [],
+        };
+      }
+      const row = ctx.db
+        .prepare('SELECT COUNT(*) AS n FROM entities WHERE project=? AND type=?')
+        .get(project, type) as { n: number };
+      const actual = row.n;
+      const status: ProbeStatus = actual === expected ? 'PASS' : 'FAIL';
+      return {
+        name,
+        family: 'regression',
+        description: '',
+        status,
+        count: actual,
+        summary: `${type}: actual=${actual}, expected=${expected}`,
+        examples: [],
+      };
+    },
+  };
+}
+
+export function makeFloorSourceStateProbe(
+  project: Project,
+  type: string,
+  expected: Record<string, number>,
+): Probe {
+  const name = `F1.${project}.floor.${type}_source_state`;
+  return {
+    name,
+    family: 'regression',
+    description: `Floor source_state probe: entities[project=${project}, type=${type}] grouped by source_state.`,
+    run: (ctx: ProbeContext): ProbeResult => {
+      if (ctx.project !== project) {
+        return {
+          name,
+          family: 'regression',
+          description: '',
+          status: 'PASS',
+          count: 0,
+          summary: `skipped (not ${project} project)`,
+          examples: [],
+        };
+      }
+      const rows = ctx.db
+        .prepare(
+          'SELECT source_state, COUNT(*) AS n FROM entities WHERE project=? AND type=? GROUP BY source_state',
+        )
+        .all(project, type) as { source_state: string; n: number }[];
+      const actual: Record<string, number> = {};
+      for (const r of rows) actual[r.source_state] = r.n;
+      const expectedKeys = Object.keys(expected).sort().join(',');
+      const actualKeys = Object.keys(actual).sort().join(',');
+      let match = expectedKeys === actualKeys;
+      if (match) {
+        for (const k of Object.keys(expected)) {
+          if (expected[k] !== actual[k]) {
+            match = false;
+            break;
+          }
+        }
+      }
+      const status: ProbeStatus = match ? 'PASS' : 'FAIL';
+      return {
+        name,
+        family: 'regression',
+        description: '',
+        status,
+        count: rows.reduce((s, r) => s + r.n, 0),
+        summary: `actual=${JSON.stringify(actual)}, expected=${JSON.stringify(expected)}`,
+        examples: [],
+      };
+    },
+  };
+}
+
+const EZQUAKE_FLOOR_PROBES: Probe[] = [
+  makeFloorCountProbe('ezquake', 'asset_category', 26),
+  makeFloorSourceStateProbe('ezquake', 'asset_category', { source_backed: 26 }),
+  makeFloorCountProbe('ezquake', 'cmdline_param', 77),
+  makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 2, source_backed: 75 }),
+  makeFloorCountProbe('ezquake', 'command', 560),
+  makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 41, source_backed: 511, source_retired: 8 }),
+  makeFloorCountProbe('ezquake', 'cvar', 2989),
+  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 149, source_backed: 2835, source_retired: 5 }),
+  makeFloorCountProbe('ezquake', 'flag_bit', 50),
+  makeFloorSourceStateProbe('ezquake', 'flag_bit', { source_backed: 50 }),
+  makeFloorCountProbe('ezquake', 'hud_element', 85),
+  makeFloorSourceStateProbe('ezquake', 'hud_element', { source_backed: 85 }),
+  makeFloorCountProbe('ezquake', 'keyname', 148),
+  makeFloorSourceStateProbe('ezquake', 'keyname', { source_backed: 148 }),
+  makeFloorCountProbe('ezquake', 'macro', 68),
+  makeFloorSourceStateProbe('ezquake', 'macro', { doc_only: 2, source_backed: 66 }),
+  makeFloorCountProbe('ezquake', 'ruleset', 6),
+  makeFloorSourceStateProbe('ezquake', 'ruleset', { source_backed: 6 }),
+  makeFloorCountProbe('ezquake', 'token_primitive', 33),
+  makeFloorSourceStateProbe('ezquake', 'token_primitive', { source_backed: 33 }),
+];
+
+const FTE_FLOOR_PROBES: Probe[] = [
+  makeFloorCountProbe('fte', 'asset_category', 28),
+  makeFloorSourceStateProbe('fte', 'asset_category', { source_backed: 28 }),
+  makeFloorCountProbe('fte', 'cmdline_param', 108),
+  makeFloorSourceStateProbe('fte', 'cmdline_param', { source_backed: 108 }),
+  makeFloorCountProbe('fte', 'command', 556),
+  makeFloorSourceStateProbe('fte', 'command', { source_backed: 556 }),
+  makeFloorCountProbe('fte', 'cvar', 2482),
+  makeFloorSourceStateProbe('fte', 'cvar', { source_backed: 2482 }),
+  makeFloorCountProbe('fte', 'cvar_alias', 38),
+  makeFloorSourceStateProbe('fte', 'cvar_alias', { source_backed: 38 }),
+  makeFloorCountProbe('fte', 'macro', 67),
+  makeFloorSourceStateProbe('fte', 'macro', { source_backed: 67 }),
+];
+
+const MVDSV_FLOOR_PROBES: Probe[] = [
+  makeFloorCountProbe('mvdsv', 'cmdline_param', 11),
+  makeFloorSourceStateProbe('mvdsv', 'cmdline_param', { source_backed: 11 }),
+  makeFloorCountProbe('mvdsv', 'command', 108),
+  makeFloorSourceStateProbe('mvdsv', 'command', { source_backed: 108 }),
+  makeFloorCountProbe('mvdsv', 'cvar', 183),
+  makeFloorSourceStateProbe('mvdsv', 'cvar', { source_backed: 183 }),
+  makeFloorCountProbe('mvdsv', 'info_key', 45),
+  makeFloorSourceStateProbe('mvdsv', 'info_key', { source_backed: 45 }),
+  makeFloorCountProbe('mvdsv', 'log_template', 691),
+  makeFloorSourceStateProbe('mvdsv', 'log_template', { source_backed: 691 }),
+  makeFloorCountProbe('mvdsv', 'protocol_message', 105),
+  makeFloorSourceStateProbe('mvdsv', 'protocol_message', { source_backed: 105 }),
+  makeFloorCountProbe('mvdsv', 'qc_builtin', 93),
+  makeFloorSourceStateProbe('mvdsv', 'qc_builtin', { source_backed: 93 }),
+];
+
+const QWCL_FLOOR_PROBES: Probe[] = [
+  makeFloorCountProbe('qwcl', 'cmdline_param', 72),
+  makeFloorSourceStateProbe('qwcl', 'cmdline_param', { source_backed: 72 }),
+  makeFloorCountProbe('qwcl', 'command', 121),
+  makeFloorSourceStateProbe('qwcl', 'command', { source_backed: 121 }),
+  makeFloorCountProbe('qwcl', 'cvar', 187),
+  makeFloorSourceStateProbe('qwcl', 'cvar', { source_backed: 187 }),
+];
+
+// ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
 
@@ -1329,6 +1528,12 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.mvdsv.sv_maxfps_default_77', family: 'regression', description: '', run: probeMvdsvMaxfpsDefault77 },
   { name: 'F1.mvdsv.svc_print_value_8', family: 'regression', description: '', run: probeMvdsvSvcPrintValue8 },
   { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', run: probeMvdsvMakevectorsBuiltin1 },
+  // Phase 6 floor probes (added 2026-04-28) — universal mechanical floor
+  // (entity_type x {count, source_state}) across all four projects.
+  ...EZQUAKE_FLOOR_PROBES,
+  ...FTE_FLOOR_PROBES,
+  ...MVDSV_FLOOR_PROBES,
+  ...QWCL_FLOOR_PROBES,
 ];
 
 const ANOMALY_PROBES: Probe[] = [
