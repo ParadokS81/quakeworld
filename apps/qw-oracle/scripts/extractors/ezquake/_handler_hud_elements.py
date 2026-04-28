@@ -6,12 +6,16 @@ ignores server TUs. Legacy behavior preserved.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 HUD_T_C_TO_SCHEMA_NAME = {
@@ -171,7 +175,7 @@ def _synthesize_owned_cvar_names(name: str, args: list, source_bytes: bytes) -> 
     return deduped
 
 
-class HudElementsHandler(Visitor):
+class HudElementsEzquakeHandler(Visitor):
     name = "hud-elements"
     output_filename = "ezquake-hud-elements-ast.json"
 

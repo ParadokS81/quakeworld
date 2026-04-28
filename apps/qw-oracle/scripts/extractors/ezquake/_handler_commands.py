@@ -1,19 +1,22 @@
-"""Commands handler for the unified extraction driver (Step 3: Visitor).
+"""ezQuake commands handler (Visitor protocol).
 
-Ports the legacy walk to cursor-dispatch. Each file receives one client walk
-and one server walk from the central walker; this handler emits per-file
-first-wins rows (client then server).
+Each file receives one client walk and one server walk from the central
+walker; this handler emits per-file first-wins rows (client then server).
 """
 from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 # `#define NAME "string literal"` — used to resolve Cmd_AddCommand calls whose
@@ -215,7 +218,7 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
 
 # ----- Handler --------------------------------------------------------------
 
-class CommandsHandler(Visitor):
+class CommandsEzquakeHandler(Visitor):
     name = "commands"
     output_filename = "ezquake-commands-ast.json"
 

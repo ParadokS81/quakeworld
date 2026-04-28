@@ -11,13 +11,17 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 LOADER_FUNCTIONS: set[str] = {
@@ -477,7 +481,7 @@ def _classify_first_arg(arg_cursor, source_bytes: bytes, enclosing_compound=None
     return "unknown", None, None, None
 
 
-class AssetLoaderSitesHandler(Visitor):
+class AssetLoaderSitesEzquakeHandler(Visitor):
     name = "asset-loader-sites"
     output_filename = "ezquake-asset-loader-sites-ast.json"
 

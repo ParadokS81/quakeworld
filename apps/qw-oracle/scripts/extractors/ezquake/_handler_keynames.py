@@ -1,6 +1,6 @@
-"""Keynames handler for the unified extraction driver.
+"""ezQuake keynames handler.
 
-Ports extract-ezquake-keynames-clang.py. Unlike the other handlers:
+Unlike the other ezQuake handlers:
   - Only keys.c matters (all other files contribute nothing).
   - Needs a -D__APPLE__ variant, NOT the driver's -DSERVERONLY variant.
   - Uses a minimal CLANG_ARGS set that doesn't match the common one.
@@ -143,7 +143,7 @@ def _extract_keynames_from_tu(tu, source_bytes: bytes, target_path: str, label: 
     return out
 
 
-class KeynamesHandler:
+class KeynamesEzquakeHandler:
     name = "keynames"
     output_filename = "ezquake-keynames-ast.json"
 

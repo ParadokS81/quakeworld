@@ -43,9 +43,11 @@ from pathlib import Path
 
 from clang.cindex import Index
 
-# sys.path manipulation: extractor_lib lives one level up at extractors/extractor_lib/.
+# sys.path manipulation: extractor_lib lives one level up at extractors/extractor_lib/;
+# project-private _handler_*.py modules live alongside this file.
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
+sys.path.insert(0, str(HERE))
 
 from extractor_lib.clang_config import (  # noqa: E402
     PARSE_OPTS,
@@ -55,28 +57,28 @@ from extractor_lib.clang_config import (  # noqa: E402
     clang_args_win_for,
 )
 from extractor_lib._visitor import Visitor, walk_tu_dispatch  # noqa: E402
-from extractor_lib.handler_commands import CommandsHandler  # noqa: E402
-from extractor_lib.handler_cvars import CvarsHandler  # noqa: E402
-from extractor_lib.handler_macros import MacrosHandler  # noqa: E402
-from extractor_lib.handler_cmdline import CmdlineHandler  # noqa: E402
-from extractor_lib.handler_hud_elements import HudElementsHandler  # noqa: E402
-from extractor_lib.handler_asset_cvar_bindings import AssetCvarBindingsHandler  # noqa: E402
-from extractor_lib.handler_asset_loader_sites import AssetLoaderSitesHandler  # noqa: E402
-from extractor_lib.handler_keynames import KeynamesHandler  # noqa: E402
+from _handler_commands import CommandsEzquakeHandler  # noqa: E402
+from _handler_cvars import CvarsEzquakeHandler  # noqa: E402
+from _handler_macros import MacrosEzquakeHandler  # noqa: E402
+from _handler_cmdline import CmdlineEzquakeHandler  # noqa: E402
+from _handler_hud_elements import HudElementsEzquakeHandler  # noqa: E402
+from _handler_asset_cvar_bindings import AssetCvarBindingsEzquakeHandler  # noqa: E402
+from _handler_asset_loader_sites import AssetLoaderSitesEzquakeHandler  # noqa: E402
+from _handler_keynames import KeynamesEzquakeHandler  # noqa: E402
 
 REPO_ROOT = HERE.parent.parent.parent.parent.parent
 
 # Registry of all handlers. Add new entries as more extractors are ported.
 ALL_HANDLERS = {
     h.name: h for h in [
-        CommandsHandler(),
-        CvarsHandler(),
-        MacrosHandler(),
-        CmdlineHandler(),
-        HudElementsHandler(),
-        AssetCvarBindingsHandler(),
-        AssetLoaderSitesHandler(),
-        KeynamesHandler(),
+        CommandsEzquakeHandler(),
+        CvarsEzquakeHandler(),
+        MacrosEzquakeHandler(),
+        CmdlineEzquakeHandler(),
+        HudElementsEzquakeHandler(),
+        AssetCvarBindingsEzquakeHandler(),
+        AssetLoaderSitesEzquakeHandler(),
+        KeynamesEzquakeHandler(),
     ]
 }
 

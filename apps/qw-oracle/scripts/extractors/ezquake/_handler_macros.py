@@ -7,12 +7,16 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 _MACRO_DEF_RE = re.compile(r"^\s*MACRO_DEF\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)", re.MULTILINE)
@@ -84,7 +88,7 @@ def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
     return "".join(parts) if parts else None
 
 
-class MacrosHandler(Visitor):
+class MacrosEzquakeHandler(Visitor):
     name = "macros"
     output_filename = "ezquake-macros-ast.json"
 

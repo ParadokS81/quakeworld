@@ -15,8 +15,10 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SCRIPTS_DIR = HERE.parent
-sys.path.insert(0, str(SCRIPTS_DIR))
+EZQUAKE_DIR = HERE.parent
+EXTRACTORS_DIR = EZQUAKE_DIR.parent
+sys.path.insert(0, str(EXTRACTORS_DIR))
+sys.path.insert(0, str(EZQUAKE_DIR))
 
 FIXTURE_DIR = HERE / "fixtures" / "param_paths"
 
@@ -25,7 +27,7 @@ from clang.cindex import Config, Index, TranslationUnit  # noqa: E402
 Config.set_library_file("libclang-18.so.1")
 
 from extractor_lib._visitor import walk_tu_dispatch  # noqa: E402
-from extractor_lib.handler_asset_loader_sites import AssetLoaderSitesHandler  # noqa: E402
+from _handler_asset_loader_sites import AssetLoaderSitesEzquakeHandler  # noqa: E402
 
 # Minimal args sufficient for the synthetic fixtures. Fixtures don't exercise
 # the full ezQuake define set; a plain C-frontend invocation is enough.
@@ -37,7 +39,7 @@ _PARSE_OPTS = (
 
 
 def _extract_sites(c_path: Path) -> list[dict]:
-    handler = AssetLoaderSitesHandler()
+    handler = AssetLoaderSitesEzquakeHandler()
     # No setup() so cvar_ident_map stays empty -- fixtures don't rely on it.
 
     idx = Index.create()

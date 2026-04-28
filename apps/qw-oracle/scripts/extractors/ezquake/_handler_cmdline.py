@@ -8,12 +8,16 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 _MANIFEST_RE = re.compile(
@@ -75,7 +79,7 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
     return None
 
 
-class CmdlineHandler(Visitor):
+class CmdlineEzquakeHandler(Visitor):
     name = "cmdline"
     output_filename = "ezquake-cmdline-params-ast.json"
 

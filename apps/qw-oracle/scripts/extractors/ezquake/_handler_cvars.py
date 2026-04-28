@@ -23,12 +23,16 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind, StorageClass
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 _FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")
@@ -472,7 +476,7 @@ def _synthesize_hud_cvars(call_cursor, args, source_bytes: bytes, file_name: str
     return out
 
 
-class CvarsHandler(Visitor):
+class CvarsEzquakeHandler(Visitor):
     name = "cvars"
     output_filename = "ezquake-variables-ast.json"
 

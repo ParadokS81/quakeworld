@@ -8,12 +8,16 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
 from clang.cindex import CursorKind
 
-from ._visitor import Visitor
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+
+from extractor_lib._visitor import Visitor  # noqa: E402
 
 
 LOADER_FUNCTIONS: set[str] = {
@@ -87,7 +91,7 @@ def _resolve_cvar_string_ref(member_ref_cursor) -> Optional[str]:
     return ref.spelling
 
 
-class AssetCvarBindingsHandler(Visitor):
+class AssetCvarBindingsEzquakeHandler(Visitor):
     name = "asset-cvar-bindings"
     output_filename = "ezquake-asset-cvar-bindings-ast.json"
 
