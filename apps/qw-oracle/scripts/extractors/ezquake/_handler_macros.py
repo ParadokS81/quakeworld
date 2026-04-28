@@ -17,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 _MACRO_DEF_RE = re.compile(r"^\s*MACRO_DEF\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)", re.MULTILINE)
@@ -31,18 +32,6 @@ def _read_extent(source_bytes: bytes, extent) -> str:
         return source_bytes[start:end].decode("utf-8", errors="replace")
     except Exception:
         return ""
-
-
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
 
 
 def _resolve_enum_constant(arg_cursor) -> Optional[str]:
@@ -160,7 +149,7 @@ class MacrosEzquakeHandler(Visitor):
                 public_name = lit
         if not public_name or public_name in self._seen_in_file:
             return
-        handler = _resolve_fn_ref(args[1])
+        handler = resolve_fn_ref(args[1])
         teamplay_raw: Optional[str] = None
         if sp == "Cmd_AddMacroEx" and len(args) >= 3:
             teamplay_raw = _read_extent(self.source_bytes, args[2].extent).strip() or None

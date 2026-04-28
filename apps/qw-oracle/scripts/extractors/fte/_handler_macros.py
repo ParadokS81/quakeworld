@@ -35,6 +35,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -84,22 +85,6 @@ def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
 
 
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    """Walk arg subtree for a DECL_REF_EXPR referencing a FUNCTION_DECL."""
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind in (
-                CursorKind.FUNCTION_DECL,
-                CursorKind.VAR_DECL,
-            ):
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
-
-
 # ---------------------------------------------------------------------------
 # Handler
 # ---------------------------------------------------------------------------
@@ -146,7 +131,7 @@ class MacrosFteHandler(Visitor):
         self._seen_in_file.add(macro_name)
 
         # arg[1]: handler function reference
-        handler = _resolve_fn_ref(args[1])
+        handler = resolve_fn_ref(args[1])
 
         # Recover description if this was originally Cmd_AddMacroD in source
         description = self._macrod_descs.get(macro_name, "")

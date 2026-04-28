@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 HUD_T_C_TO_SCHEMA_NAME = {
@@ -88,18 +89,6 @@ def _literal_or_raw(arg_cursor, source_bytes: bytes) -> Optional[str]:
     if not raw or raw == "NULL":
         return None
     return raw
-
-
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind == CursorKind.FUNCTION_DECL:
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
 
 
 def _extract_hud_field_lines(hud_h_source: str) -> dict[str, int]:
@@ -255,7 +244,7 @@ class HudElementsEzquakeHandler(Visitor):
         flags_raw = _read_extent(self.source_bytes, args[3].extent).strip()
         min_state_raw = _read_extent(self.source_bytes, args[4].extent).strip()
         draw_order_raw = _read_extent(self.source_bytes, args[5].extent).strip()
-        draw_fn = _resolve_fn_ref(args[6])
+        draw_fn = resolve_fn_ref(args[6])
         owned = _synthesize_owned_cvar_names(name, args, self.source_bytes)
         loc = cursor.location
         self._rows.append({

@@ -25,6 +25,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -65,22 +66,6 @@ def _concat_string_literals(tokens: list[str]) -> Optional[str]:
 
 def _tokens_of(cursor) -> list[str]:
     return [t.spelling for t in cursor.get_tokens()]
-
-
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    """Walk arg subtree for a DECL_REF_EXPR referencing a FUNCTION_DECL."""
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind in (
-                CursorKind.FUNCTION_DECL,
-                CursorKind.VAR_DECL,
-            ):
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +122,7 @@ class CommandsFteHandler(Visitor):
         # Handler function reference
         handler: Optional[str] = None
         if not is_old:
-            handler = _resolve_fn_ref(args[1])
+            handler = resolve_fn_ref(args[1])
 
         # For Cmd_AddCommandOld: arg[2] is the redirect target
         legacy_alias_of: Optional[str] = None

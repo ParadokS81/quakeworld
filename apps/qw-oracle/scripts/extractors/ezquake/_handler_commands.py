@@ -17,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 # `#define NAME "string literal"` — used to resolve Cmd_AddCommand calls whose
@@ -141,18 +142,6 @@ def _literal_string(arg_cursor, source_bytes: bytes) -> Optional[str]:
     return "".join(parts) if parts else None
 
 
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind in (CursorKind.FUNCTION_DECL, CursorKind.VAR_DECL):
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
-
-
 # Struct-array tables whose elements register a command via for-loop iteration.
 # Each entry maps the underlying struct-type name to (name_field_index,
 # handler_field_index) for the nested initializer. sv_ccmds.c defines
@@ -204,7 +193,7 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
         name = _literal_string(fields[name_idx], source_bytes)
         if not name:
             continue
-        handler = _resolve_fn_ref(fields[handler_idx])
+        handler = resolve_fn_ref(fields[handler_idx])
         out.append({
             "name": name,
             "handler_fn": handler,
@@ -300,7 +289,7 @@ class CommandsEzquakeHandler(Visitor):
         if not name or name in self._seen_in_file:
             return
         if sp == "Cmd_AddCommand":
-            handler = _resolve_fn_ref(args[1])
+            handler = resolve_fn_ref(args[1])
             legacy_alias_of = None
         else:
             # Cmd_AddLegacyCommand("old_name", "new_name") — proxy alias with no
