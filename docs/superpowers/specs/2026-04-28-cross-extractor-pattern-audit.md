@@ -1,9 +1,11 @@
 # Cross-Extractor Pattern Audit Spec
 
-**Status:** drafted, not yet executed
+**Status:** ready to execute (post-consolidation; D.5 architecture meta-finding answered)
 **Date:** 2026-04-28
+**Updated:** 2026-04-28 (post architecture-consolidation arc, commits 5b943d4 → 8115b48)
 **Mode:** cross-project (Mode C in `validate-extractor` skill)
-**Schema baseline:** v17 (post MVDSV Phase 2e follow-up arc, 2026-04-28)
+**Schema baseline:** v17
+**Architecture baseline:** post-consolidation -- all four projects use `<project>/_handler_*.py`; `extractor_lib/` contains only Tier-1 infrastructure (`_visitor`, `_base`, `_resolve`, `clang_config`, `__init__`).
 
 ## Context
 
@@ -32,29 +34,30 @@ Findings discipline: every finding gets a track (drain-now / drain-in-arc / HAND
 
 Before the audit can name divergences, it has to map the current shape. Pre-audit reading:
 
-### A.1 Extractor architecture per project
+### A.1 Extractor architecture per project (POST-CONSOLIDATION)
 
-Each of the four projects' `extract.py` plus its handler layout. Specifically:
+Each of the four projects now follows the canonical project-private shape post architecture-consolidation arc (commits 5b943d4 → 8115b48, 2026-04-28). For each, confirm:
 
-- ezQuake: `apps/qw-oracle/scripts/extractors/ezquake/extract.py`. Handlers live where? Investigate -- the `ezquake/` dir has `.ts` files (`cvars.ts`, `commands.ts`, `cmdline.ts`, `macros.ts`) and a few `.py` files (`flag-bits.py`, `rulesets.py`, `token-primitives.py`) but no `_handler_*.py` private modules. Confirms ezQuake uses `extractor_lib/handler_*.py` shared classes directly. Document this.
+- ezQuake: `apps/qw-oracle/scripts/extractors/ezquake/extract.py` + 8 `_handler_*.py` (cvars, commands, cmdline, macros, hud_elements, keynames, asset_cvar_bindings, asset_loader_sites). Class names: `Cvars<Project>EzquakeHandler` etc.
+- FTE: `apps/qw-oracle/scripts/extractors/fte/extract.py` + 8 `_handler_*.py` (cvars, commands, cmdline, macros, asset_cvar_bindings, asset_loader_sites, ezhud, ezscript).
+- QWCL: `apps/qw-oracle/scripts/extractors/qwcl/extract.py` + 3 `_handler_*.py` (cvars, commands, cmdline).
+- MVDSV: `apps/qw-oracle/scripts/extractors/mvdsv/extract.py` + 7 `_handler_*.py` (cvars, commands, cmdline, info_keys, log_templates, protocol, qc_builtins).
 
-- FTE: `apps/qw-oracle/scripts/extractors/fte/extract.py`. Eight `_handler_*.py` private modules: cvars, commands, cmdline, macros, asset_cvar_bindings, asset_loader_sites, ezhud, ezscript.
+All four projects now look structurally identical: `<project>/_handler_*.py` for project-specific handlers, imports `Visitor` (and post-v17 `_resolve.resolve_fn_ref`) from `extractor_lib`. **The pre-consolidation architecture divergence (D.5) is resolved.**
 
-- QWCL: `apps/qw-oracle/scripts/extractors/qwcl/extract.py`. Three `_handler_*.py`: cvars, commands, cmdline.
+### A.2 extractor_lib inventory (POST-CONSOLIDATION)
 
-- MVDSV: `apps/qw-oracle/scripts/extractors/mvdsv/extract.py`. Seven `_handler_*.py`: cvars, commands, cmdline, info_keys, log_templates, protocol, qc_builtins.
+`apps/qw-oracle/scripts/extractors/extractor_lib/` now contains ONLY Tier-1 shared infrastructure:
 
-**Architecture finding to surface:** ezQuake uses shared handlers from `extractor_lib/`; FTE/QWCL/MVDSV use project-private `_handler_*.py`. This is a divergence in architecture itself, not just in implementation. Why? Is the `_handler_*.py` shape an evolution that ezQuake hasn't caught up to, or are the shared handlers deliberately the canonical shape and the others copies-with-tweaks? **Answer this first; everything else depends on it.**
-
-### A.2 extractor_lib inventory
-
-`apps/qw-oracle/scripts/extractors/extractor_lib/`:
-
-- `_base.py` -- visitor base class. Used by all four.
-- `_visitor.py` -- `walk_tu_dispatch`. Used by all four.
-- `_resolve.py` -- post-v17, holds `resolve_fn_ref`. Confirm both commands and qc_builtins import from here.
+- `__init__.py` -- package marker.
+- `_base.py` -- `Handler` protocol.
+- `_visitor.py` -- `Visitor` base class + `walk_tu_dispatch`.
+- `_resolve.py` -- `resolve_fn_ref` (post-v17 lift; both commands and qc_builtins handlers import from here in MVDSV).
 - `clang_config.py` -- per-engine clang args functions.
-- `handler_*.py` (8 files: cvars, commands, cmdline, macros, hud_elements, keynames, asset_cvar_bindings, asset_loader_sites). Used by ezQuake directly. Are they used by FTE/QWCL/MVDSV indirectly (e.g., as base classes for the `_handler_*.py` private versions)? Trace inheritance.
+
+No `handler_*.py` files. No project-specific code. Verify via `ls extractor_lib/*.py` in pre-flight.
+
+The Tier-2 (family-base handlers) tier remains empty today -- no fork has landed yet. When unezQuake or antilag-mvdsv lands, the rule is: subclass parent project's handlers directly first, lift to a `handler_<family>_<type>.py` in extractor_lib only on subclassing pressure.
 
 ### A.3 load-version.ts inventory
 
@@ -116,13 +119,21 @@ For each `valid*` predicate in `load-version.ts`:
 
 Anchor case (from HANDOVER): `validInfoKey` alphabet is hardcoded -- limits future scope additions or info_key naming evolutions. Surface this and propose a parameterized version.
 
-### D.5 Project-private vs shared handler architecture
+### D.5 Project-private vs shared handler architecture (ANSWERED)
 
-Already flagged in A.1. The audit doc should:
-- Recommend ONE canonical architecture (probably project-private `_handler_*.py` everywhere, with `extractor_lib/handler_*.py` becoming the BASE classes that `_handler_*.py` extend).
-- OR justify why the divergence is acceptable (ezQuake is the canonical reference; the others are forks with engine-specific tweaks).
+Resolved by the architecture-consolidation arc (commits 5b943d4 → 8115b48, 2026-04-28). The canonical shape is:
 
-This is a meta-finding -- the answer affects everything else (D.1, D.2 in particular).
+- All projects use `<project>/_handler_*.py` (Tier 3).
+- `extractor_lib/` holds Tier-1 shared infrastructure only.
+- Tier-2 (family-base handlers in `extractor_lib/handler_<family>_*.py`) is empty pending the rule-of-second-consumer trigger when unezQuake / antilag-mvdsv land.
+
+This dimension's audit work for the cross-project pass is now: **verify the consolidation invariants hold.** Specifically, confirm:
+- `extractor_lib/` contains no `handler_*.py` files.
+- Each `<project>/` contains the expected count of `_handler_*.py` files (ezquake=8, fte=8, qwcl=3, mvdsv=7).
+- Class names follow the `<Type><Project>Handler` convention (`CvarsEzquakeHandler`, `CvarsFteHandler`, `CvarsQwclHandler`, `CvarsMvdsvHandler`).
+- All projects extend `Visitor` (directly, not via a shared concrete handler).
+
+If any invariant fails, that's a regression on the consolidation arc -- file as a critical finding.
 
 ### D.6 Driver shape divergences
 
