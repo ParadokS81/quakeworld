@@ -18,14 +18,9 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Workstream B: concept-note authoring scaffolding](#workstream-b-concept-note-authoring-scaffolding) — provenance frontmatter landed in `concept-notes/README.md` 2026-04-23; still open: template MDX-compatibility test against ezquake.com vitepress, authoring-ritual shape (prompt/slash-command).
 - [Workstream C: /docs ingest pipeline prep](#workstream-c-docs-ingest-pipeline-prep) — **Audit completed 2026-04-24** (15 mirror, 10 ignore, 4 split, 1 historical across 30 guide pages). **License resolved by operator decision 2026-04-24**: treat as CC-BY-4.0, vikpe consented verbally on Discord, no LICENSE commit required. **Framing flipped 2026-04-25**: ezquake.com/docs is single-maintainer-plus-stepped-back (vikpe: "1 edit beyond myself submitted in 6 years"); Oracle is the authoritative current-state source and upstream is the downstream human-readable surface. Most "imports" will actually be Path 2 rewrites citing upstream as source material rather than Path 1 mirrors. **Role map shipped 2026-04-24** (`docs/superpowers/specs/2026-04-24-layer3-role-map.md`): scale revised to ~22-26 notes; 7 roles surfaced; D1 voice resolved to tiered-per-shape; D2 (R7) parked as open bucket. **Two Path-2 rewrites shipped 2026-04-24/25**: `weapon-scripts.md` (first R7 exemplar) and `lightning-gun-customization.md` (second R7+R2 exemplar). Authority-grounding triad and progressive-disclosure structure both confirmed across 2 notes — pending 3rd-instance promotion to README rule. **Skill process improvements landed 2026-04-25**: Phase 7.5 operator consult gate + Phase 5b six-mechanism ruleset scan + help_remarks pull (in `~/.claude/skills/guide-rewrite/SKILL.md`). Remaining: gap-report output format as contributor onboarding kit (continues to grow), next guide rewrite (candidates: `scripting.md` for multi-concept ROI, `player-skins.md` for tighter scope).
 - [Slipgate SCHEMA.md for snapshot consumer interface](#slipgate-schemamd-for-snapshot-consumer-interface) — **NEW 2026-04-26.** Slipgate's snapshot consumer types (`RawVar`, `RawCommand`, `RawMacro`, etc.) live inline in `apps/slipgate-app/src/lib/config/loaders/ezquake.ts`. The shape is small and single-file today, but the upcoming UI arc surfacing version-arc badges / source_state pills / default_history timelines will benefit from a single typed contract doc paired with oracle's `apps/qw-oracle/docs/entity-types.md` (the producer-side equivalent). Defer until that UI arc starts; revisit if the inline types start to fragment.
-- [Phase 3.5a: IA restructure — split Clients tab into Feed + MyQuake → Domains → Clients](#phase-35a-absorb-clients-tab-into-myquake--domains--clients) — **NEW 2026-04-27 (late afternoon), EXPANDED 2026-04-27 (evening).** IA restructure surfaced during the 3.5b second-pass review. The standalone Clients tab dissolves into (a) a new top-level Feed tab hosting the extracted Updates section, and (b) a trimmed Clients sub-tab inside MyQuake → Domains keeping only Installation + Versions. Four sections dropped from the user-facing surface (Input, Video, Launch, Screenshot POC); code retained for future arcs. SideNav stays at 6 tabs (Schedule / Profile / Feed / Tools / MyQuake / Settings — Clients out, Feed in). Tools stays separate (general FPS-gamer tools, not Quake-only); Schedule stays as placeholder (matchscheduler integration parked). Plan at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. ~3-4 hour fresh-terminal session. Sequenced before Phase 3.5b.
-- [Add Quake Client / MyQuake unification — Phase 3.5b feature plan, pending pass-2 revision](#add-quake-client--myquake-unification-post-phase-3-scope-sketch) — **NEW 2026-04-26 night, RESCOPED 2026-04-27 (afternoon + late afternoon).** This is now Phase 3.5b. Original plan at `docs/superpowers/plans/2026-04-26-add-quake-client.md` was first-pass revised 2026-04-27 afternoon (canonical-only naming + tier-ladder framing absorbed in commit `01e4081`); a pass-2 reviewer in a fresh terminal returned 14 findings (F1-F14). The plan needs a pass-2 revision to absorb (a) the F-series findings and (b) four open operator decisions: multi-quake-dir semantics (warehouse-only-without-claiming-primary leaning), variant encoding decoupled from version key (separate `variant: Option<String>` field on `WarehousedVersion`), release_cache channel modeling (per-channel files leaning), primary-radio uses `swap_active_version` not `reconcile_active_version` to honor user choice. F1 (entry-point ambiguity) dissolves under 3.5a's IA restructure; F2-F14 are still in scope for the pass-2 revision. Do NOT execute the plan as currently written — top-of-file note flags this. Sequenced AFTER 3.5a ships.
-- [Canonical-mode default for warehoused clients](#canonical-mode-default-for-warehoused-clients) — **NEW 2026-04-27, REFRAMED 2026-04-27 (afternoon).** Slipgate writes client binaries only at `<quake-dir>/<family>.exe`. No mode toggle, no opt-out. The earlier "default canonical with messy-mode opt-out" framing was dropped during the second-pass review session — canonical-only is now a *consequence* of the four-tier opt-in ladder (see new `project_slipgate_tier_ladder.md` memory and the "Tier 3 future arcs" entry below) rather than a contested default. Phase 3 already reverted to hardcoded `ezquake.exe` in `f6fe481`. Phase 3.5 plan needs the canonicalize-on-import flow embedded before execution.
-- [Tier 3 future arcs (clean-room migration + asset warehouse + bundle install)](#tier-3-future-arcs-clean-room-migration--asset-warehouse--bundle-install) — **NEW 2026-04-27 (afternoon).** Architectural realization captured during Phase 3.5 second-pass review: the warehouse + swap substrate Phase 2/3 shipped (content-addressed blobs + per-thing manifests + index + atomic-rename swap to canonical slot) generalizes from binaries to any content with identity + versions + canonical slot. Future arcs A/B/C/D — asset warehouse + 1-click texture-set switching, bundle install (slackers_tp / curated nQuake-style), fresh-install / clean-room migration, MyQuake → Domains → Bundles dashboard — all reuse the same primitive at parallel `<data-root>/<kind>/...` roots. Captured here so the framing isn't lost in the gap between Phase 3.5 ship and the first asset/bundle work. Pressure low; substrate is already in place.
 - [Feed tab future content](#feed-tab-future-content) — **NEW 2026-04-27 (evening).** The new Feed top-level tab created in Phase 3.5a hosts only Updates initially. Operator's intended Feed scope: the "what's happening in QW right now" surface — current/upcoming tournaments, developer landscape (active QW projects, recent commits / releases, project announcements), GitHub monitoring of the engine + tooling repos, possibly community announcements. Each future content type is its own arc with its own data source. Captured here so the framing isn't lost between 3.5a ship and the first Feed-content arc.
 - [Screenshot POC → Profile picture generator](#screenshot-poc-profile-picture-generator) — **NEW 2026-04-27 (evening).** The Screenshot POC section was dropped from the user-facing Clients-Domain surface in Phase 3.5a, but the underlying `screenshot.rs` Rust command stays callable. Future arc graduates the POC into Profile as a "Generate profile pictures" feature: 1 button generates 5 standardized screenshots from a slipgate-shipped demo file, all users see the same scene/map/point-in-time so flipping through profiles shows "different visuals depending on user's setup." Operator's stated end-goal. Profile already has placeholder slots for these screenshots.
 - [Tray menu launch](#tray-menu-launch) — **NEW 2026-04-27 (evening).** The Launch section (Server input + Join/Spec/Launch buttons) was dropped from the user-facing Clients-Domain surface in Phase 3.5a per VISION's "Not a game launcher" framing. If launch ever needs to come back (e.g. for the Profile screenshot-generator integration that needs slipgate to spawn ezQuake with specific args, or for any quick-join-from-anywhere UX), the natural home is the system tray menu (right-click → Launch / Join / Spec). Matches the "invisible until needed" tray-app philosophy and doesn't burn screen real estate. No active pressure to resurface.
-- [Player profiles (bundle-shaped, share-via-hashlist)](#player-profiles-bundle-shaped-share-via-hashlist) — **NEW 2026-04-27 late evening.** "Play like Milton" use case: pull a community member's profile (manifest of asset hashes + optional filter like onlyVisuals/onlyHud), dedupe against locally-warehoused assets, swap in/out between own profile and another's. Bundle-shaped — reuses Tier 3 future arc B (bundle install) infrastructure at a different abstraction level. Captured for a future research session; no immediate impact on 3.5b decisions. Operator confirmed scope-out for this phase.
 - [Sub-pattern 2b: cmdline variant-matrix gaps](#sub-pattern-2b-cmdline-variant-matrix-gaps) — 2026-04-25. **Partially resolved 2026-04-25 (late):** `-U__linux__` added to Apple+Win clang variants flipped 2 of 4 entities — `-gl_ext` now cited at vid_common_gl.c:340, `-allowmultiple` now cited at sys_win.c:682. Remaining 2 (`-nohwtimer` at sys_win.c:572 and `-gl-forward-only-profile` at gl_sdl.c:50) are blocked on the same SDK-stub-headers solve as the deferred `-nopriority` row from the Layer 1 doc_only audit — both call sites live inside function bodies whose surrounding statements use unresolved Windows SDK / SDL types under Linux libclang, so PARSE_INCOMPLETE recovery skips the compound expressions even though simpler `if (COM_CheckParm(...))` calls in the same files succeed.
 - [Plugin v-table asset detection (loader-sites handler)](#plugin-v-table-asset-detection-loader-sites-handler) — **NEW 2026-04-26.** FTE asset extraction (Phase 2d-bundle) found that plugin source roots emit zero rows from the asset_loader_sites handler, while the cvars handler captures plugin-registered cvars. Cause: FTE plugins reach asset loaders through `cvarfuncs->GetNVFDG()` and similar v-table calls, not direct C calls in LOADER_FUNCTIONS. Only `plugin:ezhud` is currently affected (HUD images). `plugin:ezscript` has zero asset surface; no other plugins are in scope. Pressure: low — ezhud's images ship bundled with FTE, so an installed user has the assets regardless of the bundle classifying them.
 - [Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)](#cvar-binding-handler-indirection-gap-snprintf-chains--cvarfc-callbacks) — **NEW 2026-04-26.** The asset_cvar_bindings handler's auto-pass corroborates only the simplest pattern: `cvar.string` member-ref in the same compound scope as a loader CALL_EXPR. It does NOT follow snprintf chains (`Q_strncpyz(name, baseskin.string, ...)` then `FS_Open(name)`), CVARFC callbacks (`r_skybox` → `R_SkyBox_Changed` → `R_SetSky`), or any other multi-hop indirection. This is a Layer 1-wide handler limitation, not FTE-specific: confirmed at FTE build-6698 (4 of 22 seed bindings stand on seed authority alone) AND at ezQuake head (23 of 24 seed bindings stand on seed authority alone). Bundle reconciliation correctly treats these as `seedRetained` rows — they're not lost, just not mechanically corroborated. Pressure: low. Worth fixing only when the seed-authoring cost of writing bindings the handler could detect becomes painful.
@@ -33,8 +28,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Layer 3 concept note: death rules](#layer-3-concept-note-death-rules) — **NEW 2026-04-27 (evening), REFRAMED 2026-04-27 (after qw_event_log discovery).** "Death in QW" is conceptually richer than a single deathtype enum: real telefrag (teleport-overlap), exit-level kill (samelevel/noexit changelevel — what kills you on e1m2's end teleporter in 4on4), trigger_hurt (mapper-controlled void brushes), fall damage, crush/squish, lava/slime ticks, drowning. Three-anchor synthesis target: source-truth (Layer 1 deathtype + KTX overrides) + observed-behavior (qw_event_log obit corpus + WeaponType taxonomy as cross-validation oracle) + community testimony (Layer 2 "noexit lol" jokes). Sequence: arc 1 (id1) shipped 2026-04-27; arc 2a MVDSV cvars; arc 2b KTX cvars/commands; arc 2c KTX gameplay overrides (mirrors id1 work, fills `gameplay_source_id='ktx'` rows); arc 3 build qw_event_log validation harness (parser as ground-truth oracle for "what does Layer 1 claim vs what does the parser observe?"); arc 4 author the concept note once all four arcs converge. Pressure: low — concept-note bench is deep, and the build-out sequence forces several quality gates first.
 - [qw_event_log as cross-validation oracle for Layer 1](#qw_event_log-as-cross-validation-oracle-for-layer-1) — **NEW 2026-04-27 (evening).** Operator's earlier collaboration with vikpe + Claude produced a Rust crate (`qw_event_log`) that parses MVDSV demos into structured `GameEvent` streams. The repo is FROZEN at `/home/paradoks/projects/qw-event-log-handoff/` (commit `2c584b4`); was originally PR #5 in vikpe/slipgate, moved to `.bak/` when vikpe decided to rewrite the MVD layer. Three artifacts inside that Oracle wants: `obituary.rs` (47 kill + 12 suicide + 16 world + 12 teamkill obit-string→cause patterns sourced from KTX `client.c` ClientObituary AND id1 `client.qc`), `events.rs` (`WeaponType` enum: clean unified taxonomy spanning vanilla weapons + KTX-promoted distinctions like Discharge/Stomp + environmental + Telefrag + Suicide), `ARCHITECTURE.md` (~350 lines documenting the engine-protocol model: modern KTX kills via MVDSV `DamageDone` hidden message; legacy demos via PRINT obit; environmental = attacker=world). Right framing: NOT a one-shot import but a permanent cross-validation oracle. Once KTX layer1 ships (arc 2c), build a harness that runs the parser over a demo corpus, aggregates observed event types, queries Oracle for the corresponding rows, and outputs a divergence report. Convergence corroborates Layer 1; anomalies are work to do. Generalizes beyond death — same loop applies to weapon damage, spawn rules, mod-specific behavior. Pressure: low; gated on MVDSV→KTX cvars→KTX gameplay overrides shipping first. Non-trivial caveat: the handoff repo is frozen; if vikpe's new `demo_parser` ships before our validation-harness arc, validate against the live version not the frozen snapshot.
 - [SCHEMA.md doc-style inconsistency](#schemamd-doc-style-inconsistency) — **NEW 2026-04-27 (evening).** Task 2 of the game-mechanics arc 1 plan added a `## v14 (2026-04-27): game-mechanics tables (id1 baseline)` section to `apps/qw-oracle/SCHEMA.md`. The plan said to mirror "the v13 section verbatim" but in reality SCHEMA.md does NOT have a `## v13` section — v13 was documented as `## Map knowledge layer` (topical H2 with column-table + bold-prefixed paragraphs), and prior version migrations (v10, v11) appear as `### vN:` H3 sub-sections inside `## Cross-cutting notes`. The v14 section now uses a third style nobody else uses. Two cleanup options: convert v14 into a `## Game mechanics knowledge layer` topical heading parallel to Map knowledge layer; or harmonize the doc to a per-version style (v10/v11 bumped from H3 sub-sections to H2 sections). Operator decides. Also flagged: stale references in conventions paragraph still say "schema v12", migration walk text says "v1→v2→...→v11", table map says "Total: 22 tables at schema v12 + v13" — none reflect v13/v14. Pressure: low — facts are correct, only structure is inconsistent.
-- [FTE asset bundle consumer wiring](#fte-asset-bundle-consumer-wiring) — **NEW 2026-04-27 (orchestrator wrap-up).** Producer-side `fte-asset-bundle.json` shipped with Phase 2d-bundle but `apps/slipgate-app/src/lib/assets/bundle.ts:2` hardcodes the ezQuake import. The MyQuake → Browse classifier currently classifies every quake-dir file using ezQuake rules only; FTE-specific surfaces (shaders, heightmaps, .po localization, FTE path conventions) bucket as "other" instead of being properly categorized. Half-day to a day of slipgate work; pressure low (asset overlap is ~70%, classifier still does most useful work). Worth doing when a slipgate-side arc next touches the asset classifier (Phase 3.5a MyQuake → Domains restructure or whichever Tier 3 future arc lands first).
-- [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) -- **NEW 2026-04-28.** Six small residuals from the MVDSV Phase 2e follow-up arc (schema v15->v17): pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only); qc_builtin cross-scope name collisions (4 entries silently dropped today, Pattern-14 fix would extend); 14 historical-version ezquake `sv_demoregexp` rows still raw (auto-resolves on next deep-time walk); `validInfoKey` regex hard-codes scope alphabet; `pext_*_alias` classifier falls through for non-numeric expressions; FTE/QWCL `_handler_cvars.py` lack defensive `_normalize_flags_raw`. All low pressure; do-when-touched.
+- [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) -- **NEW 2026-04-28. PARTIALLY SUPERSEDED 2026-04-28** by the cross-extractor pattern audit follow-up arc. Of the six original residuals: **4 are now scoped into `docs/superpowers/plans/2026-04-28-cross-extractor-shared-lib-arc.md`** (qc_builtin cross-scope collisions → Phase 2 with schema v18 migration + handler canonicalization; `validInfoKey` regex alphabet → Phase 5 with schema export sync; FTE+QWCL `_handler_cvars.py` defensive normalization → Phase 2 with `_cvar_shared` lift; `pext_*_alias` classifier — verified by Subagent 3 to NOT be a silent drop, the catch-all alias bucket is correct, can close from this list). **2 remain**: pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only); 14 historical-version ezquake `sv_demoregexp` rows still raw (auto-resolves on next deep-time walk). Both still low pressure; do-when-touched.
+- [Cross-extractor pattern audit follow-up arc](#cross-extractor-pattern-audit-follow-up-arc) -- **NEW 2026-04-28.** The cross-extractor pattern audit (`docs/superpowers/reviews/2026-04-28-cross-extractor-audit-report.md`) surfaced 27 findings across all four libclang extractors and `extractor_lib/`. **17 are drain-in-arc** in `docs/superpowers/plans/2026-04-28-cross-extractor-shared-lib-arc.md` (5 phases: `resolve_fn_ref` lift adoption, cvars normalization convergence + qc_builtin canonical-name fix to schema v18, string-shape helper lifts, FTE cmdline param-prefix verification, schema/loader alphabet sync). **4 are drain-now** (delete dead `extractor_lib/_base.py`; rename two FTE asset handler classes; rename mvdsv `containing_function` → `enclosing_function`); these land in Phase 0 of the same plan. **13 are deferred to HANDOVER**: FTE/QWCL fork-override hook documentation absent (no concrete fork target today); FTE `enter_function`/`exit_function` lifecycle gap; ezquake cvars last-wins-vs-first-wins inconsistency; ProtocolMvdsvHandler module-level `_kind_for` (revisit when antilag-mvdsv lands); ezhud `_resolve_default` heuristic (re-scan plugins/ezhud each FTE bump); ezquake `_resolve_enum_constant` intra-project duplicate; cvar_alias `differ_safe` dead-allow at extraction layer (verify operator-promotion path); `validIdentifier` regex blocks `:` separator (re-evaluate when qc_builtin canonicalization arc lands); ezquake/qwcl missing `Config.set_library_file` call (hygiene); handler-registry pattern divergence (dict-literal vs `collect_handlers()`); ezquake `_split_handlers` legacy path retained for KeynamesEzquakeHandler; OUT_OF_SCOPE.md last-reviewed dates older than the consolidation arc on 3 projects (refresh during per-project deep validations); ezquake/fte/qwcl missing `validation-fixtures/` (capture per-project Pass-1 runtime dumps during per-project deep validations). All low pressure. Sequencing: drain the planned arc BEFORE the per-project deep validations (ezQuake / FTE / QWCL Mode B in validate-extractor skill) so each pass starts from a cleaner shared baseline.
 - [Slipgate Managed Mode pivot — multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) — **NEW 2026-04-28.** Phase 3.5b shipped + first-Windows-smoke fixes shipped (`121b2ba` PE numeric version + FTE no-hyphen server detection + canonical-rename collision resolution; `fc2541f` FTE arch-as-variant preserving `fteqw64.exe`). During the wrap-up conversation, the architecture pivoted: slipgate-IS-quakedir (the data warehouse IS the Quake install). Phase 4/5 (binary diff viewer) DEFERRED — superseded by profile-vs-profile diff in the new arc. Three project-level docs captured: vision (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`), architecture (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`), roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`). Eight implementation arcs (A-H) sequenced; V1 = A+B+D+E+C-minimal (asset warehouse + profile manifest + materializer + clean-room migration + watcher + minimal switch UI). V1+ = F+G+C-full+H (lossless export + version history + full profile UI + cloud catalog). Operator estimate: 1 week to V1. Pre-arc tail: TAIL-1 wrap FTE asset bundle consumer wiring (the existing HANDOVER entry "FTE asset bundle consumer wiring" — promoted from low-pressure to load-bearing because Arc D's classifier needs it). Existing HANDOVER entries superseded by this arc but left in place for context: "Add Quake Client / MyQuake unification" (3.5b shipped), "Canonical-mode default for warehoused clients" (resolved by 3.5b), "Tier 3 future arcs" (folded into Managed Mode roadmap), "Player profiles (bundle-shaped)" (folded as Arc B + Arc H). Docs-check at next session wrap-up should clean those entries.
 
 ---
@@ -371,289 +366,6 @@ Low. Mode 1 trigger Q1 (durable data model) fires technically, but the schema is
 
 ---
 
-## Canonical-mode default for warehoused clients
-
-**Added:** 2026-04-27 (after Phase 3 Windows smoke surfaced the multi-install + filename-preservation tension). **Reframed:** 2026-04-27 (afternoon — second-pass review session settled the four-tier opt-in ladder; canonical-naming is a *consequence* of the ladder, not a contested default).
-**Status:** Plan-only design refinement landing in Phase 3.5 second-pass review. Phase 3 reverted its targetExeName-from-basename polish back to hardcoded `ezquake.exe` in `f6fe481`; canonical-only holds today and stays. The earlier framing of this entry (canonical-mode default with a messy-mode opt-out toggle, opt-out via Settings tab, schema gain `clients[family].mode`, mode-switching prompts) was DROPPED during the 2026-04-27 second-pass review — see `project_slipgate_tier_ladder.md` for the framing that replaces it.
-**Verification first:** `grep -n 'targetExeName' apps/slipgate-app/src/components/ClientsTab.tsx` — should show `targetExeName="ezquake.exe"` hardcoded.
-
-### The decision
-
-When slipgate writes a client binary into a user's quake dir, the destination is always `<quake-dir>/<family>.exe` (`ezquake.exe`, `unezquake.exe`, `fte.exe`, etc.). No mode toggle. No per-import-decision. Canonical-only.
-
-This applies in every code path that writes a binary:
-- **Updater install** — already canonical (atomic rename to `ezquake.exe`).
-- **Phase 3 swap** — already canonical (`swap_active_version` writes to the canonical slot).
-- **Phase 3.5 bulk-import** — canonical via the canonicalize-on-import step (rename source if non-canonical, with user confirmation when canonical slot is empty; refuse with prompt when canonical slot already exists).
-- **Future fresh-install / clean-room migration / bundle install** — canonical by construction.
-
-### Why canonical-only (not "default canonical with opt-out")
-
-The earlier framing assumed slipgate needed to accommodate users who run filename-versioned side-by-side installs (`ezquake-3.6.6.exe` + `ezquake-3.6.9.exe` simultaneously runnable as separate installs). The 2026-04-27 second-pass review changed that read:
-
-1. **The product is a four-tier opt-in ladder** (don't use / read-only / managed versions / full dir management). The "I don't want slipgate to canonicalize my files" position is fully expressed by staying at Tier 0 or Tier 1 — slipgate doesn't write at all in those tiers, so naming policy is moot. There's no need for a Tier-2-flavor that writes-but-preserves-filenames. See `project_slipgate_tier_ladder.md`.
-
-2. **Side-by-side simultaneous binaries is portable-mode multi-install territory**, not messy-mode territory. Phase 1 already shipped portable-mode (`<exe-dir>/data/portable.flag`). A user who genuinely needs two ezQuake binaries runnable at once can set up two quake dirs each with their own portable slipgate root. Each dir has its own canonical `ezquake.exe`. Both runnable, both Steam-pinnable. No toggles in slipgate's product.
-
-3. **Bundles will absorb most "I want multiple setups" needs anyway.** "I want my slackers_tp setup AND my custom setup, both runnable, switch with one click" is a bundle-switching question (different teamsay configs / HUD overlays / scoreboard graphics layered on top of a shared binary), not a binary-version question. Bundle work is a future arc — see "Tier 3 future arcs" entry below.
-
-A toggle to express "users who want messy-mode" only made sense if Tier 2 had to serve everyone. It doesn't — Tiers 0/1 + portable-mode + bundles serve the constituencies the toggle was for.
-
-### What Phase 3.5 plan needs to absorb
-
-Phase 3.5's plan at `docs/superpowers/plans/2026-04-26-add-quake-client.md` already has the bulk-import flow (scan → fingerprint → checklist → import). Canonical-only embeds at task 4.x ("Import selected"):
-
-1. **Profile schema gain (smaller than the earlier framing).** Lift `quake_dir` to a top-level `setups[0].quake_dir` field, derived from `client.exe_path` parent on first migration. No `clients[family].mode` field. No mode tracking. The canonical exe per family is fully derivable: `<setups[0].quake_dir>/<family>.exe`.
-
-2. **Canonicalize-on-import step.** For each ticked entry in the bulk-import checklist:
-   - Hash, write blob, write manifest (existing flow).
-   - **New:** if source filename is non-canonical AND no `<family>.exe` exists in the same dir yet → prompt "About to rename `<source>` → `<family>.exe` so slipgate can manage versions. OK?", default-yes. On confirm, rename source.
-   - **New:** if source filename is non-canonical AND `<family>.exe` already exists in the same dir → leave source as-is (warehouse has the bytes; user can delete the duplicate later via MyQuake's "Delete from disk" action).
-   - **New:** "Set as primary" radio sets the active version pointer to the canonical path.
-
-3. **No Settings tab toggle.** Drop entirely.
-
-4. **No mode-switching prompts.** Drop entirely. There are no modes.
-
-5. **Variant filenames stay handled per D6** (filename-suffix variants `-glsl`, `-debug` map to canonical names like `ezquake-glsl.exe` with version key suffix `-glsl`). No conflict with canonical-only — variants ARE canonical-named, just with a stable suffix per the family's known-variant list.
-
-6. **Phase 3 stub "Add Quake client" button** stays disabled until Phase 3.5 ships the bulk-import. Already true today.
-
-### Don't do this in Phase 3
-
-Phase 3 already shipped. The targetExeName-from-basename polish was reverted in `f6fe481` because preserving the user's filename produced the misleading-state problem (file named `ezquake-3.6.6.exe` containing 3.6.9 bytes after a switch). Hardcoded `ezquake.exe` is canonical-only's default and stays.
-
-The foreign-exe Import affordance (also shipped 2026-04-27 in `e157e42`) stays — canonical-only just changes what happens *after* import (the canonicalize-on-import rename step lives in the bulk-import flow Phase 3.5 builds, not in single-exe Import).
-
-### Pressure
-
-Medium. Phase 3.5 plan revision is the immediate followup; this entry's reframe needs to land in the plan before code starts. ~30-40 minutes of plan editing once the captures (this entry + tier-ladder memory + Tier-3 future-arcs HANDOVER entry) are locked.
-
-### Related
-
-- Memory: `project_slipgate_tier_ladder.md` (the four-tier opt-in ladder framing this entry rests on)
-- HANDOVER: "Tier 3 future arcs" entry below (clean-room migration + asset warehouse + bundle install + 1-click texture switch — future arcs sharing the warehouse substrate Phase 2/3 built)
-- Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5 plan being revised to absorb this)
-- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (parent multi-phase plan; Phase 3 shipped 2026-04-27)
-- Memory: `reference_three_tier_identity_model.md` (orthogonal — three-tier *identity* model for honest artifact classification, not the four-tier opt-in *ladder*)
-- Phase 3 final state commits: `9051e4b` through `e157e42` + `3b2d831` (running-check guard) + `f6fe481` (canonical-mode revert)
-
----
-
-## Phase 3.5a: Absorb Clients tab into MyQuake → Domains → Clients
-
-**Added:** 2026-04-27 (late afternoon — surfaced during 3.5b second-pass review when entry-point ambiguity exposed an underlying IA tension). **Expanded:** 2026-04-27 (evening — operator added Feed-tab extraction + four-section drops after walking through the actual Clients-tab UI, screenshot 17:03).
-**Status:** Plan ready for execution at `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`. Sequenced BEFORE Phase 3.5b. Frontend restructure; no Rust changes; no schema changes.
-**Verification first:** `grep -n "Clients" apps/slipgate-app/src/components/SideNav.tsx` should still show the standalone Clients tab today. After 3.5a ships, SideNav contains Schedule / Profile / Feed / Tools / MyQuake / Settings (Clients out, Feed in); MyQuake → Domains has Clients sub-tab; dropped sections (Input, Video, Launch, Screenshot POC) are not visible anywhere.
-
-### The triggers
-
-**Trigger 1 (afternoon):** The 2026-04-27 second-pass review of the Phase 3.5b plan surfaced an entry-point contradiction: the plan said "Add Quake client" routes to MyQuake → Browse → Clients filter, but BrowseView is gated on `props.exePath` — meaning a Tier 1 → Tier 2 user (no exe configured yet) lands on a "Pick an ezQuake install in the Clients tab to browse its files" fallback. Circular dead-end. The deeper question surfaced: where does client management actually belong in the app? Operator's reframe: "its my quake, my clients" — client management belongs inside MyQuake the same way Configs management already does.
-
-**Trigger 2 (evening):** Walking through the actual Clients-tab UI exposed that it has 7 sections, not the abbreviated count described in docs/OVERVIEW. Four of them don't belong in the new Clients-Domain home: Input + Video are redundant with Profile; Launch contradicts VISION's "Not a game launcher"; Screenshot POC is internal-only and graduates to Profile (profile-picture generator) when ready. Updates needs its own home — operator surfaced the Feed tab idea: a top-level "what's happening in QW right now" surface for tournaments + dev landscape + GitHub monitoring + Updates.
-
-### The decisions
-
-1. **Standalone Clients tab dissolves.** Replaced by:
-   - **Feed (new top-level tab):** hosts the extracted Updates section. Future content (tournaments, dev landscape, GitHub monitoring) tracked in HANDOVER's "Feed tab future content" entry.
-   - **MyQuake → Domains → Clients (new Domain sub-tab):** hosts Installation + Versions only.
-2. **SideNav stays at 6 tabs:** Schedule / Profile / Feed / Tools / MyQuake / Settings (Clients out, Feed in).
-3. **Four sections dropped from surface:** Input, Video, Launch, Screenshot POC. Code retained in version control; future arcs may resurface them elsewhere.
-4. **Schedule stays as placeholder.** Matchscheduler website integration is parked until the app is closer to ship-ready (per VISION's "Partial: auth built, notifications planned" + operator confirmation 2026-04-27 evening).
-5. **Tools stays separate.** Not Quake-only — sens-recalc and FOV-recalc are general FPS-gamer tools.
-
-### Why this is structurally right
-
-- **Matches the four-tier opt-in ladder.** MyQuake IS the surface for "your relationship to your quake dir." Browse mode = look at it; Domains mode = manage things in it. Clients-as-a-Domain joins Configs-as-a-Domain naturally.
-- **Feed is the right home for "world activity."** Updates, tournaments, dev landscape, community announcements — all distinct from MyQuake (your local stuff) and Profile (you). Feed becomes the "what's happening in QW right now" surface.
-- **Drops the redundant overlap.** Input/Video duplicated Profile's mouse + specs surfaces. Launch contradicted VISION's "Not a game launcher." Removing them reduces cognitive surface area.
-- **Scales right with future Tier 3 arcs.** Bundle install, asset warehouse, texture-set switching all live in Domains alongside Clients. One navigation pattern, one UI grammar across all managed-content surfaces. Feed similarly scales for future external-content arcs (tournaments, dev landscape).
-
-### Scope discipline (what's IN 3.5a)
-
-- Extract Updates section out of ClientsTab.tsx into a new `UpdatesPanel.tsx`.
-- Create new `FeedTab.tsx` containing Updates only (initial Feed content).
-- Rename `ClientsTab.tsx` → `ClientsDomain.tsx`, trimmed to Installation + Versions sections only.
-- Wire ClientsDomain into MyQuake → Domains → Clients sub-tab.
-- Wire FeedTab into SideNav + App.tsx routing.
-- Drop Input + Video + Launch + Screenshot POC sections from the surface (code retained per critical-context #17 in the plan).
-- Migrate App.tsx tab routing + persisted state (`activeTab="clients"` → `activeTab="myquake"` + Domain `"clients"`).
-- Verify nothing else broke (tsc / bun test / cargo build / Windows manual smoke).
-- Single commit, push to main.
-
-### Scope discipline (what's NOT in 3.5a)
-
-- No fingerprinter, no release_cache, no AddClientPanel, no bulk-import. All Phase 3.5b.
-- No Tools tab absorption.
-- No VersionWarehouse component changes (Phase 3's shipped state stays).
-- No Browse-view changes.
-- No store schema changes.
-- No Rust changes (pure frontend refactor; `screenshot.rs` Rust command stays callable even with no UI surface in 3.5a).
-- No Profile screenshot-generator integration (future arc).
-- No Schedule tab implementation (placeholder stays).
-- No Feed-future content (tournaments / dev landscape / GitHub monitoring — future arc).
-
-### Pressure
-
-Medium-high. Phase 3.5b waits on this. ~3-4 hour fresh-terminal session (expanded from the original 1-2 hour estimate due to the Feed extraction + section drops).
-
-### Related
-
-- Plan: `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md` (this phase)
-- Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5b — runs after this; pending pass-2 revision)
-- HANDOVER: "Feed tab future content" (the post-3.5a content arc)
-- HANDOVER: "Screenshot POC → Profile picture generator" (where the dropped Screenshot POC eventually graduates)
-- HANDOVER: "Tray menu launch" (where the dropped Launch section may eventually resurface)
-- Memory: `project_slipgate_tier_ladder.md` (the four-tier opt-in ladder framing this restructure embodies)
-- Reference: `apps/slipgate-app/docs/OVERVIEW.md` § The 6 tabs (current IA before 3.5a ships)
-- Reference: `apps/slipgate-app/VISION.md` § "Not a game launcher" (rationale for Launch drop)
-- Memory: `feedback_verify_typescript.md` (mandatory `bunx tsc --noEmit` for slipgate frontend changes)
-
----
-
-## Add Quake Client / MyQuake unification (post-Phase-3 scope sketch)
-
-**Added:** 2026-04-26 night (extended design conversation after Phase 2 verification). **Plan written same night** at `docs/superpowers/plans/2026-04-26-add-quake-client.md` (commit `509f1e5`, 804 lines). **First-pass revised 2026-04-27 afternoon** in commit `01e4081` (canonical-only naming + tier-ladder framing absorbed). **Pass-2 reviewer feedback received 2026-04-27 (late afternoon)** — 14 findings F1-F14, plus four open operator decisions. **Rescoped 2026-04-27 (late afternoon)**: this is now Phase 3.5b; F1 (entry-point ambiguity) dissolves under the Phase 3.5a IA restructure (sequenced before this); F2-F14 + the four decisions remain in scope for a pass-2 plan revision.
-**Status:** Plan needs pass-2 revision before execution. Top-of-file note in `2026-04-26-add-quake-client.md` flags this. Phase 3.5a (`2026-04-27-clients-as-myquake-domain.md`) MUST ship first — the AddClientPanel built in 3.5b lives inside the MyQuake → Domains → Clients surface that 3.5a creates.
-**Verification first:** Read `2026-04-26-add-quake-client.md` top-of-file note, then `project_slipgate_tier_ladder.md` memory, then the four-tier-ladder HANDOVER entries above ("Canonical-mode default" + "Tier 3 future arcs"). The four open decisions (multi-quake-dir semantics, variant encoding, release_cache channel modeling, primary-radio swap-not-reconcile) need operator answers before the pass-2 revision can land.
-
-### Pass-2 reviewer findings to absorb (F1 dissolved by 3.5a)
-
-- **F2** (operational): Wire fingerprint into existing scan via a new `scan_clients_in_dir` thin Tauri wrapper around `fingerprint_folder`; keep `scan_quake_dir` unchanged. Lock the choice in the plan.
-- **F3** (operational): `import_existing_install` is the wrong primitive for bulk-import (no fingerprint integration, no variant suffix, no canonicalize-rename, hardcoded `"imported"` channel). Either extend it or build a new bulk-import command that orchestrates rename → register → swap.
-- **F4** (architectural — accept reviewer's pushback on D6): Variant encoded in the version key contaminates the shared `qw-version-resolution` lib (oracle's snapshot consumer in Phase 4/5 mis-attributes glsl-variant cvars). Decouple: add `variant: Option<String>` to `WarehousedVersion`, nest variants under the version dir as `binaries/ezquake/3.6.6/variants/glsl/manifest.json`. Version-resolution lib stays variant-naive.
-- **F5** (operational): For the user's primary-radio choice, call `swap_active_version` (which honors the user's choice authoritatively), NOT `reconcile_active_version` (which observes whatever bytes happen to be at the canonical slot — non-deterministic with respect to user intent).
-- **F6** (data correctness): FTE family canonical filename is `fteqw.exe`, NOT `fte.exe`. Verified at `research/repos/fteqw/CMakeLists.txt:1148`. Make family→canonical-filename mapping explicit in code.
-- **F7** (data correctness): FTE server build (`fteqw-sv.exe`) shares `InternalName="ftequake"` with the client. Add explicit exclusion: filter on `OriginalFilename` ending `-sv.exe` or filename `.starts_with("fteqw-sv")` → return Unknown/NotAClient.
-- **F8** (scope): Trim `KNOWN_VARIANT_SUFFIXES` from `["glsl", "debug", "dev", "test"]` to just `["glsl"]`. The broad list false-positives on user `myezquake-test.exe` cases. Add `-debug` only if/when a concrete debug-build case arrives.
-- **F9** (honesty): `matches_official_release` strict-equality misses common cases — PE FileVersion is `3.6.6.7949` (4-component), GitHub tag is `3.6.6`. Either normalize via `parse_pe_version` first then prefix-match, or document explicitly that 3.5b ships strict-equality Tier 2 with known false negatives. Update goal statement to be honest about partial coverage.
-- **F10** (operator decision needed): When bulk-import dir ≠ existing primary `quake_dir`, default behavior is currently "always overwrite" — this silently breaks the user's existing canonical install at the old dir. Operator's lean: warehouse-only without claiming the dir as primary. Confirm.
-- **F11** (scope): "Delete from disk" action is referenced in the action grammar but never specified. Either spec it (`fs::remove_file` on a non-canonical exe path with safety guards: refuse if path is canonical slot, refuse if path matches active version's source) or remove from 3.5b action grammar and defer.
-- **F12** (bookkeeping): `rename_to_canonical` Tauri command is hidden in prose; add to file-structure preview + the two-step Tauri registration tasks.
-- **F13** (operator decision needed): release_cache channel modeling. ezQuake stable + snapshot have different distribution shapes but the cache keys by client only. Operator's lean: per-channel cache files (`release-cache/ezquake-stable.json` + `release-cache/ezquake-snapshot.json`).
-- **F14** (honesty): Goal statement "switch to latest official one click away from any unrecognized state" is partial in 3.5b — works for ezQuake stable + unezQuake; nudge omitted for ezQuake snapshot (BuildsQuakeworld stub) + FTE (fetch_fte_builds stub). Acknowledge in goal or "What this plan does NOT cover."
-
-### Four open operator decisions (need answers before pass-2 revision lands)
-
-1. **Multi-quake-dir semantics** (F10) — operator lean: (b) warehouse-only without claiming primary. Confirm vs (a) refuse vs (c) explicit retarget prompt.
-2. **Variant encoding** (F4 + D6) — operator lean: accept reviewer's pushback; split variant from version key. Confirm.
-3. **release_cache channel modeling** (F13) — operator lean: per-channel files. Confirm vs one-file-multi-channel-shape.
-4. **Primary-radio uses swap_active_version not reconcile** (F5) — accept reviewer's finding (no operator decision needed; reviewer's failure case is concrete).
-
-### The core idea
-
-Single button **"Add Quake client"** that routes into MyQuake's existing browser surface (already classifies files in the user's quake dir by type — see `apps/slipgate-app/src/components/MyQuakeTab.tsx` and the screenshot in operator's `Downloads/2026-04-26_20-35.png` if still present). MyQuake's left sidebar already shows "CLIENTS DETECTED" — this phase upgrades that from passive display to actionable.
-
-Two affordances inside the panel (folder vs specific exe), single follow-up screen showing a checklist of detected clients (ezQuake / unezQuake-family / FTE / Unknown), user ticks what to import, picks one as primary via radio, hits "Import selected." Slipgate hashes + warehouses + writes manifests for each ticked entry. User curates exactly once at the moment they care; after that, slipgate has clean canonical knowledge.
-
-### Why "single point of entry" is right (operator's framing)
-
-Operator: "i would attempt to make it a single point of entry to simplify it for the user. Add Quake client, and then we have some good ui that guides the user to show us to the quake folder to scan, or a direct exe. but the main concept should resolve some of the burden. Cause during that step, the user would import them so we dont auto add everything."
-
-Discovery-and-curation in one step replaces the alternative of either (a) auto-importing everything found (bloats warehouse with old beta exes the user forgot about) or (b) refusing to act (forces user to type paths). User-in-the-loop exactly once, at the moment they care.
-
-### Three deliverables
-
-1. **`ClientFingerprint` Rust module.** Reads PE resource strings (CompanyName, ProductName, FileDescription, OriginalFilename, FileVersion, ProductVersion, InternalName) — extends the existing `read_exe_version` infrastructure in `commands/ezquake.rs` (which currently reads only the numeric VS_FIXEDFILEINFO block) to also read the StringFileInfo block via a second `VerQueryValueW` call. Three classification rules from authoritative source evidence:
-   - `InternalName == "ftequake"` → FTE
-   - `ProductName == "ezQuake"` AND `version_string` substring-contains `"antilag"` (case-insensitive) → unezQuake-family
-   - `ProductName == "ezQuake"` AND no antilag substring → ezQuake
-   - Otherwise → Unknown / NotAClient (filtered out before user sees the import list)
-
-   Critical implementation detail: enumerate the translation table per file, don't assume `040904B0` (ezQuake langid) — FTE uses `080904B0`. The diagnostic dance: query `\VarFileInfo\Translation` to get the lang+codepage pairs, then iterate them building `\StringFileInfo\<lang+cp>\<KeyName>` paths. See `feedback_substring_not_regex_fingerprinting.md` for why version-string matching uses substrings rather than regex.
-
-2. **MyQuake browser integration.** The existing browser already does directory walking and per-file classification (file-type counts, etc.). Add a "Clients" first-class category with import actions on .exe rows. The CLIENTS DETECTED sidebar gains actionable rows: each detected client shows status (warehoused / not warehoused / active), and right-click or hover exposes "Import" / "Set as primary" / "Remove from warehouse." The "Add Quake client" button (stubbed in Phase 3) becomes "open MyQuake, filter to Clients, tick what you want, hit Import to warehouse."
-
-3. **Release-cache Rust module.** Owns the per-client release-list fetch + cache + Tier-2 lookup. Reuses slipgate's existing GitHub Releases fetch from `commands/updater.rs` (which already fetches release lists when checking for updates) — caches responses at `<data-root>/release-cache/<client>.json`, refreshes-on-launch (cheap, <500ms total for 4 clients via parallel fetch). Consumed by both the fingerprinter (for Tier-2 cross-check) AND the existing updater (replacing its current ad-hoc fetching). Net architectural improvement: one source of truth for "what releases exist for client X", consumed by multiple features.
-
-### Per-client distribution-model policy
-
-The three-tier identity model (`reference_three_tier_identity_model.md`) doesn't apply uniformly. Different clients have fundamentally different distribution shapes:
-
-| Client | Distribution model | Tier 2 viable? | Notes |
-|---|---|---|---|
-| ezQuake stable | GitHub Releases (~30) | Yes | ~1.5KB cached |
-| ezQuake snapshot | builds.quakeworld.nu (rolling) | Yes (live) | Updater already scrapes |
-| KTX | GitHub Releases (~30) | Yes | ~1.5KB cached |
-| MVDSV | GitHub Releases (~30) | Yes | ~1.5KB cached |
-| QWFWD | GitHub Releases (~30) | Yes | ~1KB cached |
-| unezQuake | GitHub Releases (~30+) at dusty-qw/unezquake | Yes | ~1.5KB cached |
-| FTE | Continuous nightly builds at fte.triptohell.info, no formal releases | **No** | Skip Tier 2 entirely |
-
-For FTE specifically, the question "is this an official release?" doesn't map. Asking whether `FTE QW build 6428` is "official" is roughly like asking whether `git rev-parse HEAD` is "official" — yes, it's whatever the build system produced that day, no separate canonical-vs-unofficial axis exists. Classify as `FTE QW (build NNN)` without judgment; the upgrade-nudge UX becomes "build NNN is from <date>; latest available is build MMM" rather than "this is unrecognized."
-
-### Variant tiebreaker rule (GLSL etc.)
-
-ezQuake historically shipped both `ezquake.exe` and `ezquake-glsl.exe` — same version, same release, same PE strings, different binaries (different sha256). If a user has both warehoused, they'd collide at the manifest path (`binaries/ezquake/3.6.6/manifest.json`) but not the blob (sha256 different). Two reasonable resolutions:
-
-1. **Variant in version key** — detect from filename (`-glsl` suffix → version becomes `3.6.6-glsl`). Different folder, no collision. Clean.
-2. **Refuse second import if same client+version exists** — prompt user: "You already have ezQuake 3.6.6 warehoused. This binary has different bytes — replace, keep both as variants, or skip?"
-
-Lean toward (1) for known filename-suffix variants (glsl, debug, etc.); (2) only as the safety net for genuinely surprising sha collisions. Pick during execution.
-
-### Research artifacts
-
-- `research/repos/unezquake/` — dusty-qw/unezquake cloned 2026-04-26 night; full history, all branches. Useful for future authority lookups (e.g., "did unezQuake ever ship version X").
-- `research/repos/fteqw/` — already present; FTE source for fingerprinter design.
-- `research/repos/ezquake-source/` — already present; ezQuake source for fingerprinter design and `winquake.rc` authority.
-
-### unezQuake-fork lineage finding (for context)
-
-During Phase 2 verification, operator's `ezquake-glsl.exe` (filename misleading) was identified as unezQuake-family via PE substring + behavioral cvar probing. Specific build (`3.6-dev-alpha10-antilag-r402`) doesn't appear in either ezQuake mainline OR dusty-qw/unezquake history (which started at clean v1.0 in Sep 2020). Lineage genuinely unresolved — possibly a pre-public dusty dev build, possibly a different antilag fork that predated dusty's project. **Not blocking** — fingerprinter design works regardless of which specific fork built it; the substring-based rule classifies correctly. Captured here as evidence for why the fingerprinter must be substring-based not regex-based: orphan binaries from forks we don't have local source for are the exact case that breaks brittle pattern matching. See `feedback_substring_not_regex_fingerprinting.md`.
-
-### Pressure
-
-Low for now — depends on Phase 3 shipping first to give the version list a home where the "Add Quake client" button lives and to prove the warehouse + swap pipeline works for multi-version scenarios. Once Phase 3 lands, this becomes the natural next priority because it's the first phase that delivers the user's broader product vision: "I want people to get updated clients instead of sitting on old stale stuff out of laziness." Three-tier identity surfacing + inline upgrade nudges are the UX that achieves this without lecturing the user.
-
-### Related
-
-- Memory: `reference_three_tier_identity_model.md` (Tier 1/2/3 principles)
-- Memory: `reference_behavioral_probing_escalation.md` (cvar-existence checks as PE-string ambiguity escalation)
-- Memory: `feedback_substring_not_regex_fingerprinting.md` (why substring beats regex for cross-version-history matching)
-- Memory: `project_quake_dir_control.md` (multi-phase plan status; Phases 0+1+2 shipped)
-- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (the original 6-phase plan; this entry sketches a phase that wasn't in the original scope)
-
----
-
-## Tier 3 future arcs (clean-room migration + asset warehouse + bundle install)
-
-**Added:** 2026-04-27 (afternoon — surfaced during Phase 3.5 second-pass review when the warehouse substrate's generalization to non-binary content became explicit).
-**Status:** Future arcs, not Phase 3.5 scope. Captured here so the architectural insight isn't lost between Phase 3.5 ship and the first asset/bundle work. Each arc reuses the warehouse + swap substrate Phase 2/3 already shipped — content-addressed blobs, per-thing manifests, top-level index, atomic-rename swap to canonical slot — keyed at `<data-root>/<kind>/...` with `kind` parallel-able from binaries to assets to bundles.
-**Verification first:** `ls apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs apps/slipgate-app/src-tauri/src/commands/version_swap.rs` — these are the substrate modules the future arcs parallel.
-
-### The four future arcs
-
-These arcs share an architectural realization rather than a feature spec. They land independently as separate plans when their preconditions arrive (Phase 3.5 shipped + Layer 1 asset mapping mature + assets.quake.world catalog live).
-
-**A. Asset warehouse + 1-click texture-set switching.** Parallel modules `commands/asset_warehouse.rs` and `commands/asset_swap.rs` with the same shape as `version_warehouse` / `version_swap` but keyed at `<data-root>/assets/blobs/<sha256>.<ext>` and `<data-root>/assets/<kind>/<name>/<version>/manifest.json`. `register_asset` / `swap_active_asset` / `delete_warehoused_asset` Tauri commands. Atomic-rename swap to a canonical slot determined by the asset's kind (e.g. textures land at `<quake-dir>/qw/textures/<name>.<ext>`). 1-click switching between texture sets is the same operation as 1-click switching between client versions today — `swap_active_asset(name, target_version)` overwrites the canonical slot with bytes from a different blob. **Precondition:** Layer 1 asset-mapping fully shipped so slipgate knows where each asset kind's canonical slot is per quake dir convention.
-
-**B. Bundle install (slackers_tp / curated nQuake-style).** A bundle is a manifest of (asset_id, version) pairs — slackers_tp could be `{teamalias_configs: 1.2, scoreboard_graphics: 0.4, skins: 1.0}`. Installing a bundle iterates the manifest and calls `register_asset` + `swap_active_asset` for each entry. Anyone can author a bundle; assets.quake.world hosts the catalog. The user's existing `slackers_tp.zip` in their quake dir today is the manual version of this — the future flow makes it native. Bundles are the answer to "I want my slackers_tp setup AND my custom setup, switch with one click" without needing a binary-level mode toggle. **Precondition:** Asset warehouse (A) shipped + assets.quake.world catalog API.
-
-**C. Fresh-install / clean-room migration.** "I just installed slipgate, set up a clean managed dir for me." Slipgate fetches a chosen client version, downloads the GPL-allowed Quake content, applies one or more curated bundles, lands the result at a fresh `<quake-dir>` with everything at canonical slots. The clean-room variant is the migration path for a user with an existing messy dir: slipgate uses Layer 1 asset mapping to identify which files in the messy dir are real (vs cruft), copies the real ones to a new dir, and lets the user walk away from the old dir at their own pace. After extraction, the old messy dir CAN remain registered as a `role: "secondary-readonly"` entry in `setups[0].quake_dirs` so the user can still browse it via MyQuake — but slipgate doesn't write to it. Tier 1 → Tier 3 on-ramp. Operator's framing 2026-04-27: "since it knows asset mapping from the clients, it knows exactly what files its loading and touching ... so you can copy only those parts out, into a new dir, and let the app manage from there. then you can look at the old dir and know its all junk." **Schema substrate:** Phase 3.5b ships `setups[0].quake_dirs: QuakeDirEntry[]` plural-shaped per D9 — `role: "primary"` is the only value used in 3.5b; clean-room adds `role: "secondary-readonly"` without further schema migration. **Precondition:** Asset warehouse (A) + bundle install (B) shipped + Layer 1 asset mapping covers the kinds being migrated + a small Settings-tab "Quake dirs" manager UI for explicit add/remove/promote actions.
-
-**D. MyQuake → Domains → Bundles dashboard.** First-class Browse-style catalog of warehoused bundles with the same Import / Set primary / Remove / Switch action grammar Phase 3.5 establishes for client versions. Bundle catalog browsing might also live as a slipgate-web hub view that deep-links into the desktop client (assets.quake.world's "Install in slipgate" button → routes to the desktop with the bundle id pre-selected). **Precondition:** Bundle install (B) shipped + slipgate-web design landed (gated on infiniti's OKLCH Harmonizer ramp).
-
-### Architectural shape worth preserving
-
-- **Warehouse substrate is content-kind-parallel.** `<data-root>/binaries/...` and `<data-root>/assets/...` and (later) `<data-root>/bundles/...` are parallel top-level dirs, not nested under a shared `warehouse/` root. Different content kinds, different blob extensions, different index shapes — but the same primitives (content-addressed blobs, per-thing manifests, top-level index, atomic-rename swap).
-- **Action grammar is consistent.** Every Domain (Clients today; Assets, Bundles, Maps, Matches in future) reuses the same verbs: Import / Set primary or Set active / Remove from warehouse / Switch / Delete from disk. Phase 3.5's Clients-domain row is the first instance and sets the precedent.
-- **Tier crossing is button-click, not global setting.** Per the four-tier opt-in ladder: a user moves from Tier 1 to Tier 2 by clicking "Add Quake client" / "Install update"; from Tier 2 to Tier 3 by clicking "Install texture set" / "Install bundle" / "Migrate to clean dir." No mode dropdowns, no global settings.
-
-### Pressure
-
-Low for now. Phase 3.5 must ship before any of this. Items A and B are the natural next two arcs after 3.5. Item C lands later. Item D is gated on slipgate-web. The point of capturing this is preserving the architectural framing during the gap, not pressure to start.
-
-### Related
-
-- Memory: `project_slipgate_tier_ladder.md` (the four-tier opt-in ladder this entry's "future arcs" sit at the top of)
-- Memory: `project_slipgate_web_services_vision.md` (assets/maps/hub.quake.world triad + content-hash join key — the catalog side that A/B/D consume)
-- HANDOVER: "Canonical-mode default for warehoused clients" entry above (the binary-domain version of canonical-naming-no-toggle that this entry generalizes from)
-- Plan: `docs/superpowers/plans/2026-04-26-quake-dir-control.md` (parent multi-phase plan; Phases 0-3 shipped; Phase 3.5 wires the binary-domain consumer)
-- Plan: `docs/superpowers/plans/2026-04-26-add-quake-client.md` (Phase 3.5 plan being revised)
-- Substrate code: `apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs`, `version_swap.rs`, `warehouse_reconcile.rs` (the modules future arcs parallel)
-
----
-
 ## Feed tab future content
 
 **Added:** 2026-04-27 (evening — surfaced when operator decided to extract the Updates section from the Clients tab into a new Feed tab during Phase 3.5a planning).
@@ -779,57 +491,6 @@ None. No specific trigger. Capture this so the natural home is documented if any
 - Source: `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` (`launch_ezquake` — the command that stays callable)
 - Source: `apps/slipgate-app/src-tauri/src/lib.rs` (existing tray-menu plumbing)
 - Reference: `apps/slipgate-app/VISION.md` § "Not a game launcher" (the framing that justified the drop)
-
----
-
-## Player profiles (bundle-shaped, share-via-hashlist)
-
-**Added:** 2026-04-27 late evening — surfaced during Phase 3.5b pass-2 D9 conversation when operator described the "play like Milton" use case while picking the multi-quake-dir model.
-**Status:** Future arc; needs its own research/design session before any implementation. Not Phase 3.5b scope and not blocking 3.5b decisions. Captured here so the framing isn't lost.
-**Verification first:** No code today. The substrate that enables this — content-addressed warehouse (Phase 2/3 shipped) + plural-shaped `setups[0].quake_dirs` (Phase 3.5b ships per D9) + asset warehouse + bundle install (Tier 3 future arcs A + B) + assets.quake.world catalog (separate web-services arc) — is all preconditional.
-
-### What player-profile import means
-
-The "play like Milton" use case: a community member shares their setup with the app; another user imports it and can swap into Milton's setup vs their own with one click.
-
-Operator's framing 2026-04-27 evening:
-
-> "play like milton, we pull his 'profile' it consists of a list of assets he is using, or chose to share via the app. one or more assets we have to get for sure, is the configs. and maybe some custom graphics textures and what not. i imagine it knows what assets we have locally already, it would create a profile folder with the full manifest, but only put there what we dont have already in the own quakedir. or maybe even duplicate it. and then swap in and out between own profile and anothers. so it knows what should be in our own dir, when our profile is active. And in terms of what to load.. that is easy right. we know al the cmdline commands, i think there might even be something to load specific files or paks."
-
-### Where this fits in the architecture
-
-Player profiles are **bundle-shaped**. They reuse the future bundle-install infrastructure (Tier 3 future arc B) at a different abstraction level:
-
-- A profile = a manifest of (asset_id, version) pairs, optionally with a filter (e.g. `onlyVisuals: true` excludes binds + movement to avoid overwriting the user's own gameplay setup).
-- Content-hash dedupe: the warehouse already content-addresses blobs at `<data-root>/assets/blobs/<sha256>.<ext>`. If the user already has Milton's HUD overlay locally (same sha256), no re-download — just reference. If they don't, fetch from assets.quake.world.
-- Storage: the profile manifest itself lives at `<data-root>/profiles/<profile-id>/manifest.json` (or similar). Bundle blobs reuse the asset warehouse — they're not duplicated per profile.
-- Loading: swapping into Milton's profile means writing the profile's asset blobs to their canonical slots in the active quake dir. Or — if the user wants A/B without bulldozing their own setup — the profile lives in a separate registered dir (`role: "profile"` entry in `setups[0].quake_dirs`).
-
-### Open questions for the design session
-
-These aren't decisions for now; just the surface a future research arc would explore:
-
-1. **Same-dir overlay vs separate-dir A/B.** Does Milton's profile overwrite my own canonical slots and require explicit "swap back to my own" actions? Or does it land in its own dir so I can launch from either? Both have UX merit.
-2. **Filter semantics.** `onlyVisuals` is the operator's example. Other natural filters: `onlyHud` (HUD overlays + scoreboard graphics only), `onlyBinds` (controls only), `onlyConfigs` (everything but visuals). Should filters be enumerated or arbitrary key-list?
-3. **Manifest authoring.** Who creates Milton's profile? Milton himself via slipgate's "Share my setup" action? Slipgate scans Milton's quake dir and produces a hash list? Both?
-4. **Cmdline / asset-load semantics.** Operator noted "we know all the cmdline commands ... maybe our oracle would know" — slipgate may need to inject `gamedir`-switches or `exec` commands on launch to make the profile take effect. Oracle's command knowledge is the right consumer here.
-5. **Profile versioning.** When Milton updates his setup, do existing profile imports auto-update? Pin to a specific version? Show a "Milton has a new profile version" notification?
-6. **Privacy / sharing controls.** Not all assets are shareable (custom skins might be in good taste; account-bound items are not). Probably governed by whoever curates the catalog (assets.quake.world).
-
-### Why not now
-
-Operator's stated reasoning 2026-04-27: "this is probably also out of scope. because it requires its own full session research, how to handle profiles." Agreed. The bundle-install infrastructure (Tier 3 arc B) needs to ship first; profiles are a richer consumer of it. Doing profile design now without the bundle substrate would generate a lot of speculative work.
-
-### Pressure
-
-Low. No specific trigger. Captured to preserve the framing for the eventual research session.
-
-### Related
-
-- HANDOVER: "Tier 3 future arcs" — the bundle-install future arc (B) is the substrate this builds on
-- HANDOVER: "Phase 3.5a" — the IA restructure that put Clients management in MyQuake, where profile management would naturally live too (likely as a future MyQuake → Domains → Profiles dashboard)
-- Memory: `project_slipgate_web_services_vision.md` — assets.quake.world catalog with content-hash join key is the upstream source for profile manifests
-- Memory: `project_slipgate_tier_ladder.md` — profiles are Tier 3 territory (require slipgate to manage parts of the user's quake dir actively)
 
 ---
 
@@ -1255,42 +916,6 @@ Low. The v14 facts are correct; only the structure is inconsistent. Address befo
 
 ---
 
-## FTE asset bundle consumer wiring
-
-**Added:** 2026-04-27 (orchestrator wrap-up).
-**Status:** Producer side shipped (`apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json` exists with 28 categories / 61 extensions / 13 path_rules / 25 cvar_bindings / 717 loader_sites). Consumer side untouched — slipgate's classifier reads ezQuake bundle only. Not in any current plan.
-**Verification first:** `grep -n "ezquake-asset-bundle\|fte-asset-bundle" apps/slipgate-app/src/lib/assets/bundle.ts` should currently show only the ezQuake import on line 2. When this returns both, this entry has been resolved.
-
-### What's missing
-
-`apps/slipgate-app/src/lib/assets/bundle.ts` line 2 hardcodes `import raw from "../config/data/ezquake-asset-bundle.json"`. The MyQuake → Browse → Domains panel's `FILTER BY DOMAIN` classification (Texture / Sound / Demo Recording / Skybox / etc.) is driven entirely by the ezQuake bundle today. The FTE bundle file sits in the data dir but no slipgate code imports it.
-
-### What it would take
-
-Three small pieces of consumer-side wiring:
-
-1. Refactor `bundle.ts` to load both bundles into a per-engine map (or add a parallel `bundle-fte.ts` and have the classifier merge). New file/refactor either way.
-2. Project-aware classification at the call sites — when classifying files in a quake dir, decide whether to apply ezQuake rules, FTE rules, or both. Default-both-with-ezQuake-priority is probably the right starting policy until there's a reason to differentiate.
-3. UI surface — possibly nothing changes (more files become classified instead of hitting "other"); possibly a per-engine filter toggle for power users.
-
-Half-day to one day of slipgate work.
-
-### Why it's worth tracking
-
-The producer-side investment for FTE asset extraction was significant (Phase 2d-bundle, ~5 hours of work across 2 implementation sessions). Without consumer wiring, that data sits unused in the repo. The asset overlap between ezQuake and FTE is high (~70% — sounds, models, configs, demos, screenshots are identical) so the user-visible delta is bounded. The genuinely FTE-specific gain is shaders, heightmaps, .po localization files, and FTE-specific path conventions for skybox / skins.
-
-### Pressure
-
-Low. Slipgate isn't shipping. The ezQuake-only classifier still does most of the useful work. Worth doing when a slipgate-side arc next touches the asset classifier — probably during Phase 3.5a (MyQuake → Domains restructure) or whichever Tier 3 future arc lands first.
-
-### Related
-
-- Bundle consumer: `apps/slipgate-app/src/lib/assets/bundle.ts:2`
-- Producer-side ship: HANDOVER `Phase 2d-2h` entry, line item "FTE Phase 2d-bundle SHIPPED 2026-04-27"
-- MyQuake screenshot the user shared during the orchestrator wrap-up: `/mnt/c/Users/Administrator/Downloads/2026-04-27_15-17.png`
-
----
-
 ## Phase 2e follow-up arc residuals
 
 **Added:** 2026-04-28. **Status:** Six small residuals from the MVDSV Phase 2e follow-up arc (5 commits `f7b2a7a` -> `72a1630`, schema v15 -> v17). All low pressure; do-when-touched. **Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT user_version FROM pragma_user_version"` should return `17`.
@@ -1413,3 +1038,68 @@ High. This is the new main arc. All other slipgate-side work (binary version dif
 - **Memory:** `project_slipgate_tier_ladder.md` — the four-tier intuition the two-mode framing distills
 - **Phase 3.5b plan:** `docs/superpowers/plans/2026-04-26-add-quake-client.md` — binary half of the warehouse substrate
 
+
+
+---
+
+## Cross-extractor pattern audit follow-up arc
+
+**Added:** 2026-04-28. **Status:** Arc planned, not yet executed.
+
+Cross-project pattern audit ran 2026-04-28 against the post-consolidation baseline (architecture-consolidation arc 5b943d4 → 8115b48). Three subagents in parallel covered:
+- `extractor_lib/` end-to-end + lift candidates from project-private handlers (Subagent 1).
+- cvar/command/cmdline triple across all four projects (Subagent 2).
+- Project-specific handlers (FTE asset/ezhud/ezscript/macros, MVDSV info_keys/log_templates/protocol/qc_builtins, ezQuake macros/hud_elements/keynames/asset) + schema CHECK reachability (Subagent 3).
+
+In-terminal: load-version.ts + schema.ts CHECK constraint mapping; `valid*` carve-outs; driver shape (extract.py); OUT_OF_SCOPE.md + validation-fixtures inventory.
+
+### Findings
+
+27 total. Severity split: 4 critical (D.1.3 / D.1.4 / D.1.10 / D.2.10), 16 important, 7 nits.
+
+The full report is at `docs/superpowers/reviews/2026-04-28-cross-extractor-audit-report.md` with finding tables grouped by audit dimension (D.1 sibling-handler shape divergences; D.2 extractor_lib lift candidates; D.3 schema CHECK reachability; D.4 valid* carve-outs; D.5 architecture invariants; D.6 driver shape; D.7 idempotency smoke; D.8 OUT_OF_SCOPE / validation-fixtures).
+
+### Plan
+
+`docs/superpowers/plans/2026-04-28-cross-extractor-shared-lib-arc.md` — five phases plus a Phase 0 of small drain-now patches:
+
+- **Phase 0** — drain-now: delete dead `extractor_lib/_base.py`; rename two FTE asset handler classes; rename mvdsv `containing_function` → `enclosing_function`.
+- **Phase 1** — `resolve_fn_ref` lift adoption across 6 private copies in ezquake/fte/qwcl. Highest-correctness win; corner case (unresolved decls) surfaces as `cursor.spelling` instead of NULL.
+- **Phase 2** — cvars normalization convergence (lift `_unescape_c_string` + `_normalize_flags_raw`) + qc_builtin canonical-name fix to schema v18 (parallels v16 info_key Phase B). Recovers 4 silently-dropped cross-scope variants. Schema migration territory.
+- **Phase 3** — string-shape helper lifts (`_read_extent` x13, `_strip_quotes` x8, `_literal_string` L-tolerant x7, `_strip_array_and_qualifiers` x3, asset-handler bundle x17). Largest LOC reduction; no policy change.
+- **Phase 4** — FTE cmdline param-prefix verification: grep + decide widen vs document-as-design.
+- **Phase 5** — schema/loader alphabet sync (export `INFO_KEY_SCOPES` + `LOG_TEMPLATE_CHANNELS` from schema.ts); document log_template raw-escape preservation contract in SCHEMA.md.
+
+### Sequencing
+
+Drain this arc BEFORE the per-project deep validations (ezQuake / FTE / QWCL via `validate-extractor` skill in Mode B). Same logic that drove the MVDSV Phase 2e follow-up arc → runbook+skill sequencing: cleaner shared baseline = smaller per-project plans = less duplicate work across the three.
+
+### Deferred to HANDOVER (13 items, all low pressure)
+
+These findings have explicit dispositions in the audit report. None warrant a phase of their own:
+
+1. **D.1.5** — FTE/QWCL handlers uniformly missing `Fork override hooks:` documentation. No concrete consumer fork target today; speculative hoisting violates "don't generalize without a second consumer." Revisit if/when a fork pressure surfaces.
+2. **D.1.8** — FTE `_handler_commands.py` lacks `enter_function`/`exit_function` lifecycle hooks; `_handler_cmdline.py:167` always emits `enclosing_function: None`. Feature-coverage gap, not data loss.
+3. **D.1.9** — ezquake cvars finalize uses last-wins overwrite; ezquake commands and all other projects use first-wins. Verify identical output on current corpus before harmonizing.
+4. **D.1.12** — `ProtocolMvdsvHandler._kind_for` lives at module level rather than as a class-attribute dispatch table. Acknowledged in docstring. Defer until antilag-mvdsv onboarding pressures the override path.
+5. **D.1.13** — FTE `_handler_ezhud.py:97-123` `_resolve_default` token heuristic stores unresolved identifier names as-is. Re-scan `plugins/ezhud/` for new SPEED_-style #defines on each FTE bump.
+6. **D.2.8** — ezquake `_resolve_enum_constant` duplicated within ezquake (macros + cmdline). Single-project; below the lift bar.
+7. **D.3.1** — `cvar_alias_versions.default_drift_status` schema CHECK admits `differ_safe` but no extractor emits it (FTE ezscript handler is conservative; manual review can promote `differ_dangerous` → `differ_safe`). Verify operator-promotion path; either document or remove from CHECK in a future revision.
+8. **D.4.3** — `validIdentifier` regex in `load-version.ts:443` does NOT admit `:` separator. Blocks future `<bare>:<scope>` canonical fixes for entity types beyond info_key without coordinated regex work. Re-evaluate when the next cross-scope canonicalization arc lands (Phase 2 of the plan above kicks this for qc_builtin).
+9. **D.6.1** — `Config.set_library_file("libclang-18.so.1")` called in fte/extract.py + mvdsv/extract.py but NOT in ezquake/extract.py + qwcl/extract.py. Functional today on WSL via libclang's default resolution; convergence is hygiene only.
+10. **D.6.2** — Handler-registry pattern divergence (module-level `ALL_HANDLERS` dict literal in ezquake/qwcl vs `collect_handlers()` function with lazy imports in fte/mvdsv). Both work; convergence is code-hygiene.
+11. **D.6.3** — ezquake `_split_handlers` + dual-path code in `_process_one_file` (extract.py:97-160) retained for the keynames handler (the only one still using `process_file` instead of Visitor). One-consumer legacy path; could be lifted into Visitor with custom variant args.
+12. **D.8.1** — `OUT_OF_SCOPE.md` "last reviewed" dates: ezquake/fte/qwcl 2026-04-26 (precede the consolidation arc); mvdsv 2026-04-28 (current). Refresh dates as part of per-project deep validations.
+13. **D.8.2** — Only mvdsv has `validation-fixtures/` (allowlists, prefixes, runtime dump). ezquake/fte/qwcl have no equivalent — ezquake's runtime cross-validation already happened pre-consolidation (Pass 1 closure documented in CLAUDE.md memory note); the absence of a `validation-fixtures/` directory means that Pass 1's allowlist + reference dump are not reproducible from the current tree. Capture per-project Pass-1 runtime dumps as part of per-project deep validations.
+
+### Pressure
+
+Medium. The arc itself is moderate-sized (5 phases, ~3-5 days estimated). The four drain-now patches in Phase 0 can land first as a quick hygiene commit. Sequencing into the broader knowledge-service realignment roadmap: drains the cross-cutting consolidation cleanup before per-project deep validations resume.
+
+### Related
+
+- **Audit report:** `docs/superpowers/reviews/2026-04-28-cross-extractor-audit-report.md`
+- **Follow-up plan:** `docs/superpowers/plans/2026-04-28-cross-extractor-shared-lib-arc.md`
+- **Spec:** `docs/superpowers/specs/2026-04-28-cross-extractor-pattern-audit.md`
+- **Predecessor:** `docs/superpowers/plans/2026-04-28-extractor-architecture-consolidation.md` (the consolidation arc that built the pre-condition for this audit)
+- **MVDSV Phase 2e follow-up plan:** `docs/superpowers/plans/2026-04-28-mvdsv-phase2e-followups.md` (parallel-shape reference)
