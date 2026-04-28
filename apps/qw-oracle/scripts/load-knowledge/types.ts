@@ -335,6 +335,15 @@ export interface LogTemplateAstBlock {
   source_file: string | null;
   source_line: number | null;
   containing_function: string | null;
+  // Phase D Task 10: every call site that registers this (channel,
+  // format_string). The first entry seeds the top-level (source_file,
+  // source_line, containing_function) for display compatibility; the full
+  // list lands in log_template_versions.all_call_sites_json.
+  all_call_sites?: {
+    source_file: string | null;
+    source_line: number | null;
+    containing_function: string | null;
+  }[];
 }
 
 export interface LogTemplateEntry {
@@ -473,6 +482,10 @@ export interface LogTemplateVersionRow {
   source_file: string | null;
   source_line: number | null;
   containing_function: string | null;
+  // Phase D Task 10: JSON-stringified array of every call site for this
+  // (channel, format_string). Nullable in v17 (pre-Phase-D rows store NULL);
+  // every fresh row carries at least one entry.
+  all_call_sites_json: string | null;
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;

@@ -4,7 +4,7 @@
       "name": "allow_download",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -18,7 +18,7 @@
       "name": "allow_download_demos",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -32,7 +32,7 @@
       "name": "allow_download_maps",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -46,7 +46,7 @@
       "name": "allow_download_models",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -60,7 +60,7 @@
       "name": "allow_download_other",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -74,7 +74,7 @@
       "name": "allow_download_pakmaps",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -88,7 +88,7 @@
       "name": "allow_download_skins",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -102,7 +102,7 @@
       "name": "allow_download_sounds",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -132,7 +132,7 @@
       "name": "coop",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -194,7 +194,7 @@
       "name": "developer",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -208,7 +208,7 @@
       "name": "download_map_url",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -222,7 +222,7 @@
       "name": "extralogname",
       "ast": {
         "default_value": "unset",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -236,7 +236,7 @@
       "name": "filterban",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -250,7 +250,7 @@
       "name": "frag_log_type",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -280,7 +280,7 @@
       "name": "fs_cache",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/fs.c",
@@ -390,7 +390,7 @@
       "name": "maxvip_spectators",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -404,7 +404,7 @@
       "name": "password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -418,7 +418,7 @@
       "name": "pausable",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -432,10 +432,8 @@
       "name": "pext_ezquake_verfortrans",
       "ast": {
         "default_value": "7814",
-        "flags_raw": "CVAR_NONE",
-        "flag_names": [
-          "CVAR_NONE"
-        ],
+        "flags_raw": "",
+        "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
         "source_line": 205,
@@ -545,7 +543,7 @@
       "name": "qconsole_log_say",
       "ast": {
         "default_value": "0",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_qconsolelogsay_var",
         "source_file": "src/sv_main.c",
@@ -559,7 +557,7 @@
       "name": "qtv_maxstreams",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -573,7 +571,7 @@
       "name": "qtv_password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -587,7 +585,7 @@
       "name": "qtv_pendingtimeout",
       "ast": {
         "default_value": "5",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -601,7 +599,7 @@
       "name": "qtv_sayenabled",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -615,7 +613,7 @@
       "name": "qtv_streamport",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -629,7 +627,7 @@
       "name": "qtv_streamtimeout",
       "ast": {
         "default_value": "45",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo_qtv.c",
@@ -643,7 +641,7 @@
       "name": "qwm_builddate",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -657,7 +655,7 @@
       "name": "qwm_buildnum",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -671,7 +669,7 @@
       "name": "qwm_fullname",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -685,7 +683,7 @@
       "name": "qwm_homepage",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -699,7 +697,7 @@
       "name": "qwm_name",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -713,7 +711,7 @@
       "name": "qwm_platform",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -727,7 +725,7 @@
       "name": "qwm_version",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -853,7 +851,7 @@
       "name": "rcon_password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -883,7 +881,7 @@
       "name": "samelevel",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -914,7 +912,7 @@
       "name": "showdrop",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/net_chan.c",
@@ -928,7 +926,7 @@
       "name": "showpackets",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/net_chan.c",
@@ -942,7 +940,7 @@
       "name": "skill",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -956,7 +954,7 @@
       "name": "spectator_password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -970,7 +968,7 @@
       "name": "sv_accelerate",
       "ast": {
         "default_value": "10",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -984,7 +982,7 @@
       "name": "sv_admininfo",
       "ast": {
         "default_value": "",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_admininfo_var",
         "source_file": "src/sv_main.c",
@@ -998,7 +996,7 @@
       "name": "sv_airaccelerate",
       "ast": {
         "default_value": "10",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -1012,7 +1010,7 @@
       "name": "sv_allowlastscores",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1090,7 +1088,7 @@
       "name": "sv_broadcast_enabled",
       "ast": {
         "default_value": "1",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "SV_BroadcastEnabledOnChange",
         "source_file": "src/sv_main.c",
@@ -1104,7 +1102,7 @@
       "name": "sv_broadcast_sender_validation_enabled",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1134,7 +1132,7 @@
       "name": "sv_cheats",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_ccmds.c",
@@ -1148,7 +1146,7 @@
       "name": "sv_crypt_rcon",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1162,7 +1160,7 @@
       "name": "sv_csqc_progname",
       "ast": {
         "default_value": "csprogs.dat",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1176,7 +1174,7 @@
       "name": "sv_debug_antilag",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1190,7 +1188,7 @@
       "name": "sv_debug_usercmd",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1204,7 +1202,7 @@
       "name": "sv_debug_weapons",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1218,7 +1216,7 @@
       "name": "sv_default_name",
       "ast": {
         "default_value": "unnamed",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1248,7 +1246,7 @@
       "name": "sv_demoClearOld",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1262,7 +1260,7 @@
       "name": "sv_demoDir",
       "ast": {
         "default_value": "demos",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "sv_demoDir_OnChange",
         "source_file": "src/sv_demo.c",
@@ -1276,7 +1274,7 @@
       "name": "sv_demoDirAlt",
       "ast": {
         "default_value": "",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "sv_demoDir_OnChange",
         "source_file": "src/sv_demo.c",
@@ -1290,7 +1288,7 @@
       "name": "sv_demoExtraNames",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1304,7 +1302,7 @@
       "name": "sv_demoIdlefps",
       "ast": {
         "default_value": "10",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1318,7 +1316,7 @@
       "name": "sv_demoMaxDirSize",
       "ast": {
         "default_value": "102400",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1332,7 +1330,7 @@
       "name": "sv_demoMaxSize",
       "ast": {
         "default_value": "20480",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1346,7 +1344,7 @@
       "name": "sv_demoPrefix",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1360,7 +1358,7 @@
       "name": "sv_demoRegexp",
       "ast": {
         "default_value": "\\\\.mvd(\\\\.(gz|bz2|rar|zip))?$",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1374,7 +1372,7 @@
       "name": "sv_demoSuffix",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1388,7 +1386,7 @@
       "name": "sv_demoUseCache",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1402,7 +1400,7 @@
       "name": "sv_demofps",
       "ast": {
         "default_value": "77",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1416,7 +1414,7 @@
       "name": "sv_demopings",
       "ast": {
         "default_value": "3",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1430,7 +1428,7 @@
       "name": "sv_demotxt",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1444,7 +1442,7 @@
       "name": "sv_downloadchunksperframe",
       "ast": {
         "default_value": "30",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1458,7 +1456,7 @@
       "name": "sv_enable_cmd_minping",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1472,7 +1470,7 @@
       "name": "sv_extlimits",
       "ast": {
         "default_value": "2",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1486,7 +1484,7 @@
       "name": "sv_forcenick",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1500,7 +1498,7 @@
       "name": "sv_forcespec_onfull",
       "ast": {
         "default_value": "2",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1514,7 +1512,7 @@
       "name": "sv_friction",
       "ast": {
         "default_value": "4",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -1528,7 +1526,7 @@
       "name": "sv_getrealip",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1542,7 +1540,7 @@
       "name": "sv_gravity",
       "ast": {
         "default_value": "800",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -1556,7 +1554,7 @@
       "name": "sv_hashpasswords",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1570,7 +1568,7 @@
       "name": "sv_idlesleep",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1584,7 +1582,7 @@
       "name": "sv_kicktop",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1598,7 +1596,7 @@
       "name": "sv_kickuserinfospamcount",
       "ast": {
         "default_value": "300",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1612,7 +1610,7 @@
       "name": "sv_kickuserinfospamtime",
       "ast": {
         "default_value": "3",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1626,7 +1624,7 @@
       "name": "sv_loadentfiles",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1640,7 +1638,7 @@
       "name": "sv_loadentfiles_dir",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1670,7 +1668,7 @@
       "name": "sv_logdir",
       "ast": {
         "default_value": ".",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_logdir_var",
         "source_file": "src/sv_main.c",
@@ -1684,7 +1682,7 @@
       "name": "sv_login",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_login.c",
@@ -1698,7 +1696,7 @@
       "name": "sv_login_web",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_login.c",
@@ -1712,7 +1710,7 @@
       "name": "sv_mapcheck",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1726,7 +1724,7 @@
       "name": "sv_maxdownloadrate",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1740,7 +1738,7 @@
       "name": "sv_maxlogsize",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1754,7 +1752,7 @@
       "name": "sv_maxping",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1768,7 +1766,7 @@
       "name": "sv_maxpitch",
       "ast": {
         "default_value": "80",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_sv_maxpitch",
         "source_file": "src/sv_user.c",
@@ -1782,7 +1780,7 @@
       "name": "sv_maxrate",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1796,7 +1794,7 @@
       "name": "sv_maxspeed",
       "ast": {
         "default_value": "320",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -1810,7 +1808,7 @@
       "name": "sv_maxtic",
       "ast": {
         "default_value": "0.1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1824,7 +1822,7 @@
       "name": "sv_maxuploadsize",
       "ast": {
         "default_value": "1048576",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1838,7 +1836,7 @@
       "name": "sv_maxvelocity",
       "ast": {
         "default_value": "2000",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -1852,7 +1850,7 @@
       "name": "sv_minping",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -1866,7 +1864,7 @@
       "name": "sv_minpitch",
       "ast": {
         "default_value": "-70",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_sv_minpitch",
         "source_file": "src/sv_user.c",
@@ -1880,7 +1878,7 @@
       "name": "sv_mintic",
       "ast": {
         "default_value": "0.013",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1910,10 +1908,8 @@
       "name": "sv_mod_msg_file",
       "ast": {
         "default_value": "",
-        "flags_raw": "CVAR_NONE",
-        "flag_names": [
-          "CVAR_NONE"
-        ],
+        "flags_raw": "",
+        "flag_names": [],
         "on_change": "sv_mod_msg_file_OnChange",
         "source_file": "src/sv_main.c",
         "source_line": 153,
@@ -1926,7 +1922,7 @@
       "name": "sv_nailhack",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_ents.c",
@@ -1940,7 +1936,7 @@
       "name": "sv_onDemoRemove",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1954,7 +1950,7 @@
       "name": "sv_onRecordFinish",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -1984,7 +1980,7 @@
       "name": "sv_pext_mvdsv_serversideweapon",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -1998,7 +1994,7 @@
       "name": "sv_phs",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2012,7 +2008,7 @@
       "name": "sv_pr2references",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/pr2_exec.c",
@@ -2026,7 +2022,7 @@
       "name": "sv_progsname",
       "ast": {
         "default_value": "qwprogs",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/pr_edict.c",
@@ -2040,7 +2036,7 @@
       "name": "sv_progtype",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/pr2_exec.c",
@@ -2054,7 +2050,7 @@
       "name": "sv_rconlim",
       "ast": {
         "default_value": "10",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2068,7 +2064,7 @@
       "name": "sv_reconnectlimit",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2082,7 +2078,7 @@
       "name": "sv_registrationinfo",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2096,7 +2092,7 @@
       "name": "sv_reliable_sound",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2126,7 +2122,7 @@
       "name": "sv_sayteam_to_spec",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -2156,7 +2152,7 @@
       "name": "sv_serverip",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2170,7 +2166,7 @@
       "name": "sv_silentrecord",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_demo.c",
@@ -2184,7 +2180,7 @@
       "name": "sv_specprint",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2198,7 +2194,7 @@
       "name": "sv_spectalk",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -2212,7 +2208,7 @@
       "name": "sv_spectatormaxspeed",
       "ast": {
         "default_value": "500",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -2226,7 +2222,7 @@
       "name": "sv_speedcheck",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2240,7 +2236,7 @@
       "name": "sv_stopspeed",
       "ast": {
         "default_value": "100",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -2254,7 +2250,7 @@
       "name": "sv_timestamplen",
       "ast": {
         "default_value": "60",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2268,7 +2264,7 @@
       "name": "sv_unfake",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2282,7 +2278,7 @@
       "name": "sv_use_dns",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2296,7 +2292,7 @@
       "name": "sv_voip",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -2310,7 +2306,7 @@
       "name": "sv_voip_echo",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -2324,7 +2320,7 @@
       "name": "sv_voip_record",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_user.c",
@@ -2338,7 +2334,7 @@
       "name": "sv_wateraccelerate",
       "ast": {
         "default_value": "10",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -2352,7 +2348,7 @@
       "name": "sv_waterfriction",
       "ast": {
         "default_value": "4",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_phys.c",
@@ -2366,7 +2362,7 @@
       "name": "sv_www_address",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/central.c",
@@ -2380,7 +2376,7 @@
       "name": "sv_www_authkey",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/central.c",
@@ -2394,7 +2390,7 @@
       "name": "sv_www_checkin_period",
       "ast": {
         "default_value": "60",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/central.c",
@@ -2424,7 +2420,7 @@
       "name": "sys_extrasleep",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_sys_unix.c",
@@ -2438,7 +2434,7 @@
       "name": "sys_nostdout",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_sys_unix.c",
@@ -2452,7 +2448,7 @@
       "name": "sys_restart_on_error",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2466,7 +2462,7 @@
       "name": "sys_select_timeout",
       "ast": {
         "default_value": "10000",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_sysselecttimeout_var",
         "source_file": "src/sv_main.c",
@@ -2480,7 +2476,7 @@
       "name": "sys_simulation",
       "ast": {
         "default_value": "0",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2494,7 +2490,7 @@
       "name": "sys_sleep",
       "ast": {
         "default_value": "8",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_sys_win.c",
@@ -2524,7 +2520,7 @@
       "name": "telnet_log_level",
       "ast": {
         "default_value": "0",
-        "flags_raw": "0",
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "OnChange_telnetloglevel_var",
         "source_file": "src/sv_main.c",
@@ -2554,7 +2550,7 @@
       "name": "timeout",
       "ast": {
         "default_value": "65",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2584,7 +2580,7 @@
       "name": "vip_password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2598,7 +2594,7 @@
       "name": "vip_values",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2612,7 +2608,7 @@
       "name": "vm_rtChecks",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/vm.c",
@@ -2642,7 +2638,7 @@
       "name": "zombietime",
       "ast": {
         "default_value": "2",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "source_file": "src/sv_main.c",
@@ -2656,7 +2652,7 @@
   "_stats": {
     "source_total": 184,
     "count": 183,
-    "with_flags": 44,
+    "with_flags": 42,
     "with_onchange": 12,
     "with_trailing_comment": 35
   }

@@ -46,6 +46,13 @@ export function buildLogTemplateVersionRow(
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,
     containing_function: ast?.containing_function ?? null,
+    // Phase D Task 10: handler aggregates every (source_file, source_line,
+    // containing_function) for this (channel, format_string). JSON-stringify
+    // the list for storage; consumers parse on read. NULL when the handler
+    // didn't emit the field (defensive for legacy outputs).
+    all_call_sites_json: ast?.all_call_sites
+      ? JSON.stringify(ast.all_call_sites)
+      : null,
     raw_ast_hash,
     // MVDSV entries don't carry source_root (single-engine project, NULL =
     // "engine" per SCHEMA.md semantics). log_template is MVDSV-only today.

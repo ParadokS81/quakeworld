@@ -9,6 +9,15 @@ Both TU walks (client + server) feed the same visitor:
 
 Post-phase passes (trailing-comment + scan_default_call_sites) stay in
 finalize(), same as the process_file version.
+
+flags_raw normalization (Phase D Task 9): the source forms `cvar_t {"x", "0"}`
+(no flags arg), `cvar_t {"x", "0", 0}` (literal-zero), and
+`cvar_t {"x", "0", CVAR_NONE}` all carry the same semantic state -- "no flags
+set". The handler emits an empty string `""` as the canonical form for all
+three so consumer queries `WHERE flags_raw = ''` see every unflagged cvar
+without an OR clause. `_normalize_flags_raw` is the single chokepoint for
+the rule; every emission site routes the raw extent through it before
+storage.
 """
 from __future__ import annotations
 
@@ -32,6 +41,26 @@ def _strip_quotes(s: str) -> str:
     s = s.strip()
     if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
         return s[1:-1]
+    return s
+
+
+def _normalize_flags_raw(raw: Optional[str]) -> str:
+    """Canonicalise the cvar_t flags-field source extent.
+
+    Returns the empty string `""` for any source form that means "no flags
+    set": missing field, empty extent, the literal `0`, or `CVAR_NONE`. All
+    other source forms pass through stripped (the trailing whitespace clean-up
+    is preserved so flag-token regexes still match cleanly).
+
+    Phase D Task 9 chose `""` over `None` because consumer queries are
+    cleaner with a single sentinel form (`WHERE flags_raw = ''`) than with
+    the nullable mix that pre-Phase-D extracts produced.
+    """
+    if raw is None:
+        return ""
+    s = raw.strip()
+    if not s or s == "0" or s == "CVAR_NONE":
+        return ""
     return s
 
 
@@ -136,10 +165,10 @@ def _extract_cvar_decl(node, source_bytes: bytes) -> Optional[dict]:
     default_raw = _read_extent(source_bytes, fields[1].extent).strip()
     name = _strip_quotes(name_raw)
     default = _strip_quotes(default_raw)
-    flags_raw: Optional[str] = None
+    flags_raw: str = ""
     flag_names: list[str] = []
     if len(fields) >= 3:
-        flags_raw = _read_extent(source_bytes, fields[2].extent).strip()
+        flags_raw = _normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
         flag_names = _parse_flag_names(flags_raw)
     on_change: Optional[str] = None
     if len(fields) >= 4:
@@ -236,10 +265,10 @@ def _extract_nested_cvar_table(node, source_bytes: bytes) -> list[dict]:
                 # fullbright cvar — element init literal is {"", "0"}).
                 continue
             default = _strip_quotes(_read_extent(source_bytes, inner[1].extent).strip())
-            flags_raw: Optional[str] = None
+            flags_raw: str = ""
             flag_names: list[str] = []
             if len(inner) >= 3:
-                flags_raw = _read_extent(source_bytes, inner[2].extent).strip()
+                flags_raw = _normalize_flags_raw(_read_extent(source_bytes, inner[2].extent))
                 flag_names = _parse_flag_names(flags_raw)
             on_change: Optional[str] = None
             if len(inner) >= 4:
@@ -293,10 +322,10 @@ def _extract_cvar_array(node, source_bytes: bytes) -> list[dict]:
         default = ""
         if len(fields) >= 2:
             default = _strip_quotes(_read_extent(source_bytes, fields[1].extent).strip())
-        flags_raw: Optional[str] = None
+        flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = _read_extent(source_bytes, fields[2].extent).strip()
+            flags_raw = _normalize_flags_raw(_read_extent(source_bytes, fields[2].extent))
             flag_names = _parse_flag_names(flags_raw)
         on_change: Optional[str] = None
         if len(fields) >= 4:
@@ -351,7 +380,9 @@ def _synthesize_hud_cvars(call_cursor, args, source_bytes: bytes, file_name: str
             "source_line": line,
             "source_column": col,
             "storage_class": "generated",
-            "flags_raw": None,
+            # Phase D Task 9: synthesised HUD cvars carry no flags; the
+            # canonical "no flags" form is the empty string.
+            "flags_raw": "",
             "flag_names": [],
             "on_change": None,
             "group_name": _HUD_GROUP_NAME,

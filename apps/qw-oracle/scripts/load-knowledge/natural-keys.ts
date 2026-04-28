@@ -259,11 +259,11 @@ export function upsertLogTemplateVersion(db: Database.Database, row: LogTemplate
   db.prepare(`
     INSERT OR REPLACE INTO log_template_versions (
       entity_id, version, channel, format_string, format_string_normalized,
-      source_file, source_line, containing_function,
+      source_file, source_line, containing_function, all_call_sites_json,
       raw_ast_hash, source_root, extracted_at
     ) VALUES (
       @entity_id, @version, @channel, @format_string, @format_string_normalized,
-      @source_file, @source_line, @containing_function,
+      @source_file, @source_line, @containing_function, @all_call_sites_json,
       @raw_ast_hash, @source_root, @extracted_at
     )
   `).run(row);

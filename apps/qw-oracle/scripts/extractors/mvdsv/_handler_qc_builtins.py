@@ -36,10 +36,11 @@ Verified AST shape (libclang 18, MVDSV under server-base variant):
           UNEXPOSED_EXPR (function-ptr init)
             DECL_REF_EXPR (the EXT_* function reference)
 
-`_resolve_fn_ref` recursively walks an entry subtree for the first
-DECL_REF_EXPR -- robust to the UNEXPOSED_EXPR wrappers libclang inserts for
-function-to-pointer decay. Mirrors the same idiom in
-mvdsv/_handler_commands.py.
+`resolve_fn_ref` (lifted to extractor_lib/_resolve.py during Phase D Task 9)
+recursively walks an entry subtree for the first DECL_REF_EXPR -- robust to
+the UNEXPOSED_EXPR wrappers libclang inserts for function-to-pointer decay.
+Mirrors the same idiom in mvdsv/_handler_commands.py (now also calling the
+shared helper).
 
 Canonical entity name: parsed from the trailing comment (the QC-side
 function name, e.g. `makevectors` from `void(entity e) makevectors = #1;`),
@@ -65,6 +66,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 _PREFIX_STRIP_RE = re.compile(r"^(PF_|PR2_|EXT_)")
@@ -147,30 +149,10 @@ def _qc_name_from_comment(comment: Optional[str]) -> Optional[str]:
     return None
 
 
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    """Walk arg subtree for the first DECL_REF_EXPR referencing a FUNCTION_DECL.
-
-    libclang wraps function-to-pointer decay in UNEXPOSED_EXPR; the same
-    pattern shows up in mvdsv/_handler_commands.py. Recursing strips that
-    wrapper without us having to special-case it.
-    """
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind in (
-                CursorKind.FUNCTION_DECL,
-                CursorKind.VAR_DECL,
-            ):
-                return ref.spelling
-            # Fall back to the cursor's own spelling if the referenced decl
-            # didn't resolve (rare; defensive).
-            spelling = n.spelling
-            if spelling:
-                return spelling
-        stack.extend(list(n.get_children()))
-    return None
+# `_resolve_fn_ref` was lifted to `extractor_lib/_resolve.py` (Phase D Task 9).
+# This handler's prior local copy was the canonical one (permissive: falls back
+# to the cursor's own spelling on unresolved decls); commands.py adopted the
+# same policy as part of the unification.
 
 
 def _resolve_string_literal(arg_cursor, source_bytes: bytes) -> Optional[str]:
@@ -251,7 +233,7 @@ class QcBuiltinsMvdsvHandler(Visitor):
         """std_builtins[] -- index = position in the array (the QC builtin
         number). PF_Fixme entries (placeholder slots) are skipped."""
         for index, entry in enumerate(init_list.get_children()):
-            handler_fn = _resolve_fn_ref(entry)
+            handler_fn = resolve_fn_ref(entry)
             if not handler_fn:
                 continue
             if handler_fn == "PF_Fixme":
@@ -276,7 +258,7 @@ class QcBuiltinsMvdsvHandler(Visitor):
             builtin_index = _resolve_integer_literal(sub[0], self.source_bytes)
             if builtin_index is None:
                 continue
-            handler_fn = _resolve_fn_ref(sub[1])
+            handler_fn = resolve_fn_ref(sub[1])
             if not handler_fn or handler_fn == "PF_Fixme":
                 continue
             self._emit_row(
@@ -301,7 +283,7 @@ class QcBuiltinsMvdsvHandler(Visitor):
             extname = _resolve_string_literal(sub[0], self.source_bytes)
             if not extname:
                 continue
-            handler_fn = _resolve_fn_ref(sub[1])
+            handler_fn = resolve_fn_ref(sub[1])
             if not handler_fn:
                 continue
             self._emit_row(

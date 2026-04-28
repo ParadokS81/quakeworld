@@ -77,6 +77,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from extractor_lib._visitor import Visitor  # noqa: E402
+from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 
 
 _DECORATION_RE = re.compile(r"^[=\-]+$")
@@ -102,25 +103,13 @@ def _strip_quotes(s: str) -> str:
     return s
 
 
-def _resolve_fn_ref(arg_cursor) -> Optional[str]:
-    """Walk arg subtree for a DECL_REF_EXPR referencing a FUNCTION_DECL.
-
-    MVDSV's Cmd_AddCommand second arg is always a plain function identifier
-    (no struct-array dispatch like ezQuake's logs[i].function pattern), so
-    this walk reliably resolves to the handler function's name.
-    """
-    stack = [arg_cursor]
-    while stack:
-        n = stack.pop()
-        if n.kind == CursorKind.DECL_REF_EXPR:
-            ref = n.referenced
-            if ref is not None and ref.kind in (
-                CursorKind.FUNCTION_DECL,
-                CursorKind.VAR_DECL,
-            ):
-                return ref.spelling
-        stack.extend(list(n.get_children()))
-    return None
+# `_resolve_fn_ref` was lifted to `extractor_lib/_resolve.py` (Phase D Task 9)
+# with the more permissive qc_builtins-derived policy: when libclang fails to
+# resolve the referenced decl, fall back to the cursor's own spelling rather
+# than returning None. The earlier strict policy here silently dropped any
+# unresolved reference; the unified helper keeps the spelling so MVDSV's
+# Cmd_AddCommand handler-fn names survive even when the type-graph is
+# incomplete.
 
 
 def _strip_array_and_qualifiers(tspell: str) -> str:
@@ -181,7 +170,7 @@ def _extract_command_table(node, source_bytes: bytes) -> list[dict]:
         name = _strip_quotes(name_raw)
         if not name:
             continue
-        handler = _resolve_fn_ref(fields[handler_idx])
+        handler = resolve_fn_ref(fields[handler_idx])
         out.append({
             "name": name,
             "handler_fn": handler,
@@ -337,7 +326,7 @@ class CommandsMvdsvHandler(Visitor):
         if name in self._seen_cmds_in_file:
             return
 
-        handler_fn = _resolve_fn_ref(args[1])
+        handler_fn = resolve_fn_ref(args[1])
         location = cursor.location
         rel_file = self._relative_source(location.file.name) if location.file else None
 

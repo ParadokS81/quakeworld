@@ -19,6 +19,13 @@ dedup is first-wins by name in finalize().
 Flag inventory (per src/cvar.h, Pass 1):
   CVAR_NONE / CVAR_SERVERINFO / CVAR_ROM / CVAR_USER_CREATED
   No CVAR_ARCHIVE -- MVDSV is a dedicated server, no config save.
+
+flags_raw normalization (Phase D Task 9): the literal-zero (`0`) and
+`CVAR_NONE` source forms both mean "no flags set" and the absent third arg
+means the same thing. The handler emits `""` (empty string) as the canonical
+form in all three cases. `_normalize_flags_raw` below is the single
+chokepoint for the rule, mirroring extractor_lib/handler_cvars.py's
+ezQuake-side helper.
 """
 from __future__ import annotations
 
@@ -61,6 +68,21 @@ def _parse_flag_names(raw: Optional[str]) -> list[str]:
     if not raw:
         return []
     return list(dict.fromkeys(_FLAG_NAME_RE.findall(raw)))
+
+
+def _normalize_flags_raw(raw: Optional[str]) -> str:
+    """Canonicalise the cvar_t flags-field source extent (Phase D Task 9).
+
+    Returns `""` for any source form that means "no flags": missing field,
+    empty extent, the literal `0`, or `CVAR_NONE`. All other forms pass
+    through stripped. Mirrors extractor_lib/handler_cvars._normalize_flags_raw.
+    """
+    if raw is None:
+        return ""
+    s = raw.strip()
+    if not s or s == "0" or s == "CVAR_NONE":
+        return ""
+    return s
 
 
 def _storage_str(storage_class) -> Optional[str]:
@@ -178,10 +200,10 @@ class CvarsMvdsvHandler(Visitor):
         default_raw = _read_extent(self.source_bytes, fields[1].extent).strip()
         default_value = _strip_quotes(default_raw)
 
-        flags_raw: Optional[str] = None
+        flags_raw: str = ""
         flag_names: list[str] = []
         if len(fields) >= 3:
-            flags_raw = _read_extent(self.source_bytes, fields[2].extent).strip() or None
+            flags_raw = _normalize_flags_raw(_read_extent(self.source_bytes, fields[2].extent))
             flag_names = _parse_flag_names(flags_raw)
 
         on_change: Optional[str] = None

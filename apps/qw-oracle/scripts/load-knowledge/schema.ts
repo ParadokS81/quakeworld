@@ -5,7 +5,7 @@
 
 import type Database from 'better-sqlite3';
 
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 
 // Sentinel ordinal for the 'head' version row (per project). Must be greater
 // than any plausible release ordinal so first_seen / last_seen comparisons
@@ -1259,6 +1259,11 @@ CREATE TABLE IF NOT EXISTS log_template_versions (
   source_file              TEXT,
   source_line              INTEGER,
   containing_function      TEXT,
+  -- v17 (Phase D Task 10): JSON array of every call site that registers this
+  -- (channel, format_string) tuple. Pre-v17 rows store NULL; v17+ rows always
+  -- carry at least one entry (the first call site). Schema parity with
+  -- info_key_versions.call_sites_json.
+  all_call_sites_json      TEXT,
   raw_ast_hash             TEXT,
   source_root              TEXT,
   extracted_at             TEXT NOT NULL,
@@ -1381,6 +1386,20 @@ DROP TABLE protocol_message_versions;
 ALTER TABLE protocol_message_versions_v16 RENAME TO protocol_message_versions;
 CREATE INDEX idx_protocol_message_versions_source ON protocol_message_versions(source_file, source_line);
 `;
+
+// v16 -> v17 (Phase D Task 10, 2026-04-28).
+// Adds `all_call_sites_json` to log_template_versions so high-fanout templates
+// retain every call site instead of just the first. Pure-additive ALTER TABLE
+// (nullable TEXT, no CHECK, no DEFAULT); pre-existing rows store NULL and the
+// next extract-tag re-upserts with the full JSON array. Schema parity with
+// info_key_versions.call_sites_json.
+function migrateV16ToV17(db: Database.Database): void {
+  const txn = db.transaction(() => {
+    db.exec(`ALTER TABLE log_template_versions ADD COLUMN all_call_sites_json TEXT;`);
+    db.prepare(`UPDATE schema_meta SET value = ? WHERE key = 'schema_version'`).run('17');
+  });
+  txn();
+}
 
 function migrateV15ToV16(db: Database.Database): void {
   // CHECK widening on protocol_message_versions requires foreign_keys OFF
@@ -1600,6 +1619,10 @@ export function applySchema(db: Database.Database): void {
     if (existingVersion === 15 && SCHEMA_VERSION >= 16) {
       migrateV15ToV16(db);
       existingVersion = 16;
+    }
+    if (existingVersion === 16 && SCHEMA_VERSION >= 17) {
+      migrateV16ToV17(db);
+      existingVersion = 17;
     }
     if (existingVersion !== SCHEMA_VERSION) {
       throw new Error(

@@ -21,8 +21,13 @@ format_string_normalized strips the trailing newline so a format like
 The same format string emitted via different APIs becomes different entities
 (channel-discriminated), which preserves per-channel distinction.
 
-Per-call-site dedup: per-file dedup on canonical name; cross-file dedup is
-first-wins by canonical name in finalize.
+Per-call-site dedup: per-file dedup on canonical name; cross-file aggregation
+is keyed by canonical name in finalize, with the first observation seeding
+the top-level (containing_function, source_file, source_line) and EVERY
+observation appended to `all_call_sites` so high-fanout templates retain the
+full registration set (Phase D Task 10, parity with info_key.all_call_sites).
+The pre-Phase-D handler kept only the first call site, dropping fanout data
+that the schema is now wide enough to hold.
 
 Multi-line string-literal concatenation: C lets you split a format string
 across multiple adjacent quoted literals (e.g. SV_BroadcastCommand("foo\\n"
@@ -176,23 +181,50 @@ class LogTemplatesMvdsvHandler(Visitor):
         return rows
 
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
-        # Cross-file first-wins dedup by canonical name. Per-file dedup
-        # already collapsed the 3-variant emission inside one walk; this
-        # collapses across .c files.
-        seen: set[str] = set()
-        unique: list[dict] = []
+        # Cross-file aggregation by canonical name. Per-file dedup already
+        # collapsed the 3-variant emission inside one walk. Across .c files
+        # the first observation seeds the top-level fields (containing_function
+        # / source_file / source_line) for display compatibility; EVERY
+        # observation accumulates into all_call_sites so high-fanout templates
+        # (e.g. broadcast disconnects fired from many code paths) retain the
+        # full set of registration sites. Phase D Task 10 introduced this
+        # aggregation; pre-Phase-D the handler emitted only the first site.
+        by_name: dict[str, dict] = {}
+        order: list[str] = []
         for r in all_rows:
-            if r["name"] in seen:
-                continue
-            seen.add(r["name"])
-            unique.append(r)
+            ast = r["ast"]
+            site = {
+                "source_file": ast.get("source_file"),
+                "source_line": ast.get("source_line"),
+                "containing_function": ast.get("containing_function"),
+            }
+            if r["name"] not in by_name:
+                # Seed the entry with a fresh AST block (so we don't mutate
+                # the row we got from the worker) and start the call-site
+                # list with the first observation.
+                merged_ast = dict(ast)
+                merged_ast["all_call_sites"] = [site]
+                by_name[r["name"]] = {"name": r["name"], "ast": merged_ast}
+                order.append(r["name"])
+            else:
+                merged = by_name[r["name"]]
+                # Skip duplicate sites (same file+line) so re-emissions
+                # caused by include-graph quirks don't inflate the list.
+                sites = merged["ast"]["all_call_sites"]
+                key = (site["source_file"], site["source_line"])
+                if not any((s["source_file"], s["source_line"]) == key for s in sites):
+                    sites.append(site)
+
+        unique = [by_name[n] for n in order]
         # Sort by (channel, name) for deterministic output.
         unique.sort(key=lambda r: (r["ast"]["channel"], r["name"]))
 
         by_channel: dict[str, int] = {}
+        total_call_sites = 0
         for r in unique:
             ch = r["ast"]["channel"]
             by_channel[ch] = by_channel.get(ch, 0) + 1
+            total_call_sites += len(r["ast"].get("all_call_sites") or [])
 
         return {
             "log_templates": unique,
@@ -200,5 +232,6 @@ class LogTemplatesMvdsvHandler(Visitor):
                 "source_total": len(all_rows),
                 "count": len(unique),
                 "by_channel": by_channel,
+                "total_call_sites": total_call_sites,
             },
         }
