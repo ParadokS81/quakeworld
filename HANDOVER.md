@@ -8,7 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-31 entries below, grouped by theme and status. Bodies remain in their current positions in the file; this index is a navigation aid. **How to work an item:** pick from a category, jump to its anchor, verify the body still matches reality (code changes quickly, handover notes can rot), then address it. When done, delete both the index line AND the section.
+30 entries below, grouped by theme and status. Bodies remain in their current positions in the file; this index is a navigation aid. **How to work an item:** pick from a category, jump to its anchor, verify the body still matches reality (code changes quickly, handover notes can rot), then address it. When done, delete both the index line AND the section.
 
 ### Active backlog (waiting on triggers, gated by external events, or shaped but unscoped)
 
@@ -36,7 +36,7 @@ These five entries share context. Read together rather than individually. The po
 - [Per-project Mode B validation synthesis follow-ups](#per-project-mode-b-validation-synthesis-follow-ups) — three Mode B deep validations shipped (ezQuake / FTE / QWCL); Arc A (FTE convergence + grid uplift) shipped 2026-04-28; Arc B partial — F-EZQ-01 (trailing-comment) closed by Zero-debt arc 2026-04-29; F-EZQ-03 / F-QWCL-06 `registration_file` column rename still queued.
 - [Cross-extractor Phase 6 residuals](#cross-extractor-phase-6-residuals) — D.1.8 lifecycle hooks gap + broader-positive-contracts coverage (see `VALIDATION-RUNBOOK.md` Section 3.2 candidates) + deep-time-walk re-extract obligation for FTE / QWCL when multi-version walks land.
 - [Cross-extractor Phase 6 ezquake exemptions](#cross-extractor-phase-6-ezquake-exemptions) — (1) and (3) closed 2026-04-29 by Zero-debt arc. (2) `r_bloom_*` legacy boolean shape remains; convergent with QWCL's 1996-vintage shape; HANDOVER candidate for joint positive-contract arc.
-- [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) — partially superseded by cross-extractor arc; remaining: pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only) + 14 historical-version ezquake `sv_demoregexp` rows (auto-resolves on next deep-time walk).
+- [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) — partially superseded by cross-extractor arc; remaining: pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only). Triage alongside next ezQuake deep-time refresh.
 
 ### Slipgate-side arcs
 
@@ -61,7 +61,6 @@ These arcs shipped with deferred follow-ups already split into separate entries.
 
 - [ezquake variables-ast.json non-determinism (2026-04-29)](#ezquake-variables-astjson-non-determinism-2026-04-29) — medium pressure. Stable-key sort before JSON write, OR `PYTHONHASHSEED` in driver. Affects validation runbook Section 1.1 acceptance.
 - [extract-tag CLI quality-of-life issues (2026-04-29)](#extract-tag-cli-quality-of-life-issues-2026-04-29) — low pressure. Loader-summary 2-row gap + `--ordinal` required for already-loaded versions.
-- [qw-oracle CLAUDE.md status-block compression (2026-04-29)](#qw-oracle-claudemd-status-block-compression-2026-04-29) — **addressed by doc-refresh commit `ca64d72` (2026-04-29).** Status block compressed to one-line lifecycle indicator + chronicle moved to `apps/qw-oracle/docs/arc-history.md`. Entry retained for one session pending close at next docs-check.
 
 ---
 
@@ -940,7 +939,7 @@ Zero. Not blocking anything. Only revive if the triggers above actually fire, no
 
 **Added:** 2026-04-23 (session-close, after shakedown walk)
 **Status:** Frontmatter schema + two-path framing + earn-the-note tests + note-shape taxonomy + all 4 note bodies landed in `apps/qw-oracle/concept-notes/` (2026-04-23). Still open: template MDX-compatibility test + authoring-ritual shape (lower priority now — 4 notes drafted successfully without formal ritual tooling, suggests natural authoring flow is sufficient).
-**Verification first:** grep `concept-notes/README.md` for `primary_contributors` — if present, full frontmatter is landed. `ls apps/qw-oracle/concept-notes/*.md | wc -l` should return 7 (6 notes + README).
+**Verification first:** grep `concept-notes/README.md` for `primary_contributors` — if present, full frontmatter is landed. `ls apps/qw-oracle/concept-notes/*.md | wc -l` should return 12 (9 notes + README + OPERATIONS + _gap-report; up from 7 at original entry-time as guide-rewrite work landed more notes).
 
 Concept-note bodies aren't the review skill's job; this workstream handled the non-body infrastructure. With all 4 queued bodies drafted and template stabilized across 3 drafting sessions, remaining items are minor polish rather than blockers.
 
@@ -1163,10 +1162,6 @@ The `quality-grid --project ezquake --family anomaly` run surfaces 2 pre-existin
 
 `cvar_string`, `precache_model`, `precache_sound`, `precache_file` register in both `std_builtins` and `ext_builtins` and are silently dropped during loader normalization today (the new `[load-version] dropped duplicate name` warning surfaces them at load time). Same architectural shape as info_key Phase B; the Pattern-14 suffix fix (`<bare>:<scope>`) would extend cleanly to qc_builtin. Forward-looking -- does not bite an immediate consumer today (lookup_entity for any of these returns the std_builtins row, which is the correct primary semantic). Worth fixing when qc_builtin gets next attention.
 
-### 14 historical-version ezquake `sv_demoregexp` rows retain raw `\\.` representation
-
-Phase E's escape-interpretation pass canonicalised `default_value` from raw `\\.` to interpreted `\.` for 16 rows during the most-recent re-extract. Only the head row was canonicalised; 14 historical-version ezquake `sv_demoregexp` rows still carry the raw `\\.` form because their per-version snapshots have not been re-walked under the new extractor. They normalise automatically on next ezquake deep-time walk. Acceptable today -- present-tense answers via lookup_entity already use the interpreted head value.
-
 ### `validInfoKey` regex hard-codes scope alphabet
 
 `apps/qw-oracle/scripts/load-knowledge/load-version.ts` `validInfoKey` validator hard-codes scope alphabet `(userinfo|serverinfo|localinfo)`. If a future engine adds a fourth scope (e.g. some FTE/QWFWD context that introduces a new info-string surface), info_key names with that scope will silently fail validation rather than load. Worth refactoring to pull scope vocabulary from a shared constant -- e.g. `INFO_KEY_SCOPES` -- when next touched.
@@ -1181,7 +1176,7 @@ Phase D added `_normalize_flags_raw` to MVDSV's `_handler_cvars.py` to canonical
 
 ### Pressure
 
-All six residuals are low pressure. None block any consumer today. Captured here so they don't get lost between this arc's ship and the next time someone touches the affected surfaces.
+All remaining residuals are low pressure. None block any consumer today. Captured here so they don't get lost between this arc's ship and the next time someone touches the affected surfaces.
 
 ### Related
 
@@ -1435,34 +1430,3 @@ Done for this session. Per-project plans live alongside reports under `docs/supe
 - **QWCL report + plan:** `docs/superpowers/reviews/2026-04-28-qwcl-validation.md` + `docs/superpowers/plans/2026-04-28-qwcl-validation-followups.md`
 - **Predecessor:** Cross-extractor pattern audit follow-up arc (above)
 
----
-
-## qw-oracle CLAUDE.md status-block compression (2026-04-29)
-
-**Added:** 2026-04-29 (surfaced during docs-check at zero-debt-before-KTX arc wrap-up).
-**Status:** Track B — judgment-heavy compression path; operator decides shape.
-**Verification first:** `wc -l apps/qw-oracle/CLAUDE.md` should report ~128. `head -3 apps/qw-oracle/CLAUDE.md` should show a multi-screen `**Status:**` paragraph spanning many shipped-arc summaries. If the file is materially shorter when this entry is read, compression already happened — close the entry.
-
-### What's wrong
-
-`apps/qw-oracle/CLAUDE.md` line 3 carries a single `**Status:**` paragraph that has accumulated 7+ shipped-arc summaries inside it (Map knowledge layer SHIPPED, QWCL 2.33 SHIPPED, FTE Phase 2d-bundle SHIPPED, Game mechanics SHIPPED, MVDSV Phase 2e SHIPPED, MVDSV follow-up arc SHIPPED, Architecture consolidation). Each ship gets appended to the Status: paragraph rather than landing in OVERVIEW.md or a dedicated arc-history section.
-
-The Layer 1 doc-philosophy template at `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` intends `**Status:**` to carry a 1-2 line lifecycle indicator (Active development / Maintenance / Paused / Legacy / Planning) plus the most current load-bearing context. The current paragraph spans many screens and conflates "what shipped historically" with "what's current." Future-reader signal/noise gap.
-
-### Compression paths (operator decides)
-
-(a) **Collapse Status: to one line + extract to new "## Recent arcs" section.** Status: becomes "Active development. Schema v18. Four codebases loaded (ezQuake / QWCL / FTE / MVDSV) plus `qw` namespace for maps + game mechanics." A new `## Recent arcs` H2 below carries the shipped-arc context, structured per-arc with date and one-line summary. Smallest blast radius; preserves cumulative-arc context that future sessions read.
-
-(b) **Move arc-history into OVERVIEW.md.** OVERVIEW already has structural sections; could add a `## Recent arc history` section. Cost: OVERVIEW.md grows from 244 to ~280 lines. Benefit: keeps CLAUDE.md tight.
-
-(c) **Move into HANDOVER as ship-receipt entries.** Each shipped arc becomes its own HANDOVER entry with date + summary, indexed under "Open items" with SHIPPED tag. Cost: HANDOVER inflates further; benefit: separates ship-history from active backlog.
-
-### Pressure
-
-Low-medium. Signal/noise gap, not a correctness issue. The CLAUDE.md is at 128 lines (under the 150 ceiling, above 120 watch-line). Compression should land before the next major qw-oracle arc that would naturally append more Status: text — likely either KTX onboarding or the variables-ast.json non-determinism fix.
-
-### Related
-
-- Doc philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
-- Memory: `project_doc_philosophy.md`
-- Sibling concern: `apps/qw-oracle/SCHEMA.md` doc-style inconsistency (separate HANDOVER entry, also a doc-hygiene issue on the same project)
