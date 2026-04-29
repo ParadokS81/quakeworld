@@ -463,7 +463,7 @@ Not blocking anything. User is proceeding at their own pace. No freeze, no deadl
 
 **Added:** 2026-04-24 (sanity-sample calibration P3)
 **Status:** Spec-ready. Not a Phase 2f blocker — operators catch these at walk time. Worth fixing during or before Phase 2f walks reach the affected pairs for better automation.
-**Verification first:** `grep -n "abbreviation\|startsWith.*entity\|prefix.*release" apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` — if any match surfaces, this entry has been acted on and should be removed or updated.
+**Verification first:** `grep -nE "prefix_signature|abbreviationBridge|abbreviation.bridge|prefix_match" apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` — if any match surfaces, this entry has been acted on and should be removed or updated. (The earlier probe `grep "abbreviation|startsWith.*entity|prefix.*release"` was too loose — it false-positives on an unrelated comment about commit-message theme prefixes; verified 2026-04-29.)
 
 The semantic pass in `apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` currently matches release-note bodies to clusters via (a) entity-name token overlap, (b) commit-message prefix tags (SECURITY:, RENDERER:, etc.), and (c) cross-name transforms for protocol extensions (`FTE_PEXT_*` ↔ `cl_pext_*`). It does not bridge **abbreviation ↔ expansion**.
 
@@ -515,7 +515,7 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 
 **Added:** 2026-04-24 (during weapon-scripts guide-rewrite Phase 3+4).
 **Closed:** 2026-04-25 after seven shipped fixes (six extractor patterns + one loader dedup + one architectural multi-variant-parse change) with full primary-source verification per fix.
-**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state: 160 cvar, 45 command, 3 cmdline_param, 2 macro = 210. Was 269 before fixes (269 → 239 extractor fixes → 232 Item A platform variants → 210 Item B type-mismatch dedup).
+**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT type, COUNT(*) FROM entities WHERE project='ezquake' AND source_state='doc_only' GROUP BY type"` — current state (verified 2026-04-29): 149 cvar, 41 command, 2 cmdline_param, 2 macro = 194. Trajectory: 269 (entry-time) → 239 (extractor fixes) → 232 (Item A platform variants) → 210 (Item B type-mismatch dedup) → 194 (subsequent Phase 6 + cross-extractor + Zero-debt arcs implicitly trimmed 16 more). Drop is good — work continues to chip the doc_only count down via type-resolution and dedup; the deferred row described below (`-nopriority` real call site) is unrelated to the count.
 
 ### What shipped (2026-04-25)
 
@@ -816,8 +816,8 @@ Low.
 **Added:** 2026-04-26 (during FTE Phase 2d-bundle Phase 1 ship).
 **Status:** Known engine-agnostic limitation in `extractor_lib/handler_asset_cvar_bindings.py`.
 **Verification first:** Run the bundle build for either project and inspect the reconciliation summary:
-- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project ezquake --version head 2>&1 | tail -8`  -> `seedNotCorroborated: 23` (of 24 seed entries).
-- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project fte --version build-6698 2>&1 | tail -8`  -> `seedNotCorroborated: 4` (of 22 seed entries).
+- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project ezquake --version head 2>&1 | tail -8`  -> `seedNotCorroborated: 23` (of 24 seed entries; stable since entry-time).
+- `cd apps/qw-oracle && npx tsx scripts/load-knowledge/build-asset-bundle.ts --project fte --version build-6698 2>&1 | tail -8`  -> `seedNotCorroborated: 7` (of 22 seed entries; was `4` at entry-time. Verified 2026-04-29. The 4 -> 7 drift reflects either operator-added seeds or AST corroboration loss; the entry's framing — engine-agnostic limitation, low pressure — remains correct).
 
 Both engines exercise the same handler; the per-row miss is the same shape across both.
 
@@ -974,7 +974,7 @@ Low. Does not block any other work. The four note bodies can be drafted without 
 
 **Added:** 2026-04-23 (session-close, after shakedown walk)
 **Status:** Audit done (2026-04-24). License resolved by operator decision — treat as CC-BY-4.0. **Framing flipped 2026-04-25** after vikpe Discord confirmation that ezquake.com/docs is single-maintainer-plus-stepped-back: Oracle is the producer, ezquake.com is the downstream consumer, most "imports" become Path 2 rewrites. **Role map shipped 2026-04-24** resolving scale + voice questions (see Item 4). Gap-report format open and reframed as contributor onboarding kit. First Path-2 rewrite session on `weapon-scripts` pending.
-**Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 26; `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return ~7-8. Total ~33 guide pages.
+**Verification first:** `ls research/repos/ezquake-docs/docs/docs/*.md | wc -l` should return 24 (was 26 at entry-time; minor upstream churn); `ls research/repos/ezquake-docs/docs/docs/settings/*.md | wc -l` should return 9 (was ~7-8). Total ~33 guide pages — stable.
 
 Preparation for importing ezquake.com/docs guide content into `apps/qw-oracle/concept-notes/` as Layer 3 baseline. No ingest work starts until remaining items resolve.
 
@@ -1107,7 +1107,7 @@ Low. Multiple arcs gate the harness; nothing blocked downstream by this entry's 
 **Added:** 2026-04-27 (evening, surfaced during game-mechanics arc 1 Task 2).
 **Updated:** 2026-04-29 (preamble + table map refreshed in commit `ca64d72`; scope broadened — see "What still needs work" below).
 **Status:** Partially addressed. Preamble + table map are current as of v18. Per-table body refresh + structural-style harmonization remain.
-**Verification first:** `grep -nE "^## |^### v" apps/qw-oracle/SCHEMA.md | head -30` — three competing structural styles still coexist: topical H2 (`## Map knowledge layer`, `## v14 (2026-04-27): game-mechanics tables`-current, `## Cross-cutting notes`), per-version H2 (`## v14 (2026-04-27): game-mechanics tables`, currently single-instance), per-version H3 (`### v10:`, `### v11:`).
+**Verification first:** `grep -nE "^## |^### v" apps/qw-oracle/SCHEMA.md | head -30` — three competing structural styles still coexist: topical H2 (`## Map knowledge layer`, `## Cross-cutting notes`), per-version H2 (now four instances: `## v14`, `## v15`, `## v16`, `## v17` — grew from single-instance at entry-time as MVDSV + cross-extractor arcs added schema bumps), per-version H3 (`### v10:`, `### v11:`). The drift makes Option A (topical-only) more invasive than originally estimated — four per-version sections to convert, not just one.
 
 ### What happened originally
 
