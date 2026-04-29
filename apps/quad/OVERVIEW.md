@@ -1,168 +1,47 @@
-# Overview - Quad
+# Overview — Quad
+
+> **Doc type: load-bearing slim.** Identity, design-intent invariants, file-structure contract, integration boundaries, parked features. Per-module file rosters are catalog and live in `src/modules/<name>/` directly.
 
 Quad is a self-hosted Discord bot that records per-speaker voice comms during QuakeWorld matches, pairs them with match demos via UTC timestamp correlation, and uploads the result for synced playback on the MatchScheduler web app. It also serves as the community's Discord-side interface for match scheduling, availability, and standin coordination.
 
-16 teams are connected. The bot runs as a single instance serving all registered guilds.
+**Lifecycle status:** Maintenance. 16 teams connected. Single instance serving all registered guilds. Stable; new features land when needed.
 
-For why this project exists and where it is going, see `VISION.md`. For how to run it, see `DEVELOPMENT.md`. For production deployment, see `DEPLOYMENT.md`.
-
----
-
-## Module inventory
-
-All modules live under `src/modules/`. Each is self-contained and follows the `BotModule` interface defined in `src/core/module.ts`. Modules communicate via Firestore, not direct imports.
-
-### recording
-
-The core feature. Joins a voice channel, records per-speaker audio as OGG/Opus, writes `session_metadata.json` alongside the tracks.
-
-| What | Where |
-|---|---|
-| Module entry + event wiring | `recording/index.ts` |
-| `/record` command handler | `recording/commands/record.ts` |
-| Session lifecycle (connection, tracks, shutdown) | `recording/session.ts` |
-| Per-user audio track (Opus stream to OGG file) | `recording/track.ts` |
-| Silence padding (20ms timer, late-join prepend) | `recording/silence.ts` |
-| session_metadata.json writer | `recording/metadata.ts` |
-| Auto-record trigger for Mumble | `recording/auto-record.ts` |
-| Firestore session tracking (fire-and-forget) | `recording/firestore-tracker.ts` |
-| Module-specific rules | `recording/CLAUDE.md` |
-
-Key behaviors:
-- Opus passthrough: no transcoding, raw frames go straight to OGG container
-- Stream-to-disk: near-zero memory, safe for 3+ hour sessions
-- One continuous file per speaker (`EndBehaviorType.Manual`)
-- Late-join: silent frames prepended from session start to user join time
-- Rejoin: `reattach()` swaps opus stream, silence timer keeps running
-- Per-track error isolation: failed track is marked, others keep recording
-- Firestore outages never fail recordings (fire-and-forget writes)
-
-### processing
-
-Automated pipeline that runs after recording. Two stages: fast (seconds, auto) and slow (hours, opt-in).
-
-| What | Where |
-|---|---|
-| Module entry | `processing/index.ts` |
-| `/process` command handler | `processing/commands/process.ts` |
-| Pipeline orchestrator | `processing/pipeline.ts` |
-| Firestore deletion handler | `processing/deletion-listener.ts` |
-
-**Fast pipeline stages** (auto after recording):
-
-| Stage | File | What it does |
-|---|---|---|
-| Hub client | `stages/hub-client.ts` | Queries QW Hub Supabase API for matches in the recording time window |
-| Match pairer | `stages/match-pairer.ts` | Correlates recording timestamps with Hub matches, assigns confidence scores |
-| Audio splitter | `stages/audio-splitter.ts` | ffmpeg stream-copy to slice per-speaker audio to match boundaries |
-| Voice uploader | `stages/voice-uploader.ts` | Uploads sliced audio to Firebase Storage, writes Firestore manifest |
-
-**Slow pipeline stages** (opt-in via `/process transcribe` or `/process analyze`):
-
-| Stage | File | What it does |
-|---|---|---|
-| Transcriber | `stages/transcriber.ts` | Calls Python faster-whisper wrapper, re-segments by silence gaps |
-| Timeline merger | `stages/timeline-merger.ts` | Merges transcripts with ktxstats into a unified timeline |
-| Analyzer | `stages/analyzer.ts` | Claude API analysis using knowledge base context |
-
-**Knowledge bases** (YAML, used by analyzer):
-
-| File | Content |
-|---|---|
-| `knowledge/terminology/qw-glossary.yaml` | QuakeWorld terminology and abbreviations |
-| `knowledge/maps/map-strategies.yaml` | Map-specific strategies and callouts |
-| `knowledge/templates/map-report.yaml` | Analysis output template |
-
-### standin
-
-Firestore-driven standin player coordination. MatchScheduler creates standin requests, Quad delivers DMs and collects responses.
-
-| What | Where |
-|---|---|
-| Module entry | `standin/index.ts` |
-| Firebase Admin SDK init (shared) | `standin/firestore.ts` |
-| Firestore listener for pending requests | `standin/listener.ts` |
-| DM delivery | `standin/dm.ts` |
-| Button interaction handlers | `standin/interactions.ts` |
-| Type definitions | `standin/types.ts` |
-
-### registration
-
-Guild setup and team identity linking. `/register` connects a Discord server to a team in MatchScheduler.
-
-| What | Where |
-|---|---|
-| Module entry | `registration/index.ts` |
-| `/register` command handler | `registration/register.ts` |
-| Roster sync (guild members to Firestore) | `registration/guild-sync.ts` |
-| Disconnect listener | `registration/disconnect-listener.ts` |
-
-### scheduler
-
-Match scheduling notifications delivered to Discord channels.
-
-| What | Where |
-|---|---|
-| Module entry | `scheduler/index.ts` |
-| Firestore notifications listener | `scheduler/listener.ts` |
-| Discord embed builders | `scheduler/embeds.ts` |
-| Channel discovery + sync | `scheduler/channels.ts` |
-
-Three notification types: `challenge_proposed`, `slot_confirmed`, `match_sealed`. See `SCHEDULER-MODULE-BRIEF.md` for the full spec.
-
-### availability
-
-Persistent Discord embed showing weekly team availability grids with real-time updates.
-
-| What | Where |
-|---|---|
-| Module entry | `availability/index.ts` |
-| Firestore listener | `availability/listener.ts` |
-| Persistent embed management | `availability/message.ts` |
-| Canvas grid renderer | `availability/renderer.ts` |
-| Match card renderer | `availability/match-renderer.ts` |
-| Discord embeds | `availability/embed.ts` |
-| Button/select handlers | `availability/interactions.ts` |
-| Time utilities | `availability/time.ts` |
-| Discord-to-QW name resolver | `availability/user-resolver.ts` |
-| Team logo cache | `availability/logo-cache.ts` |
-| Type definitions | `availability/types.ts` |
-| Unit tests | `availability/renderer.test.ts` |
-
-Uses `@napi-rs/canvas` with Inter font for rendered grids.
-
-### mumble
-
-Mumble voice server integration. Auto-records when players join Mumble channels, manages users and permissions via ICE API.
-
-| What | Where |
-|---|---|
-| Module entry | `mumble/index.ts` |
-| Mumble connection + channel management | `mumble/mumble-manager.ts` |
-| Recording session wrapper | `mumble/mumble-session.ts` |
-| Per-user audio track | `mumble/mumble-track.ts` |
-| Active session monitor | `mumble/session-monitor.ts` |
-| User registration | `mumble/user-manager.ts` |
-| Audio stream handling | `mumble/voice-receiver.ts` |
-| Roster sync | `mumble/roster-sync.ts` |
-| Auto-record trigger | `mumble/auto-record.ts` |
-| Firestore config listener | `mumble/config-listener.ts` |
-| ICE API client (Python sidecar) | `mumble/ice-client.ts` |
-| Mumble session metadata | `mumble/mumble-metadata.ts` |
+For why this project exists, see `VISION.md`. For local dev, see `DEVELOPMENT.md`. For production, see `DEPLOYMENT.md`.
 
 ---
 
-## Core infrastructure
+## Module map at a glance
 
-| What | Where |
+All modules live under `src/modules/<name>/`. Each is self-contained, follows the `BotModule` interface (`src/core/module.ts`), and communicates with siblings via Firestore — never direct imports. Module-specific rules auto-load via `.claude/rules/`.
+
+| Module | What it does |
 |---|---|
-| Entry point | `src/index.ts` |
-| Bot setup, event routing, command registration | `src/core/bot.ts` |
-| Config loading (`Config`, `ProcessingConfig` interfaces) | `src/core/config.ts` |
-| Structured logger | `src/core/logger.ts` |
-| `BotModule` interface | `src/core/module.ts` |
-| HTTP health endpoint (port 3000) | `src/core/health.ts` |
-| Global session tracking | `src/shared/session-registry.ts` |
+| **recording** | Joins voice channel, records per-speaker OGG/Opus, writes `session_metadata.json` |
+| **processing** | Two-stage pipeline (fast = pair-with-Hub-and-upload; slow = transcribe-and-analyze). Uses Python `faster-whisper` and Claude API |
+| **standin** | Firestore-driven standin coordination (DM delivery + button responses) |
+| **registration** | `/register` to link a Discord guild to a MatchScheduler team |
+| **scheduler** | Firestore-driven match notifications (`challenge_proposed` / `slot_confirmed` / `match_sealed`) — see `SCHEDULER-MODULE-BRIEF.md` |
+| **availability** | Persistent embed with `@napi-rs/canvas` rendered weekly availability grids |
+| **mumble** | Mumble voice server integration via Python ICE sidecar; auto-records on channel join |
+
+For per-module file inventories, run `ls src/modules/<name>/`. For per-module rules, see `.claude/rules/`.
+
+---
+
+## Recording — design-intent invariants
+
+The recording module is the bot's reason to exist; these invariants are load-bearing across crashes and refactors.
+
+- **Opus passthrough — never transcode.** Discord sends lossy Opus; OGG wraps the original frames (~5-8 MB/hour vs ~100-150 MB for FLAC).
+- **Stream to disk — never buffer.** Sessions run 3+ hours; streaming means near-zero memory and crash recovery.
+- **One continuous file per speaker per session** — `EndBehaviorType.Manual`, never fragment.
+- **`selfDeaf: false, selfMute: true`** — bot hears but does not transmit.
+- **Late-join handling:** silent frames prepended from session start to user join time so per-speaker tracks align in time.
+- **Rejoin:** `reattach()` swaps the opus stream while the silence timer keeps running — no duplicate tracks, no drift.
+- **Per-track error isolation:** a failed track is marked, others keep recording.
+- **Firestore writes are fire-and-forget** — Firestore outages must never fail a recording.
+- **`session_metadata.json` is the public contract** (schema at `docs/session_metadata_schema.json`). Schema changes require a version bump.
+- **All timestamps UTC with millisecond precision.**
 
 ---
 
@@ -181,23 +60,18 @@ recordings/
           {discordUserId}.ogg     per-speaker sliced to match boundaries
 ```
 
-The `session_metadata.json` schema is defined at `docs/session_metadata_schema.json`. Schema changes require a version bump.
+Raw recordings are gitignored — never commit audio files.
 
 ---
 
-## Scripts and utilities
+## Processing pipeline — what's where
 
-| Script | Purpose |
-|---|---|
-| `scripts/transcribe.py` | Faster-whisper wrapper (called by transcriber stage) |
-| `scripts/mumble-ice.py` | Mumble ICE sidecar (JSON-lines IPC with Node) |
-| `scripts/MumbleServer.ice` | ICE interface definition |
-| `scripts/test-fast-pipeline.ts` | Pipeline integration testing |
-| `scripts/test-mumble.mjs` | Mumble connection testing |
-| `scripts/backfill.mjs` | Recording backfill utility |
-| `scripts/sample-fetch.mjs` | Hub API sample fetch |
-| `scripts/check_durations.sh` | Audio duration verification |
-| `scripts/list-channels.mjs` | Discord channel listing |
+Two stages: **fast** (auto after recording, seconds) and **slow** (opt-in via `/process transcribe` or `/process analyze`, hours).
+
+Stage files live at `src/modules/processing/stages/`. Knowledge YAMLs (consumed by the analyzer) live at `src/modules/processing/knowledge/`. Pipeline orchestrator at `src/modules/processing/pipeline.ts`. Run `ls` against either dir for current stage / knowledge file inventory — those are the canonical lists.
+
+- **Fast pipeline** correlates recording timestamps with QW Hub matches, slices per-speaker audio to match boundaries via `ffmpeg` stream-copy, uploads to Firebase Storage with a Firestore manifest.
+- **Slow pipeline** transcribes via Python `faster-whisper` wrapper (re-segments by silence gaps), merges transcripts with ktxstats into a unified timeline, runs Claude API analysis using the knowledge YAMLs.
 
 ---
 
@@ -213,29 +87,49 @@ The `session_metadata.json` schema is defined at `docs/session_metadata_schema.j
 | **Claude API** | Write (request) | Match communication analysis | processing |
 | **Firebase Storage** | Write | Sliced voice recordings for web playback | processing |
 
-See `API_CONTRACTS.md` for the full boundary specification and `SCHEMA.md` for Firestore collection details.
+See `API_CONTRACTS.md` for the boundary specification and `SCHEMA.md` for Firestore collection details.
 
 ---
 
-## Parked features
+## Parked features (real purpose, not dead code)
 
-### Newsletter
-Research at `docs/newsletter-research/`. Community digest delivered to clan channels. Parked until slipgate web provides a destination for links. The idea is sound but premature without a community website.
-
-### Voice replay research
-Research at `docs/voice-replay/` and `docs/voice-sync-proposal.md`. The synced playback feature that came out of this research is fully operational -- recordings are uploaded and paired with demos for web playback. The research docs are historical.
-
-### Multi-clan advanced features
-Research at `docs/multi-clan/`. Basic multi-clan support (registration, recording, scheduling) is live. Advanced features like cross-clan roster conflict resolution are documented but not yet needed.
+| Item | Where | Status / intent |
+|---|---|---|
+| **Newsletter** | `docs/newsletter-research/` | Community digest delivered to clan channels. Parked until slipgate web provides a destination for links. Idea is sound; premature without a community website. |
+| **Voice replay research** | `docs/voice-replay/`, `docs/voice-sync-proposal.md` | The synced-playback feature that came out of this research is fully operational (recordings paired with demos for web playback). The research docs are historical retrospective. |
+| **Multi-clan advanced features** | `docs/multi-clan/` | Basic multi-clan support (registration, recording, scheduling) is live. Cross-clan roster conflict resolution is documented but not yet needed. |
 
 ---
 
-## What this doc does NOT cover
+## Code landmarks — where to find things
 
-- **Why this project exists** -- see `VISION.md`
-- **Production deployment** -- see `DEPLOYMENT.md`
-- **Local dev setup** -- see `DEVELOPMENT.md`
-- **Firestore collection schemas** -- see `SCHEMA.md`
-- **External API boundaries** -- see `API_CONTRACTS.md`
-- **Implementation phase history** -- see `PLAN.md`
-- **Scheduler module design** -- see `SCHEDULER-MODULE-BRIEF.md`
+| If you want to... | Look at... |
+|---|---|
+| Add a new bot module | `src/core/module.ts` (the `BotModule` interface) → create `src/modules/<name>/index.ts` → register in `src/core/bot.ts` |
+| Change session-metadata schema | `src/modules/recording/metadata.ts` + bump schema version + update `docs/session_metadata_schema.json` |
+| Change how silence is padded | `src/modules/recording/silence.ts` |
+| Change how voice is uploaded | `src/modules/processing/stages/voice-uploader.ts` |
+| Tune the match-pairing confidence | `src/modules/processing/stages/match-pairer.ts` |
+| Add an analyzer knowledge file | drop YAML at `src/modules/processing/knowledge/<area>/<name>.yaml` (analyzer auto-loads from there) |
+| Change Mumble auto-record triggers | `src/modules/mumble/auto-record.ts` |
+| Change Discord availability grid rendering | `src/modules/availability/renderer.ts` (uses `@napi-rs/canvas` with Inter font) |
+| Add a new scheduler notification type | `src/modules/scheduler/embeds.ts` + `src/modules/scheduler/listener.ts` + see `SCHEDULER-MODULE-BRIEF.md` |
+| Run a one-off backfill or sample fetch | `scripts/` (run `ls scripts/` for current inventory) |
+
+---
+
+## What this doc intentionally does NOT cover
+
+- **Per-module file inventories** → `ls src/modules/<name>/` is canonical
+- **Why this project exists** → `VISION.md`
+- **Production deployment** → `DEPLOYMENT.md`
+- **Local dev setup** → `DEVELOPMENT.md`
+- **Firestore collection schemas** → `SCHEMA.md`
+- **External API boundaries** → `API_CONTRACTS.md`
+- **Implementation phase history** → `PLAN.md`
+- **Scheduler module design** → `SCHEDULER-MODULE-BRIEF.md`
+- **Module-specific rules** → `.claude/rules/` (auto-loads by path)
+
+---
+
+*Last slimmed: 2026-04-29 per docs-system-redesign spec Plan 2 (litmus test applied; per-module file rosters / fast+slow pipeline stage tables / scripts directory listing / core infrastructure file roster all cut as `ls`-reproducible; recording invariants and file-structure contract preserved verbatim; integration map + parked-features attestation kept).*
