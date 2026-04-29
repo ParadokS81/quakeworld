@@ -74,9 +74,7 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` Sect
 +----------------------------+                        +----------------------------+
 ```
 
-Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenerated on demand by oracle's `build-snapshot` CLI. Future chatbots join as MCP consumers; web services join as snapshot consumers.
-
-The extractor fleet (Python + libclang for ezQuake / FTE / QWCL / MVDSV; tree-sitter for KTX when it ports) is oracle's backstage machinery at `apps/qw-oracle/scripts/extractors/`. The former `qw-config` package was retired 2026-04-25 — its scraped JSON, parser, converter, writers, loaders moved into `apps/slipgate-app/src/lib/config/`, and oracle's `build-snapshot` regenerates the JSON snapshots at richer fidelity from `knowledge.db`.
+Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenerated on demand by oracle's `build-snapshot` CLI. Future chatbots join as MCP consumers; web services join as snapshot consumers. Extractor fleet (Python + libclang; tree-sitter for KTX) lives at `apps/qw-oracle/scripts/extractors/`. The former `qw-config` package was retired 2026-04-25 (concerns split between oracle extractors and slipgate-app `src/lib/config/`).
 
 ---
 
@@ -141,14 +139,12 @@ External services and hosts that multiple apps rely on.
 
 ## Tooling and docs infrastructure
 
-- **`.claude/skills/philosophy/`** — auto-loaded mindset docs (`grug-brain.md`, `philosophy-of-software-design.md`). Imported from root `CLAUDE.md` via `@import`. Always on, every session.
-- **`~/.claude/skills/docs-check/`** — user-global session-end ritual skill (lives outside the monorepo). Source-of-truth reference files at `references/doc-philosophy.md` and `references/doc-template.md`.
+- **`.claude/skills/philosophy/`** — auto-loaded mindset docs (grug-brain, philosophy-of-software-design); imported via `@import` in root `CLAUDE.md`.
+- **`~/.claude/skills/docs-check/`** — user-global session-end ritual; source-of-truth reference files at `references/doc-philosophy.md` and `references/doc-template.md`.
 - **`~/.claude/skills/deploy/`** — user-global deploy skill covering all deployable apps.
-- **`docs/superpowers/specs/`** — approved design specs (one per major feature, named `YYYY-MM-DD-<feature>-design.md`).
-- **`docs/superpowers/plans/`** — implementation plans derived from specs (named `YYYY-MM-DD-<feature>.md`).
-- **`docs/superpowers/parking/`** — per-arc body files indexed from `HANDOVER.md`. Each ongoing or future arc has its own file using HANDOVER's existing template.
-- **`HANDOVER.md`** (root) — thin docket of pending work, five-section index (small followups / sidequests / ongoing arcs / future arcs / recently opened). Arc bodies live in `parking/`; shipped retrospectives live in each project's `arc-history.md`.
-- **`.claude/settings.json`** — unified permissions and hooks for all apps in the monorepo.
+- **`docs/superpowers/{specs,plans,parking}/`** — approved design specs / implementation plans / per-arc body files. Parking files are indexed from `HANDOVER.md` and use HANDOVER's existing template.
+- **`HANDOVER.md`** (root) — thin docket; five-section index (small followups / sidequests / ongoing arcs / future arcs / recently opened). Arc bodies in `parking/`; shipped retrospectives in each project's `arc-history.md`.
+- **`.claude/settings.json`** — unified permissions and hooks for all apps.
 
 ---
 
