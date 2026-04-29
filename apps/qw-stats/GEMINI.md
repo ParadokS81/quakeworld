@@ -1,7 +1,7 @@
 # QW Stats Gemini Guidelines
 
 ## Purpose
-Build a data-driven ranking engine for QuakeWorld players and teams. The "Milton calibration" is our benchmark—if Milton isn't near the top, the algorithm is broken.
+Build a data-driven ranking engine for QuakeWorld players and teams. The "Milton calibration" is our benchmark--if Milton isn't near the top, the algorithm is broken.
 
 ## Technical Rules
 - **PostgreSQL**: Always use the ASCII-normalized columns (`team_a_ascii`, `player_name_normalized`) for queries and matching.

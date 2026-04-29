@@ -1,18 +1,18 @@
-# Local LLM Feasibility — RTX 4090 + 7800X3D
+# Local LLM Feasibility -- RTX 4090 + 7800X3D
 
 ## Hardware Profile
 
 | Component | Spec | Relevance |
 |-----------|------|-----------|
-| GPU | RTX 4090 — 24 GB VRAM | The constraint. Model must fit in VRAM. |
-| CPU | Ryzen 7 7800X3D — 8 cores, 96 MB L3 cache | Fast for CPU-offloaded layers, great for quantized inference |
+| GPU | RTX 4090 -- 24 GB VRAM | The constraint. Model must fit in VRAM. |
+| CPU | Ryzen 7 7800X3D -- 8 cores, 96 MB L3 cache | Fast for CPU-offloaded layers, great for quantized inference |
 | RAM | (assumed 32-64 GB) | Overflow for models that don't fit in VRAM |
 
 **Key number: 24 GB VRAM.** This determines which models run at what quality.
 
 ## What Fits on a 4090
 
-### Fully in VRAM (fast — 30-80 tokens/sec)
+### Fully in VRAM (fast -- 30-80 tokens/sec)
 
 | Model | Parameters | Quantization | VRAM Usage | Quality |
 |-------|-----------|-------------|------------|---------|
@@ -24,7 +24,7 @@
 | Gemma 2 9B | 9B | Q8 | ~11 GB | Google's best small model |
 | Llama 3.1 70B | 70B | Q4_K_M | ~22-24 GB | Tight fit. Sonnet-competitive quality. |
 
-### Partial offload to CPU (slower — 5-15 tokens/sec)
+### Partial offload to CPU (slower -- 5-15 tokens/sec)
 
 | Model | Parameters | Quantization | VRAM + RAM | Quality |
 |-------|-----------|-------------|------------|---------|
@@ -35,17 +35,17 @@
 ### The Sweet Spot for This Task
 
 **For bulk Stage 1 work (per-channel summaries):**
-- **Llama 3.1 8B Q8** or **Qwen 2.5 7B Q8** — fits easily, fast (~50-80 tok/s)
+- **Llama 3.1 8B Q8** or **Qwen 2.5 7B Q8** -- fits easily, fast (~50-80 tok/s)
 - Summarization is one of the tasks small models do well at
 - Speed matters here because you're processing thousands of channel-days
 
 **For quality Stage 2 work (synthesis, newsletter writing):**
-- **Llama 3.1 70B Q4_K_M** — fits in 24 GB, much better writing quality
+- **Llama 3.1 70B Q4_K_M** -- fits in 24 GB, much better writing quality
 - Slower (~10-15 tok/s fully in VRAM) but Stage 2 inputs are small
-- Or just use Claude API for this step — pennies per day
+- Or just use Claude API for this step -- pennies per day
 
 **For filter rule discovery (one-time analysis):**
-- Use the best model available — Claude API or 70B local
+- Use the best model available -- Claude API or 70B local
 - This is a one-time task, speed doesn't matter, quality does
 
 ## Inference Tools
@@ -88,7 +88,7 @@ curl http://localhost:11434/api/generate -d '{
 ### vLLM (Maximum Throughput)
 
 - Python-based, optimized for serving
-- Continuous batching — process multiple requests simultaneously
+- Continuous batching -- process multiple requests simultaneously
 - PagedAttention for efficient memory use
 - Best choice if processing millions of messages and want maximum GPU utilization
 - More complex setup, overkill for getting started
@@ -110,20 +110,20 @@ producing ~30k channel-day summaries:
 - Average output: ~500 tokens per summary
 - Speed: ~60 tokens/sec output on 4090
 - Time per summary: ~8 seconds
-- **Total: 30k summaries × 8 sec = ~67 hours (~3 days)**
+- **Total: 30k summaries x 8 sec = ~67 hours (~3 days)**
 
 ### Stage 1: Same with Llama 3.1 70B Q4
 
 - Speed: ~12 tokens/sec output
 - Time per summary: ~42 seconds
-- **Total: 30k × 42 sec = ~350 hours (~15 days)**
+- **Total: 30k x 42 sec = ~350 hours (~15 days)**
 
 ### Stage 2: Daily digests (Sonnet API or 70B local)
 
 - ~2k-3k days of history
 - Small inputs (~5-10k tokens each)
 - **API: ~$15-45, done in minutes (parallel requests)**
-- **Local 70B: ~2k × 42 sec = ~24 hours**
+- **Local 70B: ~2k x 42 sec = ~24 hours**
 
 ### Practical Timeline
 
@@ -147,7 +147,7 @@ If you have multiple 4090 machines:
 - SQLite export/import or a shared PostgreSQL DB for coordination
 - 3 machines = 1 day instead of 3 for full archive Stage 1
 
-This is trivially parallelizable — each channel-day summary is independent.
+This is trivially parallelizable -- each channel-day summary is independent.
 
 ## Local vs API: Decision Framework
 
@@ -159,12 +159,12 @@ This is trivially parallelizable — each channel-day summary is independent.
 | Quality (Stage 2) | Good (70B) | Best (Sonnet/Opus) |
 | Privacy | Data never leaves your network | Data goes to Anthropic/OpenAI servers |
 | Maintenance | Model updates, GPU monitoring | Just an API key |
-| Reprocessing | Free — run as many times as you want | Pay again each time |
+| Reprocessing | Free -- run as many times as you want | Pay again each time |
 
 **For a public community server with no privacy concerns**, the choice comes down to:
-- Do you want it done fast? → API
-- Do you want to iterate freely on prompts? → Local (reprocessing is free)
-- Both? → Hybrid
+- Do you want it done fast? -> API
+- Do you want to iterate freely on prompts? -> Local (reprocessing is free)
+- Both? -> Hybrid
 
 The ability to reprocess for free is a big deal. You WILL iterate on prompts
 10-20 times before the output is good. Doing that locally means zero cost.

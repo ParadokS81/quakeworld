@@ -1,8 +1,8 @@
 ---
-Doc type: current — Implementation plan. Delete/archive once all tasks land.
+Doc type: current -- Implementation plan. Delete/archive once all tasks land.
 ---
 
-# Monorepo Doc Philosophy — Implementation Plan (Phase 1)
+# Monorepo Doc Philosophy -- Implementation Plan (Phase 1)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -12,7 +12,7 @@ Doc type: current — Implementation plan. Delete/archive once all tasks land.
 
 **Tech Stack:** Markdown only. No code, no build, no tests. Verification is content-level (line counts, section presence, cross-references resolve to real files).
 
-**Source of truth:** `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` — the approved spec. When in doubt, read the spec; do not improvise doctrine.
+**Source of truth:** `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` -- the approved spec. When in doubt, read the spec; do not improvise doctrine.
 
 **Out of scope for this plan (Phase 2, separate plan later):**
 - Slimming the monorepo-root `CLAUDE.md` to <100 lines
@@ -20,7 +20,7 @@ Doc type: current — Implementation plan. Delete/archive once all tasks land.
 - Creating `/.claude/skills/philosophy/grug-brain.md` and `/.claude/skills/philosophy/philosophy-of-software-design.md`
 - Adding `@imports` and output-discipline rules to root `CLAUDE.md`
 - Deleting `HANDOFF.md`
-- Per-app migration (explicitly lazy per spec — happens when Claude next works in each project)
+- Per-app migration (explicitly lazy per spec -- happens when Claude next works in each project)
 
 ---
 
@@ -46,8 +46,8 @@ Doc type: current — Implementation plan. Delete/archive once all tasks land.
 
 **Required sections (in order):**
 
-1. **`# Doc Philosophy`** — one-sentence orientation: "Doctrine for the monorepo's documentation model. Loaded by the `docs-check` skill."
-2. **`## Core principles`** — the 7 principles from spec §"Core principles", each as a bolded one-liner followed by one or two sentences of elaboration. Preserve spec wording closely; do not paraphrase loosely.
+1. **`# Doc Philosophy`** -- one-sentence orientation: "Doctrine for the monorepo's documentation model. Loaded by the `docs-check` skill."
+2. **`## Core principles`** -- the 7 principles from spec Section "Core principles", each as a bolded one-liner followed by one or two sentences of elaboration. Preserve spec wording closely; do not paraphrase loosely.
    1. Docs are optimized for Claude's navigation, not for the user's bookshelf.
    2. Docs preserve INTENT; code preserves STATE.
    3. Template is structure, not graduation.
@@ -55,21 +55,21 @@ Doc type: current — Implementation plan. Delete/archive once all tasks land.
    5. `CLAUDE.md` bloat is a symptom.
    6. Skills and path-scoped rules are extensions, not replacements.
    7. The skill uses cognitive triggers, not regex.
-3. **`## The layer model`** — three short paragraphs:
+3. **`## The layer model`** -- three short paragraphs:
    - **Layer 1 (mandatory quartet):** `CLAUDE.md`, `README.md`, `VISION.md`, `OVERVIEW.md`. Every project has all four; content scales with project size.
    - **Layer 2 (conditional menu):** 8 standard docs, each with a trigger. Projects pick the subset their shape demands. No project has zero, no project has all eight.
    - **Layer 3 (domain reference):** Deep, permanent subsystem background. No fixed naming. Suggested, not enforced.
-4. **`## Size limits`** — three short bullets:
+4. **`## Size limits`** -- three short bullets:
    - `CLAUDE.md`: target <100 lines, hard ceiling 150. Bloat is diagnostic of a missing Layer 2 doc.
    - Other Layer 1 docs: no cap (`OVERVIEW.md` scales with project size).
    - Layer 2 / Layer 3: as long as they need to be.
-5. **`## How the skill uses this doc`** — three sentences: the skill loads this file at session-end, consults it to calibrate what each touched project needs, and does not paraphrase it back to the user unless asked.
+5. **`## How the skill uses this doc`** -- three sentences: the skill loads this file at session-end, consults it to calibrate what each touched project needs, and does not paraphrase it back to the user unless asked.
 
 **Hard constraints:**
-- ASCII only (no em dashes, smart quotes, or Unicode decorations — this is already in the spec's output discipline rules).
+- ASCII only (no em dashes, smart quotes, or Unicode decorations -- this is already in the spec's output discipline rules).
 - Total length: 50-100 lines inclusive of headings and blank lines. Err on the short side.
 - Do NOT duplicate the spec's full argumentation. This is a reference, not a re-derivation.
-- Do NOT include a "doc type" frontmatter tag — this file lives under `~/.claude/skills/`, outside the monorepo's tagging convention.
+- Do NOT include a "doc type" frontmatter tag -- this file lives under `~/.claude/skills/`, outside the monorepo's tagging convention.
 
 - [ ] **Step 1: Create the directory**
 
@@ -81,7 +81,7 @@ Expected: no output, directory exists.
 
 - [ ] **Step 2: Write `doc-philosophy.md`**
 
-Use the Write tool. File path: `/home/paradoks/.claude/skills/docs-check/references/doc-philosophy.md`. Content matches the "Required sections" list above. Pull principle wording directly from the spec's §"Core principles" — do not rewrite.
+Use the Write tool. File path: `/home/paradoks/.claude/skills/docs-check/references/doc-philosophy.md`. Content matches the "Required sections" list above. Pull principle wording directly from the spec's Section "Core principles" -- do not rewrite.
 
 - [ ] **Step 3: Verify line count and section presence**
 
@@ -114,7 +114,7 @@ git add -A
 git commit -m "docs(skill): add doc-philosophy reference for docs-check"
 ```
 
-Note: `/home/paradoks/.claude/skills/` is OUTSIDE the monorepo, so `git add -A` from the monorepo root will NOT stage it. The skill references live in the user-global `~/.claude/` tree and are not tracked by the monorepo. This commit will only stage the plan file itself (and any workshop-file deletion from Task 4). If `git status` shows nothing staged from this task, that is expected — skip this commit and move on.
+Note: `/home/paradoks/.claude/skills/` is OUTSIDE the monorepo, so `git add -A` from the monorepo root will NOT stage it. The skill references live in the user-global `~/.claude/` tree and are not tracked by the monorepo. This commit will only stage the plan file itself (and any workshop-file deletion from Task 4). If `git status` shows nothing staged from this task, that is expected -- skip this commit and move on.
 
 ---
 
@@ -132,14 +132,14 @@ Note: `/home/paradoks/.claude/skills/` is OUTSIDE the monorepo, so `git add -A` 
 
 Short orientation paragraph: "This is a menu, not a rigid form. The docs-check skill consults it to check whether a touched project has the docs its shape demands, and whether existing docs match the template's intent."
 
-## Layer 1 — Mandatory quartet
+## Layer 1 -- Mandatory quartet
 
 ### CLAUDE.md
 ### README.md
 ### VISION.md
 ### OVERVIEW.md
 
-## Layer 2 — Conditional menu
+## Layer 2 -- Conditional menu
 
 ### DEVELOPMENT.md
 ### DEPLOYMENT.md
@@ -150,7 +150,7 @@ Short orientation paragraph: "This is a menu, not a rigid form. The docs-check s
 ### STATE.md
 ### HEALTH.md
 
-## Layer 3 — Domain reference (pattern, not a single doc)
+## Layer 3 -- Domain reference (pattern, not a single doc)
 ```
 
 **Each Layer 1 + Layer 2 entry must have these five sub-headings, in order:**
@@ -163,9 +163,9 @@ Short orientation paragraph: "This is a menu, not a rigid form. The docs-check s
 - **Target length:** one line (concrete numbers or "no cap, scales with project")
 - **Update cadence:** one phrase
 
-**The Layer 3 entry is different:** it's one section describing the pattern — what qualifies, how naming works (named for what it explains, no fixed convention), how the skill treats it (may suggest, does not enforce), and 2-3 examples from the current monorepo (e.g., `CFG-PARSER.md`, `EZQUAKE-RESOLUTION.md`).
+**The Layer 3 entry is different:** it's one section describing the pattern -- what qualifies, how naming works (named for what it explains, no fixed convention), how the skill treats it (may suggest, does not enforce), and 2-3 examples from the current monorepo (e.g., `CFG-PARSER.md`, `EZQUAKE-RESOLUTION.md`).
 
-**Additional required sub-section under `### CLAUDE.md`:** after the "Update cadence" line, add a one-paragraph note titled **When rules should live elsewhere:** that covers spec §"Nested `CLAUDE.md` and path-scoped rules" — nested `CLAUDE.md` for whole-directory subsystems, `.claude/rules/*.md` with `paths:` frontmatter for narrow file-level rules, and the "<20 lines of rules, keep them in root" guidance. Three sentences max.
+**Additional required sub-section under `### CLAUDE.md`:** after the "Update cadence" line, add a one-paragraph note titled **When rules should live elsewhere:** that covers spec Section "Nested `CLAUDE.md` and path-scoped rules" -- nested `CLAUDE.md` for whole-directory subsystems, `.claude/rules/*.md` with `paths:` frontmatter for narrow file-level rules, and the "<20 lines of rules, keep them in root" guidance. Three sentences max.
 
 **Where to pull voice examples from:**
 
@@ -173,15 +173,15 @@ Short orientation paragraph: "This is a menu, not a rigid form. The docs-check s
 |---|---|
 | CLAUDE.md | `apps/slipgate-app/CLAUDE.md` (79 lines, already slim) |
 | README.md | Write a fresh 2-sentence example (no existing good reference) |
-| VISION.md | `apps/slipgate-app/docs/VISION.md` (60 lines) — pick 2 sentences |
-| OVERVIEW.md | `apps/slipgate-app/docs/OVERVIEW.md` — reuse the spec's ConfigViewer block quote |
+| VISION.md | `apps/slipgate-app/docs/VISION.md` (60 lines) -- pick 2 sentences |
+| OVERVIEW.md | `apps/slipgate-app/docs/OVERVIEW.md` -- reuse the spec's ConfigViewer block quote |
 | DEVELOPMENT.md | `apps/slipgate-app/docs/DEVELOPMENT.md` |
 | DEPLOYMENT.md | `apps/slipgate-app/docs/DEPLOYMENT.md` if it exists, else `apps/quad/docs/DEPLOYMENT.md` |
 | SCHEMA.md | `apps/matchscheduler/context/SCHEMA.md` or `apps/qw-stats/docs/DATABASE-SCHEMA.md` |
 | API_CONTRACTS.md | `apps/qw-stats/docs/API-GUIDE.md` (will be renamed later per spec) |
 | AUTH.md | `apps/slipgate-app/docs/AUTH.md` |
 | DESIGN.md | `apps/slipgate-app/docs/DESIGN.md` (107 lines) |
-| STATE.md | No existing file — write a 2-sentence plausible example oriented around SolidJS + tauri-plugin-store |
+| STATE.md | No existing file -- write a 2-sentence plausible example oriented around SolidJS + tauri-plugin-store |
 | HEALTH.md | `apps/slipgate-app/docs/HEALTH.md` (233 lines) |
 
 For each source file, use the Read tool to pick a representative 2-sentence block. Do not fabricate quotes.
@@ -200,7 +200,7 @@ Use the Read tool on each file in the "Where to pull voice examples from" table 
 
 - [ ] **Step 2: Write `doc-template.md`**
 
-Use the Write tool. File path: `/home/paradoks/.claude/skills/docs-check/references/doc-template.md`. Follow the required structure exactly. For each Layer 2 entry's Trigger line, copy from the spec's §"Layer 2" triggers verbatim.
+Use the Write tool. File path: `/home/paradoks/.claude/skills/docs-check/references/doc-template.md`. Follow the required structure exactly. For each Layer 2 entry's Trigger line, copy from the spec's Section "Layer 2" triggers verbatim.
 
 - [ ] **Step 3: Verify structure**
 
@@ -239,7 +239,7 @@ Same commit-scope caveat as Task 1 step 4: this file is outside the monorepo, so
 **Files:**
 - Modify: `/home/paradoks/.claude/skills/docs-check/SKILL.md` (full rewrite of most of the body)
 
-**Purpose:** Turn the v0.1 draft into the production skill described in the spec §"The `docs-check` skill — two modes". The rewrite is mostly: (a) rip out the v0.1-pending-workshop disclaimer, (b) split the drift check into Mode 1 + Mode 2, (c) add lifecycle-aware pressure, (d) restructure the report to match the spec's A/B/C/D scheme, (e) reference the two new files as source of truth.
+**Purpose:** Turn the v0.1 draft into the production skill described in the spec Section "The `docs-check` skill -- two modes". The rewrite is mostly: (a) rip out the v0.1-pending-workshop disclaimer, (b) split the drift check into Mode 1 + Mode 2, (c) add lifecycle-aware pressure, (d) restructure the report to match the spec's A/B/C/D scheme, (e) reference the two new files as source of truth.
 
 **Frontmatter changes:**
 - Remove `version: 0.1.0` (or bump to `1.0.0`).
@@ -250,62 +250,62 @@ Same commit-scope caveat as Task 1 step 4: this file is outside the monorepo, so
 - "Why it runs in the main context, not a sub-agent"
 - "Critical override: memory updates happen LAST"
 - Step 1 (Scope detection)
-- Step 3 (Session review) — keep unchanged
-- Step 6 (Memory gap check) — renumber
-- Step 9 (Apply memory updates) — renumber
-- The Edge cases section at the bottom — keep but drop any v0.1-specific language
+- Step 3 (Session review) -- keep unchanged
+- Step 6 (Memory gap check) -- renumber
+- Step 9 (Apply memory updates) -- renumber
+- The Edge cases section at the bottom -- keep but drop any v0.1-specific language
 
 **Sections to DELETE from v0.1:**
 - The `⚠️ v0.1 DRAFT` callout block at the top (lines 9-10 in v0.1)
-- Step 2's full "doc-type tag classification table" (replaced — see below)
-- Step 5 (New doc candidates) — the spec folds this into Mode 1
+- Step 2's full "doc-type tag classification table" (replaced -- see below)
+- Step 5 (New doc candidates) -- the spec folds this into Mode 1
 
 **Sections to REWRITE:**
 
 - **New intro block (replacing v0.1 lines 7-34):** A three-paragraph explanation of what the skill does: (1) runs at session-end, (2) checks each touched project using two modes, (3) calibrates pressure by lifecycle status. End with one line: "Source of truth: `references/doc-philosophy.md` and `references/doc-template.md`. Read those before making judgments."
 
-- **Step 2 — Doc inventory + lifecycle read.** Replace v0.1's tag-classification table with a simpler per-project checklist:
+- **Step 2 -- Doc inventory + lifecycle read.** Replace v0.1's tag-classification table with a simpler per-project checklist:
   - Read the project's `CLAUDE.md` header and extract the `**Status:**` line (Active / Maintenance / Paused / Legacy / Planning). If no status line, note it as a gap and treat as Active for pressure purposes.
   - Check whether each Layer 1 quartet doc exists: `CLAUDE.md`, `README.md`, `VISION.md`, `OVERVIEW.md`. Any missing one is a Mode 2 finding.
   - Check `CLAUDE.md` line count; flag if >150.
   - List the Layer 2 docs that currently exist in `docs/` (for later Mode 1 comparison).
-  - (Remove the v0.1 doc-type-tag table entirely — the tagging convention was slipgate-specific and is superseded by the layer model.)
+  - (Remove the v0.1 doc-type-tag table entirely -- the tagging convention was slipgate-specific and is superseded by the layer model.)
 
-- **Step 4 — Mode 1 (Layer 2 trigger checks).** Replace v0.1's drift check with the 8 trigger questions from spec §"Mode 1 — Trigger-based enforcer (Layer 2)". Copy each question verbatim. After listing the 8 questions, add: "For each 'yes,' consult `references/doc-template.md` to verify the corresponding doc exists and matches the template. If missing or stale, add to Section A of the report. Do NOT auto-write. The operator decides."
+- **Step 4 -- Mode 1 (Layer 2 trigger checks).** Replace v0.1's drift check with the 8 trigger questions from spec Section "Mode 1 -- Trigger-based enforcer (Layer 2)". Copy each question verbatim. After listing the 8 questions, add: "For each 'yes,' consult `references/doc-template.md` to verify the corresponding doc exists and matches the template. If missing or stale, add to Section A of the report. Do NOT auto-write. The operator decides."
 
-- **Step 5 — Mode 2 (Layer 1 freshness checks).** New step. Insert the 5 freshness questions from spec §"Mode 2 — Freshness-based cartographer (Layer 1)" verbatim. After listing them, add: "Findings go to Section B of the report. If OVERVIEW drift is clear, offer to rebuild the affected section. If VISION needs an addendum, propose it."
+- **Step 5 -- Mode 2 (Layer 1 freshness checks).** New step. Insert the 5 freshness questions from spec Section "Mode 2 -- Freshness-based cartographer (Layer 1)" verbatim. After listing them, add: "Findings go to Section B of the report. If OVERVIEW drift is clear, offer to rebuild the affected section. If VISION needs an addendum, propose it."
 
-- **Step 7 (was self-improvement review) — keep the content but rename.** Rename to "Step 7 — Session friction review" and note that findings feed Section D of the report (not "self-review" — the spec uses "skill opportunities / frictions").
+- **Step 7 (was self-improvement review) -- keep the content but rename.** Rename to "Step 7 -- Session friction review" and note that findings feed Section D of the report (not "self-review" -- the spec uses "skill opportunities / frictions").
 
-- **Step 8 — Apply doc updates with lifecycle-aware pressure.** Rewrite to include a pressure table:
+- **Step 8 -- Apply doc updates with lifecycle-aware pressure.** Rewrite to include a pressure table:
 
   | Status | Pressure |
   |---|---|
-  | Active | Strict — fix before wrap-up. Block close-out on material gaps. |
-  | Maintenance | Normal — propose fixes, apply with approval. |
-  | Paused | Passive — note the gap in the report, do not push to fix. |
-  | Legacy | None — do not nudge. Note in report only if trivially fixable. |
-  | Planning | Normal — the project is pre-code but docs can still be wrong. |
+  | Active | Strict -- fix before wrap-up. Block close-out on material gaps. |
+  | Maintenance | Normal -- propose fixes, apply with approval. |
+  | Paused | Passive -- note the gap in the report, do not push to fix. |
+  | Legacy | None -- do not nudge. Note in report only if trivially fixable. |
+  | Planning | Normal -- the project is pre-code but docs can still be wrong. |
 
-- **Step 10 — Report.** Rewrite the report template to match the spec's A/B/C/D:
+- **Step 10 -- Report.** Rewrite the report template to match the spec's A/B/C/D:
 
   ```
   ## Wrap-up report
 
-  ### Section A — Layer 2 trigger checks (Mode 1)
-  - [doc name]: [finding — missing / stale / OK]
+  ### Section A -- Layer 2 trigger checks (Mode 1)
+  - [doc name]: [finding -- missing / stale / OK]
   - ...
 
-  ### Section B — Layer 1 freshness checks (Mode 2)
+  ### Section B -- Layer 1 freshness checks (Mode 2)
   - [finding about OVERVIEW / VISION / CLAUDE.md bloat / quartet gaps]
   - ...
 
-  ### Section C — Memory updates
-  - [memory name] — what was saved and category
+  ### Section C -- Memory updates
+  - [memory name] -- what was saved and category
   - ...
 
-  ### Section D — Skill opportunities / session frictions
-  - [friction or opportunity] — short description with a suggestion
+  ### Section D -- Skill opportunities / session frictions
+  - [friction or opportunity] -- short description with a suggestion
   - ...
   (Suggestions only, not actions taken.)
   ```
@@ -362,33 +362,33 @@ Expected: 0.
 ```bash
 grep -c 'references/doc-philosophy.md' /home/paradoks/.claude/skills/docs-check/SKILL.md
 ```
-Expected: ≥1.
+Expected: >=1.
 
 ```bash
 grep -c 'references/doc-template.md' /home/paradoks/.claude/skills/docs-check/SKILL.md
 ```
-Expected: ≥1.
+Expected: >=1.
 
 ```bash
 grep -E '^### Section [ABCD]' /home/paradoks/.claude/skills/docs-check/SKILL.md
 ```
 Expected output (exactly 4 lines, in order):
 ```
-### Section A — Layer 2 trigger checks (Mode 1)
-### Section B — Layer 1 freshness checks (Mode 2)
-### Section C — Memory updates
-### Section D — Skill opportunities / session frictions
+### Section A -- Layer 2 trigger checks (Mode 1)
+### Section B -- Layer 1 freshness checks (Mode 2)
+### Section C -- Memory updates
+### Section D -- Skill opportunities / session frictions
 ```
 
 ```bash
 grep -c 'Mode 1' /home/paradoks/.claude/skills/docs-check/SKILL.md
 ```
-Expected: ≥2.
+Expected: >=2.
 
 ```bash
 grep -c 'Mode 2' /home/paradoks/.claude/skills/docs-check/SKILL.md
 ```
-Expected: ≥2.
+Expected: >=2.
 
 If any check fails, fix the rewrite before moving on.
 
@@ -405,7 +405,7 @@ Same commit-scope caveat as Tasks 1 and 2. Only plan-file edits and workshop-fil
 
 **Purpose:** Walk the subset of the spec's validation checklist that applies to Phase 1, confirm all three artifacts are live, and remove the workshop handoff file per its own deletion instruction.
 
-**Phase 1 validation subset (from spec §"Validation checklist"):**
+**Phase 1 validation subset (from spec Section "Validation checklist"):**
 
 - [ ] `docs-check` skill reads the philosophy + template reference files as its source of truth (verified by Task 3 Step 3's `grep` for `references/`)
 - [ ] `docs-check` skill produces an A/B/C/D structured report when invoked (verified by Task 3 Step 3's section header grep)
@@ -436,7 +436,7 @@ Also confirm both reference files exist:
 ```bash
 ls -l /home/paradoks/.claude/skills/docs-check/references/
 ```
-Expected: two files listed — `doc-philosophy.md` and `doc-template.md`.
+Expected: two files listed -- `doc-philosophy.md` and `doc-template.md`.
 
 - [ ] **Step 2: Delete the workshop file**
 
@@ -468,7 +468,7 @@ git commit -m "docs(philosophy): land phase 1 artifacts; retire workshop brief"
 
 - [ ] **Step 4: Update project memory**
 
-Update `project_doc_philosophy.md` in auto-memory to reflect that Phase 1 landed. Use the Edit or Write tool on `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/project_doc_philosophy.md` — add a line: "Phase 1 landed 2026-04-11: doc-philosophy.md, doc-template.md, refactored docs-check SKILL.md. Phase 2 (root CLAUDE.md slim + quartet) is the next plan."
+Update `project_doc_philosophy.md` in auto-memory to reflect that Phase 1 landed. Use the Edit or Write tool on `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/project_doc_philosophy.md` -- add a line: "Phase 1 landed 2026-04-11: doc-philosophy.md, doc-template.md, refactored docs-check SKILL.md. Phase 2 (root CLAUDE.md slim + quartet) is the next plan."
 
 ---
 
@@ -483,4 +483,4 @@ Update `project_doc_philosophy.md` in auto-memory to reflect that Phase 1 landed
 - Verify `research/repos/slipgate/` gitignore coverage
 
 **Phase 3 (lazy, per spec):**
-- Per-app migration happens when Claude next works in each app, in the priority order from spec §"Migration plan". The refactored `docs-check` skill is the enforcement mechanism; it will nudge each project into compliance as they're touched.
+- Per-app migration happens when Claude next works in each app, in the priority order from spec Section "Migration plan". The refactored `docs-check` skill is the enforcement mechanism; it will nudge each project into compliance as they're touched.

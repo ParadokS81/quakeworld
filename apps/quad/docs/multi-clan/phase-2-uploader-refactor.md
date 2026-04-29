@@ -1,4 +1,4 @@
-# Phase 2: Refactor Voice Uploader — Multi-Clan Support
+# Phase 2: Refactor Voice Uploader -- Multi-Clan Support
 
 ## Context
 
@@ -18,11 +18,11 @@ Read `docs/multi-clan/CONTRACT.md` for the full schema reference.
 - Storage path: `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg`
 - Firestore doc: `teamId` populated, `visibility` field, tracks carry `discordUserId` + `resolved` flag
 - Team identity: from `getRegistrationForGuild(guildId)` (falls back to env config for unregistered guilds)
-- Player names: resolved from team roster → knownPlayers → Discord display name fallback
+- Player names: resolved from team roster -> knownPlayers -> Discord display name fallback
 
 ## Files to Modify
 
-### 1. `src/modules/processing/stages/voice-uploader.ts` — Main Changes
+### 1. `src/modules/processing/stages/voice-uploader.ts` -- Main Changes
 
 **Update `uploadVoiceRecordings` signature and logic:**
 
@@ -34,7 +34,7 @@ The function currently takes `(segments, teamTag)`. It needs the guild ID to loo
    - If found: use registration.teamId, registration.teamTag, registration.teamName
    - If not found: fall back to env-based teamTag (backward compat for unregistered guilds)
 
-2. Resolve player names (new — see name resolution section below)
+2. Resolve player names (new -- see name resolution section below)
 
 3. For each segment, for each player:
    - Storage path: voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg
@@ -46,7 +46,7 @@ The function currently takes `(segments, teamTag)`. It needs the guild ID to loo
      demoSha256,
      teamId: registration.teamId || '',
      teamTag: registration.teamTag || teamTag,
-     visibility: <resolved from team settings — see below>,
+     visibility: <resolved from team settings -- see below>,
      source: 'firebase_storage',
      tracks: [{
        discordUserId: player.discordUserId,
@@ -62,13 +62,13 @@ The function currently takes `(segments, teamTag)`. It needs the guild ID to loo
    }
 ```
 
-### 2. `src/modules/processing/types.ts` — Update Player Type
+### 2. `src/modules/processing/types.ts` -- Update Player Type
 
 The `SegmentPlayer` type (or equivalent) needs to carry Discord identity info. Check what the audio-splitter stage currently puts on each player object. It likely has `name` and `audioFile`. We need to ensure `discordUserId` and `discordUsername` flow through from the recording session metadata.
 
 If the session metadata (`session_metadata.json`) has `tracks[].discord_user_id` and `tracks[].discord_username`, these should flow through the pipeline to the upload stage.
 
-### 3. `src/modules/processing/pipeline.ts` — Pass Guild ID
+### 3. `src/modules/processing/pipeline.ts` -- Pass Guild ID
 
 The pipeline orchestrator needs to pass the guild ID from the session to the upload stage. Check how session metadata flows through the pipeline and ensure `guildId` reaches `uploadVoiceRecordings`.
 
@@ -84,17 +84,17 @@ async function resolvePlayerNames(
 **Resolution order:**
 1. **Team roster lookup** (if registration exists):
    - Read team doc: `teams/{registration.teamId}`
-   - Get `playerRoster[]` → each entry has `userId` (Firebase UID)
+   - Get `playerRoster[]` -> each entry has `userId` (Firebase UID)
    - For each roster member, read user doc: `users/{userId}`
    - Check if `user.discordUserId` matches any recording track
-   - If match: use `user.displayName` as the QW name → `resolved: true`
+   - If match: use `user.displayName` as the QW name -> `resolved: true`
 
 2. **Known players lookup** (if registration exists):
    - Check `registration.knownPlayers[discordUserId]`
-   - If found: use stored name → `resolved: true`
+   - If found: use stored name -> `resolved: true`
 
 3. **Fallback**:
-   - Use `discordUsername` from recording → `resolved: false`
+   - Use `discordUsername` from recording -> `resolved: false`
 
 **Performance note:** The roster + user doc reads happen once per upload (not per track). Cache the roster lookup for the session. There will be 4-8 players max.
 
@@ -113,9 +113,9 @@ If no registration exists (unregistered guild fallback), default to `'public'` (
 
 ## What NOT to Build Yet
 
-- **Unknown player DM prompt** — Don't implement the backfill DM flow in this phase. Just mark unresolved tracks with `resolved: false`. The DM flow is a follow-up enhancement that can be added later without changing the schema.
-- **Anything on MatchScheduler** — Phases 3-5
-- **Changes to recording module** — The recording module already captures Discord user IDs in session metadata. Don't modify it.
+- **Unknown player DM prompt** -- Don't implement the backfill DM flow in this phase. Just mark unresolved tracks with `resolved: false`. The DM flow is a follow-up enhancement that can be added later without changing the schema.
+- **Anything on MatchScheduler** -- Phases 3-5
+- **Changes to recording module** -- The recording module already captures Discord user IDs in session metadata. Don't modify it.
 
 ## Backward Compatibility
 
@@ -141,7 +141,7 @@ Processing pipeline reads session_metadata
 AudioSplitter outputs per-map segments
   segment.players[]: { name, audioFile, discordUserId?, discordUsername? }
        │
-       ▼  ← THIS IS WHERE YOU MAY NEED TO ADD discordUserId/discordUsername
+       ▼  <- THIS IS WHERE YOU MAY NEED TO ADD discordUserId/discordUsername
        │     if the splitter doesn't already carry them through
        │
        ▼

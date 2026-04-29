@@ -151,7 +151,7 @@ sqlite3 -separator $'\t' "$DB" "
 
 For each row, open the source at `source_file:source_line` and compare every field. Look for:
 - `default_value`: matches the second positional arg in the registration. Escapes interpreted (post-v17) -- `\"` should be `"`, not the literal escape.
-- `flags_raw`: matches the third positional arg, normalized per the post-v17 rule (literal `0` / `CVAR_NONE` / absent → empty string; everything else preserved as written).
+- `flags_raw`: matches the third positional arg, normalized per the post-v17 rule (literal `0` / `CVAR_NONE` / absent -> empty string; everything else preserved as written).
 - `on_change`: matches the fourth positional arg if present; empty otherwise.
 - `trailing_comment`: matches the comment after `};` or `,` on the registration line. Empty for entries with no trailing comment.
 - `source_file` and `source_line`: point to the actual registration line.
@@ -231,7 +231,7 @@ Static reading of the extraction and loading code. Look for things tests can't c
 ### 4.1 Read every Python handler end-to-end
 
 For each handler in `apps/qw-oracle/scripts/extractors/<project>/_handler_*.py`:
-- [ ] Trace the lifecycle: `start_file` → variant loop → `end_file` / `finalize`. Confirm per-file state is reset between files; per-variant state is handled correctly inside the file.
+- [ ] Trace the lifecycle: `start_file` -> variant loop -> `end_file` / `finalize`. Confirm per-file state is reset between files; per-variant state is handled correctly inside the file.
 - [ ] Look for swallowed exceptions: `try ... except Exception: pass` or `except: continue` patterns. Each one needs a justification in a docstring.
 - [ ] Check regex patterns for anchoring (`^...$`), escape correctness, and word boundaries.
 - [ ] Check libclang cursor walks for stack-recursion safety (use iterative stacks, not raw recursion).
@@ -257,14 +257,14 @@ If the arc touched `load-version.ts`:
 
 ### 4.4 Cross-project sibling-handler shape audit
 
-When validating cross-project, line up the same handler across all four projects (e.g., `_handler_cvars.py` in ezquake/fte/qwcl/mvdsv). After the 2026-04-28 architecture consolidation, every project follows the same `<project>/_handler_*.py` shape, so divergences are now apples-to-apples comparisons. See `EXTRACTOR-PLAYBOOK.md` § Three-tier handler architecture for the full model.
+When validating cross-project, line up the same handler across all four projects (e.g., `_handler_cvars.py` in ezquake/fte/qwcl/mvdsv). After the 2026-04-28 architecture consolidation, every project follows the same `<project>/_handler_*.py` shape, so divergences are now apples-to-apples comparisons. See `EXTRACTOR-PLAYBOOK.md` Section  Three-tier handler architecture for the full model.
 
 Look for:
 - Helpers with the same name but different fallback policies (e.g., `_resolve_fn_ref` divergence between commands and qc_builtins, fixed in v17 by lifting to `extractor_lib/_resolve.py`).
 - Defensive normalization present in one project but not others (e.g., `flags_raw` post-v17: ezquake's and mvdsv's `_handler_cvars.py` both normalize via `_normalize_flags_raw`; FTE and QWCL handlers should converge if they don't already).
 - Diverging schemas of emitted rows for the same logical entity.
 - Duplicated regex constants that should live in `extractor_lib/`.
-- Class-level fork-override hooks (`REGISTRATION_APIS`, `DETECTION_APIS`, etc.) that exist on one project's handler but not its sibling — usually means an API name is buried in a regex on the unhoisted side.
+- Class-level fork-override hooks (`REGISTRATION_APIS`, `DETECTION_APIS`, etc.) that exist on one project's handler but not its sibling -- usually means an API name is buried in a regex on the unhoisted side.
 
 **Acceptance:** every divergence has a written justification (in a docstring or a memory entry). Undocumented divergences are findings.
 

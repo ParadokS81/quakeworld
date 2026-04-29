@@ -1,4 +1,4 @@
-# Slice 5: Interactive Availability — Edit Day + Clear Week (Quad)
+# Slice 5: Interactive Availability -- Edit Day + Clear Week (Quad)
 
 > **Project**: Quad (`/home/paradoks/projects/quake/quad/`)
 > **Effort**: Medium (~1 hour)
@@ -13,7 +13,7 @@ Players can edit their availability and clear their week directly from Discord v
 
 ## Changes
 
-### 1. `src/modules/availability/interactions.ts` — All interaction handlers
+### 1. `src/modules/availability/interactions.ts` -- All interaction handlers
 
 **Registration** (in `registerEvents`):
 ```typescript
@@ -32,12 +32,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
 ```
 
 **Custom ID scheme:**
-- `avail:clearWeek:{teamId}` — -Me This Week button
-- `avail:editDay:{teamId}` — Edit day select menu (on persistent message)
-- `avail:editSlots:{teamId}:{cetDay}` — Time slot multi-select (on ephemeral)
-- `avail:editAnother:{teamId}` — Edit another day select (on confirmation ephemeral)
+- `avail:clearWeek:{teamId}` -- -Me This Week button
+- `avail:editDay:{teamId}` -- Edit day select menu (on persistent message)
+- `avail:editSlots:{teamId}:{cetDay}` -- Time slot multi-select (on ephemeral)
+- `avail:editAnother:{teamId}` -- Edit another day select (on confirmation ephemeral)
 
-Encoding `teamId` in the custom ID lets the handler know which team without a lookup. Discord custom IDs max 100 chars — team IDs are ~20 chars, so plenty of room.
+Encoding `teamId` in the custom ID lets the handler know which team without a lookup. Discord custom IDs max 100 chars -- team IDs are ~20 chars, so plenty of room.
 
 ---
 
@@ -59,7 +59,7 @@ async function handleDaySelect(interaction: StringSelectMenuInteraction) {
     const teamId = extractTeamId(interaction.customId);
     const cetDay = interaction.values[0];  // e.g. "fri"
 
-    // 1. Resolve Discord user → Firebase UID
+    // 1. Resolve Discord user -> Firebase UID
     const user = await resolveUser(interaction.user.id, teamId);
     if (!user) return replyNotLinked(interaction, teamId);
 
@@ -135,7 +135,7 @@ async function handleSlotSelect(interaction: StringSelectMenuInteraction) {
         updateData[`slots.${utcSlotId}`] = FieldValue.arrayRemove(user.uid);
     }
 
-    // Write — use set({merge:true}) in case doc doesn't exist yet
+    // Write -- use set({merge:true}) in case doc doesn't exist yet
     try {
         const docRef = db.collection('availability').doc(docId);
         const doc = await docRef.get();
@@ -145,13 +145,13 @@ async function handleSlotSelect(interaction: StringSelectMenuInteraction) {
             await docRef.update(updateData);
         }
     } catch (err) {
-        return interaction.update({ content: 'Failed to update — try again.', components: [] });
+        return interaction.update({ content: 'Failed to update -- try again.', components: [] });
     }
 
     // Confirmation with diff summary
     const addedStr = toAdd.map(t => formatCetTime(t)).join(', ');
     const removedStr = toRemove.map(t => formatCetTime(t)).join(', ');
-    let summary = `✓ **${formatDayName(cetDay)}** updated\n`;
+    let summary = `[ok] **${formatDayName(cetDay)}** updated\n`;
     if (addedStr) summary += `Added: ${addedStr}\n`;
     if (removedStr) summary += `Removed: ${removedStr}\n`;
 
@@ -165,7 +165,7 @@ async function handleSlotSelect(interaction: StringSelectMenuInteraction) {
 }
 ```
 
-**Step 3: "Edit another day"** — `avail:editAnother:{teamId}` is handled identically to `avail:editDay:{teamId}` (same handler, just different custom ID origin).
+**Step 3: "Edit another day"** -- `avail:editAnother:{teamId}` is handled identically to `avail:editDay:{teamId}` (same handler, just different custom ID origin).
 
 ---
 
@@ -210,7 +210,7 @@ async function handleClearWeek(interaction: ButtonInteraction) {
     }
 
     if (Object.keys(updateData).length <= 1) {
-        // Only lastUpdated — nothing to clear
+        // Only lastUpdated -- nothing to clear
         return interaction.reply({
             content: 'You have no availability set this week.',
             flags: MessageFlags.Ephemeral,
@@ -221,13 +221,13 @@ async function handleClearWeek(interaction: ButtonInteraction) {
         await docRef.update(updateData);
     } catch (err) {
         return interaction.reply({
-            content: 'Failed to clear — try again.',
+            content: 'Failed to clear -- try again.',
             flags: MessageFlags.Ephemeral,
         });
     }
 
     await interaction.reply({
-        content: `✓ Cleared all your availability for Week ${weekId.split('-')[1]}.`,
+        content: `[ok] Cleared all your availability for Week ${weekId.split('-')[1]}.`,
         flags: MessageFlags.Ephemeral,
     });
 }
@@ -264,7 +264,7 @@ async function replyNotLinked(interaction: any, teamId: string) {
 
 ---
 
-### 5. Update `message.ts` — Add action rows to persistent message
+### 5. Update `message.ts` -- Add action rows to persistent message
 
 When posting/editing the persistent message, include two action rows:
 
@@ -283,7 +283,7 @@ const row2 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(daySe
 { embeds: [embed], files: [attachment], components: [row1, row2] }
 ```
 
-**`buildDaySelectMenu()`** — Creates the day picker with current availability summaries:
+**`buildDaySelectMenu()`** -- Creates the day picker with current availability summaries:
 ```typescript
 function buildDaySelectMenu(customId: string, teamId: string): StringSelectMenuBuilder {
     const weekId = getCurrentWeekId();
@@ -325,35 +325,35 @@ function getCurrentUserSlots(teamId: string, uid: string, cetDay: string): strin
 }
 ```
 
-This reads from the cached availability data in the listener state — no extra Firestore read needed.
+This reads from the cached availability data in the listener state -- no extra Firestore read needed.
 
 ---
 
 ## Verification
 
 1. **Edit day flow**:
-   - Click "Edit day" dropdown → pick a future day
+   - Click "Edit day" dropdown -> pick a future day
    - See ephemeral with time slots, current slots pre-checked
-   - Toggle some on/off → close dropdown
+   - Toggle some on/off -> close dropdown
    - Ephemeral shows diff ("Added: 21:30, 22:00 / Removed: 20:00")
    - Grid image updates for everyone within ~5 seconds
-   - Check MatchScheduler website → same changes reflected
+   - Check MatchScheduler website -> same changes reflected
 
 2. **No-op protection**:
-   - Open time slots, close without changing → "No changes made"
+   - Open time slots, close without changing -> "No changes made"
    - No Firestore write occurs
 
 3. **Clear week**:
-   - Click "−Me This Week" → ephemeral confirms
+   - Click "−Me This Week" -> ephemeral confirms
    - Grid shows user removed from all slots
    - Website reflects the same
 
 4. **Error cases**:
-   - Test with Discord user NOT linked to MatchScheduler → "Link your Discord" message
-   - Test with Discord user linked but NOT on this team → "Not a member" message
-   - Select a past day → "This day has already passed"
+   - Test with Discord user NOT linked to MatchScheduler -> "Link your Discord" message
+   - Test with Discord user linked but NOT on this team -> "Not a member" message
+   - Select a past day -> "This day has already passed"
 
 5. **Bidirectional sync**:
-   - Add slots on Discord → appears on website
-   - Add slots on website → grid updates in Discord
+   - Add slots on Discord -> appears on website
+   - Add slots on website -> grid updates in Discord
    - Both happen within seconds

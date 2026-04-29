@@ -3175,8 +3175,8 @@ bunx tsc --noEmit
 ```
 
 Likely issues to resolve:
-- If `effectiveCvars()` returns `Record<string, string>` instead of `Map<string, string>`, convert at the call site: `cvars={new Map(Object.entries(effectiveCvars()))}` — or change the call to match the existing primary-cvars pattern used elsewhere in ConfigViewer.
-- Missing imports (`createSignal`, `createEffect`) in useKeyboardPanelState — already imported at top of that file, but confirm.
+- If `effectiveCvars()` returns `Record<string, string>` instead of `Map<string, string>`, convert at the call site: `cvars={new Map(Object.entries(effectiveCvars()))}` -- or change the call to match the existing primary-cvars pattern used elsewhere in ConfigViewer.
+- Missing imports (`createSignal`, `createEffect`) in useKeyboardPanelState -- already imported at top of that file, but confirm.
 
 - [ ] **Step 5: Commit**
 
@@ -3334,7 +3334,7 @@ Replace `<stylesheet-path>` with the actual path found in Step 1.
 
 ## Task 22: Manual verification
 
-No code changes — manual verification gate per `CLAUDE.md`.
+No code changes -- manual verification gate per `CLAUDE.md`.
 
 - [ ] **Step 1: Full typecheck + test run**
 
@@ -3363,25 +3363,25 @@ Launch `slipgate-app` on Windows (`bun run tauri dev` from the Windows mirror pe
 - Close and relaunch the app -- working copy persists, templates persist, mode restored.
 - Click Keyboard -- previous keyboard view returns.
 
-Report any failure back to the implementer as targeted follow-ups referencing this plan. No final commit required if all checks pass — the preceding tasks are already on `main`.
+Report any failure back to the implementer as targeted follow-ups referencing this plan. No final commit required if all checks pass -- the preceding tasks are already on `main`.
 
 ---
 
 ## Self-Review Notes
 
 **Spec coverage:**
-- Architecture (§3): modules in Tasks 1-13; panel in 17-19; store in 16; wiring in 20.
-- PlayerState shape (§4): Task 1.
-- Evaluator grammar + dispatch (§5): Tasks 7-10, old/new-form detection in Task 12 (`splitIfThenElse` + walker).
-- Editor panel UX (§6): Tasks 17-19.
-- Persistence (§7): Task 16.
-- Integration contract (§8): Tasks 11, 13.
-- Testing (§9): Tasks 2-15 (unit + fixture + issue); Task 22 (manual).
-- File layout (§11): matches this plan's file paths exactly.
+- Architecture (Section 3): modules in Tasks 1-13; panel in 17-19; store in 16; wiring in 20.
+- PlayerState shape (Section 4): Task 1.
+- Evaluator grammar + dispatch (Section 5): Tasks 7-10, old/new-form detection in Task 12 (`splitIfThenElse` + walker).
+- Editor panel UX (Section 6): Tasks 17-19.
+- Persistence (Section 7): Task 16.
+- Integration contract (Section 8): Tasks 11, 13.
+- Testing (Section 9): Tasks 2-15 (unit + fixture + issue); Task 22 (manual).
+- File layout (Section 11): matches this plan's file paths exactly.
 
-**Placeholder scan:** no "TBD" / "handle edge cases" / "similar to Task N" in action steps. Stylesheet task locates the file via a grep step rather than assuming a path — deliberate, not a placeholder.
+**Placeholder scan:** no "TBD" / "handle edge cases" / "similar to Task N" in action steps. Stylesheet task locates the file via a grep step rather than assuming a path -- deliberate, not a placeholder.
 
-**Type consistency:** PlayerState shape referenced consistently across types.ts (Task 1), derivations (2-4), expander (5-6), resolver (11-12), StatePanel (17-19), store (16). `RuntimeResolver` / `RuntimeResolution` match the pretty-view spec §3.5 exactly.
+**Type consistency:** PlayerState shape referenced consistently across types.ts (Task 1), derivations (2-4), expander (5-6), resolver (11-12), StatePanel (17-19), store (16). `RuntimeResolver` / `RuntimeResolution` match the pretty-view spec Section 3.5 exactly.
 
 **Regex convention reminder:** all code samples use `string.match(regex)` or `string.matchAll(regex)`, never `regex.exec(string)`, per root CLAUDE.md. Implementers must preserve this convention.
 

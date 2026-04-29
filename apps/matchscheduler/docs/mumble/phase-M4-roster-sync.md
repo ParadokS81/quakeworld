@@ -1,4 +1,4 @@
-# Phase M4: Roster Sync — MatchScheduler Side
+# Phase M4: Roster Sync -- MatchScheduler Side
 
 ## Context
 
@@ -89,13 +89,13 @@ This is acceptable for MVP because:
 - Roster changes are infrequent (not real-time)
 - If a sync is missed, the leader can disable/re-enable Mumble to force a full re-registration
 
-If this becomes a problem later, switch to a subcollection (`mumbleConfig/{teamId}/syncQueue/{docId}`) — but that's over-engineering for now.
+If this becomes a problem later, switch to a subcollection (`mumbleConfig/{teamId}/syncQueue/{docId}`) -- but that's over-engineering for now.
 
 ---
 
 ## Verification
 
-1. **Add member**: Add phantom → verify `pendingSync` field appears on `mumbleConfig` doc with `action: 'add'`
-2. **Remove member**: Remove member → verify `pendingSync` with `action: 'remove'`
+1. **Add member**: Add phantom -> verify `pendingSync` field appears on `mumbleConfig` doc with `action: 'add'`
+2. **Remove member**: Remove member -> verify `pendingSync` with `action: 'remove'`
 3. **No Mumble**: If team doesn't have Mumble enabled, no `pendingSync` is written (no errors)
 4. **Integration with quad**: After quad processes the sync, `pendingSync` field is cleared

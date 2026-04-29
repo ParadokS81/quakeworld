@@ -7,13 +7,13 @@
 
 ## Scope
 
-This slice builds the invisible engine — no UI yet. After this slice, dispatching a `timeslots-changed` event with hidden slots will cause both grids to rebuild with fewer rows and the top panel to shrink.
+This slice builds the invisible engine -- no UI yet. After this slice, dispatching a `timeslots-changed` event with hidden slots will cause both grids to rebuild with fewer rows and the top panel to shrink.
 
 ---
 
 ## Changes
 
-### 1. TimezoneService.js — Hidden slots state
+### 1. TimezoneService.js -- Hidden slots state
 
 **File:** `public/js/services/TimezoneService.js`
 
@@ -32,7 +32,7 @@ function setHiddenTimeSlots(hiddenSlots) {
         hiddenSlots.filter(s => DISPLAY_TIME_SLOTS.includes(s))
     );
     if (DISPLAY_TIME_SLOTS.length - newHidden.size < 4) {
-        console.warn('Cannot hide — minimum 4 slots must remain visible');
+        console.warn('Cannot hide -- minimum 4 slots must remain visible');
         return false;
     }
     _hiddenTimeSlots = newHidden;
@@ -46,7 +46,7 @@ function getHiddenTimeSlots() {
 
 Expose `getVisibleTimeSlots`, `setHiddenTimeSlots`, `getHiddenTimeSlots` in the return object.
 
-### 2. AvailabilityGrid.js — Dynamic time slots
+### 2. AvailabilityGrid.js -- Dynamic time slots
 
 **File:** `public/js/components/AvailabilityGrid.js`
 
@@ -61,16 +61,16 @@ function _getTimeSlots() {
 ```
 
 Replace **every** `TIME_SLOTS` reference inside `create()` with `_getTimeSlots()`. The affected callsites (search for `TIME_SLOTS` in file):
-- `_render()` — row generation loop
-- `_getCellsInRectangle()` — drag selection index lookup
-- `_handleDayHeaderClick()` — column toggle iterates slots
-- `_handleTimeHeaderClick()` — row toggle iterates slots
-- `selectAll()` — all-cell selection
-- `_buildUtcMaps()` — pass visible slots to map builders
+- `_render()` -- row generation loop
+- `_getCellsInRectangle()` -- drag selection index lookup
+- `_handleDayHeaderClick()` -- column toggle iterates slots
+- `_handleTimeHeaderClick()` -- row toggle iterates slots
+- `selectAll()` -- all-cell selection
+- `_buildUtcMaps()` -- pass visible slots to map builders
 
-**Important:** `_getTimeSlots()` is a module-level function (not inside `create()`), so all grid instances share the same visible set. This is correct — both week grids should show the same slots.
+**Important:** `_getTimeSlots()` is a module-level function (not inside `create()`), so all grid instances share the same visible set. This is correct -- both week grids should show the same slots.
 
-### 3. app.js — Event wiring + layout adjustment
+### 3. app.js -- Event wiring + layout adjustment
 
 **File:** `public/js/app.js`
 

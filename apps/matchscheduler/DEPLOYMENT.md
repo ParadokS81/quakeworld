@@ -1,4 +1,4 @@
-# MatchScheduler — Deployment Reference
+# MatchScheduler -- Deployment Reference
 
 ## Infrastructure
 
@@ -31,14 +31,14 @@ Categorize modified files into deploy targets:
 Always run before deploying hosting:
 ```bash
 npm run version    # Stamp build version
-npm run css:build  # Compile Tailwind: src/css/input.css → public/css/main.css
+npm run css:build  # Compile Tailwind: src/css/input.css -> public/css/main.css
 ```
 
 ### 3. Deploy
 
 ```bash
 firebase deploy --only hosting              # Frontend only
-firebase deploy --only functions            # All functions (v1 shared container — fast!)
+firebase deploy --only functions            # All functions (v1 shared container -- fast!)
 firebase deploy --only firestore:rules      # Security rules
 firebase deploy --only hosting,functions    # Both
 firebase deploy                             # Everything

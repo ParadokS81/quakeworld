@@ -57,7 +57,7 @@ FRONTEND COMPONENTS:
 - FavoritesPanel (MODIFY)
   - Replace stub "Compare Now" handler with real implementation
   - Add "Exit Comparison" button when comparison active
-  - User actions: "Compare Now" click → ComparisonEngine.startComparison()
+  - User actions: "Compare Now" click -> ComparisonEngine.startComparison()
 
 - AvailabilityGrid (MODIFY)
   - Add comparison mode rendering
@@ -74,10 +74,10 @@ FRONTEND SERVICES:
 - ComparisonEngine (NEW):
   - startComparison(userTeamId, opponentTeamIds, filters)
   - endComparison()
-  - getComparisonState() → { active, userTeamId, opponentTeamIds, matches }
-  - isSlotMatch(slotId) → boolean
-  - getSlotMatches(slotId) → [{ teamId, teamTag, availablePlayers, unavailablePlayers }]
-  - recalculate() → called when filters change or availability updates
+  - getComparisonState() -> { active, userTeamId, opponentTeamIds, matches }
+  - isSlotMatch(slotId) -> boolean
+  - getSlotMatches(slotId) -> [{ teamId, teamTag, availablePlayers, unavailablePlayers }]
+  - recalculate() -> called when filters change or availability updates
 
 BACKEND REQUIREMENTS:
 ⚠️ NO CLOUD FUNCTIONS NEEDED FOR THIS SLICE
@@ -87,9 +87,9 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 - Event-based communication:
-  - FilterService dispatches 'filter-changed' → ComparisonEngine.recalculate()
-  - ComparisonEngine dispatches 'comparison-updated' → AvailabilityGrid re-renders
-  - TeamBrowserState 'team-selection-changed' → FavoritesPanel updates button state
+  - FilterService dispatches 'filter-changed' -> ComparisonEngine.recalculate()
+  - ComparisonEngine dispatches 'comparison-updated' -> AvailabilityGrid re-renders
+  - TeamBrowserState 'team-selection-changed' -> FavoritesPanel updates button state
 ```
 
 ---
@@ -127,7 +127,7 @@ const ComparisonEngine = (function() {
     let _userTeamId = null;
     let _opponentTeamIds = [];
     let _filters = { yourTeam: 1, opponent: 1 };
-    let _matches = {}; // slotId → [{ teamId, teamTag, availablePlayers, unavailablePlayers }]
+    let _matches = {}; // slotId -> [{ teamId, teamTag, availablePlayers, unavailablePlayers }]
 
     async function startComparison(userTeamId, opponentTeamIds, filters) {
         _userTeamId = userTeamId;
@@ -416,7 +416,7 @@ USER ACTION: Click "Compare Now"
 │         - opponentCount = opponentSlots[slotId].length      │
 │         - If userCount >= filter.yourTeam                   │
 │           AND opponentCount >= filter.opponent              │
-│           → Add to _matches                                 │
+│           -> Add to _matches                                 │
 │   - Dispatch 'comparison-updated'                           │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -477,15 +477,15 @@ BACKEND TESTS:
 - N/A (no backend for this slice)
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Select 2 teams → Click Compare → Grid shows matches
-- [ ] Filter change → Matches recalculate automatically
+- [ ] Select 2 teams -> Click Compare -> Grid shows matches
+- [ ] Filter change -> Matches recalculate automatically
 - [ ] Match slot tooltip shows correct roster (available vs unavailable)
-- [ ] Availability update (via listener) → Matches recalculate
-- [ ] Exit comparison → Grid shows normal view
-- [ ] Re-enter comparison → Previous results not stale
+- [ ] Availability update (via listener) -> Matches recalculate
+- [ ] Exit comparison -> Grid shows normal view
+- [ ] Re-enter comparison -> Previous results not stale
 
 END-TO-END TESTS:
-- [ ] Full flow: Select teams → Set filters → Compare → See matches → Hover → Exit
+- [ ] Full flow: Select teams -> Set filters -> Compare -> See matches -> Hover -> Exit
 - [ ] Filter edge cases: min=4 with teams having exactly 4 available
 - [ ] Multiple opponents: Verify all matching teams shown in tooltip
 - [ ] Week navigation during comparison: New weeks calculate correctly
@@ -534,18 +534,18 @@ END-TO-END TESTS:
 ┌─────────────────────────────────────────────────────────────┐
 │  Normal slot (your availability):  No border, just badges   │
 │  ┌─────────┐                                                │
-│  │ CV  BK  │  ← Purple badges show who's available          │
+│  │ CV  BK  │  <- Purple badges show who's available          │
 │  └─────────┘                                                │
 │                                                             │
 │  Full match (4+ each):  Green outline                       │
 │  ┌─────────┐                                                │
-│  │ CV  BK  │  ← Green border = ready to play 4v4            │
+│  │ CV  BK  │  <- Green border = ready to play 4v4            │
 │  │ AS  EB  │                                                │
 │  └─────────┘                                                │
 │                                                             │
 │  Partial match (<4):  Amber/yellow outline                  │
 │  ┌─────────┐                                                │
-│  │ CV  BK  │  ← Amber border = possible with standins       │
+│  │ CV  BK  │  <- Amber border = possible with standins       │
 │  └─────────┘                                                │
 └─────────────────────────────────────────────────────────────┘
 ```

@@ -1,4 +1,4 @@
-# Phase C1: Multi-Team Registration — quad Side
+# Phase C1: Multi-Team Registration -- quad Side
 
 ## Context
 
@@ -153,7 +153,7 @@ This will be used by C2 and C3 phases. Exporting it now avoids a second touch of
 
 ## Verification
 
-1. **Compile**: `npx tsc --noEmit` — should pass with no errors
+1. **Compile**: `npx tsc --noEmit` -- should pass with no errors
 2. **Existing single-team flow**: `/register` in a clan server with no other registrations should work exactly as before (new fields are populated but have no effect)
 3. **Multi-team flow**: `/register` in a guild that already has an active registration should now SUCCEED instead of rejecting
 4. **Check the Firestore doc**: After `/register`, the `botRegistrations/{teamId}` doc should have `registeredChannelId`, `registeredCategoryId`, and `registeredCategoryName` populated
@@ -163,6 +163,6 @@ This will be used by C2 and C3 phases. Exporting it now avoids a second touch of
 
 ## What's NOT in this phase
 
-- Updating callers of `getRegistrationForGuild()` to handle multiple registrations — that's C2
-- Guild sync changes — that's C3
-- MatchScheduler UI changes — that's C4
+- Updating callers of `getRegistrationForGuild()` to handle multiple registrations -- that's C2
+- Guild sync changes -- that's C3
+- MatchScheduler UI changes -- that's C4

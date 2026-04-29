@@ -53,8 +53,8 @@ FRONTEND COMPONENTS:
     - NEW: Select All button
     - NEW: Clear All button
   - User actions:
-    - Select All → selects all cells in both visible weeks
-    - Clear All → deselects all cells in both visible weeks
+    - Select All -> selects all cells in both visible weeks
+    - Clear All -> deselects all cells in both visible weeks
 
 FRONTEND SERVICES:
 - None required (pure frontend feature)
@@ -63,7 +63,7 @@ BACKEND REQUIREMENTS:
 - None required (selection is entirely frontend state)
 
 INTEGRATION POINTS:
-- GridActionButtons → AvailabilityGrid: Select All / Clear All trigger grid methods
+- GridActionButtons -> AvailabilityGrid: Select All / Clear All trigger grid methods
 - Selection state feeds into existing Add Me / Remove Me flow (unchanged)
 - WeekDisplay coordinates selection across both grids
 ```
@@ -487,11 +487,11 @@ BACKEND PERFORMANCE:
 ## 6. Data Flow Diagram
 ```
 DRAG SELECTION FLOW:
-MouseDown on cell → Set _isDragging = true, capture start cell
+MouseDown on cell -> Set _isDragging = true, capture start cell
                           ↓
-MouseMove over cells → Calculate rectangle → Update preview classes (visual feedback)
+MouseMove over cells -> Calculate rectangle -> Update preview classes (visual feedback)
                           ↓
-MouseUp → Calculate final rectangle → Apply toggle logic → Update _selectedCells
+MouseUp -> Calculate final rectangle -> Apply toggle logic -> Update _selectedCells
                           ↓
                    Notify selection change callback
                           ↓
@@ -499,35 +499,35 @@ MouseUp → Calculate final rectangle → Apply toggle logic → Update _selecte
 
 
 SHIFT+CLICK FLOW:
-Click cell (no shift) → Normal toggle → Store as _lastClickedCell
+Click cell (no shift) -> Normal toggle -> Store as _lastClickedCell
                           ↓
-Shift+Click another cell → Calculate rectangle from _lastClickedCell to current
+Shift+Click another cell -> Calculate rectangle from _lastClickedCell to current
                           ↓
-                   Apply toggle logic → Update _selectedCells → Notify callback
+                   Apply toggle logic -> Update _selectedCells -> Notify callback
 
 
 HEADER CLICK FLOW:
-Click day header "Mon" → Get all cells in Mon column
+Click day header "Mon" -> Get all cells in Mon column
                           ↓
-Check if ALL are selected → Yes: deselect all → No: select all
+Check if ALL are selected -> Yes: deselect all -> No: select all
                           ↓
-                   Update _selectedCells → Notify callback
+                   Update _selectedCells -> Notify callback
 
 
 SELECT ALL / CLEAR ALL FLOW:
-Click "Select All" → WeekDisplay._handleSelectAll()
+Click "Select All" -> WeekDisplay._handleSelectAll()
                           ↓
-            For each grid instance → grid.selectAll()
+            For each grid instance -> grid.selectAll()
                           ↓
-         All cells in both weeks selected → Notify callback
+         All cells in both weeks selected -> Notify callback
 
 
 ADD ME (unchanged, just more cells):
-User clicks "Add Me" → GridActionButtons._handleAddMe()
+User clicks "Add Me" -> GridActionButtons._handleAddMe()
                           ↓
            Get selected cells from both grids (may be hundreds)
                           ↓
-        AvailabilityService.addMeToSlots() for each week → Firebase updates
+        AvailabilityService.addMeToSlots() for each week -> Firebase updates
 ```
 
 ## 7. Test Scenarios
@@ -564,14 +564,14 @@ FRONTEND TESTS - Select All / Clear All:
 - [ ] Add Me / Remove Me buttons enable after Select All
 
 INTEGRATION TESTS (with existing Add Me flow):
-- [ ] Drag select 10 cells → Add Me → All 10 cells update in Firebase
-- [ ] Select All → Add Me → All 154 cells (77 per week) update
-- [ ] Clear All → Add Me button disabled
-- [ ] Shift+click large range → Remove Me → All cells in range updated
-- [ ] Mix of selection methods (drag + click + header) → Add Me works
+- [ ] Drag select 10 cells -> Add Me -> All 10 cells update in Firebase
+- [ ] Select All -> Add Me -> All 154 cells (77 per week) update
+- [ ] Clear All -> Add Me button disabled
+- [ ] Shift+click large range -> Remove Me -> All cells in range updated
+- [ ] Mix of selection methods (drag + click + header) -> Add Me works
 
 END-TO-END TESTS:
-- [ ] Complete workflow: drag select → add me → see sync → confirm in Firestore
+- [ ] Complete workflow: drag select -> add me -> see sync -> confirm in Firestore
 - [ ] Large selection (Select All) completes without timeout
 - [ ] Selection state survives week navigation
 - [ ] Selection cleared after successful Add Me/Remove Me
@@ -670,7 +670,7 @@ Before considering this slice spec complete:
 - [x] Hot paths clearly identified (all selection is instant DOM manipulation)
 - [x] Test scenarios cover full stack (frontend tests for this slice)
 - [x] No anti-patterns present
-- [x] Data flow complete (selection → Add Me → existing Firebase flow)
+- [x] Data flow complete (selection -> Add Me -> existing Firebase flow)
 - [x] Integration examples show actual code
 - [x] Error handling specified (edge cases in pitfalls section)
 - [x] Loading states defined (N/A for selection, existing shimmer for sync)

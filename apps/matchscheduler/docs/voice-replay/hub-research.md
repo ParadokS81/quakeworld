@@ -1,4 +1,4 @@
-# Hub Codebase Research — Demo Player Internals
+# Hub Codebase Research -- Demo Player Internals
 
 Research conducted 2026-02-11 from https://github.com/quakeworldnu/hub.quakeworld.nu
 
@@ -39,7 +39,7 @@ window.Module = {
 - Polls `window.Module.getClientState` every 100ms
 - Once available, creates `FteController` singleton
 
-## FteController — The Key Class
+## FteController -- The Key Class
 
 Located at `fte/fteController.ts`. Wraps the engine with a clean TypeScript API.
 
@@ -66,13 +66,13 @@ Located at `fte/fteController.ts`. Wraps the engine with a clean TypeScript API.
 ### Events
 
 FteController dispatches custom events on `window`:
-- `fte.volume` — volume changed
-- `fteplayer.mouse.idle` / `fteplayer.mouse.active` — UI show/hide
+- `fte.volume` -- volume changed
+- `fteplayer.mouse.idle` / `fteplayer.mouse.active` -- UI show/hide
 
 ### Internal State
 
-- `_demoSpeed` — current speed (0 = paused)
-- `_volume` — current volume level
+- `_demoSpeed` -- current speed (0 = paused)
+- `_volume` -- current volume level
 - Volume clamped to max 0.2 (game sounds are loud)
 
 ## Demo Serving
@@ -118,8 +118,8 @@ Located at `player/controls/TimeSlider.tsx`.
 
 ### Keyboard Shortcuts
 
-- Arrow Left/Right: ±1 second
-- Shift + Arrow: ±10 seconds
+- Arrow Left/Right: +/-1 second
+- Shift + Arrow: +/-10 seconds
 - Space: track next player
 - Ctrl: toggle play/pause
 - Tab: scoreboard
@@ -149,7 +149,7 @@ DemoPlayer.tsx (root)
 
 Located at `fte/assets.ts`.
 
-- `getDemoPlayerAssets()` — loads demo file, map BSP, config, textures, models, sounds
+- `getDemoPlayerAssets()` -- loads demo file, map BSP, config, textures, models, sounds
 - Assets fetched from CloudFront CDN
 - Demo mapped as `"qw/match.mvd.gz": demoUrl`
 - Map BSP: `"id1/maps/${mapName}.bsp"`
@@ -177,13 +177,13 @@ From biome.json and codebase patterns:
 - Clean component separation
 - Hooks-based architecture (no class components)
 - TypeScript throughout
-- No over-engineering — minimal abstractions
+- No over-engineering -- minimal abstractions
 
 ## Key Observations for Integration
 
-1. **FteController is the integration point** — it already has all the time/playback APIs we need
-2. **postMessage is the right approach** — the controller can broadcast time without any UI changes
-3. **No iframe player route exists yet** — vikpe said he'd create one
-4. **Countdown duration is in DemoInfo** — critical for our offset calculation
-5. **All audio is engine-internal** — voice overlay would be entirely separate from FTE audio
-6. **The polling pattern (100ms) already exists** — TimeSlider does this, so postMessage at the same rate is natural
+1. **FteController is the integration point** -- it already has all the time/playback APIs we need
+2. **postMessage is the right approach** -- the controller can broadcast time without any UI changes
+3. **No iframe player route exists yet** -- vikpe said he'd create one
+4. **Countdown duration is in DemoInfo** -- critical for our offset calculation
+5. **All audio is engine-internal** -- voice overlay would be entirely separate from FTE audio
+6. **The polling pattern (100ms) already exists** -- TimeSlider does this, so postMessage at the same rate is natural

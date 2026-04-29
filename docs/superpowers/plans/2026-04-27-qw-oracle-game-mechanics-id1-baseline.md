@@ -7,11 +7,11 @@
 > **Git workflow override:** Per repo CLAUDE.md, no worktree creation, no PR ceremony. Commit to `main` directly after each task. Run all git operations silently.
 >
 > **What changed vs v3 (after third review):**
-> - **Death rules split:** v3's single `telefrag` row at `client.qc:230` was conflating two distinct 50000-damage mechanics. Real telefrag (teleport-overlap) lives in `triggers.qc` — re-cited to `triggers.qc:334` with full teledeath/teledeath2/teledeath3 obit dispatch. The `client.qc:230` mechanism is the samelevel/noexit changelevel kill (what kills you on e1m2's end teleporter in 4on4); split out as new `exit_level_kill` row. death_rules count 6 -> 7.
+> - **Death rules split:** v3's single `telefrag` row at `client.qc:230` was conflating two distinct 50000-damage mechanics. Real telefrag (teleport-overlap) lives in `triggers.qc` -- re-cited to `triggers.qc:334` with full teledeath/teledeath2/teledeath3 obit dispatch. The `client.qc:230` mechanism is the samelevel/noexit changelevel kill (what kills you on e1m2's end teleporter in 4on4); split out as new `exit_level_kill` row. death_rules count 6 -> 7.
 > - **Env_hazard added: `trigger_hurt`** at `triggers.qc:548-572`. Mapper-controlled `dmg` field (default 5, but typically 1000+ on void brushes); retriggers every 1s; armor + pent DO apply (unlike telefrag/exit_level_kill which use 50000 to overwhelm). This is the void-brush mechanism on most maps. env_hazards count 6 -> 7.
 > - **Mechanics total bump: 39 -> 41. Grand total 76 -> 78.** Cascading updates to Task 14 grand-total verification, Task 16 expectedMechanics + step 5/6/7 outputs, Task 23 expected counts, Task 24 verify-gameplay assertions, Task 25 OVERVIEW.md/CLAUDE.md/e2e-verify.md content.
 > - **NG refire citation made consistent with SNG:** v3 cited NG refire at `player.qc:190` while SNG was at `weapons.qc:726`. Both fire functions set `attack_finished` (NG: `weapons.qc:759` inside W_FireSpikes; SNG: `weapons.qc:726` inside W_FireSuperSpikes), and both player frames re-set it after. Citation moved to `weapons.qc:759` for parity. Misleading "not weapons.qc" note dropped.
-> - **Task 22 expanded to 10 files (was 6).** v3's centralization fixed 6 existing tools but left the 4 new ones (Tasks 17-20 outputs) with inline `const SERVER_VERSION = '0.4.0';` literals — drift waiting to happen. Task 22 step 4 now backfills all 10 files; step 7 commit message bumped to "12 drift sites -> 1".
+> - **Task 22 expanded to 10 files (was 6).** v3's centralization fixed 6 existing tools but left the 4 new ones (Tasks 17-20 outputs) with inline `const SERVER_VERSION = '0.4.0';` literals -- drift waiting to happen. Task 22 step 4 now backfills all 10 files; step 7 commit message bumped to "12 drift sites -> 1".
 > - **Task 24 fixes pre-existing broken assertion in verify-rewrite.ts:38** (`tools.tools.length === 4` was correct at v0.2.0 but the maps PR brought count to 6, and Task 21 brings it to 10). Step 3 explicitly bumps the literal to `=== 10` before adding the new client.callTool blocks.
 > - **Self-review checklist updated:** stale "LG refire_source_ref (weapons.qc:1057)" -> 1056; added v4 fixes to the propagated-citations list.
 > - **HANDOVER seed:** death-rules concept note (Layer 3) candidate, deferred until Layer 1 rows ship and corpus search has material.
@@ -622,7 +622,7 @@ grep -n "^## v" apps/qw-oracle/SCHEMA.md | tail -5
 
 - [ ] **Step 2: Append v14 section after the last v13 sub-heading.**
 
-Add (matching the format of the v13 section verbatim — read it first):
+Add (matching the format of the v13 section verbatim -- read it first):
 
 ```markdown
 ## v14 (2026-04-27): game-mechanics tables (id1 baseline)
@@ -1476,7 +1476,7 @@ git commit -m "feat(qw-oracle): id1 mechanics.constants curated (2 rows; engine 
 
 - [ ] **Step 1: Replace `env_hazards:` placeholder.**
 
-Note: `gib_threshold.source_ref` is `player.qc:598`, not client.qc. The `trigger_hurt` row (new in v4) is the void-brush mechanic — mappers place a high-damage `trigger_hurt` brush at the bottom of out-of-bounds areas; armor and pent both DO apply (it's a normal `T_Damage` call), unlike telefrag/exit_level_kill which use 50000 damage to overwhelm them.
+Note: `gib_threshold.source_ref` is `player.qc:598`, not client.qc. The `trigger_hurt` row (new in v4) is the void-brush mechanic -- mappers place a high-damage `trigger_hurt` brush at the bottom of out-of-bounds areas; armor and pent both DO apply (it's a normal `T_Damage` call), unlike telefrag/exit_level_kill which use 50000 damage to overwhelm them.
 
 ```yaml
   env_hazards:
@@ -1768,7 +1768,7 @@ git commit -m "feat(qw-oracle): id1 armor_models curated (1 row)"
 
 - [ ] **Step 1: Replace `death_rules:` placeholder.**
 
-Note (v4): `telefrag` and `exit_level_kill` were a single conflated row in v1-v3. They are two distinct game rules — same 50000 damage value, different triggers, different attacker classnames. Telefrag is the teleport-overlap mechanic at `triggers.qc:334`. Exit-level kill is the samelevel/noexit changelevel touch at `client.qc:230` (this is what kills you on e1m2's end teleporter in 4on4). Both ignore armor and pent (50000 overwhelms both).
+Note (v4): `telefrag` and `exit_level_kill` were a single conflated row in v1-v3. They are two distinct game rules -- same 50000 damage value, different triggers, different attacker classnames. Telefrag is the teleport-overlap mechanic at `triggers.qc:334`. Exit-level kill is the samelevel/noexit changelevel touch at `client.qc:230` (this is what kills you on e1m2's end teleporter in 4on4). Both ignore armor and pent (50000 overwhelms both).
 
 ```yaml
   death_rules:
@@ -1818,7 +1818,7 @@ Note (v4): `telefrag` and `exit_level_kill` were a single conflated row in v1-v3
         with samelevel=2 (or samelevel=3 on non-start maps). Most servers running
         single-player maps in QW deathmatch enable this so randos can't advance
         the map mid-match. The obituary reads attacker.classname=='trigger_changelevel'
-        — same dispatch model as telefrag but different attacker class.
+        -- same dispatch model as telefrag but different attacker class.
 
     - name: friendly_fire_teamplay_0
       value_text: all_damage_applies
@@ -3010,7 +3010,7 @@ git commit -m "feat(qw-oracle): register lookup/search gameplay+mechanic tools i
   - existing: `lookup-entity.ts`, `lookup-map.ts`, `search-entities.ts`, `search-maps.ts`, `search-solved-issues.ts`, `get-concept-note.ts`
   - new (from Tasks 17-20): `lookup-gameplay-entity.ts`, `lookup-mechanic.ts`, `search-gameplay-entities.ts`, `search-mechanics.ts`
 
-Pre-flight surfaced 8 version-drift sites: `package.json` is `0.1.0`; `Server({ ..., version: '0.3.0' })` in index.ts:44; six per-tool `const SERVER_VERSION` constants (4 still at `'0.2.0'`, 2 at `'0.3.0'`). Tasks 17-20 add 4 more inline literals (each `'0.4.0'`), bringing the total drift surface to 12 sites. Centralise ALL OF THEM into `version.ts` so every site reads the same constant — including the 4 new tools, otherwise they'd start drifting at the next bump.
+Pre-flight surfaced 8 version-drift sites: `package.json` is `0.1.0`; `Server({ ..., version: '0.3.0' })` in index.ts:44; six per-tool `const SERVER_VERSION` constants (4 still at `'0.2.0'`, 2 at `'0.3.0'`). Tasks 17-20 add 4 more inline literals (each `'0.4.0'`), bringing the total drift surface to 12 sites. Centralise ALL OF THEM into `version.ts` so every site reads the same constant -- including the 4 new tools, otherwise they'd start drifting at the next bump.
 
 - [ ] **Step 1: Create `apps/qw-oracle/serve/mcp/src/version.ts`.**
 
@@ -3102,7 +3102,7 @@ sed -n '480,640p' apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts
 
 Note the file path it writes to (likely `apps/slipgate-app/src/lib/config/data/qw-maps.json`). Mirror exactly.
 
-- [ ] **Step 2: Add an `emitGameplay` function next to `emitQwMaps`.** Reuse the existing `writeJson(path, content, count)` helper at build-snapshot.ts:556 (which mkdir-p's, JSON-stringifies with trailing newline, and returns `{count, bytes}`). DO NOT roll your own writeFileSync — every other emitter in this file uses writeJson, and rolling our own would diverge on trailing-newline + mkdir defense.
+- [ ] **Step 2: Add an `emitGameplay` function next to `emitQwMaps`.** Reuse the existing `writeJson(path, content, count)` helper at build-snapshot.ts:556 (which mkdir-p's, JSON-stringifies with trailing newline, and returns `{count, bytes}`). DO NOT roll your own writeFileSync -- every other emitter in this file uses writeJson, and rolling our own would diverge on trailing-newline + mkdir defense.
 
 ```typescript
 function emitGameplay(
@@ -3190,10 +3190,10 @@ git commit -m "feat(qw-oracle): build-snapshot emits qw-gameplay.json for slipga
 
 ### Task 24: End-to-end MCP smoke (two-tier: in-process + dispatcher-driven)
 
-The existing `verify-rewrite.ts` (if present) spawns the MCP server as a subprocess via `StdioClientTransport` and tests through the MCP protocol — it exercises the dispatcher switch. An in-process script that imports the tool functions directly only exercises the data layer; if a tool is wired up wrong in `index.ts`, the in-process script still passes. Both are useful but neither is sufficient alone. Ship both:
+The existing `verify-rewrite.ts` (if present) spawns the MCP server as a subprocess via `StdioClientTransport` and tests through the MCP protocol -- it exercises the dispatcher switch. An in-process script that imports the tool functions directly only exercises the data layer; if a tool is wired up wrong in `index.ts`, the in-process script still passes. Both are useful but neither is sufficient alone. Ship both:
 
-- **Tier 1 (in-process, `verify-gameplay.ts`)** — fast assertions on data correctness, citation regressions, case-insensitivity.
-- **Tier 2 (subprocess, extend `verify-rewrite.ts`)** — at least one client-driven `client.callTool()` per new tool name to confirm the dispatcher routes correctly and the inline tool literals in `index.ts` are syntactically valid.
+- **Tier 1 (in-process, `verify-gameplay.ts`)** -- fast assertions on data correctness, citation regressions, case-insensitivity.
+- **Tier 2 (subprocess, extend `verify-rewrite.ts`)** -- at least one client-driven `client.callTool()` per new tool name to confirm the dispatcher routes correctly and the inline tool literals in `index.ts` are syntactically valid.
 
 - [ ] **Step 1: Inspect the existing harness.**
 
@@ -3202,7 +3202,7 @@ ls apps/qw-oracle/serve/mcp/scripts/ 2>&1
 test -f apps/qw-oracle/serve/mcp/scripts/verify-rewrite.ts && head -30 apps/qw-oracle/serve/mcp/scripts/verify-rewrite.ts
 ```
 
-If `verify-rewrite.ts` exists, note its `client.callTool()` pattern — Step 3 below adds 4 new calls to it. If it does NOT exist, skip Step 3 and document in the plan that Tier 2 is deferred.
+If `verify-rewrite.ts` exists, note its `client.callTool()` pattern -- Step 3 below adds 4 new calls to it. If it does NOT exist, skip Step 3 and document in the plan that Tier 2 is deferred.
 
 - [ ] **Step 2: Write Tier 1 (`verify-gameplay.ts`).**
 
@@ -3285,11 +3285,11 @@ cd -
 
 Expected: `all PASS`.
 
-- [ ] **Step 3: Tier 2 — extend `verify-rewrite.ts` with one client-driven call per new tool.**
+- [ ] **Step 3: Tier 2 -- extend `verify-rewrite.ts` with one client-driven call per new tool.**
 
 (Skip if Step 1 found no `verify-rewrite.ts`.)
 
-**First — fix the pre-existing broken assertion.** The file at line 38 has `check('listTools returns 4 tools', tools.tools.length === 4, ...)`. That count was correct at v0.2.0 but the maps PR added 2 tools (now 6 existing). After Task 21 there will be 10. The assertion is currently failing on `main`; without this fix, Tier 2 will exit 1 regardless of whether the new dispatcher checks pass. Update the literal:
+**First -- fix the pre-existing broken assertion.** The file at line 38 has `check('listTools returns 4 tools', tools.tools.length === 4, ...)`. That count was correct at v0.2.0 but the maps PR added 2 tools (now 6 existing). After Task 21 there will be 10. The assertion is currently failing on `main`; without this fix, Tier 2 will exit 1 regardless of whether the new dispatcher checks pass. Update the literal:
 
 ```diff
 -check('listTools returns 4 tools', tools.tools.length === 4, `got ${tools.tools.length}`);

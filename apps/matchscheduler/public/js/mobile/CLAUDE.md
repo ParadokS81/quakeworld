@@ -16,7 +16,7 @@ Separate system from the desktop grid. Active at `@media (max-width: 768px)`. De
 └─────────────────────────────────┘
 ```
 
-Container: `#mobile-app` in `index.html` (lines ~257-289). All content rendered by JS — no static HTML inside.
+Container: `#mobile-app` in `index.html` (lines ~257-289). All content rendered by JS -- no static HTML inside.
 
 ## File Map
 
@@ -25,13 +25,13 @@ Container: `#mobile-app` in `index.html` (lines ~257-289). All content rendered 
 | `MobileApp.js` | Orchestrator. Auth, team loading, Firestore listeners, tab switching |
 | `MobileBottomNav.js` | Bottom nav bar. 4 tabs: Home, Compare, Team, Profile |
 | `MobileCalendarGrid.js` | Horizontal scroll-snap availability grid. Cell/row/column selection. Comparison mode highlights |
-| `MobileHomeContent.js` | Context panel for Home tab — proposals, matches, selection actions, template save |
-| `MobileCompareContent.js` | Context panel for Compare tab — team browser list |
+| `MobileHomeContent.js` | Context panel for Home tab -- proposals, matches, selection actions, template save |
+| `MobileCompareContent.js` | Context panel for Compare tab -- team browser list |
 | `MobileCompareDetail.js` | Comparison slot detail (bottom sheet layer 1) |
 | `MobileProposalDetail.js` | Proposal detail with viable slots, confirm/withdraw (bottom sheet layer 1) |
-| `MobileTeamTab.js` | Team info sheet — logo, name, tag, roster (bottom sheet layer 1) |
-| `MobileProfileTab.js` | Profile summary sheet — avatar, nick, timezone, discord (bottom sheet layer 1) |
-| `MobileGridTools.js` | Grid tools from header cogwheel — display mode, templates, timeslots (layer 2), timezone (layer 2) |
+| `MobileTeamTab.js` | Team info sheet -- logo, name, tag, roster (bottom sheet layer 1) |
+| `MobileProfileTab.js` | Profile summary sheet -- avatar, nick, timezone, discord (bottom sheet layer 1) |
+| `MobileGridTools.js` | Grid tools from header cogwheel -- display mode, templates, timeslots (layer 2), timezone (layer 2) |
 | `MobileBottomSheet.js` | **Reusable slide-up container with 2-layer stacking** |
 
 ## Bottom Sheet Stacking
@@ -49,7 +49,7 @@ Layer 2 API:  push(html, onPop), pop(), updatePushedContent(html), getPushedCont
 - `push()` requires layer 1 to be open
 - `close()` pops layer 2 first if open, then closes layer 1
 - Each layer has independent drag-to-dismiss (80px threshold) and backdrop tap
-- Layer 2 backdrop tap → `pop()` (returns to layer 1, doesn't close everything)
+- Layer 2 backdrop tap -> `pop()` (returns to layer 1, doesn't close everything)
 
 ## Tab Switching
 
@@ -66,14 +66,14 @@ Layer 2 API:  push(html, onPop), pop(), updatePushedContent(html), getPushedCont
 
 ## Shared Services (reused from desktop)
 
-Mobile components call the same service layer — no duplication:
+Mobile components call the same service layer -- no duplication:
 
 `AuthService`, `TeamService`, `AvailabilityService`, `ProposalService`, `ScheduledMatchService`, `TimezoneService`, `WeekNavigation`, `DateUtils`, `ToastService`, `PlayerColorService`, `TemplateService`, `ComparisonEngine`, `TeamBrowserState`
 
 ## Patterns
 
 ### Content rendering
-All mobile components render HTML strings via `container.innerHTML = html`. Inline styles used for layout — keeps everything self-contained without needing separate CSS classes for every element. CSS classes (`.mobile-*`) used for reusable patterns (grid cells, proposal tables, action buttons).
+All mobile components render HTML strings via `container.innerHTML = html`. Inline styles used for layout -- keeps everything self-contained without needing separate CSS classes for every element. CSS classes (`.mobile-*`) used for reusable patterns (grid cells, proposal tables, action buttons).
 
 ### Event delegation
 Bottom sheet content uses `onclick="Module.method()"` for simple actions. For complex interaction (proposal detail), event delegation is attached to the content element after `open()`:
@@ -109,7 +109,7 @@ Never edit `public/css/main.css` directly.
 ## Script Loading Order (index.html)
 
 ```
-MobileBottomSheet.js    ← must be first (other modules call it)
+MobileBottomSheet.js    <- must be first (other modules call it)
 MobileProposalDetail.js
 MobileCompareContent.js
 MobileCompareDetail.js
@@ -119,5 +119,5 @@ MobileGridTools.js
 MobileTeamTab.js
 MobileProfileTab.js
 MobileBottomNav.js
-MobileApp.js            ← must be last (orchestrator, calls all others)
+MobileApp.js            <- must be last (orchestrator, calls all others)
 ```

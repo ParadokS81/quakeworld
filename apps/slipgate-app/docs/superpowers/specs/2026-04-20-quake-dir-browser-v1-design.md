@@ -288,7 +288,7 @@ On `exe_path` change or `MyQuakeTab` unmount, stop the watcher. Only one watcher
 `BrowseTree.tsx` renders the derived tree. Threshold rules:
 
 - Root and detected gamedirs auto-expand one level on first render.
-- Folders with ≤ 100 direct children auto-expand.
+- Folders with <= 100 direct children auto-expand.
 - Folders with > 100 direct children render collapsed with a count badge (`▸ demos/ - 6,600 files`).
 - Archive entries (pak/pk3 contents) always render collapsed on first render.
 - Any folder node whose direct-child count exceeds 200 uses virtualised child rendering (windowed list), regardless of expand state.
@@ -377,7 +377,7 @@ Per slipgate convention: Rust side gets unit tests for pure logic; frontend reli
 
 **Frontend:** no component unit tests. Manual verification checklist (documented in the spec):
 
-1. Point the app at a real quake dir with ≥ 1 pak. Open Browse. Tree renders in < 1 s.
+1. Point the app at a real quake dir with >= 1 pak. Open Browse. Tree renders in < 1 s.
 2. Click ezquake in left pane. Non-matching branches dim.
 3. Click `skins` under Filter by Domain. Matching files highlight; non-matching branches collapse to "(no matches)".
 4. Select a file with a known collision (e.g. `conchars.tga` loose + in pak). Right pane shows resolution chain with loose winning.

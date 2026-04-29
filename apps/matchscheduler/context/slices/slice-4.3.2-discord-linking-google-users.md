@@ -49,8 +49,8 @@ As a user who previously signed up with Google, I can sign in with Discord and h
 
 ### The Problem
 Without unification, users can accidentally create duplicate accounts:
-1. Sign up with Google (`david@gmail.com`) → UID: `abc123`
-2. Later, sign in with Discord (never linked) → Creates NEW UID: `xyz789`
+1. Sign up with Google (`david@gmail.com`) -> UID: `abc123`
+2. Later, sign in with Discord (never linked) -> Creates NEW UID: `xyz789`
 3. User now has two accounts with separate teams/data
 
 ### The Solution: Email-Based Detection + User Prompt
@@ -64,12 +64,12 @@ Discord OAuth (scope: identify email)
 discordOAuthExchange receives Discord user
          ↓
 Check 1: User with this discordUserId exists?
-   YES → Log them in (existing flow)
-   NO  → Continue to Check 2
+   YES -> Log them in (existing flow)
+   NO  -> Continue to Check 2
          ↓
 Check 2: User with matching email exists?
-   YES → Return { requiresLinking: true, existingEmail, discordUser }
-   NO  → Create new user (existing flow)
+   YES -> Return { requiresLinking: true, existingEmail, discordUser }
+   NO  -> Create new user (existing flow)
          ↓
 Frontend receives requiresLinking response
          ↓
@@ -105,10 +105,10 @@ Note: Discord email is optional - users may not have verified email. Handle grac
 **Current State:** Manual entry fields for Discord username/ID, or "Linked via Discord sign-in" message
 
 **New State:**
-1. If user signed in via Discord → Show "Linked via Discord sign-in" (read-only)
-2. If user signed in via Google + has linked Discord → Show linked status with Unlink button
-3. If user signed in via Google + no Discord linked → Show "Link Discord Account" button
-4. New Google users → Show prompt encouraging Discord linking
+1. If user signed in via Discord -> Show "Linked via Discord sign-in" (read-only)
+2. If user signed in via Google + has linked Discord -> Show linked status with Unlink button
+3. If user signed in via Google + no Discord linked -> Show "Link Discord Account" button
+4. New Google users -> Show prompt encouraging Discord linking
 
 #### AuthService.js - New Method
 
@@ -346,7 +346,7 @@ function _renderDiscordSection() {
                             <!-- Discord icon -->
                         </svg>
                         <span class="text-sm">${_userProfile.discordUsername}</span>
-                        <span class="text-xs text-green-500">✓ Linked</span>
+                        <span class="text-xs text-green-500">[ok] Linked</span>
                     </div>
                     <button type="button" id="unlink-discord-btn"
                         class="text-sm text-muted-foreground hover:text-destructive transition-colors">
@@ -466,7 +466,7 @@ async function linkDiscordAccount() {
                     throw new Error(result.data.error || 'Discord linking failed');
                 }
 
-                console.log('✅ Discord account linked successfully');
+                console.log('[OK] Discord account linked successfully');
 
                 resolve({
                     success: true,
@@ -641,11 +641,11 @@ async function _handleUnlinkDiscord() {
 
 | Test | Flow | Validation |
 |------|------|------------|
-| Full link flow | Click Link → OAuth → Complete | Discord data in Firestore, UI updated |
-| Link then unlink | Link → Unlink | Discord data cleared, UI shows Link button |
+| Full link flow | Click Link -> OAuth -> Complete | Discord data in Firestore, UI updated |
+| Link then unlink | Link -> Unlink | Discord data cleared, UI shows Link button |
 | Avatar update | Link Discord | photoURL updated to Discord avatar |
-| **Account unification** | Google user → Discord sign-in → Link | Single account with both auth methods |
-| **Separate accounts** | Google user → Discord sign-in → Create New | Two separate accounts (user's choice) |
+| **Account unification** | Google user -> Discord sign-in -> Link | Single account with both auth methods |
+| **Separate accounts** | Google user -> Discord sign-in -> Create New | Two separate accounts (user's choice) |
 
 ---
 

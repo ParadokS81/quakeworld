@@ -3,7 +3,7 @@ paths:
   - "src/modules/recording/**"
 ---
 
-# Recording Module — Technical Reference
+# Recording Module -- Technical Reference
 
 ## Recording Flow
 
@@ -17,7 +17,7 @@ receiver.subscribe(userId, { end: { behavior: EndBehaviorType.Manual } })
 Per-user Opus stream (stays open for entire session)
     |
     +-- Opus packet -> prism-media OggLogicalBitstream -> fs.createWriteStream()
-    |                  (no transcoding — Opus passthrough into OGG container)
+    |                  (no transcoding -- Opus passthrough into OGG container)
     |
     +-- Silence gap -> insert silent Opus frames
     |
@@ -65,7 +65,7 @@ recordings/{session_id}/
 └── ...
 ```
 
-### session_metadata.json — Public Contract
+### session_metadata.json -- Public Contract
 Schema version must be bumped for any changes. See `docs/session_metadata_schema.json` for full spec.
 
 Key fields: `schema_version`, `recording_start_time`/`recording_end_time` (UTC, ms precision), `recording_id` (ULID), `source` ("quad"), `team.tag`, `tracks[].joined_at/left_at`, `tracks[].audio_file`.
@@ -80,30 +80,30 @@ Key fields: `schema_version`, `recording_start_time`/`recording_end_time` (UTC, 
 | Bitrate | ~96 kbps |
 | Size | ~5-8 MB/hour/speaker |
 
-## OGG Muxing — prism-media v2
+## OGG Muxing -- prism-media v2
 
-We use `prism-media@2.0.0-alpha.0` — "alpha" since ~2021 but de facto standard. v1.3.5 only has demuxers; the muxer (`OggLogicalBitstream`, `OpusHead`) is v2 only.
+We use `prism-media@2.0.0-alpha.0` -- "alpha" since ~2021 but de facto standard. v1.3.5 only has demuxers; the muxer (`OggLogicalBitstream`, `OpusHead`) is v2 only.
 
-CRC checksums require `node-crc@^1.3.2` (must be v1, CJS — v3+ is ESM-only and breaks).
+CRC checksums require `node-crc@^1.3.2` (must be v1, CJS -- v3+ is ESM-only and breaks).
 
 **Fallback options if prism-media v2 breaks:**
-1. Custom OGG muxer (~100-150 lines) — guide: https://gist.github.com/amishshah/68548e803c3208566e36e55fe1618e1c
-2. ffmpeg pipe — `spawn('ffmpeg', ['-f', 'opus', '-i', 'pipe:0', '-c', 'copy', 'output.ogg'])`
-3. Raw capture + post-process — dump Opus packets with timestamps, mux later
+1. Custom OGG muxer (~100-150 lines) -- guide: https://gist.github.com/amishshah/68548e803c3208566e36e55fe1618e1c
+2. ffmpeg pipe -- `spawn('ffmpeg', ['-f', 'opus', '-i', 'pipe:0', '-c', 'copy', 'output.ogg'])`
+3. Raw capture + post-process -- dump Opus packets with timestamps, mux later
 
 ## Reference Projects
 
-### Tier 1 — Direct references
+### Tier 1 -- Direct references
 - **discord.js voice recorder example**: https://github.com/discordjs/voice-examples
-- **Kirdock/discordjs-voice-recorder**: https://github.com/Kirdock/discordjs-voice-recorder — best for silence handling
+- **Kirdock/discordjs-voice-recorder**: https://github.com/Kirdock/discordjs-voice-recorder -- best for silence handling
 
-### Tier 2 — Architectural reference
-- **CraigChat/craig**: https://github.com/CraigChat/craig — gold standard output format
-- **SoTrxII/Pandora**: https://github.com/SoTrxII/Pandora — good recording/processing separation
+### Tier 2 -- Architectural reference
+- **CraigChat/craig**: https://github.com/CraigChat/craig -- gold standard output format
+- **SoTrxII/Pandora**: https://github.com/SoTrxII/Pandora -- good recording/processing separation
 
 ## DAVE Protocol
 
 Discord Audio & Video E2E Encryption. Mandatory since March 1, 2026.
-- `@snazzah/davey` bundled with `@discordjs/voice` 0.19.0 — handles DAVE transparently
+- `@snazzah/davey` bundled with `@discordjs/voice` 0.19.0 -- handles DAVE transparently
 - Bot developer doesn't interact with DAVE APIs directly
-- Discord doesn't officially support bots receiving audio — discord.js team supports it "reasonably"
+- Discord doesn't officially support bots receiving audio -- discord.js team supports it "reasonably"

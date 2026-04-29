@@ -1,4 +1,4 @@
-# Mumble Recording Bot — Research Document
+# Mumble Recording Bot -- Research Document
 
 > Research for building a per-speaker voice recording module for Mumble,
 > companion to quad's existing Discord recording module.
@@ -25,18 +25,18 @@
 
 **Goal**: A bot that sits in a Mumble channel, captures per-speaker audio as
 continuous OGG/Opus files, and produces output identical to the Discord
-recording module — feeding directly into the existing processing pipeline.
+recording module -- feeding directly into the existing processing pipeline.
 
 **Key findings**:
 
-- **Opus passthrough is feasible** — Mumble sends raw Opus frames in voice
+- **Opus passthrough is feasible** -- Mumble sends raw Opus frames in voice
   packets. We can wrap them in OGG without decoding. Only difference:
   Mumble = mono (1ch), Discord = stereo (2ch). Pipeline doesn't care.
-- **No DAVE problems** — Unlike Discord's E2EE (which causes corruption on
+- **No DAVE problems** -- Unlike Discord's E2EE (which causes corruption on
   key rotation), Mumble's server-side OCB-AES128 encryption means the bot
   always gets clean, decrypted Opus frames. The Harvarligan corruption
   incident *cannot* happen on Mumble.
-- **No mature Node.js library exists** — The JavaScript Mumble ecosystem is
+- **No mature Node.js library exists** -- The JavaScript Mumble ecosystem is
   fragmented and mostly dead. Best option is NoodleJS (active, has raw
   Opus access) but zero users and no TypeScript.
 - **Recommended approach**: Build a minimal Mumble protocol client in
@@ -44,7 +44,7 @@ recording module — feeding directly into the existing processing pipeline.
   is well-documented and we only need the receive path. Use
   `@tf2pickup-org/mumble-client` (active, TypeScript, 1.2k downloads/week)
   for the control plane, and implement voice receive ourselves.
-- **gRPC is dead** — Removed from Mumble 1.5.517. ICE is the only admin
+- **gRPC is dead** -- Removed from Mumble 1.5.517. ICE is the only admin
   API. For channel/user management, either use ICE via Python sidecar or
   use the Mumble protocol directly.
 
@@ -72,8 +72,8 @@ Our Murmur is 1.5.857, which supports the **new protobuf-based UDP format**
 ```protobuf
 message Audio {
   oneof header {
-    uint32 target = 1;         // Client→server: 0=normal, 31=loopback
-    uint32 context = 2;        // Server→client: normal/shout/whisper/listener
+    uint32 target = 1;         // Client->server: 0=normal, 31=loopback
+    uint32 context = 2;        // Server->client: normal/shout/whisper/listener
   }
   uint32 sender_session = 3;   // Which user is speaking
   uint64 frame_number = 4;     // Sequence number
@@ -91,7 +91,7 @@ between formats based on client version.
 ### Per-User Identification
 
 Every connected user gets a **session ID** (uint32) assigned during auth.
-This ID appears directly in `sender_session` of voice packets — simpler
+This ID appears directly in `sender_session` of voice packets -- simpler
 than Discord's SSRC mapping:
 
 | Aspect | Discord | Mumble |
@@ -115,7 +115,7 @@ Mumble Opus encoding (from `AudioInput.cpp`):
 
 ### End-of-Transmission Signal
 
-Mumble has an **explicit termination bit** — when a user stops speaking,
+Mumble has an **explicit termination bit** -- when a user stops speaking,
 the last voice packet has `is_terminator = true`. Discord has no equivalent;
 packets just stop arriving. This gives us a cleaner signal for silence
 gap detection.
@@ -130,14 +130,14 @@ approach (20ms timer + silent Opus frames) works identically.
 
 ## 3. Opus Passthrough Feasibility
 
-### YES — Direct passthrough works
+### YES -- Direct passthrough works
 
 The `opus_data` field in Mumble voice packets contains raw Opus frames.
 We can extract them and wrap in OGG containers without decoding, exactly
 like we do with Discord:
 
 ```typescript
-// Discord (current) — stereo
+// Discord (current) -- stereo
 new prism.opus.OggLogicalBitstream({
   opusHead: new prism.opus.OpusHead({
     channelCount: 2,      // Discord is stereo
@@ -147,7 +147,7 @@ new prism.opus.OggLogicalBitstream({
   crc: true,
 });
 
-// Mumble (new) — mono
+// Mumble (new) -- mono
 new prism.opus.OggLogicalBitstream({
   opusHead: new prism.opus.OpusHead({
     channelCount: 1,      // Mumble is mono
@@ -167,7 +167,7 @@ new prism.opus.OggLogicalBitstream({
 | faster-whisper | Converts to mono internally anyway |
 | Voice replay player | Web Audio API handles mono transparently |
 | File size | ~50% smaller: ~2.5-4 MB/hr/speaker (vs ~5-8 MB Discord) |
-| Silent frame | Same `0xF8 0xFF 0xFE` — mono-coded, works for both |
+| Silent frame | Same `0xF8 0xFF 0xFE` -- mono-coded, works for both |
 
 ### Variable Frame Duration
 
@@ -195,7 +195,7 @@ count, not time.
 
 ### Detailed Assessment
 
-#### NoodleJS (Gielert/NoodleJS) — Best Node.js option for audio
+#### NoodleJS (Gielert/NoodleJS) -- Best Node.js option for audio
 
 - **GitHub**: 37 stars, 14 forks, pushed **2026-02-26** (yesterday)
 - **npm**: `noodle-js`, 0 downloads/week (unused)
@@ -204,13 +204,13 @@ count, not time.
 - **TypeScript**: None (plain JavaScript)
 - **Risk**: Zero npm users = zero battle-testing. Native C++ build.
 
-#### @tf2pickup-org/mumble-client — Best for control plane
+#### @tf2pickup-org/mumble-client -- Best for control plane
 
 - **GitHub**: 9 stars, pushed **2026-02-27** (today)
 - **npm**: 1,179 downloads/week (highest of all)
 - **TypeScript**: Native, well-typed
 - **Purpose**: Server administration only (channels, users, permissions)
-- **Audio**: NONE — does not handle voice at all
+- **Audio**: NONE -- does not handle voice at all
 - **Value**: Manage channels/users, then implement voice receive separately
 
 #### pymumble (azlux + oopsbagel fork)
@@ -291,14 +291,14 @@ the officially-supported approach in the Mumble ecosystem.
 #### Alternative: Skip ICE entirely
 
 For basic operations (create channels, move users), the Mumble protocol
-client approach works too — a bot with admin permissions can do channel
+client approach works too -- a bot with admin permissions can do channel
 management via the protocol itself.
 
 ---
 
 ## 6. Architecture Recommendation
 
-### Recommended: Option A — TypeScript module inside quad
+### Recommended: Option A -- TypeScript module inside quad
 
 Build `src/modules/mumble-recording/` using:
 
@@ -306,7 +306,7 @@ Build `src/modules/mumble-recording/` using:
    management, user state tracking, ACLs)
 2. **Custom voice receive layer** that intercepts raw Opus frames from
    the Mumble protocol before any decoding
-3. **Existing prism-media OGG muxer** for wrapping Opus → OGG (same as
+3. **Existing prism-media OGG muxer** for wrapping Opus -> OGG (same as
    Discord, just `channelCount: 1`)
 4. **Existing UserTrack/silence patterns** adapted for Mumble
 
@@ -318,13 +318,13 @@ Build `src/modules/mumble-recording/` using:
 | **Opus passthrough** | No library does this. Custom implementation is required regardless of language choice. Writing 200 lines of protocol parsing in TS is simpler than managing a Python sidecar |
 | **Maintainability** | Same codebase, same patterns, same CI. One docker-compose service |
 | **Docker deployment** | No additional containers. Same Dockerfile |
-| **Existing patterns** | `UserTrack` (silence padding, OGG muxing), `RecordingSession` (lifecycle), `writeSessionMetadata` — all reusable with minor adaptation |
+| **Existing patterns** | `UserTrack` (silence padding, OGG muxing), `RecordingSession` (lifecycle), `writeSessionMetadata` -- all reusable with minor adaptation |
 
 #### Why NOT other options
 
 | Option | Rejection Reason |
 |--------|-----------------|
-| **B) Python pymumble sidecar** | Adds IPC complexity, another container, Python dependency for something that's 200 lines of protocol parsing. pymumble doesn't do Opus passthrough anyway — we'd decode to PCM then re-encode, defeating the purpose |
+| **B) Python pymumble sidecar** | Adds IPC complexity, another container, Python dependency for something that's 200 lines of protocol parsing. pymumble doesn't do Opus passthrough anyway -- we'd decode to PCM then re-encode, defeating the purpose |
 | **C) Go gumble sidecar** | Same IPC overhead. Go binary in a Docker image adds build complexity. gumble is dormant since 2023 |
 | **D) NoodleJS** | Zero npm users, no TypeScript, native C++ build dependency. "Active" but untested. Risky foundation for production |
 | **E) Fork node-mumble** | Dead since 2021, native deps broken on Node 22, TCP-only |
@@ -349,7 +349,7 @@ credentials, which can be deferred.
 ## 7. Output Contract Compatibility
 
 The Mumble recording module must produce output identical to Discord's.
-The processing pipeline (`pipeline.ts`) is source-agnostic — it reads
+The processing pipeline (`pipeline.ts`) is source-agnostic -- it reads
 `session_metadata.json` and per-speaker OGG files.
 
 ### session_metadata.json Changes
@@ -393,7 +393,7 @@ The processing pipeline (`pipeline.ts`) is source-agnostic — it reads
 **Processing pipeline impact**: The pipeline reads `session_metadata.json`
 and cares about: `recording_start_time`, `recording_end_time`, `team.tag`,
 `tracks[].audio_file`, `tracks[].joined_at/left_at`. All other fields
-are metadata. The `guild.id` is used for registration lookup — for Mumble
+are metadata. The `guild.id` is used for registration lookup -- for Mumble
 recordings, this lookup would fall back to team tag from config.
 
 ### Audio File Format
@@ -441,7 +441,7 @@ recordings/{sessionId}/
 |------|--------|------------|
 | **Variable frame duration across clients** | Some users' audio may have 10ms or 40ms frames | Server can enforce 20ms. OGG handles variable frames. Test with non-default settings |
 | **UDP encryption (OCB-AES128)** | Need to decrypt voice packets ourselves | @tf2pickup-org may handle this. If not, OCB2 implementation exists in NoodleJS source (native C++) and in pymumble (Python). Can also use TCP tunneling (no UDP crypto needed) |
-| **Player name resolution** | Mumble usernames ≠ QW player names | Same problem as Discord. Reuse existing `knownPlayers` mapping from bot registration |
+| **Player name resolution** | Mumble usernames != QW player names | Same problem as Discord. Reuse existing `knownPlayers` mapping from bot registration |
 | **Pipeline guild lookup fails** | Processing pipeline uses `guild.id` for registration | Add Mumble-aware fallback: use team tag from config or a new `mumble_server_id` field in registration |
 
 ### Low Risk
@@ -458,12 +458,12 @@ recordings/{sessionId}/
    - Option A: Always recording when users are in a channel (auto)
    - Option B: Discord `/record` command triggers Mumble recording too
    - Option C: Mumble text command (`!record start`)
-   - Recommend: Option A (auto-record when ≥2 users in channel)
+   - Recommend: Option A (auto-record when >=2 users in channel)
 
-2. **User identity linking (Mumble ↔ Discord)**
+2. **User identity linking (Mumble <-> Discord)**
    - Mumble usernames need to map to QW player names for the pipeline
-   - Could use the existing `knownPlayers` mapping (Discord→QW) extended
-     with Mumble→QW entries
+   - Could use the existing `knownPlayers` mapping (Discord->QW) extended
+     with Mumble->QW entries
    - Or: require Mumble users to register with their QW name
 
 3. **Which channels to record?**
@@ -502,9 +502,9 @@ These files are reused as-is or with minor adaptation:
 
 | File | Reuse Strategy |
 |------|---------------|
-| `recording/silence.ts` | As-is — same silent Opus frame |
-| `processing/pipeline.ts` | As-is — reads session_metadata.json |
-| `processing/stages/*` | As-is — operates on OGG files |
+| `recording/silence.ts` | As-is -- same silent Opus frame |
+| `processing/pipeline.ts` | As-is -- reads session_metadata.json |
+| `processing/stages/*` | As-is -- operates on OGG files |
 | `core/logger.ts` | As-is |
 | `core/config.ts` | Extend with Mumble config vars |
 
@@ -528,14 +528,14 @@ MUMBLE_AUTO_RECORD=true         # Auto-record when users present
 
 ### Implementation Phases (Suggested)
 
-1. **M1: Connect + Receive** — Bot connects to Mumble, joins a channel,
+1. **M1: Connect + Receive** -- Bot connects to Mumble, joins a channel,
    receives and parses voice packets, logs per-user audio events
-2. **M2: Record to OGG** — Per-user OGG files with Opus passthrough,
+2. **M2: Record to OGG** -- Per-user OGG files with Opus passthrough,
    silence padding, session_metadata.json
-3. **M3: Pipeline Integration** — Verify processing pipeline works on
+3. **M3: Pipeline Integration** -- Verify processing pipeline works on
    Mumble recordings (match pairing, audio splitting, upload)
-4. **M4: Auto-Record** — Automatic start/stop based on channel occupancy
-5. **M5: Channel Management** — Auto-create team channels, ACLs (requires
+4. **M4: Auto-Record** -- Automatic start/stop based on channel occupancy
+5. **M5: Channel Management** -- Auto-create team channels, ACLs (requires
    ICE or protocol-level admin)
 
 ---
@@ -548,36 +548,36 @@ MUMBLE_AUTO_RECORD=true         # Auto-record when users present
 - [Mumble.proto (control)](https://github.com/mumble-voip/mumble/blob/master/src/Mumble.proto)
 - [MumbleUDP.proto (voice)](https://github.com/mumble-voip/mumble/blob/master/docs/dev/network-protocol/voice_data.md)
 - [AudioInput.cpp (Opus params)](https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp)
-- [rust-mumble-protocol](https://github.com/Johni0702/rust-mumble-protocol) — clean reference implementation
+- [rust-mumble-protocol](https://github.com/Johni0702/rust-mumble-protocol) -- clean reference implementation
 
 ### Libraries
 
-- [@tf2pickup-org/mumble-client](https://github.com/tf2pickup-org/mumble-client) — TypeScript, active, admin-only
-- [NoodleJS](https://github.com/Gielert/NoodleJS) — JavaScript, active, has audio receive + raw Opus
-- [pymumble (azlux)](https://github.com/azlux/pymumble) — Python, most mature audio receive
-- [pymumble (oopsbagel)](https://sr.ht/~oopsbagel/pymumble/) — Python, modern protocol (UDP)
-- [gumble](https://github.com/layeh/gumble) — Go, cleanest per-user audio architecture
-- [node-mumble](https://github.com/Rantanen/node-mumble) — JavaScript, dead but has audio receive code
-- [mumble-client](https://github.com/Johni0702/mumble-client) — JavaScript, dead but elegant architecture
+- [@tf2pickup-org/mumble-client](https://github.com/tf2pickup-org/mumble-client) -- TypeScript, active, admin-only
+- [NoodleJS](https://github.com/Gielert/NoodleJS) -- JavaScript, active, has audio receive + raw Opus
+- [pymumble (azlux)](https://github.com/azlux/pymumble) -- Python, most mature audio receive
+- [pymumble (oopsbagel)](https://sr.ht/~oopsbagel/pymumble/) -- Python, modern protocol (UDP)
+- [gumble](https://github.com/layeh/gumble) -- Go, cleanest per-user audio architecture
+- [node-mumble](https://github.com/Rantanen/node-mumble) -- JavaScript, dead but has audio receive code
+- [mumble-client](https://github.com/Johni0702/mumble-client) -- JavaScript, dead but elegant architecture
 
 ### Admin API
 
 - [MumbleServer.ice (Slice definition)](https://github.com/mumble-voip/mumble/blob/master/src/murmur/MumbleServer.ice)
 - [ICE setup guide](https://www.mumble.info/documentation/mumble-server/scripting/ice/server-setup/)
-- [MuMo (Mumble Moderator)](https://github.com/mumble-voip/mumo) — official Python ICE plugin framework
-- [murmur-rest](https://github.com/alfg/murmur-rest) — Python REST wrapper (unmaintained)
+- [MuMo (Mumble Moderator)](https://github.com/mumble-voip/mumo) -- official Python ICE plugin framework
+- [murmur-rest](https://github.com/alfg/murmur-rest) -- Python REST wrapper (unmaintained)
 
 ### Existing Recording Bots
 
-- [mumblerecbot](https://github.com/Robert904/mumblerecbot) — Python/pymumble, proves per-user recording works
-- [mumble-bot](https://github.com/Prior99/mumble-bot) — TypeScript, recording + classification (dead)
-- [lua-mumble](https://github.com/bkacjios/lua-mumble) — Lua, best docs for per-user audio events
+- [mumblerecbot](https://github.com/Robert904/mumblerecbot) -- Python/pymumble, proves per-user recording works
+- [mumble-bot](https://github.com/Prior99/mumble-bot) -- TypeScript, recording + classification (dead)
+- [lua-mumble](https://github.com/bkacjios/lua-mumble) -- Lua, best docs for per-user audio events
 
 ### Quad's Existing Architecture (for reference)
 
-- `src/modules/recording/track.ts` — Per-user OGG/Opus writer with silence padding
-- `src/modules/recording/session.ts` — Recording lifecycle management
-- `src/modules/recording/metadata.ts` — session_metadata.json writer
-- `src/modules/recording/silence.ts` — Silent Opus frame constant
-- `src/modules/processing/pipeline.ts` — Processing pipeline entry point
-- `src/modules/processing/types.ts` — SessionMetadata, SessionTrack interfaces
+- `src/modules/recording/track.ts` -- Per-user OGG/Opus writer with silence padding
+- `src/modules/recording/session.ts` -- Recording lifecycle management
+- `src/modules/recording/metadata.ts` -- session_metadata.json writer
+- `src/modules/recording/silence.ts` -- Silent Opus frame constant
+- `src/modules/processing/pipeline.ts` -- Processing pipeline entry point
+- `src/modules/processing/types.ts` -- SessionMetadata, SessionTrack interfaces

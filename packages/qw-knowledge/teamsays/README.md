@@ -34,10 +34,10 @@ and color-code interpretation (display-time only).
 Teamsay logic runs in two distinct contexts. Both use `$var` / `%token`
 sigils and both look similar at a glance, but they behave differently:
 
-- **Output substitution** — the text inside a `say`/`say_team`/`say_me`
+- **Output substitution** -- the text inside a `say`/`say_team`/`say_me`
   body, after all `$var` expansions, is what the game sends. This is
   display-time rendering.
-- **Condition evaluation** — the text inside `if <expr> then ... else ...`
+- **Condition evaluation** -- the text inside `if <expr> then ... else ...`
   is expanded FIRST (same macro-pass as outputs), then the resulting
   literal string is parsed as an expression and evaluated to true/false.
   This is control-flow.
@@ -54,15 +54,15 @@ references on every argument before the command (`say_team` or `if`) runs.
 
 The `$name` pattern is resolved in this order:
 
-1. **Engine-state tokens** — `$health`, `$armor`, `$cells`, `$location`,
+1. **Engine-state tokens** -- `$health`, `$armor`, `$cells`, `$location`,
    `$mapname`, `$weapons`, `$bestweapon`, `$powerups`, `$armortype`,
    `$colored_armor`, `$weaponnum`, `$ammo`, `$bestammo`, `$ledpoint`,
    `$ledstatus`, `$matchstatus`, `$matchtype`, `$point`, `$took`, etc.
    The full list is in `packages/qw-config/src/data/ezquake-macros.json`.
-2. **User cvars** — `$tp_name_rl`, `$tp_weapon_order`, `$need`, `$took`
+2. **User cvars** -- `$tp_name_rl`, `$tp_weapon_order`, `$need`, `$took`
    (when user-written via `set_tp`), `$tvs_*`, `$h_*`, `$_report_*`, or
    any other cvar the user's config has set.
-3. **Fallthrough** — an unknown `$xxxx` is left unresolved (preserved as
+3. **Fallthrough** -- an unknown `$xxxx` is left unresolved (preserved as
    literal text).
 
 Recursion: if a cvar value contains more `$var` references, they get
@@ -81,7 +81,7 @@ expansion.
 
 `%1` through `%9` pick up positional arguments when an alias is called
 with extra tokens. Example: `alias __alive "if ('%1' isin 'safe report')
-then ..."` — called as `__alive safe` makes `%1` = `safe`. Common in
+then ..."` -- called as `__alive safe` makes `%1` = `safe`. Common in
 dispatch-table style aliases (hangtime fixture) where a single entry
 point fans out by argument.
 
@@ -92,7 +92,7 @@ Some `%token` forms appear in output bodies as runtime placeholders
 weapon, `%c` for cells, `%r` for rockets, `%n` for nails, `%s` for
 shells, `%p` for powerups). Short forms map to their long counterparts
 via ezQuake's internal table. In CONDITIONS, configs consistently use
-`$health` / `$armor` / etc. (the `$`-prefixed form), not `%h` / `%a` —
+`$health` / `$armor` / etc. (the `$`-prefixed form), not `%h` / `%a` --
 because the `var2val_fnc` is NULL in `Cmd_If_New` (cmd.c:2056) so the
 parser itself doesn't resolve `%` references; only the pre-expansion
 pass handles `$`.
@@ -162,7 +162,7 @@ Standard C-like, from highest to lowest:
 
 ### `isin` semantics
 
-`a isin b` is `strstr(b, a)` — a is a SUBSTRING of b, not a token
+`a isin b` is `strstr(b, a)` -- a is a SUBSTRING of b, not a token
 membership test. `'rl' isin 'lg rl sg'` is true. `'rl' isin 'lgrlsg'`
 is also true. `'rlx' isin 'lg rl sg'` is false.
 
@@ -202,27 +202,27 @@ Divided into three groups by origin:
 
 Engine-computed tokens that depend on user cvars to produce their display value:
 
-- `$weapons` — joins owned weapons using user `tp_name_*` values in priority order.
-- `$bestweapon` — walks `tp_weapon_order`, returns first owned-AND-has-ammo weapon's `tp_name_*` value. Falls back to `tp_name_sg` when nothing qualifies.
-- `$powerups` — joins active powerups using `tp_name_quad` / `tp_name_pent` / `tp_name_ring` / `tp_name_biosuit`.
-- `$armortype` — `tp_name_armortype_ga` / `_ya` / `_ra` / `_none` by armor class.
-- `$colored_armor` — `$armor` value wrapped in `&cRGB` color codes per health-band thresholds (`<25` red, `25-49` yellow, `50-100` green, `>100` white).
-- `$tp_powerups` — routes to `$colored_powerups` or `$colored_short_powerups` based on `tp_poweruptextstyle`.
+- `$weapons` -- joins owned weapons using user `tp_name_*` values in priority order.
+- `$bestweapon` -- walks `tp_weapon_order`, returns first owned-AND-has-ammo weapon's `tp_name_*` value. Falls back to `tp_name_sg` when nothing qualifies.
+- `$powerups` -- joins active powerups using `tp_name_quad` / `tp_name_pent` / `tp_name_ring` / `tp_name_biosuit`.
+- `$armortype` -- `tp_name_armortype_ga` / `_ya` / `_ra` / `_none` by armor class.
+- `$colored_armor` -- `$armor` value wrapped in `&cRGB` color codes per health-band thresholds (`<25` red, `25-49` yellow, `50-100` green, `>100` white).
+- `$tp_powerups` -- routes to `$colored_powerups` or `$colored_short_powerups` based on `tp_poweruptextstyle`.
 
 ### User-writable (set by config aliases via `set_tp` or `set`)
 
 Tokens that look like engine state but are actually cvars the config
 maintains itself:
 
-- `$need` — what the player "needs" right now. Written by aliases that
+- `$need` -- what the player "needs" right now. Written by aliases that
   check ammo / armor / weapons and call `set_tp need <value>`.
-- `$mytook`, `$mytookloc`, `$lasttook`, `$lasttookloc` — last-item
+- `$mytook`, `$mytookloc`, `$lasttook`, `$lasttookloc` -- last-item
   tracking that the config maintains to avoid duplicate reports.
-- `$tvs_*` — hangtime fixture's "TVS" (team value signal) variables —
+- `$tvs_*` -- hangtime fixture's "TVS" (team value signal) variables --
   encoded strings assembled from multiple conditions.
-- `$h_*` — dev fixture's stack-machine variables for priority-chain
+- `$h_*` -- dev fixture's stack-machine variables for priority-chain
   simulation.
-- `$_report_*` — any config-specific state scaffolding.
+- `$_report_*` -- any config-specific state scaffolding.
 
 A simulator or static analyzer must NOT treat these as engine tokens.
 They're part of the config's own data model. The slipgate simulator
@@ -273,7 +273,7 @@ if $bestweapon = $qt$tp_name_lg$qt then .safe2 else .safe3
 if $bestweapon isin $tp_name_sg|$tp_name_ng then .report3 else ...
 ```
 
-The `|` in `$tp_name_sg|$tp_name_ng` isn't an operator — it's literal.
+The `|` in `$tp_name_sg|$tp_name_ng` isn't an operator -- it's literal.
 This pattern works because `$bestweapon` expands to a single
 `tp_name_*` value and `isin` tests substring against the pipe-separated
 literal list.
@@ -339,7 +339,7 @@ guard. Not a bug, not a parse error.
 | `hangtime.cfg` | Quoted parenthesized with heavy compound conditions (`AND` / `OR`). Uses TVS state machine via `$tvs_*`. Has dispatch-table `__alive` pattern using `%1` positional. |
 | `locktar.cfg` | Mix: old-form bare tokens (`if $health < 1 then`) AND quoted (`if $qt$powerups$qt == ...`). Lots of armor/weapon status reports. |
 | `tiba.cfg` | Old-form bare tokens mostly. Powerup-aware variants (`_comingq` etc). |
-| `dev.cfg` | Contains `h_*` stack-machine aliases — high-level variables encoded as packed decimals with push/pop operations. Non-trivial. |
+| `dev.cfg` | Contains `h_*` stack-machine aliases -- high-level variables encoded as packed decimals with push/pop operations. Non-trivial. |
 | `phrenic.cfg` | Small (222 lines). Compact classic style. Good minimal reference. |
 | `raket.cfg` | Medium. Classic shapes. |
 | `xantom.cfg` | Small. Notable for weapon-trigger dispatch via `f_weaponchange`. |
@@ -347,7 +347,7 @@ guard. Not a bug, not a parse error.
 | `slime.cfg` | Medium. |
 | `gt.cfg` | Medium. |
 
-All fixtures evaluate correctly under either grammar form — the stylistic
+All fixtures evaluate correctly under either grammar form -- the stylistic
 differences do not change semantics.
 
 ## Quirks and gotchas
@@ -368,7 +368,7 @@ differences do not change semantics.
   not resolve `%var` references. Configs reference state via `$var`
   exclusively, which is pre-expanded by the command buffer before the
   `if` command sees it.
-- **`$need` is empty-string by default** — configs that check
+- **`$need` is empty-string by default** -- configs that check
   `$need != $tp_name_nothing` compare against the user's
   `tp_name_nothing` cvar (typically `"nothing"` literal), not against
   empty string.
@@ -409,37 +409,37 @@ offer a dropdown of valid locations per map.
 For concrete patterns, grep these files under
 `apps/slipgate-app/assets/teamsays/`:
 
-- **`_report`, `_report1`, `_report2`** (locktar.cfg) — health guard +
+- **`_report`, `_report1`, `_report2`** (locktar.cfg) -- health guard +
   weapon-ownership branching. Canonical report flow.
-- **`__kill_me`, `__kill_me_rl_check`, `__kill_me_lg`** (hangtime.cfg) —
+- **`__kill_me`, `__kill_me_rl_check`, `__kill_me_lg`** (hangtime.cfg) --
   nested compound-condition dispatch for kill-me behavior variants.
-- **`__check_armor`, `__check_health`** (hangtime.cfg) — TVS-state
+- **`__check_armor`, `__check_health`** (hangtime.cfg) -- TVS-state
   compound conditions producing encoded strings.
-- **`__alive`** (hangtime.cfg) — dispatch table using `%1` positional
+- **`__alive`** (hangtime.cfg) -- dispatch table using `%1` positional
   arg to select a sub-branch.
-- **`_need`, `_need2`, `_need3`** (tiba.cfg, locktar.cfg) — user-cvar
+- **`_need`, `_need2`, `_need3`** (tiba.cfg, locktar.cfg) -- user-cvar
   state machine for pickup needs.
 - **`_point`, `_point_eyes`, `_point_powerup`** (phrenic.cfg, locktar.cfg)
-  — point-target dispatch with LED color logic.
+  -- point-target dispatch with LED color logic.
 - **`__dm2`, `__dm3`, `__map_trick_dm2`, `__enemy_pos1`..`_pos4`**
-  (hangtime.cfg) — map-specific location dispatch.
-- **`_took`, `_tooklast`, `_tookmega`, `_tookra`** (dev.cfg) — took
+  (hangtime.cfg) -- map-specific location dispatch.
+- **`_took`, `_tooklast`, `_tookmega`, `_tookra`** (dev.cfg) -- took
   announcement with state-aware variants.
 
 ## See also
 
-- `packages/qw-config/src/data/ezquake-macros.json` — registry of all
+- `packages/qw-config/src/data/ezquake-macros.json` -- registry of all
   runtime tokens with descriptions and `related-cvars` metadata.
-- `apps/slipgate-app/src/lib/simulator/` — reference implementation of
+- `apps/slipgate-app/src/lib/simulator/` -- reference implementation of
   the expansion + evaluation pipelines described here.
 - `apps/slipgate-app/docs/superpowers/specs/2026-04-17-player-state-simulator-design.md`
-  — design discussion and decision log.
-- `apps/slipgate-app/src/lib/simulator/fixtures.test.ts` — fixture-driven
+  -- design discussion and decision log.
+- `apps/slipgate-app/src/lib/simulator/fixtures.test.ts` -- fixture-driven
   flip-case tests; canonical behavioral contract.
-- `research/repos/ezquake-source/src/cmd.c` — `Cmd_If_Old` / `Cmd_If_New`
+- `research/repos/ezquake-source/src/cmd.c` -- `Cmd_If_Old` / `Cmd_If_New`
   implementation.
-- `research/repos/ezquake-source/src/parser.h` — `Expr_Eval` grammar.
-- `packages/qw-knowledge/weapon-scripts/README.md` — the sibling
+- `research/repos/ezquake-source/src/parser.h` -- `Expr_Eval` grammar.
+- `packages/qw-knowledge/weapon-scripts/README.md` -- the sibling
   reference for weapon-bind scripts. Same shape.
-- `packages/qw-knowledge/terminology/glossary.yaml` — QW vocabulary
+- `packages/qw-knowledge/terminology/glossary.yaml` -- QW vocabulary
   pointer.

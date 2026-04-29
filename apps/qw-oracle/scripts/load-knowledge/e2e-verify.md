@@ -421,7 +421,7 @@ GROUP BY verification_status;
 ```
 
 The four-bucket meaning is documented in
-`apps/qw-oracle/docs/entity-types.md` § Verification statuses. Adding a
+`apps/qw-oracle/docs/entity-types.md` Section  Verification statuses. Adding a
 new exception is two lines of YAML in
 `packages/qw-config/seeds/ezquake-asset-extensions.yaml`
 (`verification_status` + `verification_reason`); rebuild the bundle and

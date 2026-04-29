@@ -104,8 +104,8 @@ Known issue (from HEALTH.md): there is no `schema_version` field. When v3 arrive
 
 ### `quake_dirs[]` consumers
 
-- `setPrimaryQuakeDir(path)` — set or replace the primary entry on the primary setup (used by `AddClientPanel` after a successful first-launch claim per D9 case 1).
-- `getPrimaryQuakeDir(profile)` — read helper used by `AddClientPanel` to decide D9 dispatch (no-primary / matches-primary / foreign-refuse).
+- `setPrimaryQuakeDir(path)` -- set or replace the primary entry on the primary setup (used by `AddClientPanel` after a successful first-launch claim per D9 case 1).
+- `getPrimaryQuakeDir(profile)` -- read helper used by `AddClientPanel` to decide D9 dispatch (no-primary / matches-primary / foreign-refuse).
 
 ## Non-profile state (not persisted)
 

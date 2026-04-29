@@ -13,7 +13,7 @@ Read `AVAILABILITY-ENHANCEMENT-CONTRACT.md` at the orchestrator level for the fu
 ## What Changes
 
 1. **New method in `AvailabilityService.js`**: `repeatLastWeek(teamId, sourceWeekId, targetWeekId)`
-2. **New button in the Template modal/popover**: "Repeat Last Week → W2"
+2. **New button in the Template modal/popover**: "Repeat Last Week -> W2"
 3. **Disabled state**: Button grayed out when user has no availability in the current week
 
 ---
@@ -27,7 +27,7 @@ Add a new method that reads the user's slots from one week and writes them to an
 ```javascript
 /**
  * Copy current user's availability from source week to target week.
- * Only adds slots — does not remove existing target week availability.
+ * Only adds slots -- does not remove existing target week availability.
  * Skips slots where user is already present.
  *
  * @param {string} teamId
@@ -49,7 +49,7 @@ async function repeatLastWeek(teamId, sourceWeekId, targetWeekId) {
 
 **Implementation details:**
 - Read `availability/{teamId}_{sourceWeekId}` doc
-- Iterate `doc.data().slots` — collect all slot IDs where the user's UID is in the array
+- Iterate `doc.data().slots` -- collect all slot IDs where the user's UID is in the array
 - If zero slots found, return `{ success: false, slotsCopied: 0, error: 'No availability to copy' }`
 - Read `availability/{teamId}_{targetWeekId}` doc (may not exist yet)
 - For each source slot: if user NOT already in target slot, add via `arrayUnion`
@@ -57,18 +57,18 @@ async function repeatLastWeek(teamId, sourceWeekId, targetWeekId) {
 - Use a batched write for atomicity
 - Return the count of slots that were actually new
 
-**Note**: This does NOT need a Cloud Function — the user has write access to availability docs for their team. Use the Firebase client SDK directly (same pattern as other AvailabilityService methods).
+**Note**: This does NOT need a Cloud Function -- the user has write access to availability docs for their team. Use the Firebase client SDK directly (same pattern as other AvailabilityService methods).
 
 ### 2. `public/js/components/TemplatesModal.js`
 
-Add the "Repeat Last Week → W2" button to the template modal UI. Place it between the template section and the "Clear Availability" button.
+Add the "Repeat Last Week -> W2" button to the template modal UI. Place it between the template section and the "Clear Availability" button.
 
 ```html
 <div class="border-t border-border pt-3">
     <button id="templates-repeat-btn"
             class="w-full px-3 py-2 text-sm rounded border border-border text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
             ${!hasCurrentWeekAvailability ? 'disabled title="No availability this week to copy"' : ''}>
-        Repeat Last Week → W2
+        Repeat Last Week -> W2
     </button>
 </div>
 ```
@@ -106,16 +106,16 @@ Add the same "Repeat Last Week" button to the mobile template popup.
 
 - **No availability in current week**: Button disabled, tooltip explains why
 - **Target week already has some availability**: New slots are added, existing ones preserved (arrayUnion is additive)
-- **User is marked "unavailable" for some slots in target week**: The copy should override unavailable status (remove from `unavailable`, add to `slots`) — same mutual exclusion as normal availability marking
+- **User is marked "unavailable" for some slots in target week**: The copy should override unavailable status (remove from `unavailable`, add to `slots`) -- same mutual exclusion as normal availability marking
 
 ---
 
 ## Verification
 
 1. Mark availability for several days in Week 1
-2. Click "Repeat Last Week → W2" in the template modal
+2. Click "Repeat Last Week -> W2" in the template modal
 3. Verify Week 2 grid shows the same availability
 4. Verify toast shows correct slot count
-5. Clear Week 1 availability → verify button becomes disabled
-6. Mark partial availability in Week 2, then repeat → verify existing W2 slots are preserved and new ones added
+5. Clear Week 1 availability -> verify button becomes disabled
+6. Mark partial availability in Week 2, then repeat -> verify existing W2 slots are preserved and new ones added
 7. Mobile: verify the button works in the bottom bar popup

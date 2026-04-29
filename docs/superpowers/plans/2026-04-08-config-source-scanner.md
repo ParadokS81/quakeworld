@@ -4,7 +4,7 @@
 
 **Goal:** Add archive reading (PAK/ZIP/PK3), drag-and-drop config comparison, and a dual-source config viewer to the Slipgate app.
 
-**Architecture:** Bottom-up — build the Rust scanning layer first (archive readers, gamedir detection, ConfigSource assembly), then refactor the frontend to consume two sources. The existing `read_config_chain` stays as an internal function; new `scan_local_install` wraps it with an inventory of all available configs.
+**Architecture:** Bottom-up -- build the Rust scanning layer first (archive readers, gamedir detection, ConfigSource assembly), then refactor the frontend to consume two sources. The existing `read_config_chain` stays as an internal function; new `scan_local_install` wraps it with an inventory of all available configs.
 
 **Tech Stack:** Rust (Tauri v2 commands), `zip` crate (already in deps), SolidJS + TypeScript frontend.
 
@@ -15,22 +15,22 @@
 ## File Structure
 
 ### New files
-- `apps/slipgate-app/src-tauri/src/commands/archive.rs` — PAK/ZIP/PK3 index reading and .cfg extraction
-- `apps/slipgate-app/src-tauri/src/commands/scanner.rs` — ConfigSource types, gamedir detection, scan_local_install, scan_dropped_input, load_config_from_source
+- `apps/slipgate-app/src-tauri/src/commands/archive.rs` -- PAK/ZIP/PK3 index reading and .cfg extraction
+- `apps/slipgate-app/src-tauri/src/commands/scanner.rs` -- ConfigSource types, gamedir detection, scan_local_install, scan_dropped_input, load_config_from_source
 
 ### Modified files
-- `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` — rename `ConfigSource` → `ChainEntrySource`, make `parse_config` and chain-walking functions `pub(crate)`
-- `apps/slipgate-app/src-tauri/src/commands/mod.rs` — add `archive` and `scanner` modules
-- `apps/slipgate-app/src-tauri/src/lib.rs` — register new Tauri commands
-- `apps/slipgate-app/src/types.ts` — rename `ConfigSource` → `ChainEntrySource`, add `ConfigSourceBundle`, `ConfigEntry`, `SourceOrigin` types
-- `apps/slipgate-app/src/components/ConfigViewer.tsx` — dual-source refactor (sourceA/sourceB signals, drop zone, right panel)
-- `apps/slipgate-app/src/components/ConfigChainPanel.tsx` — add "Other Configs" section
-- `apps/slipgate-app/src/components/MyQuakeTab.tsx` — handle drop events, pass source signals
-- `apps/slipgate-app/src/App.tsx` — update config data flow to use ConfigSourceBundle
+- `apps/slipgate-app/src-tauri/src/commands/ezquake.rs` -- rename `ConfigSource` -> `ChainEntrySource`, make `parse_config` and chain-walking functions `pub(crate)`
+- `apps/slipgate-app/src-tauri/src/commands/mod.rs` -- add `archive` and `scanner` modules
+- `apps/slipgate-app/src-tauri/src/lib.rs` -- register new Tauri commands
+- `apps/slipgate-app/src/types.ts` -- rename `ConfigSource` -> `ChainEntrySource`, add `ConfigSourceBundle`, `ConfigEntry`, `SourceOrigin` types
+- `apps/slipgate-app/src/components/ConfigViewer.tsx` -- dual-source refactor (sourceA/sourceB signals, drop zone, right panel)
+- `apps/slipgate-app/src/components/ConfigChainPanel.tsx` -- add "Other Configs" section
+- `apps/slipgate-app/src/components/MyQuakeTab.tsx` -- handle drop events, pass source signals
+- `apps/slipgate-app/src/App.tsx` -- update config data flow to use ConfigSourceBundle
 
 ---
 
-## Task 1: Rename existing ConfigSource → ChainEntrySource
+## Task 1: Rename existing ConfigSource -> ChainEntrySource
 
 The existing `ConfigSource` enum describes how a file entered the chain (Primary, Exec, AutoExec, etc.). We need to free that name for the new top-level `ConfigSource` struct.
 
@@ -56,7 +56,7 @@ pub enum ChainEntrySource {
 }
 ```
 
-Update all usages in `ezquake.rs`: `ConfigSource::Primary` → `ChainEntrySource::Primary`, etc. The `ConfigFile` struct's `source` field type changes from `ConfigSource` to `ChainEntrySource`. The `walk_exec_refs` parameter type changes similarly.
+Update all usages in `ezquake.rs`: `ConfigSource::Primary` -> `ChainEntrySource::Primary`, etc. The `ConfigFile` struct's `source` field type changes from `ConfigSource` to `ChainEntrySource`. The `walk_exec_refs` parameter type changes similarly.
 
 - [ ] **Step 2: Rename the TypeScript type**
 
@@ -79,7 +79,7 @@ export interface ConfigFile {
 }
 ```
 
-In `ConfigChainPanel.tsx`, update the parameter types in `sourceLabel` and `sourceColor` — these already use `string`, so no code change needed there, just verify the import if `ConfigSource` was explicitly imported.
+In `ConfigChainPanel.tsx`, update the parameter types in `sourceLabel` and `sourceColor` -- these already use `string`, so no code change needed there, just verify the import if `ConfigSource` was explicitly imported.
 
 - [ ] **Step 3: Make chain-walking internals pub(crate)**
 
@@ -123,7 +123,7 @@ Expected: compiles without errors.
 
 ```bash
 git add apps/slipgate-app/src-tauri/src/commands/ezquake.rs apps/slipgate-app/src/types.ts apps/slipgate-app/src/components/ConfigChainPanel.tsx
-git commit -m "refactor: rename ConfigSource → ChainEntrySource to free name for scanner"
+git commit -m "refactor: rename ConfigSource -> ChainEntrySource to free name for scanner"
 ```
 
 ---
@@ -461,7 +461,7 @@ pub fn read_zip_file<R: Read + Seek>(reader: &mut R, filename: &str) -> io::Resu
 
 - [ ] **Step 3: Add unified scan_archive function**
 
-This is the public API — detects format from extension, delegates to PAK or ZIP reader:
+This is the public API -- detects format from extension, delegates to PAK or ZIP reader:
 
 ```rust
 use std::path::Path;
@@ -1044,7 +1044,7 @@ pub fn scan_dropped_input_internal(paths: &[String]) -> Result<ConfigSourceBundl
             }
             Err(e) => {
                 eprintln!("Warning: couldn't read {}: {}", archive_path.display(), e);
-                // Don't fail the whole operation — skip this archive
+                // Don't fail the whole operation -- skip this archive
             }
         }
     }
@@ -1200,7 +1200,7 @@ cargo check -p slipgate-app
 
 ```bash
 git add apps/slipgate-app/src-tauri/src/commands/scanner.rs
-git commit -m "feat: scan_dropped_input — classify and scan dropped files/archives"
+git commit -m "feat: scan_dropped_input -- classify and scan dropped files/archives"
 ```
 
 ---
@@ -1473,7 +1473,7 @@ Update the ConfigViewer invocation in the template:
 cd apps/slipgate-app && bunx tsc --noEmit
 ```
 
-Will show errors because ConfigViewer doesn't accept these props yet — that's expected, fixed in Task 10.
+Will show errors because ConfigViewer doesn't accept these props yet -- that's expected, fixed in Task 10.
 
 - [ ] **Step 4: Commit**
 
@@ -1541,7 +1541,7 @@ const isCompareMode = () => compareCvars().size > 0;
 Replace the paste-text "Compare" button with the new compare header:
 
 ```tsx
-{/* Top bar — left source */}
+{/* Top bar -- left source */}
 <div class="flex items-center gap-2 px-4 py-2 border-b border-[var(--sg-stat-border)] flex-shrink-0 flex-wrap">
   <button
     class="flex items-center gap-1.5 text-sm font-semibold text-[var(--sg-text-bright)] cursor-pointer hover:text-[var(--color-primary)] transition-colors"
@@ -1593,11 +1593,11 @@ Add a visual overlay when dragging files over the viewer:
 </Show>
 ```
 
-Place these inside the root `<div>` that has `class="flex flex-col h-full overflow-hidden"` — add `relative` to its classes for absolute positioning to work.
+Place these inside the root `<div>` that has `class="flex flex-col h-full overflow-hidden"` -- add `relative` to its classes for absolute positioning to work.
 
 - [ ] **Step 5: Update the content area for dual columns**
 
-The existing cvar rows show a single VALUE column. When in compare mode, show two columns. This change is in `ConfigSettingsSection.tsx` — update `CvarRow` to accept and display a compare value. The existing compare mode already does this, so verify it still works with the new data source.
+The existing cvar rows show a single VALUE column. When in compare mode, show two columns. This change is in `ConfigSettingsSection.tsx` -- update `CvarRow` to accept and display a compare value. The existing compare mode already does this, so verify it still works with the new data source.
 
 The key change: instead of `compareCvars` coming from parsed pasted text, it now comes from `compareChainData()`. The data shape is the same (`Map<string, string>`), so the existing rendering logic should work without changes.
 
@@ -1605,8 +1605,8 @@ The key change: instead of `compareCvars` coming from parsed pasted text, it now
 
 Run `bun run tauri dev` on Windows. Verify:
 1. Single-source mode looks identical to before
-2. Drag a .cfg file onto the viewer → right side appears with compare values
-3. Close compare (✕ button) → returns to single view
+2. Drag a .cfg file onto the viewer -> right side appears with compare values
+3. Close compare (✕ button) -> returns to single view
 4. Drop zone overlay appears when dragging files
 
 - [ ] **Step 7: Commit**
@@ -1618,7 +1618,7 @@ git commit -m "feat: dual-source ConfigViewer with drag-and-drop compare"
 
 ---
 
-## Task 11: ConfigChainPanel — Other Configs section
+## Task 11: ConfigChainPanel -- Other Configs section
 
 Add the "Other Configs" inventory list below the chain files in the expanded panel.
 
@@ -1691,7 +1691,7 @@ Add after the unresolved section in the template:
 
 - [ ] **Step 2: Wire up in ConfigViewer**
 
-Pass `availableConfigs` from the source's `available_configs` to ConfigChainPanel. For now, `onLoadConfig` can log the entry — full implementation (loading into a panel) comes later.
+Pass `availableConfigs` from the source's `available_configs` to ConfigChainPanel. For now, `onLoadConfig` can log the entry -- full implementation (loading into a panel) comes later.
 
 ```tsx
 <ConfigChainPanel
@@ -1718,7 +1718,7 @@ git commit -m "feat: Other Configs inventory section in chain panel"
 
 ---
 
-## Task 12: App.tsx — wire up scan_local_install
+## Task 12: App.tsx -- wire up scan_local_install
 
 Replace the separate `read_config_chain` calls in App.tsx with `scan_local_install` to get the full ConfigSourceBundle (chain + inventory).
 
@@ -1907,10 +1907,10 @@ Add a prompt bar in ConfigViewer (or MyQuakeTab) that shows when `pendingDrop` i
 
 - [ ] **Step 4: Test manually**
 
-1. Drop a .cfg → right side appears
-2. Drop another .cfg → prompt appears: "Replace" / "Cancel"
-3. Click "Replace" → right side updates
-4. Click "Cancel" → prompt dismisses, right side unchanged
+1. Drop a .cfg -> right side appears
+2. Drop another .cfg -> prompt appears: "Replace" / "Cancel"
+3. Click "Replace" -> right side updates
+4. Click "Cancel" -> prompt dismisses, right side unchanged
 
 - [ ] **Step 5: Commit**
 
@@ -1936,14 +1936,14 @@ After Task 13, the PoC should be functional:
 - [x] Re-drop replace/cancel prompt
 
 **Manual test checklist:**
-1. App opens, loads config as before — no regression
-2. Expand chain panel → "Other Configs" section shows available configs
-3. Drag single .cfg onto viewer → compare mode activates
-4. Drag .zip with configs → scans archive, loads compare source
-5. Drag .pak file → reads PAK format, extracts configs
-6. Drop multiple .cfg files → chain resolution attempted between them
-7. Close compare (✕) → returns to single view
-8. Re-drop while compare active → replace prompt appears
+1. App opens, loads config as before -- no regression
+2. Expand chain panel -> "Other Configs" section shows available configs
+3. Drag single .cfg onto viewer -> compare mode activates
+4. Drag .zip with configs -> scans archive, loads compare source
+5. Drag .pak file -> reads PAK format, extracts configs
+6. Drop multiple .cfg files -> chain resolution attempted between them
+7. Close compare (✕) -> returns to single view
+8. Re-drop while compare active -> replace prompt appears
 9. File watcher still works after refactor
 
 **Known limitations for PoC (future work):**

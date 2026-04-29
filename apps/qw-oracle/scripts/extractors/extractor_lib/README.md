@@ -15,15 +15,15 @@ Handlers that don't fit the Visitor shape (e.g. `KeynamesEzquakeHandler` walks t
 
 ## What does NOT live here
 
-- **Project-specific handlers.** Those live at `<project>/_handler_*.py`. The four current projects (ezQuake, FTE, QWCL, MVDSV) each have their own handler set. See `EXTRACTOR-PLAYBOOK.md` § Three-tier handler architecture.
-- **Family-base handlers (Tier 2).** Once a fork (e.g., unezQuake → ezQuake) lands and subclassing pressure justifies it, a Tier 2 family-base might lift here as `handler_<family>_<type>.py`. Today the directory is Tier 1 only.
+- **Project-specific handlers.** Those live at `<project>/_handler_*.py`. The four current projects (ezQuake, FTE, QWCL, MVDSV) each have their own handler set. See `EXTRACTOR-PLAYBOOK.md` Section  Three-tier handler architecture.
+- **Family-base handlers (Tier 2).** Once a fork (e.g., unezQuake -> ezQuake) lands and subclassing pressure justifies it, a Tier 2 family-base might lift here as `handler_<family>_<type>.py`. Today the directory is Tier 1 only.
 - **Per-project drivers.** Each project owns `<project>/extract.py`.
 
 ## Adding a new shared module
 
-If you find yourself writing a helper used by ≥2 projects, lift it to a `_<name>.py` module here. Keep the import path stable: project handlers import as `from extractor_lib._<name> import <symbol>`. Don't add re-exports through `__init__.py` — the explicit module path is clearer and avoids the "shared base class" framing this directory carried pre-2026-04-28.
+If you find yourself writing a helper used by >=2 projects, lift it to a `_<name>.py` module here. Keep the import path stable: project handlers import as `from extractor_lib._<name> import <symbol>`. Don't add re-exports through `__init__.py` -- the explicit module path is clearer and avoids the "shared base class" framing this directory carried pre-2026-04-28.
 
 ## See also
 
-- `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` — full architecture explanation, registration pattern catalog, porting checklist.
-- `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` — how to validate Layer 1 extractor output post-ship.
+- `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` -- full architecture explanation, registration pattern catalog, porting checklist.
+- `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` -- how to validate Layer 1 extractor output post-ship.

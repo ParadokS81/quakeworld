@@ -20,7 +20,7 @@
 ```markdown
 ---
 name: deploy
-description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build — workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
+description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
 ---
 
 # Deploy
@@ -38,10 +38,10 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 
 **Working directory:** `apps/matchscheduler/`
 
-1. Assess what changed — categorize into deploy targets:
-   - `public/`, `src/css/` changes → **hosting**
-   - `functions/` changes → **functions**
-   - `firestore.rules`, `storage.rules` → **rules**
+1. Assess what changed -- categorize into deploy targets:
+   - `public/`, `src/css/` changes -> **hosting**
+   - `functions/` changes -> **functions**
+   - `firestore.rules`, `storage.rules` -> **rules**
 2. Build CSS (always before hosting deploys):
    ```bash
    npm run version && npm run css:build
@@ -65,11 +65,11 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 ## Quad (SSH + Docker)
 
-**SAFETY CHECK — do this FIRST:**
+**SAFETY CHECK -- do this FIRST:**
 ```bash
 curl http://83.172.66.214:3000/health
 ```
-If `recording.active === true` → **STOP. Do not deploy.** A team is currently recording. Wait for the session to end or coordinate with the user. Deploying would interrupt their recording.
+If `recording.active === true` -> **STOP. Do not deploy.** A team is currently recording. Wait for the session to end or coordinate with the user. Deploying would interrupt their recording.
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to remote
@@ -77,7 +77,7 @@ If `recording.active === true` → **STOP. Do not deploy.** A team is currently 
    ```bash
    wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
    ```
-3. Verify — check logs for successful startup:
+3. Verify -- check logs for successful startup:
    ```bash
    ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
    ```
@@ -112,7 +112,7 @@ For details: `apps/quad/DEPLOYMENT.md`
    curl https://qw-api.poker-affiliate.org/health
    ```
 
-For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored — contains credentials)
+For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored -- contains credentials)
 
 ## Slipgate App
 
@@ -131,20 +131,20 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 
 ## Cross-Project Deploy Sequences
 
-### Voice pipeline changes (quad → matchscheduler)
+### Voice pipeline changes (quad -> matchscheduler)
 1. Update quad processing stages
 2. Deploy quad to Xerial (this section)
 3. Update matchscheduler storage/firestore rules if schema changed
 4. Update matchscheduler frontend if display changed
 5. Deploy matchscheduler
 
-### Stats API changes (qw-stats → matchscheduler)
+### Stats API changes (qw-stats -> matchscheduler)
 1. Update `apps/qw-stats/api/server.js`
 2. Deploy qw-stats to Unraid (this section)
 3. Update matchscheduler `public/js/services/QWStatsService.js`
 4. Deploy matchscheduler hosting
 
-### Standin flow changes (matchscheduler ↔ quad)
+### Standin flow changes (matchscheduler <-> quad)
 1. Update matchscheduler standin creation + Cloud Function
 2. Deploy matchscheduler functions + rules
 3. Update quad standin module if DM handling changed
@@ -186,7 +186,7 @@ Extract deployment details from `apps/matchscheduler/CLAUDE.md` (lines 283-329) 
 - [ ] **Step 1: Create the deployment reference**
 
 ```markdown
-# MatchScheduler — Deployment Reference
+# MatchScheduler -- Deployment Reference
 
 ## Infrastructure
 
@@ -219,14 +219,14 @@ Categorize modified files into deploy targets:
 Always run before deploying hosting:
 ```bash
 npm run version    # Stamp build version
-npm run css:build  # Compile Tailwind: src/css/input.css → public/css/main.css
+npm run css:build  # Compile Tailwind: src/css/input.css -> public/css/main.css
 ```
 
 ### 3. Deploy
 
 ```bash
 firebase deploy --only hosting              # Frontend only
-firebase deploy --only functions            # All functions (v1 shared container — fast!)
+firebase deploy --only functions            # All functions (v1 shared container -- fast!)
 firebase deploy --only firestore:rules      # Security rules
 firebase deploy --only hosting,functions    # Both
 firebase deploy                             # Everything
@@ -310,14 +310,14 @@ gcloud run services delete <functionName> --region=europe-west3
 
 ```bash
 git add apps/matchscheduler/DEPLOYMENT.md
-git commit -m "Add matchscheduler DEPLOYMENT.md — extracted from CLAUDE.md"
+git commit -m "Add matchscheduler DEPLOYMENT.md -- extracted from CLAUDE.md"
 ```
 
 ---
 
 ### Task 3: Restructure quad DEPLOYMENT.md
 
-Add the pre-deploy recording safety check and align section headings with the standard template. The existing content is good — this is a light restructure, not a rewrite.
+Add the pre-deploy recording safety check and align section headings with the standard template. The existing content is good -- this is a light restructure, not a rewrite.
 
 **Files:**
 - Modify: `apps/quad/DEPLOYMENT.md`
@@ -335,14 +335,14 @@ After the "## Server" table and before "### SSH Access", add:
 curl http://83.172.66.214:3000/health
 ```
 
-If the response shows `"recording": { "active": true }` — **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
+If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
 
 Wait for the recording to finish, then re-check before proceeding.
 ```
 
 - [ ] **Step 2: Rename the "Deploy Workflow" section heading to match template**
 
-Change `## Deploy Workflow` to `## Deploy Workflow` (already matches — verify it's consistent).
+Change `## Deploy Workflow` to `## Deploy Workflow` (already matches -- verify it's consistent).
 
 Verify the file has these top-level sections (reorder if needed):
 1. Infrastructure (rename "## Server" to "## Infrastructure")
@@ -367,7 +367,7 @@ git commit -m "Add pre-deploy recording check and standardize DEPLOYMENT.md sect
 ### Task 4: Rename and restructure qw-stats INFRASTRUCTURE.md to DEPLOYMENT.md
 
 **Files:**
-- Rename: `apps/qw-stats/INFRASTRUCTURE.md` → `apps/qw-stats/DEPLOYMENT.md`
+- Rename: `apps/qw-stats/INFRASTRUCTURE.md` -> `apps/qw-stats/DEPLOYMENT.md`
 - Modify: `apps/qw-stats/.gitignore` (update the gitignore entry)
 - Modify: `apps/qw-stats/CLAUDE.md` (update the reference)
 
@@ -406,7 +406,7 @@ Ensure the file has these top-level sections (reorder/rename existing content):
 7. `## Local Development` (from "## Running Locally")
 8. `## Database Reference` (from "## PostgreSQL Database" and "## SQLite Database")
 
-Keep all existing credential values — the file stays gitignored.
+Keep all existing credential values -- the file stays gitignored.
 
 - [ ] **Step 5: Commit**
 
@@ -428,7 +428,7 @@ Note: `DEPLOYMENT.md` itself is gitignored and won't be in the commit. That's co
 - [ ] **Step 1: Create the file**
 
 ```markdown
-# Slipgate App — Deployment Reference
+# Slipgate App -- Deployment Reference
 
 ## Infrastructure
 
@@ -442,10 +442,10 @@ Note: `DEPLOYMENT.md` itself is gitignored and won't be in the commit. That's co
 
 ## Prerequisites
 
-- **Rust** — via `rustup` (MSVC toolchain)
-- **Bun** — JavaScript runtime and package manager
-- **Microsoft C++ Build Tools** — "Desktop development with C++" workload
-- **WebView2** — pre-installed on Windows 10/11
+- **Rust** -- via `rustup` (MSVC toolchain)
+- **Bun** -- JavaScript runtime and package manager
+- **Microsoft C++ Build Tools** -- "Desktop development with C++" workload
+- **WebView2** -- pre-installed on Windows 10/11
 
 See `docs/DEVELOPMENT.md` for full setup instructions.
 
@@ -487,7 +487,7 @@ The binary is ~5-10 MB with low memory usage compared to Electron.
 
 ```bash
 git add apps/slipgate-app/DEPLOYMENT.md
-git commit -m "Add slipgate-app DEPLOYMENT.md — documents current build process and TBD workflow"
+git commit -m "Add slipgate-app DEPLOYMENT.md -- documents current build process and TBD workflow"
 ```
 
 ---
@@ -495,7 +495,7 @@ git commit -m "Add slipgate-app DEPLOYMENT.md — documents current build proces
 ### Task 6: Move qwhub-api skill to global
 
 **Files:**
-- Move: `apps/matchscheduler/.claude/skills/qwhub-api/SKILL.md` → `.claude/skills/qwhub-api/SKILL.md`
+- Move: `apps/matchscheduler/.claude/skills/qwhub-api/SKILL.md` -> `.claude/skills/qwhub-api/SKILL.md`
 - Delete: `apps/matchscheduler/.claude/skills/qwhub-api/` (empty after move)
 
 - [ ] **Step 1: Move the skill**
@@ -520,7 +520,7 @@ rmdir apps/matchscheduler/.claude/skills 2>/dev/null || true
 ```bash
 git add .claude/skills/qwhub-api/SKILL.md
 git rm apps/matchscheduler/.claude/skills/qwhub-api/SKILL.md
-git commit -m "Move qwhub-api skill to global — shared domain knowledge across projects"
+git commit -m "Move qwhub-api skill to global -- shared domain knowledge across projects"
 ```
 
 ---
@@ -550,14 +550,14 @@ If other files remain in `.claude/skills/`, leave it. If empty (because qwhub-ap
 
 ```bash
 git rm apps/matchscheduler/.claude/skills/deploy/SKILL.md
-git commit -m "Remove matchscheduler deploy skill — absorbed into unified deploy skill"
+git commit -m "Remove matchscheduler deploy skill -- absorbed into unified deploy skill"
 ```
 
 ---
 
 ### Task 8: Trim root CLAUDE.md
 
-Remove deploy-specific infrastructure details and credential table — now covered by the deploy skill.
+Remove deploy-specific infrastructure details and credential table -- now covered by the deploy skill.
 
 **Files:**
 - Modify: `CLAUDE.md` (root)
@@ -576,14 +576,14 @@ Remove everything from `### Firebase Project: matchscheduler-dev` through the en
 ```markdown
 ## Shared Infrastructure
 
-Infrastructure details, deploy commands, and credential locations are in the deploy skill — invoke with "deploy" or `/deploy`. For detailed reference, each deployed project has a `DEPLOYMENT.md`.
+Infrastructure details, deploy commands, and credential locations are in the deploy skill -- invoke with "deploy" or `/deploy`. For detailed reference, each deployed project has a `DEPLOYMENT.md`.
 
 ### QW Hub API (external, read-only)
 - Supabase: https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games
 - KtxStats: https://d.quake.world/{sha256[0:3]}/{sha256}.mvd.ktxstats.json
 ```
 
-The QW Hub API block stays because it's not deployment infrastructure — it's an external data source used during development.
+The QW Hub API block stays because it's not deployment infrastructure -- it's an external data source used during development.
 
 - [ ] **Step 2: Remove the Cross-Project Workflows section (lines 193-213)**
 
@@ -598,14 +598,14 @@ Expected: roughly 165-175 lines (down from 212)
 
 ```bash
 git add CLAUDE.md
-git commit -m "Trim root CLAUDE.md — deploy info moved to deploy skill"
+git commit -m "Trim root CLAUDE.md -- deploy info moved to deploy skill"
 ```
 
 ---
 
 ### Task 9: Trim matchscheduler CLAUDE.md
 
-Remove the deployment section and legacy Q-commands section — deployment is in DEPLOYMENT.md, Q-commands are replaced by superpowers.
+Remove the deployment section and legacy Q-commands section -- deployment is in DEPLOYMENT.md, Q-commands are replaced by superpowers.
 
 **Files:**
 - Modify: `apps/matchscheduler/CLAUDE.md`
@@ -621,27 +621,27 @@ Remove from `## Workflow Commands` through the end of the iteration cycle list. 
 - [ ] **Step 3: Verify the trimmed file**
 
 Run: `wc -l apps/matchscheduler/CLAUDE.md`
-Expected: roughly 375 lines (down from 443 — deploy section ~47 lines, workflow section ~19 lines removed)
+Expected: roughly 375 lines (down from 443 -- deploy section ~47 lines, workflow section ~19 lines removed)
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add apps/matchscheduler/CLAUDE.md
-git commit -m "Trim matchscheduler CLAUDE.md — deploy to DEPLOYMENT.md, Q-commands removed"
+git commit -m "Trim matchscheduler CLAUDE.md -- deploy to DEPLOYMENT.md, Q-commands removed"
 ```
 
 ---
 
 ### Task 10: Trim quad CLAUDE.md
 
-Remove the "Deployment — Xerial's Server" section — now covered by DEPLOYMENT.md and the deploy skill.
+Remove the "Deployment -- Xerial's Server" section -- now covered by DEPLOYMENT.md and the deploy skill.
 
 **Files:**
 - Modify: `apps/quad/CLAUDE.md`
 
 - [ ] **Step 1: Remove the Deployment section (lines 319-396)**
 
-Remove from `## Deployment — Xerial's Server` through `- For local dev without GPU, create `docker-compose.override.yml` (gitignored)` (line 396).
+Remove from `## Deployment -- Xerial's Server` through `- For local dev without GPU, create `docker-compose.override.yml` (gitignored)` (line 396).
 
 Replace with a pointer:
 
@@ -656,20 +656,20 @@ Quick deploy: `wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git 
 - [ ] **Step 2: Verify the trimmed file**
 
 Run: `wc -l apps/quad/CLAUDE.md`
-Expected: roughly 380 lines (down from 452 — ~78 lines removed, ~5 lines added)
+Expected: roughly 380 lines (down from 452 -- ~78 lines removed, ~5 lines added)
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add apps/quad/CLAUDE.md
-git commit -m "Trim quad CLAUDE.md — deploy details moved to DEPLOYMENT.md"
+git commit -m "Trim quad CLAUDE.md -- deploy details moved to DEPLOYMENT.md"
 ```
 
 ---
 
 ### Task 11: Delete legacy matchscheduler claude-commands.md
 
-The Q-commands file is obsolete — superpowers skills replaced the workflow.
+The Q-commands file is obsolete -- superpowers skills replaced the workflow.
 
 **Files:**
 - Delete: `apps/matchscheduler/claude-commands.md`
@@ -683,12 +683,12 @@ git rm apps/matchscheduler/claude-commands.md
 - [ ] **Step 2: Commit**
 
 ```bash
-git commit -m "Remove legacy claude-commands.md — superpowers skills replace Q-commands"
+git commit -m "Remove legacy claude-commands.md -- superpowers skills replace Q-commands"
 ```
 
 ---
 
-### Task 12: Update memory — record harness decisions
+### Task 12: Update memory -- record harness decisions
 
 **Files:**
 - Modify: `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/project_harness_design.md`
@@ -698,10 +698,10 @@ git commit -m "Remove legacy claude-commands.md — superpowers skills replace Q
 Mark the deploy/runbooks/credentials questions as resolved. Update the open questions list to reflect what's done and what remains.
 
 Key decisions to record:
-- Deploy procedures → one unified skill (`.claude/skills/deploy/SKILL.md`)
-- Reference docs → standardized `DEPLOYMENT.md` per project
-- Credentials → locations table in skill, values in gitignored files
-- Skills → consolidated to global `.claude/skills/`
-- Q-commands → removed, replaced by superpowers
+- Deploy procedures -> one unified skill (`.claude/skills/deploy/SKILL.md`)
+- Reference docs -> standardized `DEPLOYMENT.md` per project
+- Credentials -> locations table in skill, values in gitignored files
+- Skills -> consolidated to global `.claude/skills/`
+- Q-commands -> removed, replaced by superpowers
 
 - [ ] **Step 2: No commit needed** (memory files are outside the repo)

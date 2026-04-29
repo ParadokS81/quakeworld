@@ -1,4 +1,4 @@
-# Unified Auto-Record — Cross-Project Contract
+# Unified Auto-Record -- Cross-Project Contract
 
 > Source of truth for unified auto-record across Discord and Mumble.
 > Updated as each phase lands. Both projects reference this for schema decisions.
@@ -25,14 +25,14 @@ Unifying auto-record behavior across Discord and Mumble voice platforms, with sh
 
 **Why this matters:**
 - Teams transitioning from Discord to Mumble need seamless recording on both
-- Manual `/record start` friction reduces adoption — auto-record removes it
+- Manual `/record start` friction reduces adoption -- auto-record removes it
 - Split settings (botRegistrations vs mumbleConfig) creates confusion
 
 ---
 
 ## Schema Change: `botRegistrations/{teamId}.autoRecord`
 
-The existing `autoRecord` sub-document is extended with a `platform` field. The `mumbleConfig/{teamId}.autoRecord` boolean is **deprecated** — quad reads from `botRegistrations` for both platforms.
+The existing `autoRecord` sub-document is extended with a `platform` field. The `mumbleConfig/{teamId}.autoRecord` boolean is **deprecated** -- quad reads from `botRegistrations` for both platforms.
 
 ```typescript
 interface AutoRecordSettings {
@@ -56,13 +56,13 @@ interface AutoRecordSettings {
 
 ### Backward compatibility
 
-- If `platform` field is missing → treat as `'both'` (existing teams upgrade seamlessly)
-- If `minPlayers` is 3 or 4 (old radio values) → still valid, just now part of a wider range
+- If `platform` field is missing -> treat as `'both'` (existing teams upgrade seamlessly)
+- If `minPlayers` is 3 or 4 (old radio values) -> still valid, just now part of a wider range
 - During transition, if `botRegistrations` has no `autoRecord` for a team but `mumbleConfig.autoRecord` is true, quad falls back to old behavior
 
 ### Deprecation: `mumbleConfig/{teamId}.autoRecord`
 
-This field is no longer the source of truth. quad will stop reading it for auto-record decisions (it will still read `mumbleConfig` for channel→team mapping). MatchScheduler's Mumble tab will show a read-only indicator pointing to Recording settings.
+This field is no longer the source of truth. quad will stop reading it for auto-record decisions (it will still read `mumbleConfig` for channel->team mapping). MatchScheduler's Mumble tab will show a read-only indicator pointing to Recording settings.
 
 ---
 
@@ -89,9 +89,9 @@ interface RegisteredSession {
 ```
 
 **Suppression logic:**
-1. User runs `/record stop` on an auto-started session → `suppressed = true`
-2. Auto-record checks `isSuppressed` before starting → skips if true
-3. When channel fully empties (0 registered members) → `clearSuppression`
+1. User runs `/record stop` on an auto-started session -> `suppressed = true`
+2. Auto-record checks `isSuppressed` before starting -> skips if true
+3. When channel fully empties (0 registered members) -> `clearSuppression`
 4. Manual `/record start` ignores suppression (explicit intent)
 
 ---
@@ -106,17 +106,17 @@ Monitors `voiceStateUpdate` events for guilds with active bot registrations.
 3. No active recording session for this guild (in session registry)
 4. Channel not suppressed (no recent manual stop)
 5. Count of registered members in voice channel >= `autoRecord.minPlayers`
-6. NOT a multi-team guild (safety — auto-record disabled for community servers)
+6. NOT a multi-team guild (safety -- auto-record disabled for community servers)
 
 ### Registered member counting:
-- Use `knownPlayers` from `botRegistrations` (maps Discord user ID → QW name)
+- Use `knownPlayers` from `botRegistrations` (maps Discord user ID -> QW name)
 - For each voice channel in the guild, count members whose Discord ID is a key in `knownPlayers`
 - Pick the voice channel with the highest count (if multiple channels have users)
 
 ### Stop conditions:
-- Registered member count in the recording channel drops to 0 → start 5-second grace timer
-- Grace timer expires → stop recording, trigger pipeline
-- If a registered member rejoins during grace → cancel timer, continue recording
+- Registered member count in the recording channel drops to 0 -> start 5-second grace timer
+- Grace timer expires -> stop recording, trigger pipeline
+- If a registered member rejoins during grace -> cancel timer, continue recording
 
 ### No text channel notifications:
 Auto-record start/stop is silent. The Firestore session tracker provides visibility. This prevents spam in team text channels.
@@ -130,7 +130,7 @@ Existing `auto-record.ts` is updated to:
 2. Add `minPlayers` threshold (currently starts on ANY user join)
 3. Change 30-min idle timeout to 5-second grace after last user leaves
 4. Register sessions in shared session registry
-5. Respect `platform` field (`'both'` or `'mumble'` → enabled)
+5. Respect `platform` field (`'both'` or `'mumble'` -> enabled)
 6. Support manual stop suppression
 
 ---
@@ -148,11 +148,11 @@ Existing `auto-record.ts` is updated to:
 | `/record reset` | Force-reset (existing behavior) |
 
 ### Auto-detect logic (no platform specified):
-1. Is invoking user in a Discord voice channel? → signal for Discord
-2. Does the team's Mumble channel have users? → signal for Mumble
-3. Both signals → prefer Discord (user physically chose to be there)
-4. One signal → use that platform
-5. Neither → error: "No active voice channel found"
+1. Is invoking user in a Discord voice channel? -> signal for Discord
+2. Does the team's Mumble channel have users? -> signal for Mumble
+3. Both signals -> prefer Discord (user physically chose to be there)
+4. One signal -> use that platform
+5. Neither -> error: "No active voice channel found"
 
 ### Permission model:
 - Discord recording: invoking user must be in voice channel (existing) OR platform explicitly set to mumble
@@ -170,9 +170,9 @@ Existing `auto-record.ts` is updated to:
 
 ### Recordings tab (auto-record settings):
 - `minPlayers`: Number dropdown (2-6) replacing 3|4 radio buttons
-- `platform`: Dropdown — "Both platforms" / "Discord only" / "Mumble only"
+- `platform`: Dropdown -- "Both platforms" / "Discord only" / "Mumble only"
   - Only shown if team has both Discord bot AND Mumble configured
-  - If only one platform configured → don't show dropdown (implied)
+  - If only one platform configured -> don't show dropdown (implied)
 - `enabled` and `mode`: Unchanged
 
 ### Mumble tab:
@@ -204,10 +204,10 @@ U1 (Session Registry + Bug Fixes) ──┬── U2 (Discord Auto-Record) ─�
 | Phase | Project | Description | Model | Effort | Thinking | Rationale |
 |-------|---------|-------------|-------|--------|----------|-----------|
 | **U1** | quad | Session registry + pipeline bug fix | Sonnet | High | On | New module + multi-file bug fix. Clear requirements, moderate data-flow tracing. Sonnet+thinking handles this well. |
-| **U2** | quad | Discord auto-record engine (NEW) | Opus | Max | — | Most complex phase. Extracting reusable logic from interaction-coupled code, designing event-driven auto-record, handling edge cases (channel moves, bot kicks, race conditions). Opus justified. |
+| **U2** | quad | Discord auto-record engine (NEW) | Opus | Max | -- | Most complex phase. Extracting reusable logic from interaction-coupled code, designing event-driven auto-record, handling edge cases (channel moves, bot kicks, race conditions). Opus justified. |
 | **U3** | quad | Mumble auto-record migration | Sonnet | High | On | Migrating data source + adding threshold/grace logic to existing code. Clear before/after, but multi-concern changes benefit from thinking. |
 | **U4** | quad | Unified /record command | Sonnet | High | On | Command restructure + cross-module imports + auto-detect logic. Each piece is clear but the combination needs careful reasoning about state. |
-| **U5** | MatchScheduler | Auto-record UI updates | Sonnet | High | Off | Mechanical UI changes: swap radio→dropdown, add field, update CF validation. Well-defined patterns exist. Thinking adds no value. Could even use Haiku but Sonnet is safer for the MatchScheduler's large modal file. |
+| **U5** | MatchScheduler | Auto-record UI updates | Sonnet | High | Off | Mechanical UI changes: swap radio->dropdown, add field, update CF validation. Well-defined patterns exist. Thinking adds no value. Could even use Haiku but Sonnet is safer for the MatchScheduler's large modal file. |
 
 **Why not Haiku for U5?** TeamManagementModal.js is ~2500 lines with interleaved render/handler/state logic. Haiku might lose track of the render flow. Sonnet at normal effort handles it fine.
 
@@ -217,11 +217,11 @@ U1 (Session Registry + Bug Fixes) ──┬── U2 (Discord Auto-Record) ─�
 
 | Session | Phase | Opens in | Model Config | Can Parallel |
 |---------|-------|----------|-------------|--------------|
-| 1 | U1 | `quad/` terminal | Sonnet, effort high, thinking on | — |
+| 1 | U1 | `quad/` terminal | Sonnet, effort high, thinking on | -- |
 | 2a | U2 | `quad/` terminal | Opus, effort max | U3, U5 |
 | 2b | U3 | `quad/` terminal | Sonnet, effort high, thinking on | U2, U5 |
 | 2c | U5 | `MatchScheduler/` terminal | Sonnet, effort high, thinking off | U2, U3 |
-| 3 | U4 | `quad/` terminal | Sonnet, effort high, thinking on | — |
+| 3 | U4 | `quad/` terminal | Sonnet, effort high, thinking on | -- |
 
 ### File conflict check (parallel phases)
 - **U2 vs U3:** Safe. U2 touches `recording/*`, U3 touches `mumble/*`.
@@ -272,9 +272,9 @@ U1 (Session Registry + Bug Fixes) ──┬── U2 (Discord Auto-Record) ─�
 
 ### End-to-end
 - [ ] Enable auto-record (MatchScheduler UI), minPlayers=3, platform=both
-- [ ] 3 members join Discord voice → bot auto-joins and records
-- [ ] All leave → stop after 5s, pipeline runs
-- [ ] 3 members join Mumble → bot auto-records
-- [ ] `/record stop` → both stop, suppression active
-- [ ] Channel empties → suppression clears
-- [ ] Members rejoin → auto-record resumes
+- [ ] 3 members join Discord voice -> bot auto-joins and records
+- [ ] All leave -> stop after 5s, pipeline runs
+- [ ] 3 members join Mumble -> bot auto-records
+- [ ] `/record stop` -> both stop, suppression active
+- [ ] Channel empties -> suppression clears
+- [ ] Members rejoin -> auto-record resumes

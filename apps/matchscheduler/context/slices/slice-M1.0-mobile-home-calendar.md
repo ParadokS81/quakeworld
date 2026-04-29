@@ -10,9 +10,9 @@
 - **Name:** Mobile Home + Calendar
 - **User Story:** As a player on my phone, I can view my team's weekly availability calendar and mark my own availability with simple taps, so I can manage scheduling on the go without needing a desktop.
 - **Success Criteria:**
-  - [ ] Portrait-first layout renders on phones (≤768px width)
-  - [ ] Calendar grid shows 7 days × current timeslot range with single-letter colored initials
-  - [ ] Tap cells to select → bottom context area shows bulk actions (Mark Available / Unavailable)
+  - [ ] Portrait-first layout renders on phones (<=768px width)
+  - [ ] Calendar grid shows 7 days x current timeslot range with single-letter colored initials
+  - [ ] Tap cells to select -> bottom context area shows bulk actions (Mark Available / Unavailable)
   - [ ] Proposals and scheduled matches visible in default bottom content
   - [ ] Bottom nav bar with 4 tabs (Home active, others placeholder)
   - [ ] Team switching via tappable team name in header
@@ -28,12 +28,12 @@
 |----------|--------|-----------|
 | Breakpoint | `max-width: 768px` | Covers all phones portrait + landscape. Tablets (768px+) get desktop. |
 | Orientation | Both portrait + landscape | No more forced landscape. Portrait-first, landscape also works. |
-| Layout | Flexbox column (header → calendar → context → nav) | Simple, predictable, no grid overlap issues |
+| Layout | Flexbox column (header -> calendar -> context -> nav) | Simple, predictable, no grid overlap issues |
 | Calendar/content split | `flex: 3` / `flex: 2` (~60/40) | Calendar is primary, content is supplementary |
-| Grid interaction | Tap-to-select + batch action | No drag painting on mobile — deliberate tap + confirm pattern |
+| Grid interaction | Tap-to-select + batch action | No drag painting on mobile -- deliberate tap + confirm pattern |
 | Cell display | Single-letter colored initials always | Budget is tight at ~45-50px cell width. Full initials won't fit. |
 | Action sheet | Bottom content area IS the action area | No separate overlay/sheet. Context panel reacts to grid state. |
-| Team switching | Tap team name in header → dropdown | Familiar pattern, minimal UI overhead |
+| Team switching | Tap team name in header -> dropdown | Familiar pattern, minimal UI overhead |
 | Week navigation | ◀ ▶ arrows in header | Swipe conflicts with cell selection. Arrows are unambiguous. |
 | Old mobile code | Remove entirely | Clean slate. Old landscape-only drawer approach doesn't fit portrait-first design. |
 
@@ -41,7 +41,7 @@
 
 ## 3. PRD Mapping
 
-- **PRIMARY:** Pillar 1 (Layout), Pillar 2 §2.1 (Availability hot path)
+- **PRIMARY:** Pillar 1 (Layout), Pillar 2 Section 2.1 (Availability hot path)
 - **DEPENDENT:** Existing AvailabilityService, ProposalService, ScheduledMatchService, TimezoneService
 - **DEFERRED:** Compare mode (M2.0), Team roster view (M3.0), Profile tab (M4.0), Match history/H2H
 
@@ -63,7 +63,7 @@
 | File | Changes |
 |------|---------|
 | `public/index.html` | Add mobile layout containers + script tags. Keep desktop containers as-is. |
-| `public/js/app.js` | Add mobile detection. If mobile → init MobileApp instead of desktop components. |
+| `public/js/app.js` | Add mobile detection. If mobile -> init MobileApp instead of desktop components. |
 | `src/css/input.css` | Remove old mobile CSS (portrait blocker, landscape media queries, drawer styles, bottom bar styles). Add new mobile styles. |
 
 ### 4c. Removed Files
@@ -81,7 +81,7 @@
 | `ProposalService` | Cache + listener for match proposals |
 | `ScheduledMatchService` | Cache + listener for scheduled matches |
 | `TeamService` | Team data cache |
-| `TimezoneService` | UTC ↔ local slot mapping |
+| `TimezoneService` | UTC <-> local slot mapping |
 | `WeekNavigation` | Week ID calculation, current/next week |
 | `AuthService` | User auth state, team membership |
 
@@ -97,11 +97,11 @@ No backend changes. All Cloud Functions and Firestore rules remain as-is. Mobile
 
 ```
 ┌──────────────────────────────┐
-│ 🏆 Slackers ▾  W8 Feb16-22 ◀▶│  ← Header (3rem fixed)
+│ 🏆 Slackers ▾  W8 Feb16-22 ◀▶│  <- Header (3rem fixed)
 ├──────────────────────────────┤
 │    M   T   W   T   F  S  S  │
 │   RP  RP  RP  RP   P  P  RP │ 20:00
-│   RP  RP  RP  RP   P  P  RP │ 20:30    ← Calendar
+│   RP  RP  RP  RP   P  P  RP │ 20:30    <- Calendar
 │   RP  RP  RP  RP  RP  P  RP │ 21:00      (flex: 3, ~60%)
 │   RP RGP  RP RGPZ  P GP  🎮 │ 21:30
 │  RPZ RGPZ RPZ RGPZ PZ GPZ RZ│ 22:00
@@ -109,22 +109,22 @@ No backend changes. All Cloud Functions and Firestore rules remain as-is. Mobile
 │  RPZ RGPZ RPZ RGPZ PZ GPZ RZ│ 23:00
 ├──────────────────────────────┤
 │  PROPOSALS                   │
-│  🐉 Gubbgrottan · OFFI      │
-│  This Week                   │  ← Context Panel
+│  🐉 Gubbgrottan - OFFI      │
+│  This Week                   │  <- Context Panel
 │                              │     (flex: 2, ~40%)
 │  YOUR MATCHES                │
-│  [hx] vs ]SR[ · Sun 21:30   │
-│  gg vs koff · Tue 20:30     │
+│  [hx] vs ]SR[ - Sun 21:30   │
+│  gg vs koff - Tue 20:30     │
 │                              │
 │  UPCOMING                    │
-│  gg vs ToT · Thu 21:00      │
+│  gg vs ToT - Thu 21:00      │
 ├──────────────────────────────┤
-│  🏠    ⚔️    👥    👤       │  ← Nav (3.5rem fixed)
+│  🏠    ⚔️    👥    👤       │  <- Nav (3.5rem fixed)
 │ Home Compare Team  Profile   │
 └──────────────────────────────┘
 ```
 
-### Cell Size Math (iPhone 14: 390×844pt)
+### Cell Size Math (iPhone 14: 390x844pt)
 
 | Element | Height |
 |---------|--------|
@@ -133,15 +133,15 @@ No backend changes. All Cloud Functions and Firestore rules remain as-is. Mobile
 | Calendar (flex: 3) | ~420px |
 | Context (flex: 2) | ~280px |
 | Bottom nav | 56px (3.5rem) |
-| **Total** | ~804px ✓ |
+| **Total** | ~804px [ok] |
 
 | Element | Width |
 |---------|-------|
 | Time labels | ~36px |
 | 7 day columns | ~50px each (354px total) |
-| **Total** | ~390px ✓ |
+| **Total** | ~390px [ok] |
 
-**Cell dimensions: ~50px wide × ~52px tall** — comfortably tappable (Apple minimum: 44×44pt).
+**Cell dimensions: ~50px wide x ~52px tall** -- comfortably tappable (Apple minimum: 44x44pt).
 
 ### Calendar Grid Cell Content
 
@@ -149,17 +149,17 @@ Each cell shows colored single-letter initials of available players:
 
 ```
 ┌──────┐
-│ R P  │  ← 2 players: R (green), P (red) — same colors as desktop
+│ R P  │  <- 2 players: R (green), P (red) -- same colors as desktop
 │      │
 └──────┘
 
 ┌──────┐
-│RGPZ  │  ← 4 players: all initials in a row
+│RGPZ  │  <- 4 players: all initials in a row
 │      │
 └──────┘
 
 ┌──────┐
-│RPZ+2 │  ← 5+ players: show 3 + overflow count
+│RPZ+2 │  <- 5+ players: show 3 + overflow count
 │      │
 └──────┘
 ```
@@ -167,7 +167,7 @@ Each cell shows colored single-letter initials of available players:
 **Match cell** (slot has a scheduled match):
 ```
 ┌──────┐
-│  🎮  │  ← Game controller icon, distinct purple/accent background
+│  🎮  │  <- Game controller icon, distinct purple/accent background
 └──────┘
 ```
 
@@ -180,18 +180,18 @@ Shows scrollable list of proposals, your matches, and upcoming matches.
 Replaces default content with action UI:
 ```
 ┌──────────────────────────────┐
-│  ✓ 3 slots selected          │
-│  Mon 21:00 · Tue 21:30 ·    │
+│  [ok] 3 slots selected          │
+│  Mon 21:00 - Tue 21:30 -    │
 │  Wed 22:00                   │
 │                              │
 │  ┌──────────────────────┐    │
-│  │  ✅ Mark Available    │    │  ← Primary button
+│  │  [OK] Mark Available    │    │  <- Primary button
 │  └──────────────────────┘    │
 │  ┌──────────────────────┐    │
-│  │  ❌ Mark Unavailable  │    │  ← Secondary button
+│  │  ❌ Mark Unavailable  │    │  <- Secondary button
 │  └──────────────────────┘    │
 │  ┌──────────────────────┐    │
-│  │     Clear Selection   │    │  ← Muted/text button
+│  │     Clear Selection   │    │  <- Muted/text button
 │  └──────────────────────┘    │
 └──────────────────────────────┘
 ```
@@ -201,7 +201,7 @@ Shows match detail card:
 ```
 ┌──────────────────────────────┐
 │  [hx] 🏆 vs ]SR[ 🏆         │
-│  OFFI · Sunday 21:30 (D1)   │
+│  OFFI - Sunday 21:30 (D1)   │
 │                              │
 │  Roster: Player1, Player2,  │
 │  Player3, Player4           │
@@ -236,15 +236,15 @@ if (mobileMediaQuery.matches) {
 // Listen for viewport changes (e.g., browser resize, dev tools)
 mobileMediaQuery.addEventListener('change', (e) => {
     if (e.matches) {
-        // Switched to mobile — reload to re-init
+        // Switched to mobile -- reload to re-init
         // (Simpler than hot-swapping layouts mid-session)
         window.location.reload();
     }
-    // Mobile → desktop transition also reloads
+    // Mobile -> desktop transition also reloads
 });
 ```
 
-### 6b. MobileApp.js — Orchestrator
+### 6b. MobileApp.js -- Orchestrator
 
 ```javascript
 const MobileApp = (function() {
@@ -255,7 +255,7 @@ const MobileApp = (function() {
         const mobileRoot = document.getElementById('mobile-app');
         mobileRoot.classList.remove('hidden');
 
-        // Init services (same as desktop — they're shared)
+        // Init services (same as desktop -- they're shared)
         await TimezoneService.init();
         WeekNavigation.init();
 
@@ -310,7 +310,7 @@ const MobileApp = (function() {
     }
 
     function _setupListeners() {
-        // Week change → refresh grid + content
+        // Week change -> refresh grid + content
         document.addEventListener('week-changed', (e) => {
             const weekLabel = document.getElementById('mobile-week-label');
             weekLabel.textContent = e.detail.label;
@@ -318,14 +318,14 @@ const MobileApp = (function() {
             MobileHomeContent.refresh();
         });
 
-        // Team change → refresh everything
+        // Team change -> refresh everything
         document.addEventListener('user-team-changed', () => {
             _initHeader();
             MobileCalendarGrid.reload();
             MobileHomeContent.refresh();
         });
 
-        // Grid selection → switch context panel state
+        // Grid selection -> switch context panel state
         document.addEventListener('mobile-selection-changed', (e) => {
             const { selectedCells } = e.detail;
             if (selectedCells.length > 0) {
@@ -346,7 +346,7 @@ const MobileApp = (function() {
 })();
 ```
 
-### 6c. MobileCalendarGrid.js — Calendar Grid
+### 6c. MobileCalendarGrid.js -- Calendar Grid
 
 ```javascript
 const MobileCalendarGrid = (function() {
@@ -541,7 +541,7 @@ const MobileCalendarGrid = (function() {
 })();
 ```
 
-### 6d. MobileHomeContent.js — Context Panel
+### 6d. MobileHomeContent.js -- Context Panel
 
 ```javascript
 const MobileHomeContent = (function() {
@@ -621,9 +621,9 @@ const MobileHomeContent = (function() {
         container.innerHTML = `
             <div class="mobile-selection-actions">
                 <div class="mobile-selection-header">
-                    <span class="mobile-selection-count">✓ ${selectedCells.length} slot${selectedCells.length > 1 ? 's' : ''} selected</span>
+                    <span class="mobile-selection-count">[ok] ${selectedCells.length} slot${selectedCells.length > 1 ? 's' : ''} selected</span>
                 </div>
-                <div class="mobile-selection-slots">${slotLabels.join(' · ')}</div>
+                <div class="mobile-selection-slots">${slotLabels.join(' - ')}</div>
                 <div class="mobile-selection-buttons">
                     <button class="mobile-action-btn mobile-action-available"
                             onclick="MobileHomeContent.commitAction('add')">
@@ -653,7 +653,7 @@ const MobileHomeContent = (function() {
             : []; // Fallback
 
         // Use AvailabilityService to batch update
-        // Same backend call as desktop — toggle user in/out of slots
+        // Same backend call as desktop -- toggle user in/out of slots
         try {
             if (action === 'add') {
                 await AvailabilityService.addUserToSlots(teamId, userId, selectedCells);
@@ -665,7 +665,7 @@ const MobileHomeContent = (function() {
             // Grid will auto-update via listener
         } catch (error) {
             console.error('Failed to update availability:', error);
-            // Show toast/error — reuse existing ToastService
+            // Show toast/error -- reuse existing ToastService
             ToastService.show('Failed to update. Try again.', 'error');
         }
     }
@@ -685,7 +685,7 @@ const MobileHomeContent = (function() {
                     <span class="mobile-match-team">${teamB?.name || 'Unknown'}</span>
                 </div>
                 <div class="mobile-match-info">
-                    ${match.gameType || 'OFFI'} · ${_formatSlot(match.slot)}
+                    ${match.gameType || 'OFFI'} - ${_formatSlot(match.slot)}
                 </div>
                 <button class="mobile-action-btn mobile-action-clear"
                         onclick="MobileHomeContent.showDefault()">
@@ -703,7 +703,7 @@ const MobileHomeContent = (function() {
                     <span class="mobile-proposal-team">${opponent?.name || 'Unknown'}</span>
                     <span class="mobile-proposal-type badge-${proposal.gameType?.toLowerCase()}">${proposal.gameType || 'OFFI'}</span>
                 </div>
-                <div class="mobile-proposal-meta">This Week · Waiting for confirmations</div>
+                <div class="mobile-proposal-meta">This Week - Waiting for confirmations</div>
             </div>
         `;
     }
@@ -738,7 +738,7 @@ const MobileHomeContent = (function() {
 })();
 ```
 
-### 6e. MobileBottomNav.js — Navigation Bar
+### 6e. MobileBottomNav.js -- Navigation Bar
 
 ```javascript
 const MobileBottomNav = (function() {
@@ -799,7 +799,7 @@ const MobileBottomNav = (function() {
         </div>
         <div class="mobile-week-nav">
             <button id="mobile-week-prev" class="mobile-week-btn">◀</button>
-            <span id="mobile-week-label" class="mobile-week-label">W8 · Feb 16-22</span>
+            <span id="mobile-week-label" class="mobile-week-label">W8 - Feb 16-22</span>
             <button id="mobile-week-next" class="mobile-week-btn">▶</button>
         </div>
     </header>
@@ -1143,7 +1143,7 @@ const MobileBottomNav = (function() {
 |------|------|----------|
 | Grid render (initial) | Cold | Show loading spinner, then render. Acceptable 200-500ms. |
 | Grid cell update (listener) | Hot | Direct DOM update on listener callback. No re-render. |
-| Cell tap → selection highlight | Hot | Instant CSS class toggle. No async. |
+| Cell tap -> selection highlight | Hot | Instant CSS class toggle. No async. |
 | Commit availability | Cold | Show loading on button, restore on complete/error. |
 | Proposals/matches display | Cold | Render from cache first, listener updates incrementally. |
 | Week navigation | Cold | Clear grid, show brief loading, render new week. |
@@ -1189,12 +1189,12 @@ action UI                       │
 ## 9. Test Scenarios
 
 ### Frontend
-- [ ] Mobile layout shows at ≤768px, desktop at >768px
-- [ ] Calendar grid renders 7 days × correct time slots
+- [ ] Mobile layout shows at <=768px, desktop at >768px
+- [ ] Calendar grid renders 7 days x correct time slots
 - [ ] Single-letter colored initials display in cells
-- [ ] Tap cell → cell highlights with primary outline
-- [ ] Tap again → cell deselects
-- [ ] Multi-select: tap 3 cells → all highlighted
+- [ ] Tap cell -> cell highlights with primary outline
+- [ ] Tap again -> cell deselects
+- [ ] Multi-select: tap 3 cells -> all highlighted
 - [ ] Context panel switches to action view when cells selected
 - [ ] "Mark Available" commits and clears selection
 - [ ] "Mark Unavailable" commits and clears selection
@@ -1214,13 +1214,13 @@ action UI                       │
 - [ ] Timezone mapping matches desktop behavior
 
 ### Layout
-- [ ] Portrait mode works on iPhone SE (375×667)
-- [ ] Portrait mode works on iPhone 14 (390×844)
-- [ ] Portrait mode works on iPhone 14 Pro Max (430×932)
+- [ ] Portrait mode works on iPhone SE (375x667)
+- [ ] Portrait mode works on iPhone 14 (390x844)
+- [ ] Portrait mode works on iPhone 14 Pro Max (430x932)
 - [ ] Landscape mode works on phones (but not required to be optimal)
 - [ ] Desktop layout unaffected by mobile CSS
 - [ ] No horizontal scrolling on any phone size
-- [ ] Cells are tappable without mis-taps (≥44×44pt)
+- [ ] Cells are tappable without mis-taps (>=44x44pt)
 - [ ] Bottom nav doesn't overlap with OS home indicator
 
 ### Auth States
@@ -1236,9 +1236,9 @@ action UI                       │
 |---------|------------|
 | Desktop grid breaks | Mobile CSS uses `.mobile-*` classes only. Desktop `.main-grid-v3` untouched. Media query hides one, shows other. |
 | Service method mismatch | MobileCalendarGrid calls exact same AvailabilityService methods as desktop. Verify method signatures match. |
-| Timezone mapping diverges | Reuse TimezoneService.localToUtc/utcToLocal — do NOT reimplement. |
+| Timezone mapping diverges | Reuse TimezoneService.localToUtc/utcToLocal -- do NOT reimplement. |
 | Selection persists across weeks | `loadWeek()` clears `_selectedCells` set before rendering new week. |
-| Context panel stale after commit | `clearSelection()` triggers `mobile-selection-changed` event → MobileHomeContent.showDefault(). |
+| Context panel stale after commit | `clearSelection()` triggers `mobile-selection-changed` event -> MobileHomeContent.showDefault(). |
 | Touch event issues | Use `click` event (not `pointerdown`) for cell taps. `click` works on both touch and mouse, includes 300ms delay handling by browsers. Set `touch-action: manipulation` to disable double-tap zoom. |
 | PWA safe area | Add `env(safe-area-inset-bottom)` padding to mobile-nav for notched phones. |
 
@@ -1247,15 +1247,15 @@ action UI                       │
 ## 11. Implementation Notes
 
 ### Files to Create
-1. `public/js/mobile/MobileApp.js` — Layout orchestrator
-2. `public/js/mobile/MobileCalendarGrid.js` — Calendar grid
-3. `public/js/mobile/MobileHomeContent.js` — Context panel
-4. `public/js/mobile/MobileBottomNav.js` — Navigation bar
+1. `public/js/mobile/MobileApp.js` -- Layout orchestrator
+2. `public/js/mobile/MobileCalendarGrid.js` -- Calendar grid
+3. `public/js/mobile/MobileHomeContent.js` -- Context panel
+4. `public/js/mobile/MobileBottomNav.js` -- Navigation bar
 
 ### Files to Modify
-1. `public/index.html` — Add mobile HTML containers + script tags
-2. `public/js/app.js` — Mobile detection, conditional init
-3. `src/css/input.css` — Remove old mobile CSS (~800 lines), add new (~300 lines)
+1. `public/index.html` -- Add mobile HTML containers + script tags
+2. `public/js/app.js` -- Mobile detection, conditional init
+3. `src/css/input.css` -- Remove old mobile CSS (~800 lines), add new (~300 lines)
 
 ### Files to Delete
 1. `public/js/MobileLayout.js`
@@ -1275,10 +1275,10 @@ action UI                       │
 - **Slow connection**: Loading state on grid init, optimistic selection highlights
 
 ### What This Slice Does NOT Include
-- Compare mode / opponent overlay (→ Slice M2.0)
-- Team roster view tab (→ Slice M3.0)
-- Profile/settings tab (→ Slice M4.0)
-- Match proposal creation from mobile (→ Slice M2.0)
+- Compare mode / opponent overlay (-> Slice M2.0)
+- Team roster view tab (-> Slice M3.0)
+- Profile/settings tab (-> Slice M4.0)
+- Match proposal creation from mobile (-> Slice M2.0)
 - Voice replay, H2H stats, WebQTV (desktop only for now)
 - PWA install prompt (separate concern)
 - Push notifications (separate concern)
@@ -1290,8 +1290,8 @@ action UI                       │
 ### Removing Old Mobile Code
 
 The old mobile implementation spans:
-- `MobileLayout.js` (319 lines) — Drawer management + swipe gestures
-- `MobileBottomBar.js` (607 lines) — Bottom bar with 7 button groups
+- `MobileLayout.js` (319 lines) -- Drawer management + swipe gestures
+- `MobileBottomBar.js` (607 lines) -- Bottom bar with 7 button groups
 - `src/css/input.css` portrait blocker (lines ~4656-4695)
 - `src/css/input.css` mobile landscape styles (lines ~4735-5467)
 - `public/index.html` drawer containers + overlay + bottom bar
@@ -1303,4 +1303,4 @@ The old mobile implementation spans:
 4. Remove old mobile CSS blocks from input.css
 5. Remove MobileLayout.init() and MobileBottomBar.init() calls from app.js
 6. Remove BottomPanelController references that only exist for mobile
-7. Verify desktop layout still works (it should — these files only affected mobile viewport)
+7. Verify desktop layout still works (it should -- these files only affected mobile viewport)

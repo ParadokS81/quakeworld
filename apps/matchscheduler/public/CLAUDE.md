@@ -31,8 +31,8 @@ The app uses a **3x3 CSS Grid** (`.main-grid-v3`) with panels:
 
 | Context | Controller | Value | Location |
 |---------|------------|-------|----------|
-| Desktop | **JS** | `${count/11}fr 3rem 1fr` | `app.js` → `_updateGridLayout()` |
-| Mobile | **CSS** | `1fr` | `input.css` → media query |
+| Desktop | **JS** | `${count/11}fr 3rem 1fr` | `app.js` -> `_updateGridLayout()` |
+| Mobile | **CSS** | `1fr` | `input.css` -> media query |
 
 **Why JS on desktop?** Slice 12.0a added dynamic row sizing - when timeslots are hidden, the top grid shrinks proportionally.
 
@@ -80,8 +80,8 @@ RIGHT DRAWER (hamburger menu):
   - panel-bottom-right (TeamBrowser)
 
 MAIN AREA (grid-row: 1):
-  - Calendar tab → panel-top-center (Week 1)
-  - Other tabs → panel-bottom-center (Content)
+  - Calendar tab -> panel-top-center (Week 1)
+  - Other tabs -> panel-bottom-center (Content)
 
 BOTTOM BAR:
   - Week navigation (◄ W6 ►)
@@ -104,12 +104,12 @@ MatchSchedulerApp.init()
 │   ├── _initializeAvailabilityGrid()
 │   │   ├── TimezoneService.init()
 │   │   ├── WeekNavigation.init()
-│   │   ├── WeekDisplay.create() × 2
+│   │   ├── WeekDisplay.create() x 2
 │   │   ├── GridActionButtons.init()
 │   │   ├── TemplatesModal.init()
-│   │   └── _updateGridLayout()  ← Sets initial grid rows
+│   │   └── _updateGridLayout()  <- Sets initial grid rows
 │   ├── _initializeTeamBrowser()
-│   ├── MobileLayout.init()      ← Moves panels if mobile
+│   ├── MobileLayout.init()      <- Moves panels if mobile
 │   └── MobileBottomBar.init()
 └── _setupEventListeners()
 ```
@@ -118,28 +118,28 @@ MatchSchedulerApp.init()
 
 ## Event Flow
 
-### Viewport Change (Desktop ↔ Mobile)
+### Viewport Change (Desktop <-> Mobile)
 ```
 matchMedia('...').change
-  → _updateGridLayout()     [app.js]
+  -> _updateGridLayout()     [app.js]
       Desktop: Set inline gridTemplateRows
       Mobile: Clear inline style (let CSS take over)
-  → MobileLayout handles panel movement
+  -> MobileLayout handles panel movement
 ```
 
 ### Timeslot Filter Change
 ```
 'timeslots-changed' event
-  → _updateGridLayout()     [app.js]
-  → WeekDisplay.rebuildGrid() × 2
-  → Re-setup availability listeners
+  -> _updateGridLayout()     [app.js]
+  -> WeekDisplay.rebuildGrid() x 2
+  -> Re-setup availability listeners
 ```
 
 ### Tab Switch (Mobile)
 ```
 MobileBottomBar tab click
-  → BottomPanelController.switchTab()
-  → _togglePanels()         [MobileBottomBar.js]
+  -> BottomPanelController.switchTab()
+  -> _togglePanels()         [MobileBottomBar.js]
       Calendar: show panel-top-center, hide panel-bottom-center
       Other: show panel-bottom-center, hide panel-top-center
 ```
@@ -149,7 +149,7 @@ MobileBottomBar tab click
 ## Common Debugging
 
 ### Grid not filling height on mobile
-1. Check if JS set inline `gridTemplateRows` → should be cleared on mobile
+1. Check if JS set inline `gridTemplateRows` -> should be cleared on mobile
 2. Check `_updateGridLayout()` is called on viewport change
 3. Run diagnostic:
 ```javascript

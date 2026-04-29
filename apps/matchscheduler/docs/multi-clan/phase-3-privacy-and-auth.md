@@ -1,4 +1,4 @@
-# Phase 3: Privacy Rules & Replay Auth — Multi-Clan Voice Replay
+# Phase 3: Privacy Rules & Replay Auth -- Multi-Clan Voice Replay
 
 ## Context
 
@@ -8,7 +8,7 @@ Phase 2 (quad bot) landed. New recordings now have:
 - `tracks[]` with `discordUserId`, `discordUsername`, `playerName`, `resolved` flag
 - Storage path: `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg`
 
-The replay page (`replay.html`) currently works with NO auth — Firestore rules are `allow read: if true`. This phase adds privacy enforcement so private recordings are only accessible to team members.
+The replay page (`replay.html`) currently works with NO auth -- Firestore rules are `allow read: if true`. This phase adds privacy enforcement so private recordings are only accessible to team members.
 
 Read `docs/multi-clan/CONTRACT.md` for the full schema reference.
 
@@ -16,7 +16,7 @@ Read `docs/multi-clan/CONTRACT.md` for the full schema reference.
 
 ## Deliverables
 
-### 1. Firestore Rules — voiceRecordings Privacy
+### 1. Firestore Rules -- voiceRecordings Privacy
 
 **Current rule (PoC):**
 ```
@@ -41,11 +41,11 @@ match /voiceRecordings/{demoSha256} {
 }
 ```
 
-**Why `resource.data.teamId == ''`:** Existing PoC recordings have `teamId: ''` and no `visibility` field. Without this clause, they'd become unreadable since nobody's `teams['']` would be `true`. This keeps backward compat — old recordings stay publicly readable.
+**Why `resource.data.teamId == ''`:** Existing PoC recordings have `teamId: ''` and no `visibility` field. Without this clause, they'd become unreadable since nobody's `teams['']` would be `true`. This keeps backward compat -- old recordings stay publicly readable.
 
 **How team membership works:** Each user's Firestore doc has a `teams` map: `{ "team-id-here": true }`. The rule checks if the authenticated user has a `true` entry for the recording's `teamId`. This is the same pattern used elsewhere in the app (e.g., team-scoped availability data).
 
-### 2. Storage Rules — New Path Format
+### 2. Storage Rules -- New Path Format
 
 **Current rule:**
 ```
@@ -72,7 +72,7 @@ match /voice-recordings/{demoSha256}/{fileName} {
 }
 ```
 
-Storage stays publicly readable by URL — privacy is enforced at the Firestore discovery layer. You can only learn the Storage paths by reading the `voiceRecordings` Firestore document.
+Storage stays publicly readable by URL -- privacy is enforced at the Firestore discovery layer. You can only learn the Storage paths by reading the `voiceRecordings` Firestore document.
 
 ### 3. Add Firebase Auth to replay.html
 
@@ -85,7 +85,7 @@ The replay page needs Firebase Auth so users can authenticate to access private 
 - Connect to Auth emulator in dev mode (same pattern as existing emulator checks)
 
 **What to add/import:**
-- `AuthService.js` — Needed for `waitForAuthReady()`, sign-in flows, `onAuthStateChange()`
+- `AuthService.js` -- Needed for `waitForAuthReady()`, sign-in flows, `onAuthStateChange()`
 - A lightweight login prompt in the replay UI (see UX flow below)
 
 **No need to import the full UserProfile/ProfileModal system.** The replay page just needs:
@@ -101,30 +101,30 @@ User visits replay.html?demo={sha256}
   ├─ VoiceReplayService.loadFromFirestore(sha256)
   │
   ├─ CASE 1: Recording exists, visibility == 'public' (or legacy)
-  │  → Works exactly like today. No auth needed.
-  │  → Load tracks, play audio, all good.
+  │  -> Works exactly like today. No auth needed.
+  │  -> Load tracks, play audio, all good.
   │
   ├─ CASE 2: Recording exists, visibility == 'private', user NOT logged in
-  │  → Firestore getDoc() throws permission-denied error
-  │  → Show message: "This recording is private. Sign in to access your team's recordings."
-  │  → Show Discord + Google sign-in buttons
-  │  → After sign-in: retry loadFromFirestore()
-  │    ├─ If user is team member → loads successfully
-  │    └─ If user is NOT team member → show "You don't have access to this recording"
+  │  -> Firestore getDoc() throws permission-denied error
+  │  -> Show message: "This recording is private. Sign in to access your team's recordings."
+  │  -> Show Discord + Google sign-in buttons
+  │  -> After sign-in: retry loadFromFirestore()
+  │    ├─ If user is team member -> loads successfully
+  │    └─ If user is NOT team member -> show "You don't have access to this recording"
   │
   ├─ CASE 3: Recording exists, visibility == 'private', user IS logged in + team member
-  │  → Works normally. Firestore rules allow the read.
+  │  -> Works normally. Firestore rules allow the read.
   │
   ├─ CASE 4: Recording exists, visibility == 'private', user logged in but NOT team member
-  │  → Firestore getDoc() throws permission-denied error
-  │  → Show: "You don't have access to this recording. It belongs to a different team."
+  │  -> Firestore getDoc() throws permission-denied error
+  │  -> Show: "You don't have access to this recording. It belongs to a different team."
   │
   └─ CASE 5: No recording found (doc doesn't exist)
-      → Current behavior: show drop zone for manual file upload
-      → No change needed
+      -> Current behavior: show drop zone for manual file upload
+      -> No change needed
 ```
 
-**Key UX detail:** The demo player iframe should still render even for private recordings the user can't access — they can still watch the demo, they just can't hear the voice audio. The Hub iframe loads from `d.quake.world` which has nothing to do with our auth.
+**Key UX detail:** The demo player iframe should still render even for private recordings the user can't access -- they can still watch the demo, they just can't hear the voice audio. The Hub iframe loads from `d.quake.world` which has nothing to do with our auth.
 
 **The drop zone (manual file upload) should always be available** as a fallback, even for private recordings the user can't access via Firestore. Users might have the audio files locally.
 
@@ -132,51 +132,51 @@ User visits replay.html?demo={sha256}
 
 The schema doc needs to reflect Phase 2 changes plus the botRegistrations collection from Phase 1a.
 
-**voiceRecordings — add new fields to the schema:**
-- `visibility: 'public' | 'private'` — Resolved at upload from team's defaultVisibility setting
-- `tracks[].discordUserId: string` — Stable file identifier (Discord user ID)
-- `tracks[].discordUsername: string` — Discord display name at recording time
-- `tracks[].resolved: boolean` — true if playerName was confirmed via roster/knownPlayers
+**voiceRecordings -- add new fields to the schema:**
+- `visibility: 'public' | 'private'` -- Resolved at upload from team's defaultVisibility setting
+- `tracks[].discordUserId: string` -- Stable file identifier (Discord user ID)
+- `tracks[].discordUsername: string` -- Discord display name at recording time
+- `tracks[].resolved: boolean` -- true if playerName was confirmed via roster/knownPlayers
 
-**voiceRecordings — update storage path documentation:**
+**voiceRecordings -- update storage path documentation:**
 - Old: `voice-recordings/{demoSha256}/{playerName}.ogg`
 - New: `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg`
 
-**voiceRecordings — update security rules summary:**
+**voiceRecordings -- update security rules summary:**
 - Was: `allow read: if true`
 - Now: Public recordings readable by anyone, private recordings require team membership
 
-**botRegistrations — add new collection:**
+**botRegistrations -- add new collection:**
 Document the full `BotRegistrationDocument` interface from the contract. Add it to the Collections Overview table. This was created in Phase 1a but never documented in SCHEMA.md.
 
-**teams — note new optional field:**
-- `voiceSettings?: { defaultVisibility: 'public' | 'private' }` — read by quad bot at upload time, UI comes in Phase 4
+**teams -- note new optional field:**
+- `voiceSettings?: { defaultVisibility: 'public' | 'private' }` -- read by quad bot at upload time, UI comes in Phase 4
 
-### 6. Update VoiceReplayService.loadFromFirestore() — Handle Auth Errors
+### 6. Update VoiceReplayService.loadFromFirestore() -- Handle Auth Errors
 
 The service currently assumes the Firestore read always succeeds (if the doc exists). With the new rules, reads can fail with `permission-denied`.
 
 **Update loadFromFirestore() to:**
 1. Catch Firestore permission errors
 2. Return a structured result indicating why the load failed:
-   - `{ status: 'loaded', recording }` — success
-   - `{ status: 'not_found' }` — no recording for this demo
-   - `{ status: 'auth_required' }` — private recording, user not logged in
-   - `{ status: 'access_denied' }` — private recording, user logged in but not a team member
+   - `{ status: 'loaded', recording }` -- success
+   - `{ status: 'not_found' }` -- no recording for this demo
+   - `{ status: 'auth_required' }` -- private recording, user not logged in
+   - `{ status: 'access_denied' }` -- private recording, user logged in but not a team member
 3. VoiceReplayPlayer uses this status to decide which UI to show
 
 **Note:** The Firestore SDK returns the same `permission-denied` error regardless of whether the user is unauthenticated or authenticated-but-unauthorized. You can disambiguate by checking `window.firebase.auth.currentUser`:
-- If `currentUser == null` → user not logged in → `auth_required`
-- If `currentUser != null` → user logged in but not a team member → `access_denied`
+- If `currentUser == null` -> user not logged in -> `auth_required`
+- If `currentUser != null` -> user logged in but not a team member -> `access_denied`
 
 ---
 
 ## What NOT to Build Yet
 
-- **Phase 4 (voiceSettings toggle)** — Don't add the UI for changing defaultVisibility. Teams will use the default ('private') until Phase 4.
-- **Phase 5 (recordings list/discovery)** — Don't add a recordings browser or team recording list.
-- **Per-recording visibility override** — Phase 5. The `visibility` field exists on each recording, but there's no UI to change it yet.
-- **Player name display improvements** — The service already reads `track.playerName` which Phase 2 resolves correctly. No need to change how track names are displayed in the player UI.
+- **Phase 4 (voiceSettings toggle)** -- Don't add the UI for changing defaultVisibility. Teams will use the default ('private') until Phase 4.
+- **Phase 5 (recordings list/discovery)** -- Don't add a recordings browser or team recording list.
+- **Per-recording visibility override** -- Phase 5. The `visibility` field exists on each recording, but there's no UI to change it yet.
+- **Player name display improvements** -- The service already reads `track.playerName` which Phase 2 resolves correctly. No need to change how track names are displayed in the player UI.
 
 ---
 

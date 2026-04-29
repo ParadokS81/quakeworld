@@ -689,14 +689,14 @@ Phase 2: Blocking & Candidate Generation
   ├── Name-similarity blocking (Jaro-Winkler on core name > 0.7)
   ├── Team co-occurrence blocking (ever on same team)
   ├── Phonetic blocking (same Double Metaphone code)
-  └── Union of all blocks → candidate pairs
+  └── Union of all blocks -> candidate pairs
 
 Phase 3: Pairwise Scoring
   ├── Name similarity score (Jaro-Winkler + Dice on core name)
   ├── Stat profile similarity (cosine similarity of feature vectors)
   ├── Team overlap score (Jaccard of team sets)
   ├── Temporal pattern score (activity overlap vs succession)
-  └── Combine via Fellegi-Sunter weights → match probability per pair
+  └── Combine via Fellegi-Sunter weights -> match probability per pair
 
 Phase 4: Clustering
   ├── Build weighted graph from scored pairs
@@ -705,15 +705,15 @@ Phase 4: Clustering
   └── Post-process: validate no cluster contains co-occurring names
 
 Phase 5: Human Review
-  ├── High-confidence clusters (>0.95) → auto-merge, flag for spot-check
-  ├── Medium-confidence clusters (0.7-0.95) → present to community reviewers
-  ├── Low-confidence singletons → leave as-is
+  ├── High-confidence clusters (>0.95) -> auto-merge, flag for spot-check
+  ├── Medium-confidence clusters (0.7-0.95) -> present to community reviewers
+  ├── Low-confidence singletons -> leave as-is
   └── Reviewer decisions feed back as must-link / cannot-link constraints
 
 Phase 6: Iteration
   ├── Retrain with new constraints
   ├── Re-cluster
-  ├── New uncertain pairs → review
+  ├── New uncertain pairs -> review
   └── Repeat until convergence (typically 3-4 cycles)
 ```
 

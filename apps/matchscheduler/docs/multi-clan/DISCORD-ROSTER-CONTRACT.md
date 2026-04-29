@@ -1,4 +1,4 @@
-# Discord Roster Management — Cross-Project Contract
+# Discord Roster Management -- Cross-Project Contract
 
 > Extends the Voice Replay Multi-Clan contract with Discord-driven roster management.
 > Team leaders can add Discord server members as phantom roster entries, which auto-upgrade
@@ -14,7 +14,7 @@ Team leaders can onboard their entire roster through Discord, even before teamma
 1. Bot is already connected to the clan's Discord server (via existing `/register` flow)
 2. quad syncs the guild member list to Firestore and keeps it fresh via Discord events
 3. Leader opens "Manage Players" in the team modal, sees Discord server members
-4. Leader adds a member → assigns their QW nick → phantom user is created
+4. Leader adds a member -> assigns their QW nick -> phantom user is created
 5. Leader can set availability on behalf of phantoms (existing "on behalf of" flow)
 6. When the real person logs in via Discord OAuth, they seamlessly claim the phantom account
 
@@ -31,7 +31,7 @@ Team leaders can onboard their entire roster through Discord, even before teamma
 
 ### Extended: `/botRegistrations/{teamId}`
 
-New field — cached guild member list:
+New field -- cached guild member list:
 
 ```typescript
 interface BotRegistrationDocument {
@@ -53,17 +53,17 @@ interface BotRegistrationDocument {
       username: string;          // Discord username (unique handle, e.g. "paradoks")
       displayName: string;       // Server nick or global display name (e.g. "ParadokS")
       avatarUrl: string | null;  // Full Discord CDN URL (or null for default avatar)
-      isBot: boolean;            // true for bot accounts — filtered from UI
+      isBot: boolean;            // true for bot accounts -- filtered from UI
     }
   };
 }
 ```
 
 **Updated by quad:**
-- On `/register` completion — initial population
-- On `guildMemberAdd` event — add new entry
-- On `guildMemberRemove` event — remove entry
-- On bot startup — refresh all active guilds
+- On `/register` completion -- initial population
+- On `guildMemberAdd` event -- add new entry
+- On `guildMemberRemove` event -- remove entry
+- On bot startup -- refresh all active guilds
 
 **Size:** ~20 members per clan server. Each entry ~200 bytes. Total ~4KB per team. Well within Firestore 1MB doc limit.
 
@@ -85,13 +85,13 @@ interface PlayerEntry {
 
   // --- NEW (optional) ---
   isPhantom?: boolean;         // true for phantom members (leader-created, never logged in)
-  discordUserId?: string;      // Discord UID — stored for cross-reference with guildMembers
+  discordUserId?: string;      // Discord UID -- stored for cross-reference with guildMembers
 }
 ```
 
 **Why denormalize these?**
-- `isPhantom` — UI needs this to show phantom badge, disable certain actions, determine delete-vs-kick behavior
-- `discordUserId` — client needs this to cross-reference roster against guildMembers without loading N user docs
+- `isPhantom` -- UI needs this to show phantom badge, disable certain actions, determine delete-vs-kick behavior
+- `discordUserId` -- client needs this to cross-reference roster against guildMembers without loading N user docs
 
 **Lifecycle:**
 - Set to `true` / Discord UID when phantom is created
@@ -137,7 +137,7 @@ interface UserDocument {
 
 ## Flows
 
-### Flow 1: Guild Member Sync (quad → Firestore)
+### Flow 1: Guild Member Sync (quad -> Firestore)
 
 ```
 DISCORD SERVER                         FIRESTORE
@@ -152,27 +152,27 @@ guild.members.fetch()
 Build guildMembers map:
   filter out self (bot)
   for each member:
-    discordUserId → { username, displayName, avatarUrl, isBot }
+    discordUserId -> { username, displayName, avatarUrl, isBot }
      │
      ▼
-Write to botRegistrations/{teamId}.guildMembers ──→ UI can read immediately
+Write to botRegistrations/{teamId}.guildMembers ──-> UI can read immediately
 
 ─── ongoing events ───
 
-guildMemberAdd fires ──→ Add entry to guildMembers map
-guildMemberRemove fires ──→ Remove entry from guildMembers map
+guildMemberAdd fires ──-> Add entry to guildMembers map
+guildMemberRemove fires ──-> Remove entry from guildMembers map
 
 ─── bot startup ───
 
 For each active botRegistration:
-  Re-fetch guild members ──→ Full refresh of guildMembers map
+  Re-fetch guild members ──-> Full refresh of guildMembers map
 ```
 
 **Note:** `guildMemberAdd`/`guildMemberRemove` events require the `GuildMembers` intent, which quad already has enabled.
 
 ---
 
-### Flow 2: Add Phantom Member (Leader → MatchScheduler → Firestore)
+### Flow 2: Add Phantom Member (Leader -> MatchScheduler -> Firestore)
 
 ```
 MATCHSCHEDULER (Manage Players modal)
@@ -182,10 +182,10 @@ Leader clicks "Manage Players"
      │
      ▼
 Read botRegistrations/{teamId}
-  → get guildMembers map
+  -> get guildMembers map
      │
 Read teams/{teamId}
-  → get playerRoster (with discordUserId on entries)
+  -> get playerRoster (with discordUserId on entries)
      │
      ▼
 Cross-reference:
@@ -201,8 +201,8 @@ Leader clicks "Add" on a member
      │
      ▼
 Prompt: "QW nick for [Discord name]?"
-  → pre-filled with Discord display name
-  → leader can change it
+  -> pre-filled with Discord display name
+  -> leader can change it
      │
      ▼
 Call Cloud Function: addPhantomMember({
@@ -216,7 +216,7 @@ Cloud Function:
   1. Verify caller is team leader
   2. Verify team is not at maxPlayers
   3. Conflict check: query users WHERE discordUserId == X AND teams != {}
-     → If found: reject "Already on team [Y]. They must join themselves."
+     -> If found: reject "Already on team [Y]. They must join themselves."
   4. Create Firebase Auth account (Admin SDK)
   5. Create user doc at users/{authUid}:
        isPhantom: true
@@ -235,7 +235,7 @@ Cloud Function:
      │
      ▼
 UI updates in real-time (Firestore listener on team doc)
-  → new member appears in roster with phantom badge
+  -> new member appears in roster with phantom badge
 ```
 
 ---
@@ -252,8 +252,8 @@ User clicks "Sign in with Discord"
 Cloud Function: discordOAuthExchange
      │
      ▼
-Exchange code → get Discord profile
-  → discordUserId, username, avatar, email
+Exchange code -> get Discord profile
+  -> discordUserId, username, avatar, email
      │
      ▼
 Existing check: query users WHERE discordUserId == X
@@ -274,13 +274,13 @@ Existing check: query users WHERE discordUserId == X
      │       isPhantom: false (or delete field)
      │       update photoURL if changed
      │  4. Return custom token for existing Auth UID
-     │       → User lands on MatchScheduler, team already set up
+     │       -> User lands on MatchScheduler, team already set up
      │
      ├─ Found user with isPhantom == false:
-     │    → Normal existing user login (unchanged)
+     │    -> Normal existing user login (unchanged)
      │
      └─ Not found:
-          → Normal new user creation (unchanged)
+          -> Normal new user creation (unchanged)
 ```
 
 **Key insight:** Because the phantom already has a Firebase Auth UID, the claimed user keeps the same UID forever. No migration of doc IDs, roster references, or availability data needed. Everything "just works."
@@ -302,14 +302,14 @@ Leader clicks remove on a roster member
      │    4. Remove from knownPlayers
      │    5. Delete user doc: users/{userId}
      │    6. Delete Firebase Auth account (Admin SDK)
-     │    → Phantom is completely purged
+     │    -> Phantom is completely purged
      │
      └─ Member has isPhantom == false (real user):
           │
           ▼
         Existing kickPlayer flow (unchanged)
-          → Remove from roster + user.teams
-          → User account survives
+          -> Remove from roster + user.teams
+          -> User account survives
 ```
 
 ---
@@ -325,20 +325,20 @@ Auth:   Must be authenticated, must be team leader of teamId
 
 **Steps:**
 1. Validate input (teamId, discordUserId format, displayName 2-30 chars)
-2. Read team doc — verify caller is leader, check maxPlayers not exceeded
-3. Read botRegistrations/{teamId} — verify status is 'active', verify discordUserId exists in guildMembers
+2. Read team doc -- verify caller is leader, check maxPlayers not exceeded
+3. Read botRegistrations/{teamId} -- verify status is 'active', verify discordUserId exists in guildMembers
 4. Conflict check: query `users` where `discordUserId == input.discordUserId`
-   - If found AND user has any team membership (`teams` map not empty) → reject with team name
-   - If found AND phantom with empty teams (orphaned) → delete the orphan, continue
-5. Create Firebase Auth user: `admin.auth().createUser({})` → get UID
+   - If found AND user has any team membership (`teams` map not empty) -> reject with team name
+   - If found AND phantom with empty teams (orphaned) -> delete the orphan, continue
+5. Create Firebase Auth user: `admin.auth().createUser({})` -> get UID
 6. Create user doc at `users/{uid}` with phantom fields
 7. Add roster entry to team doc (atomic with `arrayUnion` or full roster rewrite)
 8. Update `botRegistrations/{teamId}.knownPlayers[discordUserId]` = displayName
 9. Return `{ success: true, userId: uid }`
 
 **Error handling:**
-- If step 5 succeeds but later steps fail → clean up Auth account
-- If discordUserId is already in roster (race condition) → reject gracefully
+- If step 5 succeeds but later steps fail -> clean up Auth account
+- If discordUserId is already in roster (race condition) -> reject gracefully
 
 ---
 
@@ -350,15 +350,15 @@ Auth:   Must be authenticated, must be team leader of teamId
 ```
 
 **Steps:**
-1. Read user doc — verify `isPhantom == true`
-2. Read team doc — verify caller is leader, verify userId is in roster
+1. Read user doc -- verify `isPhantom == true`
+2. Read team doc -- verify caller is leader, verify userId is in roster
 3. Remove from `teams/{teamId}.playerRoster[]`
 4. Remove `discordUserId` from `botRegistrations/{teamId}.knownPlayers`
 5. Delete user doc: `users/{userId}`
 6. Delete Firebase Auth account: `admin.auth().deleteUser(userId)`
 7. Return `{ success: true }`
 
-**Note:** If the user has somehow claimed the account between the UI check and function execution (race condition), the function sees `isPhantom != true` and rejects — the leader should use the normal kick flow instead.
+**Note:** If the user has somehow claimed the account between the UI check and function execution (race condition), the function sees `isPhantom != true` and rejects -- the leader should use the normal kick flow instead.
 
 ---
 
@@ -396,12 +396,12 @@ The `claimPhantomAccount` helper:
 
 ### Location
 
-Team Management Modal → new "Manage Players" button. Visible to team leader only.
+Team Management Modal -> new "Manage Players" button. Visible to team leader only.
 
 **Placement options (in order of preference):**
 1. Button in the header area of the team modal (next to team name/tag)
 2. New section in Settings tab, under the Scheduler section
-3. Dedicated "Players" tab (4th tab — might be overkill)
+3. Dedicated "Players" tab (4th tab -- might be overkill)
 
 ### Layout
 
@@ -439,7 +439,7 @@ Team Management Modal → new "Manage Players" button. Visible to team leader on
 | Phantom badge | `playerRoster[].isPhantom` | Small indicator (e.g. ghost icon or "Pending" text) |
 | Remove button | On phantom entries only | Calls `removePhantomMember` with confirmation |
 
-**Phantom entries** show a visual distinction (muted style, "Pending" label, or ghost icon) to indicate they haven't logged in yet. Remove button only appears on phantoms in this modal — kicking real users uses the existing "Remove Player" flow.
+**Phantom entries** show a visual distinction (muted style, "Pending" label, or ghost icon) to indicate they haven't logged in yet. Remove button only appears on phantoms in this modal -- kicking real users uses the existing "Remove Player" flow.
 
 ### Add From Discord Section
 
@@ -456,7 +456,7 @@ Team Management Modal → new "Manage Players" button. Visible to team leader on
 
 **When leader clicks "+ Add":**
 1. Small inline prompt or modal: "QW nick for [Discord name]?" with text input pre-filled with Discord display name
-2. Leader confirms → calls `addPhantomMember` Cloud Function
+2. Leader confirms -> calls `addPhantomMember` Cloud Function
 3. On success: member moves from "Add from Discord" to "Roster" section with phantom badge
 4. On conflict: toast error "Already on team [X]. They must join themselves."
 
@@ -470,7 +470,7 @@ Team Management Modal → new "Manage Players" button. Visible to team leader on
 
 ## Firestore Rules Changes
 
-### botRegistrations — allow scheduler read
+### botRegistrations -- allow scheduler read
 
 Current rule only allows leader read. Schedulers need read access for the Discord tab:
 
@@ -576,10 +576,10 @@ for (const registration of activeRegistrations) {
 
 | Phase | Project | Scope | Depends on |
 |-------|---------|-------|------------|
-| **D1** | quad | Sync guildMembers to Firestore: on `/register`, on guildMemberAdd/Remove events, on startup | — |
-| **D2** | MatchScheduler | `addPhantomMember` Cloud Function: creates Auth + user doc + roster entry | — |
-| **D3** | MatchScheduler | `removePhantomMember` Cloud Function: purges phantom completely | — |
-| **D4** | MatchScheduler | Modify `discordOAuthExchange` to handle phantom claim on login | — |
+| **D1** | quad | Sync guildMembers to Firestore: on `/register`, on guildMemberAdd/Remove events, on startup | -- |
+| **D2** | MatchScheduler | `addPhantomMember` Cloud Function: creates Auth + user doc + roster entry | -- |
+| **D3** | MatchScheduler | `removePhantomMember` Cloud Function: purges phantom completely | -- |
+| **D4** | MatchScheduler | Modify `discordOAuthExchange` to handle phantom claim on login | -- |
 | **D5** | MatchScheduler | "Manage Players" modal UI: roster display + Discord member picker + add/remove | D1 + D2 + D3 |
 
 **Parallelism:** D1 (quad) and D2+D3+D4 (MatchScheduler) can run fully in parallel. D5 depends on all others being complete for integration testing, but UI scaffolding can start with mock data.
@@ -588,17 +588,17 @@ for (const registration of activeRegistrations) {
 
 ## Resolved Decisions
 
-1. **Guild member cache approach:** Firestore cache on botRegistrations doc (Option A — proactive sync). No HTTP API on quad. Cache refreshed via discord.js events + bot startup.
+1. **Guild member cache approach:** Firestore cache on botRegistrations doc (Option A -- proactive sync). No HTTP API on quad. Cache refreshed via discord.js events + bot startup.
 
-2. **Phantom user implementation:** Full Firebase Auth account + user doc. No migration needed on claim — the Auth UID assigned at phantom creation persists forever. Discord OAuth login finds the phantom by `discordUserId` query and claims it in place.
+2. **Phantom user implementation:** Full Firebase Auth account + user doc. No migration needed on claim -- the Auth UID assigned at phantom creation persists forever. Discord OAuth login finds the phantom by `discordUserId` query and claims it in place.
 
 3. **Conflict check:** Leader cannot add a Discord member who already has a user doc with team membership (phantom or real). That person must join voluntarily. This prevents two leaders from claiming the same person.
 
-4. **Phantom removal:** Deletes everything — user doc, Auth account, roster entry, knownPlayers entry. Real user kick uses existing flow (removes from team only, account survives).
+4. **Phantom removal:** Deletes everything -- user doc, Auth account, roster entry, knownPlayers entry. Real user kick uses existing flow (removes from team only, account survives).
 
 5. **UI location:** "Manage Players" accessible from team modal, leader only. Shows current roster + available Discord members in a single view.
 
-6. **Welcome modal on claim:** Optional/deferred. When a phantom claims their account, they could see "Your team leader set you up as [nick] on [team]. You can change your name in Edit Profile." Low priority — the experience works fine without it.
+6. **Welcome modal on claim:** Optional/deferred. When a phantom claims their account, they could see "Your team leader set you up as [nick] on [team]. You can change your name in Edit Profile." Low priority -- the experience works fine without it.
 
 7. **Multi-team phantoms:** A phantom can only be on one team. If two leaders try to add the same Discord user, second one gets blocked. The real person can join additional teams themselves after claiming.
 

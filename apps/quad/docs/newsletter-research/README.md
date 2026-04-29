@@ -1,13 +1,13 @@
-# Newsletter Module — Research & Strategy
+# Newsletter Module -- Research & Strategy
 
-Research documents for the Discord chat → LLM newsletter pipeline.
+Research documents for the Discord chat -> LLM newsletter pipeline.
 
 ## Documents
 
-1. **[overview.md](overview.md)** — What we're building, high-level architecture
-2. **[backfill.md](backfill.md)** — How to get years of Discord chat history out
-3. **[local-llm.md](local-llm.md)** — Running models locally on a 4090, cost vs speed tradeoffs
-4. **[pipeline.md](pipeline.md)** — Data pipeline: storage, filtering, processing, reprocessing
+1. **[overview.md](overview.md)** -- What we're building, high-level architecture
+2. **[backfill.md](backfill.md)** -- How to get years of Discord chat history out
+3. **[local-llm.md](local-llm.md)** -- Running models locally on a 4090, cost vs speed tradeoffs
+4. **[pipeline.md](pipeline.md)** -- Data pipeline: storage, filtering, processing, reprocessing
 
 ## Status
 

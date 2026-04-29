@@ -43,7 +43,7 @@ FRONTEND COMPONENTS:
     - Display list of kickable players (exclude self, exclude leader if multiple leaders)
     - Radio button selection for player to remove
     - Confirm/Cancel buttons
-  - User actions: Select player → Confirm → calls TeamService.kickPlayer()
+  - User actions: Select player -> Confirm -> calls TeamService.kickPlayer()
 
 - TransferLeadershipModal (NEW)
   - Firebase listeners: none (uses cached roster from TeamService)
@@ -52,7 +52,7 @@ FRONTEND COMPONENTS:
     - Display list of team members (exclude self)
     - Radio button selection for new leader
     - Confirm/Cancel buttons
-  - User actions: Select member → Confirm → calls TeamService.transferLeadership()
+  - User actions: Select member -> Confirm -> calls TeamService.transferLeadership()
 
 - TeamManagementDrawer (MODIFY)
   - Add click handlers for "Remove Player" and "Transfer Leadership" buttons
@@ -61,8 +61,8 @@ FRONTEND COMPONENTS:
 FRONTEND SERVICES:
 
 - TeamService (MODIFY):
-  - kickPlayer(teamId, playerToKickId) → kickPlayer Cloud Function
-  - transferLeadership(teamId, newLeaderId) → transferLeadership Cloud Function
+  - kickPlayer(teamId, playerToKickId) -> kickPlayer Cloud Function
+  - transferLeadership(teamId, newLeaderId) -> transferLeadership Cloud Function
 
 BACKEND REQUIREMENTS:
 
@@ -95,7 +95,7 @@ BACKEND REQUIREMENTS:
       - Cannot transfer to yourself
     - Operations (in transaction):
       1. Update team.leaderId to newLeaderId
-      2. Update playerRoster: old leader role → 'member', new leader role → 'leader'
+      2. Update playerRoster: old leader role -> 'member', new leader role -> 'leader'
       3. Create TRANSFERRED_LEADERSHIP event in eventLog
     - Returns: { success: true } or { success: false, error: "message" }
 
@@ -157,9 +157,9 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 
-- Frontend → Backend calls:
-  - TeamService.kickPlayer() → httpsCallable('kickPlayer')
-  - TeamService.transferLeadership() → httpsCallable('transferLeadership')
+- Frontend -> Backend calls:
+  - TeamService.kickPlayer() -> httpsCallable('kickPlayer')
+  - TeamService.transferLeadership() -> httpsCallable('transferLeadership')
 
 - API Contracts:
   kickPlayer:
@@ -560,33 +560,33 @@ BACKEND PERFORMANCE:
 
 ```
 KICK PLAYER FLOW:
-Click "Remove Player" → TeamManagementDrawer
-→ KickPlayerModal.show() → render player list from cache
-→ User selects player + clicks "Remove Player"
-→ TeamService.kickPlayer(teamId, playerId)
-→ kickPlayer() Cloud Function:
+Click "Remove Player" -> TeamManagementDrawer
+-> KickPlayerModal.show() -> render player list from cache
+-> User selects player + clicks "Remove Player"
+-> TeamService.kickPlayer(teamId, playerId)
+-> kickPlayer() Cloud Function:
    ├── Validate leader permission
    ├── Transaction: remove from roster, update user doc, log event
    └── Batch: clear from all availability docs
-→ Returns { success: true }
-→ Toast shows "Player removed"
-→ teams/{teamId} update triggers listener
-→ TeamInfo.updateUI() shows updated roster
-→ Kicked player's listener removes team from their view
+-> Returns { success: true }
+-> Toast shows "Player removed"
+-> teams/{teamId} update triggers listener
+-> TeamInfo.updateUI() shows updated roster
+-> Kicked player's listener removes team from their view
 
 TRANSFER LEADERSHIP FLOW:
-Click "Transfer Leadership" → TeamManagementDrawer
-→ TransferLeadershipModal.show() → render member list from cache
-→ User selects new leader + clicks "Transfer"
-→ TeamService.transferLeadership(teamId, newLeaderId)
-→ transferLeadership() Cloud Function:
+Click "Transfer Leadership" -> TeamManagementDrawer
+-> TransferLeadershipModal.show() -> render member list from cache
+-> User selects new leader + clicks "Transfer"
+-> TeamService.transferLeadership(teamId, newLeaderId)
+-> transferLeadership() Cloud Function:
    ├── Validate leader permission
    └── Transaction: update leaderId, update roles, log event
-→ Returns { success: true }
-→ Toast shows "Leadership transferred"
-→ teams/{teamId} update triggers listener
-→ TeamInfo.updateUI() shows new leader
-→ Old leader's UI updates to show 'member' role
+-> Returns { success: true }
+-> Toast shows "Leadership transferred"
+-> teams/{teamId} update triggers listener
+-> TeamInfo.updateUI() shows new leader
+-> Old leader's UI updates to show 'member' role
 ```
 
 ---
@@ -621,18 +621,18 @@ BACKEND TESTS:
 - [ ] transferLeadership creates TRANSFERRED_LEADERSHIP event log
 
 INTEGRATION TESTS:
-- [ ] Kick: Button click → backend executes → roster updates in UI
+- [ ] Kick: Button click -> backend executes -> roster updates in UI
 - [ ] Kick: Kicked player's view removes team immediately
 - [ ] Kick: Availability grid no longer shows kicked player
-- [ ] Transfer: Button click → backend executes → roles update in UI
+- [ ] Transfer: Button click -> backend executes -> roles update in UI
 - [ ] Transfer: Old leader sees 'member' role, new leader sees 'leader'
 - [ ] Transfer: New leader can access leader-only features
 - [ ] Error responses show toast with message
 - [ ] Network failure shows appropriate error
 
 END-TO-END TESTS:
-- [ ] Full kick flow: open modal → select → confirm → see updated roster
-- [ ] Full transfer flow: open modal → select → confirm → see role changes
+- [ ] Full kick flow: open modal -> select -> confirm -> see updated roster
+- [ ] Full transfer flow: open modal -> select -> confirm -> see role changes
 - [ ] Kicked player cannot see team or availability after kick
 - [ ] New leader can kick players and transfer leadership
 - [ ] Old leader cannot access leader features after transfer

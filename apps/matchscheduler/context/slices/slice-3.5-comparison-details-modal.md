@@ -6,7 +6,7 @@
 - **Name:** Comparison Details Modal
 - **User Story:** As a team leader, I can click a matching time slot to see detailed opponent rosters and contact opposing leaders via Discord so that I can initiate match scheduling.
 - **Success Criteria:**
-  - User clicks a match slot in comparison mode → modal opens with detailed rosters
+  - User clicks a match slot in comparison mode -> modal opens with detailed rosters
   - Modal shows user's team roster and all matching opponent teams
   - Leaders see opponent leader Discord contact info with functional contact button
   - Non-leaders see rosters but no contact information
@@ -45,9 +45,9 @@ FRONTEND COMPONENTS:
     - Show Discord contact button for leaders
     - Handle copy-to-clipboard for Discord username
   - User actions:
-    - Click "Contact via Discord" → opens Discord DM link
-    - Click "Copy Username" → copies to clipboard
-    - Click backdrop/X/Close → closes modal
+    - Click "Contact via Discord" -> opens Discord DM link
+    - Click "Copy Username" -> copies to clipboard
+    - Click backdrop/X/Close -> closes modal
 
 - AvailabilityGrid (MODIFY)
   - Add click handler for match cells in comparison mode
@@ -56,7 +56,7 @@ FRONTEND COMPONENTS:
 FRONTEND SERVICES:
 - UserService (MODIFY - add method)
   - getUserDiscordInfo(userId): Promise<{discordUsername, discordUserId} | null>
-  - Method → Backend mapping: Direct Firestore read (no Cloud Function needed)
+  - Method -> Backend mapping: Direct Firestore read (no Cloud Function needed)
 
 - ComparisonEngine (MODIFY - add leaderId)
   - getSlotMatches(weekId, slotId) - MODIFY to include leaderId in match objects
@@ -87,10 +87,10 @@ BACKEND REQUIREMENTS:
   - Fallback: https://discord.com/users/{discordUserId}
 
 INTEGRATION POINTS:
-- Frontend → Cache: ComparisonEngine provides roster data instantly
-- Frontend → Firestore: Single read for leader Discord info (cold path)
+- Frontend -> Cache: ComparisonEngine provides roster data instantly
+- Frontend -> Firestore: Single read for leader Discord info (cold path)
 - No real-time listeners needed (modal is snapshot view)
-- Data flow: Click → Cache lookup → Optional leader fetch → Render modal
+- Data flow: Click -> Cache lookup -> Optional leader fetch -> Render modal
 ```
 
 ---
@@ -468,20 +468,20 @@ BACKEND PERFORMANCE:
 
 ```
 NON-LEADER FLOW (instant):
-Click Match Cell → ComparisonEngine.getSlotMatches() [cache] → Render Modal → Display
+Click Match Cell -> ComparisonEngine.getSlotMatches() [cache] -> Render Modal -> Display
 
 LEADER FLOW (with async contact):
-Click Match Cell → ComparisonEngine.getSlotMatches() [cache] → Render Modal (no contact yet)
+Click Match Cell -> ComparisonEngine.getSlotMatches() [cache] -> Render Modal (no contact yet)
                                                                       ↓
                                               UserService.getUserDiscordInfo() [Firestore read]
                                                                       ↓
                                                              Update contact section
 
 CONTACT BUTTON CLICK:
-Click "Open Discord DM" → Browser opens discord://users/{id} → Discord app/web opens DM
+Click "Open Discord DM" -> Browser opens discord://users/{id} -> Discord app/web opens DM
 
 COPY USERNAME:
-Click "Copy" → navigator.clipboard.writeText() → Button shows "Copied!" → Reset after 2s
+Click "Copy" -> navigator.clipboard.writeText() -> Button shows "Copied!" -> Reset after 2s
 ```
 
 ---
@@ -519,8 +519,8 @@ INTEGRATION TESTS:
 - [ ] Copy to clipboard works across browsers
 
 END-TO-END TESTS:
-- [ ] Full flow: Leader clicks slot → sees opponents → clicks Discord → DM opens
-- [ ] Full flow: Non-leader clicks slot → sees rosters → no contact options
+- [ ] Full flow: Leader clicks slot -> sees opponents -> clicks Discord -> DM opens
+- [ ] Full flow: Non-leader clicks slot -> sees rosters -> no contact options
 - [ ] Performance: Modal opens in <50ms (cached path)
 - [ ] Performance: Discord info appears within 500ms of modal open
 ```

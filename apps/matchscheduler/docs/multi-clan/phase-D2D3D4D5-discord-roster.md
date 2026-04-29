@@ -1,4 +1,4 @@
-# Phase D2+D3+D4+D5: Discord Roster Management — MatchScheduler Side
+# Phase D2+D3+D4+D5: Discord Roster Management -- MatchScheduler Side
 
 ## Context
 
@@ -74,7 +74,7 @@ exports.addPhantomMember = functions
       throw new functions.https.HttpsError('not-found', 'Discord user not found in server member list');
     }
 
-    // 6. Conflict check — is this Discord UID already linked to a user with team membership?
+    // 6. Conflict check -- is this Discord UID already linked to a user with team membership?
     const existingUsers = await db.collection('users')
       .where('discordUserId', '==', discordUserId)
       .limit(1)
@@ -99,7 +99,7 @@ exports.addPhantomMember = functions
         );
       }
 
-      // Orphaned phantom (no teams) — clean it up
+      // Orphaned phantom (no teams) -- clean it up
       const orphanId = existingUsers.docs[0].id;
       try {
         await admin.auth().deleteUser(orphanId);
@@ -115,7 +115,7 @@ exports.addPhantomMember = functions
       throw new functions.https.HttpsError('already-exists', 'This Discord user is already on the roster');
     }
 
-    // 8. Create Firebase Auth account (shell — no email, no password)
+    // 8. Create Firebase Auth account (shell -- no email, no password)
     let authUser;
     try {
       authUser = await admin.auth().createUser({
@@ -177,7 +177,7 @@ exports.addPhantomMember = functions
       return { success: true, userId };
 
     } catch (err) {
-      // Cleanup on failure — delete the Auth account we created
+      // Cleanup on failure -- delete the Auth account we created
       try { await admin.auth().deleteUser(userId); } catch { /* best effort */ }
       try { await db.collection('users').doc(userId).delete(); } catch { /* best effort */ }
       throw new functions.https.HttpsError('internal', 'Failed to create phantom member: ' + err.message);
@@ -200,7 +200,7 @@ exports.addPhantomMember = teamOperations.addPhantomMember;
 
 ### What Changes
 
-New callable Cloud Function that completely purges a phantom user: removes from roster, deletes user doc, deletes Firebase Auth account. Only works on phantom users — real users use the existing `kickPlayer` flow.
+New callable Cloud Function that completely purges a phantom user: removes from roster, deletes user doc, deletes Firebase Auth account. Only works on phantom users -- real users use the existing `kickPlayer` flow.
 
 ### File to Modify
 
@@ -236,7 +236,7 @@ exports.removePhantomMember = functions
       throw new functions.https.HttpsError('permission-denied', 'Only team leaders can remove phantom members');
     }
 
-    // Read user doc — verify it's a phantom
+    // Read user doc -- verify it's a phantom
     const userDoc = await db.collection('users').doc(userId).get();
     if (!userDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'User not found');
@@ -386,7 +386,7 @@ async function claimPhantomAccount(userId, discordProfile) {
 
   await db.collection('users').doc(userId).update(userUpdate);
 
-  // 3. Update roster entries on all teams — clear isPhantom flag
+  // 3. Update roster entries on all teams -- clear isPhantom flag
   const teams = currentData.teams || {};
   for (const teamId of Object.keys(teams)) {
     if (!teams[teamId]) continue;
@@ -419,8 +419,8 @@ async function claimPhantomAccount(userId, discordProfile) {
 ### Edge Cases
 
 - **Phantom has different displayName than Discord name:** Keep the QW name the leader assigned. The user can change it later via Edit Profile. Don't overwrite `displayName` during claim.
-- **Email conflict:** The Discord account might have an email already linked to a different Firebase Auth user (e.g., they previously signed in with Google using the same email). Handle this gracefully — skip email update if it would conflict.
-- **Race condition:** User claims phantom while leader is removing it. The claim should win — `isPhantom` goes `false`, the removePhantomMember function will see `isPhantom != true` and reject.
+- **Email conflict:** The Discord account might have an email already linked to a different Firebase Auth user (e.g., they previously signed in with Google using the same email). Handle this gracefully -- skip email update if it would conflict.
+- **Race condition:** User claims phantom while leader is removing it. The claim should win -- `isPhantom` goes `false`, the removePhantomMember function will see `isPhantom != true` and reject.
 
 ### Verification
 
@@ -448,7 +448,7 @@ New modal accessible from the team management modal. Shows current roster with p
 ```html
 <div class="flex items-center justify-between mb-3">
   <h4 class="text-text-primary font-medium">Player Mapping</h4>
-  <!-- NEW: Manage Players button — leader only -->
+  <!-- NEW: Manage Players button -- leader only -->
   <button id="manage-players-btn"
     class="text-sm px-3 py-1 bg-accent/20 text-accent rounded hover:bg-accent/30 transition-colors"
     style="display: ${_isLeader ? 'inline-flex' : 'none'}">
@@ -706,7 +706,7 @@ Add the new component script:
 
 ## Firestore Rules
 
-### botRegistrations — scheduler read access
+### botRegistrations -- scheduler read access
 
 Check if schedulers already have read access. If not, update:
 
@@ -725,9 +725,9 @@ This doesn't affect the Manage Players feature (leader only), but ensures the Di
 
 ## Implementation Order
 
-1. **D2 + D3 first** — Cloud Functions are independent, can be deployed and tested via Firebase console before UI exists
-2. **D4 second** — Small modification to existing login flow. Deploy with D2+D3
-3. **D5 last** — UI depends on Cloud Functions being available
+1. **D2 + D3 first** -- Cloud Functions are independent, can be deployed and tested via Firebase console before UI exists
+2. **D4 second** -- Small modification to existing login flow. Deploy with D2+D3
+3. **D5 last** -- UI depends on Cloud Functions being available
 
 Within D5:
 1. Create `ManagePlayersModal.js` with the roster display (static, from team cache)
@@ -756,9 +756,9 @@ npm run deploy
 
 ### Test Flow: Add Phantom
 1. Ensure bot is connected to a Discord server
-2. Open team modal → Discord tab → click "Manage Players"
+2. Open team modal -> Discord tab -> click "Manage Players"
 3. Verify Discord server members appear in the "Add from Discord" section
-4. Click "+ Add" on a member → enter QW nick → confirm
+4. Click "+ Add" on a member -> enter QW nick -> confirm
 5. Verify member appears in roster with "Pending" badge
 6. Check Firestore: `users/{uid}` with `isPhantom: true`, `teams/{teamId}.playerRoster` includes new entry
 

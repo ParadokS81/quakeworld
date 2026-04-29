@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build slipgate-app's "Quake Dir Control" suite — multi-version ezQuake management with portable/installed dual-mode storage and an entity-level diff viewer between any two versions.
+**Goal:** Build slipgate-app's "Quake Dir Control" suite -- multi-version ezQuake management with portable/installed dual-mode storage and an entity-level diff viewer between any two versions.
 
-**Architecture:** Versioned binaries are warehoused in slipgate's data root using content-addressed storage (`<data-root>/binaries/blobs/<sha256>.exe` for the bytes, `<data-root>/binaries/<client>/<version>/manifest.json` for metadata pointing at the blob). The active binary still lives in the user's quake dir as `ezquake.exe` so slipgate never enters the launch path — uninstall slipgate and the user's setup keeps working. Switching versions copies the chosen blob over the active exe. Backups happen only when the displaced exe is unknown to the warehouse (foreign), since otherwise the warehouse already holds the bytes. The diff viewer reads snapshots widened to include retired entities, and a shared monorepo lib (`packages/qw-version-resolution/`) supplies the version-arithmetic helpers used by both oracle and slipgate. No SQLite on the slipgate side.
+**Architecture:** Versioned binaries are warehoused in slipgate's data root using content-addressed storage (`<data-root>/binaries/blobs/<sha256>.exe` for the bytes, `<data-root>/binaries/<client>/<version>/manifest.json` for metadata pointing at the blob). The active binary still lives in the user's quake dir as `ezquake.exe` so slipgate never enters the launch path -- uninstall slipgate and the user's setup keeps working. Switching versions copies the chosen blob over the active exe. Backups happen only when the displaced exe is unknown to the warehouse (foreign), since otherwise the warehouse already holds the bytes. The diff viewer reads snapshots widened to include retired entities, and a shared monorepo lib (`packages/qw-version-resolution/`) supplies the version-arithmetic helpers used by both oracle and slipgate. No SQLite on the slipgate side.
 
 **Tech stack:** Tauri v2 + SolidJS + Rust + Bun. Persistence via `tauri-plugin-store` (`profile.json`). Frontend tests use `bun:test` (not vitest). Rust tests use `tempfile` (already a dev-dep). Build tooling: `bun run tauri` for dev, `./scripts/build-portable.sh` post-bundle for the portable .zip.
 
@@ -27,27 +27,27 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 5. **Existing updater code is in `commands/updater.rs` (867 lines).** It has `ClientDef`, GitHub release fetching, download+verify+extract, and `backup_exe()`. Phase 2 hooks into it (insert `register_version` between lines 758 and 778); Phase 3 refactors it (deletes its own backup/swap logic, calls `version_swap::swap_active_version` instead). Read lines 507-538 (`backup_exe`) and 661-831 (`download_and_install_update`) before touching it.
 
-6. **Tauri naming convention:** snake_case Rust commands surface as snake_case in `invoke()` calls too — slipgate's frontend calls `invoke("check_for_update")`, not `checkForUpdate`. Match the existing pattern in `src/lib/tauri-commands.ts`.
+6. **Tauri naming convention:** snake_case Rust commands surface as snake_case in `invoke()` calls too -- slipgate's frontend calls `invoke("check_for_update")`, not `checkForUpdate`. Match the existing pattern in `src/lib/tauri-commands.ts`.
 
 7. **Bun, not npm.** `bun run`, `bun test`, `bun install`. Frontend tests live in `src/**/*.test.ts(x)` next to the code under test, not in a separate `tests/` dir.
 
-8. **bun:test is not vitest.** Slipgate tests import `{ describe, expect, test } from "bun:test"`. Use `test`, not `it`. No `vi.fn()` API available. This plan structures all wrappers to take `invoke` as a parameter so tests can pass a plain inline function — no mocking framework needed at all.
+8. **bun:test is not vitest.** Slipgate tests import `{ describe, expect, test } from "bun:test"`. Use `test`, not `it`. No `vi.fn()` API available. This plan structures all wrappers to take `invoke` as a parameter so tests can pass a plain inline function -- no mocking framework needed at all.
 
 9. **No hardcoded colors, paths, or URLs in components.** Use DaisyUI classes, module-top constants, or Tauri APIs. ConfigViewer is the existing model.
 
-10. **Profile persistence is silent on errors** (HEALTH.md R4). Don't wrap warehouse-state mutations in `saveProfile()` calls without error surfacing — the warehouse has its own state files (`index.json`, per-version `manifest.json`).
+10. **Profile persistence is silent on errors** (HEALTH.md R4). Don't wrap warehouse-state mutations in `saveProfile()` calls without error surfacing -- the warehouse has its own state files (`index.json`, per-version `manifest.json`).
 
 11. **Tauri's `"all"` bundle target does not include a portable Windows .zip.** It produces MSI + NSIS. Portable mode requires a custom build script. Phase 1 covers this.
 
 12. **`read_exe_version` is Windows-only.** `commands/ezquake.rs:1765` is `#[cfg(target_os = "windows")]`; the Linux fallback at line 1823 returns `None`. WSL dev mode cannot read PE versions, so first-run import silently no-ops on Linux. Warehouse smoke-testing of imports has to happen on Windows or with a manually-injected fake version.
 
-13. **Rust tests use tempfile (already a dev-dep).** Per CLAUDE.md ("Automated tests only when the project already has them"), this plan adds Rust tests **only** for the warehouse + version-resolution modules where the logic is sufficiently complex to merit them. `apps/slipgate-app/src-tauri/Cargo.toml` already lists `tempfile = "3"` under `[dev-dependencies]` — no Cargo.toml edit needed for that.
+13. **Rust tests use tempfile (already a dev-dep).** Per CLAUDE.md ("Automated tests only when the project already has them"), this plan adds Rust tests **only** for the warehouse + version-resolution modules where the logic is sufficiently complex to merit them. `apps/slipgate-app/src-tauri/Cargo.toml` already lists `tempfile = "3"` under `[dev-dependencies]` -- no Cargo.toml edit needed for that.
 
-14. **No new heavy Rust deps.** `chrono` is NOT currently in `Cargo.toml`. To avoid pulling it in, manifests store `downloaded_at: u64` (Unix epoch seconds) instead of an ISO 8601 string. `sha2` (already there) covers blob hashing. `semver` (already there) is fine for stable-tag comparisons inside the existing updater logic but is NOT used by the cross-version-string logic in `qw-version-resolution` — that lib handles tags + dated heads + build numbers via a structured kind/value schema.
+14. **No new heavy Rust deps.** `chrono` is NOT currently in `Cargo.toml`. To avoid pulling it in, manifests store `downloaded_at: u64` (Unix epoch seconds) instead of an ISO 8601 string. `sha2` (already there) covers blob hashing. `semver` (already there) is fine for stable-tag comparisons inside the existing updater logic but is NOT used by the cross-version-string logic in `qw-version-resolution` -- that lib handles tags + dated heads + build numbers via a structured kind/value schema.
 
 15. **The screenshot at `/mnt/c/Users/Administrator/Downloads/2026-04-26_14-49.png`** shows the current Updater tab UI. Phases 3 and 5 evolve this surface. Refer to it visually when reasoning about the new layout.
 
-16. **Slipgate's parsed user config is already `Map<string, string>`.** `ParsedConfig.cvars` in `src/lib/config/types.ts:41` is exactly the shape Phase 5's diff-impact code wants. No adapter layer needed — pass `parsedConfig.cvars` directly.
+16. **Slipgate's parsed user config is already `Map<string, string>`.** `ParsedConfig.cvars` in `src/lib/config/types.ts:41` is exactly the shape Phase 5's diff-impact code wants. No adapter layer needed -- pass `parsedConfig.cvars` directly.
 
 ---
 
@@ -59,7 +59,7 @@ These resolve structural choices made during the second-pass review on 2026-04-2
 
 **Decision:** Add `<data-root>/binaries/index.json` with `{ schema_version: 1, active: { ezquake: "3.6.9" }, last_scan: <u64-epoch> }`. The filesystem (per-version manifests + blobs) remains the source of truth; the index serves cheap "what's active for X" lookups and provides a place for future warehouse-level metadata (retention rules, schema migration markers).
 
-**Why:** `list_warehoused_versions` doing a full FS walk on every UI tick is wasteful, and there's nowhere clean to record "active version per client" without re-hashing the canonical exe. The index also makes future schema migrations of the manifest format diagnosable — without it, old manifests parse silently because serde tolerates unknown fields.
+**Why:** `list_warehoused_versions` doing a full FS walk on every UI tick is wasteful, and there's nowhere clean to record "active version per client" without re-hashing the canonical exe. The index also makes future schema migrations of the manifest format diagnosable -- without it, old manifests parse silently because serde tolerates unknown fields.
 
 **Phase:** 2.
 
@@ -67,15 +67,15 @@ These resolve structural choices made during the second-pass review on 2026-04-2
 
 **Decision:** On every app launch, after the warehouse loads, hash `<quake-dir>/<canonical_exe>` and look up the sha256 in the warehouse. If found, set that version as active in `index.json`. If not found and the exe exists, prompt to import. If not found and the exe is missing, mark "no active version."
 
-**Why:** The user might manually swap a binary outside slipgate (drop in a custom build, run another updater, restore from a system backup). Without reconcile, slipgate's "active version" pointer drifts from reality silently. Reconcile makes the on-disk exe authoritative — slipgate adapts to whatever it finds.
+**Why:** The user might manually swap a binary outside slipgate (drop in a custom build, run another updater, restore from a system backup). Without reconcile, slipgate's "active version" pointer drifts from reality silently. Reconcile makes the on-disk exe authoritative -- slipgate adapts to whatever it finds.
 
 **Phase:** 2 (alongside the index).
 
 ### D3. sha256 is required, not optional
 
-**Decision:** `WarehousedVersion.sha256` is `String`, not `Option<String>`. Every code path that creates a manifest computes and stores it — including `import_existing_install`. Cost: ~50ms on a 5MB exe, one-time per import.
+**Decision:** `WarehousedVersion.sha256` is `String`, not `Option<String>`. Every code path that creates a manifest computes and stores it -- including `import_existing_install`. Cost: ~50ms on a 5MB exe, one-time per import.
 
-**Why:** sha256 is the join key for D2 (reconcile). It's also the only deduplication signal we have. Skipping it on import is the easiest way to ensure imported versions are forever opaque to the warehouse — that future is worse than 50ms once.
+**Why:** sha256 is the join key for D2 (reconcile). It's also the only deduplication signal we have. Skipping it on import is the easiest way to ensure imported versions are forever opaque to the warehouse -- that future is worse than 50ms once.
 
 **Phase:** 2.
 
@@ -83,30 +83,30 @@ These resolve structural choices made during the second-pass review on 2026-04-2
 
 **Decision:** Binaries live at `<data-root>/binaries/blobs/<sha256>.exe`. Per-version manifests live at `<data-root>/binaries/<client>/<version>/manifest.json` and reference the blob via a `blob_sha256: String` field. `list_warehoused_versions` walks the per-version directories; `version_swap` reads from the blob path computed via `blobs/<manifest.blob_sha256>.exe`.
 
-**Why:** Same shape as git, OCI, npm cache, every other content store in our toolchain. Buys deduplication for free (two versions with identical bytes share one blob), enables a future "delete unused blobs" garbage collector, and keeps the per-client/per-version dirs small (a manifest is a few hundred bytes). The alternative — bytes inlined in the version dir — is a one-way door: fixing it later means migrating filled-up warehouses on user disks. Doing it now is ~30 lines extra in `register_version`.
+**Why:** Same shape as git, OCI, npm cache, every other content store in our toolchain. Buys deduplication for free (two versions with identical bytes share one blob), enables a future "delete unused blobs" garbage collector, and keeps the per-client/per-version dirs small (a manifest is a few hundred bytes). The alternative -- bytes inlined in the version dir -- is a one-way door: fixing it later means migrating filled-up warehouses on user disks. Doing it now is ~30 lines extra in `register_version`.
 
 **Phase:** 2.
 
 ### D5. Version-resolution logic is shared monorepo TypeScript, not pre-resolved snapshots
 
-**Decision:** Create `packages/qw-version-resolution/` — a small TS lib exporting:
+**Decision:** Create `packages/qw-version-resolution/` -- a small TS lib exporting:
 - A structured `VersionSpec` type: `{ kind: "tag"; value: string } | { kind: "head"; date: string; commit?: string } | { kind: "build"; number: number; commit?: string }`
 - `parseVersionSpec(s: string, displayString: string): VersionSpec`
-- `compareVersions(a: VersionSpec, b: VersionSpec): -1 | 0 | 1` — total ordering across kinds (tag < head with later date, build numbers compared, etc.)
+- `compareVersions(a: VersionSpec, b: VersionSpec): -1 | 0 | 1` -- total ordering across kinds (tag < head with later date, build numbers compared, etc.)
 - `existsAtVersion(entity: { first_seen_version?: string; last_seen_version?: string }, target: VersionSpec): boolean`
 - `defaultAtVersion(entity: { default?: string; default_history?: Array<{ version: string; value: string }> }, target: VersionSpec): string | null`
 
 Both oracle's `build-snapshot.ts` and slipgate's diff viewer import from this lib. Snapshot files do NOT pre-resolve per-version views; they continue to ship `default_history` + `first_seen_version` + `last_seen_version` as today.
 
-**Why:** Pre-resolving per-version views multiplies the snapshot ~14x today (more as we walk more versions and clients). For a workshop-stage project with one snapshot consumer, that's premature. The real concern — "version-arithmetic logic rotting in slipgate alone" — is solved by extracting it into one shared home that every consumer imports. If a future MCP consumer needs version-resolved data, MCP has direct DB access via tools — it doesn't need pre-resolved snapshots either.
+**Why:** Pre-resolving per-version views multiplies the snapshot ~14x today (more as we walk more versions and clients). For a workshop-stage project with one snapshot consumer, that's premature. The real concern -- "version-arithmetic logic rotting in slipgate alone" -- is solved by extracting it into one shared home that every consumer imports. If a future MCP consumer needs version-resolved data, MCP has direct DB access via tools -- it doesn't need pre-resolved snapshots either.
 
 **Phase:** 0 (the monorepo lib is built first; Phase 5's diff viewer imports from it).
 
 ### D6. Backups happen only for foreign exes
 
-**Decision:** Before swapping in a new version, hash the currently-installed exe. If its sha256 is in the warehouse (we already have those bytes), do not back it up — just delete or rename-and-overwrite. If the sha256 is NOT in the warehouse (foreign exe), rename it to `<stem>.bak.exe` and keep it. Drops the timestamp-suffix hack from `backup_exe`.
+**Decision:** Before swapping in a new version, hash the currently-installed exe. If its sha256 is in the warehouse (we already have those bytes), do not back it up -- just delete or rename-and-overwrite. If the sha256 is NOT in the warehouse (foreign exe), rename it to `<stem>.bak.exe` and keep it. Drops the timestamp-suffix hack from `backup_exe`.
 
-**Why:** Backups exist to prevent data loss. If the warehouse already holds the bytes, there's nothing to lose — the exe can be rebuilt from `<data-root>/binaries/blobs/<sha256>.exe` at any time. Backing up a known binary just produces clutter and burns disk. Foreign exes (user dropped in something we've never seen) are the only case where the .bak file does work.
+**Why:** Backups exist to prevent data loss. If the warehouse already holds the bytes, there's nothing to lose -- the exe can be rebuilt from `<data-root>/binaries/blobs/<sha256>.exe` at any time. Backing up a known binary just produces clutter and burns disk. Foreign exes (user dropped in something we've never seen) are the only case where the .bak file does work.
 
 **Phase:** 3.
 
@@ -114,13 +114,13 @@ Both oracle's `build-snapshot.ts` and slipgate's diff viewer import from this li
 
 **Decision:** Phase 2 inserts `register_version` into `download_and_install_update` between lines 758 and 778 (the exe is at `.slipgate-update-exe.tmp`, before any quake-dir mutation), keeping the existing backup/install logic intact for that phase. Phase 3 then **deletes** the existing stages 5-7 of `download_and_install_update` (backup_exe call, rename to canonical) and replaces them with a single `version_swap::swap_active_version` call. After Phase 3 ships, there is exactly one swap implementation.
 
-**Why:** The original plan had Phase 2 leave the old swap intact and Phase 3 add a new swap module without explicitly retiring the old one — risk of two swap paths drifting forever. The refactor is small (delete ~30 lines, add 1 call) and pays back permanently.
+**Why:** The original plan had Phase 2 leave the old swap intact and Phase 3 add a new swap module without explicitly retiring the old one -- risk of two swap paths drifting forever. The refactor is small (delete ~30 lines, add 1 call) and pays back permanently.
 
 **Phase:** 3.
 
 ### D8. Transactional swap shape is already in the existing code
 
-**Decision:** The existing `download_and_install_update` flow is already 3-stage: extract to `<exe_dir>/.slipgate-update-exe.tmp` → backup current → rename `.tmp` → canonical. POSIX rename is atomic, so the swap is already crash-safe in the happy case. Phase 3's `swap_active_version` preserves this exact shape, plus it cleans up the partial-rollback gap at line 801 (existing code restores the backup on failure but leaves the .tmp lying around).
+**Decision:** The existing `download_and_install_update` flow is already 3-stage: extract to `<exe_dir>/.slipgate-update-exe.tmp` -> backup current -> rename `.tmp` -> canonical. POSIX rename is atomic, so the swap is already crash-safe in the happy case. Phase 3's `swap_active_version` preserves this exact shape, plus it cleans up the partial-rollback gap at line 801 (existing code restores the backup on failure but leaves the .tmp lying around).
 
 **Why:** The "transactional swap" concern from the second-pass review (item K) was looking for a gap that's mostly already solved. Just preserve the shape and tighten the rollback.
 
@@ -128,7 +128,7 @@ Both oracle's `build-snapshot.ts` and slipgate's diff viewer import from this li
 
 ### D9. Out of scope
 
-The "share my versioned setup across machines" use case (cross-machine config sharing keyed by sha256) is captured but explicitly NOT in this plan. Belongs to the slipgate web-services vision arc, surfaces as a future feature that benefits from D3 (required sha256) and D4 (content-addressed blobs) being in place — those decisions buy optionality without committing to the feature.
+The "share my versioned setup across machines" use case (cross-machine config sharing keyed by sha256) is captured but explicitly NOT in this plan. Belongs to the slipgate web-services vision arc, surfaces as a future feature that benefits from D3 (required sha256) and D4 (content-addressed blobs) being in place -- those decisions buy optionality without committing to the feature.
 
 ---
 
@@ -144,41 +144,41 @@ The "share my versioned setup across machines" use case (cross-machine config sh
 - `packages/qw-version-resolution/tsconfig.json`
 
 **New Rust modules** (Phase 1-3):
-- `src-tauri/src/commands/data_root.rs` — portable/installed detection, paths
-- `src-tauri/src/commands/version_warehouse.rs` — list, register, scan, import; manages `index.json`, `manifest.json`, blobs
-- `src-tauri/src/commands/version_swap.rs` — copy from blob to user's quake dir, foreign-exe backup logic
-- `src-tauri/src/commands/warehouse_reconcile.rs` — hash-based active-version reconcile on launch
+- `src-tauri/src/commands/data_root.rs` -- portable/installed detection, paths
+- `src-tauri/src/commands/version_warehouse.rs` -- list, register, scan, import; manages `index.json`, `manifest.json`, blobs
+- `src-tauri/src/commands/version_swap.rs` -- copy from blob to user's quake dir, foreign-exe backup logic
+- `src-tauri/src/commands/warehouse_reconcile.rs` -- hash-based active-version reconcile on launch
 
 **Modified Rust files**:
-- `src-tauri/src/commands/mod.rs` — register new modules
-- `src-tauri/src/lib.rs` — register new Tauri commands
-- `src-tauri/src/commands/updater.rs` — Phase 2 inserts `register_version` call; Phase 3 deletes own backup/swap logic, calls `version_swap`
+- `src-tauri/src/commands/mod.rs` -- register new modules
+- `src-tauri/src/lib.rs` -- register new Tauri commands
+- `src-tauri/src/commands/updater.rs` -- Phase 2 inserts `register_version` call; Phase 3 deletes own backup/swap logic, calls `version_swap`
 
 **New SolidJS files** (Phase 1-5):
 - `src/lib/quake-dir/dataRoot.ts` (+ test)
 - `src/lib/quake-dir/warehouse.ts` (+ test)
 - `src/lib/quake-dir/swap.ts` (+ test)
 - `src/lib/quake-dir/firstRunImport.ts` (+ test)
-- `src/lib/quake-dir/invoke-types.ts` — single shared `InvokeFn` type
+- `src/lib/quake-dir/invoke-types.ts` -- single shared `InvokeFn` type
 - `src/components/VersionWarehouse.tsx`
 - `src/components/VersionDiffViewer.tsx`
-- `src/lib/version-diff/computeDiff.ts` (+ test) — slipgate-side composition over the shared lib
+- `src/lib/version-diff/computeDiff.ts` (+ test) -- slipgate-side composition over the shared lib
 
 **Modified SolidJS files**:
-- `src/components/ClientsTab.tsx` — host the new VersionWarehouse + diff viewer; layout planned once across phases (not incrementally appended)
-- `src/lib/config/loaders/ezquake.ts` — extend `RawVar` with enrichment fields; add `loadEzQuakeCvarsWithEnrichment()`
-- `src/App.tsx` (or whatever bootstraps the app) — wire reconcile + first-run import
+- `src/components/ClientsTab.tsx` -- host the new VersionWarehouse + diff viewer; layout planned once across phases (not incrementally appended)
+- `src/lib/config/loaders/ezquake.ts` -- extend `RawVar` with enrichment fields; add `loadEzQuakeCvarsWithEnrichment()`
+- `src/App.tsx` (or whatever bootstraps the app) -- wire reconcile + first-run import
 
 **Oracle (Phase 0 + 4)**:
-- `apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts` — emit retired entities for cvar/command/macro/cmdline_param via secondary fetch keyed on `last_seen_version`; import version helpers from `qw-version-resolution`
-- `apps/qw-oracle/docs/entity-types.md` — document the widened snapshot shape
+- `apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts` -- emit retired entities for cvar/command/macro/cmdline_param via secondary fetch keyed on `last_seen_version`; import version helpers from `qw-version-resolution`
+- `apps/qw-oracle/docs/entity-types.md` -- document the widened snapshot shape
 
 **Build/CI**:
-- `apps/slipgate-app/scripts/build-portable.sh` — package portable .zip after `bun run tauri build`
-- `apps/slipgate-app/docs/DEVELOPMENT.md` — portable build steps
+- `apps/slipgate-app/scripts/build-portable.sh` -- package portable .zip after `bun run tauri build`
+- `apps/slipgate-app/docs/DEVELOPMENT.md` -- portable build steps
 
 **Documentation**:
-- `apps/slipgate-app/docs/QUAKE-DIR-CONTROL.md` — architectural reference for this subsystem (created stub-style in Phase 1, fully filled in Phase 5; absorbs the design-decisions content from this plan as the durable home)
+- `apps/slipgate-app/docs/QUAKE-DIR-CONTROL.md` -- architectural reference for this subsystem (created stub-style in Phase 1, fully filled in Phase 5; absorbs the design-decisions content from this plan as the durable home)
 
 ---
 
@@ -352,14 +352,14 @@ git commit -m "feat(qw-version-resolution): parse VersionSpec from strings"
 - Create: `packages/qw-version-resolution/src/compare.ts`
 - Create: `packages/qw-version-resolution/src/compare.test.ts`
 
-Total ordering rules (encoded once, consumed everywhere). These rules are subtle enough that the lib's `compare.ts` opens with a doc-comment stating them verbatim — code review checks the rules against the implementation, not the plan.
+Total ordering rules (encoded once, consumed everywhere). These rules are subtle enough that the lib's `compare.ts` opens with a doc-comment stating them verbatim -- code review checks the rules against the implementation, not the plan.
 
 - **Two `tag` versions:** compare numeric components left-to-right (so `3.6.9` < `3.6.10`). Non-numeric tail in either component breaks the numeric compare; remaining components fall back to string compare. Project assumption: tags are dotted-numeric; if a tag like `3.7.0-rc1` ever shows up, the prerelease tail is treated as smaller than the release.
 - **Two `head` versions:** compare by ISO date string (lexicographic compare suffices for `YYYY-MM-DD`).
 - **Two `build` versions:** compare by `number` (FTE-style monotonically-increasing build numbers).
 - **`tag` vs `head`:** `tag < head`. A `head-*` snapshot is always taken from a working tree later than any released tag on the same project, by construction (snapshots come from main/HEAD after the most recent tag).
 - **`tag` vs `build`:** `tag < build`. Build numbers are post-release artifacts produced by FTE's CI on top of a tagged base; any build is later than the most recent tag it built from.
-- **`head` vs `build`:** **mutually unordered (returns 0)**. They live in different ecosystems (heads are ezQuake-style date-tagged main snapshots; builds are FTE-style numbered CI artifacts). Real comparisons happen within one project, so the diff viewer never crosses kinds — but if it ever does, returning 0 means "treated as equal for ordering purposes" rather than producing a misleading lie. Callers that need cross-kind ordering must supply their own rule (commit timestamps, etc.) — not this lib's job.
+- **`head` vs `build`:** **mutually unordered (returns 0)**. They live in different ecosystems (heads are ezQuake-style date-tagged main snapshots; builds are FTE-style numbered CI artifacts). Real comparisons happen within one project, so the diff viewer never crosses kinds -- but if it ever does, returning 0 means "treated as equal for ordering purposes" rather than producing a misleading lie. Callers that need cross-kind ordering must supply their own rule (commit timestamps, etc.) -- not this lib's job.
 
 The implementation must mirror this list as a doc-comment so future maintainers see the rules attached to the code, not buried in a plan file.
 
@@ -407,7 +407,7 @@ describe("compareVersions", () => {
 // compare.ts
 //
 // Total ordering rules across VersionSpec kinds. Mirror these in any future
-// refactor — they are the contract this lib promises consumers.
+// refactor -- they are the contract this lib promises consumers.
 //
 //   tag  vs tag : compare numeric components left-to-right (3.6.9 < 3.6.10).
 //                 Non-numeric tail (e.g. "3.7.0-rc1") sorts below a clean tag.
@@ -415,7 +415,7 @@ describe("compareVersions", () => {
 //   build vs build: numeric compare of build number.
 //   tag  vs head : tag < head (heads come from working trees after the latest tag).
 //   tag  vs build: tag < build (builds are post-release CI artifacts).
-//   head vs build: UNORDERED — return 0. Heads (ezQuake-style) and builds
+//   head vs build: UNORDERED -- return 0. Heads (ezQuake-style) and builds
 //                  (FTE-style) live in different project ecosystems; consumers
 //                  that need cross-kind ordering must supply their own rule.
 //
@@ -585,7 +585,7 @@ In `apps/qw-oracle/package.json`, add to `dependencies`:
 
 - [ ] **Step 3: Confirm root workspace recognizes the package**
 
-Check the root `package.json` workspaces array — `packages/*` should already be covered. If not, add it.
+Check the root `package.json` workspaces array -- `packages/*` should already be covered. If not, add it.
 
 - [ ] **Step 4: Install + smoke-import**
 
@@ -604,7 +604,7 @@ git add apps/slipgate-app/package.json apps/qw-oracle/package.json package.json 
 git commit -m "chore: wire @qw/version-resolution into slipgate and qw-oracle"
 ```
 
-**Phase 0 complete.** The shared lib exists, both apps can import from it. No behavior change yet — Phase 4 and 5 wire it in.
+**Phase 0 complete.** The shared lib exists, both apps can import from it. No behavior change yet -- Phase 4 and 5 wire it in.
 
 ---
 
@@ -679,13 +679,13 @@ pub fn data_root_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 }
 ```
 
-`portable.flag` is an empty marker file. Plain text marker is intentional — JSON would invite future "what's IN the flag?" creep; the file's mere existence is the contract.
+`portable.flag` is an empty marker file. Plain text marker is intentional -- JSON would invite future "what's IN the flag?" creep; the file's mere existence is the contract.
 
 - [ ] **Step 2: Register the module**
 
-Edit `apps/slipgate-app/src-tauri/src/commands/mod.rs` — add `pub mod data_root;`.
+Edit `apps/slipgate-app/src-tauri/src/commands/mod.rs` -- add `pub mod data_root;`.
 
-Edit `apps/slipgate-app/src-tauri/src/lib.rs` — find the `tauri::generate_handler![]` macro and add `commands::data_root::get_data_root`.
+Edit `apps/slipgate-app/src-tauri/src/lib.rs` -- find the `tauri::generate_handler![]` macro and add `commands::data_root::get_data_root`.
 
 - [ ] **Step 3: Verify Rust compiles**
 
@@ -718,7 +718,7 @@ The `InvokeFn` type used across all wrappers in Phases 1-3 lives in one place to
 export type InvokeFn = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
 ```
 
-This matches the signature of `@tauri-apps/api/core`'s `invoke`. All wrappers in this subsystem accept it as a parameter so tests pass plain inline functions — no mock framework needed.
+This matches the signature of `@tauri-apps/api/core`'s `invoke`. All wrappers in this subsystem accept it as a parameter so tests pass plain inline functions -- no mock framework needed.
 
 - [ ] **Step 2: Test the wrapper (bun:test syntax)**
 
@@ -880,7 +880,7 @@ git commit -m "feat(slipgate): build-portable.sh + docs for dual-mode artifacts"
 
 ### Task 1.5: Stub QUAKE-DIR-CONTROL.md
 
-Cannot run the portable smoke from WSL — defer to Windows. Capture the protocol now.
+Cannot run the portable smoke from WSL -- defer to Windows. Capture the protocol now.
 
 - [ ] **Step 1: Create the stub**
 
@@ -948,7 +948,7 @@ pub struct WarehousedVersion {
     pub version: String,          // "3.6.9", "head-2026-04-25", "build-6698"
     pub channel: String,          // "stable", "snapshot", "imported"
     pub blob_sha256: String,      // points into <data-root>/binaries/blobs/<sha256>.exe
-    pub original_exe_name: String,// "ezquake.exe" — name as-extracted, used as canonical default
+    pub original_exe_name: String,// "ezquake.exe" -- name as-extracted, used as canonical default
     pub size_bytes: u64,
     pub downloaded_at: u64,       // Unix epoch seconds (no chrono dep)
     pub source: String,           // "github_release", "user_import", "snapshot"
@@ -1021,7 +1021,7 @@ pub fn register_version_at(
 ) -> Result<WarehousedVersion, String> {
     let sha = hash_file(src_exe)?;
 
-    // Write blob (idempotent — if it exists, trust it).
+    // Write blob (idempotent -- if it exists, trust it).
     let blobs_dir = blobs_dir_at(data_root);
     fs::create_dir_all(&blobs_dir).map_err(|e| e.to_string())?;
     let blob_path = blobs_dir.join(format!("{}.exe", &sha));
@@ -1170,7 +1170,7 @@ mod tests {
         let bogus = tmp.path().join("binaries/ezquake/no-manifest");
         fs::create_dir_all(&bogus).unwrap();
         fs::write(bogus.join("ezquake.exe"), b"orphan").unwrap();
-        // Also add blobs/ at the same level — must not be treated as a client.
+        // Also add blobs/ at the same level -- must not be treated as a client.
         fs::create_dir_all(blobs_dir_at(tmp.path())).unwrap();
         assert!(list_warehoused_versions_at(tmp.path()).unwrap().is_empty());
     }
@@ -1335,7 +1335,7 @@ let new_version_for_warehouse = read_exe_version(&new_exe_temp)
     .or_else(|| Some("unknown".to_string()))
     .unwrap();
 let _warehouse_entry = crate::commands::version_warehouse::register_version(
-    &app_handle,                    // see Step 2 — function signature gains `app: tauri::AppHandle`
+    &app_handle,                    // see Step 2 -- function signature gains `app: tauri::AppHandle`
     client_def.name,                // already in scope
     &new_version_for_warehouse,
     &new_exe_temp,
@@ -1374,7 +1374,7 @@ Run `bun run tauri dev`, trigger an update from the Updater tab. After it comple
 - `blobs/<sha256>.exe` exists
 - `<client>/<version>/manifest.json` exists with the right shape
 
-On Linux dev `read_exe_version` returns `None` so the version field becomes `"unknown"` — acceptable for dev-mode smoke; production paths are Windows-only.
+On Linux dev `read_exe_version` returns `None` so the version field becomes `"unknown"` -- acceptable for dev-mode smoke; production paths are Windows-only.
 
 - [ ] **Step 5: Commit**
 
@@ -1484,7 +1484,7 @@ git add apps/slipgate-app/src-tauri/src/commands/warehouse_reconcile.rs \
 git commit -m "feat(slipgate): hash-based active-version reconcile"
 ```
 
-### Task 2.5: Frontend bootstrap — first-run import + reconcile
+### Task 2.5: Frontend bootstrap -- first-run import + reconcile
 
 The bootstrap calls reconcile first (sets active if user's exe is already known), then offers import if reconcile returned `foreign`.
 
@@ -1695,12 +1695,12 @@ pub fn swap_active_version(
             previous_was_foreign = true;
             let stem = target_exe_name.strip_suffix(".exe").unwrap_or(&target_exe_name);
             let backup = quake_dir.join(format!("{}.bak.exe", stem));
-            // If a .bak already exists, overwrite — only one foreign-exe-backup retained.
+            // If a .bak already exists, overwrite -- only one foreign-exe-backup retained.
             fs::rename(&canonical, &backup)
                 .map_err(|e| format!("rename to backup failed: {}", e))?;
             backup_path = Some(backup.to_string_lossy().into_owned());
         } else {
-            // Bytes already in warehouse — safe to delete.
+            // Bytes already in warehouse -- safe to delete.
             fs::remove_file(&canonical)
                 .map_err(|e| format!("remove current exe failed: {}", e))?;
         }
@@ -1817,7 +1817,7 @@ Use `staging_dir(&app)?.join("update-download.tmp")` and `.join("update-exe.tmp"
 
 - [ ] **Step 2: Replace stages 5-7 with register + swap**
 
-Delete the existing stages 5 (backup_exe call), 6 (rename new_exe_temp → target_path), and 7 (read new version). Replace with:
+Delete the existing stages 5 (backup_exe call), 6 (rename new_exe_temp -> target_path), and 7 (read new version). Replace with:
 
 ```rust
 // 5. Register into warehouse (writes blob + manifest).
@@ -2179,7 +2179,7 @@ function fetchRetiredCvarRows(db: Database.Database, project: Project) {
 // (Same shape for fetchRetiredCommandRows, fetchRetiredMacroRows, fetchRetiredCmdlineRows.)
 ```
 
-Replicate for `command_versions`, `macro_versions`, `cmdline_param_versions` — same predicate `cv.version = e.last_seen_version`.
+Replicate for `command_versions`, `macro_versions`, `cmdline_param_versions` -- same predicate `cv.version = e.last_seen_version`.
 
 - [ ] **Step 2: Merge retired rows into each emit fn**
 
@@ -2269,7 +2269,7 @@ If first/last coverage is incomplete, fix `loadEnrichment` and re-run.
 
 - [ ] **Step 2: Document the snapshot shape**
 
-Update `apps/qw-oracle/docs/entity-types.md` with the canonical snapshot field list — mention which fields each entity type carries (cvar carries default_history; commands don't; etc.) and note that `source_state: source_retired` plus `retired_at_version` are guaranteed for retired entries.
+Update `apps/qw-oracle/docs/entity-types.md` with the canonical snapshot field list -- mention which fields each entity type carries (cvar carries default_history; commands don't; etc.) and note that `source_state: source_retired` plus `retired_at_version` are guaranteed for retired entries.
 
 - [ ] **Step 3: Commit**
 
@@ -2580,7 +2580,7 @@ git commit -m "feat(slipgate): version-diff composition over @qw/version-resolut
 
 ### Task 5.2: VersionDiffViewer component
 
-`ParsedConfig.cvars` (from the existing config parser) IS the user-config Map — pass it through directly.
+`ParsedConfig.cvars` (from the existing config parser) IS the user-config Map -- pass it through directly.
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/VersionDiffViewer.tsx`
@@ -2657,7 +2657,7 @@ export default function VersionDiffViewer(props: Props) {
             <For each={d().defaultChanged}>{(dc) => (
               <li class="text-sm">
                 <span class="font-mono">{dc.name}</span>:{" "}
-                <span class="text-error">{dc.baseDefault}</span> →{" "}
+                <span class="text-error">{dc.baseDefault}</span> ->{" "}
                 <span class="text-success">{dc.targetDefault}</span>
               </li>
             )}</For>
@@ -2718,14 +2718,14 @@ Below `<VersionWarehouse>`:
 />
 ```
 
-`parsedConfig()` is whatever signal already holds the parsed user config in the tab — `ParsedConfig.cvars` is `Map<string, string>` directly. No adapter.
+`parsedConfig()` is whatever signal already holds the parsed user config in the tab -- `ParsedConfig.cvars` is `Map<string, string>` directly. No adapter.
 
 - [ ] **Step 3: Manual smoke**
 
 Run dev mode. Pick two warehoused versions. Confirm:
 - Added/Removed/Default-changed sections populate.
 - Impact panel surfaces real cvars from the user's config.
-- The known case `cl_fakeshaft` (default 0 → 1 between 3.6.9 and head) shows up as a default change with the "silent" badge if the user's value matches the base default.
+- The known case `cl_fakeshaft` (default 0 -> 1 between 3.6.9 and head) shows up as a default change with the "silent" badge if the user's value matches the base default.
 
 - [ ] **Step 4: Commit**
 
@@ -2753,16 +2753,16 @@ Run `bun run tauri dev`:
 
 1. App opens to Clients tab.
 2. First-run reconcile + import: existing exe is hashed; if it matches a warehouse manifest, `index.active.ezquake` reflects it; if not, it gets imported and re-reconciled.
-3. Click update — new version downloads, registers in warehouse, swap_active_version installs it. If previous exe was warehoused, no .bak; if foreign, `<quake-dir>/ezquake.bak.exe` exists.
+3. Click update -- new version downloads, registers in warehouse, swap_active_version installs it. If previous exe was warehoused, no .bak; if foreign, `<quake-dir>/ezquake.bak.exe` exists.
 4. VersionWarehouse panel shows the active marker on the new version.
-5. Switch back to the older version — active marker moves; no .bak created (warehouse already has the bytes).
-6. Delete the older version — vanishes from the panel; blob GC'd.
+5. Switch back to the older version -- active marker moves; no .bak created (warehouse already has the bytes).
+6. Delete the older version -- vanishes from the panel; blob GC'd.
 7. VersionDiffViewer dropdowns populate. Pick two versions. Diff sections render.
 8. Impact panel surfaces real cvars from the user's parsed config.
 
 - [ ] **Step 3: Fill out QUAKE-DIR-CONTROL.md**
 
-Replace the Phase 1 stub with full architectural reference. Bring across the design decisions D1-D9 from this plan (this doc becomes the durable home — the plan can be deleted after merge). Sections:
+Replace the Phase 1 stub with full architectural reference. Bring across the design decisions D1-D9 from this plan (this doc becomes the durable home -- the plan can be deleted after merge). Sections:
 - Architecture overview (warehouse, blobs, manifests, index)
 - Active-version concept + reconcile flow
 - Swap protocol (foreign-exe heuristic, transactional rename)
@@ -2801,13 +2801,13 @@ git commit -m "docs(slipgate): full QUAKE-DIR-CONTROL.md after Phase 5 ships"
 - **Auto-rollback on swap failure beyond what's in version_swap.** Existing rollback restores a foreign backup if the staging rename fails. Power-loss between operations leaves a recoverable state (canonical missing, blob still in warehouse). Production-hardening this is a Phase 3 follow-up if smoke tests reveal it.
 - **`gamedir/slipgate/` per-install annotations.** Architecture-discussion item; not in this plan.
 - **Cross-machine config sharing keyed on sha256 (D9).** D3+D4 buy the optionality; the feature itself belongs to the slipgate web-services vision arc.
-- **Blob-only garbage collector beyond per-delete cleanup.** `delete_warehoused_version` GCs the deleted version's blob if unreferenced. There's no separate "scan for orphan blobs" job — adding one is trivial when needed but YAGNI today.
+- **Blob-only garbage collector beyond per-delete cleanup.** `delete_warehoused_version` GCs the deleted version's blob if unreferenced. There's no separate "scan for orphan blobs" job -- adding one is trivial when needed but YAGNI today.
 
 ## Execution handoff
 
 Plan saved to `docs/superpowers/plans/2026-04-26-quake-dir-control.md`. Two execution shapes:
 
-1. **Subagent-driven (recommended)** — fresh subagent per task with two-stage review between tasks. Best for staying clean across 6 phases.
-2. **Inline execution** — tasks executed in this session with checkpoints. Faster iteration, more context buildup.
+1. **Subagent-driven (recommended)** -- fresh subagent per task with two-stage review between tasks. Best for staying clean across 6 phases.
+2. **Inline execution** -- tasks executed in this session with checkpoints. Faster iteration, more context buildup.
 
 Phases ship independently. After Phase 0 you have a shared version-resolution lib. After Phase 1 you have working portable mode. After Phase 2 you have a content-addressed warehouse + reconcile. After Phase 3 you have the full multi-version UI with single-swap-path. After Phases 4+5 you have the diff viewer. Stop after any phase to assess.

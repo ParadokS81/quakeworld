@@ -53,12 +53,12 @@ The **QW Knowledge Service**: a polyglot three-layer foundation (extracted facts
 **Phase 2f Batch 3 shipped (2026-04-21):** Schema v6 adds `source_overrides` blame index (PK: entity_id + version + field_name; kinds struct_field_decl / call_site / header_declaration). Ruleset + hud_element extractors emit per-field header locations; cvars extractor emits Cvar_SetDefaultAndValue / Cvar_ResetVar call-site anchors. Diff pipeline consults overrides first, preloads into a Map per diff run for zero SQL per modification event. A2 revalidation: 25 ruleset mods now all blame to the struct-schema author commit (UNKNOWN count 5 -> 0). All 11 Phase 2f stress-test gaps closed plus the fresh-DB CHECK latent bug. Loader-site canonical_id switched to ordinal-based, fixing gap 11 spurious diff pairs.
 
 Remaining work (all tracked in `HANDOVER.md`):
-- **Phase 2f historical backfill proper** — now unblocked. Walk every ezQuake tag, diff consecutive pairs, enrich with PRs.
-- **Phase 2d FTE** — first second-engine port, validates project-keyed schema.
-- **Phase 2e MVDSV + KTX** — small ports; KTX needs py-tree-sitter.
-- **Phase 2g MCP tool upgrades** — version parameters, `get_entity_history`.
-- **Phase 2h automation** — scheduled tag-delta job.
-- **Asset-bundle loader-family gaps** — surfaced by slipgate quake-dir inventory; 9 extensions + path_hint variants missing.
+- **Phase 2f historical backfill proper** -- now unblocked. Walk every ezQuake tag, diff consecutive pairs, enrich with PRs.
+- **Phase 2d FTE** -- first second-engine port, validates project-keyed schema.
+- **Phase 2e MVDSV + KTX** -- small ports; KTX needs py-tree-sitter.
+- **Phase 2g MCP tool upgrades** -- version parameters, `get_entity_history`.
+- **Phase 2h automation** -- scheduled tag-delta job.
+- **Asset-bundle loader-family gaps** -- surfaced by slipgate quake-dir inventory; 9 extensions + path_hint variants missing.
 
 Earlier POC / service design: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md` (architecture) and `docs/superpowers/plans/2026-04-14-qw-knowledge-service-poc.md` (MCP POC, orthogonal track).
 
@@ -101,7 +101,7 @@ quad and qw-stats are both read-only consumers of QW Hub. matchscheduler reads f
 
 ### Knowledge-service ecosystem
 
-How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "The emerging ecosystem" for the framing; this diagram is the current state.
+How the apps share domain knowledge through qw-oracle. See root `VISION.md` Section  "The emerging ecosystem" for the framing; this diagram is the current state.
 
 ```
 +----------------------------+    serving surfaces    +----------------------------+
@@ -125,7 +125,7 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` § "
 
 Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenerated on demand by oracle's `build-snapshot` CLI. Both get the same underlying facts through different access patterns. Future chatbots (on quad or as a new app) join as MCP consumers; the web services join as snapshot consumers in their own shape.
 
-The extractor fleet (Python + libclang for ezQuake and QWCL today; FTE / MVDSV / KTX / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `qwcl/`, `fte/`, `ktx/`, etc., plus shared `extractor_lib/`). The `qw-config` package was fully retired 2026-04-25/26 — its scraped JSON, parser, converter, writers, and loaders moved into `apps/slipgate-app/src/lib/config/`, and oracle's `build-snapshot` CLI now regenerates the JSON snapshots at richer fidelity from `knowledge.db`. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
+The extractor fleet (Python + libclang for ezQuake and QWCL today; FTE / MVDSV / KTX / QWFWD as those ports land) is oracle's backstage machinery and lives at `apps/qw-oracle/scripts/extractors/` (project-scoped subdirs: `ezquake/`, `qwcl/`, `fte/`, `ktx/`, etc., plus shared `extractor_lib/`). The `qw-config` package was fully retired 2026-04-25/26 -- its scraped JSON, parser, converter, writers, and loaders moved into `apps/slipgate-app/src/lib/config/`, and oracle's `build-snapshot` CLI now regenerates the JSON snapshots at richer fidelity from `knowledge.db`. See `apps/qw-oracle/OVERVIEW.md` for the extraction-pipeline map.
 
 ## Shared Firestore collections
 
@@ -150,7 +150,7 @@ Upload size limits and retention rules live in `contracts/CROSS-PROJECT-SCHEMA.m
 
 ## Packages
 
-Two shared packages under `packages/`: `qw-knowledge` and `qw-version-resolution`. The former `qw-config` package was fully retired 2026-04-25 — its concerns split between oracle (extractors, dissolved Half 1 2026-04-25) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2 2026-04-25).
+Two shared packages under `packages/`: `qw-knowledge` and `qw-version-resolution`. The former `qw-config` package was fully retired 2026-04-25 -- its concerns split between oracle (extractors, dissolved Half 1 2026-04-25) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2 2026-04-25).
 
 ### qw-knowledge
 

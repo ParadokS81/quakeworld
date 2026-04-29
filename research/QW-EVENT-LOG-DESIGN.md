@@ -1,8 +1,8 @@
-# qw-event-log — Design Document
+# qw-event-log -- Design Document
 
 **Purpose:** A Rust crate that consumes parsed MVD messages from vikpe's `quake` crate, maintains a game state machine, and outputs a flat `Vec<GameEvent>` of timestamped events.
 
-**Depends on:** `quake` crate (protocol parser only — not `demo_parser`)
+**Depends on:** `quake` crate (protocol parser only -- not `demo_parser`)
 
 **Compiles to:** Native CLI + WASM (browser replayer, Cloudflare Worker)
 
@@ -12,9 +12,9 @@
 
 Two 4on4 demos were scanned (`-s- vs ]sr[` on dm2 and dm3, March 2026):
 
-- **Stats frames exist for ALL 8 players** — ~1,300 Stats frames per player per 20-minute match. Health, armor, ammo, weapon, and items are tracked for everyone, not just the POV player.
-- **Hidden messages (DamageDone) are present** — 2,400-2,800 per match. Per-hit damage data with attacker, victim, damage amount, and weapon/death type.
-- **~210,000 frames per 20-minute demo** — ~77fps server tick rate, ~13ms per frame.
+- **Stats frames exist for ALL 8 players** -- ~1,300 Stats frames per player per 20-minute match. Health, armor, ammo, weapon, and items are tracked for everyone, not just the POV player.
+- **Hidden messages (DamageDone) are present** -- 2,400-2,800 per match. Per-hit damage data with attacker, victim, damage amount, and weapon/death type.
+- **~210,000 frames per 20-minute demo** -- ~77fps server tick rate, ~13ms per frame.
 - **Demo files are 13-14MB** uncompressed for a 20-minute 4on4.
 
 ---
@@ -83,8 +83,8 @@ Player references use `client_index: u8` (stable protocol-level ID, not name str
 |-------|--------|--------|
 | **ItemPickup** | client_index, item_type, position | Entity removal + UpdateStat correlation |
 | **ItemRespawn** | item_type, position, entity_index | Entity reappearance |
-| **PowerupActivated** | client_index, powerup_type | STAT_ITEMS bit change (0→1) |
-| **PowerupExpired** | client_index, powerup_type | STAT_ITEMS bit change (1→0) |
+| **PowerupActivated** | client_index, powerup_type | STAT_ITEMS bit change (0->1) |
+| **PowerupExpired** | client_index, powerup_type | STAT_ITEMS bit change (1->0) |
 
 ### Player State
 
@@ -144,7 +144,7 @@ pub enum PrintLevel { Low, Medium, High, Chat }
 |------|---------|
 | Armor (GA/YA/RA) | 20s |
 | Health packs | 20s |
-| Mega Health | 20s after holder's health decays to ≤100 |
+| Mega Health | 20s after holder's health decays to <=100 |
 | Weapons | 30s |
 | Ammo | 20s |
 | Quad | 60s |
@@ -154,7 +154,7 @@ pub enum PrintLevel { Low, Medium, High, Chat }
 
 1. Pickup grants +100 health (up to 250 cap)
 2. Health decays at 1hp/second until it reaches 100
-3. MH item respawns 20s after health drops to ≤100, NOT 20s after pickup
+3. MH item respawns 20s after health drops to <=100, NOT 20s after pickup
 
 ### Powerup Durations
 
@@ -164,15 +164,15 @@ All 30 seconds (Quad, Pent, Ring, Biosuit).
 
 | Weapon | Direct | Splash | Self-splash |
 |--------|--------|--------|-------------|
-| RL | 110 | 120 - 0.5×dist | ×0.5 |
-| GL | — | 120 - 0.5×dist | ×0.5 |
-| LG | 30/tick | — | — |
-| SNG | 18/nail | — | — |
-| SSG | 14 pellets | — | — |
-| SG | 6 pellets | — | — |
-| Axe | 20 | — | — |
+| RL | 110 | 120 - 0.5xdist | x0.5 |
+| GL | -- | 120 - 0.5xdist | x0.5 |
+| LG | 30/tick | -- | -- |
+| SNG | 18/nail | -- | -- |
+| SSG | 14 pellets | -- | -- |
+| SG | 6 pellets | -- | -- |
+| Axe | 20 | -- | -- |
 
-Quad multiplier: 4×.
+Quad multiplier: 4x.
 
 ### Armor Absorption
 
@@ -207,12 +207,12 @@ Quad multiplier: 4×.
 
 ## State Machine Internals
 
-### GameState (not serialized — internal mutable accumulator)
+### GameState (not serialized -- internal mutable accumulator)
 
 ```
 GameState
 ├── elapsed_ms: u64              # accumulated from FrameHeader.duration_ms
-├── model_table: Vec<String>     # model index → model path (from ModelList)
+├── model_table: Vec<String>     # model index -> model path (from ModelList)
 ├── players: [Option<PlayerState>; 32]
 │   └── PlayerState
 │       ├── name, team, colors
@@ -223,13 +223,13 @@ GameState
 │       ├── shells, nails, rockets, cells: i32
 │       ├── items_bitfield: u32  # IT_* flags (weapons + powerups held)
 │       └── frags: i32
-├── entities: Vec<EntityState>   # entity index → state
+├── entities: Vec<EntityState>   # entity index -> state
 │   └── EntityState
 │       ├── active: bool
 │       ├── model_index: u8
 │       ├── position: Position
 │       └── skin_num: u8
-├── item_spawns: HashMap<u16, ItemSpawnInfo>  # entity_index → item type + position
+├── item_spawns: HashMap<u16, ItemSpawnInfo>  # entity_index -> item type + position
 ├── team_frags: HashMap<String, i32>
 └── last_position_sample_ms: u64
 ```
@@ -237,32 +237,32 @@ GameState
 ### Processing Flow (per frame)
 
 ```
-1. Read FrameHeader → accumulate elapsed_ms
-2. If hidden message frame → handle DamageDone, UserCommandWeapon
-3. If Stats frame → route UpdateStat to target client_index
-4. If regular frame → process all messages:
-   - ServerData       → init map, hostname, extensions, model table
-   - ModelList         → build model string table
-   - UpdateUserinfo    → update player roster
-   - UpdateStat        → update player stats, detect weapon/powerup changes
-   - UpdateFrags       → update frags, detect kills
-   - PlayerInfo        → update positions, detect death/spawn (DEAD/GIB flags)
-   - PacketEntities    → update entity table, detect item pickup/respawn
-   - SpawnBaseline     → register item spawn positions
-   - Print             → parse for kill messages, emit chat/console
-   - Intermission      → emit MatchEnd
-5. Position sampling: if 500ms since last sample → emit PlayerPositions
+1. Read FrameHeader -> accumulate elapsed_ms
+2. If hidden message frame -> handle DamageDone, UserCommandWeapon
+3. If Stats frame -> route UpdateStat to target client_index
+4. If regular frame -> process all messages:
+   - ServerData       -> init map, hostname, extensions, model table
+   - ModelList         -> build model string table
+   - UpdateUserinfo    -> update player roster
+   - UpdateStat        -> update player stats, detect weapon/powerup changes
+   - UpdateFrags       -> update frags, detect kills
+   - PlayerInfo        -> update positions, detect death/spawn (DEAD/GIB flags)
+   - PacketEntities    -> update entity table, detect item pickup/respawn
+   - SpawnBaseline     -> register item spawn positions
+   - Print             -> parse for kill messages, emit chat/console
+   - Intermission      -> emit MatchEnd
+5. Position sampling: if 500ms since last sample -> emit PlayerPositions
 ```
 
 ### Kill Detection (dual strategy)
 
-1. **Print messages** — parse KTX obituary patterns:
-   - `"{victim} was railed by {killer}"` → LG
-   - `"{victim} rides {killer}'s rocket"` → RL
-   - `"{victim} was gibbed by {killer}"` → RL
+1. **Print messages** -- parse KTX obituary patterns:
+   - `"{victim} was railed by {killer}"` -> LG
+   - `"{victim} rides {killer}'s rocket"` -> RL
+   - `"{victim} was gibbed by {killer}"` -> RL
    - ~30 patterns covering all weapons and suicide types
 
-2. **DamageDone hidden messages** — exact damage, attacker entity, victim entity, death type code. More reliable when available (MVD1 extension). Entity index = client_index + 1 for players.
+2. **DamageDone hidden messages** -- exact damage, attacker entity, victim entity, death type code. More reliable when available (MVD1 extension). Entity index = client_index + 1 for players.
 
 Both strategies are implemented; DamageDone preferred when available.
 
@@ -273,7 +273,7 @@ Correlate three signals within the same frame:
 2. Nearby player's stats change (armor increases, ammo increases, etc.)
 3. Player position is close to entity's last known position
 
-For powerups: simpler — watch STAT_ITEMS bitfield for IT_QUAD/IT_INVULNERABILITY/IT_INVISIBILITY bit changes.
+For powerups: simpler -- watch STAT_ITEMS bitfield for IT_QUAD/IT_INVULNERABILITY/IT_INVISIBILITY bit changes.
 
 ---
 
@@ -358,7 +358,7 @@ Events serialize as tagged JSON via `#[serde(tag = "type")]`:
 
 Per 20-minute 4on4 demo:
 - Events (kills, pickups, weapon changes, chat, damage): ~500KB-1MB JSON
-- Position samples (8 players × 2/sec × 1200sec): ~2-3MB JSON
+- Position samples (8 players x 2/sec x 1200sec): ~2-3MB JSON
 - Total uncompressed: ~3-5MB
 - Total gzipped: ~400-750KB
 
@@ -366,19 +366,19 @@ Per 20-minute 4on4 demo:
 
 ## Open Questions for vikpe
 
-1. **Coord accessor** — `Coord(f32)` inner field doesn't appear to be `pub`. We need to extract the f32 value. Options:
+1. **Coord accessor** -- `Coord(f32)` inner field doesn't appear to be `pub`. We need to extract the f32 value. Options:
    - Add `pub fn value(&self) -> f32` to Coord (tiny upstream PR)
    - Or is there already an accessor/Into impl we missed?
 
-2. **Crate location** — should this live inside the slipgate monorepo as a sibling crate (`rust/crates/qw_event_log/`), or as a separate repo that depends on `quake` via git?
+2. **Crate location** -- should this live inside the slipgate monorepo as a sibling crate (`rust/crates/qw_event_log/`), or as a separate repo that depends on `quake` via git?
 
-3. **quake crate API stability** — are message struct fields and the frame iteration API likely to change? We depend heavily on: `FrameHeader`, `Message` enum, `PlayerInfo`, `PacketEntityDelta`, `UpdateStat`, `Print`, `HiddenMessage::DamageDone`.
+3. **quake crate API stability** -- are message struct fields and the frame iteration API likely to change? We depend heavily on: `FrameHeader`, `Message` enum, `PlayerInfo`, `PacketEntityDelta`, `UpdateStat`, `Print`, `HiddenMessage::DamageDone`.
 
-4. **Frame iteration** — does the `quake` crate expose a public frame iterator for MVD files, or do we need to implement our own from the raw binary using `FrameHeader` + body reads? The current `demo_parser` crate handles this internally but the API is metadata-extraction focused.
+4. **Frame iteration** -- does the `quake` crate expose a public frame iterator for MVD files, or do we need to implement our own from the raw binary using `FrameHeader` + body reads? The current `demo_parser` crate handles this internally but the API is metadata-extraction focused.
 
-5. **Entity-to-player mapping** — standard QW convention is entity_index = client_index + 1 for players. Is this always true in MVDSV recordings, or are there edge cases?
+5. **Entity-to-player mapping** -- standard QW convention is entity_index = client_index + 1 for players. Is this always true in MVDSV recordings, or are there edge cases?
 
-6. **WASM binary size** — any concerns about `binrw` codegen size in WASM builds? If the `quake` crate is too heavy for WASM, we might need a minimal MVD reader as an alternative.
+6. **WASM binary size** -- any concerns about `binrw` codegen size in WASM builds? If the `quake` crate is too heavy for WASM, we might need a minimal MVD reader as an alternative.
 
 ---
 
@@ -386,10 +386,10 @@ Per 20-minute 4on4 demo:
 
 Data that ktxstats and QW Hub cannot provide today:
 
-- **Spatial data** — heatmaps, position patterns, spawn point analysis
-- **Temporal data** — timeline of events, momentum graphs, control phases
-- **Weapon hold times** — how long each player holds each weapon
-- **Powerup efficiency** — kills during quad, damage during quad, by weapon
-- **Item timing accuracy** — correlate voice callouts with actual spawn times
-- **Per-engagement breakdowns** — what happened in each fight
-- **Voice correlation** — link transcribed comms to in-game events
+- **Spatial data** -- heatmaps, position patterns, spawn point analysis
+- **Temporal data** -- timeline of events, momentum graphs, control phases
+- **Weapon hold times** -- how long each player holds each weapon
+- **Powerup efficiency** -- kills during quad, damage during quad, by weapon
+- **Item timing accuracy** -- correlate voice callouts with actual spawn times
+- **Per-engagement breakdowns** -- what happened in each fight
+- **Voice correlation** -- link transcribed comms to in-game events

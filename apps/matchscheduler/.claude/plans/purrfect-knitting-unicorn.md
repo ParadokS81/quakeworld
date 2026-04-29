@@ -35,7 +35,7 @@ Already handled - `MatchesPanel._handleLoadGridView()` calls `BottomPanelControl
 
 ## Slice Breakdown
 
-### ✅ Slice 10.0a: CSS Foundation + HTML Skeleton
+### [OK] Slice 10.0a: CSS Foundation + HTML Skeleton
 **Status:** Complete
 **Scope:** Pure presentation - CSS media queries + static HTML additions
 **Files:** `src/css/input.css`, `public/index.html`
@@ -49,7 +49,7 @@ What was done:
 
 ---
 
-### ✅ Slice 10.0b: MobileLayout.js Core + Drawers
+### [OK] Slice 10.0b: MobileLayout.js Core + Drawers
 **Status:** Complete
 **Scope:** Drawer open/close, DOM content moves, overlay
 **Files:** `public/js/MobileLayout.js` (new), `public/js/app.js` (init call)
@@ -63,7 +63,7 @@ What was done:
 
 ---
 
-### ✅ Slice 10.0c: Mobile Bottom Bar
+### [OK] Slice 10.0c: Mobile Bottom Bar
 **Status:** Complete
 **Scope:** Wire bottom bar to existing controllers
 **Files:** `public/js/MobileBottomBar.js` (new), `public/js/app.js` (init call)
@@ -90,9 +90,9 @@ What it needs:
   - Right edge (last 1.5rem) swipe left = open right drawer
   - Threshold: 50px horizontal, <30px vertical
 - AvailabilityGrid: touch event support for drag-select
-  - `touchstart` → same as `mousedown`
-  - `touchmove` → `e.preventDefault()` + `document.elementFromPoint()` + same as `mousemove`
-  - `touchend` → same as `mouseup`
+  - `touchstart` -> same as `mousedown`
+  - `touchmove` -> `e.preventDefault()` + `document.elementFromPoint()` + same as `mousemove`
+  - `touchend` -> same as `mouseup`
 
 **Verify:** On touch device/emulator: swipe from left edge opens left drawer. Drag-select cells works with finger. Single tap toggles cell.
 
@@ -118,11 +118,11 @@ What it needs:
 ## Workflow Per Slice
 
 Each sub-slice runs through the standard workflow in a fresh conversation:
-1. `QPLAN 10.0x` → creates spec in `context/slices/`
-2. `QCODE 10.0x` → implements
-3. `QCHECK` → verifies
-4. `QTEST` → manual testing guide
-5. `QGIT` → commit
+1. `QPLAN 10.0x` -> creates spec in `context/slices/`
+2. `QCODE 10.0x` -> implements
+3. `QCHECK` -> verifies
+4. `QTEST` -> manual testing guide
+5. `QGIT` -> commit
 
 ## Test Points
 - **After 10.0c** (now): First real mobile test - tabs, drawers, week nav

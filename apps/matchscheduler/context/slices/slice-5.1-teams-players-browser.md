@@ -56,7 +56,7 @@ Replace the Teams tab placeholder with a full browser interface:
 ### Teams View (Two-Panel Layout)
 - **Left panel:** Scrollable list of team cards (compact)
 - **Right panel:** Detail view for selected team (logo, name, division, roster)
-- Click a team → shows details on right
+- Click a team -> shows details on right
 - Star button for favorites (reuse FavoritesService)
 
 ### Players View (Multi-Column Grid)
@@ -76,7 +76,7 @@ Replace the Teams tab placeholder with a full browser interface:
 │  [● Teams] [○ Players]                          Sort: [A-Z ▼]     │
 ├──────────────────────────────┬─────────────────────────────────────┤
 │                              │                                     │
-│  Black Book            D1 ★  │      ← Select a team to view       │
+│  Black Book            D1 ★  │      <- Select a team to view       │
 │  ─────────────────────────── │        details                      │
 │  Death Dealers         D1    │                                     │
 │  ─────────────────────────── │   OR (when team selected):          │
@@ -178,14 +178,14 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - TeamService (existing - no changes needed):
-  - getAllTeams() → Returns cached teams array
-  - getTeam(teamId) → Single team lookup from cache
-  - updateCachedTeam(teamId, data) → Updates cache after listener events
+  - getAllTeams() -> Returns cached teams array
+  - getTeam(teamId) -> Single team lookup from cache
+  - updateCachedTeam(teamId, data) -> Updates cache after listener events
 
 - FavoritesService (existing - reuse):
-  - toggleFavorite(teamId) → Calls updateFavorites Cloud Function
-  - isFavorite(teamId) → Reads from cache
-  - getFavorites() → Returns cached favorites array
+  - toggleFavorite(teamId) -> Calls updateFavorites Cloud Function
+  - isFavorite(teamId) -> Reads from cache
+  - getFavorites() -> Returns cached favorites array
 
 BACKEND REQUIREMENTS:
 ⚠️ NO NEW CLOUD FUNCTIONS NEEDED - This slice is read-only + favorites (already implemented)
@@ -208,13 +208,13 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 - Real-time listeners:
-  - TeamsBrowserPanel → onSnapshot(/teams collection) → UI + Cache update
-- Frontend → Backend calls:
-  - Star button → FavoritesService.toggleFavorite() → updateFavorites Cloud Function
+  - TeamsBrowserPanel -> onSnapshot(/teams collection) -> UI + Cache update
+- Frontend -> Backend calls:
+  - Star button -> FavoritesService.toggleFavorite() -> updateFavorites Cloud Function
 - Data flow:
-  - Browse: TeamService cache → Render list
-  - Updates: Firestore /teams → Collection listener → updateCachedTeam() → Re-render
-  - Favorites: Click star → FavoritesService → Cloud Function → User doc → Listener → UI
+  - Browse: TeamService cache -> Render list
+  - Updates: Firestore /teams -> Collection listener -> updateCachedTeam() -> Re-render
+  - Favorites: Click star -> FavoritesService -> Cloud Function -> User doc -> Listener -> UI
 ```
 
 ---
@@ -265,7 +265,7 @@ Filter teams/players list
     ↓
 Re-render current view (Teams or Players)
     ↓
-If Teams view and selected team no longer in list → clear selection
+If Teams view and selected team no longer in list -> clear selection
 ```
 
 ---
@@ -620,7 +620,7 @@ function switchTab(tabId) {
 
 ```
 HOT PATHS (<50ms):
-- View toggle (Teams ↔ Players): Pure DOM swap
+- View toggle (Teams <-> Players): Pure DOM swap
 - Team selection: Instant render from cache
 - Search/filter keystrokes: Filter in-memory array
 - Hover tooltip: Already implemented pattern

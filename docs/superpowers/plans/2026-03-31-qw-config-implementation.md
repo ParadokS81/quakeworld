@@ -35,15 +35,15 @@ packages/qw-config/
       ezquake.ts                  # Load + normalize ezQuake data
       fte.ts                      # Load + normalize FTE data
       qwcl.ts                     # Load + normalize QWCL data
-      index.ts                    # Unified loader: all clients → CvarDatabase
+      index.ts                    # Unified loader: all clients -> CvarDatabase
     parser/
-      config-parser.ts            # Parse config.cfg text → ParsedConfig
+      config-parser.ts            # Parse config.cfg text -> ParsedConfig
     converter/
       converter.ts                # Convert between clients via agnostic format
       report.ts                   # Generate ConversionReport
     writers/
-      ezquake.ts                  # Agnostic → ezQuake config text
-      fte.ts                      # Agnostic → FTE config text
+      ezquake.ts                  # Agnostic -> ezQuake config text
+      fte.ts                      # Agnostic -> FTE config text
   scripts/
     extract-fte-cvars.ts          # Script to extract FTE cvars from C source
   tests/
@@ -227,11 +227,11 @@ export interface CvarEnumValue {
 // ── Parsed config types ──
 
 export interface ParsedConfig {
-  /** All cvar assignments: name → value */
+  /** All cvar assignments: name -> value */
   cvars: Map<string, string>;
-  /** All key bindings: key → action string */
+  /** All key bindings: key -> action string */
   binds: Map<string, string>;
-  /** All aliases: name → command string */
+  /** All aliases: name -> command string */
   aliases: Map<string, string>;
   /** Exec references found */
   execs: string[];
@@ -320,7 +320,7 @@ export interface ConversionReport {
 export interface CvarDatabase {
   /** All known cvars indexed by client and cvar name */
   clients: Record<ClientId, Map<string, CvarInfo>>;
-  /** Cross-client mappings: source client+cvar → target client+cvar */
+  /** Cross-client mappings: source client+cvar -> target client+cvar */
   mappings: CvarMapping[];
   /** Category hierarchy */
   categories: CategoryGroup[];
@@ -379,7 +379,7 @@ git commit -m "Define core types for agnostic config format and conversion"
 
 ---
 
-### Task 3: Data Loading — ezQuake
+### Task 3: Data Loading -- ezQuake
 
 **Files:**
 - Create: `packages/qw-config/src/data/ezquake-variables.json` (copy)
@@ -423,7 +423,7 @@ interface EzVariablesFile {
 
 const data = variablesJson as unknown as EzVariablesFile;
 
-/** Build a group-id → { category, group } lookup from ezQuake's group hierarchy */
+/** Build a group-id -> { category, group } lookup from ezQuake's group hierarchy */
 function buildGroupLookup(): Map<string, { category: string; group: string }> {
   const lookup = new Map<string, { category: string; group: string }>();
   for (const g of data.groups) {
@@ -435,7 +435,7 @@ function buildGroupLookup(): Map<string, { category: string; group: string }> {
   return lookup;
 }
 
-/** Extract the category hierarchy (major groups → sub-groups) */
+/** Extract the category hierarchy (major groups -> sub-groups) */
 export function getEzQuakeCategories(): CategoryGroup[] {
   const majorGroups = new Map<string, Set<string>>();
   for (const g of data.groups) {
@@ -544,7 +544,7 @@ git commit -m "Add ezQuake cvar data loader with help JSON integration"
 
 ---
 
-### Task 4: Data Loading — FTE Extraction
+### Task 4: Data Loading -- FTE Extraction
 
 **Files:**
 - Create: `packages/qw-config/scripts/extract-fte-cvars.ts`
@@ -745,7 +745,7 @@ function mapFteGroup(group?: string): { category: string; group: string } {
   if (g.includes("serverinfo")) return { category: "Server", group: "Server Info" };
   if (g.includes("control")) return { category: "Server", group: "Control" };
   if (g.includes("ranking")) return { category: "Server", group: "Rankings" };
-  // Most client cvars won't have group info — categorize by source file
+  // Most client cvars won't have group info -- categorize by source file
   return { category: "Other", group: group };
 }
 
@@ -852,7 +852,7 @@ git commit -m "Add FTE cvar extraction script and data loader"
 
 ---
 
-### Task 5: Data Loading — QWCL Baseline + Unified Loader
+### Task 5: Data Loading -- QWCL Baseline + Unified Loader
 
 **Files:**
 - Create: `packages/qw-config/src/data/qwcl-variables.json`
@@ -947,7 +947,7 @@ main().catch(console.error);
 
 Run: `cd packages/qw-config && bun run scripts/assemble-qwcl.ts`
 
-Expected: outputs assembled count. May need refinement if the regex doesn't catch all cvars — the important thing is we have a starting baseline.
+Expected: outputs assembled count. May need refinement if the regex doesn't catch all cvars -- the important thing is we have a starting baseline.
 
 - [ ] **Step 3: Create QWCL loader**
 
@@ -1036,7 +1036,7 @@ export function loadDatabase(): CvarDatabase {
 
 /**
  * Auto-generate mappings for cvars that share the same name across clients.
- * These are the "shared baseline" — QWCL heritage cvars like sensitivity, fov, etc.
+ * These are the "shared baseline" -- QWCL heritage cvars like sensitivity, fov, etc.
  */
 function generateAutoMappings(
   ezCvars: Map<string, CvarInfo>,
@@ -1242,7 +1242,7 @@ cl_maxfps 600
 
 Run: `cd packages/qw-config && bun test tests/config-parser.test.ts`
 
-Expected: FAIL — module not found.
+Expected: FAIL -- module not found.
 
 - [ ] **Step 3: Implement config parser**
 
@@ -1380,11 +1380,11 @@ Create `packages/qw-config/src/data/mappings.json`:
 }
 ```
 
-This file will grow over time as vikpe, matrix, and the community identify equivalences. The auto-mappings (same-name cvars) are generated at runtime by the unified loader — this file is only for "different name, same function" mappings.
+This file will grow over time as vikpe, matrix, and the community identify equivalences. The auto-mappings (same-name cvars) are generated at runtime by the unified loader -- this file is only for "different name, same function" mappings.
 
 - [ ] **Step 2: Load manual mappings in the unified loader**
 
-Modify `packages/qw-config/src/loaders/index.ts` — update `loadDatabase()` to merge manual mappings:
+Modify `packages/qw-config/src/loaders/index.ts` -- update `loadDatabase()` to merge manual mappings:
 
 Add import at top:
 ```typescript
@@ -1471,7 +1471,7 @@ bind q "impulse 7"
 
 Run: `cd packages/qw-config && bun test tests/converter.test.ts`
 
-Expected: FAIL — modules not found.
+Expected: FAIL -- modules not found.
 
 - [ ] **Step 3: Implement converter**
 
@@ -1538,7 +1538,7 @@ export function convertConfig(
     noEquivalent.push({ cvar: cvarName, value });
   }
 
-  // Binds carry over as-is — same syntax across all QW clients
+  // Binds carry over as-is -- same syntax across all QW clients
   const targetBinds = new Map(parsed.binds);
 
   return { targetCvars, targetBinds, transferred, mapped, noEquivalent };
@@ -1672,7 +1672,7 @@ import type { ConversionResult } from "../converter/converter.js";
 
 /**
  * Write a converted config as ezQuake config text (config.cfg format).
- * Same syntax as FTE — all QW clients share the config format.
+ * Same syntax as FTE -- all QW clients share the config format.
  */
 export function writeEzQuakeConfig(result: ConversionResult): string {
   const lines: string[] = [];
@@ -1727,7 +1727,7 @@ git commit -m "Add config converter, report generator, and config writers"
 
 ---
 
-## Phase 3: App UI — Config Viewer
+## Phase 3: App UI -- Config Viewer
 
 ### Task 9: MyQuake Tab Shell + Navigation
 
@@ -1809,12 +1809,12 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
           </Match>
           <Match when={activeSubTab() === "visuals"}>
             <div class="flex items-center justify-center h-full text-base-content/40">
-              <p>Visuals — coming soon</p>
+              <p>Visuals -- coming soon</p>
             </div>
           </Match>
           <Match when={activeSubTab() === "matches"}>
             <div class="flex items-center justify-center h-full text-base-content/40">
-              <p>Matches — coming soon</p>
+              <p>Matches -- coming soon</p>
             </div>
           </Match>
         </Switch>
@@ -1885,7 +1885,7 @@ git commit -m "Add My Quake tab with horizontal sub-navigation"
 
 ---
 
-### Task 10: Config Viewer — Cvar List with Categories
+### Task 10: Config Viewer -- Cvar List with Categories
 
 **Files:**
 - Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx`
@@ -1924,7 +1924,7 @@ export default function CvarRow(props: CvarRowProps) {
           {props.name}
         </div>
         <div class="w-16 font-mono text-sm text-base-content/80">
-          {props.value.length > 8 ? props.value.slice(0, 8) + "…" : props.value}
+          {props.value.length > 8 ? props.value.slice(0, 8) + "..." : props.value}
         </div>
         <div class="flex-1 text-sm text-base-content/50">
           {props.info?.description ?? ""}
@@ -1993,7 +1993,7 @@ export default function CvarDetail(props: CvarDetailProps) {
             {props.info.range && (
               <span>
                 <span class="text-base-content/40">Range: </span>
-                <span class="text-base-content/70">{props.info.range.min} – {props.info.range.max}</span>
+                <span class="text-base-content/70">{props.info.range.min} - {props.info.range.max}</span>
               </span>
             )}
           </div>
@@ -2003,7 +2003,7 @@ export default function CvarDetail(props: CvarDetailProps) {
               {props.info.values.map((v) => (
                 <div class="text-xs text-base-content/60">
                   <span class="font-mono text-base-content/70">{v.name}</span>
-                  {v.description && ` — ${v.description}`}
+                  {v.description && ` -- ${v.description}`}
                 </div>
               ))}
             </div>
@@ -2016,16 +2016,16 @@ export default function CvarDetail(props: CvarDetailProps) {
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center px-2 py-1 bg-base-300/30 rounded text-xs">
               <span class="text-info">FTE</span>
-              <span class="font-mono text-base-content/70">{fteEquiv() ?? "—"}</span>
+              <span class="font-mono text-base-content/70">{fteEquiv() ?? "--"}</span>
               <span class={fteEquiv() ? "text-success" : "text-error"}>
-                {fteEquiv() ? (fteEquiv() === props.info.name ? "✓ same" : "✓ mapped") : "✗ none"}
+                {fteEquiv() ? (fteEquiv() === props.info.name ? "[ok] same" : "[ok] mapped") : "[x] none"}
               </span>
             </div>
             <div class="flex justify-between items-center px-2 py-1 bg-base-300/30 rounded text-xs">
               <span class="text-base-content/50">QWCL</span>
-              <span class="font-mono text-base-content/70">{qwclEquiv() ?? "—"}</span>
+              <span class="font-mono text-base-content/70">{qwclEquiv() ?? "--"}</span>
               <span class={qwclEquiv() ? "text-success" : "text-base-content/30"}>
-                {qwclEquiv() ? "✓" : "—"}
+                {qwclEquiv() ? "[ok]" : "--"}
               </span>
             </div>
           </div>
@@ -2135,9 +2135,9 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         >
           <span class="text-xs text-base-content/40">{treeExpanded() ? "▼" : "▶"}</span>
           <span class="font-mono text-sm text-warning font-semibold">{props.configName ?? "config.cfg"}</span>
-          <span class="text-xs text-base-content/40">·</span>
+          <span class="text-xs text-base-content/40">-</span>
           <span class="text-xs text-base-content/60">{totalCount()} cvars</span>
-          <span class="text-xs text-base-content/40">·</span>
+          <span class="text-xs text-base-content/40">-</span>
           <span class="text-xs text-base-content/60">{changedCount()} changed</span>
         </button>
 
@@ -2152,10 +2152,10 @@ export default function ConfigViewer(props: ConfigViewerProps) {
       {treeExpanded() && (
         <div class="px-3 py-2 border-b border-base-300 bg-base-200/50">
           <div class="text-xs text-base-content/40 mb-1">
-            {props.configName ?? "config.cfg"} · {totalCount()} cvars · {changedCount()} changed from default
+            {props.configName ?? "config.cfg"} - {totalCount()} cvars - {changedCount()} changed from default
           </div>
           <div class="text-xs text-base-content/40 underline cursor-pointer">
-            See all configs in directory →
+            See all configs in directory ->
           </div>
         </div>
       )}
@@ -2217,7 +2217,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
           )}
         </For>
         <div class="text-center text-xs text-base-content/30 py-2">
-          Showing {filteredCvars().length} of {totalCount()} cvars · Click any row to expand
+          Showing {filteredCvars().length} of {totalCount()} cvars - Click any row to expand
         </div>
       </div>
     </div>
@@ -2427,7 +2427,7 @@ export default function ConfigCompare(props: ConfigCompareProps) {
 
 - [ ] **Step 2: Wire Compare button in ConfigViewer**
 
-In `ConfigViewer.tsx`, add state and handler for compare mode. Add a `compareMode` signal and conditionally render `ConfigCompare` when active. The compare config can come from a file drop (via Tauri dialog `open()`) that reads the file text. This wiring depends on how the user triggers compare — the button in the top bar should open a file dialog, read the file, and switch to compare mode.
+In `ConfigViewer.tsx`, add state and handler for compare mode. Add a `compareMode` signal and conditionally render `ConfigCompare` when active. The compare config can come from a file drop (via Tauri dialog `open()`) that reads the file text. This wiring depends on how the user triggers compare -- the button in the top bar should open a file dialog, read the file, and switch to compare mode.
 
 Add to ConfigViewer:
 ```typescript
@@ -2544,11 +2544,11 @@ export default function ConfigConverter(props: ConfigConverterProps) {
       "",
       `## No Equivalent in FTE (${r.noEquivalent.length} cvars)`,
       "",
-      ...r.noEquivalent.map((c) => `- **${c.sourceCvar}** = \`${c.sourceValue}\` — ${c.description} [${c.category}]`),
+      ...r.noEquivalent.map((c) => `- **${c.sourceCvar}** = \`${c.sourceValue}\` -- ${c.description} [${c.category}]`),
       "",
       `## Mapped to Different Name (${r.mapped.length} cvars)`,
       "",
-      ...r.mapped.map((c) => `- **${c.sourceCvar}** → **${c.targetCvar}** = \`${c.sourceValue}\` — ${c.note ?? c.description}`),
+      ...r.mapped.map((c) => `- **${c.sourceCvar}** -> **${c.targetCvar}** = \`${c.sourceValue}\` -- ${c.note ?? c.description}`),
     ];
     const text = lines.join("\n");
 
@@ -2569,7 +2569,7 @@ export default function ConfigConverter(props: ConfigConverterProps) {
         </button>
         <span class="font-mono text-sm text-warning">{props.configName}</span>
         <span class="text-base-content/40">ezQuake</span>
-        <span class="text-base-content/40">→</span>
+        <span class="text-base-content/40">-></span>
         <span class="font-mono text-sm text-info">fte.cfg</span>
         <span class="text-base-content/40">FTE</span>
         <div class="flex-1" />
@@ -2641,15 +2641,15 @@ export default function ConfigConverter(props: ConfigConverterProps) {
           {(item) => (
             <div class={`flex items-center px-3 py-1.5 border-b border-base-300/30 ${item.status === "no_equivalent" ? "bg-error/5" : item.status === "mapped" ? "bg-warning/5" : ""}`}>
               <div class="w-4 flex-shrink-0">
-                {item.status === "transferred" && <span class="text-success text-xs">✓</span>}
+                {item.status === "transferred" && <span class="text-success text-xs">[ok]</span>}
                 {item.status === "mapped" && <span class="text-warning text-xs">⇄</span>}
-                {item.status === "no_equivalent" && <span class="text-error text-xs">✗</span>}
+                {item.status === "no_equivalent" && <span class="text-error text-xs">[x]</span>}
               </div>
               <div class="w-36 font-mono text-xs" classList={{ "text-warning": item.status !== "no_equivalent", "text-error": item.status === "no_equivalent" }}>
                 {item.sourceCvar}
               </div>
               <div class="w-14 font-mono text-xs text-base-content/70">{item.sourceValue}</div>
-              <div class="text-xs text-base-content/40 mx-2">→</div>
+              <div class="text-xs text-base-content/40 mx-2">-></div>
               <div class="w-36 font-mono text-xs" classList={{ "text-info": item.targetCvar !== undefined, "text-base-content/30 italic": !item.targetCvar }}>
                 {item.targetCvar ?? "no equivalent"}
               </div>
@@ -2704,12 +2704,12 @@ Run: `bun run build` from slipgate-app.
 
 - [ ] **Step 4: Test manually**
 
-Launch `bun run tauri dev`, load a config, navigate to My Quake → Config:
-- Click "Convert to FTE" — verify summary stats appear with coverage bar
+Launch `bun run tauri dev`, load a config, navigate to My Quake -> Config:
+- Click "Convert to FTE" -- verify summary stats appear with coverage bar
 - Verify filter pills work (All, Transferred, Mapped, No equivalent)
 - Verify search works
-- Click "Export fte.cfg" — verify save dialog opens and file is written
-- Click "Gap report" — verify markdown file is exported
+- Click "Export fte.cfg" -- verify save dialog opens and file is written
+- Click "Gap report" -- verify markdown file is exported
 
 - [ ] **Step 5: Commit**
 

@@ -4,8 +4,8 @@
 Consolidate the three left-side panels (panel-top-left, panel-mid-left, panel-bottom-left) into a single unified panel that spans all grid rows. Mirrors the right panel unification from 13.0e for visual symmetry and cleaner layout.
 
 ## User Value
-- Cleaner visual hierarchy — symmetric sidebars framing the center grid
-- Team identity cohesion — logo and team name together (currently separated)
+- Cleaner visual hierarchy -- symmetric sidebars framing the center grid
+- Team identity cohesion -- logo and team name together (currently separated)
 - More vertical space for matches section (no padding/margins between panels)
 - Calmer, more focused UI
 
@@ -40,25 +40,25 @@ Row 1-3: panel-left (unified) | panel-top-center    | panel-right (unified)
 ### Unified Left Panel Layout
 ```
 ┌───────────────────────────────┐
-│         [Team Logo]           │  ← Centered, same size as current
+│         [Team Logo]           │  <- Centered, same size as current
 │                               │
-│     Team Name (larger)        │  ← Prominent, under logo
-│          ]TAG[                │  ← Tag below name
+│     Team Name (larger)        │  <- Prominent, under logo
+│          ]TAG[                │  <- Tag below name
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-│  PAR  ParadokS           ★    │  ← Roster list
+│  PAR  ParadokS           ★    │  <- Roster list
 │  ZER  Zero                    │
 │  RAZ  Razor                   │
 │  GRI  Grisling                │
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-│  YOUR MATCHES                 │  ← Section header
-│  ]SR[ vs -s- Feb 12 22:00     │  ← Scheduled matches for user's teams
+│  YOUR MATCHES                 │  <- Section header
+│  ]SR[ vs -s- Feb 12 22:00     │  <- Scheduled matches for user's teams
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-│  UPCOMING                     │  ← Section header (scrollable)
-│  Team A vs Team B             │  ← System-wide matches
+│  UPCOMING                     │  <- Section header (scrollable)
+│  Team A vs Team B             │  <- System-wide matches
 │  Team C vs Team D             │
 │  ...                          │
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-│  [Avatar] ParadokS · PAR      │  ← Profile pinned at bottom
+│  [Avatar] ParadokS - PAR      │  <- Profile pinned at bottom
 └───────────────────────────────┘
 ```
 
@@ -159,8 +159,8 @@ Update explicit grid placement:
 ### Phase 3: Component Updates
 
 **TeamInfo.js:**
-- Split rendering: identity (logo+name+tag) → `#team-identity-container`
-- Roster → `#roster-container`
+- Split rendering: identity (logo+name+tag) -> `#team-identity-container`
+- Roster -> `#roster-container`
 - Remove team name from old location
 
 **TeamNameDisplay.js:**
@@ -169,8 +169,8 @@ Update explicit grid placement:
 
 **UpcomingMatchesPanel.js:**
 - Split into two sections:
-  - "Your Matches" → `#your-matches-container` (matches for user's teams only)
-  - "Upcoming" → `#upcoming-matches-container` (all other matches, scrollable)
+  - "Your Matches" -> `#your-matches-container` (matches for user's teams only)
+  - "Upcoming" -> `#upcoming-matches-container` (all other matches, scrollable)
 
 **UserProfile.js:**
 - renderCompact() target changes to new container
@@ -227,13 +227,13 @@ Update explicit grid placement:
 
 ### Your Matches vs Upcoming
 ```
-YOUR MATCHES                    ← Only if user has scheduled matches
+YOUR MATCHES                    <- Only if user has scheduled matches
 ┌─────────────────────────────────────┐
 │  🏆 ]SR[ vs -s-                     │
 │     Feb 12 Thu 22:00 (D1)           │
 └─────────────────────────────────────┘
 
-UPCOMING                        ← All other matches (scrollable)
+UPCOMING                        <- All other matches (scrollable)
 ┌─────────────────────────────────────┐
 │  Team A vs Team B                   │
 │  Feb 13 Fri 20:00                   │

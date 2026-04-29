@@ -1,4 +1,4 @@
-# Post-Review Fixes — MatchScheduler
+# Post-Review Fixes -- MatchScheduler
 
 Cross-project review found 1 bug on the MatchScheduler side.
 
@@ -6,18 +6,18 @@ Cross-project review found 1 bug on the MatchScheduler side.
 
 ## Fix 1 (HIGH): `joinTeam` missing pendingSync for Mumble
 
-When a player joins a team via join code, the `joinTeam` Cloud Function does NOT write a `pendingSync: 'add'` to `mumbleConfig/{teamId}`. This means join-code members never get a Mumble user account — no temp password, no ACL entry, no onboarding link in the Mumble tab.
+When a player joins a team via join code, the `joinTeam` Cloud Function does NOT write a `pendingSync: 'add'` to `mumbleConfig/{teamId}`. This means join-code members never get a Mumble user account -- no temp password, no ACL entry, no onboarding link in the Mumble tab.
 
 All other roster operations already write pendingSync correctly:
-- `addPhantomMember` → pendingSync `'add'` ✓ (team-operations.js:1810-1823)
-- `removePhantomMember` → pendingSync `'remove'` ✓ (team-operations.js:1879-1891)
-- Leave team → pendingSync `'remove'` ✓ (team-operations.js:790-804)
-- Kick player → pendingSync `'remove'` ✓ (team-operations.js:942-954)
-- Display name change → pendingSync `'rename'` ✓ (user-profile.js:384-404)
+- `addPhantomMember` -> pendingSync `'add'` [ok] (team-operations.js:1810-1823)
+- `removePhantomMember` -> pendingSync `'remove'` [ok] (team-operations.js:1879-1891)
+- Leave team -> pendingSync `'remove'` [ok] (team-operations.js:790-804)
+- Kick player -> pendingSync `'remove'` [ok] (team-operations.js:942-954)
+- Display name change -> pendingSync `'rename'` [ok] (user-profile.js:384-404)
 
 ### Where to fix
 
-`functions/team-operations.js` — in the `joinTeam` function, after the player is successfully added to the roster.
+`functions/team-operations.js` -- in the `joinTeam` function, after the player is successfully added to the roster.
 
 ### How to fix
 

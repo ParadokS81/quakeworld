@@ -1,4 +1,4 @@
-# Voice Replay Multi-Clan — Cross-Project Contract
+# Voice Replay Multi-Clan -- Cross-Project Contract
 
 > Canonical copy lives at the parent workspace: `/quake/VOICE-REPLAY-CONTRACT.md`
 > This is a reference copy for the MatchScheduler project. If they diverge, the orchestrator version is authoritative.
@@ -8,7 +8,7 @@
 ## Overview
 
 Evolving voice replay from single-clan PoC to multi-clan production:
-- Registration starts from MatchScheduler UI (team settings) — leader initiates, bot completes
+- Registration starts from MatchScheduler UI (team settings) -- leader initiates, bot completes
 - Uploads tagged with teamId, enabling Firestore-rules-based privacy
 - Teams control visibility: default public/private + per-recording override
 - Frontend discovery: team members find their recordings in MatchScheduler
@@ -17,20 +17,20 @@ Evolving voice replay from single-clan PoC to multi-clan production:
 
 ## New Collection: `/botRegistrations/{teamId}`
 
-Document ID = teamId (one registration per team). Created by MatchScheduler (pending) → completed by quad bot (active).
+Document ID = teamId (one registration per team). Created by MatchScheduler (pending) -> completed by quad bot (active).
 
 ```typescript
 interface BotRegistrationDocument {
   teamId: string;                     // = document ID
   teamTag: string;
   teamName: string;
-  authorizedDiscordUserId: string;    // Leader's Discord ID — only this user can run /register
+  authorizedDiscordUserId: string;    // Leader's Discord ID -- only this user can run /register
   registeredBy: string;               // Firebase UID of the leader
   guildId: string | null;             // null while pending, populated on completion
   guildName: string | null;
   status: 'pending' | 'active';
   knownPlayers: {
-    [discordUserId: string]: string;  // Discord user ID → QW display name
+    [discordUserId: string]: string;  // Discord user ID -> QW display name
   };
   createdAt: Timestamp;
   activatedAt: Timestamp | null;
@@ -116,16 +116,16 @@ Storage rules remain publicly readable. Privacy enforced at Firestore discovery 
 MatchScheduler                              Discord
 ────────────                                ───────
 Leader clicks "Connect Voice Bot"
-  → Cloud Function creates
+  -> Cloud Function creates
     botRegistrations/{teamId}
     status: 'pending'
-  → UI shows invite link + instructions
+  -> UI shows invite link + instructions
                                             Leader invites bot
                                             Leader runs /register
                                             Bot finds pending doc
                                             Bot updates: guildId, status: 'active'
-  ← Firestore listener updates UI
-  → "Connected to [guildName]"
+  <- Firestore listener updates UI
+  -> "Connected to [guildName]"
 ```
 
 ---

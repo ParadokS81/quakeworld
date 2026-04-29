@@ -1,4 +1,4 @@
-# Mumble Integration — Cross-Project Contract
+# Mumble Integration -- Cross-Project Contract
 
 > Source of truth for the Mumble voice server integration between MatchScheduler and quad.
 > Updated as each phase lands. Both projects reference this for schema decisions.
@@ -9,7 +9,7 @@
 ## Overview
 
 Adding a community Mumble server as a voice platform alongside Discord:
-- MatchScheduler is the entry point — team leaders enable Mumble, squad members onboard
+- MatchScheduler is the entry point -- team leaders enable Mumble, squad members onboard
 - Each team gets a private Mumble channel with per-user access control
 - Users onboard through MatchScheduler (personalized `mumble://` link with credentials)
 - After first connect, Mumble certificate handles identity permanently
@@ -20,7 +20,7 @@ Adding a community Mumble server as a voice platform alongside Discord:
 - Server-side audio (no client-side recording quirks, no DAVE encryption issues)
 - Lower latency than Discord for competitive play
 - Full control of the server (channel layout, ACLs, recording, bandwidth)
-- Community ownership — not dependent on Discord platform changes
+- Community ownership -- not dependent on Discord platform changes
 
 **Server:** `83.172.66.214:64738` (Docker container on Xerial's server, alongside quad)
 
@@ -30,7 +30,7 @@ Adding a community Mumble server as a voice platform alongside Discord:
 
 Links a MatchScheduler team to a Mumble channel. Document ID = teamId (one config per team).
 
-Created by MatchScheduler CF (pending) → activated by quad (active) after channel + users are created via Murmur API.
+Created by MatchScheduler CF (pending) -> activated by quad (active) after channel + users are created via Murmur API.
 
 ```typescript
 interface MumbleConfigDocument {
@@ -53,7 +53,7 @@ interface MumbleConfigDocument {
   errorMessage: string | null;
 
   // Registered Mumble users (set by quad, updated on roster changes)
-  // Maps MatchScheduler userId → Mumble user info
+  // Maps MatchScheduler userId -> Mumble user info
   mumbleUsers: {
     [userId: string]: {
       mumbleUsername: string;          // = QW display name from roster
@@ -108,7 +108,7 @@ match /mumbleConfig/{teamId} {
 }
 ```
 
-**Note on read access**: All squad members need read access to see their personalized join link (their `tempPassword` from `mumbleUsers`). However, users should only see their own credentials. The frontend handles this — Firestore rules allow reading the whole doc, but the UI only displays the current user's entry.
+**Note on read access**: All squad members need read access to see their personalized join link (their `tempPassword` from `mumbleUsers`). However, users should only see their own credentials. The frontend handles this -- Firestore rules allow reading the whole doc, but the UI only displays the current user's entry.
 
 **Alternative**: If credential isolation is critical, move per-user credentials to a subcollection `mumbleConfig/{teamId}/credentials/{userId}` with per-user read rules. This adds complexity but prevents squad members from seeing each other's temp passwords. Since temp passwords are one-time and cleared after cert pinning, the simpler approach (all members read the doc) is acceptable for MVP.
 
@@ -142,27 +142,27 @@ MATCHSCHEDULER (Team Settings)                     QUAD (on Xerial's server)
    │
    ▼
 Cloud Function: enableMumble({ teamId })
-   → Creates mumbleConfig/{teamId}:
+   -> Creates mumbleConfig/{teamId}:
      status: 'pending'
      teamId, teamTag, teamName
      mumbleUsers: {}
-   → Returns: { status: 'pending' }
+   -> Returns: { status: 'pending' }
                                                    2. quad Firestore listener picks up
                                                       new mumbleConfig with status: 'pending'
                                                       │
                                                       ▼
                                                    Calls Murmur API (protocol client + ICE):
-                                                     → Create channel "Teams/{tag}"
-                                                     → Set ACL: deny all by default
+                                                     -> Create channel "Teams/{tag}"
+                                                     -> Set ACL: deny all by default
                                                       │
                                                       ▼
                                                    Reads team roster from /teams/{teamId}
                                                    For each squad member with a userId:
-                                                     → Register Mumble user:
+                                                     -> Register Mumble user:
                                                        username = member.displayName
                                                        password = crypto.randomBytes(8)
-                                                     → Add ACL entry: user can join channel
-                                                     → Write to mumbleConfig.mumbleUsers
+                                                     -> Add ACL entry: user can join channel
+                                                     -> Write to mumbleConfig.mumbleUsers
                                                       │
                                                       ▼
                                                    Updates mumbleConfig/{teamId}:
@@ -181,9 +181,9 @@ Cloud Function: enableMumble({ teamId })
    ▼
 5. First-time connect:
    Button generates: mumble://ParadokS:a8f3x9k2@83.172.66.214:64738/Teams/sr
-   User clicks → Mumble client opens
+   User clicks -> Mumble client opens
    Connects with username + temp password
-   │                                               6. Murmur validates credentials ✓
+   │                                               6. Murmur validates credentials [ok]
    │                                                  quad detects new session via ICE callback
    │                                                  Reads client certificate hash
    │                                                  Pins cert to registered user
@@ -199,15 +199,15 @@ Cloud Function: enableMumble({ teamId })
    │                                                 mumbleLinkedAt: now
    │
    ▼
-7. UI updates: shows "Connected ✓"
+7. UI updates: shows "Connected [ok]"
    Future connects: cert handles auth
    Generic link works: mumble://83.172.66.214:64738/Teams/sr
 
 8. RETURNING USERS (from Discord or bookmark):
    mumble://83.172.66.214:64738/Teams/sr
-   → Mumble client sends saved certificate
-   → Murmur recognizes user → grants channel access
-   → No credentials in URL needed
+   -> Mumble client sends saved certificate
+   -> Murmur recognizes user -> grants channel access
+   -> No credentials in URL needed
 ```
 
 ---
@@ -254,10 +254,10 @@ CF writes to mumbleConfig/{teamId}:
   │
   ▼
 quad listener picks up change:
-  → Register new Mumble user via Murmur gRPC
-  → Add ACL entry for the channel
-  → Update mumbleConfig.mumbleUsers with new entry
-  → Clear pendingSync
+  -> Register new Mumble user via Murmur gRPC
+  -> Add ACL entry for the channel
+  -> Update mumbleConfig.mumbleUsers with new entry
+  -> Clear pendingSync
 ```
 
 ### Player removed from roster
@@ -271,10 +271,10 @@ CF writes to mumbleConfig/{teamId}:
   │
   ▼
 quad listener picks up change:
-  → Remove Mumble user registration via Murmur gRPC
-  → Remove ACL entry for the channel
-  → Delete from mumbleConfig.mumbleUsers
-  → Clear pendingSync
+  -> Remove Mumble user registration via Murmur gRPC
+  -> Remove ACL entry for the channel
+  -> Delete from mumbleConfig.mumbleUsers
+  -> Clear pendingSync
 ```
 
 ### Player display name changes
@@ -294,7 +294,7 @@ recordings/{sessionId}/
 ├── session_metadata.json
 │   {
 │     schema_version: 1,
-│     source: "mumble",              // ← different from "quad"
+│     source: "mumble",              // <- different from "quad"
 │     recording_start_time: "...",
 │     recording_end_time: "...",
 │     recording_id: "01JKXYZ...",    // ULID
@@ -336,7 +336,7 @@ The processing pipeline needs minimal changes:
 | Stage | Change needed? | Notes |
 |-------|---------------|-------|
 | Parse metadata | Minor | Accept `source: "mumble"`, read `mumble_user_id` alongside `discord_user_id` |
-| QW Hub query | None | Uses team tag + known players — source doesn't matter |
+| QW Hub query | None | Uses team tag + known players -- source doesn't matter |
 | ktxstats fetch | None | Same API |
 | Match pairing | Minor | Player name resolution: use `mumble_username` (already = QW name) instead of `knownPlayers` lookup |
 | Audio split | None | ffmpeg works on any OGG file |
@@ -356,7 +356,7 @@ The uploaded recording doc in `voiceRecordings/{demoSha256}` gains a `recordingS
   teamTag: string;
   tracks: Track[];
   sessionId: string;
-  source: 'firebase_storage';       // KEEP — storage backend, NOT recording origin
+  source: 'firebase_storage';       // KEEP -- storage backend, NOT recording origin
   // ...
 
   // New field
@@ -364,15 +364,15 @@ The uploaded recording doc in `voiceRecordings/{demoSha256}` gains a `recordingS
 }
 ```
 
-**IMPORTANT**: The existing `source` field means "storage backend" (`firebase_storage` | `google_drive`) — VoiceReplayService checks this to know how to load audio files. Do NOT overwrite it. Use `recordingSource` for the voice platform origin.
+**IMPORTANT**: The existing `source` field means "storage backend" (`firebase_storage` | `google_drive`) -- VoiceReplayService checks this to know how to load audio files. Do NOT overwrite it. Use `recordingSource` for the voice platform origin.
 
-The MatchScheduler voice replay UI doesn't need to distinguish for playback — it plays OGG files regardless of recording source. An optional source badge can be shown.
+The MatchScheduler voice replay UI doesn't need to distinguish for playback -- it plays OGG files regardless of recording source. An optional source badge can be shown.
 
 ---
 
 ## MatchScheduler UI
 
-### Team Management Modal → New "Mumble" Tab
+### Team Management Modal -> New "Mumble" Tab
 
 Alongside the existing "Discord", "Schedule", "Recordings" tabs:
 
@@ -422,7 +422,7 @@ STATE: Active, current user linked
 │                                                      │
 │  ─────────────────────────────────────────────────   │
 │                                                      │
-│  Connected as: ParadokS ✓                            │
+│  Connected as: ParadokS [ok]                            │
 │                                                      │
 │  [🔊 Join Channel]                                   │
 │  mumble://83.172.66.214:64738/Teams/sr               │
@@ -430,9 +430,9 @@ STATE: Active, current user linked
 │  ─────────────────────────────────────────────────   │
 │                                                      │
 │  Squad members:                    3/5 linked        │
-│  ✓ ParadokS                                         │
-│  ✓ Razor                                            │
-│  ✓ scenic                                           │
+│  [ok] ParadokS                                         │
+│  [ok] Razor                                            │
+│  [ok] scenic                                           │
 │  ○ pkk              [not yet connected]              │
 │  ○ nasander          [not yet connected]              │
 │                                                      │
@@ -452,14 +452,14 @@ STATE: Active, current user linked
 
 | Concern | MatchScheduler file | quad file |
 |---------|-------------------|-----------|
-| Enable/disable | `functions/mumble-operations.js` (new) | — |
-| Channel setup | — | `src/modules/mumble/channel-manager.ts` (new) |
-| User registration | — | `src/modules/mumble/user-manager.ts` (new) |
-| Cert pinning | — | `src/modules/mumble/session-monitor.ts` (new) |
-| Roster sync listener | — | `src/modules/mumble/roster-sync.ts` (new) |
-| Recording bot | — | `src/modules/mumble/recorder.ts` (new) |
-| UI (Mumble tab) | `js/components/TeamManagementModal.js` (extend) | — |
-| Service | `js/services/MumbleConfigService.js` (new) | — |
+| Enable/disable | `functions/mumble-operations.js` (new) | -- |
+| Channel setup | -- | `src/modules/mumble/channel-manager.ts` (new) |
+| User registration | -- | `src/modules/mumble/user-manager.ts` (new) |
+| Cert pinning | -- | `src/modules/mumble/session-monitor.ts` (new) |
+| Roster sync listener | -- | `src/modules/mumble/roster-sync.ts` (new) |
+| Recording bot | -- | `src/modules/mumble/recorder.ts` (new) |
+| UI (Mumble tab) | `js/components/TeamManagementModal.js` (extend) | -- |
+| Service | `js/services/MumbleConfigService.js` (new) | -- |
 | Firestore listener | `js/services/MumbleConfigService.js` (new) | `src/modules/mumble/config-listener.ts` (new) |
 
 ---
@@ -479,15 +479,15 @@ STATE: Active, current user linked
 
 This covers channel management without any extra API setup.
 
-### Tier 2: ICE API (advanced ops — user registration, ACLs, cert pinning)
+### Tier 2: ICE API (advanced ops -- user registration, ACLs, cert pinning)
 
 ZeroC ICE is the only official admin API. Required for operations that can't be done via the protocol:
-- **`registerUser`** — Create Mumble accounts with username + password (needed for onboarding flow)
-- **`unregisterUser`** — Remove accounts (roster sync)
-- **`updateRegistration`** — Rename users, update passwords
-- **`getACL` / `setACL`** — Per-channel permission management
-- **`getRegisteredUsers`** — Query registered users + certificate hashes
-- **`addCallback`** — Server events (user join/leave, for cert pinning detection)
+- **`registerUser`** -- Create Mumble accounts with username + password (needed for onboarding flow)
+- **`unregisterUser`** -- Remove accounts (roster sync)
+- **`updateRegistration`** -- Rename users, update passwords
+- **`getACL` / `setACL`** -- Per-channel permission management
+- **`getRegisteredUsers`** -- Query registered users + certificate hashes
+- **`addCallback`** -- Server events (user join/leave, for cert pinning detection)
 
 #### Enabling ICE in Docker
 
@@ -569,41 +569,41 @@ quad connects to `mumble:6502` via Docker internal DNS.
 
 | Phase | Project | Scope | Depends on | Model recommendation |
 |-------|---------|-------|------------|---------------------|
-| **M1** | quad | **Murmur connection + channel management**: Connect to Murmur via `@tf2pickup-org/mumble-client` (protocol client). Build `src/modules/mumble/channel-manager.ts` — create/delete team channels. Enable ICE in Docker config (port 6502). Firestore listener for `mumbleConfig` status: 'pending' → create channel → set status: 'active'. | — | Sonnet, extended thinking |
-| **M2** | quad | **User registration + cert pinning**: Build `user-manager.ts` — register Mumble users from team roster, generate temp passwords, write to `mumbleConfig.mumbleUsers`. Build `session-monitor.ts` — detect new connections, pin certificates, clear temp passwords, update user profiles. | M1 | Sonnet, extended thinking |
-| **M3** | MatchScheduler | **Mumble tab UI**: New Cloud Function `enableMumble`/`disableMumble`. New `MumbleConfigService.js` (Firestore listener). Extend `TeamManagementModal.js` with Mumble tab — enable button, join link (personalized for first-time, generic for linked), member status list, auto-record toggle. | M1 | Sonnet, extended thinking |
+| **M1** | quad | **Murmur connection + channel management**: Connect to Murmur via `@tf2pickup-org/mumble-client` (protocol client). Build `src/modules/mumble/channel-manager.ts` -- create/delete team channels. Enable ICE in Docker config (port 6502). Firestore listener for `mumbleConfig` status: 'pending' -> create channel -> set status: 'active'. | -- | Sonnet, extended thinking |
+| **M2** | quad | **User registration + cert pinning**: Build `user-manager.ts` -- register Mumble users from team roster, generate temp passwords, write to `mumbleConfig.mumbleUsers`. Build `session-monitor.ts` -- detect new connections, pin certificates, clear temp passwords, update user profiles. | M1 | Sonnet, extended thinking |
+| **M3** | MatchScheduler | **Mumble tab UI**: New Cloud Function `enableMumble`/`disableMumble`. New `MumbleConfigService.js` (Firestore listener). Extend `TeamManagementModal.js` with Mumble tab -- enable button, join link (personalized for first-time, generic for linked), member status list, auto-record toggle. | M1 | Sonnet, extended thinking |
 | **M4** | both | **Roster sync**: MatchScheduler CF writes `pendingSync` on roster changes. quad `roster-sync.ts` listener processes add/remove/rename via Murmur ICE. | M2, M3 |  Sonnet, thinking off |
 | **M5** | quad | **Recording bot**: Per-speaker audio capture in Mumble (research track already in progress). Output matches `session_metadata.json` contract. Auto-join team channels. | M1 | Sonnet, extended thinking |
-| **M6** | both | **Pipeline + Discord**: Minor pipeline changes (accept `source: "mumble"`, use `mumble_username` for player resolution). Add `recordingSource` field to `voiceRecordings` docs (NOT `source` — that's the storage backend). quad `/mumble` command for sharing join links in Discord. MatchScheduler: optional source badge in voice replay. | M4, M5 | Sonnet, thinking off |
+| **M6** | both | **Pipeline + Discord**: Minor pipeline changes (accept `source: "mumble"`, use `mumble_username` for player resolution). Add `recordingSource` field to `voiceRecordings` docs (NOT `source` -- that's the storage backend). quad `/mumble` command for sharing join links in Discord. MatchScheduler: optional source badge in voice replay. | M4, M5 | Sonnet, thinking off |
 
 ### Future: Guest / Standin Access (post-MVP)
 
-Mumble's **access tokens** feature enables temporary guest access to team channels — perfect for standins.
+Mumble's **access tokens** feature enables temporary guest access to team channels -- perfect for standins.
 
 **How it ties into the existing standin flow:**
 
 ```
 Existing standin flow (already built):
   MatchScheduler creates standin_request
-    → quad delivers DM to potential standins via Discord
-    → Standin accepts via button click
-    → quad confirms acceptance, notifies team
+    -> quad delivers DM to potential standins via Discord
+    -> Standin accepts via button click
+    -> quad confirms acceptance, notifies team
 
 Extended with Mumble (future):
   Standin accepts via Discord DM
-    → quad checks: does this team have Mumble enabled? (mumbleConfig status: 'active')
-    → YES: Generate time-limited access token via Murmur ICE
+    -> quad checks: does this team have Mumble enabled? (mumbleConfig status: 'active')
+    -> YES: Generate time-limited access token via Murmur ICE
            Add token-based ACL rule to team's channel
            Include mumble:// link with token in the confirmation DM:
            "Join voice: mumble://StandinName:guestToken@83.172.66.214:64738/Teams/sr"
-    → Standin clicks link → joins team channel → plays the match
-    → After match: token expires or is revoked, ACL entry removed
+    -> Standin clicks link -> joins team channel -> plays the match
+    -> After match: token expires or is revoked, ACL entry removed
 ```
 
 **Why this works cleanly:**
-- The standin flow already handles the full feedback loop (request → DM → accept → confirm)
+- The standin flow already handles the full feedback loop (request -> DM -> accept -> confirm)
 - Mumble access tokens are a native protocol feature (no custom auth needed)
-- The standin doesn't need a registered Mumble account — the token grants temporary channel access
+- The standin doesn't need a registered Mumble account -- the token grants temporary channel access
 - If the standin IS already a registered Mumble user (from their own team), they can join with their cert + token
 - Token lifetime can match the match duration (auto-expire after 3 hours)
 - Team leader can also manually generate guest tokens from the MatchScheduler UI for ad-hoc invites
@@ -624,17 +624,17 @@ guestTokens?: {
 };
 ```
 
-**Not in MVP** — but the architecture supports it with zero changes to the core channel/user model. It's purely additive: a new ACL rule type on the channel + a new field on the config doc.
+**Not in MVP** -- but the architecture supports it with zero changes to the core channel/user model. It's purely additive: a new ACL rule type on the channel + a new field on the config doc.
 
 ---
 
 ### What's NOT in scope (other future enhancements)
 
-- **Web-based Mumble client** — Would eliminate the "install Mumble" step. `mumble-web` exists but is limited. Evaluate later.
-- **Mumble ↔ Discord bridge** — Bridging audio between platforms. Complex, not needed initially.
-- **Admin dashboard** — Global view of all channels, users, server health. Per-team UI is sufficient for MVP.
-- **Multiple Mumble servers** — Currently one server. Scale if demand grows.
-- **Spectator channels** — Public listen-only channels for casters/spectators. Nice-to-have.
+- **Web-based Mumble client** -- Would eliminate the "install Mumble" step. `mumble-web` exists but is limited. Evaluate later.
+- **Mumble <-> Discord bridge** -- Bridging audio between platforms. Complex, not needed initially.
+- **Admin dashboard** -- Global view of all channels, users, server health. Per-team UI is sufficient for MVP.
+- **Multiple Mumble servers** -- Currently one server. Scale if demand grows.
+- **Spectator channels** -- Public listen-only channels for casters/spectators. Nice-to-have.
 
 ---
 
@@ -642,7 +642,7 @@ guestTokens?: {
 
 - **No existing data affected.** This is a new collection (`mumbleConfig`). No changes to existing `botRegistrations`, `voiceRecordings`, or `teams` docs.
 - **Additive to user docs.** New fields (`mumbleLinked`, `mumbleUsername`, `mumbleLinkedAt`) default to absent/null. No migration needed.
-- **voiceRecordings `recordingSource` field.** Existing recordings don't have this field — they're implicitly Discord. The frontend should treat missing `recordingSource` as `'discord'`. Note: the existing `source` field (`'firebase_storage'`) is the storage backend and must NOT be repurposed.
+- **voiceRecordings `recordingSource` field.** Existing recordings don't have this field -- they're implicitly Discord. The frontend should treat missing `recordingSource` as `'discord'`. Note: the existing `source` field (`'firebase_storage'`) is the storage backend and must NOT be repurposed.
 - **Docker Compose change.** The Mumble container already exists. Enabling ICE (port 6502, internal only) is the only infra change.
 - **Firestore indexes.** May need composite index on `mumbleConfig` for `status` queries. Create during M1 if needed.
 
@@ -656,6 +656,6 @@ guestTokens?: {
 
 3. **Mumble client detection**: Can the MatchScheduler frontend detect if Mumble is installed (to show "Install first" vs "Connect")? Probably not reliably from a browser. Show both the download link and the connect button; let the user figure it out.
 
-4. **Channel naming**: Use team tag (`sr`) or team name (`Slackers`) for the channel? Tag is shorter (better for Mumble's narrow channel tree). But tags can have special chars (`]sr[`). Need URL-safe version for `mumble://` path — strip brackets, lowercase.
+4. **Channel naming**: Use team tag (`sr`) or team name (`Slackers`) for the channel? Tag is shorter (better for Mumble's narrow channel tree). But tags can have special chars (`]sr[`). Need URL-safe version for `mumble://` path -- strip brackets, lowercase.
 
 5. **ICE npm package reliability**: The `ice` npm package (v3.7.100) has no TypeScript types and its JavaScript support is less tested than Python's. If it proves unreliable, fall back to a lightweight Python ICE sidecar. The quad research track should evaluate this during M1.

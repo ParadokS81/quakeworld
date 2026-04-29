@@ -4,9 +4,9 @@
 
 **Goal:** Add map awareness to qw-oracle's Layer 1: a flat `maps` table populated from BSP entity/texture lumps + maps.quakeworld.nu + stats.quakeworld.nu, with snapshot distribution to slipgate and two new MCP tools (`lookup_map`, `search_maps`).
 
-**Architecture:** New project namespace `qw` (the game itself, distinct from any engine). Single-table additive schema migration v12→v13. Python extractors (PAK reader + BSP parser + downloader + stats scraper) emit one JSON; TypeScript loader upserts; existing snapshot pipeline gains an emitter; MCP gains two tools.
+**Architecture:** New project namespace `qw` (the game itself, distinct from any engine). Single-table additive schema migration v12->v13. Python extractors (PAK reader + BSP parser + downloader + stats scraper) emit one JSON; TypeScript loader upserts; existing snapshot pipeline gains an emitter; MCP gains two tools.
 
-**Tech Stack:** Python 3 (stdlib only — no libclang for this layer; BSP parsing is pure binary), TypeScript on Bun, better-sqlite3, MCP SDK.
+**Tech Stack:** Python 3 (stdlib only -- no libclang for this layer; BSP parsing is pure binary), TypeScript on Bun, better-sqlite3, MCP SDK.
 
 **Spec:** `docs/superpowers/specs/2026-04-26-qw-oracle-map-knowledge-design.md`
 
@@ -15,41 +15,41 @@
 ## File Structure
 
 **New:**
-- `apps/qw-oracle/scripts/extractors/qw/extract.py` — main orchestrator
-- `apps/qw-oracle/scripts/extractors/qw/bsp_parser.py` — entity + texture lump readers
-- `apps/qw-oracle/scripts/extractors/qw/pak_extract.py` — PAK file reader
-- `apps/qw-oracle/scripts/extractors/qw/download_maps.py` — maps.qw.nu walker
-- `apps/qw-oracle/scripts/extractors/qw/fetch_stats.py` — stats.qw.nu scraper
-- `apps/qw-oracle/scripts/extractors/qw/seeds/qw-map-seed.yaml` — scaffolded empty
-- `apps/qw-oracle/scripts/extractors/qw/seeds/qw-stats-cache.json` — populated by fetch_stats.py
-- `apps/qw-oracle/scripts/extractors/qw/output/qw-maps-ast.json` — committed extractor output
-- `apps/qw-oracle/scripts/extractors/qw/tests/test_bsp_parser.py` — pytest unit tests
-- `apps/qw-oracle/scripts/extractors/qw/tests/test_pak_extract.py` — pytest unit tests
-- `apps/qw-oracle/scripts/extractors/qw/tests/fixtures/` — small fixture BSPs
-- `apps/qw-oracle/scripts/load-knowledge/load-maps.ts` — loader
-- `apps/qw-oracle/scripts/load-knowledge/load-maps.test.ts` — bun:test
+- `apps/qw-oracle/scripts/extractors/qw/extract.py` -- main orchestrator
+- `apps/qw-oracle/scripts/extractors/qw/bsp_parser.py` -- entity + texture lump readers
+- `apps/qw-oracle/scripts/extractors/qw/pak_extract.py` -- PAK file reader
+- `apps/qw-oracle/scripts/extractors/qw/download_maps.py` -- maps.qw.nu walker
+- `apps/qw-oracle/scripts/extractors/qw/fetch_stats.py` -- stats.qw.nu scraper
+- `apps/qw-oracle/scripts/extractors/qw/seeds/qw-map-seed.yaml` -- scaffolded empty
+- `apps/qw-oracle/scripts/extractors/qw/seeds/qw-stats-cache.json` -- populated by fetch_stats.py
+- `apps/qw-oracle/scripts/extractors/qw/output/qw-maps-ast.json` -- committed extractor output
+- `apps/qw-oracle/scripts/extractors/qw/tests/test_bsp_parser.py` -- pytest unit tests
+- `apps/qw-oracle/scripts/extractors/qw/tests/test_pak_extract.py` -- pytest unit tests
+- `apps/qw-oracle/scripts/extractors/qw/tests/fixtures/` -- small fixture BSPs
+- `apps/qw-oracle/scripts/load-knowledge/load-maps.ts` -- loader
+- `apps/qw-oracle/scripts/load-knowledge/load-maps.test.ts` -- bun:test
 - `apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts`
 - `apps/qw-oracle/serve/mcp/src/tools/search-maps.ts`
-- `apps/qw-oracle/serve/mcp/src/tools/maps.test.ts` — bun:test for both tools
+- `apps/qw-oracle/serve/mcp/src/tools/maps.test.ts` -- bun:test for both tools
 
 **Modified:**
-- `apps/qw-oracle/scripts/load-knowledge/schema.ts` — add `SCHEMA_V13_ADDITIONS_SQL`, `migrateV12ToV13`, bump `SCHEMA_VERSION` to 13, append to dispatch chain in `applySchema`
-- `apps/qw-oracle/scripts/load-knowledge/types.ts` — add `MapRow` interface
-- `apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts` — add `emitQwMaps` + `qw` project case + `'static'` sentinel
-- `apps/qw-oracle/scripts/load-knowledge/index.ts` — register `load-maps` subcommand
-- `apps/qw-oracle/serve/mcp/src/index.ts` — register both new tools in ListTools + CallTool dispatch
-- `apps/qw-oracle/SCHEMA.md` — document the new `maps` table
-- `apps/qw-oracle/CLAUDE.md` — add `qw` to the project list, update entity-types count
-- `apps/qw-oracle/.gitignore` — add `data/bsp-cache/` and `data/pak-cache/`
+- `apps/qw-oracle/scripts/load-knowledge/schema.ts` -- add `SCHEMA_V13_ADDITIONS_SQL`, `migrateV12ToV13`, bump `SCHEMA_VERSION` to 13, append to dispatch chain in `applySchema`
+- `apps/qw-oracle/scripts/load-knowledge/types.ts` -- add `MapRow` interface
+- `apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts` -- add `emitQwMaps` + `qw` project case + `'static'` sentinel
+- `apps/qw-oracle/scripts/load-knowledge/index.ts` -- register `load-maps` subcommand
+- `apps/qw-oracle/serve/mcp/src/index.ts` -- register both new tools in ListTools + CallTool dispatch
+- `apps/qw-oracle/SCHEMA.md` -- document the new `maps` table
+- `apps/qw-oracle/CLAUDE.md` -- add `qw` to the project list, update entity-types count
+- `apps/qw-oracle/.gitignore` -- add `data/bsp-cache/` and `data/pak-cache/`
 
 ---
 
-## Task 1: Schema migration v12 → v13
+## Task 1: Schema migration v12 -> v13
 
 **Files:**
 - Modify: `apps/qw-oracle/scripts/load-knowledge/schema.ts`
 
-This is pure-additive (one new table, no CHECK widening, no FK changes). Pattern: same as the v10→v11 `source_root` migration — plain transaction, no `foreign_keys = OFF` dance.
+This is pure-additive (one new table, no CHECK widening, no FK changes). Pattern: same as the v10->v11 `source_root` migration -- plain transaction, no `foreign_keys = OFF` dance.
 
 - [ ] **Step 1: Bump `SCHEMA_VERSION` to 13**
 
@@ -111,7 +111,7 @@ function migrateV12ToV13(db: Database.Database): void {
 
 - [ ] **Step 4: Wire into `applySchema` dispatch chain**
 
-In `applySchema`, after the v11→v12 block (around line ~1198):
+In `applySchema`, after the v11->v12 block (around line ~1198):
 
 ```ts
     if (existingVersion === 12 && SCHEMA_VERSION >= 13) {
@@ -245,7 +245,7 @@ scripts/extractors/qw/seeds/qw-stats-cache.json
 EOF
 ```
 
-Note the stats cache is gitignored too — it's a derived artifact, regenerable from `fetch_stats.py`. The seed YAML (manual overrides) IS committed.
+Note the stats cache is gitignored too -- it's a derived artifact, regenerable from `fetch_stats.py`. The seed YAML (manual overrides) IS committed.
 
 - [ ] **Step 2: Commit**
 
@@ -271,7 +271,7 @@ The PAK format: `"PACK"` magic + int32 dir_offset + int32 dir_size, then `dir_si
 Create `apps/qw-oracle/scripts/extractors/qw/tests/test_pak_extract.py`:
 
 ```python
-"""Tests for pak_extract.py — Quake PAK format reader."""
+"""Tests for pak_extract.py -- Quake PAK format reader."""
 import struct
 import tempfile
 from pathlib import Path
@@ -350,7 +350,7 @@ def test_extract_maps_skips_b_prefix_models(tmp_path: Path):
 cd apps/qw-oracle/scripts/extractors/qw && python3 -m pytest tests/test_pak_extract.py -v
 ```
 
-Expected: FAIL — `ModuleNotFoundError: pak_extract`.
+Expected: FAIL -- `ModuleNotFoundError: pak_extract`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -484,7 +484,7 @@ Reads pak0/pak1, extracts maps/*.bsp, filters b_*.bsp ammo boxes.
 - Create: `apps/qw-oracle/scripts/extractors/qw/bsp_parser.py`
 - Create: `apps/qw-oracle/scripts/extractors/qw/tests/test_bsp_parser.py`
 
-BSP format (validated during brainstorm): 4-byte version (`b'BSP2'` or int 29 = `'V29'`), then 15-lump dir of (offset, size) pairs at byte 4. Lump 0 = entities (`{ "k" "v" ... }` text blocks); lump 2 = textures (int32 count, int32[] offsets, then per-texture 16-byte name + mip data — many entries have offset=-1 sentinel for "no inlined data, look in WAD").
+BSP format (validated during brainstorm): 4-byte version (`b'BSP2'` or int 29 = `'V29'`), then 15-lump dir of (offset, size) pairs at byte 4. Lump 0 = entities (`{ "k" "v" ... }` text blocks); lump 2 = textures (int32 count, int32[] offsets, then per-texture 16-byte name + mip data -- many entries have offset=-1 sentinel for "no inlined data, look in WAD").
 
 - [ ] **Step 1: Copy real fixture BSPs into the test fixtures dir**
 
@@ -529,7 +529,7 @@ EOF
 Create `apps/qw-oracle/scripts/extractors/qw/tests/test_bsp_parser.py`:
 
 ```python
-"""Tests for bsp_parser.py — entity-lump and texture-lump readers.
+"""Tests for bsp_parser.py -- entity-lump and texture-lump readers.
 
 Fixture BSPs are not committed; tests skip cleanly when absent.
 Expected counts come from the brainstorm-session ground truth (parse_bsp.py).
@@ -792,7 +792,7 @@ def _normalize_health_counts(entities: list[dict[str, str]]) -> tuple[int, int, 
       H_MEGA   = 2  -> megahealth (mh)      - spawnflag bit 1 / value 2
       default  0    -> rotting health (h25)
     H_MEGA wins if both bits are set (matches the QC IF/ELSEIF order;
-    defensive — well-formed maps don't set both).
+    defensive -- well-formed maps don't set both).
     """
     mh = h25 = h15 = 0
     for e in entities:
@@ -915,7 +915,7 @@ if __name__ == '__main__':
 cd apps/qw-oracle/scripts/extractors/qw && python3 -m pytest tests/test_bsp_parser.py -v
 ```
 
-Expected: 7 passed (or skipped if fixtures absent — all should pass if they are present).
+Expected: 7 passed (or skipped if fixtures absent -- all should pass if they are present).
 
 - [ ] **Step 7: Eyeball one summary against in-game knowledge**
 
@@ -1103,7 +1103,7 @@ Create `apps/qw-oracle/scripts/extractors/qw/download_maps.py`:
 """Download BSPs from maps.quakeworld.nu.
 
 Strategy:
-  1. Walk /base/ index — server-admin-curated baseline (~216 BSPs).
+  1. Walk /base/ index -- server-admin-curated baseline (~216 BSPs).
   2. For every name in seeds/qw-stats-cache.json that's NOT in /base/,
      try /all/ (~30-40 supplemental adds).
   3. Manual seeds in seeds/qw-map-seed.yaml under the 'extra_maps:' key
@@ -1238,7 +1238,7 @@ from /all/ for entries not in /base/. Idempotent re-runs."
 ```bash
 mkdir -p apps/qw-oracle/scripts/extractors/qw/seeds
 cat > apps/qw-oracle/scripts/extractors/qw/seeds/qw-map-seed.yaml <<'EOF'
-# qw-map-seed.yaml — manual overrides for the map knowledge layer.
+# qw-map-seed.yaml -- manual overrides for the map knowledge layer.
 #
 # Schema:
 #   overrides:
@@ -1247,7 +1247,7 @@ cat > apps/qw-oracle/scripts/extractors/qw/seeds/qw-map-seed.yaml <<'EOF'
 #       notes:  "..."   # free-form, surfaced by lookup_map
 #
 #   extra_maps:
-#     - <bsp_filename>  # e.g. "ag2.bsp" — pulled into bsp-cache from /all/ even if
+#     - <bsp_filename>  # e.g. "ag2.bsp" -- pulled into bsp-cache from /all/ even if
 #                       # not in /base/ and not in stats.qw.nu top-N
 #
 # Empty for v1; entries get added as corrections surface.
@@ -1652,7 +1652,7 @@ describe('loadMapsFromArray', () => {
 cd apps/qw-oracle && bun test scripts/load-knowledge/load-maps.test.ts
 ```
 
-Expected: failure — `Cannot find module './load-maps.js'` or similar.
+Expected: failure -- `Cannot find module './load-maps.js'` or similar.
 
 - [ ] **Step 3: Implement load-maps.ts**
 
@@ -1857,7 +1857,7 @@ Then in the subcommand dispatch (next to `load-version`, `load-assets`):
     }
 ```
 
-(Match the existing helper-call shape — `openKnowledgeDb` and `arg` helpers should already exist in this file. If the file uses different helper names, adapt to the local convention.)
+(Match the existing helper-call shape -- `openKnowledgeDb` and `arg` helpers should already exist in this file. If the file uses different helper names, adapt to the local convention.)
 
 - [ ] **Step 3: Update the `usage` printout in index.ts**
 
@@ -2019,7 +2019,7 @@ In the body of `buildSnapshot`, alongside the `if (opts.project === 'qwcl')` and
 cd apps/qw-oracle && npm run typecheck
 ```
 
-Expected: 0 errors. If `Project` union doesn't include `'qw'` somewhere, fix that — search for `Project` definitions:
+Expected: 0 errors. If `Project` union doesn't include `'qw'` somewhere, fix that -- search for `Project` definitions:
 
 ```bash
 grep -rn "^type Project\|^export type Project\|: Project\b" apps/qw-oracle/scripts/load-knowledge/types.ts
@@ -2058,7 +2058,7 @@ since qw is the version-less game-itself namespace."
 
 ---
 
-## Task 13: MCP tool — lookup_map
+## Task 13: MCP tool -- lookup_map
 
 **Files:**
 - Create: `apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts`
@@ -2216,7 +2216,7 @@ describe('lookupMap', () => {
 cd apps/qw-oracle && bun test serve/mcp/src/tools/maps.test.ts
 ```
 
-Expected: failure — `lookup-map` not found.
+Expected: failure -- `lookup-map` not found.
 
 - [ ] **Step 3: Implement lookup-map.ts**
 
@@ -2385,7 +2385,7 @@ when not found."
 
 ---
 
-## Task 14: MCP tool — search_maps
+## Task 14: MCP tool -- search_maps
 
 **Files:**
 - Create: `apps/qw-oracle/serve/mcp/src/tools/search-maps.ts`
@@ -2739,7 +2739,7 @@ Find the existing `CallToolRequestSchema` handler (the `switch` or `if` chain th
     }
 ```
 
-(Match the surrounding pattern — exact dispatch shape depends on the existing code. Read the file before editing.)
+(Match the surrounding pattern -- exact dispatch shape depends on the existing code. Read the file before editing.)
 
 - [ ] **Step 4: Bump server version**
 
@@ -2792,7 +2792,7 @@ so the calling LLM picks filters without prompting."
 **Files:**
 - Modify: `apps/qw-oracle/SCHEMA.md`
 - Modify: `apps/qw-oracle/CLAUDE.md`
-- Modify: `HANDOVER.md` — close the implementation, record any open follow-ups
+- Modify: `HANDOVER.md` -- close the implementation, record any open follow-ups
 
 - [ ] **Step 1: Add the maps section to SCHEMA.md**
 
@@ -2802,7 +2802,7 @@ Read the existing structure:
 sed -n '15,30p' apps/qw-oracle/SCHEMA.md
 ```
 
-Add `maps` to the Table-map-at-a-glance row count and add a new section. Bump table count from 21 to 22, schema version from 12 to 13. Add this new top-level section after the last per-type table section (before the relation tables, or as a new top-level "Map knowledge" section — pick the location that reads cleanly in the file's existing flow):
+Add `maps` to the Table-map-at-a-glance row count and add a new section. Bump table count from 21 to 22, schema version from 12 to 13. Add this new top-level section after the last per-type table section (before the relation tables, or as a new top-level "Map knowledge" section -- pick the location that reads cleanly in the file's existing flow):
 
 ```markdown
 ---
@@ -2811,7 +2811,7 @@ Add `maps` to the Table-map-at-a-glance row count and add a new section. Bump ta
 
 ### `maps`
 
-The `qw` namespace — facts about QuakeWorld maps as game content (not engine entities). One row per canonical map name. Schema v13. Distinct from the entity/version model — maps don't change across engine versions.
+The `qw` namespace -- facts about QuakeWorld maps as game content (not engine entities). One row per canonical map name. Schema v13. Distinct from the entity/version model -- maps don't change across engine versions.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -2839,7 +2839,7 @@ The `qw` namespace — facts about QuakeWorld maps as game content (not engine e
 
 **Natural key:** `canonical_name`. Re-running the loader is idempotent.
 
-**Populated by:** `load-maps.ts` ← `apps/qw-oracle/scripts/extractors/qw/extract.py` → `qw-maps-ast.json`. Inputs: BSP files in `data/bsp-cache/` (extracted from pak0/pak1 via `pak_extract.py` and downloaded from maps.quakeworld.nu via `download_maps.py`); popularity from `seeds/qw-stats-cache.json` (refreshed by `fetch_stats.py`); manual overrides from `seeds/qw-map-seed.yaml`.
+**Populated by:** `load-maps.ts` <- `apps/qw-oracle/scripts/extractors/qw/extract.py` -> `qw-maps-ast.json`. Inputs: BSP files in `data/bsp-cache/` (extracted from pak0/pak1 via `pak_extract.py` and downloaded from maps.quakeworld.nu via `download_maps.py`); popularity from `seeds/qw-stats-cache.json` (refreshed by `fetch_stats.py`); manual overrides from `seeds/qw-map-seed.yaml`.
 
 **Consumed by:** MCP tools `lookup_map` + `search_maps`; slipgate via `qw-maps.json` snapshot file.
 
@@ -2856,12 +2856,12 @@ In `apps/qw-oracle/CLAUDE.md`, update:
 
 - The `Status:` line: bump schema reference to v13, mention the new `qw` namespace + maps layer
 - The `## What this is` table: add `maps` reference where appropriate
-- The supported-entity-types line near the bottom — add a note that `maps` is a flat table (not in the entity/version model)
+- The supported-entity-types line near the bottom -- add a note that `maps` is a flat table (not in the entity/version model)
 - The "Where to find things" section: add `Map extractor (qw namespace)` row pointing at `scripts/extractors/qw/`
 
 - [ ] **Step 3: Update HANDOVER.md**
 
-Add a closing entry under "Open items" — mark this work shipped, list any deferred follow-ups (slipgate UI, advanced search filters, author research, automated quarterly stats refresh, future maps.quake.world metadata-pass refactor).
+Add a closing entry under "Open items" -- mark this work shipped, list any deferred follow-ups (slipgate UI, advanced search filters, author research, automated quarterly stats refresh, future maps.quake.world metadata-pass refactor).
 
 - [ ] **Step 4: Run docs typecheck**
 
@@ -2944,25 +2944,25 @@ Otherwise skip.
 ## Self-review
 
 **Spec coverage check:**
-- ✅ New `maps` table at schema v13 — Task 1
-- ✅ MapRow types — Task 2
-- ✅ Cache dirs gitignored — Task 3
-- ✅ PAK extractor — Task 4
-- ✅ BSP entity + texture parser — Task 5
-- ✅ Stats scraper — Task 6
-- ✅ Map downloader (base + supplement) — Task 7
-- ✅ Main extract.py orchestrator — Task 8
-- ✅ Bootstrap end-to-end — Task 9
-- ✅ Loader + tests — Task 10
-- ✅ Loader CLI subcommand — Task 11
-- ✅ build-snapshot emitter for `qw` — Task 12
-- ✅ MCP `lookup_map` — Task 13
-- ✅ MCP `search_maps` — Task 14
-- ✅ MCP server registration — Task 15
-- ✅ Documentation — Task 16
-- ✅ Final verification — Task 17
+- [OK] New `maps` table at schema v13 -- Task 1
+- [OK] MapRow types -- Task 2
+- [OK] Cache dirs gitignored -- Task 3
+- [OK] PAK extractor -- Task 4
+- [OK] BSP entity + texture parser -- Task 5
+- [OK] Stats scraper -- Task 6
+- [OK] Map downloader (base + supplement) -- Task 7
+- [OK] Main extract.py orchestrator -- Task 8
+- [OK] Bootstrap end-to-end -- Task 9
+- [OK] Loader + tests -- Task 10
+- [OK] Loader CLI subcommand -- Task 11
+- [OK] build-snapshot emitter for `qw` -- Task 12
+- [OK] MCP `lookup_map` -- Task 13
+- [OK] MCP `search_maps` -- Task 14
+- [OK] MCP server registration -- Task 15
+- [OK] Documentation -- Task 16
+- [OK] Final verification -- Task 17
 
-**Placeholder scan:** clean — every step contains the actual content (SQL, code, command, expected output).
+**Placeholder scan:** clean -- every step contains the actual content (SQL, code, command, expected output).
 
 **Type consistency:**
 - `MapRow` (DB row shape) and `MapAstRecord` (extractor JSON shape) are deliberately distinct: the loader bridges them.

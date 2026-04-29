@@ -1,7 +1,7 @@
-# Quad Bot — Scheduler Notification Module
+# Quad Bot -- Scheduler Notification Module
 
 **Type:** New module (`src/modules/scheduler/`)
-**Pattern:** Follows standin module exactly (Firestore listener → Discord delivery → status writeback)
+**Pattern:** Follows standin module exactly (Firestore listener -> Discord delivery -> status writeback)
 **Also includes:** Writing `availableChannels` to `botRegistrations` on activation + periodic refresh
 
 ---
@@ -10,9 +10,9 @@
 
 Listens to the `notifications` Firestore collection for new documents with `status: 'pending'`. Handles three notification types:
 
-1. **`challenge_proposed`** — Proposal created. Delivers to opponent channel (or DM fallback) + proposer channel.
-2. **`slot_confirmed`** — One side confirmed a timeslot. Delivers to the OTHER side only.
-3. **`match_sealed`** — Mutual confirmation created a scheduled match. Delivers to the recipient team's channel.
+1. **`challenge_proposed`** -- Proposal created. Delivers to opponent channel (or DM fallback) + proposer channel.
+2. **`slot_confirmed`** -- One side confirmed a timeslot. Delivers to the OTHER side only.
+3. **`match_sealed`** -- Mutual confirmation created a scheduled match. Delivers to the recipient team's channel.
 
 Writes delivery status back to Firestore. Uses team logo URLs for richer embeds.
 
@@ -25,10 +25,10 @@ src/modules/scheduler/
 ├── index.ts          # BotModule export, event wiring (same shape as standin/index.ts)
 ├── listener.ts       # Firestore onSnapshot on notifications collection
 ├── embeds.ts         # Discord embed builders for all notification types
-└── channels.ts       # Channel discovery — writes availableChannels to botRegistrations
+└── channels.ts       # Channel discovery -- writes availableChannels to botRegistrations
 ```
 
-Reuses the existing Firebase Admin SDK from `standin/firestore.ts` — call `initFirestore()` and `getDb()` from there. Do NOT create a second Firebase app.
+Reuses the existing Firebase Admin SDK from `standin/firestore.ts` -- call `initFirestore()` and `getDb()` from there. Do NOT create a second Firebase app.
 
 ---
 
@@ -48,7 +48,7 @@ let firestoreReady = false;
 
 export const schedulerModule: BotModule = {
   name: 'scheduler',
-  commands: [],  // No slash commands — fully event-driven
+  commands: [],  // No slash commands -- fully event-driven
 
   async handleCommand(_interaction: ChatInputCommandInteraction): Promise<void> {},
 
@@ -59,7 +59,7 @@ export const schedulerModule: BotModule = {
 
   async onReady(client: Client): Promise<void> {
     if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-      logger.info('Scheduler module skipped — FIREBASE_SERVICE_ACCOUNT not set');
+      logger.info('Scheduler module skipped -- FIREBASE_SERVICE_ACCOUNT not set');
       return;
     }
 
@@ -96,7 +96,7 @@ Watch `notifications` collection for ALL `status === 'pending'` docs (no type fi
 export function startListening(db: Firestore, client: Client): void {
   const query = db.collection('notifications')
     .where('status', '==', 'pending');
-  // No type filter — handle all notification types
+  // No type filter -- handle all notification types
 
   unsubscribe = query.onSnapshot(
     (snapshot) => {
@@ -116,7 +116,7 @@ export function startListening(db: Firestore, client: Client): void {
 }
 ```
 
-### handleNotification — route by type
+### handleNotification -- route by type
 
 ```typescript
 async function handleNotification(db, client, doc) {
@@ -152,7 +152,7 @@ Single-target delivery: send to the team that did NOT confirm (the other side).
 
 ```typescript
 async function handleSlotConfirmed(db, client, doc, data) {
-  // data.delivery has a single target (the recipient — the other side)
+  // data.delivery has a single target (the recipient -- the other side)
   const delivery = data.delivery;
   let channelSent = false;
   let dmSent = false;
@@ -190,14 +190,14 @@ async function handleSlotConfirmed(db, client, doc, data) {
 
 ### handleMatchSealed (new)
 
-Single-target delivery: each `match_sealed` notification goes to ONE team (MatchScheduler writes two docs — one per team).
+Single-target delivery: each `match_sealed` notification goes to ONE team (MatchScheduler writes two docs -- one per team).
 
 ```typescript
 async function handleMatchSealed(db, client, doc, data) {
   const delivery = data.delivery;
   let channelSent = false;
 
-  // Channel delivery only — no DM fallback for match_sealed
+  // Channel delivery only -- no DM fallback for match_sealed
   // (both teams are actively engaged at this point)
   if (delivery.botRegistered && delivery.notificationsEnabled && delivery.channelId) {
     try {
@@ -220,9 +220,9 @@ async function handleMatchSealed(db, client, doc, data) {
 
 ### Error handling
 
-- Channel not found / bot doesn't have access → log warning, try DM fallback (challenge_proposed + slot_confirmed only)
-- DM blocked by user → log warning, mark as failed for that target
-- Any error → fire-and-forget, never crash the bot
+- Channel not found / bot doesn't have access -> log warning, try DM fallback (challenge_proposed + slot_confirmed only)
+- DM blocked by user -> log warning, mark as failed for that target
+- Any error -> fire-and-forget, never crash the bot
 - Always update the notification document with whatever result we got
 
 ---
@@ -236,8 +236,8 @@ All embeds support optional team logos via `proposerLogoUrl` and `opponentLogoUr
 ```typescript
 // Helper used by all embed builders
 function applyLogos(embed: EmbedBuilder, data: any, perspective: 'opponent' | 'proposer' | 'neutral'): void {
-  // setAuthor — shows the "from" team with icon on the left
-  // setThumbnail — shows the "other" team logo on the right
+  // setAuthor -- shows the "from" team with icon on the left
+  // setThumbnail -- shows the "other" team logo on the right
   if (perspective === 'opponent') {
     // Opponent is viewing: proposer's logo as author, opponent's as thumbnail
     if (data.proposerLogoUrl) {
@@ -260,21 +260,21 @@ function applyLogos(embed: EmbedBuilder, data: any, perspective: 'opponent' | 'p
 }
 ```
 
-### Challenge embed — `buildChallengeEmbed` (existing, add logos)
+### Challenge embed -- `buildChallengeEmbed` (existing, add logos)
 
 ```typescript
 // Add to existing buildChallengeEmbed:
 applyLogos(embed, notification, 'opponent');
 ```
 
-### Proposer embed — `buildProposerEmbed` (existing, add logos)
+### Proposer embed -- `buildProposerEmbed` (existing, add logos)
 
 ```typescript
 // Add to existing buildProposerEmbed:
 applyLogos(embed, notification, 'proposer');
 ```
 
-### Slot Confirmed embed — `buildSlotConfirmedEmbed` (NEW)
+### Slot Confirmed embed -- `buildSlotConfirmedEmbed` (NEW)
 
 Sent to the OTHER side when one team confirms a timeslot.
 
@@ -291,8 +291,8 @@ export function buildSlotConfirmedEmbed(data: SlotConfirmedNotification): {
   const gameTypeLabel = data.gameType === 'official' ? 'Official' : 'Practice';
 
   const embed = new EmbedBuilder()
-    .setColor(0x3b82f6)  // Blue — informational action
-    .setTitle(`Slot Confirmed — ${gameTypeLabel}`)
+    .setColor(0x3b82f6)  // Blue -- informational action
+    .setTitle(`Slot Confirmed -- ${gameTypeLabel}`)
     .setDescription(
       `**${confirmerDisplay}** confirmed **${slotDisplay} CET**`
     );
@@ -300,7 +300,7 @@ export function buildSlotConfirmedEmbed(data: SlotConfirmedNotification): {
   // Logo: confirmer's logo as author (they're the actor)
   if (data.proposerLogoUrl || data.opponentLogoUrl) {
     // Figure out which logo belongs to the confirmer
-    const isConfirmerProposer = data.confirmedByTeamId === data.proposerTeamId;  // ← need proposerTeamId on the doc
+    const isConfirmerProposer = data.confirmedByTeamId === data.proposerTeamId;  // <- need proposerTeamId on the doc
     // For slot_confirmed, the confirmer display is already clear from the title
     // Just show both logos if available
     if (data.opponentLogoUrl) embed.setThumbnail(data.opponentLogoUrl);
@@ -333,7 +333,7 @@ export function buildSlotConfirmedEmbed(data: SlotConfirmedNotification): {
 }
 ```
 
-### Match Sealed embed — `buildMatchSealedEmbed` (NEW)
+### Match Sealed embed -- `buildMatchSealedEmbed` (NEW)
 
 Sent to EACH team when a match is mutually confirmed and scheduled.
 
@@ -355,11 +355,11 @@ export function buildMatchSealedEmbed(data: MatchSealedNotification): {
   const weekNum = data.weekId.split('-')[1];
 
   const embed = new EmbedBuilder()
-    .setColor(0x22c55e)  // Green — success!
-    .setTitle(`Match Scheduled — ${gameTypeLabel}`)
+    .setColor(0x22c55e)  // Green -- success!
+    .setTitle(`Match Scheduled -- ${gameTypeLabel}`)
     .setDescription(
       `**${proposerDisplay}** vs **${opponentDisplay}**\n` +
-      `**${slotDisplay} CET** — Week ${weekNum}`
+      `**${slotDisplay} CET** -- Week ${weekNum}`
     );
 
   // Logos
@@ -386,7 +386,7 @@ Convert UTC slot IDs to CET (UTC+1) / CEST (UTC+2) for display. All times shown 
  * Slot IDs are UTC (e.g., "sun_2130" = Sunday 21:30 UTC).
  * CET = UTC+1 (winter), CEST = UTC+2 (summer).
  *
- * For simplicity, use CET (UTC+1) year-round in v1 — the community
+ * For simplicity, use CET (UTC+1) year-round in v1 -- the community
  * universally says "CET" even during summer. If we want DST-awareness
  * later, we can use a proper timezone library.
  *
@@ -428,7 +428,7 @@ function formatSlotForCET(slotId: string): string {
 
 Writes `availableChannels` to `botRegistrations` so the MatchScheduler Discord settings dropdown has data.
 
-### On module startup — sync all guilds
+### On module startup -- sync all guilds
 
 ```typescript
 export async function syncAllGuildChannels(db: Firestore, client: Client): Promise<void> {
@@ -466,11 +466,11 @@ export async function syncAllGuildChannels(db: Firestore, client: Client): Promi
 
 The registration module already updates `botRegistrations` on `/register`. After it activates, the scheduler module should also write channels. Two approaches:
 
-**Option A (recommended):** Add channel sync to `register.ts` directly — after `doc.ref.update({ status: 'active', ... })`, also write `availableChannels`. This is simpler since the guild context is already available.
+**Option A (recommended):** Add channel sync to `register.ts` directly -- after `doc.ref.update({ status: 'active', ... })`, also write `availableChannels`. This is simpler since the guild context is already available.
 
 **Option B:** The scheduler module listens for `botRegistrations` changes and syncs channels when status becomes `active`. More decoupled but adds another listener.
 
-Go with **Option A** — add the channel sync to the existing registration activation code in `register.ts`.
+Go with **Option A** -- add the channel sync to the existing registration activation code in `register.ts`.
 
 ### getTextChannels helper
 
@@ -525,7 +525,7 @@ interface BaseNotification {
 }
 ```
 
-### ChallengeNotification (existing — add logo fields)
+### ChallengeNotification (existing -- add logo fields)
 
 ```typescript
 export interface ChallengeNotification extends BaseNotification {
@@ -619,7 +619,7 @@ export interface MatchSealedNotification extends BaseNotification {
     notificationsEnabled: boolean;
     channelId: string | null;
     guildId: string | null;
-    // No DM fallback — both teams are actively engaged
+    // No DM fallback -- both teams are actively engaged
   };
   deliveryResult?: {
     channelSent: boolean;
@@ -642,30 +642,30 @@ export type SchedulerNotification =
 ## Testing
 
 ### challenge_proposed (existing)
-1. Create a proposal → verify `notifications/` doc with `type: 'challenge_proposed'`
+1. Create a proposal -> verify `notifications/` doc with `type: 'challenge_proposed'`
 2. Bot posts embed in opponent's channel (or DM fallback) + proposer's channel
 3. Verify embed has: team logos, team names, game type, timeslots, buttons
 
 ### slot_confirmed (new)
-4. Opponent confirms a slot → `notifications/` doc with `type: 'slot_confirmed'`
+4. Opponent confirms a slot -> `notifications/` doc with `type: 'slot_confirmed'`
 5. Bot posts blue embed to the OTHER team: "Suddendeath confirmed Sun 23:00 CET"
 6. Embed has "View Proposal" + "DM [confirmer]" buttons
 
 ### match_sealed (new)
-7. Both sides confirm same slot → TWO `notifications/` docs with `type: 'match_sealed'`
-8. Bot posts green embed to BOTH teams: "Match Scheduled — ]SR[ vs -s- — Sun 23:00 CET"
+7. Both sides confirm same slot -> TWO `notifications/` docs with `type: 'match_sealed'`
+8. Bot posts green embed to BOTH teams: "Match Scheduled -- ]SR[ vs -s- -- Sun 23:00 CET"
 9. Embed has "View Match" button
 
 ### General
 10. All embeds show team logos (author icon + thumbnail)
-11. Restart bot → listener re-attaches, doesn't re-send already delivered notifications
+11. Restart bot -> listener re-attaches, doesn't re-send already delivered notifications
 12. Test DM fallback for `slot_confirmed` when recipient has no bot channel
 
 ---
 
 ## What This Does NOT Include
 
-- Button interactions in the embed (no "Confirm Slot" buttons — that happens on the scheduler website)
+- Button interactions in the embed (no "Confirm Slot" buttons -- that happens on the scheduler website)
 - DST-aware timezone conversion (v1 uses CET/UTC+1 year-round)
-- Retry logic for failed deliveries (if it fails, it fails — user can still see the proposal on the website)
+- Retry logic for failed deliveries (if it fails, it fails -- user can still see the proposal on the website)
 - Auto-recording feature (separate work, Phase 2)

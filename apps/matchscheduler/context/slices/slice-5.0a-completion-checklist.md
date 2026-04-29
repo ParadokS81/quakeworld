@@ -8,14 +8,14 @@
 
 ## Current State Assessment
 
-### ✅ DONE - HTML Structure
+### [OK] DONE - HTML Structure
 - [x] Top row panels removed (old panel-top-*)
 - [x] Divider row added (panel-mid-left, panel-mid-center, panel-mid-right)
 - [x] Tab buttons in place (Calendar, Teams, Tournament)
 - [x] Bottom row preserved (panel-bottom-*)
 - [x] Using `main-grid-v3` class
 
-### ✅ DONE - CSS Layout
+### [OK] DONE - CSS Layout
 - [x] `.main-grid-v3` with `grid-template-rows: 1fr 3rem 1fr`
 - [x] `.panel-divider` styles
 - [x] `.divider-tabs` and `.divider-tab` button styles
@@ -25,9 +25,9 @@
 ### ⚠️ INCONSISTENT - Panel ID Naming
 | Location | Current ID | Expected ID | Status |
 |----------|------------|-------------|--------|
-| HTML line 100 | `panel-top-left` | `panel-top-left` | ✅ Correct |
+| HTML line 100 | `panel-top-left` | `panel-top-left` | [OK] Correct |
 | HTML line 107 | `panel-middle-center` | `panel-top-center` | ❌ **Rename needed** |
-| HTML line 111 | `panel-top-right` | `panel-top-right` | ✅ Correct |
+| HTML line 111 | `panel-top-right` | `panel-top-right` | [OK] Correct |
 | app.js line 42 | `panel-middle-left` | `panel-top-left` | ❌ **Update needed** |
 | app.js line 93 | `panel-middle-center` | `panel-top-center` | ❌ **Update needed** |
 
@@ -38,11 +38,11 @@
 ### Step 1: Panel ID Consistency (30 min)
 
 **File: `public/index.html`**
-- [ ] Line 107: Rename `panel-middle-center` → `panel-top-center`
+- [ ] Line 107: Rename `panel-middle-center` -> `panel-top-center`
 
 **File: `public/js/app.js`**
-- [ ] Line 42: Update `TeamInfo.init('panel-middle-left')` → `TeamInfo.init('panel-top-left')`
-- [ ] Line 93: Update `WeekDisplay.create('panel-middle-center', ...)` → `WeekDisplay.create('panel-top-center', ...)`
+- [ ] Line 42: Update `TeamInfo.init('panel-middle-left')` -> `TeamInfo.init('panel-top-left')`
+- [ ] Line 93: Update `WeekDisplay.create('panel-middle-center', ...)` -> `WeekDisplay.create('panel-top-center', ...)`
 - [ ] Verify `WeekNavigation.init('panel-top-center')` on line 86 (check if this panel should exist or be removed)
 
 **Verification:**
@@ -160,7 +160,7 @@ BottomPanelController.init(_weekDisplay2);
 ### Step 4: Profile & Filter Relocation (45 min)
 
 **Current state:** Profile shows static "👤 PDX", MinPlayers selects are static HTML
-**Goal:** Wire up profile click → ProfileModal, wire up filter selects
+**Goal:** Wire up profile click -> ProfileModal, wire up filter selects
 
 **File: `public/js/components/UserProfile.js`**
 - [ ] Add `renderCompact(containerId)` method:
@@ -204,8 +204,8 @@ function renderCompact(containerId) {
 **Verification:**
 ```bash
 # Test: Profile avatar/name shows logged-in user
-# Test: Click profile → ProfileModal opens
-# Test: Change min players filter → grid updates
+# Test: Click profile -> ProfileModal opens
+# Test: Change min players filter -> grid updates
 ```
 
 ---
@@ -214,7 +214,7 @@ function renderCompact(containerId) {
 
 **File: `src/css/input.css`**
 - [ ] Remove `.main-grid-v2` if exists (v3 is the keeper)
-- [ ] Rename `.main-grid-v3` → `.main-grid` once experiment complete
+- [ ] Rename `.main-grid-v3` -> `.main-grid` once experiment complete
 
 ---
 

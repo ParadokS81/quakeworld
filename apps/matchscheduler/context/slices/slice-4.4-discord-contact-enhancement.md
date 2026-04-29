@@ -6,7 +6,7 @@
 - **Name:** Discord Contact Enhancement
 - **User Story:** As a team leader, when I find a matching time slot with an opponent, I can click "Contact on Discord" to automatically copy a pre-formatted match request message to my clipboard AND open the Discord DM, so I can quickly paste the relevant match details and add a personal note.
 - **Success Criteria:**
-  - Leader clicks contact button → message copied to clipboard + Discord DM opens
+  - Leader clicks contact button -> message copied to clipboard + Discord DM opens
   - Message includes: selected timeslot (marked as priority), other matching slots with player counts
   - Toast notification confirms "Message copied! Paste in Discord"
   - User can immediately paste in Discord and optionally add personal message
@@ -45,7 +45,7 @@ FRONTEND COMPONENTS:
     - NEW: "Contact on Discord" button that copies message + opens DM
     - NEW: Toast notification on copy
   - User actions:
-    - Click "Contact on Discord" → copy message + open discord://users/{id}
+    - Click "Contact on Discord" -> copy message + open discord://users/{id}
     - Fallback "Copy Message" button if user prefers manual approach
 
 FRONTEND SERVICES:
@@ -80,10 +80,10 @@ BACKEND REQUIREMENTS:
   - Clipboard API: navigator.clipboard.writeText()
 
 INTEGRATION POINTS:
-- Frontend → Cache: ComparisonEngine provides all match data (instant)
-- Frontend → Clipboard API: Copy generated message
-- Frontend → Discord: Open DM via deep link
-- Frontend → Toast: Show success notification
+- Frontend -> Cache: ComparisonEngine provides all match data (instant)
+- Frontend -> Clipboard API: Copy generated message
+- Frontend -> Discord: Open DM via deep link
+- Frontend -> Toast: Show success notification
 - No real-time listeners needed (modal is snapshot view)
 ```
 
@@ -159,7 +159,7 @@ function _generateContactMessage(selectedSlotId, selectedWeekId, userTeamInfo, s
 }
 
 /**
- * Format slot ID for message (e.g., "mon_1900" → "Mon 19:00")
+ * Format slot ID for message (e.g., "mon_1900" -> "Mon 19:00")
  */
 function _formatSlotForMessage(slotId) {
     const [day, time] = slotId.split('_');
@@ -342,7 +342,7 @@ User clicks "Contact on Discord"
          ↓
 _generateContactMessage()
          ↓
-ComparisonEngine.getComparisonState() ← [All cached matches]
+ComparisonEngine.getComparisonState() <- [All cached matches]
          ↓
 Build message string with all matching slots
          ↓
@@ -352,19 +352,19 @@ ToastService.showSuccess("Message copied!")
          ↓
 window.open(discord://-/users/{id})
          ↓
-Discord app opens with DM → User pastes message
+Discord app opens with DM -> User pastes message
 
 
 DATA SOURCES (all from cache):
 ┌─────────────────────────────────────────────────────────────┐
 │ ComparisonEngine._matches                                   │
-│   → All slot matches with opponent info                     │
+│   -> All slot matches with opponent info                     │
 │                                                             │
 │ ComparisonEngine.getUserTeamInfo()                          │
-│   → User team tag, name, roster counts                      │
+│   -> User team tag, name, roster counts                      │
 │                                                             │
 │ _currentData.leaderDiscordInfo                              │
-│   → Already fetched in modal show() - discordUserId         │
+│   -> Already fetched in modal show() - discordUserId         │
 └─────────────────────────────────────────────────────────────┘
 
 
@@ -372,7 +372,7 @@ MESSAGE OUTPUT EXAMPLE:
 ┌─────────────────────────────────────────────────────────────┐
 │ Match request: [QW] vs [ABC]                                │
 │                                                             │
-│ > Mon 19:00 (4v4)    ← selected slot marked with >          │
+│ > Mon 19:00 (4v4)    <- selected slot marked with >          │
 │   Tue 20:00 (3v4)                                           │
 │   Thu 21:00 (4v3)                                           │
 │                                                             │
@@ -420,13 +420,13 @@ EDGE CASE TESTS:
 - [ ] Non-leaders don't see contact section (existing behavior)
 
 INTEGRATION TESTS:
-- [ ] Full flow: Click match → modal opens → click contact → message copied → Discord opens
+- [ ] Full flow: Click match -> modal opens -> click contact -> message copied -> Discord opens
 - [ ] Message contains correct team tags for both teams
 - [ ] Player counts in message match what's shown in modal
 - [ ] Switching opponent tabs regenerates message for new opponent
 
 END-TO-END TESTS:
-- [ ] Leader finds match → contacts opponent → pastes in Discord → message is useful
+- [ ] Leader finds match -> contacts opponent -> pastes in Discord -> message is useful
 - [ ] Message can be pasted and read clearly in Discord
 - [ ] User can add personal note after pasting
 - [ ] Works on Chrome, Firefox, Safari, Edge
@@ -507,7 +507,7 @@ Discord has a 2000 character limit. With typical slot format (~25 chars per slot
 - [x] Integration examples show actual code
 - [x] Hot paths identified (all from cache - instant)
 - [x] Test scenarios cover full stack (frontend, clipboard, Discord, integration)
-- [x] Data flow is complete (cache → message → clipboard → Discord → paste)
+- [x] Data flow is complete (cache -> message -> clipboard -> Discord -> paste)
 - [x] No anti-patterns from CLAUDE.md (no service subscriptions, no new listeners)
 - [x] Error handling specified (clipboard failures, Discord link failures)
 - [x] Loading states defined (none needed - all instant operations)

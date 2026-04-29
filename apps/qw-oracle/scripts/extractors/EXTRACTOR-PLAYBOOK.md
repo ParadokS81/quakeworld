@@ -1,6 +1,6 @@
 # QW Extractor Playbook
 
-Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). Four projects ship today: ezQuake (15 versions, deep-time walked to v3.0 floor), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (single tag 2.33), MVDSV (head, 2026-01-04 snapshot). KTX is pending and uses tree-sitter rather than libclang — see `VALIDATION-RUNBOOK.md` § "Out of scope" for the parallel-runbook plan. Each engine has its own registration idioms; the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
+Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). Four projects ship today: ezQuake (15 versions, deep-time walked to v3.0 floor), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (single tag 2.33), MVDSV (head, 2026-01-04 snapshot). KTX is pending and uses tree-sitter rather than libclang -- see `VALIDATION-RUNBOOK.md` Section  "Out of scope" for the parallel-runbook plan. Each engine has its own registration idioms; the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
 
 If you are starting a new engine: read the [Porting checklist](#porting-to-a-new-engine) end-to-end before touching code. If you are debugging an existing handler: jump to the [Registration pattern catalog](#registration-pattern-catalog). If you are validating output quality: see `VALIDATION-RUNBOOK.md`.
 
@@ -8,7 +8,7 @@ If you are starting a new engine: read the [Porting checklist](#porting-to-a-new
 
 ## Architecture in two diagrams
 
-**Extraction side (`apps/qw-oracle/scripts/extractors/<project>/` — post-2026-04-28 architecture consolidation):**
+**Extraction side (`apps/qw-oracle/scripts/extractors/<project>/` -- post-2026-04-28 architecture consolidation):**
 
 ```
   source/*.c, source/*.h  (engine checkout at a specific tag)
@@ -81,7 +81,7 @@ Key invariants:
 - Each `*-ast.json` entry is keyed by the entity's canonical name.
 - `entry.ast === null` means "help-JSON listed this name, extractor found no source registration." Loader marks it `source_state='doc_only'`. (MVDSV ships no help-JSON, so this state doesn't arise there.)
 - `entry.ast !== null` means "extractor found a registration." Loader marks it `source_state='source_backed'`.
-- The schema field `source_state` is load-bearing for data-quality queries — see `SCHEMA.md`. Note the two-level model: entity-level `source_state` is biographical-by-design ("ever was source-backed at some loaded version"); per-version `source_file` is current-state. Consumers that need "current at HEAD" must check the per-version row, not the entity row alone.
+- The schema field `source_state` is load-bearing for data-quality queries -- see `SCHEMA.md`. Note the two-level model: entity-level `source_state` is biographical-by-design ("ever was source-backed at some loaded version"); per-version `source_file` is current-state. Consumers that need "current at HEAD" must check the per-version row, not the entity row alone.
 
 ---
 
@@ -97,7 +97,7 @@ After the 2026-04-28 architecture consolidation, all four current projects (ezQu
 
 ### Rule of second consumer
 
-Don't lift to Tier 2 until a second project actually exists. Speculative family-base classes get the abstraction wrong — the only way to design a stable shared interface is by reading two real consumers side-by-side. The 2026-04-28 consolidation arc intentionally stopped at exposing override surfaces; lifting waits for the actual fork to land.
+Don't lift to Tier 2 until a second project actually exists. Speculative family-base classes get the abstraction wrong -- the only way to design a stable shared interface is by reading two real consumers side-by-side. The 2026-04-28 consolidation arc intentionally stopped at exposing override surfaces; lifting waits for the actual fork to land.
 
 ### Fork import pattern
 
@@ -140,9 +140,9 @@ The fork case (subclass parent) and the cross-codebase port case (subclass `Visi
 
 ### Concrete examples
 
-- ezQuake → unezQuake (planned): import-and-subclass. Override `REGISTRATION_APIS`, override `_extract_cvar_decl` if the fork adds new container types, leave finalize alone unless the fork changes dedup or help-JSON merge policy.
-- MVDSV → antilag-mvdsv (planned): same shape. Pay extra attention to `_handler_info_keys.py` and `_handler_qc_builtins.py` — those carry the heaviest project-specific coupling and are the most likely override surfaces.
-- FTE → ezQuake-FTE bridge (historical, not pursued): would have been a cross-codebase port (different parser, different runtime model), not a fork.
+- ezQuake -> unezQuake (planned): import-and-subclass. Override `REGISTRATION_APIS`, override `_extract_cvar_decl` if the fork adds new container types, leave finalize alone unless the fork changes dedup or help-JSON merge policy.
+- MVDSV -> antilag-mvdsv (planned): same shape. Pay extra attention to `_handler_info_keys.py` and `_handler_qc_builtins.py` -- those carry the heaviest project-specific coupling and are the most likely override surfaces.
+- FTE -> ezQuake-FTE bridge (historical, not pursued): would have been a cross-codebase port (different parser, different runtime model), not a fork.
 
 ---
 
@@ -150,7 +150,7 @@ The fork case (subclass parent) and the cross-codebase port case (subclass `Visi
 
 The eight classes of source constructs the ezQuake extractors handle. When porting to a new engine, inventory the registration APIs in use and map each to a pattern here; anything unmapped is either a new pattern (needs a new handler branch) or deferred until pressure.
 
-### Pattern 1 — Literal `cvar_t` struct-init
+### Pattern 1 -- Literal `cvar_t` struct-init
 
 **Source example:**
 ```c
@@ -164,7 +164,7 @@ static cvar_t cl_www_address = { "cl_www_address", "https://badplace.eu/", CVAR_
 
 **Catches:** the overwhelming majority of cvars (~90% of ezQuake's 2734 source-backed cvars).
 
-### Pattern 2 — `cvar_t` arrays
+### Pattern 2 -- `cvar_t` arrays
 
 **Source example:**
 ```c
@@ -179,7 +179,7 @@ cvar_t rule_cvars[] = {
 
 **Handler:** `handler_cvars.py::_extract_cvar_array()`.
 
-### Pattern 3 — Nested `cvar_t` inside container structs
+### Pattern 3 -- Nested `cvar_t` inside container structs
 
 **Source example:**
 ```c
@@ -193,11 +193,11 @@ static custom_model_color_t custom_model_colors[] = {
 
 **Detection:** `VAR_DECL` whose type is an array of a container struct known to hold `cvar_t` fields at specific indices. The outer init yields nested struct inits; at known field indices, walk down into a nested `INIT_LIST_EXPR` and apply the scalar-cvar parse.
 
-**Handler:** `handler_cvars.py::_extract_nested_cvar_table()` + `_NESTED_CVAR_TABLE_TYPES` mapping struct-type-name → field indices.
+**Handler:** `handler_cvars.py::_extract_nested_cvar_table()` + `_NESTED_CVAR_TABLE_TYPES` mapping struct-type-name -> field indices.
 
-**Add a new type:** add one line to `_NESTED_CVAR_TABLE_TYPES`. The walker handles the rest. Empty-name slots (`{"", ...}`) are silently skipped — they're unused placeholders.
+**Add a new type:** add one line to `_NESTED_CVAR_TABLE_TYPES`. The walker handles the rest. Empty-name slots (`{"", ...}`) are silently skipped -- they're unused placeholders.
 
-### Pattern 4 — Struct-literal command tables iterated via for-loop
+### Pattern 4 -- Struct-literal command tables iterated via for-loop
 
 **Source example:**
 ```c
@@ -211,11 +211,11 @@ log_t logs[MAX_LOG] = {
 
 **Detection:** the `Cmd_AddCommand` call has non-literal args (struct-field accesses), so the call-site detector can't resolve the name. Enumerate the table directly: on `VAR_DECL` with type matching a known command-table struct, walk the init list and pull the name field + handler field at registered indices.
 
-**Handler:** `handler_commands.py::_extract_command_table()` + `_COMMAND_TABLE_TYPES` mapping struct-type-name → `(name_field_idx, handler_field_idx)`.
+**Handler:** `handler_commands.py::_extract_command_table()` + `_COMMAND_TABLE_TYPES` mapping struct-type-name -> `(name_field_idx, handler_field_idx)`.
 
 **Add a new type:** one entry in `_COMMAND_TABLE_TYPES`, e.g. `"log_t": (1, 5)`.
 
-### Pattern 5 — Legacy alias APIs (`Cmd_AddLegacyCommand`)
+### Pattern 5 -- Legacy alias APIs (`Cmd_AddLegacyCommand`)
 
 **Source example:**
 ```c
@@ -227,9 +227,9 @@ Cmd_AddLegacyCommand("contrast", v_contrast.name);         // non-literal target
 
 **Handler:** `handler_commands.py::visit_cursor` branches on call spelling. For legacy calls: `handler_fn = None`, and `legacy_alias_of = arg[1]` if arg[1] is a literal, left unset otherwise. The target is preserved as `ast.legacy_alias_of` in the output JSON for downstream provenance; the loader currently ignores unknown ast fields so no schema change is needed.
 
-**Side-effect for other engines:** inventory EVERY `Cmd_Add*` API variant the source uses. FTE has `Cmd_AddCommandD` (description variant); MVDSV may have legacy shims; KTX is QuakeC (completely different — see Known limits).
+**Side-effect for other engines:** inventory EVERY `Cmd_Add*` API variant the source uses. FTE has `Cmd_AddCommandD` (description variant); MVDSV may have legacy shims; KTX is QuakeC (completely different -- see Known limits).
 
-### Pattern 6 — `#define`-resolved string names at call sites
+### Pattern 6 -- `#define`-resolved string names at call sites
 
 **Source example:**
 ```c
@@ -244,7 +244,7 @@ Cmd_AddCommand(CVAR_RELOAD_GFX_COMMAND, VID_Reload_f);
 
 **Known limit:** same-file `#define` only. Cross-header macro resolution isn't implemented. If this becomes pressure on another engine, extend `_file_macros` population to walk `#include`d headers (libclang's `get_tokens()` can iterate preprocessor cursors under `PARSE_DETAILED_PROCESSING_RECORD`).
 
-### Pattern 7 — Platform-guarded code via multi-variant parse
+### Pattern 7 -- Platform-guarded code via multi-variant parse
 
 **Source example:**
 ```c
@@ -267,19 +267,19 @@ static cvar_t cl_www_address = { "cl_www_address", "...", CVAR_ROM };
 
 **See also:** [Multi-variant parse architecture](#multi-variant-parse-architecture) below.
 
-**Known limit:** one documented deferral — `-nopriority` at `sv_sys_win.c:645`. The containing function body references Windows SDK types (`VER_PLATFORM_WIN32_NT`, `GetCurrentProcess`, `SetPriorityClass`) via `<mmsystem.h>` / `<winsock2.h>` which don't exist on Linux libclang. `PARSE_INCOMPLETE` keeps the file top-level walkable but the specific Sys_Init body fails to resolve past the SDK dependency. Recovery: provide stub Windows SDK headers (`-I stubs/windows-sdk/`) if MVDSV/FTE hit the same wall. Revisit then.
+**Known limit:** one documented deferral -- `-nopriority` at `sv_sys_win.c:645`. The containing function body references Windows SDK types (`VER_PLATFORM_WIN32_NT`, `GetCurrentProcess`, `SetPriorityClass`) via `<mmsystem.h>` / `<winsock2.h>` which don't exist on Linux libclang. `PARSE_INCOMPLETE` keeps the file top-level walkable but the specific Sys_Init body fails to resolve past the SDK dependency. Recovery: provide stub Windows SDK headers (`-I stubs/windows-sdk/`) if MVDSV/FTE hit the same wall. Revisit then.
 
-### Pattern 8 — Help-JSON cross-type orphans (loader-side)
+### Pattern 8 -- Help-JSON cross-type orphans (loader-side)
 
-**Source example:** none — this is a data-quality fix, not an extractor pattern. Included here so it's discoverable with the others.
+**Source example:** none -- this is a data-quality fix, not an extractor pattern. Included here so it's discoverable with the others.
 
-**Trigger:** `help_commands.json` and `help_variables.json` (in the engine repo) occasionally label a name under the wrong type. Example: `radar` is registered via `HUD_Register` so it lands as `hud_element source_backed`. But `help_commands.json` also lists `radar` → the commands extractor emits it with `ast: null` → the loader creates an orphan `command doc_only` row.
+**Trigger:** `help_commands.json` and `help_variables.json` (in the engine repo) occasionally label a name under the wrong type. Example: `radar` is registered via `HUD_Register` so it lands as `hud_element source_backed`. But `help_commands.json` also lists `radar` -> the commands extractor emits it with `ast: null` -> the loader creates an orphan `command doc_only` row.
 
-**Fix site:** `apps/qw-oracle/scripts/load-knowledge/load-version.ts` (end of transaction). For each doc_only entity of the current type, if a same-name same-project source_backed entity exists under any OTHER type, prune the orphan (delete per-type version row + transitions + source_overrides + entities row). Per-type-scoped + idempotent — each re-run cleans only what its own type would produce.
+**Fix site:** `apps/qw-oracle/scripts/load-knowledge/load-version.ts` (end of transaction). For each doc_only entity of the current type, if a same-name same-project source_backed entity exists under any OTHER type, prune the orphan (delete per-type version row + transitions + source_overrides + entities row). Per-type-scoped + idempotent -- each re-run cleans only what its own type would produce.
 
 **Validation:** `sqlite3 ... "SELECT name, type, source_state FROM entities WHERE project='ezquake' AND name='radar' ORDER BY type"` should return exactly one row per name.
 
-### Pattern 9 — Function-banner description harvest
+### Pattern 9 -- Function-banner description harvest
 
 **Source example:**
 ```c
@@ -301,7 +301,7 @@ void SV_Logfile_f(void) { ... }
 
 **Why this matters:** MVDSV ships no help-JSON. Without any description-side data, every command would have `description=NULL`. Banner harvest is the only mechanical way to recover doc strings from MVDSV source.
 
-### Pattern 10 — TU-root cursor intercept for MACRO_DEFINITION
+### Pattern 10 -- TU-root cursor intercept for MACRO_DEFINITION
 
 **Source example:**
 ```c
@@ -317,7 +317,7 @@ void SV_Logfile_f(void) { ... }
 
 **When you need this:** entity types whose source representation is a `#define` constant rather than a function call. Protocol messages, packet flags, info_key constants, anything where the literal value is the entity.
 
-### Pattern 11 — Table-array recovery through `UNEXPOSED_EXPR` wrappers
+### Pattern 11 -- Table-array recovery through `UNEXPOSED_EXPR` wrappers
 
 **Source example:**
 ```c
@@ -336,7 +336,7 @@ builtin_t std_builtins[] = {
 
 **When you need this:** any C source that initializes an array with function-pointer entries, mixed integer/identifier entries, or anywhere libclang's auto-generated cursor kinds obscure the underlying literal.
 
-### Pattern 12 — Struct-array `Cmd_AddCommand` from non-literal first arg
+### Pattern 12 -- Struct-array `Cmd_AddCommand` from non-literal first arg
 
 **Source example:**
 ```c
@@ -351,15 +351,15 @@ for (i = 0; i < num_logs; i++)
     Cmd_AddCommand(logs[i].command, logs[i].function);
 ```
 
-**Detection:** `Cmd_AddCommand`'s first arg is `logs[i].command` — a `MEMBER_REF_EXPR` on an array index, never a literal. The call-site detector extracts no name. Recover from the `log_t logs[N]` struct-array literal directly: enumerate the outer `INIT_LIST_EXPR`, descend into each element, pull the field at the registered command-name index.
+**Detection:** `Cmd_AddCommand`'s first arg is `logs[i].command` -- a `MEMBER_REF_EXPR` on an array index, never a literal. The call-site detector extracts no name. Recover from the `log_t logs[N]` struct-array literal directly: enumerate the outer `INIT_LIST_EXPR`, descend into each element, pull the field at the registered command-name index.
 
 **Handler:** MVDSV `_handler_commands.py::_extract_log_t_table()`. Pattern parallel to ezQuake's `log_t` (Pattern 4) but registered separately because the MVDSV log_t struct shape and field index differ slightly.
 
 **Add a new struct type:** add an entry to the handler's table-shape map (`{struct_name: (name_idx, fn_idx)}`).
 
-### Pattern 13 — Multiprocessing-safe two-row emission for cross-file resolution
+### Pattern 13 -- Multiprocessing-safe two-row emission for cross-file resolution
 
-**Source example:** none — this is an architectural pattern for handlers that need to resolve information across .c files.
+**Source example:** none -- this is an architectural pattern for handlers that need to resolve information across .c files.
 
 **Trigger:** a handler wants both a registration site (`Cmd_AddCommand("foo", Foo_f)` in file A) AND the handler function definition (`void Foo_f(void) { ... }` in file B). The registration site is needed to emit the command row; the function-definition site is needed to harvest the banner description (Pattern 9). With multiprocessing-driven extraction, workers process one .c file at a time, so cross-file state can't be shared.
 
@@ -413,7 +413,7 @@ The unified driver runs FOUR libclang passes per source file: client, server, Wi
 
 ### When the 4-variant pattern is not enough
 
-Some registration sites need a compound guard (e.g. `#ifdef SERVERONLY && #ifndef _WIN32` = Unix-only server code). For ezQuake, `chmod` at sv_ccmds.c:1858 is the canonical case — the server variant sees it without `-DWIN32`. An attempt to combine server+WIN32 into one variant (to also reach `sv_sys_win.c`'s `COM_CheckParm("-nopriority")`) hid `chmod` — `#ifndef _WIN32` then evaluated false.
+Some registration sites need a compound guard (e.g. `#ifdef SERVERONLY && #ifndef _WIN32` = Unix-only server code). For ezQuake, `chmod` at sv_ccmds.c:1858 is the canonical case -- the server variant sees it without `-DWIN32`. An attempt to combine server+WIN32 into one variant (to also reach `sv_sys_win.c`'s `COM_CheckParm("-nopriority")`) hid `chmod` -- `#ifndef _WIN32` then evaluated false.
 
 **Lesson:** prefer adding a new variant over compounding an existing one. If a combo is needed, introduce a fifth `clang_args_server_win_for` and pass it through as a separate TU. Cost: one more parse per file (~6s on 12 cores). Safety: zero risk of regressing existing cvars.
 
@@ -447,7 +447,7 @@ finalize(all_rows, repo_root)                    -- once at end, merges help-JSO
 
 - `output_filename`: `"ezquake-<type>-ast.json"`.
 - `name`: handler-local identifier (used as dict key in row aggregation).
-- `finalize(all_rows, repo_root) -> dict`: assemble the final JSON output. Must be overridden — the base raises NotImplementedError.
+- `finalize(all_rows, repo_root) -> dict`: assemble the final JSON output. Must be overridden -- the base raises NotImplementedError.
 
 ### Common conventions
 
@@ -461,7 +461,7 @@ finalize(all_rows, repo_root)                    -- once at end, merges help-JSO
 
 1. Pick a name + output file (`ezquake-<type>-ast.json`).
 2. Identify the registration API(s) in source. Confirm each matches an existing pattern (1-7) or is genuinely new.
-3. Write `visit_cursor` — branch by `cursor.kind` (typically `VAR_DECL` for struct-init patterns, `CALL_EXPR` for API-call patterns) and `cursor.spelling` (the function/struct name).
+3. Write `visit_cursor` -- branch by `cursor.kind` (typically `VAR_DECL` for struct-init patterns, `CALL_EXPR` for API-call patterns) and `cursor.spelling` (the function/struct name).
 4. For call-site detection: use `_literal_string(arg_cursor, source_bytes)` to resolve string-literal args. For identifier args, fall back to `#define` resolution (Pattern 6) or a manifest lookup.
 5. For struct-init detection: walk the `INIT_LIST_EXPR` children and extract fields by index. Use `_read_extent(source_bytes, field.extent)` for raw text.
 6. Emit per-file rows into `self._rows` from `visit_cursor`.
@@ -525,7 +525,7 @@ Static extraction can miss patterns, misclassify entities, or over-detect. The h
 
 ### Common gotchas
 
-- **Flag-column stripping:** `awk 'sub(/^[ us]+/,"")'` is WRONG — the `s` prefix can be part of the name (`sb_pinglimit` greedy-matches the leading `s`). Use fixed-width `substr($0, 4)` instead.
+- **Flag-column stripping:** `awk 'sub(/^[ us]+/,"")'` is WRONG -- the `s` prefix can be part of the name (`sb_pinglimit` greedy-matches the leading `s`). Use fixed-width `substr($0, 4)` instead.
 - **Case folding:** the runtime dump preserves original case (`cl_c2sImpulseBackup`). The DB lowercases. Case-fold BOTH sides before diff.
 - **Terminator lines:** cvarlist ends with a `---------` separator. Filter or your "runtime-only" count will be off by one.
 - **Parser-fabricated gaps:** always sanity-check by confirming a known name (e.g. `allow_download`) appears in BOTH intermediate lists before diffing.
@@ -544,7 +544,7 @@ sqlite3 -json apps/qw-oracle/data/knowledge.db "
   ORDER BY RANDOM() LIMIT 20"
 ```
 
-For each row, `sed -n '${source_line-1},${source_line+1}p' source/${source_file}` and eyeball. All four fields (default, flags, on_change, trailing_comment) should match the literal `cvar_t` init. For HUD-synthesized rows the `source_line` points at the `HUD_Register` call — verify positional-arg defaults against the specific call.
+For each row, `sed -n '${source_line-1},${source_line+1}p' source/${source_file}` and eyeball. All four fields (default, flags, on_change, trailing_comment) should match the literal `cvar_t` init. For HUD-synthesized rows the `source_line` points at the `HUD_Register` call -- verify positional-arg defaults against the specific call.
 
 ezQuake 2026-04-25 results: 20/20 fields accurate. No systematic misparse.
 
@@ -652,9 +652,9 @@ Stepwise checklist. Expect 1-3 days per engine depending on how many new registr
 
 Before inventorying APIs, decide which path applies. The two paths share the validation steps (7-10) but diverge sharply on steps 1-6.
 
-**Fork (e.g., unezQuake → ezQuake, antilag-mvdsv → MVDSV):** the new project shares >70% of its source with a parent and tracks parent updates. The fork case:
-- Start in `<fork>/_handler_*.py`. Each handler imports from the parent project's handler and subclasses it (see [Three-tier handler architecture](#three-tier-handler-architecture) § Fork import pattern).
-- Inventory the deltas — what the fork adds, removes, or renames at the registration-API level — before writing handler code.
+**Fork (e.g., unezQuake -> ezQuake, antilag-mvdsv -> MVDSV):** the new project shares >70% of its source with a parent and tracks parent updates. The fork case:
+- Start in `<fork>/_handler_*.py`. Each handler imports from the parent project's handler and subclasses it (see [Three-tier handler architecture](#three-tier-handler-architecture) Section  Fork import pattern).
+- Inventory the deltas -- what the fork adds, removes, or renames at the registration-API level -- before writing handler code.
 - Override only what differs. Most methods inherit cleanly. Hoist a constant in the parent first if the fork's only need is a different registration-API tuple.
 - If subclass overrides exceed ~30% of methods, lift the parent's overridable surface to Tier 2 (`extractor_lib/handler_<family>_<type>.py`) and have both projects subclass that.
 - Skip steps 1-3 below; they're mostly inherited from the parent. Resume at step 4 (handler authoring) for the fork-specific deltas, then skip to step 7 (validation).
@@ -684,7 +684,7 @@ grep -rhE '^\s*#if(def)?\s+\w+|^\s*#if\s+defined\s*\(\s*\w+' \
 
 Map each registration API to one of Patterns 1-7. Any unmapped API is either:
 - A variation of an existing pattern (extend the handler's recognized set).
-- A new pattern (design decision — generalize existing infrastructure or add a new pattern class).
+- A new pattern (design decision -- generalize existing infrastructure or add a new pattern class).
 
 ### 2. Write `clang_config.py` for the new engine
 
@@ -704,7 +704,7 @@ You'll mostly change import paths and the `REPO_ROOT`-relative default for `--re
 
 ### 4. Write handlers
 
-For each entity type you intend to extract, write or adapt a handler. Start with cvars — almost always the biggest surface and the best calibration for later work.
+For each entity type you intend to extract, write or adapt a handler. Start with cvars -- almost always the biggest surface and the best calibration for later work.
 
 For each handler:
 - Read the analogous ezQuake handler as a template.
@@ -716,8 +716,8 @@ For each handler:
 ### 5. Write loader adapter
 
 In `apps/qw-oracle/scripts/load-knowledge/`:
-- Copy `load-cvars.ts` → `load-<engine>-cvars.ts` if field shape differs, or reuse if identical.
-- Add the engine to the project allowlist in `schema.ts` (`CHECK (project IN ('ezquake','fte','mvdsv','ktx'))` — already includes the four; add more as needed).
+- Copy `load-cvars.ts` -> `load-<engine>-cvars.ts` if field shape differs, or reuse if identical.
+- Add the engine to the project allowlist in `schema.ts` (`CHECK (project IN ('ezquake','fte','mvdsv','ktx'))` -- already includes the four; add more as needed).
 - The cross-type help-JSON orphan prune in `load-version.ts` is project-aware (scoped to the current project), so it'll handle the new engine automatically.
 
 ### 6. Run extraction + load
@@ -776,7 +776,7 @@ Update the playbook if new patterns are generalizable.
 - **Knowledge-service design spec:** `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`
 - **Extraction schema spec:** `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md`
 - **Extraction-review CLI:** `apps/qw-oracle/scripts/load-knowledge/review/` (audits consecutive-tag diffs, different tool)
-- **doc_only audit — the source of most of this playbook's lessons:** `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md`
+- **doc_only audit -- the source of most of this playbook's lessons:** `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md`
 - **libclang WSL setup:** `~/.claude/projects/-home-paradoks-projects-quakeworld/memory/reference_libclang_ezquake_extraction.md`
 - **Asset loader capabilities:** `~/.claude/projects/-home-paradoks-projects-quakeworld/memory/reference_asset_loader_extractor_capabilities.md`
 
@@ -784,6 +784,6 @@ Update the playbook if new patterns are generalizable.
 
 ## Changelog
 
-- **2026-04-25** — Initial playbook authored after the ezQuake Layer 1 doc_only audit closed. Captures all eight registration patterns, the 4-variant parse architecture, loader-side cross-type orphan dedup, runtime validation procedure, known limits, and the stepwise porting checklist. Ship target: next engine port can skip the archaeology and work from this.
-- **2026-04-28** — Extractor architecture consolidation. ezQuake handlers relocated from `extractor_lib/handler_*.py` to `ezquake/_handler_*.py` matching the canonical project-private shape used by FTE/QWCL/MVDSV. Three-tier handler architecture section added (shared infrastructure / family-base / project-private). Fork-vs-port subsection added to the porting checklist. Subclassing-readiness audit on ezQuake + MVDSV handlers exposes fork override hooks via class docstrings, `# Fork override hook:` comments, and class-level registration-API tuple hoists. Sets up unezQuake (ezQuake fork) and antilag-mvdsv (MVDSV fork) for clean fork onboarding via direct subclassing. Plan: `docs/superpowers/plans/2026-04-28-extractor-architecture-consolidation.md`.
-- **2026-04-27** — MVDSV Phase 2e SHIPPED. Added Pattern 9 (function-banner harvest), Pattern 10 (TU-root cursor intercept for MACRO_DEFINITION), Pattern 11 (recursive `_resolve_*` AST walks for libclang `UNEXPOSED_EXPR` wrappers), Pattern 12 (`log_t logs[N]` struct-array `Cmd_AddCommand` recovery), Pattern 13 (multiprocessing-safe two-row emission for cross-file resolution). MVDSV row added to per-engine counts table (1235 entities; runtime-validated against Ciscon's 1.20-dev dump with zero extractor gaps). Six loader-side bug fixes shipped during validation: cvars handler `_trailing_comment` switched from `max(rfind(";"), rfind(","))` to `};` literal terminator (commit `8747ad9`); `load-cvars.ts` `default_value` reads `entry.ast.default_value` with fallback to legacy `entry.default` (`9d61924`); `load-cmdline-params.ts` adds flat `ast.source_file/line/column` fallback alongside the nested `ast.usage_sites[0]` form (`a905c22`); Python handler `payload_field` keys harmonized to legacy `vars` and `params` (`9d61924`); `load-version.ts` adds `validLogTemplate` carve-out for canonical names containing `:`/`%`/spaces/escapes (`9d61924`); `load-version.ts` adds `validInfoKey` carve-out accepting leading `*` for QW system keys (`30969c1`, recovered 18 of 45). All six fixes are idempotent and pure-additive — they widen accept-criteria without altering existing rejection paths. Future ports inheriting these fallbacks: any engine emitting flat `ast.*` fields, `*`-prefixed system identifiers, or canonical-but-non-identifier names.
+- **2026-04-25** -- Initial playbook authored after the ezQuake Layer 1 doc_only audit closed. Captures all eight registration patterns, the 4-variant parse architecture, loader-side cross-type orphan dedup, runtime validation procedure, known limits, and the stepwise porting checklist. Ship target: next engine port can skip the archaeology and work from this.
+- **2026-04-28** -- Extractor architecture consolidation. ezQuake handlers relocated from `extractor_lib/handler_*.py` to `ezquake/_handler_*.py` matching the canonical project-private shape used by FTE/QWCL/MVDSV. Three-tier handler architecture section added (shared infrastructure / family-base / project-private). Fork-vs-port subsection added to the porting checklist. Subclassing-readiness audit on ezQuake + MVDSV handlers exposes fork override hooks via class docstrings, `# Fork override hook:` comments, and class-level registration-API tuple hoists. Sets up unezQuake (ezQuake fork) and antilag-mvdsv (MVDSV fork) for clean fork onboarding via direct subclassing. Plan: `docs/superpowers/plans/2026-04-28-extractor-architecture-consolidation.md`.
+- **2026-04-27** -- MVDSV Phase 2e SHIPPED. Added Pattern 9 (function-banner harvest), Pattern 10 (TU-root cursor intercept for MACRO_DEFINITION), Pattern 11 (recursive `_resolve_*` AST walks for libclang `UNEXPOSED_EXPR` wrappers), Pattern 12 (`log_t logs[N]` struct-array `Cmd_AddCommand` recovery), Pattern 13 (multiprocessing-safe two-row emission for cross-file resolution). MVDSV row added to per-engine counts table (1235 entities; runtime-validated against Ciscon's 1.20-dev dump with zero extractor gaps). Six loader-side bug fixes shipped during validation: cvars handler `_trailing_comment` switched from `max(rfind(";"), rfind(","))` to `};` literal terminator (commit `8747ad9`); `load-cvars.ts` `default_value` reads `entry.ast.default_value` with fallback to legacy `entry.default` (`9d61924`); `load-cmdline-params.ts` adds flat `ast.source_file/line/column` fallback alongside the nested `ast.usage_sites[0]` form (`a905c22`); Python handler `payload_field` keys harmonized to legacy `vars` and `params` (`9d61924`); `load-version.ts` adds `validLogTemplate` carve-out for canonical names containing `:`/`%`/spaces/escapes (`9d61924`); `load-version.ts` adds `validInfoKey` carve-out accepting leading `*` for QW system keys (`30969c1`, recovered 18 of 45). All six fixes are idempotent and pure-additive -- they widen accept-criteria without altering existing rejection paths. Future ports inheriting these fallbacks: any engine emitting flat `ast.*` fields, `*`-prefixed system identifiers, or canonical-but-non-identifier names.

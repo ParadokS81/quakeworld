@@ -19,7 +19,7 @@
 - **4.3.2 Team Settings**: Max players, divisions, join code regeneration
 
 ### DEPENDENT SECTIONS:
-- **2.3 Team Member → Leader**: State lifecycle when becoming leader
+- **2.3 Team Member -> Leader**: State lifecycle when becoming leader
 - **5.1 Hot Paths**: Team switching must be instant
 - **5.3 Data Caching**: Pre-load all teams on app init
 - **5.6 Event Logging**: Team creation and join events
@@ -69,20 +69,20 @@
 
 ```
 TeamInfo Component Init:
-→ Has team data from listener
-→ Determines user role (leader/member)
-→ Renders drawer with appropriate view
+-> Has team data from listener
+-> Determines user role (leader/member)
+-> Renders drawer with appropriate view
 
 User Opens Drawer:
-→ CSS transform (instant)
-→ Drawer shows pre-loaded data
-→ No network calls needed
+-> CSS transform (instant)
+-> Drawer shows pre-loaded data
+-> No network calls needed
 
 Leader Regenerates Code:
-→ Button click → Loading state
-→ Cloud Function → New code
-→ Firestore update → Listener fires
-→ TeamInfo updates → Drawer updates
+-> Button click -> Loading state
+-> Cloud Function -> New code
+-> Firestore update -> Listener fires
+-> TeamInfo updates -> Drawer updates
 ```
 
 ## 6. Test Scenarios

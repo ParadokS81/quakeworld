@@ -1,4 +1,4 @@
-# Per-Key Weapon Bind Layout + Unresolved Bind Detection — Implementation Plan
+# Per-Key Weapon Bind Layout + Unresolved Bind Detection -- Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -58,7 +58,7 @@ Insert above line 81 (the `categorizeBinds` JSDoc comment):
 ```typescript
 /**
  * Built-in ezQuake engine commands that are valid bind targets.
- * This is NOT exhaustive — add entries as false positives surface.
+ * This is NOT exhaustive -- add entries as false positives surface.
  * Commands with +/- variants: store without prefix, check both forms.
  */
 const KNOWN_ENGINE_COMMANDS = new Set([
@@ -117,7 +117,7 @@ function isKnownCommand(
   // Check with prefix too (some commands like "tp_msg" have no prefix)
   if (KNOWN_ENGINE_COMMANDS.has(t)) return true;
 
-  // tp_ prefix match — many tp_ commands exist
+  // tp_ prefix match -- many tp_ commands exist
   if (t.startsWith("tp_")) return true;
 
   // Check user-defined aliases (with and without +/- prefix)
@@ -419,7 +419,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
     return result;
   };
 
-  /** Weapons with no binds at all — show placeholder row. */
+  /** Weapons with no binds at all -- show placeholder row. */
   const unboundWeapons = () => {
     const bound = new Set<string>();
     for (const wb of props.primaryBinds) bound.add(wb.weapon);
@@ -488,7 +488,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
 
                 <div class="flex items-center gap-1.5">
                   <Show when={hasPrimary()} fallback={
-                    <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+                    <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
                   }>
                     <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                       {row.primary!.key}
@@ -500,7 +500,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 <Show when={isCompare()}>
                   <div class="flex items-center gap-1.5">
                     <Show when={hasCompare()} fallback={
-                      <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+                      <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
                     }>
                       <span class="sg-domain-keycap" style={{ "border-color": `color-mix(in oklch, ${color} 40%, var(--sg-stat-border))` }}>
                         {row.compare!.key}
@@ -511,7 +511,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                 </Show>
               </div>
 
-              {/* Expanded alias chain — single key only */}
+              {/* Expanded alias chain -- single key only */}
               <Show when={isExpanded()}>
                 <div class="sg-domain-bind-expanded">
                   <Show when={row.primary}>
@@ -523,7 +523,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                           <Show when={chain().length > 0}>
                             <AliasChainView
                               chain={chain()}
-                              label={`${wb().key} — your config`}
+                              label={`${wb().key} -- your config`}
                             />
                           </Show>
                           <Show when={chain().length === 0 && rawCmd()}>
@@ -547,7 +547,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                           <Show when={chain().length > 0}>
                             <AliasChainView
                               chain={chain()}
-                              label={`${wb().key} — comparison`}
+                              label={`${wb().key} -- comparison`}
                             />
                           </Show>
                           <Show when={chain().length === 0 && rawCmd()}>
@@ -569,7 +569,7 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
         }}
       </For>
 
-      {/* Unbound weapons — placeholder rows */}
+      {/* Unbound weapons -- placeholder rows */}
       <For each={unboundWeapons()}>
         {(weapon) => {
           const color = WEAPON_COLORS[weapon] ?? "var(--sg-text-dim)";
@@ -584,9 +584,9 @@ export function ConfigWeaponBindsSection(props: WeaponBindsProps) {
                   {WEAPON_LABELS[weapon]}
                 </span>
               </div>
-              <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+              <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
               <Show when={isCompare()}>
-                <span class="text-[11px] text-[var(--sg-section-label)] italic">—</span>
+                <span class="text-[11px] text-[var(--sg-section-label)] italic">--</span>
               </Show>
             </div>
           );
@@ -626,11 +626,11 @@ Build from Windows terminal and test:
 3. Verify: weapon order preserved (RL first, AXE last)
 4. Verify: expanding one row shows only that key's alias chain
 5. Verify: unbound weapons show dimmed with "--"
-6. Switch to Binds view — verify unresolved binds show yellow warning triangle
-7. Expand an unresolved bind — verify explanation text appears
+6. Switch to Binds view -- verify unresolved binds show yellow warning triangle
+7. Expand an unresolved bind -- verify explanation text appears
 8. Verify: built-in commands (+attack, +jump, screenshot, etc.) are NOT flagged
 9. Verify: normal aliases from the config are NOT flagged
-10. Compare mode — verify per-key matching works
+10. Compare mode -- verify per-key matching works
 
 - [ ] **Step 3: Commit any fixes found during verification**
 

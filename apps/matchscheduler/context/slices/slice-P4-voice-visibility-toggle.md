@@ -18,12 +18,12 @@
 ## PRD Mapping
 
 **PRIMARY SECTIONS:**
-- `docs/multi-clan/phase-4-visibility-toggle.md` — Full feature spec (toggle UI, write path, read path)
-- `docs/multi-clan/CONTRACT.md` — Schema: `voiceSettings.defaultVisibility` on `/teams/{teamId}`
+- `docs/multi-clan/phase-4-visibility-toggle.md` -- Full feature spec (toggle UI, write path, read path)
+- `docs/multi-clan/CONTRACT.md` -- Schema: `voiceSettings.defaultVisibility` on `/teams/{teamId}`
 
 **DEPENDENT SECTIONS:**
-- Phase 2 (quad): Bot already reads `voiceSettings.defaultVisibility` at upload time — no changes needed
-- Phase 3 (P3.1): Firestore rules enforce visibility on `voiceRecordings` — no changes needed
+- Phase 2 (quad): Bot already reads `voiceSettings.defaultVisibility` at upload time -- no changes needed
+- Phase 3 (P3.1): Firestore rules enforce visibility on `voiceRecordings` -- no changes needed
 - Existing privacy toggle pattern in TeamManagementModal (`_handlePrivacyToggle`, lines 437-480)
 
 **IGNORED SECTIONS:**
@@ -43,7 +43,7 @@
   - UI responsibilities:
     - Render visibility toggle inside connected Voice Bot state (after guild name, before Disconnect button)
     - Show sublabel reflecting current state ("New recordings visible to everyone" / "New recordings visible to team members only")
-  - User actions: Click toggle → optimistic UI update → Cloud Function call → revert on error
+  - User actions: Click toggle -> optimistic UI update -> Cloud Function call -> revert on error
 
 ### FRONTEND SERVICES
 
@@ -64,7 +64,7 @@
   - **Event logging:** Log `oldDefaultVisibility` / `newDefaultVisibility` in event details
   - **Returns:** `{ success: true, data: { voiceSettings: { defaultVisibility } } }`
 
-- **Function Exports:** No changes — `updateTeamSettings` already exported in `functions/index.js`
+- **Function Exports:** No changes -- `updateTeamSettings` already exported in `functions/index.js`
 
 #### Firestore Operations
 
@@ -103,13 +103,13 @@
 
 ### INTEGRATION POINTS
 
-- **Frontend → Backend:** `TeamService.callFunction('updateTeamSettings', { teamId, voiceSettings: { defaultVisibility } })`
+- **Frontend -> Backend:** `TeamService.callFunction('updateTeamSettings', { teamId, voiceSettings: { defaultVisibility } })`
 - **API Contract:**
   - Request: `{ teamId: string, voiceSettings: { defaultVisibility: 'public' | 'private' } }`
   - Success: `{ success: true, data: { voiceSettings: { defaultVisibility: 'public' | 'private' }, lastActivityAt: Timestamp } }`
   - Error: `{ success: false, error: "message" }`
 - **Real-time listeners:** Existing team document listener will pick up the `voiceSettings` change if another tab makes the change. The modal reads `_teamData` on open; no additional listener needed for single-tab UX.
-- **Data flow:** Toggle click → `_handleVisibilityToggle()` → optimistic UI → `TeamService.callFunction()` → `updateTeamSettings` Cloud Function → `teams/{teamId}` update → listener fires → cache updated
+- **Data flow:** Toggle click -> `_handleVisibilityToggle()` -> optimistic UI -> `TeamService.callFunction()` -> `updateTeamSettings` Cloud Function -> `teams/{teamId}` update -> listener fires -> cache updated
 
 ---
 
@@ -252,7 +252,7 @@ if (hasVoiceSettings) {
 
 ### HOT PATHS (<50ms)
 
-- **Toggle click:** Optimistic UI update — toggle knob moves + sublabel changes instantly before Cloud Function resolves. No perceived latency.
+- **Toggle click:** Optimistic UI update -- toggle knob moves + sublabel changes instantly before Cloud Function resolves. No perceived latency.
 
 ### COLD PATHS (<2s)
 
@@ -260,9 +260,9 @@ if (hasVoiceSettings) {
 
 ### BACKEND PERFORMANCE
 
-- **Cold starts:** Unlikely — `updateTeamSettings` is frequently called for other settings
-- **Database queries:** Single `get()` + single `update()` on `teams/{teamId}` — no new indexes needed
-- **No batch operations** — simple single-document update
+- **Cold starts:** Unlikely -- `updateTeamSettings` is frequently called for other settings
+- **Database queries:** Single `get()` + single `update()` on `teams/{teamId}` -- no new indexes needed
+- **No batch operations** -- simple single-document update
 
 ---
 
@@ -274,7 +274,7 @@ Toggle Click
     ▼
 _handleVisibilityToggle()
     │
-    ├── [INSTANT] _applyVisibilityToggleState(btn, newIsPublic)  ← Optimistic UI
+    ├── [INSTANT] _applyVisibilityToggleState(btn, newIsPublic)  <- Optimistic UI
     │       │
     │       └── Toggle knob animates + sublabel text updates
     │
@@ -331,35 +331,35 @@ _handleVisibilityToggle()
 - [ ] Other settings (teamTag, maxPlayers, etc.) still work unchanged
 
 ### INTEGRATION TESTS (CRITICAL)
-- [ ] Toggle click → Cloud Function → Firestore updated → `_teamData` cache updated
-- [ ] Error from Cloud Function → toggle reverts to previous state + error toast shown
-- [ ] Network failure → toggle reverts + "Network error" toast shown
+- [ ] Toggle click -> Cloud Function -> Firestore updated -> `_teamData` cache updated
+- [ ] Error from Cloud Function -> toggle reverts to previous state + error toast shown
+- [ ] Network failure -> toggle reverts + "Network error" toast shown
 - [ ] `voiceSettings` can be sent alongside other settings in same `updateTeamSettings` call (no conflict)
 
 ### END-TO-END TESTS
-- [ ] Leader opens modal → bot is connected → toggle visible in OFF state
-- [ ] Leader toggles ON → toast confirms → close and reopen modal → toggle still ON
-- [ ] Leader toggles OFF → toast confirms → close and reopen modal → toggle still OFF
-- [ ] Non-leader opens modal → Voice Bot section not shown (existing behavior, no regression)
+- [ ] Leader opens modal -> bot is connected -> toggle visible in OFF state
+- [ ] Leader toggles ON -> toast confirms -> close and reopen modal -> toggle still ON
+- [ ] Leader toggles OFF -> toast confirms -> close and reopen modal -> toggle still OFF
+- [ ] Non-leader opens modal -> Voice Bot section not shown (existing behavior, no regression)
 
 ---
 
 ## Common Integration Pitfalls
 
-- [ ] **Forgetting to update `_teamData.voiceSettings` on success** — Must update local cache so reopening modal shows correct state without a Firestore round-trip
-- [ ] **Toggle not re-attached after `_rerenderVoiceBotSection()`** — The voice bot section can re-render when `_botRegistration` changes (pending → active). Must ensure `_attachVoiceBotListeners()` wires up the visibility toggle on each re-render
-- [ ] **Using `set({ merge: true })` for `voiceSettings`** — The Cloud Function uses `update()` which is correct. But if tempted to use `set({ merge: true })`, remember it would replace the entire `voiceSettings` map, not merge sub-fields
-- [ ] **Not handling the case where `_teamData.voiceSettings` is undefined** — Default to `'private'` when reading: `_teamData?.voiceSettings?.defaultVisibility || 'private'`
-- [ ] **Not gating toggle render on bot connected state** — Toggle MUST only appear inside `status === 'active'` block, not in pending or disconnected states
+- [ ] **Forgetting to update `_teamData.voiceSettings` on success** -- Must update local cache so reopening modal shows correct state without a Firestore round-trip
+- [ ] **Toggle not re-attached after `_rerenderVoiceBotSection()`** -- The voice bot section can re-render when `_botRegistration` changes (pending -> active). Must ensure `_attachVoiceBotListeners()` wires up the visibility toggle on each re-render
+- [ ] **Using `set({ merge: true })` for `voiceSettings`** -- The Cloud Function uses `update()` which is correct. But if tempted to use `set({ merge: true })`, remember it would replace the entire `voiceSettings` map, not merge sub-fields
+- [ ] **Not handling the case where `_teamData.voiceSettings` is undefined** -- Default to `'private'` when reading: `_teamData?.voiceSettings?.defaultVisibility || 'private'`
+- [ ] **Not gating toggle render on bot connected state** -- Toggle MUST only appear inside `status === 'active'` block, not in pending or disconnected states
 
 ---
 
 ## Implementation Notes
 
 ### Existing Patterns to Follow
-- **Privacy toggles** (lines 437-480): Exact same pattern — optimistic update, `_applyToggleState`, revert on error, toast feedback
+- **Privacy toggles** (lines 437-480): Exact same pattern -- optimistic update, `_applyToggleState`, revert on error, toast feedback
 - **Toggle HTML** (lines 422-427): Same `w-9 h-5 rounded-full` toggle structure with `data-enabled` attribute
-- **`_attachVoiceBotListeners()`** (line 754): Already called on every voice bot re-render — add visibility toggle listener here
+- **`_attachVoiceBotListeners()`** (line 754): Already called on every voice bot re-render -- add visibility toggle listener here
 
 ### Key Locations (line references)
 | What | File | Lines |
@@ -384,5 +384,5 @@ _handleVisibilityToggle()
 
 ### Estimated Scope
 - ~3 touches: TeamManagementModal.js, team-operations.js, firestore.rules
-- Follows established patterns exactly — low risk
+- Follows established patterns exactly -- low risk
 - No new services, components, or collections

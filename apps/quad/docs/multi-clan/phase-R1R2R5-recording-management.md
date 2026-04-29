@@ -1,12 +1,12 @@
-# Phase R1+R2+R5: Recording Management — quad Side
+# Phase R1+R2+R5: Recording Management -- quad Side
 
 ## Context
 
 The voice pipeline works end-to-end: recording, processing, Firebase upload. Now we need three enhancements for the new Recording Management feature in MatchScheduler:
 
-1. **R1** — Write additional match metadata to Firestore at upload time (series grouping, scores, opponent info)
-2. **R2** — Clean up source recordings after successful upload (GDPR: don't retain full session audio)
-3. **R5** — Listen for deletion requests from MatchScheduler and clean up local processed files
+1. **R1** -- Write additional match metadata to Firestore at upload time (series grouping, scores, opponent info)
+2. **R2** -- Clean up source recordings after successful upload (GDPR: don't retain full session audio)
+3. **R5** -- Listen for deletion requests from MatchScheduler and clean up local processed files
 
 Read `docs/multi-clan/CONTRACT.md` for the original schema reference. The full recording management contract is at the orchestrator level in `RECORDING-MANAGEMENT-CONTRACT.md`.
 
@@ -16,7 +16,7 @@ Read `docs/multi-clan/CONTRACT.md` for the original schema reference. The full r
 
 ### What Changes
 
-The `voiceRecordings/{demoSha256}` Firestore document currently lacks match context needed for the MatchScheduler UI to group recordings into series and display scores. All the data is already available at upload time — we just need to write it.
+The `voiceRecordings/{demoSha256}` Firestore document currently lacks match context needed for the MatchScheduler UI to group recordings into series and display scores. All the data is already available at upload time -- we just need to write it.
 
 ### New Fields
 
@@ -48,7 +48,7 @@ const uploadResult = await uploadVoiceRecordings(segments, teamTag, guildId, ses
 
 #### 2. `src/modules/processing/stages/voice-uploader.ts`
 
-**Update function signature** — add `sessionId: string` parameter:
+**Update function signature** -- add `sessionId: string` parameter:
 
 ```typescript
 export async function uploadVoiceRecordings(
@@ -59,7 +59,7 @@ export async function uploadVoiceRecordings(
 ): Promise<UploadResult> {
 ```
 
-**Add opponent/score resolution** — inside the per-segment loop, determine our team vs opponent:
+**Add opponent/score resolution** -- inside the per-segment loop, determine our team vs opponent:
 
 ```typescript
 // Determine our team vs opponent from matchData.teams
@@ -70,7 +70,7 @@ const ourTeam = segment.matchData.teams.find(t =>
 const opponentTeam = segment.matchData.teams.find(t => t !== ourTeam);
 ```
 
-**Add new fields to the Firestore document write** — in the object passed to `db.collection('voiceRecordings').doc(demoSha256).set()`:
+**Add new fields to the Firestore document write** -- in the object passed to `db.collection('voiceRecordings').doc(demoSha256).set()`:
 
 ```typescript
 // NEW fields for recording management
@@ -107,7 +107,7 @@ After the fast pipeline completes and all segments are uploaded to Firebase, del
 ### Why
 
 - Source recordings contain full session audio including pre/post/between-map private conversation
-- Sliced outputs (per-map) only contain in-game voice — safe to retain
+- Sliced outputs (per-map) only contain in-game voice -- safe to retain
 - GDPR posture: don't retain more audio than needed
 - Disk space: source files are ~5-8 MB/hour/speaker, adds up over time
 
@@ -115,11 +115,11 @@ After the fast pipeline completes and all segments are uploaded to Firebase, del
 
 ```
 recordings/{sessionId}/
-  ├── 1-paradoks.ogg       ← DELETE (source)
-  ├── 2-razor.ogg          ← DELETE (source)
-  ├── 3-zero.ogg           ← DELETE (source)
-  ├── session_metadata.json ← KEEP (small, useful for debugging/backfill)
-  └── processed/            ← KEEP (sliced outputs needed by quad + uploaded to Firebase)
+  ├── 1-paradoks.ogg       <- DELETE (source)
+  ├── 2-razor.ogg          <- DELETE (source)
+  ├── 3-zero.ogg           <- DELETE (source)
+  ├── session_metadata.json <- KEEP (small, useful for debugging/backfill)
+  └── processed/            <- KEEP (sliced outputs needed by quad + uploaded to Firebase)
 ```
 
 ### File to Modify
@@ -147,7 +147,7 @@ async function cleanupSourceRecordings(sessionDir: string): Promise<number> {
 }
 ```
 
-**Call site** — after the upload section (around line 283), add:
+**Call site** -- after the upload section (around line 283), add:
 
 ```typescript
 // Clean up source recordings after successful upload
@@ -163,10 +163,10 @@ if (uploadResult.uploaded > 0) {
 
 ### Important Conditions
 
-- **Only clean up after successful upload** — if `uploaded === 0` and `skipped > 0`, source files may be needed for retry
-- **Non-fatal** — cleanup failure should not fail the pipeline (wrap in try/catch, log warning)
-- **Only delete .ogg files in the session root** — NOT in `processed/` subdirectory
-- **Keep session_metadata.json** — small file, needed for backfill script and debugging
+- **Only clean up after successful upload** -- if `uploaded === 0` and `skipped > 0`, source files may be needed for retry
+- **Non-fatal** -- cleanup failure should not fail the pipeline (wrap in try/catch, log warning)
+- **Only delete .ogg files in the session root** -- NOT in `processed/` subdirectory
+- **Keep session_metadata.json** -- small file, needed for backfill script and debugging
 
 ### Verification
 
@@ -272,7 +272,7 @@ async function handleDeletionRequest(
         try {
           const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf-8'));
           if (metadata.demoSha256 === demoSha256 || metadata.demo_sha256 === demoSha256) {
-            // Found the matching segment — delete the entire directory
+            // Found the matching segment -- delete the entire directory
             const segmentPath = path.join(processedDir, dirName);
             await fs.rm(segmentPath, { recursive: true });
             logger.info(`Deleted local segment: ${segmentPath}`);
@@ -280,16 +280,16 @@ async function handleDeletionRequest(
             break;
           }
         } catch {
-          // No metadata.json or can't parse — skip
+          // No metadata.json or can't parse -- skip
           continue;
         }
       }
     } catch {
-      // processed/ directory doesn't exist — source may have already been cleaned up
-      logger.info(`No processed directory found for session ${sessionId} — may already be cleaned up`);
+      // processed/ directory doesn't exist -- source may have already been cleaned up
+      logger.info(`No processed directory found for session ${sessionId} -- may already be cleaned up`);
     }
 
-    // Mark as completed (even if files weren't found — they may have been cleaned up already)
+    // Mark as completed (even if files weren't found -- they may have been cleaned up already)
     await doc.ref.update({
       status: 'completed',
       completedAt: new Date(),
@@ -329,15 +329,15 @@ if (firebaseConfigured) {
 2. Check quad logs for "Processing deletion request" + "Deletion request completed"
 3. Verify the local segment directory was deleted
 4. Verify the Firestore doc was updated to `status: 'completed'`
-5. Test with a non-existent sessionId — should still complete (graceful handling)
+5. Test with a non-existent sessionId -- should still complete (graceful handling)
 
 ---
 
 ## Implementation Order
 
-1. **R1 first** — smallest change, highest value (unblocks MatchScheduler UI)
-2. **R2 second** — natural follow-up in the same file area (pipeline.ts)
-3. **R5 last** — independent, can wait until MatchScheduler Cloud Function exists
+1. **R1 first** -- smallest change, highest value (unblocks MatchScheduler UI)
+2. **R2 second** -- natural follow-up in the same file area (pipeline.ts)
+3. **R5 last** -- independent, can wait until MatchScheduler Cloud Function exists
 
 R1 and R2 can be done in one commit. R5 is a separate commit.
 
@@ -346,6 +346,6 @@ R1 and R2 can be done in one commit. R5 is a separate commit.
 ```bash
 npm run build          # TypeScript compilation
 npm run lint           # ESLint check
-# No unit tests for these changes — verify manually with a test recording
+# No unit tests for these changes -- verify manually with a test recording
 # or via Firebase console inspection
 ```

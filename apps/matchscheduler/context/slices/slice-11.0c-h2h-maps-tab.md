@@ -1,9 +1,9 @@
-# Slice 11.0c: H2H Maps Tab — Map Strength Analysis
+# Slice 11.0c: H2H Maps Tab -- Map Strength Analysis
 
 ## Slice Definition
 - **Slice ID:** 11.0c
-- **Name:** H2H Maps Tab — Map Strength Analysis with Alternating Layout
-- **Depends on:** Slice 11.0a (H2H Foundation — service, team selector, sub-tabs)
+- **Name:** H2H Maps Tab -- Map Strength Analysis with Alternating Layout
+- **Depends on:** Slice 11.0a (H2H Foundation -- service, team selector, sub-tabs)
 - **User Story:** As a user, I can see a visual comparison of both teams' strength on each competitive map, so I can identify which maps favor my team and make informed map picks
 - **Success Criteria:**
   - Maps sub-tab shows alternating rows: [mapshot | stats] then [stats | mapshot]
@@ -11,20 +11,20 @@
   - Rows sorted by combined activity (most played maps first)
   - Short text annotations: "Team A dominates", "Even", "Team B avoids", etc.
   - Mapshots loaded from `a.quake.world/mapshots/webp/lg/{map}.webp`
-  - Informational only — no hover/click interactions
+  - Informational only -- no hover/click interactions
   - Uses `QWStatsService.getMaps()` for each team (with optional `vsTeam` filter)
   - Period selector applies (uses `months` param from 11.0a)
   - Loading/empty states handled
 
 ## Problem Statement
 
-When scheduling a match, teams need to agree on maps. The Maps tab provides at-a-glance visual intelligence: which maps each team is strong on, which they avoid, and where matchups would be competitive. This is the most "visual" of the three sub-tabs — the alternating mapshot layout makes it easy to scan quickly.
+When scheduling a match, teams need to agree on maps. The Maps tab provides at-a-glance visual intelligence: which maps each team is strong on, which they avoid, and where matchups would be competitive. This is the most "visual" of the three sub-tabs -- the alternating mapshot layout makes it easy to scan quickly.
 
 ---
 
 ## Visual Design
 
-### Maps Tab — Alternating Layout
+### Maps Tab -- Alternating Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -52,7 +52,7 @@ When scheduling a match, teams need to agree on maps. The Maps tab provides at-a
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Maps Tab — No Data
+### Maps Tab -- No Data
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -79,18 +79,18 @@ let _mapsLoading = false;          // Loading state
 
 **New methods:**
 
-- `_renderMapsTab()` — Alternating layout renderer
-- `_renderMapRow(mapData, index)` — Single alternating row
-- `_getMapAnnotation(statsA, statsB)` — Generate text annotation
-- `_mergeMapsData(mapsA, mapsB)` — Merge both teams' map data, sorted by combined games
-- `_loadMapsData()` — Fetches map stats for both teams
-- `_resetMapsState()` — Clears maps state
+- `_renderMapsTab()` -- Alternating layout renderer
+- `_renderMapRow(mapData, index)` -- Single alternating row
+- `_getMapAnnotation(statsA, statsB)` -- Generate text annotation
+- `_mergeMapsData(mapsA, mapsB)` -- Merge both teams' map data, sorted by combined games
+- `_loadMapsData()` -- Fetches map stats for both teams
+- `_resetMapsState()` -- Clears maps state
 
 **Modified methods:**
 
-- `_renderH2HSubTabContent()` — Route `case 'maps'` to `_renderMapsTab()`
-- `switchH2HSubTab(subTab)` — When switching to 'maps', trigger `_loadMapsData()` if not loaded
-- `_resetH2HState()` — Also call `_resetMapsState()`
+- `_renderH2HSubTabContent()` -- Route `case 'maps'` to `_renderMapsTab()`
+- `switchH2HSubTab(subTab)` -- When switching to 'maps', trigger `_loadMapsData()` if not loaded
+- `_resetH2HState()` -- Also call `_resetMapsState()`
 
 ### No New Services
 
@@ -337,7 +337,7 @@ Add to `src/css/input.css`:
 
 ```css
 /* ============================================
-   Slice 11.0c: Maps Tab — Alternating Layout
+   Slice 11.0c: Maps Tab -- Alternating Layout
    ============================================ */
 
 .maps-grid {
@@ -488,26 +488,26 @@ BACKEND PERFORMANCE:
 
 ```
 User switches to Maps sub-tab
-    → switchH2HSubTab('maps')
-    → _h2hSubTab = 'maps'
-    → _loadMapsData() (if not already loaded)
-        → QWStatsService.getMaps(teamA.tag, { months: _h2hPeriod })
-        → QWStatsService.getMaps(teamB.tag, { months: _h2hPeriod })
-        → Both fetched in parallel
-    → _mergeMapsData(mapsA, mapsB)
-        → Combine maps from both teams
-        → Sort by combined game count
-    → Render alternating rows with mapshots and stats
+    -> switchH2HSubTab('maps')
+    -> _h2hSubTab = 'maps'
+    -> _loadMapsData() (if not already loaded)
+        -> QWStatsService.getMaps(teamA.tag, { months: _h2hPeriod })
+        -> QWStatsService.getMaps(teamB.tag, { months: _h2hPeriod })
+        -> Both fetched in parallel
+    -> _mergeMapsData(mapsA, mapsB)
+        -> Combine maps from both teams
+        -> Sort by combined game count
+    -> Render alternating rows with mapshots and stats
 
 User changes period
-    → changeH2HPeriod(months)
-    → Re-fetches maps data with new period
-    → Re-renders alternating layout
+    -> changeH2HPeriod(months)
+    -> Re-fetches maps data with new period
+    -> Re-renders alternating layout
 
 User changes opponent
-    → selectOpponent(teamId)
-    → _resetMapsState()
-    → If currently on maps tab, reload data
+    -> selectOpponent(teamId)
+    -> _resetMapsState()
+    -> If currently on maps tab, reload data
 ```
 
 ---
@@ -532,9 +532,9 @@ User changes opponent
 
 ## Common Integration Pitfalls
 
-- [ ] QWStatsService.getMaps() returns `{ maps: [{ map, games, wins, losses, winRate, avgFragDiff }] }` — field names differ from H2H response
+- [ ] QWStatsService.getMaps() returns `{ maps: [{ map, games, wins, losses, winRate, avgFragDiff }] }` -- field names differ from H2H response
 - [ ] Must merge both teams' map arrays since they may have different maps
-- [ ] Maps tab uses overall map stats (not filtered to h2h only) for broader picture — this is intentional
+- [ ] Maps tab uses overall map stats (not filtered to h2h only) for broader picture -- this is intentional
 - [ ] Mapshot URLs use lowercase map names (already lowercase from API)
 - [ ] `onerror` handler on mapshot images must be inline (no external handler needed)
 - [ ] Alternating layout direction determined by index (even/odd), not map name
@@ -547,7 +547,7 @@ User changes opponent
 | `public/js/components/TeamsBrowserPanel.js` | Modify | Maps tab renderer, merge logic, annotation logic |
 | `src/css/input.css` | Modify | Maps alternating layout, mapshot, stats styles |
 
-No new files needed — builds on 11.0a foundation.
+No new files needed -- builds on 11.0a foundation.
 
 ## Quality Checklist
 

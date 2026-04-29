@@ -45,21 +45,21 @@ FRONTEND COMPONENTS:
     - Disable buttons when no cells selected
     - Show loading state during operations
   - User actions:
-    - Click "Add Me" → adds user to all selected slots
-    - Click "Remove Me" → removes user from selected slots where present
+    - Click "Add Me" -> adds user to all selected slots
+    - Click "Remove Me" -> removes user from selected slots where present
 
 FRONTEND SERVICES:
 - AvailabilityService (NEW)
   - Cache: Map<string, AvailabilityDoc> keyed by "{teamId}_{weekId}"
   - Methods:
-    - init() → Initialize service
-    - loadWeekAvailability(teamId, weekId) → Load from cache or Firebase
-    - addMeToSlots(teamId, weekId, slotIds) → Optimistic update + Firebase
-    - removeMeFromSlots(teamId, weekId, slotIds) → Optimistic update + Firebase
-    - updateCache(teamId, weekId, data) → Called by listeners
-    - getSlotPlayers(teamId, weekId, slotId) → Get player list for slot
-    - isUserInSlot(teamId, weekId, slotId, userId) → Check if user in slot
-    - cleanup() → Clear listeners and cache
+    - init() -> Initialize service
+    - loadWeekAvailability(teamId, weekId) -> Load from cache or Firebase
+    - addMeToSlots(teamId, weekId, slotIds) -> Optimistic update + Firebase
+    - removeMeFromSlots(teamId, weekId, slotIds) -> Optimistic update + Firebase
+    - updateCache(teamId, weekId, data) -> Called by listeners
+    - getSlotPlayers(teamId, weekId, slotId) -> Get player list for slot
+    - isUserInSlot(teamId, weekId, slotId, userId) -> Check if user in slot
+    - cleanup() -> Clear listeners and cache
 
 BACKEND REQUIREMENTS:
 ⚠️ CLOUD FUNCTIONS TO IMPLEMENT IN /functions/availability.js:
@@ -117,9 +117,9 @@ BACKEND REQUIREMENTS:
   - Availability is high-frequency, low-audit-value data
 
 INTEGRATION POINTS:
-- Frontend → Backend: AvailabilityService.addMeToSlots() → updateAvailability Cloud Function
+- Frontend -> Backend: AvailabilityService.addMeToSlots() -> updateAvailability Cloud Function
 - Real-time listeners: AvailabilityGrid subscribes to /availability/{teamId}_{weekId}
-- Cache update flow: Firebase change → onSnapshot → AvailabilityService.updateCache() → Grid re-render
+- Cache update flow: Firebase change -> onSnapshot -> AvailabilityService.updateCache() -> Grid re-render
 ```
 
 ## 4. Integration Code Examples
@@ -711,15 +711,15 @@ BACKEND PERFORMANCE:
 ## 6. Data Flow Diagram
 ```
 ADD ME FLOW:
-User selects cells → Clicks "Add Me" → GridActionButtons._handleAddMe()
+User selects cells -> Clicks "Add Me" -> GridActionButtons._handleAddMe()
                                               ↓
          ┌────────────────────────────────────┴───────────────────────────────────┐
          ↓                                                                         ↓
     [OPTIMISTIC PATH - INSTANT]                                          [FIREBASE PATH - ASYNC]
     AvailabilityService.addMeToSlots()                                   Cloud Function: updateAvailability()
-    → Update local cache                                                 → Validate user is team member
-    → Grid re-renders with new state                                     → arrayUnion userId to slots
-    → Shimmer animation on syncing cells                                 → Update lastUpdated timestamp
+    -> Update local cache                                                 -> Validate user is team member
+    -> Grid re-renders with new state                                     -> arrayUnion userId to slots
+    -> Shimmer animation on syncing cells                                 -> Update lastUpdated timestamp
          ↓                                                                         ↓
          └────────────────────────────────────┬───────────────────────────────────┘
                                               ↓
@@ -728,7 +728,7 @@ User selects cells → Clicks "Add Me" → GridActionButtons._handleAddMe()
                                     Failure: Rollback cache, show error toast
 
 REAL-TIME UPDATE FLOW (Other Team Members):
-Firebase document change → onSnapshot fires → AvailabilityService.updateCache()
+Firebase document change -> onSnapshot fires -> AvailabilityService.updateCache()
                                                       ↓
                                              Grid callback triggered
                                                       ↓
@@ -763,12 +763,12 @@ BACKEND TESTS:
 - [ ] Security rules deny direct client writes
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Select cells → Add Me → UI updates instantly → Firebase confirms
-- [ ] Select cells → Remove Me → UI updates instantly → Firebase confirms
-- [ ] Add Me fails → UI rolls back → Error toast shown
-- [ ] Real-time: User A adds availability → User B sees update within 2 seconds
+- [ ] Select cells -> Add Me -> UI updates instantly -> Firebase confirms
+- [ ] Select cells -> Remove Me -> UI updates instantly -> Firebase confirms
+- [ ] Add Me fails -> UI rolls back -> Error toast shown
+- [ ] Real-time: User A adds availability -> User B sees update within 2 seconds
 - [ ] Multi-week selection: Add Me applies to cells in both visible weeks
-- [ ] Network offline → Add Me → UI updates → Reconnect → Firebase syncs
+- [ ] Network offline -> Add Me -> UI updates -> Reconnect -> Firebase syncs
 
 END-TO-END TESTS:
 - [ ] New user with no availability can add themselves to slots
@@ -858,7 +858,7 @@ Before considering this slice spec complete:
 - [x] Hot paths clearly identified (optimistic updates)
 - [x] Test scenarios cover full stack
 - [x] No anti-patterns present
-- [x] Data flow complete (UI → Cache → Firebase → Listener → UI)
+- [x] Data flow complete (UI -> Cache -> Firebase -> Listener -> UI)
 - [x] Integration examples show actual code
 - [x] Error handling specified (rollback on failure)
 - [x] Loading states defined (shimmer animation, button text)

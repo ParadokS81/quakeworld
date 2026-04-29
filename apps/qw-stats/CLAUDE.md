@@ -1,4 +1,4 @@
-# QW Stats — Player & Team Ranking Engine
+# QW Stats -- Player & Team Ranking Engine
 
 **Status:** Paused. Data foundation + API shipped; ranking product blocked on Phase 0 identity resolution.
 
@@ -12,7 +12,7 @@ Monorepo-aligned quartet:
 
 ## Purpose
 
-Build a data-driven ranking system for QuakeWorld 4on4 players and teams using real match statistics from QWHub (hub.quakeworld.nu). The goal is to produce rankings that pass the "sniff test" of experienced players — if the algorithm doesn't put Milton near the top, it's broken.
+Build a data-driven ranking system for QuakeWorld 4on4 players and teams using real match statistics from QWHub (hub.quakeworld.nu). The goal is to produce rankings that pass the "sniff test" of experienced players -- if the algorithm doesn't put Milton near the top, it's broken.
 
 ## Quick Start (Build Your Local Database)
 
@@ -95,7 +95,7 @@ node scripts/test-pg.js
 ### Data Sources
 
 **ktxstats Archive (bulk import):**
-- Source: `data/4on4_full/json/` — 18,468 `.mvd.ktxstats.json` files from vikpe
+- Source: `data/4on4_full/json/` -- 18,468 `.mvd.ktxstats.json` files from vikpe
 - Import script: `scripts/import-postgres.js`
 - Filters to: 8 players, team mode, duration >= 600s
 
@@ -112,7 +112,7 @@ node scripts/test-pg.js
 
 ### Tables
 
-**`games`** — One row per 4on4 match
+**`games`** -- One row per 4on4 match
 ```sql
 id SERIAL PRIMARY KEY
 demo_sha256 TEXT UNIQUE NOT NULL     -- ktxstats file identifier
@@ -131,7 +131,7 @@ team_b_frags INTEGER NOT NULL DEFAULT 0
 is_clan_game BOOLEAN NOT NULL DEFAULT false  -- true if neither team is blue/red/generic
 ```
 
-**`game_players`** — One row per player per match (8 per game)
+**`game_players`** -- One row per player per match (8 per game)
 ```sql
 id SERIAL PRIMARY KEY
 game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE
@@ -173,7 +173,7 @@ idx_gp_team_ascii ON game_players(team_ascii)
 ```
 
 ### Querying Team Names
-Always use `team_a_ascii` / `team_b_ascii` / `team_ascii` columns for queries — they're lowercase ASCII:
+Always use `team_a_ascii` / `team_b_ascii` / `team_ascii` columns for queries -- they're lowercase ASCII:
 ```sql
 -- H2H: book vs oeks
 WHERE (team_a_ascii='book' AND team_b_ascii='oeks')
@@ -230,7 +230,7 @@ qw-stats/
 │   ├── server.js          <- Express API server (h2h, form, maps, roster endpoints)
 │   ├── Dockerfile         <- Docker image for the API
 │   └── package.json       <- API dependencies
-└── data/                  <- NOT committed — download from GitHub Releases
+└── data/                  <- NOT committed -- download from GitHub Releases
     ├── 4on4_full/json/    <- 18,468 ktxstats JSONs
     └── 4on4_json.zip      <- Source archive (55MB)
 ```
@@ -273,7 +273,7 @@ The Express API serves H2H data. Can be run locally or deployed via Docker.
 
 ### Running Locally
 ```bash
-# server.js reads PG_* env vars but does NOT load dotenv — must source .env first:
+# server.js reads PG_* env vars but does NOT load dotenv -- must source .env first:
 set -a && source /path/to/qw-stats/.env && set +a
 cd api && npm install && node server.js
 ```
@@ -316,23 +316,23 @@ Team Damage (penalty)        x -0.05
 ```
 
 ### Weight Adjustments Needed (from correlation analysis)
-- **TTD and Armor are r=0.92** — nearly identical signals, should merge or reduce one
-- **SG accuracy barely predicts winning** (r=0.12) — reduce weight
-- **RL accuracy slightly negative** (r=-0.08) — rethink or remove
-- **Efficiency is strongest predictor** of winning (r=0.53) — possibly increase weight
+- **TTD and Armor are r=0.92** -- nearly identical signals, should merge or reduce one
+- **SG accuracy barely predicts winning** (r=0.12) -- reduce weight
+- **RL accuracy slightly negative** (r=-0.08) -- rethink or remove
+- **Efficiency is strongest predictor** of winning (r=0.53) -- possibly increase weight
 
 ---
 
 ## Domain Expert Notes
 
-- **Milton is the undisputed GOAT** — Messi, Ronaldo, Maradona rolled into one. Calibration benchmark.
+- **Milton is the undisputed GOAT** -- Messi, Ronaldo, Maradona rolled into one. Calibration benchmark.
 - **Taken-to-Die** = how much damage you absorb before dying. Higher = better survivability/positioning/armor control.
-- **Team damage** should be a penalty — disciplined players don't shoot teammates.
-- **Spawn frags** are somewhat random — low weight or ignore.
-- **Map-specific ratings matter** — dm2 plays very differently from dm3 or schloss.
+- **Team damage** should be a penalty -- disciplined players don't shoot teammates.
+- **Spawn frags** are somewhat random -- low weight or ignore.
+- **Map-specific ratings matter** -- dm2 plays very differently from dm3 or schloss.
 - **Red/blue team names** = pickup/mix games, not organized clan matches. Separate from clan rankings.
 - **The "line" concept** from sports betting: instead of just who wins, predict the frag margin.
-- **Players change names freely** — no account system. Identity resolution is a core challenge.
+- **Players change names freely** -- no account system. Identity resolution is a core challenge.
 - **~300 active players** in the community, ~2,355 unique names (many are aliases).
 
 ---

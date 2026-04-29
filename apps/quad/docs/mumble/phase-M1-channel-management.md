@@ -1,4 +1,4 @@
-# Phase M1: Murmur Connection + Channel Management — quad
+# Phase M1: Murmur Connection + Channel Management -- quad
 
 ## Context
 
@@ -6,7 +6,7 @@ We're adding Mumble voice support to the QW ecosystem. A Mumble server is alread
 
 Read `docs/mumble/CONTRACT.md` for the contract reference. The canonical version is `../../MUMBLE-INTEGRATION-CONTRACT.md`.
 
-The recording bot research is at `docs/mumble-recording-research.md` — it recommends `@tf2pickup-org/mumble-client` for the control plane.
+The recording bot research is at `docs/mumble-recording-research.md` -- it recommends `@tf2pickup-org/mumble-client` for the control plane.
 
 ---
 
@@ -14,7 +14,7 @@ The recording bot research is at `docs/mumble-recording-research.md` — it reco
 
 1. **New module**: `src/modules/mumble/` with Murmur protocol client connection
 2. **Channel management**: Create/delete team channels on Mumble server
-3. **Firestore listener**: Watch `mumbleConfig` collection for `status: 'pending'` → create channel → update to `status: 'active'`
+3. **Firestore listener**: Watch `mumbleConfig` collection for `status: 'pending'` -> create channel -> update to `status: 'active'`
 4. **Docker config**: Enable ICE API on the Mumble container (port 6502, internal only)
 5. **New env vars**: Mumble connection config
 
@@ -34,7 +34,7 @@ mumble:
     MUMBLE_CONFIG_ICE: "tcp -h 0.0.0.0 -p 6502"
     MUMBLE_CONFIG_ICESECRETWRITE: "${MUMBLE_ICE_SECRET}"
   expose:
-    - "6502"   # ICE API — internal Docker network only, not public
+    - "6502"   # ICE API -- internal Docker network only, not public
 ```
 
 Add to `.env`:
@@ -80,7 +80,7 @@ MUMBLE_ICE_SECRET=              # ICE admin API secret (used in M2)
 
 ## Files to Create
 
-### 1. `src/modules/mumble/index.ts` — Module entry point
+### 1. `src/modules/mumble/index.ts` -- Module entry point
 
 Follows the same `BotModule` pattern as other modules. This module:
 - Connects to Mumble server on `onReady()`
@@ -89,7 +89,7 @@ Follows the same `BotModule` pattern as other modules. This module:
 - Cleans up on `onShutdown()`
 
 ```typescript
-// Module skeleton — adapt to match the BotModule interface pattern
+// Module skeleton -- adapt to match the BotModule interface pattern
 // used by other modules (see src/modules/recording/index.ts for reference)
 
 import { BotModule } from '../../types';
@@ -121,7 +121,7 @@ export const mumbleModule: BotModule = {
 };
 ```
 
-### 2. `src/modules/mumble/mumble-manager.ts` — Core connection manager
+### 2. `src/modules/mumble/mumble-manager.ts` -- Core connection manager
 
 Manages the Mumble client connection and exposes channel operations.
 
@@ -136,14 +136,14 @@ Key responsibilities:
 **Channel structure on Mumble server:**
 ```
 Root
-└── Teams                    ← Created once by bot (or pre-created)
-    ├── sr                   ← Team ]sr[ channel
-    ├── 4k                   ← Team 4k channel
+└── Teams                    <- Created once by bot (or pre-created)
+    ├── sr                   <- Team ]sr[ channel
+    ├── 4k                   <- Team 4k channel
     └── ...
 ```
 
 **Channel naming:**
-- Channel name: team tag stripped of special chars (e.g. `]sr[` → `sr`, `4k` stays `4k`)
+- Channel name: team tag stripped of special chars (e.g. `]sr[` -> `sr`, `4k` stays `4k`)
 - Channel description: full team name (e.g. "Slackers")
 - `channelPath` stored in Firestore: `Teams/sr` (used in `mumble://` URLs)
 
@@ -174,12 +174,12 @@ async disconnect(): Promise<void>
 // Clean disconnect from Mumble
 ```
 
-### 3. `src/modules/mumble/config-listener.ts` — Firestore listener
+### 3. `src/modules/mumble/config-listener.ts` -- Firestore listener
 
 Watches `mumbleConfig` collection for documents with `status: 'pending'` and processes them.
 
 ```typescript
-// Firestore listener pattern — same as src/modules/availability/listener.ts
+// Firestore listener pattern -- same as src/modules/availability/listener.ts
 
 import { getDb } from '../../core/firebase';
 import { MumbleManager } from './mumble-manager';
@@ -249,7 +249,7 @@ Also handle `status: 'disabling'` (team leader disables Mumble):
 
 ## Register the Module
 
-Add the mumble module to the bot's module loader. Check how other modules are registered (likely in `src/bot.ts` or `src/index.ts` — look for where `recordingModule`, `processingModule` etc. are imported and added to the modules array).
+Add the mumble module to the bot's module loader. Check how other modules are registered (likely in `src/bot.ts` or `src/index.ts` -- look for where `recordingModule`, `processingModule` etc. are imported and added to the modules array).
 
 Only load the module if `MUMBLE_HOST` is set (graceful skip if Mumble isn't configured):
 
@@ -263,7 +263,7 @@ if (process.env.MUMBLE_HOST) {
 
 ## Verification
 
-1. **Compile**: `npx tsc --noEmit` — no errors
+1. **Compile**: `npx tsc --noEmit` -- no errors
 2. **Connect**: Bot starts, connects to Mumble server, logs "Connected to Mumble at mumble:64738"
 3. **Channel state**: Bot logs existing channels on connect (shows it synced)
 4. **Create channel**: Write a test `mumbleConfig` doc to Firestore with `status: 'pending'`:
@@ -281,13 +281,13 @@ if (process.env.MUMBLE_HOST) {
    });
    ```
 5. **Verify**: The doc updates to `status: 'active'` with `channelId`, `channelName: 'sr'`, `channelPath: 'Teams/sr'`
-6. **Mumble client**: Connect with a Mumble client — the "Teams/sr" channel should be visible
+6. **Mumble client**: Connect with a Mumble client -- the "Teams/sr" channel should be visible
 
 ---
 
 ## What's NOT in this phase
 
-- User registration with passwords (M2 — needs ICE)
+- User registration with passwords (M2 -- needs ICE)
 - ACL management / access control (M2)
 - Certificate pinning (M2)
 - MatchScheduler UI (M3)

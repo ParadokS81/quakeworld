@@ -1,4 +1,4 @@
-# Slice 19.0b: Challenge Lifecycle v2 — Atomic Proposal with 4v3 Gate
+# Slice 19.0b: Challenge Lifecycle v2 -- Atomic Proposal with 4v3 Gate
 
 **Dependencies:** Slice 8.0 (Match Proposals), 3.4 (ComparisonEngine)
 **Parent Design:** `context/DISCORD-BRIDGE-DESIGN.md`
@@ -8,7 +8,7 @@
 - [ ] After selecting game type, a timeslot picker shows all viable 4v3+ slots for the week
 - [ ] User must select at least 1 timeslot before proposal can be submitted
 - [ ] Proposal is created with selected slots pre-confirmed on the proposer's side (atomic)
-- [ ] The full viable set remains visible on the proposal — opponent can confirm any viable slot
+- [ ] The full viable set remains visible on the proposal -- opponent can confirm any viable slot
 - [ ] Desktop (ComparisonModal) and mobile (MobileCompareDetail) both updated
 - [ ] Existing proposal viewing/confirming in MatchesPanel is unaffected
 
@@ -16,12 +16,12 @@
 
 ## Problem Statement
 
-Currently, proposals are created as empty "open contracts" — no timeslots attached. The proposer must separately navigate to the Matches panel to confirm slots. This creates two problems:
+Currently, proposals are created as empty "open contracts" -- no timeslots attached. The proposer must separately navigate to the Matches panel to confirm slots. This creates two problems:
 1. Proposals with no confirmed slots lack urgency and credibility
 2. The opponent sees a challenge with no concrete times proposed
-3. There's no viability gate — a 1v1 overlap can generate a proposal that will never become a match
+3. There's no viability gate -- a 1v1 overlap can generate a proposal that will never become a match
 
-Additionally, the manual Discord notification (copy message → paste in DM) means opponents often don't know they've been challenged.
+Additionally, the manual Discord notification (copy message -> paste in DM) means opponents often don't know they've been challenged.
 
 ---
 
@@ -30,8 +30,8 @@ Additionally, the manual Discord notification (copy message → paste in DM) mea
 Merge game type selection, timeslot selection, and proposal creation into one atomic flow. The 3-step stepper changes from:
 
 ```
-BEFORE: [Game Type] → [Propose] → [Contact on Discord]
-AFTER:  [Game Type] → [Select Timeslots + Propose] → [Done / Contact]
+BEFORE: [Game Type] -> [Propose] -> [Contact on Discord]
+AFTER:  [Game Type] -> [Select Timeslots + Propose] -> [Done / Contact]
 ```
 
 The 4v3 gate ensures only credible challenges are created. The `createProposal` Cloud Function is extended to accept pre-confirmed slots.
@@ -45,7 +45,7 @@ The 4v3 gate ensures only credible challenges are created. The `createProposal` 
 The gate is evaluated **per-opponent** in the comparison modal. When a user opens the modal for a slot:
 
 1. Compute all viable slots for the week between these two teams using `ProposalService.computeViableSlots()`
-2. Use a **fixed filter of `{ yourTeam: 4, opponent: 3 }`** — meaning: proposer needs 4 (or 3 + standin), opponent needs at least 3
+2. Use a **fixed filter of `{ yourTeam: 4, opponent: 3 }`** -- meaning: proposer needs 4 (or 3 + standin), opponent needs at least 3
 3. If zero slots meet 4v3: disable the Propose button, show explanatory text
 4. If 1+ slots meet 4v3: enable the flow
 
@@ -75,12 +75,12 @@ Step 2: Select Times & Propose
 ┌─────────────────────────────────────────────┐
 │ Select times to propose (1+ required):      │
 │                                              │
-│ ☑ Sun 22:30  4v4  ← pre-checked if 4v4     │
+│ ☑ Sun 22:30  4v4  <- pre-checked if 4v4     │
 │ ☑ Sun 23:00  4v4                            │
 │ ☐ Mon 21:00  4v3                            │
 │ ☐ Wed 20:00  4v3                            │
 │                                              │
-│ [Propose (2 times selected) →]              │
+│ [Propose (2 times selected) ->]              │
 └─────────────────────────────────────────────┘
 ```
 
@@ -93,13 +93,13 @@ Step 2: Select Times & Propose
 - Clicking "Propose" creates the proposal with those slots pre-confirmed
 
 **Stepper stays 3 steps but the meaning shifts:**
-1. **Game Type** — Official/Practice + Standin (unchanged)
-2. **Select Times & Propose** — timeslot picker + propose button (merged)
-3. **Done** — confirmation + optional Discord contact (simplified)
+1. **Game Type** -- Official/Practice + Standin (unchanged)
+2. **Select Times & Propose** -- timeslot picker + propose button (merged)
+3. **Done** -- confirmation + optional Discord contact (simplified)
 
 ### Mobile (MobileCompareDetail)
 
-The mobile flow currently shows: `[Official] [Practice] [SI?] [Propose →]` in a single row.
+The mobile flow currently shows: `[Official] [Practice] [SI?] [Propose ->]` in a single row.
 
 **New mobile flow:**
 ```
@@ -109,10 +109,10 @@ Select times:
 ☑ Sun 22:30 (4v4)
 ☑ Sun 23:00 (4v4)
 ☐ Mon 21:00 (4v3)
-[Propose (2) →]
+[Propose (2) ->]
 ```
 
-After selecting game type, the timeslot list appears below the type buttons. Same logic as desktop — auto-check 4v4, user can toggle, propose when 1+ selected.
+After selecting game type, the timeslot list appears below the type buttons. Same logic as desktop -- auto-check 4v4, user can toggle, propose when 1+ selected.
 
 ---
 
@@ -120,7 +120,7 @@ After selecting game type, the timeslot list appears below the type buttons. Sam
 
 ### Modified: `createProposal` (in `functions/match-proposals.js`)
 
-**New parameter:** `confirmedSlots` — array of slot IDs the proposer is pre-confirming.
+**New parameter:** `confirmedSlots` -- array of slot IDs the proposer is pre-confirming.
 
 ```javascript
 const { proposerTeamId, opponentTeamId, weekId, minFilter, gameType, proposerStandin,
@@ -249,18 +249,18 @@ After proposal creation, Step 3 changes from "Contact on Discord" (the primary a
 
 ```
 Step 3: Done
-✓ Proposal created with 2 timeslots
+[ok] Proposal created with 2 timeslots
 Opponent will be notified automatically.
 
 [DM their leader on Discord]  (optional, secondary)
 [Done]
 ```
 
-The "opponent will be notified automatically" text is forward-looking — it'll be true once the quad scheduler module is built (slice 19.0c + quad work). For now it can say "Proposal created! Share it with your opponent." and keep the existing Discord contact buttons.
+The "opponent will be notified automatically" text is forward-looking -- it'll be true once the quad scheduler module is built (slice 19.0c + quad work). For now it can say "Proposal created! Share it with your opponent." and keep the existing Discord contact buttons.
 
 ### MobileCompareDetail.js
 
-**Modified `_renderProposalRow()` → `_renderProposalSection()`:**
+**Modified `_renderProposalRow()` -> `_renderProposalSection()`:**
 
 Instead of a single row, render a section with game type buttons + timeslot list + propose button:
 
@@ -279,7 +279,7 @@ function _renderProposalSection(index) {
     if (gameType === 'practice') html += `<button ...>SI</button>`;
     html += '</div>';
 
-    // Timeslot list (new — only shown when game type selected)
+    // Timeslot list (new -- only shown when game type selected)
     if (gameType) {
         const viableSlots = _computeViableSlotsForIndex(index);
 
@@ -305,7 +305,7 @@ function _renderProposalSection(index) {
             html += `<button class="mcd-propose-btn ${count > 0 ? '' : 'mcd-disabled'}"
                              data-action="propose-match" data-index="${index}"
                              ${count > 0 ? '' : 'disabled'}>
-                        Propose${count > 0 ? ` (${count})` : ''} →
+                        Propose${count > 0 ? ` (${count})` : ''} ->
                      </button>`;
         }
     }
@@ -317,10 +317,10 @@ function _renderProposalSection(index) {
 
 **New state:**
 ```javascript
-let _selectedSlotsByIndex = {};  // index → Set of slotIds
+let _selectedSlotsByIndex = {};  // index -> Set of slotIds
 ```
 
-**New action handler:** `toggle-slot` — toggles a slot ID in the set for that opponent index.
+**New action handler:** `toggle-slot` -- toggles a slot ID in the set for that opponent index.
 
 **Modified `propose-match` handler:** Include `confirmedSlots` in the createProposal call.
 
@@ -360,7 +360,7 @@ async function createProposal(params) {
 ## Edge Cases
 
 1. **All viable slots are 4v3 (none at 4v4):** No auto-check, user must manually select at least 1
-2. **Availability changes between modal open and propose click:** The `createProposal` Cloud Function reads live availability for `countAtConfirm` — the pre-confirmed count reflects the real state at creation time
+2. **Availability changes between modal open and propose click:** The `createProposal` Cloud Function reads live availability for `countAtConfirm` -- the pre-confirmed count reflects the real state at creation time
 3. **Opponent has `hideRosterNames: true`:** Slot list still shows player counts (4v3) but not names. This is already how it works.
 4. **User opens modal from a specific slot but wants to propose different times:** The timeslot picker shows ALL viable slots for the week, not just the one clicked. The modal entry point determines which opponent is shown, not which slot is locked.
 5. **Standin toggle changes viable set:** When standin is toggled, `_computeViableForProposal()` re-runs, updating the slot list and auto-checks.
@@ -369,13 +369,13 @@ async function createProposal(params) {
 
 ## Testing Checklist
 
-1. Open comparison modal on a slot with 4v4 overlap → game type buttons enabled, timeslot list shows after selection
-2. Open comparison modal on a slot with only 2v2 overlap → "Need 4v3+ overlap" message, propose disabled
-3. Open comparison modal with 3v3 overlap + standin toggle → toggling standin enables/disables propose (3+1=4 vs 3)
-4. Select Official → see slot list → check 2 slots → click Propose → proposal created with 2 pre-confirmed slots
+1. Open comparison modal on a slot with 4v4 overlap -> game type buttons enabled, timeslot list shows after selection
+2. Open comparison modal on a slot with only 2v2 overlap -> "Need 4v3+ overlap" message, propose disabled
+3. Open comparison modal with 3v3 overlap + standin toggle -> toggling standin enables/disables propose (3+1=4 vs 3)
+4. Select Official -> see slot list -> check 2 slots -> click Propose -> proposal created with 2 pre-confirmed slots
 5. Verify proposal in Matches panel shows the 2 slots as already confirmed by proposer
 6. Verify opponent can still see and confirm any viable slot (not just the 2 proposed)
 7. Mobile: same flow works in MobileCompareDetail bottom sheet
-8. Close modal after proposal → navigates to proposal deep link (existing behavior)
+8. Close modal after proposal -> navigates to proposal deep link (existing behavior)
 9. Old proposal cards in Matches panel still work (backward compat)
-10. Proposal with 0 slots selected → Propose button disabled
+10. Proposal with 0 slots selected -> Propose button disabled

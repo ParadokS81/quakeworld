@@ -36,10 +36,10 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - TeamService (add new methods):
-  - callFunction('regenerateJoinCode', {teamId}) → backend regenerateJoinCode
-  - callFunction('leaveTeam', {teamId}) → backend leaveTeam  
-  - callFunction('updateTeamSettings', {teamId, maxPlayers}) → backend updateTeamSettings
-  - copyJoinCode(joinCode, teamName) → clipboard operation (frontend only)
+  - callFunction('regenerateJoinCode', {teamId}) -> backend regenerateJoinCode
+  - callFunction('leaveTeam', {teamId}) -> backend leaveTeam  
+  - callFunction('updateTeamSettings', {teamId, maxPlayers}) -> backend updateTeamSettings
+  - copyJoinCode(joinCode, teamName) -> clipboard operation (frontend only)
 
 BACKEND REQUIREMENTS:
 - Cloud Functions:
@@ -80,14 +80,14 @@ BACKEND REQUIREMENTS:
 - External Services: None
 
 INTEGRATION POINTS:
-- Frontend → Backend calls:
-  - TeamManagementDrawer clicks → TeamService methods → Cloud Functions
+- Frontend -> Backend calls:
+  - TeamManagementDrawer clicks -> TeamService methods -> Cloud Functions
 - API Contracts:
-  - regenerateJoinCode: { teamId: string } → { success: true, data: { joinCode: string } }
-  - leaveTeam: { teamId: string } → { success: true, data: { leftTeam: boolean, teamArchived?: boolean } }
-  - updateTeamSettings: { teamId: string, maxPlayers: number } → { success: true, data: { maxPlayers: number } }
+  - regenerateJoinCode: { teamId: string } -> { success: true, data: { joinCode: string } }
+  - leaveTeam: { teamId: string } -> { success: true, data: { leftTeam: boolean, teamArchived?: boolean } }
+  - updateTeamSettings: { teamId: string, maxPlayers: number } -> { success: true, data: { maxPlayers: number } }
 - Real-time listeners: TeamInfo already listening to teams/{teamId}
-- Data flow: Button click → TeamService → Cloud Function → Firestore → Listener → UI Update
+- Data flow: Button click -> TeamService -> Cloud Function -> Firestore -> Listener -> UI Update
 ```
 
 ## 4. Integration Code Examples
@@ -273,7 +273,7 @@ function addLeaderTooltip() {
 }
 
 // Real-time update flow (already exists)
-// teams/{teamId} change → TeamInfo listener → updateUI() → TeamService.updateCache()
+// teams/{teamId} change -> TeamInfo listener -> updateUI() -> TeamService.updateCache()
 // This means UI updates automatically when backend changes joinCode, maxPlayers, etc.
 ```
 
@@ -298,22 +298,22 @@ BACKEND PERFORMANCE:
 
 ```
 COPY JOIN CODE:
-Click "Copy" → handleCopyJoinCode() → navigator.clipboard → Success Toast
+Click "Copy" -> handleCopyJoinCode() -> navigator.clipboard -> Success Toast
 
 REGENERATE JOIN CODE:
-Click "Regenerate" → TeamDrawer.handleRegenerateJoinCode() → TeamService.callFunction() 
-→ regenerateJoinCode() → Update teams/{teamId} → onSnapshot fires → TeamInfo.updateUI() 
-→ TeamManagementDrawer.updateTeamData() → New code displayed
+Click "Regenerate" -> TeamDrawer.handleRegenerateJoinCode() -> TeamService.callFunction() 
+-> regenerateJoinCode() -> Update teams/{teamId} -> onSnapshot fires -> TeamInfo.updateUI() 
+-> TeamManagementDrawer.updateTeamData() -> New code displayed
 
 LEAVE TEAM:
-Click "Leave" → Show confirmation modal → Confirm → TeamService.callFunction('leaveTeam')
-→ leaveTeam() → Update teams/{teamId} + users/{userId} → Listeners fire 
-→ If last team: Navigate to home → If have other team: Switch to it
+Click "Leave" -> Show confirmation modal -> Confirm -> TeamService.callFunction('leaveTeam')
+-> leaveTeam() -> Update teams/{teamId} + users/{userId} -> Listeners fire 
+-> If last team: Navigate to home -> If have other team: Switch to it
 
 UPDATE MAX PLAYERS:
-Change dropdown → handleMaxPlayersChange() → Validate >= roster size → If valid: 
-TeamService.callFunction('updateTeamSettings') → updateTeamSettings() 
-→ Update teams/{teamId} → onSnapshot → UI reflects new max
+Change dropdown -> handleMaxPlayersChange() -> Validate >= roster size -> If valid: 
+TeamService.callFunction('updateTeamSettings') -> updateTeamSettings() 
+-> Update teams/{teamId} -> onSnapshot -> UI reflects new max
 If invalid or error: Silently revert to previous value
 ```
 
@@ -341,12 +341,12 @@ BACKEND TESTS:
 - [x] All functions log appropriate events
 
 INTEGRATION TESTS (CRITICAL):
-- [x] Regenerate code → old code becomes invalid → new code works
-- [x] Leave team → user removed from roster → team UI updates
-- [x] Last player leaves → team archived → not shown in browse
-- [x] Update max players → prevents joins when full
-- [x] Network failure → appropriate error shown → UI remains consistent
-- [x] Permission denied → user sees explanation → no partial updates
+- [x] Regenerate code -> old code becomes invalid -> new code works
+- [x] Leave team -> user removed from roster -> team UI updates
+- [x] Last player leaves -> team archived -> not shown in browse
+- [x] Update max players -> prevents joins when full
+- [x] Network failure -> appropriate error shown -> UI remains consistent
+- [x] Permission denied -> user sees explanation -> no partial updates
 
 END-TO-END TESTS:
 - [x] Member can copy and share join code successfully

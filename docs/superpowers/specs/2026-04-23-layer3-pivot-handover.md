@@ -1,9 +1,9 @@
-# Layer 3 pivot — handover for next session
+# Layer 3 pivot -- handover for next session
 
 **Date written:** 2026-04-23 (at session close, right after the extraction-review shakedown)
 **Purpose:** Capture the nuance + intent behind the Layer 3 pivot discovered during the shakedown, so the next session can start a proper brainstorm with full context rather than re-deriving it from scratch.
 
-This is NOT a design spec — it's a primer. The actual design happens through the `superpowers:brainstorming` skill in the next session. The pivot is judgment-heavy and benefits from a dedicated walkthrough, not a quick execution.
+This is NOT a design spec -- it's a primer. The actual design happens through the `superpowers:brainstorming` skill in the next session. The pivot is judgment-heavy and benefits from a dedicated walkthrough, not a quick execution.
 
 ## How this came up
 
@@ -13,11 +13,11 @@ The walk got to Finding 3 (the skywind family) before the pivot surfaced.
 
 **What happened:**
 
-1. Finding 3 was "new command `skywind` at 3.6.6" plus 5 siblings (4 related commands + 1 cvar `r_skywind`). The unified-family pattern would normally resolve to `classify` — AST picked it up, no seed edit needed, move on.
+1. Finding 3 was "new command `skywind` at 3.6.6" plus 5 siblings (4 related commands + 1 cvar `r_skywind`). The unified-family pattern would normally resolve to `classify` -- AST picked it up, no seed edit needed, move on.
 
 2. Claude proposed `classify` with a fallback of "concept-note if you want to document the IronWail provenance."
 
-3. The user paused: "We had skyboxes before — is this an alternative way to render them? Does it come with new filetypes? Is it documented? Our goto for ezquake documentation is https://ezquake.com/docs/textures.html#skyboxes."
+3. The user paused: "We had skyboxes before -- is this an alternative way to render them? Does it come with new filetypes? Is it documented? Our goto for ezquake documentation is https://ezquake.com/docs/textures.html#skyboxes."
 
 4. Only after being pointed at ezquake.com did Claude check that site. skywind is NOT on ezquake.com/docs, even though it IS documented via in-engine /help (the PR updated help_commands.json + help_variables.json in the same commit).
 
@@ -29,7 +29,7 @@ The walk got to Finding 3 (the skywind family) before the pivot surfaced.
 
 **Original Claude framing (probably too strict):** "Layer 3 concept notes are earned by consumer questions; don't pre-populate them." Cited `apps/qw-oracle/concept-notes/README.md`.
 
-**User's challenge (correct):** ezquake.com/docs guides like https://ezquake.com/docs/charsets.html and https://ezquake.com/docs/crosshairs.html are already hand-curated community guidance — explanations, best practices, usage idioms. That's Layer 3 content by definition. It's been earned by 15+ years of community questions; it's not speculative.
+**User's challenge (correct):** ezquake.com/docs guides like https://ezquake.com/docs/charsets.html and https://ezquake.com/docs/crosshairs.html are already hand-curated community guidance -- explanations, best practices, usage idioms. That's Layer 3 content by definition. It's been earned by 15+ years of community questions; it's not speculative.
 
 **Revised framing (what to design around):**
 
@@ -44,7 +44,7 @@ The "earn by question" rule prevents *us* from writing speculative notes from sc
 
 ## What the next session needs to design
 
-Roughly in priority order — NOT execution order. Brainstorming skill will tease these out.
+Roughly in priority order -- NOT execution order. Brainstorming skill will tease these out.
 
 **1. Ingest strategy for ezquake.com/docs.**
 
@@ -59,9 +59,9 @@ The trade-off is between integration (imported notes show up in `get_concept_not
 **2. Which pages are guide-heavy vs Layer-1-heavy?**
 
 From the user's observations during the shakedown:
-- `charsets.html` — guide-heavy, Layer 3 material.
-- `crosshairs.html` — guide-heavy, Layer 3 material.
-- `textures.html` — mixed. "Skyboxes" section is guideline + image grid (Layer 3), cvar list section is Layer 1 duplicate.
+- `charsets.html` -- guide-heavy, Layer 3 material.
+- `crosshairs.html` -- guide-heavy, Layer 3 material.
+- `textures.html` -- mixed. "Skyboxes" section is guideline + image grid (Layer 3), cvar list section is Layer 1 duplicate.
 - Sidebar on ezquake.com index (from the screenshot at `C:\Users\Administrator\Downloads\2026-04-23_12-26.png`) shows these categories: Features, Graphics, Reference, Settings reference, Misc. The first row (Features, Graphics) is guide territory; Settings reference is Layer 1 duplicate territory.
 
 Walking the docs site page-by-page and classifying each is probably the first investigation step.
@@ -79,7 +79,7 @@ Imported notes would link back to entities via `related_entities:` (same as auth
 **4. Drift management.**
 
 ezquake.com evolves. If we import and normalize, we need a story for:
-- When the upstream page changes — do we re-import, or do our edits diverge?
+- When the upstream page changes -- do we re-import, or do our edits diverge?
 - When our entity model gains / loses entities that the imported guide references.
 - Contribution path: when a review surfaces a gap (like skywind's absence from ezquake.com), we write a local concept note, then optionally PR upstream to add it to ezquake.com. The two-way flow matters.
 
@@ -87,15 +87,15 @@ ezquake.com evolves. If we import and normalize, we need a story for:
 
 Regardless of ingestion choice, the `extraction-review` skill's disposition-research protocol needs to expand. Current protocol (inside `~/.claude/skills/extraction-review/SKILL.md`):
 
-- `packages/qw-config/seeds/*.yaml` — seed coverage
-- `apps/qw-oracle/docs/entity-types.md` — classification vocabulary
-- `apps/qw-oracle/concept-notes/` — Layer 3 coverage
-- `git log <commit_sha>` — change motivation
+- `packages/qw-config/seeds/*.yaml` -- seed coverage
+- `apps/qw-oracle/docs/entity-types.md` -- classification vocabulary
+- `apps/qw-oracle/concept-notes/` -- Layer 3 coverage
+- `git log <commit_sha>` -- change motivation
 
 Needs to add:
 
-- In-engine help JSONs (`help_commands.json`, `help_variables.json` in ezquake-source) — authoritative per-entity help.
-- ezquake.com/docs markdown (via cloned repo) — community guide coverage.
+- In-engine help JSONs (`help_commands.json`, `help_variables.json` in ezquake-source) -- authoritative per-entity help.
+- ezquake.com/docs markdown (via cloned repo) -- community guide coverage.
 - Possibly: commit diff (`git show <sha>`) when the commit message alone isn't enough.
 
 ## The skywind finding is a good test case
@@ -104,12 +104,12 @@ When the next session resumes the review walk, Finding 3 will be the first one t
 
 - **New entities at 3.6.6:** commands `skywind`, `skywind_load`, `skywind_lookdir`, `skywind_rotate`, `skywind_save` + cvar `r_skywind`.
 - **Commit:** `d7e91ef3` "RENDERER: Add support for skywind." PR #978 from qw-ctf/skywind branch, authored by Daniel Svensson (nano).
-- **Release note:** "RENDERER: Add support for skywind, ported from IronWail (@dsvensson)" — section "improvements."
+- **Release note:** "RENDERER: Add support for skywind, ported from IronWail (@dsvensson)" -- section "improvements."
 - **In-engine help:** Both `help_commands.json` and `help_variables.json` updated in the same commit with full descriptions + syntax. So `/help skywind` works in console.
-- **ezquake.com/docs status:** NOT present. Verified by fetching `https://ezquake.com/docs/textures.html` and grepping for "skywind" — zero hits. Real public-docs gap.
+- **ezquake.com/docs status:** NOT present. Verified by fetching `https://ezquake.com/docs/textures.html` and grepping for "skywind" -- zero hits. Real public-docs gap.
 - **What skywind actually is:** animation layer on top of existing skyboxes. Requires alpha-channel skyboxes (partial transparency). Blends cubemap with itself to simulate moving sky. Ported from IronWail (a single-player Quake engine). Sidecar config files at `gfx/env/<skyboxname>_wind.cfg` auto-load when the matching skybox loads.
 
-**Expected disposition after the pivot:** `concept-note` — but the note's content depends on the ingest strategy. If we import ezquake.com/docs, the skywind note becomes "documents the gap and adds to the ezquake.com/docs corpus via local Layer 3 authoring." If we reference-only, the skywind note stands as a pure qw-oracle-authored Layer 3 entry.
+**Expected disposition after the pivot:** `concept-note` -- but the note's content depends on the ingest strategy. If we import ezquake.com/docs, the skywind note becomes "documents the gap and adds to the ezquake.com/docs corpus via local Layer 3 authoring." If we reference-only, the skywind note stands as a pure qw-oracle-authored Layer 3 entry.
 
 ## What NOT to do next session
 
@@ -121,7 +121,7 @@ When the next session resumes the review walk, Finding 3 will be the first one t
 
 The starter prompt for next session should be something like:
 
-> "Let's brainstorm the Layer 3 pivot. Read `docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md` first for context. Then walk me through the ingest strategy options — I want to see the tradeoffs before we commit to one."
+> "Let's brainstorm the Layer 3 pivot. Read `docs/superpowers/specs/2026-04-23-layer3-pivot-handover.md` first for context. Then walk me through the ingest strategy options -- I want to see the tradeoffs before we commit to one."
 
 Before diving into options, the brainstorm skill should:
 
@@ -134,13 +134,13 @@ Before diving into options, the brainstorm skill should:
 **Key user-side facts to keep in mind:**
 - The ezquake.com/docs content is the community's go-to reference. Author-scraping it without permission would be rude; the right path is via the GitHub repo (public, MIT / CC-licensed presumably, check license file).
 - Daniel Svensson (aka "nano") is the maintainer who ports features like skywind. Any ingest decisions that affect contribution-back-to-upstream workflow should preserve an easy path to PR improvements upstream.
-- The user (ParadokS) is a visual learner who values momentum over ceremony. Don't brainstorm endlessly — reach a viable option quickly, start small, iterate.
+- The user (ParadokS) is a visual learner who values momentum over ceremony. Don't brainstorm endlessly -- reach a viable option quickly, start small, iterate.
 
 ## Current state at handover
 
-- Extraction-review shakedown review draft at `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md` has 2 filled dispositions (F1 hud_gun2_frame_hide, F2 cl_pext_colourmod — both `classify`) and 63 pending. The skill's resume protocol will skip the 2 and walk the remaining 63 when we return.
+- Extraction-review shakedown review draft at `apps/qw-oracle/docs/reviews/2026-04-23-ezquake-3.6.5-to-3.6.6.md` has 2 filled dispositions (F1 hud_gun2_frame_hide, F2 cl_pext_colourmod -- both `classify`) and 63 pending. The skill's resume protocol will skip the 2 and walk the remaining 63 when we return.
 - Task #13 (live run validation) stays `in_progress` carrying this state.
-- Task #14 (drain HANDOVER items #1 and #4) stays `pending` — we hold until the walk concludes.
+- Task #14 (drain HANDOVER items #1 and #4) stays `pending` -- we hold until the walk concludes.
 - All 13 implementation commits are on `main` and unpushed.
 - DB state: fresh rebuild of 7 ezquake tags under current unified pipeline, 6 consecutive diffs run, enrich run (84 + 313 rows updated).
 

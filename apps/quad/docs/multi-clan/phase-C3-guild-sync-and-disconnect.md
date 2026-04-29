@@ -1,11 +1,11 @@
-# Phase C3: Guild Sync & Disconnect for Multi-Team — quad Side
+# Phase C3: Guild Sync & Disconnect for Multi-Team -- quad Side
 
 ## Context
 
 With multiple registrations per guild (C1) and channel-based resolution (C2), two modules still assume one-guild-one-team:
 
-1. **Guild sync** — member join/leave events only update one registration's `guildMembers` cache
-2. **Disconnect** — always leaves the guild, even if other teams still need the bot
+1. **Guild sync** -- member join/leave events only update one registration's `guildMembers` cache
+2. **Disconnect** -- always leaves the guild, even if other teams still need the bot
 
 This phase fixes both.
 
@@ -17,7 +17,7 @@ Read `COMMUNITY-SERVER-CONTRACT.md` for the full contract.
 
 1. **Guild sync** updates `guildMembers` on ALL registrations for a guild (not just the first one)
 2. **Disconnect** only leaves the guild if no other active registrations remain
-3. **Second registration notification** — when a second team registers to a guild, disable auto-record on existing registrations (future-proofing for when auto-record is implemented)
+3. **Second registration notification** -- when a second team registers to a guild, disable auto-record on existing registrations (future-proofing for when auto-record is implemented)
 
 ---
 
@@ -78,7 +78,7 @@ client.on(Events.GuildMemberAdd, async (member: GuildMember) => {
 
 #### c) Update `GuildMemberRemove` handler
 
-Same pattern — update all registrations:
+Same pattern -- update all registrations:
 
 ```typescript
 client.on(Events.GuildMemberRemove, async (member: GuildMember | PartialGuildMember) => {
@@ -107,9 +107,9 @@ client.on(Events.GuildMemberRemove, async (member: GuildMember | PartialGuildMem
 });
 ```
 
-#### d) `refreshAllGuildMembers()` — verify it already works
+#### d) `refreshAllGuildMembers()` -- verify it already works
 
-Current code (lines 91-128) queries `status == 'active'` and iterates all registrations. For multi-team guilds, each registration gets refreshed independently (same `guild.members.fetch()` result written to each). This already works correctly — but it fetches guild members redundantly for same-guild registrations.
+Current code (lines 91-128) queries `status == 'active'` and iterates all registrations. For multi-team guilds, each registration gets refreshed independently (same `guild.members.fetch()` result written to each). This already works correctly -- but it fetches guild members redundantly for same-guild registrations.
 
 **Optimization (optional):** Group registrations by `guildId`, fetch members once per guild, write to all:
 
@@ -192,7 +192,7 @@ const remainingRegs = await db.collection('botRegistrations')
   .get();
 
 if (remainingRegs.empty) {
-  // No other teams — leave the guild
+  // No other teams -- leave the guild
   const guild = client.guilds.cache.get(guildId);
   if (guild) {
     const guildName = guild.name;
@@ -200,7 +200,7 @@ if (remainingRegs.empty) {
     logger.info('Left guild (last team disconnected)', { guildId, guildName });
   }
 } else {
-  logger.info('Other teams still registered — staying in guild', {
+  logger.info('Other teams still registered -- staying in guild', {
     guildId,
     remainingTeams: remainingRegs.size,
   });
@@ -210,11 +210,11 @@ if (remainingRegs.empty) {
 **Important:** The doc is deleted BEFORE this check (line ~111: `await doc.ref.delete()`). So the query for remaining registrations correctly excludes the just-deleted doc. Move the delete before the guild-leave logic if it isn't already.
 
 Verify the order in the current code:
-1. Stop active recording ✓
-2. Destroy voice connection ✓
-3. Delete Firestore doc ← must happen before step 4
-4. Check remaining registrations ← NEW
-5. Leave guild only if no remaining ← NEW (conditional)
+1. Stop active recording [ok]
+2. Destroy voice connection [ok]
+3. Delete Firestore doc <- must happen before step 4
+4. Check remaining registrations <- NEW
+5. Leave guild only if no remaining <- NEW (conditional)
 
 ---
 
@@ -257,7 +257,7 @@ This is optional / future-proofing since auto-record trigger isn't implemented y
 
 1. **Compile**: `npx tsc --noEmit`
 2. **Guild member sync**: Add a member to a Discord server with 2 registrations. Check that BOTH `botRegistrations` docs get the new `guildMembers` entry.
-3. **Guild member remove**: Same test — remove a member, verify both docs updated.
+3. **Guild member remove**: Same test -- remove a member, verify both docs updated.
 4. **Disconnect with remaining teams**: Disconnect one team from a multi-team guild. Bot should stay in the guild. The disconnected team's `botRegistrations` doc should be deleted.
 5. **Disconnect last team**: Disconnect the last remaining team. Bot should leave the guild.
 6. **Startup refresh**: Restart bot. Verify `refreshAllGuildMembers` updates all registrations (check logs for registration count).
@@ -266,5 +266,5 @@ This is optional / future-proofing since auto-record trigger isn't implemented y
 
 ## What's NOT in this phase
 
-- MatchScheduler UI changes — that's C4
-- Auto-record trigger implementation — future feature, not part of this contract
+- MatchScheduler UI changes -- that's C4
+- Auto-record trigger implementation -- future feature, not part of this contract

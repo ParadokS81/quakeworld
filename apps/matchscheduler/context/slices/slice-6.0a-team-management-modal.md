@@ -93,9 +93,9 @@ Event Logging:
 - No changes - existing handlers already log events
 
 INTEGRATION POINTS:
-- TeamInfo click handler → TeamManagementModal.show(teamId)
-- Modal button click → Existing handler → TeamService.callFunction()
-- Cloud Function → Firestore update → TeamInfo listener → UI update
+- TeamInfo click handler -> TeamManagementModal.show(teamId)
+- Modal button click -> Existing handler -> TeamService.callFunction()
+- Cloud Function -> Firestore update -> TeamInfo listener -> UI update
 - Modal does NOT need its own listener - TeamInfo handles real-time
 ```
 
@@ -307,7 +307,7 @@ BACKEND PERFORMANCE:
 
 OPEN FLOW:
 ┌─────────┐    click gear    ┌─────────────────┐    getTeamFromCache    ┌─────────────┐
-│ TeamInfo│ ──────────────→ │ TeamManagement  │ ─────────────────────→ │ TeamService │
+│ TeamInfo│ ──────────────-> │ TeamManagement  │ ─────────────────────-> │ TeamService │
 │  (UI)   │                 │     Modal       │                         │   (Cache)   │
 └─────────┘                 └─────────────────┘                         └─────────────┘
                                     │
@@ -321,7 +321,7 @@ OPEN FLOW:
 
 ACTION FLOW (e.g., Regenerate Join Code):
 ┌─────────────────┐    callFunction     ┌─────────────┐    HTTPS    ┌────────────────┐
-│ Modal Button    │ ─────────────────→ │ TeamService │ ─────────→ │ Cloud Function │
+│ Modal Button    │ ─────────────────-> │ TeamService │ ─────────-> │ Cloud Function │
 │ (loading state) │                     └─────────────┘             │ regenerate     │
 └─────────────────┘                                                 │ JoinCode       │
                                                                     └────────────────┘
@@ -336,7 +336,7 @@ ACTION FLOW (e.g., Regenerate Join Code):
                                                                             │ onSnapshot
                                                                             ↓
 ┌─────────────────┐    re-render    ┌─────────────┐    listener    ┌────────────────┐
-│ Toast: Success  │ ←─────────────── │  TeamInfo   │ ←───────────── │   Firebase     │
+│ Toast: Success  │ <-─────────────── │  TeamInfo   │ <-───────────── │   Firebase     │
 │ UI shows new    │                  │  (updates)  │                │   Listener     │
 │ join code       │                  └─────────────┘                └────────────────┘
 └─────────────────┘                         │
@@ -373,9 +373,9 @@ BACKEND TESTS:
 - All Cloud Functions already tested - no changes
 
 INTEGRATION TESTS:
-- [ ] Regenerate join code: button → Cloud Function → Firestore → listener → UI shows new code
-- [ ] Update max players: dropdown → Cloud Function → Firestore → listener → UI shows new value
-- [ ] Leave team: button → Cloud Function → redirect to team selection
+- [ ] Regenerate join code: button -> Cloud Function -> Firestore -> listener -> UI shows new code
+- [ ] Update max players: dropdown -> Cloud Function -> Firestore -> listener -> UI shows new value
+- [ ] Leave team: button -> Cloud Function -> redirect to team selection
 - [ ] Error from backend shows toast in modal
 - [ ] Network failure shows error toast, re-enables button
 - [ ] Concurrent modal + drawer operation (if drawer still exists during 6.0a)
@@ -501,7 +501,7 @@ public/js/components/TeamManagementDrawer.js
 - [x] Hot paths identified (modal open/close: instant)
 - [x] Cold paths have loading states
 - [x] Test scenarios cover frontend, backend, and integration
-- [x] Data flow is complete (UI → Cloud Function → Firestore → Listener → UI)
+- [x] Data flow is complete (UI -> Cloud Function -> Firestore -> Listener -> UI)
 - [x] Integration examples show actual code
 - [x] Error handling specified for all operations
 - [x] Loading states defined for backend calls

@@ -14,7 +14,7 @@ Shared TypeScript lib for QW version arithmetic. Read `VISION.md` for why, `OVER
 
 ## Test framework
 
-`bun:test`. Import `{ describe, expect, test }` from `"bun:test"`. Use `test`, not `it`. No mocking framework needed — every function in this lib is pure, so tests pass plain inputs and assert on outputs.
+`bun:test`. Import `{ describe, expect, test }` from `"bun:test"`. Use `test`, not `it`. No mocking framework needed -- every function in this lib is pure, so tests pass plain inputs and assert on outputs.
 
 `tsconfig.json` excludes `**/*.test.ts` from typecheck because the monorepo doesn't install `bun-types`. Tests still run fine via `bun test` because bun has the test API built in at runtime. Match this pattern for any future `packages/*` entry; do not deviate without checking.
 
@@ -32,4 +32,4 @@ Shared TypeScript lib for QW version arithmetic. Read `VISION.md` for why, `OVER
 
 ## Output discipline
 
-Monorepo-wide rules apply (see root `CLAUDE.md`): ASCII only, no filler, comments explain why not what. The doc-comment in `compare.ts` is an exception worth keeping — it documents a contract, not mechanics.
+Monorepo-wide rules apply (see root `CLAUDE.md`): ASCII only, no filler, comments explain why not what. The doc-comment in `compare.ts` is an exception worth keeping -- it documents a contract, not mechanics.

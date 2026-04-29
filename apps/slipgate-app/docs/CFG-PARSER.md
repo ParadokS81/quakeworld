@@ -1,6 +1,6 @@
 # ezQuake Config Parser
 
-> **Doc type: current** — Describes the parser as actually built. Updated 2026-04-11 after the audit to reflect reality.
+> **Doc type: current** -- Describes the parser as actually built. Updated 2026-04-11 after the audit to reflect reality.
 
 The Slipgate app parses ezQuake configuration files to auto-detect player settings, key bindings, weapon systems, teamplay aliases, macros, and triggers. This document covers the parser architecture, supported categories, and known edge cases.
 
@@ -12,12 +12,12 @@ The Slipgate app parses ezQuake configuration files to auto-detect player settin
 
 The parser works in stages:
 
-1. **Lexing** — split config into lines, classify as cvar, bind, alias, exec, or skip
-2. **Alias resolution** — build a map of alias name → command string
-3. **Bind extraction** — build ordered list of (key, command) pairs
-4. **Analysis** — derive higher-level data from raw binds/cvars (movement keys, weapon binds, etc.)
+1. **Lexing** -- split config into lines, classify as cvar, bind, alias, exec, or skip
+2. **Alias resolution** -- build a map of alias name -> command string
+3. **Bind extraction** -- build ordered list of (key, command) pairs
+4. **Analysis** -- derive higher-level data from raw binds/cvars (movement keys, weapon binds, etc.)
 
-### Config loading — chain discovery
+### Config loading -- chain discovery
 
 ezQuake configs often reference other files via `exec`:
 ```
@@ -105,7 +105,7 @@ impulse 7       // Select RL
 
 **Priority chains anchor to the first weapon.** `bind q "weapon 7 5 3 2 1"` is classified as selecting RL; the rest are cascade fallbacks (runtime engine behavior, not player choice) and do not produce separate firing paths. The full chain is preserved in `origin_alias_chain` for the expanded row.
 
-**Impulse → weapon mapping:**
+**Impulse -> weapon mapping:**
 ```
 1=Axe  2=SG  3=SSG  4=NG  5=SNG  6=GL  7=RL  8=LG
 ```
@@ -163,7 +163,7 @@ Modifier cvars that change when the active weapon changes can be applied two way
 1. **Oldschool inline injection** - `alias +shaft "weapon 8; sensitivity 0.8; +attack"` sets sens as part of the bind alias chain. Visible from walking the press body, so the Config Viewer's chain expansion already shows it. The `-shaft` release body (paired automatically - see below) typically restores the baseline.
 2. **Engine-triggered dispatch** - `alias f_weaponchange "if 8 == $weaponnum then __lg_settings else __default_settings"` is an ezQuake trigger alias the engine runs on every weapon change. The dispatched alias (`__lg_settings`) sets modifier cvars. Invisible to bind-chain walking - a separate parser handles it.
 
-**Implementation:** `src-tauri/src/commands/weapon_triggers.rs`. `parse_weapon_change_dispatch(&aliases)` returns `WeaponChangeDispatch { per_weapon: HashMap<String, String>, else_alias: Option<String> }` - weapon-name → dispatched alias, plus the fallback branch. Handles binary `if N == $weaponnum then A else B`, chained `else if`, operand reversal, and `if` without `else`. `extract_sensitivity_from_alias(name, &aliases)` recursively walks the dispatched body (depth-limited, visit-guarded) to pull `sensitivity N` out of nested alias calls.
+**Implementation:** `src-tauri/src/commands/weapon_triggers.rs`. `parse_weapon_change_dispatch(&aliases)` returns `WeaponChangeDispatch { per_weapon: HashMap<String, String>, else_alias: Option<String> }` - weapon-name -> dispatched alias, plus the fallback branch. Handles binary `if N == $weaponnum then A else B`, chained `else if`, operand reversal, and `if` without `else`. `extract_sensitivity_from_alias(name, &aliases)` recursively walks the dispatched body (depth-limited, visit-guarded) to pull `sensitivity N` out of nested alias calls.
 
 **Exposed fields** (on both `EzQuakeConfig` and `ChainBindClassification`):
 - `weapon_change_dispatch: Option<WeaponChangeDispatch>` - raw parse, consumed by the Config Viewer's "When {WEAPON} active" modifier block per weapon row.
@@ -191,11 +191,11 @@ Team communication binds are now classified by category. The `analyze_teamsay_bi
 | **confirm** | yes/no/ok/gl/gg |
 | **custom** | anything that doesn't fit the above |
 
-Detection uses substring matching on the command body after alias resolution (e.g., commands containing `tp_name_rl` + `$x5` patterns). `tempalias` with `if`/`then`/`else` conditional logic is NOT resolved — the parser sees the literal conditional command and classifies by the observable substrings.
+Detection uses substring matching on the command body after alias resolution (e.g., commands containing `tp_name_rl` + `$x5` patterns). `tempalias` with `if`/`then`/`else` conditional logic is NOT resolved -- the parser sees the literal conditional command and classifies by the observable substrings.
 
 **Custom fallback with content-derived labels.** When a bind does not match any canonical pattern, it previously collapsed under a single `(custom, say_team)` row. Now `classify_say_team()` falls through to `first_say_team_body()` which extracts the readable message content (stripping the `say_team` prefix and leading `$<var>` sender tokens) and uses it as a per-bind label, truncated to 40 chars with `...` suffix if needed. This prevents 8 distinct custom binds from collapsing into one display row.
 
-**Powerup keyword heuristic.** Before falling through to `custom`, the fallback path runs `has_powerup_keyword()` which whitespace-tokenizes the message, strips leading/trailing punctuation from each token, and case-insensitively compares against `{powerup, quad, pent, penta, ring, eyes}`. If any token matches exactly, the bind is promoted from `custom` to `powerups` with the same content-derived label. The whitespace tokenization is deliberate — it keeps compound callouts like `PENT/LIFT` and `RA-PATH` out of the match (the slash-joined tokens never compare equal to the bare keywords), so path/order callouts correctly stay in `custom`.
+**Powerup keyword heuristic.** Before falling through to `custom`, the fallback path runs `has_powerup_keyword()` which whitespace-tokenizes the message, strips leading/trailing punctuation from each token, and case-insensitively compares against `{powerup, quad, pent, penta, ring, eyes}`. If any token matches exactly, the bind is promoted from `custom` to `powerups` with the same content-derived label. The whitespace tokenization is deliberate -- it keeps compound callouts like `PENT/LIFT` and `RA-PATH` out of the match (the slash-joined tokens never compare equal to the bare keywords), so path/order callouts correctly stay in `custom`.
 
 ### 5. Modifier-combo bind synthesis (moved to Rust)
 
@@ -207,7 +207,7 @@ All aliases from the chain are flattened with last-write-wins semantics (later f
 
 ### 7. Macros (implemented)
 
-Macros here means teamplay-adjacent variables — `tp_name_*`, `tp_need_*`, `loc_*_name`, etc. — plus user-declared variables via `set`, `set_tp`, `set_calc`. The viewer organizes these into groups (Item Names, Item Need Amounts, Location Names, Teamplay Communications, User Created) and tracks which are customized vs at defaults. The `ConfigTeamplayMacros` component additionally extracts `$variable` references from aliases reachable via teamsay binds to show which macros are actually consumed by the user's bind setup.
+Macros here means teamplay-adjacent variables -- `tp_name_*`, `tp_need_*`, `loc_*_name`, etc. -- plus user-declared variables via `set`, `set_tp`, `set_calc`. The viewer organizes these into groups (Item Names, Item Need Amounts, Location Names, Teamplay Communications, User Created) and tracks which are customized vs at defaults. The `ConfigTeamplayMacros` component additionally extracts `$variable` references from aliases reachable via teamsay binds to show which macros are actually consumed by the user's bind setup.
 
 ### 8. Triggers (implemented)
 
@@ -218,7 +218,7 @@ ezQuake has two trigger systems:
 | **`f_*` (client-side)** | Local events | `f_spawn`, `f_death`, `f_newmap`, `f_reloadstart` |
 | **`on_*` (server-side, gated)** | Server-sent events | `on_enter`, `on_connect`, `on_matchstart`, `on_matchend` |
 
-The viewer shows both groups with expandable guides. It also parses any `infoset` alias found in the config — `infoset` uses `cmd info ev X` where X is a bitmask specifying which `on_*` triggers the server should send to this client, and the viewer decodes the bitmask to show which triggers are active. Some triggers are flagged as "restricted" (can't use teamplay macros under competitive rulesets) — the viewer shows those badges.
+The viewer shows both groups with expandable guides. It also parses any `infoset` alias found in the config -- `infoset` uses `cmd info ev X` where X is a bitmask specifying which `on_*` triggers the server should send to this client, and the viewer decodes the bitmask to show which triggers are active. Some triggers are flagged as "restricted" (can't use teamplay macros under competitive rulesets) -- the viewer shows those badges.
 
 ### 9. Command invocations (implemented 2026-04-12/13)
 
@@ -228,15 +228,15 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 - Lines beginning with `+` or `-` (press/release action commands like `-moveup`, `+attack`)
 - Lines whose first token is in the hardcoded `stateful_commands` list: `floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`
 
-**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `src/lib/config/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional — plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
+**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `src/lib/config/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional -- plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
 
 **The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from `src/lib/config/`. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
 
 ### 10. Future categories (still open)
 
-- **HUD layout** — extract `hud_*` cvars for HUD visualization
-- **Visual settings** — `r_drawflat`, `gl_picmip`, particle settings
-- **Network settings** — `rate`, `cl_c2sdupe`, `cl_timeout`
+- **HUD layout** -- extract `hud_*` cvars for HUD visualization
+- **Visual settings** -- `r_drawflat`, `gl_picmip`, particle settings
+- **Network settings** -- `rate`, `cl_c2sdupe`, `cl_timeout`
 
 ## Test configs
 
@@ -251,4 +251,4 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 - **Conditional aliases**: `tempalias` with `if`/`then`/`else` not resolved (used for teamplay, not weapon binds)
 - **Runtime state**: some binds change during gameplay (e.g., mouse1 rebinding). Parser sees config-save-time state.
 - **Custom mods**: TF, CTF, and other mods may have different impulse mappings
-- **wreg system**: high-ping weapon switching uses `wreg_` aliases — not yet parsed
+- **wreg system**: high-ping weapon switching uses `wreg_` aliases -- not yet parsed

@@ -652,10 +652,10 @@ Just before the `Ok(ConfigChain { ... })` return at the end of the function, add
     println!("\n=== CONFIG CHAIN ({} files) ===", chain.len());
     for (i, f) in chain.iter().enumerate() {
         let ref_str = match &f.referenced_by {
-            Some(r) => format!(" ← {} ({})", r.file, r.context),
+            Some(r) => format!(" <- {} ({})", r.file, r.context),
             None => String::new(),
         };
-        println!("  {}. [{}] {} — {} cvars, {} binds, {} aliases{}",
+        println!("  {}. [{}] {} -- {} cvars, {} binds, {} aliases{}",
             i + 1,
             format!("{:?}", f.source).to_lowercase(),
             f.relative_path,

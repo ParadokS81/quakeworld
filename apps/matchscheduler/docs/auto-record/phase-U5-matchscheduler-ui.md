@@ -2,7 +2,7 @@
 
 > **Model:** Sonnet, thinking off
 > **Project:** MatchScheduler
-> **Depends on:** U1 (Schema understanding only — no code dependency)
+> **Depends on:** U1 (Schema understanding only -- no code dependency)
 > **Parallel with:** U2 (Discord Auto-Record), U3 (Mumble Migration)
 > **Contract:** `UNIFIED-AUTO-RECORD-CONTRACT.md` at workspace root
 
@@ -16,7 +16,7 @@ Update the auto-record settings UI to support the new `platform` field and wider
 
 ## Task 1: Cloud Function Validation
 
-Update `functions/bot-registration.js` — the `_handleUpdateSettings` handler.
+Update `functions/bot-registration.js` -- the `_handleUpdateSettings` handler.
 
 ### Current validation:
 - `minPlayers`: accepts only `3` or `4`
@@ -42,13 +42,13 @@ if (autoRecord.platform !== undefined) {
 
 ### Backward compatibility:
 - If `platform` is not provided in the update, don't overwrite existing value
-- Existing docs without `platform` field → quad treats as `'both'`
+- Existing docs without `platform` field -> quad treats as `'both'`
 
 ---
 
 ## Task 2: Auto-Record Settings UI (Recordings Tab)
 
-Update `public/js/components/TeamManagementModal.js` — the `_renderRecordingSettings()` function and related handlers.
+Update `public/js/components/TeamManagementModal.js` -- the `_renderRecordingSettings()` function and related handlers.
 
 ### 2a: Replace minPlayers radio buttons with dropdown
 
@@ -67,7 +67,7 @@ Update `public/js/components/TeamManagementModal.js` — the `_renderRecordingSe
 
 ### 2b: Add platform dropdown
 
-**New UI element** — shown ONLY when team has both Discord bot AND Mumble configured:
+**New UI element** -- shown ONLY when team has both Discord bot AND Mumble configured:
 
 ```html
 <div class="auto-record-platform-row" style="display: none;">
@@ -113,7 +113,7 @@ async _handleAutoRecordPlatformChange(value) {
 }
 ```
 
-Follow the existing pattern: optimistic UI update → call service → revert on error → show toast.
+Follow the existing pattern: optimistic UI update -> call service -> revert on error -> show toast.
 
 ---
 

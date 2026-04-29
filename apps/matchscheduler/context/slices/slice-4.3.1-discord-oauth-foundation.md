@@ -46,8 +46,8 @@ IGNORED FOR THIS SLICE (Future 4.3.2/4.3.3):
   - Google sign-in button (secondary)
   - Benefits messaging for Discord ("Recommended - enables avatars & direct messaging")
 - User actions:
-  - Click "Sign in with Discord" → OAuth popup flow
-  - Click "Sign in with Google" → Existing flow
+  - Click "Sign in with Discord" -> OAuth popup flow
+  - Click "Sign in with Google" -> Existing flow
 
 **ProfileModal (MODIFY)**
 - Firebase listeners: User document (existing)
@@ -61,11 +61,11 @@ IGNORED FOR THIS SLICE (Future 4.3.2/4.3.3):
 
 **AuthService (MODIFY)**
 - New methods:
-  - `signInWithDiscord()` → Initiates Discord OAuth popup
-  - `handleDiscordCallback(code)` → Exchanges code via Cloud Function
+  - `signInWithDiscord()` -> Initiates Discord OAuth popup
+  - `handleDiscordCallback(code)` -> Exchanges code via Cloud Function
 - Existing methods preserved:
-  - `signInWithGoogle()` → Unchanged
-  - `onAuthStateChange()` → Works with both providers
+  - `signInWithGoogle()` -> Unchanged
+  - `onAuthStateChange()` -> Works with both providers
 
 ### BACKEND REQUIREMENTS:
 
@@ -113,10 +113,10 @@ match /users/{userId} {
 
 ### INTEGRATION POINTS:
 
-**Frontend → Backend calls:**
-- `AuthService.signInWithDiscord()` → Opens popup, receives code
-- `AuthService.handleDiscordCallback(code)` → Calls `discordOAuthExchange` Cloud Function
-- Cloud Function returns custom token → `signInWithCustomToken(auth, token)`
+**Frontend -> Backend calls:**
+- `AuthService.signInWithDiscord()` -> Opens popup, receives code
+- `AuthService.handleDiscordCallback(code)` -> Calls `discordOAuthExchange` Cloud Function
+- Cloud Function returns custom token -> `signInWithCustomToken(auth, token)`
 
 **API Contracts:**
 
@@ -150,16 +150,16 @@ Error Response: {
 **Data flow:**
 ```
 Click "Sign in with Discord"
-  → Open Discord OAuth popup
-  → User authorizes
-  → Redirect with code
-  → discordOAuthExchange Cloud Function
-  → Discord API (token + profile)
-  → Create/find Firebase user
-  → Return custom token
-  → signInWithCustomToken
-  → Auth state changes
-  → App loads with user data
+  -> Open Discord OAuth popup
+  -> User authorizes
+  -> Redirect with code
+  -> discordOAuthExchange Cloud Function
+  -> Discord API (token + profile)
+  -> Create/find Firebase user
+  -> Return custom token
+  -> signInWithCustomToken
+  -> Auth state changes
+  -> App loads with user data
 ```
 
 ---
@@ -633,8 +633,8 @@ User clicks "Sign in with Discord"
 - [ ] Sign-in screen renders with both Discord and Google buttons
 - [ ] Discord button is visually prominent (primary styling)
 - [ ] "Recommended" messaging appears under Discord button
-- [ ] Click Discord button → popup opens with Discord OAuth URL
-- [ ] Click Google button → existing flow works unchanged
+- [ ] Click Discord button -> popup opens with Discord OAuth URL
+- [ ] Click Google button -> existing flow works unchanged
 - [ ] Loading spinner shows on Discord button during auth
 - [ ] Error message displays if OAuth fails
 
@@ -642,16 +642,16 @@ User clicks "Sign in with Discord"
 - [ ] `discordOAuthExchange` rejects missing code
 - [ ] `discordOAuthExchange` rejects invalid code (Discord returns error)
 - [ ] Valid code returns user data and custom token
-- [ ] New user → Firebase Auth user created
-- [ ] New user → Firestore document created with correct fields
-- [ ] Existing user (same Discord ID) → returns existing user's token
-- [ ] Existing user → Discord data updated (username/avatar may change)
+- [ ] New user -> Firebase Auth user created
+- [ ] New user -> Firestore document created with correct fields
+- [ ] Existing user (same Discord ID) -> returns existing user's token
+- [ ] Existing user -> Discord data updated (username/avatar may change)
 - [ ] Custom token is valid and can be used with `signInWithCustomToken`
 
 ### INTEGRATION TESTS:
-- [ ] Complete flow: Click Discord → popup → authorize → app loads
-- [ ] New user flow: Sign in → profile modal opens in create mode
-- [ ] Returning user flow: Sign in → goes directly to app
+- [ ] Complete flow: Click Discord -> popup -> authorize -> app loads
+- [ ] New user flow: Sign in -> profile modal opens in create mode
+- [ ] Returning user flow: Sign in -> goes directly to app
 - [ ] Auth state listener fires after custom token sign-in
 - [ ] User document contains correct Discord data after sign-in
 - [ ] Dev mode still works (bypass OAuth, use emulator auth)
@@ -661,7 +661,7 @@ User clicks "Sign in with Discord"
 - [ ] User can sign out and sign back in with Discord
 - [ ] Google sign-in still works for users who prefer it
 - [ ] Discord avatar URL is correctly formatted and accessible
-- [ ] Multiple tabs: sign in on one → others detect auth state
+- [ ] Multiple tabs: sign in on one -> others detect auth state
 
 ---
 
@@ -692,7 +692,7 @@ User clicks "Sign in with Discord"
 ### Discord Developer Portal Setup
 
 1. Go to https://discord.com/developers/applications
-2. Click "New Application" → Name it "MatchScheduler"
+2. Click "New Application" -> Name it "MatchScheduler"
 3. Go to "OAuth2" section
 4. Copy **Client ID** (public, goes in frontend config)
 5. Copy **Client Secret** (private, goes in Firebase Functions config)

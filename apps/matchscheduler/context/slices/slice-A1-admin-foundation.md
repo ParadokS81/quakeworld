@@ -73,9 +73,9 @@ async function main() {
 main();
 ```
 
-Same UIDs as `functions/feedback.js` lines 8-11. Script is idempotent — safe to re-run.
+Same UIDs as `functions/feedback.js` lines 8-11. Script is idempotent -- safe to re-run.
 
-### 2. `public/index.html` — Admin Tab Button
+### 2. `public/index.html` -- Admin Tab Button
 
 Add inside the `.divider-tabs` div (after line 243, the tournament button):
 
@@ -91,7 +91,7 @@ Add inside the `.divider-tabs` div (after line 243, the tournament button):
 
 Uses Lucide "settings" icon (consistent with existing tab icons). Hidden by default via `hidden` class. The `id="admin-tab-btn"` allows targeted show/hide from app.js.
 
-### 3. `public/js/app.js` — Admin Claims Check
+### 3. `public/js/app.js` -- Admin Claims Check
 
 Add after auth ready (after line 39), before `_initializeComponents()`:
 
@@ -125,7 +125,7 @@ async function _checkAdminClaims() {
 }
 ```
 
-Also add to `_setupEventListeners()` — listen for auth changes to re-check:
+Also add to `_setupEventListeners()` -- listen for auth changes to re-check:
 
 ```javascript
 window.addEventListener('auth-state-changed', async (e) => {
@@ -133,12 +133,12 @@ window.addEventListener('auth-state-changed', async (e) => {
 });
 ```
 
-### 4. `public/js/components/BottomPanelController.js` — Admin Tab Case
+### 4. `public/js/components/BottomPanelController.js` -- Admin Tab Case
 
 **Cleanup block** (after line 63):
 ```javascript
 } else if (_activeTab === 'admin') {
-    // Future: AdminPanel.cleanup() — for now, placeholder has no cleanup
+    // Future: AdminPanel.cleanup() -- for now, placeholder has no cleanup
 }
 ```
 
@@ -167,14 +167,14 @@ function _showAdminPlaceholder() {
                 <circle cx="12" cy="12" r="3"/>
             </svg>
             <h3 class="text-lg font-semibold text-foreground mb-2">Admin Panel</h3>
-            <p class="text-sm">Discord overview, stats, and team activity — coming in slice A2-A3</p>
+            <p class="text-sm">Discord overview, stats, and team activity -- coming in slice A2-A3</p>
         </div>
     `;
     _bottomPanel.appendChild(container);
 }
 ```
 
-**Event dispatch** — modify `switchTab()` to dispatch `admin-mode-changed`. This logic must go BEFORE `_activeTab = tabId` (line 86) so `wasAdmin` reads the OLD value:
+**Event dispatch** -- modify `switchTab()` to dispatch `admin-mode-changed`. This logic must go BEFORE `_activeTab = tabId` (line 86) so `wasAdmin` reads the OLD value:
 
 ```javascript
 // Insert BEFORE _activeTab = tabId (line 86):
@@ -198,27 +198,27 @@ Concrete insertion order in switchTab():
 3. Dispatch `bottom-tab-changed` (existing lines 89-91)
 4. Dispatch `admin-mode-changed` if state changed (new, after line 91)
 
-### 5. `firestore.rules` — New Collection Rules
+### 5. `firestore.rules` -- New Collection Rules
 
 Add before the wildcard catch-all (before line 473):
 
 ```javascript
 // ===== Admin Collections =====
 
-// Weekly stats — written by scheduled Cloud Function, read by admin
+// Weekly stats -- written by scheduled Cloud Function, read by admin
 match /weeklyStats/{weekId} {
     allow read: if request.auth != null && request.auth.token.admin == true;
     allow write: if false; // Cloud Functions use Admin SDK
 }
 
-// Recording sessions — written by quad bot via Admin SDK, read by admin
+// Recording sessions -- written by quad bot via Admin SDK, read by admin
 match /recordingSessions/{sessionId} {
     allow read: if request.auth != null && request.auth.token.admin == true;
     allow write: if false; // Quad bot uses Admin SDK
 }
 ```
 
-### 6. `firestore.indexes.json` — Composite Index
+### 6. `firestore.indexes.json` -- Composite Index
 
 Add to the `indexes` array:
 
@@ -233,7 +233,7 @@ Add to the `indexes` array:
 }
 ```
 
-### 7. `context/SCHEMA.md` — Document New Collections
+### 7. `context/SCHEMA.md` -- Document New Collections
 
 Add sections for both new collections:
 
@@ -241,8 +241,8 @@ Add sections for both new collections:
 ```
 weeklyStats/{weekId}
   weekId: string               // "2026-08" (YYYY-WW, same format as availability docs)
-  activeUsers: number           // Unique users who marked ≥1 availability slot
-  activeTeams: number           // Teams with ≥1 user with availability
+  activeUsers: number           // Unique users who marked >=1 availability slot
+  activeTeams: number           // Teams with >=1 user with availability
   proposalCount: number         // Total proposals created this week (any status)
   scheduledCount: number        // Total confirmed matches this week
   teamBreakdown: {              // Per-team activity breakdown
@@ -277,7 +277,7 @@ recordingSessions/{auto-id}
 
 Written by: Quad bot via Admin SDK
 Read by: RecordingSessionService (slice A3)
-Status lifecycle: recording → completed (normal) or recording → interrupted (crash recovery)
+Status lifecycle: recording -> completed (normal) or recording -> interrupted (crash recovery)
 Documents are never deleted.
 ```
 
@@ -287,23 +287,23 @@ Documents are never deleted.
 
 ```
 Admin auth check:
-  Page load → AuthService.waitForAuthReady()
-           → user.getIdTokenResult()
-           → claims.admin === true?
-           → Show/hide admin tab button
+  Page load -> AuthService.waitForAuthReady()
+           -> user.getIdTokenResult()
+           -> claims.admin === true?
+           -> Show/hide admin tab button
 
 Admin tab activation:
   Click "Admin" tab
-    → BottomPanelController.switchTab('admin')
-    → Show admin placeholder in bottom panel
-    → Dispatch 'admin-mode-changed' { active: true }
-    → (Future: TeamInfo, AvailabilityGrid react to event)
+    -> BottomPanelController.switchTab('admin')
+    -> Show admin placeholder in bottom panel
+    -> Dispatch 'admin-mode-changed' { active: true }
+    -> (Future: TeamInfo, AvailabilityGrid react to event)
 
 Admin tab deactivation:
   Click any other tab
-    → BottomPanelController.switchTab(otherTab)
-    → Dispatch 'admin-mode-changed' { active: false }
-    → Normal view restored
+    -> BottomPanelController.switchTab(otherTab)
+    -> Dispatch 'admin-mode-changed' { active: false }
+    -> Normal view restored
 ```
 
 ---
@@ -321,19 +321,19 @@ All admin paths are **cold paths** (admin-only, infrequent):
 ### Manual Tests
 
 1. **Admin tab visibility**
-   - Sign in as ParadokS → admin tab appears
-   - Sign in as regular user → admin tab not visible
-   - Sign out → admin tab disappears
+   - Sign in as ParadokS -> admin tab appears
+   - Sign in as regular user -> admin tab not visible
+   - Sign out -> admin tab disappears
 
 2. **Tab switching**
-   - Click Admin tab → bottom panel shows placeholder, tab gets `active` class
-   - Click Matches tab → placeholder replaced, admin tab loses `active` class
-   - Click Admin tab again → placeholder returns
+   - Click Admin tab -> bottom panel shows placeholder, tab gets `active` class
+   - Click Matches tab -> placeholder replaced, admin tab loses `active` class
+   - Click Admin tab again -> placeholder returns
 
 3. **Event dispatch**
    - Open browser console, run: `window.addEventListener('admin-mode-changed', e => console.log('Admin mode:', e.detail))`
-   - Click Admin tab → console shows `{ active: true }`
-   - Click Teams tab → console shows `{ active: false }`
+   - Click Admin tab -> console shows `{ active: true }`
+   - Click Teams tab -> console shows `{ active: false }`
 
 4. **Firestore rules**
    - As admin: can read `weeklyStats` and `recordingSessions` docs
@@ -350,7 +350,7 @@ All admin paths are **cold paths** (admin-only, infrequent):
 ## Common Pitfalls
 
 - **Custom claims are cached in the ID token.** After running `set-admin-claims.js`, the user must sign out and back in (or wait up to 1 hour for token refresh) to see the admin tab. Add a note about this in the script output.
-- **The `admin-mode-changed` event must fire on TRANSITIONS only.** Don't dispatch when switching between two non-admin tabs (e.g., Matches → Teams). Check `wasAdmin !== isAdmin` before dispatching.
+- **The `admin-mode-changed` event must fire on TRANSITIONS only.** Don't dispatch when switching between two non-admin tabs (e.g., Matches -> Teams). Check `wasAdmin !== isAdmin` before dispatching.
 - **The admin tab button must be in the DOM at init time** for BottomPanelController's `querySelectorAll('.divider-tab')` to pick it up. Adding it dynamically after init won't work without re-wiring listeners.
 - **`_activeTab` assignment timing.** The event dispatch must read the OLD `_activeTab` before it's overwritten. Place the dispatch logic before `_activeTab = tabId`.
 
@@ -361,5 +361,5 @@ All admin paths are **cold paths** (admin-only, infrequent):
 - This slice is pure frontend + rules. No Cloud Functions needed yet.
 - The `_showAdminPlaceholder()` function will be replaced by `AdminPanel.init()` in slice A3.
 - The `admin-mode-changed` event is the coordination mechanism for slices A2 (sidebar) and A4 (grid).
-- No Router integration needed for admin tab — it's not a URL-navigable state.
+- No Router integration needed for admin tab -- it's not a URL-navigable state.
 - The `window._isAdmin` flag is intentionally simple. No service wrapper needed for a single boolean checked by 2-3 components.

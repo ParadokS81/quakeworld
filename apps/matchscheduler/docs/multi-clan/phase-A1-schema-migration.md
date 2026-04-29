@@ -38,7 +38,7 @@ The field is absent/undefined if the user has never saved a template.
 
 ## Files to Modify
 
-### 1. `functions/templates.js` — Rewrite
+### 1. `functions/templates.js` -- Rewrite
 
 Replace the entire file. The three functions (`saveTemplate`, `deleteTemplate`, `renameTemplate`) become two (`saveTemplate`, `clearTemplate`):
 
@@ -47,7 +47,7 @@ Replace the entire file. The three functions (`saveTemplate`, `deleteTemplate`, 
 const functions = require('firebase-functions');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
-const MAX_SLOTS = 63; // 7 days × 9 slots = 63 theoretical max
+const MAX_SLOTS = 63; // 7 days x 9 slots = 63 theoretical max
 
 // Valid slot pattern: day_time format in UTC
 const VALID_SLOT_PATTERN = /^(mon|tue|wed|thu|fri|sat|sun)_(0[0-9]|1[0-9]|2[0-3])(00|30)$/;
@@ -129,11 +129,11 @@ const clearTemplate = functions
 module.exports = { saveTemplate, clearTemplate };
 ```
 
-### 2. `functions/index.js` — Update exports (lines 14, 51-53)
+### 2. `functions/index.js` -- Update exports (lines 14, 51-53)
 
 Replace the old template imports and exports:
 
-**Line 14** — change:
+**Line 14** -- change:
 ```javascript
 const { saveTemplate, deleteTemplate, renameTemplate } = require('./templates');
 ```
@@ -142,7 +142,7 @@ to:
 const { saveTemplate, clearTemplate } = require('./templates');
 ```
 
-**Lines 51-53** — change:
+**Lines 51-53** -- change:
 ```javascript
 exports.saveTemplate = saveTemplate;
 exports.deleteTemplate = deleteTemplate;
@@ -154,7 +154,7 @@ exports.saveTemplate = saveTemplate;
 exports.clearTemplate = clearTemplate;
 ```
 
-### 3. `public/js/services/TemplateService.js` — Rewrite
+### 3. `public/js/services/TemplateService.js` -- Rewrite
 
 Replace the entire file. The new service listens to the user document (not a subcollection) and manages a single template:
 
@@ -335,7 +335,7 @@ Create a temporary file `functions/migrate-templates.js` (run once, then delete)
 
 ```javascript
 /**
- * One-time migration: subcollection templates → flat field on user doc.
+ * One-time migration: subcollection templates -> flat field on user doc.
  * Run with: node migrate-templates.js
  * Requires: service-account.json in parent directory
  */
@@ -400,15 +400,15 @@ migrate().then(() => process.exit(0)).catch(err => { console.error(err); process
 
 The following files call `TemplateService` methods that are changing. Search for all usages and update:
 
-- **`TemplatesModal.js`** — calls `getTemplates()`, `canSaveMore()`, `saveTemplate(name, slots)`, `deleteTemplate(id)`, `renameTemplate(id, name)`. Phase A2 will rewrite this file completely. For now, you can leave it broken (it won't work with the new service anyway) or stub it minimally.
+- **`TemplatesModal.js`** -- calls `getTemplates()`, `canSaveMore()`, `saveTemplate(name, slots)`, `deleteTemplate(id)`, `renameTemplate(id, name)`. Phase A2 will rewrite this file completely. For now, you can leave it broken (it won't work with the new service anyway) or stub it minimally.
 
-- **`MobileBottomBar.js`** — similar template calls. Same situation — Phase A2 will rewrite.
+- **`MobileBottomBar.js`** -- similar template calls. Same situation -- Phase A2 will rewrite.
 
-- **`GridActionButtons.js`** — calls `TemplateService` for save flow. Phase A2 will handle.
+- **`GridActionButtons.js`** -- calls `TemplateService` for save flow. Phase A2 will handle.
 
-**Recommendation**: In this phase, just update `TemplateService.js` and `functions/templates.js` + `functions/index.js`. Leave the UI components for Phase A2. The template modal will be non-functional between A1 and A2, which is fine since barely anyone uses it. The event name changes from `'templates-updated'` to `'template-updated'` — this will cause the old modal to silently stop updating, which is acceptable.
+**Recommendation**: In this phase, just update `TemplateService.js` and `functions/templates.js` + `functions/index.js`. Leave the UI components for Phase A2. The template modal will be non-functional between A1 and A2, which is fine since barely anyone uses it. The event name changes from `'templates-updated'` to `'template-updated'` -- this will cause the old modal to silently stop updating, which is acceptable.
 
-### 6. `context/SCHEMA.md` — Document the new field
+### 6. `context/SCHEMA.md` -- Document the new field
 
 Add the `template` field to the `users/{userId}` document section in the schema doc. Note that the subcollection is deprecated and removed.
 

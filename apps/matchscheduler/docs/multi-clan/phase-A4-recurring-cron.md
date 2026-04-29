@@ -21,7 +21,7 @@ Read `AVAILABILITY-ENHANCEMENT-CONTRACT.md` at the orchestrator level for the fu
 
 ## Files to Create/Modify
 
-### 1. `functions/recurring.js` — New file
+### 1. `functions/recurring.js` -- New file
 
 ```javascript
 // /functions/recurring.js - Recurring template auto-apply
@@ -160,13 +160,13 @@ async function applyTemplateToWeek(db, userId, templateSlots, teamId, weekId) {
     const docRef = db.collection('availability').doc(docId);
     const doc = await docRef.get();
 
-    // Check if user already has ANY slots in this week — if so, skip entirely
+    // Check if user already has ANY slots in this week -- if so, skip entirely
     // (they've already edited it manually, don't overwrite)
     if (doc.exists) {
         const slots = doc.data().slots || {};
         for (const [slotId, users] of Object.entries(slots)) {
             if (Array.isArray(users) && users.includes(userId)) {
-                // User already has availability this week — skip
+                // User already has availability this week -- skip
                 return 0;
             }
         }
@@ -219,7 +219,7 @@ function getIsoWeekId(now) {
 module.exports = { setRecurring, applyRecurringTemplates };
 ```
 
-### 2. `functions/index.js` — Add exports
+### 2. `functions/index.js` -- Add exports
 
 Add after the existing template exports:
 
@@ -231,7 +231,7 @@ exports.setRecurring = setRecurring;
 exports.applyRecurringTemplates = applyRecurringTemplates;
 ```
 
-### 3. `public/js/services/TemplateService.js` — Add setRecurring method
+### 3. `public/js/services/TemplateService.js` -- Add setRecurring method
 
 Add to the service module:
 
@@ -265,7 +265,7 @@ async function setRecurring(recurring) {
 
 Add `setRecurring` to the returned public API object.
 
-### 4. Update `TemplatesModal.js` — Wire up recurring toggle
+### 4. Update `TemplatesModal.js` -- Wire up recurring toggle
 
 If Phase A2 already added a recurring toggle placeholder, wire it to `TemplateService.setRecurring()`. If not, add the toggle now:
 
@@ -286,7 +286,7 @@ async function _handleToggleRecurring() {
     const current = TemplateService.isRecurring();
     const result = await TemplateService.setRecurring(!current);
     if (result.success && !current) {
-        ToastService.show(`Recurring ON — applied to current + next week`, 'success');
+        ToastService.show(`Recurring ON -- applied to current + next week`, 'success');
     } else if (result.success) {
         ToastService.show('Recurring OFF', 'success');
     } else {
@@ -311,10 +311,10 @@ Firebase usually auto-generates a link to create the index when the query first 
 
 ## Verification
 
-1. Save a template, toggle recurring ON → verify current + next week get filled
+1. Save a template, toggle recurring ON -> verify current + next week get filled
 2. Verify `template.recurring: true` and `template.lastAppliedWeekId` set in Firestore
-3. Manually edit availability in a filled week → verify edits persist
-4. Toggle recurring OFF → verify existing availability stays, `recurring: false` in Firestore
-5. Toggle recurring ON again → verify it doesn't overwrite weeks that already have slots
+3. Manually edit availability in a filled week -> verify edits persist
+4. Toggle recurring OFF -> verify existing availability stays, `recurring: false` in Firestore
+5. Toggle recurring ON again -> verify it doesn't overwrite weeks that already have slots
 6. Test the cron locally: call `applyRecurringTemplates` directly with Firebase shell or a test script
-7. Deploy and verify the Cloud Scheduler job appears in the Firebase Console → Cloud Scheduler section
+7. Deploy and verify the Cloud Scheduler job appears in the Firebase Console -> Cloud Scheduler section

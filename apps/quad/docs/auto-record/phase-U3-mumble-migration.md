@@ -24,11 +24,11 @@ Currently `src/modules/mumble/auto-record.ts` watches `mumbleConfig` for active 
    - Cache `autoRecord` settings (enabled, minPlayers, platform, mode) per teamId
    - Also cache `knownPlayers` for the team (used for member counting if needed)
 
-2. **Keep the existing `mumbleConfig` listener** for channel→team mapping
+2. **Keep the existing `mumbleConfig` listener** for channel->team mapping
    - Still need `channelId`, `channelName`, `teamTag`, `teamId` from mumbleConfig
    - Remove reliance on `mumbleConfig.autoRecord` boolean
 
-3. **Decision logic** — when checking if auto-record is enabled for a team:
+3. **Decision logic** -- when checking if auto-record is enabled for a team:
    ```typescript
    const botReg = botRegistrationConfigs.get(config.teamId);
    const autoRecordEnabled = botReg?.autoRecord?.enabled ?? false;
@@ -58,7 +58,7 @@ In `onUserCreate()` and `onUserUpdate()` (when user moves INTO a team channel):
    const minPlayers = botReg?.autoRecord?.minPlayers ?? 3;
 
    if (usersInChannel < minPlayers) {
-     // Not enough players yet — still add user to session if recording exists
+     // Not enough players yet -- still add user to session if recording exists
      // but don't START a new recording
      return;
    }
@@ -80,11 +80,11 @@ In `onUserCreate()` and `onUserUpdate()` (when user moves INTO a team channel):
    const GRACE_PERIOD_MS = 5_000;  // 5 seconds
    ```
 
-2. The timer starts when the LAST user leaves the channel (registered member count → 0), not when any user leaves.
+2. The timer starts when the LAST user leaves the channel (registered member count -> 0), not when any user leaves.
 
-3. If a user rejoins during grace → cancel timer (existing pattern, just shorter timeout).
+3. If a user rejoins during grace -> cancel timer (existing pattern, just shorter timeout).
 
-4. When timer fires → stop recording → trigger pipeline callback.
+4. When timer fires -> stop recording -> trigger pipeline callback.
 
 ---
 

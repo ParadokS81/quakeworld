@@ -39,9 +39,9 @@ interface RenderInput {
         date: number;                   // 16
         month: string;                  // "Feb"
     }>;
-    slots: Record<string, string[]>;    // UTC slotId → userId[]
+    slots: Record<string, string[]>;    // UTC slotId -> userId[]
     unavailable?: Record<string, string[]>;
-    roster: Record<string, {            // userId → display info
+    roster: Record<string, {            // userId -> display info
         displayName: string;
         initials: string;
     }>;
@@ -71,11 +71,11 @@ Returns a PNG buffer ready for `AttachmentBuilder` in discord.js.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ y=0-35: HEADER — "teamTag · Week N · Month DD-DD"           │
+│ y=0-35: HEADER -- "teamTag - Week N - Month DD-DD"           │
 ├──────┬───────┬───────┬───────┬───────┬───────┬───────┬──────┤
-│ y=35 │Mon 16 │Tue 17 │Wed 18 │Thu 19 │Fri 20 │Sat 21 │Sun22 │  ← DAY HEADERS (25px)
+│ y=35 │Mon 16 │Tue 17 │Wed 18 │Thu 19 │Fri 20 │Sat 21 │Sun22 │  <- DAY HEADERS (25px)
 ├──────┼───────┼───────┼───────┼───────┼───────┼───────┼──────┤
-│19:00 │       │       │       │       │       │       │      │  ← 9 TIME ROWS
+│19:00 │       │       │       │       │       │       │      │  <- 9 TIME ROWS
 │19:30 │       │       │       │       │       │       │      │    (40px each = 360px)
 │20:00 │  P R  │  P R  │  P R  │  P R  │   P   │   P   │ P R  │
 │20:30 │  P R  │  P R  │  P R  │  P R  │   P   │   P   │ P R  │
@@ -85,7 +85,7 @@ Returns a PNG buffer ready for `AttachmentBuilder` in discord.js.
 │22:30 │ PRZ   │ GPRZ  │ PRZ   │ GPRZ  │  PZ   │ GPZ   │GPRZ  │
 │23:00 │ PRZ   │ GPRZ  │ PRZ   │ GPRZ  │  PZ   │ GPZ   │ ⚔vs  │
 ├──────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┤
-│ y=420-450: LEGEND — "P ParadokS  R Razor  Z Zero  G Gris"   │
+│ y=420-450: LEGEND -- "P ParadokS  R Razor  Z Zero  G Gris"   │
 └──────────────────────────────────────────────────────────────┘
 
 Time label column: 60px wide
@@ -107,7 +107,7 @@ const COLORS = {
     headerBg:       '#232440',   // header/legend background
 };
 
-// Player initial colors — djb2 hash of userId → one of these
+// Player initial colors -- djb2 hash of userId -> one of these
 const PLAYER_COLORS = [
     '#E06666',  // Red    (0°)
     '#FFD966',  // Yellow (60°)
@@ -131,11 +131,11 @@ function getColorForUser(userId: string): string {
 
 For each cell `(day, timeSlot)`:
 
-1. **Convert CET display row to UTC slot ID** using `time.ts` — e.g. CET 20:00 on Monday → `mon_1900`
-2. **Look up players**: `slots[utcSlotId]` → array of userIds
-3. **Check match-ready**: `players.length >= 4` → use `cellMatchReady` background
-4. **Check scheduled match**: if `scheduledMatches` has this `slotId` → use `cellScheduled` bg, draw "⚔ vs TAG" instead of initials
-5. **Check past**: compare cell's datetime against `now` → draw with `globalAlpha = 0.3`
+1. **Convert CET display row to UTC slot ID** using `time.ts` -- e.g. CET 20:00 on Monday -> `mon_1900`
+2. **Look up players**: `slots[utcSlotId]` -> array of userIds
+3. **Check match-ready**: `players.length >= 4` -> use `cellMatchReady` background
+4. **Check scheduled match**: if `scheduledMatches` has this `slotId` -> use `cellScheduled` bg, draw "⚔ vs TAG" instead of initials
+5. **Check past**: compare cell's datetime against `now` -> draw with `globalAlpha = 0.3`
 6. **Draw initials**: For each userId in the cell, look up `roster[userId].initials`, take first character, draw in `getColorForUser(userId)` color. Space them horizontally within the cell.
 7. **Today column**: If the day matches today's weekday, draw the header text in `todayHighlight` color
 
@@ -204,7 +204,7 @@ For match-ready cells (4+), draw a small superscript number in the top-right cor
 
 If more than ~5-6 players in one cell, the initials won't fit. Options:
 - Show first 5 initials + "+" suffix (matching the web app's overflow badge)
-- Or just pack them tighter — at 105px cell width, 6-7 single-character initials fit
+- Or just pack them tighter -- at 105px cell width, 6-7 single-character initials fit
 
 ---
 
@@ -246,7 +246,7 @@ async function main() {
     const buffer = await renderGrid(sampleInput);
     mkdirSync('test-output', { recursive: true });
     writeFileSync('test-output/grid.png', buffer);
-    console.log('Grid rendered → test-output/grid.png');
+    console.log('Grid rendered -> test-output/grid.png');
 }
 
 main().catch(console.error);
@@ -259,8 +259,8 @@ Run with: `npx ts-node --esm src/modules/availability/renderer.test.ts`
 
 ## Verification
 
-1. Run test script → `test-output/grid.png` is created
-2. Open the PNG — visually verify:
+1. Run test script -> `test-output/grid.png` is created
+2. Open the PNG -- visually verify:
    - [ ] Dark theme colors match MatchScheduler screenshots
    - [ ] Past days (Mon-Thu) are dimmed
    - [ ] Today (Fri) header is highlighted purple

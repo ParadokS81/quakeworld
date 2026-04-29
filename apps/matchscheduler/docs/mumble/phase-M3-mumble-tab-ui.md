@@ -1,4 +1,4 @@
-# Phase M3: Mumble Tab UI — MatchScheduler
+# Phase M3: Mumble Tab UI -- MatchScheduler
 
 ## Context
 
@@ -11,7 +11,7 @@ Read `docs/mumble/CONTRACT.md` for the contract reference. The full onboarding f
 ## What This Phase Builds
 
 1. **Cloud Functions**: `enableMumble` / `disableMumble` / `updateMumbleSettings`
-2. **Frontend service**: `MumbleConfigService.js` — Firestore real-time listener
+2. **Frontend service**: `MumbleConfigService.js` -- Firestore real-time listener
 3. **UI**: New "Mumble" tab in `TeamManagementModal.js`
 4. **Firestore rules**: Read access for squad members on `mumbleConfig`
 
@@ -19,7 +19,7 @@ Read `docs/mumble/CONTRACT.md` for the contract reference. The full onboarding f
 
 ## Files to Create
 
-### 1. `functions/mumble-operations.js` — Cloud Functions
+### 1. `functions/mumble-operations.js` -- Cloud Functions
 
 New file, follows the same pattern as `functions/bot-registration.js`.
 
@@ -91,7 +91,7 @@ exports.updateMumbleSettings = functions.region('europe-west3').https.onCall(mum
 
 ---
 
-### 2. `public/js/services/MumbleConfigService.js` — Frontend service
+### 2. `public/js/services/MumbleConfigService.js` -- Frontend service
 
 Follows the same pattern as `BotRegistrationService.js`. Real-time Firestore listener for `mumbleConfig/{teamId}`.
 
@@ -100,8 +100,8 @@ Follows the same pattern as `BotRegistrationService.js`. Real-time Firestore lis
 
 class MumbleConfigService {
   constructor() {
-    this._listeners = new Map();  // teamId → unsubscribe
-    this._cache = new Map();      // teamId → mumbleConfig data
+    this._listeners = new Map();  // teamId -> unsubscribe
+    this._cache = new Map();      // teamId -> mumbleConfig data
     this._callbacks = [];
   }
 
@@ -147,7 +147,7 @@ Register as a singleton in the service initialization (same pattern as other ser
 
 ---
 
-### 3. Extend `public/js/components/TeamManagementModal.js` — Mumble tab
+### 3. Extend `public/js/components/TeamManagementModal.js` -- Mumble tab
 
 Add a new tab "Mumble" alongside existing tabs (Discord, Schedule, Recordings, Members).
 
@@ -159,13 +159,13 @@ Find where tabs are defined (likely in `_initTabs()` or the modal constructor). 
 {
   id: 'mumble',
   label: 'Mumble',
-  icon: '🎙️',  // or a headset icon — match existing tab style
+  icon: '🎙️',  // or a headset icon -- match existing tab style
   init: () => this._initMumbleTab(),
   requiresLeader: false,  // All members see it (they need their join link)
 }
 ```
 
-#### `_initMumbleTab()` — Tab content renderer
+#### `_initMumbleTab()` -- Tab content renderer
 
 Reads `MumbleConfigService.getConfig(teamId)` and renders one of three states:
 
@@ -174,7 +174,7 @@ Reads `MumbleConfigService.getConfig(teamId)` and renders one of three states:
 Show only if user is team leader:
   - Heading: "Mumble Voice Server"
   - Description: "Give your team a private Mumble channel with automatic voice recording."
-  - [Enable Mumble] button → calls enableMumble CF
+  - [Enable Mumble] button -> calls enableMumble CF
 
 Show if user is NOT leader:
   - "Mumble is not enabled for this team. Ask your team leader to enable it."
@@ -199,16 +199,16 @@ Section 2: User's join button (personalized)
     - "Connect your Mumble client:"
     - "1. Install Mumble if needed: [Download link]"
     - "2. Click to connect (first time only):"
-    - [Connect to Mumble] button → opens personalized mumble:// URL
+    - [Connect to Mumble] button -> opens personalized mumble:// URL
     - "After first connect, your client remembers you."
   - If user in mumbleUsers AND certificatePinned:
-    - "Connected as: {mumbleUsername} ✓"
-    - [Join Channel] button → opens generic mumble:// URL
+    - "Connected as: {mumbleUsername} [ok]"
+    - [Join Channel] button -> opens generic mumble:// URL
     - Show the generic URL as copyable text
 
 Section 3: Squad members status
   - List each mumbleUser entry:
-    - ✓ name (if certificatePinned)
+    - [ok] name (if certificatePinned)
     - ○ name [not yet connected] (if not pinned)
   - "3/5 linked" summary
 
@@ -221,12 +221,12 @@ Section 4: Settings (leader only)
 ```
 - "Failed to set up Mumble channel"
 - Show errorMessage
-- [Retry] button → calls disableMumble then enableMumble
+- [Retry] button -> calls disableMumble then enableMumble
 ```
 
 ---
 
-### 4. `firestore.rules` — Add mumbleConfig rules
+### 4. `firestore.rules` -- Add mumbleConfig rules
 
 ```
 match /mumbleConfig/{teamId} {
@@ -242,7 +242,7 @@ match /mumbleConfig/{teamId} {
 }
 ```
 
-**Note**: The `playerRoster.map()` approach may not work in Firestore rules (rules have limited expression support). Alternative: store a `memberIds` array on the team doc and check `request.auth.uid in get(...).data.memberIds`. Or use a simpler rule: any authenticated user who is on any team can read any mumbleConfig — since the doc contains no sensitive data beyond temp passwords (which are one-time and cleared after first use).
+**Note**: The `playerRoster.map()` approach may not work in Firestore rules (rules have limited expression support). Alternative: store a `memberIds` array on the team doc and check `request.auth.uid in get(...).data.memberIds`. Or use a simpler rule: any authenticated user who is on any team can read any mumbleConfig -- since the doc contains no sensitive data beyond temp passwords (which are one-time and cleared after first use).
 
 Simpler fallback rule:
 ```
@@ -259,19 +259,19 @@ match /mumbleConfig/{teamId} {
 ## Verification
 
 1. **Deploy functions**: `npm run deploy:functions`
-2. **Enable Mumble**: As team leader, open team settings → Mumble tab → click "Enable Mumble"
+2. **Enable Mumble**: As team leader, open team settings -> Mumble tab -> click "Enable Mumble"
 3. **Pending state**: UI shows "Setting up..." with spinner
 4. **Active state**: After quad processes the config (may take a few seconds), UI updates to show channel info + join links
-5. **Join link**: Click "Connect to Mumble" → Mumble client opens with pre-filled credentials
-6. **After first connect**: UI updates to show "Connected as: ParadokS ✓" (once quad pins the cert)
+5. **Join link**: Click "Connect to Mumble" -> Mumble client opens with pre-filled credentials
+6. **After first connect**: UI updates to show "Connected as: ParadokS [ok]" (once quad pins the cert)
 7. **Generic link**: After cert pinning, the join button shows the generic URL (no credentials)
 8. **Member status**: Shows which squad members have/haven't connected
-9. **Disable**: Leader clicks "Disable Mumble" → channel removed, config cleared
+9. **Disable**: Leader clicks "Disable Mumble" -> channel removed, config cleared
 
 ---
 
 ## What's NOT in this phase
 
-- Roster sync (adding/removing users when roster changes) — M4
-- Discord `/mumble` command for sharing join links — M6
-- Guest/standin access tokens — Future
+- Roster sync (adding/removing users when roster changes) -- M4
+- Discord `/mumble` command for sharing join links -- M6
+- Guest/standin access tokens -- Future

@@ -1,4 +1,4 @@
-# Phase M2: User Registration + Certificate Pinning — quad
+# Phase M2: User Registration + Certificate Pinning -- quad
 
 ## Context
 
@@ -24,7 +24,7 @@ Read `docs/mumble/CONTRACT.md` for the contract reference. The onboarding flow i
 Download `MumbleServer.ice` from the Mumble repo (this defines all ICE operations):
 
 ```bash
-# From the Mumble GitHub repo — matches our Murmur 1.5.857
+# From the Mumble GitHub repo -- matches our Murmur 1.5.857
 curl -o src/modules/mumble/MumbleServer.ice \
   https://raw.githubusercontent.com/mumble-voip/mumble/master/src/murmur/MumbleServer.ice
 ```
@@ -49,7 +49,7 @@ npm install ice
 
 ## Files to Create/Modify
 
-### 1. `src/modules/mumble/ice-client.ts` — ICE connection wrapper
+### 1. `src/modules/mumble/ice-client.ts` -- ICE connection wrapper
 
 Connects to Murmur's ICE interface and wraps operations in typed methods.
 
@@ -73,7 +73,7 @@ async updateRegistration(mumbleUserId: number, updates: Record<string, string>):
 
 async getRegisteredUsers(filter?: string): Promise<Map<number, string>>
 // ICE: server.getRegisteredUsers(filter)
-// Returns: Map of mumbleUserId → username
+// Returns: Map of mumbleUserId -> username
 
 async setACL(channelId: number, acls: ACLEntry[]): Promise<void>
 // ICE: server.setACL(channelId, acls, groups, inherit)
@@ -90,7 +90,7 @@ async disconnect(): Promise<void>
 // Clean disconnect from ICE
 ```
 
-### 2. `src/modules/mumble/user-manager.ts` — User registration logic
+### 2. `src/modules/mumble/user-manager.ts` -- User registration logic
 
 Manages the lifecycle of Mumble user accounts tied to MatchScheduler roster members.
 
@@ -145,18 +145,18 @@ Channel: Teams/sr
   - Allow: QuadBot (recording bot) can enter + speak
 ```
 
-### 3. `src/modules/mumble/session-monitor.ts` — Certificate pinning
+### 3. `src/modules/mumble/session-monitor.ts` -- Certificate pinning
 
 Monitors Mumble connections and pins certificates for first-time users.
 
 **How cert pinning works in Mumble:**
-1. User connects with username + temp password → Murmur authenticates
+1. User connects with username + temp password -> Murmur authenticates
 2. The user's Mumble client has a self-generated certificate (unique per install)
 3. After successful auth, Murmur stores the certificate hash with the registered user
 4. Future connections: certificate alone identifies the user, no password needed
 
 **Detection approaches** (try in order):
-1. **ICE callbacks** (`addCallback` → `userConnected`): Get notified when a user joins. Check if their registered user has `certificatePinned: false`. If they connected successfully, their cert is now pinned by Murmur automatically.
+1. **ICE callbacks** (`addCallback` -> `userConnected`): Get notified when a user joins. Check if their registered user has `certificatePinned: false`. If they connected successfully, their cert is now pinned by Murmur automatically.
 2. **Polling** (fallback): Periodically check connected users vs. `mumbleConfig.mumbleUsers` entries where `certificatePinned: false`.
 
 ```typescript
@@ -176,7 +176,7 @@ async onUserConnected(mumbleUserId: number, sessionId: number): Promise<void> {
 
 ### 4. Extend `src/modules/mumble/config-listener.ts`
 
-The M1 listener handles `status: 'pending'` → create channel. Extend it to also call `registerTeamUsers()` after channel creation:
+The M1 listener handles `status: 'pending'` -> create channel. Extend it to also call `registerTeamUsers()` after channel creation:
 
 ```typescript
 private async handlePendingConfig(doc): Promise<void> {

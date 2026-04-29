@@ -134,7 +134,7 @@ EOF
 
 1. **`# QuakeWorld Monorepo`** - title
 2. **One-line identity + status badge** - "Workshop monorepo for the QuakeWorld community. Five apps under active development. **Status: Active.**"
-3. **`## What's in here`** - Short bullet list of the 5 apps with their one-line identity. Pull wording from existing per-app descriptions. Each line: **app name** — one-line description with tech stack.
+3. **`## What's in here`** - Short bullet list of the 5 apps with their one-line identity. Pull wording from existing per-app descriptions. Each line: **app name** -- one-line description with tech stack.
 4. **`## How it fits together`** - One paragraph describing that these apps share QW Hub data and a Firebase project, and that the integration diagram lives in `OVERVIEW.md`.
 5. **`## Using this repo`** - Three pointers:
    - `VISION.md` - why this monorepo exists, its framing as a workshop, what it's converging toward
@@ -157,11 +157,11 @@ EOF
 - [ ] **Step 1: Draft the sections outline**
 
 Before writing, list the 5 apps and their one-liners (from current root CLAUDE.md lines 60-76):
-- matchscheduler — Firebase web app (vanilla JS, Alpine.js, Tailwind)
-- quad — Discord voice recording bot (TypeScript, discord.js)
-- qw-stats — Stats API + ranking research (Express, PostgreSQL)
-- slipgate-app — Desktop companion (Tauri v2, SolidJS, Rust)
-- qw-oracle — Community knowledge base (Node.js, SQLite)
+- matchscheduler -- Firebase web app (vanilla JS, Alpine.js, Tailwind)
+- quad -- Discord voice recording bot (TypeScript, discord.js)
+- qw-stats -- Stats API + ranking research (Express, PostgreSQL)
+- slipgate-app -- Desktop companion (Tauri v2, SolidJS, Rust)
+- qw-oracle -- Community knowledge base (Node.js, SQLite)
 
 - [ ] **Step 2: Write README.md**
 

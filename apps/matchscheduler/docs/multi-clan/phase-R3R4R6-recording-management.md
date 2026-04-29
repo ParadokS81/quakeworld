@@ -1,4 +1,4 @@
-# Phase R3+R4+R6: Recording Management — MatchScheduler Side
+# Phase R3+R4+R6: Recording Management -- MatchScheduler Side
 
 ## Context
 
@@ -41,7 +41,7 @@ Series-grouped expandable cards:
 
 Replace the Recordings tab content rendering (the `_initRecordingsTab()` method and related recording list rendering).
 
-**Firestore Query** — unchanged:
+**Firestore Query** -- unchanged:
 ```javascript
 query(
   collection(db, 'voiceRecordings'),
@@ -50,7 +50,7 @@ query(
 )
 ```
 
-**Series Grouping Logic** — new client-side function:
+**Series Grouping Logic** -- new client-side function:
 
 ```javascript
 function groupIntoSeries(recordings) {
@@ -97,9 +97,9 @@ function groupIntoSeries(recordings) {
       <span class="text-text-secondary text-sm">(1-2)</span>
     </div>
     <div class="flex items-center gap-2">
-      <!-- Privacy toggle (series-level: sets all maps) — leader only -->
-      <!-- Download button — all users -->
-      <!-- Delete button — leader only -->
+      <!-- Privacy toggle (series-level: sets all maps) -- leader only -->
+      <!-- Download button -- all users -->
+      <!-- Delete button -- leader only -->
       <!-- Expand/collapse arrow -->
       <svg class="expand-arrow w-4 h-4 transition-transform">...</svg>
     </div>
@@ -114,9 +114,9 @@ function groupIntoSeries(recordings) {
         <span class="text-text-secondary text-xs">12-8</span>
       </div>
       <div class="flex items-center gap-2">
-        <!-- Per-map visibility toggle — leader only -->
-        <!-- Per-map download button — all users -->
-        <!-- Per-map delete button — leader only -->
+        <!-- Per-map visibility toggle -- leader only -->
+        <!-- Per-map download button -- all users -->
+        <!-- Per-map delete button -- leader only -->
       </div>
     </div>
     <!-- More map rows... -->
@@ -125,7 +125,7 @@ function groupIntoSeries(recordings) {
 ```
 
 **Expand/Collapse Behavior:**
-- Click series header → toggle `.series-maps` visibility
+- Click series header -> toggle `.series-maps` visibility
 - Rotate expand arrow (0deg collapsed, 180deg expanded)
 - Remember expanded state in the component (no persistence needed)
 
@@ -143,7 +143,7 @@ function getSeriesScore(maps) {
 ```
 
 **Opponent Logo Lookup:**
-To show the opponent's team logo, look up teams in Firestore by tag. This is a best-effort display enhancement — if the opponent isn't a registered team, show text only.
+To show the opponent's team logo, look up teams in Firestore by tag. This is a best-effort display enhancement -- if the opponent isn't a registered team, show text only.
 
 ```javascript
 // Query teams collection for opponent tag (case-insensitive match on teamTag)
@@ -152,7 +152,7 @@ To show the opponent's team logo, look up teams in Firestore by tag. This is a b
 // If not found: show text only (no logo placeholder)
 ```
 
-**Visibility Controls — Access Check:**
+**Visibility Controls -- Access Check:**
 - Leader: sees privacy toggles + delete buttons on both series and per-map level
 - Roster member: sees download buttons only. No toggles, no delete.
 - Check via existing `isLeader` flag already available in the modal context
@@ -172,11 +172,11 @@ No expand arrow needed (only one map).
 - Use existing dark theme colors: `bg-surface`, `border-border`, `text-text-primary`, `text-text-secondary`
 - Match the existing recording list's toggle switch style (already has smooth animation)
 - Cards should feel similar to the match history rows elsewhere in the app
-- Keep it compact — the modal has limited height
+- Keep it compact -- the modal has limited height
 
 ---
 
-## R4: Delete Recording — Cloud Function + UI
+## R4: Delete Recording -- Cloud Function + UI
 
 ### New Cloud Function: `deleteRecording`
 
@@ -231,7 +231,7 @@ exports.deleteRecording = functions
     const bucket = admin.storage().bucket();
     const deletePromises = recording.tracks.map(track => {
       return bucket.file(track.storagePath).delete().catch(err => {
-        // File may already be gone — log but don't fail
+        // File may already be gone -- log but don't fail
         console.warn(`Storage file not found (may already be deleted): ${track.storagePath}`);
       });
     });
@@ -293,7 +293,7 @@ In `TeamManagementModal.js`, add delete handlers:
    ```
    Delete recording?
 
-   dm2 — 14 Feb 2026
+   dm2 -- 14 Feb 2026
    4 audio tracks will be permanently deleted.
 
    This cannot be undone.
@@ -310,7 +310,7 @@ In `TeamManagementModal.js`, add delete handlers:
    ```
    Delete all recordings in this series?
 
-   sr vs pol — 14 Feb 2026
+   sr vs pol -- 14 Feb 2026
    3 maps will be permanently deleted:
      - dm2 (4 tracks)
      - e1m2 (4 tracks)
@@ -321,7 +321,7 @@ In `TeamManagementModal.js`, add delete handlers:
    [Cancel]  [Delete All]
    ```
 3. On confirm: call `deleteRecording` for each map in the series (sequentially or parallel)
-4. Show progress: "Deleting 1/3..." → "Deleting 2/3..." → "Done"
+4. Show progress: "Deleting 1/3..." -> "Deleting 2/3..." -> "Done"
 5. On success: remove the entire series card from UI
 6. On error: show error toast, re-fetch list to reflect partial state
 
@@ -330,7 +330,7 @@ Use the existing modal pattern in the codebase (if one exists for other destruct
 
 ---
 
-## R6: Download Flow — JSZip
+## R6: Download Flow -- JSZip
 
 ### Dependencies
 
@@ -338,7 +338,7 @@ Add JSZip to the project. Check if it's already available or add it:
 - Option A: CDN script tag in `index.html` (simplest for vanilla JS project)
 - Option B: npm install + bundle (if the project has a build step that supports it)
 
-The project uses vanilla JS with no bundler — CDN is the right approach:
+The project uses vanilla JS with no bundler -- CDN is the right approach:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 ```
@@ -575,15 +575,15 @@ Show a lightweight progress message near the download button or at the bottom of
 - "Creating zip..."
 - "Preparing map 2/3: e1m2..."
 
-Can be a simple text span that shows/hides. No need for a progress bar — the download is fast for 3-5 maps.
+Can be a simple text span that shows/hides. No need for a progress bar -- the download is fast for 3-5 maps.
 
 ---
 
 ## Implementation Order
 
-1. **R4 first** — Cloud Function is independent, no UI dependency. Deploy early so it's available.
-2. **R3 second** — Main UI work. Can start before quad deploys R1 by using mock data or existing recordings.
-3. **R6 last** — Downloads plug into the R3 UI.
+1. **R4 first** -- Cloud Function is independent, no UI dependency. Deploy early so it's available.
+2. **R3 second** -- Main UI work. Can start before quad deploys R1 by using mock data or existing recordings.
+3. **R6 last** -- Downloads plug into the R3 UI.
 
 Within R3, the suggested order:
 1. Series grouping logic (pure function, easy to test)

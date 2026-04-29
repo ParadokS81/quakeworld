@@ -12,7 +12,7 @@
 
 Add auto-record for Discord voice channels. When enough registered team members join a voice channel, the bot automatically joins and starts recording. When they all leave, it stops after a 5-second grace period.
 
-This is the biggest piece of the feature — Discord currently has NO auto-record capability.
+This is the biggest piece of the feature -- Discord currently has NO auto-record capability.
 
 ---
 
@@ -32,8 +32,8 @@ export async function startRecordingSession(opts: {
 ```
 
 This function should:
-1. Check if already recording in this guild (`activeSessions`) → return null
-2. Check if already joining (`joiningGuilds`) → return null
+1. Check if already recording in this guild (`activeSessions`) -> return null
+2. Check if already joining (`joiningGuilds`) -> return null
 3. Create RecordingSession
 4. Call `session.init()`
 5. Call `joinWithRetry()`
@@ -50,7 +50,7 @@ Make it a thin wrapper:
 4. Reply with result
 
 ### Important:
-- Keep `joinWithRetry` internal (don't export it — startRecordingSession is the public API)
+- Keep `joinWithRetry` internal (don't export it -- startRecordingSession is the public API)
 - The `joiningGuilds` guard and DAVE handshake handling stay exactly as-is
 - `session.onConnectionLost` callback should be set by the caller or as part of `startRecordingSession`
 
@@ -58,7 +58,7 @@ Make it a thin wrapper:
 
 ## Task 2: Discord Auto-Record Engine
 
-Create `src/modules/recording/auto-record.ts` — the Discord auto-record engine.
+Create `src/modules/recording/auto-record.ts` -- the Discord auto-record engine.
 
 ### Class: DiscordAutoRecord
 
@@ -86,22 +86,22 @@ Called from `recording/index.ts` for every voice state change.
 
 **Logic:**
 1. Get guildId from the voice state
-2. Look up teamConfig for this guild — skip if not found
+2. Look up teamConfig for this guild -- skip if not found
 3. Skip if `autoRecord.enabled === false`
 4. Skip if `autoRecord.platform === 'mumble'` (discord not included)
 5. Skip if multi-team guild (check: more than one registration for this guildId)
-6. Check session registry: if already recording in this guild → handle member tracking only (see step 8)
+6. Check session registry: if already recording in this guild -> handle member tracking only (see step 8)
 7. Count registered members in voice channels:
    - Iterate all voice channels in the guild
    - For each non-bot member, check if their user ID is a key in `knownPlayers`
    - Find the channel with the most registered members
 8. **If no active recording:**
-   - If count >= `minPlayers` AND not suppressed → call `startRecordingSession()` for that channel
+   - If count >= `minPlayers` AND not suppressed -> call `startRecordingSession()` for that channel
    - Register in session registry with `origin: 'auto'`
 9. **If active auto-record session:**
    - Count registered members still in the recording channel specifically
-   - If count drops to 0 → start 5-second grace timer
-   - If count > 0 and grace timer running → cancel it
+   - If count drops to 0 -> start 5-second grace timer
+   - If count > 0 and grace timer running -> cancel it
 10. **Grace timer expires:**
     - Call `performStop(guildId, 'auto-record: channel empty')`
     - Clear suppression for this guild in session registry (channel is empty)
@@ -111,8 +111,8 @@ Before starting auto-record, check `sessionRegistry.isSuppressed('discord:' + gu
 
 ### Edge cases
 - **User moves between channels**: Old channel may go empty (grace timer), new channel may meet threshold (start recording there)
-- **Bot kicked from voice**: `session.onConnectionLost` already handles this — fires stop callbacks. Auto-record should detect this and not immediately retry (maybe a short cooldown).
-- **Settings change mid-recording**: If auto-record is disabled while recording, DON'T stop the current session — let it finish naturally. Only prevent new auto-starts.
+- **Bot kicked from voice**: `session.onConnectionLost` already handles this -- fires stop callbacks. Auto-record should detect this and not immediately retry (maybe a short cooldown).
+- **Settings change mid-recording**: If auto-record is disabled while recording, DON'T stop the current session -- let it finish naturally. Only prevent new auto-starts.
 - **Manual recording active**: If someone ran `/record start` manually, auto-record should not interfere. The session registry check (step 6) handles this.
 
 ### Constants
@@ -152,7 +152,7 @@ To distinguish: check `sessionRegistry.get('discord:' + guildId)?.origin`. If `'
 ## Verification
 - `npm run build` compiles without errors
 - Set `autoRecord: { enabled: true, minPlayers: 3, platform: 'both' }` manually on a botRegistration doc in Firestore
-- Have 3 team members (in knownPlayers) join a Discord voice channel → bot should auto-join and record
-- Have all leave → recording should stop after 5 seconds
-- Have someone `/record stop` during auto-record → suppression should prevent restart when they rejoin
-- Have channel fully empty → suppression clears → members rejoin → auto-record starts again
+- Have 3 team members (in knownPlayers) join a Discord voice channel -> bot should auto-join and record
+- Have all leave -> recording should stop after 5 seconds
+- Have someone `/record stop` during auto-record -> suppression should prevent restart when they rejoin
+- Have channel fully empty -> suppression clears -> members rejoin -> auto-record starts again

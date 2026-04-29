@@ -114,7 +114,7 @@ The full command table lives in `OVERVIEW.md` under "Tauri integration - fronten
 
 - Reads: `{install_dir}/ezquake/configs/*.cfg`, `{install_dir}/ezquake.exe` (PE version)
 - Watches: configs dir + outlier files (files in the exec chain that live outside `configs/`)
-- Writes: only during version swaps (`version_swap.swap_active_version` — atomic rename from `.new` staging onto canonical; foreign-exe backup to `<stem>.bak.exe` when current bytes are not warehouse-known). Updater downloads stage under `<data-root>/binaries/.staging/`, never in the user's quake dir.
+- Writes: only during version swaps (`version_swap.swap_active_version` -- atomic rename from `.new` staging onto canonical; foreign-exe backup to `<stem>.bak.exe` when current bytes are not warehouse-known). Updater downloads stage under `<data-root>/binaries/.staging/`, never in the user's quake dir.
 - No network involved. Pure filesystem access.
 
 ### ezQuake (mailslot IPC)

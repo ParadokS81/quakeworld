@@ -16,23 +16,23 @@
 
 ### New files
 
-- `apps/qw-oracle/scripts/load-knowledge/review/types.ts` — `Finding`, `Bucket`, `DraftFinding`, `ReviewReport` interfaces.
-- `apps/qw-oracle/scripts/load-knowledge/review/draft-writer.ts` — pure function that renders pre-seeded markdown from a `ReviewReport`.
-- `apps/qw-oracle/scripts/load-knowledge/review/findings-additions.ts` — emits findings for Q1 (new rows).
-- `apps/qw-oracle/scripts/load-knowledge/review/findings-retirements.ts` — emits findings for Q2 (disappeared rows).
-- `apps/qw-oracle/scripts/load-knowledge/review/findings-semantic-crossings.ts` — emits findings for Q3 (category / flag / trigger shifts).
-- `apps/qw-oracle/scripts/load-knowledge/review/findings-unclassified.ts` — emits findings for Q4 (confidence promotions).
-- `apps/qw-oracle/scripts/load-knowledge/review/findings-source-invisible.ts` — emits findings for Q5 (release-note vs entity-change gaps).
-- `apps/qw-oracle/scripts/load-knowledge/review/index.ts` — composes finders, emits JSON, calls draft-writer.
-- `apps/qw-oracle/scripts/load-knowledge/extract-tag.ts` — orchestrates checkout + unified extractor + 9 load-version calls + load-assets + release-notes for one tag.
-- `apps/qw-oracle/docs/reviews/.gitkeep` — directory placeholder.
-- `~/.claude/skills/extraction-review/SKILL.md` — user-global skill prompt.
+- `apps/qw-oracle/scripts/load-knowledge/review/types.ts` -- `Finding`, `Bucket`, `DraftFinding`, `ReviewReport` interfaces.
+- `apps/qw-oracle/scripts/load-knowledge/review/draft-writer.ts` -- pure function that renders pre-seeded markdown from a `ReviewReport`.
+- `apps/qw-oracle/scripts/load-knowledge/review/findings-additions.ts` -- emits findings for Q1 (new rows).
+- `apps/qw-oracle/scripts/load-knowledge/review/findings-retirements.ts` -- emits findings for Q2 (disappeared rows).
+- `apps/qw-oracle/scripts/load-knowledge/review/findings-semantic-crossings.ts` -- emits findings for Q3 (category / flag / trigger shifts).
+- `apps/qw-oracle/scripts/load-knowledge/review/findings-unclassified.ts` -- emits findings for Q4 (confidence promotions).
+- `apps/qw-oracle/scripts/load-knowledge/review/findings-source-invisible.ts` -- emits findings for Q5 (release-note vs entity-change gaps).
+- `apps/qw-oracle/scripts/load-knowledge/review/index.ts` -- composes finders, emits JSON, calls draft-writer.
+- `apps/qw-oracle/scripts/load-knowledge/extract-tag.ts` -- orchestrates checkout + unified extractor + 9 load-version calls + load-assets + release-notes for one tag.
+- `apps/qw-oracle/docs/reviews/.gitkeep` -- directory placeholder.
+- `~/.claude/skills/extraction-review/SKILL.md` -- user-global skill prompt.
 
 ### Modified files
 
-- `apps/qw-oracle/scripts/load-knowledge/index.ts` — register `extract-tag` + `review` subcommands; update usage banner.
-- `apps/qw-oracle/CLAUDE.md` — add `extract-tag` + `review` to commands block.
-- `HANDOVER.md` — remove item #1 (Extraction-review skill + CLI) and item #4 (Rebuild-and-load CLI subcommand) after first live run succeeds.
+- `apps/qw-oracle/scripts/load-knowledge/index.ts` -- register `extract-tag` + `review` subcommands; update usage banner.
+- `apps/qw-oracle/CLAUDE.md` -- add `extract-tag` + `review` to commands block.
+- `HANDOVER.md` -- remove item #1 (Extraction-review skill + CLI) and item #4 (Rebuild-and-load CLI subcommand) after first live run succeeds.
 
 ### Boundary rule
 
@@ -229,7 +229,7 @@ function renderSummary(report: ReviewReport): string {
 function renderFinding(f: Finding): string {
   const ref = f.evidence.entity_ref ?? f.evidence.relation_row_key ?? '(no-ref)';
   const lines: string[] = [];
-  lines.push(`### ${f.id} · ${f.bucket} · ${ref}`);
+  lines.push(`### ${f.id} - ${f.bucket} - ${ref}`);
   lines.push('');
   lines.push(`**Summary:** ${f.summary}`);
   lines.push('');
@@ -318,7 +318,7 @@ Skill will fill in the _(pending)_ lines in place."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/review/findings-additions.ts`
 
-Context — Q1 surfaces **rows that appeared**:
+Context -- Q1 surfaces **rows that appeared**:
 - `change_events` rows with `change_kind='created'` for the tag-pair (new entity rows).
 - `relation_changes` rows with `change_kind='created'` (new relation rows across the four asset_* tables).
 
@@ -424,7 +424,7 @@ Expected: a non-zero integer if any diff has run (current DB has ezQuake head da
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/review/findings-additions.ts
-git commit -m "feat(qw-oracle): review findings — additions (Q1)
+git commit -m "feat(qw-oracle): review findings -- additions (Q1)
 
 Emits one Finding per entity creation (change_events) and one per
 relation-row creation (relation_changes) for the tag-pair."
@@ -437,7 +437,7 @@ relation-row creation (relation_changes) for the tag-pair."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/review/findings-retirements.ts`
 
-Context — Q2 surfaces **rows that disappeared**: `change_events` / `relation_changes` rows with `change_kind='deleted'` for the tag-pair. The retirement finding's disposition is often `mark-orphan` (for asset_extensions) — that routing happens in the skill, not here.
+Context -- Q2 surfaces **rows that disappeared**: `change_events` / `relation_changes` rows with `change_kind='deleted'` for the tag-pair. The retirement finding's disposition is often `mark-orphan` (for asset_extensions) -- that routing happens in the skill, not here.
 
 - [ ] **Step 1: Write the module**
 
@@ -536,7 +536,7 @@ Expected: no errors.
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/review/findings-retirements.ts
-git commit -m "feat(qw-oracle): review findings — retirements (Q2)
+git commit -m "feat(qw-oracle): review findings -- retirements (Q2)
 
 Emits one Finding per deletion event in change_events or
 relation_changes for the tag-pair."
@@ -549,7 +549,7 @@ relation_changes for the tag-pair."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/review/findings-semantic-crossings.ts`
 
-Context — Q3 surfaces **field changes with categorical meaning**: a cvar's `flag_names` flipping, an asset_loader_site's `load_trigger` shifting from `unknown` to `on_map_load`, a ruleset's `restrict_*` flags changing. Value drift (e.g. cvar `default_value` 0 -> 1) is NOT a semantic crossing — a hard-coded allowlist per table keeps this deterministic.
+Context -- Q3 surfaces **field changes with categorical meaning**: a cvar's `flag_names` flipping, an asset_loader_site's `load_trigger` shifting from `unknown` to `on_map_load`, a ruleset's `restrict_*` flags changing. Value drift (e.g. cvar `default_value` 0 -> 1) is NOT a semantic crossing -- a hard-coded allowlist per table keeps this deterministic.
 
 - [ ] **Step 1: Write the module**
 
@@ -700,7 +700,7 @@ Expected: no errors.
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/review/findings-semantic-crossings.ts
-git commit -m "feat(qw-oracle): review findings — semantic crossings (Q3)
+git commit -m "feat(qw-oracle): review findings -- semantic crossings (Q3)
 
 Field allowlist per table distinguishes categorical evolution from
 ordinary value drift. Ruleset flags, macro restrictions, loader-site
@@ -714,7 +714,7 @@ triggers, etc. surface; cvar default_value drift does not."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/review/findings-unclassified.ts`
 
-Context — Q4 surfaces **confidence-field promotions / demotions** on `asset_cvar_bindings` and `asset_loader_sites`. First surface: rows at toVersion still stuck at low confidence. Second surface: rows whose confidence moved downward in the diff.
+Context -- Q4 surfaces **confidence-field promotions / demotions** on `asset_cvar_bindings` and `asset_loader_sites`. First surface: rows at toVersion still stuck at low confidence. Second surface: rows whose confidence moved downward in the diff.
 
 - [ ] **Step 1: Write the module**
 
@@ -860,7 +860,7 @@ Expected: no errors.
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/review/findings-unclassified.ts
-git commit -m "feat(qw-oracle): review findings — unclassified promotions (Q4)
+git commit -m "feat(qw-oracle): review findings -- unclassified promotions (Q4)
 
 Surfaces low-confidence relation rows at toVersion plus downward
 confidence demotions. Promotions become disposition=classify in skill."
@@ -873,7 +873,7 @@ confidence demotions. Promotions become disposition=classify in skill."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/review/findings-source-invisible.ts`
 
-Context — Q5 surfaces **release-note bullets whose subject matter is NOT already represented in the entity or relation change streams**. Heuristic: a release_notes row at toVersion with `referenced_entity_ids_json` NULL AND whose `commit_urls_json` SHAs don't overlap with any commit in change_events/relation_changes for the tag-pair is source-invisible.
+Context -- Q5 surfaces **release-note bullets whose subject matter is NOT already represented in the entity or relation change streams**. Heuristic: a release_notes row at toVersion with `referenced_entity_ids_json` NULL AND whose `commit_urls_json` SHAs don't overlap with any commit in change_events/relation_changes for the tag-pair is source-invisible.
 
 - [ ] **Step 1: Write the module**
 
@@ -963,7 +963,7 @@ Expected: no errors.
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/review/findings-source-invisible.ts
-git commit -m "feat(qw-oracle): review findings — source-invisible changes (Q5)
+git commit -m "feat(qw-oracle): review findings -- source-invisible changes (Q5)
 
 Release-note bullets at toVersion with neither entity refs nor
 commit-SHA overlap against the tag-pair's change streams. Candidates
@@ -1124,7 +1124,7 @@ are missing or when --out has existing filled-in dispositions."
 **Files:**
 - Create: `apps/qw-oracle/scripts/load-knowledge/extract-tag.ts`
 
-Context — this subcommand encapsulates "everything needed to make one tag fully loaded":
+Context -- this subcommand encapsulates "everything needed to make one tag fully loaded":
 
 1. `git -C <repo> checkout <tag>` in `research/repos/ezquake-source`.
 2. Run the unified Python extractor, writing to `packages/qw-config/src/data/`.
@@ -1132,7 +1132,7 @@ Context — this subcommand encapsulates "everything needed to make one tag full
 4. Call `loadAssets` with the asset bundle JSON.
 5. Call `loadReleaseNotes` if a GitHub token is available.
 
-The JSON file naming follows the existing convention — the unified extractor writes `ezquake-<entity>-ast.json` to the output dir.
+The JSON file naming follows the existing convention -- the unified extractor writes `ezquake-<entity>-ast.json` to the output dir.
 
 - [ ] **Step 1: Write the module**
 
@@ -1302,7 +1302,7 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     extractorVersion: EXTRACTOR_VERSION_DEFAULT,
   });
 
-  // 5. Release notes (optional — skill preflight will call release-notes separately if skipped here).
+  // 5. Release notes (optional -- skill preflight will call release-notes separately if skipped here).
   let releaseNotesLoaded: number | null = null;
   const token = options.githubToken ?? process.env.GITHUB_TOKEN;
   if (!options.skipReleaseNotes && token) {
@@ -1351,7 +1351,7 @@ Expected: no errors.
 
 ```bash
 git add apps/qw-oracle/scripts/load-knowledge/extract-tag.ts
-git commit -m "feat(qw-oracle): extract-tag — atomic tag-load orchestration
+git commit -m "feat(qw-oracle): extract-tag -- atomic tag-load orchestration
 
 Encapsulates checkout + python extractor + load-version x9 + load-assets
 + release-notes for one (project, version) tuple. Idempotent. ezQuake
@@ -1601,9 +1601,9 @@ One tag-pair per invocation. Judgment layer on top of the mechanical CLI.
 ## Inputs
 
 Ask the user for any missing value:
-- `project` — default `ezquake`. First-ship only supports ezquake; FTE / MVDSV / KTX error out.
-- `from` — the older tag.
-- `to` — the newer tag.
+- `project` -- default `ezquake`. First-ship only supports ezquake; FTE / MVDSV / KTX error out.
+- `from` -- the older tag.
+- `to` -- the newer tag.
 
 Enforce monorepo root: `pwd` should end in `quakeworld` or a worktree of it. If not, tell the user to cd there.
 
@@ -1634,7 +1634,7 @@ cd apps/qw-oracle && npm run load-knowledge -- review \
 
 Parse the JSON printed on stdout. Expect fields: `project`, `from_version`, `to_version`, `generated_at`, `draft_path`, `counts`, `findings[]`.
 
-If the CLI exits non-zero, surface its error verbatim to the user and stop. Do not auto-run extraction steps in response to a review-time error — by this point, pre-flight should have handled them, so a review-time error means something else is wrong.
+If the CLI exits non-zero, surface its error verbatim to the user and stop. Do not auto-run extraction steps in response to a review-time error -- by this point, pre-flight should have handled them, so a review-time error means something else is wrong.
 
 ## Interactive walk (Model B)
 
@@ -1647,14 +1647,14 @@ For each `finding` in `findings[]` where no disposition is recorded in the draft
    - `apps/qw-oracle/docs/entity-types.md` for the classification vocabulary.
    - `apps/qw-oracle/concept-notes/README.md` and the directory listing for Layer 3 coverage.
    - `git -C research/repos/ezquake-source log -1 <commit_sha>` for change motivation.
-   Then say "I propose `<kind>` because `<rationale>` — approve / override / skip?"
+   Then say "I propose `<kind>` because `<rationale>` -- approve / override / skip?"
 
 User responses map to:
 
-- **approve** — apply the side-effect per the routing table below. Replace the three `_(pending)_` lines in the draft for this finding with the disposition, rationale, and applied-timestamp.
-- **override `<kind>`** — user picks one of `classify`, `mark-orphan`, `concept-note`, `handover`, `reject-as-noise`; re-apply for the new kind.
-- **skip** — leave the three `_(pending)_` lines alone and move on. Keeps the review resumable.
-- **abort** — stop the walk, leave the partially filled draft on disk.
+- **approve** -- apply the side-effect per the routing table below. Replace the three `_(pending)_` lines in the draft for this finding with the disposition, rationale, and applied-timestamp.
+- **override `<kind>`** -- user picks one of `classify`, `mark-orphan`, `concept-note`, `handover`, `reject-as-noise`; re-apply for the new kind.
+- **skip** -- leave the three `_(pending)_` lines alone and move on. Keeps the review resumable.
+- **abort** -- stop the walk, leave the partially filled draft on disk.
 
 ## Side-effect routing
 
@@ -1665,7 +1665,7 @@ When the user approves a disposition, apply the matching side-effect:
 | addition            | classify           | Edit the appropriate seed YAML under `packages/qw-config/seeds/`. If a new entity type: prose update in `apps/qw-oracle/docs/entity-types.md`.           |
 | addition            | concept-note       | Create `apps/qw-oracle/concept-notes/<slug>.md` from the template in `concept-notes/README.md`. Frontmatter filled; body left as a prompt for the user.  |
 | addition            | reject-as-noise    | No file change. Record the reason inside the finding's block in the draft markdown so the rejection doesn't re-surface on re-run.                        |
-| retirement          | mark-orphan        | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=? WHERE project=? AND version=? AND extension=? AND path_hint=?` — run via sqlite3 on `apps/qw-oracle/data/knowledge.db`. If the retirement hits `asset_loader_sites` or `asset_cvar_bindings`, surface a handover instead (schema v9 work). |
+| retirement          | mark-orphan        | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=? WHERE project=? AND version=? AND extension=? AND path_hint=?` -- run via sqlite3 on `apps/qw-oracle/data/knowledge.db`. If the retirement hits `asset_loader_sites` or `asset_cvar_bindings`, surface a handover instead (schema v9 work). |
 | retirement          | classify           | Entity row is already stamped `source_retired` by the diff pipeline; add a prose note to `entity-types.md` explaining the retirement if taxonomy-relevant. |
 | retirement          | concept-note       | Same as addition variant.                                                                                                                                |
 | semantic-crossing   | classify           | Edit the seed YAML that owns the field's domain (category_id -> categories; load_trigger -> cvar bindings; etc.).                                        |
@@ -1709,7 +1709,7 @@ After the walk:
     apps/qw-oracle/concept-notes/ \
     HANDOVER.md \
     apps/qw-oracle/data/knowledge.db
-  git commit -m "review(qw-oracle): <project> <from> -> <to> — N findings"
+  git commit -m "review(qw-oracle): <project> <from> -> <to> -- N findings"
   ```
   (Only stage paths that actually changed in this review.)
 
@@ -1739,7 +1739,7 @@ The skill lives outside the repo (`~/.claude/skills/`). Nothing to commit for th
 
 ---
 
-## Task 13: First live run — the end-to-end test
+## Task 13: First live run -- the end-to-end test
 
 **Files:** none created in this task. This task validates the previous 12.
 
@@ -1827,7 +1827,7 @@ subcommands plus the extraction-review skill."
 
 After implementation:
 
-- [ ] **Spec coverage:** every scope-in item from the spec maps to a task. `review` subcommand → Tasks 1-8, 10. `extract-tag` subcommand → Tasks 9-10. `extraction-review` skill → Task 12. reviews directory → Task 1. HANDOVER cleanup → Task 14.
+- [ ] **Spec coverage:** every scope-in item from the spec maps to a task. `review` subcommand -> Tasks 1-8, 10. `extract-tag` subcommand -> Tasks 9-10. `extraction-review` skill -> Task 12. reviews directory -> Task 1. HANDOVER cleanup -> Task 14.
 - [ ] **No placeholders:** no "TBD" / "TODO" / "fill in later" / "handle edge cases" anywhere in this plan's tasks. All code steps show the actual code.
-- [ ] **Type consistency:** `Finding`, `Bucket`, `ReviewReport`, `ReviewCounts`, `makeFindingId`, `runReview`, `extractTag`, `ExtractTagOptions`, `ExtractTagResult` — all named the same way in every task that references them. Imports use `.js` suffix per the existing project convention (NodeNext module resolution).
+- [ ] **Type consistency:** `Finding`, `Bucket`, `ReviewReport`, `ReviewCounts`, `makeFindingId`, `runReview`, `extractTag`, `ExtractTagOptions`, `ExtractTagResult` -- all named the same way in every task that references them. Imports use `.js` suffix per the existing project convention (NodeNext module resolution).
 - [ ] **Scope check:** plan covers one cohesive subsystem (review pipeline). No multi-subsystem bundling.

@@ -97,7 +97,7 @@ Members (6):
 
 ## Findings
 
-### addition:ezquake:command:bindedit · addition · ezquake:command:bindedit
+### addition:ezquake:command:bindedit - addition - ezquake:command:bindedit
 
 **Summary:** New command `bindedit` first observed at 3.6.5.
 
@@ -116,7 +116,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:clipboard · addition · ezquake:command:clipboard
+### addition:ezquake:command:clipboard - addition - ezquake:command:clipboard
 
 **Summary:** New command `clipboard` first observed at 3.6.5.
 
@@ -135,7 +135,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:observebr · addition · ezquake:command:observebr
+### addition:ezquake:command:observebr - addition - ezquake:command:observebr
 
 **Summary:** New command `observebr` first observed at 3.6.5.
 
@@ -154,7 +154,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:stopsound_script · addition · ezquake:command:stopsound_script
+### addition:ezquake:command:stopsound_script - addition - ezquake:command:stopsound_script
 
 **Summary:** New command `stopsound_script` first observed at 3.6.5.
 
@@ -173,7 +173,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:sys_forget_sandbox · addition · ezquake:command:sys_forget_sandbox
+### addition:ezquake:command:sys_forget_sandbox - addition - ezquake:command:sys_forget_sandbox
 
 **Summary:** New command `sys_forget_sandbox` first observed at 3.6.5.
 
@@ -189,7 +189,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:vid_reload · addition · ezquake:command:vid_reload
+### addition:ezquake:command:vid_reload - addition - ezquake:command:vid_reload
 
 **Summary:** New command `vid_reload` first observed at 3.6.5.
 
@@ -205,7 +205,7 @@ Members (6):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:vminfo · addition · ezquake:command:vminfo
+### addition:ezquake:command:vminfo - addition - ezquake:command:vminfo
 
 **Summary:** New command `vminfo` first observed at 3.6.5.
 
@@ -223,7 +223,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_brush_polygonoffset_factor · addition · ezquake:cvar:gl_brush_polygonoffset_factor
+### addition:ezquake:cvar:gl_brush_polygonoffset_factor - addition - ezquake:cvar:gl_brush_polygonoffset_factor
 
 **Summary:** New cvar `gl_brush_polygonoffset_factor` first observed at 3.6.5.
 
@@ -242,7 +242,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_color_enemy · addition · ezquake:cvar:gl_outline_color_enemy
+### addition:ezquake:cvar:gl_outline_color_enemy - addition - ezquake:cvar:gl_outline_color_enemy
 
 **Summary:** New cvar `gl_outline_color_enemy` first observed at 3.6.5.
 
@@ -261,7 +261,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_color_model · addition · ezquake:cvar:gl_outline_color_model
+### addition:ezquake:cvar:gl_outline_color_model - addition - ezquake:cvar:gl_outline_color_model
 
 **Summary:** New cvar `gl_outline_color_model` first observed at 3.6.5.
 
@@ -280,7 +280,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_color_team · addition · ezquake:cvar:gl_outline_color_team
+### addition:ezquake:cvar:gl_outline_color_team - addition - ezquake:cvar:gl_outline_color_team
 
 **Summary:** New cvar `gl_outline_color_team` first observed at 3.6.5.
 
@@ -299,7 +299,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_color_world · addition · ezquake:cvar:gl_outline_color_world
+### addition:ezquake:cvar:gl_outline_color_world - addition - ezquake:cvar:gl_outline_color_world
 
 **Summary:** New cvar `gl_outline_color_world` first observed at 3.6.5.
 
@@ -318,7 +318,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_scale_model · addition · ezquake:cvar:gl_outline_scale_model
+### addition:ezquake:cvar:gl_outline_scale_model - addition - ezquake:cvar:gl_outline_scale_model
 
 **Summary:** New cvar `gl_outline_scale_model` first observed at 3.6.5.
 
@@ -337,7 +337,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_scale_world · addition · ezquake:cvar:gl_outline_scale_world
+### addition:ezquake:cvar:gl_outline_scale_world - addition - ezquake:cvar:gl_outline_scale_world
 
 **Summary:** New cvar `gl_outline_scale_world` first observed at 3.6.5.
 
@@ -356,7 +356,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_use_player_color · addition · ezquake:cvar:gl_outline_use_player_color
+### addition:ezquake:cvar:gl_outline_use_player_color - addition - ezquake:cvar:gl_outline_use_player_color
 
 **Summary:** New cvar `gl_outline_use_player_color` first observed at 3.6.5.
 
@@ -375,7 +375,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_world_depth_threshold · addition · ezquake:cvar:gl_outline_world_depth_threshold
+### addition:ezquake:cvar:gl_outline_world_depth_threshold - addition - ezquake:cvar:gl_outline_world_depth_threshold
 
 **Summary:** New cvar `gl_outline_world_depth_threshold` first observed at 3.6.5.
 
@@ -394,7 +394,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_outline_world_normal_threshold · addition · ezquake:cvar:gl_outline_world_normal_threshold
+### addition:ezquake:cvar:gl_outline_world_normal_threshold - addition - ezquake:cvar:gl_outline_world_normal_threshold
 
 **Summary:** New cvar `gl_outline_world_normal_threshold` first observed at 3.6.5.
 
@@ -413,7 +413,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_part_bloodtrails · addition · ezquake:cvar:gl_part_bloodtrails
+### addition:ezquake:cvar:gl_part_bloodtrails - addition - ezquake:cvar:gl_part_bloodtrails
 
 **Summary:** New cvar `gl_part_bloodtrails` first observed at 3.6.5.
 
@@ -432,7 +432,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_scalealphatextures · addition · ezquake:cvar:gl_scalealphatextures
+### addition:ezquake:cvar:gl_scalealphatextures - addition - ezquake:cvar:gl_scalealphatextures
 
 **Summary:** New cvar `gl_scalealphatextures` first observed at 3.6.5.
 
@@ -451,7 +451,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_spec_xray · addition · ezquake:cvar:gl_spec_xray
+### addition:ezquake:cvar:gl_spec_xray - addition - ezquake:cvar:gl_spec_xray
 
 **Summary:** New cvar `gl_spec_xray` first observed at 3.6.5.
 
@@ -470,7 +470,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:gl_spec_xray_distance · addition · ezquake:cvar:gl_spec_xray_distance
+### addition:ezquake:cvar:gl_spec_xray_distance - addition - ezquake:cvar:gl_spec_xray_distance
 
 **Summary:** New cvar `gl_spec_xray_distance` first observed at 3.6.5.
 
@@ -489,7 +489,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_frags_hidefrags · addition · ezquake:cvar:hud_frags_hidefrags
+### addition:ezquake:cvar:hud_frags_hidefrags - addition - ezquake:cvar:hud_frags_hidefrags
 
 **Summary:** New cvar `hud_frags_hidefrags` first observed at 3.6.5.
 
@@ -508,7 +508,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_frags_wipeout · addition · ezquake:cvar:hud_frags_wipeout
+### addition:ezquake:cvar:hud_frags_wipeout - addition - ezquake:cvar:hud_frags_wipeout
 
 **Summary:** New cvar `hud_frags_wipeout` first observed at 3.6.5.
 
@@ -527,7 +527,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_align_x · addition · ezquake:cvar:hud_scoreclock_align_x
+### addition:ezquake:cvar:hud_scoreclock_align_x - addition - ezquake:cvar:hud_scoreclock_align_x
 
 **Summary:** New cvar `hud_scoreclock_align_x` first observed at 3.6.5.
 
@@ -546,7 +546,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_align_y · addition · ezquake:cvar:hud_scoreclock_align_y
+### addition:ezquake:cvar:hud_scoreclock_align_y - addition - ezquake:cvar:hud_scoreclock_align_y
 
 **Summary:** New cvar `hud_scoreclock_align_y` first observed at 3.6.5.
 
@@ -565,7 +565,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_draw · addition · ezquake:cvar:hud_scoreclock_draw
+### addition:ezquake:cvar:hud_scoreclock_draw - addition - ezquake:cvar:hud_scoreclock_draw
 
 **Summary:** New cvar `hud_scoreclock_draw` first observed at 3.6.5.
 
@@ -584,7 +584,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_format · addition · ezquake:cvar:hud_scoreclock_format
+### addition:ezquake:cvar:hud_scoreclock_format - addition - ezquake:cvar:hud_scoreclock_format
 
 **Summary:** New cvar `hud_scoreclock_format` first observed at 3.6.5.
 
@@ -603,7 +603,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_frame · addition · ezquake:cvar:hud_scoreclock_frame
+### addition:ezquake:cvar:hud_scoreclock_frame - addition - ezquake:cvar:hud_scoreclock_frame
 
 **Summary:** New cvar `hud_scoreclock_frame` first observed at 3.6.5.
 
@@ -622,7 +622,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_frame_color · addition · ezquake:cvar:hud_scoreclock_frame_color
+### addition:ezquake:cvar:hud_scoreclock_frame_color - addition - ezquake:cvar:hud_scoreclock_frame_color
 
 **Summary:** New cvar `hud_scoreclock_frame_color` first observed at 3.6.5.
 
@@ -641,7 +641,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_item_opacity · addition · ezquake:cvar:hud_scoreclock_item_opacity
+### addition:ezquake:cvar:hud_scoreclock_item_opacity - addition - ezquake:cvar:hud_scoreclock_item_opacity
 
 **Summary:** New cvar `hud_scoreclock_item_opacity` first observed at 3.6.5.
 
@@ -660,7 +660,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_order · addition · ezquake:cvar:hud_scoreclock_order
+### addition:ezquake:cvar:hud_scoreclock_order - addition - ezquake:cvar:hud_scoreclock_order
 
 **Summary:** New cvar `hud_scoreclock_order` first observed at 3.6.5.
 
@@ -679,7 +679,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_place · addition · ezquake:cvar:hud_scoreclock_place
+### addition:ezquake:cvar:hud_scoreclock_place - addition - ezquake:cvar:hud_scoreclock_place
 
 **Summary:** New cvar `hud_scoreclock_place` first observed at 3.6.5.
 
@@ -698,7 +698,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_pos_x · addition · ezquake:cvar:hud_scoreclock_pos_x
+### addition:ezquake:cvar:hud_scoreclock_pos_x - addition - ezquake:cvar:hud_scoreclock_pos_x
 
 **Summary:** New cvar `hud_scoreclock_pos_x` first observed at 3.6.5.
 
@@ -717,7 +717,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_pos_y · addition · ezquake:cvar:hud_scoreclock_pos_y
+### addition:ezquake:cvar:hud_scoreclock_pos_y - addition - ezquake:cvar:hud_scoreclock_pos_y
 
 **Summary:** New cvar `hud_scoreclock_pos_y` first observed at 3.6.5.
 
@@ -736,7 +736,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_proportional · addition · ezquake:cvar:hud_scoreclock_proportional
+### addition:ezquake:cvar:hud_scoreclock_proportional - addition - ezquake:cvar:hud_scoreclock_proportional
 
 **Summary:** New cvar `hud_scoreclock_proportional` first observed at 3.6.5.
 
@@ -755,7 +755,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_scale · addition · ezquake:cvar:hud_scoreclock_scale
+### addition:ezquake:cvar:hud_scoreclock_scale - addition - ezquake:cvar:hud_scoreclock_scale
 
 **Summary:** New cvar `hud_scoreclock_scale` first observed at 3.6.5.
 
@@ -774,7 +774,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoreclock_show · addition · ezquake:cvar:hud_scoreclock_show
+### addition:ezquake:cvar:hud_scoreclock_show - addition - ezquake:cvar:hud_scoreclock_show
 
 **Summary:** New cvar `hud_scoreclock_show` first observed at 3.6.5.
 
@@ -793,7 +793,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_remove_collinear_vertices · addition · ezquake:cvar:r_remove_collinear_vertices
+### addition:ezquake:cvar:r_remove_collinear_vertices - addition - ezquake:cvar:r_remove_collinear_vertices
 
 **Summary:** New cvar `r_remove_collinear_vertices` first observed at 3.6.5.
 
@@ -811,7 +811,7 @@ This is a temporary workaround primarily targeted at macOS arm...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_rlbloodcolor_big · addition · ezquake:cvar:r_rlbloodcolor_big
+### addition:ezquake:cvar:r_rlbloodcolor_big - addition - ezquake:cvar:r_rlbloodcolor_big
 
 **Summary:** New cvar `r_rlbloodcolor_big` first observed at 3.6.5.
 
@@ -832,7 +832,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_rlbloodcolor_small · addition · ezquake:cvar:r_rlbloodcolor_small
+### addition:ezquake:cvar:r_rlbloodcolor_small - addition - ezquake:cvar:r_rlbloodcolor_small
 
 **Summary:** New cvar `r_rlbloodcolor_small` first observed at 3.6.5.
 
@@ -853,7 +853,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_sgbloodcolor · addition · ezquake:cvar:r_sgbloodcolor
+### addition:ezquake:cvar:r_sgbloodcolor - addition - ezquake:cvar:r_sgbloodcolor
 
 **Summary:** New cvar `r_sgbloodcolor` first observed at 3.6.5.
 
@@ -874,7 +874,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_tracker_colorfix · addition · ezquake:cvar:r_tracker_colorfix
+### addition:ezquake:cvar:r_tracker_colorfix - addition - ezquake:cvar:r_tracker_colorfix
 
 **Summary:** New cvar `r_tracker_colorfix` first observed at 3.6.5.
 
@@ -892,7 +892,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_tracker_inconsole_colored_weapon · addition · ezquake:cvar:r_tracker_inconsole_colored_weapon
+### addition:ezquake:cvar:r_tracker_inconsole_colored_weapon - addition - ezquake:cvar:r_tracker_inconsole_colored_weapon
 
 **Summary:** New cvar `r_tracker_inconsole_colored_weapon` first observed at 3.6.5.
 
@@ -912,7 +912,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_tracker_positive_enemy_vs_enemy · addition · ezquake:cvar:r_tracker_positive_enemy_vs_enemy
+### addition:ezquake:cvar:r_tracker_positive_enemy_vs_enemy - addition - ezquake:cvar:r_tracker_positive_enemy_vs_enemy
 
 **Summary:** New cvar `r_tracker_positive_enemy_vs_enemy` first observed at 3.6.5.
 
@@ -932,7 +932,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_tracker_string_inconsole_prefix · addition · ezquake:cvar:r_tracker_string_inconsole_prefix
+### addition:ezquake:cvar:r_tracker_string_inconsole_prefix - addition - ezquake:cvar:r_tracker_string_inconsole_prefix
 
 **Summary:** New cvar `r_tracker_string_inconsole_prefix` first observed at 3.6.5.
 
@@ -952,7 +952,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:sys_update_check · addition · ezquake:cvar:sys_update_check
+### addition:ezquake:cvar:sys_update_check - addition - ezquake:cvar:sys_update_check
 
 **Summary:** New cvar `sys_update_check` first observed at 3.6.5.
 
@@ -971,7 +971,7 @@ These work like r_lgbloo...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:vm_rtchecks · addition · ezquake:cvar:vm_rtchecks
+### addition:ezquake:cvar:vm_rtchecks - addition - ezquake:cvar:vm_rtchecks
 
 **Summary:** New cvar `vm_rtchecks` first observed at 3.6.5.
 
@@ -989,7 +989,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:hud_element:scoreclock · addition · ezquake:hud_element:scoreclock
+### addition:ezquake:hud_element:scoreclock - addition - ezquake:hud_element:scoreclock
 
 **Summary:** New hud_element `scoreclock` first observed at 3.6.5.
 
@@ -1008,7 +1008,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:macro:dateiso · addition · ezquake:macro:dateiso
+### addition:ezquake:macro:dateiso - addition - ezquake:macro:dateiso
 
 **Summary:** New macro `dateiso` first observed at 3.6.5.
 
@@ -1027,7 +1027,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1"} · addition · asset_loader_sites:{"canonical_id":"ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1"}
+### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1"} - addition - asset_loader_sites:{"canonical_id":"ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1"}
 
 **Summary:** New asset_loader_sites row {"canonical_id":"ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1"} first observed at 3.6.5.
 
@@ -1043,7 +1043,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1"} · addition · asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1"}
+### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1"} - addition - asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1"}
 
 **Summary:** New asset_loader_sites row {"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_cmd_CL_Download_Accept_1"} first observed at 3.6.5.
 
@@ -1059,7 +1059,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1"} · addition · asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1"}
+### addition:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1"} - addition - asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1"}
 
 **Summary:** New asset_loader_sites row {"canonical_id":"ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1"} first observed at 3.6.5.
 
@@ -1075,7 +1075,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keycode · retirement · ezquake:command:keycode
+### retirement:ezquake:command:keycode - retirement - ezquake:command:keycode
 
 **Summary:** command `keycode` present in 3.6.2, gone in 3.6.5.
 
@@ -1091,7 +1091,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymap_init · retirement · ezquake:command:keymap_init
+### retirement:ezquake:command:keymap_init - retirement - ezquake:command:keymap_init
 
 **Summary:** command `keymap_init` present in 3.6.2, gone in 3.6.5.
 
@@ -1107,7 +1107,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymap_list · retirement · ezquake:command:keymap_list
+### retirement:ezquake:command:keymap_list - retirement - ezquake:command:keymap_list
 
 **Summary:** command `keymap_list` present in 3.6.2, gone in 3.6.5.
 
@@ -1123,7 +1123,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymap_load · retirement · ezquake:command:keymap_load
+### retirement:ezquake:command:keymap_load - retirement - ezquake:command:keymap_load
 
 **Summary:** command `keymap_load` present in 3.6.2, gone in 3.6.5.
 
@@ -1139,7 +1139,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymap_reset · retirement · ezquake:command:keymap_reset
+### retirement:ezquake:command:keymap_reset - retirement - ezquake:command:keymap_reset
 
 **Summary:** command `keymap_reset` present in 3.6.2, gone in 3.6.5.
 
@@ -1155,7 +1155,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymap_save · retirement · ezquake:command:keymap_save
+### retirement:ezquake:command:keymap_save - retirement - ezquake:command:keymap_save
 
 **Summary:** command `keymap_save` present in 3.6.2, gone in 3.6.5.
 
@@ -1171,7 +1171,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:keymaplist · retirement · ezquake:command:keymaplist
+### retirement:ezquake:command:keymaplist - retirement - ezquake:command:keymaplist
 
 **Summary:** command `keymaplist` present in 3.6.2, gone in 3.6.5.
 
@@ -1187,7 +1187,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:cvar:cl_showkeycodes · retirement · ezquake:cvar:cl_showkeycodes
+### retirement:ezquake:cvar:cl_showkeycodes - retirement - ezquake:cvar:cl_showkeycodes
 
 **Summary:** cvar `cl_showkeycodes` present in 3.6.2, gone in 3.6.5.
 
@@ -1203,7 +1203,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:cvar:gl_smoothfont · retirement · ezquake:cvar:gl_smoothfont
+### retirement:ezquake:cvar:gl_smoothfont - retirement - ezquake:cvar:gl_smoothfont
 
 **Summary:** cvar `gl_smoothfont` present in 3.6.2, gone in 3.6.5.
 
@@ -1219,7 +1219,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:cvar:keymap_name · retirement · ezquake:cvar:keymap_name
+### retirement:ezquake:cvar:keymap_name - retirement - ezquake:cvar:keymap_name
 
 **Summary:** cvar `keymap_name` present in 3.6.2, gone in 3.6.5.
 
@@ -1235,7 +1235,7 @@ Seems like there is some issues, minor testing was done unde...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:cvar:r_fx_geometry · retirement · ezquake:cvar:r_fx_geometry
+### retirement:ezquake:cvar:r_fx_geometry - retirement - ezquake:cvar:r_fx_geometry
 
 **Summary:** cvar `r_fx_geometry` present in 3.6.2, gone in 3.6.5.
 
@@ -1255,7 +1255,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:cvar:scr_printspeed · retirement · ezquake:cvar:scr_printspeed
+### retirement:ezquake:cvar:scr_printspeed - retirement - ezquake:cvar:scr_printspeed
 
 **Summary:** cvar `scr_printspeed` present in 3.6.2, gone in 3.6.5.
 
@@ -1271,7 +1271,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_parse_CL_CheckOrDownloadFile_1"} · retirement · asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_parse_CL_CheckOrDownloadFile_1"}
+### retirement:asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_parse_CL_CheckOrDownloadFile_1"} - retirement - asset_loader_sites:{"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_parse_CL_CheckOrDownloadFile_1"}
 
 **Summary:** asset_loader_sites row {"canonical_id":"ezquake:loader_site:FS_OpenVFS_cl_parse_CL_CheckOrDownloadFile_1"} present in 3.6.2, gone in 3.6.5.
 
@@ -1287,7 +1287,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:cvar:sv_enableprofile:flag_names · semantic-crossing · ezquake:cvar:sv_enableprofile
+### semantic-crossing:ezquake:cvar:sv_enableprofile:flag_names - semantic-crossing - ezquake:cvar:sv_enableprofile
 
 **Summary:** cvar `sv_enableprofile`: flag_names changed.
 
@@ -1305,7 +1305,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:49 · source-invisible · (no-ref)
+### source-invisible:release_notes:49 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -1323,7 +1323,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:50 · source-invisible · (no-ref)
+### source-invisible:release_notes:50 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -1341,7 +1341,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:51 · source-invisible · (no-ref)
+### source-invisible:release_notes:51 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `build` without entity / commit coverage.
 
@@ -1359,7 +1359,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:52 · source-invisible · (no-ref)
+### source-invisible:release_notes:52 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `build` without entity / commit coverage.
 
@@ -1377,7 +1377,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:36 · source-invisible · (no-ref)
+### source-invisible:release_notes:36 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1395,7 +1395,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:37 · source-invisible · (no-ref)
+### source-invisible:release_notes:37 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1412,9 +1412,9 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** hud_scoreclock-family — Entity-name keyword overlap: token "information" in release-note body matched cluster member `hud_scoreclock_format`.
+**Proposed cluster:** hud_scoreclock-family -- Entity-name keyword overlap: token "information" in release-note body matched cluster member `hud_scoreclock_format`.
 
-### source-invisible:release_notes:38 · source-invisible · (no-ref)
+### source-invisible:release_notes:38 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1432,7 +1432,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:40 · source-invisible · (no-ref)
+### source-invisible:release_notes:40 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1449,9 +1449,9 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** r_tracker-family — Entity-name keyword overlap: token "console" in release-note body matched cluster member `r_tracker_inconsole_colored_weapon`.
+**Proposed cluster:** r_tracker-family -- Entity-name keyword overlap: token "console" in release-note body matched cluster member `r_tracker_inconsole_colored_weapon`.
 
-### source-invisible:release_notes:41 · source-invisible · (no-ref)
+### source-invisible:release_notes:41 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1469,7 +1469,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:42 · source-invisible · (no-ref)
+### source-invisible:release_notes:42 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1487,7 +1487,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:44 · source-invisible · (no-ref)
+### source-invisible:release_notes:44 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1505,7 +1505,7 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:45 · source-invisible · (no-ref)
+### source-invisible:release_notes:45 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1522,9 +1522,9 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** hud_frags-family — Entity-name keyword overlap: token "hud_frags" in release-note body matched cluster member `hud_frags_hidefrags`.
+**Proposed cluster:** hud_frags-family -- Entity-name keyword overlap: token "hud_frags" in release-note body matched cluster member `hud_frags_hidefrags`.
 
-### source-invisible:release_notes:46 · source-invisible · (no-ref)
+### source-invisible:release_notes:46 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1541,4 +1541,4 @@ Requires framebuffers enabled, then "r_fx_geometry 1"
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** keymap-family — Entity-name keyword overlap: token "keymap" in release-note body matched cluster member `keymap_init`.
+**Proposed cluster:** keymap-family -- Entity-name keyword overlap: token "keymap" in release-note body matched cluster member `keymap_init`.

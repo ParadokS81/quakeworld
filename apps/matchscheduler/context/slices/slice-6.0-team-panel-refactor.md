@@ -45,7 +45,7 @@ Delete TeamManagementDrawer component entirely.
 ### Team Panel Layout (After Refactor)
 ```
 ┌─────────────────────────┐
-│ [Slackers ⚙️] [+]       │  ← Click team name or gear → Modal
+│ [Slackers ⚙️] [+]       │  <- Click team name or gear -> Modal
 ├─────────────────────────┤
 │      ┌─────────┐        │
 │      │   SLK   │        │  Logo/tag
@@ -56,7 +56,7 @@ Delete TeamManagementDrawer component entirely.
 │ GRI  Grisling           │
 │ RAZ  Razor              │
 ├─────────────────────────┤
-│ Grid Tools         [▼]  │  ← Small drawer header
+│ Grid Tools         [▼]  │  <- Small drawer header
 │                         │  (collapsed by default)
 │ ABC [ABC] ●●● 👤        │  Display modes
 │ [Template 1] W1 W2      │  Templates (when expanded)
@@ -68,7 +68,7 @@ Delete TeamManagementDrawer component entirely.
 ### Team Management Modal
 ```
 ┌─────────────────────────────────────────┐
-│  Team Settings                    [×]   │
+│  Team Settings                    [x]   │
 ├─────────────────────────────────────────┤
 │                                         │
 │  Join Code    [LLQAM6] [📋] [🔄]       │
@@ -105,7 +105,7 @@ NEW COMPONENTS:
 MODIFIED COMPONENTS:
 - TeamInfo
   - Remove drawer initialization
-  - Add team name click handler → opens TeamManagementModal
+  - Add team name click handler -> opens TeamManagementModal
   - Add settings gear icon next to team name
 
 - GridActionButtons
@@ -143,7 +143,7 @@ SERVICE UPDATES:
 
 2. Update TeamInfo:
    - Add gear icon (⚙️) next to team name in switcher
-   - Click gear → `TeamManagementModal.show(teamData, isLeader)`
+   - Click gear -> `TeamManagementModal.show(teamData, isLeader)`
    - Remove `_initializeDrawer()` call
    - Remove `_drawerInstance` variable
 
@@ -232,7 +232,7 @@ Uses existing modal patterns - no special CSS needed.
 
 ### Team Management Modal Flow
 ```
-User clicks gear icon → TeamManagementModal.show(teamData, isLeader)
+User clicks gear icon -> TeamManagementModal.show(teamData, isLeader)
                                     ↓
                             Modal renders
                                     ↓
@@ -240,7 +240,7 @@ User clicks action (e.g., "Regenerate Join Code")
                                     ↓
                     Existing handler executes (e.g., showRegenerateModal)
                                     ↓
-                    Cloud Function called → Firestore updated
+                    Cloud Function called -> Firestore updated
                                     ↓
                     TeamInfo's existing listener catches update
                                     ↓
@@ -249,7 +249,7 @@ User clicks action (e.g., "Regenerate Join Code")
 
 ### Grid Tools Drawer Flow
 ```
-User clicks drawer header → toggleDrawer()
+User clicks drawer header -> toggleDrawer()
                                     ↓
                     CSS transition expands content
                                     ↓

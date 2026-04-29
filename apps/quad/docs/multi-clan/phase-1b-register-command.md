@@ -1,4 +1,4 @@
-# Phase 1b: /register Command — Complete Pending Bot Registration
+# Phase 1b: /register Command -- Complete Pending Bot Registration
 
 ## Context
 
@@ -26,7 +26,7 @@ When a user runs `/register`:
 
 1. **Get Discord user ID** from `interaction.user.id` (string, numeric Discord ID)
 
-2. **Find their pending registration** — Query Firestore:
+2. **Find their pending registration** -- Query Firestore:
    ```typescript
    db.collection('botRegistrations')
      .where('authorizedDiscordUserId', '==', interaction.user.id)
@@ -76,7 +76,7 @@ export interface BotRegistration {
   teamName: string;
   guildId: string;
   guildName: string;
-  knownPlayers: Record<string, string>;  // discordUserId → QW name
+  knownPlayers: Record<string, string>;  // discordUserId -> QW name
 }
 
 // Get the active bot registration for a guild, or null if not registered
@@ -115,11 +115,11 @@ This should be exported from wherever the registration logic lives (module or sh
   teamId: "team-sr-001",              // = document ID
   teamTag: "]sr[",
   teamName: "Slackers",
-  authorizedDiscordUserId: "224649203983450122",  // ← we match on this
+  authorizedDiscordUserId: "224649203983450122",  // <- we match on this
   registeredBy: "firebase-uid-of-leader",
-  guildId: null,                      // ← not yet linked
+  guildId: null,                      // <- not yet linked
   guildName: null,
-  status: 'pending',                  // ← we look for this
+  status: 'pending',                  // <- we look for this
   knownPlayers: {},
   createdAt: Timestamp,
   activatedAt: null,
@@ -131,11 +131,11 @@ This should be exported from wherever the registration logic lives (module or sh
 ```typescript
 {
   // ... all above fields unchanged, plus:
-  guildId: "918587029678338090",       // ← populated
-  guildName: "Slackers",              // ← populated
-  status: 'active',                   // ← changed
-  activatedAt: Timestamp,             // ← set
-  updatedAt: Timestamp,               // ← updated
+  guildId: "918587029678338090",       // <- populated
+  guildName: "Slackers",              // <- populated
+  status: 'active',                   // <- changed
+  activatedAt: Timestamp,             // <- set
+  updatedAt: Timestamp,               // <- updated
 }
 ```
 
@@ -167,8 +167,8 @@ This should be exported from wherever the registration logic lives (module or sh
    });
    ```
 
-2. Run `/register` in Discord → should find the pending registration and complete it
-3. Check Firestore → document should now have guildId, guildName, status: 'active'
-4. Run `/register` again → should show "already linked" message
-5. Delete the test document and run `/register` → should show "no pending registration" message
-6. Test with a different Discord user → should not find the pending registration (wrong authorizedDiscordUserId)
+2. Run `/register` in Discord -> should find the pending registration and complete it
+3. Check Firestore -> document should now have guildId, guildName, status: 'active'
+4. Run `/register` again -> should show "already linked" message
+5. Delete the test document and run `/register` -> should show "no pending registration" message
+6. Test with a different Discord user -> should not find the pending registration (wrong authorizedDiscordUserId)

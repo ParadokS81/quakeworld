@@ -1,4 +1,4 @@
-# Phase C2: Multi-Registration Resolution — quad Side
+# Phase C2: Multi-Registration Resolution -- quad Side
 
 ## Context
 
@@ -45,7 +45,7 @@ export async function resolveRegistrationForChannel(
   if (registrations.length === 0) return null;
   if (registrations.length === 1) return registrations[0];
 
-  // Multiple registrations — try exact channel match first
+  // Multiple registrations -- try exact channel match first
   const exactMatch = registrations.find(r => r.registeredChannelId === channelId);
   if (exactMatch) return exactMatch;
 
@@ -58,7 +58,7 @@ export async function resolveRegistrationForChannel(
       if (categoryMatch) return categoryMatch;
     }
   } catch {
-    // Channel fetch failed — fall through to null
+    // Channel fetch failed -- fall through to null
   }
 
   return null;
@@ -75,10 +75,10 @@ Find where the session is created and the `startRecording()` / equivalent functi
 
 ```typescript
 // When creating the RecordingSession, also track the source text channel
-// This is the channel where /record start was run — used for team resolution
+// This is the channel where /record start was run -- used for team resolution
 ```
 
-The session object (`RecordingSession` in `session.ts`) stores `channelId` and `channelName` — but these are the VOICE channel, not the text channel. We need to pass the text channel ID separately.
+The session object (`RecordingSession` in `session.ts`) stores `channelId` and `channelName` -- but these are the VOICE channel, not the text channel. We need to pass the text channel ID separately.
 
 **Option A (simple):** Add a `sourceTextChannelId` property to the session metadata that gets written to `session_metadata.json`. This way, downstream modules (pipeline, uploader) can use it.
 
@@ -118,7 +118,7 @@ try {
   const registration = await resolveRegistrationForChannel(
     session.guildId,
     channelForResolution,
-    client,  // Need to pass the Discord client — see note below
+    client,  // Need to pass the Discord client -- see note below
   );
   if (registration) {
     metadata.team = {
@@ -145,7 +145,7 @@ let registration = registrations.length === 1 ? registrations[0] : null;
 if (!registration && registrations.length > 1 && session.sourceTextChannelId) {
   // Try exact channel match, then category match
   registration = registrations.find(r => r.registeredChannelId === session.sourceTextChannelId) || null;
-  // Category match would need the channel's parentId — skip for now, exact match is enough
+  // Category match would need the channel's parentId -- skip for now, exact match is enough
 }
 ```
 
@@ -153,7 +153,7 @@ if (!registration && registrations.length > 1 && session.sourceTextChannelId) {
 
 Currently calls `getRegistrationForGuild(session.guildId)` at line 74 to get `teamId` for the Firestore session doc.
 
-**Change to:** Same pattern as metadata.ts — use `getRegistrationsForGuild()` with inline matching:
+**Change to:** Same pattern as metadata.ts -- use `getRegistrationsForGuild()` with inline matching:
 
 ```typescript
 import { getRegistrationsForGuild } from '../registration/register.js';
@@ -175,7 +175,7 @@ try {
 
 ### 5. `src/modules/processing/pipeline.ts`
 
-Currently calls `getRegistrationForGuild(session.guild.id)` at line ~180 in `runFastPipeline()`. This is the most important caller — it determines `teamTag` and `knownPlayers` for match pairing.
+Currently calls `getRegistrationForGuild(session.guild.id)` at line ~180 in `runFastPipeline()`. This is the most important caller -- it determines `teamTag` and `knownPlayers` for match pairing.
 
 **Change to:** Use session metadata's `sourceTextChannelId` for resolution:
 
@@ -286,6 +286,6 @@ interface SessionMetadata {
 
 ## What's NOT in this phase
 
-- Guild sync changes (updating guildMembers on all registrations) — that's C3
-- Disconnect changes (only leave guild if last team) — that's C3
-- MatchScheduler UI changes — that's C4
+- Guild sync changes (updating guildMembers on all registrations) -- that's C3
+- Disconnect changes (only leave guild if last team) -- that's C3
+- MatchScheduler UI changes -- that's C4

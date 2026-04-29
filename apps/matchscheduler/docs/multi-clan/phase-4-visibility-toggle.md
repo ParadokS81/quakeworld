@@ -1,4 +1,4 @@
-# Phase 4: Default Visibility Toggle — Multi-Clan Voice Replay
+# Phase 4: Default Visibility Toggle -- Multi-Clan Voice Replay
 
 ## Context
 
@@ -14,12 +14,12 @@ Read `docs/multi-clan/CONTRACT.md` for the full schema reference.
 
 ### Visibility Toggle in Voice Bot Connected State
 
-Add a toggle to the Voice Bot section of TeamManagementModal — visible only when the bot is **connected** (status: 'active'). Place it inside the connected state's info box, after the guild name display and before the Disconnect button.
+Add a toggle to the Voice Bot section of TeamManagementModal -- visible only when the bot is **connected** (status: 'active'). Place it inside the connected state's info box, after the guild name display and before the Disconnect button.
 
 **Behavior:**
-- Toggle ON (right/green) = `'public'` — New recordings visible to everyone
-- Toggle OFF (left/gray) = `'private'` — New recordings visible only to team members
-- Default state: OFF (private) — matches the bot's default when `voiceSettings` is absent
+- Toggle ON (right/green) = `'public'` -- New recordings visible to everyone
+- Toggle OFF (left/gray) = `'private'` -- New recordings visible only to team members
+- Default state: OFF (private) -- matches the bot's default when `voiceSettings` is absent
 
 **Copy:**
 - Label: `"Default visibility"` (or `"Recording visibility"`)
@@ -30,7 +30,7 @@ Add a toggle to the Voice Bot section of TeamManagementModal — visible only wh
 
 The modal already has two toggle patterns to follow:
 
-1. **Privacy toggles** (`_handlePrivacyToggle`, lines ~437-480) — closest match. Uses:
+1. **Privacy toggles** (`_handlePrivacyToggle`, lines ~437-480) -- closest match. Uses:
    - `TeamService.callFunction('updateTeamSettings', { [setting]: newEnabled })`
    - Optimistic UI update + revert on error
    - `data-enabled` attribute for state tracking
@@ -56,7 +56,7 @@ await TeamService.callFunction('updateTeamSettings', {
 });
 ```
 
-If `updateTeamSettings` doesn't currently handle nested `voiceSettings`, update it to merge this field onto the team doc. The write is a simple `{ voiceSettings: { defaultVisibility: 'public' | 'private' } }` merge — no complex logic needed.
+If `updateTeamSettings` doesn't currently handle nested `voiceSettings`, update it to merge this field onto the team doc. The write is a simple `{ voiceSettings: { defaultVisibility: 'public' | 'private' } }` merge -- no complex logic needed.
 
 ### Read Path
 
@@ -93,11 +93,11 @@ This only matters if the write goes through client-side Firestore (not Cloud Fun
 
 ## What NOT to Build
 
-- **Per-recording visibility override** — That's Phase 5. This phase only sets the team-wide default.
-- **Recordings list or discovery UI** — Phase 5.
-- **Changes to quad bot** — It already reads `voiceSettings.defaultVisibility` (Phase 2).
-- **Changes to replay.html** — Phase 3 already handles public vs private display.
-- **Retroactive visibility changes** — Changing the toggle does NOT update existing recordings. Only new uploads pick up the new default. This is by design.
+- **Per-recording visibility override** -- That's Phase 5. This phase only sets the team-wide default.
+- **Recordings list or discovery UI** -- Phase 5.
+- **Changes to quad bot** -- It already reads `voiceSettings.defaultVisibility` (Phase 2).
+- **Changes to replay.html** -- Phase 3 already handles public vs private display.
+- **Retroactive visibility changes** -- Changing the toggle does NOT update existing recordings. Only new uploads pick up the new default. This is by design.
 
 ---
 
@@ -105,7 +105,7 @@ This only matters if the write goes through client-side Firestore (not Cloud Fun
 
 The toggle sets `defaultVisibility` which the bot reads at **upload time**. Changing from private to public (or vice versa) only affects recordings uploaded after the change. Existing recordings keep their original visibility.
 
-This is intentional — retroactive updates would require a batch Firestore write across all team recordings, which is a separate feature if needed. The brief should NOT implement retroactive changes.
+This is intentional -- retroactive updates would require a batch Firestore write across all team recordings, which is a separate feature if needed. The brief should NOT implement retroactive changes.
 
 ---
 

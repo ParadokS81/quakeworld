@@ -3,7 +3,7 @@
 ## Slice Definition
 - **Slice ID:** 5.2c
 - **Name:** Match Stats Popout Modal (Trimmed ktxstats View)
-- **Depends on:** Slice 5.2b (Match History Split-Panel — "Full Stats" button)
+- **Depends on:** Slice 5.2b (Match History Split-Panel -- "Full Stats" button)
 - **User Story:** As a user, I can open a detailed stats view for any match in a popout modal, allowing me to compare stats across multiple matches side by side, so I can do crude performance analysis without leaving the app
 - **Success Criteria:**
   - "Full Stats" button in Match History preview opens a popout modal
@@ -16,7 +16,7 @@
 
 ## Problem Statement
 
-The QWHub stats table has ~25 columns, which is far too dense to display inline in our grid-constrained layout. But users want to examine match stats to assess player and team performance — especially when comparing across matches (e.g., "how did our team do vs pol on dm2 last week vs this week?").
+The QWHub stats table has ~25 columns, which is far too dense to display inline in our grid-constrained layout. But users want to examine match stats to assess player and team performance -- especially when comparing across matches (e.g., "how did our team do vs pol on dm2 last week vs this week?").
 
 The Match History tab (Slice 5.2b) shows a trimmed stats bar (Eff%, RL#, Dmg), but users want to drill deeper into individual player stats without navigating to an external site.
 
@@ -24,10 +24,10 @@ The Match History tab (Slice 5.2b) shows a trimmed stats bar (Eff%, RL#, Dmg), b
 
 A **popout modal** triggered by the "Full Stats" button in the Match History preview panel. Key design decisions:
 
-1. **Trimmed columns** — Show only the most meaningful stats for quick analysis, not the full ktxstats dump
-2. **Multiple instances** — Allow opening several stat modals at once, enabling side-by-side comparison
-3. **Draggable** — Users can reposition modals to arrange them for comparison
-4. **QW Hub link** — For those who want the complete view + demo streaming
+1. **Trimmed columns** -- Show only the most meaningful stats for quick analysis, not the full ktxstats dump
+2. **Multiple instances** -- Allow opening several stat modals at once, enabling side-by-side comparison
+3. **Draggable** -- Users can reposition modals to arrange them for comparison
+4. **QW Hub link** -- For those who want the complete view + demo streaming
 
 ### Trimmed Column Selection
 
@@ -40,12 +40,12 @@ From the full ktxstats table, we keep these columns:
 | **Eff%** | Universal skill indicator | `kills / (kills + deaths)` |
 | **Kills** | Actual kills (not frags) | `stats.kills` |
 | **Deaths** | Survival metric | `stats.deaths` |
-| **RL#** | Rocket direct hits — key mechanical skill | `weapons.rl.acc.hits` |
-| **LG%** | Lightning accuracy — top-tier skill indicator | `weapons.lg.acc.hits / attacks` |
-| **SG%** | Shotgun accuracy — bread-and-butter weapon | `weapons.sg.acc.hits / attacks` |
+| **RL#** | Rocket direct hits -- key mechanical skill | `weapons.rl.acc.hits` |
+| **LG%** | Lightning accuracy -- top-tier skill indicator | `weapons.lg.acc.hits / attacks` |
+| **SG%** | Shotgun accuracy -- bread-and-butter weapon | `weapons.sg.acc.hits / attacks` |
 | **Dmg Given** | Total damage output | `dmg.given` |
 | **Dmg Taken** | Survivability | `dmg.taken` |
-| **RA** | Red armor pickups — map control indicator | `items.ra.took` |
+| **RA** | Red armor pickups -- map control indicator | `items.ra.took` |
 | **YA** | Yellow armor pickups | `items.ya.took` |
 
 **Dropped columns:** Bores (suicides), TKs, EWEP, To Die, MH, GA, Q/P/R, speed, RL(t/k/d), LG(t/k/d). These are useful for deep analysis but not for quick scanning.
@@ -57,22 +57,22 @@ From the full ktxstats table, we keep these columns:
 ### Stats Modal Layout
 
 ```
-┌─── Match Stats: ]sr[ vs pol — dm2 (Nov 25) ───── [QW Hub →] [✕] ─┐
+┌─── Match Stats: ]sr[ vs pol -- dm2 (Nov 25) ───── [QW Hub ->] [✕] ─┐
 │                                                                     │
 │  Frags  Name          Eff%  Kills Deaths RL#  LG%  SG%  Dmg   RA YA│
 │  ───────────────────────────────────────────────────────────────────│
-│  322    ]sr[           73%   331   121   26   43%  —    40685  24 42│
-│  103    pol            25%   112   340   22   42%  —    24344  27 13│
+│  322    ]sr[           73%   331   121   26   43%  --    40685  24 42│
+│  103    pol            25%   112   340   22   42%  --    24344  27 13│
 │  ═══════════════════════════════════════════════════════════════════│
-│  135    · razor        90%   138    16    7   50%  —    14227   4 17│
-│   83    · ParadokS     74%    89    31    4   40%  —    11174   4 13│
-│   58    · grisling     59%    58    41    0   51%  —     8094   5  9│
-│   46    · zero         58%    46    33    0   32%  —     7190  11  3│
+│  135    - razor        90%   138    16    7   50%  --    14227   4 17│
+│   83    - ParadokS     74%    89    31    4   40%  --    11174   4 13│
+│   58    - grisling     59%    58    41    0   51%  --     8094   5  9│
+│   46    - zero         58%    46    33    0   32%  --     7190  11  3│
 │  ───────────────────────────────────────────────────────────────────│
-│   31    ThundeR        29%    32    80    1   43%  —     6965   6  5│
-│   28    plate          27%    31    84    2   36%  —     6120   5  4│
-│   27    tom            31%    30    67    2   40%  —     5456   8  2│
-│   17    er             15%    19   109    2   48%  —     5803   8  2│
+│   31    ThundeR        29%    32    80    1   43%  --     6965   6  5│
+│   28    plate          27%    31    84    2   36%  --     6120   5  4│
+│   27    tom            31%    30    67    2   40%  --     5456   8  2│
+│   17    er             15%    19   109    2   48%  --     5803   8  2│
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -80,7 +80,7 @@ From the full ktxstats table, we keep these columns:
 ### Multiple Modals (Side by Side)
 
 ```
-┌─── Match Stats: ]sr[ vs pol — dm2 ──┐  ┌─── Match Stats: ]sr[ vs book — dm4 ──┐
+┌─── Match Stats: ]sr[ vs pol -- dm2 ──┐  ┌─── Match Stats: ]sr[ vs book -- dm4 ──┐
 │                                      │  │                                       │
 │  Frags  Name     Eff%  ...           │  │  Frags  Name     Eff%  ...            │
 │  322    ]sr[      73%  ...           │  │  198    ]sr[      62%  ...            │
@@ -96,15 +96,15 @@ From the full ktxstats table, we keep these columns:
 
 ### Key Design Decisions
 
-1. **Independent modal component** — Not part of TeamsBrowserPanel. Modals exist in the global DOM (`document.body`) so they can float above the grid layout. Managed by a simple `MatchStatsModal` module.
+1. **Independent modal component** -- Not part of TeamsBrowserPanel. Modals exist in the global DOM (`document.body`) so they can float above the grid layout. Managed by a simple `MatchStatsModal` module.
 
-2. **Multiple instances via unique IDs** — Each modal gets a unique ID (using matchId). Opening the same match again focuses the existing modal instead of creating a duplicate.
+2. **Multiple instances via unique IDs** -- Each modal gets a unique ID (using matchId). Opening the same match again focuses the existing modal instead of creating a duplicate.
 
-3. **Draggable via mouse events** — Simple drag implementation on the title bar. No library needed.
+3. **Draggable via mouse events** -- Simple drag implementation on the title bar. No library needed.
 
-4. **Data already cached** — By the time the user clicks "Full Stats", the ktxstats data is already fetched and cached (from the click-to-sticky interaction in 5.2b). The modal reads from cache — instant open.
+4. **Data already cached** -- By the time the user clicks "Full Stats", the ktxstats data is already fetched and cached (from the click-to-sticky interaction in 5.2b). The modal reads from cache -- instant open.
 
-5. **z-index stacking** — Each new modal gets a higher z-index. Clicking a background modal brings it to front.
+5. **z-index stacking** -- Each new modal gets a higher z-index. Clicking a background modal brings it to front.
 
 ### New Component: MatchStatsModal
 
@@ -131,17 +131,17 @@ const MatchStatsModal = (function() {
 
 ```
 TeamsBrowserPanel (Match History tab)
-    → User clicks "Full Stats" button
-    → TeamsBrowserPanel.openFullStats(matchId)
-        → Gets match data from _matchDataById
-        → Gets ktxstats from QWHubService cache (already fetched on click)
-        → Calls MatchStatsModal.open(matchId, ktxstats, matchMeta)
+    -> User clicks "Full Stats" button
+    -> TeamsBrowserPanel.openFullStats(matchId)
+        -> Gets match data from _matchDataById
+        -> Gets ktxstats from QWHubService cache (already fetched on click)
+        -> Calls MatchStatsModal.open(matchId, ktxstats, matchMeta)
 
 MatchStatsModal
-    → Creates draggable modal in document.body
-    → Renders trimmed stats table
-    → Handles close (X button, Escape key)
-    → Handles z-index stacking for multiple modals
+    -> Creates draggable modal in document.body
+    -> Renders trimmed stats table
+    -> Handles close (X button, Escape key)
+    -> Handles z-index stacking for multiple modals
 ```
 
 ---
@@ -285,8 +285,8 @@ function _renderStatsTable(ktxstats, ourTeamTag) {
                 <td>${agg.kills}</td>
                 <td>${agg.deaths}</td>
                 <td>${agg.rlHits}</td>
-                <td>${agg.lgPct !== null ? agg.lgPct + '%' : '—'}</td>
-                <td>${agg.sgPct !== null ? agg.sgPct + '%' : '—'}</td>
+                <td>${agg.lgPct !== null ? agg.lgPct + '%' : '--'}</td>
+                <td>${agg.sgPct !== null ? agg.sgPct + '%' : '--'}</td>
                 <td>${agg.dmgGiven.toLocaleString()}</td>
                 <td>${agg.dmgTaken.toLocaleString()}</td>
                 <td class="msm-col-ra">${agg.ra}</td>
@@ -331,8 +331,8 @@ function _renderStatsTable(ktxstats, ourTeamTag) {
                     <td>${player.stats.kills}</td>
                     <td>${player.stats.deaths}</td>
                     <td>${rlHits}</td>
-                    <td>${lgPct !== null ? lgPct + '%' : '—'}</td>
-                    <td>${sgPct !== null ? sgPct + '%' : '—'}</td>
+                    <td>${lgPct !== null ? lgPct + '%' : '--'}</td>
+                    <td>${sgPct !== null ? sgPct + '%' : '--'}</td>
                     <td>${(player.dmg?.given || 0).toLocaleString()}</td>
                     <td>${(player.dmg?.taken || 0).toLocaleString()}</td>
                     <td class="msm-col-ra">${player.items?.ra?.took || 0}</td>
@@ -367,7 +367,7 @@ function _render(matchId, ktxstats, matchMeta) {
     return `
         <div class="msm-header">
             <div class="msm-title">
-                <span class="msm-title-text">Match Stats: ${_escapeHtml(teamNames)} — ${mapName} (${dateStr})</span>
+                <span class="msm-title-text">Match Stats: ${_escapeHtml(teamNames)} -- ${mapName} (${dateStr})</span>
             </div>
             <div class="msm-header-actions">
                 <a href="${hubUrl}" target="_blank" class="msm-hub-link">QW Hub &rarr;</a>
@@ -599,10 +599,10 @@ HOT PATHS (<50ms):
 
 COLD PATHS (rare):
 - If user opens modal without prior click (shouldn't happen in normal flow):
-  Would need to fetch ktxstats — but this path doesn't exist in the UI
+  Would need to fetch ktxstats -- but this path doesn't exist in the UI
 
 BACKEND PERFORMANCE:
-- No new API calls — reads from QWHubService cache
+- No new API calls -- reads from QWHubService cache
 - No Firebase interactions
 ```
 
@@ -612,31 +612,31 @@ BACKEND PERFORMANCE:
 
 ```
 User clicks "Full Stats" in Match History preview
-    → TeamsBrowserPanel.openFullStats(matchId)
-        → Get match from _matchDataById (Supabase data)
-        → Get ktxstats from _selectedMatchStats (already fetched on click)
-        → If ktxstats not available, fetch from QWHubService.getGameStats(demoHash)
-        → Call MatchStatsModal.open(matchId, ktxstats, matchMeta)
+    -> TeamsBrowserPanel.openFullStats(matchId)
+        -> Get match from _matchDataById (Supabase data)
+        -> Get ktxstats from _selectedMatchStats (already fetched on click)
+        -> If ktxstats not available, fetch from QWHubService.getGameStats(demoHash)
+        -> Call MatchStatsModal.open(matchId, ktxstats, matchMeta)
 
 MatchStatsModal.open()
-    → Check if modal already open for this matchId
-        → Yes: bring existing modal to front
-        → No: create new modal
-    → Create DOM element in document.body
-    → Render header (title, hub link, close button)
-    → Render trimmed stats table
-    → Make draggable
-    → Register close handlers (X button, Escape)
+    -> Check if modal already open for this matchId
+        -> Yes: bring existing modal to front
+        -> No: create new modal
+    -> Create DOM element in document.body
+    -> Render header (title, hub link, close button)
+    -> Render trimmed stats table
+    -> Make draggable
+    -> Register close handlers (X button, Escape)
 
 User opens second match stats
-    → New modal created with staggered position
-    → Both modals visible for comparison
-    → Click either to bring to front
+    -> New modal created with staggered position
+    -> Both modals visible for comparison
+    -> Click either to bring to front
 
 User closes modal
-    → X button or Escape
-    → Remove DOM element
-    → Remove from _openModals map
+    -> X button or Escape
+    -> Remove DOM element
+    -> Remove from _openModals map
 ```
 
 ---
@@ -659,16 +659,16 @@ User closes modal
 - [ ] Clicking a background modal brings it to front
 - [ ] Zero values show dimmed styling
 - [ ] RA column has red tint, YA has yellow tint
-- [ ] LG% shows "—" for players who didn't use lightning gun
-- [ ] SG% shows "—" for players who didn't use shotgun
+- [ ] LG% shows "--" for players who didn't use lightning gun
+- [ ] SG% shows "--" for players who didn't use shotgun
 - [ ] Modal doesn't overflow viewport (max-height: 80vh with scroll)
 - [ ] ktxstats with bogus players (ping=0) are filtered out
 
 ## Common Integration Pitfalls
 
-- [ ] ktxstats player names are QW-encoded — use `qwToAscii()` for team matching, `coloredQuakeName()` for display
-- [ ] ktxstats `name_color` may not exist — fallback to plain name rendering
-- [ ] Team matching between Supabase (teams array) and ktxstats (player.team) uses different encodings — always compare via `qwToAscii().toLowerCase()`
+- [ ] ktxstats player names are QW-encoded -- use `qwToAscii()` for team matching, `coloredQuakeName()` for display
+- [ ] ktxstats `name_color` may not exist -- fallback to plain name rendering
+- [ ] Team matching between Supabase (teams array) and ktxstats (player.team) uses different encodings -- always compare via `qwToAscii().toLowerCase()`
 - [ ] Draggable mousedown handler must not prevent clicks on close button or hub link
 - [ ] Multiple Escape handlers: each modal registers its own, must unregister on close
 - [ ] Don't forget to expose `openFullStats` on TeamsBrowserPanel public API

@@ -324,13 +324,13 @@ BACKEND PERFORMANCE:
 
 ## 6. Data Flow Diagram
 ```
-User clicks cell → AvailabilityGrid._handleCellClick() → Update local _selectedCells Set
-                                                       → Toggle CSS classes on cell
+User clicks cell -> AvailabilityGrid._handleCellClick() -> Update local _selectedCells Set
+                                                       -> Toggle CSS classes on cell
 
 (No Firebase involved in this slice - selection is visual only)
 
 FUTURE DATA FLOW (Slice 2.2):
-Click "Add me" → Selection state → Firebase update → onSnapshot → UI refresh + Cache update
+Click "Add me" -> Selection state -> Firebase update -> onSnapshot -> UI refresh + Cache update
 ```
 
 ## 7. Test Scenarios

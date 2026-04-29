@@ -21,7 +21,7 @@ These gaps cause real harm:
 - The orchestrator (user) cannot hold the system's structure in his head; every session starts with re-orientation.
 - LLM assistants make wrong inferences from misaligned docs (e.g., "qw-oracle is a chatbot so changes here affect Discord").
 - Future engine ports (FTE, MVDSV, KTX) have no template to inherit from; per-entity reasoning is scattered across spec headers and source comments.
-- Seed-YAML entries with no AST backing (e.g., `.kmap` — see below) silently pass the extraction pipeline, producing false-positive "loader family" claims.
+- Seed-YAML entries with no AST backing (e.g., `.kmap` -- see below) silently pass the extraction pipeline, producing false-positive "loader family" claims.
 
 The realignment fixes all three by executing three sequential passes. The final visible artifact is an interactive HTML dashboard that makes the system's structure and extractor hygiene visible at a glance.
 
@@ -126,10 +126,10 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 
 ### Verification statuses (concept)
 
-- **ast_verified** — extractor's AST pass found authoritative declarations in engine source. Count matches the data.
-- **seed_only_with_ast_support** — seed YAML provides the taxonomy; AST pass verifies that individual entries have matching call sites or struct declarations. Example: asset_categories where the category is named in seed but loader-sites confirm actual engine use.
-- **seed_only_no_ast_support** — seed YAML claims something that the AST pass cannot verify. Needs a follow-up decision: either find evidence elsewhere (different engine, different subsystem), downgrade to `orphaned_historical`, or remove.
-- **orphaned_historical** — the engine no longer consumes this data. Files may still ship for legacy reasons. Example: `.kmap` files ship in `ezquake.pk3/keymaps/` but loader support was removed in ezQuake commit `46b5046` on 2014-01-12. Documenting this is more useful than deleting: it explains to the next reader why the files appear in user installs but are not live facts.
+- **ast_verified** -- extractor's AST pass found authoritative declarations in engine source. Count matches the data.
+- **seed_only_with_ast_support** -- seed YAML provides the taxonomy; AST pass verifies that individual entries have matching call sites or struct declarations. Example: asset_categories where the category is named in seed but loader-sites confirm actual engine use.
+- **seed_only_no_ast_support** -- seed YAML claims something that the AST pass cannot verify. Needs a follow-up decision: either find evidence elsewhere (different engine, different subsystem), downgrade to `orphaned_historical`, or remove.
+- **orphaned_historical** -- the engine no longer consumes this data. Files may still ship for legacy reasons. Example: `.kmap` files ship in `ezquake.pk3/keymaps/` but loader support was removed in ezQuake commit `46b5046` on 2014-01-12. Documenting this is more useful than deleting: it explains to the next reader why the files appear in user installs but are not live facts.
 
 ### Worked example (reference for Pass 2)
 
@@ -140,7 +140,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 
 **What it entails:** A named value the engine reads and the player can set. Covers every adjustable aspect of the client: graphics (`gl_fog`), input (`sensitivity`), gameplay toggles (`cl_smartjump`), teamplay behavior (`tp_pickup`), HUD layout. The schema stores name, default, type (int/float/string/enum), description, flag bits (`CVAR_ARCHIVE`, `CVAR_USERINFO`, etc.), enum values where applicable, and the source file plus line where the cvar was declared.
 
-**Why we extract it:** cvars are the primary surface a player tunes. A config file is 95% cvar assignments. Any consumer that wants to understand, visualize, or validate a config needs the cvar definitions — types, defaults, valid enum values. Without this table, `seta crosshair 3` is just text.
+**Why we extract it:** cvars are the primary surface a player tunes. A config file is 95% cvar assignments. Any consumer that wants to understand, visualize, or validate a config needs the cvar definitions -- types, defaults, valid enum values. Without this table, `seta crosshair 3` is just text.
 
 **Example:** `sensitivity 3.0`, `cl_crossx -2`, `gl_fog 1`. In-engine declaration: `cvar_t sensitivity = { "sensitivity", "3", CVAR_ARCHIVE | CVAR_USERINFO };`
 
@@ -154,7 +154,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 - Schema: `SCHEMA.md#cvars`
 - Extractor: `packages/qw-config/scripts/extract-ezquake-cvars-clang.py`
 
-## Pass 1 — Monorepo doc realignment
+## Pass 1 -- Monorepo doc realignment
 
 **Goal:** Fix the docs-vs-reality drift so the two-part ecosystem model is authoritative across every VISION/OVERVIEW file in the monorepo.
 
@@ -206,7 +206,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 - Do NOT write per-entity-type documentation (that is Pass 2's job).
 - Do NOT build the HTML dashboard or any of its data files (that is Pass 3's job).
 - Do NOT retroactively validate seed-YAML entries (e.g., the `.kmap` question). Flag the finding in Pass 2; do not audit in Pass 1.
-- Resist scope creep into non-tier-impacting doc cleanup. Matchscheduler docs drift, quad docs drift, qw-stats docs drift — all separate sessions. Only touch them if a specific ecosystem-model claim requires it.
+- Resist scope creep into non-tier-impacting doc cleanup. Matchscheduler docs drift, quad docs drift, qw-stats docs drift -- all separate sessions. Only touch them if a specific ecosystem-model claim requires it.
 - Do NOT rename qw-config on disk. Naming change is moot - the package dissolves on migration rather than being renamed.
 
 ### Output
@@ -215,7 +215,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 - HANDOVER entries resolved (deleted, not struck).
 - No new HANDOVER entries unless Pass 1 surfaces a genuine follow-up that cannot be folded.
 
-## Pass 2 — Per-entity formal documentation
+## Pass 2 -- Per-entity formal documentation
 
 **Goal:** Produce authoritative per-entity-type documentation for all 10 ezQuake entity types, with verification-status field populated by auditing seed YAMLs against AST output. This content becomes the data source for the Pass 3 dashboard.
 
@@ -228,7 +228,7 @@ Every Layer 1 entity type documented identically. Five fields per entry, plus a 
 
 ### What to produce
 
-A new file: `apps/qw-oracle/docs/entity-types.md` (or a reorganized section of `SCHEMA.md` — decide based on size).
+A new file: `apps/qw-oracle/docs/entity-types.md` (or a reorganized section of `SCHEMA.md` -- decide based on size).
 
 One writeup per entity type, using the template. The 10 types:
 
@@ -241,7 +241,7 @@ One writeup per entity type, using the template. The 10 types:
 7. ruleset
 8. token_primitive
 9. flag_bit
-10. asset_category (plus the 4 relation tables: asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites — covered as sub-sections)
+10. asset_category (plus the 4 relation tables: asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites -- covered as sub-sections)
 
 ### Verification-status audit
 
@@ -249,10 +249,10 @@ For each entity type, audit as follows:
 
 1. Open the extractor script. Confirm it emits what the schema claims.
 2. If a seed YAML exists (e.g., `ezquake-asset-categories.yaml`, `ezquake-asset-extensions.yaml`), compare seed entries to AST output.
-3. Mark each entity type's overall status. Individual sub-entries (within asset_category) may have their own status — the dashboard reflects that.
+3. Mark each entity type's overall status. Individual sub-entries (within asset_category) may have their own status -- the dashboard reflects that.
 4. Concrete findings expected (based on this roadmap session's investigation):
    - `.kmap` extension in `ezquake-asset-extensions.yaml` is `orphaned_historical`. ezQuake removed keymap loader support in commit `46b5046` (2014-01-12). Files still ship in `ezquake.pk3/keymaps/` but no C code consumes them. Document; do not fix the seed in Pass 2.
-   - Other entries in the 9 "missing loader families" added by commit `119dd0e` (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`, `.dll`) — audit each. Some may be `seed_only_with_ast_support` (engine loads them via a path not captured in the initial extractor pass), some may be `orphaned_historical`, some may need AST-extractor work to upgrade.
+   - Other entries in the 9 "missing loader families" added by commit `119dd0e` (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`, `.dll`) -- audit each. Some may be `seed_only_with_ast_support` (engine loads them via a path not captured in the initial extractor pass), some may be `orphaned_historical`, some may need AST-extractor work to upgrade.
 
 ### Acceptance criteria
 
@@ -276,7 +276,7 @@ For each entity type, audit as follows:
 - Committed `apps/qw-oracle/docs/entity-types.md` (or equivalent).
 - Any new HANDOVER entries for repair work surfaced by the audit (e.g., "seed-YAML cleanup of orphaned_historical entries").
 
-## Pass 3 — GitHub-navigable per-entity doc + README refresh
+## Pass 3 -- GitHub-navigable per-entity doc + README refresh
 
 **Goal:** Make Pass 2's per-entity content discoverable and compact-by-default on GitHub, and bring the qw-oracle README + root README into alignment with the Pass 1 ecosystem model.
 
@@ -345,14 +345,14 @@ After all three passes ship, the maintenance model is:
 
 ## Related docs
 
-- `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md` — Layer 1 identity model (source-derived + artifact-derived tracks). Still authoritative. Artifact-derived facts (BSP, progs.dat, pak/pk3, WAD, MDL/SPR) slot into `entity-types.md` as additional `## entity_name` sections when their parsers ship.
-- `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` — prior spec for Capabilities A + D (parameterized paths + reserved subdirs). In-flight. The AST extractor optimization running in parallel with this session implements these.
-- `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` — the doc-philosophy spec that Pass 3's reshape respects. Directly drove the revision from "new HTML dashboard" to "reshape existing Layer 3 doc in place."
-- `apps/qw-oracle/SCHEMA.md` — Layer 1 data model. Pass 2 references it extensively; may be lightly edited.
-- `apps/qw-oracle/VISION.md` — rewritten in Pass 1.
-- `apps/qw-oracle/README.md` — refreshed in Pass 3 to name the serving surfaces + consumers explicitly and link to `docs/entity-types.md`.
-- `HANDOVER.md` — two entries cleared by Pass 1 (qw-config quartet closed on structural basis; web-services addendum folded). Pass 3 adds a new deferred-HTML-dashboard entry and a per-app doc-philosophy-compliance umbrella.
-- `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` — visual reference kept as the target shape for the deferred HTML dashboard. When/if that dashboard ships, this is the mockup it lands against.
+- `docs/superpowers/specs/2026-04-21-layer1-identity-model-design.md` -- Layer 1 identity model (source-derived + artifact-derived tracks). Still authoritative. Artifact-derived facts (BSP, progs.dat, pak/pk3, WAD, MDL/SPR) slot into `entity-types.md` as additional `## entity_name` sections when their parsers ship.
+- `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` -- prior spec for Capabilities A + D (parameterized paths + reserved subdirs). In-flight. The AST extractor optimization running in parallel with this session implements these.
+- `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` -- the doc-philosophy spec that Pass 3's reshape respects. Directly drove the revision from "new HTML dashboard" to "reshape existing Layer 3 doc in place."
+- `apps/qw-oracle/SCHEMA.md` -- Layer 1 data model. Pass 2 references it extensively; may be lightly edited.
+- `apps/qw-oracle/VISION.md` -- rewritten in Pass 1.
+- `apps/qw-oracle/README.md` -- refreshed in Pass 3 to name the serving surfaces + consumers explicitly and link to `docs/entity-types.md`.
+- `HANDOVER.md` -- two entries cleared by Pass 1 (qw-config quartet closed on structural basis; web-services addendum folded). Pass 3 adds a new deferred-HTML-dashboard entry and a per-app doc-philosophy-compliance umbrella.
+- `docs/superpowers/specs/assets/2026-04-22-dashboard-mockup-v2.html` -- visual reference kept as the target shape for the deferred HTML dashboard. When/if that dashboard ships, this is the mockup it lands against.
 
 ## Not in scope for this roadmap
 

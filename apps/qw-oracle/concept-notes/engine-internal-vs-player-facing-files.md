@@ -81,7 +81,7 @@ The axis exists because slipgate (and any similar tool that presents quake-dir c
 - `cl_modelnames[]` declaration: `src/client.h:1065`; initialisation block: `src/cl_ents.c:56-147`.
 - Slipgate browse mode: `apps/slipgate-app/src-tauri/src/commands/browse.rs` - the Rust scanner that produces the flat file tree.
 - Slipgate browse UI: `apps/slipgate-app/src/components/MyQuakeTab.tsx` - the three-pane view where the axis would drive display choices.
-- Layer 1 extensions table: `packages/qw-config/seeds/ezquake-asset-extensions.yaml` and the per-row audit notes in `apps/qw-oracle/docs/entity-types.md` § asset_extensions.
+- Layer 1 extensions table: `packages/qw-config/seeds/ezquake-asset-extensions.yaml` and the per-row audit notes in `apps/qw-oracle/docs/entity-types.md` Section  asset_extensions.
 - Community testimony: per ParadokS, 2026-04-22, the `.spr` finding is a representative example of a broader class - many files in `pak0.pak` / `pak1.pak` are engine-internal by construction, invisible to players under vanilla browsers, and worth annotating for tools that expose them.
 
 ## Related concept notes

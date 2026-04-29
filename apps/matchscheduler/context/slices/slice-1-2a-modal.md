@@ -9,7 +9,7 @@
 ## PRD Mapping
 ```
 PRIMARY SECTIONS:
-- 2.2 Authenticated (No Profile) → Team Member: Unified modal flow
+- 2.2 Authenticated (No Profile) -> Team Member: Unified modal flow
 - 4.3.1 Team Creation & Initial Setup: Post-creation experience
 
 DEPENDENT SECTIONS:

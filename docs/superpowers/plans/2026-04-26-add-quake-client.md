@@ -1,11 +1,11 @@
-# Add Quake Client — Phase 3.5b of Quake Dir Control
+# Add Quake Client -- Phase 3.5b of Quake Dir Control
 
-> **PASS-2 REVISION APPLIED 2026-04-27 evening.** Phase 3.5a (`docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`) shipped on `d07e275` + the nav-flatten polish on `f6f2b39`; this plan now reflects post-3.5a reality. Pass-2 absorbed the reviewer's F2-F14 findings and the four open operator decisions surfaced during the 2026-04-27 design conversation. F1 (entry-point ambiguity) dissolved under 3.5a's restructure — AddClientPanel now lives inside ClientsDomain, no router-jump or modal-overlay needed. Plan is execution-ready.
+> **PASS-2 REVISION APPLIED 2026-04-27 evening.** Phase 3.5a (`docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`) shipped on `d07e275` + the nav-flatten polish on `f6f2b39`; this plan now reflects post-3.5a reality. Pass-2 absorbed the reviewer's F2-F14 findings and the four open operator decisions surfaced during the 2026-04-27 design conversation. F1 (entry-point ambiguity) dissolved under 3.5a's restructure -- AddClientPanel now lives inside ClientsDomain, no router-jump or modal-overlay needed. Plan is execution-ready.
 >
 > **What changed in pass-2** (deltas from the 2026-04-27 afternoon first-pass revision in commit `01e4081`):
-> - Goal updated for honest scope (Tier-2 nudge fires only for stable + unezQuake channels in 3.5b; FTE + ezQuake-snapshot rows render identity but no upgrade-nudge UX — F14).
-> - Architecture: drop "router into MyQuake → Browse → Clients filter" framing. The 3.5a + nav-flatten left MyQuake with a single flat nav: `[Browse] | [Clients] [Configs] [Maps] [Matches] [Assets]`. AddClientPanel renders inside the Clients view (`ClientsDomain.tsx`) when the user clicks "Add Quake client" on the existing VersionWarehouse panel.
-> - Critical context items 7, 8, 13 rewritten — pre-3.5a framing of "MyQuake browser is passive" / "CLIENTS DETECTED sidebar" / "Clients filter view" no longer applies.
+> - Goal updated for honest scope (Tier-2 nudge fires only for stable + unezQuake channels in 3.5b; FTE + ezQuake-snapshot rows render identity but no upgrade-nudge UX -- F14).
+> - Architecture: drop "router into MyQuake -> Browse -> Clients filter" framing. The 3.5a + nav-flatten left MyQuake with a single flat nav: `[Browse] | [Clients] [Configs] [Maps] [Matches] [Assets]`. AddClientPanel renders inside the Clients view (`ClientsDomain.tsx`) when the user clicks "Add Quake client" on the existing VersionWarehouse panel.
+> - Critical context items 7, 8, 13 rewritten -- pre-3.5a framing of "MyQuake browser is passive" / "CLIENTS DETECTED sidebar" / "Clients filter view" no longer applies.
 > - D6 reframed (F4): variant is a separate `variant: Option<String>` field on `WarehousedVersion`, NOT a version-key suffix. Warehouse path becomes `binaries/ezquake/3.6.6/variants/glsl/manifest.json` (nested under the version dir). Version-resolution lib stays variant-naive. Decoupling avoids contaminating oracle's snapshot-consumer downstream.
 > - D7 reframed: Unknown filtering happens at the AddClientPanel checklist level, not "in MyQuake's Browse view's Clients filter" (no such filter exists post-3.5a).
 > - New D9: Multi-quake-dir semantics (F10). Bulk-import dir defaults to warehouse-only without claiming the dir as primary. Promoting a dir to primary is a separate explicit action.
@@ -20,15 +20,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Single-button "Add Quake client" flow inside MyQuake → Clients that identifies clients in a chosen folder via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly (family / matched-to-official / unrecognized), and makes the "switch to latest official" path one click away from any unrecognized state.
+**Goal:** Single-button "Add Quake client" flow inside MyQuake -> Clients that identifies clients in a chosen folder via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly (family / matched-to-official / unrecognized), and makes the "switch to latest official" path one click away from any unrecognized state.
 
-**Honest goal scope (3.5b):** The "switch to latest official" Tier-2 nudge fires for client channels with live release-cache data — ezQuake stable, unezQuake (both via GitHub Releases), KTX/MVDSV/QWFWD (relevant for the updater consumer, not the fingerprinter directly). It does NOT fire for ezQuake snapshot or FTE in 3.5b: BuildsQuakeworld scraping for snapshot lives in the updater today and is intentionally NOT replicated into release_cache for this phase; FTE has no "official release" concept (continuous nightly builds at fte.triptohell.info). Snapshot + FTE rows render identity (family + version + verified-or-unrecognized status) but skip the upgrade-nudge UX. Both are documented stub states; future arcs widen Tier-2 coverage.
+**Honest goal scope (3.5b):** The "switch to latest official" Tier-2 nudge fires for client channels with live release-cache data -- ezQuake stable, unezQuake (both via GitHub Releases), KTX/MVDSV/QWFWD (relevant for the updater consumer, not the fingerprinter directly). It does NOT fire for ezQuake snapshot or FTE in 3.5b: BuildsQuakeworld scraping for snapshot lives in the updater today and is intentionally NOT replicated into release_cache for this phase; FTE has no "official release" concept (continuous nightly builds at fte.triptohell.info). Snapshot + FTE rows render identity (family + version + verified-or-unrecognized status) but skip the upgrade-nudge UX. Both are documented stub states; future arcs widen Tier-2 coverage.
 
-**Position in roadmap:** Phase 3.5b of Quake Dir Control — runs after Phase 3.5a (`2026-04-27-clients-as-myquake-domain.md`, shipped `d07e275`) + the MyQuake nav flatten (`f6f2b39`). Position between Phase 3 (swap + UI + delete) and Phase 4 (oracle snapshot widening). Phases 4-5 (diff viewer) only deliver value when multiple versions exist in the warehouse, which only happens at scale once Add Client exists. Sequence-wise this puts user-facing value first, internal plumbing later.
+**Position in roadmap:** Phase 3.5b of Quake Dir Control -- runs after Phase 3.5a (`2026-04-27-clients-as-myquake-domain.md`, shipped `d07e275`) + the MyQuake nav flatten (`f6f2b39`). Position between Phase 3 (swap + UI + delete) and Phase 4 (oracle snapshot widening). Phases 4-5 (diff viewer) only deliver value when multiple versions exist in the warehouse, which only happens at scale once Add Client exists. Sequence-wise this puts user-facing value first, internal plumbing later.
 
-**Position in the bigger picture (added 2026-04-27 second-pass review):** This phase is the first explicit Tier 1 → Tier 2 crossing in slipgate's four-tier opt-in ladder (don't use / read-only / managed versions / full dir management — see memory `project_slipgate_tier_ladder.md`). Phase 3.5 builds the binary-domain consumer of the warehouse + swap substrate Phase 2/3 already shipped. That substrate (content-addressed blobs + per-thing manifests + top-level index + atomic-rename swap to canonical slot) generalizes to non-binary content; future arcs (asset warehouse + 1-click texture-set switching, bundle install, clean-room migration) reuse the same primitives at parallel `<data-root>/<kind>/...` roots — see HANDOVER's "Tier 3 future arcs" entry. So Phase 3.5's design choices set precedent for far more than just this feature. Two consequences worth being conscious of: (1) the action grammar Phase 3.5 establishes on Clients-Domain rows (Import / Set primary / Remove from warehouse / Switch) will be reused on every future Domain (Assets, Bundles, Maps, Matches); (2) the bulk-import flow's UI shell (entry-point button → folder/file picker → checklist with default-select-all → primary radio → bulk import) will be the same shell future bundle-install / clean-room-migration flows reuse, with only the source changing (existing files on disk → assets.quake.world catalog).
+**Position in the bigger picture (added 2026-04-27 second-pass review):** This phase is the first explicit Tier 1 -> Tier 2 crossing in slipgate's four-tier opt-in ladder (don't use / read-only / managed versions / full dir management -- see memory `project_slipgate_tier_ladder.md`). Phase 3.5 builds the binary-domain consumer of the warehouse + swap substrate Phase 2/3 already shipped. That substrate (content-addressed blobs + per-thing manifests + top-level index + atomic-rename swap to canonical slot) generalizes to non-binary content; future arcs (asset warehouse + 1-click texture-set switching, bundle install, clean-room migration) reuse the same primitives at parallel `<data-root>/<kind>/...` roots -- see HANDOVER's "Tier 3 future arcs" entry. So Phase 3.5's design choices set precedent for far more than just this feature. Two consequences worth being conscious of: (1) the action grammar Phase 3.5 establishes on Clients-Domain rows (Import / Set primary / Remove from warehouse / Switch) will be reused on every future Domain (Assets, Bundles, Maps, Matches); (2) the bulk-import flow's UI shell (entry-point button -> folder/file picker -> checklist with default-select-all -> primary radio -> bulk import) will be the same shell future bundle-install / clean-room-migration flows reuse, with only the source changing (existing files on disk -> assets.quake.world catalog).
 
-**Architecture:** A `ClientFingerprint` Rust module reads PE StringFileInfo (translation table enumeration + InternalName/ProductName/version-string lookup) to identify Quake clients in any folder slipgate scans. A `release_cache` Rust module owns per-(client, channel) GitHub Releases data (per-channel JSON files at `<data-root>/release-cache/<client>-<channel>.json`), refresh-on-launch with 24h staleness check. A new `bulk_import_clients` Rust command orchestrates the import-flow Rust side (per-row hash → register → optional canonicalize-rename → swap_active_version for the primary). The "Add Quake client" entry-point button (Phase 3 stubbed it in `VersionWarehouse.tsx`) opens an `AddClientPanel` overlay component inside MyQuake → Clients (where ClientsDomain hosts VersionWarehouse). User picks a folder or specific exe; the panel calls `scan_clients_in_dir` (a thin Tauri wrapper around `fingerprint_folder`); the panel renders a default-select-all checklist of detected clients with primary-radio; user clicks Import; the panel calls `bulk_import_clients`.
+**Architecture:** A `ClientFingerprint` Rust module reads PE StringFileInfo (translation table enumeration + InternalName/ProductName/version-string lookup) to identify Quake clients in any folder slipgate scans. A `release_cache` Rust module owns per-(client, channel) GitHub Releases data (per-channel JSON files at `<data-root>/release-cache/<client>-<channel>.json`), refresh-on-launch with 24h staleness check. A new `bulk_import_clients` Rust command orchestrates the import-flow Rust side (per-row hash -> register -> optional canonicalize-rename -> swap_active_version for the primary). The "Add Quake client" entry-point button (Phase 3 stubbed it in `VersionWarehouse.tsx`) opens an `AddClientPanel` overlay component inside MyQuake -> Clients (where ClientsDomain hosts VersionWarehouse). User picks a folder or specific exe; the panel calls `scan_clients_in_dir` (a thin Tauri wrapper around `fingerprint_folder`); the panel renders a default-select-all checklist of detected clients with primary-radio; user clicks Import; the panel calls `bulk_import_clients`.
 
 **Tech stack:** Tauri v2 + SolidJS + Rust + Bun (unchanged from earlier QDC phases). PE-string reading via `windows::Win32::Storage::FileSystem::VerQueryValueW` (already used by `ezquake.rs:read_exe_version`). Release-cache fetches via `reqwest` (already in use by `updater.rs`). Frontend tests `bun:test`.
 
@@ -42,7 +42,7 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 2. **Tauri command registration is two-step.** Adding a new Tauri command requires `pub mod <name>;` in `src-tauri/src/commands/mod.rs` AND the `#[tauri::command]` function listed in `tauri::generate_handler![]` in `src-tauri/src/lib.rs`. Forgetting either side gives a runtime "command not found" error in the frontend, not a compile error.
 
-3. **`ezquake.rs:read_exe_version` is the existing PE-reading model.** Lines 1763-1819 show the full pattern: `GetFileVersionInfoSizeW` → `GetFileVersionInfoW` → `VerQueryValueW` for the `\` sub-block (which gives `VS_FIXEDFILEINFO` numeric version). The new fingerprinter reuses this scaffolding but does additional `VerQueryValueW` calls for the `\StringFileInfo\<lang+cp>\<KeyName>` paths to read CompanyName, ProductName, InternalName, FileVersion, ProductVersion strings.
+3. **`ezquake.rs:read_exe_version` is the existing PE-reading model.** Lines 1763-1819 show the full pattern: `GetFileVersionInfoSizeW` -> `GetFileVersionInfoW` -> `VerQueryValueW` for the `\` sub-block (which gives `VS_FIXEDFILEINFO` numeric version). The new fingerprinter reuses this scaffolding but does additional `VerQueryValueW` calls for the `\StringFileInfo\<lang+cp>\<KeyName>` paths to read CompanyName, ProductName, InternalName, FileVersion, ProductVersion strings.
 
 4. **Translation table enumeration is mandatory, not optional.** Different clients use different langid+codepage combinations:
    - ezQuake uses `040904B0` (US English / Unicode 04B0)
@@ -50,27 +50,27 @@ Read this section before starting. These gotchas are not optional knowledge.
    - Other forks may use other combinations
    The fingerprinter MUST query `\VarFileInfo\Translation` first to get the list of available pairs, then iterate them building `\StringFileInfo\<lang+cp>\<KeyName>` paths. Hardcoding `040904B0` will fail on FTE binaries.
 
-5. **`parse_pe_version` is now `pub` in `commands/updater.rs:157`** (made pub during Phase 2 normalization fix `ae875ca`). Reuse it for normalizing version strings from numeric VS_FIXEDFILEINFO when needed; it's the canonical helper for the "3.6.6.7947" → "3.6.6" conversion.
+5. **`parse_pe_version` is now `pub` in `commands/updater.rs:157`** (made pub during Phase 2 normalization fix `ae875ca`). Reuse it for normalizing version strings from numeric VS_FIXEDFILEINFO when needed; it's the canonical helper for the "3.6.6.7947" -> "3.6.6" conversion.
 
 6. **`read_exe_version` is Windows-only.** `commands/ezquake.rs:1765` is `#[cfg(target_os = "windows")]`; the Linux fallback returns None. WSL dev mode cannot read PE versions. The same pattern applies to ALL PE-string reading. The new `ClientFingerprint` module returns `Unknown` on non-Windows. Tests use Windows-only `#[cfg(target_os = "windows")]` guards or fixture data that doesn't depend on PE parsing.
 
-7. **MyQuake's IA after 3.5a + nav-flatten:** flat top-row nav `[Browse] | [Clients] [Configs] [Maps] [Matches] [Assets]` with `[Rescan] [Dump inventory]` right-aligned. Clients view is rendered by `ClientsDomain.tsx` and contains Installation + Versions sections (the Versions section IS the Phase 3 `VersionWarehouse.tsx` panel, with the existing stubbed "Add Quake client" button). This phase ADDS an `AddClientPanel` component that opens as an overlay (or replaces ClientsDomain content temporarily) when the user clicks the Add-Client button, and handles the bulk-import flow. ClientsDomain itself doesn't gain new sections — AddClientPanel is a transient sibling surface.
+7. **MyQuake's IA after 3.5a + nav-flatten:** flat top-row nav `[Browse] | [Clients] [Configs] [Maps] [Matches] [Assets]` with `[Rescan] [Dump inventory]` right-aligned. Clients view is rendered by `ClientsDomain.tsx` and contains Installation + Versions sections (the Versions section IS the Phase 3 `VersionWarehouse.tsx` panel, with the existing stubbed "Add Quake client" button). This phase ADDS an `AddClientPanel` component that opens as an overlay (or replaces ClientsDomain content temporarily) when the user clicks the Add-Client button, and handles the bulk-import flow. ClientsDomain itself doesn't gain new sections -- AddClientPanel is a transient sibling surface.
 
 8. **The CLIENTS DETECTED sidebar from pre-3.5a is gone.** It was a Browse-mode-only sidebar listing detected clients in the user's quake dir. After 3.5a, client management is in the Clients view (Domain), not in Browse's sidebar. This phase does NOT bring it back. The "what clients are detected in this folder" list now appears inside AddClientPanel's checklist when the user explicitly initiates an Add-Client flow with a chosen folder.
 
-9. **Updater already fetches GitHub Releases — and stays as-is in Phase 3.5.** `commands/updater.rs:fetch_github_releases` (around line 182) is the existing ad-hoc fetch. Phase 3.5 adds `release_cache` module as a parallel system for the fingerprinter's Tier-2 lookup needs. Consolidating updater to consume `release_cache` is **deferred to a future cleanup arc** — touching shipped/working code for a non-functional consolidation isn't worth the regression risk in this phase. Two systems coexist for now; consolidation lands when there's a functional reason to touch the updater (e.g. future "release notes panel" feature).
+9. **Updater already fetches GitHub Releases -- and stays as-is in Phase 3.5.** `commands/updater.rs:fetch_github_releases` (around line 182) is the existing ad-hoc fetch. Phase 3.5 adds `release_cache` module as a parallel system for the fingerprinter's Tier-2 lookup needs. Consolidating updater to consume `release_cache` is **deferred to a future cleanup arc** -- touching shipped/working code for a non-functional consolidation isn't worth the regression risk in this phase. Two systems coexist for now; consolidation lands when there's a functional reason to touch the updater (e.g. future "release notes panel" feature).
 
 10. **No new heavy Rust deps.** `reqwest`, `serde_json`, `sha2`, `tokio` are all already in `Cargo.toml`. The release-cache fetches use `reqwest`; cache files use `serde_json`. No new crates needed.
 
-11. **FTE distribution model is fundamentally different.** FTE has no concept of "official release" — it's continuous nightly builds at `fte.triptohell.info` with build numbers in the thousands. The `release_cache` module's per-client policy MUST treat FTE differently: skip Tier 2 entirely. The fingerprinter classifies FTE binaries as "FTE QW (build NNN)" without judgment. The upgrade-nudge UX for FTE becomes "build NNN is from <date>; latest available is build MMM" rather than "this is unrecognized."
+11. **FTE distribution model is fundamentally different.** FTE has no concept of "official release" -- it's continuous nightly builds at `fte.triptohell.info` with build numbers in the thousands. The `release_cache` module's per-client policy MUST treat FTE differently: skip Tier 2 entirely. The fingerprinter classifies FTE binaries as "FTE QW (build NNN)" without judgment. The upgrade-nudge UX for FTE becomes "build NNN is from <date>; latest available is build MMM" rather than "this is unrecognized."
 
 12. **Default-select-all is the bulk-import policy** (operator's stated workflow: "i can just import all"). When the user opens the Add Client checklist, every detected client row is pre-ticked. User unticks the ones they don't want; the affirmative bulk action ("Import selected") is the primary CTA. This matches operator's actual workflow on a multi-version quake dir AND nudges users toward an organized warehouse.
 
-13. **Unknown / non-client exes are filtered before the user sees the import list.** AddClientPanel's checklist shows ONLY fingerprinter-classified clients (ezQuake / unezQuake-family / FTE). Tools (qizmo, qwdtools), debug symbols (`.exe.db`), generic utilities (wget), and unrecognized binaries are NOT in the checklist — there's no "tick this random.exe to import" option. The fingerprinter's Unknown classification is a pre-filter; `scan_clients_in_dir` already drops Unknown rows server-side so they never cross the Tauri boundary.
+13. **Unknown / non-client exes are filtered before the user sees the import list.** AddClientPanel's checklist shows ONLY fingerprinter-classified clients (ezQuake / unezQuake-family / FTE). Tools (qizmo, qwdtools), debug symbols (`.exe.db`), generic utilities (wget), and unrecognized binaries are NOT in the checklist -- there's no "tick this random.exe to import" option. The fingerprinter's Unknown classification is a pre-filter; `scan_clients_in_dir` already drops Unknown rows server-side so they never cross the Tauri boundary.
 
 14. **No FTE config parsing in this phase.** The fingerprinter classifying a binary as FTE means slipgate knows to warehouse it as an FTE client. It does NOT mean slipgate can read FTE configs, classify FTE binds, or interact with FTE's gamedir conventions. That's a separate massive arc tracked elsewhere. This phase produces "switch between exes" capability for FTE; understanding FTE's content is future work.
 
-15. **unezQuake repo is locally cloned** at `research/repos/unezquake/` (gitignored). Use it for authority lookups during fingerprinter development — e.g., confirming what their .rc file says, what cvars distinguish them from vanilla ezQuake, what their GitHub Releases naming scheme is.
+15. **unezQuake repo is locally cloned** at `research/repos/unezquake/` (gitignored). Use it for authority lookups during fingerprinter development -- e.g., confirming what their .rc file says, what cvars distinguish them from vanilla ezQuake, what their GitHub Releases naming scheme is.
 
 16. **Slipgate dev devtools `invoke()` calls don't work** (per `reference_slipgate_devtools_invoke.md`). For Phase 3.5 verification, prefer filesystem inspection (`<data-root>/release-cache/<client>.json`, `<data-root>/binaries/<client>/<version>/manifest.json`) and PowerShell one-liners over devtools-driven checks.
 
@@ -82,11 +82,11 @@ These resolve structural choices made during the 2026-04-26 evening design conve
 
 ### D1. Single button entry point inside ClientsDomain
 
-**Decision:** The "Add Quake client" button (Phase 3 stubbed it inside `VersionWarehouse.tsx`) opens an `AddClientPanel` component inside the same MyQuake → Clients view. The panel can render as an overlay over the existing Versions list, or as a temporary mode-replacement of the Clients view, or inline above the Versions list — all three are within the design space; pick during sub-phase 4 task 4.3 by what feels right against the live app.
+**Decision:** The "Add Quake client" button (Phase 3 stubbed it inside `VersionWarehouse.tsx`) opens an `AddClientPanel` component inside the same MyQuake -> Clients view. The panel can render as an overlay over the existing Versions list, or as a temporary mode-replacement of the Clients view, or inline above the Versions list -- all three are within the design space; pick during sub-phase 4 task 4.3 by what feels right against the live app.
 
 **Why:** Operator's stated framing: "i would attempt to make it a single point of entry to simplify it for the user. Add Quake client, and then we have some good ui that guides the user to show us to the quake folder to scan, or a direct exe." Discovery-and-curation in one step replaces the alternatives of either auto-importing everything found (warehouse bloat) or refusing to act (forces user to type paths).
 
-Pre-3.5a versions of this plan said "router into MyQuake → Browse → Clients filter" — that framing dissolved because (a) Browse's Clients filter never existed, (b) 3.5a moved client management out of Browse and into Domains, (c) Browse is gated on `props.exePath` and a Tier 1 → Tier 2 user has no exePath yet so Browse is a dead end for the entry. ClientsDomain hosts everything client-related; AddClientPanel slots in there cleanly.
+Pre-3.5a versions of this plan said "router into MyQuake -> Browse -> Clients filter" -- that framing dissolved because (a) Browse's Clients filter never existed, (b) 3.5a moved client management out of Browse and into Domains, (c) Browse is gated on `props.exePath` and a Tier 1 -> Tier 2 user has no exePath yet so Browse is a dead end for the entry. ClientsDomain hosts everything client-related; AddClientPanel slots in there cleanly.
 
 **Phase:** Sub-phase 4 (entry-point flow).
 
@@ -94,21 +94,21 @@ Pre-3.5a versions of this plan said "router into MyQuake → Browse → Clients 
 
 **Decision:** When the user opens the Clients filter checklist, every detected client row is pre-ticked. Primary CTA is "Import selected." User unticks rows they don't want; if they want only one, they untick the others.
 
-**Why:** Operator's workflow: "i can just import all, so i have a functional overview of what my quake dir consist of and i can easy switch to another." Default-select-all matches that workflow with one click ("Import selected") rather than N clicks to tick each row. Also nudges toward an organized warehouse — even users who weren't planning to "import everything" get the value of "now I know what's in my quake dir" without extra friction.
+**Why:** Operator's workflow: "i can just import all, so i have a functional overview of what my quake dir consist of and i can easy switch to another." Default-select-all matches that workflow with one click ("Import selected") rather than N clicks to tick each row. Also nudges toward an organized warehouse -- even users who weren't planning to "import everything" get the value of "now I know what's in my quake dir" without extra friction.
 
-For users who only want one client warehoused (operator's "perfect world" target state), the cost is N-1 unticks — still trivial for typical dirs (1-5 clients).
+For users who only want one client warehoused (operator's "perfect world" target state), the cost is N-1 unticks -- still trivial for typical dirs (1-5 clients).
 
 **Phase:** Sub-phase 4 (entry-point flow).
 
 ### D3. release_cache as a parallel module; updater refactor deferred
 
-**Decision:** New `commands/release_cache.rs` module owns GitHub Releases data fetching for Phase 3.5's fingerprinter Tier-2 lookups. Caches at `<data-root>/release-cache/<client>-<channel>.json` (per D11 — per-channel keying, not per-client). Refresh-on-launch with 24-hour staleness check. Phase 3.5 does **NOT** refactor `commands/updater.rs:fetch_github_releases` to consume `release_cache` — the two systems coexist as parallel fetchers for now. Consolidation is deferred to a future cleanup arc.
+**Decision:** New `commands/release_cache.rs` module owns GitHub Releases data fetching for Phase 3.5's fingerprinter Tier-2 lookups. Caches at `<data-root>/release-cache/<client>-<channel>.json` (per D11 -- per-channel keying, not per-client). Refresh-on-launch with 24-hour staleness check. Phase 3.5 does **NOT** refactor `commands/updater.rs:fetch_github_releases` to consume `release_cache` -- the two systems coexist as parallel fetchers for now. Consolidation is deferred to a future cleanup arc.
 
 **Why coexistence over refactor:**
 
 - Updater is shipped, working, and not under active development. Refactoring it to consume `release_cache` is a non-functional consolidation. Phase 3.5's risk surface is already substantial (PE-string parsing, MyQuake actionability, bulk-import flow); adding updater regression risk for no user-visible benefit is bad ROI.
 - Two GitHub Releases fetchers in one app is mildly wasteful (~2KB per refresh, both 24-hour cached) but not harmful.
-- Consolidation has a natural future trigger: when a feature like "release notes panel" or "show me what changed in 3.6.10" lands, it'll want the same data both updater and `release_cache` already fetch. That's the moment to consolidate — not a speculative cleanup pass during 3.5.
+- Consolidation has a natural future trigger: when a feature like "release notes panel" or "show me what changed in 3.6.10" lands, it'll want the same data both updater and `release_cache` already fetch. That's the moment to consolidate -- not a speculative cleanup pass during 3.5.
 
 **Why a shared module at all (vs `release_cache` living inside the fingerprinter):**
 
@@ -116,13 +116,13 @@ For users who only want one client warehoused (operator's "perfect world" target
 - `release_cache` is small and content-shaped (clients have releases; releases have metadata). Easier to test in isolation than as a fingerprinter sub-component.
 - Future asset/bundle work likely wants its own catalog cache (parallel `asset_catalog_cache` against assets.quake.world); shipping `release_cache` as a clean module establishes the pattern for those parallels.
 
-**Phase:** Sub-phase 2 (release_cache module only — no updater refactor in this phase).
+**Phase:** Sub-phase 2 (release_cache module only -- no updater refactor in this phase).
 
 ### D4. Substring-not-regex fingerprinting
 
 **Decision:** Version-string matching uses substrings (case-insensitive), not regex patterns. The unezQuake-family rule is `version_string contains "antilag"`, not `^3\.\d+-dev-alpha\d+-antilag-r\d+$` or any other structural pattern.
 
-**Why:** Projects evolve naming schemes. dusty-qw/unezquake demonstrated this in operator's real binary: version `3.6-dev-alpha10-antilag-r402` (pre-public era) vs modern `1.x` semver releases. A regex matching the old form fails on the new form and vice versa. The substring `antilag` is invariant — it's the project's identity, present in every version string and in every cvar grouping under "Antilag Support" in their README.
+**Why:** Projects evolve naming schemes. dusty-qw/unezquake demonstrated this in operator's real binary: version `3.6-dev-alpha10-antilag-r402` (pre-public era) vs modern `1.x` semver releases. A regex matching the old form fails on the new form and vice versa. The substring `antilag` is invariant -- it's the project's identity, present in every version string and in every cvar grouping under "Antilag Support" in their README.
 
 Captured in `feedback_substring_not_regex_fingerprinting.md` as a reusable principle.
 
@@ -144,24 +144,24 @@ Captured in `feedback_substring_not_regex_fingerprinting.md` as a reusable princ
 
 For FTE, asking "is this an official release?" doesn't map. Skip Tier 2 entirely; classify as `FTE QW (build NNN)` without judgment. Upgrade-nudge becomes "build NNN is from <date>; latest available is build MMM."
 
-**Why:** Forcing FTE through a Tier 2 check would either (a) require maintaining a list of thousands of build numbers as "official" (pointless — they all are), or (b) classify every FTE binary as "unrecognized" (false). Different clients want different policies; the per-client table is the cleanest way to encode that.
+**Why:** Forcing FTE through a Tier 2 check would either (a) require maintaining a list of thousands of build numbers as "official" (pointless -- they all are), or (b) classify every FTE binary as "unrecognized" (false). Different clients want different policies; the per-client table is the cleanest way to encode that.
 
 **Phase:** Sub-phase 2 (release_cache module).
 
-### D6. Variant tiebreaker rule (filename-suffix → separate variant field, NOT version key)
+### D6. Variant tiebreaker rule (filename-suffix -> separate variant field, NOT version key)
 
 **Decision:** When the same client+version exists with different bytes (different sha256) due to a known filename-suffix variant (e.g. ezQuake 3.6.6 shipping as `ezquake.exe` AND `ezquake-glsl.exe`), the variant is stored as a **separate `variant: Option<String>` field on `WarehousedVersion`**, NOT as a suffix on the version key. The warehouse path nests variants under the version dir:
 
-- `binaries/ezquake/3.6.6/manifest.json` — vanilla 3.6.6
-- `binaries/ezquake/3.6.6/variants/glsl/manifest.json` — glsl variant of 3.6.6
+- `binaries/ezquake/3.6.6/manifest.json` -- vanilla 3.6.6
+- `binaries/ezquake/3.6.6/variants/glsl/manifest.json` -- glsl variant of 3.6.6
 
-Recognized variant suffixes (sub-phase 1's `KNOWN_VARIANT_SUFFIXES`): `["glsl"]` only — the broader list (`debug`, `dev`, `test`) was trimmed during pass-2 review per F8 because those suffixes too easily false-positive on user files like `myezquake-test.exe`. Add suffixes back as needed when a concrete case arrives.
+Recognized variant suffixes (sub-phase 1's `KNOWN_VARIANT_SUFFIXES`): `["glsl"]` only -- the broader list (`debug`, `dev`, `test`) was trimmed during pass-2 review per F8 because those suffixes too easily false-positive on user files like `myezquake-test.exe`. Add suffixes back as needed when a concrete case arrives.
 
-Unknown filename suffixes fall through to refuse-and-prompt: "You already have ezQuake 3.6.6 warehoused. This binary has different bytes — replace, keep with custom variant tag, or skip?"
+Unknown filename suffixes fall through to refuse-and-prompt: "You already have ezQuake 3.6.6 warehoused. This binary has different bytes -- replace, keep with custom variant tag, or skip?"
 
 **Canonical-naming under D8.** Variants are canonical-named with a stable suffix. The variant's canonical slot is `<quake-dir>/<family>-<variant>.exe` (e.g. `<quake-dir>/ezquake-glsl.exe`). Switching to a `-glsl` version writes to `ezquake-glsl.exe`; switching to vanilla writes to `ezquake.exe`. Both can coexist as separate canonical slots in the same dir because they're separate canonical *files*, each with its own active version pointer in `index.json`.
 
-**Why decouple variant from version key (pass-2 reframe per F4):** The first-pass D6 encoded variant in the version key (`3.6.6-glsl`). That contaminates the shared `qw-version-resolution` lib (`packages/qw-version-resolution/`): `parseVersionSpec("3.6.6-glsl")` returns `{kind: "tag", value: "3.6.6-glsl"}` which sorts lexically between `3.6.6` and `3.6.7` — fine for adjacent display, but oracle's snapshot consumer (Phase 4/5 diff viewer) keys `first_seen_version` / `last_seen_version` / `default_history` by the same VersionSpec strings. A glsl variant whose engine cvars are byte-identical to vanilla 3.6.6 would not match any oracle row keyed on "3.6.6" — it would falsely appear to introduce/retire cvars.
+**Why decouple variant from version key (pass-2 reframe per F4):** The first-pass D6 encoded variant in the version key (`3.6.6-glsl`). That contaminates the shared `qw-version-resolution` lib (`packages/qw-version-resolution/`): `parseVersionSpec("3.6.6-glsl")` returns `{kind: "tag", value: "3.6.6-glsl"}` which sorts lexically between `3.6.6` and `3.6.7` -- fine for adjacent display, but oracle's snapshot consumer (Phase 4/5 diff viewer) keys `first_seen_version` / `last_seen_version` / `default_history` by the same VersionSpec strings. A glsl variant whose engine cvars are byte-identical to vanilla 3.6.6 would not match any oracle row keyed on "3.6.6" -- it would falsely appear to introduce/retire cvars.
 
 Decoupling: variant becomes an orthogonal axis. Version-resolution lib stays variant-naive. Oracle's snapshot consumer keeps treating "3.6.6" as one row. Variants are a property of the binary instance, not the version. See D10 for the architectural detail.
 
@@ -179,15 +179,15 @@ Decoupling: variant becomes an orthogonal axis. Version-resolution lib stays var
 
 ### D8. Canonical-only naming for slipgate-managed binary slots
 
-**Decision:** When slipgate writes a client binary into a user's quake dir, the destination is always `<quake-dir>/<family>.exe` (`ezquake.exe`, `unezquake.exe`, `fte.exe`, etc.) — or for filename-suffix variants per D6, `<quake-dir>/<family>-<variant>.exe`. No mode toggle. No per-import-decision. Canonical-only.
+**Decision:** When slipgate writes a client binary into a user's quake dir, the destination is always `<quake-dir>/<family>.exe` (`ezquake.exe`, `unezquake.exe`, `fte.exe`, etc.) -- or for filename-suffix variants per D6, `<quake-dir>/<family>-<variant>.exe`. No mode toggle. No per-import-decision. Canonical-only.
 
 This applies in every code path that writes a binary:
-- **Updater install** — already canonical (atomic rename to `ezquake.exe`).
-- **Phase 3 swap** — already canonical (`swap_active_version` writes to the canonical slot).
-- **Phase 3.5 bulk-import** — canonical via the canonicalize-on-import step in sub-phase 4 (rename source if non-canonical, with user confirmation when canonical slot is empty; refuse with prompt when canonical slot already exists).
-- **Future fresh-install / clean-room migration / bundle install** — canonical by construction.
+- **Updater install** -- already canonical (atomic rename to `ezquake.exe`).
+- **Phase 3 swap** -- already canonical (`swap_active_version` writes to the canonical slot).
+- **Phase 3.5 bulk-import** -- canonical via the canonicalize-on-import step in sub-phase 4 (rename source if non-canonical, with user confirmation when canonical slot is empty; refuse with prompt when canonical slot already exists).
+- **Future fresh-install / clean-room migration / bundle install** -- canonical by construction.
 
-**Why:** The product is a four-tier opt-in ladder (don't use / read-only / managed versions / full dir management — see memory `project_slipgate_tier_ladder.md`). Users who don't want slipgate to canonicalize their files express that by staying at Tier 0 or Tier 1 — slipgate doesn't write at all in those tiers, so naming policy is moot. There's no need for a Tier-2-flavor that writes-but-preserves-filenames.
+**Why:** The product is a four-tier opt-in ladder (don't use / read-only / managed versions / full dir management -- see memory `project_slipgate_tier_ladder.md`). Users who don't want slipgate to canonicalize their files express that by staying at Tier 0 or Tier 1 -- slipgate doesn't write at all in those tiers, so naming policy is moot. There's no need for a Tier-2-flavor that writes-but-preserves-filenames.
 
 The originally-considered "default canonical with messy-mode opt-out" framing was dropped during the 2026-04-27 second-pass review because:
 
@@ -215,27 +215,27 @@ Three cases under bulk-import:
 
 1. **Profile has no primary entry yet** (first-launch / fresh-install user): the picker is unrestricted; the picked folder becomes the primary. Set `setups[0].quake_dirs = [{ path: <picked>, role: "primary" }]`. AddClientPanel renders "I'll set this folder as your primary Quake dir" notice.
 
-2. **Profile has a primary entry, picked folder matches** (after path normalization — case-folding, trailing-slash, symlink resolution): bulk-import proceeds normally — canonicalize-rename inside the dir, swap_active_version for the primary row.
+2. **Profile has a primary entry, picked folder matches** (after path normalization -- case-folding, trailing-slash, symlink resolution): bulk-import proceeds normally -- canonicalize-rename inside the dir, swap_active_version for the primary row.
 
-3. **Profile has a primary entry, picked folder is different**: refuse the import. AddClientPanel shows a friendly error: "slipgate is managing `<existing_primary_path>`. The folder you picked is somewhere else. To browse there, change your primary dir first (currently no UI — point slipgate at a new exe via the path picker on Versions, or wait for Tier-3 features)." User navigates back, picks the primary dir, retries.
+3. **Profile has a primary entry, picked folder is different**: refuse the import. AddClientPanel shows a friendly error: "slipgate is managing `<existing_primary_path>`. The folder you picked is somewhere else. To browse there, change your primary dir first (currently no UI -- point slipgate at a new exe via the path picker on Versions, or wait for Tier-3 features)." User navigates back, picks the primary dir, retries.
 
-**Why this is the right shape (replaces pass-1's "warehouse-only-without-claiming"):** Operator clarification 2026-04-27 evening: slipgate isn't designed for multiple simultaneously-managed quake dirs. There's no UI path for it; users don't expect it. The "warehouse-only-from-foreign-dir" path was a footgun (warehoused bytes from `D:\OldQuake\` are silently switchable INTO `C:\Quake`'s canonical slot — surprising). Refusing foreign picks keeps the model honest: one primary, one source of truth, no surprise switches.
+**Why this is the right shape (replaces pass-1's "warehouse-only-without-claiming"):** Operator clarification 2026-04-27 evening: slipgate isn't designed for multiple simultaneously-managed quake dirs. There's no UI path for it; users don't expect it. The "warehouse-only-from-foreign-dir" path was a footgun (warehoused bytes from `D:\OldQuake\` are silently switchable INTO `C:\Quake`'s canonical slot -- surprising). Refusing foreign picks keeps the model honest: one primary, one source of truth, no surprise switches.
 
 **Why plural-shaped schema even though we're enforcing single primary in 3.5b:** Future Tier-3 arcs need multi-dir support. Clean-room migration produces a fresh slipgate-managed dir; the user's old messy dir might stick around as a `role: "secondary-readonly"` registered dir for browsing. Player-profile bundles might create `role: "profile"` dirs for A/B switching between "your setup" and "Milton's setup" without bulldozing yours. Schema-once: the `quake_dirs: QuakeDirEntry[]` shape accommodates future role values without breaking existing consumers. Migrating from `quake_dir: string` later would force every consumer to update; doing it once now is cheaper.
 
-This matches the "tier crossing is button-click, not global setting" principle from `project_slipgate_tier_ladder.md` — Tier 2 is single-primary; Tier 3 features earn their entries by the user explicitly invoking them.
+This matches the "tier crossing is button-click, not global setting" principle from `project_slipgate_tier_ladder.md` -- Tier 2 is single-primary; Tier 3 features earn their entries by the user explicitly invoking them.
 
 **Phase:** Sub-phase 4 (refuse-foreign-pick logic in AddClientPanel + `bulk_import_clients` Rust orchestrator validates against existing primary entry; schema migration in store.ts's `migrateProfile()`).
 
 ### D10. Variant decoupled from version-resolution lib (architectural detail)
 
-**Decision:** Variants are stored as `variant: Option<String>` on `WarehousedVersion`, with manifest path nested as `binaries/<client>/<version>/variants/<variant>/manifest.json`. `qw-version-resolution`'s `VersionSpec` parser stays variant-naive — `parseVersionSpec("3.6.6")` is the same parse regardless of which variant of 3.6.6 is being looked at.
+**Decision:** Variants are stored as `variant: Option<String>` on `WarehousedVersion`, with manifest path nested as `binaries/<client>/<version>/variants/<variant>/manifest.json`. `qw-version-resolution`'s `VersionSpec` parser stays variant-naive -- `parseVersionSpec("3.6.6")` is the same parse regardless of which variant of 3.6.6 is being looked at.
 
 This is the architectural follow-through on D6's reframe. Two consequences:
 
 - **Oracle snapshot consumer (Phase 4/5 diff viewer)** keys on the version-resolution lib's `VersionSpec` strings. With variant decoupled, the diff viewer reads "ezQuake 3.6.6" as one canonical row; if the user has both vanilla and glsl variants warehoused, the diff viewer doesn't double-count or mis-attribute cvars. Both warehouse manifests reference the same upstream version's data.
 
-- **Future oracle work** — when oracle gets multi-variant awareness (engine has multiple build variants like glsl/non-glsl that genuinely diverge in cvar set, e.g. `r_lerpframes` may exist only in glsl), the variant axis can be added orthogonally to the version axis without breaking either. Today this isn't a concern: glsl variants are byte-different but cvar-identical-to-vanilla per known evidence; the architecture just leaves room for future divergence.
+- **Future oracle work** -- when oracle gets multi-variant awareness (engine has multiple build variants like glsl/non-glsl that genuinely diverge in cvar set, e.g. `r_lerpframes` may exist only in glsl), the variant axis can be added orthogonally to the version axis without breaking either. Today this isn't a concern: glsl variants are byte-different but cvar-identical-to-vanilla per known evidence; the architecture just leaves room for future divergence.
 
 **Why architectural-D, not just-an-implementation-detail-of-D6:** The decoupling decision is load-bearing for cross-codebase work (oracle + slipgate + version-resolution lib all stay clean). Worth documenting as its own D so future Claude reading the plan understands why it's not just "convenience field."
 
@@ -244,13 +244,13 @@ This is the architectural follow-through on D6's reframe. Two consequences:
 ### D11. release_cache keys per-(client, channel), not per-client
 
 **Decision:** Cache files at `<data-root>/release-cache/<client>-<channel>.json`, NOT `<data-root>/release-cache/<client>.json`. Examples:
-- `release-cache/ezquake-stable.json` — GitHub Releases for ezQuake stable channel
-- `release-cache/ezquake-snapshot.json` — Stub/empty in 3.5b (BuildsQuakeworld scraper deferred)
+- `release-cache/ezquake-stable.json` -- GitHub Releases for ezQuake stable channel
+- `release-cache/ezquake-snapshot.json` -- Stub/empty in 3.5b (BuildsQuakeworld scraper deferred)
 - `release-cache/ktx-stable.json`
 - `release-cache/mvdsv-stable.json`
 - `release-cache/qwfwd-stable.json`
 - `release-cache/unezquake-stable.json`
-- `release-cache/fte-builds.json` — Stub/empty in 3.5b (`fte.triptohell.info` scraper deferred)
+- `release-cache/fte-builds.json` -- Stub/empty in 3.5b (`fte.triptohell.info` scraper deferred)
 
 `distribution_for(client, channel)` returns the right `DistributionShape` for each pair. `matches_official_release(cache, version_str)` operates on a single per-channel cache.
 
@@ -262,7 +262,7 @@ This is the architectural follow-through on D6's reframe. Two consequences:
 
 **Decision:** When AddClientPanel's import flow finishes processing all ticked rows, it calls `swap_active_version(client, target_version, quake_dir, target_exe_name)` for the primary-selected row. NOT `reconcile_active_version`.
 
-**Why:** Reviewer's F5 caught a concrete failure case in pass-1's plan: `reconcile_active_version` observes whatever bytes happen to be at the canonical exe path and marks that version active. Iteration order over `std::fs::read_dir` is filesystem-dependent. If the user picks 3.6 as primary but `ezquake-3.5.exe` happens to be processed first (gets renamed to `ezquake.exe`), then `ezquake-3.6.exe` hits the "canonical occupied → skip rename" branch, then reconcile hashes `ezquake.exe` and finds 3.5 → user's primary choice is silently ignored.
+**Why:** Reviewer's F5 caught a concrete failure case in pass-1's plan: `reconcile_active_version` observes whatever bytes happen to be at the canonical exe path and marks that version active. Iteration order over `std::fs::read_dir` is filesystem-dependent. If the user picks 3.6 as primary but `ezquake-3.5.exe` happens to be processed first (gets renamed to `ezquake.exe`), then `ezquake-3.6.exe` hits the "canonical occupied -> skip rename" branch, then reconcile hashes `ezquake.exe` and finds 3.5 -> user's primary choice is silently ignored.
 
 `swap_active_version` writes the chosen version's bytes to the canonical slot (atomic rename via Phase 3's existing logic) and updates `index.active` directly. Authoritative regardless of iteration order.
 
@@ -273,41 +273,41 @@ This is the architectural follow-through on D6's reframe. Two consequences:
 ## File-structure preview
 
 **New Rust modules** (sub-phases 1-2):
-- `src-tauri/src/commands/client_fingerprint.rs` — PE StringFileInfo reader + classification rules + variant detection. New Tauri commands: `fingerprint_exe(path)`, `fingerprint_folder(folder)`, `scan_clients_in_dir(folder)` — last is a thin wrapper around fingerprint_folder that drops Unknown rows server-side (per D7).
-- `src-tauri/src/commands/release_cache.rs` — GitHub Releases fetch + per-(client, channel) cache (per D11). New Tauri commands: `get_release_cache(client, channel)`, `refresh_all_release_caches()`.
-- `src-tauri/src/commands/bulk_import.rs` — orchestrator command `bulk_import_clients(rows, primary_row_index, quake_dir)` (per F3) that handles per-row hash → register → optional canonicalize-rename → swap_active_version for the primary (per D12). Plus a small helper `rename_to_canonical(source_path, family, variant?)` exposed as its own Tauri command for AddClientPanel to invoke during the per-row confirmation prompts (per F12).
+- `src-tauri/src/commands/client_fingerprint.rs` -- PE StringFileInfo reader + classification rules + variant detection. New Tauri commands: `fingerprint_exe(path)`, `fingerprint_folder(folder)`, `scan_clients_in_dir(folder)` -- last is a thin wrapper around fingerprint_folder that drops Unknown rows server-side (per D7).
+- `src-tauri/src/commands/release_cache.rs` -- GitHub Releases fetch + per-(client, channel) cache (per D11). New Tauri commands: `get_release_cache(client, channel)`, `refresh_all_release_caches()`.
+- `src-tauri/src/commands/bulk_import.rs` -- orchestrator command `bulk_import_clients(rows, primary_row_index, quake_dir)` (per F3) that handles per-row hash -> register -> optional canonicalize-rename -> swap_active_version for the primary (per D12). Plus a small helper `rename_to_canonical(source_path, family, variant?)` exposed as its own Tauri command for AddClientPanel to invoke during the per-row confirmation prompts (per F12).
 
 **Modified Rust files**:
-- `src-tauri/src/commands/mod.rs` — register new modules
-- `src-tauri/src/lib.rs` — register new Tauri commands (`fingerprint_exe`, `fingerprint_folder`, `scan_clients_in_dir`, `get_release_cache`, `refresh_all_release_caches`, `bulk_import_clients`, `rename_to_canonical`)
-- `src-tauri/src/commands/version_warehouse.rs` — extend `WarehousedVersion` with `variant: Option<String>` field; nested manifest path under `binaries/<client>/<version>/variants/<variant>/manifest.json` (per D6 + D10). `register_version_at` accepts an optional variant arg.
-- `src-tauri/src/commands/updater.rs` — NO refactor in this phase per D3. `release_cache` lives as a parallel system; updater stays as-is.
+- `src-tauri/src/commands/mod.rs` -- register new modules
+- `src-tauri/src/lib.rs` -- register new Tauri commands (`fingerprint_exe`, `fingerprint_folder`, `scan_clients_in_dir`, `get_release_cache`, `refresh_all_release_caches`, `bulk_import_clients`, `rename_to_canonical`)
+- `src-tauri/src/commands/version_warehouse.rs` -- extend `WarehousedVersion` with `variant: Option<String>` field; nested manifest path under `binaries/<client>/<version>/variants/<variant>/manifest.json` (per D6 + D10). `register_version_at` accepts an optional variant arg.
+- `src-tauri/src/commands/updater.rs` -- NO refactor in this phase per D3. `release_cache` lives as a parallel system; updater stays as-is.
 
 **New SolidJS files** (sub-phases 3-4):
-- `src/lib/quake-dir/clientFingerprint.ts` — frontend wrapper for `fingerprint_exe`, `fingerprint_folder`, `scan_clients_in_dir`
+- `src/lib/quake-dir/clientFingerprint.ts` -- frontend wrapper for `fingerprint_exe`, `fingerprint_folder`, `scan_clients_in_dir`
 - `src/lib/quake-dir/clientFingerprint.test.ts`
-- `src/lib/quake-dir/releaseCache.ts` — frontend wrapper for `get_release_cache`, `refresh_all_release_caches`
+- `src/lib/quake-dir/releaseCache.ts` -- frontend wrapper for `get_release_cache`, `refresh_all_release_caches`
 - `src/lib/quake-dir/releaseCache.test.ts`
-- `src/lib/quake-dir/bulkImport.ts` — frontend wrapper for `bulk_import_clients`, `rename_to_canonical`
+- `src/lib/quake-dir/bulkImport.ts` -- frontend wrapper for `bulk_import_clients`, `rename_to_canonical`
 - `src/lib/quake-dir/bulkImport.test.ts`
-- `src/lib/quake-dir/addClientFlow.ts` — orchestrates the import flow (calls scan → match against cache → emit checklist data → invoke bulk_import_clients on confirm)
+- `src/lib/quake-dir/addClientFlow.ts` -- orchestrates the import flow (calls scan -> match against cache -> emit checklist data -> invoke bulk_import_clients on confirm)
 - `src/lib/quake-dir/addClientFlow.test.ts`
-- `src/components/AddClientPanel.tsx` — folder/exe picker + checklist + primary-radio + import button UI; renders inside ClientsDomain (per D1)
-- `src/components/ClientImportRow.tsx` — single-row component with three-tier identity surfacing + empty-Tier-2-data graceful handling (per F9 + F14)
+- `src/components/AddClientPanel.tsx` -- folder/exe picker + checklist + primary-radio + import button UI; renders inside ClientsDomain (per D1)
+- `src/components/ClientImportRow.tsx` -- single-row component with three-tier identity surfacing + empty-Tier-2-data graceful handling (per F9 + F14)
 
 **Modified SolidJS files**:
-- `src/components/ClientsDomain.tsx` — host AddClientPanel as an overlay-or-mode-replacement when the user clicks "Add Quake client" on the existing VersionWarehouse panel (per D1). The Versions section's stubbed button gets wired up; the rest of ClientsDomain stays unchanged.
-- `src/components/VersionWarehouse.tsx` — wire the "Add Quake client" button to set the AddClientPanel-open signal in ClientsDomain (or use a shared signal/context — pick during sub-phase 4).
-- `src/store.ts` — `Setup` interface gains `quake_dirs: QuakeDirEntry[]` field (top-level on Setup, not nested under `client`). Type: `interface QuakeDirEntry { path: string; role: "primary"; label?: string; }`. In 3.5b only `role: "primary"` exists, array contains 0 or 1 entry. Derived from `setups[0].client.exe_path` parent on first migration of a v2 profile. `migrateProfile()` handles the one-shot migration. Plural-shaped per D9 to accommodate future Tier-3 role values without further migration. No `clients[family].mode` field; canonical-only naming (D8) makes per-family mode unnecessary.
+- `src/components/ClientsDomain.tsx` -- host AddClientPanel as an overlay-or-mode-replacement when the user clicks "Add Quake client" on the existing VersionWarehouse panel (per D1). The Versions section's stubbed button gets wired up; the rest of ClientsDomain stays unchanged.
+- `src/components/VersionWarehouse.tsx` -- wire the "Add Quake client" button to set the AddClientPanel-open signal in ClientsDomain (or use a shared signal/context -- pick during sub-phase 4).
+- `src/store.ts` -- `Setup` interface gains `quake_dirs: QuakeDirEntry[]` field (top-level on Setup, not nested under `client`). Type: `interface QuakeDirEntry { path: string; role: "primary"; label?: string; }`. In 3.5b only `role: "primary"` exists, array contains 0 or 1 entry. Derived from `setups[0].client.exe_path` parent on first migration of a v2 profile. `migrateProfile()` handles the one-shot migration. Plural-shaped per D9 to accommodate future Tier-3 role values without further migration. No `clients[family].mode` field; canonical-only naming (D8) makes per-family mode unnecessary.
 
-**Profile schema gain (per D8 + D9):** as listed above under store.ts. Single new field (`quake_dirs`), single migration step, no schema-version bump (still v2 — duck-typing detects whether `quake_dirs` is present). The role-string-union grows in future arcs (`"primary" | "secondary-readonly" | "profile" | ...`) without changing the array shape.
+**Profile schema gain (per D8 + D9):** as listed above under store.ts. Single new field (`quake_dirs`), single migration step, no schema-version bump (still v2 -- duck-typing detects whether `quake_dirs` is present). The role-string-union grows in future arcs (`"primary" | "secondary-readonly" | "profile" | ...`) without changing the array shape.
 
 ---
 
 ## Sub-phase 1: ClientFingerprint Rust module
 
 **Sessions:** 1 (~2-3 hours)
-**Goal:** Pure-Rust module that takes a path and returns a `ClientFingerprint` enum classifying it as ezQuake / unezQuake-family / FTE / Unknown, with version + variant. Includes the FTE server-build exclusion (F7), trimmed `KNOWN_VARIANT_SUFFIXES` (F8), and the family→canonical-filename mapping with FTE-specific override (F6: `fteqw.exe`, not `fte.exe`).
+**Goal:** Pure-Rust module that takes a path and returns a `ClientFingerprint` enum classifying it as ezQuake / unezQuake-family / FTE / Unknown, with version + variant. Includes the FTE server-build exclusion (F7), trimmed `KNOWN_VARIANT_SUFFIXES` (F8), and the family->canonical-filename mapping with FTE-specific override (F6: `fteqw.exe`, not `fte.exe`).
 
 ### Task 1.1: Module skeleton + types
 
@@ -392,7 +392,7 @@ Pure-Rust tests can't easily exercise the PE reader without real Windows binarie
 - (a) Mark the read_pe_strings tests `#[cfg(target_os = "windows")]` and use small fixture binaries (e.g., bundled in `tests/fixtures/` if any exist; otherwise skip)
 - (b) Skip direct read_pe_strings tests and exercise the classification logic separately (see Task 1.3)
 
-Default to (b) for portability — write classification tests that take `PeStrings` literals and call the classifier function directly.
+Default to (b) for portability -- write classification tests that take `PeStrings` literals and call the classifier function directly.
 
 ### Task 1.3: Classification rules
 
@@ -403,7 +403,7 @@ Default to (b) for portability — write classification tests that take `PeStrin
 
 ```rust
 pub fn classify_from_pe_strings(pe: &PeStrings, filename: &str) -> ClientKind {
-    // FTE check first — InternalName is the most stable signal.
+    // FTE check first -- InternalName is the most stable signal.
     // BUT: FTE server build (fteqw-sv.exe) shares InternalName="ftequake" with the client
     // (same winquake.rc resource file). Filter the server build out via filename or
     // FileDescription. Per F7.
@@ -442,7 +442,7 @@ pub fn classify_from_pe_strings(pe: &PeStrings, filename: &str) -> ClientKind {
 
 Note the signature change vs pass-1: classifier now takes `filename` because the FTE server-build exclusion needs filename info that isn't available in PE strings alone. Update the test call sites accordingly.
 
-- [ ] **Step 2: Variant suffix detection from filename (per F8 — narrowed list)**
+- [ ] **Step 2: Variant suffix detection from filename (per F8 -- narrowed list)**
 
 ```rust
 // Trimmed from the original ["glsl", "debug", "dev", "test"] per F8:
@@ -461,7 +461,7 @@ pub fn variant_from_filename(filename: &str) -> Option<String> {
 }
 ```
 
-- [ ] **Step 2b: Family → canonical-filename mapping (per F6)**
+- [ ] **Step 2b: Family -> canonical-filename mapping (per F6)**
 
 ```rust
 /// The canonical exe filename for a family in a managed quake dir.
@@ -470,7 +470,7 @@ pub fn family_canonical_exe(kind: ClientKind, variant: Option<&str>) -> Option<S
     let base = match kind {
         ClientKind::EzQuake => "ezquake",
         ClientKind::UnezQuakeFamily => "unezquake",
-        ClientKind::Fte => "fteqw", // NOT "fte" — verified at research/repos/fteqw/CMakeLists.txt:1148
+        ClientKind::Fte => "fteqw", // NOT "fte" -- verified at research/repos/fteqw/CMakeLists.txt:1148
         ClientKind::Unknown => return None,
     };
     Some(match variant {
@@ -653,7 +653,7 @@ Expected: clean build, 10 tests pass.
 git add apps/slipgate-app/src-tauri/src/commands/client_fingerprint.rs \
         apps/slipgate-app/src-tauri/src/commands/mod.rs \
         apps/slipgate-app/src-tauri/src/lib.rs
-git commit -m "feat(slipgate): client_fingerprint module — PE strings + variant + scan_clients_in_dir"
+git commit -m "feat(slipgate): client_fingerprint module -- PE strings + variant + scan_clients_in_dir"
 ```
 
 ---
@@ -689,7 +689,7 @@ pub struct ReleaseEntry {
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct ClientReleaseCache {
     pub client: String,
-    pub channel: String,        // "stable" | "snapshot" | "builds" — per D11
+    pub channel: String,        // "stable" | "snapshot" | "builds" -- per D11
     pub last_fetched: u64,      // unix epoch seconds
     pub releases: Vec<ReleaseEntry>,
     pub source: String,         // "github_releases", "builds_quakeworld_nu", "fte_triptohell", etc.
@@ -700,8 +700,8 @@ const CACHE_TTL_SECS: u64 = 24 * 60 * 60; // 24 hours
 #[derive(Clone, Copy, Debug)]
 pub enum DistributionShape {
     GitHubReleases { owner: &'static str, repo: &'static str },
-    BuildsQuakeworld,   // ezQuake snapshot — STUB in 3.5b (deferred), see F14
-    FteTripToHell,      // FTE continuous builds — STUB in 3.5b (deferred), see F14
+    BuildsQuakeworld,   // ezQuake snapshot -- STUB in 3.5b (deferred), see F14
+    FteTripToHell,      // FTE continuous builds -- STUB in 3.5b (deferred), see F14
 }
 
 /// Per D11: keyed by (client, channel). Returns the distribution shape for the pair.
@@ -822,7 +822,7 @@ pub async fn get_releases(
         DistributionShape::FteTripToHell => fetch_fte_builds().await?,
         DistributionShape::BuildsQuakeworld => {
             // F14 + D3: stub in 3.5b. Existing snapshot scraper lives in updater.rs;
-            // not duplicated into release_cache for this phase. Empty cache is fine —
+            // not duplicated into release_cache for this phase. Empty cache is fine --
             // matches_official_release returns false for any version, snapshot rows
             // render identity but skip Tier-2 nudge.
             Vec::new()
@@ -880,7 +880,7 @@ pub async fn refresh_all_release_caches(
 }
 ```
 
-- [ ] **Step 5: Tier-2 lookup helper (per F9 — normalize before matching)**
+- [ ] **Step 5: Tier-2 lookup helper (per F9 -- normalize before matching)**
 
 Reviewer's F9 caught that strict-equality matching produces false negatives on common cases. PE FileVersion is "3.6.6.7949" (4-component); GitHub release tag is "3.6.6". Normalize via `parse_pe_version` before comparing.
 
@@ -905,7 +905,7 @@ pub fn matches_official_release(cache: &ClientReleaseCache, version_str: &str) -
 ```
 
 **Known residual false-negatives** (documented per F9 + F14):
-- Old unezQuake-family builds with version strings like `"3.6-dev-alpha10-antilag-r402"` don't normalize to a sensible tag and won't match. They render as Tier 3 ("unrecognized") — accurate for those binaries since they predate dusty-qw/unezquake's first release.
+- Old unezQuake-family builds with version strings like `"3.6-dev-alpha10-antilag-r402"` don't normalize to a sensible tag and won't match. They render as Tier 3 ("unrecognized") -- accurate for those binaries since they predate dusty-qw/unezquake's first release.
 - Snapshot binaries match nothing because the snapshot cache is stubbed empty in 3.5b.
 - FTE binaries match nothing because the FTE cache is stubbed empty in 3.5b.
 
@@ -927,8 +927,8 @@ If a future agent reading this plan is tempted to do the refactor anyway: don't.
 
 ## Sub-phase 3: Frontend wrappers for fingerprint + release_cache
 
-**Sessions:** 1 (~30-60 min — collapsed dramatically post-3.5a per F2)
-**Goal:** Thin frontend wrappers around the Rust commands shipped in sub-phases 1+2. The original sub-phase 3 (MyQuake browser augmentation, Clients filter category, actionable sidebar rows) was for the pre-3.5a IA — those concerns dissolved when 3.5a moved client management out of Browse and into a Domain. After 3.5a, all "MyQuake augmentation" work that survives reduces to wrapping the Rust commands so AddClientPanel can use them.
+**Sessions:** 1 (~30-60 min -- collapsed dramatically post-3.5a per F2)
+**Goal:** Thin frontend wrappers around the Rust commands shipped in sub-phases 1+2. The original sub-phase 3 (MyQuake browser augmentation, Clients filter category, actionable sidebar rows) was for the pre-3.5a IA -- those concerns dissolved when 3.5a moved client management out of Browse and into a Domain. After 3.5a, all "MyQuake augmentation" work that survives reduces to wrapping the Rust commands so AddClientPanel can use them.
 
 Per-row rendering with three-tier identity + empty-Tier-2 handling + action grammar consistency moves to sub-phase 4 task 4.2 (lives inside `ClientImportRow.tsx`, which is part of AddClientPanel).
 
@@ -962,14 +962,14 @@ This task is intentionally empty. Listed for discoverability so a future agent r
 ## Sub-phase 4: Add Quake client entry-point flow + bulk_import_clients orchestrator
 
 **Sessions:** 1-2 (~3-4 hours total)
-**Goal:** The "Add Quake client" button on VersionWarehouse opens AddClientPanel inside ClientsDomain. User picks a folder or specific exe; panel renders a default-select-all checklist of fingerprinter-classified clients with three-tier identity + primary-radio; on Import, the new `bulk_import_clients` Rust command orchestrates per-row hash → register → optional canonicalize-rename → swap_active_version-for-primary atomically.
+**Goal:** The "Add Quake client" button on VersionWarehouse opens AddClientPanel inside ClientsDomain. User picks a folder or specific exe; panel renders a default-select-all checklist of fingerprinter-classified clients with three-tier identity + primary-radio; on Import, the new `bulk_import_clients` Rust command orchestrates per-row hash -> register -> optional canonicalize-rename -> swap_active_version-for-primary atomically.
 
 ### Task 4.1: `bulk_import_clients` Rust orchestrator (per F3 + D9 + D12)
 
 **Files:**
 - Create: `apps/slipgate-app/src-tauri/src/commands/bulk_import.rs`
 - Modify: `apps/slipgate-app/src-tauri/src/commands/mod.rs`, `lib.rs`
-- Modify: `apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs` — extend `WarehousedVersion` with `variant: Option<String>` per D6+D10; nested manifest path under `binaries/<client>/<version>/variants/<variant>/manifest.json`; `register_version_at` accepts an optional variant arg.
+- Modify: `apps/slipgate-app/src-tauri/src/commands/version_warehouse.rs` -- extend `WarehousedVersion` with `variant: Option<String>` per D6+D10; nested manifest path under `binaries/<client>/<version>/variants/<variant>/manifest.json`; `register_version_at` accepts an optional variant arg.
 
 - [ ] **Step 1: Define request/response types**
 
@@ -977,9 +977,9 @@ This task is intentionally empty. Listed for discoverability so a future agent r
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BulkImportRow {
     pub source_path: String,           // absolute path to the .exe
-    pub client: String,                // "ezquake" | "unezquake" | "fte" — from fingerprinter
+    pub client: String,                // "ezquake" | "unezquake" | "fte" -- from fingerprinter
     pub version: String,               // normalized version string
-    pub variant: Option<String>,       // "glsl" | None — from fingerprinter
+    pub variant: Option<String>,       // "glsl" | None -- from fingerprinter
     pub family_canonical_filename: String, // e.g. "ezquake.exe", "fteqw-glsl.exe"
     pub canonicalize_consent: CanonicalizeConsent,
 }
@@ -1000,7 +1000,7 @@ pub struct BulkImportRequest {
                                             // first primary; AddClientPanel enforces this UI-side
                                             // and the orchestrator validates Rust-side per D9)
     pub claim_as_primary: bool,            // per D9 case 1: true ONLY when profile.quake_dirs is
-                                            // empty (first-launch) — populates the primary entry.
+                                            // empty (first-launch) -- populates the primary entry.
                                             // For case 2 (matches existing primary): false (no-op).
                                             // For case 3 (mismatch): orchestrator returns error
                                             // before any work is done.
@@ -1068,7 +1068,7 @@ for (i, row) in req.rows.enumerate():
             fs::rename(row.source_path, target)?
             result.renamed.push((row.source_path, target))
 
-# 3. After all rows: swap to primary's version (per D12 — NOT reconcile)
+# 3. After all rows: swap to primary's version (per D12 -- NOT reconcile)
 if let Some(idx) = req.primary_row_index:
     let row = &req.rows[idx]
     swap_active_version(
@@ -1092,11 +1092,11 @@ if existing_primary.is_none() && req.claim_as_primary:
     result.primary_dir_set = true
 ```
 
-The frontend (AddClientPanel) determines `claim_as_primary` per D9's three cases: no existing primary → true; matches existing primary → false; mismatch → AddClientPanel never submits the request (shows error and routes user back to picker). The Rust orchestrator double-checks the validation as a safety net.
+The frontend (AddClientPanel) determines `claim_as_primary` per D9's three cases: no existing primary -> true; matches existing primary -> false; mismatch -> AddClientPanel never submits the request (shows error and routes user back to picker). The Rust orchestrator double-checks the validation as a safety net.
 
 - [ ] **Step 3: Implement `rename_to_canonical` helper command (per F12)**
 
-Useful for AddClientPanel to invoke during the per-row prompt (rename happens before bulk_import_clients orchestrates the post-rename register step? OR bulk_import_clients handles the rename internally? Choice: handle internally per Step 2's `CanonicalizeConsent::Rename` branch — but expose a separate `rename_to_canonical` Tauri command anyway for any future UI that wants it standalone).
+Useful for AddClientPanel to invoke during the per-row prompt (rename happens before bulk_import_clients orchestrates the post-rename register step? OR bulk_import_clients handles the rename internally? Choice: handle internally per Step 2's `CanonicalizeConsent::Rename` branch -- but expose a separate `rename_to_canonical` Tauri command anyway for any future UI that wants it standalone).
 
 ```rust
 #[tauri::command]
@@ -1118,9 +1118,9 @@ Unit tests for the orchestrator using TempDir + mock exe files. Cover:
 - Happy path (3 rows, primary at index 1, all need canonicalize, all consent to Rename)
 - LeaveAsIs path (user declined one rename; that row warehouses but stays at non-canonical filename)
 - Skip path (canonical slot occupied; row's source stays alongside as duplicate)
-- D9 case 1: no existing primary, claim_as_primary=true → primary entry populated
-- D9 case 2: existing primary matches picked dir, claim_as_primary=false → no profile change, import proceeds
-- D9 case 3: existing primary differs from picked dir → orchestrator returns error before any side-effects (validates AddClientPanel's UI-side refuse)
+- D9 case 1: no existing primary, claim_as_primary=true -> primary entry populated
+- D9 case 2: existing primary matches picked dir, claim_as_primary=false -> no profile change, import proceeds
+- D9 case 3: existing primary differs from picked dir -> orchestrator returns error before any side-effects (validates AddClientPanel's UI-side refuse)
 - D12 case: primary row's swap_active_version is called with correct target_version + target_exe_name
 
 - [ ] **Step 5: Wire commands in lib.rs (`bulk_import_clients`, `rename_to_canonical`); commit**
@@ -1135,11 +1135,11 @@ Unit tests for the orchestrator using TempDir + mock exe files. Cover:
 
 Two affordances at the top: "Pick a folder" + "Pick a specific exe" (file picker buttons via `@tauri-apps/plugin-dialog`). Both feed into the same checklist screen.
 
-The panel renders inside ClientsDomain when an `addingClient` signal is true (set by VersionWarehouse's "Add Quake client" button). Choose between overlay-on-top-of-Versions vs replace-Versions-temporarily during this step — both are within the design space; the implementer can pick what feels right against the live app. Lean: replace-temporarily with a clear "← Back to Versions" affordance at top, since it's a focused multi-step flow.
+The panel renders inside ClientsDomain when an `addingClient` signal is true (set by VersionWarehouse's "Add Quake client" button). Choose between overlay-on-top-of-Versions vs replace-Versions-temporarily during this step -- both are within the design space; the implementer can pick what feels right against the live app. Lean: replace-temporarily with a clear "<- Back to Versions" affordance at top, since it's a focused multi-step flow.
 
-- [ ] **Step 2: Folder/exe picker → scan**
+- [ ] **Step 2: Folder/exe picker -> scan**
 
-After the user picks a folder (or single exe), call `scanClientsInDir(folder)` (or `fingerprintExe(path)` for a single exe). Loading state during the scan. Empty result → "No Quake clients found in this folder" with a link back to the picker. Non-empty result → render checklist (Step 3).
+After the user picks a folder (or single exe), call `scanClientsInDir(folder)` (or `fingerprintExe(path)` for a single exe). Loading state during the scan. Empty result -> "No Quake clients found in this folder" with a link back to the picker. Non-empty result -> render checklist (Step 3).
 
 - [ ] **Step 3: Checklist screen**
 
@@ -1150,21 +1150,21 @@ For each fingerprinter-classified row (Unknown rows already filtered server-side
 - Version (normalized via `parse_pe_version` if applicable)
 - Variant badge (e.g. `[glsl]`) if present
 - Primary radio (one selected at a time across all rows)
-- Canonicalize-on-import per-row affordance: small text below the row showing which prompt will fire on Import: "Will rename `ezquake-3.6.6.exe` → `ezquake.exe`" (case A), "Will leave at `ezquake-3.6.6.exe` (canonical slot occupied)" (case C), or "Already canonical" (case B). Defaults to case-A consent = Rename; user can toggle individual rows to LeaveAsIs.
+- Canonicalize-on-import per-row affordance: small text below the row showing which prompt will fire on Import: "Will rename `ezquake-3.6.6.exe` -> `ezquake.exe`" (case A), "Will leave at `ezquake-3.6.6.exe` (canonical slot occupied)" (case C), or "Already canonical" (case B). Defaults to case-A consent = Rename; user can toggle individual rows to LeaveAsIs.
 
-Top of checklist: dir-targeting indicator per D9. Two states (foreign-dir picks are intercepted before reaching the checklist): "Will set this as your primary Quake dir" (no existing primary — D9 case 1) OR "Managing primary: `<path>`" (matches existing primary — D9 case 2). The foreign-dir case (D9 case 3) is intercepted at the picker level: AddClientPanel detects the mismatch immediately after the user picks, shows an inline error toast ("slipgate manages `<existing_primary>`. The folder you picked is somewhere else. Pick your primary dir, or set a new one by clearing the existing primary first."), and routes the user back to the picker without ever rendering the checklist.
+Top of checklist: dir-targeting indicator per D9. Two states (foreign-dir picks are intercepted before reaching the checklist): "Will set this as your primary Quake dir" (no existing primary -- D9 case 1) OR "Managing primary: `<path>`" (matches existing primary -- D9 case 2). The foreign-dir case (D9 case 3) is intercepted at the picker level: AddClientPanel detects the mismatch immediately after the user picks, shows an inline error toast ("slipgate manages `<existing_primary>`. The folder you picked is somewhere else. Pick your primary dir, or set a new one by clearing the existing primary first."), and routes the user back to the picker without ever rendering the checklist.
 
 Bottom: "Import N selected" button (count updates live).
 
 - [ ] **Step 4: Wire to `bulk_import_clients`**
 
 On Import click:
-1. Build `BulkImportRequest` from current row state (selected rows, primary radio, quake_dir, claim_as_primary flag set per D9 logic: true if no existing primary, false if matches existing primary; mismatch case never reaches Import — AddClientPanel intercepts at picker time).
+1. Build `BulkImportRequest` from current row state (selected rows, primary radio, quake_dir, claim_as_primary flag set per D9 logic: true if no existing primary, false if matches existing primary; mismatch case never reaches Import -- AddClientPanel intercepts at picker time).
 2. Call `bulk_import_clients` via the frontend wrapper.
 3. Show a result toast: "Imported N clients; <client>-<version> is now active". On error, show the error message and don't navigate away.
 4. On success, set `addingClient = false` to dismiss the panel; ClientsDomain re-renders Versions list which now includes the new manifests.
 
-- [ ] **Step 5: ClientImportRow — three-tier identity surface + empty-Tier-2 handling (per F9 + F14)**
+- [ ] **Step 5: ClientImportRow -- three-tier identity surface + empty-Tier-2 handling (per F9 + F14)**
 
 The `ClientImportRow` component renders the identity badge based on:
 - Family (from fingerprint: `EzQuake` / `UnezQuakeFamily` / `Fte`)
@@ -1175,22 +1175,22 @@ The `ClientImportRow` component renders the identity badge based on:
 |---|---|---|---|
 | ezQuake | yes (stable) | yes | "ezQuake 3.6.9 (verified official)" |
 | ezQuake | yes (stable) | no | "ezQuake 3.6.9 (unrecognized build)" |
-| ezQuake | snapshot stub | n/a (per F14) | "ezQuake snapshot (build NNN)" — no Tier-2 verdict |
+| ezQuake | snapshot stub | n/a (per F14) | "ezQuake snapshot (build NNN)" -- no Tier-2 verdict |
 | unezQuake | yes (stable) | yes | "unezQuake 1.3.5 (verified official)" |
 | unezQuake | yes (stable) | no | "unezQuake-family (unrecognized build)" |
-| FTE | builds stub | n/a (per F14) | "FTE QW (build NNN)" — no Tier-2 verdict |
+| FTE | builds stub | n/a (per F14) | "FTE QW (build NNN)" -- no Tier-2 verdict |
 
-Branch on `cache.releases.length === 0` to detect stub state and skip the Tier-3-unrecognized claim. Per F14, this is honest — not lying about coverage we don't have.
+Branch on `cache.releases.length === 0` to detect stub state and skip the Tier-3-unrecognized claim. Per F14, this is honest -- not lying about coverage we don't have.
 
-For Tier-3-unrecognized rows, render an inline upgrade-nudge: "Latest official is ezQuake 3.6.10 — switch to that?" with a button that initiates a download via the existing updater flow. (The button can route to the Feed tab → Updates section pre-filtered to the relevant client; future polish can make it a one-click switch directly.) For stub-state rows (FTE, ezQuake snapshot), no upgrade-nudge — just identity rendering.
+For Tier-3-unrecognized rows, render an inline upgrade-nudge: "Latest official is ezQuake 3.6.10 -- switch to that?" with a button that initiates a download via the existing updater flow. (The button can route to the Feed tab -> Updates section pre-filtered to the relevant client; future polish can make it a one-click switch directly.) For stub-state rows (FTE, ezQuake snapshot), no upgrade-nudge -- just identity rendering.
 
 - [ ] **Step 6: Action grammar consistency** (per Position-in-bigger-picture)
 
-The verbs Phase 3.5 establishes on this surface — Import, Set primary (radio), Switch (on existing VersionWarehouse rows), Remove from warehouse — will be reused on every future Domain (Assets, Bundles, Maps, Matches). Use semantic DaisyUI classes consistently (`btn-primary` for Import, `btn-error` for destructive actions, `btn-ghost` for non-destructive secondary). No new components-shared lib in this phase — just consistent class usage so future Domain rows inherit the visual grammar.
+The verbs Phase 3.5 establishes on this surface -- Import, Set primary (radio), Switch (on existing VersionWarehouse rows), Remove from warehouse -- will be reused on every future Domain (Assets, Bundles, Maps, Matches). Use semantic DaisyUI classes consistently (`btn-primary` for Import, `btn-error` for destructive actions, `btn-ghost` for non-destructive secondary). No new components-shared lib in this phase -- just consistent class usage so future Domain rows inherit the visual grammar.
 
 - [ ] **Step 7: Tests + commit**
 
-Unit tests for AddClientPanel state management (selected rows, primary radio, dir-targeting state). Integration test for the full flow (mock invoke, simulate folder pick → scan → render checklist → click Import → assert bulk_import_clients was called with expected args).
+Unit tests for AddClientPanel state management (selected rows, primary radio, dir-targeting state). Integration test for the full flow (mock invoke, simulate folder pick -> scan -> render checklist -> click Import -> assert bulk_import_clients was called with expected args).
 
 ### Task 4.3: Wire Add Client button in VersionWarehouse
 
@@ -1198,25 +1198,25 @@ Unit tests for AddClientPanel state management (selected rows, primary radio, di
 - Modify: `apps/slipgate-app/src/components/VersionWarehouse.tsx` (Phase 3 stubbed this button)
 - Modify: `apps/slipgate-app/src/components/ClientsDomain.tsx` (host the AddClientPanel state)
 
-**Design:** AddClientPanel renders inside ClientsDomain, NOT as a modal overlay or a router-jump to MyQuake → Browse. Per D1 (pass-2 reframe), client management lives entirely inside the Clients view of MyQuake post-3.5a.
+**Design:** AddClientPanel renders inside ClientsDomain, NOT as a modal overlay or a router-jump to MyQuake -> Browse. Per D1 (pass-2 reframe), client management lives entirely inside the Clients view of MyQuake post-3.5a.
 
-- [ ] **Step 1:** Add an `addingClient: boolean` signal to ClientsDomain (or a context/store signal — pick whichever fits the existing pattern; ClientsDomain-local is fine for this scope).
+- [ ] **Step 1:** Add an `addingClient: boolean` signal to ClientsDomain (or a context/store signal -- pick whichever fits the existing pattern; ClientsDomain-local is fine for this scope).
 
 - [ ] **Step 2:** Replace VersionWarehouse's stub `onClick` for the "Add Quake client" button with a call that sets `addingClient = true`. May need to thread the setter via props or context.
 
 - [ ] **Step 3:** ClientsDomain renders `<AddClientPanel onClose={() => setAddingClient(false)} />` when `addingClient === true`, else renders the normal Installation + Versions content.
 
-- [ ] **Step 4: Final integration test** (manual on Windows): click Add Client → see AddClientPanel inside the same Clients view → pick a folder → see checklist → Import → confirm warehouse populated → confirm primary version is now active per VersionWarehouse → close panel → see Versions list reflect the new state.
+- [ ] **Step 4: Final integration test** (manual on Windows): click Add Client -> see AddClientPanel inside the same Clients view -> pick a folder -> see checklist -> Import -> confirm warehouse populated -> confirm primary version is now active per VersionWarehouse -> close panel -> see Versions list reflect the new state.
 
 ---
 
 ## Self-review against goal
 
-Goal restated (post-pass-2): Single-button "Add Quake client" inside MyQuake → Clients identifies clients in a chosen folder via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly (with documented stub states for FTE + ezQuake-snapshot per F14), and makes the "switch to latest official" path one click away from any unrecognized state where Tier-2 cache data exists.
+Goal restated (post-pass-2): Single-button "Add Quake client" inside MyQuake -> Clients identifies clients in a chosen folder via PE-string fingerprinting, lets the user bulk-import all detected clients with one tick-list interaction, surfaces three-tier identity honestly (with documented stub states for FTE + ezQuake-snapshot per F14), and makes the "switch to latest official" path one click away from any unrecognized state where Tier-2 cache data exists.
 
 Sub-phase 1 ships the fingerprinter (with F4 variant decoupling, F6 fteqw.exe canonical, F7 FTE server-build exclusion, F8 trimmed variant suffixes, scan_clients_in_dir Unknown-filter wrapper). Sub-phase 2 ships release_cache (parallel system per D3, per-(client, channel) keying per D11+F13, F9 normalized matcher with documented residual false-negatives). Sub-phase 3 ships frontend wrappers (collapsed dramatically post-3.5a per F2). Sub-phase 4 ships AddClientPanel + bulk_import_clients orchestrator (D8 canonicalize-on-import, D9 warehouse-only-by-default for non-matching dirs, D12 swap-not-reconcile for primary).
 
-Three-tier identity (D5 + F14): Tier-2 nudge fires only for client-channels with live cache data (ezQuake stable, unezQuake stable, KTX/MVDSV/QWFWD stable). FTE + ezQuake snapshot render identity but skip Tier-2 verdict per the stub-state branches in `ClientImportRow`. This is honest — F14 acknowledges 3.5b ships partial Tier-2 coverage; future arcs widen.
+Three-tier identity (D5 + F14): Tier-2 nudge fires only for client-channels with live cache data (ezQuake stable, unezQuake stable, KTX/MVDSV/QWFWD stable). FTE + ezQuake snapshot render identity but skip Tier-2 verdict per the stub-state branches in `ClientImportRow`. This is honest -- F14 acknowledges 3.5b ships partial Tier-2 coverage; future arcs widen.
 
 Bulk import: D2 default-select-all + sub-phase 4 checklist UI cover this exactly. Canonical-only naming (D8) embeds via `bulk_import_clients`'s per-row CanonicalizeConsent flow (Rename / LeaveAsIs / Skip with toast for canonical-slot-occupied). Profile gains `setups[0].quake_dirs` (plural-shaped per D9) with the primary entry populated on first-launch claim only; foreign-dir picks are refused at the picker level.
 
@@ -1224,7 +1224,7 @@ Variant decoupling (D6 + D10 + F4): variants stored as `variant: Option<String>`
 
 Primary selection (D12 + F5): `swap_active_version` is authoritative regardless of `std::fs::read_dir` iteration order, unlike the pass-1 plan's reconcile-after-rename-loop pattern which was vulnerable to iteration-order-dependent silent overrides.
 
-Position in bigger picture: this phase is the first explicit Tier 1 → Tier 2 crossing in the four-tier opt-in ladder (memory `project_slipgate_tier_ladder.md`). The action grammar (Import / Set primary / Switch / Remove from warehouse) and the bulk-import flow shell are precedents future Tier 3 arcs (asset warehouse, bundle install, clean-room migration — captured in HANDOVER's "Tier 3 future arcs" entry) reuse wholesale. The pass-2 reframes (D6/D10 variant decoupling, D11 per-channel cache files, D9 warehouse-only-by-default) preserve substrate cleanliness for those future arcs.
+Position in bigger picture: this phase is the first explicit Tier 1 -> Tier 2 crossing in the four-tier opt-in ladder (memory `project_slipgate_tier_ladder.md`). The action grammar (Import / Set primary / Switch / Remove from warehouse) and the bulk-import flow shell are precedents future Tier 3 arcs (asset warehouse, bundle install, clean-room migration -- captured in HANDOVER's "Tier 3 future arcs" entry) reuse wholesale. The pass-2 reframes (D6/D10 variant decoupling, D11 per-channel cache files, D9 warehouse-only-by-default) preserve substrate cleanliness for those future arcs.
 
 ---
 
@@ -1244,7 +1244,7 @@ Position in bigger picture: this phase is the first explicit Tier 1 → Tier 2 c
 - **Player profiles / share-via-hashlist features.** Surfaced in design conversation 2026-04-27 evening as a future arc (load Milton's setup by hash list, swap between own profile and another's, dedupe against locally-existing assets). See HANDOVER's "Player profiles (bundle-shaped, share-via-hashlist)" entry. Bundle-shaped infrastructure shared with the slackers_tp-style bundle install future arc; not 3.5b scope.
 - **Clean-room extraction / migration.** Future Tier-3 arc that produces a fresh slipgate-managed dir from an existing messy one. Captured in HANDOVER's "Tier 3 future arcs" entry. Not 3.5b scope; the plural-shaped `quake_dirs` schema is the substrate that makes it cheap to land later.
 - **Delete-from-disk action on warehoused / non-warehoused exes** (per F11). The Phase-3 VersionWarehouse rows already have a Delete button (which removes the warehouse manifest + GC's the blob if unreferenced); a separate "Delete the source exe from disk" action was sketched in pass-1 but is deferred to a future arc. Reasoning: it's destructive, needs careful safety guards (refuse if path matches the canonical slot, refuse if path matches an active version's source), and isn't load-bearing for 3.5b's goal. Users with leftover non-canonical exes after import can delete via Windows Explorer for now.
-- **Tier-2 nudge for FTE + ezQuake snapshot.** Per F14, those rows render identity (family + version) but skip the upgrade-nudge UX in 3.5b — their cache stubs return empty. Future arcs (FTE: scrape fte.triptohell.info; ezQuake snapshot: integrate the existing updater scraper into release_cache) widen Tier-2 coverage.
+- **Tier-2 nudge for FTE + ezQuake snapshot.** Per F14, those rows render identity (family + version) but skip the upgrade-nudge UX in 3.5b -- their cache stubs return empty. Future arcs (FTE: scrape fte.triptohell.info; ezQuake snapshot: integrate the existing updater scraper into release_cache) widen Tier-2 coverage.
 - **Asset warehouse / 1-click texture-set switching / bundle install / clean-room migration.** All Tier 3 future arcs that share Phase 2/3's warehouse substrate. Captured in HANDOVER's "Tier 3 future arcs" entry. Phase 3.5b establishes the precedents (action grammar, AddClientPanel shell, canonicalize-on-import flow, swap-not-reconcile pattern) but does not implement any non-binary content management.
 - **`fteplug_*.dll` plugin classification.** The fingerprinter classifies `.exe` files only. FTE plugin DLLs sit in the user's quake dir but are not Quake clients in the warehouse sense. They surface in MyQuake's Browse view as Client Plugin (existing classification) but are not in the import list.
 

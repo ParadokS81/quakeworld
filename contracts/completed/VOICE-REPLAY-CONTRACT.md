@@ -1,4 +1,4 @@
-# Voice Replay Multi-Clan — Cross-Project Contract
+# Voice Replay Multi-Clan -- Cross-Project Contract
 
 > Source of truth for the shared interfaces between quad and MatchScheduler.
 > Updated as each phase lands. Both projects reference this for schema decisions.
@@ -9,7 +9,7 @@
 ## Overview
 
 Evolving voice replay from single-clan PoC to multi-clan production:
-- Registration starts from MatchScheduler UI (team settings) — leader initiates, bot completes
+- Registration starts from MatchScheduler UI (team settings) -- leader initiates, bot completes
 - Uploads tagged with teamId, enabling Firestore-rules-based privacy
 - Teams control visibility: default public/private + per-recording override
 - Frontend discovery: team members find their recordings in MatchScheduler
@@ -24,7 +24,7 @@ Evolving voice replay from single-clan PoC to multi-clan production:
 
 Links a MatchScheduler team to a Discord server. Document ID = teamId (one registration per team).
 
-Created by MatchScheduler (pending) → completed by quad bot (active).
+Created by MatchScheduler (pending) -> completed by quad bot (active).
 
 ```typescript
 interface BotRegistrationDocument {
@@ -34,7 +34,7 @@ interface BotRegistrationDocument {
   teamName: string;                   // Denormalized from team doc
 
   // Authorization (set by MatchScheduler at creation)
-  authorizedDiscordUserId: string;    // Leader's Discord user ID — only this user can run /register
+  authorizedDiscordUserId: string;    // Leader's Discord user ID -- only this user can run /register
   registeredBy: string;               // Firebase UID of the leader
 
   // Discord server info (set by quad bot on /register completion)
@@ -48,7 +48,7 @@ interface BotRegistrationDocument {
   // (standins, guests, invited players)
   // Roster members are resolved dynamically from team doc + user profiles
   knownPlayers: {
-    [discordUserId: string]: string;  // Discord user ID → QW display name
+    [discordUserId: string]: string;  // Discord user ID -> QW display name
   };
 
   // Timestamps
@@ -79,9 +79,9 @@ MATCHSCHEDULER (Team Settings)                DISCORD
 ──────────────────────────────                ───────
 
 Leader opens team settings
-  → "Voice Bot" section shows
-  → Status: "Not connected"
-  → Button: "Connect Voice Bot"
+  -> "Voice Bot" section shows
+  -> Status: "Not connected"
+  -> Button: "Connect Voice Bot"
         │
         ▼
 Leader clicks "Connect Voice Bot"
@@ -97,13 +97,13 @@ botRegistrations/{teamId}:
         │
         ▼
 UI updates:
-  → Status: "Pending — complete setup in Discord"
-  → Shows bot invite link
-  → Shows instructions: "1. Click invite link
+  -> Status: "Pending -- complete setup in Discord"
+  -> Shows bot invite link
+  -> Shows instructions: "1. Click invite link
      2. Add bot to your server
      3. Run /register in any channel"
         │                                      │
-        └──── leader clicks invite link ──────→│
+        └──── leader clicks invite link ──────->│
                                                ▼
                                         Leader adds bot to server
                                         (Discord OAuth flow)
@@ -117,11 +117,11 @@ UI updates:
                                         == interaction.user.id
                                         AND status == 'pending'
                                                │
-                                        ├─ No match → "No pending
+                                        ├─ No match -> "No pending
                                         │  registration. Start from
                                         │  team settings on MatchScheduler."
                                         │
-                                        ▼─ Match found →
+                                        ▼─ Match found ->
                                            Update doc:
                                              guildId: interaction.guildId
                                              guildName: interaction.guild.name
@@ -129,15 +129,15 @@ UI updates:
                                              activatedAt: now
                                                │
                                                ▼
-                                        Bot confirms: "✓ Linked to
+                                        Bot confirms: "[ok] Linked to
                                         [teamName] ([teamTag])"
 
         ┌──────────────────────────────────────┘
         ▼
 MatchScheduler UI auto-updates
 (Firestore listener on botRegistrations/{teamId}):
-  → Status: "Connected to [guildName]"
-  → Button: "Disconnect"
+  -> Status: "Connected to [guildName]"
+  -> Button: "Disconnect"
 ```
 
 ### Disconnect Flow
@@ -161,7 +161,7 @@ Voice recording manifest. Written by quad bot after the fast pipeline.
 {
   demoSha256: string;
   teamTag: string;              // "sr"
-  teamId: string;               // "" (empty — bot didn't know)
+  teamId: string;               // "" (empty -- bot didn't know)
   source: 'firebase_storage';
   tracks: [{
     playerName: string;         // "ParadokS"
@@ -197,7 +197,7 @@ interface VoiceRecordingDocument {
 }
 
 interface VoiceTrack {
-  discordUserId: string;       // Stable file identifier — never changes
+  discordUserId: string;       // Stable file identifier -- never changes
   discordUsername: string;     // Discord display name at recording time
   playerName: string;          // QW name: resolved from roster/knownPlayers, or fallback to discordUsername
   resolved: boolean;           // true = playerName confirmed (roster or knownPlayers), false = using Discord fallback
@@ -242,7 +242,7 @@ voice-recordings/{demoSha256}/{playerName}.ogg
 voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg
 ```
 
-**Storage rules:** Remain publicly readable by URL. Privacy enforced at the Firestore discovery layer — you can only learn the Storage paths by reading the voiceRecordings document.
+**Storage rules:** Remain publicly readable by URL. Privacy enforced at the Firestore discovery layer -- you can only learn the Storage paths by reading the voiceRecordings document.
 
 ```
 match /voice-recordings/{teamId}/{demoSha256}/{fileName} {
@@ -258,7 +258,7 @@ match /voice-recordings/{teamId}/{demoSha256}/{fileName} {
 Added to existing TeamDocument:
 
 ```typescript
-// Optional — absence treated as { defaultVisibility: 'private' }
+// Optional -- absence treated as { defaultVisibility: 'private' }
 voiceSettings?: {
   defaultVisibility: 'public' | 'private';
 };
@@ -277,11 +277,11 @@ When the bot uploads a recording, it resolves each speaker's display name in thi
    - Bot reads team doc from botRegistration.teamId
    - Team doc has playerRoster[] with userId per player
    - Bot reads each user doc to check discordUserId match
-   → If found: use displayName from user profile (= QW name)
+   -> If found: use displayName from user profile (= QW name)
 
 2. Known players lookup
    - Bot reads botRegistration.knownPlayers[discordUserId]
-   → If found: use stored QW name
+   -> If found: use stored QW name
 
 3. Fallback
    - Use Discord display name from recording session
@@ -296,8 +296,8 @@ After upload, if any tracks have `resolved: false`:
 2. Message lists unresolved players with their Discord usernames
 3. Leader replies with QW names (interactive buttons/text)
 4. Bot updates:
-   - `voiceRecordings/{demoSha256}` → track.playerName + resolved: true
-   - `botRegistrations/{teamId}.knownPlayers` → stores mapping for next time
+   - `voiceRecordings/{demoSha256}` -> track.playerName + resolved: true
+   - `botRegistrations/{teamId}.knownPlayers` -> stores mapping for next time
 
 ---
 
@@ -305,7 +305,7 @@ After upload, if any tracks have `resolved: false`:
 
 | Phase | Project | Scope |
 |-------|---------|-------|
-| **1a** | MatchScheduler | "Voice Bot" section in team settings: connect button → creates pending registration + shows invite link |
+| **1a** | MatchScheduler | "Voice Bot" section in team settings: connect button -> creates pending registration + shows invite link |
 | **1b** | quad | `/register` command: finds pending registration, completes it with guildId |
 | **2** | quad | Refactor uploader: teamId in path, discordUserId filenames, roster-based name resolution, unknown player DM prompt |
 | **3** | MatchScheduler | Firestore rules for voiceRecordings (team membership check), add Auth to replay page |
@@ -316,6 +316,6 @@ After upload, if any tracks have `resolved: false`:
 
 ## Migration Notes
 
-- Existing ]sr[ recordings (PoC) use old path format. No migration needed — they'll continue working via direct URL. New recordings use the new format.
+- Existing ]sr[ recordings (PoC) use old path format. No migration needed -- they'll continue working via direct URL. New recordings use the new format.
 - `SCHEMA.md` in MatchScheduler should be updated when Phase 3 lands (voiceRecordings schema changes + voiceSettings on teams + botRegistrations collection).
 - The `PLAYER_NAME_MAP` env var in quad becomes a fallback for unregistered guilds. Registered guilds use roster + knownPlayers instead.

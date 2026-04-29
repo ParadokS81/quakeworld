@@ -1,4 +1,4 @@
-# QW Config — Design Spec
+# QW Config -- Design Spec
 
 **Date:** 2026-03-30
 **Status:** Approved for implementation
@@ -6,7 +6,7 @@
 
 ## Vision
 
-A "pandoc for QuakeWorld configs." Drop in a config from any QW client, get a clean agnostic representation. Convert it to any other client. View and edit it with full documentation. Lower the barrier for players to try different clients — especially FTE, which may become the path to browser-based QW.
+A "pandoc for QuakeWorld configs." Drop in a config from any QW client, get a clean agnostic representation. Convert it to any other client. View and edit it with full documentation. Lower the barrier for players to try different clients -- especially FTE, which may become the path to browser-based QW.
 
 vikpe's framing: "define a client agnostic config format, make a round trip converter for quakeworld/ezquake/fte <-> agnostic."
 
@@ -51,7 +51,7 @@ apps/slipgate-app/            <-- UI consumer (SolidJS + DaisyUI)
     ConfigTab.tsx              <-- config viewer/editor tab
 ```
 
-`packages/qw-config/` is a workspace package in the monorepo. slipgate-app imports it at build time — Vite bundles it into the final .exe. No publishing needed. The future slipgate website can import the same package.
+`packages/qw-config/` is a workspace package in the monorepo. slipgate-app imports it at build time -- Vite bundles it into the final .exe. No publishing needed. The future slipgate website can import the same package.
 
 ## Scope
 
@@ -66,11 +66,11 @@ apps/slipgate-app/            <-- UI consumer (SolidJS + DaisyUI)
 - **Aliases**: client-specific scripting, doesn't convert cleanly
 - **Teamplay messages**: heavily personal, not a conversion target
 - **Weapon scripts**: complex, client-specific timing tricks
-- **Exec chains**: `exec gfx.cfg` etc. — structural, not settings
+- **Exec chains**: `exec gfx.cfg` etc. -- structural, not settings
 
 These can be added later. The agnostic format should be extensible.
 
-## Data Sources — Verified
+## Data Sources -- Verified
 
 ### ezQuake (2,554 variables, 511 commands, 68 macros)
 
@@ -83,27 +83,27 @@ These can be added later. The agnostic format should be extensible.
 
 **Source:** Embedded in C source code via `CVARD(name, default, description)` and `CVARFD(name, default, flags, description)` macros. Nearly 100% of FTE cvars have inline descriptions (only 9 plain `CVAR()` without).
 **Local path:** `research/repos/fteqw/engine/` (across ~59 files)
-**Quality:** Good descriptions in source. No grouping/categorization — we'd add that.
+**Quality:** Good descriptions in source. No grouping/categorization -- we'd add that.
 **Update method:** Re-run extraction script against updated FTE source. Descriptions track upstream automatically.
 **Extraction approach:** Parse C source for CVARD/CVARFD/CVARAFD macros, extract name + default + description + flags.
 
-### QWCL (~189 cvars — the universal baseline)
+### QWCL (~189 cvars -- the universal baseline)
 
 **Source:** No single source. Assembled from multiple verified sources:
 
 | Source | Cvars covered | Notes |
 |--------|--------------|-------|
-| ezQuake JSON (with descriptions) | 123 (65%) | Direct overlap — QWCL cvars that ezQuake inherited and documented |
+| ezQuake JSON (with descriptions) | 123 (65%) | Direct overlap -- QWCL cvars that ezQuake inherited and documented |
 | quakeworld.net archive | 16 (8%) | Original 1999-era documentation (web.archive.org, also pasted in our research) |
 | FTE source (CVARD macros) | 8 (4%) | FTE documented some QWCL cvars that ezQuake dropped |
 | **Combined coverage** | **144 (76%)** | |
 | Still need manual descriptions | 45 (24%) | Breakdown below |
 
 **The 45 without descriptions break down as:**
-- 16 debug/developer internals (r_speeds, showram, etc.) — not converter-relevant
-- 19 obsolete (gl_ztrick, joywwhack, VGA/VESA stuff) — dead tech, no modern equivalent
-- 8 self-explanatory (crosshair, cl_hudswap, ambient_level) — name says it all
-- ~7 converter-relevant that need manual descriptions — small, manageable
+- 16 debug/developer internals (r_speeds, showram, etc.) -- not converter-relevant
+- 19 obsolete (gl_ztrick, joywwhack, VGA/VESA stuff) -- dead tech, no modern equivalent
+- 8 self-explanatory (crosshair, cl_hudswap, ambient_level) -- name says it all
+- ~7 converter-relevant that need manual descriptions -- small, manageable
 
 **Local path:** `research/repos/qwcl-original/QW/client/` (id Software GPL release, frozen 1999 codebase)
 **Update method:** Never changes. One-time assembly.
@@ -170,9 +170,9 @@ Not all cvars convert. The realistic breakdown:
 
 | Category | Estimated count | Conversion behavior |
 |----------|----------------|-------------------|
-| Shared baseline (QWCL heritage) | ~150 | Automatic — same name in all clients |
+| Shared baseline (QWCL heritage) | ~150 | Automatic -- same name in all clients |
 | Same feature, different name | ~50-100 | Manual mapping needed (the real work) |
-| Client-specific extensions | ~2000+ | Skip — no equivalent in other clients |
+| Client-specific extensions | ~2000+ | Skip -- no equivalent in other clients |
 
 The "same feature, different name" bucket is where vikpe and matrix's expertise is needed. This mapping grows over time as the community identifies equivalences.
 
@@ -239,8 +239,8 @@ A 70-80% config transfer is infinitely better than starting from scratch.
 ## Research Artifacts
 
 All reference repos cloned locally in `research/repos/`:
-- `ezquake-source/` — ezQuake client source + help JSON files
-- `fteqw/` — FTE engine source (CVARD macros in `engine/`)
-- `qwcl-original/` — id Software's original Quake source (QW/client/)
+- `ezquake-source/` -- ezQuake client source + help JSON files
+- `fteqw/` -- FTE engine source (CVARD macros in `engine/`)
+- `qwcl-original/` -- id Software's original Quake source (QW/client/)
 
 quakeworld.net archive content (original QWCL documentation) captured in brainstorming session notes.

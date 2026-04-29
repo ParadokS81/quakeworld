@@ -1,4 +1,4 @@
-# Backfill Strategy — Getting Years of Discord History
+# Backfill Strategy -- Getting Years of Discord History
 
 ## Can We Do This?
 
@@ -28,7 +28,7 @@ The Quad bot itself fetches history using discord.js's `channel.messages.fetch()
 | Very large  | 5M       | ~15 hours         | ~2.5 hours                   |
 
 **Advantages:**
-- Built into the bot — no external tools
+- Built into the bot -- no external tools
 - Uses the bot token (clean, ToS-compliant)
 - Can run incrementally (track last fetched message ID per channel, resume on restart)
 - Data goes directly into our SQLite schema
@@ -85,13 +85,13 @@ This can be imported into our SQLite database with a simple script.
 
 ## Recommended Strategy
 
-1. **Start with DiscordChatExporter** — do a full JSON export of the server(s) right now.
+1. **Start with DiscordChatExporter** -- do a full JSON export of the server(s) right now.
    This gives us sample data to work with immediately, before writing any bot code.
 
-2. **Build bot-based backfill** — the bot catches up on anything missed and handles
+2. **Build bot-based backfill** -- the bot catches up on anything missed and handles
    ongoing ingestion. On first run, it checks what's already in the DB and fills gaps.
 
-3. **Import the export** — write a one-time script to import DiscordChatExporter JSON
+3. **Import the export** -- write a one-time script to import DiscordChatExporter JSON
    into our SQLite schema. This seeds the database with full history.
 
 This way we have sample data to experiment with TODAY, and the bot handles everything
@@ -100,7 +100,7 @@ going forward.
 ## What We Get Per Message
 
 From either approach, each message includes:
-- Unique message ID (snowflake — encodes creation timestamp)
+- Unique message ID (snowflake -- encodes creation timestamp)
 - Full text content
 - Author: user ID, username, display name/nickname
 - Channel: ID, name

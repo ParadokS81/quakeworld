@@ -1,4 +1,4 @@
-# QW Stats — PostgreSQL Database Schema
+# QW Stats -- PostgreSQL Database Schema
 
 ## Overview
 
@@ -11,7 +11,7 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 | Mix/pickup games | ~8,300 (46%) |
 | Unique player names | 2,355 |
 | Unique team tags | ~150 |
-| Date range | Jan 2022 — Feb 2026 |
+| Date range | Jan 2022 -- Feb 2026 |
 | Top maps | dm2, dm3, schloss, e1m2, phantombase |
 
 **Infrastructure:** Docker container on Unraid, exposed via Cloudflare tunnel at `https://qw-api.poker-affiliate.org`. Express API serves 5 endpoints consumed by the MatchScheduler web app.
@@ -20,7 +20,7 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 
 ## Tables
 
-### `games` — Match metadata (1 row per match)
+### `games` -- Match metadata (1 row per match)
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
@@ -34,8 +34,8 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 | `timelimit` | INTEGER | | Time limit in minutes (typically 20) |
 | `team_a` | TEXT | NOT NULL | Team A name (raw QW-encoded) |
 | `team_b` | TEXT | NOT NULL | Team B name (raw QW-encoded) |
-| `team_a_ascii` | TEXT | NOT NULL | Team A name (lowercase ASCII — used for queries) |
-| `team_b_ascii` | TEXT | NOT NULL | Team B name (lowercase ASCII — used for queries) |
+| `team_a_ascii` | TEXT | NOT NULL | Team A name (lowercase ASCII -- used for queries) |
+| `team_b_ascii` | TEXT | NOT NULL | Team B name (lowercase ASCII -- used for queries) |
 | `team_a_frags` | INTEGER | NOT NULL, DEFAULT 0 | Total frags scored by team A |
 | `team_b_frags` | INTEGER | NOT NULL, DEFAULT 0 | Total frags scored by team B |
 | `is_clan_game` | BOOLEAN | NOT NULL, DEFAULT false | True if both teams are recognized clan tags |
@@ -46,13 +46,13 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 
 ---
 
-### `game_players` — Per-player stats (8 rows per match, 4 per team)
+### `game_players` -- Per-player stats (8 rows per match, 4 per team)
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | **Identity** | | | |
 | `id` | SERIAL | PRIMARY KEY | Auto-increment ID |
-| `game_id` | INTEGER | NOT NULL, FK → games(id) ON DELETE CASCADE | Parent game |
+| `game_id` | INTEGER | NOT NULL, FK -> games(id) ON DELETE CASCADE | Parent game |
 | `player_name_raw` | TEXT | | Raw QW-encoded name |
 | `player_name_ascii` | TEXT | | ASCII-decoded display name |
 | `player_name_normalized` | TEXT | NOT NULL | Lowercase, trimmed (for matching/grouping) |
@@ -158,9 +158,9 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 
 ## Views
 
-### `v_team_games` — Normalized team perspective
+### `v_team_games` -- Normalized team perspective
 
-Every game appears twice — once from each team's perspective. Simplifies all downstream queries.
+Every game appears twice -- once from each team's perspective. Simplifies all downstream queries.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -175,7 +175,7 @@ Every game appears twice — once from each team's perspective. Simplifies all d
 | `result` | TEXT | 'W' / 'L' / 'D' |
 | `is_clan_game` | BOOLEAN | From parent game |
 
-### `v_team_map_stats` — Per-team, per-map aggregates
+### `v_team_map_stats` -- Per-team, per-map aggregates
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -189,7 +189,7 @@ Every game appears twice — once from each team's perspective. Simplifies all d
 | `avg_frags` / `avg_opp_frags` | REAL | Average frags for/against |
 | `last_played` | TIMESTAMPTZ | Most recent game |
 
-### `v_opponent_record` — H2H records per opponent
+### `v_opponent_record` -- H2H records per opponent
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -200,7 +200,7 @@ Every game appears twice — once from each team's perspective. Simplifies all d
 | `avg_frag_diff` | REAL | Average frag diff |
 | `first_played` / `last_played` | TIMESTAMPTZ | Series date range |
 
-### `v_roster_stats` — Player stats within each team
+### `v_roster_stats` -- Player stats within each team
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -237,9 +237,9 @@ All endpoints filter to `is_clan_game = true` by default.
 
 ### Source
 
-Raw data comes from **ktxstats** JSON files — the standard match stats format for QuakeWorld servers running KTX mod. Each file contains full per-player stats for one game.
+Raw data comes from **ktxstats** JSON files -- the standard match stats format for QuakeWorld servers running KTX mod. Each file contains full per-player stats for one game.
 
-- **Bulk archive:** ~18,200 JSON files covering Jan 2022 — Feb 2026
+- **Bulk archive:** ~18,200 JSON files covering Jan 2022 -- Feb 2026
 - **ktxstats URL pattern:** `https://d.quake.world/{sha[0:3]}/{sha}.mvd.ktxstats.json`
 - **Game index:** QWHub Supabase API at `hub.quakeworld.nu`
 
@@ -258,7 +258,7 @@ The API server polls QWHub every 15 minutes for new games, downloads their ktxst
 
 ### QW Character Encoding
 
-QuakeWorld uses a custom character encoding (non-ASCII bytes for colored text). The import pipeline converts these to readable ASCII via a lookup table. Both raw and ASCII versions are stored — raw for display fidelity, ASCII for querying.
+QuakeWorld uses a custom character encoding (non-ASCII bytes for colored text). The import pipeline converts these to readable ASCII via a lookup table. Both raw and ASCII versions are stored -- raw for display fidelity, ASCII for querying.
 
 ### Clan Game Detection
 
@@ -277,28 +277,28 @@ A team name is "clan" if it's NOT in a list of generic names: `blue`, `red`, `gr
 │ played_at            │         │     game_players          │
 │ map                  │         │──────────────────────────│
 │ team_a / team_b      │────────▶│ id (PK)                  │
-│ team_a_ascii/b_ascii │  1 : 8  │ game_id (FK → games.id)  │
+│ team_a_ascii/b_ascii │  1 : 8  │ game_id (FK -> games.id)  │
 │ team_a_frags/b_frags │         │ player_name_normalized   │
 │ is_clan_game         │         │ team_ascii               │
 │ duration             │         │ frags, kills, deaths     │
 │ hostname, matchtag   │         │ dmg_given, dmg_taken     │
-└─────────────────────┘         │ weapon stats (sg/rl/lg/…)│
-                                 │ item control (ra/ya/quad…)│
+└─────────────────────┘         │ weapon stats (sg/rl/lg/...)│
+                                 │ item control (ra/ya/quad...)│
                                  │ won                       │
                                  └──────────────────────────┘
 
 Views (derived from above):
-  v_team_games       — games doubled, one row per team perspective
-  v_team_map_stats   — aggregated wins/losses per team+map
-  v_opponent_record  — H2H records per team pair
-  v_roster_stats     — per-player averages within each team
+  v_team_games       -- games doubled, one row per team perspective
+  v_team_map_stats   -- aggregated wins/losses per team+map
+  v_opponent_record  -- H2H records per team pair
+  v_roster_stats     -- per-player averages within each team
 ```
 
 ---
 
 ## Known Limitations / Future Work
 
-1. **Identity resolution is unsolved.** Players use multiple names across teams/time. The 2,355 unique `player_name_normalized` values map to roughly 800-1,000 real humans. No alias table exists yet — this is the active area of work (Phase 0).
+1. **Identity resolution is unsolved.** Players use multiple names across teams/time. The 2,355 unique `player_name_normalized` values map to roughly 800-1,000 real humans. No alias table exists yet -- this is the active area of work (Phase 0).
 
 2. **No composite primary key on game_players.** The `(game_id, player_name_normalized)` pair is not enforced as unique at the DB level. Deduplication relies on the `demo_sha256` uniqueness on the games table.
 

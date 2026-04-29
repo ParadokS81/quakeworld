@@ -13,16 +13,16 @@ The 3x3 grid links row heights across columns. When users hide timeslots, the to
 ```
 ┌─────────────────┬────────────────────────────────┬─────────────────┐
 │ TOP-LEFT        │ TOP-CENTER                     │ TOP-RIGHT       │
-│ • Logo          │ • Week header (tools in 13.0b) │ • Favorites     │
-│ • Roster        │ • Week 1 grid                  │                 │
+│ - Logo          │ - Week header (tools in 13.0b) │ - Favorites     │
+│ - Roster        │ - Week 1 grid                  │                 │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ MID-LEFT        │ MID-CENTER                     │ MID-RIGHT       │
-│ • Team name ◄───┼─ MOVED FROM TOP-LEFT           │ • Min players   │
+│ - Team name ◄───┼─ MOVED FROM TOP-LEFT           │ - Min players   │
 │   + gear icon   │                                │                 │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ BOTTOM-LEFT     │ BOTTOM-CENTER                  │ BOTTOM-RIGHT    │
-│ • Profile ◄─────┼─ MOVED FROM MID-LEFT           │ • Team browser  │
-│ • Upcoming      │ • Week 2 / Content             │                 │
+│ - Profile ◄─────┼─ MOVED FROM MID-LEFT           │ - Team browser  │
+│ - Upcoming      │ - Week 2 / Content             │                 │
 └─────────────────┴────────────────────────────────┴─────────────────┘
 ```
 
@@ -33,15 +33,15 @@ Grid tools (templates, display modes) will move to grid header in Slice 13.0b.
 ## Scope
 
 Move two pieces of content to different panels:
-1. **Team name + tag** → mid-left panel (currently shows compact profile)
-2. **Compact profile** → bottom-left panel (above upcoming matches)
-3. **Grid tools drawer** → removed from TeamInfo (will be in grid header in 13.0b)
+1. **Team name + tag** -> mid-left panel (currently shows compact profile)
+2. **Compact profile** -> bottom-left panel (above upcoming matches)
+3. **Grid tools drawer** -> removed from TeamInfo (will be in grid header in 13.0b)
 
 ---
 
 ## Changes
 
-### 1. TeamInfo.js — Remove team name and grid tools
+### 1. TeamInfo.js -- Remove team name and grid tools
 
 **File:** `public/js/components/TeamInfo.js`
 
@@ -140,7 +140,7 @@ return {
 
 ---
 
-### 2. Mid-Left Panel — Team Name Display
+### 2. Mid-Left Panel -- Team Name Display
 
 **File:** `public/js/components/TeamNameDisplay.js` (NEW)
 
@@ -227,7 +227,7 @@ const TeamNameDisplay = (function() {
 
 ---
 
-### 3. index.html — Update mid-left panel
+### 3. index.html -- Update mid-left panel
 
 **File:** `public/index.html`
 
@@ -251,7 +251,7 @@ Change mid-left panel from profile container to team name container:
 
 ---
 
-### 4. Bottom-Left Panel — Add Profile Above Matches
+### 4. Bottom-Left Panel -- Add Profile Above Matches
 
 **File:** `public/index.html`
 
@@ -278,7 +278,7 @@ Update bottom-left panel to include profile area:
 
 ---
 
-### 5. app.js — Update initialization
+### 5. app.js -- Update initialization
 
 **File:** `public/js/app.js`
 
@@ -310,7 +310,7 @@ UserProfile.renderCompact('profile-compact-container');
 
 ---
 
-### 6. Script Loading — Add TeamNameDisplay
+### 6. Script Loading -- Add TeamNameDisplay
 
 **File:** `public/index.html`
 

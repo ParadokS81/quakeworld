@@ -22,7 +22,7 @@
 ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
 ```
 
-If the response shows `"recording": { "active": true }` — **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
+If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
 
 Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
 
@@ -43,7 +43,7 @@ From Windows/WSL environment, use `wsl bash -c` (NOT `-ic`) for SSH commands:
 wsl bash -c "ssh pinnaclepowerhouse 'command here'"
 ```
 
-### Container Management — qwvoice-ctl
+### Container Management -- qwvoice-ctl
 
 All Docker operations go through the `qwvoice-ctl` wrapper. No direct `docker` or `docker compose` access.
 
@@ -161,10 +161,10 @@ The heavy Python/CUDA dependencies are pre-built into a separate base image (`gh
 
 ### What's in the container
 
-- **Node.js 22** — bot runtime
-- **ffmpeg** — audio splitting for processing module
-- **Python 3 + faster-whisper** — transcription (GPU-accelerated)
-- **Whisper model** (`small` by default) — downloaded on first use, cached in `./models/`
+- **Node.js 22** -- bot runtime
+- **ffmpeg** -- audio splitting for processing module
+- **Python 3 + faster-whisper** -- transcription (GPU-accelerated)
+- **Whisper model** (`small` by default) -- downloaded on first use, cached in `./models/`
 
 ### Volumes
 
@@ -180,11 +180,11 @@ The heavy Python/CUDA dependencies are pre-built into a separate base image (`gh
 Configured via `.env` file (not checked into git). See `.env.example` for all options.
 
 Key vars for deployment:
-- `DISCORD_TOKEN` — bot token (required)
-- `RECORDING_DIR` — defaults to `./recordings`
-- `WHISPER_MODEL` — model name for transcription (default: `small`). Downloads to `./models/` on first use.
-- `QUAD_VERSION` — Docker image tag to pull (default: `latest`)
-- `FIREBASE_SERVICE_ACCOUNT` — path to service account JSON for standin module
+- `DISCORD_TOKEN` -- bot token (required)
+- `RECORDING_DIR` -- defaults to `./recordings`
+- `WHISPER_MODEL` -- model name for transcription (default: `small`). Downloads to `./models/` on first use.
+- `QUAD_VERSION` -- Docker image tag to pull (default: `latest`)
+- `FIREBASE_SERVICE_ACCOUNT` -- path to service account JSON for standin module
 
 ### GPU
 
@@ -212,8 +212,8 @@ Prerequisites on the host machine:
 
 Local development does NOT use Docker. Use the built-in skills:
 
-- **`/build`** — Compile TypeScript (`npx tsc --noEmit`)
-- **`/dev`** — Start the bot with ts-node ESM loader
+- **`/build`** -- Compile TypeScript (`npx tsc --noEmit`)
+- **`/dev`** -- Start the bot with ts-node ESM loader
 
 The bot runs directly on Node.js in WSL, loading `.env` from the project root.
 
@@ -237,7 +237,7 @@ sudo qwvoice-ctl /srv/qwvoice/quad logs      # Check for error messages
 ```
 
 ### "SECURITY: Compose file blocked due to violations"
-The `docker-compose.yml` contains something `qwvoice-ctl` doesn't allow. Read the error — it says exactly what's blocked.
+The `docker-compose.yml` contains something `qwvoice-ctl` doesn't allow. Read the error -- it says exactly what's blocked.
 
 ### Bot is online but not responding to commands
 Discord slash commands are registered globally and can take up to 1 hour to propagate. Check logs for "Registered N global command(s)".

@@ -1,4 +1,4 @@
-# Availability Enhancement — Cross-Project Contract
+# Availability Enhancement -- Cross-Project Contract
 
 > Simplifies the template system to one-per-user, adds recurring auto-apply,
 > Discord prev/next navigation, and repeat-last-week. Spans quad + MatchScheduler.
@@ -10,11 +10,11 @@
 
 The availability template system is underused (2 real users out of ~300). The current multi-template model is over-engineered and has zero Discord integration. This contract:
 
-1. **Simplifies templates** — one template per user, flat field on user doc (was: subcollection with up to 3)
-2. **Adds recurring auto-apply** — toggle on a template to auto-fill new weeks
-3. **Adds repeat-last-week** — one-click copy of previous week's availability
-4. **Adds Discord prev/next day** — save + navigate to adjacent day without returning to dropdown
-5. **Adds Discord template actions** — save template + recurring toggle from Discord
+1. **Simplifies templates** -- one template per user, flat field on user doc (was: subcollection with up to 3)
+2. **Adds recurring auto-apply** -- toggle on a template to auto-fill new weeks
+3. **Adds repeat-last-week** -- one-click copy of previous week's availability
+4. **Adds Discord prev/next day** -- save + navigate to adjacent day without returning to dropdown
+5. **Adds Discord template actions** -- save template + recurring toggle from Discord
 
 **Key principles:**
 - One template per user across both platforms (frontend saves/loads the same data as Discord)
@@ -63,7 +63,7 @@ The subcollection is replaced by the flat field above. Migration script handles 
 
 ```
 match /users/{userId} {
-  // Existing rules unchanged — users can read/write their own doc
+  // Existing rules unchanged -- users can read/write their own doc
   // The template field is just another field on the user doc
   // Cloud Functions use Admin SDK (bypasses rules) for recurring auto-apply
 }
@@ -77,41 +77,41 @@ No new collection-level rules needed since `template` lives on the existing user
 
 ### Current Flow
 ```
-Persistent message → [Edit day... ▾] → select "Wednesday" →
-  Ephemeral message with slot toggle buttons + [Save] →
-  Save confirmation (auto-deletes 5s) → back to persistent message
+Persistent message -> [Edit day... ▾] -> select "Wednesday" ->
+  Ephemeral message with slot toggle buttons + [Save] ->
+  Save confirmation (auto-deletes 5s) -> back to persistent message
 ```
 
 ### New Flow
 ```
-Persistent message → [Edit day... ▾] → select "Wednesday" →
-  Ephemeral message with slot toggle buttons + [◀ Prev] [Save] [Next ▶] →
-  Click [Next ▶] → saves Wednesday + shows Thursday's buttons →
-  Click [Next ▶] → saves Thursday + shows Friday's buttons →
-  Click [Save] → saves Friday + shows confirmation (auto-deletes 5s)
+Persistent message -> [Edit day... ▾] -> select "Wednesday" ->
+  Ephemeral message with slot toggle buttons + [◀ Prev] [Save] [Next ▶] ->
+  Click [Next ▶] -> saves Wednesday + shows Thursday's buttons ->
+  Click [Next ▶] -> saves Thursday + shows Friday's buttons ->
+  Click [Save] -> saves Friday + shows confirmation (auto-deletes 5s)
 ```
 
 ### Button Layout (ephemeral message)
 
 ```
-Row 1: [19:00] [19:30] [20:00] [20:30] [21:00]    ← existing slot toggles
-Row 2: [21:30] [22:00] [22:30] [23:00]              ← existing slot toggles
-Row 3: [◀ Prev]  [Save]  [Next ▶]                   ← navigation row
+Row 1: [19:00] [19:30] [20:00] [20:30] [21:00]    <- existing slot toggles
+Row 2: [21:30] [22:00] [22:30] [23:00]              <- existing slot toggles
+Row 3: [◀ Prev]  [Save]  [Next ▶]                   <- navigation row
 ```
 
 ### Behavior
 
 | Button | Action |
 |--------|--------|
-| **◀ Prev** | Save current day's slots → show previous day's toggle buttons |
-| **Save** | Save current day's slots → show confirmation → auto-delete 5s (existing behavior) |
-| **Next ▶** | Save current day's slots → show next day's toggle buttons |
+| **◀ Prev** | Save current day's slots -> show previous day's toggle buttons |
+| **Save** | Save current day's slots -> show confirmation -> auto-delete 5s (existing behavior) |
+| **Next ▶** | Save current day's slots -> show next day's toggle buttons |
 
 ### Edge Cases
 
 - **First available day** (Monday, or first non-past day for current week): Prev button disabled (style: Secondary, disabled: true)
 - **Sunday**: Next button disabled
-- **Past days** (current week only): If Prev would land on a past day, keep stepping back until a valid day is found — or disable if none exist
+- **Past days** (current week only): If Prev would land on a past day, keep stepping back until a valid day is found -- or disable if none exist
 - **No changes to save**: Prev/Next still navigate (save is a no-op if nothing changed, matching current Save behavior)
 
 ### Custom ID Format
@@ -124,7 +124,7 @@ New: `avail:prevDay:{teamId}:{cetDay}:{weekId}` and `avail:nextDay:{teamId}:{cet
 | File | Changes |
 |------|---------|
 | `src/modules/availability/interactions.ts` | New handlers: `handlePrevDay()`, `handleNextDay()`. Modify `buildSlotButtonGrid()` to add nav row. Logic to determine prev/next valid day. |
-| `src/modules/availability/time.ts` | Helper: `getAdjacentDay(currentDay, direction, weekId)` — returns next/prev valid CET day |
+| `src/modules/availability/time.ts` | Helper: `getAdjacentDay(currentDay, direction, weekId)` -- returns next/prev valid CET day |
 
 ---
 
@@ -134,7 +134,7 @@ New: `avail:prevDay:{teamId}:{cetDay}:{weekId}` and `avail:nextDay:{teamId}:{cet
 
 One-time Node.js script (run locally or as a Cloud Function):
 
-1. Query `collectionGroup('templates')` — currently 6 docs across 5 users
+1. Query `collectionGroup('templates')` -- currently 6 docs across 5 users
 2. For each user, pick the template with the **most slots** (tiebreak: most recently updated)
 3. Write to `users/{userId}.template = { slots, recurring: false, lastAppliedWeekId: '', updatedAt }`
 4. Delete all subcollection docs under `users/{userId}/templates/`
@@ -145,14 +145,14 @@ One-time Node.js script (run locally or as a Cloud Function):
 
 | Function | Signature | Behavior |
 |----------|-----------|----------|
-| `saveTemplate` | `{ slots: string[] }` | Validates slot format, writes `users/{uid}.template` (overwrite). Max 49 slots (7 days × 7 slots is generous). |
+| `saveTemplate` | `{ slots: string[] }` | Validates slot format, writes `users/{uid}.template` (overwrite). Max 49 slots (7 days x 7 slots is generous). |
 | `clearTemplate` | `{}` | Deletes `users/{uid}.template` field |
 | `setRecurring` | `{ recurring: boolean }` | Sets `template.recurring`. On `true`: also triggers immediate apply to current + next week (see Feature 4). |
 
 ### TemplateService.js Changes (Frontend)
 
-- `loadUserTemplates()` → `loadTemplate()` — listen to `users/{uid}` doc, extract `template` field
-- `saveTemplate(name, slots)` → `saveTemplate(slots)` — no name needed
+- `loadUserTemplates()` -> `loadTemplate()` -- listen to `users/{uid}` doc, extract `template` field
+- `saveTemplate(name, slots)` -> `saveTemplate(slots)` -- no name needed
 - Remove `renameTemplate()`, `getTemplateCount()`, `canSaveMore()`
 - Add `setRecurring(boolean)`
 - `getTemplate()` returns single template object or null
@@ -195,7 +195,7 @@ One-time Node.js script (run locally or as a Cloud Function):
 │  ─────────────────────────────────── │
 │  Recurring  ○ OFF                    │
 │  ─────────────────────────────────── │
-│  [Repeat Last Week → W2]            │
+│  [Repeat Last Week -> W2]            │
 │  ─────────────────────────────────── │
 │  Clear Template    Clear Availability│
 └──────────────────────────────────────┘
@@ -209,7 +209,7 @@ One-time Node.js script (run locally or as a Cloud Function):
 │  No template saved                   │
 │  [Save Current Selection]            │
 │  ─────────────────────────────────── │
-│  [Repeat Last Week → W2]            │
+│  [Repeat Last Week -> W2]            │
 │  ─────────────────────────────────── │
 │  Clear Availability                  │
 └──────────────────────────────────────┘
@@ -221,10 +221,10 @@ One-time Node.js script (run locally or as a Cloud Function):
 |---------|--------|
 | **Update** | Overwrites template with currently selected cells (same as old "Save") |
 | **Load to Week 1/2** | Selects cells matching template slots on target week (same as old W1/W2) |
-| **Recurring toggle** | Calls `setRecurring()` — on toggle-on, auto-fills current + next week |
-| **Repeat Last Week → W2** | Copies user's availability from Week 1 to Week 2 (see Feature 5) |
+| **Recurring toggle** | Calls `setRecurring()` -- on toggle-on, auto-fills current + next week |
+| **Repeat Last Week -> W2** | Copies user's availability from Week 1 to Week 2 (see Feature 5) |
 | **Clear Template** | Deletes the template |
-| **Clear Availability** | Existing behavior — removes user from all slots (confirmation required) |
+| **Clear Availability** | Existing behavior -- removes user from all slots (confirmation required) |
 
 ### Mobile (MobileBottomBar)
 
@@ -260,7 +260,7 @@ When user enables recurring (frontend or Discord):
 
 ### Weekly Cron (Cloud Function)
 
-**Schedule**: Every Monday at 04:00 UTC (05:00 CET — before anyone checks the grid)
+**Schedule**: Every Monday at 04:00 UTC (05:00 CET -- before anyone checks the grid)
 
 **Logic**:
 1. Query all user docs where `template.recurring == true`
@@ -293,19 +293,19 @@ When user enables recurring (frontend or Discord):
 
 ### Frontend
 
-**Button**: "Repeat Last Week → W2" in the template popover/modal.
+**Button**: "Repeat Last Week -> W2" in the template popover/modal.
 
 **Behavior**:
-1. Read `availability/{teamId}_{currentWeekId}` — extract all slots where current user is present
+1. Read `availability/{teamId}_{currentWeekId}` -- extract all slots where current user is present
 2. Apply those slots to `availability/{teamId}_{nextWeekId}` via `arrayUnion`
 3. Skip slots where user is already present in the target week
 4. Show toast: "Copied X slots from this week to next week"
 
 **Disabled when**: User has no availability in the current week (show tooltip: "No availability this week to copy")
 
-**Note**: This copies actual marked availability, not the template. It's a "do what I did last week" action. The button label says "→ W2" because the common case is copying the current (displayed) week forward to next week.
+**Note**: This copies actual marked availability, not the template. It's a "do what I did last week" action. The button label says "-> W2" because the common case is copying the current (displayed) week forward to next week.
 
-**Edge case**: What about copying W2 → W1? This is less common (why would you copy next week backward?). Start with W1→W2 only. If requested, add W2→W1 later.
+**Edge case**: What about copying W2 -> W1? This is less common (why would you copy next week backward?). Start with W1->W2 only. If requested, add W2->W1 later.
 
 ### Key Files
 
@@ -325,8 +325,8 @@ When user enables recurring (frontend or Discord):
 │  [Grid PNG - weekly schedule]        │
 │                                      │
 ├──────────────────────────────────────┤
-│  Row 1: [ Edit day... ▾ ]           │  ← existing dropdown
-│  Row 2: [Save Template] [⚙ Options] │  ← NEW action row
+│  Row 1: [ Edit day... ▾ ]           │  <- existing dropdown
+│  Row 2: [Save Template] [⚙ Options] │  <- NEW action row
 └──────────────────────────────────────┘
 ```
 
@@ -337,12 +337,12 @@ Both current-week and next-week persistent messages get the new row.
 **Custom ID**: `avail:saveTemplate:{teamId}:{weekId}`
 
 **Behavior**:
-1. Read `availability/{teamId}_{weekId}` — extract all slots where this user is present
+1. Read `availability/{teamId}_{weekId}` -- extract all slots where this user is present
 2. Convert to week-agnostic slot list (already in `{day}_{HHMM}` format)
 3. Write to `users/{uid}.template = { slots, recurring: <preserve existing>, updatedAt }`
-4. Ephemeral reply: "✓ Template saved (X slots from this week)"
+4. Ephemeral reply: "[ok] Template saved (X slots from this week)"
 
-**Edge case**: User has no availability marked → ephemeral reply: "Mark some availability first, then save as template."
+**Edge case**: User has no availability marked -> ephemeral reply: "Mark some availability first, then save as template."
 
 ### Options Button
 
@@ -365,7 +365,7 @@ No template saved. Use [Save Template] to save your current week.
 **Toggle Recurring button**: `avail:toggleRecurring:{teamId}`
 - Calls same `setRecurring(!current)` logic as frontend
 - Updates ephemeral message to show new state
-- If toggling ON: ephemeral followup "✓ Recurring ON — applied to current + next week"
+- If toggling ON: ephemeral followup "[ok] Recurring ON -- applied to current + next week"
 
 **Clear Template button**: `avail:clearTemplate:{teamId}`
 - Deletes `users/{uid}.template` field
@@ -393,12 +393,12 @@ No template saved. Use [Save Template] to save your current week.
                   │                     quad
                   ▼
             A3 (Repeat      A5 (Prev/Next)
-             Last Week)     quad — INDEPENDENT
+             Last Week)     quad -- INDEPENDENT
              MS Frontend    (can start immediately)
 ```
 
 **Parallel opportunities:**
-- **A5** has zero dependencies — can start immediately, in parallel with everything
+- **A5** has zero dependencies -- can start immediately, in parallel with everything
 - After **A1** lands: **A2**, **A4**, and **A6** can all start in parallel (different files/projects)
 - **A3** should follow **A2** (same UI area in frontend)
 
@@ -409,14 +409,14 @@ No template saved. Use [Save Template] to save your current week.
 ### Phase A5: Discord Prev/Next Navigation (quad)
 - **When**: Start immediately (no dependencies)
 - **Project**: quad
-- **Model**: Sonnet, thinking off — clear before/after, mechanical button additions
+- **Model**: Sonnet, thinking off -- clear before/after, mechanical button additions
 - **Session**: quad terminal
 - **Files**: `interactions.ts`, `time.ts`
 
 ### Phase A1: Schema Migration (MatchScheduler)
 - **When**: Start immediately (parallel with A5)
 - **Project**: MatchScheduler
-- **Model**: Sonnet, extended thinking — multi-file refactor, migration script, Cloud Functions
+- **Model**: Sonnet, extended thinking -- multi-file refactor, migration script, Cloud Functions
 - **Session**: MatchScheduler terminal
 - **Files**: `functions/templates.js`, `TemplateService.js`, `firestore.rules`, `SCHEMA.md`
 - **Includes**: Migration script (run once), delete old subcollection
@@ -424,28 +424,28 @@ No template saved. Use [Save Template] to save your current week.
 ### Phase A2: Frontend Template UI (MatchScheduler)
 - **When**: After A1 lands
 - **Project**: MatchScheduler
-- **Model**: Sonnet, extended thinking — UI redesign across desktop + mobile
+- **Model**: Sonnet, extended thinking -- UI redesign across desktop + mobile
 - **Session**: MatchScheduler terminal
 - **Files**: `TemplatesModal.js`, `GridActionButtons.js`, `MobileBottomBar.js`
 
 ### Phase A3: Repeat Last Week (MatchScheduler)
 - **When**: After A2 lands (same UI area)
 - **Project**: MatchScheduler
-- **Model**: Sonnet, thinking off — straightforward data copy + button
+- **Model**: Sonnet, thinking off -- straightforward data copy + button
 - **Session**: MatchScheduler terminal
 - **Files**: `AvailabilityService.js`, `TemplatesModal.js`
 
 ### Phase A4: Recurring Cron (MatchScheduler)
 - **When**: After A1 lands (parallel with A2)
 - **Project**: MatchScheduler
-- **Model**: Sonnet, extended thinking — scheduled function, batch writes
+- **Model**: Sonnet, extended thinking -- scheduled function, batch writes
 - **Session**: MatchScheduler terminal (or separate)
 - **Files**: `functions/recurring.js` (new), `functions/index.js`
 
 ### Phase A6: Discord Template Actions (quad)
 - **When**: After A1 (schema) and A5 (same codebase area)
 - **Project**: quad
-- **Model**: Sonnet, extended thinking — new interaction handlers + persistent message changes
+- **Model**: Sonnet, extended thinking -- new interaction handlers + persistent message changes
 - **Session**: quad terminal
 - **Files**: `interactions.ts`, `message.ts`
 
@@ -468,9 +468,9 @@ Week 1:
 
 | Phase pair | Shared files | Conflict? |
 |-----------|-------------|-----------|
-| A5 + A6 | `interactions.ts`, `message.ts` | Yes — sequence A6 after A5 |
-| A2 + A3 | `TemplatesModal.js` | Yes — sequence A3 after A2 |
-| A1 + A4 | `functions/templates.js` | Minimal — A4 creates new file `recurring.js`, A1 modifies `templates.js`. Safe to parallel but cleaner sequential |
+| A5 + A6 | `interactions.ts`, `message.ts` | Yes -- sequence A6 after A5 |
+| A2 + A3 | `TemplatesModal.js` | Yes -- sequence A3 after A2 |
+| A1 + A4 | `functions/templates.js` | Minimal -- A4 creates new file `recurring.js`, A1 modifies `templates.js`. Safe to parallel but cleaner sequential |
 | A2 + A4 | None | Safe to parallel |
 | A5 + A1 | None (different projects) | Safe to parallel |
 
@@ -478,7 +478,7 @@ Week 1:
 
 ## Deployment Order
 
-1. **A1**: Deploy Cloud Functions + rules first (backward compatible — old frontend still works)
+1. **A1**: Deploy Cloud Functions + rules first (backward compatible -- old frontend still works)
 2. **A5**: Deploy quad with prev/next (independent)
 3. **A2 + A3**: Deploy MatchScheduler hosting (new frontend uses new schema)
 4. **A4**: Deploy recurring cron function

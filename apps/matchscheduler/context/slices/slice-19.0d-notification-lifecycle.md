@@ -1,4 +1,4 @@
-# Slice 19.0d — Notification Lifecycle (slot_confirmed + match_sealed)
+# Slice 19.0d -- Notification Lifecycle (slot_confirmed + match_sealed)
 
 **Status:** Spec
 **Depends on:** 19.0c (challenge_proposed notification)
@@ -17,20 +17,20 @@ so the bot can render richer Discord embeds.
 
 ---
 
-## Changes — `confirmSlot` function only
+## Changes -- `confirmSlot` function only
 
 All changes are inside `exports.confirmSlot` in `functions/match-proposals.js`.
 No other files need to change.
 
 ### 1. Look up delivery targets (before the transaction)
 
-Same pattern as `createProposal` — fetch bot registrations and leader Discord IDs.
+Same pattern as `createProposal` -- fetch bot registrations and leader Discord IDs.
 Add this block BEFORE the `db.runTransaction(...)` call:
 
 ```javascript
 // Pre-resolve notification delivery targets (outside transaction)
 const [proposerBotReg, opponentBotReg] = await Promise.all([
-    db.collection('botRegistrations').doc(proposal.proposerTeamId).get(),  // ← but we don't have proposal yet...
+    db.collection('botRegistrations').doc(proposal.proposerTeamId).get(),  // <- but we don't have proposal yet...
     db.collection('botRegistrations').doc(proposal.opponentTeamId).get()
 ]);
 ```
@@ -39,13 +39,13 @@ const [proposerBotReg, opponentBotReg] = await Promise.all([
 - **Option A:** Read the proposal doc once outside the transaction just for teamIds, then again inside for the actual transaction. Simple but one extra read.
 - **Option B:** Move the bot registration lookups inside the transaction return, after we know the team IDs. Then write notification docs after the transaction.
 
-**Go with Option B** — do the notification write AFTER the transaction succeeds (non-transactional).
+**Go with Option B** -- do the notification write AFTER the transaction succeeds (non-transactional).
 This is fine because:
 - Notification delivery is best-effort anyway
 - If the transaction succeeds but notification write fails, the match is still correctly scheduled
 - Avoids complicating the transaction with extra reads
 
-### 2. After the transaction — write notification docs
+### 2. After the transaction -- write notification docs
 
 After `const result = await db.runTransaction(...)`, add notification writes:
 
@@ -105,7 +105,7 @@ const opponentLogoUrl = opponentTeam.activeLogo?.urls?.small || null;
 
 ### 3. Write `slot_confirmed` notification (always)
 
-Sent to the OTHER side — "Team X confirmed Sun 22:30 CET".
+Sent to the OTHER side -- "Team X confirmed Sun 22:30 CET".
 
 ```javascript
 const slotNotifRef = db.collection('notifications').doc();
@@ -157,7 +157,7 @@ await slotNotifRef.set({
 
 ### 4. Write `match_sealed` notification (only when matched)
 
-Sent to BOTH sides — "Match scheduled: X vs Y — Sun 22:30 CET".
+Sent to BOTH sides -- "Match scheduled: X vs Y -- Sun 22:30 CET".
 
 ```javascript
 if (result.matched) {
@@ -189,7 +189,7 @@ if (result.matched) {
             notificationsEnabled: proposerBot?.notificationsEnabled ?? false,
             channelId: proposerBot?.notificationChannelId ?? null,
             guildId: proposerBot?.guildId ?? null,
-            // No DM fallback for match_sealed — both teams already engaged
+            // No DM fallback for match_sealed -- both teams already engaged
         },
         proposerLogoUrl,
         opponentLogoUrl,
@@ -258,24 +258,24 @@ opponentLogoUrl: opponentTeam.activeLogo?.urls?.small || null,
 ## Transaction vs post-transaction
 
 - The `slot_confirmed` and `match_sealed` notification writes happen AFTER the transaction
-- This is intentional — notifications are best-effort delivery signals
+- This is intentional -- notifications are best-effort delivery signals
 - If the Cloud Function crashes between transaction and notification write, the match/confirmation still happened correctly. The user just won't get a Discord notification (they'll see it on the website)
-- This keeps the transaction lean — only match state mutations
+- This keeps the transaction lean -- only match state mutations
 
 ---
 
 ## No other file changes
 
 - No frontend changes needed
-- No security rules changes (notifications already has `allow read, write: if false` — Admin SDK only)
+- No security rules changes (notifications already has `allow read, write: if false` -- Admin SDK only)
 - No schema changes (new notification types follow the same collection)
 
 ---
 
 ## Verification
 
-1. Confirm a slot on one side → `notifications/` doc appears with `type: 'slot_confirmed'`
-2. Confirm same slot on other side → TWO `notifications/` docs appear with `type: 'match_sealed'`
+1. Confirm a slot on one side -> `notifications/` doc appears with `type: 'slot_confirmed'`
+2. Confirm same slot on other side -> TWO `notifications/` docs appear with `type: 'match_sealed'`
 3. All notification docs include `proposerLogoUrl` and `opponentLogoUrl`
 4. New proposals also include logo URLs in their notification doc
 5. Bot picks up all three types and delivers embeds

@@ -2,7 +2,7 @@
 
 Machine-readable + human-readable digest of entities and topics that are present in Oracle (Layer 1 source-extracted facts + Layer 3 concept notes) but absent from upstream ezquake.com/docs guide pages.
 
-Per OPERATIONS.md §7, this is a **contributor onboarding kit** — someone wanting to help update ezquake.com can use these entries to write missing upstream pages from solid ground rather than from scratch. Each entry carries enough context (Layer 1 facts, source citations, cross-references) to author an upstream page draft without fresh research.
+Per OPERATIONS.md Section 7, this is a **contributor onboarding kit** -- someone wanting to help update ezquake.com can use these entries to write missing upstream pages from solid ground rather than from scratch. Each entry carries enough context (Layer 1 facts, source citations, cross-references) to author an upstream page draft without fresh research.
 
 Format is provisional; Workstream C Item 3 (gap-report output format) will finalize it.
 
@@ -14,7 +14,7 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 **Upstream target:** https://ezquake.com/docs/weapon-scripts
 **Upstream staleness:** last content edit 2022-10-26, commit `44f5b9b5`
 
-### Entity gaps (Tier A — load-bearing omissions)
+### Entity gaps (Tier A -- load-bearing omissions)
 
 #### `+fire` / `-fire` (command pair)
 
@@ -24,7 +24,7 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 - **Current upstream coverage:** zero. Guide teaches `bind X "weapon N"` + separate `bind Y +attack` and never introduces `+fire`.
 - **Why it matters:** single-frame delivery (bundles weapon-select and attack into one usercmd frame, closing the one-frame exposure window the two-command form produces). Superseded for most users by `+fire_ar` (below) which adds multi-key rollover handling on top.
 - **Suggested placement:** historical ancestor of `+fire_ar` in the "modern pattern" section.
-- **Layer 3 cross-reference:** see § "Method 1: Quickfire" in `weapon-scripts.md`.
+- **Layer 3 cross-reference:** see Section  "Method 1: Quickfire" in `weapon-scripts.md`.
 
 #### `+fire_ar` / `-fire_ar` (command pair)
 
@@ -32,10 +32,10 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 - **Source location:** `cl_input.c:1260-1261`, handlers shared with `+fire`/`-fire` with `argv[0]` branch at `cl_input.c:338, 388`
 - **Origin:** ezQuake-specific as of current head. Not in FTE.
 - **Current upstream coverage:** zero. Guide doesn't mention `+fire` or `+fire_ar`.
-- **Why it matters:** canonical modern quickfire form for competitive play (`bind mouse1 "+fire_ar 7 5"`). Superset of `+fire`: same single-frame-delivery behavior, plus multi-key rollover handling via a per-client key-stack — when the user presses a second fire key while still holding the first, the second takes over; on release the first resumes. Replaces hand-rolled rollover alias chains that players maintained for years (see meag's commit message citing [forum topic/5900](https://www.quakeworld.nu/forum/topic/5900)).
+- **Why it matters:** canonical modern quickfire form for competitive play (`bind mouse1 "+fire_ar 7 5"`). Superset of `+fire`: same single-frame-delivery behavior, plus multi-key rollover handling via a per-client key-stack -- when the user presses a second fire key while still holding the first, the second takes over; on release the first resumes. Replaces hand-rolled rollover alias chains that players maintained for years (see meag's commit message citing [forum topic/5900](https://www.quakeworld.nu/forum/topic/5900)).
 - **Community validation:** BLooD_DoG, 2026-04-24: "*I and many others have been using it for years with nothing to report*."
 - **Suggested placement:** new "modern pattern" section near the top of the guide. Replace the current `bind mouse1 +attack` example with `bind mouse1 "+fire_ar 7 5"` and state the two mechanical reasons (single-frame delivery + rollover handling).
-- **Layer 3 cross-reference:** see § "Method 1: Quickfire" in `weapon-scripts.md`.
+- **Layer 3 cross-reference:** see Section  "Method 1: Quickfire" in `weapon-scripts.md`.
 
 #### `cl_weaponpreselect` modes 2, 3, 4
 
@@ -44,7 +44,7 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 - **Current upstream coverage:** guide mentions `cl_weaponpreselect 1` only.
 - **Why it matters:** mode 2 is "immediate selection on `+attack` press." Modes 3 and 4 are deathmatch-1-conditional variants of modes 1 and 2. Competitive players on servers that mix dm1 and other modes need these.
 - **Suggested placement:** cvar values table in existing `cl_weaponpreselect` mention.
-- **Layer 3 cross-reference:** see § "Modulation cvars" in `weapon-scripts.md`.
+- **Layer 3 cross-reference:** see Section  "Modulation cvars" in `weapon-scripts.md`.
 
 #### `cl_weaponhide` mode 2
 
@@ -53,9 +53,9 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 - **Current upstream coverage:** guide mentions `cl_weaponhide 1` only.
 - **Why it matters:** mode 2 is the deathmatch-1-conditional variant; competitive players on mixed-mode servers need it.
 - **Suggested placement:** cvar values table in existing `cl_weaponhide` mention.
-- **Layer 3 cross-reference:** see § "Modulation cvars" in `weapon-scripts.md`.
+- **Layer 3 cross-reference:** see Section  "Modulation cvars" in `weapon-scripts.md`.
 
-### Entity gaps (Tier B — adjacent cvars)
+### Entity gaps (Tier B -- adjacent cvars)
 
 #### `cl_weaponhide_axe` (cvar)
 
@@ -77,15 +77,15 @@ Format is provisional; Workstream C Item 3 (gap-report output format) will final
 ### Framing-level gaps
 
 - **Three-method user-facing taxonomy.** Guide enumerates cvars and commands but doesn't classify weapon-script usage patterns into quickfire / manual select+fire / hold-modifier+fire. Layer 3 note proposes this taxonomy as the user-facing framing; upstream could adopt it to better match how users actually think about their configs.
-- **Cross-engine accuracy.** Guide opens with "In ezQuake you don't need such scripts" — implying ezQuake-specific. FTE has had `cl_weaponpreselect`, `cl_weaponhide`, `cl_weaponforgetorder`, `+fire`, `weapon` for years. The modern pattern works in both engines. Upstream should either drop the ezQuake-specific framing or explicitly note cross-engine coverage.
-- **Historical arc.** Guide's opening paragraph describes "older QuakeWorld clients you had to write a script" but doesn't walk the three-step simplification history (impulse chains → weapon chains → compound commands). Naming the arc helps users reading old configs understand what they're looking at. Layer 3 note covers this in § "Why the simplifications happened".
+- **Cross-engine accuracy.** Guide opens with "In ezQuake you don't need such scripts" -- implying ezQuake-specific. FTE has had `cl_weaponpreselect`, `cl_weaponhide`, `cl_weaponforgetorder`, `+fire`, `weapon` for years. The modern pattern works in both engines. Upstream should either drop the ezQuake-specific framing or explicitly note cross-engine coverage.
+- **Historical arc.** Guide's opening paragraph describes "older QuakeWorld clients you had to write a script" but doesn't walk the three-step simplification history (impulse chains -> weapon chains -> compound commands). Naming the arc helps users reading old configs understand what they're looking at. Layer 3 note covers this in Section  "Why the simplifications happened".
 
 ### Layer 3 authoring candidates surfaced
 
-Topics where Layer 3 synthesis is missing and would benefit the companion-app chatbot + slipgate config-viewer. Not upstream-guide gaps — Layer 3 gaps.
+Topics where Layer 3 synthesis is missing and would benefit the companion-app chatbot + slipgate config-viewer. Not upstream-guide gaps -- Layer 3 gaps.
 
-- **per-weapon-sensitivity-tuning** — the `+alias`/`-alias` composition pattern that chains `sensitivity` changes alongside bind-swapping. Touched in `weapon-scripts.md` § "Composition" only through examples; deserves its own note with full treatment (canonical form, common value ranges, LG-specific patterns, cross-engine behavior).
-- **per-weapon-crosshair-switching** — same composition pattern applied to `crosshair` / `crosshairimage` cvars. Will pair with eventual `assets.quake.world` visual surface for actual crosshair previews.
+- **per-weapon-sensitivity-tuning** -- the `+alias`/`-alias` composition pattern that chains `sensitivity` changes alongside bind-swapping. Touched in `weapon-scripts.md` Section  "Composition" only through examples; deserves its own note with full treatment (canonical form, common value ranges, LG-specific patterns, cross-engine behavior).
+- **per-weapon-crosshair-switching** -- same composition pattern applied to `crosshair` / `crosshairimage` cvars. Will pair with eventual `assets.quake.world` visual surface for actual crosshair previews.
 
 ---
 
@@ -96,26 +96,26 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 **Upstream staleness:** last content edit 2022-10-25, commit `71288542`
 **Scope expansion:** upstream page is 30 lines covering `cl_fakeshaft` mechanics only. The Layer 3 note covers four dimensions (mechanical, visual, audio, ruleset) across ~18 cvars + 2 sound files. Upstream PR target is either a substantial expansion of `fakeshaft.md` or a rename+rewrite to `lightning-gun.md` with fakeshaft as one section. Recommended: rename the page so the three community terms (LG / lightning gun / shaft) all land somewhere useful in the sidebar.
 
-### Entity gaps (Tier A — visual rendering dimension absent entirely)
+### Entity gaps (Tier A -- visual rendering dimension absent entirely)
 
 #### `gl_lightning` (cvar)
 
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `vx_stuff.c:50`
 - **Current upstream coverage:** zero. Upstream page frames LG customization as fakeshaft only.
-- **Why it matters:** the master switch for particle beam vs model beam rendering. Ruleset-suppressed under smackdown/qcon/smackdrive (not thunderdome) via `Rulesets_RestrictParticles()` — players on those rulesets need to know their `gl_lightning` is behavior-gated off regardless of the value they set.
+- **Why it matters:** the master switch for particle beam vs model beam rendering. Ruleset-suppressed under smackdown/qcon/smackdrive (not thunderdome) via `Rulesets_RestrictParticles()` -- players on those rulesets need to know their `gl_lightning` is behavior-gated off regardless of the value they set.
 - **Suggested placement:** new "Visual rendering" section of fakeshaft.md, OR dedicated `lightning-gun.md` page.
-- **Layer 3 cross-reference:** see § "Visual customization / Particle beam" in `lightning-gun-customization.md`.
+- **Layer 3 cross-reference:** see Section  "Visual customization / Particle beam" in `lightning-gun-customization.md`.
 
 #### `gl_lightning_color` / `gl_lightning_size` / `gl_lightning_sparks` / `gl_lightning_sparks_size` (particle-beam cvar family)
 
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `vx_stuff.c:52-55`
 - **Current upstream coverage:** zero.
-- **Why they matter:** particle-beam color/thickness/sparks. Under smackdown / qcon / smackdrive these are inert — the particle-beam code path is suppressed and these values are never read. Effective only on thunderdome, mtfl, or no-ruleset play. `gl_lightning_sparks_size` has a permanent hardcoded min=max=300 clamp at declaration (`CVAR_RULESET_MIN | CVAR_RULESET_MAX` at `vx_stuff.c:54`) — locked under ALL rulesets including default, not just competitive ones.
+- **Why they matter:** particle-beam color/thickness/sparks. Under smackdown / qcon / smackdrive these are inert -- the particle-beam code path is suppressed and these values are never read. Effective only on thunderdome, mtfl, or no-ruleset play. `gl_lightning_sparks_size` has a permanent hardcoded min=max=300 clamp at declaration (`CVAR_RULESET_MIN | CVAR_RULESET_MAX` at `vx_stuff.c:54`) -- locked under ALL rulesets including default, not just competitive ones.
 - **Suggested placement:** same section as `gl_lightning`, with the per-ruleset applicability clearly stated.
 
-#### `r_shaftalpha` (cvar) — behavior-gated under smackdown
+#### `r_shaftalpha` (cvar) -- behavior-gated under smackdown
 
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `cl_main.c:229`; behavior gate at `cl_tent.c:881`
@@ -128,7 +128,7 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `r_aliasmodel.c:75`; read at `r_aliasmodel.c:575`
 - **Current upstream coverage:** zero.
-- **Why it matters:** Layer 1 desc is *"Toggles between darker/fullbright shaft beams."* Arithmetic clamp to [0, 1] at read site; not ruleset-conditional. This is the primary model-beam brightness knob and is effective under all rulesets — operator recommends `0.5` as the dim-but-visible baseline. Load-bearing because `r_shaftalpha` is ruleset-dead; `gl_shaftlight` is the remaining brightness/visibility dial under competitive play.
+- **Why it matters:** Layer 1 desc is *"Toggles between darker/fullbright shaft beams."* Arithmetic clamp to [0, 1] at read site; not ruleset-conditional. This is the primary model-beam brightness knob and is effective under all rulesets -- operator recommends `0.5` as the dim-but-visible baseline. Load-bearing because `r_shaftalpha` is ruleset-dead; `gl_shaftlight` is the remaining brightness/visibility dial under competitive play.
 - **Suggested placement:** Visual rendering section, recipe-candidate.
 
 #### `gl_custom_lg_color` / `gl_custom_lg_fullbright` (cvar pair)
@@ -137,22 +137,22 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Source location:** `r_aliasmodel.c:93-94`
 - **Current upstream coverage:** zero.
 - **Why they matter:** override the model-beam color without requiring a texture swap. Layer 1 desc and remarks together carry load-bearing scope: `gl_custom_lg_color` *"Allows color of lightning shaft to be set without requiring a texture change. Has no effect if particle shaft is enabled."* `gl_custom_lg_fullbright` *"Determines if gl_custom_lg_color refers to a fullbright color or standard. Has no effect if gl_custom_lg_color is blank."* Effective applicability inverts with ruleset: ON under smackdown / qcon / smackdrive (model beam used because particle path is suppressed), OFF under default / thunderdome / mtfl (particle beam active, model-beam color cvar inert). The recommended way to recolor the LG beam under competitive play.
-- **Suggested placement:** Visual rendering section. Upstream should call out the particle-vs-model effective-when relationship — the help_remarks say it but the implication isn't player-obvious.
+- **Suggested placement:** Visual rendering section. Upstream should call out the particle-vs-model effective-when relationship -- the help_remarks say it but the implication isn't player-obvious.
 
 #### `gl_custom_lgpack_color` (cvar)
 
 - **Oracle Layer 1 first_seen:** present from 3.6.1 in `cvar_versions`. (Same `entities.first_seen_version='head'` inconsistency as above.)
 - **Source location:** `r_aliasmodel.c:138`
 - **Current upstream coverage:** zero.
-- **Why it matters:** Layer 1 remarks resolve the operator's likely-restricted intuition: *"Leave blank to disable. QTV/MVD only, KTX 1.38+ only."* The cvar applies to demo playback / multi-view / QuakeTV spectator rendering, NOT to live in-match rendering. Not technically ruleset-restricted (no CVAR_ROM, no behavior gate, no watch) — it's restricted by virtue of the consuming code path being demo-playback-only. Effectively unavailable for in-game LG-backpack coloring across all rulesets. Useful for content creators / spectators / demo reviewers.
-- **Suggested placement:** Visual rendering section, in a "Demo-playback-only cvars" subsection. Upstream pages have no precedent for documenting this scope category — adding one is itself a contribution worth making.
+- **Why it matters:** Layer 1 remarks resolve the operator's likely-restricted intuition: *"Leave blank to disable. QTV/MVD only, KTX 1.38+ only."* The cvar applies to demo playback / multi-view / QuakeTV spectator rendering, NOT to live in-match rendering. Not technically ruleset-restricted (no CVAR_ROM, no behavior gate, no watch) -- it's restricted by virtue of the consuming code path being demo-playback-only. Effectively unavailable for in-game LG-backpack coloring across all rulesets. Useful for content creators / spectators / demo reviewers.
+- **Suggested placement:** Visual rendering section, in a "Demo-playback-only cvars" subsection. Upstream pages have no precedent for documenting this scope category -- adding one is itself a contribution worth making.
 
 #### `gl_coronas` (cvar)
 
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `vx_stuff.c:34`
 - **Current upstream coverage:** zero in the fakeshaft page.
-- **Why it matters:** Layer 1 desc enumerates affected effects including "Lightning bolts." The LG bolt corona only fires when `gl_lightning > 0` — so under smackdown (particle path dead) the LG corona is inert even though the cvar itself has no ruleset restriction.
+- **Why it matters:** Layer 1 desc enumerates affected effects including "Lightning bolts." The LG bolt corona only fires when `gl_lightning > 0` -- so under smackdown (particle path dead) the LG corona is inert even though the cvar itself has no ruleset restriction.
 - **Suggested placement:** brief mention in Visual rendering; cross-link to particles guide.
 
 #### `r_lgbloodcolor` (cvar)
@@ -168,7 +168,7 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `cl_tent.c:72`
 - **Current upstream coverage:** zero. CVAR_ROM-locked to `"0"` under smackdown, qcon, thunderdome, smackdrive (`rulesets.c:293, 360, 423, 555`).
-- **Why it matters:** offsets the beam start-point along the view's right vector — originally intended for video capture and demo playback (movie-makers aligning the beam visually with screen-center despite the first-person weapon model being positioned off-center). The source-comment aim-aid framing is a secondary concern; the primary reason for the ruleset lock is that it's a content-creator visual manipulation no live-match competitor should have. Players running smackdown who try to set this cvar will see it silently refused.
+- **Why it matters:** offsets the beam start-point along the view's right vector -- originally intended for video capture and demo playback (movie-makers aligning the beam visually with screen-center despite the first-person weapon model being positioned off-center). The source-comment aim-aid framing is a secondary concern; the primary reason for the ruleset lock is that it's a content-creator visual manipulation no live-match competitor should have. Players running smackdown who try to set this cvar will see it silently refused.
 - **Suggested placement:** "Beam origin" subsection + explicit ruleset lock callout.
 
 #### `cl_fakeshaft_extra_updates` (cvar)
@@ -187,16 +187,16 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Why it matters:** older scripts and forum posts reference `cl_truelightning` as the pre-rename name. Upstream should mention the alias for recognition value when users encounter old configs.
 - **Suggested placement:** short "Legacy alias" callout in the fakeshaft section.
 
-### Entity gaps (Tier B — audio dimension absent entirely)
+### Entity gaps (Tier B -- audio dimension absent entirely)
 
 #### `sound/weapons/lstart.wav` and `sound/weapons/lhit.wav` (assets)
 
 - **Oracle Layer 1 asset_loader_sites:** precached server-side by KTX QC (`ktx/src/world.c:242-243`). Client receives as `SVC_SOUND` packets.
-- **Current upstream coverage:** zero — there is no mention of sound customization on the fakeshaft page, and no general LG audio guide.
+- **Current upstream coverage:** zero -- there is no mention of sound customization on the fakeshaft page, and no general LG audio guide.
 - **Why it matters:** the most common competitive LG audio mod is replacing `lstart.wav` with a quieter variant to reduce attack-transient fatigue during sustained LG engagements. Neither file is in the `fmod.c` SHA1 watch list, so this is tier-4 unrestricted under every ruleset. Players asking "is this allowed" have no authoritative answer on any upstream page today.
 - **Suggested placement:** new "Audio customization" section, subsection "Replaceable sound files."
 
-#### `s_khz` (cvar) — LG-specific interaction
+#### `s_khz` (cvar) -- LG-specific interaction
 
 - **Oracle Layer 1 first_seen:** 3.6.1
 - **Source location:** `snd_main.c:97`
@@ -206,15 +206,15 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 
 ### Framing-level gaps
 
-- **Four-tier ruleset enforcement model missing.** Upstream has no unified explanation of CVAR_ROM lock vs behavior gate vs watch-and-report vs no-watch. Each restriction is described (where described at all) in isolation. The taxonomy is generalizable beyond LG — a dedicated ezquake.com page on the enforcement model would benefit every ruleset-restricted feature across the docs. Suggested placement: new `ruleset-enforcement-model.md` upstream page; the fakeshaft/LG page links to it for the audio + visual specifics.
+- **Four-tier ruleset enforcement model missing.** Upstream has no unified explanation of CVAR_ROM lock vs behavior gate vs watch-and-report vs no-watch. Each restriction is described (where described at all) in isolation. The taxonomy is generalizable beyond LG -- a dedicated ezquake.com page on the enforcement model would benefit every ruleset-restricted feature across the docs. Suggested placement: new `ruleset-enforcement-model.md` upstream page; the fakeshaft/LG page links to it for the audio + visual specifics.
 - **Three community terms (LG / lightning gun / shaft) not indexed together.** Upstream page title "Fakeshaft" surfaces in search for that term only. Users searching "lightning gun" or "LG" hit nothing. Either retitle to "Lightning Gun" with Fakeshaft as a section, or add alias anchors.
 - **Audio customization dimension entirely absent.** No upstream guide covers which QW sounds are replaceable, which are watched, what the watch list mechanism actually does, or the legitimate-vs-abuse examples (lstart.wav swap OK, damage.wav quad-timer detected). This is a significant gap because asset replacement is a 3-decade QW tradition and players continually ask.
 - **Cross-engine absence.** Upstream frames cl_fakeshaft as ezQuake-specific without naming FTE's `cl_truelightning` equivalent or the ezscript shim path. Players moving configs between engines get zero guidance.
 
 ### Layer 3 authoring candidates surfaced
 
-- **asset-modification-honor-system-pattern** (R5) — the four-tier enforcement taxonomy (Tier 1 CVAR_ROM / Tier 2 behavior gate / Tier 3 watch-and-report / Tier 4 no-watch) generalizes across all ruleset-restricted features. Candidate for extraction to a dedicated pattern note when a second note independently surfaces the pattern. The `fmod.c` watch list covers 29 files across item pickups, player sounds, and misc UI — multiple notes will touch this before long.
-- **per-weapon-audio-tuning** (R3) — the pattern of replacing per-weapon ambient sounds (lstart.wav for LG, potentially shotgun/GL equivalents) as a focus-management technique. Compositional detail that may become its own note if the catalog of such swaps grows.
+- **asset-modification-honor-system-pattern** (R5) -- the four-tier enforcement taxonomy (Tier 1 CVAR_ROM / Tier 2 behavior gate / Tier 3 watch-and-report / Tier 4 no-watch) generalizes across all ruleset-restricted features. Candidate for extraction to a dedicated pattern note when a second note independently surfaces the pattern. The `fmod.c` watch list covers 29 files across item pickups, player sounds, and misc UI -- multiple notes will touch this before long.
+- **per-weapon-audio-tuning** (R3) -- the pattern of replacing per-weapon ambient sounds (lstart.wav for LG, potentially shotgun/GL equivalents) as a focus-management technique. Compositional detail that may become its own note if the catalog of such swaps grows.
 
 ---
 
@@ -224,7 +224,7 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 **Upstream target:** https://ezquake.com/docs/player-skins
 **Upstream staleness:** last content edit 2022-11-21, commit `6776cba2`
 
-### Entity gaps (Tier A — load-bearing omissions)
+### Entity gaps (Tier A -- load-bearing omissions)
 
 #### `r_fullbrightskins` (cvar)
 
@@ -232,9 +232,9 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Source location:** declared `src/skin.c:62`; ruleset handler at `src/rulesets.c:651-666` (`Rulesets_OnChange_r_fullbrightSkins`); render-time clamp at `src/r_aliasmodel.c:590` reading `r_refdef2.max_fbskins` set from `serverinfo fbskins` at `src/cl_view.c:1088`.
 - **Layer 1 help_desc:** *"Determines the fullbright percentage of skins. Fullbright skins can always be used during demo playback. The f_skins response will indicate the brightness level being used as a percentage."*
 - **Current upstream coverage:** zero. Page does not mention the cvar.
-- **Why it matters:** the only cvar in the player-skins domain with a hard ruleset lock — MTFL forces it to `0` via `disabled_cvars[]` (`src/rulesets.c:492`). Even on free rulesets, the server can silently cap the effective rendering value via the `fbskins` serverinfo key. This is also the cvar `f_skins` chat-trigger reports as a percentage. Foundational visibility setting in modern competitive configs.
+- **Why it matters:** the only cvar in the player-skins domain with a hard ruleset lock -- MTFL forces it to `0` via `disabled_cvars[]` (`src/rulesets.c:492`). Even on free rulesets, the server can silently cap the effective rendering value via the `fbskins` serverinfo key. This is also the cvar `f_skins` chat-trigger reports as a percentage. Foundational visibility setting in modern competitive configs.
 - **Suggested placement:** new "Brightness and rendering" section, near the color-forcing section.
-- **Layer 3 cross-reference:** see § "Identification — programmatic path" and § "Gates and restrictions" in `player-skins.md`.
+- **Layer 3 cross-reference:** see Section  "Identification -- programmatic path" and Section  "Gates and restrictions" in `player-skins.md`.
 
 #### `r_skincolormodedead` (cvar)
 
@@ -243,21 +243,21 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Layer 1 help_desc:** *"Sets r_skincolormode for players upon death."*
 - **Layer 1 help_remarks:** *"See r_skincolormode for valid values."*
 - **Current upstream coverage:** zero. Page covers `r_skincolormode` but omits the corpse-specific companion.
-- **Why it matters:** completes the color-forcing story — lets corpses render in a different blend mode than live players, useful when you want live enemies in solid mode for visibility but corpses in modulate mode so they fade into the environment.
+- **Why it matters:** completes the color-forcing story -- lets corpses render in a different blend mode than live players, useful when you want live enemies in solid mode for visibility but corpses in modulate mode so they fade into the environment.
 - **Suggested placement:** Color forcing section, alongside `r_skincolormode`.
-- **Layer 3 cross-reference:** see § "Corpse readability" in `player-skins.md`.
+- **Layer 3 cross-reference:** see Section  "Corpse readability" in `player-skins.md`.
 
 #### `enemytopcolor`, `enemybottomcolor`, `teamtopcolor`, `teambottomcolor` (cvars, 4 entities)
 
 - **Oracle Layer 1 first_seen:** 3.6.1 (all four).
 - **Source location:** enemy pair declared in `src/skin.c`; team pair declared in `src/teamplay.c`.
-- **Layer 1 help_desc:** uniform pattern — *"Determines the color of the shirt of the enemies/teammates you see. Overrides player's skin settings."* (top variants); *"Determines the color of the pants..."* (bottom variants). All four reference companion cvars in `help_remarks`: *"To be able to use RGB 24bit colors, look for r_enemyskincolor variable."* / *"...r_teamskincolor variable."*
+- **Layer 1 help_desc:** uniform pattern -- *"Determines the color of the shirt of the enemies/teammates you see. Overrides player's skin settings."* (top variants); *"Determines the color of the pants..."* (bottom variants). All four reference companion cvars in `help_remarks`: *"To be able to use RGB 24bit colors, look for r_enemyskincolor variable."* / *"...r_teamskincolor variable."*
 - **Current upstream coverage:** zero direct coverage. The page mentions `teamcolor` and `enemycolor` *commands* but never names the four underlying cvars.
 - **Why it matters:** these are the classic 8-bit palette layer (Quake palette index 0-13) underlying the `teamcolor` / `enemycolor` commands. The commands are wrappers that write to these cvars. Most modern configs use the RGB form (`r_enemyskincolor` / `r_teamskincolor`) instead, but the 8-bit cvars remain the storage for `teamcolor` / `enemycolor` interactions and surface in any "default vs configured" diff.
 - **Suggested placement:** Color forcing section. Frame as: "the `teamcolor` / `enemycolor` commands write to these four underlying cvars; modern configs prefer the RGB form for arbitrary 24-bit color."
-- **Layer 3 cross-reference:** see § "Identification — programmatic path" in `player-skins.md`.
+- **Layer 3 cross-reference:** see Section  "Identification -- programmatic path" in `player-skins.md`.
 
-### Corrections (Tier B — upstream errors)
+### Corrections (Tier B -- upstream errors)
 
 #### `enemyforceskin` typo
 
@@ -279,16 +279,16 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 - **Upstream guide line 24:** *"`cl_name_as_skin` - Use player's name or player's id number to load the skin."*
 - **Correction:** the engine ignores this cvar outside `cls.demoplayback || cl.spectator`. It has no effect during active gameplay and should be documented as a spec/demo-only tool. Verified at `Skin_ForcingType` (`src/skin.c:93`): `if (cl_name_as_skin.integer && (cls.demoplayback || cl.spectator))`. The `OnChangeSkinForcing` handler also short-circuits at `src/skin.c:946` when the player is neither spec nor in demo playback.
 
-### Structural gaps (Tier C — substantial coverage missing)
+### Structural gaps (Tier C -- substantial coverage missing)
 
 #### FPD bit names + values
 
 - The guide says skin forcing requires "the server allows it in its FPD setting" and references "Qizmo feature" without naming the bits. The actual bits:
-  - `FPD_NO_FORCE_SKIN = 256` (`src/teamplay.h:109`) — gates the entire force-skin family.
-  - `FPD_NO_FORCE_COLOR = 512` (`src/teamplay.h:110`) — gates the color-forcing path.
+  - `FPD_NO_FORCE_SKIN = 256` (`src/teamplay.h:109`) -- gates the entire force-skin family.
+  - `FPD_NO_FORCE_COLOR = 512` (`src/teamplay.h:110`) -- gates the color-forcing path.
 - KTX is the server-side author of the FPD bitfield. KTX admin command `skinforce` toggles bit 256 (`src/commands.c:3729-3739`); `colorforce` toggles bit 512.
 
-#### `enemyforceskins` mid-round lock + auto-announce — and asymmetry with `teamforceskins`
+#### `enemyforceskins` mid-round lock + auto-announce -- and asymmetry with `teamforceskins`
 
 - **Lock:** `enemyforceskins` cannot be changed during an active match. Rejected with `"<cvar> cannot be changed during match"` at `src/skin.c:954`. Set during warmup (`cl.standby` or `cl.countdown`).
 - **Auto-announce:** changes emit `say Individual enemy skins: enabled/disabled` to all chat (`src/skin.c:961-963`).
@@ -303,22 +303,22 @@ Topics where Layer 3 synthesis is missing and would benefit the companion-app ch
 
 #### `fbskins` serverinfo silent cap
 
-- The upstream guide says nothing about `r_fullbrightskins` (it doesn't even mention the cvar — see Tier A). The cvar is also silently capped at render time by the server's `fbskins` serverinfo key. Even when MTFL is not the active ruleset, a server can clamp the effect. `bound(0, r_fullbrightskins.value, r_refdef2.max_fbskins)` at `src/r_aliasmodel.c:590`.
+- The upstream guide says nothing about `r_fullbrightskins` (it doesn't even mention the cvar -- see Tier A). The cvar is also silently capped at render time by the server's `fbskins` serverinfo key. Even when MTFL is not the active ruleset, a server can clamp the effect. `bound(0, r_fullbrightskins.value, r_refdef2.max_fbskins)` at `src/r_aliasmodel.c:590`.
 
 #### Corpse and gib readability omitted entirely
 
-- The upstream page is "player skins" but does not cover `cl_deadbodyfilter`, `cl_gibfilter`, or `r_skincolormodedead`. These are adjacent concerns — once the live-player visibility layer is configured, players inevitably ask "how do I stop seeing dead bodies on the floor."
+- The upstream page is "player skins" but does not cover `cl_deadbodyfilter`, `cl_gibfilter`, or `r_skincolormodedead`. These are adjacent concerns -- once the live-player visibility layer is configured, players inevitably ask "how do I stop seeing dead bodies on the floor."
 - `cl_deadbodyfilter <0..3>` modes documented above. `cl_gibfilter` is boolean. Both verified at `cl_ents.c:976-995` and `cl_ents.c:1903-1920`.
 - **Help-JSON gap:** both `cl_deadbodyfilter` and `cl_gibfilter` carry null `help_desc` in current `cvar_versions`. Recommend authoring help text upstream alongside any guide-page additions.
 
 ### Phantom entries (audit follow-up, not gap-report items)
 
-The following 14 entities matched the broad skin-domain naming pattern but are absent from current source — they exist as `doc_only` rows in Layer 1's help-JSON ingestion. Do NOT include them in upstream guide additions.
+The following 14 entities matched the broad skin-domain naming pattern but are absent from current source -- they exist as `doc_only` rows in Layer 1's help-JSON ingestion. Do NOT include them in upstream guide additions.
 
-- `skin_browser_democolor`, `skin_browser_dircolor`, `skin_browser_interline`, `skin_browser_scrollnames`, `skin_browser_selectedcolor`, `skin_browser_showdate`, `skin_browser_showsize`, `skin_browser_showstatus`, `skin_browser_showtime`, `skin_browser_sortmode`, `skin_browser_stripnames`, `skin_browser_zipcolor` — appears to be a removed in-client skin browser UI.
-- `r_clearcolor` — removed renderer cvar.
+- `skin_browser_democolor`, `skin_browser_dircolor`, `skin_browser_interline`, `skin_browser_scrollnames`, `skin_browser_selectedcolor`, `skin_browser_showdate`, `skin_browser_showsize`, `skin_browser_showstatus`, `skin_browser_showtime`, `skin_browser_sortmode`, `skin_browser_stripnames`, `skin_browser_zipcolor` -- appears to be a removed in-client skin browser UI.
+- `r_clearcolor` -- removed renderer cvar.
 
-These belong in the `Layer 1 doc_only audit` HANDOVER lane (already CLOSED 2026-04-25 with one deferred row; this set of 14 is the help-JSON-stale class — upstream `help_variables.json` carries entries for cvars that were removed from source. Recommend pruning from upstream help-JSON when convenient).
+These belong in the `Layer 1 doc_only audit` HANDOVER lane (already CLOSED 2026-04-25 with one deferred row; this set of 14 is the help-JSON-stale class -- upstream `help_variables.json` carries entries for cvars that were removed from source. Recommend pruning from upstream help-JSON when convenient).
 
 ### Cross-engine coverage notes (for upstream guide framing)
 
@@ -331,9 +331,9 @@ A player switching from ezQuake to FTE for the same competitive practice loses t
 
 ### Layer 3 authoring candidates surfaced
 
-- **player-tracking-callout-grammar** (R7) — combining `enemyforceskins` mode-3 with HUD callout cvars (`f_pent`, `f_quad`, `f_armor` reports) into a coherent "callout layer" pattern. Today the per-player tracking section in `player-skins.md` covers it adequately; revisit if a second tracking-related concept (frag tracker integration, etc.) makes the layer big enough to extract.
-- **fpd-bitfield-as-server-policy** (R5) — the FPD serverinfo key as a general server-side policy mechanism that silently neutralizes whole client subsystems without locking cvars. Spans skin forcing, color forcing, soundtriggers (FPD bit 4), pitch/yaw limits (bits 14/15). Could become a separate concept note when a second feature note independently surfaces the pattern. Currently captured inline in `player-skins.md` § "Gates and restrictions".
-- **first-person-pov-self-state-indicators** (R2) — the family of cvars the engine uses to paint your own state onto your screen: `v_quadcshift` / `v_pentcshift` / `v_ringcshift` (powerup carrier hue), `v_contentblend` (water/slime/lava hue), `v_bonusflash` (item-pickup flash), `v_dlightcshift` / `v_dlightcshiftpercent` (dynamic-light splashback on POV), damage-flash cvars, plus the `gl_polyblend` master gate they all depend on. Distinct from the player-skins layer (which is about identifying *other* players); this is the parallel layer for self-awareness. Surfaces here because `r_powerupglow 2` (suppress own-model halo) is only viable when paired with `v_quadcshift` etc. for self-awareness — the recipe doesn't make sense without naming both layers. Cite-only in `player-skins.md` § "Powerup-carrier visibility — dynamic lights and glow"; full note awaits a second instance independently surfacing the pattern. **Note:** this candidate is one slice of a broader graphics-cvar taxonomy question the operator surfaced 2026-04-25 (POV self-state / world materials / special effects, plus HUD layout as a separate axis); see OPERATIONS.md § 7 entry "Graphics-cvar taxonomy organizing axes". The candidate may merge into a larger axis-1 note or stay self-contained depending on how the second instance lands.
+- **player-tracking-callout-grammar** (R7) -- combining `enemyforceskins` mode-3 with HUD callout cvars (`f_pent`, `f_quad`, `f_armor` reports) into a coherent "callout layer" pattern. Today the per-player tracking section in `player-skins.md` covers it adequately; revisit if a second tracking-related concept (frag tracker integration, etc.) makes the layer big enough to extract.
+- **fpd-bitfield-as-server-policy** (R5) -- the FPD serverinfo key as a general server-side policy mechanism that silently neutralizes whole client subsystems without locking cvars. Spans skin forcing, color forcing, soundtriggers (FPD bit 4), pitch/yaw limits (bits 14/15). Could become a separate concept note when a second feature note independently surfaces the pattern. Currently captured inline in `player-skins.md` Section  "Gates and restrictions".
+- **first-person-pov-self-state-indicators** (R2) -- the family of cvars the engine uses to paint your own state onto your screen: `v_quadcshift` / `v_pentcshift` / `v_ringcshift` (powerup carrier hue), `v_contentblend` (water/slime/lava hue), `v_bonusflash` (item-pickup flash), `v_dlightcshift` / `v_dlightcshiftpercent` (dynamic-light splashback on POV), damage-flash cvars, plus the `gl_polyblend` master gate they all depend on. Distinct from the player-skins layer (which is about identifying *other* players); this is the parallel layer for self-awareness. Surfaces here because `r_powerupglow 2` (suppress own-model halo) is only viable when paired with `v_quadcshift` etc. for self-awareness -- the recipe doesn't make sense without naming both layers. Cite-only in `player-skins.md` Section  "Powerup-carrier visibility -- dynamic lights and glow"; full note awaits a second instance independently surfacing the pattern. **Note:** this candidate is one slice of a broader graphics-cvar taxonomy question the operator surfaced 2026-04-25 (POV self-state / world materials / special effects, plus HUD layout as a separate axis); see OPERATIONS.md Section  7 entry "Graphics-cvar taxonomy organizing axes". The candidate may merge into a larger axis-1 note or stay self-contained depending on how the second instance lands.
 
 ### Help-JSON gaps surfaced
 
@@ -341,8 +341,8 @@ A player switching from ezQuake to FTE for the same competitive practice loses t
 
 - **Layer 1 first_seen:** 3.6.1
 - **Source location:** declared `src/cl_main.c:220` (default `"1"`); consumed at `src/cl_ents.c:898, 1821` and `src/cl_nqdemo.c:951, 959`.
-- **Layer 1 help_desc:** *null / empty* — no help text in current `cvar_versions`. Help-JSON gap.
+- **Layer 1 help_desc:** *null / empty* -- no help text in current `cvar_versions`. Help-JSON gap.
 - **Suggested upstream help text:** "Controls the colored glow drawn around players carrying quad (red) or pent (blue). 0 disables. 1 (default) glows on every powerup carrier. 2 glows on every carrier except the viewplayer (useful in spec/demo)."
 - **Why it matters:** load-bearing carrier-identification cvar; players configure it deliberately. Upstream `help_variables.json` carrying empty desc means the in-engine help and the menu integration both surface a blank.
 
-(`r_dynamic` and `gl_flashblend` both have informative `help_desc` and `help_remarks` already — no upstream help-JSON action needed.)
+(`r_dynamic` and `gl_flashblend` both have informative `help_desc` and `help_remarks` already -- no upstream help-JSON action needed.)

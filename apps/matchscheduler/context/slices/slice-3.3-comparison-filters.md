@@ -64,8 +64,8 @@
 - Current filter values read from FilterService
 
 **User Actions:**
-- Change "Your team minimum" dropdown → updates FilterService
-- Change "Opponent minimum" dropdown → updates FilterService
+- Change "Your team minimum" dropdown -> updates FilterService
+- Change "Opponent minimum" dropdown -> updates FilterService
 
 #### FilterService (NEW)
 **Location:** `/public/js/services/FilterService.js`
@@ -133,9 +133,9 @@ This is a frontend-only slice. Filter values are:
 
 **Filter Change Flow:**
 ```
-User changes dropdown → FilterPanel.handleChange() → FilterService.setXXX(value)
-    → FilterService dispatches 'filter-changed' event
-    → Listening components read new values and update
+User changes dropdown -> FilterPanel.handleChange() -> FilterService.setXXX(value)
+    -> FilterService dispatches 'filter-changed' event
+    -> Listening components read new values and update
 ```
 
 ---
@@ -397,7 +397,7 @@ async function initApp() {
 ### Integration Tests
 | Test | Expected Behavior |
 |------|-------------------|
-| Change dropdown → event fires | 'filter-changed' event dispatched with correct values |
+| Change dropdown -> event fires | 'filter-changed' event dispatched with correct values |
 | External component listens | Component receives event with { yourTeam, opponent } detail |
 | FilterService.reset() | Both values return to 1, event fires, dropdowns update |
 | Dropdown values 1-4 only | Select only contains options 1, 2, 3, 4 |

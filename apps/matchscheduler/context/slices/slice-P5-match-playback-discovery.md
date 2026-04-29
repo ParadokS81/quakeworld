@@ -1,11 +1,11 @@
-# Phase 5: Match Playback & Recording Discovery — 5-Slice Breakdown
+# Phase 5: Match Playback & Recording Discovery -- 5-Slice Breakdown
 
 **Source:** `docs/multi-clan/phase-5-discovery-and-playback.md`
 **Dependencies:** Phase 3 (voiceRecordings schema + rules), Phase 4 (defaultVisibility toggle)
 
 ---
 
-## Slice P5.1: Team Settings Modal — Tab Restructure
+## Slice P5.1: Team Settings Modal -- Tab Restructure
 
 **User Story:** As a team leader, I see a tabbed Team Settings modal so that Voice Bot settings and Recordings are organized separately from core team settings.
 
@@ -15,7 +15,7 @@
 - [ ] Voice Bot section appears under Discord tab (moved from main body)
 - [ ] Recording Visibility default toggle stays with Voice Bot in Discord tab
 - [ ] Tab state resets to "Team Settings" on each modal open
-- [ ] Voice Bot async loading preserved — loads on first Discord tab switch (lazy init)
+- [ ] Voice Bot async loading preserved -- loads on first Discord tab switch (lazy init)
 - [ ] Recordings tab content is a placeholder (implemented in P5.5)
 
 ### PRD Mapping
@@ -25,11 +25,11 @@ PRIMARY SECTIONS:
 - Workstream 1: Tab system, layout, lazy init
 
 DEPENDENT SECTIONS:
-- Phase 3/4: Voice Bot section, visibility toggle (already exist — just moving)
+- Phase 3/4: Voice Bot section, visibility toggle (already exist -- just moving)
 
 IGNORED SECTIONS:
-- Workstream 2 (Match History) — separate slices
-- Workstream 3 (Recordings list) — P5.5
+- Workstream 2 (Match History) -- separate slices
+- Workstream 3 (Recordings list) -- P5.5
 ```
 
 ### Full Stack Architecture
@@ -37,7 +37,7 @@ IGNORED SECTIONS:
 ```
 FRONTEND COMPONENTS:
 - TeamManagementModal (MODIFY)
-  - Firebase listeners: No changes — existing _botRegUnsubscribe preserved
+  - Firebase listeners: No changes -- existing _botRegUnsubscribe preserved
   - Cache interactions: No changes
   - UI responsibilities:
     - Tab bar (leaders only): Team Settings | Discord | Recordings
@@ -46,15 +46,15 @@ FRONTEND COMPONENTS:
   - User actions: Tab clicks switch content panels
 
 FRONTEND SERVICES:
-- None — purely a UI restructure
+- None -- purely a UI restructure
 
 BACKEND REQUIREMENTS:
-- None — no new Cloud Functions or schema changes
+- None -- no new Cloud Functions or schema changes
 
 INTEGRATION POINTS:
 - Voice Bot section: _initVoiceBotSection() must be called on first Discord tab switch, NOT on modal open
-- BotRegistrationService listener: cleanup in close() unchanged — still calls _botRegUnsubscribe()
-- Recordings tab: Renders placeholder "Coming soon" — wired up in P5.5
+- BotRegistrationService listener: cleanup in close() unchanged -- still calls _botRegUnsubscribe()
+- Recordings tab: Renders placeholder "Coming soon" -- wired up in P5.5
 ```
 
 ### Implementation Details
@@ -132,8 +132,8 @@ function _handleTabSwitch(tabName) {
 
 ```
 HOT PATHS (<50ms):
-- Tab switching: Pure DOM show/hide — instant
-- Modal open: Same as today — renders Team Settings tab first
+- Tab switching: Pure DOM show/hide -- instant
+- Modal open: Same as today -- renders Team Settings tab first
 
 COLD PATHS (<2s):
 - First Discord tab switch: Loads Voice Bot status via BotRegistrationService (existing cold path, unchanged)
@@ -204,9 +204,9 @@ DEPENDENT SECTIONS:
 - SCHEMA.md: voiceRecordings collection structure
 
 IGNORED SECTIONS:
-- Workstream 2A-C (table changes) — P5.3
-- Workstream 2E-F (inline player) — P5.4
-- Workstream 3 (recordings list) — P5.5
+- Workstream 2A-C (table changes) -- P5.3
+- Workstream 2E-F (inline player) -- P5.4
+- Workstream 3 (recordings list) -- P5.5
 ```
 
 ### Full Stack Architecture
@@ -219,24 +219,24 @@ FRONTEND COMPONENTS:
   - Passes _voiceAvailable to match row rendering
 
 FRONTEND SERVICES:
-- VoiceReplayService (MODIFY — or new helper in TeamsBrowserPanel)
-  - Add: getTeamVoiceRecordingSHAs(teamId) → Set<string>
-  - One-shot query (NOT a listener — match history is already a snapshot view)
+- VoiceReplayService (MODIFY -- or new helper in TeamsBrowserPanel)
+  - Add: getTeamVoiceRecordingSHAs(teamId) -> Set<string>
+  - One-shot query (NOT a listener -- match history is already a snapshot view)
 
 BACKEND REQUIREMENTS:
-- None — uses existing voiceRecordings collection + existing Firestore rules
+- None -- uses existing voiceRecordings collection + existing Firestore rules
 - Query: voiceRecordings.where('teamId', '==', teamId)
 
 INTEGRATION POINTS:
 - Firestore read: voiceRecordings where teamId matches
 - Rules: Public recordings visible to all; private only to team members (already enforced by existing rules)
-- Cache: Store Set alongside _historyMatches — invalidate when team changes
+- Cache: Store Set alongside _historyMatches -- invalidate when team changes
 ```
 
 ### Integration Code
 
 ```javascript
-// In TeamsBrowserPanel — add to module state:
+// In TeamsBrowserPanel -- add to module state:
 let _voiceAvailable = new Set(); // SHA256s that have voice recordings
 
 // Fetch when Match History tab loads (alongside match history fetch):
@@ -251,7 +251,7 @@ async function _fetchVoiceRecordings(teamId) {
         _voiceAvailable = new Set(snapshot.docs.map(doc => doc.id)); // doc.id = demoSha256
     } catch (err) {
         console.warn('Failed to fetch voice recordings:', err);
-        _voiceAvailable = new Set(); // Graceful fallback — no voice icons shown
+        _voiceAvailable = new Set(); // Graceful fallback -- no voice icons shown
     }
 }
 
@@ -270,28 +270,28 @@ const hasVoice = match.demoHash && _voiceAvailable.has(match.demoHash);
 
 ```
 HOT PATHS (<50ms):
-- Checking _voiceAvailable.has(demoHash): O(1) Set lookup per row — instant
+- Checking _voiceAvailable.has(demoHash): O(1) Set lookup per row -- instant
 
 COLD PATHS (<2s):
 - Initial Firestore query: Typically 10-50 docs per team (one per map per session)
-- Runs in parallel with match history fetch — no added latency
+- Runs in parallel with match history fetch -- no added latency
 - Firestore rules evaluation adds ~50ms overhead for private recording checks
 
 BACKEND PERFORMANCE:
 - No indexes needed: teamId is the only filter field (auto-indexed by Firestore)
-- Docs are small (~500 bytes each — no audio data, just metadata)
+- Docs are small (~500 bytes each -- no audio data, just metadata)
 ```
 
 ### Data Flow
 
 ```
-Match History tab loads → _loadMatchHistory(teamId)
-  ├── _fetchMatchesFromQWHub(teamId)     ← existing (QW Hub Supabase)
-  └── _fetchVoiceRecordings(teamId)      ← NEW (Firestore)
-       → getDocs(voiceRecordings where teamId == X)
-       → Build Set<demoSha256>
-       → Store as _voiceAvailable
-       → Used during row rendering: _voiceAvailable.has(match.demoHash)
+Match History tab loads -> _loadMatchHistory(teamId)
+  ├── _fetchMatchesFromQWHub(teamId)     <- existing (QW Hub Supabase)
+  └── _fetchVoiceRecordings(teamId)      <- NEW (Firestore)
+       -> getDocs(voiceRecordings where teamId == X)
+       -> Build Set<demoSha256>
+       -> Store as _voiceAvailable
+       -> Used during row rendering: _voiceAvailable.has(match.demoHash)
 ```
 
 ### Test Scenarios
@@ -301,18 +301,18 @@ FRONTEND TESTS:
 - [ ] _voiceAvailable populated after Match History loads
 - [ ] Set contains correct demoSha256 values from Firestore docs
 - [ ] Set cleared/repopulated when switching to a different team
-- [ ] Graceful fallback: Firestore query failure → empty Set (no voice icons, no crash)
+- [ ] Graceful fallback: Firestore query failure -> empty Set (no voice icons, no crash)
 
 INTEGRATION TESTS:
-- [ ] Team with 0 voice recordings → empty Set
-- [ ] Team with 5 recordings → Set has 5 entries
+- [ ] Team with 0 voice recordings -> empty Set
+- [ ] Team with 5 recordings -> Set has 5 entries
 - [ ] Private recordings visible when logged in as team member
 - [ ] Private recordings NOT visible when logged in as non-member
 - [ ] Public recordings visible to everyone
 - [ ] No additional Firestore reads on re-renders (Set is cached)
 
 PERFORMANCE:
-- [ ] Voice query runs in parallel with match history — doesn't block table render
+- [ ] Voice query runs in parallel with match history -- doesn't block table render
 ```
 
 ### Files to Modify
@@ -323,7 +323,7 @@ PERFORMANCE:
 
 ---
 
-## Slice P5.3: Match History Table — Score Colors, Icons, Voice Indicator
+## Slice P5.3: Match History Table -- Score Colors, Icons, Voice Indicator
 
 **Dependencies:** Slice P5.2 (voice discovery Set)
 
@@ -331,17 +331,17 @@ PERFORMANCE:
 
 **Success Criteria:**
 - [ ] w/l column replaced with action icon column
-- [ ] Play icon (▶) on every row — launches demo in new tab (existing behavior, different trigger)
+- [ ] Play icon (▶) on every row -- launches demo in new tab (existing behavior, different trigger)
 - [ ] Headphone icon (🎧) only when `_voiceAvailable.has(demoHash)` is true
 - [ ] Our score green + opponent red on win; reversed on loss; neutral on draw
 - [ ] Grid template adjusted for icon column width
-- [ ] Icons clickable — play opens QW Hub demo player, headphone opens replay with voice (both reused existing patterns until P5.4 adds inline)
+- [ ] Icons clickable -- play opens QW Hub demo player, headphone opens replay with voice (both reused existing patterns until P5.4 adds inline)
 
 ### PRD Mapping
 
 ```
 PRIMARY SECTIONS:
-- Workstream 2A: Remove w/l column → action icons
+- Workstream 2A: Remove w/l column -> action icons
 - Workstream 2B: Color-code scores for win/loss
 
 DEPENDENT SECTIONS:
@@ -349,8 +349,8 @@ DEPENDENT SECTIONS:
 - Workstream 2C: Filter dropdown optimization (optional, can skip)
 
 IGNORED SECTIONS:
-- Workstream 2D: Discovery query — done in P5.2
-- Workstream 2E-F: Inline player — done in P5.4
+- Workstream 2D: Discovery query -- done in P5.2
+- Workstream 2E-F: Inline player -- done in P5.4
 ```
 
 ### Full Stack Architecture
@@ -364,7 +364,7 @@ FRONTEND COMPONENTS:
   - Grid template: Adjust last column width
 
 FRONTEND SERVICES:
-- None — purely frontend rendering changes
+- None -- purely frontend rendering changes
 
 BACKEND REQUIREMENTS:
 - None
@@ -397,7 +397,7 @@ INTEGRATION POINTS:
 <span class="mh-th mh-th-actions"></span>
 ```
 
-**Row rendering — score colors:**
+**Row rendering -- score colors:**
 
 ```javascript
 const isWin = m.scoreUs > m.scoreThem;
@@ -412,7 +412,7 @@ const themScoreClass = isLoss ? 'text-green-500' : isWin ? 'text-red-500' : 'tex
 `<span class="mh-td mh-td-score ${themScoreClass} font-medium">${m.scoreThem}</span>`
 ```
 
-**Row rendering — action icons:**
+**Row rendering -- action icons:**
 
 ```javascript
 const hasVoice = m.demoHash && _voiceAvailable.has(m.demoHash);
@@ -464,12 +464,12 @@ function openDemoPlayer(demoHash) {
 
 ```
 HOT PATHS (<50ms):
-- Score color calculation: Trivial comparison per row — instant
-- Voice icon visibility: Set.has() — O(1) per row
-- Icon rendering: Part of existing render loop — no extra DOM ops
+- Score color calculation: Trivial comparison per row -- instant
+- Voice icon visibility: Set.has() -- O(1) per row
+- Icon rendering: Part of existing render loop -- no extra DOM ops
 
 COLD PATHS:
-- None — this is all rendering-time work
+- None -- this is all rendering-time work
 ```
 
 ### Test Scenarios
@@ -486,7 +486,7 @@ FRONTEND TESTS:
 - [ ] Headphone icon hidden when no voice recording exists
 - [ ] Play icon click opens QW Hub demo player in new tab
 - [ ] Headphone icon click opens /replay.html with voice in new tab
-- [ ] Both icon clicks use event.stopPropagation() — don't trigger row click
+- [ ] Both icon clicks use event.stopPropagation() -- don't trigger row click
 - [ ] Grid alignment looks correct with new column widths
 
 INTEGRATION TESTS:
@@ -533,8 +533,8 @@ DEPENDENT SECTIONS:
 - P5.3: Play/headphone icon click handlers
 
 IGNORED SECTIONS:
-- Workstream 1 (modal tabs) — P5.1
-- Workstream 3 (recordings tab) — P5.5
+- Workstream 1 (modal tabs) -- P5.1
+- Workstream 3 (recordings tab) -- P5.5
 ```
 
 ### Full Stack Architecture
@@ -543,9 +543,9 @@ IGNORED SECTIONS:
 FRONTEND COMPONENTS:
 - TeamsBrowserPanel (MODIFY)
   - New right panel state: 'player' (alongside existing 'default', 'hover', 'click/sticky')
-  - Click play icon → mount VoiceReplayPlayer in right panel
-  - Click headphone icon → mount VoiceReplayPlayer with autoLoadVoice flag
-  - Close player → destroy VoiceReplayPlayer, return to stats view
+  - Click play icon -> mount VoiceReplayPlayer in right panel
+  - Click headphone icon -> mount VoiceReplayPlayer with autoLoadVoice flag
+  - Close player -> destroy VoiceReplayPlayer, return to stats view
   - Stats view: Replace "Watch with Voice" text link with prominent play button
 
 - VoiceReplayPlayer (MODIFY)
@@ -558,17 +558,17 @@ FRONTEND COMPONENTS:
   - Handle multiple init/destroy cycles (player mounted, dismissed, mounted again)
 
 FRONTEND SERVICES:
-- VoiceReplayService: No new methods — existing loadFromFirestore() handles voice auto-load
+- VoiceReplayService: No new methods -- existing loadFromFirestore() handles voice auto-load
 
 BACKEND REQUIREMENTS:
 - None
 
 INTEGRATION POINTS:
-- VoiceReplayPlayer.init(container, demoSha256, matchTitle) — existing API
-- VoiceReplayPlayer.destroy() — must exist and be thorough
-- VoiceReplayService.destroy() — must remove postMessage listener
-- postMessage from hub.quakeworld.nu iframe → VoiceReplayService → audio sync
-- Auth context: Already initialized in main app — no separate auth init needed
+- VoiceReplayPlayer.init(container, demoSha256, matchTitle) -- existing API
+- VoiceReplayPlayer.destroy() -- must exist and be thorough
+- VoiceReplayService.destroy() -- must remove postMessage listener
+- postMessage from hub.quakeworld.nu iframe -> VoiceReplayService -> audio sync
+- Auth context: Already initialized in main app -- no separate auth init needed
 ```
 
 ### Implementation Details
@@ -590,7 +590,7 @@ function playMatch(matchId, autoVoice = false) {
     _selectedMatchId = matchId; // Keep row highlighted
 
     const panel = document.querySelector('.mh-preview-panel');
-    const title = `${match.ourTag} vs ${match.opponentTag} — ${match.map}`;
+    const title = `${match.ourTag} vs ${match.opponentTag} -- ${match.map}`;
 
     // Render player container with close button
     panel.innerHTML = `
@@ -606,7 +606,7 @@ function playMatch(matchId, autoVoice = false) {
 
     const mountPoint = document.getElementById('mh-player-mount');
     VoiceReplayPlayer.init(mountPoint, match.demoHash, title);
-    // If autoVoice, the init() already auto-loads from Firestore — no extra action needed
+    // If autoVoice, the init() already auto-loads from Firestore -- no extra action needed
     // VoiceReplayPlayer.init() calls VoiceReplayService.loadFromFirestore() which checks availability
 }
 
@@ -625,20 +625,20 @@ function closePlayer() {
 ```javascript
 // Change from opening new tab to inline player:
 
-// Play icon — demo only
+// Play icon -- demo only
 function openDemoPlayer(demoHash) {
     // Find match by demoHash
     const match = [..._matchDataById.values()].find(m => m.demoHash === demoHash);
     if (match) playMatch(match.id, false);
 }
 
-// Headphone icon — demo + voice
+// Headphone icon -- demo + voice
 function openVoiceReplay(matchId) {
     playMatch(matchId, true);
 }
 ```
 
-**Stats view — promoted play button:**
+**Stats view -- promoted play button:**
 
 ```javascript
 // In _renderStatsView(), replace the "Watch with Voice" text link:
@@ -656,7 +656,7 @@ ${match.demoHash ? `
 ` : ''}
 ```
 
-**VoiceReplayPlayer.destroy() — must be thorough:**
+**VoiceReplayPlayer.destroy() -- must be thorough:**
 
 ```javascript
 function destroy() {
@@ -678,7 +678,7 @@ function destroy() {
 }
 ```
 
-**VoiceReplayService.destroy() — must clean up listener:**
+**VoiceReplayService.destroy() -- must clean up listener:**
 
 ```javascript
 function destroy() {
@@ -732,8 +732,8 @@ function destroy() {
 
 ```
 HOT PATHS (<50ms):
-- Close player → destroy + re-render stats: DOM swap — instant
-- Icon clicks → mount player: Container render is instant
+- Close player -> destroy + re-render stats: DOM swap -- instant
+- Icon clicks -> mount player: Container render is instant
 
 COLD PATHS (<2s):
 - VoiceReplayPlayer.init(): Loads iframe from hub.quakeworld.nu (~1-2s)
@@ -741,31 +741,31 @@ COLD PATHS (<2s):
 - Both show loading states within VoiceReplayPlayer (existing pattern)
 
 BACKEND PERFORMANCE:
-- No new server calls — reuses existing VoiceReplayService Firestore reads
+- No new server calls -- reuses existing VoiceReplayService Firestore reads
 ```
 
 ### Data Flow
 
 ```
 Click play icon on row
-  → TeamsBrowserPanel.playMatch(matchId, autoVoice=false)
-  → Replace right panel with player container
-  → VoiceReplayPlayer.init(mountPoint, demoHash, title)
-    → VoiceReplayService.init(demoHash, callback)
-      → Fetch DemoInfo from QW Hub
-      → Set up postMessage listener for iframe sync
-    → VoiceReplayService.loadFromFirestore(demoHash)
-      → Read voiceRecordings/{demoHash}
-      → If found: fetch Storage URLs, create <audio> elements, auto-play synced
-      → If not found: show drop zone
-  → iframe loads hub.quakeworld.nu/demo-player/?demo_sha256={hash}
-  → postMessage events → VoiceReplayService → audio sync
+  -> TeamsBrowserPanel.playMatch(matchId, autoVoice=false)
+  -> Replace right panel with player container
+  -> VoiceReplayPlayer.init(mountPoint, demoHash, title)
+    -> VoiceReplayService.init(demoHash, callback)
+      -> Fetch DemoInfo from QW Hub
+      -> Set up postMessage listener for iframe sync
+    -> VoiceReplayService.loadFromFirestore(demoHash)
+      -> Read voiceRecordings/{demoHash}
+      -> If found: fetch Storage URLs, create <audio> elements, auto-play synced
+      -> If not found: show drop zone
+  -> iframe loads hub.quakeworld.nu/demo-player/?demo_sha256={hash}
+  -> postMessage events -> VoiceReplayService -> audio sync
 
 Click close
-  → VoiceReplayPlayer.destroy()
-    → VoiceReplayService.destroy() (removes listener, stops audio)
-    → Clear container
-  → Re-render stats view for selected match
+  -> VoiceReplayPlayer.destroy()
+    -> VoiceReplayService.destroy() (removes listener, stops audio)
+    -> Clear container
+  -> Re-render stats view for selected match
 ```
 
 ### Test Scenarios
@@ -786,12 +786,12 @@ INTEGRATION TESTS:
 - [ ] Voice auto-load: recordings fetched from Firestore and played
 - [ ] Auth required: VoiceReplayPlayer shows sign-in prompt for private recordings
 - [ ] Access denied: VoiceReplayPlayer shows "team members only" for private recordings
-- [ ] Cleanup: Switching teams while player is open → destroy + clean mount
+- [ ] Cleanup: Switching teams while player is open -> destroy + clean mount
 - [ ] Cleanup: Multiple open/close cycles don't leak message listeners or audio elements
 - [ ] VoiceReplayPlayer CSS (overlay, iframe) works correctly in right panel container
 
 END-TO-END:
-- [ ] Click headphone icon → player loads → audio syncs to demo → user controls volume → close → stats view returns
+- [ ] Click headphone icon -> player loads -> audio syncs to demo -> user controls volume -> close -> stats view returns
 ```
 
 ### Files to Modify
@@ -805,18 +805,18 @@ END-TO-END:
 
 ### Common Pitfalls
 
-- [ ] VoiceReplayService message listener not removed on destroy → messages from iframe go to dead handler
-- [ ] Object URLs from createObjectURL not revoked on destroy → memory leak
+- [ ] VoiceReplayService message listener not removed on destroy -> messages from iframe go to dead handler
+- [ ] Object URLs from createObjectURL not revoked on destroy -> memory leak
 - [ ] Multiple init/destroy cycles cause duplicate message listeners
 - [ ] iframe postMessage origin check: must whitelist `https://hub.quakeworld.nu`
 - [ ] Right panel height: player needs to fill available height (flexbox needed)
-- [ ] Firebase Auth already initialized in main app — VoiceReplayPlayer must NOT re-init auth
+- [ ] Firebase Auth already initialized in main app -- VoiceReplayPlayer must NOT re-init auth
 
 ---
 
-## Slice P5.5: Recordings Tab — List, Visibility Toggle, Cloud Function
+## Slice P5.5: Recordings Tab -- List, Visibility Toggle, Cloud Function
 
-**Dependencies:** Slice P5.1 (modal tabs — Recordings tab placeholder)
+**Dependencies:** Slice P5.1 (modal tabs -- Recordings tab placeholder)
 
 **User Story:** As a team leader, I can see all my team's voice recordings in the Recordings tab and toggle each recording's visibility between public and private.
 
@@ -837,12 +837,12 @@ PRIMARY SECTIONS:
 
 DEPENDENT SECTIONS:
 - Phase 3 schema: voiceRecordings collection structure (teamId, visibility, tracks, mapName, recordedAt)
-- Phase 4: defaultVisibility toggle (shown in Discord tab — reference only)
+- Phase 4: defaultVisibility toggle (shown in Discord tab -- reference only)
 - P5.1: Recordings tab placeholder (lazy init hook)
 
 IGNORED SECTIONS:
-- Workstream 1 (tab restructure) — already done in P5.1
-- Workstream 2 (match history) — P5.2-P5.4
+- Workstream 1 (tab restructure) -- already done in P5.1
+- Workstream 2 (match history) -- P5.2-P5.4
 ```
 
 ### Full Stack Architecture
@@ -856,8 +856,8 @@ FRONTEND COMPONENTS:
   - Show loading state while fetching recordings
 
 FRONTEND SERVICES:
-- VoiceReplayService (MODIFY — or TeamManagementModal handles directly)
-  - Add: updateRecordingVisibility(demoSha256, visibility) → calls Cloud Function
+- VoiceReplayService (MODIFY -- or TeamManagementModal handles directly)
+  - Add: updateRecordingVisibility(demoSha256, visibility) -> calls Cloud Function
 
 BACKEND REQUIREMENTS:
 ⚠️ NEW CLOUD FUNCTION:
@@ -872,8 +872,8 @@ BACKEND REQUIREMENTS:
       - voiceRecordings/{demoSha256} exists
       - User is leader of the team that owns the recording (teamId)
     - Operations:
-      - Read voiceRecordings/{demoSha256} → get teamId
-      - Read teams/{teamId} → verify caller is leaderId
+      - Read voiceRecordings/{demoSha256} -> get teamId
+      - Read teams/{teamId} -> verify caller is leaderId
       - Update voiceRecordings/{demoSha256}.visibility
     - Returns: { success: true } or { success: false, error: string }
 
@@ -884,15 +884,15 @@ BACKEND REQUIREMENTS:
 
 - Firestore Operations:
   - voiceRecordings/{demoSha256}: UPDATE (visibility field only)
-  - No security rules change needed — Cloud Function uses Admin SDK
+  - No security rules change needed -- Cloud Function uses Admin SDK
 
 - Authentication/Authorization:
   - Must be authenticated
   - Must be leader of the team that owns the recording
-  - NOT a scheduler permission — visibility is a leader-only setting
+  - NOT a scheduler permission -- visibility is a leader-only setting
 
 - Event Logging:
-  - Not required — visibility toggles are low-criticality admin actions
+  - Not required -- visibility toggles are low-criticality admin actions
 ```
 
 ### Integration Code
@@ -996,7 +996,7 @@ function _renderRecordingsList() {
             <div class="flex items-center justify-between py-2 border-b border-border/50">
                 <div class="flex items-center gap-3 min-w-0">
                     <span class="text-xs text-muted-foreground w-12 shrink-0">${dateStr}</span>
-                    <span class="text-sm font-mono">${rec.mapName || '—'}</span>
+                    <span class="text-sm font-mono">${rec.mapName || '--'}</span>
                     <span class="text-xs text-muted-foreground">${rec.trackCount || rec.tracks?.length || 0} tracks</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -1085,36 +1085,36 @@ async function _handleRecordingVisibilityToggle(btn) {
 
 ```
 HOT PATHS (<50ms):
-- Toggle flip: Optimistic UI — instant visual feedback
+- Toggle flip: Optimistic UI -- instant visual feedback
 
 COLD PATHS (<2s):
-- Initial recordings fetch: Firestore query — show "Loading recordings..." text
-- Visibility Cloud Function: ~200-500ms — optimistic UI covers latency
+- Initial recordings fetch: Firestore query -- show "Loading recordings..." text
+- Visibility Cloud Function: ~200-500ms -- optimistic UI covers latency
 
 BACKEND PERFORMANCE:
-- Cloud Function: 2 reads (recording + team) + 1 write — minimal
-- Firestore index: teamId + recordedAt (desc) — may need composite index
-  → Create via: voiceRecordings → teamId ASC, recordedAt DESC
-- Typical result size: 10-50 docs per team — small payload
+- Cloud Function: 2 reads (recording + team) + 1 write -- minimal
+- Firestore index: teamId + recordedAt (desc) -- may need composite index
+  -> Create via: voiceRecordings -> teamId ASC, recordedAt DESC
+- Typical result size: 10-50 docs per team -- small payload
 ```
 
 ### Data Flow
 
 ```
 Open Recordings tab (first time)
-  → _initRecordingsTab()
-  → getDocs(voiceRecordings where teamId == X, orderBy recordedAt desc)
-  → Store as _recordings array
-  → _renderRecordingsList()
-  → User sees recording list with visibility toggles
+  -> _initRecordingsTab()
+  -> getDocs(voiceRecordings where teamId == X, orderBy recordedAt desc)
+  -> Store as _recordings array
+  -> _renderRecordingsList()
+  -> User sees recording list with visibility toggles
 
 Toggle visibility
-  → _handleRecordingVisibilityToggle(btn)
-  → Optimistic UI: toggle flips immediately
-  → httpsCallable('updateRecordingVisibility')({ demoSha256, visibility })
-  → Cloud Function: Validates leader → Updates voiceRecordings/{sha}.visibility
-  → Success: optimistic state is correct, done
-  → Error: revert toggle, show error toast
+  -> _handleRecordingVisibilityToggle(btn)
+  -> Optimistic UI: toggle flips immediately
+  -> httpsCallable('updateRecordingVisibility')({ demoSha256, visibility })
+  -> Cloud Function: Validates leader -> Updates voiceRecordings/{sha}.visibility
+  -> Success: optimistic state is correct, done
+  -> Error: revert toggle, show error toast
 ```
 
 ### Test Scenarios
@@ -1125,7 +1125,7 @@ FRONTEND TESTS:
 - [ ] Empty state: "No voice recordings yet" message
 - [ ] Each row shows date, map, track count, visibility toggle
 - [ ] Toggle flips immediately on click (optimistic)
-- [ ] Lock icon updates with toggle (🔓↔🔒)
+- [ ] Lock icon updates with toggle (🔓<->🔒)
 - [ ] Default visibility note shown at bottom
 - [ ] List scrollable when many recordings
 
@@ -1138,14 +1138,14 @@ BACKEND TESTS:
 - [ ] Cloud Function returns { success: true } on success
 
 INTEGRATION TESTS:
-- [ ] Toggle → Cloud Function → Firestore update → no re-fetch needed (optimistic was correct)
-- [ ] Toggle error → UI reverts to previous state + error toast
-- [ ] Recording made private → non-team-members can no longer read it (Firestore rules)
-- [ ] Recording made public → everyone can read it
-- [ ] Close modal → reopen → Recordings tab re-fetches (lazy init resets)
+- [ ] Toggle -> Cloud Function -> Firestore update -> no re-fetch needed (optimistic was correct)
+- [ ] Toggle error -> UI reverts to previous state + error toast
+- [ ] Recording made private -> non-team-members can no longer read it (Firestore rules)
+- [ ] Recording made public -> everyone can read it
+- [ ] Close modal -> reopen -> Recordings tab re-fetches (lazy init resets)
 
 END-TO-END:
-- [ ] Leader opens Recordings tab → sees list → toggles recording to private → confirms it's hidden from outsiders
+- [ ] Leader opens Recordings tab -> sees list -> toggles recording to private -> confirms it's hidden from outsiders
 ```
 
 ### Firestore Index Required
@@ -1155,7 +1155,7 @@ Collection: voiceRecordings
 Fields: teamId ASC, recordedAt DESC
 ```
 
-This composite index must be created. Firestore will show a console link with the error if it's missing — click to auto-create.
+This composite index must be created. Firestore will show a console link with the error if it's missing -- click to auto-create.
 
 ### Files to Create/Modify
 
@@ -1170,8 +1170,8 @@ This composite index must be created. Firestore will show a console link with th
 ## Implementation Order
 
 ```
-P5.1  Modal Tabs          (standalone — no dependencies)
-P5.2  Voice Discovery     (standalone — feeds P5.3)
+P5.1  Modal Tabs          (standalone -- no dependencies)
+P5.2  Voice Discovery     (standalone -- feeds P5.3)
 P5.3  Table Optimization  (depends on P5.2 for voice icon data)
 P5.4  Inline Player       (depends on P5.3 for icon click handlers)
 P5.5  Recordings Tab      (depends on P5.1 for tab placeholder)

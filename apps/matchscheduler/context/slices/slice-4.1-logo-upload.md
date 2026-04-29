@@ -5,7 +5,7 @@
 - **Slice ID:** 4.1
 - **Name:** Logo Upload
 - **User Story:** As a team leader, I can upload a custom logo for my team so that our team has visual identity throughout the app
-- **Success Criteria:** Leader clicks "Manage Logo" → selects image → crops to square → uploads → sees logo appear in drawer (replacing team tag placeholder)
+- **Success Criteria:** Leader clicks "Manage Logo" -> selects image -> crops to square -> uploads -> sees logo appear in drawer (replacing team tag placeholder)
 
 ---
 
@@ -41,9 +41,9 @@ IGNORED SECTIONS (for this slice):
   - Upload progress indicator
   - Success/error states
 - User actions:
-  - Select file → Preview with crop area
-  - Adjust crop → Confirm crop
-  - Upload button → Progress → Success/Close
+  - Select file -> Preview with crop area
+  - Adjust crop -> Confirm crop
+  - Upload button -> Progress -> Success/Close
 
 **TeamManagementDrawer (MODIFY)**
 - Firebase listeners: Already has team listener (will auto-update when logo changes)
@@ -52,13 +52,13 @@ IGNORED SECTIONS (for this slice):
   - Show current logo OR team tag placeholder
   - "Manage Logo" button opens LogoUploadModal
 - User actions:
-  - Click "Manage Logo" → Opens LogoUploadModal
+  - Click "Manage Logo" -> Opens LogoUploadModal
 
 ### FRONTEND SERVICES
 
 **LogoUploadService (NEW)**
 - Methods:
-  - `uploadLogo(teamId, userId, croppedBlob)` → Firebase Storage upload
+  - `uploadLogo(teamId, userId, croppedBlob)` -> Firebase Storage upload
   - No Cloud Function call needed (backend triggers on storage upload)
 
 ### BACKEND REQUIREMENTS
@@ -140,7 +140,7 @@ IGNORED SECTIONS (for this slice):
 
 ### INTEGRATION POINTS
 
-- Frontend → Backend: Storage upload to `logo-uploads/{teamId}/{userId}/{filename}`
+- Frontend -> Backend: Storage upload to `logo-uploads/{teamId}/{userId}/{filename}`
   - NOT a Cloud Function call - direct Storage SDK upload
   - Cloud Function triggers automatically on file creation
 
@@ -150,10 +150,10 @@ IGNORED SECTIONS (for this slice):
 
 - Data flow:
   ```
-  User selects file → Cropper.js crops → LogoUploadService.uploadLogo()
-  → Firebase Storage (logo-uploads/) → Cloud Function triggers
-  → Process & store → Update Firestore → TeamManagementDrawer listener fires
-  → Logo displayed in drawer
+  User selects file -> Cropper.js crops -> LogoUploadService.uploadLogo()
+  -> Firebase Storage (logo-uploads/) -> Cloud Function triggers
+  -> Process & store -> Update Firestore -> TeamManagementDrawer listener fires
+  -> Logo displayed in drawer
   ```
 
 ---
@@ -462,30 +462,30 @@ USER ACTION FLOW:
 ═══════════════════════════════════════════════════════════════════════════
 
 1. OPEN MODAL
-   Click "Manage Logo" → TeamManagementDrawer._handleManageLogo()
-   → LogoUploadModal.show(teamId, userId)
+   Click "Manage Logo" -> TeamManagementDrawer._handleManageLogo()
+   -> LogoUploadModal.show(teamId, userId)
 
 2. SELECT & CROP
-   Click file picker → Browser file dialog → File selected
-   → _handleFileSelect() → Cropper.js initialized → User adjusts crop
+   Click file picker -> Browser file dialog -> File selected
+   -> _handleFileSelect() -> Cropper.js initialized -> User adjusts crop
 
 3. UPLOAD
-   Click "Upload Logo" → _handleUpload() → cropper.getCroppedCanvas()
-   → canvas.toBlob() → LogoUploadService.uploadLogo()
-   → Firebase Storage SDK (uploadBytesResumable)
-   → File lands in: gs://bucket/logo-uploads/{teamId}/{userId}/logo_{ts}.png
+   Click "Upload Logo" -> _handleUpload() -> cropper.getCroppedCanvas()
+   -> canvas.toBlob() -> LogoUploadService.uploadLogo()
+   -> Firebase Storage SDK (uploadBytesResumable)
+   -> File lands in: gs://bucket/logo-uploads/{teamId}/{userId}/logo_{ts}.png
 
 4. BACKEND PROCESSING (Automatic)
-   Storage trigger fires → processLogoUpload Cloud Function
-   → Validate leader permission → Download to /tmp
-   → Sharp resize (400px, 150px, 48px) → Upload to team-logos/
-   → Get signed URLs → Update Firestore /teams/{teamId}/activeLogo
-   → Archive old logo → Cleanup temp files
+   Storage trigger fires -> processLogoUpload Cloud Function
+   -> Validate leader permission -> Download to /tmp
+   -> Sharp resize (400px, 150px, 48px) -> Upload to team-logos/
+   -> Get signed URLs -> Update Firestore /teams/{teamId}/activeLogo
+   -> Archive old logo -> Cleanup temp files
 
 5. UI UPDATE (Automatic)
-   Firestore update → onSnapshot in TeamManagementDrawer fires
-   → _teamData.activeLogo now has URLs → _renderLogoSection()
-   → Logo image displayed instead of team tag placeholder
+   Firestore update -> onSnapshot in TeamManagementDrawer fires
+   -> _teamData.activeLogo now has URLs -> _renderLogoSection()
+   -> Logo image displayed instead of team tag placeholder
 
 ═══════════════════════════════════════════════════════════════════════════
 
@@ -551,14 +551,14 @@ BACKEND TESTS:
 - [ ] Temporary files are cleaned up
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Upload completes → Firestore updates → Drawer shows logo
-- [ ] Leader uploads → Success | Non-leader uploads → Deleted (no error shown)
-- [ ] Network failure during upload → Error message → Can retry
+- [ ] Upload completes -> Firestore updates -> Drawer shows logo
+- [ ] Leader uploads -> Success | Non-leader uploads -> Deleted (no error shown)
+- [ ] Network failure during upload -> Error message -> Can retry
 - [ ] Large file (5MB) uploads successfully with progress
-- [ ] Second upload replaces first → Old logo archived
+- [ ] Second upload replaces first -> Old logo archived
 
 END-TO-END TESTS:
-- [ ] Leader opens drawer → Clicks Manage Logo → Selects file → Crops → Uploads → Logo appears in drawer
+- [ ] Leader opens drawer -> Clicks Manage Logo -> Selects file -> Crops -> Uploads -> Logo appears in drawer
 - [ ] Same flow with different image formats (JPG, PNG, WebP)
 - [ ] Logo persists after page refresh
 - [ ] Logo updates in real-time for other team members viewing drawer
@@ -685,7 +685,7 @@ interface LogoDocument {
 - [x] Hot/cold paths identified (all cold for this slice)
 - [x] Test scenarios cover full stack
 - [x] No anti-patterns present
-- [x] Data flow complete (UI → Storage → CF → Firestore → Listener → UI)
+- [x] Data flow complete (UI -> Storage -> CF -> Firestore -> Listener -> UI)
 - [x] Integration examples show actual code
 - [x] Error handling specified (file validation, upload failure, retry)
 - [x] Loading states defined (progress bar, success state)

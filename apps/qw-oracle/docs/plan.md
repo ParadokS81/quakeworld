@@ -1,4 +1,4 @@
-# QW Oracle — Project Plan
+# QW Oracle -- Project Plan
 
 ## Vision
 
@@ -6,7 +6,7 @@ Transform 20 years of QuakeWorld community chat history (2.66M messages) into an
 
 ## The Three Paths
 
-### Path 1: Oracle Bot (ACTIVE — started 2026-02-11)
+### Path 1: Oracle Bot (ACTIVE -- started 2026-02-11)
 **What:** AI-powered help bot that answers QW questions using community knowledge + docs.
 **Why chosen first:** Most immediate value, tightest feedback loop, people would use it daily.
 **Status:** Search layer working, needs context builder + LLM layer.
@@ -14,10 +14,10 @@ Transform 20 years of QuakeWorld community chat history (2.66M messages) into an
 **How it works:**
 ```
 User asks question
-    → FTS5 searches 123k sessions for relevant past conversations
-    → Combines: matched sessions + ezQuake docs + QW glossary
-    → LLM generates answer with source citations
-    → "ciscon explained this on 2020-10-19: ..."
+    -> FTS5 searches 123k sessions for relevant past conversations
+    -> Combines: matched sessions + ezQuake docs + QW glossary
+    -> LLM generates answer with source citations
+    -> "ciscon explained this on 2020-10-19: ..."
 ```
 
 **Data sources (available now):**
@@ -36,14 +36,14 @@ User asks question
 - ~35-40%: Interactive debugging (AI can triage, humans needed for full resolution)
 
 **Self-learning capability (planned):**
-- Level 1: Always cite sources — users trust "ciscon said X" over "AI said X"
-- Level 2: Store corrections — trusted members can override bad answers
-- Level 3: Weighted trust — Spoike/ciscon answers weighted higher, corrections tracked
+- Level 1: Always cite sources -- users trust "ciscon said X" over "AI said X"
+- Level 2: Store corrections -- trusted members can override bad answers
+- Level 3: Weighted trust -- Spoike/ciscon answers weighted higher, corrections tracked
 
 ### Path 2: Digest / Newsletter (future)
-**What:** "What happened while I was away?" — AI-generated summaries of Discord activity.
+**What:** "What happened while I was away?" -- AI-generated summaries of Discord activity.
 **Why:** Solves the Discord overwhelm problem. 8+ servers, too many channels, nobody reads them all.
-**Depends on:** Tier 2 LLM summarization pipeline (sessions → structured summaries).
+**Depends on:** Tier 2 LLM summarization pipeline (sessions -> structured summaries).
 
 **Would produce:**
 - Daily/weekly digests per server or across servers
@@ -52,7 +52,7 @@ User asks question
 
 ### Path 3: Time Machine / Nostalgia (future)
 **What:** Explore 20 years of community history. Drama, milestones, eras, forgotten gems.
-**Why:** "Memory lane" — give the community a way to rediscover its own history.
+**Why:** "Memory lane" -- give the community a way to rediscover its own history.
 **Depends on:** Tier 2 summaries + some kind of browsable interface.
 
 **Would enable:**
@@ -67,7 +67,7 @@ User asks question
 - 2,661,364 messages in SQLite (`data/qw.db`)
 - IRC (QuakeNet, 2005-2016): 1.94M messages, 14 channels
 - Discord (Quake.World, 2016-2026): 717k messages, 4 channels
-- Immutable — never modified after import
+- Immutable -- never modified after import
 - Scripts: `import-discord.mjs`, `import-irc.mjs`
 
 ### Layer 2: Classification + Sessions (DONE)
@@ -80,17 +80,17 @@ User asks question
 ### Layer 3: Search Index (DONE)
 - FTS5 full-text search over all session content
 - Porter stemming + unicode support
-- Tested with real QW questions — retrieval quality is solid
+- Tested with real QW questions -- retrieval quality is solid
 - Script: `build-search-index.mjs` (runs in 10 seconds)
 
 ### Layer 4: LLM Summarization (NOT STARTED)
 - Per-session structured summaries via local LLM (Ollama + Llama 3.1 8B on 4090)
 - Output: topics, entities, sentiment, notable quotes, category
 - Needed for: Digest (Path 2) and Time Machine (Path 3)
-- NOT needed for Oracle Bot MVP — bot can work with raw sessions + search
+- NOT needed for Oracle Bot MVP -- bot can work with raw sessions + search
 
 ### Layer 5: Context Builder + Answer Generation (NEXT)
-- Takes user question + search results + docs → LLM prompt → answer
+- Takes user question + search results + docs -> LLM prompt -> answer
 - Needed for: Oracle Bot (Path 1)
 - Can use Claude API for quality or Ollama for cost
 - This is the next thing to build
@@ -117,23 +117,23 @@ ssh -L 11434:localhost:11434 xerial-server
 
 ## Key Decisions Made
 
-1. **SQLite over Postgres** — simple, single-file, fast enough for our scale
-2. **FTS5 over vector DB** — QW terminology is specific, text search works great
-3. **Node.js + .mjs** — consistent with existing codebase, no framework overhead
-4. **Session-level grouping** — not per-message, not per-day. Sessions are the natural unit
-5. **Classify, don't delete** — raw data immutable, processing layers tag and group
-6. **Local-first LLM** — use 4090 for bulk, cloud API for prompt development and quality
-7. **Oracle Bot first** — most value, doesn't need Tier 2 summaries to work
+1. **SQLite over Postgres** -- simple, single-file, fast enough for our scale
+2. **FTS5 over vector DB** -- QW terminology is specific, text search works great
+3. **Node.js + .mjs** -- consistent with existing codebase, no framework overhead
+4. **Session-level grouping** -- not per-message, not per-day. Sessions are the natural unit
+5. **Classify, don't delete** -- raw data immutable, processing layers tag and group
+6. **Local-first LLM** -- use 4090 for bulk, cloud API for prompt development and quality
+7. **Oracle Bot first** -- most value, doesn't need Tier 2 summaries to work
 
 ## Community Knowledge Experts
 
 These people's answers carry the most weight in the knowledge base:
-- **Spoike** — Author of FTE client, encyclopedic QW engine knowledge
-- **ciscon** — Extremely active in #helpdesk, deep Linux/hardware/networking expertise
-- **nano (soverynano)** — Deep engine internals, currently porting QW to Rust
-- **meag (meag.qw)** — ezQuake core developer
-- **tenacious_papaya (eb)** — MVDSV maintainer, ezQuake contributor
-- **rauvz** — Hardware/performance specialist, Linux focus
+- **Spoike** -- Author of FTE client, encyclopedic QW engine knowledge
+- **ciscon** -- Extremely active in #helpdesk, deep Linux/hardware/networking expertise
+- **nano (soverynano)** -- Deep engine internals, currently porting QW to Rust
+- **meag (meag.qw)** -- ezQuake core developer
+- **tenacious_papaya (eb)** -- MVDSV maintainer, ezQuake contributor
+- **rauvz** -- Hardware/performance specialist, Linux focus
 
 ## Project Structure
 
@@ -143,8 +143,8 @@ qw-oracle/
 ├── package.json                 # Node.js project (better-sqlite3)
 ├── scripts/
 │   ├── db.mjs                   # Schema: raw tables + processing + search
-│   ├── import-discord.mjs       # Import Discord JSON → SQLite
-│   ├── import-irc.mjs           # Import mIRC logs → SQLite
+│   ├── import-discord.mjs       # Import Discord JSON -> SQLite
+│   ├── import-irc.mjs           # Import mIRC logs -> SQLite
 │   ├── stats.mjs                # Raw database stats
 │   ├── process-tier1.mjs        # Tier 1: classify + session grouping
 │   ├── build-search-index.mjs   # Build FTS5 search index
@@ -162,8 +162,8 @@ qw-oracle/
 
 ## Next Steps
 
-1. **Build context builder** — format search results + docs into LLM prompt
-2. **Test answer generation** — use Claude API on sample questions, iterate on prompt
-3. **Set up Ollama on Xerial's server** — for cost-effective bulk/live inference
-4. **Discord bot integration** — hook into Quad bot as new module, or standalone
-5. **Feedback loop** — corrections table, trusted member weighting
+1. **Build context builder** -- format search results + docs into LLM prompt
+2. **Test answer generation** -- use Claude API on sample questions, iterate on prompt
+3. **Set up Ollama on Xerial's server** -- for cost-effective bulk/live inference
+4. **Discord bot integration** -- hook into Quad bot as new module, or standalone
+5. **Feedback loop** -- corrections table, trusted member weighting

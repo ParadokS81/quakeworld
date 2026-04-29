@@ -15,21 +15,21 @@
 ## File Structure
 
 **New:**
-- `src/lib/prettyRender.ts` — span-tree IR types, color-stack state machine, `buildSpanTree()` orchestrator, `$var` integration with simulator, `$X` char-code integration. Pure functions, no Solid imports.
-- `src/lib/charCodeTable.ts` — TS port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color` from `src-tauri/src/commands/ezquake.rs:432-523`. Static data + three pure lookup functions.
-- `src/lib/runtimeResolver.ts` — `LabelResolver` implementation. Re-exports the `RuntimeResolver` / `RuntimeResolution` types from `@/lib/simulator`.
-- `src/lib/prettyRender.test.ts`, `src/lib/charCodeTable.test.ts`, `src/lib/runtimeResolver.test.ts` — unit tests alongside each module.
+- `src/lib/prettyRender.ts` -- span-tree IR types, color-stack state machine, `buildSpanTree()` orchestrator, `$var` integration with simulator, `$X` char-code integration. Pure functions, no Solid imports.
+- `src/lib/charCodeTable.ts` -- TS port of `expand_dollar_code` + `qw_byte_to_char` + `qw_byte_color` from `src-tauri/src/commands/ezquake.rs:432-523`. Static data + three pure lookup functions.
+- `src/lib/runtimeResolver.ts` -- `LabelResolver` implementation. Re-exports the `RuntimeResolver` / `RuntimeResolution` types from `@/lib/simulator`.
+- `src/lib/prettyRender.test.ts`, `src/lib/charCodeTable.test.ts`, `src/lib/runtimeResolver.test.ts` -- unit tests alongside each module.
 
 **Modified:**
-- `src/components/AliasChainResolver.tsx` — adds `mode: "pretty" | "raw"` prop, per-row toggle, `resolver` prop, `playerState` signal reader, pretty render branch.
-- `src/components/ConfigSidebar.tsx` — adds global Pretty/Raw default toggle + (tier 2) Label/Simulator mode toggle in the options block.
-- `src/components/ConfigViewer.tsx` — reads new prefs, threads them to `ConfigSidebar` + `AliasChainView` call sites.
-- `src/store.ts` — extends `ProfilePrefs` with `alias_chain_mode` (tier 1) and `alias_chain_resolver` (tier 2) defaults.
-- `src/app.css` — new `sg-span-*` classes, `qw-default` color helper.
+- `src/components/AliasChainResolver.tsx` -- adds `mode: "pretty" | "raw"` prop, per-row toggle, `resolver` prop, `playerState` signal reader, pretty render branch.
+- `src/components/ConfigSidebar.tsx` -- adds global Pretty/Raw default toggle + (tier 2) Label/Simulator mode toggle in the options block.
+- `src/components/ConfigViewer.tsx` -- reads new prefs, threads them to `ConfigSidebar` + `AliasChainView` call sites.
+- `src/store.ts` -- extends `ProfilePrefs` with `alias_chain_mode` (tier 1) and `alias_chain_resolver` (tier 2) defaults.
+- `src/app.css` -- new `sg-span-*` classes, `qw-default` color helper.
 
 ---
 
-## Tier 1 — Foundation
+## Tier 1 -- Foundation
 
 ### Task 1: Port `$X` single-char code table to TypeScript
 
@@ -527,7 +527,7 @@ Concretely, after the existing `{`/`}`/`&r`/`&cRGB` branches and before the `buf
     }
 ```
 
-Refactor the main loop into `runParser(input, stack, ctx, originOverride?, rawTokenOverride?)` that returns the spans it produces and mutates `stack` in place for enclosing callers. The issues array also needs to be accumulated across the recursion — hoist it to closure scope:
+Refactor the main loop into `runParser(input, stack, ctx, originOverride?, rawTokenOverride?)` that returns the spans it produces and mutates `stack` in place for enclosing callers. The issues array also needs to be accumulated across the recursion -- hoist it to closure scope:
 
 ```ts
 export function buildSpanTree(input: string, ctx: BuildContext): BuildResult {
@@ -829,7 +829,7 @@ describe("fixture: hangtime.cfg sample alias body", () => {
 - [ ] **Step 2: Run test to verify it passes or identify real fixture-driven bugs**
 
 Run: `cd apps/slipgate-app && bun test src/lib/prettyRender.fixtures.test.ts`
-Expected: All tests pass. If the text includes stray `{` or `&c`, the parser has a bug — fix in `prettyRender.ts` before committing. Re-run until all four pass.
+Expected: All tests pass. If the text includes stray `{` or `&c`, the parser has a bug -- fix in `prettyRender.ts` before committing. Re-run until all four pass.
 
 - [ ] **Step 3: Commit**
 
@@ -883,7 +883,7 @@ At the top of the file where CSS variables are declared, add `--sg-qw-default: #
 
 - [ ] **Step 2: Visual spot check**
 
-Run: `cd apps/slipgate-app && bun run dev` (in a Windows terminal — WSL cannot run the Tauri app) or preview the CSS in the browser dev tools. Verify the new classes exist in the compiled CSS without errors.
+Run: `cd apps/slipgate-app && bun run dev` (in a Windows terminal -- WSL cannot run the Tauri app) or preview the CSS in the browser dev tools. Verify the new classes exist in the compiled CSS without errors.
 
 - [ ] **Step 3: Commit**
 
@@ -914,7 +914,7 @@ In `DEFAULT_PREFS` (around line 141) add:
   alias_chain_mode: "pretty",
 ```
 
-Migration is covered by the existing `{ ...DEFAULT_PREFS, ...data.prefs, ... }` spread at line 254 — new field inherits its default automatically for older profiles.
+Migration is covered by the existing `{ ...DEFAULT_PREFS, ...data.prefs, ... }` spread at line 254 -- new field inherits its default automatically for older profiles.
 
 - [ ] **Step 2: Verify no TS errors**
 
@@ -1099,11 +1099,11 @@ Near the existing `hideDefaults` signal (around line 106):
   });
 ```
 
-If `updatePrefs` does not already exist in the store, add a simple setter — check `store.ts` for existing patterns (there will be `savePrefs` or similar).
+If `updatePrefs` does not already exist in the store, add a simple setter -- check `store.ts` for existing patterns (there will be `savePrefs` or similar).
 
-Pass `aliasChainMode()` + `setAliasChainMode` to `ConfigSidebar` via the new prop pair. Then at each `AliasChainView` call site in this file (grep for `AliasChainView` in the component tree — likely inside `ConfigDomainBinds.tsx` and friends), thread `mode={aliasChainMode()}` down the prop chain.
+Pass `aliasChainMode()` + `setAliasChainMode` to `ConfigSidebar` via the new prop pair. Then at each `AliasChainView` call site in this file (grep for `AliasChainView` in the component tree -- likely inside `ConfigDomainBinds.tsx` and friends), thread `mode={aliasChainMode()}` down the prop chain.
 
-For tier 1, only the top-level `AliasChainView` consumer needs the prop; other files can accept the prop via context or prop-drilling — whichever pattern exists for `hideDefaults` works here too.
+For tier 1, only the top-level `AliasChainView` consumer needs the prop; other files can accept the prop via context or prop-drilling -- whichever pattern exists for `hideDefaults` works here too.
 
 - [ ] **Step 3: Verify dev build**
 
@@ -1125,7 +1125,7 @@ git commit -m "feat(slipgate): Pretty/Raw alias chain toggle wired from Sidebar 
 
 ---
 
-## Tier 2 — Resolvers (LabelResolver + SimulatorResolver + mode toggle)
+## Tier 2 -- Resolvers (LabelResolver + SimulatorResolver + mode toggle)
 
 ### Task 11: `LabelResolver` implementation + tests
 
@@ -1423,7 +1423,7 @@ const resolver = createMemo(() => {
 const playerState = () => profileStore.profile.prefs.simulator.currentState;
 ```
 
-Add a small helper `mapifyCvars(list: CvarEntry[]): Map<string,string>` if the enrichedCvars shape is not already a Map — check the shape in-file.
+Add a small helper `mapifyCvars(list: CvarEntry[]): Map<string,string>` if the enrichedCvars shape is not already a Map -- check the shape in-file.
 
 Pass to `ConfigSidebar`:
 
@@ -1495,7 +1495,7 @@ git commit -m "style(slipgate): sg-span-runtime italic + underline"
 
 ---
 
-## Tier 3 — Active-branch highlighting
+## Tier 3 -- Active-branch highlighting
 
 ### Task 15: Call `evaluateTeamsay` per expanded chain in Simulator mode
 
@@ -1529,7 +1529,7 @@ This precomputes the trace once per render cycle and makes it available to the p
 
 - [ ] **Step 3: Expose trace to `PrettyCmd`**
 
-Add `trace?: TraceStep[]` to `PrettyCmd` props. At each `<PrettyCmd .../>` call site, pass `trace={trace()}`. The consumer does not yet act on it — next task does.
+Add `trace?: TraceStep[]` to `PrettyCmd` props. At each `<PrettyCmd .../>` call site, pass `trace={trace()}`. The consumer does not yet act on it -- next task does.
 
 - [ ] **Step 4: TS-check**
 
@@ -1587,7 +1587,7 @@ In `runParser`, wrap each segment walk in a lightweight if/then/else aware split
 - Render the condition via the existing stage 2/3/4 pipeline.
 - Render `BODY_T` and `BODY_E` via the pipeline. If `ctx.activeBranches` has an entry for this condition's trimmed text, flag spans in the inactive branch with `branchInactive: true`.
 
-For tier 3, scope the conditional handling to **top-level if/then/else only** — nested if inside an alias body renders normally (the evaluator still produces trace entries for nested ifs; tier 3.1 can refine). Add a helper:
+For tier 3, scope the conditional handling to **top-level if/then/else only** -- nested if inside an alias body renders normally (the evaluator still produces trace entries for nested ifs; tier 3.1 can refine). Add a helper:
 
 ```ts
 interface IfSplit {
@@ -1741,20 +1741,20 @@ git commit -m "style(slipgate): dim inactive if/then/else branches + issues in t
 
 Run before handing off:
 
-1. **Spec coverage** — scan each section of the spec:
-   - §3.1 span tree IR: Task 2.
-   - §3.2 color stack: Task 3.
-   - §3.3 stage 1 (colors): Task 3.
-   - §3.3 stage 2 ($var via expandVars): Task 4.
-   - §3.3 stage 3 (%token via resolver): Task 12.
-   - §3.3 stage 4 ($X char codes): Task 5.
-   - §3.5 RuntimeResolver interface + LabelResolver + SimulatorResolver: Tasks 2, 11, 13.
-   - §4 scope + corner cases: covered by Tasks 3-5 + Task 6 fixture tests.
-   - §5 UX toggle + hover + visuals: Tasks 7, 10, 13, 14, 17.
-   - §6 Tier 1: Tasks 1-10. Tier 2: Tasks 11-14. Tier 3: Tasks 15-17.
-   - §7 touch points: all files enumerated.
-   - §8 testing: unit tests per task, fixture test in Task 6.
+1. **Spec coverage** -- scan each section of the spec:
+   - Section 3.1 span tree IR: Task 2.
+   - Section 3.2 color stack: Task 3.
+   - Section 3.3 stage 1 (colors): Task 3.
+   - Section 3.3 stage 2 ($var via expandVars): Task 4.
+   - Section 3.3 stage 3 (%token via resolver): Task 12.
+   - Section 3.3 stage 4 ($X char codes): Task 5.
+   - Section 3.5 RuntimeResolver interface + LabelResolver + SimulatorResolver: Tasks 2, 11, 13.
+   - Section 4 scope + corner cases: covered by Tasks 3-5 + Task 6 fixture tests.
+   - Section 5 UX toggle + hover + visuals: Tasks 7, 10, 13, 14, 17.
+   - Section 6 Tier 1: Tasks 1-10. Tier 2: Tasks 11-14. Tier 3: Tasks 15-17.
+   - Section 7 touch points: all files enumerated.
+   - Section 8 testing: unit tests per task, fixture test in Task 6.
 
-2. **Placeholder scan** — no TBDs, no "implement later". All tasks contain exact file paths and runnable code or exact diff locations.
+2. **Placeholder scan** -- no TBDs, no "implement later". All tasks contain exact file paths and runnable code or exact diff locations.
 
-3. **Type consistency** — `PrettySpan`, `SpanColor`, `SpanOrigin`, `BuildContext`, `BuildResult`, `RuntimeResolver`, `RuntimeResolution` used consistently across tasks. `buildSpanTree(input, ctx)` signature stable.
+3. **Type consistency** -- `PrettySpan`, `SpanColor`, `SpanOrigin`, `BuildContext`, `BuildResult`, `RuntimeResolver`, `RuntimeResolution` used consistently across tasks. `buildSpanTree(input, ctx)` signature stable.

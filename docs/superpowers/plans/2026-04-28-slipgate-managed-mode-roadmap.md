@@ -1,10 +1,10 @@
-# Slipgate Managed Mode — Arc Roadmap
+# Slipgate Managed Mode -- Arc Roadmap
 
 > **Captured 2026-04-28** as the project-level plan for the Managed Mode arc. Companion to:
 > - Vision: `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`
 > - Architecture: `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-architecture.md`
 >
-> **Reading order:** Vision (why) → Architecture (how) → Roadmap (when, this doc).
+> **Reading order:** Vision (why) -> Architecture (how) -> Roadmap (when, this doc).
 >
 > **Project framing:** This is a project, not a feature. Multi-arc work scoped at ~1 week of focused implementation per operator estimate (calibrated against Phase 3.5b's pace). Each arc gets its own brainstorm + spec + plan; this document captures the dependency graph, v1 scope, status, and per-arc summaries.
 
@@ -17,8 +17,8 @@
 
 > **Brainstorm progress:**
 > - **Pass 1 (substrate and storage): COMPLETE 2026-04-28.** Six sub-questions ratified and drained into architecture spec body. Decisions: SHA-only unified blob store with two-char fanout (`<data-root>/blobs/<sha[:2]>/<sha>.bin`); per-blob sidecar metadata (`<sha>.meta.json`); refcount index for GC; pure refactor of `version_warehouse.rs` into generic `content_warehouse.rs` with one-shot data migration; single-process invariant via Tauri single-instance plugin + `<data-root>/.lock` lockfile + single global async mutex; manifest-as-truth GC with tree-consistency-at-rematerialization; lossless-export pledge tests 1+2 in CI from Arc A/B, test 3 from Arc F. Bonus: export-anything-in-any-format primitive generalization, active-vs-launched profile distinction, manifest backup as first-class UX.
-> - **Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention): COMPLETE 2026-04-28.** Five sub-passes ratified and drained into architecture spec body. Decisions: manifest schema (id/name separation, schema_version, canonical-JSON SHA, atomic write + corruption recovery via creation-backup + history + tree-rebuild), entry shape (required sha256/target_path/role; optional size/added_via; registry-based role taxonomy refreshable from catalog; cross-platform path rules; reject duplicate target_paths at write; selectable_subsets dropped from V1; engine_compatibility field dropped — runtime per-cvar warnings from Layer 1 instead), declared_gamedirs (ordered list, first = primary, picker only when 2+; KTX correction — KTX is server-side, runs in qw/), atomic materialization (build-new-and-swap via temp tree + atomic rename, trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern), history retention (living-file-vs-immutable-artifact principle, 500 auto-versions/config, 10 snapshots/asset, checkpoints exempt from prune, two save paths external-watcher-debounce vs internal-save-button, full-manifest storage). Surfaced for Pass 3+: configs-as-living-files vs assets-as-immutable-artifacts (now a principle); seventh bucket candidate `user-library` for shared base content (maps, locs); slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables — asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, classifier heuristics, Layer 1 data); manifest-unfiltered-publish + import-time-filtering principle.
-> - **Pass 3 (classifier + bucket taxonomy refinements): NOT YET STARTED.** Originally scoped as "classifier + sixth bucket (user-private)." Pass 2 expanded scope: also resolves seventh-bucket boundary (user-library for shared base content; what materialization shape — auto-include-in-every-manifest, separate shared library, or inherit-from-base); configs-vs-art-as-assets distinction (authorship/credit/license metadata divergence); first concrete cut at the slipgate self-knowledge surface (which knowledge tables are V1 vs later); refined classifier rules for Arc D migration (maps/locs land in user-library, not user-asset).
+> - **Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention): COMPLETE 2026-04-28.** Five sub-passes ratified and drained into architecture spec body. Decisions: manifest schema (id/name separation, schema_version, canonical-JSON SHA, atomic write + corruption recovery via creation-backup + history + tree-rebuild), entry shape (required sha256/target_path/role; optional size/added_via; registry-based role taxonomy refreshable from catalog; cross-platform path rules; reject duplicate target_paths at write; selectable_subsets dropped from V1; engine_compatibility field dropped -- runtime per-cvar warnings from Layer 1 instead), declared_gamedirs (ordered list, first = primary, picker only when 2+; KTX correction -- KTX is server-side, runs in qw/), atomic materialization (build-new-and-swap via temp tree + atomic rename, trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern), history retention (living-file-vs-immutable-artifact principle, 500 auto-versions/config, 10 snapshots/asset, checkpoints exempt from prune, two save paths external-watcher-debounce vs internal-save-button, full-manifest storage). Surfaced for Pass 3+: configs-as-living-files vs assets-as-immutable-artifacts (now a principle); seventh bucket candidate `user-library` for shared base content (maps, locs); slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables -- asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, classifier heuristics, Layer 1 data); manifest-unfiltered-publish + import-time-filtering principle.
+> - **Pass 3 (classifier + bucket taxonomy refinements): NOT YET STARTED.** Originally scoped as "classifier + sixth bucket (user-private)." Pass 2 expanded scope: also resolves seventh-bucket boundary (user-library for shared base content; what materialization shape -- auto-include-in-every-manifest, separate shared library, or inherit-from-base); configs-vs-art-as-assets distinction (authorship/credit/license metadata divergence); first concrete cut at the slipgate self-knowledge surface (which knowledge tables are V1 vs later); refined classifier rules for Arc D migration (maps/locs land in user-library, not user-asset).
 > - **Passes 4-6 deferred** to later sessions: watcher contract (E / Pass 4), cloud catalog data shape (H / Pass 6), launch UX + runtime swap classes (C / Pass 5).
 
 ---
@@ -44,7 +44,7 @@ V1+ post-launch:
 
 V1 = a user can install slipgate, opt into Managed mode, run migration on their existing dir, end up with a working slipgate-managed install + bundled showcase profile, switch between profiles, edit configs (auto-warehoused). End-to-end demonstrable.
 
-V1+ adds the IDE-shaped editing experience, profile browsing/diffing/forking, and cloud catalog — the social and UX-polish layer.
+V1+ adds the IDE-shaped editing experience, profile browsing/diffing/forking, and cloud catalog -- the social and UX-polish layer.
 
 ---
 
@@ -77,9 +77,9 @@ V1+ adds the IDE-shaped editing experience, profile browsing/diffing/forking, an
 ```
 
 **Hard dependencies:**
-- A → everything (foundation)
-- B → C, D, F, G, H (manifest + materializer is the universal substrate)
-- D ↔ E (share classifier; co-designed)
+- A -> everything (foundation)
+- B -> C, D, F, G, H (manifest + materializer is the universal substrate)
+- D <-> E (share classifier; co-designed)
 
 **Co-developable:**
 - A and B brainstorm together (substrate design pass)
@@ -118,11 +118,11 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 ---
 
-### Arc A — Asset warehouse substrate
+### Arc A -- Asset warehouse substrate
 
 **Status:** Not started. First arc to brainstorm.
 
-**Scope:** Generalize Phase 3.5b's binary warehouse pattern to assets. New parallel root `<data-root>/assets/` (or unified `<data-root>/blobs/` shared with binaries — open question, see architecture spec). Same primitives: SHA256 keying, content-addressed storage, register/list/delete. Asset-classification metadata stored alongside the blob (optional `<data-root>/assets/by-category/` indexes).
+**Scope:** Generalize Phase 3.5b's binary warehouse pattern to assets. New parallel root `<data-root>/assets/` (or unified `<data-root>/blobs/` shared with binaries -- open question, see architecture spec). Same primitives: SHA256 keying, content-addressed storage, register/list/delete. Asset-classification metadata stored alongside the blob (optional `<data-root>/assets/by-category/` indexes).
 
 **Key design decisions from this session:**
 - Content-addressed storage is the universal primitive (D6+D10 generalized: any content type)
@@ -135,7 +135,7 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 ---
 
-### Arc B — Profile manifest + materializer
+### Arc B -- Profile manifest + materializer
 
 **Status:** Not started.
 
@@ -147,16 +147,16 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 - Atomic materialization (Pass 2.4): build-new-and-swap (temp tree + atomic rename), trust-existing-tree fast path, watcher self-skip via hash, UI busy-state pattern as primary serializer
 - Tree path: `<data-root>/profiles/<uuid>/tree/`
 - Active profile: `<data-root>/active-profile.json` pointer (uuid, mutable name separately tracked in manifest)
-- Profile manifests retained as historical chain under `manifest-history/<timestamp>-<sha>.json` (full manifests, no deltas) — drives Arc G
+- Profile manifests retained as historical chain under `manifest-history/<timestamp>-<sha>.json` (full manifests, no deltas) -- drives Arc G
 - Registry-based role taxonomy refreshable from catalog (no hardcoded enum)
 
 **Implementation cost estimate:** 4-6 days. The materializer's atomic-swap + trust-existing-tree logic + UI busy-state plumbing is the meaty part. Manifest CRUD + validation + corruption recovery is straightforward but needs the migration-registry framing.
 
-**No open questions remaining for this arc** — Pass 2 ratified the manifest schema, atomic materialization semantics, and history retention. Implementation can proceed when sequenced.
+**No open questions remaining for this arc** -- Pass 2 ratified the manifest schema, atomic materialization semantics, and history retention. Implementation can proceed when sequenced.
 
 ---
 
-### Arc C — Profile UI (split: C-minimal + C-full)
+### Arc C -- Profile UI (split: C-minimal + C-full)
 
 **Status:** Not started.
 
@@ -165,7 +165,7 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 **C-minimal (V1):**
 - Profiles tab in MyQuake (sibling Domain to Clients/Configs/etc.)
 - List of profiles with active marker
-- Create profile button (basic — fork from active OR import from elsewhere)
+- Create profile button (basic -- fork from active OR import from elsewhere)
 - Switch profile button (with active-process check, like swap_active_version)
 - Delete profile button
 - Active profile display in Status bar / app chrome
@@ -179,7 +179,7 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 **Key design decisions from this session:**
 - The Versions tab pattern from Phase 3.5b (action grammar: Switch / Delete / Add / Edit) extends naturally
-- "Browse the quake dir is browsing an abstraction" — UI shows profile contents semantically, not as a filesystem dump
+- "Browse the quake dir is browsing an abstraction" -- UI shows profile contents semantically, not as a filesystem dump
 - Side-by-side compare extends ConfigViewer's diff UX one layer up
 
 **Implementation cost estimate:**
@@ -188,7 +188,7 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 ---
 
-### Arc D — Migration on-ramp + clean-room extractor + config sanitization
+### Arc D -- Migration on-ramp + clean-room extractor + config sanitization
 
 **Status:** Not started. Co-design with Arc E.
 
@@ -206,9 +206,9 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 - Active-config-aware: only extract assets the user's chain actually loads at runtime (with conditional/alias-reachable as user-tickable)
 - Pre-extraction overview is non-negotiable
 - Config rewrite shows a diff to user; per-line accept/decline
-- Stock pak verification against catalog SHA list (refuse if no match — copyright safety)
+- Stock pak verification against catalog SHA list (refuse if no match -- copyright safety)
 
-**Implementation cost estimate:** 1 week+ (the largest single arc — the classifier work is meaty; the UI for pre-extraction overview is rich)
+**Implementation cost estimate:** 1 week+ (the largest single arc -- the classifier work is meaty; the UI for pre-extraction overview is rich)
 
 **What's reusable:**
 - Config-chain parser (existing in slipgate)
@@ -223,22 +223,22 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 ---
 
-### Arc E — Filesystem watcher + classifier + mod-fingerprint registry
+### Arc E -- Filesystem watcher + classifier + mod-fingerprint registry
 
 **Status:** Not started. Co-design with Arc D.
 
 **Scope:** Background filesystem watcher on the active profile's tree. Four-case dispatch:
-1. Engine-runtime allowlist match → ignore
-2. Tracked file changed → register-new-blob, update manifest, rematerialize
-3. Untracked new file → run classifier → quarantine OR prompt
-4. Tracked file deleted → prompt user
+1. Engine-runtime allowlist match -> ignore
+2. Tracked file changed -> register-new-blob, update manifest, rematerialize
+3. Untracked new file -> run classifier -> quarantine OR prompt
+4. Tracked file deleted -> prompt user
 
 Plus the classifier (shared with Arc D). Plus mod-fingerprint registry (community-curated, slipgate-bundled with optional cloud refresh).
 
 **Key design decisions from this session:**
 - Watcher has 10-second debouncing (coalesce save-bursts into single manifest version)
-- Engine-runtime allowlist per-engine (ezQuake / FTE / etc. — prevent infinite manifest churn)
-- Mod fingerprints classify per-mod cache → quarantined under `mod-cache/<mod>/`
+- Engine-runtime allowlist per-engine (ezQuake / FTE / etc. -- prevent infinite manifest churn)
+- Mod fingerprints classify per-mod cache -> quarantined under `mod-cache/<mod>/`
 - Demos auto-routed to `user-content/demos/` by source (recorded vs server-downloaded) and profile
 - Foreground-only for V1 (slipgate must be open). Background service is post-V1.
 
@@ -255,7 +255,7 @@ Plus the classifier (shared with Arc D). Plus mod-fingerprint registry (communit
 
 ---
 
-### Arc F — Lossless export
+### Arc F -- Lossless export
 
 **Status:** Not started. Small.
 
@@ -263,13 +263,13 @@ Plus the classifier (shared with Arc D). Plus mod-fingerprint registry (communit
 
 **Key design decisions from this session:**
 - `copy_only` mode is mandatory (hardlinks would break on slipgate uninstall)
-- Lossless export is a load-bearing product property — protect by automated tests that verify the export tree boots an engine without slipgate present
+- Lossless export is a load-bearing product property -- protect by automated tests that verify the export tree boots an engine without slipgate present
 
 **Implementation cost estimate:** 1-2 days (mostly UI + tests, since `materialize` already supports `copy_only`).
 
 ---
 
-### Arc G — Version history (per-config IDE-shaped restore)
+### Arc G -- Version history (per-config IDE-shaped restore)
 
 **Status:** Not started. Small.
 
@@ -286,7 +286,7 @@ Plus the classifier (shared with Arc D). Plus mod-fingerprint registry (communit
 
 ---
 
-### Arc H — Cloud catalog hookup
+### Arc H -- Cloud catalog hookup
 
 **Status:** Not started. Last arc; depends on everything else.
 
@@ -337,8 +337,8 @@ These were previously on the Phase 3.5b/4 backlog. The Managed Mode pivot supers
 
 | Backlog item | Disposition under Managed Mode |
 |---|---|
-| **Phase 4/5 — diff viewer between warehoused binary versions** | DEFERRED. Returns as profile-vs-profile diff in Arc C-full (better surface). |
-| **Retired cvars / stale-warning UX** | DEFERRED. May resurface as part of config history (Arc G) — show users which cvars they've set that are no longer valid in their current engine version. |
+| **Phase 4/5 -- diff viewer between warehoused binary versions** | DEFERRED. Returns as profile-vs-profile diff in Arc C-full (better surface). |
+| **Retired cvars / stale-warning UX** | DEFERRED. May resurface as part of config history (Arc G) -- show users which cvars they've set that are no longer valid in their current engine version. |
 | **Cross-engine alias scaffolding (sub-threads #4 + #5)** | DEFERRED. Possibly relevant to ARC-D's config sanitization (cross-engine config translation). Re-evaluate during Arc D brainstorm. |
 | **HTML dashboard (shelved)** | Stays shelved. |
 | **Workstream B/C, sub-pattern 2b** | Deferred indefinitely; may be irrelevant under new framing. |
@@ -357,9 +357,9 @@ These were previously on the Phase 3.5b/4 backlog. The Managed Mode pivot supers
 
 | Item | Status |
 |---|---|
-| Vision spec | ✅ Drafted |
-| Architecture spec | ✅ Drafted |
-| Roadmap (this doc) | ✅ Drafted |
+| Vision spec | [OK] Drafted |
+| Architecture spec | [OK] Drafted |
+| Roadmap (this doc) | [OK] Drafted |
 | TAIL-1: FTE asset bundle wiring | ⏳ Pending |
 | Arc A: Asset warehouse substrate | ⏳ Not started; next brainstorm |
 | Arc B: Profile manifest + materializer | ⏳ Not started; co-brainstorm with A |
@@ -375,7 +375,7 @@ These were previously on the Phase 3.5b/4 backlog. The Managed Mode pivot supers
 
 ## Recommended next-session sequence
 
-1. **Wrap TAIL-1** (FTE asset bundle wiring) — half-day to one day. Closes the Phase 3.5b arc cleanly and unblocks Arc D's FTE classifier.
+1. **Wrap TAIL-1** (FTE asset bundle wiring) -- half-day to one day. Closes the Phase 3.5b arc cleanly and unblocks Arc D's FTE classifier.
 
 2. **Brainstorm Arc A + Arc B together** as one design session. They're tightly coupled (asset warehouse and profile manifest share the materializer primitive). Output: spec docs for both, ratification of open questions (blob store unification, manifest format, retention policy defaults).
 
@@ -411,7 +411,7 @@ The pace of Phase 3.5b suggests the operator's estimate is plausible. Phase 3.5b
 
 ## Provenance
 
-This roadmap was drafted in the same design conversation as the vision and architecture specs, on 2026-04-28. It captures the dependency analysis, V1/V1+ split, and arc summaries that emerged during the conversation. Open questions per arc are intentionally NOT resolved here — they're the work of the per-arc brainstorming sessions.
+This roadmap was drafted in the same design conversation as the vision and architecture specs, on 2026-04-28. It captures the dependency analysis, V1/V1+ split, and arc summaries that emerged during the conversation. Open questions per arc are intentionally NOT resolved here -- they're the work of the per-arc brainstorming sessions.
 
 Operator confirmed the pivot from Phase 4/5 (binary diff viewer) to Managed Mode in this session. Phase 3.5b's binary management remains valid as Light-mode functionality; nothing shipped is wasted.
 
@@ -424,5 +424,5 @@ Operator confirmed the pivot from Phase 4/5 (binary diff viewer) to Managed Mode
 - **Phase 3.5b plan (parent):** `docs/superpowers/plans/2026-04-26-add-quake-client.md`
 - **Phase 3.5a plan (parent):** `docs/superpowers/plans/2026-04-27-clients-as-myquake-domain.md`
 - **Quake Dir Control multi-phase plan:** `docs/superpowers/plans/2026-04-26-quake-dir-control.md`
-- **HANDOVER:** `HANDOVER.md` — open follow-up items, including TAIL-1 (FTE asset bundle wiring)
-- **Memory: tier ladder framing:** `project_slipgate_tier_ladder.md` — the four-tier intuition that the two-mode framing now distills
+- **HANDOVER:** `HANDOVER.md` -- open follow-up items, including TAIL-1 (FTE asset bundle wiring)
+- **Memory: tier ladder framing:** `project_slipgate_tier_ladder.md` -- the four-tier intuition that the two-mode framing now distills

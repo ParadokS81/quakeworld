@@ -5,7 +5,7 @@
 - **Slice ID:** 4.3.3
 - **Name:** Avatar Manager
 - **User Story:** As a user, I can customize my avatar by choosing between Custom upload, Discord avatar, Google avatar, Default placeholder, or Initials so that my visual identity matches my preference
-- **Success Criteria:** User clicks avatar in Edit Profile modal → sees current avatar with source options → can select different source or upload custom → avatar updates across all grid displays
+- **Success Criteria:** User clicks avatar in Edit Profile modal -> sees current avatar with source options -> can select different source or upload custom -> avatar updates across all grid displays
 
 ---
 
@@ -39,9 +39,9 @@ IGNORED SECTIONS (for this slice):
   - Show current avatar with visual indicator of source (Custom/Discord/Google/Default/Initials)
   - "Change Avatar" button that opens AvatarManager UI inline or modal
 - User actions:
-  - Click avatar area → Expands avatar source selector
-  - Select source → Updates preview and stores preference
-  - Upload custom → Opens cropper flow
+  - Click avatar area -> Expands avatar source selector
+  - Select source -> Updates preview and stores preference
+  - Upload custom -> Opens cropper flow
 
 **AvatarManager (NEW - inline component within ProfileModal)**
 - Firebase listeners: None (transient, part of modal)
@@ -52,21 +52,21 @@ IGNORED SECTIONS (for this slice):
   - Upload button for custom avatar (opens Cropper flow)
   - Visual disable of unavailable sources (e.g., Discord greyed out if not linked)
 - User actions:
-  - Select source → Updates local state and preview
-  - Click Upload → File picker → Cropper.js → Upload to Storage
+  - Select source -> Updates local state and preview
+  - Click Upload -> File picker -> Cropper.js -> Upload to Storage
   - Save button on ProfileModal persists the avatarSource preference
 
 ### FRONTEND SERVICES
 
 **AvatarUploadService (NEW)**
 - Methods:
-  - `uploadAvatar(userId, croppedBlob, onProgress)` → Firebase Storage upload
+  - `uploadAvatar(userId, croppedBlob, onProgress)` -> Firebase Storage upload
   - Similar to LogoUploadService but user-scoped path
   - Path: `avatar-uploads/{userId}/avatar_{timestamp}.png`
 
 **AuthService (MODIFY)**
 - Methods:
-  - `updateProfile(profileData)` → Add `avatarSource` and `customAvatarUrl` fields
+  - `updateProfile(profileData)` -> Add `avatarSource` and `customAvatarUrl` fields
   - Handles avatar preference persistence
 
 ### BACKEND REQUIREMENTS
@@ -129,7 +129,7 @@ match /user-avatars/{userId}/{fileName} {
 
 ### INTEGRATION POINTS
 
-**Frontend → Backend:**
+**Frontend -> Backend:**
 - Storage upload to `avatar-uploads/{userId}/avatar_{timestamp}.png`
 - NOT a Cloud Function call - direct Storage SDK upload
 - Cloud Function triggers automatically on file creation
@@ -140,11 +140,11 @@ match /user-avatars/{userId}/{fileName} {
 - Grid displays use PlayerDisplayService which reads from cache
 
 **Avatar URL Resolution (Priority Order):**
-1. If `avatarSource === 'custom'` → Use `customAvatarUrl`
-2. If `avatarSource === 'discord'` → Construct Discord CDN URL from `discordAvatarHash`
-3. If `avatarSource === 'google'` → Use original Google Auth `photoURL`
-4. If `avatarSource === 'default'` → Use `/img/default-avatar.png`
-5. If `avatarSource === 'initials'` → Return null (grid falls back to initials)
+1. If `avatarSource === 'custom'` -> Use `customAvatarUrl`
+2. If `avatarSource === 'discord'` -> Construct Discord CDN URL from `discordAvatarHash`
+3. If `avatarSource === 'google'` -> Use original Google Auth `photoURL`
+4. If `avatarSource === 'default'` -> Use `/img/default-avatar.png`
+5. If `avatarSource === 'initials'` -> Return null (grid falls back to initials)
 
 ---
 
@@ -620,21 +620,21 @@ USER ACTION FLOW:
 ════════════════════════════════════════════════════════════════════════════════
 
 1. OPEN PROFILE MODAL
-   Click profile → ProfileModal.show() → _renderAvatarSection()
-   → Shows current avatar with source indicator
+   Click profile -> ProfileModal.show() -> _renderAvatarSection()
+   -> Shows current avatar with source indicator
 
 2. CHANGE AVATAR SOURCE (non-upload)
-   Click source button → _handleAvatarSourceChange(source)
-   → Update hidden input → Update preview → On Save → AuthService.updateProfile()
-   → Firestore updates photoURL → Listeners update grid displays
+   Click source button -> _handleAvatarSourceChange(source)
+   -> Update hidden input -> Update preview -> On Save -> AuthService.updateProfile()
+   -> Firestore updates photoURL -> Listeners update grid displays
 
 3. UPLOAD CUSTOM AVATAR
-   Click "Upload custom" → AvatarUploadModal.show()
-   → File picker → Cropper.js → _handleUpload()
-   → AvatarUploadService.uploadAvatar() → Firebase Storage (avatar-uploads/)
-   → Cloud Function triggers → Process & resize → Upload to user-avatars/
-   → Update Firestore (customAvatarUrl, photoURL) → Modal closes
-   → ProfileModal preview updates with temp URL → On Save → Final sync
+   Click "Upload custom" -> AvatarUploadModal.show()
+   -> File picker -> Cropper.js -> _handleUpload()
+   -> AvatarUploadService.uploadAvatar() -> Firebase Storage (avatar-uploads/)
+   -> Cloud Function triggers -> Process & resize -> Upload to user-avatars/
+   -> Update Firestore (customAvatarUrl, photoURL) -> Modal closes
+   -> ProfileModal preview updates with temp URL -> On Save -> Final sync
 
 ════════════════════════════════════════════════════════════════════════════════
 
@@ -711,18 +711,18 @@ BACKEND TESTS:
 - [ ] Temporary files are cleaned up
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Upload completes → Firestore updates → Profile shows new avatar
-- [ ] Non-owner upload attempts → Ignored (no error, just no update)
-- [ ] Network failure during upload → Error message → Can retry
-- [ ] Source change → Save profile → Grid displays update
-- [ ] Discord avatar selected → Correct CDN URL constructed
-- [ ] Google avatar selected → Original Google photo URL used
-- [ ] Initials selected → photoURL cleared → Grid shows initials
+- [ ] Upload completes -> Firestore updates -> Profile shows new avatar
+- [ ] Non-owner upload attempts -> Ignored (no error, just no update)
+- [ ] Network failure during upload -> Error message -> Can retry
+- [ ] Source change -> Save profile -> Grid displays update
+- [ ] Discord avatar selected -> Correct CDN URL constructed
+- [ ] Google avatar selected -> Original Google photo URL used
+- [ ] Initials selected -> photoURL cleared -> Grid shows initials
 
 END-TO-END TESTS:
-- [ ] User opens profile → changes source to Discord → saves → grid shows Discord avatar
-- [ ] User opens profile → uploads custom → saves → grid shows custom avatar
-- [ ] User opens profile → selects initials → saves → grid shows initials
+- [ ] User opens profile -> changes source to Discord -> saves -> grid shows Discord avatar
+- [ ] User opens profile -> uploads custom -> saves -> grid shows custom avatar
+- [ ] User opens profile -> selects initials -> saves -> grid shows initials
 - [ ] Avatar persists after page refresh
 - [ ] Avatar selection survives logout/login
 ```
@@ -853,7 +853,7 @@ customAvatarUrl: string | null;  // URL to custom uploaded avatar (128px)
 - [x] Hot paths are clearly identified (source toggle is instant)
 - [x] Test scenarios cover full stack
 - [x] No anti-patterns present
-- [x] Data flow is complete (UI → Storage → CF → Firestore → Grid)
+- [x] Data flow is complete (UI -> Storage -> CF -> Firestore -> Grid)
 - [x] Integration examples show actual code
 - [x] Error handling specified for all operations
 - [x] Loading states defined for backend calls

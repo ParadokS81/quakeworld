@@ -6,7 +6,7 @@
 
 **Architecture:** All work extends `packages/qw-config/scripts/extract-ezquake-asset-loader-sites-clang.py` and its downstream bundle assembly in `apps/qw-oracle/scripts/load-knowledge/build-asset-bundle.ts`. New extractor fields travel through the bundle for downstream consumers (slipgate, MCP) but do not change `asset_loader_sites` DB columns (format template continues to live in `path_literal` as today; parameter metadata rides in new optional bundle fields that the DB loader ignores). Path 2's reserved-subdirs catalog is emitted as a derived JSON section of the bundle, not a new SQL table. Path 3 is coverage extension (seed YAML + extractor watchlist entries).
 
-**Tech Stack:** Python 3 + libclang 18 for the extractor. TypeScript + Node (tsx) for build-asset-bundle. Bun test for TypeScript unit tests. Extractor verification uses hand-rolled fixture drivers (no pytest — the project has no Python test infrastructure and this plan does not introduce one).
+**Tech Stack:** Python 3 + libclang 18 for the extractor. TypeScript + Node (tsx) for build-asset-bundle. Bun test for TypeScript unit tests. Extractor verification uses hand-rolled fixture drivers (no pytest -- the project has no Python test infrastructure and this plan does not introduce one).
 
 **Constraints (from frame spec `2026-04-21-layer1-identity-model-design.md`):**
 - No schema migration. All outputs emit into existing `asset_*` tables or the bundle JSON.
@@ -1570,12 +1570,12 @@ FUNCTION_TO_CATEGORY: dict[str, str] = {
 ```
 
 **Rejected candidates (reason captured here for future reference):**
-- `R_LoadLighting` / `Mod_LoadLighting` — do not exist as standalone loaders. The `.lit` path goes through `FS_LoadHunkFile` with a pointer-indirected format arg (r_brushmodel_load.c:108-127); extension-based classification picks it up.
-- `Log_OpenLogfile` — does not exist. Logging uses raw `fopen` calls (logging.c:146/148/280/282/336), deliberately skipped by the AST watchlist.
-- `Help_LoadXML` — does not exist. `Help_LoadDocuments` reads compiled-in JSON, not runtime XML.
-- `Key_LoadBindings` / `IN_LoadKeymap` — do not exist in ezquake source.
-- `PR_LoadProgs` — is a macro dispatching to `PR1_LoadProgs`/`PR2_LoadProgs`, which internally call `FS_LoadHunkFile("progs.dat", ...)` 5 times in `pr_edict.c:1156-1172`. Already covered via the FS_LoadHunkFile watchlist entry.
-- `CL_Demo_Unpack_QWZ` / `Plug_Load` — do not exist. `PlayQWZDemo` is the correct name for QWZ unpacking.
+- `R_LoadLighting` / `Mod_LoadLighting` -- do not exist as standalone loaders. The `.lit` path goes through `FS_LoadHunkFile` with a pointer-indirected format arg (r_brushmodel_load.c:108-127); extension-based classification picks it up.
+- `Log_OpenLogfile` -- does not exist. Logging uses raw `fopen` calls (logging.c:146/148/280/282/336), deliberately skipped by the AST watchlist.
+- `Help_LoadXML` -- does not exist. `Help_LoadDocuments` reads compiled-in JSON, not runtime XML.
+- `Key_LoadBindings` / `IN_LoadKeymap` -- do not exist in ezquake source.
+- `PR_LoadProgs` -- is a macro dispatching to `PR1_LoadProgs`/`PR2_LoadProgs`, which internally call `FS_LoadHunkFile("progs.dat", ...)` 5 times in `pr_edict.c:1156-1172`. Already covered via the FS_LoadHunkFile watchlist entry.
+- `CL_Demo_Unpack_QWZ` / `Plug_Load` -- do not exist. `PlayQWZDemo` is the correct name for QWZ unpacking.
 
 Also extend `EXT_TO_CATEGORY` (around line 93) with the new extensions:
 
@@ -1783,7 +1783,7 @@ Open `HANDOVER.md`. Find the section (around line 154). Mark the status header t
 Also update the index line at the top of HANDOVER.md:
 
 ```markdown
-- [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) — RESOLVED <today's date>: all three gaps closed (Gap A via seed-driven client_defaults, Gap B + C via the parameterized-path + loader-family extraction plan).
+- [ezquake asset-bundle gaps surfaced by slipgate quake-dir inventory](#ezquake-asset-bundle-gaps-surfaced-by-slipgate-quake-dir-inventory) -- RESOLVED <today's date>: all three gaps closed (Gap A via seed-driven client_defaults, Gap B + C via the parameterized-path + loader-family extraction plan).
 ```
 
 - [ ] **Step 2: Update the `Asset reference-resolution graph` entry**

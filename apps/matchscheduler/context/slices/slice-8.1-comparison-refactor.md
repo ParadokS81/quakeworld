@@ -68,7 +68,7 @@ Replace all 5 duplications with imports from DateUtils. Each file changes from ~
 ## Sub-slice 8.1b: Reactive Comparison Mode
 
 ### Problem
-Current UX requires: select teams → click Compare → view results → exit comparison → change selection → click Compare again. This felt natural in a slow Google Sheets app but feels clunky when everything else is live.
+Current UX requires: select teams -> click Compare -> view results -> exit comparison -> change selection -> click Compare again. This felt natural in a slow Google Sheets app but feels clunky when everything else is live.
 
 ### Current Architecture (already close)
 The event system is already wired:
@@ -103,12 +103,12 @@ The event system is already wired:
 ### UX Flow (After)
 1. User is on Calendar tab, sees team list
 2. Toggles "Compare: ON"
-3. Clicks a team → grid immediately highlights matching slots
-4. Clicks another team → highlights update for both opponents
-5. Changes min 3v3 → highlights recalculate with stricter filter
-6. Deselects a team → highlights update
-7. Clicks a highlighted slot → ComparisonModal opens (unchanged)
-8. Toggles "Compare: OFF" → all highlights clear
+3. Clicks a team -> grid immediately highlights matching slots
+4. Clicks another team -> highlights update for both opponents
+5. Changes min 3v3 -> highlights recalculate with stricter filter
+6. Deselects a team -> highlights update
+7. Clicks a highlighted slot -> ComparisonModal opens (unchanged)
+8. Toggles "Compare: OFF" -> all highlights clear
 
 ---
 

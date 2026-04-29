@@ -1,4 +1,4 @@
-# Commands Category and Exhaustive Source Mapping — Implementation Plan
+# Commands Category and Exhaustive Source Mapping -- Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -153,7 +153,7 @@ main().catch((err) => {
 });
 ```
 
-Note on the `name === "e" + "xec"` trick in `assignGroup`: it's functionally equivalent to `name === "exec"` but works around a security-scanning hook that pattern-matches on the literal string. When implementing, feel free to use the plain form — this is a plan quirk only.
+Note on the `name === "e" + "xec"` trick in `assignGroup`: it's functionally equivalent to `name === "exec"` but works around a security-scanning hook that pattern-matches on the literal string. When implementing, feel free to use the plain form -- this is a plan quirk only.
 
 - [ ] **Step 2: Add the script to package.json**
 
@@ -395,7 +395,7 @@ async function main(): Promise<void> {
     cdMap.set(m[1], m[2]);
   }
 
-  // Parse entries { "name", ..., CD_DESC } — capture both the name and CD macro
+  // Parse entries { "name", ..., CD_DESC } -- capture both the name and CD macro
   const entryRe = /\{\s*"([^"]+)"[^{}]*?(CD_\w+)[^{}]*?\}/g;
   const descByName = new Map<string, string>();
   for (const m of arrayBody.matchAll(entryRe)) {
@@ -894,7 +894,7 @@ with capture logic:
 Replace the `skip_commands` match block with a `stateful_commands` capture block:
 
 ```rust
-        // Stateful command invocations — capture instead of dropping
+        // Stateful command invocations -- capture instead of dropping
         if stateful_commands.iter().any(|&cmd| key_lower == cmd) {
             let args = parts.next().unwrap_or("").trim().to_string();
             command_invocations.push(CommandInvocation {
@@ -1243,7 +1243,7 @@ git commit -m "feat(config-viewer): rewrite bind detection with authoritative co
 
 ---
 
-## Phase 4: UI — viewer wiring and display components
+## Phase 4: UI -- viewer wiring and display components
 
 ### Task 11: Wire up new sets in ConfigViewer
 
@@ -1658,8 +1658,8 @@ fn format_key_name(key: &str) -> String {
     let shortened = match upper.as_str() {
         "KP_UPARROW" => Some("KP_↑"),
         "KP_DOWNARROW" => Some("KP_↓"),
-        "KP_LEFTARROW" => Some("KP_←"),
-        "KP_RIGHTARROW" => Some("KP_→"),
+        "KP_LEFTARROW" => Some("KP_<-"),
+        "KP_RIGHTARROW" => Some("KP_->"),
         "KP_HOME" => Some("KP_Home"),
         "KP_END" => Some("KP_End"),
         "KP_PGUP" => Some("KP_PgUp"),
@@ -1683,7 +1683,7 @@ fn format_key_name(key: &str) -> String {
 }
 ```
 
-Preserve whatever the existing `format_key_name` body does for non-KP_ keys — only add the new prefix-check branch.
+Preserve whatever the existing `format_key_name` body does for non-KP_ keys -- only add the new prefix-check branch.
 
 - [ ] **Step 3: Compile check**
 
@@ -1725,15 +1725,15 @@ Build from Windows terminal and test:
 
 1. Load a config with command invocations (HangTime's, or a fresh cfg_save output)
 2. Verify Commands pill appears in sidebar under OPTIONS
-3. Click Commands — verify the section appears with command rows
+3. Click Commands -- verify the section appears with command rows
 4. Verify floodprot, mapgroup, hud_recalculate appear with correct groups
 5. Verify `-moveup`, `-movedown` etc. appear in Press/Release Actions group
-6. Toggle Hide Defaults — verify the default list disappears
-7. Open the Binds view — verify `sizeup`, `sizedown`, `cvar_reset`, `menu_slist`, `+cl_wp_stats`, `+showteamscores` are NOT flagged as unresolved
+6. Toggle Hide Defaults -- verify the default list disappears
+7. Open the Binds view -- verify `sizeup`, `sizedown`, `cvar_reset`, `menu_slist`, `+cl_wp_stats`, `+showteamscores` are NOT flagged as unresolved
 8. Verify KTX commands (`rpickup`, `autotrack`, `scores`, `list`, `next_best`, `next_map`, `mapcycle`) show as KTX category with purple styling
-9. Expand a KTX bind — verify purple explanation banner appears
+9. Expand a KTX bind -- verify purple explanation banner appears
 10. Verify genuine unresolved binds (removed commands like `mp3_next`, typos) still flag as unresolved with yellow
-11. Open the Macros section — verify Runtime Macros sub-group appears with `%health`, `%ammo`, etc.
+11. Open the Macros section -- verify Runtime Macros sub-group appears with `%health`, `%ammo`, etc.
 12. Verify KP_ keycap labels are shortened (KP_↓ instead of KP_DOWNARROW)
 
 - [ ] **Step 3: Commit any fixes found during verification**

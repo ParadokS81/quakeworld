@@ -13,11 +13,11 @@ Add "Edit Timeslots" button to Grid Tools drawer. Clicking it opens a modal with
 
 ## Changes
 
-### 1. GridActionButtons.js — Button + Modal
+### 1. GridActionButtons.js -- Button + Modal
 
 **File:** `public/js/components/GridActionButtons.js`
 
-**Add button in `_render()`** — after the save/clear row (after line ~68), inside the `space-y-1.5` div:
+**Add button in `_render()`** -- after the save/clear row (after line ~68), inside the `space-y-1.5` div:
 
 ```html
 <div class="pt-1 border-t border-border mt-1">
@@ -36,7 +36,7 @@ editTimeslotsBtn?.addEventListener('click', _showTimeslotsModal);
 
 **Implement `_showTimeslotsModal()`:**
 
-Game frequency data (hardcoded from our EU 4on4 analysis — 15,368 games, excluding US servers and LAN events):
+Game frequency data (hardcoded from our EU 4on4 analysis -- 15,368 games, excluding US servers and LAN events):
 
 ```js
 const GAME_FREQUENCY = {
@@ -54,7 +54,7 @@ const GAME_FREQUENCY = {
 };
 ```
 
-**Modal layout** — follow existing modal pattern (ProfileModal.js, template naming modal):
+**Modal layout** -- follow existing modal pattern (ProfileModal.js, template naming modal):
 
 ```
 ┌─────────────────────────────────────┐
@@ -70,7 +70,7 @@ const GAME_FREQUENCY = {
 │ [ON]  23:00  ███████████░░  10.6%   │
 │                                     │
 │ EU 4on4 game frequency (15k games)  │
-│ Peak hours: 21:00–22:30             │
+│ Peak hours: 21:00-22:30             │
 ├─────────────────────────────────────┤
 │                   [Cancel]  [Save]  │
 └─────────────────────────────────────┘
@@ -87,7 +87,7 @@ Each toggle row:
 - `#timeslots-visible-count` updates on every checkbox change
 - When exactly 4 remain checked, disable those 4 checkboxes (add `opacity-50`, set `disabled`)
 - When a box is re-checked, recalculate and re-enable as needed
-- **Save:** collect unchecked slots → `TimezoneService.setHiddenTimeSlots()` → dispatch `timeslots-changed` → `_persistHiddenTimeslots()` → close modal
+- **Save:** collect unchecked slots -> `TimezoneService.setHiddenTimeSlots()` -> dispatch `timeslots-changed` -> `_persistHiddenTimeslots()` -> close modal
 - **Cancel / Escape / backdrop click:** close without changes
 - Append modal to `document.body`, remove on close
 
@@ -107,7 +107,7 @@ async function _persistHiddenTimeslots(hiddenSlots) {
 }
 ```
 
-### 2. input.css — Toggle switch CSS
+### 2. input.css -- Toggle switch CSS
 
 **File:** `src/css/input.css`
 
@@ -171,11 +171,11 @@ The HTML pattern per row:
 
 ## Verification
 
-1. Open app → expand Grid Tools drawer → "Edit Timeslots" button visible below templates
-2. Click → modal opens, all 11 toggles ON, frequency bars display correctly
-3. Toggle off 18:00, 18:30, 19:00 → count shows "8/11 visible"
-4. Keep toggling off until 4 remain → remaining 4 toggles become disabled (can't go below 4)
-5. Toggle one back on → disabled states recalculate correctly
-6. Click Save → grids rebuild with fewer rows, top panel shrinks, bottom grows
-7. Click Cancel (or Escape, or backdrop) → no changes applied
+1. Open app -> expand Grid Tools drawer -> "Edit Timeslots" button visible below templates
+2. Click -> modal opens, all 11 toggles ON, frequency bars display correctly
+3. Toggle off 18:00, 18:30, 19:00 -> count shows "8/11 visible"
+4. Keep toggling off until 4 remain -> remaining 4 toggles become disabled (can't go below 4)
+5. Toggle one back on -> disabled states recalculate correctly
+6. Click Save -> grids rebuild with fewer rows, top panel shrinks, bottom grows
+7. Click Cancel (or Escape, or backdrop) -> no changes applied
 8. Frequency bars visually match the data (21:30 is tallest, 18:00 is basically invisible)

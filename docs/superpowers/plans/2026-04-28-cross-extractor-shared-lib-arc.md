@@ -6,9 +6,9 @@
 
 **Source:** `docs/superpowers/reviews/2026-04-28-cross-extractor-audit-report.md`. Spec: `docs/superpowers/specs/2026-04-28-cross-extractor-pattern-audit.md`.
 
-**Tech stack:** Python 3.12 + libclang 18 (extractors), TypeScript + Bun (loader / quality grid), SQLite (schema v17 → potentially v18 if Phase 2 lands the qc_builtin canonical-name change).
+**Tech stack:** Python 3.12 + libclang 18 (extractors), TypeScript + Bun (loader / quality grid), SQLite (schema v17 -> potentially v18 if Phase 2 lands the qc_builtin canonical-name change).
 
-**Sequencing rationale:** Phase 0 (drain-now patches) lands first — surface cleanup that doesn't change extraction output and isn't worth bundling into a phase. Phase 1 (`resolve_fn_ref` lift) is the highest-correctness win and changes only one corner case (unresolved decls surface as cursor.spelling instead of NULL); easy to verify with row-count diffs. Phase 2 lands the cvars-normalization convergence AND the qc_builtin canonical-name fix together — both touch the cvars/qc_builtin per-version contracts and benefit from one schema migration if the qc_builtin name change ships as canonical reshape. Phase 3 lifts the high-volume mechanical duplicates (`_read_extent`, `_strip_quotes`, etc.) and the asset-helper bundle — large LOC reduction with no policy change. Phase 4 is one verification grep + decision. Phase 5 is the documentation-and-schema-export pass that closes the alphabet-sync gaps without changing extraction output.
+**Sequencing rationale:** Phase 0 (drain-now patches) lands first -- surface cleanup that doesn't change extraction output and isn't worth bundling into a phase. Phase 1 (`resolve_fn_ref` lift) is the highest-correctness win and changes only one corner case (unresolved decls surface as cursor.spelling instead of NULL); easy to verify with row-count diffs. Phase 2 lands the cvars-normalization convergence AND the qc_builtin canonical-name fix together -- both touch the cvars/qc_builtin per-version contracts and benefit from one schema migration if the qc_builtin name change ships as canonical reshape. Phase 3 lifts the high-volume mechanical duplicates (`_read_extent`, `_strip_quotes`, etc.) and the asset-helper bundle -- large LOC reduction with no policy change. Phase 4 is one verification grep + decision. Phase 5 is the documentation-and-schema-export pass that closes the alphabet-sync gaps without changing extraction output.
 
 After this arc lands, three per-project deep validations (ezQuake / FTE / QWCL Mode B in the validate-extractor skill) can run in parallel with confidence that they won't surface the same cross-cutting issues four times.
 
@@ -44,7 +44,7 @@ rm apps/qw-oracle/scripts/extractors/extractor_lib/_base.py
 
 Edit `apps/qw-oracle/scripts/extractors/extractor_lib/__init__.py` to remove the `_base` mention from the docstring.
 
-Edit `apps/qw-oracle/scripts/extractors/extractor_lib/README.md` to remove any sentences claiming `KeynamesEzquakeHandler` uses the `Handler` Protocol (it doesn't — it has its own `process_file` shape; documented in its own docstring).
+Edit `apps/qw-oracle/scripts/extractors/extractor_lib/README.md` to remove any sentences claiming `KeynamesEzquakeHandler` uses the `Handler` Protocol (it doesn't -- it has its own `process_file` shape; documented in its own docstring).
 
 - [ ] **Step 3: Verify imports still resolve**
 
@@ -56,14 +56,14 @@ Expected: `imports ok`.
 
 ### Task 0.2: Rename two FTE asset handler classes (D.5.1, D.5.2)
 
-- [ ] **Step 1: Rename `AssetCvarBindingsHandler` → `AssetCvarBindingsFteHandler`**
+- [ ] **Step 1: Rename `AssetCvarBindingsHandler` -> `AssetCvarBindingsFteHandler`**
 
 ```bash
 # In apps/qw-oracle/scripts/extractors/fte/_handler_asset_cvar_bindings.py:
 sed -i 's/^class AssetCvarBindingsHandler/class AssetCvarBindingsFteHandler/' apps/qw-oracle/scripts/extractors/fte/_handler_asset_cvar_bindings.py
 ```
 
-- [ ] **Step 2: Rename `AssetLoaderSitesHandler` → `AssetLoaderSitesFteHandler`**
+- [ ] **Step 2: Rename `AssetLoaderSitesHandler` -> `AssetLoaderSitesFteHandler`**
 
 ```bash
 sed -i 's/^class AssetLoaderSitesHandler/class AssetLoaderSitesFteHandler/' apps/qw-oracle/scripts/extractors/fte/_handler_asset_loader_sites.py
@@ -72,8 +72,8 @@ sed -i 's/^class AssetLoaderSitesHandler/class AssetLoaderSitesFteHandler/' apps
 - [ ] **Step 3: Update `extract.py` imports + `collect_handlers` body**
 
 Edit `apps/qw-oracle/scripts/extractors/fte/extract.py`:
-- Line 82: `from _handler_asset_loader_sites import AssetLoaderSitesHandler` → `AssetLoaderSitesFteHandler`
-- Line 83: `from _handler_asset_cvar_bindings import AssetCvarBindingsHandler` → `AssetCvarBindingsFteHandler`
+- Line 82: `from _handler_asset_loader_sites import AssetLoaderSitesHandler` -> `AssetLoaderSitesFteHandler`
+- Line 83: `from _handler_asset_cvar_bindings import AssetCvarBindingsHandler` -> `AssetCvarBindingsFteHandler`
 - Lines 91-92 (in `collect_handlers`): update class instantiations.
 
 - [ ] **Step 4: Re-run extraction smoke**
@@ -84,7 +84,7 @@ python3 apps/qw-oracle/scripts/extractors/fte/extract.py --workers 4 --limit-fil
 
 Expected: clean run, no import errors, JSON outputs unchanged in shape (a full re-extract isn't part of this task).
 
-### Task 0.3: Rename mvdsv cmdline `containing_function` → `enclosing_function` (D.1.7)
+### Task 0.3: Rename mvdsv cmdline `containing_function` -> `enclosing_function` (D.1.7)
 
 - [ ] **Step 1: Confirm field name divergence**
 
@@ -96,7 +96,7 @@ Expected: only `containing_function` in mvdsv (line 143).
 
 - [ ] **Step 2: Rename in handler emission**
 
-Edit `apps/qw-oracle/scripts/extractors/mvdsv/_handler_cmdline.py:143` — change `"containing_function"` to `"enclosing_function"`.
+Edit `apps/qw-oracle/scripts/extractors/mvdsv/_handler_cmdline.py:143` -- change `"containing_function"` to `"enclosing_function"`.
 
 - [ ] **Step 3: Verify loader-side compatibility**
 
@@ -104,7 +104,7 @@ Edit `apps/qw-oracle/scripts/extractors/mvdsv/_handler_cmdline.py:143` — chang
 grep -hn "containing_function\|enclosing_function" apps/qw-oracle/scripts/load-knowledge/load-cmdline-params.ts
 ```
 
-If the loader reads `enclosing_function`, this is a no-op rename + the loader was already silently ignoring `containing_function`. If the loader reads `containing_function`, this rename will break it — verify and update both sides atomically.
+If the loader reads `enclosing_function`, this is a no-op rename + the loader was already silently ignoring `containing_function`. If the loader reads `containing_function`, this rename will break it -- verify and update both sides atomically.
 
 - [ ] **Step 4: Re-run mvdsv extraction + load**
 
@@ -199,7 +199,7 @@ done > /tmp/post-lift-counts.txt
 diff /tmp/pre-lift-counts.txt /tmp/post-lift-counts.txt
 ```
 
-Acceptance: any new rows are previously-unresolved decls now surfacing as cursor.spelling. Audit each new entry against the source — if the spelling matches the registered handler name in source, the new row is correct (the strict policy was silently dropping it). If spellings don't match, that's a regression — investigate.
+Acceptance: any new rows are previously-unresolved decls now surfacing as cursor.spelling. Audit each new entry against the source -- if the spelling matches the registered handler name in source, the new row is correct (the strict policy was silently dropping it). If spellings don't match, that's a regression -- investigate.
 
 - [ ] **Step 3: Quality grid**
 
@@ -231,7 +231,7 @@ Bundles five findings that touch the cvars per-version contract plus the latent 
 
 - [ ] **Step 1: Create a shared module**
 
-Create `apps/qw-oracle/scripts/extractors/extractor_lib/_cvar_shared.py` with the canonical implementations of `_unescape_c_string`, `_normalize_flags_raw`, `_parse_flag_names`, and the `_FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")` constant. Use the mvdsv versions (more recently updated — they carry the post-v17 docstrings); confirm body-equivalence with ezquake before lifting.
+Create `apps/qw-oracle/scripts/extractors/extractor_lib/_cvar_shared.py` with the canonical implementations of `_unescape_c_string`, `_normalize_flags_raw`, `_parse_flag_names`, and the `_FLAG_NAME_RE = re.compile(r"\bCVAR_[A-Z0-9_]+\b")` constant. Use the mvdsv versions (more recently updated -- they carry the post-v17 docstrings); confirm body-equivalence with ezquake before lifting.
 
 - [ ] **Step 2: Update ezquake + mvdsv to import from the shared module**
 
@@ -257,8 +257,8 @@ Replace `"flags_raw": " | ".join(flags_list) if flags_list else None,` with `"fl
 
 - [ ] **Step 2: QWCL `_handler_cvars.py:101,123`**
 
-- Line 101: `default = _strip_quotes(default_raw)` → `default = unescape_c_string(_strip_quotes(default_raw))`.
-- Line 123: `flags_raw: Optional[str] = ", ".join(flags_raw_parts) if flags_raw_parts else None` → `flags_raw: Optional[str] = normalize_flags_raw(", ".join(flags_raw_parts) if flags_raw_parts else None)`.
+- Line 101: `default = _strip_quotes(default_raw)` -> `default = unescape_c_string(_strip_quotes(default_raw))`.
+- Line 123: `flags_raw: Optional[str] = ", ".join(flags_raw_parts) if flags_raw_parts else None` -> `flags_raw: Optional[str] = normalize_flags_raw(", ".join(flags_raw_parts) if flags_raw_parts else None)`.
 
 - [ ] **Step 3: Verify the post-v17 sentinel-form contract**
 
@@ -310,13 +310,13 @@ Expected: previously-truncated trailing comments containing commas now surface i
 
 ### Task 2.4: qc_builtin canonical-name `<bare>:<table_name>` (D.1.10)
 
-This is a schema migration — bumps schema to v18 (mirrors v16 info_key Phase B).
+This is a schema migration -- bumps schema to v18 (mirrors v16 info_key Phase B).
 
 - [ ] **Step 1: Update mvdsv `_handler_qc_builtins.py`**
 
 Edit `apps/qw-oracle/scripts/extractors/mvdsv/_handler_qc_builtins.py:387-406` (the row-emission point). Change the emitted `name` field from `qc_name` to `f"{qc_name}:{table_name}"`. Preserve the bare name in a separate field (`bare_name`, parallels info_key's pattern at line 271).
 
-- [ ] **Step 2: Add schema migration for v17 → v18**
+- [ ] **Step 2: Add schema migration for v17 -> v18**
 
 Edit `apps/qw-oracle/scripts/load-knowledge/schema.ts`:
 - Bump `SCHEMA_VERSION` from 17 to 18.
@@ -339,7 +339,7 @@ npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- extract-tag --
 sqlite3 "$DB" "SELECT COUNT(*) FROM entities WHERE project='mvdsv' AND type='qc_builtin';"
 ```
 
-Expected: count goes from 93 → 97 (4 previously-collided cross-scope variants now visible). Verify the 4 specific names by audit (the HANDOVER residual lists them implicitly via the 4-name claim).
+Expected: count goes from 93 -> 97 (4 previously-collided cross-scope variants now visible). Verify the 4 specific names by audit (the HANDOVER residual lists them implicitly via the 4-name claim).
 
 ### Task 2.5: Quality grid + commit Phase 2
 
@@ -415,11 +415,11 @@ Add `strip_quotes(s: str) -> str` to `extractor_lib/_source.py`.
 
 - [ ] **Step 1: Determine canonical version**
 
-Use the L-prefix-tolerant variant (admits `L"..."`) since it's a superset of the L-rejecting variant. Verified safe — codebases without wide strings simply don't fire the L-prefix branch.
+Use the L-prefix-tolerant variant (admits `L"..."`) since it's a superset of the L-rejecting variant. Verified safe -- codebases without wide strings simply don't fire the L-prefix branch.
 
 - [ ] **Step 2: Lift to `extractor_lib/_source.py`**
 
-Add `literal_string(cursor_or_token, source_bytes) -> Optional[str]` (preserve the existing function signature; check what each handler passes — there are TWO signature variants in the wild).
+Add `literal_string(cursor_or_token, source_bytes) -> Optional[str]` (preserve the existing function signature; check what each handler passes -- there are TWO signature variants in the wild).
 
 - [ ] **Step 3: Sweep + diff before/after**
 
@@ -450,7 +450,7 @@ _resolve_cvar_ref, _resolve_cvar_string_ref
 
 - [ ] **Step 2: Create `extractor_lib/_asset.py` with all 17 functions**
 
-Use the mvdsv-no, scratch — these helpers exist only in ezquake + fte (mvdsv has no asset handlers). Use the ezquake versions as canonical (longer commit history); confirm body-equivalence with fte before lifting.
+Use the mvdsv-no, scratch -- these helpers exist only in ezquake + fte (mvdsv has no asset handlers). Use the ezquake versions as canonical (longer commit history); confirm body-equivalence with fte before lifting.
 
 - [ ] **Step 3: Replace imports in both projects**
 
@@ -505,7 +505,7 @@ grep -rn 'COM_CheckParm("\+' research/repos/fteqw/engine/ 2>/dev/null | head -20
 If hits exist (`+set`, `+exec`, `+map`, etc.):
 - [ ] **Step 2a: Widen the filter**
 
-Edit `apps/qw-oracle/scripts/extractors/fte/_handler_cmdline.py:105` — replace `name.startswith("-")` with `name.startswith(("-", "+"))` OR hoist a class-level `PARAM_PREFIXES = ("-", "+")` matching MVDSV's shape.
+Edit `apps/qw-oracle/scripts/extractors/fte/_handler_cmdline.py:105` -- replace `name.startswith("-")` with `name.startswith(("-", "+"))` OR hoist a class-level `PARAM_PREFIXES = ("-", "+")` matching MVDSV's shape.
 
 - [ ] **Step 3a: Re-extract FTE + diff entity counts**
 
@@ -567,7 +567,7 @@ Add a small test (in `apps/qw-oracle/scripts/load-knowledge/`) that asserts the 
 
 - [ ] **Step 1: Decide normalize vs document**
 
-Read the existing log_template consumers (load-log-templates.ts, MCP server, any concept-note tooling). If consumers depend on raw-escape preservation (likely — they need to render `%s` and `\n` literally for format-string analysis), keep raw-escape contract.
+Read the existing log_template consumers (load-log-templates.ts, MCP server, any concept-note tooling). If consumers depend on raw-escape preservation (likely -- they need to render `%s` and `\n` literally for format-string analysis), keep raw-escape contract.
 
 If consumers depend on interpreted escapes (unlikely for log_template), normalize at extraction time.
 
@@ -578,7 +578,7 @@ Edit `apps/qw-oracle/SCHEMA.md` (or wherever the per-table contracts live) with 
 
 - [ ] **Step 3: Add a docstring cross-reference**
 
-In `apps/qw-oracle/scripts/extractors/mvdsv/_handler_log_templates.py:42-44`, add a sentence: "See SCHEMA.md § log_template for the raw-form preservation rationale and the contrast with cvar `default_value` post-v17 escape interpretation."
+In `apps/qw-oracle/scripts/extractors/mvdsv/_handler_log_templates.py:42-44`, add a sentence: "See SCHEMA.md Section  log_template for the raw-form preservation rationale and the contrast with cvar `default_value` post-v17 escape interpretation."
 
 ### Task 5.3: Commit Phase 5
 

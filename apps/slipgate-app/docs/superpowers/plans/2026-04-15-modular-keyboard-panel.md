@@ -38,9 +38,9 @@ Verified in `apps/slipgate-app/reference/ezquake-source/src/keys.c:122-218` (the
 | `Kp_0` | 0 | `KP_0`, `KP_INS` |
 | `Kp_Dot` | `.` | `KP_DEL` |
 
-`KP_EQUAL` (line 143) exists in ezQuake but is not on standard numpads; omitted from the module. If it ever comes up in a real config, it silently won't render — same safety the mouse module has for `MOUSE7`/`MOUSE8`.
+`KP_EQUAL` (line 143) exists in ezQuake but is not on standard numpads; omitted from the module. If it ever comes up in a real config, it silently won't render -- same safety the mouse module has for `MOUSE7`/`MOUSE8`.
 
-**Physical layout** (4 columns × 5 rows):
+**Physical layout** (4 columns x 5 rows):
 
 ```
 Row 0:  Num  /    *    -
@@ -66,7 +66,7 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit
 
 Expected output: no errors. Vite's dev build does not enforce types, so this check is mandatory per slipgate-app conventions (`feedback_verify_typescript.md`).
 
-**Manual verification (when the task affects UI):** the Tauri app runs on Windows, not WSL. For most tasks a visual check isn't feasible mid-plan — the engineer should rely on compile checks for intermediate tasks and do the full manual pass in Task 16 at the end. When a task explicitly calls for manual verification, it will say so.
+**Manual verification (when the task affects UI):** the Tauri app runs on Windows, not WSL. For most tasks a visual check isn't feasible mid-plan -- the engineer should rely on compile checks for intermediate tasks and do the full manual pass in Task 16 at the end. When a task explicitly calls for manual verification, it will say so.
 
 **Commits:** one commit per task, directly on `main`. No feature branch. The `src-tauri/` rsync hook never fires because this plan is 100% frontend. Commit messages follow the existing slipgate convention (`feat(slipgate):` / `refactor(slipgate):` / `docs(slipgate):`).
 
@@ -178,7 +178,7 @@ EOF
 
 ## Task 2: Extract `MAIN_BLOCK` and create `navModule.ts`
 
-Split the current flat `LAYOUT` array into `MAIN_BLOCK` (main alphanumeric keys, rows 0-5, x in 0..15) and a `NAV_MODULE` constant containing only the nav cluster + arrow keys. `KeyboardLayout.tsx` still renders identically to today — this is a pure refactor. At the end of this task the on-screen keyboard looks exactly like the current keyboard but the nav cluster's keys are now defined in a separate file.
+Split the current flat `LAYOUT` array into `MAIN_BLOCK` (main alphanumeric keys, rows 0-5, x in 0..15) and a `NAV_MODULE` constant containing only the nav cluster + arrow keys. `KeyboardLayout.tsx` still renders identically to today -- this is a pure refactor. At the end of this task the on-screen keyboard looks exactly like the current keyboard but the nav cluster's keys are now defined in a separate file.
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/keyboardModules/navModule.ts`
@@ -482,7 +482,7 @@ EOF
 
 ## Task 4: Extend `toLayoutId` with numpad and mouse key cases
 
-Add ezQuake input-string -> layout-ID mappings for all numpad keys and all mouse inputs. Remove the early return that currently nulls out `MOUSE*` / `MWHEEL*`. No module cells exist yet for these IDs, so they won't render anywhere visible — but `identifyKeyCommands`, `resolveCommandKeys`, and `buildSelectedIds` will now produce non-null IDs for numpad and mouse binds, which later tasks depend on.
+Add ezQuake input-string -> layout-ID mappings for all numpad keys and all mouse inputs. Remove the early return that currently nulls out `MOUSE*` / `MWHEEL*`. No module cells exist yet for these IDs, so they won't render anywhere visible -- but `identifyKeyCommands`, `resolveCommandKeys`, and `buildSelectedIds` will now produce non-null IDs for numpad and mouse binds, which later tasks depend on.
 
 **Files:**
 - Modify: `apps/slipgate-app/src/components/KeyboardLayout.tsx`
@@ -524,7 +524,7 @@ Within `toLayoutId`, extend the `map` object. Add the following entries to the e
     KP_ENTER: "Kp_Enter",
 ```
 
-`MOUSE7`, `MOUSE8`, and `KP_EQUAL` are intentionally not mapped. They'll fall through to the final `return null` and silently not render — safer than throwing, and consistent with the spec.
+`MOUSE7`, `MOUSE8`, and `KP_EQUAL` are intentionally not mapped. They'll fall through to the final `return null` and silently not render -- safer than throwing, and consistent with the spec.
 
 - [ ] **Step 3: Compile check**
 
@@ -556,7 +556,7 @@ EOF
 
 ## Task 5: Create `numpadModule.ts`
 
-Create the numpad module data with 17 cells on a 4u × 5-row grid. Wire it into `MODULES`. After this task, the numpad can be rendered by temporarily passing `rightModule="numpad"` (verified in a sanity step below, then reverted).
+Create the numpad module data with 17 cells on a 4u x 5-row grid. Wire it into `MODULES`. After this task, the numpad can be rendered by temporarily passing `rightModule="numpad"` (verified in a sanity step below, then reverted).
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/keyboardModules/numpadModule.ts`
@@ -609,7 +609,7 @@ export const NUMPAD_MODULE: KeyboardModule = {
 };
 ```
 
-**Simplification note:** a real numpad has `+` spanning rows 1-2 and `Enter` spanning rows 3-4 (double-height keys). The module uses single-row cells instead. This is a deliberate simplification: the extra rendering code for double-height keys isn't worth the complexity, and the information (which numpad key is bound to what) is perfectly clear with single-height cells. If future polish wants double-height cells, the `KeyDef` type would need a `h` field and `KeyboardLayout` would render `h * ROW_H` tall rects — out of scope for this plan.
+**Simplification note:** a real numpad has `+` spanning rows 1-2 and `Enter` spanning rows 3-4 (double-height keys). The module uses single-row cells instead. This is a deliberate simplification: the extra rendering code for double-height keys isn't worth the complexity, and the information (which numpad key is bound to what) is perfectly clear with single-height cells. If future polish wants double-height cells, the `KeyDef` type would need a `h` field and `KeyboardLayout` would render `h * ROW_H` tall rects -- out of scope for this plan.
 
 - [ ] **Step 2: Register `NUMPAD_MODULE` in the registry**
 
@@ -662,7 +662,7 @@ EOF
 
 ## Task 6: Create `mouseModule.ts` (cells only, no decoration yet)
 
-Create the mouse module with 8 cells in a 4u × 4-row layout. Wire into `MODULES`. Decoration function (mouse outline + wheel glyphs) lands in Task 7 to keep this task focused on cell data.
+Create the mouse module with 8 cells in a 4u x 4-row layout. Wire into `MODULES`. Decoration function (mouse outline + wheel glyphs) lands in Task 7 to keep this task focused on cell data.
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/keyboardModules/mouseModule.ts`
@@ -731,7 +731,7 @@ export const MODULES: Record<KeyboardRightModule, KeyboardModule> = {
 
 The previous `MODULES[props.rightModule]` lookup currently returns `KeyboardModule | undefined` because of `Partial<Record<...>>`. With the full registry, it returns `KeyboardModule`. The existing runtime check stays (defensive, free), but TypeScript narrows happily.
 
-No code change required in `KeyboardLayout.tsx` — the runtime `throw` for missing module still catches corruption, and the type flow tightens automatically.
+No code change required in `KeyboardLayout.tsx` -- the runtime `throw` for missing module still catches corruption, and the type flow tightens automatically.
 
 - [ ] **Step 4: Compile check**
 
@@ -903,7 +903,7 @@ In `KeyboardLayout.tsx`, find the `<svg>` body where keys are iterated. Before t
 </svg>
 ```
 
-The decoration renders first (so keys paint over it where they overlap), and it's keyed off the same module lookup as the keys themselves — they stay in sync automatically.
+The decoration renders first (so keys paint over it where they overlap), and it's keyed off the same module lookup as the keys themselves -- they stay in sync automatically.
 
 - [ ] **Step 4: Add a CSS rule for `.sg-kb-mouse-decoration` (pointer events passthrough)**
 
@@ -994,7 +994,7 @@ Remove the old stub `moduleOf` function and its `_layoutId` param.
 
 - [ ] **Step 3: Verify there's no circular import issue**
 
-`keyboardModules/index.ts` now imports `MAIN_BLOCK` from `KeyboardLayout.tsx`, and `KeyboardLayout.tsx` imports `MODULES` from `keyboardModules/index.ts`. TypeScript + ES modules handle this cleanly because both are top-level module exports — the runtime just sees two modules that reference each other's exports, and both resolve at import time.
+`keyboardModules/index.ts` now imports `MAIN_BLOCK` from `KeyboardLayout.tsx`, and `KeyboardLayout.tsx` imports `MODULES` from `keyboardModules/index.ts`. TypeScript + ES modules handle this cleanly because both are top-level module exports -- the runtime just sees two modules that reference each other's exports, and both resolve at import time.
 
 Run the compile check to confirm:
 
@@ -1102,7 +1102,7 @@ EOF
 
 ## Task 10: Add module state to `useKeyboardPanelState` hook
 
-Extend the hook with two new inputs (`availableModules`, `persistKey`) and three new outputs (`rightModule`, `setRightModule`, `availableModules`). The hook owns module state and its persistence; the auto-reveal effect does **not** live in the hook. Auto-reveal needs access to the primary config's `HighlightInput` to resolve selections into layout IDs, and that data only exists in `ConfigKeyboardPanel` — so the effect goes there in Task 13.
+Extend the hook with two new inputs (`availableModules`, `persistKey`) and three new outputs (`rightModule`, `setRightModule`, `availableModules`). The hook owns module state and its persistence; the auto-reveal effect does **not** live in the hook. Auto-reveal needs access to the primary config's `HighlightInput` to resolve selections into layout IDs, and that data only exists in `ConfigKeyboardPanel` -- so the effect goes there in Task 13.
 
 **Files:**
 - Modify: `apps/slipgate-app/src/components/useKeyboardPanelState.ts`
@@ -1273,12 +1273,12 @@ export function useKeyboardPanelState(input: UseKeyboardPanelStateInput) {
 
 Key points about the new code:
 
-- `moduleField` is computed once based on `persistKey` — no `if` ladders downstream.
+- `moduleField` is computed once based on `persistKey` -- no `if` ladders downstream.
 - `readPersistedModule` reads the profile pref, validates it against the consumer's `availableModules` list (so a Profile hook instance will never pick up a `"mouse"` value stored by ConfigViewer, even if the user somehow ends up with a shared pref), and falls back to `"nav"`.
-- The mirror `createEffect` runs whenever the profile reloads — same pattern as the existing visibility and category toggles.
+- The mirror `createEffect` runs whenever the profile reloads -- same pattern as the existing visibility and category toggles.
 - `setRightModule` is async because `updatePrefs` is async, matching the existing toggle methods.
 - The cast to `Partial<ProfilePrefs>` is needed because TypeScript can't narrow the computed key. Imported as an inline type-only import to keep the file dependency list small.
-- Auto-reveal effect is **not** in this task — added in Task 13.
+- Auto-reveal effect is **not** in this task -- added in Task 13.
 
 - [ ] **Step 2: Update the ConfigViewer call site**
 
@@ -1295,7 +1295,7 @@ const kbState = useKeyboardPanelState({
 });
 ```
 
-This wires the new required inputs. ConfigKeyboardPanel still receives `rightModule="nav"` hardcoded — we don't switch to `kbState.rightModule()` yet because that's Task 11's job. The hook produces a `rightModule` signal but no consumer reads it in this task.
+This wires the new required inputs. ConfigKeyboardPanel still receives `rightModule="nav"` hardcoded -- we don't switch to `kbState.rightModule()` yet because that's Task 11's job. The hook produces a `rightModule` signal but no consumer reads it in this task.
 
 - [ ] **Step 3: Compile check**
 
@@ -1346,7 +1346,7 @@ interface ConfigKeyboardPanelProps {
 }
 ```
 
-Don't use `setRightModule` / `availableModules` yet — they're plumbed through now so Task 12 only has to add the UI, not re-thread the props.
+Don't use `setRightModule` / `availableModules` yet -- they're plumbed through now so Task 12 only has to add the UI, not re-thread the props.
 
 - [ ] **Step 2: Wire ConfigViewer's `<ConfigKeyboardPanel>` usage to the hook**
 
@@ -1492,7 +1492,7 @@ In `apps/slipgate-app/src/app.css`, find the existing `.sg-config-kb-toggle-bar`
 }
 ```
 
-All colors use existing semantic variables (`--sg-grad-dark`, `--sg-text-dim`, `--sg-text`, `--sg-stat-border`, `--color-primary`) — no hardcoded OKLCH or hex.
+All colors use existing semantic variables (`--sg-grad-dark`, `--sg-text-dim`, `--sg-text`, `--sg-stat-border`, `--color-primary`) -- no hardcoded OKLCH or hex.
 
 - [ ] **Step 3: Compile check**
 
@@ -1574,7 +1574,7 @@ createEffect(() => {
 });
 ```
 
-The effect's reactive deps are `props.selection`, `primaryInput()`, and `props.rightModule`. SolidJS tracks them automatically. `props.availableModules` is consulted defensively (belt-and-suspenders — ConfigViewer always passes all three modules, but if that ever changes the effect won't try to switch to an unavailable module).
+The effect's reactive deps are `props.selection`, `primaryInput()`, and `props.rightModule`. SolidJS tracks them automatically. `props.availableModules` is consulted defensively (belt-and-suspenders -- ConfigViewer always passes all three modules, but if that ever changes the effect won't try to switch to an unavailable module).
 
 - [ ] **Step 2: Compile check**
 
@@ -1620,7 +1620,7 @@ In `apps/slipgate-app/src/components/ProfileTab.tsx`, add the import at the top 
 import { useKeyboardPanelState } from "./useKeyboardPanelState";
 ```
 
-Inside the `ProfileTab` component function, near the other hooks/memos (the existing profile code uses `createSignal`, `createMemo`, etc. around line 60-100 — pick a spot after those signals are declared), add:
+Inside the `ProfileTab` component function, near the other hooks/memos (the existing profile code uses `createSignal`, `createMemo`, etc. around line 60-100 -- pick a spot after those signals are declared), add:
 
 ```ts
 // Profile's keyboard panel state - right-slot module only. The hook's
@@ -1814,7 +1814,7 @@ In `ProfileTab.tsx`, find the `<KeyboardLayout>` usage from Task 14 (around line
 />
 ```
 
-Short labels (`Nav`, `Num`) fit the tiny slot. The fragment is valid JSX — Solid renders it inline inside the overlay div.
+Short labels (`Nav`, `Num`) fit the tiny slot. The fragment is valid JSX -- Solid renders it inline inside the overlay div.
 
 - [ ] **Step 4: Compile check**
 
@@ -1846,7 +1846,7 @@ EOF
 
 ## Task 16: Final verification pass
 
-End-to-end manual verification of every spec requirement. This is the only point in the plan where a Windows build is strictly required — everything before this was compile-checked only.
+End-to-end manual verification of every spec requirement. This is the only point in the plan where a Windows build is strictly required -- everything before this was compile-checked only.
 
 **Files:** possibly small fixes to any file touched above, depending on findings.
 
@@ -1860,14 +1860,14 @@ Expected: both commands succeed with no errors.
 
 - [ ] **Step 2: Launch the app on Windows and run the verification checklist**
 
-The app builds from a Windows terminal — WSL builds do not produce a working Tauri binary. Either:
+The app builds from a Windows terminal -- WSL builds do not produce a working Tauri binary. Either:
 
 - On Windows: `cd C:\path\to\apps\slipgate-app && bun run tauri dev` (or whatever the project's dev command is; check `apps/slipgate-app/package.json` scripts)
 - Or run the verification against a deployed build.
 
-Run through every item from the spec's §10:
+Run through every item from the spec's Section 10:
 
-1. **ConfigViewer module toggle.** Load a config. Click each of the three module buttons in turn. Verify: main block stays in the same pixel position, module content swaps correctly, **no visual size snap** when swapping. If the keyboard visibly resizes on toggle, the `TOTAL_W_U` bump from Task 2 didn't apply everywhere — re-check that every SVG path (main rendering + decoration ctx) uses the new `NAV_X + 4` width.
+1. **ConfigViewer module toggle.** Load a config. Click each of the three module buttons in turn. Verify: main block stays in the same pixel position, module content swaps correctly, **no visual size snap** when swapping. If the keyboard visibly resizes on toggle, the `TOTAL_W_U` bump from Task 2 didn't apply everywhere -- re-check that every SVG path (main rendering + decoration ctx) uses the new `NAV_X + 4` width.
 2. **Compare mode sync.** Load two configs in compare mode. Click each module button. Verify: both stacked keyboards swap simultaneously, same module shown on both.
 3. **Click-to-pin auto-reveal.** Set the module to `nav`. Click a bind in the left list whose key is on the numpad (if your test config doesn't have numpad binds, edit one temporarily). Verify: the module auto-swaps to `numpad` and the target key is highlighted. Repeat with a mouse bind -> auto-swap to `mouse`.
 4. **Auto-reveal tie-break.** Click a bind whose key is in the main block (e.g. `F`). Verify: module does **not** change, and the F key lights up on the currently-active module view.

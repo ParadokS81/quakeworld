@@ -15,7 +15,7 @@ Register an empty `availability` module in the bot. Build the reusable utilities
 
 All under `src/modules/availability/`:
 
-### 1. `types.ts` — Shared interfaces
+### 1. `types.ts` -- Shared interfaces
 
 ```typescript
 export interface ResolvedUser {
@@ -27,15 +27,15 @@ export interface ResolvedUser {
 export interface AvailabilityData {
     teamId: string;
     weekId: string;         // "YYYY-WW" e.g. "2026-08"
-    slots: Record<string, string[]>;        // UTC slotId → userId[]
-    unavailable?: Record<string, string[]>; // UTC slotId → userId[]
+    slots: Record<string, string[]>;        // UTC slotId -> userId[]
+    unavailable?: Record<string, string[]>; // UTC slotId -> userId[]
 }
 
 export interface TeamInfo {
     teamId: string;
     teamTag: string;
     teamName: string;
-    roster: Record<string, RosterMember>;   // userId → member info
+    roster: Record<string, RosterMember>;   // userId -> member info
 }
 
 export interface RosterMember {
@@ -49,7 +49,7 @@ export interface ScheduleChannelConfig {
 }
 ```
 
-### 2. `time.ts` — CET↔UTC conversion + week utilities
+### 2. `time.ts` -- CET<->UTC conversion + week utilities
 
 Key functions to implement:
 
@@ -59,13 +59,13 @@ const CET_OFFSET = 1;
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-/** Convert UTC slot ID to CET display. "mon_1900" → { day: "mon", time: "20:00" } */
+/** Convert UTC slot ID to CET display. "mon_1900" -> { day: "mon", time: "20:00" } */
 export function utcToCet(utcSlotId: string): { day: string; time: string; }
 
-/** Convert CET day+time to UTC slot ID. ("mon", "2000") → "mon_1900" */
+/** Convert CET day+time to UTC slot ID. ("mon", "2000") -> "mon_1900" */
 export function cetToUtcSlotId(cetDay: string, cetTime: string): string
 
-/** Format UTC slot ID for CET display. "mon_1900" → "Mon 20:00" */
+/** Format UTC slot ID for CET display. "mon_1900" -> "Mon 20:00" */
 export function formatSlotCET(utcSlotId: string): string
 
 /** Get current ISO week ID. Returns "YYYY-WW" e.g. "2026-08" */
@@ -84,11 +84,11 @@ export function getSlotsForDay(cetDay: string): string[]
 export function getRemainingDays(weekId: string): string[]
 ```
 
-**Important**: The existing `formatSlotForCET()` in `src/modules/scheduler/embeds.ts` has working CET conversion logic. Extract and reuse it — don't reinvent.
+**Important**: The existing `formatSlotForCET()` in `src/modules/scheduler/embeds.ts` has working CET conversion logic. Extract and reuse it -- don't reinvent.
 
 Handle day wraparound: if UTC hour + CET_OFFSET >= 24, the CET day is the next day. If CET hour - CET_OFFSET < 0, the UTC day is the previous day.
 
-### 3. `user-resolver.ts` — Discord ID → Firebase UID
+### 3. `user-resolver.ts` -- Discord ID -> Firebase UID
 
 ```typescript
 import { getDb } from '../standin/firestore.js';
@@ -140,7 +140,7 @@ export function clearCache(): void {
 }
 ```
 
-### 4. `index.ts` — Module export
+### 4. `index.ts` -- Module export
 
 ```typescript
 import { BotModule } from '../../core/module.js';
@@ -188,14 +188,14 @@ start(config, [recordingModule, processingModule, standinModule, registrationMod
 
 - **Module pattern**: `src/modules/scheduler/index.ts`
 - **Firebase init**: `import { initFirestore, getDb } from '../standin/firestore.js';`
-- **Logger**: Check what `src/modules/scheduler/listener.ts` imports — likely `../../utils/logger.js` or similar
-- **CET logic**: `src/modules/scheduler/embeds.ts` → `formatSlotForCET()` function
+- **Logger**: Check what `src/modules/scheduler/listener.ts` imports -- likely `../../utils/logger.js` or similar
+- **CET logic**: `src/modules/scheduler/embeds.ts` -> `formatSlotForCET()` function
 
 ---
 
 ## Verification
 
-1. `npm run build` (or `tsc`) — no TypeScript errors
+1. `npm run build` (or `tsc`) -- no TypeScript errors
 2. Bot starts cleanly, logs "Availability module: ready"
 3. Manually test time.ts functions:
    - `getCurrentWeekId()` returns correct ISO week

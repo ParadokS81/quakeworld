@@ -12,7 +12,7 @@
   - Private recordings show "Sign in" prompt if user not authenticated
   - After sign-in, private recordings auto-retry and load if user is a team member
   - Non-members see "access denied" message after sign-in
-  - Demo iframe always renders (even without voice access) — users can still watch the demo
+  - Demo iframe always renders (even without voice access) -- users can still watch the demo
   - Drop zone (manual file upload) always available as fallback
 
 ---
@@ -22,10 +22,10 @@
 **PRIMARY SECTIONS:**
 - Phase 3 Deliverable 3: Add Firebase Auth to replay.html
 - Phase 3 Deliverable 4: Replay Page UX Flow
-- Phase 3 Deliverable 6: Update VoiceReplayService.loadFromFirestore() — Handle Auth Errors
+- Phase 3 Deliverable 6: Update VoiceReplayService.loadFromFirestore() -- Handle Auth Errors
 
 **DEPENDENT SECTIONS:**
-- Phase 3 Deliverable 1: Firestore rules (must be deployed — see P3.1)
+- Phase 3 Deliverable 1: Firestore rules (must be deployed -- see P3.1)
 - Existing AuthService.js: Provides sign-in flows, auth state management
 
 **IGNORED SECTIONS:**
@@ -56,20 +56,20 @@
 **New UI states to add:**
 
 ```
-CASE 1: Public recording (or legacy) → existing behavior, no change
-CASE 2: Private, not logged in → auth_required state
+CASE 1: Public recording (or legacy) -> existing behavior, no change
+CASE 2: Private, not logged in -> auth_required state
   - Demo iframe renders (watch demo without voice)
   - Message: "This recording is private. Sign in to access your team's recordings."
   - Discord + Google sign-in buttons
   - Drop zone available below
 
-CASE 3: Private, logged in, team member → loaded state (existing behavior)
-CASE 4: Private, logged in, NOT team member → access_denied state
+CASE 3: Private, logged in, team member -> loaded state (existing behavior)
+CASE 4: Private, logged in, NOT team member -> access_denied state
   - Demo iframe renders
   - Message: "You don't have access to this recording. It belongs to a different team."
   - Drop zone available below
 
-CASE 5: No recording found → existing behavior (drop zone)
+CASE 5: No recording found -> existing behavior (drop zone)
 ```
 
 ### FRONTEND SERVICES
@@ -89,18 +89,18 @@ New return: Structured result object:
 ```
 
 **Disambiguation logic:** Firestore returns the same `permission-denied` error code regardless of auth state. Differentiate by checking `window.firebase.auth.currentUser`:
-- `currentUser == null` → `auth_required`
-- `currentUser != null` → `access_denied`
+- `currentUser == null` -> `auth_required`
+- `currentUser != null` -> `access_denied`
 
 #### AuthService.js (Imported, not modified)
 
 Used as-is from the main app. Methods needed:
-- `waitForAuthReady()` — Wait for initial auth state
-- `signInWithGoogle()` — Google OAuth popup
-- `signInWithDiscord()` — Discord OAuth popup
-- `onAuthStateChange(callback)` — Subscribe to auth changes
-- `getCurrentUser()` — Get current user
-- `isDevMode()` — Check if dev mode (for emulator auto-login)
+- `waitForAuthReady()` -- Wait for initial auth state
+- `signInWithGoogle()` -- Google OAuth popup
+- `signInWithDiscord()` -- Discord OAuth popup
+- `onAuthStateChange(callback)` -- Subscribe to auth changes
+- `getCurrentUser()` -- Get current user
+- `isDevMode()` -- Check if dev mode (for emulator auto-login)
 
 ### BACKEND REQUIREMENTS
 
@@ -111,16 +111,16 @@ Used as-is from the main app. Methods needed:
 **Auth flow on replay page:**
 ```
 User visits replay.html?demo={sha256}
-  → Firebase Auth initializes
-  → AuthService.waitForAuthReady() resolves
-  → VoiceReplayService.loadFromFirestore(sha256)
-    ├── Success → render player with tracks
-    ├── not_found → render drop zone
-    ├── auth_required → render sign-in prompt + drop zone
-    │     └── User signs in → retry loadFromFirestore()
-    │           ├── Success → render player
-    │           └── access_denied → render denied message + drop zone
-    └── access_denied → render denied message + drop zone
+  -> Firebase Auth initializes
+  -> AuthService.waitForAuthReady() resolves
+  -> VoiceReplayService.loadFromFirestore(sha256)
+    ├── Success -> render player with tracks
+    ├── not_found -> render drop zone
+    ├── auth_required -> render sign-in prompt + drop zone
+    │     └── User signs in -> retry loadFromFirestore()
+    │           ├── Success -> render player
+    │           └── access_denied -> render denied message + drop zone
+    └── access_denied -> render denied message + drop zone
 ```
 
 **Important:** The demo player iframe loads independently from `hub.quakeworld.nu`. It has nothing to do with our auth. Always render it.
@@ -129,7 +129,7 @@ User visits replay.html?demo={sha256}
 
 ## Integration Code Examples
 
-### 1. replay.html — Add Firebase Auth
+### 1. replay.html -- Add Firebase Auth
 
 ```html
 <!-- Firebase v11 SDK (Firestore + Storage + Auth) -->
@@ -181,7 +181,7 @@ User visits replay.html?demo={sha256}
 <script src="js/services/AuthService.js"></script>
 ```
 
-### 2. VoiceReplayService.loadFromFirestore() — Handle Permission Errors
+### 2. VoiceReplayService.loadFromFirestore() -- Handle Permission Errors
 
 ```javascript
 async function loadFromFirestore(demoSha256) {
@@ -208,7 +208,7 @@ async function loadFromFirestore(demoSha256) {
                 return { status: 'access_denied' };
             }
         }
-        // Other errors (network, etc.) — rethrow
+        // Other errors (network, etc.) -- rethrow
         throw err;
     }
 
@@ -221,7 +221,7 @@ async function loadFromFirestore(demoSha256) {
     console.log(`VoiceReplayService: Found ${recording.trackCount} tracks (source: ${recording.source})`);
 
     if (recording.source !== 'firebase_storage') {
-        console.log('VoiceReplayService: Source is', recording.source, '— not handled yet');
+        console.log('VoiceReplayService: Source is', recording.source, '-- not handled yet');
         return { status: 'not_found' };
     }
 
@@ -257,7 +257,7 @@ async function loadFromFirestore(demoSha256) {
 }
 ```
 
-### 3. VoiceReplayPlayer.init() — Handle Auth States
+### 3. VoiceReplayPlayer.init() -- Handle Auth States
 
 ```javascript
 async function init(container, demoSha256, matchTitle) {
@@ -315,7 +315,7 @@ async function init(container, demoSha256, matchTitle) {
 }
 ```
 
-### 4. VoiceReplayPlayer — Auth UI States
+### 4. VoiceReplayPlayer -- Auth UI States
 
 ```javascript
 function _renderAuthRequired() {
@@ -450,13 +450,13 @@ async function _retryLoad() {
 
 ```
 HOT PATHS (<50ms):
-- None — replay page is a cold-start page (navigated to from match history or direct link)
+- None -- replay page is a cold-start page (navigated to from match history or direct link)
 
 COLD PATHS (<2s):
-- Auth initialization: AuthService.waitForAuthReady() — resolves quickly if already authenticated
-- loadFromFirestore: Firestore getDoc + permission check — same as before, plus auth overhead
-- Sign-in flow: OAuth popup — user-driven, inherently async
-- Retry after sign-in: Second loadFromFirestore call — acceptable cold path
+- Auth initialization: AuthService.waitForAuthReady() -- resolves quickly if already authenticated
+- loadFromFirestore: Firestore getDoc + permission check -- same as before, plus auth overhead
+- Sign-in flow: OAuth popup -- user-driven, inherently async
+- Retry after sign-in: Second loadFromFirestore call -- acceptable cold path
 
 BACKEND PERFORMANCE:
 - No Cloud Function calls
@@ -487,24 +487,24 @@ AuthService.waitForAuthReady()
 VoiceReplayService.loadFromFirestore(sha256)
     │
     ├── Firestore allows read
-    │   ├── Doc exists → { status: 'loaded', ... }
+    │   ├── Doc exists -> { status: 'loaded', ... }
     │   │   └── Render iframe + audio controls + overlay
-    │   └── Doc missing → { status: 'not_found' }
+    │   └── Doc missing -> { status: 'not_found' }
     │       └── Render iframe + drop zone
     │
     └── Firestore denies read (permission-denied)
-        ├── currentUser == null → { status: 'auth_required' }
+        ├── currentUser == null -> { status: 'auth_required' }
         │   └── Render iframe + sign-in buttons + drop zone
         │       │
         │       ▼ (user clicks sign-in)
         │   AuthService.signInWithDiscord/Google()
         │       │
         │       ▼
-        │   _retryLoad() → loadFromFirestore() again
-        │       ├── loaded → render controls
-        │       └── access_denied → render denied message
+        │   _retryLoad() -> loadFromFirestore() again
+        │       ├── loaded -> render controls
+        │       └── access_denied -> render denied message
         │
-        └── currentUser != null → { status: 'access_denied' }
+        └── currentUser != null -> { status: 'access_denied' }
             └── Render iframe + denied message + drop zone
 ```
 
@@ -512,7 +512,7 @@ VoiceReplayService.loadFromFirestore(sha256)
 
 ## Test Scenarios
 
-### FRONTEND TESTS — VoiceReplayService
+### FRONTEND TESTS -- VoiceReplayService
 - [ ] `loadFromFirestore` returns `{ status: 'loaded', ... }` for public recording
 - [ ] `loadFromFirestore` returns `{ status: 'not_found' }` when doc doesn't exist
 - [ ] `loadFromFirestore` returns `{ status: 'auth_required' }` on permission-denied when not logged in
@@ -520,19 +520,19 @@ VoiceReplayService.loadFromFirestore(sha256)
 - [ ] `loadFromFirestore` rethrows non-permission errors (network errors)
 - [ ] Existing `loadFiles` and `loadZip` work unchanged (no regression)
 
-### FRONTEND TESTS — VoiceReplayPlayer
+### FRONTEND TESTS -- VoiceReplayPlayer
 - [ ] Public recording: renders iframe + audio controls (no auth prompt)
 - [ ] Not found: renders iframe + drop zone (existing behavior)
 - [ ] Auth required: renders iframe + sign-in buttons + drop zone
 - [ ] Access denied: renders iframe + denied message + drop zone
 - [ ] Sign-in with Discord triggers AuthService.signInWithDiscord()
 - [ ] Sign-in with Google triggers AuthService.signInWithGoogle()
-- [ ] After successful sign-in + retry → loaded: renders audio controls
-- [ ] After successful sign-in + retry → access_denied: shows denied message
+- [ ] After successful sign-in + retry -> loaded: renders audio controls
+- [ ] After successful sign-in + retry -> access_denied: shows denied message
 - [ ] Drop zone works in all states (manual file upload always available)
 - [ ] Demo iframe always renders (even in auth_required/access_denied states)
 
-### FRONTEND TESTS — replay.html
+### FRONTEND TESTS -- replay.html
 - [ ] Firebase Auth module imported and initialized
 - [ ] Auth emulator connected in dev mode
 - [ ] `window.firebase.auth` is available
@@ -540,32 +540,32 @@ VoiceReplayService.loadFromFirestore(sha256)
 - [ ] AuthService.js loaded before VoiceReplayService.js
 
 ### INTEGRATION TESTS
-- [ ] Public recording + no auth → plays audio (end-to-end)
-- [ ] Private recording + no auth → shows sign-in prompt
-- [ ] Private recording + sign in as team member → plays audio
-- [ ] Private recording + sign in as non-member → shows access denied
-- [ ] Legacy recording (teamId: '') + no auth → plays audio
+- [ ] Public recording + no auth -> plays audio (end-to-end)
+- [ ] Private recording + no auth -> shows sign-in prompt
+- [ ] Private recording + sign in as team member -> plays audio
+- [ ] Private recording + sign in as non-member -> shows access denied
+- [ ] Legacy recording (teamId: '') + no auth -> plays audio
 - [ ] Dev mode: auto-login works on replay page
 
 ### END-TO-END TESTS
-- [ ] Navigate to replay.html?demo={public_sha256} → voice audio plays
-- [ ] Navigate to replay.html?demo={private_sha256} while not logged in → sign-in prompt
-- [ ] Sign in via Discord → recording loads automatically
-- [ ] Navigate to replay.html?demo={nonexistent} → drop zone appears
-- [ ] Drop files onto drop zone while in auth_required state → files load and play
+- [ ] Navigate to replay.html?demo={public_sha256} -> voice audio plays
+- [ ] Navigate to replay.html?demo={private_sha256} while not logged in -> sign-in prompt
+- [ ] Sign in via Discord -> recording loads automatically
+- [ ] Navigate to replay.html?demo={nonexistent} -> drop zone appears
+- [ ] Drop files onto drop zone while in auth_required state -> files load and play
 
 ---
 
 ## Common Integration Pitfalls
 
-- [ ] **AuthService.init() must be called** — AuthService auto-initializes on DOMContentLoaded, but `waitForAuthReady()` must be awaited before calling `loadFromFirestore()`. Without this, the auth state may not be resolved yet.
-- [ ] **Don't forget to add `auth` to `window.firebase`** — The replay page currently only has `{ app, db, storage, isLocalDev }`. Must add `auth`.
-- [ ] **Don't forget `window.APP_CONFIG`** — AuthService reads `DISCORD_CLIENT_ID` from this for Discord OAuth. Without it, Discord sign-in silently fails.
-- [ ] **Error code check is `err.code === 'permission-denied'`** — Firestore SDK uses this exact string, not `PERMISSION_DENIED` or other variants.
-- [ ] **Don't wrap loadFromFirestore in try/catch in VoiceReplayPlayer** — The service now returns structured results instead of throwing. The player should use `result.status` switch, not catch blocks. Only rethrow unexpected errors.
-- [ ] **Add `signInDiscord` and `signInGoogle` to the public return object** — They're called from inline `onclick` handlers, so must be on `VoiceReplayPlayer.*`.
-- [ ] **AuthService auto-login in dev mode** — AuthService uses `_devModeAutoSignIn()` which signs in as dev-user-001 (ParadokS). Make sure this test user has `teams` populated in emulator data for private recording tests.
-- [ ] **Drop zone must work in ALL states** — Even auth_required and access_denied. Users might have the audio files locally.
+- [ ] **AuthService.init() must be called** -- AuthService auto-initializes on DOMContentLoaded, but `waitForAuthReady()` must be awaited before calling `loadFromFirestore()`. Without this, the auth state may not be resolved yet.
+- [ ] **Don't forget to add `auth` to `window.firebase`** -- The replay page currently only has `{ app, db, storage, isLocalDev }`. Must add `auth`.
+- [ ] **Don't forget `window.APP_CONFIG`** -- AuthService reads `DISCORD_CLIENT_ID` from this for Discord OAuth. Without it, Discord sign-in silently fails.
+- [ ] **Error code check is `err.code === 'permission-denied'`** -- Firestore SDK uses this exact string, not `PERMISSION_DENIED` or other variants.
+- [ ] **Don't wrap loadFromFirestore in try/catch in VoiceReplayPlayer** -- The service now returns structured results instead of throwing. The player should use `result.status` switch, not catch blocks. Only rethrow unexpected errors.
+- [ ] **Add `signInDiscord` and `signInGoogle` to the public return object** -- They're called from inline `onclick` handlers, so must be on `VoiceReplayPlayer.*`.
+- [ ] **AuthService auto-login in dev mode** -- AuthService uses `_devModeAutoSignIn()` which signs in as dev-user-001 (ParadokS). Make sure this test user has `teams` populated in emulator data for private recording tests.
+- [ ] **Drop zone must work in ALL states** -- Even auth_required and access_denied. Users might have the audio files locally.
 
 ---
 

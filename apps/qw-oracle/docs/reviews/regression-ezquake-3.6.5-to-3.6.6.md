@@ -83,7 +83,7 @@ Members (2):
 
 ## Findings
 
-### addition:ezquake:command:skywind · addition · ezquake:command:skywind
+### addition:ezquake:command:skywind - addition - ezquake:command:skywind
 
 **Summary:** New command `skywind` first observed at 3.6.6.
 
@@ -102,7 +102,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:skywind_load · addition · ezquake:command:skywind_load
+### addition:ezquake:command:skywind_load - addition - ezquake:command:skywind_load
 
 **Summary:** New command `skywind_load` first observed at 3.6.6.
 
@@ -121,7 +121,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:skywind_lookdir · addition · ezquake:command:skywind_lookdir
+### addition:ezquake:command:skywind_lookdir - addition - ezquake:command:skywind_lookdir
 
 **Summary:** New command `skywind_lookdir` first observed at 3.6.6.
 
@@ -140,7 +140,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:skywind_rotate · addition · ezquake:command:skywind_rotate
+### addition:ezquake:command:skywind_rotate - addition - ezquake:command:skywind_rotate
 
 **Summary:** New command `skywind_rotate` first observed at 3.6.6.
 
@@ -159,7 +159,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:command:skywind_save · addition · ezquake:command:skywind_save
+### addition:ezquake:command:skywind_save - addition - ezquake:command:skywind_save
 
 **Summary:** New command `skywind_save` first observed at 3.6.6.
 
@@ -178,7 +178,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_allow_downloads · addition · ezquake:cvar:cl_allow_downloads
+### addition:ezquake:cvar:cl_allow_downloads - addition - ezquake:cvar:cl_allow_downloads
 
 **Summary:** New cvar `cl_allow_downloads` first observed at 3.6.6.
 
@@ -197,7 +197,7 @@ download/upload from/to the s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_allow_uploads · addition · ezquake:cvar:cl_allow_uploads
+### addition:ezquake:cvar:cl_allow_uploads - addition - ezquake:cvar:cl_allow_uploads
 
 **Summary:** New cvar `cl_allow_uploads` first observed at 3.6.6.
 
@@ -216,7 +216,7 @@ upload files from your qu...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_pext_colourmod · addition · ezquake:cvar:cl_pext_colourmod
+### addition:ezquake:cvar:cl_pext_colourmod - addition - ezquake:cvar:cl_pext_colourmod
 
 **Summary:** New cvar `cl_pext_colourmod` first observed at 3.6.6.
 
@@ -235,7 +235,7 @@ apply this color blendi...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_remote_capabilities · addition · ezquake:cvar:cl_remote_capabilities
+### addition:ezquake:cvar:cl_remote_capabilities - addition - ezquake:cvar:cl_remote_capabilities
 
 **Summary:** New cvar `cl_remote_capabilities` first observed at 3.6.6.
 
@@ -254,7 +254,7 @@ the server is all...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun2_frame_hide · addition · ezquake:cvar:hud_gun2_frame_hide
+### addition:ezquake:cvar:hud_gun2_frame_hide - addition - ezquake:cvar:hud_gun2_frame_hide
 
 **Summary:** New cvar `hud_gun2_frame_hide` first observed at 3.6.6.
 
@@ -274,7 +274,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun3_frame_hide · addition · ezquake:cvar:hud_gun3_frame_hide
+### addition:ezquake:cvar:hud_gun3_frame_hide - addition - ezquake:cvar:hud_gun3_frame_hide
 
 **Summary:** New cvar `hud_gun3_frame_hide` first observed at 3.6.6.
 
@@ -294,7 +294,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun4_frame_hide · addition · ezquake:cvar:hud_gun4_frame_hide
+### addition:ezquake:cvar:hud_gun4_frame_hide - addition - ezquake:cvar:hud_gun4_frame_hide
 
 **Summary:** New cvar `hud_gun4_frame_hide` first observed at 3.6.6.
 
@@ -314,7 +314,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun5_frame_hide · addition · ezquake:cvar:hud_gun5_frame_hide
+### addition:ezquake:cvar:hud_gun5_frame_hide - addition - ezquake:cvar:hud_gun5_frame_hide
 
 **Summary:** New cvar `hud_gun5_frame_hide` first observed at 3.6.6.
 
@@ -334,7 +334,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun6_frame_hide · addition · ezquake:cvar:hud_gun6_frame_hide
+### addition:ezquake:cvar:hud_gun6_frame_hide - addition - ezquake:cvar:hud_gun6_frame_hide
 
 **Summary:** New cvar `hud_gun6_frame_hide` first observed at 3.6.6.
 
@@ -354,7 +354,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun7_frame_hide · addition · ezquake:cvar:hud_gun7_frame_hide
+### addition:ezquake:cvar:hud_gun7_frame_hide - addition - ezquake:cvar:hud_gun7_frame_hide
 
 **Summary:** New cvar `hud_gun7_frame_hide` first observed at 3.6.6.
 
@@ -374,7 +374,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun8_frame_hide · addition · ezquake:cvar:hud_gun8_frame_hide
+### addition:ezquake:cvar:hud_gun8_frame_hide - addition - ezquake:cvar:hud_gun8_frame_hide
 
 **Summary:** New cvar `hud_gun8_frame_hide` first observed at 3.6.6.
 
@@ -394,7 +394,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_gun_frame_hide · addition · ezquake:cvar:hud_gun_frame_hide
+### addition:ezquake:cvar:hud_gun_frame_hide - addition - ezquake:cvar:hud_gun_frame_hide
 
 **Summary:** New cvar `hud_gun_frame_hide` first observed at 3.6.6.
 
@@ -414,7 +414,7 @@ Also move to hud_guns.c
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:pext_ezquake_verfortrans · addition · ezquake:cvar:pext_ezquake_verfortrans
+### addition:ezquake:cvar:pext_ezquake_verfortrans - addition - ezquake:cvar:pext_ezquake_verfortrans
 
 **Summary:** New cvar `pext_ezquake_verfortrans` first observed at 3.6.6.
 
@@ -432,7 +432,7 @@ As outdated clients have a broken implementation of FTE_PEXT_TR...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_skywind · addition · ezquake:cvar:r_skywind
+### addition:ezquake:cvar:r_skywind - addition - ezquake:cvar:r_skywind
 
 **Summary:** New cvar `r_skywind` first observed at 3.6.6.
 
@@ -451,7 +451,7 @@ the IronWail en...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_classic · addition · ezquake:cvar:scr_scoreboard_classic
+### addition:ezquake:cvar:scr_scoreboard_classic - addition - ezquake:cvar:scr_scoreboard_classic
 
 **Summary:** New cvar `scr_scoreboard_classic` first observed at 3.6.6.
 
@@ -470,7 +470,7 @@ by +showscores an...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_highlightself · addition · ezquake:cvar:scr_scoreboard_highlightself
+### addition:ezquake:cvar:scr_scoreboard_highlightself - addition - ezquake:cvar:scr_scoreboard_highlightself
 
 **Summary:** New cvar `scr_scoreboard_highlightself` first observed at 3.6.6.
 
@@ -490,7 +490,7 @@ Toggle the highlighting of your own scores in the scoreboard.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_showclock · addition · ezquake:cvar:scr_scoreboard_showclock
+### addition:ezquake:cvar:scr_scoreboard_showclock - addition - ezquake:cvar:scr_scoreboard_showclock
 
 **Summary:** New cvar `scr_scoreboard_showclock` first observed at 3.6.6.
 
@@ -509,7 +509,7 @@ when using +shows...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:vid_framebuffer_fxaa · addition · ezquake:cvar:vid_framebuffer_fxaa
+### addition:ezquake:cvar:vid_framebuffer_fxaa - addition - ezquake:cvar:vid_framebuffer_fxaa
 
 **Summary:** New cvar `vid_framebuffer_fxaa` first observed at 3.6.6.
 
@@ -530,7 +530,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:ruleset:smackdrive · addition · ezquake:ruleset:smackdrive
+### addition:ezquake:ruleset:smackdrive - addition - ezquake:ruleset:smackdrive
 
 **Summary:** New ruleset `smackdrive` first observed at 3.6.6.
 
@@ -549,7 +549,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_exec · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_exec - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_exec changed.
 
@@ -567,7 +567,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_ipc · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_ipc - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_ipc changed.
 
@@ -585,7 +585,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_setcalc · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_setcalc - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_setcalc changed.
 
@@ -603,7 +603,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_seteval · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_seteval - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_seteval changed.
 
@@ -621,7 +621,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_setex · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_setex - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_setex changed.
 
@@ -639,7 +639,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_exec · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_exec - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_exec changed.
 
@@ -657,7 +657,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_ipc · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_ipc - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_ipc changed.
 
@@ -675,7 +675,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_setcalc · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_setcalc - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_setcalc changed.
 
@@ -693,7 +693,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_seteval · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_seteval - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_seteval changed.
 
@@ -711,7 +711,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_setex · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_setex - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_setex changed.
 
@@ -729,7 +729,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_exec · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_exec - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_exec changed.
 
@@ -747,7 +747,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_ipc · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_ipc - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_ipc changed.
 
@@ -765,7 +765,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_setcalc · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_setcalc - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_setcalc changed.
 
@@ -783,7 +783,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_seteval · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_seteval - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_seteval changed.
 
@@ -801,7 +801,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_setex · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_setex - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_setex changed.
 
@@ -819,7 +819,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:77 · source-invisible · (no-ref)
+### source-invisible:release_notes:77 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -836,9 +836,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Entity-name keyword overlap: token "fte_pext_trans" in release-note body matched cluster member `cl_pext_colourmod`.
+**Proposed cluster:** commit-e5bc1600 -- Entity-name keyword overlap: token "fte_pext_trans" in release-note body matched cluster member `cl_pext_colourmod`.
 
-### source-invisible:release_notes:78 · source-invisible · (no-ref)
+### source-invisible:release_notes:78 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -856,7 +856,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:79 · source-invisible · (no-ref)
+### source-invisible:release_notes:79 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -873,9 +873,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Shared "SECURITY:" theme with 2 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-41852d49 -- Shared "SECURITY:" theme with 2 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:80 · source-invisible · (no-ref)
+### source-invisible:release_notes:80 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -893,7 +893,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:81 · source-invisible · (no-ref)
+### source-invisible:release_notes:81 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -911,7 +911,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:82 · source-invisible · (no-ref)
+### source-invisible:release_notes:82 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -928,9 +928,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-e5bc1600 -- Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:83 · source-invisible · (no-ref)
+### source-invisible:release_notes:83 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -947,9 +947,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-e5bc1600 -- Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:84 · source-invisible · (no-ref)
+### source-invisible:release_notes:84 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -966,9 +966,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-2c7fd802 — Entity-name keyword overlap: token "frame" in release-note body matched cluster member `hud_gun_frame_hide`.
+**Proposed cluster:** commit-2c7fd802 -- Entity-name keyword overlap: token "frame" in release-note body matched cluster member `hud_gun_frame_hide`.
 
-### source-invisible:release_notes:85 · source-invisible · (no-ref)
+### source-invisible:release_notes:85 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -985,9 +985,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Entity-name keyword overlap: token "pext_modeldbl" in release-note body matched cluster member `cl_pext_colourmod`.
+**Proposed cluster:** commit-e5bc1600 -- Entity-name keyword overlap: token "pext_modeldbl" in release-note body matched cluster member `cl_pext_colourmod`.
 
-### source-invisible:release_notes:86 · source-invisible · (no-ref)
+### source-invisible:release_notes:86 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `build` without entity / commit coverage.
 
@@ -1004,9 +1004,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Shared "CI:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-41852d49 -- Shared "CI:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:75 · source-invisible · (no-ref)
+### source-invisible:release_notes:75 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `changes` without entity / commit coverage.
 
@@ -1024,7 +1024,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:53 · source-invisible · (no-ref)
+### source-invisible:release_notes:53 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1041,9 +1041,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Entity-name keyword overlap: token "pext_trans" in release-note body matched cluster member `cl_pext_colourmod`.
+**Proposed cluster:** commit-e5bc1600 -- Entity-name keyword overlap: token "pext_trans" in release-note body matched cluster member `cl_pext_colourmod`.
 
-### source-invisible:release_notes:56 · source-invisible · (no-ref)
+### source-invisible:release_notes:56 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1060,9 +1060,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Entity-name keyword overlap: token "fte_pext_colourmod" in release-note body matched cluster member `cl_pext_colourmod`.
+**Proposed cluster:** commit-e5bc1600 -- Entity-name keyword overlap: token "fte_pext_colourmod" in release-note body matched cluster member `cl_pext_colourmod`.
 
-### source-invisible:release_notes:57 · source-invisible · (no-ref)
+### source-invisible:release_notes:57 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1080,7 +1080,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:58 · source-invisible · (no-ref)
+### source-invisible:release_notes:58 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1097,9 +1097,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-e5bc1600 — Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-e5bc1600 -- Shared "RENDERER:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:59 · source-invisible · (no-ref)
+### source-invisible:release_notes:59 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1117,7 +1117,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:60 · source-invisible · (no-ref)
+### source-invisible:release_notes:60 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1135,7 +1135,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:61 · source-invisible · (no-ref)
+### source-invisible:release_notes:61 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1152,9 +1152,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Entity-name keyword overlap: token "upload" in release-note body matched cluster member `cl_allow_uploads`.
+**Proposed cluster:** commit-41852d49 -- Entity-name keyword overlap: token "upload" in release-note body matched cluster member `cl_allow_uploads`.
 
-### source-invisible:release_notes:64 · source-invisible · (no-ref)
+### source-invisible:release_notes:64 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1171,9 +1171,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Shared "SECURITY:" theme with 2 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** commit-41852d49 -- Shared "SECURITY:" theme with 2 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
 
-### source-invisible:release_notes:65 · source-invisible · (no-ref)
+### source-invisible:release_notes:65 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1190,9 +1190,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Entity-name keyword overlap: tokens ["capabilities", "remote"] in release-note body matched cluster member `cl_remote_capabilities`.
+**Proposed cluster:** commit-41852d49 -- Entity-name keyword overlap: tokens ["capabilities", "remote"] in release-note body matched cluster member `cl_remote_capabilities`.
 
-### source-invisible:release_notes:66 · source-invisible · (no-ref)
+### source-invisible:release_notes:66 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1209,9 +1209,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Entity-name keyword overlap: token "downloadable" in release-note body matched cluster member `cl_allow_downloads`.
+**Proposed cluster:** commit-41852d49 -- Entity-name keyword overlap: token "downloadable" in release-note body matched cluster member `cl_allow_downloads`.
 
-### source-invisible:release_notes:69 · source-invisible · (no-ref)
+### source-invisible:release_notes:69 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1229,7 +1229,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:70 · source-invisible · (no-ref)
+### source-invisible:release_notes:70 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1247,7 +1247,7 @@ NVIDIA F...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:71 · source-invisible · (no-ref)
+### source-invisible:release_notes:71 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1264,9 +1264,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** commit-41852d49 — Entity-name keyword overlap: token "loads" in release-note body matched cluster member `cl_allow_downloads`.
+**Proposed cluster:** commit-41852d49 -- Entity-name keyword overlap: token "loads" in release-note body matched cluster member `cl_allow_downloads`.
 
-### source-invisible:release_notes:72 · source-invisible · (no-ref)
+### source-invisible:release_notes:72 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1283,9 +1283,9 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** scr_scoreboard-family — Entity-name keyword overlap: token "scoreboard" in release-note body matched cluster member `scr_scoreboard_classic`.
+**Proposed cluster:** scr_scoreboard-family -- Entity-name keyword overlap: token "scoreboard" in release-note body matched cluster member `scr_scoreboard_classic`.
 
-### source-invisible:release_notes:73 · source-invisible · (no-ref)
+### source-invisible:release_notes:73 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1302,4 +1302,4 @@ NVIDIA F...`
 **Cross-codebase hint:** unknown
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
-**Proposed cluster:** scr_scoreboard-family — Shared "UI:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.
+**Proposed cluster:** scr_scoreboard-family -- Shared "UI:" theme with 1 Q5 finding(s) already matched to this cluster in the direct pass; no entity-name overlap, proposing via theme extension.

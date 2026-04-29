@@ -36,7 +36,7 @@
 ### Dependent Sections (from other slices)
 | PRD Section | Dependency | Status |
 |-------------|------------|--------|
-| 4.2.1 Bottom-Right | TeamBrowser with star button | ✅ Slice 3.1 complete (visual only) |
+| 4.2.1 Bottom-Right | TeamBrowser with star button | [OK] Slice 3.1 complete (visual only) |
 | 4.2.2 | Team selection workflow | Uses unified TeamBrowserState |
 | 4.2.3 | Comparison initiation | Compare Now button location defined here |
 
@@ -140,10 +140,10 @@ updateFavorites({ teamId: string, action: 'add' | 'remove' })
 
 **Favorite Toggle Flow:**
 ```
-User clicks star → Optimistic UI toggle → FavoritesService.toggleFavorite()
-    → Cloud Function updateFavorites({ teamId, action })
-    → Firestore arrayUnion/arrayRemove on /users/{userId}.favoriteTeams
-    → User document listener fires → UI re-renders with confirmed state
+User clicks star -> Optimistic UI toggle -> FavoritesService.toggleFavorite()
+    -> Cloud Function updateFavorites({ teamId, action })
+    -> Firestore arrayUnion/arrayRemove on /users/{userId}.favoriteTeams
+    -> User document listener fires -> UI re-renders with confirmed state
 ```
 
 ---
@@ -621,8 +621,8 @@ function deselectTeam(teamId) {
 ### Integration Tests
 | Test | Expected Behavior |
 |------|-------------------|
-| Star team in Browse → Favorites updates | Team appears in Favorites panel immediately |
-| Select in Favorites → Browse shows selection | Same team shows selected in Browse panel |
+| Star team in Browse -> Favorites updates | Team appears in Favorites panel immediately |
+| Select in Favorites -> Browse shows selection | Same team shows selected in Browse panel |
 | Team data updates in Firestore | Favorite card updates with new data |
 | Remove from favorites while selected | Team deselects and removes from list |
 

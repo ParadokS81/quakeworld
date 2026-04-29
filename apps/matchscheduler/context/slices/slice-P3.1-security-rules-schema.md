@@ -18,8 +18,8 @@
 ## PRD Mapping
 
 **PRIMARY SECTIONS:**
-- Phase 3 Deliverable 1: Firestore Rules — voiceRecordings Privacy
-- Phase 3 Deliverable 2: Storage Rules — New Path Format
+- Phase 3 Deliverable 1: Firestore Rules -- voiceRecordings Privacy
+- Phase 3 Deliverable 2: Storage Rules -- New Path Format
 - Phase 3 Deliverable 5: Update SCHEMA.md
 
 **DEPENDENT SECTIONS:**
@@ -27,7 +27,7 @@
 - Phase 2: Defines the new fields (teamId, visibility, tracks[].discordUserId, etc.)
 
 **IGNORED SECTIONS:**
-- Deliverables 3, 4, 6: Auth on replay page, UX flow, service error handling → Slice P3.2
+- Deliverables 3, 4, 6: Auth on replay page, UX flow, service error handling -> Slice P3.2
 
 ---
 
@@ -70,10 +70,10 @@ match /voiceRecordings/{demoSha256} {
 ```
 
 **Rule logic explained:**
-1. `visibility == 'public'` — Explicitly public recordings readable by anyone
-2. `teamId == ''` — Legacy PoC recordings with empty teamId stay public
-3. `!('visibility' in resource.data)` — Legacy docs without visibility field stay public (belt + suspenders with #2)
-4. Auth check — Private recordings require: (a) user is authenticated, (b) user's `teams` map has `true` for the recording's `teamId`
+1. `visibility == 'public'` -- Explicitly public recordings readable by anyone
+2. `teamId == ''` -- Legacy PoC recordings with empty teamId stay public
+3. `!('visibility' in resource.data)` -- Legacy docs without visibility field stay public (belt + suspenders with #2)
+4. Auth check -- Private recordings require: (a) user is authenticated, (b) user's `teams` map has `true` for the recording's `teamId`
 
 **Why `get()` on users doc:** The `users/{uid}.teams` map is the canonical source of team membership. Same pattern used in `isTeamMember()` function already in the rules file (line 196-201).
 
@@ -106,26 +106,26 @@ match /voice-recordings/{demoSha256}/{fileName} {
 
 #### SCHEMA.md Updates
 
-**voiceRecordings — add new fields to interface:**
-- `visibility: 'public' | 'private'` — Resolved at upload from team's defaultVisibility
-- `tracks[].discordUserId: string` — Stable file identifier (Discord user ID)
-- `tracks[].discordUsername: string` — Discord display name at recording time
-- `tracks[].resolved: boolean` — true if playerName was confirmed via roster/knownPlayers
+**voiceRecordings -- add new fields to interface:**
+- `visibility: 'public' | 'private'` -- Resolved at upload from team's defaultVisibility
+- `tracks[].discordUserId: string` -- Stable file identifier (Discord user ID)
+- `tracks[].discordUsername: string` -- Discord display name at recording time
+- `tracks[].resolved: boolean` -- true if playerName was confirmed via roster/knownPlayers
 
-**voiceRecordings — update storage path doc:**
+**voiceRecordings -- update storage path doc:**
 - Old: `voice-recordings/{demoSha256}/{playerName}.ogg`
 - New: `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg`
 
-**voiceRecordings — update security rules summary:**
+**voiceRecordings -- update security rules summary:**
 - Was: Public read by anyone
 - Now: Public recordings readable by anyone; private recordings require team membership
 
-**botRegistrations — add new collection to Collections Overview + full interface:**
+**botRegistrations -- add new collection to Collections Overview + full interface:**
 - Document the `BotRegistrationDocument` interface from CONTRACT.md
 - Add to Collections Overview table
 
-**teams — note new optional field:**
-- `voiceSettings?: { defaultVisibility: 'public' | 'private' }` — read by quad bot at upload time
+**teams -- note new optional field:**
+- `voiceSettings?: { defaultVisibility: 'public' | 'private' }` -- read by quad bot at upload time
 
 ### INTEGRATION POINTS
 
@@ -135,10 +135,10 @@ match /voice-recordings/{demoSha256}/{fileName} {
 
 ## Integration Code Examples
 
-### Firestore Rules — Complete voiceRecordings Block
+### Firestore Rules -- Complete voiceRecordings Block
 
 ```
-// Voice recordings manifest — written by Quad bot via Admin SDK
+// Voice recordings manifest -- written by Quad bot via Admin SDK
 // Privacy: public recordings readable by anyone, private require team membership
 // Legacy: recordings with empty teamId or missing visibility stay public
 match /voiceRecordings/{demoSha256} {
@@ -152,10 +152,10 @@ match /voiceRecordings/{demoSha256} {
 }
 ```
 
-### Storage Rules — Both Path Formats
+### Storage Rules -- Both Path Formats
 
 ```
-// Voice recordings — uploaded by Quad bot via Admin SDK
+// Voice recordings -- uploaded by Quad bot via Admin SDK
 // Public read: discovery requires knowing demoSha256 (not guessable)
 // Privacy is enforced at Firestore discovery layer, not storage
 
@@ -172,7 +172,7 @@ match /voice-recordings/{demoSha256}/{fileName} {
 }
 ```
 
-### SCHEMA.md — Updated voiceRecordings Interface
+### SCHEMA.md -- Updated voiceRecordings Interface
 
 ```typescript
 interface VoiceRecordingDocument {
@@ -203,20 +203,20 @@ interface VoiceTrack {
 }
 ```
 
-### SCHEMA.md — New botRegistrations Collection
+### SCHEMA.md -- New botRegistrations Collection
 
 ```typescript
 interface BotRegistrationDocument {
   teamId: string;                     // = document ID
   teamTag: string;
   teamName: string;
-  authorizedDiscordUserId: string;    // Leader's Discord ID — only this user can run /register
+  authorizedDiscordUserId: string;    // Leader's Discord ID -- only this user can run /register
   registeredBy: string;               // Firebase UID of the leader
   guildId: string | null;             // null while pending, populated on completion
   guildName: string | null;
   status: 'pending' | 'active';
   knownPlayers: {
-    [discordUserId: string]: string;  // Discord user ID → QW display name
+    [discordUserId: string]: string;  // Discord user ID -> QW display name
   };
   createdAt: Timestamp;
   activatedAt: Timestamp | null;
@@ -243,19 +243,19 @@ BACKEND PERFORMANCE:
 
 ```
 Private Recording Access:
-  Client (replay page) → Firestore getDoc(voiceRecordings/{sha256})
-    → Security Rule evaluates:
-       ├── visibility == 'public' ? → ALLOW (no auth needed)
-       ├── teamId == '' ? → ALLOW (legacy PoC)
-       ├── !('visibility' in data) ? → ALLOW (legacy PoC)
-       └── auth.uid → get(users/{uid}).teams[teamId] == true ?
-            ├── YES → ALLOW (team member)
-            └── NO → DENY (permission-denied error → handled in P3.2)
+  Client (replay page) -> Firestore getDoc(voiceRecordings/{sha256})
+    -> Security Rule evaluates:
+       ├── visibility == 'public' ? -> ALLOW (no auth needed)
+       ├── teamId == '' ? -> ALLOW (legacy PoC)
+       ├── !('visibility' in data) ? -> ALLOW (legacy PoC)
+       └── auth.uid -> get(users/{uid}).teams[teamId] == true ?
+            ├── YES -> ALLOW (team member)
+            └── NO -> DENY (permission-denied error -> handled in P3.2)
 
 Storage Access:
-  Client → Firebase Storage getDownloadURL(voice-recordings/...)
-    → Storage Rule: allow read: if true
-    → URL returned (privacy enforced at Firestore layer, not storage)
+  Client -> Firebase Storage getDownloadURL(voice-recordings/...)
+    -> Storage Rule: allow read: if true
+    -> URL returned (privacy enforced at Firestore layer, not storage)
 ```
 
 ---
@@ -291,19 +291,19 @@ Storage Access:
 
 ## Common Integration Pitfalls
 
-- [ ] **Don't forget `!('visibility' in resource.data)` clause** — Without it, old recordings that have no `visibility` field AND have `teamId: ''` would depend solely on the `teamId == ''` clause. The explicit missing-field check is belt-and-suspenders safety.
-- [ ] **Don't remove the old storage rule** — Old recordings use the 2-level path. Both rules must coexist.
-- [ ] **Don't change botRegistrations rules** — They already exist in `firestore.rules` (line 429-436). This slice only updates the voiceRecordings rules.
-- [ ] **Test with emulator auth** — The rules use `request.auth` and `get()`. Make sure the emulator has test users with `teams` map populated.
+- [ ] **Don't forget `!('visibility' in resource.data)` clause** -- Without it, old recordings that have no `visibility` field AND have `teamId: ''` would depend solely on the `teamId == ''` clause. The explicit missing-field check is belt-and-suspenders safety.
+- [ ] **Don't remove the old storage rule** -- Old recordings use the 2-level path. Both rules must coexist.
+- [ ] **Don't change botRegistrations rules** -- They already exist in `firestore.rules` (line 429-436). This slice only updates the voiceRecordings rules.
+- [ ] **Test with emulator auth** -- The rules use `request.auth` and `get()`. Make sure the emulator has test users with `teams` map populated.
 
 ---
 
 ## Implementation Notes
 
 **Order of operations:**
-1. Update `firestore.rules` — change voiceRecordings read rule
-2. Update `storage.rules` — add 3-level path match
-3. Update `context/SCHEMA.md` — document all Phase 2 changes + botRegistrations
+1. Update `firestore.rules` -- change voiceRecordings read rule
+2. Update `storage.rules` -- add 3-level path match
+3. Update `context/SCHEMA.md` -- document all Phase 2 changes + botRegistrations
 
 **Deploy consideration:** These rules can be deployed independently of the frontend changes (P3.2). Deploy rules first, then the frontend can gracefully handle the permission-denied errors.
 

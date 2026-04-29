@@ -8,48 +8,48 @@ See `../VISION.md` for the three-layer knowledge-service framing.
 
 Layer 3 accepts content from two distinct sources. Both produce notes in this directory; both live under the same MCP surface and the same frontmatter schema.
 
-- **Imported** — guide content already curated by the community elsewhere (primarily ezquake.com/docs guide pages). Mirrored into a concept note with entity links to Layer 1. Earned by 15+ years of community questions; no need to re-derive.
-- **Authored-here** — full-body notes written during review or deliberate investigation for gaps the community hasn't covered. Potential upstream PR candidates back to ezquake.com.
+- **Imported** -- guide content already curated by the community elsewhere (primarily ezquake.com/docs guide pages). Mirrored into a concept note with entity links to Layer 1. Earned by 15+ years of community questions; no need to re-derive.
+- **Authored-here** -- full-body notes written during review or deliberate investigation for gaps the community hasn't covered. Potential upstream PR candidates back to ezquake.com.
 
 The "earn by question" principle below governs **authored-here** notes only. It does not reject imports.
 
 ## When to author a note (earn-the-note tests)
 
-A finding warrants a concept note — as opposed to cold Layer 1 data — when at least one of these applies:
+A finding warrants a concept note -- as opposed to cold Layer 1 data -- when at least one of these applies:
 
 1. **User-visible artifacts still on disk.** Example: `.kmap` files ship in nQuake bundles even though ezQuake removed the loader in 2014.
 2. **Orphan state in the current engine.** Example: `in_builtinkeymap` cvar surviving the rest of the removed keymap subsystem.
 3. **Commonly referenced in Layer 2 chat testimony.** The community still asks about the topic.
 4. **Cautionary / teaching example for current design patterns.** Example: server-side protocol version-gating pattern, generalizable across protocol extensions.
-5. **Current feature with depth beyond a Layer 1 entity listing.** Material narrative, pattern, or synthesis across multiple entities — a family story, not one cvar.
+5. **Current feature with depth beyond a Layer 1 entity listing.** Material narrative, pattern, or synthesis across multiple entities -- a family story, not one cvar.
 
-Otherwise: Layer 1 alone is sufficient; no note. **Layer 3 is guidance-for-today, not a museum. Layer 1 is the museum** — version-aware facts with per-field blame already carry history. Removed features that leave no artifacts, no orphan state, no community volume, and no teaching value do not earn a note.
+Otherwise: Layer 1 alone is sufficient; no note. **Layer 3 is guidance-for-today, not a museum. Layer 1 is the museum** -- version-aware facts with per-field blame already carry history. Removed features that leave no artifacts, no orphan state, no community volume, and no teaching value do not earn a note.
 
-**Outside current Layer 3 scope:** opinionated community best-practice — strategy guides, competitive performance tuning, teamplay culture on and off the field. That material lives in Layer 2 raw testimony today. A future authoring lane can crystallize it into Layer 3 notes once it stabilizes, but current scope stays factual: mechanics, workflows, patterns, conventions, not normative advice.
+**Outside current Layer 3 scope:** opinionated community best-practice -- strategy guides, competitive performance tuning, teamplay culture on and off the field. That material lives in Layer 2 raw testimony today. A future authoring lane can crystallize it into Layer 3 notes once it stabilizes, but current scope stays factual: mechanics, workflows, patterns, conventions, not normative advice.
 
 Good triggers (examples that pass one or more tests):
 - A fact that requires synthesizing multiple Layer 1 entities into a story (a removal commit plus a surviving cvar plus a distribution channel).
 - A classifier or taxonomy question that crosses entity types (player-facing vs engine-internal).
 - An ecosystem fact that source code has no access to (which community installer ships which files, what a file's cultural role is).
 - A deprecation / transition story that a frozen Layer 1 snapshot misses because the knowledge lives in the diff, not the state.
-- A cross-codebase pattern (an ezQuake feature with KTX or MVDSV counterpart) — even if only one codebase is walked, create the note now so future walks can reference it rather than duplicate.
+- A cross-codebase pattern (an ezQuake feature with KTX or MVDSV counterpart) -- even if only one codebase is walked, create the note now so future walks can reference it rather than duplicate.
 
 ## Note shape
 
 Each note has YAML frontmatter and a predictable section skeleton. The `<topic-specific>` sections between Summary and Consumer implications vary by note shape. Recognized shapes, with existing exemplars:
 
-- **Narrative / history** — sequential arc across origin, transition, removal, current state. Exemplars: `kmap-legacy-keymap-system.md`, `completing-legacy-fte-protocol-extensions.md`.
-- **Taxonomy / classifier** — axis defined, per-item placement, consumer implications per category. Exemplar: `engine-internal-vs-player-facing-files.md`.
-- **Domain walkthrough** — what-the-feature-does + per-entity breakdown + conventions + failure modes. Exemplar: `skywind-animated-skyboxes.md`.
-- **Policy + iteration story** — threat model / purpose + defenses + time-ordered iteration (e.g., follow-up commits tuning defaults) + current state. Exemplar: `client-side-server-exec-allowlist.md`.
-- **Pattern library** — single reusable script/config shape + one worked example + variations + constraints. Focuses narrowly on a pattern (version-gating, exec-allowlist, restriction primitives), not a feature area. Exemplars: the pattern sections of `client-side-server-exec-allowlist.md`, `ruleset-anti-script-restriction-pattern.md`, `completing-legacy-fte-protocol-extensions.md`.
-- **Short how-to** — 15-30 line task-oriented prose, numbered steps common. No current exemplars; incoming from guide-derived imports (e.g. `crosshairs`, `fakeshaft`).
+- **Narrative / history** -- sequential arc across origin, transition, removal, current state. Exemplars: `kmap-legacy-keymap-system.md`, `completing-legacy-fte-protocol-extensions.md`.
+- **Taxonomy / classifier** -- axis defined, per-item placement, consumer implications per category. Exemplar: `engine-internal-vs-player-facing-files.md`.
+- **Domain walkthrough** -- what-the-feature-does + per-entity breakdown + conventions + failure modes. Exemplar: `skywind-animated-skyboxes.md`.
+- **Policy + iteration story** -- threat model / purpose + defenses + time-ordered iteration (e.g., follow-up commits tuning defaults) + current state. Exemplar: `client-side-server-exec-allowlist.md`.
+- **Pattern library** -- single reusable script/config shape + one worked example + variations + constraints. Focuses narrowly on a pattern (version-gating, exec-allowlist, restriction primitives), not a feature area. Exemplars: the pattern sections of `client-side-server-exec-allowlist.md`, `ruleset-anti-script-restriction-pattern.md`, `completing-legacy-fte-protocol-extensions.md`.
+- **Short how-to** -- 15-30 line task-oriented prose, numbered steps common. No current exemplars; incoming from guide-derived imports (e.g. `crosshairs`, `fakeshaft`).
 
 Pick the closest shape; small hybrids are fine. Add a new shape to this list only when a note doesn't fit any existing one.
 
 ### Voice and length by shape
 
-Voice register and length depend on shape. One skeleton, tiered voice. Evidence for the split — and why forcing one voice across all shapes fights the source material — lives in `docs/superpowers/specs/2026-04-24-layer3-role-map.md`.
+Voice register and length depend on shape. One skeleton, tiered voice. Evidence for the split -- and why forcing one voice across all shapes fights the source material -- lives in `docs/superpowers/specs/2026-04-24-layer3-role-map.md`.
 
 | Shape | Voice | Length | Citation density |
 |---|---|---|---|
@@ -64,26 +64,26 @@ Source-derived infrastructure notes (the first six in this directory) carry the 
 
 ### Progressive disclosure for notes over ~80 lines
 
-Notes longer than approximately 80 lines structure their opening as a standalone short answer. The first ~30 lines (Summary + the section that follows it — usually a Mental model, per-method glance, or taxonomy table) must be readable on its own: a reader who stops there has a usable answer to the topic. Everything below those two sections is drill-down depth.
+Notes longer than approximately 80 lines structure their opening as a standalone short answer. The first ~30 lines (Summary + the section that follows it -- usually a Mental model, per-method glance, or taxonomy table) must be readable on its own: a reader who stops there has a usable answer to the topic. Everything below those two sections is drill-down depth.
 
-The opener shape varies — taxonomy table, three-method glance, summary + mechanical behavior, bucket+path table — but the principle is consistent: short-answer-first, depth-after. This pairs with MCP serving: the default condense can return the first two sections without losing meaning, while a depth query can return the full note.
+The opener shape varies -- taxonomy table, three-method glance, summary + mechanical behavior, bucket+path table -- but the principle is consistent: short-answer-first, depth-after. This pairs with MCP serving: the default condense can return the first two sections without losing meaning, while a depth query can return the full note.
 
-Notes under ~80 lines do not need the structural split — they can be linear. The 30-line threshold is approximate; the test is whether a reader who stops after the first two sections has a usable answer.
+Notes under ~80 lines do not need the structural split -- they can be linear. The 30-line threshold is approximate; the test is whether a reader who stops after the first two sections has a usable answer.
 
-Confirmed across `weapon-scripts.md` (R3+R7, three-method glance opener), `lightning-gun-customization.md` (R2+R7, summary + mechanical behavior opener), and `player-skins.md` (R2+R7, bucket+path table opener). See `OPERATIONS.md` § 7 entry "Progressive-disclosure structure for long notes" for the rule-of-three trail.
+Confirmed across `weapon-scripts.md` (R3+R7, three-method glance opener), `lightning-gun-customization.md` (R2+R7, summary + mechanical behavior opener), and `player-skins.md` (R2+R7, bucket+path table opener). See `OPERATIONS.md` Section  7 entry "Progressive-disclosure structure for long notes" for the rule-of-three trail.
 
 ### Authority grounding for R7 (opinionated best-practice) content
 
-R7-flavored notes — those carrying recommendations, named recipes, or "most players use X" claims — must ground every recommendation in at least one of four labeled grounds. Bare assertion is disallowed.
+R7-flavored notes -- those carrying recommendations, named recipes, or "most players use X" claims -- must ground every recommendation in at least one of four labeled grounds. Bare assertion is disallowed.
 
-1. **Engine mechanics** — source-defensible. Cite file:line.
-2. **Community consensus** — via commit messages, PR threads, or Layer 2 testimony with message-ID citation.
-3. **Operator SME** — explicitly credited in the `primary_contributors` frontmatter.
-4. **Hedged community knowledge** — flagged inline as not-source-defensible field practice. The hedge must name its own status (e.g. *"community knowledge, not source-defensible"*) so a downstream consumer can weight the claim correctly.
+1. **Engine mechanics** -- source-defensible. Cite file:line.
+2. **Community consensus** -- via commit messages, PR threads, or Layer 2 testimony with message-ID citation.
+3. **Operator SME** -- explicitly credited in the `primary_contributors` frontmatter.
+4. **Hedged community knowledge** -- flagged inline as not-source-defensible field practice. The hedge must name its own status (e.g. *"community knowledge, not source-defensible"*) so a downstream consumer can weight the claim correctly.
 
 A single recommendation can rest on more than one ground; the requirement is that at least one labeled ground supports each claim. This is what keeps R7 content useful rather than opinion-mining: a downstream consumer can trace any "you should do X" to a defensible source class even when measurement-grade evidence isn't available.
 
-Confirmed across `weapon-scripts.md`, `lightning-gun-customization.md`, and `player-skins.md`. See `OPERATIONS.md` § 7 entry "First R7 opinionated-best-practice note landed" for the rule-of-three trail.
+Confirmed across `weapon-scripts.md`, `lightning-gun-customization.md`, and `player-skins.md`. See `OPERATIONS.md` Section  7 entry "First R7 opinionated-best-practice note landed" for the rule-of-three trail.
 
 Frontmatter:
 
@@ -115,14 +115,14 @@ last_updated: YYYY-MM-DD
 
 Provenance fields distinguish imports from authored-here and track drift:
 
-- `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` — the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
-- `authored_by: qw-oracle` — the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it. Use `upstream_target: new-page` when no existing ezquake.com page is a natural home; when the new page would also require a new sidebar section (e.g., a "Security" section that doesn't exist), capture that scope expansion in the References section — the upstream PR is larger than a single-file add.
+- `authored_by: community` + `source_url` + `imported_from` + `last_imported_at` -- the note is mirrored from ezquake.com/docs or another community source. Re-sync by checking if upstream commit sha has advanced past `imported_from`.
+- `authored_by: qw-oracle` -- the note was written here. If it's a gap ezquake.com doesn't cover, `upstream_status: gap-candidate` + `upstream_target: <page>` flags it for eventual upstream PR. The target preserves finding-time intent (which ezquake.com page the gap belongs in) so a future upstream sweep doesn't have to re-derive it. Use `upstream_target: new-page` when no existing ezquake.com page is a natural home; when the new page would also require a new sidebar section (e.g., a "Security" section that doesn't exist), capture that scope expansion in the References section -- the upstream PR is larger than a single-file add.
 
-`primary_contributors` lists the upstream code authors the note documents (GitHub handles, e.g., `@dsvensson`, `@osm`) — distinct from `authored_by`, which is about the note's provenance, not the feature's. Populated for both imported and authored-here notes. Useful for MCP "who landed X" queries and for upstream-PR coordination (crediting and notifying the original contributor). Multiple handles when the documented work genuinely spans multiple contributors.
+`primary_contributors` lists the upstream code authors the note documents (GitHub handles, e.g., `@dsvensson`, `@osm`) -- distinct from `authored_by`, which is about the note's provenance, not the feature's. Populated for both imported and authored-here notes. Useful for MCP "who landed X" queries and for upstream-PR coordination (crediting and notifying the original contributor). Multiple handles when the documented work genuinely spans multiple contributors.
 
-Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance — cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline. Multiple PRs in one note are fine when the story genuinely spans them (e.g., a feature landing across an initial merge + follow-up fixes); single-PR notes are the common case.
+Entity-ref format in `related_entities`: `<project>:<kind>:<identifier>`. Supported kinds per project follow the Layer 1 entity-type vocabulary (`cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`) plus cross-referenceable artifacts (`commit`, `pr`, `extension`). PRs are load-bearing provenance -- cite `ezquake:pr:<n>` whenever a finding traces to a specific PR via the enrichment pipeline. Multiple PRs in one note are fine when the story genuinely spans them (e.g., a feature landing across an initial merge + follow-up fixes); single-PR notes are the common case.
 
-Topic vocabulary (`topic:` field) is intentionally broad. `domain-guide` covers narrative / walkthrough content regardless of audience — player-facing, operator-facing, and tool-author-facing notes all use it. `asset-lifecycle` and `classifier-metadata` are reserved for the specific shapes named. Add a new topic value only when a third note in a truly distinct shape (e.g., `protocol-archaeology`, `security-policy`) would be actively miscategorized under the existing ones; don't split the vocabulary speculatively.
+Topic vocabulary (`topic:` field) is intentionally broad. `domain-guide` covers narrative / walkthrough content regardless of audience -- player-facing, operator-facing, and tool-author-facing notes all use it. `asset-lifecycle` and `classifier-metadata` are reserved for the specific shapes named. Add a new topic value only when a third note in a truly distinct shape (e.g., `protocol-archaeology`, `security-policy`) would be actively miscategorized under the existing ones; don't split the vocabulary speculatively.
 
 Body:
 
@@ -136,7 +136,7 @@ Body:
 
 Tone: factual, third-person, present tense for current state, past tense for history. Cite liberally. Community testimony (e.g. "per ParadokS, 2026-04-22") is a legitimate source for facts that Layer 1 cannot verify.
 
-Length: ~15-150 lines depending on shape — see the voice-and-length table above. Shorter notes tend to be under-justified when they hold infrastructure content; longer notes in any shape usually want splitting.
+Length: ~15-150 lines depending on shape -- see the voice-and-length table above. Shorter notes tend to be under-justified when they hold infrastructure content; longer notes in any shape usually want splitting.
 
 ## Current notes
 

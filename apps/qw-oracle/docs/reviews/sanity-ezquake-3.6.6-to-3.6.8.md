@@ -85,7 +85,7 @@ Members (2):
 
 ## Findings
 
-### addition:ezquake:cvar:cl_portpingprobe_delay · addition · ezquake:cvar:cl_portpingprobe_delay
+### addition:ezquake:cvar:cl_portpingprobe_delay - addition - ezquake:cvar:cl_portpingprobe_delay
 
 **Summary:** New cvar `cl_portpingprobe_delay` first observed at 3.6.8.
 
@@ -106,7 +106,7 @@ times.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_portpingprobe_enable · addition · ezquake:cvar:cl_portpingprobe_enable
+### addition:ezquake:cvar:cl_portpingprobe_enable - addition - ezquake:cvar:cl_portpingprobe_enable
 
 **Summary:** New cvar `cl_portpingprobe_enable` first observed at 3.6.8.
 
@@ -127,7 +127,7 @@ times.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_portpingprobe_port_probes · addition · ezquake:cvar:cl_portpingprobe_port_probes
+### addition:ezquake:cvar:cl_portpingprobe_port_probes - addition - ezquake:cvar:cl_portpingprobe_port_probes
 
 **Summary:** New cvar `cl_portpingprobe_port_probes` first observed at 3.6.8.
 
@@ -148,7 +148,7 @@ times.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_portpingprobe_probes · addition · ezquake:cvar:cl_portpingprobe_probes
+### addition:ezquake:cvar:cl_portpingprobe_probes - addition - ezquake:cvar:cl_portpingprobe_probes
 
 **Summary:** New cvar `cl_portpingprobe_probes` first observed at 3.6.8.
 
@@ -169,7 +169,7 @@ times.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_safestrafe · addition · ezquake:cvar:cl_safestrafe
+### addition:ezquake:cvar:cl_safestrafe - addition - ezquake:cvar:cl_safestrafe
 
 **Summary:** New cvar `cl_safestrafe` first observed at 3.6.8.
 
@@ -188,7 +188,7 @@ times.
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_window_caption_delimiter · addition · ezquake:cvar:cl_window_caption_delimiter
+### addition:ezquake:cvar:cl_window_caption_delimiter - addition - ezquake:cvar:cl_window_caption_delimiter
 
 **Summary:** New cvar `cl_window_caption_delimiter` first observed at 3.6.8.
 
@@ -209,7 +209,7 @@ The new window caption shows:
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:con_margin_left · addition · ezquake:cvar:con_margin_left
+### addition:ezquake:cvar:con_margin_left - addition - ezquake:cvar:con_margin_left
 
 **Summary:** New cvar `con_margin_left` first observed at 3.6.8.
 
@@ -230,7 +230,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo1_text_color_low · addition · ezquake:cvar:hud_ammo1_text_color_low
+### addition:ezquake:cvar:hud_ammo1_text_color_low - addition - ezquake:cvar:hud_ammo1_text_color_low
 
 **Summary:** New cvar `hud_ammo1_text_color_low` first observed at 3.6.8.
 
@@ -249,7 +249,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo1_text_color_normal · addition · ezquake:cvar:hud_ammo1_text_color_normal
+### addition:ezquake:cvar:hud_ammo1_text_color_normal - addition - ezquake:cvar:hud_ammo1_text_color_normal
 
 **Summary:** New cvar `hud_ammo1_text_color_normal` first observed at 3.6.8.
 
@@ -268,7 +268,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo2_text_color_low · addition · ezquake:cvar:hud_ammo2_text_color_low
+### addition:ezquake:cvar:hud_ammo2_text_color_low - addition - ezquake:cvar:hud_ammo2_text_color_low
 
 **Summary:** New cvar `hud_ammo2_text_color_low` first observed at 3.6.8.
 
@@ -287,7 +287,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo2_text_color_normal · addition · ezquake:cvar:hud_ammo2_text_color_normal
+### addition:ezquake:cvar:hud_ammo2_text_color_normal - addition - ezquake:cvar:hud_ammo2_text_color_normal
 
 **Summary:** New cvar `hud_ammo2_text_color_normal` first observed at 3.6.8.
 
@@ -306,7 +306,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo3_text_color_low · addition · ezquake:cvar:hud_ammo3_text_color_low
+### addition:ezquake:cvar:hud_ammo3_text_color_low - addition - ezquake:cvar:hud_ammo3_text_color_low
 
 **Summary:** New cvar `hud_ammo3_text_color_low` first observed at 3.6.8.
 
@@ -325,7 +325,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo3_text_color_normal · addition · ezquake:cvar:hud_ammo3_text_color_normal
+### addition:ezquake:cvar:hud_ammo3_text_color_normal - addition - ezquake:cvar:hud_ammo3_text_color_normal
 
 **Summary:** New cvar `hud_ammo3_text_color_normal` first observed at 3.6.8.
 
@@ -344,7 +344,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo4_text_color_low · addition · ezquake:cvar:hud_ammo4_text_color_low
+### addition:ezquake:cvar:hud_ammo4_text_color_low - addition - ezquake:cvar:hud_ammo4_text_color_low
 
 **Summary:** New cvar `hud_ammo4_text_color_low` first observed at 3.6.8.
 
@@ -363,7 +363,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo4_text_color_normal · addition · ezquake:cvar:hud_ammo4_text_color_normal
+### addition:ezquake:cvar:hud_ammo4_text_color_normal - addition - ezquake:cvar:hud_ammo4_text_color_normal
 
 **Summary:** New cvar `hud_ammo4_text_color_normal` first observed at 3.6.8.
 
@@ -382,7 +382,7 @@ Co-authored...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo_text_color_low · addition · ezquake:cvar:hud_ammo_text_color_low
+### addition:ezquake:cvar:hud_ammo_text_color_low - addition - ezquake:cvar:hud_ammo_text_color_low
 
 **Summary:** New cvar `hud_ammo_text_color_low` first observed at 3.6.8.
 
@@ -401,7 +401,7 @@ They just print empty space but other hud elements
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_ammo_text_color_normal · addition · ezquake:cvar:hud_ammo_text_color_normal
+### addition:ezquake:cvar:hud_ammo_text_color_normal - addition - ezquake:cvar:hud_ammo_text_color_normal
 
 **Summary:** New cvar `hud_ammo_text_color_normal` first observed at 3.6.8.
 
@@ -420,7 +420,7 @@ They just print empty space but other hud elements
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_align_x · addition · ezquake:cvar:hud_scoremapname_align_x
+### addition:ezquake:cvar:hud_scoremapname_align_x - addition - ezquake:cvar:hud_scoremapname_align_x
 
 **Summary:** New cvar `hud_scoremapname_align_x` first observed at 3.6.8.
 
@@ -438,7 +438,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_align_y · addition · ezquake:cvar:hud_scoremapname_align_y
+### addition:ezquake:cvar:hud_scoremapname_align_y - addition - ezquake:cvar:hud_scoremapname_align_y
 
 **Summary:** New cvar `hud_scoremapname_align_y` first observed at 3.6.8.
 
@@ -456,7 +456,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_draw · addition · ezquake:cvar:hud_scoremapname_draw
+### addition:ezquake:cvar:hud_scoremapname_draw - addition - ezquake:cvar:hud_scoremapname_draw
 
 **Summary:** New cvar `hud_scoremapname_draw` first observed at 3.6.8.
 
@@ -474,7 +474,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_frame · addition · ezquake:cvar:hud_scoremapname_frame
+### addition:ezquake:cvar:hud_scoremapname_frame - addition - ezquake:cvar:hud_scoremapname_frame
 
 **Summary:** New cvar `hud_scoremapname_frame` first observed at 3.6.8.
 
@@ -492,7 +492,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_frame_color · addition · ezquake:cvar:hud_scoremapname_frame_color
+### addition:ezquake:cvar:hud_scoremapname_frame_color - addition - ezquake:cvar:hud_scoremapname_frame_color
 
 **Summary:** New cvar `hud_scoremapname_frame_color` first observed at 3.6.8.
 
@@ -510,7 +510,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_item_opacity · addition · ezquake:cvar:hud_scoremapname_item_opacity
+### addition:ezquake:cvar:hud_scoremapname_item_opacity - addition - ezquake:cvar:hud_scoremapname_item_opacity
 
 **Summary:** New cvar `hud_scoremapname_item_opacity` first observed at 3.6.8.
 
@@ -528,7 +528,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_order · addition · ezquake:cvar:hud_scoremapname_order
+### addition:ezquake:cvar:hud_scoremapname_order - addition - ezquake:cvar:hud_scoremapname_order
 
 **Summary:** New cvar `hud_scoremapname_order` first observed at 3.6.8.
 
@@ -546,7 +546,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_place · addition · ezquake:cvar:hud_scoremapname_place
+### addition:ezquake:cvar:hud_scoremapname_place - addition - ezquake:cvar:hud_scoremapname_place
 
 **Summary:** New cvar `hud_scoremapname_place` first observed at 3.6.8.
 
@@ -564,7 +564,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_pos_x · addition · ezquake:cvar:hud_scoremapname_pos_x
+### addition:ezquake:cvar:hud_scoremapname_pos_x - addition - ezquake:cvar:hud_scoremapname_pos_x
 
 **Summary:** New cvar `hud_scoremapname_pos_x` first observed at 3.6.8.
 
@@ -582,7 +582,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_pos_y · addition · ezquake:cvar:hud_scoremapname_pos_y
+### addition:ezquake:cvar:hud_scoremapname_pos_y - addition - ezquake:cvar:hud_scoremapname_pos_y
 
 **Summary:** New cvar `hud_scoremapname_pos_y` first observed at 3.6.8.
 
@@ -600,7 +600,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_proportional · addition · ezquake:cvar:hud_scoremapname_proportional
+### addition:ezquake:cvar:hud_scoremapname_proportional - addition - ezquake:cvar:hud_scoremapname_proportional
 
 **Summary:** New cvar `hud_scoremapname_proportional` first observed at 3.6.8.
 
@@ -618,7 +618,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_scale · addition · ezquake:cvar:hud_scoremapname_scale
+### addition:ezquake:cvar:hud_scoremapname_scale - addition - ezquake:cvar:hud_scoremapname_scale
 
 **Summary:** New cvar `hud_scoremapname_scale` first observed at 3.6.8.
 
@@ -636,7 +636,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_show · addition · ezquake:cvar:hud_scoremapname_show
+### addition:ezquake:cvar:hud_scoremapname_show - addition - ezquake:cvar:hud_scoremapname_show
 
 **Summary:** New cvar `hud_scoremapname_show` first observed at 3.6.8.
 
@@ -654,7 +654,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:hud_scoremapname_style · addition · ezquake:cvar:hud_scoremapname_style
+### addition:ezquake:cvar:hud_scoremapname_style - addition - ezquake:cvar:hud_scoremapname_style
 
 **Summary:** New cvar `hud_scoremapname_style` first observed at 3.6.8.
 
@@ -672,7 +672,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:ignore_no_weapon · addition · ezquake:cvar:ignore_no_weapon
+### addition:ezquake:cvar:ignore_no_weapon - addition - ezquake:cvar:ignore_no_weapon
 
 **Summary:** New cvar `ignore_no_weapon` first observed at 3.6.8.
 
@@ -691,7 +691,7 @@ emitted by...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:ignore_not_enough_ammo · addition · ezquake:cvar:ignore_not_enough_ammo
+### addition:ezquake:cvar:ignore_not_enough_ammo - addition - ezquake:cvar:ignore_not_enough_ammo
 
 **Summary:** New cvar `ignore_not_enough_ammo` first observed at 3.6.8.
 
@@ -710,7 +710,7 @@ emitted by...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:qtv_event_msglevel · addition · ezquake:cvar:qtv_event_msglevel
+### addition:ezquake:cvar:qtv_event_msglevel - addition - ezquake:cvar:qtv_event_msglevel
 
 **Summary:** New cvar `qtv_event_msglevel` first observed at 3.6.8.
 
@@ -728,7 +728,7 @@ By setting scr_scoreboard_showqtvusers to 1, you can display t...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:r_drawviewmodel_invisible · addition · ezquake:cvar:r_drawviewmodel_invisible
+### addition:ezquake:cvar:r_drawviewmodel_invisible - addition - ezquake:cvar:r_drawviewmodel_invisible
 
 **Summary:** New cvar `r_drawviewmodel_invisible` first observed at 3.6.8.
 
@@ -747,7 +747,7 @@ It needs to be...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_qtv_name · addition · ezquake:cvar:scr_scoreboard_qtv_name
+### addition:ezquake:cvar:scr_scoreboard_qtv_name - addition - ezquake:cvar:scr_scoreboard_qtv_name
 
 **Summary:** New cvar `scr_scoreboard_qtv_name` first observed at 3.6.8.
 
@@ -765,7 +765,7 @@ By setting scr_scoreboard_showqtvusers to 1, you can display t...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_showmapname · addition · ezquake:cvar:scr_scoreboard_showmapname
+### addition:ezquake:cvar:scr_scoreboard_showmapname - addition - ezquake:cvar:scr_scoreboard_showmapname
 
 **Summary:** New cvar `scr_scoreboard_showmapname` first observed at 3.6.8.
 
@@ -783,7 +783,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:scr_scoreboard_showqtvusers · addition · ezquake:cvar:scr_scoreboard_showqtvusers
+### addition:ezquake:cvar:scr_scoreboard_showqtvusers - addition - ezquake:cvar:scr_scoreboard_showqtvusers
 
 **Summary:** New cvar `scr_scoreboard_showqtvusers` first observed at 3.6.8.
 
@@ -801,7 +801,7 @@ By setting scr_scoreboard_showqtvusers to 1, you can display t...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:hud_element:scoremapname · addition · ezquake:hud_element:scoremapname
+### addition:ezquake:hud_element:scoremapname - addition - ezquake:hud_element:scoremapname
 
 **Summary:** New hud_element `scoremapname` first observed at 3.6.8.
 
@@ -819,7 +819,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:qcon:restrict_play · semantic-crossing · ezquake:ruleset:qcon
+### semantic-crossing:ezquake:ruleset:qcon:restrict_play - semantic-crossing - ezquake:ruleset:qcon
 
 **Summary:** ruleset `qcon`: restrict_play changed.
 
@@ -837,7 +837,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:restrict_play · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:restrict_play - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: restrict_play changed.
 
@@ -855,7 +855,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdrive:restrict_play · semantic-crossing · ezquake:ruleset:smackdrive
+### semantic-crossing:ezquake:ruleset:smackdrive:restrict_play - semantic-crossing - ezquake:ruleset:smackdrive
 
 **Summary:** ruleset `smackdrive`: restrict_play changed.
 
@@ -873,7 +873,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:thunderdome:restrict_play · semantic-crossing · ezquake:ruleset:thunderdome
+### semantic-crossing:ezquake:ruleset:thunderdome:restrict_play - semantic-crossing - ezquake:ruleset:thunderdome
 
 **Summary:** ruleset `thunderdome`: restrict_play changed.
 
@@ -891,7 +891,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:89 · source-invisible · (no-ref)
+### source-invisible:release_notes:89 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -909,7 +909,7 @@ The new options allow you to display the current map na...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:90 · source-invisible · (no-ref)
+### source-invisible:release_notes:90 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 

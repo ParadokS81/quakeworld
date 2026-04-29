@@ -1,4 +1,4 @@
-# Phase M6: Pipeline Integration + Discord Link Sharing — quad Side
+# Phase M6: Pipeline Integration + Discord Link Sharing -- quad Side
 
 ## Context
 
@@ -10,7 +10,7 @@ M1-M5 built the full Mumble stack (channels, users, recording). This phase makes
 
 1. **Pipeline**: Accept `source: "mumble"` in session metadata, use `mumble_username` for player resolution
 2. **Voice uploader**: Add `source` field to `voiceRecordings` Firestore docs
-3. **Discord command**: `/mumble` — shows team's Mumble join link
+3. **Discord command**: `/mumble` -- shows team's Mumble join link
 
 ---
 
@@ -61,7 +61,7 @@ interface SessionTrack {
 
 interface SessionMetadata {
   // ... existing fields ...
-  source?: string;             // "quad" | "mumble" — absent = "quad" (backwards compat)
+  source?: string;             // "quad" | "mumble" -- absent = "quad" (backwards compat)
   mumble_server?: {
     host: string;
     port: number;
@@ -79,8 +79,8 @@ Add `recordingSource` field to the Firestore `voiceRecordings` document:
 // In the upload function, when writing to Firestore:
 const recordingDoc = {
   // ... existing fields ...
-  source: 'firebase_storage',                     // KEEP — storage backend (existing field)
-  recordingSource: metadata.source || 'discord',   // NEW — recording origin ('discord' | 'mumble')
+  source: 'firebase_storage',                     // KEEP -- storage backend (existing field)
+  recordingSource: metadata.source || 'discord',   // NEW -- recording origin ('discord' | 'mumble')
 };
 ```
 
@@ -95,7 +95,7 @@ if (metadata.source === 'mumble' && metadata.team?.teamId) {
   const mumbleConfig = await db.collection('mumbleConfig').doc(metadata.team.teamId).get();
   if (mumbleConfig.exists) {
     // Use mumbleConfig for team tag, known players, etc.
-    // Note: for Mumble, mumble_username IS the QW name — no knownPlayers lookup needed
+    // Note: for Mumble, mumble_username IS the QW name -- no knownPlayers lookup needed
   }
 } else {
   // Existing Discord path: use botRegistrations + knownPlayers
@@ -109,7 +109,7 @@ Add a slash command that shows the team's Mumble join link.
 Create `src/modules/mumble/commands/mumble.ts`:
 
 ```typescript
-// /mumble — Shows the Mumble join link for the user's team
+// /mumble -- Shows the Mumble join link for the user's team
 // Behavior:
 // 1. Resolve which team registration this channel belongs to
 //    (same resolveRegistrationForChannel logic as /record)
@@ -128,15 +128,15 @@ Register the command in the mumble module's `commands` array.
 
 ## Verification
 
-1. **Pipeline on Mumble recording**: Process a Mumble recording — match pairing should work using `mumble_username` for player resolution
+1. **Pipeline on Mumble recording**: Process a Mumble recording -- match pairing should work using `mumble_username` for player resolution
 2. **voiceRecordings doc**: After upload, the Firestore doc should have `recordingSource: "mumble"` (and `source: "firebase_storage"` unchanged)
-3. **Backwards compat**: Process a Discord recording — should work unchanged, `recordingSource` defaults to `"discord"`, existing `source: "firebase_storage"` untouched
-4. **`/mumble` command**: Run in Discord — shows the join link. Run in a channel without Mumble — shows "not enabled"
+3. **Backwards compat**: Process a Discord recording -- should work unchanged, `recordingSource` defaults to `"discord"`, existing `source: "firebase_storage"` untouched
+4. **`/mumble` command**: Run in Discord -- shows the join link. Run in a channel without Mumble -- shows "not enabled"
 5. **MatchScheduler replay**: Mumble recordings should appear in the voice replay UI (same as Discord recordings, just with `source: "mumble"`)
 
 ---
 
 ## What's NOT in this phase
 
-- MatchScheduler UI changes for Mumble recordings (source badge) — can be done as a quick enhancement later
+- MatchScheduler UI changes for Mumble recordings (source badge) -- can be done as a quick enhancement later
 - Guest/standin access tokens (Future)

@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | A3 |
 | **Name** | Admin Discord Panel |
-| **Depends on** | A1 (admin foundation — tab, placeholder, event system) |
+| **Depends on** | A1 (admin foundation -- tab, placeholder, event system) |
 | **Blocks** | None |
 
 **User Story:** As the app admin, I want the bottom panel in admin mode to show which teams have connected the Discord bot, which teams are currently recording, and recent recording activity, so I can monitor bot adoption and usage.
@@ -29,7 +29,7 @@
 |------|--------|------|
 | `public/js/services/RecordingSessionService.js` | **New** | Listen to recordingSessions, track live/completed sessions |
 | `public/js/services/BotRegistrationService.js` | Modify | Add `loadAllRegistrations()` method |
-| `public/js/components/AdminPanel.js` | **New** | Bottom panel content — replaces A1 placeholder |
+| `public/js/components/AdminPanel.js` | **New** | Bottom panel content -- replaces A1 placeholder |
 | `public/js/components/BottomPanelController.js` | Modify | Replace `_showAdminPlaceholder()` with `AdminPanel.init()` |
 | `public/index.html` | Modify | Load new JS files |
 | `src/css/input.css` | Modify | Admin panel styles |
@@ -46,7 +46,7 @@ Listens to `recordingSessions` collection for admin. Cache + listener pattern.
 const RecordingSessionService = (function() {
     'use strict';
 
-    let _activeSessions = new Map();  // sessionDocId → session data
+    let _activeSessions = new Map();  // sessionDocId -> session data
     let _unsubscribe = null;
     let _callbacks = [];
 
@@ -57,7 +57,7 @@ const RecordingSessionService = (function() {
     async function subscribeToActiveSessions(callback) {
         _callbacks.push(callback);
 
-        // Already listening — just fire callback with current data
+        // Already listening -- just fire callback with current data
         if (_unsubscribe) {
             callback(getActiveSessions());
             return;
@@ -166,7 +166,7 @@ const RecordingSessionService = (function() {
 })();
 ```
 
-### 2. `BotRegistrationService.js` — Add `loadAllRegistrations()`
+### 2. `BotRegistrationService.js` -- Add `loadAllRegistrations()`
 
 Add new method to existing service:
 
@@ -291,7 +291,7 @@ function _renderLiveSessions(sessions) {
                         <span class="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">${p}</span>
                     `).join('')}
                 </div>
-                ${s.isStale ? '<div class="text-xs text-amber-400 mt-1">Heartbeat stale — may be disconnected</div>' : ''}
+                ${s.isStale ? '<div class="text-xs text-amber-400 mt-1">Heartbeat stale -- may be disconnected</div>' : ''}
             </div>
         `;
     }).join('');
@@ -327,7 +327,7 @@ function _renderBotTable(registrations, recordingCounts) {
                 const knownCount = Object.keys(r.knownPlayers || {}).length;
                 return `
                     <div class="py-1.5">${r.teamName || r.teamTag}</div>
-                    <div class="py-1.5 text-muted-foreground">${r.guildName || '—'}</div>
+                    <div class="py-1.5 text-muted-foreground">${r.guildName || '--'}</div>
                     <div class="py-1.5 ${statusClass}">${r.status}${knownCount ? ` (${knownCount} players)` : ''}</div>
                     <div class="py-1.5 text-right">${count}</div>
                 `;
@@ -367,7 +367,7 @@ function cleanup() {
 }
 ```
 
-### 4. `BottomPanelController.js` — Replace Placeholder
+### 4. `BottomPanelController.js` -- Replace Placeholder
 
 Replace the `_showAdminPlaceholder()` from A1 with:
 
@@ -433,26 +433,26 @@ Update cleanup block:
 ```
 AdminPanel.init()
   ├─ BotRegistrationService.loadAllRegistrations()
-  │   → getDocs(collection(db, 'botRegistrations'))
-  │   → Render bot connections table
+  │   -> getDocs(collection(db, 'botRegistrations'))
+  │   -> Render bot connections table
   │
   ├─ RecordingSessionService.subscribeToActiveSessions(callback)
-  │   → onSnapshot(where status == 'recording')
-  │   → Render live session cards (auto-updates on changes)
-  │   → Duration counter updates every 1s via setInterval
+  │   -> onSnapshot(where status == 'recording')
+  │   -> Render live session cards (auto-updates on changes)
+  │   -> Duration counter updates every 1s via setInterval
   │
   └─ RecordingSessionService.getRecordingCountsByTeam()
-      → getDocs(where status == 'completed')
-      → Group by teamId → display counts in bot table
+      -> getDocs(where status == 'completed')
+      -> Group by teamId -> display counts in bot table
 
 Quad bot starts recording:
-  → Creates recordingSessions doc (status: 'recording')
-  → Firestore triggers onSnapshot
-  → New card appears in AdminPanel
+  -> Creates recordingSessions doc (status: 'recording')
+  -> Firestore triggers onSnapshot
+  -> New card appears in AdminPanel
 
 Quad bot stops recording:
-  → Updates doc (status: 'completed')
-  → onSnapshot fires → session card disappears from live list
+  -> Updates doc (status: 'completed')
+  -> onSnapshot fires -> session card disappears from live list
 ```
 
 ---
@@ -468,13 +468,13 @@ Quad bot stops recording:
 
 ## Test Scenarios
 
-1. **No bot connections** → shows "No teams have connected the bot yet"
-2. **Active bots** → shows table with team name, guild, status, recording count
-3. **Live recording** → card appears with team, channel, participants, live timer
-4. **Recording stops** → card disappears automatically
-5. **Stale session** → amber warning "Heartbeat stale" after 2 minutes
-6. **Switch away from admin tab** → cleanup stops interval and unsubscribes listeners
-7. **Switch back to admin tab** → re-subscribes and shows fresh data
+1. **No bot connections** -> shows "No teams have connected the bot yet"
+2. **Active bots** -> shows table with team name, guild, status, recording count
+3. **Live recording** -> card appears with team, channel, participants, live timer
+4. **Recording stops** -> card disappears automatically
+5. **Stale session** -> amber warning "Heartbeat stale" after 2 minutes
+6. **Switch away from admin tab** -> cleanup stops interval and unsubscribes listeners
+7. **Switch back to admin tab** -> re-subscribes and shows fresh data
 
 ---
 
@@ -483,5 +483,5 @@ Quad bot stops recording:
 - **Architecture deviation note.** RecordingSessionService uses a callback pattern (`subscribeToActiveSessions(callback)`) which is technically a warehouse pattern. This is a pragmatic choice for admin-only code with exactly one consumer (AdminPanel). If a second consumer ever needs live sessions, refactor to component-owned listeners.
 - **Don't forget to unsubscribe** `RecordingSessionService` on cleanup. Leaving the listener active when not on admin tab wastes reads.
 - **Duration interval must be cleared** on cleanup or it will reference removed DOM elements.
-- **`toDate()` check** — Firestore timestamps need `.toDate()` but might be plain JS dates in emulator. Guard with `s.startedAt?.toDate?.() || s.startedAt`.
-- **Bot registrations aren't gated by admin rules** — they're under team leader/scheduler rules. `loadAllRegistrations()` uses the wildcard admin read rule (line 476 of firestore.rules).
+- **`toDate()` check** -- Firestore timestamps need `.toDate()` but might be plain JS dates in emulator. Guard with `s.startedAt?.toDate?.() || s.startedAt`.
+- **Bot registrations aren't gated by admin rules** -- they're under team leader/scheduler rules. `loadAllRegistrations()` uses the wildcard admin read rule (line 476 of firestore.rules).

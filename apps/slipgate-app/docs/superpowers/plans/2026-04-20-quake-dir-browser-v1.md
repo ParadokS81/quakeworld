@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship the Browse mode inside MyQuake — a three-pane Explorer-style lens over the user's quake dir, backed by a new Rust scanner that consumes oracle Phase 2c.6's asset-consumption bundle. Restructures MyQuake from 3 flat subtabs to a 2-mode shell (Browse | Domains) with the existing ConfigViewer relocating into Domains > Configs unchanged.
+**Goal:** Ship the Browse mode inside MyQuake -- a three-pane Explorer-style lens over the user's quake dir, backed by a new Rust scanner that consumes oracle Phase 2c.6's asset-consumption bundle. Restructures MyQuake from 3 flat subtabs to a 2-mode shell (Browse | Domains) with the existing ConfigViewer relocating into Domains > Configs unchanged.
 
 **Architecture:** Rust scanner at `src-tauri/src/commands/browse.rs` produces a typed `ScanResult` (clients, gamedirs, files, archives, warnings) consumed by a SolidJS `BrowseView` component that renders left-pane filter lens / center-pane disk tree / right-pane detail. Tree is a pure derivation over the flat file list; filters compose as predicates. Preview uses Tauri `convertFileSrc` for loose PNG/JPG and a byte-reading command for archive-interior files. No new npm dependencies; Rust uses only what's already in `Cargo.toml` (`zip`, `sha2`, `notify-debouncer-mini`).
 
@@ -16,7 +16,7 @@
 - Run `cargo check --manifest-path apps/slipgate-app/src-tauri/Cargo.toml` after every Rust change.
 - Run `cargo test --manifest-path apps/slipgate-app/src-tauri/Cargo.toml <module>::tests` for module-scoped tests.
 - ASCII only in code and docs. No em dashes, smart quotes, or decoration Unicode.
-- Skip BrowseView in frontend unit tests — slipgate convention is manual verification + strict TS.
+- Skip BrowseView in frontend unit tests -- slipgate convention is manual verification + strict TS.
 
 ---
 
@@ -25,33 +25,33 @@
 **New files:**
 
 Rust:
-- `apps/slipgate-app/src-tauri/src/commands/browse.rs` — scanner module + Tauri commands
+- `apps/slipgate-app/src-tauri/src/commands/browse.rs` -- scanner module + Tauri commands
 
 TypeScript:
-- `apps/slipgate-app/src/lib/assets/bundle.ts` — bundle hydrator, typed access to `ezquake-asset-bundle.json`
-- `apps/slipgate-app/src/components/BrowseView.tsx` — orchestrator
-- `apps/slipgate-app/src/components/BrowseFilterLens.tsx` — left pane
-- `apps/slipgate-app/src/components/BrowseTree.tsx` — center pane, recursive tree
-- `apps/slipgate-app/src/components/BrowseTreeNode.tsx` — one tree row (file or folder)
-- `apps/slipgate-app/src/components/BrowseDetail.tsx` — right pane
-- `apps/slipgate-app/src/components/ResolutionChain.tsx` — collision chain visualiser (reusable)
-- `apps/slipgate-app/src/components/WindowedList.tsx` — lean virtualised flat-list (used only for >200-child folder expansion)
+- `apps/slipgate-app/src/lib/assets/bundle.ts` -- bundle hydrator, typed access to `ezquake-asset-bundle.json`
+- `apps/slipgate-app/src/components/BrowseView.tsx` -- orchestrator
+- `apps/slipgate-app/src/components/BrowseFilterLens.tsx` -- left pane
+- `apps/slipgate-app/src/components/BrowseTree.tsx` -- center pane, recursive tree
+- `apps/slipgate-app/src/components/BrowseTreeNode.tsx` -- one tree row (file or folder)
+- `apps/slipgate-app/src/components/BrowseDetail.tsx` -- right pane
+- `apps/slipgate-app/src/components/ResolutionChain.tsx` -- collision chain visualiser (reusable)
+- `apps/slipgate-app/src/components/WindowedList.tsx` -- lean virtualised flat-list (used only for >200-child folder expansion)
 
 **Modified files:**
 
-- `apps/slipgate-app/src-tauri/src/commands/mod.rs` — add `pub mod browse;`
-- `apps/slipgate-app/src-tauri/src/lib.rs` — register new Tauri commands in `generate_handler!`
-- `apps/slipgate-app/src/types.ts` — add `ScannedFile`, `ScanResult`, `Container`, etc.
-- `apps/slipgate-app/src/store.ts` — add `my_quake_mode`, `my_quake_domain`, `browse_hide_defaults` to `ProfilePrefs`, extend defaults + migration
-- `apps/slipgate-app/src/components/MyQuakeTab.tsx` — restructure to 2-mode toggle, render `BrowseView` in browse mode, `ConfigViewer` in domains > configs; thread additional props
-- `apps/slipgate-app/src/App.tsx` — pass `setActiveTab` down to `MyQuakeTab` so left-pane client-click can dispatch tab switch to Clients
-- `apps/slipgate-app/docs/OVERVIEW.md` — add Browse mode to the "What the app is" section and MyQuake tab description
+- `apps/slipgate-app/src-tauri/src/commands/mod.rs` -- add `pub mod browse;`
+- `apps/slipgate-app/src-tauri/src/lib.rs` -- register new Tauri commands in `generate_handler!`
+- `apps/slipgate-app/src/types.ts` -- add `ScannedFile`, `ScanResult`, `Container`, etc.
+- `apps/slipgate-app/src/store.ts` -- add `my_quake_mode`, `my_quake_domain`, `browse_hide_defaults` to `ProfilePrefs`, extend defaults + migration
+- `apps/slipgate-app/src/components/MyQuakeTab.tsx` -- restructure to 2-mode toggle, render `BrowseView` in browse mode, `ConfigViewer` in domains > configs; thread additional props
+- `apps/slipgate-app/src/App.tsx` -- pass `setActiveTab` down to `MyQuakeTab` so left-pane client-click can dispatch tab switch to Clients
+- `apps/slipgate-app/docs/OVERVIEW.md` -- add Browse mode to the "What the app is" section and MyQuake tab description
 
 **No changes (verify this at end):** `ConfigViewer.tsx`, `configMerger.ts`, `AliasChainResolver.tsx`, `StatePanel.tsx`, any `src-tauri/src/commands/` file other than `browse.rs`, `mod.rs`, `lib.rs`.
 
 ---
 
-## Phase 1 — Rust scanner foundation
+## Phase 1 -- Rust scanner foundation
 
 ### Task 1: Scaffold `browse.rs` with types and stub command
 
@@ -1258,7 +1258,7 @@ This test is deliberately loose on assertions because the resolved root depends 
 cargo test --manifest-path apps/slipgate-app/src-tauri/Cargo.toml browse::tests::scan_end_to_end_small_tree
 ```
 
-Expected: FAIL — `result.files` is empty because command is still a stub.
+Expected: FAIL -- `result.files` is empty because command is still a stub.
 
 - [ ] **Step 3: Replace the `scan_quake_dir` stub with the full pipeline**
 
@@ -1466,7 +1466,7 @@ git commit -m "feat(slipgate): wire browse scan_quake_dir end-to-end with all pi
 
 ---
 
-## Phase 2 — Support Rust commands
+## Phase 2 -- Support Rust commands
 
 ### Task 10: `hash_file`, `read_file_bytes`, `open_containing_folder`
 
@@ -1598,7 +1598,7 @@ git commit -m "feat(slipgate): browse scanner support commands (hash, read-bytes
 
 ---
 
-## Phase 3 — Frontend foundation
+## Phase 3 -- Frontend foundation
 
 ### Task 11: Bundle hydrator
 
@@ -1966,7 +1966,7 @@ git commit -m "feat(slipgate): ProfilePrefs persists browse mode state"
 
 ---
 
-## Phase 4 — Browse UI components
+## Phase 4 -- Browse UI components
 
 ### Task 14: `BrowseView` orchestrator skeleton
 
@@ -2099,7 +2099,7 @@ export default function BrowseView(props: BrowseViewProps) {
                 <span>{result().files.length} files</span>
                 <span>{(result().stats.total_bytes / (1024 * 1024)).toFixed(1)} MB</span>
                 <span>
-                  {result().stats.loaded} loaded · {result().stats.available} available ·{" "}
+                  {result().stats.loaded} loaded - {result().stats.available} available -{" "}
                   {result().stats.unreferenced} unreferenced
                 </span>
               </div>
@@ -2549,7 +2549,7 @@ function buildTree(scan: ScanResult, filters: BrowseFilterState, hideDefaults: b
       const isArchiveBoundary = part.includes(":");
 
       if (isArchiveBoundary) {
-        // "pak1.pak:skins/test.pcx" — split into archive node + interior path
+        // "pak1.pak:skins/test.pcx" -- split into archive node + interior path
         const [archiveName, inner] = part.split(":");
         let archiveChild = cursor.children.find((c) => c.name === archiveName);
         if (!archiveChild) {
@@ -2865,7 +2865,7 @@ export default function BrowseDetail(props: BrowseDetailProps) {
           <Show when={!canPreview()}>
             <section>
               <div class="sg-label">PREVIEW</div>
-              <div class="sg-browse-preview-empty">preview: {ext() || "no-ext"} — decoder Phase 2</div>
+              <div class="sg-browse-preview-empty">preview: {ext() || "no-ext"} -- decoder Phase 2</div>
             </section>
           </Show>
 
@@ -3118,7 +3118,7 @@ git commit -m "feat(slipgate): windowed-list virtualization for >200-child tree 
 
 ---
 
-## Phase 5 — MyQuake restructure + cross-link + watcher
+## Phase 5 -- MyQuake restructure + cross-link + watcher
 
 ### Task 19: MyQuakeTab 2-mode toggle + ConfigViewer relocation
 
@@ -3291,7 +3291,7 @@ export default function MyQuakeTab(props: MyQuakeTabProps) {
 
   async function handleSwapCompareConfig(entry: ConfigEntry) {
     // Preserve the existing swap logic from the previous version of this component.
-    // (Copied as-is from the original handleSwapCompareConfig — see git history for the pre-restructure body.)
+    // (Copied as-is from the original handleSwapCompareConfig -- see git history for the pre-restructure body.)
     const source = props.compareSource;
     if (!source) return;
     try {
@@ -3434,7 +3434,7 @@ function mergedCvarsFromConfig(cfg: EzQuakeConfig | null): Record<string, string
 }
 ```
 
-Note: `mergedCvarsFromConfig` assumes `EzQuakeConfig` has a `cvars: {name, value}[]` field. If the actual shape differs (check `types.ts`), adjust the traversal to yield the same `Record<string, string>` map from the resolved chain. The intent is "final merged name→value map that ConfigViewer already computes."
+Note: `mergedCvarsFromConfig` assumes `EzQuakeConfig` has a `cvars: {name, value}[]` field. If the actual shape differs (check `types.ts`), adjust the traversal to yield the same `Record<string, string>` map from the resolved chain. The intent is "final merged name->value map that ConfigViewer already computes."
 
 - [ ] **Step 2: Wire `onSwitchToTab` prop from `App.tsx`**
 
@@ -3590,7 +3590,7 @@ git commit -m "feat(slipgate): browse scan file watcher + stale flag pulse"
 
 ---
 
-## Phase 6 — Polish and verification
+## Phase 6 -- Polish and verification
 
 ### Task 21: Manual verification pass
 
@@ -3608,11 +3608,11 @@ cd apps/slipgate-app && bun run tauri dev
 Work through each item. Pass/fail each manually:
 
 1. Point the app at a real quake dir with >=1 pak. Open MyQuake. Toggle to Browse. Tree renders in < 1 s.
-2. Click ezquake in left pane. Non-matching branches dim. (On a v1 where most things are client-consumed, the visual effect is subtle — confirm the "filter active" summary appears.)
+2. Click ezquake in left pane. Non-matching branches dim. (On a v1 where most things are client-consumed, the visual effect is subtle -- confirm the "filter active" summary appears.)
 3. Click `skins` under Filter by Domain. Tree filters down to skins; non-skin branches dim.
 4. Select a file with a known collision. Right pane shows resolution chain with loose winning, paks dimmed.
 5. Select a PNG or JPG (loose). Right pane renders the image via `convertFileSrc`.
-6. Select a `.cfg`. Right pane shows "Open in Configs" button. Click it → mode switches to Domains > Configs with that file loaded as compare.
+6. Select a `.cfg`. Right pane shows "Open in Configs" button. Click it -> mode switches to Domains > Configs with that file loaded as compare.
 7. Toggle "Show only custom". Stock install files disappear from the tree.
 8. Edit a config file externally (open a .cfg in Notepad, save). Within ~1 second the "changes detected" label appears and Rescan pulses.
 9. Click a non-active client in the left pane. The Slipgate app switches to the Clients tab.
@@ -3643,36 +3643,36 @@ git commit -m "docs(slipgate): OVERVIEW.md covers Browse mode + MyQuake 2-mode s
 
 ---
 
-## Phase 7 — Final resolution of vision-spec handover item
+## Phase 7 -- Final resolution of vision-spec handover item
 
 ### Task 22: Resolve the HANDOVER.md item
 
 **Files:**
 - Modify: `HANDOVER.md` (monorepo root)
 
-- [ ] **Step 1: Remove the "Quake-dir browser vision — unblocked" entry**
+- [ ] **Step 1: Remove the "Quake-dir browser vision -- unblocked" entry**
 
 Per the `HANDOVER.md` instructions at the top: "Entries get deleted (not struck through) when resolved. When done, delete both the index line AND the section."
 
 Edit `HANDOVER.md`:
 1. Delete the bullet under "## Open items" that references the quake-dir browser vision.
-2. Delete the entire `## Quake-dir browser vision — unblocked, ready for implementation brainstorm` section (and its content through to the next `---` divider).
+2. Delete the entire `## Quake-dir browser vision -- unblocked, ready for implementation brainstorm` section (and its content through to the next `---` divider).
 
 - [ ] **Step 2: Verify update-count note**
 
-If `MEMORY.md`'s `HANDOVER.md` pointer line mentions a specific count (e.g. "11 items pending"), decrement by 1. Current text: `"11 items pending as of 2026-04-20 (dir-browser vision now unblocked; schema-spec drift newly logged)."` → change count and drop the "dir-browser vision now unblocked" clause.
+If `MEMORY.md`'s `HANDOVER.md` pointer line mentions a specific count (e.g. "11 items pending"), decrement by 1. Current text: `"11 items pending as of 2026-04-20 (dir-browser vision now unblocked; schema-spec drift newly logged)."` -> change count and drop the "dir-browser vision now unblocked" clause.
 
 Edit memory index entry in `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/MEMORY.md`:
 
 ```markdown
-- **[Open handover items](/home/paradoks/projects/quakeworld/HANDOVER.md)** — deferred items from prior wrap-ups. Check at session start. 10 items pending as of 2026-04-20 (dir-browser vision implementation plan written; schema-spec drift newly logged).
+- **[Open handover items](/home/paradoks/projects/quakeworld/HANDOVER.md)** -- deferred items from prior wrap-ups. Check at session start. 10 items pending as of 2026-04-20 (dir-browser vision implementation plan written; schema-spec drift newly logged).
 ```
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add HANDOVER.md
-git commit -m "docs(handover): resolve dir-browser vision item — v1 plan written"
+git commit -m "docs(handover): resolve dir-browser vision item -- v1 plan written"
 ```
 
 ---
@@ -3680,18 +3680,18 @@ git commit -m "docs(handover): resolve dir-browser vision item — v1 plan writt
 ## Self-review notes (for the author of this plan)
 
 **Spec coverage check:**
-- Section 3.1 MyQuake restructure → Task 19
-- Section 3.2 three-pane layout → Tasks 14, 15, 16, 17
-- Section 3.3 component tree → Tasks 14-18
-- Section 3.4 filter semantics → Task 16 (`matchesFilter`) + Task 15 (lens state) + Task 19 (`mergedCvarsFromConfig`)
-- Section 3.5 default-suppression heuristic → Task 8 (Rust) + Task 19 (UI toggle) + Task 16 (`matchesFilter` applies `hideDefaults`)
-- Section 3.6 preview strategy → Task 17
-- Section 4 data model → Tasks 1, 11, 12
-- Section 5 scanner architecture → Tasks 1-10
-- Section 6 integration points → Tasks 11-20
-- Section 7 error handling → Tasks 9 (warnings aggregation), 14 (error banner), 17 (preview empty state)
-- Section 8 testing → Tests embedded throughout Tasks 2-9 + Task 21 manual checklist
-- Section 9 out of scope → honored by Task 17's preview placeholder + absence of any other-format decoder tasks
+- Section 3.1 MyQuake restructure -> Task 19
+- Section 3.2 three-pane layout -> Tasks 14, 15, 16, 17
+- Section 3.3 component tree -> Tasks 14-18
+- Section 3.4 filter semantics -> Task 16 (`matchesFilter`) + Task 15 (lens state) + Task 19 (`mergedCvarsFromConfig`)
+- Section 3.5 default-suppression heuristic -> Task 8 (Rust) + Task 19 (UI toggle) + Task 16 (`matchesFilter` applies `hideDefaults`)
+- Section 3.6 preview strategy -> Task 17
+- Section 4 data model -> Tasks 1, 11, 12
+- Section 5 scanner architecture -> Tasks 1-10
+- Section 6 integration points -> Tasks 11-20
+- Section 7 error handling -> Tasks 9 (warnings aggregation), 14 (error banner), 17 (preview empty state)
+- Section 8 testing -> Tests embedded throughout Tasks 2-9 + Task 21 manual checklist
+- Section 9 out of scope -> honored by Task 17's preview placeholder + absence of any other-format decoder tasks
 
 **Placeholder scan:** no "TBD", "TODO", "similar to task N", or "fill in" strings in task bodies. `mergedCvarsFromConfig` assumes a `cvars` field on `EzQuakeConfig`; Task 19 Step 3 calls this out and tells the engineer to verify and adjust.
 
@@ -3699,4 +3699,4 @@ git commit -m "docs(handover): resolve dir-browser vision item — v1 plan writt
 
 **Scope check:** single implementation plan covers a single feature with clear component boundaries. No sub-decomposition needed.
 
-**Ambiguity check:** `mergedCvarsFromConfig` is the one soft spot — Task 19 flags the engineer to verify `EzQuakeConfig.cvars` shape. All other interfaces are pinned in their originating task.
+**Ambiguity check:** `mergedCvarsFromConfig` is the one soft spot -- Task 19 flags the engineer to verify `EzQuakeConfig.cvars` shape. All other interfaces are pinned in their originating task.

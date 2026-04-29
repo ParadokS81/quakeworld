@@ -6,14 +6,14 @@
 
 ## Problem
 
-The config viewer has five working data categories (cvars, aliases, macros, triggers, binds) but is missing a sixth: **commands**. These are named actions registered via `Cmd_AddCommand` in ezQuake source — things like `floodprot 4 4 10`, `mapgroup clear`, `hud_recalculate`, and the `+/-` press/release pairs. They appear in `cfg_save` output but our Rust parser explicitly discards them via a hardcoded `skip_commands` list.
+The config viewer has five working data categories (cvars, aliases, macros, triggers, binds) but is missing a sixth: **commands**. These are named actions registered via `Cmd_AddCommand` in ezQuake source -- things like `floodprot 4 4 10`, `mapgroup clear`, `hud_recalculate`, and the `+/-` press/release pairs. They appear in `cfg_save` output but our Rust parser explicitly discards them via a hardcoded `skip_commands` list.
 
 Related gaps discovered during investigation:
 
 - The `KNOWN_ENGINE_COMMANDS` set added earlier for unresolved bind detection is a hand-picked list of ~65 entries. The authoritative ezQuake source has ~472 `Cmd_AddCommand` calls. False positives surface regularly (`sizeup`, `sizedown`, `cvar_reset`, `menu_slist`, `+cl_wp_stats` were flagged as unresolved despite being real ezQuake commands).
 - `packages/qw-config/src/data/ezquake-commands.json` exists with 511 entries but was built from the stale `help_commands.json` (which still contains removed commands like `mp3_*`) and is never loaded by any code.
-- Built-in runtime macros (`%health`, `%ammo`, `%location`, etc. — 68 in `help_macros.json`) are not surfaced anywhere in the viewer.
-- KTX mod stuff-aliases (`rpickup`, `autotrack`, `scores`, `list`, `next_best`, etc. — 300+) are injected by the server on connect and get flagged as unresolved. Users cleaning up configs cannot distinguish server-dependent binds from broken ones.
+- Built-in runtime macros (`%health`, `%ammo`, `%location`, etc. -- 68 in `help_macros.json`) are not surfaced anywhere in the viewer.
+- KTX mod stuff-aliases (`rpickup`, `autotrack`, `scores`, `list`, `next_best`, etc. -- 300+) are injected by the server on connect and get flagged as unresolved. Users cleaning up configs cannot distinguish server-dependent binds from broken ones.
 - Verbose `KP_*` key names (`KP_DOWNARROW`, `KP_LEFTARROW`) overflow the weapon bind keycap boxes in the viewer.
 - Command-line parameters (71 in `help_cmdline_params.json`) are not mapped. Low priority for now, but inexpensive to extract alongside the other source scraping so a future launcher-parsing feature can consume the database.
 
@@ -93,7 +93,7 @@ Since `ezquake-commands.json` has no group field in source, the extraction scrip
 | `config` | Config Management | `exec`, `alias`, `unalias`, `unalias_re`, `unaliasall`, `bind`, `unbind`, `unbindall`, `set`, `seta`, `unset`, `toggle`, `inc`, `dec`, `reset`, `resetall`, `cvar_reset`, `cfg_save`, `cfg_load`, `cfg_reset`, `wait`, `if`, `echo` |
 | `comm` | Communication | `say`, `say_team`, `messagemode`, `messagemode2`, `rcon`, `name`, `team`, `color` |
 | `dev` | Developer | Starts with `dev_`, or in `{cmdlist, cvarlist, apropos, snd_restart, dumpent}` |
-| `deprecated` | Deprecated | `mp3_*` (documented in help but no `Cmd_AddCommand` call in source — flag via a separate check) |
+| `deprecated` | Deprecated | `mp3_*` (documented in help but no `Cmd_AddCommand` call in source -- flag via a separate check) |
 | `misc` | Miscellaneous | Everything else |
 
 These 14 groups become sub-group filter pills under the Commands category in the sidebar, matching the existing Graphics/HUD sub-group pattern.
@@ -161,12 +161,12 @@ pub struct ParsedConfig {
 }
 ```
 
-**Parsing rule:** After handling bind/alias/exec/set lines, any remaining line whose first token is not a known cvar name (from the qw-config database, which Rust doesn't have access to — so we defer this check) is captured as a command invocation. Since the Rust parser doesn't have qw-config context, use a simpler rule: if the line has a first token and a remainder, and the line isn't matched by the existing cvar-assignment logic (which currently treats anything with a value as a cvar), capture it.
+**Parsing rule:** After handling bind/alias/exec/set lines, any remaining line whose first token is not a known cvar name (from the qw-config database, which Rust doesn't have access to -- so we defer this check) is captured as a command invocation. Since the Rust parser doesn't have qw-config context, use a simpler rule: if the line has a first token and a remainder, and the line isn't matched by the existing cvar-assignment logic (which currently treats anything with a value as a cvar), capture it.
 
 **Concretely:** distinguish a cvar assignment from a command invocation using the following heuristic in the parser:
-- Lines starting with `+` or `-` → command invocation (press/release action)
-- Lines where the first token matches a command we know about → command invocation. Since Rust has no live database, we bundle a small set of known "stateful" commands in the Rust parser (`floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`) and treat them as invocations
-- Everything else → cvar assignment (current behavior)
+- Lines starting with `+` or `-` -> command invocation (press/release action)
+- Lines where the first token matches a command we know about -> command invocation. Since Rust has no live database, we bundle a small set of known "stateful" commands in the Rust parser (`floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`) and treat them as invocations
+- Everything else -> cvar assignment (current behavior)
 
 This is not ideal (duplicates a tiny command list in Rust), but it avoids plumbing the qw-config database into the Rust side. Future work: replace the heuristic with a proper known-commands lookup once the Rust side gains access to the command database.
 
@@ -189,18 +189,18 @@ OPTIONS
   Aliases
   Macros
   Triggers
-  Commands      ← NEW
+  Commands      <- NEW
 ```
 
 The Commands pill behaves like other pills: clicking toggles the section on/off.
 
-When active, the Commands section renders with sub-group pills at the top (the 14 groups from §2). The row layout follows the existing pattern used by Aliases and Macros sections:
+When active, the Commands section renders with sub-group pills at the top (the 14 groups from Section 2). The row layout follows the existing pattern used by Aliases and Macros sections:
 
 - Chevron / expand indicator
 - Command name (monospace, colored by group)
 - Arguments (monospace, dim)
 - Source file badge
-- "Default" badge for invocations matching known ezQuake defaults (see §6)
+- "Default" badge for invocations matching known ezQuake defaults (see Section 6)
 
 Clicking a row expands it to show:
 - Description from the commands database
@@ -227,7 +227,7 @@ A new `ezquake-default-commands.json` file, manually curated during Spec 1 imple
 
 The initial list covers the `-release` block (~17 entries) plus the common stateful commands (~8 entries). Produced manually by running `cfg_save` on a fresh ezQuake install and recording the output. Committable; if upstream changes the defaults, the file is updated the same way source-extracted files are.
 
-The Commands section UI marks invocations matching this list as "default" and hides them when the existing "Hide Defaults" toggle is on — same pattern as cvars.
+The Commands section UI marks invocations matching this list as "default" and hides them when the existing "Hide Defaults" toggle is on -- same pattern as cvars.
 
 ### 7. Bind detection rewrite
 
@@ -254,15 +254,15 @@ export function categorizeBinds(
 ```
 
 **Detection order** (each bind's first command token is checked in this sequence):
-1. Weapon bind (from Rust classification) → `weapons`
-2. Teamsay bind (from Rust classification) → `teamsay`
-3. Movement key (matches `movement.*` struct) → `movement`
-4. Rocket jump heuristic (attack + jump in resolved command) → `movement`
-5. KTX command → `ktx`
-6. ezQuake command → `misc` (normal known command, not broken)
-7. Cvar assignment → `misc`
-8. User-defined alias (in config chain) → `misc`
-9. None of the above → `unresolved`
+1. Weapon bind (from Rust classification) -> `weapons`
+2. Teamsay bind (from Rust classification) -> `teamsay`
+3. Movement key (matches `movement.*` struct) -> `movement`
+4. Rocket jump heuristic (attack + jump in resolved command) -> `movement`
+5. KTX command -> `ktx`
+6. ezQuake command -> `misc` (normal known command, not broken)
+7. Cvar assignment -> `misc`
+8. User-defined alias (in config chain) -> `misc`
+9. None of the above -> `unresolved`
 
 `ConfigViewer.tsx` builds both sets at memo time from the qw-config loaders and passes them to `categorizeBinds`.
 
@@ -284,11 +284,11 @@ category: "movement" | "weapons" | "teamsay" | "ktx" | "unresolved" | "misc";
 
 New subsection in the existing Macros area (`ConfigMacrosSection.tsx` or a sibling component), showing all 68 `%`-prefixed runtime tokens from `ezquake-macros.json`:
 
-- Name (`%health`, `%weapon`, etc. — monospace)
+- Name (`%health`, `%weapon`, etc. -- monospace)
 - Description from the database
 - Read-only: these are engine-provided, not user-editable
 
-Displayed as a distinct sub-group "Runtime Macros" alongside the existing "User Created", "Item Names", "Teamplay Communications", etc. sub-groups. The macros are not tied to any specific config file — they're always available.
+Displayed as a distinct sub-group "Runtime Macros" alongside the existing "User Created", "Item Names", "Teamplay Communications", etc. sub-groups. The macros are not tied to any specific config file -- they're always available.
 
 ### 10. KP_ key name shortening
 
@@ -298,8 +298,8 @@ Add a display-time mapping in `formatKeyName` (wherever key labels are rendered 
 |---|---|
 | `KP_UPARROW` | `KP_↑` |
 | `KP_DOWNARROW` | `KP_↓` |
-| `KP_LEFTARROW` | `KP_←` |
-| `KP_RIGHTARROW` | `KP_→` |
+| `KP_LEFTARROW` | `KP_<-` |
+| `KP_RIGHTARROW` | `KP_->` |
 | `KP_HOME` | `KP_Home` |
 | `KP_END` | `KP_End` |
 | `KP_PGUP` | `KP_PgUp` |
@@ -312,7 +312,7 @@ Add a display-time mapping in `formatKeyName` (wherever key labels are rendered 
 | `KP_STAR` | `KP_*` |
 | `KP_SLASH` | `KP_/` |
 
-Applied only to weapon bind keycaps and the Binds view bind keycap — wherever the UI renders a key label.
+Applied only to weapon bind keycaps and the Binds view bind keycap -- wherever the UI renders a key label.
 
 ## Scope boundaries
 
@@ -328,11 +328,11 @@ Applied only to weapon bind keycaps and the Binds view bind keycap — wherever 
 - Cmdline params database extraction (no UI)
 
 **Out of scope:**
-- Launcher file (.bat/.lnk) parsing UI — separate future spec
-- Launcher auto-detection — separate future spec
+- Launcher file (.bat/.lnk) parsing UI -- separate future spec
+- Launcher auto-detection -- separate future spec
 - Exhaustive default command matching beyond the ~25 curated entries
-- Commands category in domain views (no "weapons:commands" pill) — commands are flat, not domain-scoped
-- Config builder / writer integration — the mappings are prepared for this but the builder is a separate feature
+- Commands category in domain views (no "weapons:commands" pill) -- commands are flat, not domain-scoped
+- Config builder / writer integration -- the mappings are prepared for this but the builder is a separate feature
 
 ## Testing
 
@@ -342,11 +342,11 @@ Manual verification after implementation:
 2. Load a config with command invocations (user's own config with `floodprot`, `mapgroup`, etc.)
 3. Verify Commands section appears in sidebar and shows the invocations
 4. Verify sub-group pills filter correctly
-5. Toggle "Hide Defaults" — verify `-release` block and default stateful commands disappear
+5. Toggle "Hide Defaults" -- verify `-release` block and default stateful commands disappear
 6. Verify bind view no longer flags `sizeup`, `sizedown`, `cvar_reset`, `+cl_wp_stats`, `menu_slist`, `+showteamscores` as unresolved
 7. Verify KTX-injected bind targets (`rpickup`, `autotrack`, `scores`, etc.) show as KTX category with purple styling
 8. Verify genuine unresolved binds (typos, removed commands like `mp3_next`) still flag correctly
 9. Verify Runtime Macros reference section appears in the Macros area
 10. Verify KP_ keycap labels are shortened in weapon bind rows
 11. Verify loadDatabase/loadEzQuakeCommands/loadKtxCommands/loadEzQuakeMacros all return populated data
-12. Load HangTime's messy config — verify the unresolved count drops significantly and KTX binds are properly categorized
+12. Load HangTime's messy config -- verify the unresolved count drops significantly and KTX binds are properly categorized

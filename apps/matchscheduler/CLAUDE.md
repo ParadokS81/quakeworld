@@ -22,16 +22,16 @@ Subsystem docs:
 
 Two patterns are non-negotiable. Detailed rules with code examples load automatically when you edit the relevant files (via `.claude/rules/`).
 
-1. **Cache + Listeners** — Services manage cache only. Components own their Firebase listeners. Updates flow: Firebase -> Component -> UI + Cache. Never create middleware/subscription services.
-2. **Frontend <-> Backend Integration** — Every feature needs: click handler, loading state, backend call, error handling, listener for updates. A feature isn't done until connected end-to-end.
+1. **Cache + Listeners** -- Services manage cache only. Components own their Firebase listeners. Updates flow: Firebase -> Component -> UI + Cache. Never create middleware/subscription services.
+2. **Frontend <-> Backend Integration** -- Every feature needs: click handler, loading state, backend call, error handling, listener for updates. A feature isn't done until connected end-to-end.
 
 ## Non-Negotiable Technical Rules
 
-- **Firebase v11 modular imports** — `import { doc } from 'firebase/firestore'`, never v8 compat
-- **rem units only** — No pixels except borders/shadows. Tailwind classes already use rem.
-- **Sacred 3x3 Grid** — Layout is immutable. See Pillar 1.
-- **CSS build pipeline** — Edit `src/css/input.css`, never `public/css/main.css`
-- **Component patterns** — Revealing Module (simple) or Alpine.js (reactive). No React/Vue.
+- **Firebase v11 modular imports** -- `import { doc } from 'firebase/firestore'`, never v8 compat
+- **rem units only** -- No pixels except borders/shadows. Tailwind classes already use rem.
+- **Sacred 3x3 Grid** -- Layout is immutable. See Pillar 1.
+- **CSS build pipeline** -- Edit `src/css/input.css`, never `public/css/main.css`
+- **Component patterns** -- Revealing Module (simple) or Alpine.js (reactive). No React/Vue.
 
 ## Firebase Emulator
 
@@ -59,10 +59,10 @@ Two patterns are non-negotiable. Detailed rules with code examples load automati
 - `/eventLog/{eventId}` - Audit trail
 
 ## Common AI Mistakes
-1. Creating middleware/subscription services — use direct listeners
-2. Using pixel units — use rem everywhere except borders
-3. Trying to start Firebase emulator — it's already running
-4. Over-engineering — 300-person community app, not Google
-5. Modifying the sacred grid — layout is fixed
-6. Editing main.css directly — edit src/css/input.css
-7. Using `set({ merge: true })` with dot-notation keys — use `update()` instead
+1. Creating middleware/subscription services -- use direct listeners
+2. Using pixel units -- use rem everywhere except borders
+3. Trying to start Firebase emulator -- it's already running
+4. Over-engineering -- 300-person community app, not Google
+5. Modifying the sacred grid -- layout is fixed
+6. Editing main.css directly -- edit src/css/input.css
+7. Using `set({ merge: true })` with dot-notation keys -- use `update()` instead

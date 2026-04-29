@@ -1,4 +1,4 @@
-# Config Primary Swap Fix — Implementation Plan
+# Config Primary Swap Fix -- Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -30,7 +30,7 @@ At line 104, after the existing `primaryOverride` signal, add a companion signal
   const effectiveChain = createMemo(() => primaryOverride() ?? props.configChain);
 ```
 
-Note: `effectiveChain` already exists — just add the two new lines above it. `EzQuakeConfig` is already imported (line 4).
+Note: `effectiveChain` already exists -- just add the two new lines above it. `EzQuakeConfig` is already imported (line 4).
 
 - [ ] **Step 2: Commit**
 
@@ -306,7 +306,7 @@ Expected: successful build with no errors.
 
 Launch the app and test:
 
-1. Load primary config (config.cfg) — verify all sections display correctly
+1. Load primary config (config.cfg) -- verify all sections display correctly
 2. Open config chain panel, expand "other configs"
 3. Click "View as Primary" on another config (e.g. player2.cfg or any other .cfg in the ezQuake dir)
 4. Verify: config name in header updates
@@ -314,9 +314,9 @@ Launch the app and test:
 6. Verify: weapon binds section shows the NEW config's weapon binds
 7. Verify: teamsay binds section shows the NEW config's teamsay binds
 8. Verify: aliases, macros, triggers sections all update
-9. Drag-drop a third config — verify compare mode works against the new primary
-10. Click "Reset to default" — verify everything reverts to the original config
-11. Edit config.cfg on disk — verify file watcher still updates the viewer after reset
+9. Drag-drop a third config -- verify compare mode works against the new primary
+10. Click "Reset to default" -- verify everything reverts to the original config
+11. Edit config.cfg on disk -- verify file watcher still updates the viewer after reset
 
 - [ ] **Step 4: Commit verification pass (if any fixes were needed)**
 

@@ -4,7 +4,7 @@
 
 When a user edits their availability via Discord, they select a day from the dropdown, toggle time slots, then click Save. The save shows a confirmation that auto-deletes after 5 seconds, returning them to the persistent message. To edit another day they must re-open the dropdown and select again. This is slow for users filling out multiple days.
 
-This phase adds **Prev** and **Next** buttons alongside the Save button on the ephemeral day-editing message. They save the current day's changes and immediately show the adjacent day's toggle buttons — no round-trip to the persistent message.
+This phase adds **Prev** and **Next** buttons alongside the Save button on the ephemeral day-editing message. They save the current day's changes and immediately show the adjacent day's toggle buttons -- no round-trip to the persistent message.
 
 Read `AVAILABILITY-ENHANCEMENT-CONTRACT.md` at the orchestrator level for the full contract.
 
@@ -126,7 +126,7 @@ This is the core new function. It saves the current day (reusing save logic) the
 async function handleNavDay(interaction: ButtonInteraction, direction: 'prev' | 'next'): Promise<void> {
     await interaction.deferUpdate();
 
-    // Parse custom ID — same format as saveSlots
+    // Parse custom ID -- same format as saveSlots
     const parts = interaction.customId.split(':');
     const teamId = parts[2];
     const cetDay = parts[3];
@@ -184,7 +184,7 @@ async function handleNavDay(interaction: ButtonInteraction, direction: 'prev' | 
                 teamId, userId: user.uid, direction,
                 error: err instanceof Error ? err.message : String(err),
             });
-            await interaction.editReply({ content: 'Failed to save — try again.', components: [] });
+            await interaction.editReply({ content: 'Failed to save -- try again.', components: [] });
             return;
         }
 
@@ -294,7 +294,7 @@ function buildSlotButtonGrid(
 }
 ```
 
-**Important**: The `handleSlotToggle()` function (line 136-163) rebuilds rows from the message components. It filters for `ComponentType.ActionRow` and rebuilds buttons. This already works correctly — it preserves all buttons including the nav buttons because it iterates all components. The toggle only flips the button matching `clickedId`. No changes needed to `handleSlotToggle()`.
+**Important**: The `handleSlotToggle()` function (line 136-163) rebuilds rows from the message components. It filters for `ComponentType.ActionRow` and rebuilds buttons. This already works correctly -- it preserves all buttons including the nav buttons because it iterates all components. The toggle only flips the button matching `clickedId`. No changes needed to `handleSlotToggle()`.
 
 ---
 
@@ -307,10 +307,10 @@ npx tsc --noEmit
 ```
 
 Then test in Discord:
-1. Select a day from the dropdown → verify Prev/Save/Next appear on the bottom row
-2. Toggle some slots, click Next → verify the current day is saved and next day appears
-3. Toggle some slots on the new day, click Prev → verify it saves and goes back
+1. Select a day from the dropdown -> verify Prev/Save/Next appear on the bottom row
+2. Toggle some slots, click Next -> verify the current day is saved and next day appears
+3. Toggle some slots on the new day, click Prev -> verify it saves and goes back
 4. On Monday (or first non-past day): Prev should be disabled/grayed out
 5. On Sunday: Next should be disabled/grayed out
-6. Click Save → verify it still works as before (confirmation + auto-delete)
+6. Click Save -> verify it still works as before (confirmation + auto-delete)
 7. For current week: verify past days are skipped when navigating

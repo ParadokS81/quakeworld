@@ -7,13 +7,13 @@
 
 ## Scope
 
-Add `hiddenTimeSlots` field to user document, validate in backend, load on frontend init. The modal (12.0b) already calls `AuthService.updateProfile({ hiddenTimeSlots })` — this slice makes that actually work.
+Add `hiddenTimeSlots` field to user document, validate in backend, load on frontend init. The modal (12.0b) already calls `AuthService.updateProfile({ hiddenTimeSlots })` -- this slice makes that actually work.
 
 ---
 
 ## Changes
 
-### 1. functions/user-profile.js — Backend validation
+### 1. functions/user-profile.js -- Backend validation
 
 **File:** `functions/user-profile.js`
 
@@ -52,9 +52,9 @@ if (hiddenTimeSlots !== undefined) {
 }
 ```
 
-**Note:** This field is user-only — does NOT propagate to team rosters, so no changes to the transaction's team-update logic.
+**Note:** This field is user-only -- does NOT propagate to team rosters, so no changes to the transaction's team-update logic.
 
-### 2. UserProfile.js — Load on init
+### 2. UserProfile.js -- Load on init
 
 **File:** `public/js/components/UserProfile.js`
 
@@ -72,7 +72,7 @@ if (typeof TimezoneService !== 'undefined' && _userProfile.hiddenTimeSlots) {
 }
 ```
 
-### 3. SCHEMA.md — Document new field
+### 3. SCHEMA.md -- Document new field
 
 **File:** `context/SCHEMA.md`
 
@@ -88,8 +88,8 @@ hiddenTimeSlots    string[] | null    Array of HHMM time slots to hide, e.g. ["1
 
 ## Verification
 
-1. Set some hidden timeslots via modal → save → refresh page
+1. Set some hidden timeslots via modal -> save -> refresh page
 2. Grids should load with the saved hidden slots already applied
 3. Check Firestore emulator UI: user document should have `hiddenTimeSlots` array field
-4. Clear hidden slots (enable all) → save → refresh → all 11 slots visible
-5. Test with a fresh user (no `hiddenTimeSlots` field) → defaults to all 11 visible
+4. Clear hidden slots (enable all) -> save -> refresh -> all 11 slots visible
+5. Test with a fresh user (no `hiddenTimeSlots` field) -> defaults to all 11 visible

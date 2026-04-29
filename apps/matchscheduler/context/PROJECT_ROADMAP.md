@@ -20,27 +20,27 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 ## Part 1: Foundation & Onboarding
 
-### ✅ Slice 1.1: Authentication & Profile
+### [OK] Slice 1.1: Authentication & Profile
 **Status:** Complete  
 **User Value:** Users can sign in with Google and manage their profile  
 **PRD Sections:** 1.2, 2.1, 4.4.1  
 **Components:** AuthService, UserProfile, EditProfileModal  
 
-### ✅ Slice 1.2a: Create/Join Team Modal
+### [OK] Slice 1.2a: Create/Join Team Modal
 **Status:** Complete  
 **User Value:** Users can create a new team or join existing team  
 **PRD Sections:** 4.3.1, 2.2  
 **Components:** CreateJoinTeamModal  
 **Note:** Unified modal complete, team creation working
 
-### ✅ Slice 1.2b: Team Management Drawer
+### [OK] Slice 1.2b: Team Management Drawer
 **Status:** Complete  
 **User Value:** Team members can access management options via drawer  
 **PRD Sections:** 4.3.4, 6.4  
 **Components:** TeamManagementDrawer  
 **Scope:** Drawer UI only, role-based views, animations
 
-### ✅ Slice 1.2c: Team Actions Implementation
+### [OK] Slice 1.2c: Team Actions Implementation
 **Status:** Complete
 **User Value:** Management buttons actually perform their actions
 **PRD Sections:** 4.3.2, 4.3.3
@@ -51,7 +51,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 ## Part 2: Core Scheduling
 
-### ✅ Slice 2.1: Basic Availability Grid
+### [OK] Slice 2.1: Basic Availability Grid
 **Status:** Complete
 **User Value:** Users can see and click individual time slots
 **PRD Sections:** 4.1.1, 4.1.2 (structure only)
@@ -59,7 +59,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Grid rendering, single-slot click selection, week headers
 **Note:** Factory pattern for independent grid instances, 1080p/1440p optimized
 
-### ✅ Slice 2.2: Personal Availability Setting
+### [OK] Slice 2.2: Personal Availability Setting
 **Status:** Complete
 **User Value:** Users can add/remove themselves from time slots
 **PRD Sections:** 4.1.3 (single click only), 4.1.5
@@ -67,15 +67,15 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Add me/Remove me buttons, optimistic updates, Firebase sync
 **Note:** Blue border indicates user's saved availability, real-time updates via Firestore listeners
 
-### ✅ Slice 2.3: Advanced Selection
+### [OK] Slice 2.3: Advanced Selection
 **Status:** Complete
 **User Value:** Users can select multiple slots efficiently
 **PRD Sections:** 4.1.3 (multi-select methods)
 **Components:** AvailabilityGrid (enhanced), GridActionButtons
 **Scope:** Drag selection (rectangular), header clicks (day/time), shift+click, Select All/Clear All
-**Note:** Toggle behavior (all selected → deselect), cross-grid drag constrained to single grid
+**Note:** Toggle behavior (all selected -> deselect), cross-grid drag constrained to single grid
 
-### ✅ Slice 2.4: Templates & Grid Tools
+### [OK] Slice 2.4: Templates & Grid Tools
 **Status:** Complete
 **User Value:** Users can save and reuse availability patterns
 **PRD Sections:** 4.1.4
@@ -83,7 +83,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Save/load/rename/delete templates (max 3), load to W1/W2 independently
 **Note:** Real-time sync via Firestore listener, templates stored in /users/{userId}/templates subcollection
 
-### ✅ Slice 2.5: Team View Display
+### [OK] Slice 2.5: Team View Display
 **Status:** Complete
 **User Value:** Team members can see who's available when
 **PRD Sections:** 4.1.2 (Team View Mode)
@@ -91,7 +91,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Show initials/avatars in cells, handle 4+ players with overflow, display mode toggle
 **Note:** Max 3 badges per cell, hover tooltip for 4+, click opens modal on overflow badge
 
-### ✅ Slice 2.6: Team Joining Flow
+### [OK] Slice 2.6: Team Joining Flow
 **Status:** Complete
 **User Value:** Users can join teams via invite code
 **PRD Sections:** 2.2 (Path A), 4.3.1
@@ -99,7 +99,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Enter code, validate, join team, show success
 **Note:** Full flow in OnboardingModal with validation, error handling, and real-time roster updates
 
-### ✅ Slice 2.7: Multi-Team Support
+### [OK] Slice 2.7: Multi-Team Support
 **Status:** Complete
 **User Value:** Users can switch between their teams
 **PRD Sections:** 2.4
@@ -116,13 +116,13 @@ Detailed specifications in `/context/slices/[slice-name].md`
 - Validate caller is leader of a team that `targetUserId` belongs to
 - UI: dropdown in grid tools to select "filling in as: [player name]"
 - Grid writes availability as selected player instead of logged-in user
-**Note:** Independent of Slice 8.0 but enhances proposal quality (more availability data = better slot matches). Small scope — primarily a Cloud Function auth change + UI dropdown.
+**Note:** Independent of Slice 8.0 but enhances proposal quality (more availability data = better slot matches). Small scope -- primarily a Cloud Function auth change + UI dropdown.
 
 ---
 
 ## Part 3: Team Coordination
 
-### ✅ Slice 3.1: Team Browser
+### [OK] Slice 3.1: Team Browser
 **Status:** Complete
 **User Value:** Users can browse all active teams
 **PRD Sections:** 4.2.1 (bottom panel only)
@@ -130,7 +130,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** List teams, search by name/player, division filters, team roster tooltip on hover
 **Note:** Real-time updates via Firestore listener, excludes user's current team
 
-### ✅ Slice 3.2: Favorites System
+### [OK] Slice 3.2: Favorites System
 **Status:** Complete
 **User Value:** Users can star teams for quick access
 **PRD Sections:** 4.2.1 (middle panel)
@@ -138,7 +138,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Star/unstar teams, favorites list, Firestore persistence, Select All/Deselect All
 **Note:** Optimistic updates, unified selection with TeamBrowser, team roster tooltip on hover
 
-### ✅ Slice 3.3: Comparison Filters
+### [OK] Slice 3.3: Comparison Filters
 **Status:** Complete
 **User Value:** Users can set minimum player requirements
 **PRD Sections:** 4.2.1 (top panel)
@@ -146,7 +146,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Min player dropdowns for both teams (1-4 range)
 **Note:** Compact single-row layout "Minimum Players [x] vs [x]", session-specific (resets on refresh)
 
-### ✅ Slice 3.4: Basic Comparison
+### [OK] Slice 3.4: Basic Comparison
 **Status:** Complete
 **User Value:** Teams can see matching time slots
 **PRD Sections:** 4.2.2, 4.2.3
@@ -154,7 +154,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Compare button, calculate matches, visual highlights, hover tooltip with rosters
 **Note:** Green borders for full match (4v4), amber for partial. Side-by-side tooltip shows user team vs opponents. Filter changes trigger live recalculation.
 
-### ✅ Slice 3.5: Comparison Details Modal
+### [OK] Slice 3.5: Comparison Details Modal
 **Status:** Complete
 **User Value:** Users can see who's available in matching slots and contact leaders
 **PRD Sections:** 4.2.4, 4.2.6
@@ -162,7 +162,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** Click match slot for detailed roster view, Discord contact section for leaders
 **Note:** Contact UI ready for Discord OAuth (Slice 4.3). Shows "Open DM" when discordUserId available, "Copy Username" as fallback, or "Not linked" message.
 
-### ✅ Slice 3.6-3.7: Leader Management (Bundled)
+### [OK] Slice 3.6-3.7: Leader Management (Bundled)
 **Status:** Complete
 **User Value:** Leaders can remove players and transfer leadership
 **PRD Sections:** 4.3.3, 5.6
@@ -174,7 +174,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 ## Part 4: Polish & Enhancement
 
-### ✅ Slice 4.1: Logo Upload
+### [OK] Slice 4.1: Logo Upload
 **Status:** Complete
 **User Value:** Teams can upload custom logos
 **PRD Sections:** 4.3.2 (Logo Management)
@@ -182,15 +182,15 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **Scope:** File selection, client-side preview, upload to Firebase Storage, server-side processing (resize to 3 sizes), Firestore update
 **Note:** Leaders only. Cloud Function triggers on upload, validates permissions, creates small/medium/large thumbnails, stores URLs in team document.
 
-### ✅ Slice 4.2: Enhanced Comparison Modal
+### [OK] Slice 4.2: Enhanced Comparison Modal
 **Status:** Complete
 **User Value:** Team logos appear in comparison modal with improved VS layout
 **PRD Sections:** 4.3.2, 4.2.4
 **Components:** ComparisonModal (rewritten), TeamInfo (logo display)
 **Scope:** Side-by-side VS layout, team logos in cards, green/grey player availability dots, opponent selector tabs in header, Discord contact for leaders
-**Note:** Clean header with "Match Details — Day at Time" format. Opponent tabs on right side for multi-match slots. Logos also display in TeamInfo panel.
+**Note:** Clean header with "Match Details -- Day at Time" format. Opponent tabs on right side for multi-match slots. Logos also display in TeamInfo panel.
 
-### ✅ Slice 4.3.1: Discord OAuth Foundation
+### [OK] Slice 4.3.1: Discord OAuth Foundation
 **Status:** Complete
 **User Value:** Users can sign in with Discord (primary) or Google, enabling gaming identity and future integrations
 **PRD Sections:** 1.2, 4.4.1
@@ -205,7 +205,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 **Note:** Completed with account unification - existing Google users with matching email prompted to sign in with Google instead of creating duplicate account.
 
-### ✅ Slice 4.3.2: Discord Linking for Google Users
+### [OK] Slice 4.3.2: Discord Linking for Google Users
 **Status:** Complete
 **User Value:** Google users can link Discord account for avatars and DMs
 **PRD Sections:** 1.2, 4.4.1
@@ -221,7 +221,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 - Delete Account feature (GDPR compliance) - removes user from Firebase Auth + Firestore + team rosters
 - ProfileModal UI cleanup - compact layout with nick+initials on one row, Discord in single line, cleaner buttons
 
-### ✅ Slice 4.3.3: Avatar Manager
+### [OK] Slice 4.3.3: Avatar Manager
 **Status:** Complete
 **User Value:** Users can customize their avatar (Discord, custom upload, or default)
 **PRD Sections:** 4.4.1
@@ -242,9 +242,9 @@ Detailed specifications in `/context/slices/[slice-name].md`
 **PRD Sections:** 4.2.4, 4.3.5
 **Components:** ComparisonModal (already has contact UI)
 **Scope:**
-- ✅ Contact section in ComparisonModal (done in 3.5)
-- ✅ "Open Discord DM" button with deep link (done in 3.5)
-- ✅ "Copy Username" fallback button (done in 3.5)
+- [OK] Contact section in ComparisonModal (done in 3.5)
+- [OK] "Open Discord DM" button with deep link (done in 3.5)
+- [OK] "Copy Username" fallback button (done in 3.5)
 - ⏳ Depends on 4.3 to populate Discord data via OAuth
 
 **Note:** UI is ready, just needs Discord OAuth (4.3) to populate the data fields.
@@ -267,7 +267,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 ## Part 5: Layout Evolution & Integrations
 
-### ✅ Slice 5.0a: Layout Foundation
+### [OK] Slice 5.0a: Layout Foundation
 **Status:** Complete
 **User Value:** More vertical space for grids, tabbed interface for additional features
 **Spec:** `context/slices/slice-5.0a-layout-foundation.md`
@@ -280,7 +280,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 **Note:** Fixed auth state propagation for compact-only panels, container ID alignment after grid restructure. Reseed script enhanced with all 24 Big4 teams, logos, and Discord contact info.
 
-### ✅ Slice 5.0b: Grid Tools Enhancement
+### [OK] Slice 5.0b: Grid Tools Enhancement
 **Status:** Complete
 **User Value:** Intuitive selection actions, cleaner tools panel
 **Spec:** `context/slices/slice-5.0b-grid-tools-enhancement.md`
@@ -293,7 +293,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 **Note:** Floating button appears near selection with smart repositioning. Shows "+ Add Me" (primary) or "− Remove Me" (destructive) based on user's presence in all selected cells. Keyboard support: Enter to confirm, Escape to cancel/clear selection.
 
-### ✅ Slice 5.1: Teams/Players Browser
+### [OK] Slice 5.1: Teams/Players Browser
 **Status:** Complete
 **User Value:** Browse all teams and players in a dedicated, organized view
 **Spec:** `context/slices/slice-5.1-teams-players-browser.md`
@@ -306,19 +306,19 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 **Note:** Foundation for QW Hub integration. Browse Teams panel (bottom-right) drives team selection.
 
-### ✅ Slice 5.1a: QW Hub Tag Configuration
+### [OK] Slice 5.1a: QW Hub Tag Configuration
 **Status:** Complete (Revised)
 **User Value:** Team tags match QW in-game identity, enabling match history lookups
 **Components:** TeamService (modify), team-operations Cloud Function (modify), seed scripts
 **Scope:**
-- ~~Separate `qwHubTag` field~~ → Merged into existing `teamTag`
+- ~~Separate `qwHubTag` field~~ -> Merged into existing `teamTag`
 - Relaxed `teamTag` validation: case-sensitive, allows QW special chars (`[]()-_.,!`), 1-4 chars
 - Seed scripts use real QW Hub tags (e.g., `]SR[`, `GoF!`, `tSQ`)
-- No UI changes needed — leaders set teamTag at team creation
+- No UI changes needed -- leaders set teamTag at team creation
 
 **Note:** During implementation, discovered that QW Hub tags and in-game tags are the same thing. Simplified by using `teamTag` directly for hub lookups instead of maintaining a separate field.
 
-### ✅ Slice 5.1b: Team Match History (Basic)
+### [OK] Slice 5.1b: Team Match History (Basic)
 **Status:** Complete
 **User Value:** See a team's recent match results from QW Hub
 **Spec:** `context/slices/slice-5.1b-team-match-history.md`
@@ -336,7 +336,7 @@ Detailed specifications in `/context/slices/[slice-name].md`
 
 Redesign of the team detail view with tabbed navigation, richer landing page, split-panel match history, stats popout, and head-to-head comparison. Supersedes 5.1b layout and 5.1c entirely.
 
-#### ✅ Slice 5.2a: Team Details Landing Page
+#### [OK] Slice 5.2a: Team Details Landing Page
 **Status:** Complete
 **User Value:** Rich team identity page with logo, roster, and auto-generated activity stats
 **Spec:** `context/slices/slice-5.2a-team-details-landing.md`
@@ -352,7 +352,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 
 **Note:** Seed scripts updated with correct QWHub clan tags for all 24 teams. Record format uses compact W-L dash format (green-red coloring). Teams without QWHub tags show "Match history not available".
 
-#### ✅ Slice 5.2b: Match History Split-Panel
+#### [OK] Slice 5.2b: Match History Split-Panel
 **Status:** Complete
 **User Value:** Browse match history with filters and preview scoreboards by hover/click
 **Spec:** `context/slices/slice-5.2b-match-history-split-panel.md`
@@ -366,10 +366,10 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 
 **Note:** Split ratio tuned from original 40/60 to 38/62 for better stats table fit at 1080p.
 
-#### ✅ Slice 5.2c: Inline Stats Table (Revised from Popout Modal)
+#### [OK] Slice 5.2c: Inline Stats Table (Revised from Popout Modal)
 **Status:** Complete
 **User Value:** Per-player match stats rendered inline on map background with 3 toggleable tabs
-**Spec:** `context/slices/slice-5.2c-stats-popout-modal.md` (original spec — implementation pivoted to inline)
+**Spec:** `context/slices/slice-5.2c-stats-popout-modal.md` (original spec -- implementation pivoted to inline)
 **Components:** TeamsBrowserPanel (enhance), QWHubService (enhance)
 **Scope:**
 - Unified stats-on-map view: stats table rendered on map background with dark overlay + text-outline
@@ -380,7 +380,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 - Hover shows classic scoreboard, click transitions to unified stats view
 - "View on QW Hub" + "Full Stats" links inside overlay
 
-**Note:** Originally planned as draggable popout modal for side-by-side comparison. Pivoted to inline stats-on-map view — simpler, eliminates redundant scoreboard, and the map background gives each match visual identity. Popout can be added later if comparison use case demands it.
+**Note:** Originally planned as draggable popout modal for side-by-side comparison. Pivoted to inline stats-on-map view -- simpler, eliminates redundant scoreboard, and the map background gives each match visual identity. Popout can be added later if comparison use case demands it.
 
 #### 📅 Slice 5.2d: Head-to-Head Tab
 **Status:** Not Started
@@ -399,7 +399,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 
 ## Part 5b: Cross-Timezone Support
 
-### ✅ Slice 7.0: UTC Timezone Foundation
+### [OK] Slice 7.0: UTC Timezone Foundation
 **Status:** Complete
 **User Value:** Players in any timezone see local evening times while availability is stored in UTC, enabling correct cross-timezone comparison
 **Spec:** `context/slices/slice-7.0-utc-timezone-foundation.md`
@@ -408,7 +408,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 - TimezoneService with IANA timezone support, DST-aware via Intl API
 - All Firestore slot IDs stored as UTC
 - Grid displays local time labels (18:00-23:00 in user's timezone)
-- Day wrapping for negative-offset timezones (e.g., EST Mon 21:00 → UTC Tue 02:00)
+- Day wrapping for negative-offset timezones (e.g., EST Mon 21:00 -> UTC Tue 02:00)
 - Timezone selector UI in grid header (grouped by region)
 - Auto-detect timezone from browser, persist to user document
 - Cloud Function validation updated to accept any UTC hour (00-23)
@@ -416,7 +416,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 - Templates store UTC slot IDs
 - Modals display times in user's local timezone
 
-**Note:** All 7 test suites pass (offset calculation, local→UTC, UTC→local, day wrapping, grid map round-trip, boundary offsets, display formatting). ComparisonEngine unchanged — already compares slot ID strings.
+**Note:** All 7 test suites pass (offset calculation, local->UTC, UTC->local, day wrapping, grid map round-trip, boundary offsets, display formatting). ComparisonEngine unchanged -- already compares slot ID strings.
 
 ---
 
@@ -436,9 +436,9 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 
 ## Part 7: Match Scheduling
 
-### ✅ Slice 8.0: Match Proposals & Scheduling
+### [OK] Slice 8.0: Match Proposals & Scheduling
 **Status:** Complete
-**User Value:** Leaders/schedulers can propose matches to opponents, auto-see viable slots, and confirm to schedule — no more manual grid scanning
+**User Value:** Leaders/schedulers can propose matches to opponents, auto-see viable slots, and confirm to schedule -- no more manual grid scanning
 **Spec:** `context/slices/slice-8.0-match-proposals.md`
 **Components:** MatchesPanel (new), ProposalService (new), ScheduledMatchService (new), UpcomingMatchesPanel (new), Cloud Functions (new)
 **Sub-slices (all complete):**
@@ -446,7 +446,7 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 - 8.0b: "Matches" tab in center panel + proposal cards with live slot updates + blocked-slot filtering + countAtConfirm warnings
 - 8.0c: "Propose Match" button in ComparisonModal + Discord template generation (leaders + schedulers)
 - Upcoming Matches: UpcomingMatchesPanel in bottom-left with "Your Matches" + "Community Matches" sections
-**Key Design:** Proposals store team pairing + min-vs-min filter, slots computed LIVE from availability data. Leaders or delegated schedulers confirm slots; both sides confirm same slot → match scheduled automatically. Confirmed slot blocked for both teams in other proposals. No cooldown or rate limits (monitor first). Past slots hidden, proposals degrade gracefully.
+**Key Design:** Proposals store team pairing + min-vs-min filter, slots computed LIVE from availability data. Leaders or delegated schedulers confirm slots; both sides confirm same slot -> match scheduled automatically. Confirmed slot blocked for both teams in other proposals. No cooldown or rate limits (monitor first). Past slots hidden, proposals degrade gracefully.
 
 **Note:** All 5 Cloud Functions implemented (createProposal, confirmSlot, withdrawConfirmation, cancelProposal, toggleScheduler). Full frontend integration with cache+listener pattern, loading states, error handling.
 
@@ -510,23 +510,23 @@ Redesign of the team detail view with tabbed navigation, richer landing page, sp
 
 ### Slice 10.0: Mobile Responsive Layout
 
-Landscape-focused single-column layout. Side panels hidden, content moved to swipe-in drawers (left=team info, right=browser+favorites). Bottom bar merges divider tabs with week navigation. Desktop layout completely untouched — purely additive CSS media queries.
+Landscape-focused single-column layout. Side panels hidden, content moved to swipe-in drawers (left=team info, right=browser+favorites). Bottom bar merges divider tabs with week navigation. Desktop layout completely untouched -- purely additive CSS media queries.
 
-#### ✅ Slice 10.0a: CSS Foundation
+#### [OK] Slice 10.0a: CSS Foundation
 **Status:** Complete
 **User Value:** Mobile breakpoint established, grid collapses to single column
 **Spec:** `context/slices/slice-10.0a-mobile-css-foundation.md`
 **Components:** src/css/input.css, public/index.html
 **Scope:** Media queries, grid collapse, bottom bar/drawer HTML skeleton, desktop unchanged
 
-#### ✅ Slice 10.0b: Mobile Layout & Drawers
+#### [OK] Slice 10.0b: Mobile Layout & Drawers
 **Status:** Complete
 **User Value:** Left/right drawers for team info and browser on mobile
 **Spec:** `context/slices/slice-10.0b-mobile-layout-drawers.md`
 **Components:** MobileLayout (new), CSS media queries
 **Scope:** DOM moves on mobile, drawer toggle/overlay, responsive detection
 
-#### ✅ Slice 10.0c: Mobile Bottom Bar
+#### [OK] Slice 10.0c: Mobile Bottom Bar
 **Status:** Complete
 **User Value:** Tab switching and week navigation on mobile
 **Spec:** `context/slices/slice-10.0c-mobile-bottom-bar.md`
@@ -549,10 +549,10 @@ Landscape-focused single-column layout. Side panels hidden, content moved to swi
 **Slices Complete:** 35 / ~47
 
 ## Current Focus
-**Slice 8.1 - Reactive Comparison Mode** — Refactor comparison to auto-update on team selection changes, extract shared DateUtils. Then continue with mobile slices 10.0d/e.
+**Slice 8.1 - Reactive Comparison Mode** -- Refactor comparison to auto-update on team selection changes, extract shared DateUtils. Then continue with mobile slices 10.0d/e.
 
 ## QW Hub Integration Path
-5.1 → 5.1a → 5.1b (basic) → ✅ 5.2a → ✅ 5.2b → ✅ 5.2c → **5.2d** (full redesign)
+5.1 -> 5.1a -> 5.1b (basic) -> [OK] 5.2a -> [OK] 5.2b -> [OK] 5.2c -> **5.2d** (full redesign)
 
 Each 5.2 slice builds on the previous:
 - 5.2a: Tab infrastructure + Details landing page (foundation)

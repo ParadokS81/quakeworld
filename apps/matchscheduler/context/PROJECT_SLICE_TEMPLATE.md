@@ -36,7 +36,7 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - ServiceName: [methods to add/update]
-  - Method → Backend mapping: [which methods call which Cloud Functions]
+  - Method -> Backend mapping: [which methods call which Cloud Functions]
 
 BACKEND REQUIREMENTS:
 ⚠️ THESE CLOUD FUNCTIONS MUST BE IMPLEMENTED IN /functions/*.js:
@@ -68,13 +68,13 @@ BACKEND REQUIREMENTS:
   - [Any third-party APIs, storage, etc.]
 
 INTEGRATION POINTS:
-- Frontend → Backend calls: [map service methods to Cloud Functions]
+- Frontend -> Backend calls: [map service methods to Cloud Functions]
 - API Contracts:
   - Request format: { param1: type, param2: type }
   - Success response: { success: true, data: {...} }
   - Error response: { success: false, error: "message" }
 - Real-time listeners: [which components listen to which documents]
-- Data flow: User action → Frontend → Backend → Database → Listeners → UI
+- Data flow: User action -> Frontend -> Backend -> Database -> Listeners -> UI
 ```
 
 ### 4. Integration Code Examples (MUST HAVE)
@@ -118,14 +118,14 @@ BACKEND PERFORMANCE:
 
 ### 6. Data Flow Diagram (MUST HAVE - was NICE TO HAVE)
 ```
-User Action → Component → Service Method → Cloud Function → Firestore → Listeners → UI Update
+User Action -> Component -> Service Method -> Cloud Function -> Firestore -> Listeners -> UI Update
                               ↓                                             ↓
-                        Cache Update ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← Real-time Update
+                        Cache Update <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- Real-time Update
 
 SPECIFIC EXAMPLE FOR THIS SLICE:
 [Draw the actual flow for the main feature, e.g.:]
-Click "Regenerate" → TeamDrawer.regenerate() → TeamService.callFunction() → regenerateJoinCode() 
-→ Update teams/{teamId} → onSnapshot fires → TeamInfo.updateUI() → New code displayed
+Click "Regenerate" -> TeamDrawer.regenerate() -> TeamService.callFunction() -> regenerateJoinCode() 
+-> Update teams/{teamId} -> onSnapshot fires -> TeamInfo.updateUI() -> New code displayed
 ```
 
 ### 7. Test Scenarios (MUST HAVE)
@@ -145,11 +145,11 @@ BACKEND TESTS:
 - [ ] [Event logs created correctly]
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] [User clicks button → backend executes → UI updates]
-- [ ] [Database change → listener fires → UI reflects change]
-- [ ] [Backend error → frontend shows error message]
-- [ ] [Network failure → appropriate error handling]
-- [ ] [Permission denied → user sees explanation]
+- [ ] [User clicks button -> backend executes -> UI updates]
+- [ ] [Database change -> listener fires -> UI reflects change]
+- [ ] [Backend error -> frontend shows error message]
+- [ ] [Network failure -> appropriate error handling]
+- [ ] [Permission denied -> user sees explanation]
 
 END-TO-END TESTS:
 - [ ] [Complete user journey works]
@@ -220,7 +220,7 @@ BACKEND REQUIREMENTS:
     
 FRONTEND INTEGRATION:
 - TeamManagementDrawer has "Regenerate" button
-- Button click → TeamService.regenerateJoinCode(teamId)
+- Button click -> TeamService.regenerateJoinCode(teamId)
 - Shows loading state during operation
 - On success: Updates UI with new code, shows success toast
 - On error: Shows error message, reverts UI
@@ -259,7 +259,7 @@ Before considering a slice spec complete:
 - [ ] Hot paths are clearly identified
 - [ ] Test scenarios cover full stack
 - [ ] No anti-patterns present
-- [ ] Data flow is complete (UI → DB → UI)
+- [ ] Data flow is complete (UI -> DB -> UI)
 - [ ] **Integration examples show actual code**
 - [ ] **Error handling specified for all operations**
 - [ ] **Loading states defined for backend calls**

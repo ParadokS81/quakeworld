@@ -1,6 +1,6 @@
-# Discord Bridge & Challenge Lifecycle v2 — Design Document
+# Discord Bridge & Challenge Lifecycle v2 -- Design Document
 
-**Status:** Draft — conceptual design, pre-implementation
+**Status:** Draft -- conceptual design, pre-implementation
 **Date:** 2026-02-19
 **Scope:** MatchScheduler + quad bot (cross-project)
 
@@ -10,13 +10,13 @@
 
 The challenge lifecycle has friction at both ends:
 
-1. **Entry:** Proposals are created as empty "open contracts" — no timeslots attached. The proposer must separately confirm slots later. There's no minimum viability gate, so weak proposals (1v1, 2v2) can be created and forgotten.
+1. **Entry:** Proposals are created as empty "open contracts" -- no timeslots attached. The proposer must separately confirm slots later. There's no minimum viability gate, so weak proposals (1v1, 2v2) can be created and forgotten.
 
-2. **Delivery:** Opponent notification is entirely manual — copy a clipboard message, open Discord DM, paste. If the opponent leader doesn't check Discord or misses the DM, the proposal sits there unseen.
+2. **Delivery:** Opponent notification is entirely manual -- copy a clipboard message, open Discord DM, paste. If the opponent leader doesn't check Discord or misses the DM, the proposal sits there unseen.
 
-3. **Adoption:** Teams like The Axemen use internal scheduling tools but don't keep the scheduler updated. There's no feedback loop — no nudge when a challenge arrives, no visibility into proposals from within Discord where players actually live.
+3. **Adoption:** Teams like The Axemen use internal scheduling tools but don't keep the scheduler updated. There's no feedback loop -- no nudge when a challenge arrives, no visibility into proposals from within Discord where players actually live.
 
-The quad bot already bridges MatchScheduler ↔ Discord for standin requests and voice recording. Extending this bridge to challenge notifications is the natural next step.
+The quad bot already bridges MatchScheduler <-> Discord for standin requests and voice recording. Extending this bridge to challenge notifications is the natural next step.
 
 ---
 
@@ -25,7 +25,7 @@ The quad bot already bridges MatchScheduler ↔ Discord for standin requests and
 - **The scheduler supplements, it doesn't replace.** Players have scheduled matches via DMs for 25 years. The tool makes it smoother, not different.
 - **Proposals should be credible.** If a proposal exists, it should have a real chance of becoming a match. The 4v3 gate ensures this.
 - **Meet players where they are.** Discord is home. The bot brings scheduler events into Discord, not the other way around.
-- **Personal involvement stays.** The bot notification doesn't replace the DM — it ensures the opponent *knows*, and gives them a shortcut to respond.
+- **Personal involvement stays.** The bot notification doesn't replace the DM -- it ensures the opponent *knows*, and gives them a shortcut to respond.
 - **Living documents.** Proposals show all viable slots, not just the ones originally selected. Availability changes are reflected in real-time.
 
 ---
@@ -36,15 +36,15 @@ The quad bot already bridges MatchScheduler ↔ Discord for standin requests and
 
 **Current flow:**
 ```
-Compare → Propose (empty) → Copy message → Paste in Discord DM
-→ Separately confirm timeslots later → Hope they confirm back
+Compare -> Propose (empty) -> Copy message -> Paste in Discord DM
+-> Separately confirm timeslots later -> Hope they confirm back
 ```
 
 **New flow (atomic):**
 ```
-Compare (need 4v3+ to propose) → Select game type → Select 1+ timeslots → Propose
-→ Bot notifies opponent automatically → Proposal shows all viable slots
-→ Mutual confirmation on any slot → Match sealed
+Compare (need 4v3+ to propose) -> Select game type -> Select 1+ timeslots -> Propose
+-> Bot notifies opponent automatically -> Proposal shows all viable slots
+-> Mutual confirmation on any slot -> Match sealed
 ```
 
 **Key changes:**
@@ -53,20 +53,20 @@ Compare (need 4v3+ to propose) → Select game type → Select 1+ timeslots → 
 - **Full viable set visible:** The proposal still shows ALL 4v3+ viable slots for the week, not just the ones the proposer selected. The opponent can confirm a proposer-selected slot, or suggest a different viable one. This keeps the "living document" nature intact.
 - **Auto-notification on propose:** Creating the proposal triggers the bot notification. No manual copy/paste step. The "Contact on Discord" button can remain as a supplementary option, but the primary delivery is automated.
 
-### 2. Bot Notification System (quad bot — new module)
+### 2. Bot Notification System (quad bot -- new module)
 
 A new `scheduler` module in quad that listens for scheduler events via Firestore and delivers Discord notifications.
 
 **Notification delivery cascade:**
 ```
 Team has bot registered + notifications enabled?
-  → Post in their configured notification channel
+  -> Post in their configured notification channel
 
 Team has bot but notifications disabled?
-  → Nothing (they opted out)
+  -> Nothing (they opted out)
 
 Team has NO bot registered?
-  → DM the opponent team leader directly (if Discord linked)
+  -> DM the opponent team leader directly (if Discord linked)
 ```
 
 **Challenge notification content:**
@@ -75,7 +75,7 @@ Team has NO bot registered?
 │  ⚔️  New Challenge                          │
 │                                              │
 │  ]SR[ Slackers challenged oeks The Axemen   │
-│  Week 08 · Official                          │
+│  Week 08 - Official                          │
 │                                              │
 │  Proposed times:                             │
 │  ▸ Sun 22:30 (4v4)                          │
@@ -85,18 +85,18 @@ Team has NO bot registered?
 └─────────────────────────────────────────────┘
 ```
 
-- **View Proposal** → link to scheduler: `https://scheduler.quake.world/#/matches/{proposalId}`
-- **DM ParadokS** → Discord DM deep link to challenger's leader
+- **View Proposal** -> link to scheduler: `https://scheduler.quake.world/#/matches/{proposalId}`
+- **DM ParadokS** -> Discord DM deep link to challenger's leader
 
-**Also posts in challenger's own team channel** — so your team knows a challenge went out.
+**Also posts in challenger's own team channel** -- so your team knows a challenge went out.
 
 **Future notification types (not in v1, but the infrastructure supports them):**
-- Slot confirmed by opponent ("They confirmed Wed 20:00 — confirm to seal it")
+- Slot confirmed by opponent ("They confirmed Wed 20:00 -- confirm to seal it")
 - Match sealed ("Match confirmed: You vs Them, Wed 20:00")
 - Match cancelled
 - Team member availability reminders (separate feature)
 
-### 3. Bot Configuration UI (MatchScheduler — Edit Team Modal → Discord tab)
+### 3. Bot Configuration UI (MatchScheduler -- Edit Team Modal -> Discord tab)
 
 Expand the existing Discord tab to include:
 
@@ -106,7 +106,7 @@ Expand the existing Discord tab to include:
 - Disconnect button
 
 **Expanded:**
-- **Player mapping display** — show current `knownPlayers` mapping (discordUser → QW name), read-only for now
+- **Player mapping display** -- show current `knownPlayers` mapping (discordUser -> QW name), read-only for now
 - **Notification settings:**
   - Notifications on/off toggle
   - Channel selector (which channel in their Discord to post in)
@@ -115,16 +115,16 @@ Expand the existing Discord tab to include:
   - Minimum players to trigger (3 or 4)
   - Record for: officials only / practice too / all sessions
 
-### 4. Auto-Recording (quad bot — enhancement to recording module)
+### 4. Auto-Recording (quad bot -- enhancement to recording module)
 
 ```
 3+ known players detected in voice channel
-  → Bot auto-joins and starts recording
-  → Posts in configured channel: "Recording started"
+  -> Bot auto-joins and starts recording
+  -> Posts in configured channel: "Recording started"
 
 All known players leave (or below threshold)
-  → Bot stops recording and leaves
-  → Processing pipeline triggers as normal
+  -> Bot stops recording and leaves
+  -> Processing pipeline triggers as normal
 ```
 
 Configuration stored in Firestore via the bot settings UI, read by the bot via `botRegistrations` document.
@@ -135,7 +135,7 @@ Configuration stored in Firestore via the bot settings UI, read by the bot via `
 
 ### New/modified collections:
 
-**`botRegistrations/{docId}`** — extend with notification + auto-record config:
+**`botRegistrations/{docId}`** -- extend with notification + auto-record config:
 ```javascript
 {
   // ... existing fields (teamId, guildId, knownPlayers, status, etc.)
@@ -156,7 +156,7 @@ Configuration stored in Firestore via the bot settings UI, read by the bot via `
 }
 ```
 
-**`matchProposals/{proposalId}`** — modify creation flow:
+**`matchProposals/{proposalId}`** -- modify creation flow:
 ```javascript
 {
   // ... existing fields
@@ -177,20 +177,20 @@ Configuration stored in Firestore via the bot settings UI, read by the bot via `
 }
 ```
 
-**No new collections needed** — we extend existing documents and use the existing Firestore-as-a-bus pattern from the standin module.
+**No new collections needed** -- we extend existing documents and use the existing Firestore-as-a-bus pattern from the standin module.
 
 ---
 
 ## Implementation Phases
 
-### Phase 1: Foundation — Bot Config UI + Challenge Lifecycle v2
+### Phase 1: Foundation -- Bot Config UI + Challenge Lifecycle v2
 
 **MatchScheduler side:**
-- Expand Edit Team Modal → Discord tab with player mapping display, notification settings, auto-record settings
+- Expand Edit Team Modal -> Discord tab with player mapping display, notification settings, auto-record settings
 - Store config in `botRegistrations` document
 - Modify `createProposal` Cloud Function to accept pre-confirmed slots
 - Add 4v3 minimum gate to ComparisonModal (disable Propose if no 4v3+ slot)
-- Update ComparisonModal flow: game type → timeslot selection → propose (atomic)
+- Update ComparisonModal flow: game type -> timeslot selection -> propose (atomic)
 - Write `notificationSent` field on proposal for bot to detect
 
 **Quad bot side:**
@@ -216,14 +216,14 @@ Configuration stored in Firestore via the bot settings UI, read by the bot via `
 
 ---
 
-## Architecture — How It Fits
+## Architecture -- How It Fits
 
 ```
 MatchScheduler (Web App)
   │
   │ createProposal() Cloud Function
-  │   → Creates proposal WITH confirmed slots
-  │   → Writes notificationSent.pending = true
+  │   -> Creates proposal WITH confirmed slots
+  │   -> Writes notificationSent.pending = true
   │
   ▼
 Firestore: matchProposals/{id}
@@ -231,17 +231,17 @@ Firestore: matchProposals/{id}
   │ onSnapshot listener (quad scheduler module)
   │
   ▼
-Quad Bot — Scheduler Module
+Quad Bot -- Scheduler Module
   │
   ├─ Reads botRegistrations for opponent team
-  │   → Has bot? → Post in configured channel
-  │   → No bot? → DM leader (via users/{leaderId}.discordUserId)
+  │   -> Has bot? -> Post in configured channel
+  │   -> No bot? -> DM leader (via users/{leaderId}.discordUserId)
   │
   ├─ Reads botRegistrations for proposer team
-  │   → Post in their channel too
+  │   -> Post in their channel too
   │
   └─ Updates matchProposals/{id}.notificationSent
-     → Marks delivery status
+     -> Marks delivery status
 ```
 
 This follows the exact same Firestore-as-a-bus pattern used by the standin module. No new infrastructure needed.

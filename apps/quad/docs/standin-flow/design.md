@@ -1,8 +1,8 @@
-# Find Standin — Discord DM Flow
+# Find Standin -- Discord DM Flow
 
 ## Overview
 
-Extend the existing "Find standin" feature in MatchScheduler with a Discord DM feedback loop via the Quad bot. Team schedulers select available players from the standin finder, fire off requests through Quad, and get real-time yes/no responses — all without leaving the scheduler.
+Extend the existing "Find standin" feature in MatchScheduler with a Discord DM feedback loop via the Quad bot. Team schedulers select available players from the standin finder, fire off requests through Quad, and get real-time yes/no responses -- all without leaving the scheduler.
 
 ## The Flow
 
@@ -82,7 +82,7 @@ MatchScheduler                    Firestore                     Quad Bot
     opponent?: string,            // e.g. "The Axemen" (if known)
   },
 
-  // Candidates — keyed by Discord user ID for easy bot lookup
+  // Candidates -- keyed by Discord user ID for easy bot lookup
   candidates: {
     [discordUserId: string]: {
       firebaseUid: string,        // for MatchScheduler cross-reference
@@ -91,7 +91,7 @@ MatchScheduler                    Firestore                     Quad Bot
     }
   },
 
-  // Responses — written by Quad bot as players click buttons
+  // Responses -- written by Quad bot as players click buttons
   responses: {
     [discordUserId: string]: {
       status: "pending" | "accepted" | "declined",
@@ -114,13 +114,13 @@ MatchScheduler                    Firestore                     Quad Bot
   discordUserId: string,
   discordUsername: string,
 
-  // Nuclear option — block all standin requests
+  // Nuclear option -- block all standin requests
   optedOut: boolean,
 
-  // Granular blocks — empty arrays by default, player adds as needed
-  blockedUsers: string[],         // Firebase UIDs — block requests from specific people
-  blockedTeams: string[],         // team doc IDs — block requests from specific teams
-  blockedDivisions: string[],     // e.g. ["D2", "D3"] — block requests from these divs
+  // Granular blocks -- empty arrays by default, player adds as needed
+  blockedUsers: string[],         // Firebase UIDs -- block requests from specific people
+  blockedTeams: string[],         // team doc IDs -- block requests from specific teams
+  blockedDivisions: string[],     // e.g. ["D2", "D3"] -- block requests from these divs
 
   updatedAt: Timestamp,
 }
@@ -130,10 +130,10 @@ No defaults. Players start with everything open. They add blocks as needed throu
 the scheduler preferences modal or via the DM opt-out button (which sets `optedOut: true`).
 
 **Bot checks before sending a DM:**
-1. `optedOut === true` → skip
-2. Requesting user's `firebaseUid` in `blockedUsers` → skip
-3. Requesting team's `teamId` in `blockedTeams` → skip
-4. Match `division` in `blockedDivisions` → skip
+1. `optedOut === true` -> skip
+2. Requesting user's `firebaseUid` in `blockedUsers` -> skip
+3. Requesting team's `teamId` in `blockedTeams` -> skip
+4. Match `division` in `blockedDivisions` -> skip
 
 If skipped, the response entry is written as `dmDelivered: false, dmError: "blocked_by_preferences"`
 so the scheduler UI can show the player was filtered out.
@@ -152,9 +152,9 @@ so the scheduler UI can show the player was filtered out.
 │  🏆 Division 1                               │
 │  ⚔️ vs The Axemen                            │
 │                                              │
-│  [✅ Yes, I can play]  [❌ No thanks]         │
+│  [[OK] Yes, I can play]  [❌ No thanks]         │
 │                                              │
-│  [✅ Yes, I can play]  [❌ No thanks]         │
+│  [[OK] Yes, I can play]  [❌ No thanks]         │
 │                                              │
 │  [🔕 Stop all requests]  [⚙️ Preferences ↗]  │
 └──────────────────────────────────────────────┘
@@ -166,7 +166,7 @@ so the scheduler UI can show the player was filtered out.
 - Button custom IDs: `standin_yes_{requestId}`, `standin_no_{requestId}`, `standin_stop_{requestId}`
 - "Preferences" is a Discord Link button (opens URL, no bot handler needed)
 - "Stop all" sets `optedOut: true`. Bot replies ephemeral: "Stopped. You can re-enable or fine-tune at [scheduler URL]."
-- Granular blocking (by user/team/div) lives entirely on the scheduler — keeps the DM to 4 buttons
+- Granular blocking (by user/team/div) lives entirely on the scheduler -- keeps the DM to 4 buttons
 
 ### Deep-linked preferences URL
 
@@ -183,17 +183,17 @@ https://matchscheduler.app/#standin-preferences?teamId={requestingTeamId}&div={d
 ```
 
 The scheduler reads the hash on load:
-1. Detect `#standin-preferences` → open profile modal on the standin tab
-2. If `teamId` query param present → highlight "Block this team?" suggestion
-3. If `div` query param present → highlight "Block this division?" suggestion
+1. Detect `#standin-preferences` -> open profile modal on the standin tab
+2. If `teamId` query param present -> highlight "Block this team?" suggestion
+3. If `div` query param present -> highlight "Block this division?" suggestion
 
-No auto-blocking — just surfaces the relevant options. Player decides.
+No auto-blocking -- just surfaces the relevant options. Player decides.
 
 ### Confirmation DM (to accepted player)
 
 ```
 ┌──────────────────────────────────────────────┐
-│  ✅ You're in!                                │
+│  [OK] You're in!                                │
 │                                              │
 │  Slackers ]sr[ confirmed you as standin      │
 │                                              │
@@ -215,7 +215,7 @@ No auto-blocking — just surfaces the relevant options. Player decides.
 └──────────────────────────────────────────────┘
 ```
 
-## Quad Bot — `standin` Module
+## Quad Bot -- `standin` Module
 
 New module: `src/modules/standin/`
 
@@ -235,8 +235,8 @@ src/modules/standin/
 1. **onReady**: Start Firestore listener for new `standin_requests` with `status: "pending"`
 2. **On new request**: For each candidate, check opt-out status, send DM, update `responses.{id}.dmDelivered`
 3. **On button click**: Update `responses.{id}.status` in Firestore
-4. **On status → "confirmed"**: Send confirmation DM to chosen player, "slot filled" to others who accepted
-5. **On status → "cancelled"**: Optionally notify candidates
+4. **On status -> "confirmed"**: Send confirmation DM to chosen player, "slot filled" to others who accepted
+5. **On status -> "cancelled"**: Optionally notify candidates
 6. **onShutdown**: Detach Firestore listener
 
 ### Firebase Admin Setup
@@ -263,9 +263,9 @@ FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}   # JSON string or path
 None initially. This module is event-driven (Firestore + Discord interactions).
 
 Future:
-- `/standin optout` — opt out from within Discord
-- `/standin optin` — reverse an opt-out
-- `/standin status` — show pending requests (for the requesting team)
+- `/standin optout` -- opt out from within Discord
+- `/standin optin` -- reverse an opt-out
+- `/standin status` -- show pending requests (for the requesting team)
 
 ## MatchScheduler Changes
 
@@ -273,12 +273,12 @@ Future:
 
 1. **"Send requests" button** in the standin finder player list
    - Appears when 1+ players are selected (checkbox per player row)
-   - Click → writes `standin_requests` document to Firestore
+   - Click -> writes `standin_requests` document to Firestore
    - Disabled if no candidates selected
 
 2. **Request status panel**
    - Replaces or overlays the player list after sending
-   - Shows each candidate with real-time status: ⏳ pending / ✅ accepted / ❌ declined / ⚠️ DM failed
+   - Shows each candidate with real-time status: ⏳ pending / [OK] accepted / ❌ declined / ⚠️ DM failed
    - "Confirm" button next to each accepted player
    - "Cancel request" button to abort
 
@@ -289,20 +289,20 @@ Future:
    - Read from `standin_preferences` collection
 
 4. **Standin preferences panel** (in profile/settings modal)
-   - Toggle: "Receive standin requests" (on/off — maps to `optedOut`)
+   - Toggle: "Receive standin requests" (on/off -- maps to `optedOut`)
    - Blocked teams: list with ✕ remove buttons, "Add team" search/dropdown
    - Blocked divisions: checkboxes for D1/D2/D3
    - Blocked users: list with ✕ remove buttons (shows display names)
    - All changes write to `standin_preferences/{discordUserId}` immediately
-   - No defaults — everything starts open, player adds blocks as needed
+   - No defaults -- everything starts open, player adds blocks as needed
 
 ### Code Changes
 
-1. **StandinFinderService.js** — add `sendRequests(candidates)` method
-2. **TeamsBrowserPanel.js** — add checkboxes, send button, status panel, block indicators
-3. **New: StandinRequestService.js** — Firestore read/write for `standin_requests`
-4. **New: StandinPreferencesService.js** — Firestore read/write for `standin_preferences`
-5. **ProfileModal.js** — add standin preferences section (toggle, block lists)
+1. **StandinFinderService.js** -- add `sendRequests(candidates)` method
+2. **TeamsBrowserPanel.js** -- add checkboxes, send button, status panel, block indicators
+3. **New: StandinRequestService.js** -- Firestore read/write for `standin_requests`
+4. **New: StandinPreferencesService.js** -- Firestore read/write for `standin_preferences`
+5. **ProfileModal.js** -- add standin preferences section (toggle, block lists)
 
 ### Firestore Security Rules
 
@@ -313,7 +313,7 @@ match /standin_requests/{requestId} {
   // Only team schedulers can create/update
   allow create: if request.auth != null;
   allow update: if request.auth != null;
-  // Bot uses Admin SDK — bypasses rules entirely
+  // Bot uses Admin SDK -- bypasses rules entirely
 }
 
 match /standin_optouts/{odId} {
@@ -332,7 +332,7 @@ match /standin_optouts/{odId} {
 | Request expires (match time passes) | Bot or Cloud Function sets `status: "expired"` based on `expiresAt`. Buttons stop working. |
 | Multiple requests for same slot | Allowed. Each is independent. Scheduler's judgment. |
 | Player opted out / blocked | Bot skips DM, sets `dmDelivered: false`, `dmError: "blocked_by_preferences"`. UI shows 🔕. |
-| Player opts out mid-request | Preference stored. Current pending DMs already sent — they can still respond. Future requests skip them. |
+| Player opts out mid-request | Preference stored. Current pending DMs already sent -- they can still respond. Future requests skip them. |
 | Player blocks a team/div later | Only affects future requests. Existing pending requests unaffected. |
 | Player re-enables after opt-out | Deletes or updates `standin_preferences` doc. Immediately available again. |
 | Scheduler cancels request | Sets `status: "cancelled"`. Bot detects change, optionally DMs "request cancelled". |
@@ -341,10 +341,10 @@ match /standin_optouts/{odId} {
 ## Dependencies
 
 ### Quad Bot (new)
-- `firebase-admin` — Firestore access
+- `firebase-admin` -- Firestore access
 
 ### MatchScheduler (existing)
-- Already has Firebase SDK — no new deps
+- Already has Firebase SDK -- no new deps
 
 ## Config
 
@@ -367,7 +367,7 @@ No new config. Uses existing Firebase project.
 6. Test with manually created Firestore documents
 
 ### Phase 2: MatchScheduler integration
-1. `StandinRequestService.js` — write requests, listen for updates
+1. `StandinRequestService.js` -- write requests, listen for updates
 2. Player selection UI (checkboxes in standin finder)
 3. "Send requests" button + request status panel
 4. Opt-out indicators

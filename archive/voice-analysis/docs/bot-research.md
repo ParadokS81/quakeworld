@@ -1,8 +1,8 @@
-# Discord Recording Bot — Research & Decision Document
+# Discord Recording Bot -- Research & Decision Document
 
 > Generated: 2026-02-03
 > Context: Replace Craig bot with a self-hosted Discord voice recorder for the QW voice analysis pipeline.
-> Long-term vision: Community-wide voice comms paired to QW Hub matches — hear both teams during replays.
+> Long-term vision: Community-wide voice comms paired to QW Hub matches -- hear both teams during replays.
 
 ---
 
@@ -30,7 +30,7 @@
 - Exports go to Google Drive, requiring manual download and transfer
 - No control over recording format, timing, or metadata
 - Manual steps break the automation chain between recording and analysis
-- No path to community-wide adoption — each team's recordings are siloed
+- No path to community-wide adoption -- each team's recordings are siloed
 
 ### Solution
 Build a minimal, self-hostable Discord recording bot that:
@@ -40,10 +40,10 @@ Build a minimal, self-hostable Discord recording bot that:
 - Produces clean, standardized metadata designed for future Hub integration
 
 ### The bigger picture
-The immediate goal is replacing Craig for our team. But the metadata format and Docker distribution are designed from day one so that if multiple QW teams adopt this, we build up a corpus of voice recordings that can be paired to Hub matches. The long-term dream: embedded audio on hub.quakeworld.nu match pages — hear both teams' comms during a replay.
+The immediate goal is replacing Craig for our team. But the metadata format and Docker distribution are designed from day one so that if multiple QW teams adopt this, we build up a corpus of voice recordings that can be paired to Hub matches. The long-term dream: embedded audio on hub.quakeworld.nu match pages -- hear both teams' comms during a replay.
 
 ### What stays the same
-The entire downstream pipeline is unchanged: match pairing, audio splitting, transcription, analysis. The bot replaces only `craig_parser.py`'s input — instead of parsing a Craig zip export, the pipeline reads from the bot's output directory directly.
+The entire downstream pipeline is unchanged: match pairing, audio splitting, transcription, analysis. The bot replaces only `craig_parser.py`'s input -- instead of parsing a Craig zip export, the pipeline reads from the bot's output directory directly.
 
 ### Craig as fallback
 Craig remains usable. If the bot is down or someone prefers Craig, they can still export a zip and feed it to the existing pipeline via `craig_parser.py`. Nothing is removed.
@@ -56,7 +56,7 @@ Craig remains usable. If the bot is down or someone prefers Craig, they can stil
 
 Discord voice channels use a WebSocket connection for signaling and a UDP connection for audio data. Audio is sent as **Opus-encoded packets** (48kHz, stereo, ~96kbps CBR) wrapped in RTP headers, encrypted with libsodium (XSalsa20+Poly1305). Each user in a voice channel has their own SSRC (Synchronization Source identifier), so per-user audio separation is built into the protocol.
 
-**Key point:** Per-user separation is free — Discord already sends each speaker as a distinct stream. This is why Craig can produce per-speaker tracks, and why our bot can too.
+**Key point:** Per-user separation is free -- Discord already sends each speaker as a distinct stream. This is why Craig can produce per-speaker tracks, and why our bot can too.
 
 ### DAVE Protocol (Critical: March 2026 deadline)
 
@@ -71,7 +71,7 @@ Discord is rolling out **DAVE** (Discord Audio & Video End-to-End Encryption):
 
 ### Library Comparison
 
-#### Option A: discord.js + @discordjs/voice (Node.js) — RECOMMENDED
+#### Option A: discord.js + @discordjs/voice (Node.js) -- RECOMMENDED
 
 | Aspect | Assessment |
 |--------|-----------|
@@ -95,7 +95,7 @@ Discord is rolling out **DAVE** (Discord Audio & Video End-to-End Encryption):
 | Aspect | Assessment |
 |--------|-----------|
 | **Voice receive maturity** | Functional but less proven. Sink-based API: `start_recording(sink, callback)`. |
-| **Per-user streams** | Built-in via sink system. `sink.audio_data` maps `user_id` → audio data. |
+| **Per-user streams** | Built-in via sink system. `sink.audio_data` maps `user_id` -> audio data. |
 | **Audio format** | Decodes Opus to PCM internally. Has OGG sink built-in, but sink system buffers in memory. |
 | **Long recording stability** | Stores all audio in memory (`BytesIO`). For a 3-hour session with 5 speakers, that's potentially 1.5-2.5 GB of PCM in RAM. No built-in chunking or disk streaming. |
 | **DAVE support** | In progress. PR exists for discord.py, pycord tracking separately. Less certain timeline. |
@@ -141,13 +141,13 @@ Discord is rolling out **DAVE** (Discord Audio & Video End-to-End Encryption):
 
 **discord.js + @discordjs/voice (Node.js)**. The reasons:
 
-1. **Most mature voice receive API** — years of production use, known issues documented and fixable
-2. **DAVE support ready now** — `@snazzah/davey` is already integrated
-3. **Stream-to-disk** — we can pipe Opus/PCM directly to ffmpeg for FLAC encoding without buffering entire sessions in memory
-4. **Craig itself uses Node.js** — this is proven technology for Discord voice recording
-5. **Community projects to reference** — `Kirdock/discordjs-voice-recorder`, `chebro/discord-voice-recorder`, Craig source, Pandora source
+1. **Most mature voice receive API** -- years of production use, known issues documented and fixable
+2. **DAVE support ready now** -- `@snazzah/davey` is already integrated
+3. **Stream-to-disk** -- we can pipe Opus/PCM directly to ffmpeg for FLAC encoding without buffering entire sessions in memory
+4. **Craig itself uses Node.js** -- this is proven technology for Discord voice recording
+5. **Community projects to reference** -- `Kirdock/discordjs-voice-recorder`, `chebro/discord-voice-recorder`, Craig source, Pandora source
 
-The trade-off is having two runtimes (Node.js for the bot, Python for the pipeline). This is manageable — the bot is a standalone service that writes files. The pipeline reads those files. They communicate via the filesystem, not API calls.
+The trade-off is having two runtimes (Node.js for the bot, Python for the pipeline). This is manageable -- the bot is a standalone service that writes files. The pipeline reads those files. They communicate via the filesystem, not API calls.
 
 ---
 
@@ -172,15 +172,15 @@ The bot is a focused, small service (~500-800 lines). It doesn't need to share c
 
 | Scope level | What it does | Verdict |
 |-------------|-------------|---------|
-| **Minimal** | Records voice, writes FLAC + metadata JSON | **v1 — do this** |
-| Medium | + queries Hub API when recording ends | v2 — let the pipeline handle this |
-| Full | + posts results to Discord, triggers pipeline | v3 — nice-to-have |
+| **Minimal** | Records voice, writes FLAC + metadata JSON | **v1 -- do this** |
+| Medium | + queries Hub API when recording ends | v2 -- let the pipeline handle this |
+| Full | + posts results to Discord, triggers pipeline | v3 -- nice-to-have |
 
-Rationale: The pipeline already handles everything after recording. Adding API queries or Discord notifications to the bot couples it to pipeline logic. Keep the bot dumb — it records audio and writes files. The pipeline (or a simple cron/watcher) picks them up.
+Rationale: The pipeline already handles everything after recording. Adding API queries or Discord notifications to the bot couples it to pipeline logic. Keep the bot dumb -- it records audio and writes files. The pipeline (or a simple cron/watcher) picks them up.
 
 ### c) Audio Handling
 
-#### Discord → OGG/Opus path
+#### Discord -> OGG/Opus path
 
 ```
 Discord voice gateway
@@ -188,16 +188,16 @@ Discord voice gateway
 @discordjs/voice decrypts + demuxes
     ↓ (raw Opus frames per user)
 OGG muxer (e.g., ogg-opus via ffmpeg or ogg npm package)
-    ↓ (wrap Opus frames in OGG container — no transcoding)
+    ↓ (wrap Opus frames in OGG container -- no transcoding)
 Per-speaker .ogg files on disk
 ```
 
 **Why OGG/Opus instead of FLAC:**
-- Discord sends Opus (lossy, ~96kbps). This is the quality ceiling — information is already lost.
-- FLAC would decode Opus→PCM then re-encode to FLAC: ~100-150 MB/hour/speaker, zero quality gain over the Opus source.
+- Discord sends Opus (lossy, ~96kbps). This is the quality ceiling -- information is already lost.
+- FLAC would decode Opus->PCM then re-encode to FLAC: ~100-150 MB/hour/speaker, zero quality gain over the Opus source.
 - OGG/Opus stores the original Opus frames directly: ~5-8 MB/hour/speaker. Bit-perfect preservation of what Discord sent.
 - **15-20x smaller files** for identical audio quality.
-- The entire downstream toolchain handles OGG/Opus natively: ffmpeg (for splitting), faster-whisper (for transcription). Both internally decode to PCM before processing — there is no speed or quality difference vs FLAC input.
+- The entire downstream toolchain handles OGG/Opus natively: ffmpeg (for splitting), faster-whisper (for transcription). Both internally decode to PCM before processing -- there is no speed or quality difference vs FLAC input.
 
 **Why stream to disk rather than buffer in memory:**
 - Even with small Opus files, streaming is the right pattern for a long-running recorder.
@@ -206,7 +206,7 @@ Per-speaker .ogg files on disk
 
 **What about FLAC for archival/editing?**
 - Craig offers FLAC for podcast editors who work in DAWs (Audacity, etc.) that expect lossless input.
-- Our use case is transcription and analysis — whisper doesn't care about input format.
+- Our use case is transcription and analysis -- whisper doesn't care about input format.
 - For the Hub vision, smaller files = faster uploads, less storage cost.
 - If someone ever needs FLAC (e.g., for manual editing), a one-liner converts it: `ffmpeg -i track.ogg track.flac`. No quality difference since the source was Opus either way.
 
@@ -235,8 +235,8 @@ This is the same approach Craig uses, and it's what the pipeline expects.
 
 ```
 docker-compose.yml
-├── qw-recorder        (Node.js bot — always on)
-├── qw-pipeline        (Python pipeline — runs on demand or triggered)
+├── qw-recorder        (Node.js bot -- always on)
+├── qw-pipeline        (Python pipeline -- runs on demand or triggered)
 └── shared volume      (recordings/ directory)
 ```
 
@@ -250,8 +250,8 @@ docker-compose.yml
 ## 4. Bot Output Specification
 
 The bot's output format serves two purposes:
-1. **Pipeline input** — the existing pipeline can consume it without changes
-2. **Community data contract** — this is the format other teams will produce if they adopt the bot, and what Hub integration will eventually consume
+1. **Pipeline input** -- the existing pipeline can consume it without changes
+2. **Community data contract** -- this is the format other teams will produce if they adopt the bot, and what Hub integration will eventually consume
 
 The metadata format matters more than most implementation details. If 10 teams run this bot and we want to pair their recordings to Hub matches later, the schema needs to be right from the start. It's much harder to change a format once data exists in the wild.
 
@@ -270,7 +270,7 @@ Using Craig's filename convention (`{track_number}-{username}.{ext}`) with `.ogg
 
 ### session_metadata.json schema
 
-This is a **public contract** — designed for interoperability across teams and future Hub integration.
+This is a **public contract** -- designed for interoperability across teams and future Hub integration.
 
 ```json
 {
@@ -312,35 +312,35 @@ This is a **public contract** — designed for interoperability across teams and
 |-------|-----|
 | `schema_version` | Future-proofing. When the format evolves, consumers can handle multiple versions. Critical for a community format. |
 | `recording_start_time` | Renamed from `craig_start_time`. The old name was an implementation detail that shouldn't leak into a public contract. Pipeline gets a one-line alias. |
-| `recording_end_time` | Needed for Hub match pairing — you need the recording window to find which matches overlap. |
-| `recording_id` | ULID preferred over UUID — sortable by time, which helps when browsing recordings. |
+| `recording_end_time` | Needed for Hub match pairing -- you need the recording window to find which matches overlap. |
+| `recording_id` | ULID preferred over UUID -- sortable by time, which helps when browsing recordings. |
 | `source` / `source_version` | Identifies what produced this file. `"qw-recorder"` vs `"craig"` vs future sources. Version helps debug issues across community deployments. |
 | `guild.id` / `channel.id` | Discord snowflake IDs are stable. Names can change. IDs let you correlate recordings from the same server over time. |
-| `team.tag` | The QW team tag (e.g., `"]sr["`). Configured per bot instance. Essential for Hub match pairing — Hub matches have team names. |
+| `team.tag` | The QW team tag (e.g., `"]sr["`). Configured per bot instance. Essential for Hub match pairing -- Hub matches have team names. |
 | `tracks[].joined_at/left_at` | When users actually joined/left the voice channel. Useful for knowing who was present for which parts. |
 | `tracks[].audio_file` | Explicit filename reference. No guessing based on conventions. |
 
 #### Backward compatibility with existing pipeline
 
 The pipeline currently reads `craig_start_time` from `session_metadata.json`. Two options:
-- **Option A:** `craig_parser.py` maps `recording_start_time` → `craig_start_time` internally (alias, ~3 lines)
+- **Option A:** `craig_parser.py` maps `recording_start_time` -> `craig_start_time` internally (alias, ~3 lines)
 - **Option B:** Bot writes both fields during a transition period
 
-Option A is cleaner. The internal `CraigSession` dataclass already has `start_time` — the field name in JSON doesn't matter as long as the parser handles it.
+Option A is cleaner. The internal `CraigSession` dataclass already has `start_time` -- the field name in JSON doesn't matter as long as the parser handles it.
 
 ### Audio file format
 
 | Property | Value |
 |----------|-------|
 | Container | OGG |
-| Codec | Opus (passthrough from Discord — no transcoding) |
+| Codec | Opus (passthrough from Discord -- no transcoding) |
 | Sample rate | 48000 Hz |
 | Channels | 2 (stereo, matching Discord source) |
 | Bitrate | ~96 kbps (Discord default) |
 | Size | ~5-8 MB per hour per speaker |
 | Duration | Full recording duration (silence-padded from start) |
 
-All tracks have the **same duration** — they all start at recording start time and end at recording end time, with silence where the user wasn't speaking. This ensures perfect sync, matching Craig's behavior and what `timestamp_splitter.py` expects.
+All tracks have the **same duration** -- they all start at recording start time and end at recording end time, with silence where the user wasn't speaking. This ensures perfect sync, matching Craig's behavior and what `timestamp_splitter.py` expects.
 
 **Comparison to FLAC:**
 
@@ -369,13 +369,13 @@ This only works if the metadata is clean and standardized. That's why `schema_ve
 
 ## 5. Feature Scope
 
-### v1 — Must-have
+### v1 -- Must-have
 
 | Feature | Description |
 |---------|-------------|
 | **Join & record** | Bot joins a voice channel and records all speakers as separate FLAC tracks |
-| **Slash commands** | `/record start` — joins the invoker's voice channel and starts recording |
-| | `/record stop` — stops recording, saves files, leaves channel |
+| **Slash commands** | `/record start` -- joins the invoker's voice channel and starts recording |
+| | `/record stop` -- stops recording, saves files, leaves channel |
 | **Auto-stop** | Stop recording when all users leave the voice channel |
 | **Session metadata** | Write `session_metadata.json` with start time, tracks, guild/channel info |
 | **Track sync** | All tracks time-aligned to recording start (silence-padded) |
@@ -384,7 +384,7 @@ This only works if the metadata is clean and standardized. That's why `schema_ve
 | **Logging** | Structured logging: recording start/stop, users join/leave, errors |
 | **Health** | Basic health check endpoint (HTTP) for Docker health checks |
 
-### v2 — Nice-to-have
+### v2 -- Nice-to-have
 
 | Feature | Description |
 |---------|-------------|
@@ -392,9 +392,9 @@ This only works if the metadata is clean and standardized. That's why `schema_ve
 | **Status messages** | Post to a text channel: "Recording started", "Recording saved: 5 tracks, 2h 15m" |
 | **Pipeline trigger** | Run pipeline automatically when recording ends (subprocess or HTTP call) |
 | **Multiple channels** | Support recording multiple voice channels simultaneously |
-| **Recording status** | `/record status` — shows current recording duration, users, file sizes |
+| **Recording status** | `/record status` -- shows current recording duration, users, file sizes |
 
-### v3 — Future
+### v3 -- Future
 
 | Feature | Description |
 |---------|-------------|
@@ -420,16 +420,16 @@ This only works if the metadata is clean and standardized. That's why `schema_ve
 
 | Resource | Estimate | Notes |
 |----------|----------|-------|
-| **CPU** | Near-zero | Opus passthrough to OGG container — no transcoding. Just muxing raw packets. |
+| **CPU** | Near-zero | Opus passthrough to OGG container -- no transcoding. Just muxing raw packets. |
 | **RAM** | ~100-200 MB | Node.js runtime + discord.js + one small buffer per audio stream. No bulk memory storage. |
-| **Disk (per session)** | ~25-40 MB per hour (5 speakers) | OGG/Opus ≈ 5-8 MB/hour/speaker. 5 speakers × 3 hours ≈ 75-120 MB per session. |
+| **Disk (per session)** | ~25-40 MB per hour (5 speakers) | OGG/Opus ≈ 5-8 MB/hour/speaker. 5 speakers x 3 hours ≈ 75-120 MB per session. |
 | **Network** | ~25-50 KB/sec per speaker | Discord Opus ≈ 8-12 KB/sec per speaker. Overhead for encryption + protocol. Negligible for any broadband connection. |
 
 ### Your hardware
 
 **Primary (Ubuntu headless + 4090):**
 - More than sufficient. The bot barely uses CPU. The 4090 is irrelevant for the bot itself but valuable for the pipeline (faster-whisper with GPU would dramatically speed up transcription).
-- This is the ideal single-machine setup: bot records → pipeline processes on the same box.
+- This is the ideal single-machine setup: bot records -> pipeline processes on the same box.
 
 **Backup (Unraid i7 13th gen):**
 - Also more than sufficient for the bot alone.
@@ -461,7 +461,7 @@ The bot must be always-on to be useful (unlike the pipeline which runs on demand
 
 ## 7. Target Audience & Distribution
 
-> **Docker-first distribution.** The primary deliverable for the community is a Docker image that any QW team can pull and run. This is non-negotiable for adoption — QW players shouldn't need to install Node.js or understand npm.
+> **Docker-first distribution.** The primary deliverable for the community is a Docker image that any QW team can pull and run. This is non-negotiable for adoption -- QW players shouldn't need to install Node.js or understand npm.
 
 ### User tiers
 
@@ -491,7 +491,7 @@ GitHub repository: qw-voice-recorder (or similar)
 
 **For self-hosters:**
 1. Clone the repo
-2. Copy `config.example.yaml` → `config.yaml`, add Discord bot token
+2. Copy `config.example.yaml` -> `config.yaml`, add Discord bot token
 3. `docker compose up -d`
 
 That's it. No database, no Redis, no external services (unlike Craig's self-host which requires PostgreSQL + Redis).
@@ -501,7 +501,7 @@ That's it. No database, no Redis, no external services (unlike Craig's self-host
 - **All data stays local.** Recordings are written to the host filesystem, never uploaded anywhere.
 - **No telemetry.** The bot connects to Discord's API only. No external analytics.
 - **Teams own their data.** Each team runs their own instance with their own bot token.
-- **Optional sharing (future):** Teams could opt-in to share recordings or analysis results with Hub. This is v3+ and strictly opt-in. Raw audio sharing requires explicit consent — some teams will want their comms public (entertainment value), others won't.
+- **Optional sharing (future):** Teams could opt-in to share recordings or analysis results with Hub. This is v3+ and strictly opt-in. Raw audio sharing requires explicit consent -- some teams will want their comms public (entertainment value), others won't.
 
 ### Minimum requirements for non-technical QW players to self-host
 
@@ -547,7 +547,7 @@ The path from "bot records audio" to "Hub plays synced comms" has natural steppi
 
 **Step 3 (sharing): Paired recordings get uploaded to Hub (or a linked service)**
 - After pipeline processing, the matched audio segments + metadata can be submitted to Hub
-- Hub stores the `game_id` → audio mapping
+- Hub stores the `game_id` -> audio mapping
 - Privacy: team decides per-match whether to publish comms
 
 **Step 4 (Hub integration): Hub embeds audio playback on match pages**
@@ -559,17 +559,17 @@ The path from "bot records audio" to "Hub plays synced comms" has natural steppi
 ### Why the metadata format matters for this
 
 Every team running the bot produces data in the same format. When it reaches Hub:
-- `team.tag` → maps to Hub team name
-- `recording_start_time` → pairs to Hub match timestamp (same algorithm as our pipeline's `match_pairer.py`)
-- `tracks[].discord_username` → maps to QW player names via each team's configured `player_name_map`
-- `game_id` (added by the pipeline after pairing) → direct foreign key to Hub's match database
+- `team.tag` -> maps to Hub team name
+- `recording_start_time` -> pairs to Hub match timestamp (same algorithm as our pipeline's `match_pairer.py`)
+- `tracks[].discord_username` -> maps to QW player names via each team's configured `player_name_map`
+- `game_id` (added by the pipeline after pairing) -> direct foreign key to Hub's match database
 
-The sync mechanism is the same regardless of which team recorded: UTC timestamps from Discord matched against UTC timestamps from QW game servers. Both use NTP-synced clocks. This is already validated with real data — our pipeline's match pairing works within seconds of accuracy.
+The sync mechanism is the same regardless of which team recorded: UTC timestamps from Discord matched against UTC timestamps from QW game servers. Both use NTP-synced clocks. This is already validated with real data -- our pipeline's match pairing works within seconds of accuracy.
 
 ### What this means for other teams
 
 A team that runs the bot doesn't need to run the full analysis pipeline. The minimum useful setup is:
-1. Run the Docker bot → it records their practice/match sessions
+1. Run the Docker bot -> it records their practice/match sessions
 2. Recordings accumulate locally with clean metadata
 3. Later (once Hub integration exists): opt-in to upload matched recordings to Hub
 
@@ -583,19 +583,19 @@ QW-themed name options for the bot:
 
 | Name | Reference | Vibe |
 |------|-----------|------|
-| **Quad** | Quad Damage — QW's signature powerup | Short, punchy, QW-iconic |
+| **Quad** | Quad Damage -- QW's signature powerup | Short, punchy, QW-iconic |
 | **QBot** | Simple, descriptive | Functional |
 | **Voregod** | QW terminology for fragging powerhouse | Too aggressive? |
-| **Specbot** | Spectator bot — records what it observes | Descriptive, QW-relevant |
+| **Specbot** | Spectator bot -- records what it observes | Descriptive, QW-relevant |
 | **Campbot** | A bot that sits in one spot and watches | Self-deprecating QW humor |
-| **MVD** | Multi-View Demo — QW's server-side recording format | Technical, QW-specific |
+| **MVD** | Multi-View Demo -- QW's server-side recording format | Technical, QW-specific |
 | **DemoBot** | Demos are QW recordings | Clear purpose |
 | **Axebot** | Everyone starts with an axe in QW | Minimal, iconic |
 | **GibRecorder** | Gibs = QW gore fragments | Fun but long |
 
-**Recommendation:** **Quad** — it's short, immediately recognizable to any QW player, and has good energy. "Quad is recording" feels natural. `/quad start`, `/quad stop`.
+**Recommendation:** **Quad** -- it's short, immediately recognizable to any QW player, and has good energy. "Quad is recording" feels natural. `/quad start`, `/quad stop`.
 
-Runner-up: **MVD** — technically accurate (it records matches like a demo) and QW-specific, though less catchy.
+Runner-up: **MVD** -- technically accurate (it records matches like a demo) and QW-specific, though less catchy.
 
 ---
 
@@ -612,14 +612,14 @@ Runner-up: **MVD** — technically accurate (it records matches like a demo) and
 ### Phase 2: Commands & lifecycle
 7. Implement slash commands: `/record start`, `/record stop`
 8. Implement auto-stop on empty channel
-9. Implement graceful shutdown (SIGTERM handler → stop recording cleanly)
+9. Implement graceful shutdown (SIGTERM handler -> stop recording cleanly)
 10. Handle users joining/leaving mid-recording
 11. Configuration file (Discord token, output dir, channel ID)
 12. Logging
 
 ### Phase 3: Pipeline integration
 13. Update `craig_parser.py` to detect bot output format (read `session_metadata.json` directly)
-14. Test: bot output → pipeline → transcription → analysis (full chain)
+14. Test: bot output -> pipeline -> transcription -> analysis (full chain)
 15. Dockerize the bot
 16. Create `docker-compose.yml` with bot + pipeline services + shared volume
 
@@ -653,10 +653,10 @@ Runner-up: **MVD** — technically accurate (it records matches like a demo) and
 │  ┌─────────────────┐  ┌─────────────────────────────┐   │
 │  │ VoiceReceiver   │  │ Per-user OGG muxers          │   │
 │  │                 │  │                              │   │
-│  │ subscribe(u1)───┼──┼─► OGG mux → 1-paradoks.ogg   │   │
-│  │ subscribe(u2)───┼──┼─► OGG mux → 2-zerohero.ogg  │   │
-│  │ subscribe(u3)───┼──┼─► OGG mux → 3-grisling.ogg  │   │
-│  │ subscribe(u4)───┼──┼─► OGG mux → 4-carapace.ogg  │   │
+│  │ subscribe(u1)───┼──┼─► OGG mux -> 1-paradoks.ogg   │   │
+│  │ subscribe(u2)───┼──┼─► OGG mux -> 2-zerohero.ogg  │   │
+│  │ subscribe(u3)───┼──┼─► OGG mux -> 3-grisling.ogg  │   │
+│  │ subscribe(u4)───┼──┼─► OGG mux -> 4-carapace.ogg  │   │
 │  └─────────────────┘  └─────────────────────────────┘   │
 │                                                          │
 │  On stop: write session_metadata.json                    │
@@ -676,7 +676,7 @@ Runner-up: **MVD** — technically accurate (it records matches like a demo) and
                            ▼
 ┌──────────────────────────────────────────────────────────┐
 │              QW Analysis Pipeline                         │
-│              (Python — existing, unchanged)               │
+│              (Python -- existing, unchanged)               │
 │                                                          │
 │  [1] craig_parser.py ─── reads session_metadata.json     │
 │           │                + FLAC files                   │
@@ -736,12 +736,12 @@ We evaluated two existing Discord voice recording implementations as potential s
 **Repository**: [Kirdock/discordjs-voice-recorder](https://github.com/Kirdock/discordjs-voice-recorder)
 **Type**: npm library (NOT a standalone bot)
 **Size**: ~500 lines TypeScript, 5 source files
-**Last release**: v1.1.1 (July 2024) — lightly maintained, ~1 release/year
+**Last release**: v1.1.1 (July 2024) -- lightly maintained, ~1 release/year
 **Stars**: 31 | Forks: 4
 
 #### What it does
 
-A **replay buffer** library — it keeps the last N minutes of voice audio in memory and exports on demand. Think "clip the last 5 minutes" rather than "record the whole session." You integrate it into your own bot by importing the `VoiceRecorder` class and calling methods on it.
+A **replay buffer** library -- it keeps the last N minutes of voice audio in memory and exports on demand. Think "clip the last 5 minutes" rather than "record the whole session." You integrate it into your own bot by importing the `VoiceRecorder` class and calling methods on it.
 
 It is **not** a bot, has no slash commands, no Docker support, and no standalone entry point.
 
@@ -753,7 +753,7 @@ This is the most interesting part. The library does handle both:
 - **`addSilentTime()`** calculates gaps between speech segments and generates zero-filled PCM buffers to fill them
 - **`getMinStartTime()`** finds the earliest timestamp across all users; `rewind(startTime, endTime)` prepends silence so all tracks share a synchronized timeline
 
-The sync approach is sound — conceptually identical to what Craig does and what our pipeline expects. However, timing is reconstructed from packet timestamps, not a continuous clock. Minor drift is possible.
+The sync approach is sound -- conceptually identical to what Craig does and what our pipeline expects. However, timing is reconstructed from packet timestamps, not a continuous clock. Minor drift is possible.
 
 #### Streaming vs buffering
 
@@ -765,7 +765,7 @@ On export, audio is served to FFmpeg via Unix sockets / named pipes and output a
 
 #### Output format
 
-- Decodes Discord's Opus → PCM (s16le, **16kHz** by default — phone quality, configurable)
+- Decodes Discord's Opus -> PCM (s16le, **16kHz** by default -- phone quality, configurable)
 - Exports as **MP3 only** (via fluent-ffmpeg)
 - No OGG/Opus passthrough, no FLAC, no WAV option
 - Sample rate and channels are constructor options, but the MP3 output is hardcoded
@@ -789,9 +789,9 @@ Plus system FFmpeg required.
 
 | Change | Effort |
 |--------|--------|
-| Replace replay buffer with continuous disk streaming | **Rewrite core** — the entire `ReplayReadable` class |
-| Change output from MP3 to OGG/Opus passthrough | **Rewrite export** — remove FFmpeg MP3 pipeline, add OGG muxer |
-| Add slash commands, bot lifecycle, session management | **Write from scratch** — library has none of this |
+| Replace replay buffer with continuous disk streaming | **Rewrite core** -- the entire `ReplayReadable` class |
+| Change output from MP3 to OGG/Opus passthrough | **Rewrite export** -- remove FFmpeg MP3 pipeline, add OGG muxer |
+| Add slash commands, bot lifecycle, session management | **Write from scratch** -- library has none of this |
 | Add `session_metadata.json` output | Write from scratch |
 | Add DAVE support (`@snazzah/davey`) | Integration work, untested with this library |
 | Add Docker support | Write from scratch |
@@ -810,27 +810,27 @@ Plus system FFmpeg required.
 **Repository**: [discordjs/voice/examples/recorder](https://github.com/discordjs/voice/tree/main/examples/recorder)
 **Type**: Standalone demo bot
 **Size**: ~170 lines TypeScript, 4 source files
-**Status**: **Archived** (July 2023) — no maintenance, outdated dependencies
+**Status**: **Archived** (July 2023) -- no maintenance, outdated dependencies
 **discord.js version**: v13 (current is v14)
 
 #### What it does
 
 A minimal bot demonstrating `@discordjs/voice` receive API. Three slash commands:
-- `/join` — bot joins your voice channel (`selfDeaf: false`, `selfMute: true`)
-- `/record <speaker>` — marks a specific user as recordable (manual per-user opt-in)
-- `/leave` — disconnects
+- `/join` -- bot joins your voice channel (`selfDeaf: false`, `selfMute: true`)
+- `/record <speaker>` -- marks a specific user as recordable (manual per-user opt-in)
+- `/leave` -- disconnects
 
 When a marked user starts speaking, it subscribes to their Opus stream and pipes it to an OGG file on disk.
 
 #### Audio handling
 
 ```
-receiver.subscribe(userId) → Opus stream → prism-media OGG muxer → fs.createWriteStream()
+receiver.subscribe(userId) -> Opus stream -> prism-media OGG muxer -> fs.createWriteStream()
 ```
 
-Uses Node.js `pipeline()` — true streaming, zero memory buffering. Audio flows directly from Discord through OGG encoding to disk. This is the correct pattern.
+Uses Node.js `pipeline()` -- true streaming, zero memory buffering. Audio flows directly from Discord through OGG encoding to disk. This is the correct pattern.
 
-Output: **OGG/Opus, 48kHz stereo** — exactly what we want. The Opus frames from Discord are wrapped in an OGG container without transcoding. Bit-perfect passthrough.
+Output: **OGG/Opus, 48kHz stereo** -- exactly what we want. The Opus frames from Discord are wrapped in an OGG container without transcoding. Bit-perfect passthrough.
 
 #### The critical problem: fragmented files
 
@@ -843,19 +843,19 @@ end: {
 
 Every **100ms pause** ends the stream and closes the file. A new file is created the next time the user speaks. A user talking for 20 minutes with natural pauses generates **dozens of small OGG files**, not one continuous track.
 
-Filename: `{timestamp}-{username}.ogg` — the timestamp is the only timing reference. No recording-start metadata, no embedded timing, no session concept.
+Filename: `{timestamp}-{username}.ogg` -- the timestamp is the only timing reference. No recording-start metadata, no embedded timing, no session concept.
 
 **This makes timeline reconstruction extremely difficult** and is fundamentally incompatible with our pipeline, which expects one continuous track per speaker aligned to a common start time.
 
 #### Silence handling
 
-**None.** Silence ends the stream. Gaps between speech are simply lost — no silence padding, no gap tracking, no timing metadata. This is the opposite of what Craig (and our pipeline) does.
+**None.** Silence ends the stream. Gaps between speech are simply lost -- no silence padding, no gap tracking, no timing metadata. This is the opposite of what Craig (and our pipeline) does.
 
 #### What we'd need to change to use it
 
 | Change | Effort |
 |--------|--------|
-| Continuous recording instead of per-utterance files | **Redesign core** — keep streams open, pad silence |
+| Continuous recording instead of per-utterance files | **Redesign core** -- keep streams open, pad silence |
 | Session management (start/stop, metadata) | Write from scratch |
 | `session_metadata.json` output | Write from scratch |
 | Record all users automatically (not manual `/record @user`) | Moderate refactor |
@@ -865,9 +865,9 @@ Filename: `{timestamp}-{username}.ogg` — the timestamp is the only timing refe
 
 #### Verdict
 
-**Not suitable as a foundation either**, but for different reasons than Kirdock. The streaming-to-disk approach and OGG/Opus passthrough are exactly right — this is the pattern we want. But the per-utterance fragmentation makes it unusable as-is, and the archived/outdated status means we'd be building on abandoned code.
+**Not suitable as a foundation either**, but for different reasons than Kirdock. The streaming-to-disk approach and OGG/Opus passthrough are exactly right -- this is the pattern we want. But the per-utterance fragmentation makes it unusable as-is, and the archived/outdated status means we'd be building on abandoned code.
 
-**However**: The `createListeningStream.ts` file is the **canonical example** of how to use `receiver.subscribe()` → `prism.opus.OggLogicalBitstream` → `fs.createWriteStream()`. This 35-line file is the best reference for our OGG muxing pipeline. We should use this exact streaming pattern but keep the stream open for the entire session instead of closing it after 100ms of silence.
+**However**: The `createListeningStream.ts` file is the **canonical example** of how to use `receiver.subscribe()` -> `prism.opus.OggLogicalBitstream` -> `fs.createWriteStream()`. This 35-line file is the best reference for our OGG muxing pipeline. We should use this exact streaming pattern but keep the stream open for the entire session instead of closing it after 100ms of silence.
 
 ---
 
@@ -893,13 +893,13 @@ Filename: `{timestamp}-{username}.ogg` — the timestamp is the only timing refe
 
 Neither project is a viable starting point to fork or use as a dependency. Both would require rewriting their core functionality. But both offer valuable code to reference:
 
-**From Kirdock — steal the sync algorithm:**
-- `replay-readable.utils.ts`: `addSilentTime()` and `syncStream()` — the cleanest example of per-user silence gap detection and padding we've found
-- `getMinStartTime()` — common timeline alignment across users
+**From Kirdock -- steal the sync algorithm:**
+- `replay-readable.utils.ts`: `addSilentTime()` and `syncStream()` -- the cleanest example of per-user silence gap detection and padding we've found
+- `getMinStartTime()` -- common timeline alignment across users
 - The timestamped chunk model (`{chunk, startTime, stopTime}`) is a good pattern even if we stream to disk instead of buffering
 
-**From the discord.js example — steal the streaming pipeline:**
-- `createListeningStream.ts`: `receiver.subscribe()` → `prism.opus.OggLogicalBitstream` → `createWriteStream()` — the canonical OGG/Opus passthrough pattern
+**From the discord.js example -- steal the streaming pipeline:**
+- `createListeningStream.ts`: `receiver.subscribe()` -> `prism.opus.OggLogicalBitstream` -> `createWriteStream()` -- the canonical OGG/Opus passthrough pattern
 - This is literally the 35-line core of our recording pipeline
 - We just need to keep the stream open (use `EndBehaviorType.Manual` instead of `AfterSilence`) and handle silence ourselves
 
@@ -911,9 +911,9 @@ receiver.subscribe(userId, { end: { behavior: EndBehaviorType.Manual } })
     ▼
 Per-user Opus stream (stays open for entire session)
     │
-    ├── Opus packet received? → pipe to OGG muxer → stream to disk
+    ├── Opus packet received? -> pipe to OGG muxer -> stream to disk
     │
-    └── Silence gap detected? → insert silent Opus frames into OGG stream
+    └── Silence gap detected? -> insert silent Opus frames into OGG stream
                                  (or handle in post-processing via timestamps)
     │
     ▼
@@ -927,7 +927,7 @@ This approach:
 - But streams continuously to disk instead of buffering in memory
 - Produces exactly the output format our pipeline expects
 
-**Estimated scope**: ~600-800 lines of TypeScript for the core recorder + bot logic. This is a focused, single-purpose service — there's no reason to take on the baggage of either existing project when neither solves our actual problem.
+**Estimated scope**: ~600-800 lines of TypeScript for the core recorder + bot logic. This is a focused, single-purpose service -- there's no reason to take on the baggage of either existing project when neither solves our actual problem.
 
 ---
 
@@ -952,7 +952,7 @@ This approach:
 - [Craig bot official site](https://craig.chat/)
 - [Craig source code (GitHub)](https://github.com/CraigChat/craig)
 - [Craig self-hosting guide](https://github.com/CraigChat/craig/blob/master/SELFHOST.md)
-- [Pandora — Craig fork (GitHub)](https://github.com/SoTrxII/Pandora)
+- [Pandora -- Craig fork (GitHub)](https://github.com/SoTrxII/Pandora)
 - [Kirdock/discordjs-voice-recorder](https://github.com/Kirdock/discordjs-voice-recorder)
 - [chebro/discord-voice-recorder](https://github.com/chebro/discord-voice-recorder)
 

@@ -4,7 +4,7 @@
 
 **Goal:** Publish quad Docker images to GitHub Container Registry so deployment becomes `docker compose pull && up` instead of `git pull && build`.
 
-**Architecture:** GitHub Actions builds the image on push to `main` when `apps/quad/**` changes, pushes to `ghcr.io/paradoks81/quad`. The Dockerfile drops the baked-in Whisper model — models download at runtime to a persistent volume. Xerial's server pulls pre-built images instead of building from source.
+**Architecture:** GitHub Actions builds the image on push to `main` when `apps/quad/**` changes, pushes to `ghcr.io/paradoks81/quad`. The Dockerfile drops the baked-in Whisper model -- models download at runtime to a persistent volume. Xerial's server pulls pre-built images instead of building from source.
 
 **Tech Stack:** GitHub Actions, docker/build-push-action, GHCR, Docker Compose
 
@@ -134,11 +134,11 @@ services:
       MUMBLE_CONFIG_ICE: "tcp -h 0.0.0.0 -p 6502"
       MUMBLE_CONFIG_ICESECRETWRITE: "${MUMBLE_ICE_SECRET}"
     expose:
-      - "6502"   # ICE API — internal Docker network only, not public
+      - "6502"   # ICE API -- internal Docker network only, not public
 ```
 
 Changes from original:
-- `build: .` → `image: ghcr.io/paradoks81/quad:${QUAD_VERSION:-latest}`
+- `build: .` -> `image: ghcr.io/paradoks81/quad:${QUAD_VERSION:-latest}`
 - Added `./models:/root/.cache/huggingface/hub` volume (persists downloaded Whisper models)
 - Everything else identical
 
@@ -234,7 +234,7 @@ jobs:
 
 Notes on action versions:
 - Uses `@v4`/`@v3`/`@v5`/`@v6` (latest major tags as of March 2026) rather than exact SHAs. These are the current stable versions of the official Docker GitHub Actions.
-- `GITHUB_TOKEN` is provided automatically — no secrets to configure.
+- `GITHUB_TOKEN` is provided automatically -- no secrets to configure.
 - `cache-from: type=gha` uses GitHub Actions cache for Docker layers. The expensive Python venv + CUDA libs layer (~400MB) will be cached after the first build.
 - The `!apps/quad/**/*.md` exclusion prevents doc-only changes from triggering a build.
 
@@ -372,13 +372,13 @@ In the Environment subsection (around line 140), update the `WHISPER_MODEL` desc
 
 Change:
 ```
-- `WHISPER_MODEL` — model baked into image at build time (default: `small`)
+- `WHISPER_MODEL` -- model baked into image at build time (default: `small`)
 ```
 
 To:
 ```
-- `WHISPER_MODEL` — model name for transcription (default: `small`). Downloads to `./models/` on first use.
-- `QUAD_VERSION` — Docker image tag to pull (default: `latest`)
+- `WHISPER_MODEL` -- model name for transcription (default: `small`). Downloads to `./models/` on first use.
+- `QUAD_VERSION` -- Docker image tag to pull (default: `latest`)
 ```
 
 - [ ] **Step 6: Update the GPU section**
@@ -446,7 +446,7 @@ From:
    ```bash
    wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && git pull && sudo qwvoice-ctl /srv/qwvoice/quad rebuild'"
    ```
-3. Verify — check logs for successful startup:
+3. Verify -- check logs for successful startup:
    ```bash
    ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
    ```
@@ -460,7 +460,7 @@ To:
    ```bash
    wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"
    ```
-4. Verify — check logs for successful startup:
+4. Verify -- check logs for successful startup:
    ```bash
    ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
    ```
@@ -495,7 +495,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ### Task 6: Verify and Push
 
-This task handles the initial trigger — pushing to main so GitHub Actions runs the first build.
+This task handles the initial trigger -- pushing to main so GitHub Actions runs the first build.
 
 - [ ] **Step 1: Make the GHCR package public after first build**
 
@@ -537,4 +537,4 @@ sudo qwvoice-ctl /srv/qwvoice/quad up
 sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20
 ```
 
-After verifying the new setup works, the git repo at `/srv/qwvoice/quad/` can be cleaned up — only `docker-compose.yml`, `.env`, `service-account.json`, `recordings/`, `models/`, and `mumble-data/` need to remain.
+After verifying the new setup works, the git repo at `/srv/qwvoice/quad/` can be cleaned up -- only `docker-compose.yml`, `.env`, `service-account.json`, `recordings/`, `models/`, and `mumble-data/` need to remain.

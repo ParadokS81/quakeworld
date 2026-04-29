@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build — workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
+description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
 ---
 
 # Deploy
@@ -18,10 +18,10 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 
 **Working directory:** `apps/matchscheduler/`
 
-1. Assess what changed — categorize into deploy targets:
-   - `public/`, `src/css/` changes → **hosting**
-   - `functions/` changes → **functions**
-   - `firestore.rules`, `storage.rules` → **rules**
+1. Assess what changed -- categorize into deploy targets:
+   - `public/`, `src/css/` changes -> **hosting**
+   - `functions/` changes -> **functions**
+   - `firestore.rules`, `storage.rules` -> **rules**
 2. Build CSS (always before hosting deploys):
    ```bash
    npm run version && npm run css:build
@@ -45,8 +45,8 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 ## Quad (SSH + Docker)
 
-**SAFETY CHECK — enforced by hook:**
-A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the health endpoint before any deploy command to pinnaclepowerhouse. If a recording is active, the command is blocked. No manual check needed — the hook handles it.
+**SAFETY CHECK -- enforced by hook:**
+A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the health endpoint before any deploy command to pinnaclepowerhouse. If a recording is active, the command is blocked. No manual check needed -- the hook handles it.
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
@@ -55,7 +55,7 @@ A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the 
    ```bash
    ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'
    ```
-4. Verify — check logs for successful startup:
+4. Verify -- check logs for successful startup:
    ```bash
    ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
    ```
@@ -90,7 +90,7 @@ For details: `apps/quad/DEPLOYMENT.md`
    curl https://qw-api.poker-affiliate.org/health
    ```
 
-For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored — contains credentials)
+For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored -- contains credentials)
 
 ## Slipgate App
 
@@ -109,20 +109,20 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 
 ## Cross-Project Deploy Sequences
 
-### Voice pipeline changes (quad → matchscheduler)
+### Voice pipeline changes (quad -> matchscheduler)
 1. Update quad processing stages
 2. Deploy quad to Xerial (this section)
 3. Update matchscheduler storage/firestore rules if schema changed
 4. Update matchscheduler frontend if display changed
 5. Deploy matchscheduler
 
-### Stats API changes (qw-stats → matchscheduler)
+### Stats API changes (qw-stats -> matchscheduler)
 1. Update `apps/qw-stats/api/server.js`
 2. Deploy qw-stats to Unraid (this section)
 3. Update matchscheduler `public/js/services/QWStatsService.js`
 4. Deploy matchscheduler hosting
 
-### Standin flow changes (matchscheduler ↔ quad)
+### Standin flow changes (matchscheduler <-> quad)
 1. Update matchscheduler standin creation + Cloud Function
 2. Deploy matchscheduler functions + rules
 3. Update quad standin module if DM handling changed

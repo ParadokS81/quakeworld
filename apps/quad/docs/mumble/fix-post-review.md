@@ -1,10 +1,10 @@
-# Post-Review Fixes — quad
+# Post-Review Fixes -- quad
 
-Cross-project review found 3 bugs that need fixing. Fix in order — #1 blocks #2.
+Cross-project review found 3 bugs that need fixing. Fix in order -- #1 blocks #2.
 
 ---
 
-## Fix 1 (HIGH): Pipeline crashes on Mumble recordings — null guild
+## Fix 1 (HIGH): Pipeline crashes on Mumble recordings -- null guild
 
 `pipeline.ts` accesses `session.guild.id` in multiple places, but Mumble recordings have `guild: null` in `session_metadata.json`. This crashes the entire processing pipeline for any Mumble recording.
 
@@ -12,8 +12,8 @@ Cross-project review found 3 bugs that need fixing. Fix in order — #1 blocks #
 
 Check these files for `session.guild` or `.guild.` access:
 
-- `src/modules/processing/pipeline.ts` — lines ~181, ~199, ~299 (guild.id used for botRegistration lookup, logging, etc.)
-- `src/modules/processing/stages/audio-splitter.ts` — line ~382 (guild.name in logging)
+- `src/modules/processing/pipeline.ts` -- lines ~181, ~199, ~299 (guild.id used for botRegistration lookup, logging, etc.)
+- `src/modules/processing/stages/audio-splitter.ts` -- line ~382 (guild.name in logging)
 
 ### How to fix
 
@@ -23,12 +23,12 @@ For Mumble recordings (`session.source === 'mumble'`), the guild is null. The pi
 3. Guard all `session.guild.*` accesses with null checks
 4. For logging/display where guild name is used, fall back to `session.team?.tag` or `'mumble'`
 
-The key insight: Discord recordings identify the team via `guild.id → botRegistrations → teamId`. Mumble recordings already have `team.teamId` directly in the metadata. The pipeline needs both paths.
+The key insight: Discord recordings identify the team via `guild.id -> botRegistrations -> teamId`. Mumble recordings already have `team.teamId` directly in the metadata. The pipeline needs both paths.
 
 ### Verify
-- `npx tsc --noEmit` — no compile errors
-- Process an existing Discord recording — should work exactly as before (regression check)
-- If you have a Mumble test recording, process it — should not crash
+- `npx tsc --noEmit` -- no compile errors
+- Process an existing Discord recording -- should work exactly as before (regression check)
+- If you have a Mumble test recording, process it -- should not crash
 
 ---
 
@@ -38,7 +38,7 @@ The key insight: Discord recordings identify the team via `guild.id → botRegis
 
 ### Where to fix
 
-`src/modules/processing/stages/voice-uploader.ts` — in the Firestore document write (around line ~333-357).
+`src/modules/processing/stages/voice-uploader.ts` -- in the Firestore document write (around line ~333-357).
 
 ### How to fix
 
@@ -58,23 +58,23 @@ recordingSource: metadata.source === 'mumble' ? 'mumble' : 'discord',
 
 ## Fix 3 (MEDIUM): auto-record ignores per-team Firestore toggle
 
-MatchScheduler has a working auto-record toggle in the Mumble tab that writes `autoRecord: boolean` to `mumbleConfig/{teamId}`. But quad's `auto-record.ts` only reads the `MUMBLE_AUTO_RECORD` env var — it never checks the per-team setting from Firestore.
+MatchScheduler has a working auto-record toggle in the Mumble tab that writes `autoRecord: boolean` to `mumbleConfig/{teamId}`. But quad's `auto-record.ts` only reads the `MUMBLE_AUTO_RECORD` env var -- it never checks the per-team setting from Firestore.
 
 ### Where to fix
 
-- `src/modules/mumble/auto-record.ts` — where it decides whether to start recording
-- `src/modules/mumble/index.ts` — line ~120 where `MUMBLE_AUTO_RECORD` env var is read
+- `src/modules/mumble/auto-record.ts` -- where it decides whether to start recording
+- `src/modules/mumble/index.ts` -- line ~120 where `MUMBLE_AUTO_RECORD` env var is read
 
 ### How to fix
 
 When a user joins a team channel and auto-record is considering whether to start:
 1. Look up the `mumbleConfig` for that team's channel (the config-listener already caches these)
-2. Check `config.autoRecord` — if `false`, don't start recording
+2. Check `config.autoRecord` -- if `false`, don't start recording
 3. The env var `MUMBLE_AUTO_RECORD` can serve as a global default/override, but the per-team Firestore setting should take precedence
 
 The config-listener already watches active mumbleConfig docs. auto-record should read from that cached data rather than the env var.
 
 ### Verify
-- Set `autoRecord: false` on a team's mumbleConfig in Firestore → joining that channel should NOT trigger recording
-- Set `autoRecord: true` → joining should trigger recording
+- Set `autoRecord: false` on a team's mumbleConfig in Firestore -> joining that channel should NOT trigger recording
+- Set `autoRecord: true` -> joining should trigger recording
 - Other teams with `autoRecord: true` should still record normally

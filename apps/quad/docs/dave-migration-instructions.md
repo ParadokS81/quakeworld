@@ -11,7 +11,7 @@
 I've set up a dedicated `dave` account on pinnaclepowerhouse to replace your use of the `qwvoice` account. This gives you proper self-service access to manage the qwvoice project (Quad bot, Whisper transcription) without needing to ask me for help each time.
 
 **Your new account:** `dave` (uid 9002)
-**Your project directory:** `/srv/qwvoice/` (same as before — you have group write access)
+**Your project directory:** `/srv/qwvoice/` (same as before -- you have group write access)
 
 ### What you CAN do with this account:
 - SSH in and get a full bash shell
@@ -178,16 +178,16 @@ The `qwvoice-ctl` wrapper validates every `docker-compose.yml` before executing 
 
 If your compose file fails validation, you'll see a clear error message explaining which rule was violated. Fix the compose file and try again.
 
-**Note on GPU access:** Your existing compose files that use the NVIDIA runtime for GPU access should work fine — the validation doesn't block GPU passthrough via the `deploy.resources.reservations.devices` mechanism (the standard Docker Compose GPU method).
+**Note on GPU access:** Your existing compose files that use the NVIDIA runtime for GPU access should work fine -- the validation doesn't block GPU passthrough via the `deploy.resources.reservations.devices` mechanism (the standard Docker Compose GPU method).
 
 ---
 
 ## What NOT to Do
 
-- **Do not attempt to run `docker` or `docker compose` directly** — you'll get "permission denied" since you're not in the docker group.
-- **Do not try to `sudo docker ...`** — sudoers only allows `qwvoice-ctl`.
-- **Do not modify files outside `/srv/qwvoice/`** — you won't have write permission.
-- **Do not add yourself to the docker or sudo groups** — you can't, since you don't have sudo for user management.
+- **Do not attempt to run `docker` or `docker compose` directly** -- you'll get "permission denied" since you're not in the docker group.
+- **Do not try to `sudo docker ...`** -- sudoers only allows `qwvoice-ctl`.
+- **Do not modify files outside `/srv/qwvoice/`** -- you won't have write permission.
+- **Do not add yourself to the docker or sudo groups** -- you can't, since you don't have sudo for user management.
 
 ---
 
@@ -200,7 +200,7 @@ sudo qwvoice-ctl /srv/qwvoice/quad up
 ```
 
 ### "SECURITY: Compose file blocked due to violations"
-Your `docker-compose.yml` contains something the security validator doesn't allow. Read the error message — it will tell you exactly what's blocked. Common causes:
+Your `docker-compose.yml` contains something the security validator doesn't allow. Read the error message -- it will tell you exactly what's blocked. Common causes:
 - A volume mount pointing outside `/srv/qwvoice/` (e.g., mounting a host system directory)
 - `privileged: true` in the compose file
 - Adding dangerous Linux capabilities
@@ -221,6 +221,6 @@ New files in `/srv/qwvoice/quad/` and `/srv/qwvoice/docker/` should inherit the 
 
 ## Old qwvoice Account
 
-The old `qwvoice` account still exists and its SSH restrictions are unchanged. Your running containers are NOT affected by this migration — they continue running as before. The `dave` account is purely for your interactive management access.
+The old `qwvoice` account still exists and its SSH restrictions are unchanged. Your running containers are NOT affected by this migration -- they continue running as before. The `dave` account is purely for your interactive management access.
 
 Once you've confirmed everything works with the `dave` account, the old `qwvoice` SSH access can be decommissioned (Xerial will handle this when you're ready).

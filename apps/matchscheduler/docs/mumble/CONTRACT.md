@@ -1,4 +1,4 @@
-# Mumble Integration — Contract Reference (MatchScheduler copy)
+# Mumble Integration -- Contract Reference (MatchScheduler copy)
 
 > This is a reference copy. The canonical version lives at the orchestrator level:
 > `../../MUMBLE-INTEGRATION-CONTRACT.md`
@@ -8,9 +8,9 @@
 
 ## Key Decisions for MatchScheduler
 
-1. **New Firestore collection**: `mumbleConfig/{teamId}` — MatchScheduler creates it (pending), quad activates it
+1. **New Firestore collection**: `mumbleConfig/{teamId}` -- MatchScheduler creates it (pending), quad activates it
 2. **New Cloud Functions**: `enableMumble`, `disableMumble` in `functions/mumble-operations.js`
-3. **New frontend service**: `MumbleConfigService.js` — Firestore listener, same pattern as `BotRegistrationService.js`
+3. **New frontend service**: `MumbleConfigService.js` -- Firestore listener, same pattern as `BotRegistrationService.js`
 4. **UI location**: New "Mumble" tab in `TeamManagementModal.js`
 5. **User onboarding**: Personalized `mumble://` links with temp credentials for first-time connect, generic links for returning users
 6. **Read access**: All squad members can read `mumbleConfig` (need to see their own join link)
@@ -24,7 +24,7 @@ teamTag: string;          // Denormalized from team doc
 teamName: string;         // Denormalized from team doc
 enabledBy: string;        // Firebase UID of leader
 status: 'pending';        // quad updates to 'active' or 'error'
-mumbleUsers: {};           // Empty — quad populates
+mumbleUsers: {};           // Empty -- quad populates
 createdAt: Timestamp;
 updatedAt: Timestamp;
 

@@ -162,7 +162,7 @@ Sizes: `sm` (~11-25KB thumbnails), `lg` (~40-100KB detail/backgrounds). No auth.
 **Base URL:** `https://hubapi.quakeworld.nu`
 **No auth required.**
 
-Key endpoint for player detection: **`/v2/servers/mvdsv`** — returns array of active MVDSV servers.
+Key endpoint for player detection: **`/v2/servers/mvdsv`** -- returns array of active MVDSV servers.
 
 ### Server Object Structure
 
@@ -193,11 +193,11 @@ Key endpoint for player detection: **`/v2/servers/mvdsv`** — returns array of 
 
 ### Finding Players on Active Servers
 
-A player can be in **three places** on a server — check all:
+A player can be in **three places** on a server -- check all:
 
-1. **Playing:** `server.players[]` — active in game (has full player object with team, frags, etc.)
-2. **Spectating:** `server.spectator_names[]` — spectating on the server (just name strings)
-3. **Watching QTV:** `server.qtv_stream.spectator_names[]` — viewing via QTV relay (just name strings)
+1. **Playing:** `server.players[]` -- active in game (has full player object with team, frags, etc.)
+2. **Spectating:** `server.spectator_names[]` -- spectating on the server (just name strings)
+3. **Watching QTV:** `server.qtv_stream.spectator_names[]` -- viewing via QTV relay (just name strings)
 
 **Name matching:** Names use QW character encoding. Normalize with `qwToAscii()` before matching. Recommended: [fuse.js](https://www.fusejs.io/) for fuzzy matching (vikpe's recommendation, zero dependencies).
 

@@ -1,4 +1,4 @@
-# Recording Management — Cross-Project Contract
+# Recording Management -- Cross-Project Contract
 
 > Extends the Voice Replay Multi-Clan contract with recording management features:
 > series-grouped cards UI, deletion (Firebase + quad server), downloads, per-map privacy.
@@ -14,7 +14,7 @@ Team leaders can manage their voice recordings through a redesigned cards UI in 
 - Source recordings (full Discord sessions) are deleted automatically after pipeline upload
 - Sliced per-map audio exists in two places: Firebase Storage + quad server local disk
 - Deletion from MatchScheduler removes Firebase copies immediately, then requests quad server cleanup async
-- Downloads are client-side (JSZip) — no server-side zip generation
+- Downloads are client-side (JSZip) -- no server-side zip generation
 - GDPR compliance: users can request full deletion, audit trail via `deletionRequests` collection
 
 ---
@@ -50,7 +50,7 @@ interface VoiceRecordingDocument {
   teamFrags: number;                 // Our team's total frags for this map
   opponentFrags: number;             // Opponent's total frags for this map
 
-  gameId: number;                    // QW Hub game ID — cross-reference for stats/demo lookup
+  gameId: number;                    // QW Hub game ID -- cross-reference for stats/demo lookup
 
   mapOrder: number;                  // 0-based index of this map within the session's segments
                                      // Used for sorting maps chronologically within a series
@@ -62,7 +62,7 @@ interface VoiceRecordingDocument {
 | Field | Source | Example |
 |-------|--------|---------|
 | `sessionId` | `sessionMetadata.recording_id` (ULID) | `"01JKX1234567890ABCDEF"` |
-| `opponentTag` | `segment.matchData.teams` — the team that isn't ours | `"pol"` |
+| `opponentTag` | `segment.matchData.teams` -- the team that isn't ours | `"pol"` |
 | `teamFrags` | `segment.matchData.teams[ours].frags` | `312` |
 | `opponentFrags` | `segment.matchData.teams[theirs].frags` | `287` |
 | `gameId` | `segment.matchData.gameId` | `847291` |
@@ -127,7 +127,7 @@ Auth:   Must be authenticated, must be team leader
 
 **Steps:**
 1. Validate auth + input
-2. Read `voiceRecordings/{demoSha256}` — get teamId, tracks[], sessionId, mapName
+2. Read `voiceRecordings/{demoSha256}` -- get teamId, tracks[], sessionId, mapName
 3. Verify caller is leader of that team (same check as updateRecordingVisibility)
 4. Delete all Storage files: for each track, `bucket.file(track.storagePath).delete()`
 5. Delete Firestore doc: `voiceRecordings/{demoSha256}.delete()`
@@ -164,7 +164,7 @@ Zip of zips. Each inner zip is directly usable in the offline replay player as a
 
 ### manifest.json Schema
 
-Included in each per-map zip. Same data the online player uses — one schema, two contexts.
+Included in each per-map zip. Same data the online player uses -- one schema, two contexts.
 
 ```json
 {
@@ -204,7 +204,7 @@ Included in each per-map zip. Same data the online player uses — one schema, t
 
 ### Location
 
-Team Management Modal → Recordings tab (replaces current flat list)
+Team Management Modal -> Recordings tab (replaces current flat list)
 
 ### Series Card (collapsed)
 
@@ -287,14 +287,14 @@ For the 10 existing recordings before backfill, or if backfill hasn't run yet:
 
 In `voice-uploader.ts`, add the new fields to the Firestore document write.
 
-**Function signature change** — `uploadVoiceRecordings` currently receives `(segments, teamTag, guildId)`.
+**Function signature change** -- `uploadVoiceRecordings` currently receives `(segments, teamTag, guildId)`.
 Add `sessionId` parameter: `(segments, teamTag, guildId, sessionId)`.
 In `pipeline.ts`, pass `session.recording_id` (already available there).
 
-**Segment data already available** — each `SegmentMetadata` has:
-- `segment.index` → use as `mapOrder`
-- `segment.gameId` → use directly
-- `segment.matchData.teams: HubTeam[]` → `{ name: string, frags: number }[]`
+**Segment data already available** -- each `SegmentMetadata` has:
+- `segment.index` -> use as `mapOrder`
+- `segment.gameId` -> use directly
+- `segment.matchData.teams: HubTeam[]` -> `{ name: string, frags: number }[]`
 
 ```typescript
 // Determine our team vs opponent from matchData.teams
@@ -337,7 +337,7 @@ async function cleanupSourceRecordings(sessionDir: string) {
 }
 ```
 
-**Only clean up if upload was successful** (uploaded > 0, or no segments to upload). Don't clean up on pipeline failure — the source recordings are needed for retry.
+**Only clean up if upload was successful** (uploaded > 0, or no segments to upload). Don't clean up on pipeline failure -- the source recordings are needed for retry.
 
 ### 3. Deletion Request Listener
 
@@ -393,10 +393,10 @@ One-time script to populate new fields on the 10 existing `voiceRecordings` docu
 
 | Phase | Project | Scope | Depends on |
 |-------|---------|-------|------------|
-| **R1** | quad | Write new fields to Firestore at upload time | — |
-| **R2** | quad | Post-upload cleanup of source recordings | — |
+| **R1** | quad | Write new fields to Firestore at upload time | -- |
+| **R2** | quad | Post-upload cleanup of source recordings | -- |
 | **R3** | MatchScheduler | Recording cards UI with series grouping | R1 (for new field schema) |
-| **R4** | MatchScheduler | `deleteRecording` Cloud Function + UI delete flow | — |
+| **R4** | MatchScheduler | `deleteRecording` Cloud Function + UI delete flow | -- |
 | **R5** | quad | `deletionRequests` listener + local file cleanup | R4 (creates the requests) |
 | **R6** | MatchScheduler | Download flow (JSZip per-map + series bundling) | R3 (UI in place) |
 | **R7** | Either | Backfill script for existing recordings | R1 (schema finalized) |

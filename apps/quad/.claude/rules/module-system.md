@@ -6,7 +6,7 @@ paths:
 
 # Module System Architecture
 
-Each feature is a self-contained module under `src/modules/`. The core bot infrastructure loads modules, collects their commands, and routes events — modules don't know about each other.
+Each feature is a self-contained module under `src/modules/`. The core bot infrastructure loads modules, collects their commands, and routes events -- modules don't know about each other.
 
 ```typescript
 interface BotModule {
@@ -27,7 +27,7 @@ The module loader in `core/bot.ts`:
 No plugin framework, no dynamic loading, no dependency injection. Just directories, an interface, and a loop.
 
 ## Rules
-- Follow the `BotModule` interface exactly — don't extend it without updating `core/module.ts`
-- Module code stays in its `src/modules/{name}/` directory — never leak into `core/`
+- Follow the `BotModule` interface exactly -- don't extend it without updating `core/module.ts`
+- Module code stays in its `src/modules/{name}/` directory -- never leak into `core/`
 - When modifying the `BotModule` interface, update all existing modules
-- Don't create stub modules for future features — only build what's needed now
+- Don't create stub modules for future features -- only build what's needed now

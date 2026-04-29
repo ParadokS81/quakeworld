@@ -1,4 +1,4 @@
-# Slice 21.0: Proposal Card Redesign — Slot Toggles & Simplified Layout
+# Slice 21.0: Proposal Card Redesign -- Slot Toggles & Simplified Layout
 
 **Dependencies:** Slice 8.0 (Match Proposals & Scheduling), Slice 8.3 (Matches Layout)
 **User Story:** As a team leader, I want the expanded proposal card to clearly show which team confirmed which slots using visual toggles with team logos, so I can instantly see the confirmation state without parsing text labels. I also want "Cancel" renamed so I don't accidentally cancel an entire proposal when I just want to dismiss a view.
@@ -22,7 +22,7 @@
 
 | Decision | Answer | Rationale |
 |----------|--------|-----------|
-| "Cancel" rename | **"Withdraw Proposal"** | "Cancel" is ambiguous — users read it as "dismiss/close" not "destroy proposal". "Withdraw" is unambiguous |
+| "Cancel" rename | **"Withdraw Proposal"** | "Cancel" is ambiguous -- users read it as "dismiss/close" not "destroy proposal". "Withdraw" is unambiguous |
 | Confirmation modal | **Yes, before withdraw** | One-click destructive action on proposals has no undo path. Reuse CancelMatchModal pattern |
 | Slot row layout | **Logo + toggle pattern** | Team logos eliminate need for "you"/"them" labels. Toggles show state at a glance |
 | Our toggle | **Interactive pill/dot** | Green bg = confirmed (click withdraws). Muted = not confirmed (click confirms). Pointer cursor + hover effect |
@@ -31,28 +31,28 @@
 | Load Grid View | **Remove** | Slot rows already show XvX counts. The grid view is one click away via team browser if needed |
 | Header simplification | **Remove meta line entirely** | Min filter and week number are internal details. Confirmed count is now visually obvious from toggles |
 | Official/Practice | **Move to header row, after team names** | Keeps it visible without a dedicated meta row. Same toggle buttons, just relocated |
-| Discord contact | **Bottom row with opponent logo** | "Contact [Logo] [Discord]" — clear who you're contacting. Replaces the header discord icon |
+| Discord contact | **Bottom row with opponent logo** | "Contact [Logo] [Discord]" -- clear who you're contacting. Replaces the header discord icon |
 | Collapsed card | **Minimal changes** | Remove slot count badge (toggles make it obvious when expanded). Keep discord icon in header for collapsed state only |
 
 ---
 
 ## Visual Spec
 
-### Expanded Card — Before
+### Expanded Card -- Before
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ [SD] Suddendeath vs Tribe of Tjernobyl [ToT]  2  💬  ▲    │
-│ Min 4v4 · W10 · [Official] [Practice] · You confirmed 2    │
+│ Min 4v4 - W10 - [Official] [Practice] - You confirmed 2    │
 │                                                             │
-│ Tuesday   22:00   5v4   ✓ you              OFFI  Withdraw  │
-│ Tuesday   22:30   5v4   ✓ you              OFFI  Withdraw  │
+│ Tuesday   22:00   5v4   [ok] you              OFFI  Withdraw  │
+│ Tuesday   22:30   5v4   [ok] you              OFFI  Withdraw  │
 │                                                             │
 │ [Load Grid View]  [Cancel]                                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Expanded Card — After
+### Expanded Card -- After
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -67,18 +67,18 @@
 ```
 
 **Toggle states:**
-- `[●]` = Green dot/pill — confirmed. If ours: click to withdraw. If theirs: read-only.
-- `[○]` = Muted dot/pill — not confirmed. If ours: click to confirm (requires game type set). If theirs: read-only.
-- `[●●]` = Both confirmed same slot — row gets green tint background (existing behavior preserved).
+- `[●]` = Green dot/pill -- confirmed. If ours: click to withdraw. If theirs: read-only.
+- `[○]` = Muted dot/pill -- not confirmed. If ours: click to confirm (requires game type set). If theirs: read-only.
+- `[●●]` = Both confirmed same slot -- row gets green tint background (existing behavior preserved).
 
 **Confirm flow (clicking muted our-toggle):**
 1. Game type must be selected (Official/Practice buttons in header)
-2. If not set → tooltip "Select Official or Practice first" (existing behavior)
-3. If set → calls ProposalService.confirmSlot() → toggle turns green
-4. If both sides now confirmed → MatchSealedModal fires (existing behavior)
+2. If not set -> tooltip "Select Official or Practice first" (existing behavior)
+3. If set -> calls ProposalService.confirmSlot() -> toggle turns green
+4. If both sides now confirmed -> MatchSealedModal fires (existing behavior)
 
 **Withdraw flow (clicking green our-toggle):**
-1. Click green toggle → calls ProposalService.withdrawConfirmation()
+1. Click green toggle -> calls ProposalService.withdrawConfirmation()
 2. Toggle turns muted
 3. Toast: "Confirmation withdrawn"
 
@@ -110,7 +110,7 @@ FRONTEND COMPONENTS:
 
 BACKEND: No changes needed
   - All existing Cloud Functions work as-is
-  - confirmSlot, withdrawConfirmation, cancelProposal — same API
+  - confirmSlot, withdrawConfirmation, cancelProposal -- same API
   - The "Withdraw Proposal" button still calls cancelProposal()
 
 FIRESTORE: No schema changes
@@ -161,7 +161,7 @@ async function _handleCancelProposal(proposalId, btn) {
     // Show confirmation modal (reuse CancelMatchModal pattern)
     const confirmed = await showConfirmDialog({
         title: `Withdraw proposal?`,
-        description: `${proposal.proposerTeamName} vs ${proposal.opponentTeamName} — both teams will lose their confirmed slots.`,
+        description: `${proposal.proposerTeamName} vs ${proposal.opponentTeamName} -- both teams will lose their confirmed slots.`,
         confirmText: 'Withdraw Proposal',
         cancelText: 'Keep Proposal',
         destructive: true
@@ -180,7 +180,7 @@ async function _handleCancelProposal(proposalId, btn) {
 ### Determining "Our" vs "Their" Team
 
 ```javascript
-// Already available in MatchesPanel — use existing logic:
+// Already available in MatchesPanel -- use existing logic:
 const userTeamIds = TeamService.getUserTeamIds();
 const isProposer = userTeamIds.includes(proposal.proposerTeamId);
 const isOpponent = userTeamIds.includes(proposal.opponentTeamId);
@@ -229,7 +229,7 @@ The "+1" renders inline with the count, same as today.
 ## Out of Scope
 
 - Archived proposal restore (separate slice if needed)
-- Changes to collapsed proposal card (minimal — just remove slot count badge if desired)
+- Changes to collapsed proposal card (minimal -- just remove slot count badge if desired)
 - Changes to scheduled match cards (different component, different flow)
 - Backend/Cloud Function changes (none needed)
 - Mobile gesture changes

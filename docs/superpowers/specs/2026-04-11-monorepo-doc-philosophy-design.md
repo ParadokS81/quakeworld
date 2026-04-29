@@ -1,11 +1,11 @@
 ---
-Doc type: current — Design spec. Delete/archive once implementation plan and deliverables land.
+Doc type: current -- Design spec. Delete/archive once implementation plan and deliverables land.
 ---
 
-# Monorepo Documentation Philosophy — Design Spec
+# Monorepo Documentation Philosophy -- Design Spec
 
 **Date:** 2026-04-11
-**Status:** Approved — ready for implementation plan
+**Status:** Approved -- ready for implementation plan
 **Scope:** Unified doc template for all apps + monorepo root + refactor of the `docs-check` skill
 **Supersedes:** `docs/doc-philosophy-workshop.md` (delete after this spec lands its artifacts)
 
@@ -15,12 +15,12 @@ Doc type: current — Design spec. Delete/archive once implementation plan and d
 
 The monorepo hosts five apps (`matchscheduler`, `quad`, `qw-stats`, `slipgate-app`, `qw-oracle`) that were built independently and merged into this monorepo ~2 weeks ago. Each app evolved its own doc structure. A thin audit across all five + the cross-project layer revealed:
 
-- **`CLAUDE.md` is universal (5/5)** — uncontroversial.
+- **`CLAUDE.md` is universal (5/5)** -- uncontroversial.
 - **`OVERVIEW` is the biggest real gap.** Only slipgate-app has a dedicated living map. The other four have nothing that answers "what's in this project right now, where do I find things?" When Claude cold-starts in any of them, it reconstructs the map from code every session.
 - **`VISION` is fragmented.** No project has a clean, dedicated vision file. It's either absent, aspirational-drifting, or buried inside a 2339-line `Pillar 1 - PRD.md` or mixed into a `plan.md`.
 - **`CLAUDE.md` bloat is diagnostic of missing conditional docs.** `qw-stats` is 332 lines because it absorbs DEVELOPMENT + HEALTH + architecture + data-model content that should be separate files. `qw-oracle` is 192 lines for the same reason. Healthy projects (`mss` 58, `quad` 76, `slipgate` 79) split content across conditional docs.
-- **Feature specs, slice docs, and phase docs** accumulate organically and don't fit a flat `docs/` model — `mss` has 84 slice files in `context/slices/`, `quad` has `docs/multi-clan/` + `mumble/` + `auto-record/` trees with phases and contracts. These aren't docs in the template sense; they're work artifacts.
-- **Cross-project docs have no consistent home.** `contracts/CROSS-PROJECT-SCHEMA.md` does real work (mss↔quad data contract) but `packages/qw-knowledge` and `packages/qw-config` have no README at all despite being consumed across apps.
+- **Feature specs, slice docs, and phase docs** accumulate organically and don't fit a flat `docs/` model -- `mss` has 84 slice files in `context/slices/`, `quad` has `docs/multi-clan/` + `mumble/` + `auto-record/` trees with phases and contracts. These aren't docs in the template sense; they're work artifacts.
+- **Cross-project docs have no consistent home.** `contracts/CROSS-PROJECT-SCHEMA.md` does real work (mss<->quad data contract) but `packages/qw-knowledge` and `packages/qw-config` have no README at all despite being consumed across apps.
 
 The deeper problem: ParadokS is a vibe coder. He doesn't know what docs software projects traditionally have, so he can't ask Claude to maintain them. Without a fixed template, every session invents its own conventions, and the docs drift or don't exist. Without a maintenance skill, even good docs rot.
 
@@ -32,15 +32,15 @@ The fix is **one template for all projects** (content scales, structure is const
 2. Give ParadokS concrete vocabulary for conditional docs so the "which docs do I need?" decision stops being opaque.
 3. Define a `docs-check` skill that runs at end-of-session and uses Claude's own session context (not diff regex) to decide what needs updating.
 4. Stay compatible in spirit with the emerging slipgate web framework (`github.com/quakeworld/slipgate`, cloned to `research/repos/slipgate` for reference) so there's no rival-religion clash when ParadokS eventually contributes there.
-5. Keep migration lazy — no retrofitting all five apps today. The skill nudges projects into compliance when Claude next works in them.
+5. Keep migration lazy -- no retrofitting all five apps today. The skill nudges projects into compliance when Claude next works in them.
 
 ## Non-Goals
 
-- **Slipgate web alignment or replication** — that's a separate repo with its own framework being built by vikpe + infiniti. We stay compatible in spirit (philosophy skills, voice, README convention) but we don't copy their structure wholesale.
-- **Matchscheduler doc cleanup** — matchscheduler is effective-legacy. It will be rebuilt inside slipgate web. No retroactive doc work here.
-- **Retrofitting all apps today** — the skill handles migration lazily when Claude next enters each project.
-- **Defining feature spec conventions** — how `slices/`, `phases/`, `pillars/`, `contracts/` are organized is project-specific. The template only requires that the project's `CLAUDE.md` points to the folder.
-- **Replacing the superpowers plugin** — this is an addition, not a replacement. Skills like brainstorming, writing-plans, and executing-plans remain in use.
+- **Slipgate web alignment or replication** -- that's a separate repo with its own framework being built by vikpe + infiniti. We stay compatible in spirit (philosophy skills, voice, README convention) but we don't copy their structure wholesale.
+- **Matchscheduler doc cleanup** -- matchscheduler is effective-legacy. It will be rebuilt inside slipgate web. No retroactive doc work here.
+- **Retrofitting all apps today** -- the skill handles migration lazily when Claude next enters each project.
+- **Defining feature spec conventions** -- how `slices/`, `phases/`, `pillars/`, `contracts/` are organized is project-specific. The template only requires that the project's `CLAUDE.md` points to the folder.
+- **Replacing the superpowers plugin** -- this is an addition, not a replacement. Skills like brainstorming, writing-plans, and executing-plans remain in use.
 
 ---
 
@@ -50,7 +50,7 @@ The fix is **one template for all projects** (content scales, structure is const
 
 **2. Docs preserve INTENT; code preserves STATE.** Code answers "what is this doing?" Git log answers "when did this change?" Docs answer "why is this the way it is?", "what were we trying to build?", "what did we try and reject?" If a doc's content could be fully reconstructed from code, it's redundant scaffolding. If it can't, it's load-bearing.
 
-**3. Template is structure, not graduation.** Every project has the mandatory docs, period. A 30-line OVERVIEW and a 363-line OVERVIEW are both valid — the structure is constant, the content scales. Recipe book analogy: a one-egg recipe and a 20-ingredient recipe use the same template.
+**3. Template is structure, not graduation.** Every project has the mandatory docs, period. A 30-line OVERVIEW and a 363-line OVERVIEW are both valid -- the structure is constant, the content scales. Recipe book analogy: a one-egg recipe and a 20-ingredient recipe use the same template.
 
 **4. Conditional docs are a menu, not a checklist.** No project gets zero Layer 2 docs. No project gets all of them. Each project picks the subset its actual shape demands, based on concrete triggers.
 
@@ -62,11 +62,11 @@ The fix is **one template for all projects** (content scales, structure is const
 
 ---
 
-## Layer 1 — The mandatory quartet
+## Layer 1 -- The mandatory quartet
 
 Every project has ALL four files. The template is constant; content scales with project size.
 
-### `CLAUDE.md` — rules + index
+### `CLAUDE.md` -- rules + index
 
 **Question answered:** What rules apply when I work here, and where do I find things?
 
@@ -83,15 +83,15 @@ Every project has ALL four files. The template is constant; content scales with 
 - Any `@imports` for always-loaded skills (philosophy or project-specific)
 
 **What does NOT go in:**
-- Project map / feature list → that's `README.md` / `OVERVIEW.md`
-- Detailed architecture → that's `OVERVIEW.md` or Layer 3 reference docs
-- Historical context → that's `VISION.md`
-- Multi-step procedures → those become skills
-- Subsystem-specific rules → path-scoped `.claude/rules/*.md` or nested `CLAUDE.md`
+- Project map / feature list -> that's `README.md` / `OVERVIEW.md`
+- Detailed architecture -> that's `OVERVIEW.md` or Layer 3 reference docs
+- Historical context -> that's `VISION.md`
+- Multi-step procedures -> those become skills
+- Subsystem-specific rules -> path-scoped `.claude/rules/*.md` or nested `CLAUDE.md`
 
 **Update cadence:** Rarely. When a core rule changes or a doc is added to the index.
 
-### `README.md` — elevator pitch
+### `README.md` -- elevator pitch
 
 **Question answered:** What is this project, who is it for?
 
@@ -114,7 +114,7 @@ Every project has ALL four files. The template is constant; content scales with 
 
 **Update cadence:** Rarely. The pitch doesn't change unless the project's identity changes.
 
-### `VISION.md` — why this exists
+### `VISION.md` -- why this exists
 
 **Question answered:** Why does this project exist? What were we trying to build and for whom? What constraints shaped it?
 
@@ -137,7 +137,7 @@ Every project has ALL four files. The template is constant; content scales with 
 
 **Update cadence:** Once at project start. Update only when the fundamental intent changes (rare).
 
-### `OVERVIEW.md` — living map
+### `OVERVIEW.md` -- living map
 
 **Question answered:** What's in this project right now, where do I find things?
 
@@ -148,7 +148,7 @@ Every project has ALL four files. The template is constant; content scales with 
 **What goes in:**
 - "What the project is" summary (1 paragraph)
 - Features that currently exist (grouped by area, not flat list)
-- Code landmarks — "if I want to change X, look at Y"
+- Code landmarks -- "if I want to change X, look at Y"
 - Parked-with-purpose items (stubs, POCs, deferred work) with rationale
 - True cruft (safe to delete) if identified
 - Integration points with siblings
@@ -163,99 +163,99 @@ Every project has ALL four files. The template is constant; content scales with 
 **Update cadence:** When features land or the map changes materially. The skill's Mode 2 (freshness) is responsible for keeping this honest.
 
 **Voice example (from `slipgate-app/docs/OVERVIEW.md`):**
-> *"The ConfigViewer subsystem is the biggest feature in the app by far — 20+ components, ~3,000 lines. Lives in `src/components/Config*.tsx` + `CvarRow.tsx` + `CvarTooltip.tsx` + `configMerger.ts` + `AliasChainResolver.tsx`. Rendered inside MyQuakeTab's 'Config' sub-tab."*
+> *"The ConfigViewer subsystem is the biggest feature in the app by far -- 20+ components, ~3,000 lines. Lives in `src/components/Config*.tsx` + `CvarRow.tsx` + `CvarTooltip.tsx` + `configMerger.ts` + `AliasChainResolver.tsx`. Rendered inside MyQuakeTab's 'Config' sub-tab."*
 
 Plain English. Names the files. Doesn't hide from size. Reads naturally top-to-bottom.
 
 ---
 
-## Layer 2 — Standard conditional docs
+## Layer 2 -- Standard conditional docs
 
-A menu of nine (expanded from eight on 2026-04-25 — see amendments section at end of doc). Each project picks the subset that matches its shape. Triggers are cognitive (the skill asks Claude to answer), not regex. No project has zero; no project has all nine.
+A menu of nine (expanded from eight on 2026-04-25 -- see amendments section at end of doc). Each project picks the subset that matches its shape. Triggers are cognitive (the skill asks Claude to answer), not regex. No project has zero; no project has all nine.
 
-### `DEVELOPMENT.md` — run/build/test locally
+### `DEVELOPMENT.md` -- run/build/test locally
 
 **Trigger:** Dev setup is non-trivial (WSL/Windows split, emulators, GPU deps, specific runtime versions, package managers beyond defaults).
 
 **Content:** Prerequisites, setup steps, common commands (run/build/test/lint), environment variables, gotchas, troubleshooting. Assume the reader is a fresh Claude session trying to verify the project builds.
 
-**Which projects need one:** Slipgate-app ✓ (WSL+Windows rsync hook). Mss ✓. Quad needs one (only has CLI command stubs). qw-stats needs one (currently folded into bloated CLAUDE.md). qw-oracle needs one.
+**Which projects need one:** Slipgate-app [ok] (WSL+Windows rsync hook). Mss [ok]. Quad needs one (only has CLI command stubs). qw-stats needs one (currently folded into bloated CLAUDE.md). qw-oracle needs one.
 
-### `DEPLOYMENT.md` — ship to production
+### `DEPLOYMENT.md` -- ship to production
 
 **Trigger:** Project has a real deploy target.
 
 **Content:** Target platform, build commands, required env vars and secrets, release flow, verification steps, rollback. If secrets live in a vault or .env file, document WHERE (not the secret itself).
 
-**Which projects need one:** Slipgate-app ✓, mss ✓, quad ✓, qw-stats ✓ (currently gitignored for secrets). qw-oracle no (local-only).
+**Which projects need one:** Slipgate-app [ok], mss [ok], quad [ok], qw-stats [ok] (currently gitignored for secrets). qw-oracle no (local-only).
 
-### `SCHEMA.md` — data model
+### `SCHEMA.md` -- data model
 
-**Trigger:** Project has a database or durable data model — SQL tables, Firestore collections, SQLite schema, protocol buffers, profile file format.
+**Trigger:** Project has a database or durable data model -- SQL tables, Firestore collections, SQLite schema, protocol buffers, profile file format.
 
 **Content:** Entity list, relationships, field types, constraints, indexes, migrations policy. Name the tool/ORM used (Prisma, Drizzle, raw SQL, Firestore SDK).
 
-**Which projects need one:** Mss ✓ (867-line context/SCHEMA.md). Qw-stats ✓ (DATABASE-SCHEMA.md). Quad needs one (Firestore collections are scattered across phase docs). Qw-oracle needs one (currently folded into CLAUDE.md). Slipgate-app no (Tauri + local JSON, no DB).
+**Which projects need one:** Mss [ok] (867-line context/SCHEMA.md). Qw-stats [ok] (DATABASE-SCHEMA.md). Quad needs one (Firestore collections are scattered across phase docs). Qw-oracle needs one (currently folded into CLAUDE.md). Slipgate-app no (Tauri + local JSON, no DB).
 
-### `API_CONTRACTS.md` — API boundaries
+### `API_CONTRACTS.md` -- API boundaries
 
-**Trigger:** Project exposes or depends on an API surface — HTTP endpoints, gRPC, IPC channels, third-party SDKs (Discord gateway, Firebase SDK, GitHub Releases API, ezQuake mailslot), Tauri commands.
+**Trigger:** Project exposes or depends on an API surface -- HTTP endpoints, gRPC, IPC channels, third-party SDKs (Discord gateway, Firebase SDK, GitHub Releases API, ezQuake mailslot), Tauri commands.
 
 **Content:** Each boundary: what it is, who talks to it, the exact shape (URL + method + request/response schemas, or command signature + args/return), error contract, rate limits, auth model.
 
-**Which projects need one:** Qw-stats ✓ (has API-GUIDE.md doing this job). Slipgate-app needs one (external API deps scattered across AUTH.md + CFG-PARSER.md + implicit in updater.rs). Quad needs one (Discord gateway + Firestore boundary). Mss ✓ (partially via SCHEMA + cross-project contracts). Qw-oracle no (no API boundary yet).
+**Which projects need one:** Qw-stats [ok] (has API-GUIDE.md doing this job). Slipgate-app needs one (external API deps scattered across AUTH.md + CFG-PARSER.md + implicit in updater.rs). Quad needs one (Discord gateway + Firestore boundary). Mss [ok] (partially via SCHEMA + cross-project contracts). Qw-oracle no (no API boundary yet).
 
-### `AUTH.md` — login, sessions, permissions
+### `AUTH.md` -- login, sessions, permissions
 
 **Trigger:** Project has login, user sessions, or role-based access control.
 
 **Content:** Auth provider (Discord OAuth, Firebase Auth, etc.), token/session lifecycle, user roles, what happens to unauthorized access, how tokens are stored client-side, CSRF/state protection, refresh flow.
 
-**Which projects need one:** Slipgate-app ✓. Mss ✓ (Firebase Auth). Quad no (bot identity, not user auth). Qw-stats no. Qw-oracle no.
+**Which projects need one:** Slipgate-app [ok]. Mss [ok] (Firebase Auth). Quad no (bot identity, not user auth). Qw-stats no. Qw-oracle no.
 
-### `DESIGN.md` — UI design system
+### `DESIGN.md` -- UI design system
 
 **Trigger:** Project has a UI with visual rules worth protecting (color tokens, typography, layout primitives, component library).
 
 **Content:** Design tokens (colors, spacing, type), layout primitives, component conventions, what to use vs. what to avoid ("no hardcoded hex", "use DaisyUI semantic classes"), theming approach.
 
-**Which projects need one:** Slipgate-app ✓ (OKLCH tokens). Mss ✓ (sacred 3x3 grid layout, CSS/JS ownership). Quad no. Qw-stats no. Qw-oracle no.
+**Which projects need one:** Slipgate-app [ok] (OKLCH tokens). Mss [ok] (sacred 3x3 grid layout, CSS/JS ownership). Quad no. Qw-stats no. Qw-oracle no.
 
-### `STATE.md` — frontend state management
+### `STATE.md` -- frontend state management
 
 **Trigger:** Frontend has complex cross-page or shared state (stores, global signals, persistent local state, sync patterns with backend).
 
 **Content:** Which tool manages state (Zustand, Solid store, Alpine store, Pinia, Redux, React Context), store shape, update rules, derived state patterns, persistence rules, the "don't do X because it'll break reactivity" gotchas.
 
-**Which projects need one:** Slipgate-app ✓ (SolidJS + tauri-plugin-store with schema migration). Mss potentially (Alpine + Firestore listener cache pattern, already partially documented in public/CLAUDE.md). Quad no (backend). Qw-stats no (backend). Qw-oracle no.
+**Which projects need one:** Slipgate-app [ok] (SolidJS + tauri-plugin-store with schema migration). Mss potentially (Alpine + Firestore listener cache pattern, already partially documented in public/CLAUDE.md). Quad no (backend). Qw-stats no (backend). Qw-oracle no.
 
-### `HEALTH.md` — tech debt snapshot
+### `HEALTH.md` -- tech debt snapshot
 
 **Trigger:** Project has accumulated enough state that a one-shot audit produces real value.
 
-**Content:** A point-in-time snapshot. Risks / debt / nice-to-have with severity. NOT maintained in place — regenerate a new one when you want a fresh snapshot.
+**Content:** A point-in-time snapshot. Risks / debt / nice-to-have with severity. NOT maintained in place -- regenerate a new one when you want a fresh snapshot.
 
-**Which projects need one:** Slipgate-app ✓ (as of 2026-04-10). None of the others have earned one yet — they're either too small, too stable, or too paused.
+**Which projects need one:** Slipgate-app [ok] (as of 2026-04-10). None of the others have earned one yet -- they're either too small, too stable, or too paused.
 
-### `OPERATIONS.md` — stewardship playbook for an evolving content corpus
+### `OPERATIONS.md` -- stewardship playbook for an evolving content corpus
 
-**Added:** 2026-04-25 — surfaced during qw-oracle Layer 3 concept-notes design discussion.
+**Added:** 2026-04-25 -- surfaced during qw-oracle Layer 3 concept-notes design discussion.
 
-**Trigger:** Project curates an evolving content corpus (knowledge base, skill library, seed dataset, template gallery) where editorial decisions, template/schema evolution, attribution policy, and lifecycle management need a stable playbook. NOT for deploy/runbook ops — that's `DEPLOYMENT.md`'s territory; NOT for code architecture — that's `OVERVIEW.md` or Layer 3 reference docs.
+**Trigger:** Project curates an evolving content corpus (knowledge base, skill library, seed dataset, template gallery) where editorial decisions, template/schema evolution, attribution policy, and lifecycle management need a stable playbook. NOT for deploy/runbook ops -- that's `DEPLOYMENT.md`'s territory; NOT for code architecture -- that's `OVERVIEW.md` or Layer 3 reference docs.
 
-**Content:** Purpose + scope of the corpus (what it is, what it isn't). Feeding paths (who contributes and how — community imports vs authored-here vs extracted). Template / shape catalog (which entry shapes are recognized; grows as new shapes surface). Attribution & license policy. Lifecycle handling (how entries age — current vs deprecated vs historical — and when to sunset / archive). Feedback-loop protocol (how new learnings revise the template, the catalog, and this doc itself). Open questions / known gaps (running list; items graduate out as resolved).
+**Content:** Purpose + scope of the corpus (what it is, what it isn't). Feeding paths (who contributes and how -- community imports vs authored-here vs extracted). Template / shape catalog (which entry shapes are recognized; grows as new shapes surface). Attribution & license policy. Lifecycle handling (how entries age -- current vs deprecated vs historical -- and when to sunset / archive). Feedback-loop protocol (how new learnings revise the template, the catalog, and this doc itself). Open questions / known gaps (running list; items graduate out as resolved).
 
-**What does NOT go in:** The entry template itself lives in the corpus directory (e.g., `concept-notes/README.md`) — OPERATIONS.md is about stewardship, not the schema of individual entries. Session-specific status / open deferrals — those belong in `HANDOVER.md`.
+**What does NOT go in:** The entry template itself lives in the corpus directory (e.g., `concept-notes/README.md`) -- OPERATIONS.md is about stewardship, not the schema of individual entries. Session-specific status / open deferrals -- those belong in `HANDOVER.md`.
 
-**Which projects need one:** qw-oracle ✓ (`concept-notes/` corpus for Layer 3 knowledge). No other project currently has a matching corpus; likely future candidates include skill libraries in harness projects or community-submission features in slipgate-app.
+**Which projects need one:** qw-oracle [ok] (`concept-notes/` corpus for Layer 3 knowledge). No other project currently has a matching corpus; likely future candidates include skill libraries in harness projects or community-submission features in slipgate-app.
 
-**Target length:** No hard cap. 200-400 lines is typical — long enough to carry the principles + the feedback-loop protocol, short enough to stay readable.
+**Target length:** No hard cap. 200-400 lines is typical -- long enough to carry the principles + the feedback-loop protocol, short enough to stay readable.
 
 **Update cadence:** Living doc. Updated whenever a session surfaces a learning the existing playbook didn't cover. Unlike `HEALTH.md` (regenerate-from-scratch), `OPERATIONS.md` evolves in place; each change captures the why, not just the what.
 
 ---
 
-## Layer 3 — Domain reference docs
+## Layer 3 -- Domain reference docs
 
 **Conceptually:** deep permanent background on subsystems or domains that are specific enough to need their own file, but not in Layer 2's standard menu.
 
@@ -263,14 +263,14 @@ A menu of nine (expanded from eight on 2026-04-25 — see amendments section at 
 
 **What qualifies:**
 - Deep subsystem background that is irreducible (can't be split into smaller docs)
-- Permanent — doesn't rot unless the subsystem is rewritten
+- Permanent -- doesn't rot unless the subsystem is rewritten
 - Referenced from the subsystem's code and from `CLAUDE.md`'s index
 
 **Examples from the current monorepo:**
 - slipgate-app: `CFG-PARSER.md`, `EZQUAKE-RESOLUTION.md`, `SYSTEM-SPECS.md`, `PERIPHERAL-SELECTOR.md`
 - qw-stats: `RESEARCH-RANKING.md`, `RESEARCH-IDENTITY.md`, `ALIAS-RESOLUTION-RESEARCH.md`, `IDENTITY-SEEDS.md`
 
-**How the skill treats them:** Mode 1 does not enforce Layer 3. It may *suggest* one when the session reveals a subsystem is getting too dense for the OVERVIEW to carry — but creation is the operator's call.
+**How the skill treats them:** Mode 1 does not enforce Layer 3. It may *suggest* one when the session reveals a subsystem is getting too dense for the OVERVIEW to carry -- but creation is the operator's call.
 
 ---
 
@@ -278,9 +278,9 @@ A menu of nine (expanded from eight on 2026-04-25 — see amendments section at 
 
 When a project has subsystem-specific rules that don't belong in the root `CLAUDE.md`:
 
-**Option A — Nested `CLAUDE.md`**: Place a `CLAUDE.md` inside the subsystem directory (e.g., `apps/matchscheduler/public/CLAUDE.md`). Anthropic's memory system loads it automatically when Claude works in that directory, concatenated with the project-root `CLAUDE.md`.
+**Option A -- Nested `CLAUDE.md`**: Place a `CLAUDE.md` inside the subsystem directory (e.g., `apps/matchscheduler/public/CLAUDE.md`). Anthropic's memory system loads it automatically when Claude works in that directory, concatenated with the project-root `CLAUDE.md`.
 
-**Option B — Path-scoped rules file**: Place a file under `.claude/rules/*.md` with `paths:` frontmatter (e.g., `paths: ["src-tauri/src/commands/ezquake.rs"]`). Loaded only when matching files are touched.
+**Option B -- Path-scoped rules file**: Place a file under `.claude/rules/*.md` with `paths:` frontmatter (e.g., `paths: ["src-tauri/src/commands/ezquake.rs"]`). Loaded only when matching files are touched.
 
 **When to use which:**
 - Nested `CLAUDE.md` for subsystems that are whole directories (`public/`, `rust/`, `web/`)
@@ -294,16 +294,16 @@ When a project has subsystem-specific rules that don't belong in the root `CLAUD
 
 The monorepo root itself is treated as a "project" for template purposes, but with adjustments:
 
-- **`CLAUDE.md`** (root) — the orchestrator. Rules that apply across ALL apps + a project map + integration overview + pointers to per-app CLAUDE.md files. **Target length: <100 lines** (currently 166; needs slimming).
-- **`README.md`** (root) — the monorepo's elevator pitch.
-- **`OVERVIEW.md`** (root) — the integration map: how apps relate, which shared collections exist, cross-project data flow.
-- **`VISION.md`** (root) — why the monorepo exists and what it's converging toward.
+- **`CLAUDE.md`** (root) -- the orchestrator. Rules that apply across ALL apps + a project map + integration overview + pointers to per-app CLAUDE.md files. **Target length: <100 lines** (currently 166; needs slimming).
+- **`README.md`** (root) -- the monorepo's elevator pitch.
+- **`OVERVIEW.md`** (root) -- the integration map: how apps relate, which shared collections exist, cross-project data flow.
+- **`VISION.md`** (root) -- why the monorepo exists and what it's converging toward.
 
 **What moves OUT of the root `CLAUDE.md`** to shrink it:
-- The full project map → into `README.md` (landing) and `OVERVIEW.md` (map)
-- The integration diagram → into `OVERVIEW.md` or `contracts/README.md`
-- Planning-first workflow / bug triage / testing rules → into a monorepo-level skill (see `docs-check` section below)
-- Community experts list → into `people/README.md`
+- The full project map -> into `README.md` (landing) and `OVERVIEW.md` (map)
+- The integration diagram -> into `OVERVIEW.md` or `contracts/README.md`
+- Planning-first workflow / bug triage / testing rules -> into a monorepo-level skill (see `docs-check` section below)
+- Community experts list -> into `people/README.md`
 
 **`contracts/`** stays as-is. It holds cross-project data contracts (`CROSS-PROJECT-SCHEMA.md`), active cross-project specs (`contracts/active/`), and completed specs (`contracts/completed/`). Add a `contracts/README.md` as the index.
 
@@ -315,9 +315,9 @@ The monorepo root itself is treated as a "project" for template purposes, but wi
 
 Two always-loaded mindset documents, copied from vikpe's slipgate web repo under a compatible license (public-principles-level content, not proprietary).
 
-**`/.claude/skills/philosophy/grug-brain.md`** — Principles from grugbrain.dev: complexity is the apex predator, factor slowly, don't over-DRY, Chesterton's fence, fear concurrency, grug-brained development wins.
+**`/.claude/skills/philosophy/grug-brain.md`** -- Principles from grugbrain.dev: complexity is the apex predator, factor slowly, don't over-DRY, Chesterton's fence, fear concurrency, grug-brained development wins.
 
-**`/.claude/skills/philosophy/philosophy-of-software-design.md`** — Principles from John Ousterhout's book: strategic vs. tactical, deep modules, information hiding, pull complexity downward, define errors out of existence, comments explain why.
+**`/.claude/skills/philosophy/philosophy-of-software-design.md`** -- Principles from John Ousterhout's book: strategic vs. tactical, deep modules, information hiding, pull complexity downward, define errors out of existence, comments explain why.
 
 Both are referenced via `@import` from the monorepo-root `CLAUDE.md`:
 ```
@@ -337,13 +337,13 @@ Added to the monorepo-root `CLAUDE.md` under `## Output discipline`:
 
 ```
 - Answer briefly and objectively.
-- Never guess — if unsure, say so.
+- Never guess -- if unsure, say so.
 - ASCII only: no em dashes, smart quotes, or Unicode decorations.
 - Never express emotions; no filler sentences.
 - Comments explain *why*, not *what*.
 ```
 
-These fight Claude's default verbosity. Adopted wholesale from slipgate web's root `CLAUDE.md`. The user has agreed to stricter output discipline — including in how Claude addresses him in conversation, not just in code comments.
+These fight Claude's default verbosity. Adopted wholesale from slipgate web's root `CLAUDE.md`. The user has agreed to stricter output discipline -- including in how Claude addresses him in conversation, not just in code comments.
 
 ---
 
@@ -359,7 +359,7 @@ Every `CLAUDE.md` (project-level AND monorepo-root) declares its lifecycle statu
 **Status:** Planning.             (no code yet, only intent)
 ```
 
-**Why this matters:** The docs-check skill uses this to calibrate pressure. Active projects get strict nudges ("you shipped a feature but OVERVIEW wasn't touched — fix now"). Paused projects get passive flagging ("noted gap, will remind when you return"). Legacy projects get zero nudges.
+**Why this matters:** The docs-check skill uses this to calibrate pressure. Active projects get strict nudges ("you shipped a feature but OVERVIEW wasn't touched -- fix now"). Paused projects get passive flagging ("noted gap, will remind when you return"). Legacy projects get zero nudges.
 
 **Current states (as of 2026-04-11):**
 - slipgate-app: Active
@@ -371,27 +371,27 @@ Every `CLAUDE.md` (project-level AND monorepo-root) declares its lifecycle statu
 
 ---
 
-## The `docs-check` skill — two modes
+## The `docs-check` skill -- two modes
 
 The existing `docs-check` skill (v0.1 draft at `~/.claude/skills/docs-check/SKILL.md`) is refactored to run at end-of-session with two distinct checking modes.
 
-### Mode 1 — Trigger-based enforcer (Layer 2)
+### Mode 1 -- Trigger-based enforcer (Layer 2)
 
 Uses a cognitive checklist, not regex. The skill prompts session-end Claude with each Layer 2 trigger and lets Claude's session context answer.
 
 **Checklist (Claude answers each from session memory):**
-1. Did this session add or change a database schema, Firestore collection, or durable data model? → If yes, ensure `SCHEMA.md` exists and reflects the change.
-2. Did this session touch an API boundary, new external SDK, Tauri command, or cross-project IPC? → Ensure `API_CONTRACTS.md` exists and is current.
-3. Did this session touch auth, sessions, tokens, or role checks? → Ensure `AUTH.md` covers it.
-4. Did this session add UI components, color tokens, or layout rules? → Ensure `DESIGN.md` reflects them.
-5. Did this session add global state, store migrations, or cross-page sync logic? → Ensure `STATE.md` exists.
-6. Did this session change how to run, build, or test the project? → Ensure `DEVELOPMENT.md` is current.
-7. Did this session touch deploy config, CI, or release flow? → Ensure `DEPLOYMENT.md` is current.
-8. Did this session reveal tech debt worth a snapshot? → Offer to generate a fresh `HEALTH.md`.
+1. Did this session add or change a database schema, Firestore collection, or durable data model? -> If yes, ensure `SCHEMA.md` exists and reflects the change.
+2. Did this session touch an API boundary, new external SDK, Tauri command, or cross-project IPC? -> Ensure `API_CONTRACTS.md` exists and is current.
+3. Did this session touch auth, sessions, tokens, or role checks? -> Ensure `AUTH.md` covers it.
+4. Did this session add UI components, color tokens, or layout rules? -> Ensure `DESIGN.md` reflects them.
+5. Did this session add global state, store migrations, or cross-page sync logic? -> Ensure `STATE.md` exists.
+6. Did this session change how to run, build, or test the project? -> Ensure `DEVELOPMENT.md` is current.
+7. Did this session touch deploy config, CI, or release flow? -> Ensure `DEPLOYMENT.md` is current.
+8. Did this session reveal tech debt worth a snapshot? -> Offer to generate a fresh `HEALTH.md`.
 
-**Action:** If Claude answers "yes" and the corresponding doc is missing or stale, the skill prompts to create/update BEFORE closing out. It does NOT auto-write — the operator decides.
+**Action:** If Claude answers "yes" and the corresponding doc is missing or stale, the skill prompts to create/update BEFORE closing out. It does NOT auto-write -- the operator decides.
 
-### Mode 2 — Freshness-based cartographer (Layer 1)
+### Mode 2 -- Freshness-based cartographer (Layer 1)
 
 Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 
@@ -399,7 +399,7 @@ Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 1. Was `OVERVIEW.md` touched in this session?
 2. Did features land in this session that belong on the OVERVIEW map?
 3. Did Claude reconstruct the project layout from code more than twice this session? (Symptom: OVERVIEW is stale or incomplete.)
-4. Was anything learned this session that should go in `VISION.md`? (Rare — intent changes.)
+4. Was anything learned this session that should go in `VISION.md`? (Rare -- intent changes.)
 5. Were there session frictions worth capturing as memory or as a new skill?
 
 **Action:** If OVERVIEW drift is detected, the skill offers to rebuild the relevant section. If VISION needs an addendum, propose it. If frictions surfaced, offer to save memory updates or flag a skill opportunity.
@@ -407,9 +407,9 @@ Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 ### Shared behavior
 
 - **Runs at end-of-session** when the user signals wrap-up (per the skill's existing trigger language).
-- **Respects lifecycle status** — active = strict, paused = passive flagging, legacy = no nudging.
+- **Respects lifecycle status** -- active = strict, paused = passive flagging, legacy = no nudging.
 - **Saves memory updates AFTER doc updates** so anything surfaced during the ritual feeds into memory.
-- **Reports with structured sections** — A. Trigger checks (Layer 2), B. Freshness checks (Layer 1), C. Memory updates, D. Skill opportunities / frictions.
+- **Reports with structured sections** -- A. Trigger checks (Layer 2), B. Freshness checks (Layer 1), C. Memory updates, D. Skill opportunities / frictions.
 - **Never auto-commits.** Doc changes land as regular edits the operator can review before committing.
 
 ---
@@ -421,10 +421,10 @@ Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 **Priority order when Claude next works in a project:**
 
 1. **slipgate-app** (Active): Already has most of the quartet via today's audit (`CLAUDE.md`, `VISION.md`, `OVERVIEW.md`, plus Layer 2 docs). Needs: write `README.md`, add `STATE.md` (SolidJS store + tauri-plugin-store schema migration cross the complexity threshold), verify existing docs against this final template. `DESIGN.md` stays as-is (no rename).
-2. **Monorepo root** (Active): Apply the slim target (root `CLAUDE.md` → <100 lines). Move project map to root `README.md` + `OVERVIEW.md`. Add philosophy skills via `@import`. Add output discipline rules. Write monorepo `VISION.md` and `OVERVIEW.md`.
+2. **Monorepo root** (Active): Apply the slim target (root `CLAUDE.md` -> <100 lines). Move project map to root `README.md` + `OVERVIEW.md`. Add philosophy skills via `@import`. Add output discipline rules. Write monorepo `VISION.md` and `OVERVIEW.md`.
 3. **quad** (Maintenance): Next session there should produce `README.md` + `VISION.md` + `OVERVIEW.md`. The existing `CLAUDE.md` is healthy. Add `SCHEMA.md` (Firestore collections, currently scattered across phase docs) and `API_CONTRACTS.md` (Discord + Firestore boundary).
-4. **qw-stats** (Paused): When next touched — split the 332-line `CLAUDE.md` into `CLAUDE.md` (lean rules) + `DEVELOPMENT.md` + `HEALTH.md` + `VISION.md`. `API-GUIDE.md` renames to `API_CONTRACTS.md`. Existing `DATABASE-SCHEMA.md` renames to `SCHEMA.md`.
-5. **qw-oracle** (Paused): When next touched — add `README.md` + `VISION.md` + `OVERVIEW.md`. Split `CLAUDE.md` into lean rules + `DEVELOPMENT.md` + `SCHEMA.md`. Existing `plan.md` content merges into `VISION.md` + `OVERVIEW.md`.
+4. **qw-stats** (Paused): When next touched -- split the 332-line `CLAUDE.md` into `CLAUDE.md` (lean rules) + `DEVELOPMENT.md` + `HEALTH.md` + `VISION.md`. `API-GUIDE.md` renames to `API_CONTRACTS.md`. Existing `DATABASE-SCHEMA.md` renames to `SCHEMA.md`.
+5. **qw-oracle** (Paused): When next touched -- add `README.md` + `VISION.md` + `OVERVIEW.md`. Split `CLAUDE.md` into lean rules + `DEVELOPMENT.md` + `SCHEMA.md`. Existing `plan.md` content merges into `VISION.md` + `OVERVIEW.md`.
 6. **matchscheduler** (Legacy): No active migration. Skill runs in passive-flag mode only. The project will be rebuilt inside slipgate web.
 
 **Cross-project:**
@@ -438,11 +438,11 @@ Handles the living map (OVERVIEW.md). Instead of triggers, it uses momentum.
 
 **Three artifacts to produce from this spec:**
 
-1. **Philosophy reference** → `~/.claude/skills/docs-check/references/doc-philosophy.md`. Short, opinionated. ~50-80 lines. Codifies the 7 core principles, the quartet, the layer model, and how the skill uses cognitive triggers. Referenced by the docs-check skill.
+1. **Philosophy reference** -> `~/.claude/skills/docs-check/references/doc-philosophy.md`. Short, opinionated. ~50-80 lines. Codifies the 7 core principles, the quartet, the layer model, and how the skill uses cognitive triggers. Referenced by the docs-check skill.
 
-2. **Template reference** → `~/.claude/skills/docs-check/references/doc-template.md`. A menu: for each doc in Layer 1 + Layer 2 + Layer 3 pattern — question answered, what goes in, what doesn't, voice example, approximate length. ~200-300 lines.
+2. **Template reference** -> `~/.claude/skills/docs-check/references/doc-template.md`. A menu: for each doc in Layer 1 + Layer 2 + Layer 3 pattern -- question answered, what goes in, what doesn't, voice example, approximate length. ~200-300 lines.
 
-3. **Refactored `docs-check` skill** → `~/.claude/skills/docs-check/SKILL.md`. Rewritten to implement the two modes described above, with lifecycle-aware pressure and a structured A/B/C/D report. References artifacts (1) and (2) as its source of truth.
+3. **Refactored `docs-check` skill** -> `~/.claude/skills/docs-check/SKILL.md`. Rewritten to implement the two modes described above, with lifecycle-aware pressure and a structured A/B/C/D report. References artifacts (1) and (2) as its source of truth.
 
 **Out-of-band:**
 - Copy (or write from scratch, crediting vikpe) the two philosophy skill files into `/.claude/skills/philosophy/`.
@@ -475,7 +475,7 @@ All previously-open questions were resolved during spec review:
 - **Philosophy skills location:** Monorepo-scoped at `/.claude/skills/philosophy/`. Rationale: the repo must be self-contained so a fresh clone on another machine (or a human contributor) works without depending on `~/.claude` user-global state. Environment drift is the bigger risk.
 - **Philosophy skills copy-vs-symlink:** Copied, not symlinked. Symlinks inside monorepos break across OS boundaries (relevant here because of the WSL/Windows split for slipgate-app).
 - **`DESIGN.md` vs `DESIGN_SYSTEM.md`:** Stays `DESIGN.md`. Shorter, zero migration cost, slipgate-app already uses it.
-- **`qw-stats/API-GUIDE.md` rename to `API_CONTRACTS.md`:** Yes, but lazily — next time Claude touches qw-stats. Consistency across monorepo Layer 2 vocabulary is worth the small rename.
+- **`qw-stats/API-GUIDE.md` rename to `API_CONTRACTS.md`:** Yes, but lazily -- next time Claude touches qw-stats. Consistency across monorepo Layer 2 vocabulary is worth the small rename.
 - **Does slipgate-app need `STATE.md`?** Yes. SolidJS stores + `tauri-plugin-store` schema migrations cross the complexity threshold. A cold agent needs to know how the frontend state syncs with the Rust backend without breaking reactivity. Added to the slipgate-app migration step above.
 
 ---
@@ -484,7 +484,7 @@ All previously-open questions were resolved during spec review:
 
 After this spec is approved:
 
-1. **Implementation plan** via `writing-plans` skill — breaks the deliverables into ordered, reviewable steps.
+1. **Implementation plan** via `writing-plans` skill -- breaks the deliverables into ordered, reviewable steps.
 2. **Execution** of that plan via `executing-plans` or `subagent-driven-development`.
 3. **Lazy migration** as Claude returns to each project in the migration priority order.
 
@@ -494,12 +494,12 @@ The three deliverables (philosophy ref, template ref, refactored skill) should b
 
 ## Amendments
 
-### 2026-04-25 — OPERATIONS.md added as 9th Layer 2 doc
+### 2026-04-25 -- OPERATIONS.md added as 9th Layer 2 doc
 
-**Trigger for the amendment:** During qw-oracle Layer 3 concept-notes design, the need surfaced for a stewardship playbook distinct from the existing 8 conditional docs. None fit: DEPLOYMENT is ship-to-prod, HEALTH is a point-in-time debt snapshot, Layer 3 (domain reference) is permanent background. The gap was "how do we steward an evolving content corpus over time" — template evolution, attribution policy, lifecycle handling, feedback-loop protocol.
+**Trigger for the amendment:** During qw-oracle Layer 3 concept-notes design, the need surfaced for a stewardship playbook distinct from the existing 8 conditional docs. None fit: DEPLOYMENT is ship-to-prod, HEALTH is a point-in-time debt snapshot, Layer 3 (domain reference) is permanent background. The gap was "how do we steward an evolving content corpus over time" -- template evolution, attribution policy, lifecycle handling, feedback-loop protocol.
 
-**Scope:** Added OPERATIONS.md as the 9th Layer 2 conditional doc with trigger "project curates an evolving content corpus." Updated the menu count ("eight" → "nine") in the Layer 2 intro. Updated the living references at `~/.claude/skills/docs-check/references/doc-philosophy.md` and `doc-template.md` + the `SKILL.md` Mode 1 checklist so docs-check can nudge the new doc when relevant.
+**Scope:** Added OPERATIONS.md as the 9th Layer 2 conditional doc with trigger "project curates an evolving content corpus." Updated the menu count ("eight" -> "nine") in the Layer 2 intro. Updated the living references at `~/.claude/skills/docs-check/references/doc-philosophy.md` and `doc-template.md` + the `SKILL.md` Mode 1 checklist so docs-check can nudge the new doc when relevant.
 
-**First instance:** `apps/qw-oracle/concept-notes/OPERATIONS.md` (drafted in the same commit as this amendment). Subsequent OPERATIONS.md docs should follow the same shape — purpose, feeding paths, catalog, lifecycle, attribution, feedback-loop, open questions — and cite this amendment as the reference standard.
+**First instance:** `apps/qw-oracle/concept-notes/OPERATIONS.md` (drafted in the same commit as this amendment). Subsequent OPERATIONS.md docs should follow the same shape -- purpose, feeding paths, catalog, lifecycle, attribution, feedback-loop, open questions -- and cite this amendment as the reference standard.
 
-**Principle preserved:** No speculative additions. Layer 2 grew because a real project hit a real gap, not to round out a taxonomy. If a future session surfaces a second gap that fits none of the 9, handle it the same way — document the trigger, confirm the gap is generalizable, commit the amendment alongside the first instance.
+**Principle preserved:** No speculative additions. Layer 2 grew because a real project hit a real gap, not to round out a taxonomy. If a future session surfaces a second gap that fits none of the 9, handle it the same way -- document the trigger, confirm the gap is generalizable, commit the amendment alongside the first instance.

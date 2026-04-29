@@ -1,4 +1,4 @@
-# Phase M4: Roster Sync — quad Side
+# Phase M4: Roster Sync -- quad Side
 
 ## Context
 
@@ -123,9 +123,9 @@ db.collection('mumbleConfig')
 
 ## Verification
 
-1. **Add member**: Add a phantom member to the team in MatchScheduler → verify Mumble user appears, can connect with temp password
-2. **Remove member**: Remove a member → verify Mumble user is unregistered, can no longer connect
-3. **Rename**: Change a member's display name → verify Mumble username updates
+1. **Add member**: Add a phantom member to the team in MatchScheduler -> verify Mumble user appears, can connect with temp password
+2. **Remove member**: Remove a member -> verify Mumble user is unregistered, can no longer connect
+3. **Rename**: Change a member's display name -> verify Mumble username updates
 4. **No orphans**: After remove, `mumbleUsers` entry is gone, `mumbleLinked` cleared on user doc
 
 ---

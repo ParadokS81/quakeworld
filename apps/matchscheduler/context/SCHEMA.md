@@ -81,7 +81,7 @@ interface UserDocument {
                                      // Max: 37 entries (48 total - 11 base)
                                      // Validated by updateProfile Cloud Function
 
-  // Availability template (Phase A1 — single template per user)
+  // Availability template (Phase A1 -- single template per user)
   template?: {
     slots: string[];              // UTC slot IDs: ["mon_1900", "tue_2000", ...]
     recurring: boolean;           // Auto-apply to new weeks (Phase A4 will use this)
@@ -153,7 +153,7 @@ interface TeamDocument {
     };
   };
 
-  // Voice recording settings (Phase 2 — read by Quad bot at upload time)
+  // Voice recording settings (Phase 2 -- read by Quad bot at upload time)
   voiceSettings?: {
     defaultVisibility: 'public' | 'private';  // Applied to new recordings at upload
   };
@@ -330,7 +330,7 @@ type EventType =
 
 ## `/matchProposals/{proposalId}`
 
-Match proposal between two teams for a specific week. Slots are computed live from availability data — only confirmations are stored.
+Match proposal between two teams for a specific week. Slots are computed live from availability data -- only confirmations are stored.
 
 ```typescript
 interface MatchProposalDocument {
@@ -350,7 +350,7 @@ interface MatchProposalDocument {
   proposerStandin: boolean;        // +1 virtual player for proposer (practice only)
   opponentStandin: boolean;        // +1 virtual player for opponent (practice only)
 
-  // Confirmations — which slots each side has confirmed
+  // Confirmations -- which slots each side has confirmed
   // Key = UTC slotId (e.g., "mon_2000"), Value = { userId, countAtConfirm, gameType }
   proposerConfirmedSlots: {
     [slotId: string]: {
@@ -367,7 +367,7 @@ interface MatchProposalDocument {
     };
   };
 
-  // Result — set when both confirm same slot
+  // Result -- set when both confirm same slot
   confirmedSlotId: string | null;
   scheduledMatchId: string | null;
 
@@ -393,7 +393,7 @@ interface MatchProposalDocument {
 ```
 
 **Key Points:**
-- Slots are NOT stored — computed live from availability data
+- Slots are NOT stored -- computed live from availability data
 - `countAtConfirm` enables UI warnings when availability drops
 - `involvedTeamMembers` enables Firestore security rules without extra reads
 - Authorization uses **live** team.leaderId + team.schedulers (not snapshot)
@@ -434,7 +434,7 @@ interface ScheduledMatchDocument {
   addedBy: string | null;            // userId who quick-added (null for proposal/big4_import)
 
   // Big4 integration (only present when origin === 'big4_import')
-  big4FixtureId?: number;            // Fixture ID from Big4 API — primary dedup key
+  big4FixtureId?: number;            // Fixture ID from Big4 API -- primary dedup key
   big4Division?: string;             // "Division 1", "Division 2", "Division 3"
 
   // Status
@@ -493,7 +493,7 @@ interface VoiceRecordingDocument {
   gameId: number;                                  // QW Hub game ID for stats/demo cross-reference
   mapOrder: number;                                // 0-based index within session (for chronological sorting)
 
-  // DAVE integrity (optional — only present if audio issues found during processing)
+  // DAVE integrity (optional -- only present if audio issues found during processing)
   integrity?: {
     repairedCount: number;                         // How many tracks were re-encoded due to decode failures
     totalErrors: number;                           // Total decode errors across all tracks
@@ -510,7 +510,7 @@ interface VoiceTrack {
   size: number;                          // File size in bytes
   duration: number | null;               // Audio duration in seconds (if known)
 
-  // DAVE integrity (optional — only on tracks with issues)
+  // DAVE integrity (optional -- only on tracks with issues)
   verifyErrors?: number;                 // Number of decode verification errors for this track
   repaired?: boolean;                    // true if track was re-encoded to fix decode issues
 }
@@ -530,7 +530,7 @@ interface VoiceTrack {
 
 ## `/botRegistrations/{teamId}`
 
-Voice bot connection status per team. Created when a team leader initiates bot registration, activated when the Quad bot completes setup in their Discord server. This is the **primary bridge between MatchScheduler and quad** — both sides read and write to this document.
+Voice bot connection status per team. Created when a team leader initiates bot registration, activated when the Quad bot completes setup in their Discord server. This is the **primary bridge between MatchScheduler and quad** -- both sides read and write to this document.
 
 ```typescript
 interface BotRegistrationDocument {
@@ -550,13 +550,13 @@ interface BotRegistrationDocument {
   // Status
   status: 'pending' | 'active' | 'disconnecting';
 
-  // Player mapping — Discord UID → QW name for voice track resolution
+  // Player mapping -- Discord UID -> QW name for voice track resolution
   // Updated by: quad on /register, addPhantomMember CF, recording pipeline
   knownPlayers: {
-    [discordUserId: string]: string;  // Discord user ID → QW display name
+    [discordUserId: string]: string;  // Discord user ID -> QW display name
   };
 
-  // Guild member cache — full Discord server member list (Discord Roster Management)
+  // Guild member cache -- full Discord server member list (Discord Roster Management)
   // Updated by: quad on /register, guildMemberAdd/Remove events, bot startup refresh
   guildMembers: {
     [discordUserId: string]: {
@@ -579,7 +579,7 @@ interface BotRegistrationDocument {
   // Existing docs may still have this field from before cleanup.
   // notifications?: { enabled: boolean; channelId: string | null; channelName: string | null; };
 
-  // Schedule channel — where the availability canvas is posted
+  // Schedule channel -- where the availability canvas is posted
   scheduleChannel: {
     channelId: string | null;         // Discord channel for weekly schedule grid
   };
@@ -591,7 +591,7 @@ interface BotRegistrationDocument {
     enabled: boolean;                              // Default: false
     minPlayers: number;                            // Min registered members in voice to trigger (default: 3, range: 2-4)
     platform: 'both' | 'discord' | 'mumble';      // Which platforms to auto-record (default: 'both')
-    mode?: 'all' | 'official' | 'practice';       // DEPRECATED — not used by bot, removed from UI. Old docs may still have it
+    mode?: 'all' | 'official' | 'practice';       // DEPRECATED -- not used by bot, removed from UI. Old docs may still have it
   };
 
   // Disconnect tracking
@@ -608,7 +608,7 @@ interface BotRegistrationDocument {
 - Document ID = `teamId` (one registration per team)
 - `status: 'pending'` until Quad bot activates in the Discord server
 - `knownPlayers` maps Discord user IDs to QW names for voice track resolution
-- `guildMembers` is the cached Discord server member list — used by "Manage Players" UI
+- `guildMembers` is the cached Discord server member list -- used by "Manage Players" UI
 - `availableChannels` populated by quad, consumed by MatchScheduler channel dropdowns
 - Read: team leader + schedulers (via Firestore rules `get()` on team doc)
 - Write: Admin SDK only (Cloud Function + Quad bot)
@@ -709,8 +709,8 @@ Weekly platform activity statistics, computed by a scheduled Cloud Function. Adm
 ```typescript
 interface WeeklyStatsDocument {
   weekId: string;               // "2026-08" (YYYY-WW, same format as availability docs)
-  activeUsers: number;          // Unique users who marked ≥1 availability slot
-  activeTeams: number;          // Teams with ≥1 user with availability
+  activeUsers: number;          // Unique users who marked >=1 availability slot
+  activeTeams: number;          // Teams with >=1 user with availability
   proposalCount: number;        // Total proposals created this week (any status)
   scheduledCount: number;       // Total confirmed matches this week
   teamBreakdown: {              // Per-team activity breakdown
@@ -728,7 +728,7 @@ interface WeeklyStatsDocument {
 - Document ID = `weekId` (e.g., `"2026-08"`)
 - Written by: Scheduled Cloud Function (slice A5)
 - Read by: AdminStatsService (slice A2), AdminPanel (slice A3)
-- Client writes always denied — Admin SDK only
+- Client writes always denied -- Admin SDK only
 
 ---
 
@@ -756,7 +756,7 @@ interface RecordingSessionDocument {
 
 **Key Points:**
 - Auto-generated document ID
-- Status lifecycle: `recording` → `completed` (normal) or `recording` → `interrupted` (crash recovery)
+- Status lifecycle: `recording` -> `completed` (normal) or `recording` -> `interrupted` (crash recovery)
 - `lastHeartbeat` updated every 60s during active recording
 - Documents are never deleted
 - Written by: Quad bot via Admin SDK
@@ -855,13 +855,13 @@ const docId = `${teamId}_${weekId}`;
 - **2026-02-08**: Added gameType, proposerStandin, opponentStandin to matchProposals; min filter range changed to 3-4
 - **2026-02-14**: Added voiceRecordings collection for replay auto-load (Voice Replay Tier 3)
 - **2026-02-14**: Added origin, addedBy fields to scheduledMatches; MATCH_QUICK_ADDED event type (Slice 18.0)
-- **2026-02-14**: Voice replay Phase 2 — visibility + track identity fields on voiceRecordings, botRegistrations collection, teams.voiceSettings (Slice P3.1)
+- **2026-02-14**: Voice replay Phase 2 -- visibility + track identity fields on voiceRecordings, botRegistrations collection, teams.voiceSettings (Slice P3.1)
 - **2026-02-16**: Added weeklyStats and recordingSessions admin-only collections (Slice A1)
 - **2026-02-23**: Added big4_import origin, big4FixtureId, big4Division fields to scheduledMatches; MATCH_BIG4_IMPORTED event type (Big4 Sync)
 - **2026-02-22**: Added Recording Management fields to voiceRecordings: sessionId, opponentTag, teamFrags, opponentFrags, gameId, mapOrder (Phase R1)
 - **2026-02-22**: Added notifications and deletionRequests collections (Phase R3-R5)
 - **2026-02-22**: Expanded botRegistrations with guildMembers, notifications, scheduleChannel, autoRecord, availableChannels fields
 - **2026-02-22**: Added phantom user support: isPhantom + phantomCreatedBy on users, isPhantom + discordUserId on PlayerEntry (Discord Roster Management)
-- **2026-02-24**: Phase A1 — removed users/{userId}/templates subcollection; replaced with single `template` flat field on user document. Cloud Functions: saveTemplate (overwrite) + clearTemplate (delete). Old functions deleteTemplate + renameTemplate removed.
-- **2026-02-28**: Phase M6 — added `recordingSource` field to voiceRecordings (`'discord' | 'mumble'`). Absent = discord (backwards compat).
-- **2026-03-24**: Unified Auto-Record — extended `botRegistrations.autoRecord` with `platform` ('both'|'discord'|'mumble'). Deprecated `mumbleConfig.autoRecord` boolean (quad reads from botRegistrations). minPlayers range: 2-4. `mode` field deprecated (removed from UI, not used by bot).
+- **2026-02-24**: Phase A1 -- removed users/{userId}/templates subcollection; replaced with single `template` flat field on user document. Cloud Functions: saveTemplate (overwrite) + clearTemplate (delete). Old functions deleteTemplate + renameTemplate removed.
+- **2026-02-28**: Phase M6 -- added `recordingSource` field to voiceRecordings (`'discord' | 'mumble'`). Absent = discord (backwards compat).
+- **2026-03-24**: Unified Auto-Record -- extended `botRegistrations.autoRecord` with `platform` ('both'|'discord'|'mumble'). Deprecated `mumbleConfig.autoRecord` boolean (quad reads from botRegistrations). minPlayers range: 2-4. `mode` field deprecated (removed from UI, not used by bot).

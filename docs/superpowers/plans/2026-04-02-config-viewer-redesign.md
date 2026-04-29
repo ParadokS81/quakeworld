@@ -114,7 +114,7 @@ export default function CvarRow(props: CvarRowProps) {
                 : "text-[var(--sg-text-dim)]"
           }`}
         >
-          {props.compareValue ?? "—"}
+          {props.compareValue ?? "--"}
         </span>
       </Show>
     </div>
@@ -125,7 +125,7 @@ export default function CvarRow(props: CvarRowProps) {
 - [ ] **Step 2: Verify no TypeScript errors in CvarRow**
 
 Run: `cd apps/slipgate-app && bunx tsc --noEmit 2>&1 | grep CvarRow`
-Expected: may show errors in ConfigViewer where CvarRow is consumed (props changed) — that's expected, we fix it in Task 3.
+Expected: may show errors in ConfigViewer where CvarRow is consumed (props changed) -- that's expected, we fix it in Task 3.
 
 - [ ] **Step 3: Commit**
 
@@ -227,14 +227,14 @@ export default function CvarTooltip(props: CvarTooltipProps) {
           <div>
             <span class="text-[var(--sg-section-label)]">Default</span>
             <span class="font-mono ml-2 text-[var(--sg-text-dim)]">
-              {props.info?.default ?? "—"}
+              {props.info?.default ?? "--"}
             </span>
           </div>
 
           <div>
             <span class="text-[var(--sg-section-label)]">Type</span>
             <span class="ml-2 text-[var(--sg-text-dim)]">
-              {props.info?.type ?? "—"}
+              {props.info?.type ?? "--"}
             </span>
           </div>
 
@@ -261,7 +261,7 @@ export default function CvarTooltip(props: CvarTooltipProps) {
               {props.info!.values!.map((v) => (
                 <div class="flex gap-2">
                   <span class={`font-mono w-8 flex-shrink-0 ${props.value === v.name ? "text-[var(--color-primary)] font-bold" : "text-[var(--sg-text-dim)]"}`}>
-                    {v.name}{props.value === v.name ? " ✓" : ""}
+                    {v.name}{props.value === v.name ? " [ok]" : ""}
                   </span>
                   <span class="text-[var(--sg-text-dim)]">{v.description}</span>
                 </div>
@@ -494,7 +494,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
         if (cvar.info?.default !== undefined && cvar.value === cvar.info.default) {
           // In compare mode, also check if compare value differs from default
           if (cmpMode && cvar.compareValue !== undefined && cvar.compareValue !== cvar.info.default) {
-            // Keep it — compare value is non-default
+            // Keep it -- compare value is non-default
           } else {
             return false;
           }
@@ -581,7 +581,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             </span>
             <Show when={changedCount() > 0}>
               <span class="text-xs text-[var(--color-primary)]">
-                · {changedCount()} changed
+                - {changedCount()} changed
               </span>
             </Show>
 
@@ -617,7 +617,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
               <div class="flex flex-col gap-1">
                 <div class="flex gap-4">
                   <span class="text-[var(--sg-section-label)] w-24">Path</span>
-                  <span class="font-mono">{props.exePath ?? "—"}</span>
+                  <span class="font-mono">{props.exePath ?? "--"}</span>
                 </div>
                 <div class="flex gap-4">
                   <span class="text-[var(--sg-section-label)] w-24">Config</span>
@@ -701,7 +701,7 @@ export default function ConfigViewer(props: ConfigViewerProps) {
             <input
               type="text"
               class="input input-xs w-40 font-mono"
-              placeholder="Search cvars…"
+              placeholder="Search cvars..."
               value={search()}
               onInput={(e) => setSearch(e.currentTarget.value)}
             />
@@ -854,9 +854,9 @@ git commit -m "Delete ConfigCompare and CvarDetail, replaced by integrated viewe
 
 | Task | What | Files |
 |------|------|-------|
-| 1 | Rewrite CvarRow — clean name + value grid | `CvarRow.tsx` |
-| 2 | Create CvarTooltip — hover/expand content | `CvarTooltip.tsx` (new) |
-| 3 | Rewrite ConfigViewer — compare integration, tooltip, paste UI | `ConfigViewer.tsx` |
+| 1 | Rewrite CvarRow -- clean name + value grid | `CvarRow.tsx` |
+| 2 | Create CvarTooltip -- hover/expand content | `CvarTooltip.tsx` (new) |
+| 3 | Rewrite ConfigViewer -- compare integration, tooltip, paste UI | `ConfigViewer.tsx` |
 | 4 | Delete old components | Remove `ConfigCompare.tsx`, `CvarDetail.tsx` |
 
 After task 4, F5 in the app should show the redesigned viewer with clean rows, hover tooltips, and compare mode accessible from the main list view.

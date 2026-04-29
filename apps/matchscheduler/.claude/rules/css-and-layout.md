@@ -11,12 +11,12 @@ paths:
 ## CSS Units - rem Only
 ```css
 padding: 1rem;        /* correct */
-padding: 16px;        /* wrong — except borders/shadows */
+padding: 16px;        /* wrong -- except borders/shadows */
 border: 1px solid;    /* OK for borders */
 box-shadow: 0px 4px;  /* OK for shadows */
 ```
 
-Tailwind utility classes already use rem: `px-4` = 1rem (not pixels — "padding-x"), `py-2` = 0.5rem.
+Tailwind utility classes already use rem: `px-4` = 1rem (not pixels -- "padding-x"), `py-2` = 0.5rem.
 
 ## Tailwind CSS Build Process
 ```

@@ -3561,8 +3561,8 @@ Per the writing-plans skill: spec coverage check, placeholder scan, type consist
 
 Plan complete and saved to `docs/superpowers/plans/2026-04-27-mvdsv-layer1-extraction.md`. Two execution options:
 
-**1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration. Especially good for this plan because per-handler tasks are independent and review can catch handler issues immediately.
+**1. Subagent-Driven (recommended)** -- I dispatch a fresh subagent per task, review between tasks, fast iteration. Especially good for this plan because per-handler tasks are independent and review can catch handler issues immediately.
 
-**2. Inline Execution** — Execute tasks in this session using executing-plans, batch execution with checkpoints for review.
+**2. Inline Execution** -- Execute tasks in this session using executing-plans, batch execution with checkpoints for review.
 
 Which approach?

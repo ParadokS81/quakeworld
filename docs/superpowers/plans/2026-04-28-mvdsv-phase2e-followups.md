@@ -6,7 +6,7 @@
 
 **Source:** Validation report run on 2026-04-28 against the shipped HEAD `f8fdc53`. All findings here are from that report.
 
-**Tech Stack:** Python 3.12 + libclang 18 (extractors), TypeScript + Bun (loader / quality grid), SQLite (schema v15 → v16).
+**Tech Stack:** Python 3.12 + libclang 18 (extractors), TypeScript + Bun (loader / quality grid), SQLite (schema v15 -> v16).
 
 **Reference:**
 - Validation report: in-conversation (this session), 2026-04-28
@@ -19,7 +19,7 @@
 
 ## Phase A: Tighten quality-grid floors to equality probes
 
-The current F1.*.count probes assert `n >= floor` with 1.7%-15% cushion. A 1-2 row regression on cvar (181/182) or qc_builtin (91/92) silently passes. Layer 1 has no legitimate noise — every count change is either a deliberate source-truth update or a bug. The probe should fail loudly on either.
+The current F1.*.count probes assert `n >= floor` with 1.7%-15% cushion. A 1-2 row regression on cvar (181/182) or qc_builtin (91/92) silently passes. Layer 1 has no legitimate noise -- every count change is either a deliberate source-truth update or a bug. The probe should fail loudly on either.
 
 **Files:**
 - Modify: `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`
@@ -37,9 +37,9 @@ Expected: F1.mvdsv.{cvars_source_backed,commands,cmdline_params,protocol_message
 - [ ] **Step 2: Replace each `lo` floor with an `expected` constant**
 
 For every count probe:
-- Rename `lo` → `expected`
-- Change `status: n >= lo ? 'PASS' : 'FAIL'` → `status: n === expected ? 'PASS' : 'FAIL'`
-- Change description from `count >= ${lo}` → `count == ${expected}`
+- Rename `lo` -> `expected`
+- Change `status: n >= lo ? 'PASS' : 'FAIL'` -> `status: n === expected ? 'PASS' : 'FAIL'`
+- Change description from `count >= ${lo}` -> `count == ${expected}`
 - Update summary text: `${n} ${type} (expected ${expected})` on miss
 
 Set each `expected` to today's actual count from the live DB:
@@ -58,7 +58,7 @@ For FTE and ezquake, same query with the appropriate project filter. Record the 
 
 - [ ] **Step 3: Update the doc-comment header**
 
-The comment block above the MVDSV probes currently says "Source-of-truth counts at the time these probes were minted: ..." — update to reflect that those counts are now load-bearing equality assertions, not informational baselines, and that the probe file is the canonical source-of-truth and must be edited when entity counts change.
+The comment block above the MVDSV probes currently says "Source-of-truth counts at the time these probes were minted: ..." -- update to reflect that those counts are now load-bearing equality assertions, not informational baselines, and that the probe file is the canonical source-of-truth and must be edited when entity counts change.
 
 - [ ] **Step 4: Verification**
 
@@ -69,13 +69,13 @@ npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- quality-grid -
 npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- quality-grid --project qwcl --family regression
 ```
 
-All count probes PASS. Then synthesize a regression: temporarily drop one MVDSV cvar and re-run — F1.mvdsv.cvars_source_backed_count must FAIL. Restore. (Don't commit the synthetic.)
+All count probes PASS. Then synthesize a regression: temporarily drop one MVDSV cvar and re-run -- F1.mvdsv.cvars_source_backed_count must FAIL. Restore. (Don't commit the synthetic.)
 
 ---
 
 ## Phase B: info_key cross-scope split (schema v16)
 
-`*z_ext` registers in MVDSV with two genuinely distinct semantic surfaces (serverinfo/write/SV_InitLocal vs userinfo/read+remove/SVC_DirectConnect). The current `(project, type, name)` UNIQUE in `entities` collapses them to one — the userinfo registration is silently lost. The natural identity of an info_key is `(name, scope)`, not just `name`.
+`*z_ext` registers in MVDSV with two genuinely distinct semantic surfaces (serverinfo/write/SV_InitLocal vs userinfo/read+remove/SVC_DirectConnect). The current `(project, type, name)` UNIQUE in `entities` collapses them to one -- the userinfo registration is silently lost. The natural identity of an info_key is `(name, scope)`, not just `name`.
 
 This is the only known cross-scope dup at HEAD, but the architecture must support it for any future MVDSV/KTX revision that adds another. We also lose call-site evidence today.
 
@@ -84,16 +84,16 @@ This is the only known cross-scope dup at HEAD, but the architecture must suppor
 **Files:**
 - Modify: `apps/qw-oracle/scripts/extractors/mvdsv/_handler_info_keys.py`
 - Modify: `apps/qw-oracle/scripts/load-knowledge/load-info-keys.ts`
-- Modify: `apps/qw-oracle/scripts/load-knowledge/load-version.ts` (the array→dict dedup branch)
+- Modify: `apps/qw-oracle/scripts/load-knowledge/load-version.ts` (the array->dict dedup branch)
 - Modify: `apps/qw-oracle/serve/mcp/src/tools/lookup_entity.ts` (or wherever info_key lookup lives)
-- Modify: `apps/qw-oracle/scripts/load-knowledge/schema.ts` (no DDL change — just the v16 marker bump)
+- Modify: `apps/qw-oracle/scripts/load-knowledge/schema.ts` (no DDL change -- just the v16 marker bump)
 - Modify: `apps/qw-oracle/SCHEMA.md`
 
 ### Task 2: Emit info_keys with scope-suffixed canonical names
 
 - [ ] **Step 1: Update `_handler_info_keys.py` finalize**
 
-Change the emitted `name` field from `<bare_name>` to `<bare_name>:<scope>` (e.g., `*z_ext:serverinfo`, `*z_ext:userinfo`). Keep a separate field `bare_name` for downstream consumers and MCP fallback. The natural-key dedup inside the handler is now per-(name, scope), not just name — so both `*z_ext` registrations survive.
+Change the emitted `name` field from `<bare_name>` to `<bare_name>:<scope>` (e.g., `*z_ext:serverinfo`, `*z_ext:userinfo`). Keep a separate field `bare_name` for downstream consumers and MCP fallback. The natural-key dedup inside the handler is now per-(name, scope), not just name -- so both `*z_ext` registrations survive.
 
 - [ ] **Step 2: Verify the JSON output**
 
@@ -112,9 +112,9 @@ Expected: 2.
 
 ### Task 3: Update load-info-keys.ts for the new shape
 
-- [ ] **Step 1:** Read `bare_name` (new) and `scope` from the AST block. The `entities.name` row gets the suffixed form; `info_key_versions.scope` already carries the scope unsuffixed. No schema DDL change — we just stop colliding on the natural key.
+- [ ] **Step 1:** Read `bare_name` (new) and `scope` from the AST block. The `entities.name` row gets the suffixed form; `info_key_versions.scope` already carries the scope unsuffixed. No schema DDL change -- we just stop colliding on the natural key.
 
-- [ ] **Step 2:** In `load-version.ts` array→dict normalization (lines 308-323), add a `console.warn` when a name is dropped. Belt-and-braces: even with the suffix fix above, future cross-X dups in any entity type should not disappear silently.
+- [ ] **Step 2:** In `load-version.ts` array->dict normalization (lines 308-323), add a `console.warn` when a name is dropped. Belt-and-braces: even with the suffix fix above, future cross-X dups in any entity type should not disappear silently.
 
 - [ ] **Step 3: Re-run load and verify**
 
@@ -124,9 +124,9 @@ DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
 sqlite3 "$DB" "SELECT name, scope FROM entities e JOIN info_key_versions ikv ON e.id = ikv.entity_id WHERE e.project='mvdsv' AND e.name LIKE '*z_ext%';"
 ```
 
-Expected: 2 rows: `*z_ext:serverinfo|serverinfo` and `*z_ext:userinfo|userinfo`. Total info_key count goes 44 → 45.
+Expected: 2 rows: `*z_ext:serverinfo|serverinfo` and `*z_ext:userinfo|userinfo`. Total info_key count goes 44 -> 45.
 
-- [ ] **Step 4: Bump F1.mvdsv.info_keys_count expected value (Phase A) from 44 → 45.**
+- [ ] **Step 4: Bump F1.mvdsv.info_keys_count expected value (Phase A) from 44 -> 45.**
 
 ### Task 4: MCP `lookup_entity` falls back to bare-name match for info_keys
 
@@ -148,7 +148,7 @@ If there's an info_key smoke test, ensure it covers cross-scope. Add one if miss
 
 ### Task 5: Schema bump
 
-- [ ] **Step 1:** No DDL change — info_key_versions already has `scope`. Bump SCHEMA_VERSION 15 → 16 in `schema.ts` purely as a marker that the canonical-name convention changed. Add a `migrateV15ToV16` no-op (or a one-time backfill that rewrites existing info_key entity names if any DBs are migrating from a v15 with the old shape).
+- [ ] **Step 1:** No DDL change -- info_key_versions already has `scope`. Bump SCHEMA_VERSION 15 -> 16 in `schema.ts` purely as a marker that the canonical-name convention changed. Add a `migrateV15ToV16` no-op (or a one-time backfill that rewrites existing info_key entity names if any DBs are migrating from a v15 with the old shape).
 
 - [ ] **Step 2:** Update `apps/qw-oracle/SCHEMA.md` v16 section: document the `<name>:<scope>` convention for info_keys.
 
@@ -173,8 +173,8 @@ Same shape likely affects `pext_fte`. Verify and apply consistently.
 ### Task 6: Split `protocol_version` into wire vs extension-id
 
 - [ ] **Step 1:** In `_handler_protocol.py::_kind_for`, change the `PROTOCOL_VERSION` prefix match to:
-  - exact match `PROTOCOL_VERSION` → `kind=protocol_version`
-  - prefix match `PROTOCOL_VERSION_` → `kind=protocol_extension_id`
+  - exact match `PROTOCOL_VERSION` -> `kind=protocol_version`
+  - prefix match `PROTOCOL_VERSION_` -> `kind=protocol_extension_id`
 
 - [ ] **Step 2:** Verify extraction:
 
@@ -200,10 +200,10 @@ Inspect the value distribution. If the same heterogeneity exists, apply the same
 - [ ] **Step 2: Define the value-shape subkinds**
 
 In `_handler_protocol.py`, after `_kind_for` returns `pext_mvd` or `pext_fte`, classify by `value_kind` and value-string shape:
-  - bitshift expression `(1<<N)` → `<base>_bit`
-  - plain int (decimal or hex) that's not a single-bit power → `<base>_const`
-  - identifier-only RHS that resolves to another macro → `<base>_alias`
-  - no value (no `#define X y`, just `#define X`) → `<base>_marker`
+  - bitshift expression `(1<<N)` -> `<base>_bit`
+  - plain int (decimal or hex) that's not a single-bit power -> `<base>_const`
+  - identifier-only RHS that resolves to another macro -> `<base>_alias`
+  - no value (no `#define X y`, just `#define X`) -> `<base>_marker`
 
 Where `<base>` is `pext_mvd` or `pext_fte`. Final kind values: `pext_mvd_bit`, `pext_mvd_const`, `pext_mvd_alias`, `pext_mvd_marker` and the `pext_fte_*` parallel set.
 
@@ -212,7 +212,7 @@ Where `<base>` is `pext_mvd` or `pext_fte`. Final kind values: `pext_mvd_bit`, `
 In `schema.ts`, the `protocol_message_versions.kind` CHECK currently allows `('svc','clc','nq','pext_fte','pext_mvd','protocol_version')`. New set:
 `('svc','clc','nq','pext_fte_bit','pext_fte_const','pext_fte_alias','pext_fte_marker','pext_mvd_bit','pext_mvd_const','pext_mvd_alias','pext_mvd_marker','protocol_version','protocol_extension_id')`.
 
-Add a `migrateV15ToV16` step that ALTERs the table (SQLite-style: rename → recreate with new CHECK → copy → drop) so the constraint widens cleanly. If the v16 marker is already used by Phase B, fold this DDL into the same migration function.
+Add a `migrateV15ToV16` step that ALTERs the table (SQLite-style: rename -> recreate with new CHECK -> copy -> drop) so the constraint widens cleanly. If the v16 marker is already used by Phase B, fold this DDL into the same migration function.
 
 - [ ] **Step 4: Update the F2.mvdsv.protocol_message_kinds_distribution probe**
 
@@ -268,7 +268,7 @@ done
 
 If FTE/QWCL/ezquake have the same divergence, lift the normalization into the shared cvar finalize logic in `extractor_lib/` rather than per-engine handlers.
 
-- [ ] **Step 4: Re-run extract-tag for each affected project, bump F1 count probes if any rows shifted between source_backed and other states (none expected — this is a representation change, not a coverage change).**
+- [ ] **Step 4: Re-run extract-tag for each affected project, bump F1 count probes if any rows shifted between source_backed and other states (none expected -- this is a representation change, not a coverage change).**
 
 ### Task 9: Unify `_resolve_fn_ref` into extractor_lib
 
@@ -282,7 +282,7 @@ If FTE/QWCL/ezquake have the same divergence, lift the normalization into the sh
 
 ### Task 10: log_template aggregates all call sites (schema parity with info_key)
 
-info_key emits `all_call_sites: [{source_file, source_line, operation}]`. log_template emits only the first call site's `containing_function` and one `(source_file, source_line)` pair. Both are templates registered at multiple sites — same data shape, different storage.
+info_key emits `all_call_sites: [{source_file, source_line, operation}]`. log_template emits only the first call site's `containing_function` and one `(source_file, source_line)` pair. Both are templates registered at multiple sites -- same data shape, different storage.
 
 - [ ] **Step 1: Add `all_call_sites_json` TEXT column to `log_template_versions`**
 
@@ -317,7 +317,7 @@ Latent gaps not biting today, plus one doc fix. Each is a tight surgical edit; d
 
 - [ ] **Step 1:** In `_handler_qc_builtins.py::_resolve_integer_literal`, change `int(text)` to `int(text, 0)` so `0x1F`, `0o17`, `0b11111` parse transparently. Add a unit-style assertion in the docstring.
 
-- [ ] **Step 2: Verify nothing changed at HEAD** (no entries today use hex). Re-run extract.py and confirm bytewise identical JSON. If any entry changes, that's a latent gap actually triggering — investigate.
+- [ ] **Step 2: Verify nothing changed at HEAD** (no entries today use hex). Re-run extract.py and confirm bytewise identical JSON. If any entry changes, that's a latent gap actually triggering -- investigate.
 
 ### Task 12: Preserve escape sequences in cvar default values
 
@@ -330,7 +330,7 @@ DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
 sqlite3 "$DB" "SELECT e.project, e.name, cv.default_value FROM cvar_versions cv JOIN entities e ON cv.entity_id=e.id WHERE cv.default_value LIKE '%\\\\%' OR cv.default_value LIKE '%\"%' LIMIT 30"
 ```
 
-If results return zero, the gap is latent. If non-zero, the gap is biting — fix `_strip_quotes` to interpret escape sequences (`\"` → `"`, `\\` → `\`, `\n` → newline, etc.) and document the exact encoding rule.
+If results return zero, the gap is latent. If non-zero, the gap is biting -- fix `_strip_quotes` to interpret escape sequences (`\"` -> `"`, `\\` -> `\`, `\n` -> newline, etc.) and document the exact encoding rule.
 
 - [ ] **Step 2: Pick the rule (interpret escapes vs preserve raw) and apply consistently.** Recommendation: interpret, because the runtime cvar default IS the post-interpretation string. Store the interpreted form.
 
@@ -354,9 +354,9 @@ If results return zero, the gap is latent. If non-zero, the gap is biting — fi
 
 **ezquake F2 informational anomalies** (`F2.doc_only_crosstab` 194 entries, `F2.default_value_ping_pong` for `gl_lightmode`).
 
-These are pre-existing findings about the ezquake corpus, unrelated to MVDSV Phase 2e. The MVDSV arc didn't touch ezquake source, ezquake handlers, or ezquake probes — these anomalies were present before the arc. Folding ezquake triage into this plan would muddy scope and delay landing the four MVDSV-specific fixes above.
+These are pre-existing findings about the ezquake corpus, unrelated to MVDSV Phase 2e. The MVDSV arc didn't touch ezquake source, ezquake handlers, or ezquake probes -- these anomalies were present before the arc. Folding ezquake triage into this plan would muddy scope and delay landing the four MVDSV-specific fixes above.
 
-**Action:** add a single line to `HANDOVER.md` noting "ezquake F2.doc_only_crosstab + F2.default_value_ping_pong (gl_lightmode) — pre-existing informational anomalies, triage when ezquake gets attention next." Surface the items so they don't disappear; do not block this arc on them.
+**Action:** add a single line to `HANDOVER.md` noting "ezquake F2.doc_only_crosstab + F2.default_value_ping_pong (gl_lightmode) -- pre-existing informational anomalies, triage when ezquake gets attention next." Surface the items so they don't disappear; do not block this arc on them.
 
 ---
 
@@ -392,7 +392,7 @@ cd apps/qw-oracle/serve/mcp && bun run scripts/verify-rewrite.ts
 
 ## Documentation updates
 
-- [ ] `apps/qw-oracle/CLAUDE.md`: bump v15 → v16; note info_key `<name>:<scope>` convention; note new protocol_message kind taxonomy; bump info_key count 44 → 45.
+- [ ] `apps/qw-oracle/CLAUDE.md`: bump v15 -> v16; note info_key `<name>:<scope>` convention; note new protocol_message kind taxonomy; bump info_key count 44 -> 45.
 - [ ] `apps/qw-oracle/SCHEMA.md`: v16 section covering Phase B + Phase C + Phase D's log_template column.
 - [ ] `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md`: add a pattern note for "natural-key includes scope when an identifier carries multiple semantic surfaces" (info_key lesson).
 - [ ] `MEMORY.md` entry: amend `project_mvdsv_phase2e.md` with the v16 schema bump and the kind-taxonomy refinement; or add a new follow-up memory pointing to this plan.

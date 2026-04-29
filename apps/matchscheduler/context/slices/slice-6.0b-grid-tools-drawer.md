@@ -73,10 +73,10 @@ BACKEND REQUIREMENTS:
 - This is a pure UI relocation slice
 
 INTEGRATION POINTS:
-- GridActionButtons → AvailabilityService.addMeToSlots/removeMeFromSlots (existing)
-- GridActionButtons → TemplateService.* methods (existing)
-- GridActionButtons → PlayerDisplayService.setDisplayMode (existing)
-- SelectionActionButton → GridActionButtons.addMe/removeMe/clearAll (existing)
+- GridActionButtons -> AvailabilityService.addMeToSlots/removeMeFromSlots (existing)
+- GridActionButtons -> TemplateService.* methods (existing)
+- GridActionButtons -> PlayerDisplayService.setDisplayMode (existing)
+- SelectionActionButton -> GridActionButtons.addMe/removeMe/clearAll (existing)
 - Window events: 'templates-updated', 'display-mode-changed', 'grid-selection-change' (existing)
 ```
 
@@ -283,19 +283,19 @@ BACKEND PERFORMANCE:
 
 ```
 DRAWER TOGGLE FLOW:
-Click Header → _toggleGridToolsDrawer() → Update aria-expanded + max-height → CSS transition
+Click Header -> _toggleGridToolsDrawer() -> Update aria-expanded + max-height -> CSS transition
 
 DISPLAY MODE CHANGE (unchanged):
-Click Mode → _setDisplayMode() → PlayerDisplayService.setDisplayMode()
-→ Dispatch 'display-mode-changed' → AvailabilityGrid re-renders
+Click Mode -> _setDisplayMode() -> PlayerDisplayService.setDisplayMode()
+-> Dispatch 'display-mode-changed' -> AvailabilityGrid re-renders
 
 TEMPLATE LOAD (unchanged):
-Click W1/W2 → _handleLoadTemplate() → _loadTemplateCallback()
-→ AvailabilityService.addMeToSlots() → Firestore → Listener → Grid updates
+Click W1/W2 -> _handleLoadTemplate() -> _loadTemplateCallback()
+-> AvailabilityService.addMeToSlots() -> Firestore -> Listener -> Grid updates
 
-FLOATING BUTTON → GRID TOOLS (unchanged):
-Selection in Grid → 'grid-selection-change' event → SelectionActionButton shows
-→ Click Add/Remove → GridActionButtons.addMe/removeMe() → AvailabilityService → Firestore
+FLOATING BUTTON -> GRID TOOLS (unchanged):
+Selection in Grid -> 'grid-selection-change' event -> SelectionActionButton shows
+-> Click Add/Remove -> GridActionButtons.addMe/removeMe() -> AvailabilityService -> Firestore
 
 INITIALIZATION ORDER:
 1. TeamInfo.init() renders drawer structure

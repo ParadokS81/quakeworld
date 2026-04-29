@@ -23,7 +23,7 @@ Deploy knowledge is scattered across 6 locations: root CLAUDE.md, two app CLAUDE
 | matchscheduler | Firebase Hosting + Functions + Rules | `firebase deploy` | Create new DEPLOYMENT.md |
 | quad | Xerial's server (Docker) | SSH + git pull + Docker rebuild | Restructure existing DEPLOYMENT.md |
 | qw-stats | Unraid server (Docker) | SCP + Docker rebuild | Rename INFRASTRUCTURE.md, keep gitignored |
-| slipgate-app | Windows binary / CI | `bun run tauri build` / GitHub Actions | Create minimal — WSL-to-Windows workflow TBD |
+| slipgate-app | Windows binary / CI | `bun run tauri build` / GitHub Actions | Create minimal -- WSL-to-Windows workflow TBD |
 | qw-oracle | None | Local scripts only | Not included in skill |
 
 ## Deploy Skill Structure
@@ -36,7 +36,7 @@ Deploy knowledge is scattered across 6 locations: root CLAUDE.md, two app CLAUDE
 name: deploy
 description: Deploy any project to production. Covers MatchScheduler (Firebase),
   Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App
-  (Windows build — workflow TBD). Use when deploying, shipping, pushing to prod,
+  (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod,
   or checking deployment status.
 ---
 

@@ -58,7 +58,7 @@ Convert the inline templates drawer into a modal dialog:
 
 ## Changes
 
-### 1. TemplatesModal.js — New modal component
+### 1. TemplatesModal.js -- New modal component
 
 **File:** `public/js/components/TemplatesModal.js` (NEW)
 
@@ -328,7 +328,7 @@ const TemplatesModal = (function() {
 
 ---
 
-### 2. app.js — Initialize TemplatesModal
+### 2. app.js -- Initialize TemplatesModal
 
 **File:** `public/js/app.js`
 
@@ -353,7 +353,7 @@ TemplatesModal.init({
 
 ---
 
-### 4. CSS — Modal styling
+### 4. CSS -- Modal styling
 
 **File:** `src/css/input.css`
 

@@ -17,7 +17,7 @@
 
 ## Problem Statement
 
-The current team detail view (Slice 5.1b) shows a compact info bar and immediately dives into match history. There's no "landing page" that gives you a sense of the team at a glance — their identity (large logo), full roster, and activity summary. The info bar is too compact to convey team identity, and match history is the only content.
+The current team detail view (Slice 5.1b) shows a compact info bar and immediately dives into match history. There's no "landing page" that gives you a sense of the team at a glance -- their identity (large logo), full roster, and activity summary. The info bar is too compact to convey team identity, and match history is the only content.
 
 Users browsing teams want to quickly answer: "Who is this team? How active are they? What maps do they play?" before diving into individual match results.
 
@@ -25,10 +25,10 @@ Users browsing teams want to quickly answer: "Who is this team? How active are t
 
 Introduce a **tabbed sub-navigation** within the team detail area. The Details tab becomes the default landing page with a redesigned layout:
 
-1. **Large logo** (~120px) on the left — establishes team identity
+1. **Large logo** (~120px) on the left -- establishes team identity
 2. **Team name** in large text to the right of logo, division badge below
-3. **Roster list** below the name, hugging the logo — leader first, then alphabetical
-4. **Map activity summary** below a subtle divider — auto-generated from QWHub data
+3. **Roster list** below the name, hugging the logo -- leader first, then alphabetical
+4. **Map activity summary** below a subtle divider -- auto-generated from QWHub data
 5. **H2H button** in the stats area to jump to the Head to Head tab
 
 The existing match history moves to its own tab (Slice 5.2b). The tabbed structure provides room for future tabs without cramping the layout.
@@ -64,7 +64,7 @@ The existing match history moves to its own tab (Slice 5.2b). The tabbed structu
 │  │          │                                                   │
 │  └──────────┘                                                   │
 │                                                                 │
-│  ── Last 6 months: 20 matches ──────────────── [Compare H2H →] │
+│  ── Last 6 months: 20 matches ──────────────── [Compare H2H ->] │
 │                                                                 │
 │  dm2      ████████████  12  (8W 4L)                             │
 │  dm3      █████          5  (3W 2L)                             │
@@ -74,7 +74,7 @@ The existing match history moves to its own tab (Slice 5.2b). The tabbed structu
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Details Tab — No QWHub Tag
+### Details Tab -- No QWHub Tag
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -97,7 +97,7 @@ The existing match history moves to its own tab (Slice 5.2b). The tabbed structu
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Details Tab — Loading State
+### Details Tab -- Loading State
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -123,13 +123,13 @@ The existing match history moves to its own tab (Slice 5.2b). The tabbed structu
 
 ### Key Design Decisions
 
-1. **Tabbed navigation within TeamsBrowserPanel** — Not a new component. The existing `_renderTeamsView()` gains a tab bar and delegates to tab-specific render functions. This keeps the Firebase listener, team selection, and event handling in one place.
+1. **Tabbed navigation within TeamsBrowserPanel** -- Not a new component. The existing `_renderTeamsView()` gains a tab bar and delegates to tab-specific render functions. This keeps the Firebase listener, team selection, and event handling in one place.
 
-2. **New QWHubService method: `getTeamMapStats()`** — Fetches up to 50 matches from the last 6 months and aggregates by map. Uses the same Supabase endpoint with a date filter. Separate cache key from `getRecentMatches()`.
+2. **New QWHubService method: `getTeamMapStats()`** -- Fetches up to 50 matches from the last 6 months and aggregates by map. Uses the same Supabase endpoint with a date filter. Separate cache key from `getRecentMatches()`.
 
-3. **Two-column roster layout** — When roster has 5+ players, split into two columns to avoid excessive vertical height. 4 or fewer stays single column.
+3. **Two-column roster layout** -- When roster has 5+ players, split into two columns to avoid excessive vertical height. 4 or fewer stays single column.
 
-4. **Tab state persists per session** — When switching between teams, we return to the Details tab (fresh context). But switching away from Teams view and back preserves the last active tab.
+4. **Tab state persists per session** -- When switching between teams, we return to the Details tab (fresh context). But switching away from Teams view and back preserves the last active tab.
 
 ### Component Changes: TeamsBrowserPanel
 
@@ -139,16 +139,16 @@ let _activeTab = 'details'; // 'details' | 'history' | 'h2h'
 ```
 
 **Modified methods:**
-- `_renderTeamsView()` — Now renders tab bar + delegates to active tab
-- `_renderTeamInfoBar()` — Removed (replaced by Details tab layout)
-- `_renderMatchHistory()` — Moved to Slice 5.2b (Match History tab)
+- `_renderTeamsView()` -- Now renders tab bar + delegates to active tab
+- `_renderTeamInfoBar()` -- Removed (replaced by Details tab layout)
+- `_renderMatchHistory()` -- Moved to Slice 5.2b (Match History tab)
 
 **New methods:**
-- `_renderTabBar()` — Renders [Details] [Match History] [Head to Head] tabs
-- `_renderDetailsTab(team)` — Large logo + roster + map stats
-- `_renderMapStats(teamTag)` — Map activity summary with bars
-- `_loadMapStats(teamTag)` — Async fetch + render of map stats section
-- `switchTab(tabName)` — Public method for programmatic tab switching (used by H2H button)
+- `_renderTabBar()` -- Renders [Details] [Match History] [Head to Head] tabs
+- `_renderDetailsTab(team)` -- Large logo + roster + map stats
+- `_renderMapStats(teamTag)` -- Map activity summary with bars
+- `_loadMapStats(teamTag)` -- Async fetch + render of map stats section
+- `switchTab(tabName)` -- Public method for programmatic tab switching (used by H2H button)
 
 **Tab switching behavior:**
 - Clicking a tab updates `_activeTab` and re-renders content area only (not tab bar)
@@ -243,7 +243,7 @@ async function getTeamMapStats(teamTag, months = 6) {
 
 **Existing (unchanged):**
 ```javascript
-// Browse Teams → TeamsBrowserPanel
+// Browse Teams -> TeamsBrowserPanel
 window.dispatchEvent(new CustomEvent('team-browser-detail-select', {
     detail: { teamId }
 }));
@@ -253,7 +253,7 @@ window.dispatchEvent(new CustomEvent('team-browser-detail-select', {
 ```javascript
 // TeamsBrowserPanel internal tab switch (no cross-component event needed)
 // H2H button triggers: switchTab('h2h')
-// This is a method call, not an event — same component
+// This is a method call, not an event -- same component
 ```
 
 ---
@@ -367,7 +367,7 @@ Add to `src/css/input.css`:
     margin-bottom: 0.75rem;
 }
 
-/* Roster grid — 1 column for <=4, 2 columns for 5+ */
+/* Roster grid -- 1 column for <=4, 2 columns for 5+ */
 .team-details-roster {
     display: grid;
     gap: 0.125rem 1.5rem;
@@ -722,31 +722,31 @@ BACKEND PERFORMANCE:
 
 ```
 User clicks team in Browse Teams
-    → team-browser-detail-select event
-    → _handleBrowseTeamSelect()
-        → _activeTab = 'details' (reset)
-        → _selectedTeamId = teamId
-        → _render()
-            → _renderTeamsView()
-                → _renderTabBar() (Details active)
-                → _renderDetailsTab(team)
-                    → Logo + Name + Roster from cached team data (instant)
-                    → Map stats placeholder "Loading..."
-        → _loadMapStats(teamTag) (async)
-            → QWHubService.getTeamMapStats(teamTag, 6)
-                → Cache hit? Return instantly
-                → Cache miss? Supabase query (50 matches, 6 months)
-                    → Client-side aggregation by map
-                    → Cache result (5-min TTL)
-            → Render map bars into #map-stats-content
-            → Guard: check data-team-tag matches (stale render protection)
+    -> team-browser-detail-select event
+    -> _handleBrowseTeamSelect()
+        -> _activeTab = 'details' (reset)
+        -> _selectedTeamId = teamId
+        -> _render()
+            -> _renderTeamsView()
+                -> _renderTabBar() (Details active)
+                -> _renderDetailsTab(team)
+                    -> Logo + Name + Roster from cached team data (instant)
+                    -> Map stats placeholder "Loading..."
+        -> _loadMapStats(teamTag) (async)
+            -> QWHubService.getTeamMapStats(teamTag, 6)
+                -> Cache hit? Return instantly
+                -> Cache miss? Supabase query (50 matches, 6 months)
+                    -> Client-side aggregation by map
+                    -> Cache result (5-min TTL)
+            -> Render map bars into #map-stats-content
+            -> Guard: check data-team-tag matches (stale render protection)
 
 User clicks tab
-    → _activeTab = tabId
-    → Re-render content area only
-    → If Details: render + load map stats
-    → If History: delegate to Slice 5.2b
-    → If H2H: delegate to Slice 5.2d
+    -> _activeTab = tabId
+    -> Re-render content area only
+    -> If Details: render + load map stats
+    -> If History: delegate to Slice 5.2b
+    -> If H2H: delegate to Slice 5.2d
 ```
 
 ---

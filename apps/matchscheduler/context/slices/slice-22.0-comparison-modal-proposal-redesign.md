@@ -1,4 +1,4 @@
-# Slice 22.0: ComparisonModal Proposal Flow Redesign — Timeslots in VS Column
+# Slice 22.0: ComparisonModal Proposal Flow Redesign -- Timeslots in VS Column
 
 **Dependencies:** Slice 4.2 (ComparisonModal), Slice 8.0 (Match Proposals)
 **User Story:** As a team leader proposing a match, I want to see all viable timeslots at a glance alongside both rosters so I can quickly toggle the ones I want without losing my place in a tiny scrolling list.
@@ -8,12 +8,12 @@
 - [ ] Stepper (3 steps) moves from footer to a compact bar between header and VS layout
 - [ ] Timeslot list moves from stepper step 2 into the VS divider column (replacing "VS" text)
 - [ ] Pill toggles replace checkboxes for slot selection (consistent with slice 21.0 toggle pattern)
-- [ ] No scroll-jump on toggle — slot toggles update in-place without full modal re-render
+- [ ] No scroll-jump on toggle -- slot toggles update in-place without full modal re-render
 - [ ] All viable slots visible without scrolling in typical cases (5-8 slots)
-- [ ] Auto-select behavior removed — user explicitly picks slots
-- [ ] "Propose (N) →" button at bottom of center column
+- [ ] Auto-select behavior removed -- user explicitly picks slots
+- [ ] "Propose (N) ->" button at bottom of center column
 - [ ] Team card logos/boxes slightly narrower to give center column ~8-10rem width
-- [ ] Mobile responsive: center column stacks below team cards at ≤640px
+- [ ] Mobile responsive: center column stacks below team cards at <=640px
 
 ---
 
@@ -36,7 +36,7 @@
 ### Before (Current)
 ```
 ┌─────────────────────────────────────────┐
-│ Match Details — Week 10            [X]  │
+│ Match Details -- Week 10            [X]  │
 ├─────────────────────────────────────────┤
 │  ┌──────────┐   VS   ┌──────────┐      │
 │  │  Team A   │        │  Team B   │     │
@@ -47,7 +47,7 @@
 │ [Off][Prac] │ ☑Tue 22:00 4v5   │  🎮  │
 │             │ ☑Tue 22:30 4v5   │      │
 │             │ (scroll for more) │      │
-│             │ [Propose (4)→]    │      │
+│             │ [Propose (4)->]    │      │
 │ [Close]                                 │
 └─────────────────────────────────────────┘
 ```
@@ -55,7 +55,7 @@
 ### After (Redesigned)
 ```
 ┌─────────────────────────────────────────────┐
-│ Match Details — Week 10                [X]  │
+│ Match Details -- Week 10                [X]  │
 ├─────────────────────────────────────────────┤
 │ ① [Off][Prac] ─── ② Select ─── ③ Sent 🎮  │
 ├─────────────────────────────────────────────┤
@@ -71,7 +71,7 @@
 │  │        │    THURSDAY       │        │    │
 │  └────────┘   22:00 ○  4v4   └────────┘    │
 │                                             │
-│              [Propose (2) →]                │
+│              [Propose (2) ->]                │
 ├─────────────────────────────────────────────┤
 │ [Close]                                     │
 └─────────────────────────────────────────────┘
@@ -82,8 +82,8 @@
 ### Stepper Bar Detail (Compact)
 ```
 Step 1 not done:     ① [Official] [Practice]  ─── ② ─── ③
-Step 1 done:         ✓ Official  ─────────── ② Select ─── ③
-Step 2 done:         ✓ Official  ─── ✓ Created ─── ③ Sent 🎮
+Step 1 done:         [ok] Official  ─────────── ② Select ─── ③
+Step 2 done:         [ok] Official  ─── [ok] Created ─── ③ Sent 🎮
 ```
 - Horizontal, single line, ~2rem tall
 - Step 1 shows game type buttons inline (no "Match Type" label needed)
@@ -93,8 +93,8 @@ Step 2 done:         ✓ Official  ─── ✓ Created ─── ③ Sent 🎮
 ### Slot Row Detail
 ```
 ┌─────────────────────────┐
-│  TUESDAY                │  ← day header (colored, uppercase, 0.65rem)
-│  22:00  ●  4v5          │  ← time + pill toggle + roster count
+│  TUESDAY                │  <- day header (colored, uppercase, 0.65rem)
+│  22:00  ●  4v5          │  <- time + pill toggle + roster count
 │  22:30  ●  4v5          │
 │                         │
 │  WEDNESDAY              │
@@ -128,15 +128,15 @@ Pill toggle: w-5 h-3 rounded-full
 ```
 FRONTEND COMPONENTS (MODIFY):
 - ComparisonModal.js
-  - _renderModal(): Restructure HTML — add stepper bar, widen center column
+  - _renderModal(): Restructure HTML -- add stepper bar, widen center column
   - _renderStepper(): Collapse to single-line compact bar
-  - _renderSlotPicker(): NEW — renders slot list in VS column (extracted from stepper)
+  - _renderSlotPicker(): NEW -- renders slot list in VS column (extracted from stepper)
   - _attachListeners(): Fix slot toggle to update DOM in-place (no full re-render)
   - _computeViableForProposal(): Remove auto-select logic
 
 FRONTEND SERVICES (NO CHANGES):
-- ProposalService.js — computeViableSlots() and createProposal() unchanged
-- TeamService.js — getTeamFromCache() unchanged
+- ProposalService.js -- computeViableSlots() and createProposal() unchanged
+- TeamService.js -- getTeamFromCache() unchanged
 
 CSS (MODIFY):
 - src/css/input.css
@@ -222,12 +222,12 @@ function _renderSlotPicker() {
         <button id="propose-match-btn" class="cm-propose-btn mt-2
                 ${selCount > 0 ? 'active' : ''}"
                 ${selCount > 0 ? '' : 'disabled'}>
-            ${selCount > 0 ? `Propose (${selCount}) →` : 'Select times'}
+            ${selCount > 0 ? `Propose (${selCount}) ->` : 'Select times'}
         </button>`;
 }
 ```
 
-### 3. In-Place Toggle (No Re-render) — THE KEY FIX
+### 3. In-Place Toggle (No Re-render) -- THE KEY FIX
 ```javascript
 // In _attachListeners(), replace full re-render with targeted update:
 document.getElementById('cm-slot-column')?.addEventListener('click', (e) => {
@@ -253,7 +253,7 @@ document.getElementById('cm-slot-column')?.addEventListener('click', (e) => {
         const count = _selectedSlots.size;
         proposeBtn.disabled = count === 0;
         proposeBtn.classList.toggle('active', count > 0);
-        proposeBtn.textContent = count > 0 ? `Propose (${count}) →` : 'Select times';
+        proposeBtn.textContent = count > 0 ? `Propose (${count}) ->` : 'Select times';
     }
 });
 ```
@@ -275,7 +275,7 @@ function _renderCompactStepper() {
              <button id="game-type-prac" class="cm-type-btn ${_selectedGameType === 'practice' ? 'practice active' : 'practice'}">Practice</button>
              ${_selectedGameType === 'practice' ? `
                  <button id="standin-toggle" class="cm-type-btn standin ${_withStandin ? 'active' : ''}">
-                     ${_withStandin ? 'SI ✓' : 'SI'}
+                     ${_withStandin ? 'SI [ok]' : 'SI'}
                  </button>` : ''}
            </div>`;
 
@@ -318,7 +318,7 @@ function _renderCompactStepper() {
     flex-shrink: 0;
     width: 9rem;              /* was: auto/shrink */
     padding: 0.5rem 0;
-    align-self: stretch;      /* was: center — now fills height */
+    align-self: stretch;      /* was: center -- now fills height */
 }
 
 /* Team cards: constrained to give center room */
@@ -467,7 +467,7 @@ function _renderCompactStepper() {
 |------|------|----------|
 | Slot pill toggle | **HOT** | In-place DOM update. Toggle CSS class + update button text. Zero re-render |
 | Game type select | Cold | Full re-render OK (triggers `_computeViableForProposal` + layout change) |
-| Propose button click | Cold | Loading state → API call → re-render to step 3 |
+| Propose button click | Cold | Loading state -> API call -> re-render to step 3 |
 | Modal open | Cold | Full render from scratch (current behavior, unchanged) |
 
 ---
@@ -476,16 +476,16 @@ function _renderCompactStepper() {
 
 ```
 User clicks pill toggle
-  → _selectedSlots.add/delete(slotId)      [in-memory Set]
-  → Toggle .active class on pill element    [direct DOM]
-  → Update Propose button text/disabled     [direct DOM]
-  → NO re-render, NO Firebase call
+  -> _selectedSlots.add/delete(slotId)      [in-memory Set]
+  -> Toggle .active class on pill element    [direct DOM]
+  -> Update Propose button text/disabled     [direct DOM]
+  -> NO re-render, NO Firebase call
 
-User clicks "Propose (N) →"
-  → ProposalService.createProposal()        [Cloud Function call]
-  → _proposalStep = 3                       [state update]
-  → _reRenderModal()                        [full re-render OK — one-time transition]
-  → Step 3 shows Discord actions
+User clicks "Propose (N) ->"
+  -> ProposalService.createProposal()        [Cloud Function call]
+  -> _proposalStep = 3                       [state update]
+  -> _reRenderModal()                        [full re-render OK -- one-time transition]
+  -> Step 3 shows Discord actions
 ```
 
 ---
@@ -502,7 +502,7 @@ User clicks "Propose (N) →"
 
 ### Slot Toggles
 - [ ] Pill toggles are green when on, muted when off
-- [ ] Dot animates left↔right on toggle
+- [ ] Dot animates left<->right on toggle
 - [ ] NO scroll position change when toggling
 - [ ] Propose button count updates immediately
 - [ ] Starting state: all slots unselected (no auto-select)
@@ -510,12 +510,12 @@ User clicks "Propose (N) →"
 ### Proposal Flow
 - [ ] Official/Practice selection triggers slot list appearance
 - [ ] Standin toggle appears only for Practice, updates slot counts
-- [ ] "Propose (N) →" disabled when 0 selected
+- [ ] "Propose (N) ->" disabled when 0 selected
 - [ ] Propose creates proposal and advances to step 3
 - [ ] Step 3 shows Discord DM/Copy buttons
 - [ ] Close/Done button works in all steps
 
-### Mobile (≤640px)
+### Mobile (<=640px)
 - [ ] Team cards stack vertically
 - [ ] Slot column appears below both teams
 - [ ] All controls remain usable at small width
@@ -532,11 +532,11 @@ User clicks "Propose (N) →"
 
 1. **The scroll-jump fix is the highest-value change.** Even if everything else stays the same, switching from `_reRenderModal()` to targeted DOM updates on slot toggle eliminates the most frustrating bug.
 
-2. **Keep _reRenderModal() for non-slot actions.** Game type changes, opponent tab switches, and step transitions still do a full re-render — that's fine since they change significant layout.
+2. **Keep _reRenderModal() for non-slot actions.** Game type changes, opponent tab switches, and step transitions still do a full re-render -- that's fine since they change significant layout.
 
 3. **The .vs-divider element becomes .vs-divider-slots.** Old `.vs-divider` CSS can be removed or kept for non-scheduler views (when `canSchedule` is false, we still show "VS" text).
 
-4. **Auto-select removal is a behavior change.** Currently all 4v4 slots are pre-checked. New behavior: nothing pre-checked. This is intentional — user screenshots showed confusion about unwanted selections.
+4. **Auto-select removal is a behavior change.** Currently all 4v4 slots are pre-checked. New behavior: nothing pre-checked. This is intentional -- user screenshots showed confusion about unwanted selections.
 
 5. **Compact stepper re-render scope:** When game type is selected, only the stepper bar + center column need updating. Could optimize further but full re-render is fine for this infrequent action.
 

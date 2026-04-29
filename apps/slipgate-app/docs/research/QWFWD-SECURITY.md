@@ -8,9 +8,9 @@
 
 ## The Problem
 
-[QWFWD](https://github.com/QW-Group/qwfwd) is a QuakeWorld UDP proxy that gives players better routing to game servers. It's critical infrastructure for competitive QW — players in South America, Asia, or Eastern Europe often need a proxy to get playable latency to EU/NA servers.
+[QWFWD](https://github.com/QW-Group/qwfwd) is a QuakeWorld UDP proxy that gives players better routing to game servers. It's critical infrastructure for competitive QW -- players in South America, Asia, or Eastern Europe often need a proxy to get playable latency to EU/NA servers.
 
-[wirequake](https://github.com/osm/wirequake) is a ~300-line Go proof-of-concept that tunnels arbitrary traffic (demonstrated with WireGuard VPN) through QWFWD. The server admin's IP becomes the VPN exit node — meaning their IP shows up if someone routes illegal traffic through it.
+[wirequake](https://github.com/osm/wirequake) is a ~300-line Go proof-of-concept that tunnels arbitrary traffic (demonstrated with WireGuard VPN) through QWFWD. The server admin's IP becomes the VPN exit node -- meaning their IP shows up if someone routes illegal traffic through it.
 
 **This is why admins shut down their proxies or restrict them to whitelisted IPs only.** The QW community loses a piece of infrastructure that's hard to replace.
 
@@ -18,21 +18,21 @@
 
 ### QWFWD's Two Phases
 
-**Phase 1 — Handshake (validated):**
+**Phase 1 -- Handshake (validated):**
 1. Client sends `\xff\xff\xff\xff getchallenge\n`
 2. QWFWD responds with a random challenge number
-3. Client sends `\xff\xff\xff\xff connect 28 <qport> <challenge> "\prx\target:port"` — QWFWD validates the protocol version (28), challenge, userinfo format, and extracts the `prx` key to know where to forward
+3. Client sends `\xff\xff\xff\xff connect 28 <qport> <challenge> "\prx\target:port"` -- QWFWD validates the protocol version (28), challenge, userinfo format, and extracts the `prx` key to know where to forward
 4. QWFWD connects to the target, relays the handshake, target accepts
 
-**Phase 2 — Data forwarding (NOT validated):**
+**Phase 2 -- Data forwarding (NOT validated):**
 Once the peer reaches `ps_connected` state, QWFWD does this:
 
 ```c
-// client → server: raw forward, no inspection
+// client -> server: raw forward, no inspection
 if (p->ps >= ps_connected)
     NET_SendPacket(p->s, net_message.cursize, net_message.data, &p->to);
 
-// server → client: raw forward, no inspection
+// server -> client: raw forward, no inspection
 if (p->ps >= ps_connected)
     NET_SendPacket(net_socket, net_message.cursize, net_message.data, &p->from);
 ```
@@ -42,8 +42,8 @@ if (p->ps >= ps_connected)
 ### What wirequake Does
 
 1. **Entry node** performs a legitimate QW handshake with QWFWD, using `prx` to point at the exit node
-2. **Exit node** pretends to be a QW server — responds to `getchallenge` and `connect` properly
-3. Once QWFWD enters blind-relay mode, both sides send **raw WireGuard packets** — no QW framing at all
+2. **Exit node** pretends to be a QW server -- responds to `getchallenge` and `connect` properly
+3. Once QWFWD enters blind-relay mode, both sides send **raw WireGuard packets** -- no QW framing at all
 4. QWFWD faithfully relays every byte because it was designed to be transparent
 5. Supports proxy chaining via QWFWD's native `@` separator (`prx=exit:port@hop2:port`)
 
@@ -55,15 +55,15 @@ QW packets have very specific, verifiable characteristics:
 
 ### Out-of-Band (Connectionless) Packets
 - **Header:** `0xFFFFFFFF` (4 bytes) followed by a single-byte command (`c`, `j`, `k`, `l`, `n`, etc.)
-- Only used during handshake and for pings — not during gameplay
+- Only used during handshake and for pings -- not during gameplay
 
 ### Connected (In-Game) Packets
 - **8-byte netchan header:**
   - Bytes 0-3: Outgoing sequence number (31 bits) + reliable bit (MSB)
   - Bytes 4-7: Incoming sequence number (31 bits) + reliable ack bit (MSB)
   - (Client packets also have a 16-bit qport at bytes 8-9)
-- **Sequence numbers strictly increment** — each packet has a higher sequence than the last
-- **Both sides maintain synchronized counters** — the incoming_sequence in one direction matches outgoing_sequence in the other
+- **Sequence numbers strictly increment** -- each packet has a higher sequence than the last
+- **Both sides maintain synchronized counters** -- the incoming_sequence in one direction matches outgoing_sequence in the other
 - **Typical sizes:** 20-200 bytes for movement, up to 1450 bytes for level loads
 
 ### Traffic Patterns
@@ -87,10 +87,10 @@ QW packets have very specific, verifiable characteristics:
 **Concept:** After handshake, validate that every forwarded packet has a structurally valid QW netchan header with correctly incrementing sequence numbers.
 
 **What to check per packet:**
-1. **Minimum size:** Connected QW packets are at least 10 bytes (8-byte header + 2-byte qport for client→server) or 8 bytes (server→client)
+1. **Minimum size:** Connected QW packets are at least 10 bytes (8-byte header + 2-byte qport for client->server) or 8 bytes (server->client)
 2. **Sequence number progression:** Extract the 31-bit outgoing sequence from bytes 0-3. It must be greater than the last seen sequence for this peer. Allow small gaps (packet loss) but reject backwards jumps or huge leaps (>1000).
 3. **Incoming ack validity:** Bytes 4-7 contain the incoming_acknowledged sequence. It must not exceed the last outgoing sequence sent in the other direction.
-4. **qport consistency:** For client→server packets, bytes 8-9 must match the qport from the original `connect` handshake.
+4. **qport consistency:** For client->server packets, bytes 8-9 must match the qport from the original `connect` handshake.
 
 **Implementation sketch (in `peer.c`):**
 
@@ -100,7 +100,7 @@ uint32_t last_cl_seq;      // last outgoing sequence from client
 uint32_t last_sv_seq;      // last outgoing sequence from server
 uint16_t expected_qport;   // qport from connect handshake
 
-// In client→server forwarding path:
+// In client->server forwarding path:
 if (p->ps >= ps_connected && !connectionless) {
     if (net_message.cursize < 10) goto drop_packet;
 
@@ -116,7 +116,7 @@ if (p->ps >= ps_connected && !connectionless) {
 }
 ```
 
-**Latency impact:** Near zero. Two integer comparisons per packet — no allocation, no hashing, no syscalls.
+**Latency impact:** Near zero. Two integer comparisons per packet -- no allocation, no hashing, no syscalls.
 
 **What it stops:** wirequake immediately. Raw WireGuard packets will never have valid incrementing 31-bit sequence numbers in the right byte positions with a matching qport.
 
@@ -160,7 +160,7 @@ if (pps > 200 || avg_size > 800 || variance > threshold)
 
 **What it stops:** Sustained VPN/tunnel traffic that doesn't match QW patterns. Even if headers are faked, the overall traffic shape will differ.
 
-**What it doesn't stop:** Low-bandwidth tunneling that stays within QW-like parameters. But that's also low-risk — you can't run a useful VPN at 77 packets/sec of 200 bytes each.
+**What it doesn't stop:** Low-bandwidth tunneling that stays within QW-like parameters. But that's also low-risk -- you can't run a useful VPN at 77 packets/sec of 200 bytes each.
 
 **Risk:** False positives during spectating (lower packet rate), large map downloads (sustained high bandwidth), or unusual network conditions. Needs careful threshold tuning. Best deployed as a warning/logging system first, with auto-disconnect as an opt-in for paranoid admins.
 
@@ -184,7 +184,7 @@ if (pps > 200 || avg_size > 800 || variance > threshold)
 
 **Risk:** This requires cooperation from QW clients. The `status` command is already handled by ezQuake, but a custom command would need client-side support. Could be implemented as a `qwfwd_ping` extension that modern ezQuake versions opt into.
 
-**Complication:** QWFWD currently doesn't inject packets into the stream — it only relays. This would be a new capability. Also, connectionless packets from the proxy IP might confuse clients if they don't expect them.
+**Complication:** QWFWD currently doesn't inject packets into the stream -- it only relays. This would be a new capability. Also, connectionless packets from the proxy IP might confuse clients if they don't expect them.
 
 ---
 
@@ -193,31 +193,31 @@ if (pps > 200 || avg_size > 800 || variance > threshold)
 **Concept:** Beyond header validation, inspect the first few bytes of the payload to verify it contains valid QW commands.
 
 **What to check:**
-- **Client→Server packets** start with (after netchan header + qport):
-  - `clc_move` (0x03): Player movement — most common, has predictable structure
+- **Client->Server packets** start with (after netchan header + qport):
+  - `clc_move` (0x03): Player movement -- most common, has predictable structure
   - `clc_stringcmd` (0x04): Console command string
   - `clc_delta` (0x05): Delta state request
   - `clc_tmove` (0x06): Teleport move
   - `clc_upload` (0x07): File upload chunk
-- **Server→Client packets** start with (after netchan header):
+- **Server->Client packets** start with (after netchan header):
   - `svc_*` commands (0x00-0x50+): Entity updates, sound, print, etc.
   - Most common: `svc_packetentities` (0x30), `svc_playerinfo` (0x31), `svc_nails` (0x32)
 
 **Implementation sketch:**
 
 ```c
-// For client→server packets:
+// For client->server packets:
 uint8_t cmd = net_message.data[10];  // first byte after header+qport
 if (cmd != clc_move && cmd != clc_stringcmd && cmd != clc_delta
     && cmd != clc_tmove && cmd != clc_upload)
     goto drop_packet;
 ```
 
-**Latency impact:** Negligible — one byte comparison.
+**Latency impact:** Negligible -- one byte comparison.
 
 **What it stops:** Any tunneled data where the byte at position 10 doesn't happen to be a valid QW command. This is ~98% of random data.
 
-**Risk:** **High.** This is fragile and version-dependent. Protocol extensions (FTE, MVD) add new commands. Reliable message framing can shift the command byte position. Compressed or encrypted payloads (some modern QW extensions) would fail validation. **Not recommended as a standalone solution** — too many edge cases. Better as an optional hardening layer on top of Proposal 1.
+**Risk:** **High.** This is fragile and version-dependent. Protocol extensions (FTE, MVD) add new commands. Reliable message framing can shift the command byte position. Compressed or encrypted payloads (some modern QW extensions) would fail validation. **Not recommended as a standalone solution** -- too many edge cases. Better as an optional hardening layer on top of Proposal 1.
 
 ---
 
@@ -234,7 +234,7 @@ if (cmd != clc_move && cmd != clc_stringcmd && cmd != clc_delta
 
 **Latency impact:** Adds 1 RTT (typically <50ms) to connection setup only. Zero impact on ongoing game traffic.
 
-**What it stops:** wirequake exit nodes that don't implement QW server query responses. The exit node currently only handles `getchallenge` and `connect` — it doesn't respond to `status` queries.
+**What it stops:** wirequake exit nodes that don't implement QW server query responses. The exit node currently only handles `getchallenge` and `connect` -- it doesn't respond to `status` queries.
 
 **What it doesn't stop:** An exit node that also implements `status` response. But again, raises the bar.
 
@@ -274,7 +274,7 @@ For each tunneled packet:
 
 The header-only check can't distinguish "valid netchan with game data" from "valid netchan with VPN data" because the payload is opaque binary either way.
 
-**However:** This does kill current wirequake out of the box, and it forces future variants to maintain proper netchan state — which is a meaningful increase in complexity.
+**However:** This does kill current wirequake out of the box, and it forces future variants to maintain proper netchan state -- which is a meaningful increase in complexity.
 
 ### What the Red Team Recommends Instead
 
@@ -296,11 +296,11 @@ The attacker would need to either:
 ### Bandwidth Caps: The Underrated Defense
 
 Real QW traffic has hard physical limits:
-- **Client→Server:** ~15-25 KB/s (movement commands at ~77Hz)
-- **Server→Client:** ~30-60 KB/s (entity updates, unreliable)
+- **Client->Server:** ~15-25 KB/s (movement commands at ~77Hz)
+- **Server->Client:** ~30-60 KB/s (entity updates, unreliable)
 - **A VPN tunnel needs:** 1-10+ MB/s to be useful
 
-Cap per-connection bandwidth to 100 KB/s (generous for QW, useless for VPN) and tunneling becomes impractical. This doesn't prevent it — but it makes the tunnel too slow to be worth the effort.
+Cap per-connection bandwidth to 100 KB/s (generous for QW, useless for VPN) and tunneling becomes impractical. This doesn't prevent it -- but it makes the tunnel too slow to be worth the effort.
 
 ---
 
@@ -324,7 +324,7 @@ The original Proposals 1+2 were overconfident. Here's the updated layered defens
 
 Before implementing anything, it's worth asking: **how realistic is this threat?**
 
-The wirequake exploit was written by slime — a grey-hat hacker who did it because it was fun and clever, not because he needed a VPN. As oddjob put it: "if it ain't fun he ain't doing shit." It's a proof of concept, not a criminal tool.
+The wirequake exploit was written by slime -- a grey-hat hacker who did it because it was fun and clever, not because he needed a VPN. As oddjob put it: "if it ain't fun he ain't doing shit." It's a proof of concept, not a criminal tool.
 
 **Could someone actually use QWFWD for illegal traffic anonymization?** In theory, yes. In practice, consider the alternatives available to someone with genuinely criminal intent:
 
@@ -338,26 +338,26 @@ Meanwhile, a QWFWD tunnel gives you ~100 KB/s through a niche game proxy with ~3
 
 | Threat | Likelihood | Impact |
 |--------|-----------|--------|
-| Skilled criminal uses QWFWD for illegal traffic | Extremely low — vastly better tools exist | High if it happens |
-| Script kiddie runs wirequake for laughs | Low — tiny community, niche tool | Low |
-| The PoC's existence scares admins into shutting down proxies | **Already happened** | **High — community loses critical infrastructure** |
+| Skilled criminal uses QWFWD for illegal traffic | Extremely low -- vastly better tools exist | High if it happens |
+| Script kiddie runs wirequake for laughs | Low -- tiny community, niche tool | Low |
+| The PoC's existence scares admins into shutting down proxies | **Already happened** | **High -- community loses critical infrastructure** |
 
-**The actual damage isn't from criminals using QWFWD — it's from the *fear* of it causing admins to shut down their proxies.** The perception of risk killed the DE/NL proxies, not actual abuse.
+**The actual damage isn't from criminals using QWFWD -- it's from the *fear* of it causing admins to shut down their proxies.** The perception of risk killed the DE/NL proxies, not actual abuse.
 
 ### What About Connection Logging?
 
 Connection logging (writing client IPs to a log file) was considered but has significant limitations:
 
-- **It's reactive, not preventive** — your IP still shows up at the destination. Law enforcement still traces it to you. You still get the knock on your door. The logs help you prove innocence *after* the fact, but you've already been raided.
-- **Logs are self-authored records** — their evidentiary value can be questioned.
-- **The attacker's "origin IP" may itself be a VPN** — so the logs may lead nowhere.
-- **It doesn't embed in the traffic** — the destination never sees the real source IP, only the QWFWD admin's IP.
+- **It's reactive, not preventive** -- your IP still shows up at the destination. Law enforcement still traces it to you. You still get the knock on your door. The logs help you prove innocence *after* the fact, but you've already been raided.
+- **Logs are self-authored records** -- their evidentiary value can be questioned.
+- **The attacker's "origin IP" may itself be a VPN** -- so the logs may lead nowhere.
+- **It doesn't embed in the traffic** -- the destination never sees the real source IP, only the QWFWD admin's IP.
 
 Logging is good operational practice, but it's damage control, not a defense.
 
 ### The Honest Conclusion
 
-The realistic risk of QWFWD tunnel abuse is very low — anonymous VPNs are cheap, easy to get, and orders of magnitude more capable than a game proxy tunnel. But server admins are volunteers running infrastructure on their own hardware. They shouldn't have to accept *any* risk for free community service, even a theoretical one.
+The realistic risk of QWFWD tunnel abuse is very low -- anonymous VPNs are cheap, easy to get, and orders of magnitude more capable than a game proxy tunnel. But server admins are volunteers running infrastructure on their own hardware. They shouldn't have to accept *any* risk for free community service, even a theoretical one.
 
 The technical mitigations (netchan validation + bandwidth caps + traffic patterns) make QWFWD technically useless as a tunnel, closing the theoretical vulnerability that caused the DE/NL shutdowns. Combined with the practical reality that better anonymization tools are trivially available, admins should be able to run public QWFWD with confidence.
 
@@ -367,7 +367,7 @@ This research was done by AI with guidance from a QW community member, not by ne
 
 - **Could QWFWD be redesigned as a connection broker** (NAT hole-punching) rather than a packet relay, removing it from the data path entirely? What would the latency tradeoffs be?
 - **Are there established patterns from other game proxy systems** (e.g., Valve's SDR, Riot's relay infrastructure) that solve this differently?
-- **Is there a cryptographic approach** — e.g., QWFWD signs a session token that the destination server verifies, proving the traffic originated from a legitimate QW handshake?
+- **Is there a cryptographic approach** -- e.g., QWFWD signs a session token that the destination server verifies, proving the traffic originated from a legitimate QW handshake?
 - **Would a UDP-level equivalent of the PROXY protocol** (origin IP embedded at the transport layer) be feasible without breaking existing QW servers?
 
 Feedback welcome from: qqshka (QWFWD maintainer), slime (wirequake author / security perspective), tykling (network security), or anyone else with relevant expertise.
@@ -377,8 +377,8 @@ Feedback welcome from: qqshka (QWFWD maintainer), slime (wirequake author / secu
 ## Implementation Notes
 
 - QWFWD is ~6800 LOC of C, single-threaded `select()`-based event loop
-- All packet handling is in `peer.c` — the forwarding paths are clearly marked
-- The `peer_t` struct already tracks qport and state — adding sequence counters is trivial
+- All packet handling is in `peer.c` -- the forwarding paths are clearly marked
+- The `peer_t` struct already tracks qport and state -- adding sequence counters is trivial
 - Changes should be behind a cvar (e.g., `set validate_traffic 1`) so admins can opt in
 - The existing whitelist feature remains useful as a manual override on top of the Hub allowlist
 - Hub allowlist could be fetched periodically (every 5-10 min) from QW Hub API or master server queries
@@ -386,7 +386,7 @@ Feedback welcome from: qqshka (QWFWD maintainer), slime (wirequake author / secu
 
 ## References
 
-- [QWFWD source](https://github.com/QW-Group/qwfwd) — `peer.c` lines 255-340 (forwarding), `svc.c` lines 70-325 (handshake)
-- [wirequake](https://github.com/osm/wirequake) — `internal/entry/entry.go`, `internal/exit/exit.go`, `internal/qw/qw.go`
-- [ezquake-source](https://github.com/QW-Group/ezquake-source) — `net_chan.c` (netchan implementation), `cl_parse.c` / `sv_user.c` (command types)
-- [mvdsv](https://github.com/QW-Group/mvdsv) — `net_chan.c`, `sv_main.c` (server-side protocol handling)
+- [QWFWD source](https://github.com/QW-Group/qwfwd) -- `peer.c` lines 255-340 (forwarding), `svc.c` lines 70-325 (handshake)
+- [wirequake](https://github.com/osm/wirequake) -- `internal/entry/entry.go`, `internal/exit/exit.go`, `internal/qw/qw.go`
+- [ezquake-source](https://github.com/QW-Group/ezquake-source) -- `net_chan.c` (netchan implementation), `cl_parse.c` / `sv_user.c` (command types)
+- [mvdsv](https://github.com/QW-Group/mvdsv) -- `net_chan.c`, `sv_main.c` (server-side protocol handling)

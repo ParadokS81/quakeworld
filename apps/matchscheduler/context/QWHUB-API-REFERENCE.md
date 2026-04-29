@@ -78,7 +78,7 @@ players_fts     tsvector    Full-text search index on player names
 **players JSONB structure:**
 ```json
 {
-    "name": "• ParadokS",
+    "name": "- ParadokS",
     "ping": 25,
     "team": "]sr[",
     "color": [3, 11],
@@ -174,8 +174,8 @@ function encodeTeamFilter(teamTags) {
     return 'cs.' + encodeURIComponent('{' + joined + '}');
 }
 
-// Single team:  encodeTeamFilter([']sr['])  → cs.%7B%5Dsr%5B%7D
-// Two teams:    encodeTeamFilter([']sr[', 'pol']) → cs.%7B%5Dsr%5B%2Cpol%7D
+// Single team:  encodeTeamFilter([']sr['])  -> cs.%7B%5Dsr%5B%7D
+// Two teams:    encodeTeamFilter([']sr[', 'pol']) -> cs.%7B%5Dsr%5B%2Cpol%7D
 ```
 
 ---
@@ -236,7 +236,7 @@ Note: The server responds with `Content-Type: application/octet-stream` and `Con
     "bottom-color": 11,
     "ping": 25,
     "login": "",
-    "name": "• ParadokS",        // QW encoded name
+    "name": "- ParadokS",        // QW encoded name
     "team": "]sr[",               // QW encoded team name
 
     "stats": {
@@ -537,7 +537,7 @@ $team-width: 40px;   // "Book" (max 4 chars)
 3. Player rows (sorted by frags desc): `[ping] [colored frags] [team tag] [flag + name]`
 
 **Details:**
-- No teams (1on1/FFA): hide team column → `42px 36px auto`
+- No teams (1on1/FFA): hide team column -> `42px 36px auto`
 - Team names truncated to 4 chars (QW scoreboard limit)
 - Player names: `truncate max-w-[160px]`
 - Bot players: amber text (`text-amber-300/80`), ping shows "(bot)"

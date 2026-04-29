@@ -6,11 +6,11 @@
 
 **Architecture:** Polyglot persistence inside `apps/qw-oracle/`. Layer 1 (facts) imports existing pre-extracted JSON from `packages/qw-config/src/data/` into SQLite tables with canonical IDs. Layer 2 (claims) reuses the existing 2.66M-message chat corpus in `qw-oracle/data/qw.db`, summarizes a narrow slice via the Anthropic API into a new session-summary table. Layer 3 (concepts) is 3 hand-authored markdown files. An MCP server written in TypeScript exposes three tools (`lookup_entity`, `search_solved_issues`, `get_concept_note`) that query the three layers and return responses with explicit match-quality signals. Claude Code loads the MCP locally for the demo.
 
-**Tech Stack:** Node.js 20+, TypeScript (new for the MCP server), `better-sqlite3`, `@modelcontextprotocol/sdk`, `@anthropic-ai/sdk` (for Layer 2 summarization). Existing qw-oracle scripts remain `.mjs`. No test framework dependency — verification is script-and-query.
+**Tech Stack:** Node.js 20+, TypeScript (new for the MCP server), `better-sqlite3`, `@modelcontextprotocol/sdk`, `@anthropic-ai/sdk` (for Layer 2 summarization). Existing qw-oracle scripts remain `.mjs`. No test framework dependency -- verification is script-and-query.
 
 **Spec:** `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`
 
-**Worktree:** This plan runs in the dedicated POC worktree at `/home/paradoks/projects/quakeworld-poc/` on the long-lived `poc` branch. The monorepo uses a worktree-per-terminal model (see `memory/feedback_worktree_per_terminal.md`) — slipgate work stays in the main tree, oracle POC work stays in this worktree. Do NOT cut feature branches inside the worktree; commit directly to `poc`. When the POC stabilizes, the main-tree session merges `poc` → `main`.
+**Worktree:** This plan runs in the dedicated POC worktree at `/home/paradoks/projects/quakeworld-poc/` on the long-lived `poc` branch. The monorepo uses a worktree-per-terminal model (see `memory/feedback_worktree_per_terminal.md`) -- slipgate work stays in the main tree, oracle POC work stays in this worktree. Do NOT cut feature branches inside the worktree; commit directly to `poc`. When the POC stabilizes, the main-tree session merges `poc` -> `main`.
 
 **Testing philosophy:** Per monorepo CLAUDE.md, no TDD and no speculative test infrastructure. Each task has a manual-verification step: run the script, query the DB, call the tool, check the output is sensible. Parser-ish tasks use one-shot verification scripts (`scripts/verify-*.mjs`) that print sample rows for visual check, not test suites.
 
@@ -25,7 +25,7 @@ Read the spec first: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-des
 **Current state of `apps/qw-oracle/`** (as of this plan, check for drift before starting):
 
 - `CLAUDE.md` describes qw-oracle as "a knowledge base and intelligence system built from 20 years of QuakeWorld community chat history." Existing scope is Layer 2 only. This plan expands it to all three layers without discarding the existing content.
-- `VISION.md` already describes the broader multi-source vision — it is ahead of the implementation. Light edits needed to promote the three-layer framing.
+- `VISION.md` already describes the broader multi-source vision -- it is ahead of the implementation. Light edits needed to promote the three-layer framing.
 - `data/qw.db` is a 1.1 GB SQLite database with 2.66M imported messages (1.94M IRC + 717K Discord), an FTS5 index across 123K conversation sessions, and an `import_log` table tracking idempotent imports.
 - `scripts/` has `.mjs` files: `db.mjs` (schema + connection), `import-discord.mjs`, `import-irc.mjs`, `stats.mjs`. These stay.
 - No TypeScript yet. This plan introduces TypeScript for the MCP server only; existing `.mjs` stays untouched.
@@ -33,10 +33,10 @@ Read the spec first: `docs/superpowers/specs/2026-04-14-qw-knowledge-service-des
 
 **External data sources the plan uses:**
 
-- `packages/qw-config/src/data/ezquake-variables.json` — shape: `{groups: [...], vars: {varname: {type, group-id, desc}}}`, 2892 entries
-- `packages/qw-config/src/data/ezquake-commands.json` — shape: `{groups: [...], commands: {cmdname: {group-id, desc}}}`, 523 entries
-- `packages/qw-config/src/data/ktx-commands.json` — shape: `{commands: {cmdname: {desc}}}`, 326 entries (many with `"desc": "no desc"`)
-- `packages/qw-config/src/data/fte-variables.json` — FTE vars, similar shape
+- `packages/qw-config/src/data/ezquake-variables.json` -- shape: `{groups: [...], vars: {varname: {type, group-id, desc}}}`, 2892 entries
+- `packages/qw-config/src/data/ezquake-commands.json` -- shape: `{groups: [...], commands: {cmdname: {group-id, desc}}}`, 523 entries
+- `packages/qw-config/src/data/ktx-commands.json` -- shape: `{commands: {cmdname: {desc}}}`, 326 entries (many with `"desc": "no desc"`)
+- `packages/qw-config/src/data/fte-variables.json` -- FTE vars, similar shape
 - The existing `messages` table in `data/qw.db` for Layer 2 chat slice
 
 **Out of scope for this POC (per spec):** FTE/MVDSV/QWCL full imports beyond FTE vars, processing all 2.66M messages, weighted trust model, identity unification, vector/semantic search, correction feedback loop, pretty frontend, Slipgate helper panel UI wiring, Quad bot integration, web chatbot. Do NOT build any of these. If a task feels like it's pulling in one of these, stop and flag it.
@@ -91,9 +91,9 @@ apps/qw-oracle/
 
 **Modified files:**
 
-- `apps/qw-oracle/CLAUDE.md` — restructure around three-layer model, existing chat content becomes Layer 2 section
-- `apps/qw-oracle/VISION.md` — promote three-layer framing to top, preserve existing prose
-- `apps/qw-oracle/package.json` — add `@anthropic-ai/sdk` as a runtime dep (for Layer 2 summarization)
+- `apps/qw-oracle/CLAUDE.md` -- restructure around three-layer model, existing chat content becomes Layer 2 section
+- `apps/qw-oracle/VISION.md` -- promote three-layer framing to top, preserve existing prose
+- `apps/qw-oracle/package.json` -- add `@anthropic-ai/sdk` as a runtime dep (for Layer 2 summarization)
 
 **Unchanged (do not touch):**
 
@@ -136,14 +136,14 @@ git branch --show-current
 git status
 ```
 
-Expected: `pwd` prints `/home/paradoks/projects/quakeworld-poc`, current branch is `poc`, working tree clean. If any of these are wrong, stop and ask — you are not in the POC worktree.
+Expected: `pwd` prints `/home/paradoks/projects/quakeworld-poc`, current branch is `poc`, working tree clean. If any of these are wrong, stop and ask -- you are not in the POC worktree.
 
-- [ ] **Step 2: Read the current `apps/qw-oracle/CLAUDE.md`** so you understand what's there before editing. Do not paraphrase from memory — read the file.
+- [ ] **Step 2: Read the current `apps/qw-oracle/CLAUDE.md`** so you understand what's there before editing. Do not paraphrase from memory -- read the file.
 
 - [ ] **Step 3: Rewrite `apps/qw-oracle/CLAUDE.md`** to reflect the three-layer model. The new structure:
 
 ```markdown
-# QW Oracle — QuakeWorld Knowledge Service
+# QW Oracle -- QuakeWorld Knowledge Service
 
 ## Status
 
@@ -153,9 +153,9 @@ Active development. POC phase as of 2026-04-14. See spec: `docs/superpowers/spec
 
 A polyglot knowledge service for QuakeWorld. One foundation with three layers, served over MCP so any LLM client can consume it.
 
-- **Layer 1 — Extracted facts.** Deterministic ground truth from source code and structured files. Cvars, commands, macros, match records. SQLite. `layers/facts/`
-- **Layer 2 — Interpreted claims.** What the community said, distilled from 2.66M chat messages (IRC + Discord). SQLite + FTS5. `layers/claims/`
-- **Layer 3 — Curated concepts.** Hand-written markdown notes that cross-link Layers 1 and 2. Human expertise, LLM-multiplied. `layers/concepts/`
+- **Layer 1 -- Extracted facts.** Deterministic ground truth from source code and structured files. Cvars, commands, macros, match records. SQLite. `layers/facts/`
+- **Layer 2 -- Interpreted claims.** What the community said, distilled from 2.66M chat messages (IRC + Discord). SQLite + FTS5. `layers/claims/`
+- **Layer 3 -- Curated concepts.** Hand-written markdown notes that cross-link Layers 1 and 2. Human expertise, LLM-multiplied. `layers/concepts/`
 - **Serve layer.** MCP server exposing tools over all three layers. `serve/mcp/`
 
 ## Three-layer model
@@ -226,17 +226,17 @@ Layer 2 and Layer 3 reference Layer 1 IDs in their metadata so cross-layer joins
 
 ## Non-Negotiable Rules
 
-1. Raw data is immutable — never modify imported messages or imported facts
+1. Raw data is immutable -- never modify imported messages or imported facts
 2. All processing is regenerable from the raw layer
 3. Tag every generated output with model + prompt version (Layer 2 summaries, MCP tool responses)
-4. Keep it simple — scripts over frameworks, SQLite over Postgres
-5. Local-first processing — minimize API costs, maximize iteration speed
-6. Source citation — every MCP tool response carries canonical IDs pointing to origin
+4. Keep it simple -- scripts over frameworks, SQLite over Postgres
+5. Local-first processing -- minimize API costs, maximize iteration speed
+6. Source citation -- every MCP tool response carries canonical IDs pointing to origin
 
 ## Tech Stack
 
 - Node.js 20+ with ES modules (Layer 1 importer, Layer 2 summarizer, verification scripts)
-- `better-sqlite3` — DB access for both layers
+- `better-sqlite3` -- DB access for both layers
 - TypeScript + `@modelcontextprotocol/sdk` (MCP server only)
 - `@anthropic-ai/sdk` (Layer 2 summarization pass; model name and prompt version captured in every summary row)
 - Ollama on the RTX 4090 is the future path for Layer 2 bulk processing; not used in the POC
@@ -250,14 +250,14 @@ output of iterative scrapers, not a proper AST-based extractor. It is known
 to be incomplete. The POC imports it as-is because it is sufficient to prove
 the pattern. The extraction pipeline rewrite with real AST tooling is
 tracked as spec open question #2 and `project_extraction_pipeline_vision`
-memory — phase-2 work.
+memory -- phase-2 work.
 ```
 
 Notes:
-- Keep the existing "Identity Problem" and "Key Stats" sections from the old CLAUDE.md by moving them under a `## Layer 2 — Chat Corpus (Existing)` section at the bottom of the rewrite. Do not lose the 2.66M message stats or the IRC/Discord table.
+- Keep the existing "Identity Problem" and "Key Stats" sections from the old CLAUDE.md by moving them under a `## Layer 2 -- Chat Corpus (Existing)` section at the bottom of the rewrite. Do not lose the 2.66M message stats or the IRC/Discord table.
 - Keep the existing "Database Schema" section but rename it to `## Existing raw schema` and note that new Layer 1 and Layer 2 tables are added additively in later tasks.
 
-- [ ] **Step 4: Light-edit `apps/qw-oracle/VISION.md`**. Add a new section near the top titled `## The three-layer model` with a one-paragraph summary of Layer 1 / Layer 2 / Layer 3 and a pointer to the spec. Do not rewrite the existing prose about chat corpus, design intent, and three paths (Oracle Bot / Digest / Time Machine) — those stay.
+- [ ] **Step 4: Light-edit `apps/qw-oracle/VISION.md`**. Add a new section near the top titled `## The three-layer model` with a one-paragraph summary of Layer 1 / Layer 2 / Layer 3 and a pointer to the spec. Do not rewrite the existing prose about chat corpus, design intent, and three paths (Oracle Bot / Digest / Time Machine) -- those stay.
 
 - [ ] **Step 5: Create subdirectories with placeholder READMEs**
 
@@ -273,9 +273,9 @@ Create `layers/README.md`:
 
 The three knowledge layers. See `../CLAUDE.md` and `docs/superpowers/specs/2026-04-14-qw-knowledge-service-design.md`.
 
-- `facts/` — Layer 1. Deterministic extraction from source code. SQLite tables.
-- `claims/` — Layer 2. LLM-interpreted community claims from chat logs. SQLite + FTS5.
-- `concepts/` — Layer 3. Hand-written markdown cross-link notes.
+- `facts/` -- Layer 1. Deterministic extraction from source code. SQLite tables.
+- `claims/` -- Layer 2. LLM-interpreted community claims from chat logs. SQLite + FTS5.
+- `concepts/` -- Layer 3. Hand-written markdown cross-link notes.
 ```
 
 Create `serve/README.md`:
@@ -285,7 +285,7 @@ Create `serve/README.md`:
 
 Consumer-facing interfaces. See `../CLAUDE.md`.
 
-- `mcp/` — MCP server in TypeScript, exposes tools over Layers 1-3.
+- `mcp/` -- MCP server in TypeScript, exposes tools over Layers 1-3.
 ```
 
 - [ ] **Step 6: Commit**
@@ -297,7 +297,7 @@ git commit -m "refactor(qw-oracle): reframe as three-layer knowledge service
 
 Restructures CLAUDE.md around Layers 1/2/3 (facts/claims/concepts) + MCP
 serve layer. Existing chat corpus becomes Layer 2. Adds layers/ and serve/
-subdirectories. No data or code changes yet — this is scaffolding for the
+subdirectories. No data or code changes yet -- this is scaffolding for the
 POC implementation plan.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
@@ -305,7 +305,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Phase B: Layer 1 — Extracted facts
+## Phase B: Layer 1 -- Extracted facts
 
 ### Task 2: Layer 1 schema and importer for ezQuake vars + commands + KTX + FTE
 
@@ -336,7 +336,7 @@ CREATE TABLE IF NOT EXISTS kb_cvars (
   source_file        TEXT,               -- NULL for POC (JSON does not carry this yet)
   source_line        INTEGER,            -- NULL for POC
   source_version     TEXT,               -- 'poc' for now; future: pipeline commit SHA
-  extraction_method  TEXT NOT NULL,      -- 'scraped-json' | 'ast-extractor' | 'hand-curated' — tells consumers the confidence level of this row
+  extraction_method  TEXT NOT NULL,      -- 'scraped-json' | 'ast-extractor' | 'hand-curated' -- tells consumers the confidence level of this row
   imported_at        TEXT NOT NULL       -- ISO 8601 UTC
 );
 
@@ -379,7 +379,7 @@ CREATE TABLE IF NOT EXISTS kb_facts_import_log (
 
 - [ ] **Step 2: Write the importer at `apps/qw-oracle/layers/facts/import-from-qw-config.mjs`**
 
-Note the hardcoded `SOURCE_VERSION = 'poc'`. A future phase-2 extractor rewrite will pin this to the real extractor commit SHA. For the POC, we do not invoke any shell commands from the script — keeps it simple and avoids flagging security hooks.
+Note the hardcoded `SOURCE_VERSION = 'poc'`. A future phase-2 extractor rewrite will pin this to the real extractor commit SHA. For the POC, we do not invoke any shell commands from the script -- keeps it simple and avoids flagging security hooks.
 
 ```javascript
 // Imports pre-extracted ezQuake and FTE vars + ezQuake and KTX commands
@@ -620,9 +620,9 @@ Then:
 node scripts/verify-layer1.mjs
 ```
 
-Expected: counts per project, a few sample rows printed. Some samples may show NOT FOUND if the specific ids do not exist in the scraped data — verify manually with `sqlite3 data/qw.db 'SELECT * FROM kb_cvars WHERE name = "cl_bob"'` and pick different sample ids for Task 3's demo audit.
+Expected: counts per project, a few sample rows printed. Some samples may show NOT FOUND if the specific ids do not exist in the scraped data -- verify manually with `sqlite3 data/qw.db 'SELECT * FROM kb_cvars WHERE name = "cl_bob"'` and pick different sample ids for Task 3's demo audit.
 
-- [ ] **Step 5: Re-run the importer once** to confirm idempotency. Expected: `0 inserted, N updated` on the second run. If you see duplicate inserts or rows growing, the ON CONFLICT clause is wrong — fix before committing.
+- [ ] **Step 5: Re-run the importer once** to confirm idempotency. Expected: `0 inserted, N updated` on the second run. If you see duplicate inserts or rows growing, the ON CONFLICT clause is wrong -- fix before committing.
 
 - [ ] **Step 6: Commit**
 
@@ -674,9 +674,9 @@ ORDER BY e.name;
 SQL
 ```
 
-**Expected result:** the first query returns ~5-10 rows for the KTX-only command set. The second query returns 5 rows (roughly `autotrack`, `kick`, `kill`, `pause`, `speed` — names that exist as ezQuake commands AND as KTX commands, with different semantics).
+**Expected result:** the first query returns ~5-10 rows for the KTX-only command set. The second query returns 5 rows (roughly `autotrack`, `kick`, `kill`, `pause`, `speed` -- names that exist as ezQuake commands AND as KTX commands, with different semantics).
 
-If the KTX set is empty, the Layer 1 importer didn't hit `ktx-commands.json` — go back and fix Task 2 before proceeding.
+If the KTX set is empty, the Layer 1 importer didn't hit `ktx-commands.json` -- go back and fix Task 2 before proceeding.
 
 - [ ] **Step 2: Record findings in `apps/qw-oracle/docs/poc-demo-candidates.md`**
 
@@ -692,13 +692,13 @@ see these in their configs (bound to keys) but cannot find them in ezQuake
 source or docs.
 
 Verified present in kb_commands (fill in real descriptions from Step 1):
-- ktx:cmd:break — (paste desc)
-- ktx:cmd:ready — (paste desc)
-- ktx:cmd:next_map — (paste desc)
-- ktx:cmd:rpickup — (paste desc)
-- ktx:cmd:mapcycle — (paste desc)
-- ktx:cmd:scores — (paste desc)
-- ktx:cmd:next_best — (paste desc)
+- ktx:cmd:break -- (paste desc)
+- ktx:cmd:ready -- (paste desc)
+- ktx:cmd:next_map -- (paste desc)
+- ktx:cmd:rpickup -- (paste desc)
+- ktx:cmd:mapcycle -- (paste desc)
+- ktx:cmd:scores -- (paste desc)
+- ktx:cmd:next_best -- (paste desc)
 
 Pick ONE as the primary demo target. `break` and `next_map` are both strong
 candidates because they sound ambiguous to a player who doesn't know KTX.
@@ -743,7 +743,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Phase C: Layer 2 — Interpreted claims
+## Phase C: Layer 2 -- Interpreted claims
 
 ### Task 4: Layer 2 schema + chat slice selector
 
@@ -835,7 +835,7 @@ CREATE TABLE IF NOT EXISTS kb_session_selection_log (
 ```javascript
 // Picks the POC chat slice: ~50 sessions from ezquake/helpdesk channels
 // that mention cvars or commands. Writes session boundaries into kb_sessions
-// as empty stubs (no summary yet — that is the next task).
+// as empty stubs (no summary yet -- that is the next task).
 //
 // Re-running is safe: existing sessions with the same id are left alone.
 
@@ -1042,7 +1042,7 @@ node scripts/verify-layer2.mjs
 
 Expected: `pick-slice.mjs` ends with "Wrote N new session stubs" where N is ~30-50. `verify-layer2.mjs` shows total sessions all with `quality=unknown`, sample row with `topic=null, summary=null`, and an empty FTS5 smoke test (FTS is empty until summaries land, expected).
 
-If N == 0, your trigger-matching heuristic is off — inspect candidate messages and adjust `MIN_SESSION_MESSAGES` or the channel list.
+If N == 0, your trigger-matching heuristic is off -- inspect candidate messages and adjust `MIN_SESSION_MESSAGES` or the channel list.
 
 - [ ] **Step 5: Commit**
 
@@ -1104,11 +1104,11 @@ Return ONLY a JSON object matching this schema (no prose, no markdown):
 ## QuakeWorld glossary
 
 QW players use shorthand and community-specific jargon. Use the glossary
-below only to recognize entities behind slang — do not infer cvar or
+below only to recognize entities behind slang -- do not infer cvar or
 command names that are not literally in the messages.
 
 The glossary is loaded from `packages/qw-knowledge/terminology/qw_glossary.yaml`
-(originally built for voice-replay analysis — voice-first, with some
+(originally built for voice-replay analysis -- voice-first, with some
 entries more relevant to spoken callouts than chat logs, but the core
 weapon/powerup/armor/state vocabulary is the same). For the POC we
 inject it wholesale; a proper chat-tuned glossary is phase-2 work.
@@ -1118,7 +1118,7 @@ inject it wholesale; a proper chat-tuned glossary is phase-2 work.
 ```
 
 **Rule:** if a session mentions `LG`, that's a reference to the lightning
-gun family — but only include `lg_*` or other concrete cvar/command names
+gun family -- but only include `lg_*` or other concrete cvar/command names
 in `mentioned_cvars` / `mentioned_commands` if they literally appear in
 the messages. The glossary helps you understand what players are talking
 about; it does NOT license you to invent canonical names from slang.
@@ -1360,7 +1360,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Phase D: Layer 3 — Curated concepts
+## Phase D: Layer 3 -- Curated concepts
 
 ### Task 6: Write 3 concept notes with canonical cross-links
 
@@ -1372,12 +1372,12 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - Create: `apps/qw-oracle/layers/concepts/qw_command_vs_cvar.md`
 - Create: `apps/qw-oracle/scripts/verify-concepts.mjs`
 
-The KTX injection note is the demo-anchor. It MUST cross-link real Layer 1 rows. Use the findings from Task 3's `poc-demo-candidates.md` — the `ktx:cmd:*` IDs for `break`, `ready`, `next_map`, `rpickup`, `mapcycle`, `next_best`, `shownick`, `scores` are all verified present in `kb_commands`. Reference at least 3-5 of these directly so the concept note's `references.commands` array resolves at startup.
+The KTX injection note is the demo-anchor. It MUST cross-link real Layer 1 rows. Use the findings from Task 3's `poc-demo-candidates.md` -- the `ktx:cmd:*` IDs for `break`, `ready`, `next_map`, `rpickup`, `mapcycle`, `next_best`, `shownick`, `scores` are all verified present in `kb_commands`. Reference at least 3-5 of these directly so the concept note's `references.commands` array resolves at startup.
 
 - [ ] **Step 1: Write `layers/concepts/README.md`**
 
 ```markdown
-# Layer 3 — Curated concept notes
+# Layer 3 -- Curated concept notes
 
 Hand-written markdown that cross-links Layer 1 (facts) and Layer 2 (claims)
 into human-level explanations. Each file is one concept. See `_schema.md` for
@@ -1465,18 +1465,18 @@ as you are connected to a KTX server.
 
 Examples you will see in QW configs:
 
-- `break` — match-mode command: give up / forfeit during an organized match
-- `ready` — signal to the server that you're ready to start the match
-- `next_map` — vote for the next map in the map cycle
-- `rpickup` — random team pickup (used during pickup matches)
-- `mapcycle` / `next_best` — map rotation controls
-- `scores` — bring up the score overlay
-- `shownick` — show the player's nickname on screen
+- `break` -- match-mode command: give up / forfeit during an organized match
+- `ready` -- signal to the server that you're ready to start the match
+- `next_map` -- vote for the next map in the map cycle
+- `rpickup` -- random team pickup (used during pickup matches)
+- `mapcycle` / `next_best` -- map rotation controls
+- `scores` -- bring up the score overlay
+- `shownick` -- show the player's nickname on screen
 
 These are bound in many players' configs. Without context, someone cleaning
 up their config sees an unresolved command and has no idea whether it is a
 typo, a deprecated feature, a third-party plugin, or a real thing. It is a
-real thing — owned by KTX, not ezQuake.
+real thing -- owned by KTX, not ezQuake.
 
 ## Why this is confusing
 
@@ -1516,7 +1516,7 @@ each of the referenced `ktx:cmd:*` rows carries its own short description.
 Layer 1 imports from `packages/qw-config/src/data/ktx-commands.json`,
 which is produced by a pattern-based scraper of KTX's `commands.c`. Not
 every command registered at runtime via `stuffcmd` is captured this way
-— only those declared in the static `cmds[]` array. Phase-2 AST-based
+-- only those declared in the static `cmds[]` array. Phase-2 AST-based
 extraction will close this gap. See spec open question #2.
 ```
 
@@ -1526,7 +1526,7 @@ extraction will close this gap. See spec open question #2.
 ---
 id: concept:ezquake_cvar_anatomy
 title: Anatomy of an ezQuake cvar
-description: How to read an ezQuake cvar row — name, type, default, group, flags — and what the major groups mean.
+description: How to read an ezQuake cvar row -- name, type, default, group, flags -- and what the major groups mean.
 tags: [ezquake, cvars, reference]
 references:
   cvars:
@@ -1550,7 +1550,7 @@ settings UI. The group hierarchy has two levels: a `major_group` like
 "Graphics" or "Input" and a specific `group_name` like "Input - Keyboard".
 
 For knowledge-base purposes, the canonical id of a cvar is
-`ezquake:cvar:<name>` — e.g. `ezquake:cvar:cl_bob` is the canonical id
+`ezquake:cvar:<name>` -- e.g. `ezquake:cvar:cl_bob` is the canonical id
 for the classic view-bob cvar. Version-pinned ids (e.g.
 `ezquake:cvar:cl_bob@v4.0.1`) are used when behavior changed across
 releases; the un-suffixed id always refers to the latest known definition.
@@ -1559,18 +1559,18 @@ releases; the un-suffixed id always refers to the latest known definition.
 
 The `kb_cvars` table holds these columns:
 
-- `name` — the literal cvar identifier used in console and configs
-- `type` — declared type, guides UI and validation
-- `default_value` — what fresh installs start with
-- `major_group` / `group_name` — settings UI hierarchy
-- `description` — the human-readable explanation from the source
+- `name` -- the literal cvar identifier used in console and configs
+- `type` -- declared type, guides UI and validation
+- `default_value` -- what fresh installs start with
+- `major_group` / `group_name` -- settings UI hierarchy
+- `description` -- the human-readable explanation from the source
 
 Not every column is populated. `source_file` and `source_line` are often
 null in the POC import because the upstream JSON does not carry them.
 
 ## When a cvar has no ezQuake source
 
-See `concept:ktx_matchstart_injection` — some cvars that appear in an
+See `concept:ktx_matchstart_injection` -- some cvars that appear in an
 ezQuake client are actually set by the server via stuffcmd and have no
 ezQuake definition.
 ```
@@ -1611,7 +1611,7 @@ A **cvar** is a value. `sensitivity 3.5` sets the mouse sensitivity; the
 cvar then holds that value until something else changes it. Cvars can be
 archived (saved across sessions), read-only, or latched. Setting a cvar
 with `set cvar_name value` auto-creates it even if the client does not
-recognize the name — which is how servers inject cvars via stuffcmd.
+recognize the name -- which is how servers inject cvars via stuffcmd.
 
 ## Why they share a namespace
 
@@ -1622,7 +1622,7 @@ to `+attack` is the same kind of thing as binding a key to
 console builtin.
 
 For knowledge-base purposes, we store them in separate tables
-(`kb_commands` and `kb_cvars`) because the schema differs — commands
+(`kb_commands` and `kb_cvars`) because the schema differs -- commands
 have no default value or type, cvars have both. Canonical ids are
 distinguished by the middle segment: `ezquake:cvar:sensitivity` vs
 `ezquake:cmd:say_team`.
@@ -1807,7 +1807,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
-## Phase E: Serve layer — MCP server
+## Phase E: Serve layer -- MCP server
 
 ### Task 7: MCP server skeleton + lookup_entity tool
 
@@ -1822,7 +1822,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - Create: `apps/qw-oracle/serve/mcp/src/concept-loader.ts`
 - Create: `apps/qw-oracle/serve/mcp/README.md`
 
-**Runtime:** The MCP server uses Bun for dev execution (runs TS directly). If Bun is not available, fall back to `tsx` via npm — code is portable.
+**Runtime:** The MCP server uses Bun for dev execution (runs TS directly). If Bun is not available, fall back to `tsx` via npm -- code is portable.
 
 - [ ] **Step 1: Write `serve/mcp/package.json`**
 
@@ -1910,7 +1910,7 @@ export interface EntityRecord {
   description: string | null;
   group_name: string | null;
   major_group: string | null;      // cvar only (commands don't have a major group in current schema)
-  extraction_method: string;       // 'scraped-json' etc — signals row confidence
+  extraction_method: string;       // 'scraped-json' etc -- signals row confidence
   linked_sessions: string[];
   linked_concepts: string[];
 }
@@ -2017,7 +2017,7 @@ interface LookupEntityArgs {
   type?: 'cvar' | 'command'; // optional filter; default returns both
 }
 
-// Row shape returned by the SELECTs below — a common subset of kb_cvars and kb_commands.
+// Row shape returned by the SELECTs below -- a common subset of kb_cvars and kb_commands.
 // Unused fields are hydrated to null by the per-query mapping.
 interface RawCvarRow {
   id: string; project: string; name: string;
@@ -2223,9 +2223,9 @@ Any MCP-capable LLM client can load it as a tool server.
 
 ## Tools
 
-- `lookup_entity(name, project?, type?)` — Layer 1 cvar/command lookup with linked sessions/concepts
-- `search_solved_issues(query)` — Layer 2 FTS5 search across summarized sessions
-- `get_concept_note(id)` — Layer 3 concept note retrieval
+- `lookup_entity(name, project?, type?)` -- Layer 1 cvar/command lookup with linked sessions/concepts
+- `search_solved_issues(query)` -- Layer 2 FTS5 search across summarized sessions
+- `get_concept_note(id)` -- Layer 3 concept note retrieval
 
 All tools return a response envelope with `match_quality` ('strong' | 'weak' | 'none')
 and an optional `suggested_fallback` string. Outlet policy decides what to do on
@@ -2317,7 +2317,7 @@ cd apps/qw-oracle/serve/mcp
 bun run scripts/test-call.ts
 ```
 
-Expected: `tools: [ 'lookup_entity' ]` followed by two JSON responses. The cl_bob call returns `{type: 'cvar', project: 'ezquake', ...}` with `match_quality: 'strong'`. The rpickup call returns `{type: 'command', project: 'ktx', ...}` — and if the concept note has already been authored (Task 6 runs before this in the sequence; if executed out of order, `linked_concepts` will be empty until the server restarts with the note in place), `linked_concepts` includes `'concept:ktx_matchstart_injection'`.
+Expected: `tools: [ 'lookup_entity' ]` followed by two JSON responses. The cl_bob call returns `{type: 'cvar', project: 'ezquake', ...}` with `match_quality: 'strong'`. The rpickup call returns `{type: 'command', project: 'ktx', ...}` -- and if the concept note has already been authored (Task 6 runs before this in the sequence; if executed out of order, `linked_concepts` will be empty until the server restarts with the note in place), `linked_concepts` includes `'concept:ktx_matchstart_injection'`.
 
 - [ ] **Step 12: Commit**
 
@@ -2468,7 +2468,7 @@ case 'search_solved_issues': {
 }
 ```
 
-- [ ] **Step 3: Extend `scripts/test-call.ts`** — after the existing `lookup_entity` calls, add:
+- [ ] **Step 3: Extend `scripts/test-call.ts`** -- after the existing `lookup_entity` calls, add:
 
 ```typescript
 const res2 = await client.callTool({ name: 'search_solved_issues', arguments: { query: 'cvar', limit: 3 } });
@@ -2694,21 +2694,21 @@ Expected behavior:
 5. Optionally, Claude Code calls `search_solved_issues` with something like `query: "rpickup"` or `"ktx stuffcmd"`.
 6. Claude Code composes an answer citing: the `ktx:cmd:rpickup` row (with `extraction_method: 'scraped-json'` for honesty), the concept note body, and any chat sessions.
 
-The key moment is when Claude Code says "this command doesn't exist in ezQuake — it's a KTX server mod command, injected into your client at match start" and cites the concept note. That's the librarian feeling.
+The key moment is when Claude Code says "this command doesn't exist in ezQuake -- it's a KTX server mod command, injected into your client at match start" and cites the concept note. That's the librarian feeling.
 
 ## Secondary demo query (cross-project collision)
 
 > In QuakeWorld, what does the `kick` command do? Is it a client thing or a server thing?
 
-Expected behavior: `lookup_entity(name: "kick")` returns TWO rows — one `ezquake:cmd:kick` (client) and one `ktx:cmd:kick` (server). Claude Code explains that the name exists in both projects with different semantics. This is the "same name, two meanings" demo — useful if the dev-server audience wants to see cross-project linking without the injection framing.
+Expected behavior: `lookup_entity(name: "kick")` returns TWO rows -- one `ezquake:cmd:kick` (client) and one `ktx:cmd:kick` (server). Claude Code explains that the name exists in both projects with different semantics. This is the "same name, two meanings" demo -- useful if the dev-server audience wants to see cross-project linking without the injection framing.
 
 ## Fallback demo queries
 
 If neither primary nor secondary lands well:
 
-- "What does `cl_bob` do in ezQuake?" — exercises the cvar path
-- "Give me the concept note on ezquake cvar anatomy." — exercises get_concept_note directly
-- "Search the chat archive for discussions about crosshair settings." — exercises search_solved_issues alone
+- "What does `cl_bob` do in ezQuake?" -- exercises the cvar path
+- "Give me the concept note on ezquake cvar anatomy." -- exercises get_concept_note directly
+- "Search the chat archive for discussions about crosshair settings." -- exercises search_solved_issues alone
 
 ## What to say during the pitch
 
@@ -2723,7 +2723,7 @@ If neither primary nor secondary lands well:
 - Concept notes are 3 files; coverage is almost nothing.
 - No FTE/MVDSV/match data.
 - No hosted outlet; everything runs locally.
-- Layer 1 data is from iterative scrapers, not AST-based extraction — may have gaps.
+- Layer 1 data is from iterative scrapers, not AST-based extraction -- may have gaps.
 
 The pitch is "this proves the pattern, not the product."
 ```
@@ -2732,7 +2732,7 @@ The pitch is "this proves the pattern, not the product."
 
 In a fresh Claude Code session:
 
-1. Run `/mcp` — confirm tools listed.
+1. Run `/mcp` -- confirm tools listed.
 2. Paste the primary demo query.
 3. Watch the tool calls fire.
 4. Confirm the answer cites at least one Layer 1 row, the concept note, and (ideally) a Layer 2 session.

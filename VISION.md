@@ -45,7 +45,7 @@ The monorepo started as "five apps sharing a workshop." What has emerged since i
 - **MCP** - live queries, interactive access. Used by Claude Code today; future chatbots.
 - **Snapshot distribution** - consumer-tailored JSON snapshots produced from the same foundation. Used by clients that need deterministic, pre-computed inputs (slipgate-app's ConfigViewer is the canonical case - it ships with a snapshot of the cvar facts its features need, not a live MCP dependency).
 
-The live consumers today are Claude Code (MCP) and slipgate-app (snapshot — reading oracle-generated JSON in `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI). Future consumers are scoped below.
+The live consumers today are Claude Code (MCP) and slipgate-app (snapshot -- reading oracle-generated JSON in `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI). Future consumers are scoped below.
 
 ### Web services family
 
@@ -64,7 +64,7 @@ A **content hash** (sha256 of file bytes) is the universal join key across local
 The former `packages/qw-config/` holding pen is gone. Its concerns split as planned:
 
 - **AST extractors** moved into `apps/qw-oracle/scripts/extractors/<project>/` (Half 1, 2026-04-25).
-- **Parser, converter, writers, loaders, JSON snapshots** moved into `apps/slipgate-app/src/lib/config/` — where slipgate-specific config-toolkit code always belonged once oracle existed (Half 2a, 2026-04-25).
+- **Parser, converter, writers, loaders, JSON snapshots** moved into `apps/slipgate-app/src/lib/config/` -- where slipgate-specific config-toolkit code always belonged once oracle existed (Half 2a, 2026-04-25).
 - **JSON snapshot generation** wired through oracle's new `build-snapshot` CLI: reads `knowledge.db`, writes enriched per-entity-type JSON (cvars, commands, macros, cmdline_params, asset bundle) into slipgate's `src/lib/config/data/` directory (Arc 2, 2026-04-25/26).
 
 Slipgate now consumes oracle Layer 1 end-to-end via deterministic snapshots. The legacy hand-curated JSON path is gone.

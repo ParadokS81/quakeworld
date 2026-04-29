@@ -9,11 +9,11 @@
 The current `read_ezquake_config` command reads a single config file and extracts structured data (name, sensitivity, binds, etc.) plus `raw_cvars`. It follows exec references for aliases and binds but drops cvars from exec'd files entirely. The Config viewer in Slipgate shows an incomplete picture of the player's configuration.
 
 Players organize their configs across multiple files:
-- `config.cfg` — primary config with core settings
-- `exec` directives — inline references to other configs (e.g., `exec configs/slackers_tp.cfg`)
-- `autoexec.cfg` — engine-loaded after config.cfg
-- `cl_onload` — cvar containing commands run after initialization
-- Bound/aliased execs — `bind t "exec teamplay.cfg"`, loaded manually per situation (maps, modes)
+- `config.cfg` -- primary config with core settings
+- `exec` directives -- inline references to other configs (e.g., `exec configs/slackers_tp.cfg`)
+- `autoexec.cfg` -- engine-loaded after config.cfg
+- `cl_onload` -- cvar containing commands run after initialization
+- Bound/aliased execs -- `bind t "exec teamplay.cfg"`, loaded manually per situation (maps, modes)
 
 All of these are part of the player's configuration and should be discoverable.
 
@@ -21,7 +21,7 @@ All of these are part of the player's configuration and should be discoverable.
 
 ### New Command: `read_config_chain`
 
-A new Tauri command that discovers the full config file tree starting from the primary config. Returns each file individually with its parsed contents and relationship metadata. Does not merge files — the frontend decides how to present them.
+A new Tauri command that discovers the full config file tree starting from the primary config. Returns each file individually with its parsed contents and relationship metadata. Does not merge files -- the frontend decides how to present them.
 
 The existing `read_ezquake_config` stays untouched. It serves the profile tab (name, colors, movement, weapons). The new command serves the Config section under My Quake.
 
@@ -80,7 +80,7 @@ pub struct OtherConfig {
 
 ### Discovery Algorithm
 
-**Phase 1 — Walk the primary config tree**
+**Phase 1 -- Walk the primary config tree**
 
 1. Parse primary config file (e.g., `config.cfg`). Add as first entry with `source: Primary`.
 2. Follow its top-level `exec_refs` in order. For each:
@@ -90,20 +90,20 @@ pub struct OtherConfig {
    - If the ref contains `$` or `%` (variable substitution): add to `unresolved` list.
    - If file not found: skip (could optionally add to unresolved as "missing").
 
-**Phase 2 — autoexec.cfg**
+**Phase 2 -- autoexec.cfg**
 
 3. Check for `autoexec.cfg` in the ezquake directory (same as engine: look in game dir root).
    - If exists: read, parse, add to chain with `source: AutoExec`.
    - Follow its exec refs recursively (same as phase 1).
 
-**Phase 3 — cl_onload**
+**Phase 3 -- cl_onload**
 
 4. Read `cl_onload` from the primary config's cvars.
    - Split on `;`, scan each segment for `exec <path>`.
    - For each exec found: resolve, read, parse, add with `source: ClOnload`.
    - Recurse into each file's exec refs.
 
-**Phase 4 — Exec refs inside binds and aliases**
+**Phase 4 -- Exec refs inside binds and aliases**
 
 5. Scan all files already in the chain:
    - For each bind value: scan for `exec <path>` in the command string.
@@ -111,7 +111,7 @@ pub struct OtherConfig {
    - Any new files found: resolve, read, parse, add with `source: BoundExec` or `AliasExec`.
    - Recurse into their exec refs.
 
-**Phase 5 — Other configs**
+**Phase 5 -- Other configs**
 
 6. Scan the config directory (and `configs/` subdirectory) for all `.cfg` files.
    - Any file not already in the chain: add to `other_cfgs` with name, path, size.
@@ -121,17 +121,17 @@ pub struct OtherConfig {
 - **Seen-paths set**: Track canonical file paths. Skip any file already discovered.
 - **Security boundary**: Only follow paths within the ezquake directory tree.
 - **No depth limit**: Cycle detection prevents infinite recursion.
-- **Missing files**: Silently skipped (not an error — configs reference files that may not exist on every install).
+- **Missing files**: Silently skipped (not an error -- configs reference files that may not exist on every install).
 
 ### Exec Extraction from Command Strings
 
 Binds and aliases contain semicolon-separated command strings. The extraction scans for the pattern `exec <path>` within these strings:
 
 ```
-bind t "exec configs/teamplay.cfg"           → "configs/teamplay.cfg"
-bind F1 "echo loading; exec dm4.cfg"         → "dm4.cfg"
-alias loadtp "exec tp.cfg; exec msg.cfg"     → ["tp.cfg", "msg.cfg"]
-alias mapsetup "exec configs/$mapname.cfg"   → unresolved ("configs/$mapname.cfg")
+bind t "exec configs/teamplay.cfg"           -> "configs/teamplay.cfg"
+bind F1 "echo loading; exec dm4.cfg"         -> "dm4.cfg"
+alias loadtp "exec tp.cfg; exec msg.cfg"     -> ["tp.cfg", "msg.cfg"]
+alias mapsetup "exec configs/$mapname.cfg"   -> unresolved ("configs/$mapname.cfg")
 ```
 
 ### ezQuake Load Order (reference)
@@ -139,11 +139,11 @@ alias mapsetup "exec configs/$mapname.cfg"   → unresolved ("configs/$mapname.c
 From `host.c` in the ezQuake source:
 
 ```
-1. default.cfg        — Cfg_ExecuteDefaultConfig() [from pak0.pak, usually skipped]
-2. config.cfg         — cfg_load config.cfg [primary config]
-   └→ inline execs   — processed as they appear in the file
-3. autoexec.cfg       — if exists, exec'd after config.cfg
-4. cl_onload          — executed as command buffer after initialization
+1. default.cfg        -- Cfg_ExecuteDefaultConfig() [from pak0.pak, usually skipped]
+2. config.cfg         -- cfg_load config.cfg [primary config]
+   └-> inline execs   -- processed as they appear in the file
+3. autoexec.cfg       -- if exists, exec'd after config.cfg
+4. cl_onload          -- executed as command buffer after initialization
 ```
 
 Last definition wins for conflicting cvars/binds/aliases.
@@ -176,6 +176,6 @@ The Config section under My Quake will call `read_config_chain` and display:
 1. **Chain tree view**: Shows load order and relationships between files.
 2. **Individual file view**: Click any file to see its cvars/binds/aliases.
 3. **Other configs list**: Browse files not in the active chain.
-4. **Optional merged view**: Future — combine chain files with proper override order.
+4. **Optional merged view**: Future -- combine chain files with proper override order.
 
 Detailed frontend design is out of scope for this spec.

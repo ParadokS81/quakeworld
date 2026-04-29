@@ -3,12 +3,12 @@
 ## STATUS: 🔶 PARTIALLY COMPLETE
 
 **Done:**
-- ✅ CSS touch styles (touch-action, drag prevention, tap feedback) — in input.css mobile media query
-- ✅ AvailabilityGrid already uses pointer events (pointerdown/pointermove/pointerup) instead of mouse events
+- [OK] CSS touch styles (touch-action, drag prevention, tap feedback) -- in input.css mobile media query
+- [OK] AvailabilityGrid already uses pointer events (pointerdown/pointermove/pointerup) instead of mouse events
 
 **Remaining:**
 - ❌ AvailabilityGrid: Add `setPointerCapture()` on pointerdown so touch drag tracks across cells
-- ❌ MobileLayout.js: Edge swipe gesture detection (left/right screen edges → open drawers)
+- ❌ MobileLayout.js: Edge swipe gesture detection (left/right screen edges -> open drawers)
 - ❌ Touch drag vs scroll disambiguation (initial movement direction check)
 
 ## 1. Slice Definition
@@ -24,7 +24,7 @@
   - Touch drag is distinguished from scroll by initial movement direction
   - All gestures show visual feedback (drag preview highlight, drawer slide animation)
   - Desktop layout completely unchanged (pointer events are backward-compatible with mouse)
-  - Gestures are supplementary — all actions remain available via bottom bar buttons (Slice 10.0c)
+  - Gestures are supplementary -- all actions remain available via bottom bar buttons (Slice 10.0c)
 
 ---
 
@@ -37,15 +37,15 @@ PRIMARY SECTIONS:
 - Section 4.1 (Availability Grid): Grid selection usable on touch devices
 
 DEPENDENT SECTIONS:
-- Slice 10.0a: CSS foundation (media queries, mobile layout) ✅
-- Slice 10.0b: MobileLayout.js drawer API (openLeftDrawer/openRightDrawer) ✅
-- Slice 10.0c: Mobile bottom bar (buttons as gesture fallback) ✅
-- Slice 2.3: Advanced selection (drag-select rectangle logic, drag preview) ✅
+- Slice 10.0a: CSS foundation (media queries, mobile layout) [OK]
+- Slice 10.0b: MobileLayout.js drawer API (openLeftDrawer/openRightDrawer) [OK]
+- Slice 10.0c: Mobile bottom bar (buttons as gesture fallback) [OK]
+- Slice 2.3: Advanced selection (drag-select rectangle logic, drag preview) [OK]
 
 IGNORED SECTIONS (deferred):
-- Haptic feedback (vibration API) — defer to 10.0e polish
-- Pinch-to-zoom, long-press context menus — out of scope
-- Spring/physics-based animations — CSS transitions sufficient
+- Haptic feedback (vibration API) -- defer to 10.0e polish
+- Pinch-to-zoom, long-press context menus -- out of scope
+- Spring/physics-based animations -- CSS transitions sufficient
 ```
 
 ---
@@ -55,7 +55,7 @@ IGNORED SECTIONS (deferred):
 ```
 FRONTEND COMPONENTS:
 
-MODIFIED — AvailabilityGrid.js
+MODIFIED -- AvailabilityGrid.js
   - Firebase listeners: none (unchanged)
   - Cache interactions: none (unchanged)
   - UI responsibilities:
@@ -64,14 +64,14 @@ MODIFIED — AvailabilityGrid.js
     - Show drag preview highlight during selection
     - Map local cell IDs to UTC via TimezoneService before Firestore update
   - User actions (modified):
-    - pointerdown on cell → start drag tracking (replaces mousedown)
-    - pointermove → update drag preview (replaces mousemove)
-    - pointerup → apply selection (replaces mouseup)
+    - pointerdown on cell -> start drag tracking (replaces mousedown)
+    - pointermove -> update drag preview (replaces mousemove)
+    - pointerup -> apply selection (replaces mouseup)
   - Key state (existing, unchanged):
     - _isDragging, _dragStartCell, _dragStartPos, _dragDistance
     - _lastValidDragCell, _selectedCells, _gridToUtcMap
 
-MODIFIED — MobileLayout.js
+MODIFIED -- MobileLayout.js
   - Firebase listeners: none
   - Cache interactions: none
   - UI responsibilities:
@@ -81,13 +81,13 @@ MODIFIED — MobileLayout.js
     - Call existing openLeftDrawer/openRightDrawer on valid swipe
     - Cancel swipe if vertical movement detected (scrolling)
   - User actions (new):
-    - Edge swipe left-to-right (from left 30px) → open left drawer
-    - Edge swipe right-to-left (from right 30px) → open right drawer
+    - Edge swipe left-to-right (from left 30px) -> open left drawer
+    - Edge swipe right-to-left (from right 30px) -> open right drawer
   - New state:
     - _swipeStartX, _swipeStartY, _swipeDistance
     - _swipeDirection: 'left' | 'right' | null
 
-MODIFIED — src/css/input.css
+MODIFIED -- src/css/input.css
   - touch-action rules to prevent default browser gestures during drag
   - :active state styling for tap feedback on cells
   - user-select: none on grid during drag
@@ -99,8 +99,8 @@ BACKEND REQUIREMENTS:
 - None (pure frontend interaction layer)
 
 INTEGRATION POINTS:
-- AvailabilityGrid: Pointer events → existing _applyRectangularSelection() → AvailabilityService
-- MobileLayout: Swipe detection → existing openLeftDrawer()/openRightDrawer()
+- AvailabilityGrid: Pointer events -> existing _applyRectangularSelection() -> AvailabilityService
+- MobileLayout: Swipe detection -> existing openLeftDrawer()/openRightDrawer()
 - CSS: Mobile media query guards all new touch styles (desktop unchanged)
 ```
 
@@ -108,12 +108,12 @@ INTEGRATION POINTS:
 
 ## 4. Integration Code Examples
 
-### 4a. AvailabilityGrid.js — Pointer Event Migration
+### 4a. AvailabilityGrid.js -- Pointer Event Migration
 
-The key change: replace `mousedown/mousemove/mouseup` listeners with `pointerdown/pointermove/pointerup`. The handler logic is nearly identical — pointer events use the same `clientX`/`clientY` API.
+The key change: replace `mousedown/mousemove/mouseup` listeners with `pointerdown/pointermove/pointerup`. The handler logic is nearly identical -- pointer events use the same `clientX`/`clientY` API.
 
 ```javascript
-// In _setupEventListeners() — replace mouse listeners with pointer listeners
+// In _setupEventListeners() -- replace mouse listeners with pointer listeners
 
 // OLD (remove):
 _container.addEventListener('mousedown', _handleMouseDown);
@@ -127,7 +127,7 @@ document.addEventListener('pointerup', _documentPointerUpHandler);
 ```
 
 ```javascript
-// _handlePointerDown — same logic as _handleMouseDown, plus isPrimary check
+// _handlePointerDown -- same logic as _handleMouseDown, plus isPrimary check
 function _handlePointerDown(e) {
     // Ignore secondary pointers (multi-touch)
     if (!e.isPrimary) return;
@@ -149,7 +149,7 @@ function _handlePointerDown(e) {
     e.preventDefault();
 }
 
-// _handlePointerMove — same logic as _handleMouseMove
+// _handlePointerMove -- same logic as _handleMouseMove
 function _handlePointerMove(e) {
     if (!_isDragging || !_dragStartCell) return;
 
@@ -167,7 +167,7 @@ function _handlePointerMove(e) {
     _updateDragPreview(_dragStartCell, cell.dataset.cellId);
 }
 
-// _handlePointerUp — same logic as _handleMouseUp
+// _handlePointerUp -- same logic as _handleMouseUp
 function _handlePointerUp(e) {
     if (!_isDragging) return;
 
@@ -192,9 +192,9 @@ function _handlePointerUp(e) {
 }
 ```
 
-**Also migrate:** `mouseenter`/`mouseleave` for hover tooltips → `pointerenter`/`pointerleave`. These work identically.
+**Also migrate:** `mouseenter`/`mouseleave` for hover tooltips -> `pointerenter`/`pointerleave`. These work identically.
 
-### 4b. MobileLayout.js — Swipe Detection
+### 4b. MobileLayout.js -- Swipe Detection
 
 Add swipe detection as a new concern within the existing IIFE. Swipe calls the existing `openLeftDrawer()`/`openRightDrawer()` public methods.
 
@@ -250,8 +250,8 @@ function _handleSwipeEnd(e) {
     if (_swipeStartX === null || !_swipeDirection) return;
 
     if (_swipeDistance >= SWIPE_THRESHOLD) {
-        // Left edge → swipe right → open left drawer
-        // Right edge → swipe left → open right drawer
+        // Left edge -> swipe right -> open left drawer
+        // Right edge -> swipe left -> open right drawer
         if (_swipeDirection === 'right') {
             openLeftDrawer();
         } else {
@@ -289,7 +289,7 @@ function cleanup() {
 }
 ```
 
-### 4c. src/css/input.css — Touch Interaction Styles
+### 4c. src/css/input.css -- Touch Interaction Styles
 
 ```css
 /* Inside mobile media query: @media (max-width: 1024px) and (orientation: landscape) */
@@ -344,41 +344,41 @@ BACKEND PERFORMANCE:
 ```
 DRAG-SELECT FLOW (Grid):
   pointerdown on .grid-cell
-    → _handlePointerDown() — store start cell, set _isDragging = true
-    → Show drag preview on start cell
+    -> _handlePointerDown() -- store start cell, set _isDragging = true
+    -> Show drag preview on start cell
 
   pointermove over .grid-cell
-    → _handlePointerMove() — track distance, detect cell under pointer
-    → Update drag preview (start → current rectangle)
+    -> _handlePointerMove() -- track distance, detect cell under pointer
+    -> Update drag preview (start -> current rectangle)
 
   pointerup
-    → _handlePointerUp()
-    → If distance > DRAG_THRESHOLD:
-      → _applyRectangularSelection(startCell, endCell)
-        → Convert local IDs to UTC via _gridToUtcMap
-        → AvailabilityService.toggleSlots(utcSlotIds)
-          → Optimistic UI update
-          → Firestore write (async)
-          → onSnapshot listener fires → grid re-renders
-    → Else: treat as single click (existing click handler)
-    → Clear drag preview, reset state
+    -> _handlePointerUp()
+    -> If distance > DRAG_THRESHOLD:
+      -> _applyRectangularSelection(startCell, endCell)
+        -> Convert local IDs to UTC via _gridToUtcMap
+        -> AvailabilityService.toggleSlots(utcSlotIds)
+          -> Optimistic UI update
+          -> Firestore write (async)
+          -> onSnapshot listener fires -> grid re-renders
+    -> Else: treat as single click (existing click handler)
+    -> Clear drag preview, reset state
 
 
 SWIPE FLOW (Drawer):
   pointerdown at screen edge (<30px or >width-30px)
-    → _handleSwipeStart() — store start position, set direction
+    -> _handleSwipeStart() -- store start position, set direction
 
   pointermove
-    → _handleSwipeMove() — track horizontal distance
-    → If vertical drift > tolerance: cancel swipe
+    -> _handleSwipeMove() -- track horizontal distance
+    -> If vertical drift > tolerance: cancel swipe
 
   pointerup
-    → _handleSwipeEnd()
-    → If distance >= 50px:
-      → openLeftDrawer() or openRightDrawer()
-        → Add .open class (CSS transition slides drawer in)
-        → Show overlay, lock body scroll
-    → Reset swipe state
+    -> _handleSwipeEnd()
+    -> If distance >= 50px:
+      -> openLeftDrawer() or openRightDrawer()
+        -> Add .open class (CSS transition slides drawer in)
+        -> Show overlay, lock body scroll
+    -> Reset swipe state
 ```
 
 ---
@@ -386,26 +386,26 @@ SWIPE FLOW (Drawer):
 ## 7. Test Scenarios
 
 ```
-FRONTEND TESTS — Touch Drag-Select:
-- [ ] Touch cell, drag to adjacent cell → rectangular range selects
-- [ ] Small movement (<5px) → toggles single cell (treated as click)
-- [ ] Drag across multiple cells → all cells in rectangle show drag-preview during drag
-- [ ] Pointer leaves grid during drag → selection stops updating, last valid cell used
-- [ ] Release pointer → selection applies, preview clears, grid updates via listener
+FRONTEND TESTS -- Touch Drag-Select:
+- [ ] Touch cell, drag to adjacent cell -> rectangular range selects
+- [ ] Small movement (<5px) -> toggles single cell (treated as click)
+- [ ] Drag across multiple cells -> all cells in rectangle show drag-preview during drag
+- [ ] Pointer leaves grid during drag -> selection stops updating, last valid cell used
+- [ ] Release pointer -> selection applies, preview clears, grid updates via listener
 
-FRONTEND TESTS — Touch Swipe:
-- [ ] Swipe right from left edge (<30px start) → left drawer opens
-- [ ] Swipe left from right edge (>width-30px start) → right drawer opens
-- [ ] Partial swipe (<50px) → drawer doesn't open
-- [ ] Vertical drift during swipe → cancels, no drawer opens
-- [ ] Swipe while drawer already open → no-op
-- [ ] Touch outside edge margin → no swipe tracking
+FRONTEND TESTS -- Touch Swipe:
+- [ ] Swipe right from left edge (<30px start) -> left drawer opens
+- [ ] Swipe left from right edge (>width-30px start) -> right drawer opens
+- [ ] Partial swipe (<50px) -> drawer doesn't open
+- [ ] Vertical drift during swipe -> cancels, no drawer opens
+- [ ] Swipe while drawer already open -> no-op
+- [ ] Touch outside edge margin -> no swipe tracking
 
 RESPONSIVE TESTS:
 - [ ] Desktop (>1024px): No swipe detection, mouse drag-select works unchanged
 - [ ] Mobile landscape: Both touch drag and swipe work
-- [ ] Resize desktop → mobile: Swipe detection activates
-- [ ] Resize mobile → desktop: Swipe detection deactivates, overflow:hidden cleared
+- [ ] Resize desktop -> mobile: Swipe detection activates
+- [ ] Resize mobile -> desktop: Swipe detection deactivates, overflow:hidden cleared
 
 VISUAL FEEDBACK:
 - [ ] Cell shows :active opacity on finger press
@@ -419,38 +419,38 @@ ACCESSIBILITY:
 - [ ] Screen reader announces grid cells correctly
 
 INTEGRATION TESTS:
-- [ ] Touch drag on grid → AvailabilityService.toggleSlots() called with UTC slot IDs
-- [ ] Listener fires → grid shows updated selection state
-- [ ] Swipe opens drawer → drawer content (TeamInfo, etc.) still functional
-- [ ] Drawer open → grid behind overlay not interactive (overlay blocks)
+- [ ] Touch drag on grid -> AvailabilityService.toggleSlots() called with UTC slot IDs
+- [ ] Listener fires -> grid shows updated selection state
+- [ ] Swipe opens drawer -> drawer content (TeamInfo, etc.) still functional
+- [ ] Drawer open -> grid behind overlay not interactive (overlay blocks)
 
 REGRESSION TESTS (Desktop):
 - [ ] Mouse drag-select works identically (pointer events backward-compatible)
-- [ ] Mouse hover tooltips (mouseenter/leave → pointerenter/leave) work
+- [ ] Mouse hover tooltips (mouseenter/leave -> pointerenter/leave) work
 - [ ] No swipe detection triggers on desktop
 - [ ] All modals, toasts, FAB unaffected
 - [ ] No console errors from pointer event code
 
 END-TO-END:
-- [ ] Full journey: drag-select cells → swipe drawer open → read content → close → continue selecting
+- [ ] Full journey: drag-select cells -> swipe drawer open -> read content -> close -> continue selecting
 - [ ] Rapid gestures: Fast swipes don't corrupt state
-- [ ] Interrupted gestures: Release outside grid/drawer → state resets cleanly
+- [ ] Interrupted gestures: Release outside grid/drawer -> state resets cleanly
 ```
 
 ---
 
 ## 8. Common Integration Pitfalls
 
-- [ ] **Forgetting `passive: false`** on grid pointer listeners — prevents `e.preventDefault()` which is needed to stop text selection during drag. Swipe listeners can be passive since they don't need preventDefault.
-- [ ] **Not checking `e.isPrimary`** — Secondary touches (multi-touch) trigger unwanted drag/swipe. Always guard with `if (!e.isPrimary) return`.
-- [ ] **Swipe direction vs. edge confusion** — Left *edge* swipe goes *right* (opening left drawer). Map correctly: left edge → swipeDirection 'right' → openLeftDrawer.
-- [ ] **Editing main.css instead of input.css** — All CSS goes in `src/css/input.css`. main.css is auto-generated by Tailwind.
-- [ ] **touch-action: none too broad** — Breaks scrolling. Use `touch-action: manipulation` (allows pan/scroll, disables double-tap zoom).
-- [ ] **Z-index conflicts** — Drawer (z-45) and overlay (z-44) must be above grid. Verify pointer events don't punch through overlay.
-- [ ] **Scroll lock leak** — If drawer open and user resizes to desktop, `overflow: hidden` on body must be removed. `_exitMobile()` already calls `closeDrawer()` which handles this.
-- [ ] **Drag preview not clearing on edge cases** — If pointer leaves grid and releases outside, preview must still clear. `_handlePointerUp` is on `document`, so it catches this.
-- [ ] **mouseenter/mouseleave for tooltips** — Must also migrate to pointerenter/pointerleave, or tooltips break on touch devices.
-- [ ] **Not removing old mouse listeners** — If both mouse and pointer listeners are attached, handlers fire twice. Remove mouse listeners completely.
+- [ ] **Forgetting `passive: false`** on grid pointer listeners -- prevents `e.preventDefault()` which is needed to stop text selection during drag. Swipe listeners can be passive since they don't need preventDefault.
+- [ ] **Not checking `e.isPrimary`** -- Secondary touches (multi-touch) trigger unwanted drag/swipe. Always guard with `if (!e.isPrimary) return`.
+- [ ] **Swipe direction vs. edge confusion** -- Left *edge* swipe goes *right* (opening left drawer). Map correctly: left edge -> swipeDirection 'right' -> openLeftDrawer.
+- [ ] **Editing main.css instead of input.css** -- All CSS goes in `src/css/input.css`. main.css is auto-generated by Tailwind.
+- [ ] **touch-action: none too broad** -- Breaks scrolling. Use `touch-action: manipulation` (allows pan/scroll, disables double-tap zoom).
+- [ ] **Z-index conflicts** -- Drawer (z-45) and overlay (z-44) must be above grid. Verify pointer events don't punch through overlay.
+- [ ] **Scroll lock leak** -- If drawer open and user resizes to desktop, `overflow: hidden` on body must be removed. `_exitMobile()` already calls `closeDrawer()` which handles this.
+- [ ] **Drag preview not clearing on edge cases** -- If pointer leaves grid and releases outside, preview must still clear. `_handlePointerUp` is on `document`, so it catches this.
+- [ ] **mouseenter/mouseleave for tooltips** -- Must also migrate to pointerenter/pointerleave, or tooltips break on touch devices.
+- [ ] **Not removing old mouse listeners** -- If both mouse and pointer listeners are attached, handlers fire twice. Remove mouse listeners completely.
 
 ---
 
@@ -468,7 +468,7 @@ END-TO-END:
 ## 10. Pragmatic Assumptions
 
 - **[ASSUMPTION]**: Pointer events have sufficient browser support for this community
-  - **Rationale**: All modern browsers support pointer events. This is a 2026 gaming community — no IE11 users.
+  - **Rationale**: All modern browsers support pointer events. This is a 2026 gaming community -- no IE11 users.
   - **Alternative**: Add touchstart/touchmove/touchend fallback (adds complexity with no practical benefit).
 
 - **[ASSUMPTION]**: 50px swipe threshold and 30px edge margin are appropriate
@@ -493,16 +493,16 @@ END-TO-END:
 
 | File | Change | Lines (est.) |
 |------|--------|-------------|
-| `public/js/components/AvailabilityGrid.js` | Replace mouse → pointer event listeners and handlers | ~80 |
+| `public/js/components/AvailabilityGrid.js` | Replace mouse -> pointer event listeners and handlers | ~80 |
 | `public/js/MobileLayout.js` | Add swipe detection (constants, state, 3 handlers, setup, cleanup) | ~70 |
 | `src/css/input.css` | Add touch-action, :active states, dragging user-select | ~15 |
 
 ## Implementation Order
 
-1. AvailabilityGrid.js — Replace mouse listeners with pointer listeners (rename + isPrimary guard)
-2. AvailabilityGrid.js — Migrate hover tooltip listeners (mouseenter/leave → pointerenter/leave)
-3. MobileLayout.js — Add swipe detection constants, state, handlers
-4. MobileLayout.js — Wire _setupSwipeDetection into init(), cleanup into cleanup()
-5. src/css/input.css — Add touch-action and :active styles in mobile media query
-6. Desktop regression test — Verify mouse interactions unchanged
-7. Mobile test — Verify touch drag-select and swipe gestures
+1. AvailabilityGrid.js -- Replace mouse listeners with pointer listeners (rename + isPrimary guard)
+2. AvailabilityGrid.js -- Migrate hover tooltip listeners (mouseenter/leave -> pointerenter/leave)
+3. MobileLayout.js -- Add swipe detection constants, state, handlers
+4. MobileLayout.js -- Wire _setupSwipeDetection into init(), cleanup into cleanup()
+5. src/css/input.css -- Add touch-action and :active styles in mobile media query
+6. Desktop regression test -- Verify mouse interactions unchanged
+7. Mobile test -- Verify touch drag-select and swipe gestures

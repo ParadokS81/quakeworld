@@ -45,11 +45,11 @@ FRONTEND COMPONENTS:
     - Handle team card selection (toggle highlight)
     - Show star button (non-functional, visual only)
   - User actions:
-    - Type in search box → filter inline, show Teams/Players sections
-    - Click player result → selects their team for comparison
-    - Select division → filter displayed teams
-    - Click team card → toggle selection state
-    - Click star button → no action (Slice 3.2)
+    - Type in search box -> filter inline, show Teams/Players sections
+    - Click player result -> selects their team for comparison
+    - Select division -> filter displayed teams
+    - Click team card -> toggle selection state
+    - Click star button -> no action (Slice 3.2)
 
 - TeamCard (NEW - internal to TeamBrowser)
   - Display team info: name, tag, division(s), player count
@@ -59,19 +59,19 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - TeamService (ENHANCED)
-  - getAllTeams() → returns all active teams from cache
-  - subscribeToAllTeams(callback) → real-time updates for team list
-  - getTeam(teamId) → returns specific team (existing)
-  - NEW: updateCachedTeam(teamId, data) → update single team in cache
+  - getAllTeams() -> returns all active teams from cache
+  - subscribeToAllTeams(callback) -> real-time updates for team list
+  - getTeam(teamId) -> returns specific team (existing)
+  - NEW: updateCachedTeam(teamId, data) -> update single team in cache
 
 - TeamBrowserState (NEW - lightweight state helper)
-  - getSelectedTeams() → returns Set of selected teamIds
-  - toggleTeamSelection(teamId) → add/remove from selection
-  - clearSelection() → deselect all teams
-  - getSearchQuery() → returns current search text
-  - setSearchQuery(query) → update search filter
-  - getDivisionFilter() → returns current division filter
-  - setDivisionFilter(division) → update division filter
+  - getSelectedTeams() -> returns Set of selected teamIds
+  - toggleTeamSelection(teamId) -> add/remove from selection
+  - clearSelection() -> deselect all teams
+  - getSearchQuery() -> returns current search text
+  - setSearchQuery(query) -> update search filter
+  - getDivisionFilter() -> returns current division filter
+  - setDivisionFilter(division) -> update division filter
 
 BACKEND REQUIREMENTS:
 ⚠️ NO NEW CLOUD FUNCTIONS NEEDED
@@ -88,11 +88,11 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 - Frontend data flow:
-  TeamService.getAllTeams() → filter by search/division → render TeamCards
+  TeamService.getAllTeams() -> filter by search/division -> render TeamCards
 - Real-time updates:
-  onSnapshot(/teams) → TeamService.updateCachedTeam() → TeamBrowser.refresh()
+  onSnapshot(/teams) -> TeamService.updateCachedTeam() -> TeamBrowser.refresh()
 - Selection state:
-  Click card → TeamBrowserState.toggleTeamSelection() → re-render card
+  Click card -> TeamBrowserState.toggleTeamSelection() -> re-render card
 ```
 
 ## 4. Integration Code Examples
@@ -549,7 +549,7 @@ const TeamBrowser = (function() {
                             ${displayName}
                         </div>
                         <div class="team-meta text-xs text-muted-foreground">
-                            ${divisions} • ${playerCount} player${playerCount !== 1 ? 's' : ''}
+                            ${divisions} - ${playerCount} player${playerCount !== 1 ? 's' : ''}
                         </div>
                     </div>
 
@@ -831,16 +831,16 @@ BACKEND PERFORMANCE:
 ## 6. Data Flow Diagram
 ```
 INITIAL LOAD:
-App Start → TeamService.loadAllTeams() → Cache all teams (~28KB)
+App Start -> TeamService.loadAllTeams() -> Cache all teams (~28KB)
                                                 ↓
-User logs in → TeamBrowser.init() → Read from cache
+User logs in -> TeamBrowser.init() -> Read from cache
                                          ↓
                                    Render team list (excluding current team)
                                          ↓
                                    Set up onSnapshot listener for updates
 
 SEARCH/FILTER:
-User types in search → TeamBrowserState.setSearchQuery()
+User types in search -> TeamBrowserState.setSearchQuery()
                               ↓
                         onFilterChange callback fires
                               ↓
@@ -849,7 +849,7 @@ User types in search → TeamBrowserState.setSearchQuery()
                         _renderTeamList() updates DOM
 
 TEAM SELECTION:
-User clicks team card → TeamBrowserState.toggleTeamSelection()
+User clicks team card -> TeamBrowserState.toggleTeamSelection()
                                ↓
                          onSelectionChange callback fires
                                ↓
@@ -858,7 +858,7 @@ User clicks team card → TeamBrowserState.toggleTeamSelection()
                          Selection count updated in footer
 
 REAL-TIME UPDATE:
-Team created/modified → Firestore triggers onSnapshot
+Team created/modified -> Firestore triggers onSnapshot
                                ↓
                          snapshot.docChanges() processed
                                ↓
@@ -915,20 +915,20 @@ STAR BUTTON:
 
 INTEGRATION TESTS (CRITICAL):
 - [ ] Team browser loads with cached data on app start
-- [ ] Real-time: New team created → Appears in list within 2s
-- [ ] Real-time: Team archived → Disappears from list
-- [ ] Real-time: Team name changed → Updates in list
+- [ ] Real-time: New team created -> Appears in list within 2s
+- [ ] Real-time: Team archived -> Disappears from list
+- [ ] Real-time: Team name changed -> Updates in list
 - [ ] Team switch: Switching teams excludes new current team from list
 - [ ] Search + division: Combined filters work correctly
 - [ ] Large list (40+ teams) scrolls smoothly
 
 END-TO-END TESTS:
-- [ ] User logs in → Sees team list in bottom-right panel
-- [ ] User searches for team → Finds correct team(s)
-- [ ] User filters by D1 → Only D1 teams shown
-- [ ] User selects 3 teams → Selection count shows "3"
-- [ ] User clears search → All teams visible again
-- [ ] Page refresh → Teams reload from cache/Firebase
+- [ ] User logs in -> Sees team list in bottom-right panel
+- [ ] User searches for team -> Finds correct team(s)
+- [ ] User filters by D1 -> Only D1 teams shown
+- [ ] User selects 3 teams -> Selection count shows "3"
+- [ ] User clears search -> All teams visible again
+- [ ] Page refresh -> Teams reload from cache/Firebase
 ```
 
 ## 8. Common Integration Pitfalls
@@ -1033,7 +1033,7 @@ Before considering this slice spec complete:
 - [x] Hot paths clearly identified (all filtering is client-side)
 - [x] Test scenarios cover full stack
 - [x] No anti-patterns present
-- [x] Data flow complete (Cache → Filter → Render)
+- [x] Data flow complete (Cache -> Filter -> Render)
 - [x] Integration examples show actual code
 - [x] Error handling specified (empty states)
 - [x] Loading states defined (relies on pre-cached data)

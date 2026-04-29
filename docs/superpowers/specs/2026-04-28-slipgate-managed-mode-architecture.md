@@ -1,4 +1,4 @@
-# Slipgate Managed Mode — Architecture
+# Slipgate Managed Mode -- Architecture
 
 > **Captured 2026-04-28** alongside the vision spec (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`). This document defines the data model, storage layout, primitive operations, content taxonomy, watcher contract, SHA256 governance, and engine integration that the Managed Mode arc roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`) implements.
 >
@@ -6,26 +6,26 @@
 
 > **Update 2026-04-28 (pre-Pass-1 anchor):** Six decisions ratified during the orchestrator briefing extend this document before the Arc A+B brainstorm Pass 1. They are summarized below as anchor points; the body is being revised pass-by-pass to integrate them as brainstorm work crystallizes. Until each pass is drained, where the body and this anchor diverge, the anchor is authoritative.
 >
-> **Pass 1 status: COMPLETE 2026-04-28.** Substrate and storage decisions drained into body — see Storage Layout (Unified blob store, Layout decisions ratified, Process model, Implementation note), Primitive operations (register/materialize/export updated), Active profile vs launched profiles, Garbage collection (manifest-as-truth + refcount), Lossless-export pledge protection. Item 1 below is now in body; items 2-6 remain pending later passes.
+> **Pass 1 status: COMPLETE 2026-04-28.** Substrate and storage decisions drained into body -- see Storage Layout (Unified blob store, Layout decisions ratified, Process model, Implementation note), Primitive operations (register/materialize/export updated), Active profile vs launched profiles, Garbage collection (manifest-as-truth + refcount), Lossless-export pledge protection. Item 1 below is now in body; items 2-6 remain pending later passes.
 >
-> **Pass 2 status: COMPLETE 2026-04-28.** Manifest schema, materializer mechanics, gamedir handling, and history retention drained into body — see Manifest as Profile (Pass 2 ratified schema, identity, validation, atomic write, declared_gamedirs), Primitive operations `materialize` (atomic swap + trust-existing-tree + UI busy-state + watcher self-skip), Versioning and history (living-file-vs-immutable-artifact principle + checkpoints + retention defaults), Slipgate self-knowledge surface (new placeholder section). Item 3 below is now in body. Items 2, 4, 5 remain pending Passes 3+.
+> **Pass 2 status: COMPLETE 2026-04-28.** Manifest schema, materializer mechanics, gamedir handling, and history retention drained into body -- see Manifest as Profile (Pass 2 ratified schema, identity, validation, atomic write, declared_gamedirs), Primitive operations `materialize` (atomic swap + trust-existing-tree + UI busy-state + watcher self-skip), Versioning and history (living-file-vs-immutable-artifact principle + checkpoints + retention defaults), Slipgate self-knowledge surface (new placeholder section). Item 3 below is now in body. Items 2, 4, 5 remain pending Passes 3+.
 >
-> 1. **Materializer modes simplify.** Two modes only: `hardlink` (active-tree materialization) and `copy` (lossless export). The `hardlink_preferred` fallback middle case is dropped — under slipgate-IS-quakedir, active-tree materialization is single-volume by construction. Edge case: data roots on filesystems without hardlink support (FAT32 / exFAT / some network mounts) blocked at install with a precondition check, not silent copy fallback. **DRAINED into Storage Layout + Primitive Operations 2026-04-28.**
+> 1. **Materializer modes simplify.** Two modes only: `hardlink` (active-tree materialization) and `copy` (lossless export). The `hardlink_preferred` fallback middle case is dropped -- under slipgate-IS-quakedir, active-tree materialization is single-volume by construction. Edge case: data roots on filesystems without hardlink support (FAT32 / exFAT / some network mounts) blocked at install with a precondition check, not silent copy fallback. **DRAINED into Storage Layout + Primitive Operations 2026-04-28.**
 >
-> 2. **Sixth content-taxonomy bucket: `user-private` (in-tree, unmanaged).** Files in the materialized tree that are NOT in any manifest and NOT classified into the other five buckets, but the user has marked as "respect, don't touch" (private notes, personal subfolders, half-finished experiments). Preserved across rematerialization, not warehoused, not exported, not synced. Tracked via `<data-root>/profiles/<id>/private.json` listing relative paths. (Affects: Content Taxonomy, Filesystem Watcher Contract — adds a fifth dispatch case "untracked + user-private" alongside the existing four.)
+> 2. **Sixth content-taxonomy bucket: `user-private` (in-tree, unmanaged).** Files in the materialized tree that are NOT in any manifest and NOT classified into the other five buckets, but the user has marked as "respect, don't touch" (private notes, personal subfolders, half-finished experiments). Preserved across rematerialization, not warehoused, not exported, not synced. Tracked via `<data-root>/profiles/<id>/private.json` listing relative paths. (Affects: Content Taxonomy, Filesystem Watcher Contract -- adds a fifth dispatch case "untracked + user-private" alongside the existing four.)
 >
-> 3. **Manifest gains `declared_gamedirs: string[]`.** Lists the gamedirs the profile expects to materialize ("qw", "painkeep", "hipnotic", etc. — note: KTX is server-side and runs in `qw/`, not its own gamedir). Launcher offers a per-launch gamedir picker when length > 1. Anchors a future mod/singleplayer/expansion launcher (Painkeep-as-gamedir, hipnotic/rogue expansions) on the same primitive at near-zero cost. **DRAINED into Manifest as Profile 2026-04-28.**
+> 3. **Manifest gains `declared_gamedirs: string[]`.** Lists the gamedirs the profile expects to materialize ("qw", "painkeep", "hipnotic", etc. -- note: KTX is server-side and runs in `qw/`, not its own gamedir). Launcher offers a per-launch gamedir picker when length > 1. Anchors a future mod/singleplayer/expansion launcher (Painkeep-as-gamedir, hipnotic/rogue expansions) on the same primitive at near-zero cost. **DRAINED into Manifest as Profile 2026-04-28.**
 >
 > 4. **Cloud-SHA-lookup is load-bearing for the classifier long-run.** Arc E (watcher) ships with local-heuristic classification + deferred submission queue for unknown SHAs. Arc H (cloud catalog) augments lookups with catalog metadata when online. Two-way collaboration: user-confirmed classifications flow back as moderated submission candidates. Offline mode keeps full classifier functionality with reduced precision. Implication: Arc H's catalog data shape must be brainstormed alongside Arc A/B/D/E (locked at design time; can still ship as a later implementation arc). (Affects: Cloud Catalog Interaction, Filesystem Watcher Contract.)
 >
-> 5. **Runtime swap class taxonomy.** Class 1: cfg-only swap (HUD, binds, aliases) — mailslot-driven `exec` / `cfg_load`, no engine restart. Class 2: visual-asset swap (textures, skins, sounds) — `vid_restart` or next-mapchange, mixed reload-cost per asset category, taxonomy required. Class 3: full profile swap (different stock paks, binaries, gamedirs) — engine restart required. V1 ships Class 1 deliberate, Class 2 empirical case-by-case, Class 3 default UX = "engine restart required." Mailslot is ezQuake-specific (`\\.\mailslot\ezquake`); FTE IPC TBD. Mailslot ruleset-gating to be verified against ezQuake source via qw-oracle before tournament-context features. (Affects: Engine Integration — new subsection.)
+> 5. **Runtime swap class taxonomy.** Class 1: cfg-only swap (HUD, binds, aliases) -- mailslot-driven `exec` / `cfg_load`, no engine restart. Class 2: visual-asset swap (textures, skins, sounds) -- `vid_restart` or next-mapchange, mixed reload-cost per asset category, taxonomy required. Class 3: full profile swap (different stock paks, binaries, gamedirs) -- engine restart required. V1 ships Class 1 deliberate, Class 2 empirical case-by-case, Class 3 default UX = "engine restart required." Mailslot is ezQuake-specific (`\\.\mailslot\ezquake`); FTE IPC TBD. Mailslot ruleset-gating to be verified against ezQuake source via qw-oracle before tournament-context features. (Affects: Engine Integration -- new subsection.)
 >
 > 6. **(Roadmap-only)** Brainstorm scope covers the full surface (Arcs A through H), not just V1 substrate. Pre-launch greenfield with no production code and no users means design coherence requires committing to cross-arc contracts up front. V1/V1+ remains the implementation-sequence axis but is no longer the design-scope axis.
 >
 > **Pass 2 carry-forwards (for Pass 3 + later):**
 > - **Configs-as-living-files vs assets-as-immutable-artifacts** is now a load-bearing architectural principle (drained into Versioning and history). It surfaces a Pass 3 sub-question: should configs and assets share role taxonomy + catalog metadata model, or diverge?
-> - **Seventh content-taxonomy bucket: `user-library` (shared base content)** — maps, locs, and similar profile-orthogonal accumulated content. Bucket boundary needs Pass 3 work. Drives Arc D classifier rules and Arc H import-modal UX.
-> - **Slipgate self-knowledge surface** — the inventory of bundled-and-refreshable knowledge tables (asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, Layer 1 data, classifier heuristics). Cross-cutting; accretes through Passes 3-6. Placeholder section added to body; sized as an arc later (likely Arc H sibling or part of catalog refresh mechanism).
+> - **Seventh content-taxonomy bucket: `user-library` (shared base content)** -- maps, locs, and similar profile-orthogonal accumulated content. Bucket boundary needs Pass 3 work. Drives Arc D classifier rules and Arc H import-modal UX.
+> - **Slipgate self-knowledge surface** -- the inventory of bundled-and-refreshable knowledge tables (asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, Layer 1 data, classifier heuristics). Cross-cutting; accretes through Passes 3-6. Placeholder section added to body; sized as an arc later (likely Arc H sibling or part of catalog refresh mechanism).
 
 ---
 
@@ -47,7 +47,7 @@ This is the same primitive as Git's object store (with hashes instead of names),
 
 A profile is a JSON document that maps SHA256 hashes to target filesystem paths, plus metadata about each entry. The manifest is small (KB-scale even for setups with hundreds of entries). Sharing a profile is sharing a manifest. Importing a profile is fetching whatever blobs aren't already locally available.
 
-**Manifest is a complete unfiltered snapshot.** When a profile is published or shared, the manifest captures the full state of the user's quakedir. Filtering happens at *consumption*, not at publish — the import modal lets the receiving user pick which subsets to actually pull (defaults: configs + customizations + map textures for maps you already have; opt-in for large unrelated assets). This mirrors the lossless-export pledge from the publishing side and keeps profile-sharing honest.
+**Manifest is a complete unfiltered snapshot.** When a profile is published or shared, the manifest captures the full state of the user's quakedir. Filtering happens at *consumption*, not at publish -- the import modal lets the receiving user pick which subsets to actually pull (defaults: configs + customizations + map textures for maps you already have; opt-in for large unrelated assets). This mirrors the lossless-export pledge from the publishing side and keeps profile-sharing honest.
 
 #### Schema (Pass 2 ratified)
 
@@ -85,15 +85,15 @@ A profile is a JSON document that maps SHA256 hashes to target filesystem paths,
 }
 ```
 
-**Identity (2.1.a):** `id` is an immutable UUID — the profile's stable filesystem path component (`<data-root>/profiles/<uuid>/`). `name` is a mutable display label, unique within a data root (collisions on import suffix `-2`, `-3`). Renaming a profile leaves history, genealogy, and shortcuts intact. Cloning ("fork from active, pick categories") is the fork primitive — selectable_subsets is NOT in the manifest schema; subset selection happens at fork/import time, computed from the `role` field.
+**Identity (2.1.a):** `id` is an immutable UUID -- the profile's stable filesystem path component (`<data-root>/profiles/<uuid>/`). `name` is a mutable display label, unique within a data root (collisions on import suffix `-2`, `-3`). Renaming a profile leaves history, genealogy, and shortcuts intact. Cloning ("fork from active, pick categories") is the fork primitive -- selectable_subsets is NOT in the manifest schema; subset selection happens at fork/import time, computed from the `role` field.
 
 **Schema versioning (2.1.b):** `schema_version: 1` is required. Slipgate ships an append-only migration registry; on load, manifests with `schema_version < CURRENT` run sequential migrations and write back. First-version field; no implicit detection.
 
 **Manifest fingerprint (2.1.c):** `parent_manifest_sha` is the SHA256 of the parent manifest after canonicalization. Canonicalization rules: keys sorted lexicographically at every object level, no trailing whitespace, LF line endings only, UTF-8 with no BOM, numbers in shortest form. The manifest's own SHA is stored externally (in `manifest-history/<timestamp>-<sha>.json` filename), not inside the document. This gives deterministic SHAs across machines without bootstrap-loop problems. Genealogy/credit UX consumption is a later product decision; the data is here if needed.
 
-**Engine compatibility:** No `engine_compatibility` field. Per-cvar warnings are computed at runtime from the qw-oracle Layer 1 data plus the user's installed engine version ("cvar X requires ezQuake 3.6.9; you have 3.5.1 — feature won't work"). Author-declared compatibility is opinion; cvar-derived compatibility is fact, and the data is already in the knowledge service. Engine still ignores unknown cvars at runtime; user can dismiss the warning and play.
+**Engine compatibility:** No `engine_compatibility` field. Per-cvar warnings are computed at runtime from the qw-oracle Layer 1 data plus the user's installed engine version ("cvar X requires ezQuake 3.6.9; you have 3.5.1 -- feature won't work"). Author-declared compatibility is opinion; cvar-derived compatibility is fact, and the data is already in the knowledge service. Engine still ignores unknown cvars at runtime; user can dismiss the warning and play.
 
-**Atomic write + corruption recovery (2.1.e):** Every manifest write is `manifest.json.tmp` → fsync → atomic rename → fsync parent dir. On profile creation, slipgate immediately writes a backup copy so two copies exist before any session. Validation is eager on write (refuse to write invalid manifests), lazy on read (validate-then-load with structured error). Corruption recovery sequence:
+**Atomic write + corruption recovery (2.1.e):** Every manifest write is `manifest.json.tmp` -> fsync -> atomic rename -> fsync parent dir. On profile creation, slipgate immediately writes a backup copy so two copies exist before any session. Validation is eager on write (refuse to write invalid manifests), lazy on read (validate-then-load with structured error). Corruption recovery sequence:
 1. Try restoring from most recent `manifest-history/<timestamp>-<sha>.json` entry.
 2. If history is empty or also corrupted, offer hash-walk-the-tree rebuild: hash every file in the materialized tree, reconstruct manifest entries from blob registry.
 3. If that fails too, surface "profile manifest unrecoverable" with the option to delete the profile.
@@ -107,18 +107,18 @@ The combination of (creation backup) + (manifest history per save) + (catalog ba
 **Optional but recommended:** `size` (denormalized blob size; avoids stat for "how big is this profile?" UI).
 
 **Optional:** `added_via` (profile-local provenance string with documented prefixes):
-- `migration:initial-extraction` — came in during clean-room migration
-- `user-import:drag-drop` / `user-import:file-picker` — user imported directly
-- `catalog-download:<asset-handle>` — pulled from cloud catalog
-- `edit:watcher` — created by the watcher absorbing an in-place edit
-- `fork-from:<profile-id>` — came along when forking
-- `merge-from:<profile-id>` — came in via selective merge
+- `migration:initial-extraction` -- came in during clean-room migration
+- `user-import:drag-drop` / `user-import:file-picker` -- user imported directly
+- `catalog-download:<asset-handle>` -- pulled from cloud catalog
+- `edit:watcher` -- created by the watcher absorbing an in-place edit
+- `fork-from:<profile-id>` -- came along when forking
+- `merge-from:<profile-id>` -- came in via selective merge
 
 `added_via` is profile-local provenance ("how did this entry land in MY manifest"), distinct from asset-global authorship. Asset authorship/license/credit metadata lives in the catalog and is fetched by SHA at display time.
 
 **Forbidden in V1:** anything else. Keep entries lean. `selectable_subsets` deferred (the cloning-with-categories UX computes subsets from `role` directly; no DSL needed).
 
-**Role taxonomy is registry-based, not hardcoded.** Slipgate ships a default `asset-roles.json` (the categories known today). When the user is signed in, slipgate optionally refreshes the registry from the catalog. New asset types (KTX-specific stuff, mod content, future categories) are catalog-side data updates — no slipgate code change required. Authority: catalog admin defines new roles; slipgate consumes. Validation rule on manifest write: every entry's `role` must be in the currently-known registry. Importing a profile with a role not yet in the local registry triggers a refresh attempt or a user prompt. This is one instance of the broader "slipgate self-knowledge surface" pattern (see dedicated section).
+**Role taxonomy is registry-based, not hardcoded.** Slipgate ships a default `asset-roles.json` (the categories known today). When the user is signed in, slipgate optionally refreshes the registry from the catalog. New asset types (KTX-specific stuff, mod content, future categories) are catalog-side data updates -- no slipgate code change required. Authority: catalog admin defines new roles; slipgate consumes. Validation rule on manifest write: every entry's `role` must be in the currently-known registry. Importing a profile with a role not yet in the local registry triggers a refresh attempt or a user prompt. This is one instance of the broader "slipgate self-knowledge surface" pattern (see dedicated section).
 
 **Cross-platform `target_path` rules (2.2.b):**
 - Forward slashes only inside manifests; slipgate translates to backslashes on Windows when materializing
@@ -135,7 +135,7 @@ The combination of (creation backup) + (manifest history per save) + (catalog ba
 - a member of `declared_gamedirs`
 - an allowlisted root-level engine file (`ezquake.exe`, `fteqw.exe`, DLLs, etc.)
 
-Entries outside this set are rejected at manifest write time. Merging an entry that introduces a new gamedir is a UI-level concern (the merge flow surfaces "this profile adds gamedir 'painkeep' — extend yours?" before the merge proceeds) — the manifest layer never stores entries for undeclared gamedirs.
+Entries outside this set are rejected at manifest write time. Merging an entry that introduces a new gamedir is a UI-level concern (the merge flow surfaces "this profile adds gamedir 'painkeep' -- extend yours?" before the merge proceeds) -- the manifest layer never stores entries for undeclared gamedirs.
 
 **Server-pushed gamedirs** (CTF auto-download, etc.) are NOT in the profile manifest. They land in `<data-root>/mod-cache/<mod>/` (cache-ephemera bucket) and are handled by the watcher (Arc E), not the manifest.
 
@@ -175,8 +175,8 @@ The tree is **derived state**. Wiping it and rematerializing from the manifest p
 
 Two concepts that can differ at any moment:
 
-- **Active profile** — the profile slipgate's UI is currently focused on (ConfigViewer, MyQuake, edits operate against it). Exactly one. Recorded in `<data-root>/active-profile.json`.
-- **Launched profiles** — the set of profiles with a running engine instance. Zero or more concurrently. ezQuake supports multiple engine instances natively (real use case: idle in a 4on4 server while playing 1on1 in a second instance). Each launched instance binds to its own profile's tree via `-basedir`.
+- **Active profile** -- the profile slipgate's UI is currently focused on (ConfigViewer, MyQuake, edits operate against it). Exactly one. Recorded in `<data-root>/active-profile.json`.
+- **Launched profiles** -- the set of profiles with a running engine instance. Zero or more concurrently. ezQuake supports multiple engine instances natively (real use case: idle in a 4on4 server while playing 1on1 in a second instance). Each launched instance binds to its own profile's tree via `-basedir`.
 
 The two sets can diverge. A user can launch profile X, then switch slipgate's UI focus to profile Y for editing. X's engine continues; slipgate's UI reflects Y. Profile switching in the UI sense (`swap_active_profile`) updates the active pointer. Profile launching is a separate operation covered in Engine integration.
 
@@ -189,7 +189,7 @@ The two sets can diverge. A user can launch profile X, then switch slipgate's UI
 }
 ```
 
-Tree materialization is independent of both activeness and launched-state — multiple profiles can be materialized simultaneously regardless of which is active or launched.
+Tree materialization is independent of both activeness and launched-state -- multiple profiles can be materialized simultaneously regardless of which is active or launched.
 
 ---
 
@@ -198,56 +198,56 @@ Tree materialization is independent of both activeness and launched-state — mu
 The complete data root structure (Pass 1 ratified):
 
 ```
-<data-root>/                          ← slipgate's managed install root
-  .lock                               ← single-process invariant (PID + hostname + timestamp)
-  active-profile.json                 ← which profile slipgate's UI is focused on
-  active-profile-history.json         ← audit log of activeness transitions
+<data-root>/                          <- slipgate's managed install root
+  .lock                               <- single-process invariant (PID + hostname + timestamp)
+  active-profile.json                 <- which profile slipgate's UI is focused on
+  active-profile-history.json         <- audit log of activeness transitions
   
-  blobs/                              ← UNIFIED content-addressed storage; immutable; any content type
-    .refcounts.json                   ← cached SHA -> ref-count index for GC; rebuildable from manifest walk
-    ab/                               ← two-char fanout by SHA prefix (256 buckets)
-      abcdef0123...bin                ← the blob bytes
-      abcdef0123...meta.json          ← per-blob sidecar (first-seen path, source, role-history, content-type-hint)
+  blobs/                              <- UNIFIED content-addressed storage; immutable; any content type
+    .refcounts.json                   <- cached SHA -> ref-count index for GC; rebuildable from manifest walk
+    ab/                               <- two-char fanout by SHA prefix (256 buckets)
+      abcdef0123...bin                <- the blob bytes
+      abcdef0123...meta.json          <- per-blob sidecar (first-seen path, source, role-history, content-type-hint)
     cd/
       cdef4567...bin
       cdef4567...meta.json
     ...
   
-  profiles/                           ← per-profile state
+  profiles/                           <- per-profile state
     <profile-name-or-uuid>/
-      manifest.json                   ← source of truth for profile contents
-      manifest-history/               ← prior manifest versions (per-config retention + snapshot retention)
+      manifest.json                   <- source of truth for profile contents
+      manifest-history/               <- prior manifest versions (per-config retention + snapshot retention)
         <timestamp>-<sha>.json
         ...
-      private.json                    ← user-private (in-tree, unmanaged) file paths to respect on rematerialization
-      tree/                           ← MATERIALIZED dir; engine launches against this
+      private.json                    <- user-private (in-tree, unmanaged) file paths to respect on rematerialization
+      tree/                           <- MATERIALIZED dir; engine launches against this
         id1/
-          pak0.pak                    ← hardlink to ../../../../blobs/ab/<sha>.bin
+          pak0.pak                    <- hardlink to ../../../../blobs/ab/<sha>.bin
           ...
         qw/
-          config.cfg                  ← hardlink
+          config.cfg                  <- hardlink
           ...
-        ezquake.exe                   ← hardlink to a binary blob in unified blobs/
+        ezquake.exe                   <- hardlink to a binary blob in unified blobs/
         ...
   
-  binaries/                           ← Phase 3.5b binary METADATA (blobs themselves live in unified blobs/)
-    <client>/                         ← e.g. ezquake/, fteqw/
-      <version>/                      ← e.g. 3.6.9/
-        manifest.json                 ← references binary blob by SHA into unified blobs/
+  binaries/                           <- Phase 3.5b binary METADATA (blobs themselves live in unified blobs/)
+    <client>/                         <- e.g. ezquake/, fteqw/
+      <version>/                      <- e.g. 3.6.9/
+        manifest.json                 <- references binary blob by SHA into unified blobs/
         variants/
           <variant>/
             manifest.json
-    index.json                        ← active version per (client, variant)
+    index.json                        <- active version per (client, variant)
   
-  assets/                             ← asset metadata + indexes (blobs themselves live in unified blobs/)
-    by-category/                      ← optional: indexed views of warehoused assets (UI helper, derived)
+  assets/                             <- asset metadata + indexes (blobs themselves live in unified blobs/)
+    by-category/                      <- optional: indexed views of warehoused assets (UI helper, derived)
       textures/
       sounds/
       configs/
       ...
-    catalog-cache/                    ← cached metadata from cloud catalog (Arc H)
+    catalog-cache/                    <- cached metadata from cloud catalog (Arc H)
   
-  user-content/                       ← profile-orthogonal content (NOT warehoused, NOT in any manifest)
+  user-content/                       <- profile-orthogonal content (NOT warehoused, NOT in any manifest)
     demos/
       server-downloaded/
         <server-host>/<date>/
@@ -262,7 +262,7 @@ The complete data root structure (Pass 1 ratified):
       <profile-id>/
         <log-files>
   
-  mod-cache/                          ← quarantined per-mod content (TF, CTF, etc.)
+  mod-cache/                          <- quarantined per-mod content (TF, CTF, etc.)
     tf/
       qw/
         progs/tfprogs.dat
@@ -271,12 +271,12 @@ The complete data root structure (Pass 1 ratified):
     ctf/
       ...
   
-  release-cache/                      ← Phase 3.5b shipped: GitHub Releases per-channel
+  release-cache/                      <- Phase 3.5b shipped: GitHub Releases per-channel
     <client>-<channel>.json
   
-  trash/                              ← deferred-deletion buffer for safety
-    blobs/<sha[:2]>/<sha>.bin         ← entries pending GC sweep (default 30-day retention)
-    profiles-orphaned/                ← deleted profiles' manifests, recoverable
+  trash/                              <- deferred-deletion buffer for safety
+    blobs/<sha[:2]>/<sha>.bin         <- entries pending GC sweep (default 30-day retention)
+    profiles-orphaned/                <- deleted profiles' manifests, recoverable
 ```
 
 ### Unified blob store (Pass 1 ratified)
@@ -291,7 +291,7 @@ Phase 3.5b's existing `binaries/blobs/<sha>.exe` data migrates to the unified la
 
 **Per-blob sidecar metadata.** Each blob carries a sibling `<sha>.meta.json` in the same fanout bucket. Sidecar records first-seen path, source (migration / cloud-import / user-drop / engine-write), role-history (which manifests have referenced it under what role), content-type-hint, timestamps. Recovery story: blob + sidecar are co-located; `cp -r blobs/` captures both; partial corruption affects one blob's metadata only; editable in any text editor for emergency recovery.
 
-**Refcount index.** `<data-root>/blobs/.refcounts.json` caches `{sha → ref-count}` updated on every manifest add/remove. GC consults the index instead of walking all manifests on every sweep. Rebuildable from a full manifest walk if corrupted.
+**Refcount index.** `<data-root>/blobs/.refcounts.json` caches `{sha -> ref-count}` updated on every manifest add/remove. GC consults the index instead of walking all manifests on every sweep. Rebuildable from a full manifest walk if corrupted.
 
 ### Process model (Pass 1 ratified)
 
@@ -306,20 +306,20 @@ Multi-process upgrade path: if V1+ ever adds a background watcher service, the l
 
 ### Implementation note (Pass 1 ratified)
 
-Phase 3.5b's `version_warehouse.rs` (~1500 lines, 142 Rust tests) refactors into a generic `content_warehouse.rs` consuming the unified blob store. The binary domain keeps its API (`register_version_at`, `swap_active_version`) as a thin wrapper. The asset domain gets a parallel thin wrapper (`asset_warehouse.rs`) on top of the same generic warehouse. One-shot data migration script handles the existing `binaries/blobs/<sha>.exe` → `<data-root>/blobs/<sha[:2]>/<sha>.bin` conversion at first launch.
+Phase 3.5b's `version_warehouse.rs` (~1500 lines, 142 Rust tests) refactors into a generic `content_warehouse.rs` consuming the unified blob store. The binary domain keeps its API (`register_version_at`, `swap_active_version`) as a thin wrapper. The asset domain gets a parallel thin wrapper (`asset_warehouse.rs`) on top of the same generic warehouse. One-shot data migration script handles the existing `binaries/blobs/<sha>.exe` -> `<data-root>/blobs/<sha[:2]>/<sha>.bin` conversion at first launch.
 
 ---
 
 ## Content taxonomy
 
-Every file slipgate encounters falls into exactly one of five buckets. The taxonomy is the foundation of the migration classifier (clean-room extraction) and the runtime watcher classifier — they share the same dispatch logic.
+Every file slipgate encounters falls into exactly one of five buckets. The taxonomy is the foundation of the migration classifier (clean-room extraction) and the runtime watcher classifier -- they share the same dispatch logic.
 
 ### Bucket 1: Stock baseline
 
 Files that constitute the irreducible "I have a working Quake" minimum:
 
-- `id1/pak0.pak` — original Quake content (shareware or registered)
-- `id1/pak1.pak` — registered-version content
+- `id1/pak0.pak` -- original Quake content (shareware or registered)
+- `id1/pak1.pak` -- registered-version content
 - (Optionally `qw/pak0.pak` if the user's install includes it; modern engines don't strictly require it)
 
 **Properties:**
@@ -333,16 +333,16 @@ Files that constitute the irreducible "I have a working Quake" minimum:
 Content the user has accumulated as part of their setup. This is the bulk of "what defines a profile."
 
 Subcategories (the `role` field on manifest entries):
-- `user-asset:config` — config.cfg, autoexec.cfg, exec'd subconfigs (scripts, weapon configs, hud configs)
-- `user-asset:texture` — flat-file textures replacing default WAD textures (`qw/textures/wads/...`, `qw/textures/cs/...`, etc.)
-- `user-asset:sound` — replacement weapon sounds, ambient overrides, custom announcer sounds
-- `user-asset:hud` — custom HUD images, scoreboard banners, frag overlays
-- `user-asset:skin` — player skin replacements, team colors
-- `user-asset:skybox` — sky replacement sets
-- `user-asset:script` — custom .cfg files for binds/aliases (often exec'd by the active config chain)
-- `user-asset:map` — custom maps the user wants kept (vs server-cached maps from random pickup servers)
-- `user-asset:conchars` — custom font / charset replacements
-- `user-asset:lit` — map lighting files
+- `user-asset:config` -- config.cfg, autoexec.cfg, exec'd subconfigs (scripts, weapon configs, hud configs)
+- `user-asset:texture` -- flat-file textures replacing default WAD textures (`qw/textures/wads/...`, `qw/textures/cs/...`, etc.)
+- `user-asset:sound` -- replacement weapon sounds, ambient overrides, custom announcer sounds
+- `user-asset:hud` -- custom HUD images, scoreboard banners, frag overlays
+- `user-asset:skin` -- player skin replacements, team colors
+- `user-asset:skybox` -- sky replacement sets
+- `user-asset:script` -- custom .cfg files for binds/aliases (often exec'd by the active config chain)
+- `user-asset:map` -- custom maps the user wants kept (vs server-cached maps from random pickup servers)
+- `user-asset:conchars` -- custom font / charset replacements
+- `user-asset:lit` -- map lighting files
 
 **Properties:**
 - Cloud-distributable freely.
@@ -397,7 +397,7 @@ Files the engine itself writes during normal operation that aren't user-edits:
 - Live in the materialized tree because the engine expects them there.
 - Not part of the manifest; not warehoused.
 - Per-engine allowlist (different engines write different runtime files).
-- Engine-runtime files are profile-private (state for THIS profile's session) — when materialization rebuilds the tree, engine-runtime files are preserved if present, otherwise the engine recreates them on next launch.
+- Engine-runtime files are profile-private (state for THIS profile's session) -- when materialization rebuilds the tree, engine-runtime files are preserved if present, otherwise the engine recreates them on next launch.
 
 ### Classifier outputs
 
@@ -430,17 +430,17 @@ Hash bytes, write to `blobs/<sha[:2]>/<sha>.bin` if not already present, write/u
 
 ### `materialize(manifest, target_dir, mode) -> Result<()>`
 
-For each manifest entry, ensure a hardlink (or copy, depending on mode) exists at `target_dir/<entry.target_path>` pointing at `blobs/<entry.sha[:2]>/<entry.sha>.bin`. Idempotent. Removes orphan tree hardlinks (entries present in tree but not in current manifest) — this is the tree-consistency enforcement point.
+For each manifest entry, ensure a hardlink (or copy, depending on mode) exists at `target_dir/<entry.target_path>` pointing at `blobs/<entry.sha[:2]>/<entry.sha>.bin`. Idempotent. Removes orphan tree hardlinks (entries present in tree but not in current manifest) -- this is the tree-consistency enforcement point.
 
 Modes (Pass 1 ratified, simplified from earlier draft):
 - `hardlink`: active-tree materialization. Single-volume by construction under slipgate-IS-quakedir, so hardlinks always work for normal operation. Install-time precondition rejects data roots on non-hardlink-capable filesystems (FAT32, exFAT, some network mounts) rather than silent fallback.
 - `copy`: lossless export. Survives slipgate uninstall. Used by the export primitive.
 
-**Atomic swap (Pass 2.4.a):** materialization builds the new tree at a sibling temp path (`tree.materializing/`) and atomic-renames into `tree/` only when complete. If interrupted mid-materialization (crash, power loss, kill), the active `tree/` is untouched. Disk cost of the temp tree is approximately zero — both trees are hardlinks to the same blobs (just inode pointers, not data).
+**Atomic swap (Pass 2.4.a):** materialization builds the new tree at a sibling temp path (`tree.materializing/`) and atomic-renames into `tree/` only when complete. If interrupted mid-materialization (crash, power loss, kill), the active `tree/` is untouched. Disk cost of the temp tree is approximately zero -- both trees are hardlinks to the same blobs (just inode pointers, not data).
 
 **Trust-existing-tree fast path (Pass 2.4.b):** when re-materializing a profile whose tree already exists, materialization checks each entry's hash against the existing tree file and skips files that already match. Stable profiles re-materialize as a no-op fast path (sub-100ms typical). Rebuild only what's actually different. The watcher already maintains tree-vs-manifest consistency at runtime, so the fast path is the common case.
 
-**Watcher self-skip (Pass 2.4.c):** materialization does NOT explicitly suspend the filesystem watcher. The watcher's hash-comparison check naturally skips slipgate's own writes — the hardlinks materialization creates have hashes matching the manifest's expected hashes, so the watcher sees "tracked SHA at expected path, no real change" and ignores them. Mathematically self-consistent; no synchronization required. Explicit suspension is held in reserve as a fallback if a corner case ever forces it.
+**Watcher self-skip (Pass 2.4.c):** materialization does NOT explicitly suspend the filesystem watcher. The watcher's hash-comparison check naturally skips slipgate's own writes -- the hardlinks materialization creates have hashes matching the manifest's expected hashes, so the watcher sees "tracked SHA at expected path, no real change" and ignores them. Mathematically self-consistent; no synchronization required. Explicit suspension is held in reserve as a fallback if a corner case ever forces it.
 
 **Concurrency model (Pass 2.4.d):** materialization takes the same global async mutex as warehouse + manifest writes. Materialization is fast (sub-second on typical profiles), so brief blocking is acceptable. The mutex serves primarily as a backstop for paths that bypass the UI (e.g., watcher-triggered registers during materialize). The primary serializer is the UI busy-state pattern (next).
 
@@ -458,7 +458,7 @@ Operations that happen below the UI (watcher-triggered registers, GC sweep) stil
 
 ### `swap_active_profile(target_profile_id) -> Result<()>`
 
-Update `active-profile.json` to point at the target (UI-focus sense). Re-point any active-profile-bound shortcuts. Optionally re-materialize the target's tree if it's been GC'd or never materialized. Does NOT close any running engine instance — engine instances are independent of UI active-profile (see Active vs Launched).
+Update `active-profile.json` to point at the target (UI-focus sense). Re-point any active-profile-bound shortcuts. Optionally re-materialize the target's tree if it's been GC'd or never materialized. Does NOT close any running engine instance -- engine instances are independent of UI active-profile (see Active vs Launched).
 
 ### `launch_profile(profile_id, mode) -> Result<EngineHandle>`
 
@@ -487,9 +487,9 @@ Profile export is the specialization `export(manifest_entries(profile), target, 
 ### `fork(parent_profile_id, modifications) -> new_profile_id`
 
 Create a new profile whose manifest is the parent's plus a list of modifications:
-- `add: [{sha, target_path, role}]` — new entries
-- `remove: [target_path]` — entries to omit
-- `replace: {target_path: new_sha}` — swap blob references
+- `add: [{sha, target_path, role}]` -- new entries
+- `remove: [target_path]` -- entries to omit
+- `replace: {target_path: new_sha}` -- swap blob references
 
 The fork operation is purely manifest manipulation; no blobs are copied. Disk cost ≈ size of new manifest entries.
 
@@ -511,16 +511,16 @@ For every filesystem event in the active profile's tree:
 event: file changed (mtime, hash, or both differ from manifest)
   ┌─────────────────────────────────────────────────────────────┐
   │ Case 1: tracked + change matches engine-runtime allowlist   │
-  │   → IGNORE (engine wrote its own state file)                │
+  │   -> IGNORE (engine wrote its own state file)                │
   ├─────────────────────────────────────────────────────────────┤
   │ Case 2: tracked + change is real edit (user or external)    │
-  │   → register new blob → update manifest → rematerialize     │
+  │   -> register new blob -> update manifest -> rematerialize     │
   ├─────────────────────────────────────────────────────────────┤
   │ Case 3: untracked + new file appeared                       │
-  │   → run classifier → quarantine OR prompt user              │
+  │   -> run classifier -> quarantine OR prompt user              │
   ├─────────────────────────────────────────────────────────────┤
   │ Case 4: tracked + file deleted                              │
-  │   → prompt user: "remove from manifest? restore?"           │
+  │   -> prompt user: "remove from manifest? restore?"           │
   └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -539,16 +539,16 @@ When slipgate is materializing or rematerializing a tree, it would self-trigger 
 - Suspend the watcher during materialization
 - After materialization completes, the watcher resumes from a fresh baseline
 
-OR (preferred): the watcher's hash-comparison check naturally skips these — slipgate's writes produce files with hashes matching the manifest's expected hashes, so no real edit is detected.
+OR (preferred): the watcher's hash-comparison check naturally skips these -- slipgate's writes produce files with hashes matching the manifest's expected hashes, so no real edit is detected.
 
 ### Quarantine policy
 
 For Case 3 (new untracked file appeared):
 - Run classifier on path + bytes
-- If classified as `cache-ephemera` with a known mod → move to `mod-cache/<mod>/<original-path>`, hardlink back to active profile tree
-- If classified as `user-content` (demo, screenshot) → move to `user-content/<category>/<profile-id>/<date>/...`
-- If classified as `user-asset:*` with high confidence → prompt user: "New asset detected. Add to active profile manifest? [Yes / Save to library only / Discard]"
-- If `unclassified` → prompt user with file metadata + suggested classification, let them choose
+- If classified as `cache-ephemera` with a known mod -> move to `mod-cache/<mod>/<original-path>`, hardlink back to active profile tree
+- If classified as `user-content` (demo, screenshot) -> move to `user-content/<category>/<profile-id>/<date>/...`
+- If classified as `user-asset:*` with high confidence -> prompt user: "New asset detected. Add to active profile manifest? [Yes / Save to library only / Discard]"
+- If `unclassified` -> prompt user with file metadata + suggested classification, let them choose
 
 ### Promotion flow
 
@@ -579,7 +579,7 @@ The "polluting the catalog with format variants" concern is addressed at the cat
 3. Catalog stores both: original bytes AND canonical-form SHA
 4. Future submissions of "the same" asset in different formats hit the same canonical SHA and dedupe at submission
 
-This is governance at the cloud layer. Slipgate-the-desktop-app sees the stored asset normally — it has its own SHA in the catalog. Slipgate doesn't re-implement the normalization.
+This is governance at the cloud layer. Slipgate-the-desktop-app sees the stored asset normally -- it has its own SHA in the catalog. Slipgate doesn't re-implement the normalization.
 
 ### Perceptual hashing as moderation aid only
 
@@ -612,7 +612,7 @@ fteqw.exe -basedir <data-root>/profiles/<active>/tree/
 
 `-basedir` is supported by ezQuake, FTE, and most QW-derived engines. It tells the engine "use THIS path as the equivalent of `<exe-dir>` for content lookup." All search-path resolution operates relative to `-basedir`.
 
-The exe itself doesn't need to be IN the tree — it can launch from anywhere as long as `-basedir` points at the right tree. In practice, slipgate hardlinks the binary into the tree so users have a one-folder install they can browse.
+The exe itself doesn't need to be IN the tree -- it can launch from anywhere as long as `-basedir` points at the right tree. In practice, slipgate hardlinks the binary into the tree so users have a one-folder install they can browse.
 
 ### Search-path resolution
 
@@ -633,9 +633,9 @@ The materialization step honors this resolution by placing each warehoused asset
 Different engines have slightly different conventions:
 - ezQuake: standard search path + ezhud directories + ezquake-specific resource paths
 - FTE: extended path conventions, plugin directories, shader directories
-- KTX: server-side only — slipgate doesn't materialize for KTX (it's not a client)
-- MVDSV: server-side only — same
-- QWFWD: server-side only — same
+- KTX: server-side only -- slipgate doesn't materialize for KTX (it's not a client)
+- MVDSV: server-side only -- same
+- QWFWD: server-side only -- same
 
 The asset bundle classifier work (Phase 2d-bundle) extracted the per-engine path rules from source. Slipgate's materializer consults this data when resolving target_paths and when classifying assets at migration time.
 
@@ -647,9 +647,9 @@ Profile manifests can declare `engine_compatibility`:
 "engine_compatibility": ["ezquake@3.6+", "fteqw@5800+"]
 ```
 
-This is informational — slipgate doesn't refuse to launch a profile against an engine that doesn't match, but it warns the user. Used for cases like "this profile uses ezhud features that need ezQuake 3.6+" or "this profile contains FTE shaders that won't work in ezQuake."
+This is informational -- slipgate doesn't refuse to launch a profile against an engine that doesn't match, but it warns the user. Used for cases like "this profile uses ezhud features that need ezQuake 3.6+" or "this profile contains FTE shaders that won't work in ezQuake."
 
-The compatibility info isn't extracted automatically; it's set by the profile author (or migrated from heuristics — e.g., if the manifest contains files in `ezhud/` paths, infer ezQuake compatibility).
+The compatibility info isn't extracted automatically; it's set by the profile author (or migrated from heuristics -- e.g., if the manifest contains files in `ezhud/` paths, infer ezQuake compatibility).
 
 ---
 
@@ -657,7 +657,7 @@ The compatibility info isn't extracted automatically; it's set by the profile au
 
 ### Living-file vs immutable-artifact (Pass 2.5 ratified principle)
 
-> **Configs are living files; assets are immutable artifacts.** A config (config.cfg, autoexec.cfg, scripts) is meant to be edited continuously — its history is dense and worth keeping. An asset (texture, sound, HUD image, skin), once registered, is identified by its bytes; "changing" an asset just creates a new asset with a different SHA.
+> **Configs are living files; assets are immutable artifacts.** A config (config.cfg, autoexec.cfg, scripts) is meant to be edited continuously -- its history is dense and worth keeping. An asset (texture, sound, HUD image, skin), once registered, is identified by its bytes; "changing" an asset just creates a new asset with a different SHA.
 
 This dichotomy drives retention policy: generous for configs (per-config history budget, every save is a version), thin for assets (snapshots at meaningful events, since assets rarely change in place anyway). It also frames Pass 3's open question on whether configs and assets should share the same role-taxonomy and catalog-metadata model or diverge.
 
@@ -671,7 +671,7 @@ History storage: **full manifest per version** (not deltas). At KB-scale even on
 
 Edits reach the manifest-history layer through two distinct paths:
 
-**External-edit absorbed by watcher.** When the user edits a config in vim, notepad, an external editor, etc., the OS produces multiple filesystem events for one logical save (write-temp, rename, mtime tick). The watcher's 10-second debounce coalesces these into one history version. This is **noise-coalescing, NOT auto-save** — the watcher waits for the burst to settle and records one version per logical save.
+**External-edit absorbed by watcher.** When the user edits a config in vim, notepad, an external editor, etc., the OS produces multiple filesystem events for one logical save (write-temp, rename, mtime tick). The watcher's 10-second debounce coalesces these into one history version. This is **noise-coalescing, NOT auto-save** -- the watcher waits for the burst to settle and records one version per logical save.
 
 **Internal save button.** When slipgate's own future config editor lands, edits there are user-initiated: one click of "Save" = one history version. No auto-save. No debounce. The user is in explicit control of when state crystallizes.
 
@@ -679,18 +679,18 @@ Both paths produce one history entry per logical save event.
 
 ### Retention policy (Pass 2.5.a + 2.5.c + 2.5.d)
 
-**Auto-version retention for configs:** keep last **500 auto-versions per config** by default. At ~5KB per config × 500 = ~2.5MB per config — negligible. Lazy auto-prune kicks in at the hard ceiling (oldest pruned on add when over limit). Soft UI nudge appears at a lower threshold (~250 versions): unobtrusive "you have 250+ versions of config.cfg from the last 8 months — review?" with a button. Non-blocking; user can dismiss.
+**Auto-version retention for configs:** keep last **500 auto-versions per config** by default. At ~5KB per config x 500 = ~2.5MB per config -- negligible. Lazy auto-prune kicks in at the hard ceiling (oldest pruned on add when over limit). Soft UI nudge appears at a lower threshold (~250 versions): unobtrusive "you have 250+ versions of config.cfg from the last 8 months -- review?" with a button. Non-blocking; user can dismiss.
 
 **Auto-snapshot retention for assets:** 10 auto-snapshots per asset, taken at meaningful events (pre-import, pre-migration, pre-bulk-action). Between snapshots, intermediate blobs are GC-eligible (per GC rules). Assets rarely change in place (per the living-file-vs-asset principle), so 10 snapshots is plenty.
 
-**Settings exposure:** one simple knob — "Keep last [N] config versions" with a "Reset to defaults" button. No per-asset / per-profile sliders. Power users can tune; default users never see the setting. Cognitive-load minimization is a load-bearing UX principle here.
+**Settings exposure:** one simple knob -- "Keep last [N] config versions" with a "Reset to defaults" button. No per-asset / per-profile sliders. Power users can tune; default users never see the setting. Cognitive-load minimization is a load-bearing UX principle here.
 
 ### Checkpoints (Pass 2.5.d)
 
 Slipgate exposes **checkpoints** as the user-facing concept for "anchor this state, never auto-prune." Two flavors:
 
-- **User checkpoints** — named, with optional note. User-created. Surfaced in the History panel with a ★ icon and the user's note. Filterable: "show me only my checkpoints" cuts through edit noise.
-- **Auto checkpoints** — system-created at meaningful events (pre-migration, pre-bulk-import, pre-major-config-change-via-slipgate). Same exempt-from-prune treatment, distinct icon.
+- **User checkpoints** -- named, with optional note. User-created. Surfaced in the History panel with a ★ icon and the user's note. Filterable: "show me only my checkpoints" cuts through edit noise.
+- **Auto checkpoints** -- system-created at meaningful events (pre-migration, pre-bulk-import, pre-major-config-change-via-slipgate). Same exempt-from-prune treatment, distinct icon.
 
 Both flavors are **exempt from auto-prune**. Pruning only touches auto-versions (the routine edit noise). User checkpoints are unlimited; auto checkpoints follow the per-asset 10-snapshot policy unless user-checkpointed.
 
@@ -703,25 +703,25 @@ ConfigViewer (existing slipgate feature) gains a History panel:
 - Each entry shows auto-summary ("3 cvars changed: cl_cmdrate, fov, ...") computed from blob-vs-blob diff
 - Checkpoints (user + auto) surface with their icons and notes
 - Filter chip: "show only checkpoints" toggles auto-versions on/off
-- Click → side-by-side diff against current
-- Restore button → register the historical blob's bytes as a new manifest version
+- Click -> side-by-side diff against current
+- Restore button -> register the historical blob's bytes as a new manifest version
 
 ### Profile genealogy
 
 Every manifest stores `parent_manifest_sha` and optionally `forked_from_profile_id`. This gives:
-- "Show me where this profile came from" → walk the chain back through the originating profile
-- "Show me everything I changed since I forked from paradoks-default" → diff against parent
-- "Promote my changes back upstream" → cherry-pick semantics for advanced users
+- "Show me where this profile came from" -> walk the chain back through the originating profile
+- "Show me everything I changed since I forked from paradoks-default" -> diff against parent
+- "Promote my changes back upstream" -> cherry-pick semantics for advanced users
 
 None of this is user-visible until ARC-C's polish phase, but the data structure supports it from day one.
 
 ### Garbage collection (Pass 1 ratified)
 
-**Source of truth: manifests.** GC walks all manifests (current + retained history) and computes the set of SHAs referenced by any manifest entry. Anything in `<data-root>/blobs/` not in that set is unreferenced and eligible for deletion. The materialized tree's hardlinks are NOT a truth source — the tree is derived state, not authoritative for liveness.
+**Source of truth: manifests.** GC walks all manifests (current + retained history) and computes the set of SHAs referenced by any manifest entry. Anything in `<data-root>/blobs/` not in that set is unreferenced and eligible for deletion. The materialized tree's hardlinks are NOT a truth source -- the tree is derived state, not authoritative for liveness.
 
 This decision is load-bearing for Arc G (per-config IDE-shaped restore): retained historical manifests reference older blobs that aren't in any current tree. nlink-as-truth would delete those blobs and break Restore-from-history; manifest-as-truth preserves them correctly.
 
-**Refcount index for performance.** Walking all manifests on every sweep is bounded but not free. `<data-root>/blobs/.refcounts.json` caches `{sha → ref-count}` and updates on every manifest add/remove. GC reads the index, deletes anything with refcount zero. Index is rebuildable from a full manifest walk if it gets corrupted.
+**Refcount index for performance.** Walking all manifests on every sweep is bounded but not free. `<data-root>/blobs/.refcounts.json` caches `{sha -> ref-count}` and updates on every manifest add/remove. GC reads the index, deletes anything with refcount zero. Index is rebuildable from a full manifest walk if it gets corrupted.
 
 **Tree consistency at rematerialization, not GC.** Removing orphan tree hardlinks (entries in a tree but not in its current manifest) happens during `materialize()`, not during GC. `materialize()` is idempotent and removes-and-recreates tree entries to match the manifest. This naturally drops nlink to zero on truly orphaned blobs (no current manifest reference + no other tree reference) and the kernel frees the inode. Blobs still in retained history retain their warehouse name and stay alive.
 
@@ -730,33 +730,33 @@ This decision is load-bearing for Arc G (per-config IDE-shaped restore): retaine
 **GC safety:**
 - Never delete during active materialization (mutex-coordinated)
 - Never delete blobs referenced by `mod-cache/` (quarantined, may be promoted to user-asset)
-- Never delete recently-created blobs (within last 24h) — gives the watcher's debouncing window safety margin
+- Never delete recently-created blobs (within last 24h) -- gives the watcher's debouncing window safety margin
 - Move-to-`<data-root>/trash/blobs/<sha[:2]>/<sha>.bin` first; permanent delete only after configurable retention (default 30 days)
 
-**Edge case — manual tree deletion.** If the user manually `rm -rf`'s a profile tree via Explorer/shell, the orphan tree hardlinks vanish but the warehouse blobs stay live (still referenced by manifest). On next slipgate launch, the watcher sees Case 4 (tracked + file deleted) for every entry. UI prompts: "Profile X tree is gone. Restore from manifest, or delete the profile?" Both options are valid; manifest-as-truth is what makes Restore possible.
+**Edge case -- manual tree deletion.** If the user manually `rm -rf`'s a profile tree via Explorer/shell, the orphan tree hardlinks vanish but the warehouse blobs stay live (still referenced by manifest). On next slipgate launch, the watcher sees Case 4 (tracked + file deleted) for every entry. UI prompts: "Profile X tree is gone. Restore from manifest, or delete the profile?" Both options are valid; manifest-as-truth is what makes Restore possible.
 
 ### Lossless-export pledge protection (Pass 1 ratified)
 
-The lossless-export pledge — "press one button, walk away with a portable Quake dir, no slipgate needed" — is the architecture's most load-bearing user-facing promise. Three automated tests pin it.
+The lossless-export pledge -- "press one button, walk away with a portable Quake dir, no slipgate needed" -- is the architecture's most load-bearing user-facing promise. Three automated tests pin it.
 
-**Test 1 — round-trip integrity (CI from Arc A/B onward).**
+**Test 1 -- round-trip integrity (CI from Arc A/B onward).**
 1. Build a synthetic profile: stock paks + a few user-asset blobs + a config
 2. `export(profile, target=tempdir, format=raw_tree)` (copy mode)
 3. Hash every file in tempdir; compare against expected hashes
 4. Assert: no missing entries, no extras, no wrong hashes
 
-**Test 2 — zero slipgate residue (CI from Arc A/B onward).**
+**Test 2 -- zero slipgate residue (CI from Arc A/B onward).**
 1. Run export
 2. Walk export tree; assert absence of any slipgate-specific files: no `manifest.json`, no `.meta.json` sidecars, no `.lock`, no `.refcounts.json`, no `private.json`, no `slipgate.*`
 3. The export is "just files"; nothing slipgate-specific peeks through
 
-**Test 3 — post-uninstall launch smoke (CI from Arc F onward).**
+**Test 3 -- post-uninstall launch smoke (CI from Arc F onward).**
 1. Run export to a temp location
 2. Wipe the slipgate data root entirely (simulating uninstall)
 3. Launch ezQuake against the export with `-basedir <export-path>`
 4. Assert: engine launches, reads its config, reaches main menu (or runs a known headless smoke check)
 
-Test 3 is the pledge in machine-checkable form — it either works or it doesn't. Tests 1+2 are byte-comparison only and trivially fast (~ms). Test 3 needs an engine binary in CI and ~5s of runtime; gated to release-candidate level once Arc F lands.
+Test 3 is the pledge in machine-checkable form -- it either works or it doesn't. Tests 1+2 are byte-comparison only and trivially fast (~ms). Test 3 needs an engine binary in CI and ~5s of runtime; gated to release-candidate level once Arc F lands.
 
 These tests run on every PR that touches Arc A, B, F, or anything affecting materialization. Pledge regressions get caught at PR time, not in production.
 
@@ -806,11 +806,11 @@ The clean-room extraction (ARC-D) is the on-ramp for users moving from Light to 
 
 During step 6f, scan all configs for filesystem-path cvars and rewrite to slipgate-managed paths:
 
-- `demo_dir` → `<data-root>/user-content/demos/recorded/<profile-id>/`
-- `sshot_dir` → `<data-root>/user-content/screenshots/<profile-id>/`
-- `log_dir`, `log_path`, `cl_log_dir` → `<data-root>/user-content/logs/<profile-id>/`
-- `media_dir`, `cl_demo_dir`, `_demo_path` → as appropriate
-- Custom `exec` directives with absolute paths → relative to profile tree
+- `demo_dir` -> `<data-root>/user-content/demos/recorded/<profile-id>/`
+- `sshot_dir` -> `<data-root>/user-content/screenshots/<profile-id>/`
+- `log_dir`, `log_path`, `cl_log_dir` -> `<data-root>/user-content/logs/<profile-id>/`
+- `media_dir`, `cl_demo_dir`, `_demo_path` -> as appropriate
+- Custom `exec` directives with absolute paths -> relative to profile tree
 
 The list of path-binding cvars per engine comes from Phase 2d's `cvar_bindings` data with a path-cvar flag (or an extension to that data). Show the user a unified diff of all rewrites; they accept all, review per-line, or decline migration.
 
@@ -819,8 +819,8 @@ The list of path-binding cvars per engine comes from Phase 2d's `cvar_bindings` 
 Default-include (extracted into the new profile):
 - All stock baseline files (verified against catalog SHAs)
 - All actively-referenced user-assets (cvar-bound resources, exec'd cfgs, bind/alias targets)
-- All user-generated owned content → user-content/
-- All classified mod-cache content → mod-cache/
+- All user-generated owned content -> user-content/
+- All classified mod-cache content -> mod-cache/
 
 Default-exclude (NOT extracted, NOT modified, NOT moved):
 - Shadowed assets (overridden by another version in search-path resolution)
@@ -839,7 +839,7 @@ User-tickable (shown in the overview, default on but user can decline):
 
 ### Authentication
 
-Already shipped: Discord OAuth → matchscheduler cloud function → Firebase custom token. Slipgate's Auth subsystem authenticates the user with the catalog backend.
+Already shipped: Discord OAuth -> matchscheduler cloud function -> Firebase custom token. Slipgate's Auth subsystem authenticates the user with the catalog backend.
 
 ### Sync flow
 
@@ -856,7 +856,7 @@ When the user is signed in:
 User browses catalog (web or in-app), finds a profile, clicks "Import":
 1. Catalog returns the profile manifest
 2. Slipgate computes which blobs are missing locally
-3. Catalog provides download URLs for missing blobs (or refuses if any are stock paks — slipgate knows it has its own copy)
+3. Catalog provides download URLs for missing blobs (or refuses if any are stock paks -- slipgate knows it has its own copy)
 4. Slipgate downloads, verifies SHAs, warehouses
 5. Materializes as a new profile alongside existing ones
 6. User can switch / fork / merge / compare from there
@@ -886,14 +886,14 @@ The architecture's bandwidth bill scales with novel assets per profile, not tota
 
 Slipgate ships several "knowledge tables" baked into the binary, all sharing the same shape: bundled with slipgate (works offline) + refreshable from catalog when online (stays current) + version-stamped (debuggable) + user-visible ("what does slipgate currently know?").
 
-Known members of this surface (not exhaustive — accreting):
+Known members of this surface (not exhaustive -- accreting):
 
-- **Asset-roles registry** — the role taxonomy used in manifest entries (Pass 2.2.a ratified registry-based; default ships with slipgate, refresh from catalog).
-- **Mod-fingerprint registry** — community-curated catalog of "files matching THESE patterns belong to mod X." Drives watcher cache-ephemera classification (Arc E open question on hosting; Pass 3-4).
-- **Engine-runtime allowlist** — per-engine list of files the engine writes during normal operation that should NOT trigger register-as-new-version (Arc E watcher contract; Pass 4).
-- **Known-good stock pak SHAs** — copyright-safety registry of legitimate stock pak hashes (vanilla 1996, Steam, GoG, nQuake bundle). Catalog NEVER serves the blobs.
-- **Layer 1 knowledge service data** — qw-oracle's cvar/command/asset-bundle/ezscript tables (already shipped; not refreshed at runtime, but bundled with slipgate releases).
-- **Classifier heuristics** — file-extension → role hints, path-pattern → bucket hints, etc. (Arc D + Arc E shared work; Pass 3.)
+- **Asset-roles registry** -- the role taxonomy used in manifest entries (Pass 2.2.a ratified registry-based; default ships with slipgate, refresh from catalog).
+- **Mod-fingerprint registry** -- community-curated catalog of "files matching THESE patterns belong to mod X." Drives watcher cache-ephemera classification (Arc E open question on hosting; Pass 3-4).
+- **Engine-runtime allowlist** -- per-engine list of files the engine writes during normal operation that should NOT trigger register-as-new-version (Arc E watcher contract; Pass 4).
+- **Known-good stock pak SHAs** -- copyright-safety registry of legitimate stock pak hashes (vanilla 1996, Steam, GoG, nQuake bundle). Catalog NEVER serves the blobs.
+- **Layer 1 knowledge service data** -- qw-oracle's cvar/command/asset-bundle/ezscript tables (already shipped; not refreshed at runtime, but bundled with slipgate releases).
+- **Classifier heuristics** -- file-extension -> role hints, path-pattern -> bucket hints, etc. (Arc D + Arc E shared work; Pass 3.)
 
 Common architecture across all members:
 
@@ -902,7 +902,7 @@ Common architecture across all members:
 - **Version-stamped.** Each table carries a version + timestamp + source (bundled / catalog refresh + when). Surfaced in a "What slipgate knows" UI for debugging.
 - **User-overridable.** Local overrides allowed for power users / testing, scoped to the user's installation.
 
-This is genuinely cross-cutting work that touches every Pass from 3 onward. Sized as its own arc later — likely an Arc H sibling (overlapping with the catalog refresh mechanism) or a small sibling arc once the full surface is mapped.
+This is genuinely cross-cutting work that touches every Pass from 3 onward. Sized as its own arc later -- likely an Arc H sibling (overlapping with the catalog refresh mechanism) or a small sibling arc once the full surface is mapped.
 
 ---
 
@@ -912,8 +912,8 @@ This is genuinely cross-cutting work that touches every Pass from 3 onward. Size
 
 Pass 1 (substrate and storage) ratified the following original-draft questions:
 
-- **Shared-vs-split blob store** — RESOLVED: unified `<data-root>/blobs/` with two-char fanout. See Storage Layout.
-- **GC trigger: idle-time scheduled, on-demand, or both?** — RESOLVED: both (weekly idle sweep + on-demand "Reclaim space" button). See Garbage Collection.
+- **Shared-vs-split blob store** -- RESOLVED: unified `<data-root>/blobs/` with two-char fanout. See Storage Layout.
+- **GC trigger: idle-time scheduled, on-demand, or both?** -- RESOLVED: both (weekly idle sweep + on-demand "Reclaim space" button). See Garbage Collection.
 
 Pass 1 also added six storage-layer decisions not in the original list, all now in body: per-blob sidecar metadata, refcount index, single-process invariant + lockfile, content_warehouse refactor, materializer modes simplification (hardlink + copy), lossless-export pledge tests.
 
@@ -921,9 +921,9 @@ Pass 1 also added six storage-layer decisions not in the original list, all now 
 
 Pass 2 (manifest schema + materializer mechanics + gamedirs + history) ratified:
 
-- **Manifest format ratification** — RESOLVED: JSON with canonical SHA computation, schema_version field, full-manifest history (no deltas). See Manifest as Profile.
-- **History retention policy defaults** — RESOLVED with refinement: configs 500 auto-versions per config (was floated as 100; revised generous after living-file principle), assets 10 snapshots per asset, checkpoints exempt from prune. See Versioning and history.
-- **Atomic materialization** — RESOLVED: build-new-and-swap (atomic rename), trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern. See `materialize()` in Primitive operations.
+- **Manifest format ratification** -- RESOLVED: JSON with canonical SHA computation, schema_version field, full-manifest history (no deltas). See Manifest as Profile.
+- **History retention policy defaults** -- RESOLVED with refinement: configs 500 auto-versions per config (was floated as 100; revised generous after living-file principle), assets 10 snapshots per asset, checkpoints exempt from prune. See Versioning and history.
+- **Atomic materialization** -- RESOLVED: build-new-and-swap (atomic rename), trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern. See `materialize()` in Primitive operations.
 
 Pass 2 also added decisions outside the original list, all now in body: registry-based role taxonomy, identity-vs-name separation, manifest atomic write + corruption recovery, engine_compatibility field dropped (computed at runtime from Layer 1 instead), declared_gamedirs schema + validation, two-save-paths model (watcher debounce vs internal save button), checkpoint UX concept.
 
@@ -933,21 +933,21 @@ Pass 2 surfaced and captured for later: configs-as-living-files vs assets-as-imm
 
 1. **Watcher implementation: foreground-only or background service?** Foreground-only (slipgate must be open) is simpler. Background service allows always-on management but adds Windows service complexity. Pass 1 confirms foreground-only for V1; Process Model design is forward-compatible to background-service later. (Pass 4 final ratification.)
 
-2. **Profile-orthogonal user-content directory structure** — by-profile subdirs vs flat with metadata? Recommended: by-profile subdirs for filesystem clarity, with cross-profile views computed in the UI. (Pass 3.)
+2. **Profile-orthogonal user-content directory structure** -- by-profile subdirs vs flat with metadata? Recommended: by-profile subdirs for filesystem clarity, with cross-profile views computed in the UI. (Pass 3.)
 
-3. **Mod fingerprint registry hosting** — qw-oracle Layer 3 vs assets.quake.world vs slipgate-bundled? Recommended: bundled-with-slipgate as a baseline, augmentable from a community-curated cloud source. Now part of the broader self-knowledge surface. (Pass 3-4.)
+3. **Mod fingerprint registry hosting** -- qw-oracle Layer 3 vs assets.quake.world vs slipgate-bundled? Recommended: bundled-with-slipgate as a baseline, augmentable from a community-curated cloud source. Now part of the broader self-knowledge surface. (Pass 3-4.)
 
-4. **Engine launching: slipgate-launches vs user-launches-via-shortcut?** Both. Slipgate's UI has a Play button (active profile or "launch in new instance"). User can also create OS-level shortcuts pointing at engine.exe with `-basedir` set. Shortcut creation is a UI helper. (Pass 5 — runtime swap classes + multi-instance launch UX.)
+4. **Engine launching: slipgate-launches vs user-launches-via-shortcut?** Both. Slipgate's UI has a Play button (active profile or "launch in new instance"). User can also create OS-level shortcuts pointing at engine.exe with `-basedir` set. Shortcut creation is a UI helper. (Pass 5 -- runtime swap classes + multi-instance launch UX.)
 
-5. **Manifest backup UX** — surfaced in Pass 1 from the seed-phrase analogy. The manifest is disproportionately valuable (KB-scale, fully reconstructable from). UX should elevate backup state ("last backed up: 14 days ago, 3 backup locations") and offer multiple mechanisms (cloud catalog, local file export, "email me a copy"). (Pass 5 / Arc C-minimal.)
+5. **Manifest backup UX** -- surfaced in Pass 1 from the seed-phrase analogy. The manifest is disproportionately valuable (KB-scale, fully reconstructable from). UX should elevate backup state ("last backed up: 14 days ago, 3 backup locations") and offer multiple mechanisms (cloud catalog, local file export, "email me a copy"). (Pass 5 / Arc C-minimal.)
 
 6. **Sixth + seventh bucket boundaries** (Pass 3 scope expansion):
-   - Sixth bucket `user-private` (Pass 1 ratified) — schema for `private.json`, watcher dispatch case.
-   - Seventh bucket `user-library` (Pass 2 surfaced) — boundary work: maps + locs are clear; what else qualifies (music tracks, accumulated demos, downloaded sound files)? How does it materialize across profiles (auto-include in every manifest? separate `shared_library/` materialized alongside? inherit-from-base-library pattern)? (Pass 3.)
+   - Sixth bucket `user-private` (Pass 1 ratified) -- schema for `private.json`, watcher dispatch case.
+   - Seventh bucket `user-library` (Pass 2 surfaced) -- boundary work: maps + locs are clear; what else qualifies (music tracks, accumulated demos, downloaded sound files)? How does it materialize across profiles (auto-include in every manifest? separate `shared_library/` materialized alongside? inherit-from-base-library pattern)? (Pass 3.)
 
-7. **Configs-as-assets vs art-as-assets distinction** (Pass 2 surfaced) — authorship/credit/license metadata may need to differ by content type. Affects role taxonomy refinement and catalog metadata schema. (Pass 3 / Arc H brainstorm.)
+7. **Configs-as-assets vs art-as-assets distinction** (Pass 2 surfaced) -- authorship/credit/license metadata may need to differ by content type. Affects role taxonomy refinement and catalog metadata schema. (Pass 3 / Arc H brainstorm.)
 
-8. **Slipgate self-knowledge surface architecture** (Pass 2 surfaced) — bundled-vs-refreshable contract, version-stamping, user-override scope, "What slipgate knows" UI surface. Cross-cutting; accretes Passes 3-6. Sized as an arc later. (Passes 3-6, Arc H.)
+8. **Slipgate self-knowledge surface architecture** (Pass 2 surfaced) -- bundled-vs-refreshable contract, version-stamping, user-override scope, "What slipgate knows" UI surface. Cross-cutting; accretes Passes 3-6. Sized as an arc later. (Passes 3-6, Arc H.)
 
 ---
 
@@ -955,6 +955,6 @@ Pass 2 surfaced and captured for later: configs-as-living-files vs assets-as-imm
 
 - **Vision:** `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`
 - **Roadmap:** `docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`
-- **Phase 3.5b binary management:** `docs/superpowers/plans/2026-04-26-add-quake-client.md` — binary half of the warehouse substrate
+- **Phase 3.5b binary management:** `docs/superpowers/plans/2026-04-26-add-quake-client.md` -- binary half of the warehouse substrate
 - **Phase 2d-bundle:** asset-bundle classifier providing per-engine path rules and asset categories (consumer of: `apps/slipgate-app/src/lib/config/data/ezquake-asset-bundle.json`, `fte-asset-bundle.json`)
-- **HANDOVER follow-up:** "FTE asset bundle consumer wiring" — load-bearing for ARC-D's classifier on FTE-using profiles
+- **HANDOVER follow-up:** "FTE asset bundle consumer wiring" -- load-bearing for ARC-D's classifier on FTE-using profiles

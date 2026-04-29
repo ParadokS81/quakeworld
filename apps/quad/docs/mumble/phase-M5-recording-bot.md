@@ -1,10 +1,10 @@
-# Phase M5: Mumble Recording Bot — quad
+# Phase M5: Mumble Recording Bot -- quad
 
 ## Context
 
 M1-M4 established channel management, user registration, cert pinning, and roster sync. This phase builds the per-speaker audio recording bot that sits in Mumble channels and produces output compatible with the existing processing pipeline.
 
-The recording bot research is at `docs/mumble-recording-research.md` — it covers the Mumble audio protocol, Opus passthrough feasibility, and library recommendations.
+The recording bot research is at `docs/mumble-recording-research.md` -- it covers the Mumble audio protocol, Opus passthrough feasibility, and library recommendations.
 
 Read `docs/mumble/CONTRACT.md` for the cross-project contract.
 
@@ -43,7 +43,7 @@ Two options for receiving voice:
 - Requires understanding the library internals
 
 **Option B: Custom UDP voice receiver alongside the control client**
-- Use the control client for auth + session mapping (session ID → username)
+- Use the control client for auth + session mapping (session ID -> username)
 - Implement a separate UDP socket for voice receive
 - Handle OCB-AES128 decryption ourselves (or use TCP tunneling to skip crypto)
 - More work but fully controlled
@@ -65,7 +65,7 @@ interface VoiceReceiver {
   // Called when a voice packet arrives
   onVoicePacket(senderSession: number, opusData: Buffer, isTerminator: boolean): void;
 
-  // Map session ID → username (populated from control client user state)
+  // Map session ID -> username (populated from control client user state)
   setSessionMap(sessionId: number, username: string, mumbleUserId: number): void;
   removeSession(sessionId: number): void;
 }
@@ -118,7 +118,7 @@ Recording session lifecycle. Adapts `src/modules/recording/session.ts`.
 sessionId: string;              // ULID
 outputDir: string;              // recordings/{sessionId}/
 startTime: Date;
-tracks: Map<number, MumbleTrack>;  // sessionId → track
+tracks: Map<number, MumbleTrack>;  // sessionId -> track
 teamId: string;                 // From mumbleConfig
 teamTag: string;
 channelId: number;
@@ -168,18 +168,18 @@ Monitors team channels for user presence. Starts recording when users join, stop
 
 ```typescript
 // Watch for user state changes on the Mumble client:
-// - User joins a team channel → check if recording active → start if not
-// - User leaves → check if channel empty → stop after idle timeout
+// - User joins a team channel -> check if recording active -> start if not
+// - User leaves -> check if channel empty -> stop after idle timeout
 // - Respect autoRecord setting from mumbleConfig
 
 // Which channels to monitor:
-// - Read all active mumbleConfig docs → get channelId list
+// - Read all active mumbleConfig docs -> get channelId list
 // - Only record in team channels, not the root or "Teams" parent
 
 // Idle timeout: same as Discord (30 minutes after last user leaves)
 
 // On recording start:
-// 1. Look up mumbleConfig for the channel → get team info
+// 1. Look up mumbleConfig for the channel -> get team info
 // 2. Create MumbleRecordingSession
 // 3. Subscribe to voice packets for that channel
 
@@ -203,7 +203,7 @@ async function onMumbleRecordingStop(session: MumbleRecordingSession): Promise<v
 
   if (process.env.PROCESSING_AUTO === 'true') {
     await runFastPipeline(summary.sessionDir, {
-      // Pipeline reads session_metadata.json — source-agnostic
+      // Pipeline reads session_metadata.json -- source-agnostic
       // Only difference: match pairer uses mumble_username directly
       // instead of knownPlayers lookup (username IS the QW name)
     });
@@ -211,7 +211,7 @@ async function onMumbleRecordingStop(session: MumbleRecordingSession): Promise<v
 }
 ```
 
-The pipeline stages (match pairing, audio splitting, voice upload) work unchanged — they read `session_metadata.json` and process OGG files regardless of source.
+The pipeline stages (match pairing, audio splitting, voice upload) work unchanged -- they read `session_metadata.json` and process OGG files regardless of source.
 
 ### Minor pipeline adaptation needed
 
@@ -226,9 +226,9 @@ In `src/modules/processing/stages/match-pairer.ts`:
 
 | Component | Reuse strategy |
 |-----------|---------------|
-| `recording/silence.ts` | Import directly — same silent Opus frame |
-| `processing/pipeline.ts` | Call directly — source-agnostic |
-| `processing/stages/*` | Unchanged — operate on OGG files |
+| `recording/silence.ts` | Import directly -- same silent Opus frame |
+| `processing/pipeline.ts` | Call directly -- source-agnostic |
+| `processing/stages/*` | Unchanged -- operate on OGG files |
 | `core/logger.ts` | Import directly |
 | `core/firebase.ts` | Import directly (for Firestore reads) |
 
@@ -255,12 +255,12 @@ MUMBLE_RECORDING_DIR=            # Override recording dir (default: RECORDING_DI
 ## Verification
 
 1. **Compile**: `npx tsc --noEmit`
-2. **Voice receive**: Connect with a Mumble client to a team channel, speak — bot logs "Received voice packet from session X (ParadokS)"
+2. **Voice receive**: Connect with a Mumble client to a team channel, speak -- bot logs "Received voice packet from session X (ParadokS)"
 3. **OGG output**: After speaking and stopping, check `recordings/{sessionId}/` for per-speaker OGG files
-4. **Playback**: Play the OGG files — should contain the recorded speech, no corruption
+4. **Playback**: Play the OGG files -- should contain the recorded speech, no corruption
 5. **Silence padding**: If two users join at different times, both tracks should be time-aligned (late joiner padded with silence from recording start)
 6. **Metadata**: `session_metadata.json` has correct format, `source: "mumble"`, team info from mumbleConfig
-7. **Auto-record**: Join a team channel → recording starts automatically. Leave → recording stops after idle timeout.
+7. **Auto-record**: Join a team channel -> recording starts automatically. Leave -> recording stops after idle timeout.
 8. **Pipeline**: If `PROCESSING_AUTO=true`, the processing pipeline should run on the Mumble recording and produce match-paired segments
 
 ---

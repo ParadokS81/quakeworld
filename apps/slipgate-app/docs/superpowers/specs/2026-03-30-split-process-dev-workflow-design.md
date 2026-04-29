@@ -34,13 +34,13 @@ A single shell script (`scripts/slipgate-dev.sh`) run from WSL:
 
 ### Windows-side files
 
-**`dev-no-vite.cmd`** — Batch file that runs Cargo with the config override:
+**`dev-no-vite.cmd`** -- Batch file that runs Cargo with the config override:
 ```cmd
 cd /d C:\Users\Administrator\projects\slipgate-app
 cargo tauri dev --config tauri.dev.conf.json
 ```
 
-**`tauri.dev.conf.json`** — Merged with `tauri.conf.json` at runtime, overrides only `beforeDevCommand`:
+**`tauri.dev.conf.json`** -- Merged with `tauri.conf.json` at runtime, overrides only `beforeDevCommand`:
 ```json
 {
   "build": {
@@ -51,7 +51,7 @@ cargo tauri dev --config tauri.dev.conf.json
 
 ## Rust Sync
 
-Frontend changes (`src/`) need no sync — Vite reads them directly from WSL. Rust changes (`src-tauri/`) must reach the Windows copy for Cargo to recompile.
+Frontend changes (`src/`) need no sync -- Vite reads them directly from WSL. Rust changes (`src-tauri/`) must reach the Windows copy for Cargo to recompile.
 
 **`scripts/sync-rust.sh`** syncs `src-tauri/` (excluding `target/`) via rsync. Fast (<100ms, ~5-10 source files).
 
@@ -62,13 +62,13 @@ Frontend changes (`src/`) need no sync — Vite reads them directly from WSL. Ru
 
 **Dependency changes:**
 - `Cargo.toml` changes are covered by the rsync (syncs the whole `src-tauri/` directory minus `target/`)
-- `package.json` changes (rare) require `bun install` on both sides — Claude flags this and runs the Windows install via `cmd.exe`
+- `package.json` changes (rare) require `bun install` on both sides -- Claude flags this and runs the Windows install via `cmd.exe`
 
 ## One-Time Setup
 
 ### Windows (`C:\Users\Administrator\projects\slipgate-app\`)
 
-1. Remove `.git/` directory — this copy is a build mirror, not a repo
+1. Remove `.git/` directory -- this copy is a build mirror, not a repo
 2. Create `dev-no-vite.cmd` (startup batch file)
 3. Create `tauri.dev.conf.json` (config override)
 4. Verify `bun install` and `cargo build` work (should already be current)
@@ -92,6 +92,6 @@ Frontend changes (`src/`) need no sync — Vite reads them directly from WSL. Ru
 
 1. Run `./apps/slipgate-app/scripts/slipgate-dev.sh`
 2. Tauri window appears. Claude Code edits files in WSL.
-3. Frontend edits → instant hot reload via Vite
-4. Rust edits → auto-synced to Windows → Cargo recompiles (~5-15s)
+3. Frontend edits -> instant hot reload via Vite
+4. Rust edits -> auto-synced to Windows -> Cargo recompiles (~5-15s)
 5. Close window or Ctrl+C to stop everything

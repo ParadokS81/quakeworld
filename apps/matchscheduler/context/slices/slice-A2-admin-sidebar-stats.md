@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | A2 |
 | **Name** | Admin Sidebar Stats |
-| **Depends on** | A1 (admin foundation — `admin-mode-changed` event, `window._isAdmin`) |
+| **Depends on** | A1 (admin foundation -- `admin-mode-changed` event, `window._isAdmin`) |
 | **Blocks** | None (A5 enriches this with historical data but not blocking) |
 
 **User Story:** As the app admin in admin mode, I want the left sidebar to show 3 key engagement metrics (active users, proposals, scheduled matches) with week-over-week comparison so I can gauge community health at a glance.
@@ -46,7 +46,7 @@ Revealing Module Pattern. Computes weekly engagement metrics from existing servi
 const AdminStatsService = (function() {
     'use strict';
 
-    let _statsCache = new Map(); // weekId → { activeUsers, proposalCount, scheduledCount }
+    let _statsCache = new Map(); // weekId -> { activeUsers, proposalCount, scheduledCount }
 
     /**
      * Compute stats for a week from live Firestore data.
@@ -204,7 +204,7 @@ const AdminStatsDisplay = (function() {
     function _renderStatCard(label, current, previous, description) {
         const delta = previous != null ? current - previous : null;
         const deltaClass = delta > 0 ? 'text-green-400' : delta < 0 ? 'text-red-400' : 'text-muted-foreground';
-        const deltaIcon = delta > 0 ? '↑' : delta < 0 ? '↓' : '–';
+        const deltaIcon = delta > 0 ? '↑' : delta < 0 ? '↓' : '-';
         const deltaText = delta != null ? `${deltaIcon} ${Math.abs(delta)} vs last week` : 'no previous data';
 
         return `
@@ -213,7 +213,7 @@ const AdminStatsDisplay = (function() {
                     <span class="text-2xl font-bold text-foreground">${current}</span>
                     <span class="text-xs ${deltaClass}">${deltaText}</span>
                 </div>
-                <div class="text-xs text-muted-foreground mt-0.5">${label} — ${description}</div>
+                <div class="text-xs text-muted-foreground mt-0.5">${label} -- ${description}</div>
             </div>
         `;
     }
@@ -224,7 +224,7 @@ const AdminStatsDisplay = (function() {
 })();
 ```
 
-### 3. `public/js/components/TeamInfo.js` — Modifications
+### 3. `public/js/components/TeamInfo.js` -- Modifications
 
 **Add private state** (near line 20):
 ```javascript
@@ -244,7 +244,7 @@ function _handleAdminModeChanged(e) {
 }
 ```
 
-**Modify `_render()` dispatcher** (line 354) — add admin check as FIRST condition:
+**Modify `_render()` dispatcher** (line 354) -- add admin check as FIRST condition:
 ```javascript
 function _render() {
     if (!_identityContainer || !_rosterContainer) return;
@@ -279,7 +279,7 @@ function _renderAdminMode() {
 }
 ```
 
-**Cleanup** — add to existing `_cleanupListeners()`:
+**Cleanup** -- add to existing `_cleanupListeners()`:
 ```javascript
 window.removeEventListener('admin-mode-changed', _handleAdminModeChanged);
 ```
@@ -310,20 +310,20 @@ Add before `</body>`, after existing service/component scripts:
 
 ```
 Admin tab clicked (A1)
-  → 'admin-mode-changed' { active: true }
-  → TeamInfo._handleAdminModeChanged()
-  → _render() → _renderAdminMode()
-  → AdminStatsDisplay.init('admin-stats-sidebar')
-  → AdminStatsService.getWeekStats(currentWeek)
-  → AdminStatsService.getWeekStats(previousWeek)
+  -> 'admin-mode-changed' { active: true }
+  -> TeamInfo._handleAdminModeChanged()
+  -> _render() -> _renderAdminMode()
+  -> AdminStatsDisplay.init('admin-stats-sidebar')
+  -> AdminStatsService.getWeekStats(currentWeek)
+  -> AdminStatsService.getWeekStats(previousWeek)
       ├─ Try weeklyStats/{weekId} doc first (fast, if A5 deployed)
       └─ Fall back to live Firestore queries (availability, proposals, matches)
-  → Render 3 stat cards with deltas
+  -> Render 3 stat cards with deltas
 
 Non-admin tab clicked
-  → 'admin-mode-changed' { active: false }
-  → TeamInfo._handleAdminModeChanged()
-  → _render() → _renderTeamsMode() (normal view restored)
+  -> 'admin-mode-changed' { active: false }
+  -> TeamInfo._handleAdminModeChanged()
+  -> _render() -> _renderTeamsMode() (normal view restored)
 ```
 
 ---
@@ -338,17 +338,17 @@ Non-admin tab clicked
 
 ## Test Scenarios
 
-1. **Click Admin tab** → left sidebar shows "Admin Overview" + 3 stat cards
-2. **Click Matches tab** → left sidebar returns to team roster
-3. **Stats values** → verify counts match Firestore data (check availability docs, count proposals)
-4. **Week-over-week** → if weeklyStats doc exists for previous week, delta shows correctly
-5. **No previous data** → shows "no previous data" instead of delta
-6. **Loading state** → brief loading indicator while stats compute
+1. **Click Admin tab** -> left sidebar shows "Admin Overview" + 3 stat cards
+2. **Click Matches tab** -> left sidebar returns to team roster
+3. **Stats values** -> verify counts match Firestore data (check availability docs, count proposals)
+4. **Week-over-week** -> if weeklyStats doc exists for previous week, delta shows correctly
+5. **No previous data** -> shows "no previous data" instead of delta
+6. **Loading state** -> brief loading indicator while stats compute
 
 ---
 
 ## Common Pitfalls
 
 - **Don't read from service caches for stats.** ProposalService and ScheduledMatchService caches only contain data relevant to the current user's teams. Admin needs ALL data, so query Firestore directly.
-- **DateUtils week utilities.** Use `DateUtils.getISOWeekNumber()` and `DateUtils.getISOWeekYear()` — NOT `WeekNavigation.getCurrentWeekNumber()` which tracks the navigation state, not the actual current week.
+- **DateUtils week utilities.** Use `DateUtils.getISOWeekNumber()` and `DateUtils.getISOWeekYear()` -- NOT `WeekNavigation.getCurrentWeekNumber()` which tracks the navigation state, not the actual current week.
 - **TeamInfo re-render timing.** When `admin-mode-changed` fires, TeamInfo's existing team listener may also fire. The `_adminModeActive` flag must take priority in `_render()` to prevent flickering.

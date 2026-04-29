@@ -8,7 +8,7 @@
 - [ ] Slots update live as availability changes (players filling in their week)
 - [ ] Either side's leader/scheduler can confirm a slot; both must confirm to lock in a scheduled match
 - [ ] Past timeslots are hidden from the UI but preserved in database for audit trail
-- [ ] Proposals gracefully degrade — card disappears when last viable slot passes its time
+- [ ] Proposals gracefully degrade -- card disappears when last viable slot passes its time
 - [ ] "Matches" tab in center panel shows: Active Proposals / Upcoming / Archived
 - [ ] Upcoming matches display in bottom-left panel (user's matches + site-wide)
 - [ ] Discord template message copied on proposal creation with boilerplate + link
@@ -25,18 +25,18 @@ Decisions made during review (2026-01-31):
 |----------|--------|-----------|
 | Leadership check on confirm | **Live-check** team.leaderId + schedulers[] | Leadership can transfer; snapshot would go stale |
 | 24h cooldown | **Removed** | Premature complexity; monitor for abuse first |
-| Rate limit (3 proposals) | **Removed** | Same — let teams be proactive, add limits if needed |
-| Multi-confirm per side | **Yes** — confirm as many slots as you want | Cast a wide net; first mutual match wins |
+| Rate limit (3 proposals) | **Removed** | Same -- let teams be proactive, add limits if needed |
+| Multi-confirm per side | **Yes** -- confirm as many slots as you want | Cast a wide net; first mutual match wins |
 | Match trigger | Server creates match automatically, toast celebrates | No client-side confirmation modal; race window is ~200ms, negligible |
 | Cancel vs reject | **Single status** (`cancelled`), store `cancelledBy` userId | Simpler; audit trail via cancelledBy |
 | Proposal visibility | **Restrict reads** to involved teams' members via security rules | Privacy-forward, especially with team privacy features coming |
 | Past slots | **Hide from UI**, keep in database | Cleaner UX; data preserved for audit |
 | Proposal expiry | Card disappears when last slot passes; document stays as `expired` | Graceful degradation |
-| Live vs locked proposals | **Live only** — slots always computed from current availability | No use case for locked-time proposals; both teams confirm anyway |
+| Live vs locked proposals | **Live only** -- slots always computed from current availability | No use case for locked-time proposals; both teams confirm anyway |
 | Availability drop warning | Store `countAtConfirm`, show visual warning if current count drops below | No auto-revoke; humans decide (confirm means "we WILL show up") |
 | Blocked slots on schedule | Block **1 slot** (the confirmed slot only) for both teams | Conservative; 30min slot covers minimum match time |
-| Scheduler delegation | `schedulers[]` on team doc; leaders always implicit | Not just leaders — delegated members can propose/confirm |
-| Proxy availability | **Separate slice (2.8)** — leader fills availability for roster members | Independent of 8.0, enhances proposal quality |
+| Scheduler delegation | `schedulers[]` on team doc; leaders always implicit | Not just leaders -- delegated members can propose/confirm |
+| Proxy availability | **Separate slice (2.8)** -- leader fills availability for roster members | Independent of 8.0, enhances proposal quality |
 
 ---
 
@@ -157,7 +157,7 @@ interface MatchProposalDocument {
 **Document ID:** Auto-generated
 
 **Key design decisions:**
-- Slots are NOT stored in the proposal — they're computed live from availability data
+- Slots are NOT stored in the proposal -- they're computed live from availability data
 - Only confirmations are stored (which slots each side clicked "Confirm" on)
 - `countAtConfirm` enables the UI to show a warning if availability drops after confirmation
 - This means the card always shows the latest roster state, even if availability changes after proposal creation
@@ -185,7 +185,7 @@ interface ScheduledMatchDocument {
   scheduledDate: string;           // ISO date: "2026-02-02" (computed from weekId + slotId)
 
   // Blocked slot for double-booking prevention
-  blockedSlot: string;             // Same as slotId — the confirmed slot
+  blockedSlot: string;             // Same as slotId -- the confirmed slot
   blockedTeams: string[];          // [teamAId, teamBId]
 
   // Roster snapshot at confirmation time
@@ -342,13 +342,13 @@ exports.cancelProposal = cancelProposal;
 - Write: Cloud Functions only
 
 /scheduledMatches/{matchId}
-- Read: Authenticated users (all matches are public — community feed)
+- Read: Authenticated users (all matches are public -- community feed)
 - Write: Cloud Functions only
 ```
 
 **Note on proposal read rules:** This requires checking the user's team memberships against the proposal's team IDs. Implementation options:
-- Option A: Store `involvedTeamMembers[]` (denormalized userIds from both rosters) on the proposal — enables simple `request.auth.uid in resource.data.involvedTeamMembers` rule. Downside: must update when roster changes.
-- Option B: Read both team docs in the security rule — expensive (2 reads per rule evaluation).
+- Option A: Store `involvedTeamMembers[]` (denormalized userIds from both rosters) on the proposal -- enables simple `request.auth.uid in resource.data.involvedTeamMembers` rule. Downside: must update when roster changes.
+- Option B: Read both team docs in the security rule -- expensive (2 reads per rule evaluation).
 - Option C: Use `involvedTeamIds[]` array field + check user's team membership client-side, with server-side rules just checking auth. Simpler but less strict.
 - **Recommendation:** Option A with the understanding that roster changes during an active proposal week are rare. The array is updated at proposal creation time and is "good enough" for the lifetime of a weekly proposal.
 
@@ -378,7 +378,7 @@ PROPOSAL_CANCELLED -> category: SCHEDULING, details: { proposalId, cancelledBy }
 ### 1. Creating a Proposal from ComparisonModal
 
 ```javascript
-// In ComparisonModal._renderModal() — add to footer (leaders + schedulers)
+// In ComparisonModal._renderModal() -- add to footer (leaders + schedulers)
 const canSchedule = isLeader || TeamService.isScheduler(userTeamInfo.teamId, currentUserId);
 
 const footerHtml = `
@@ -418,7 +418,7 @@ document.getElementById('propose-match-btn')?.addEventListener('click', async ()
             ToastService.showError(result.error || 'Failed to create proposal');
         }
     } catch (error) {
-        ToastService.showError('Network error — please try again');
+        ToastService.showError('Network error -- please try again');
     } finally {
         btn.disabled = false;
         btn.textContent = 'Propose Match';
@@ -465,7 +465,7 @@ function _renderExpandedProposal(proposal) {
         const droppedWarning = iConfirmed && myCount < myConfirm.countAtConfirm;
 
         const display = TimezoneService.formatSlotForDisplay(slot.slotId);
-        const statusIcon = bothConfirmed ? '✓✓' : (theyConfirmed ? '✓ them' : (iConfirmed ? '✓ you' : ''));
+        const statusIcon = bothConfirmed ? '[ok][ok]' : (theyConfirmed ? '[ok] them' : (iConfirmed ? '[ok] you' : ''));
 
         return `
             <div class="proposal-slot flex items-center justify-between py-1.5 px-2 rounded
@@ -542,16 +542,16 @@ async function _handleConfirmSlot(proposalId, slotId) {
             if (result.matched) {
                 ToastService.showSuccess('Match scheduled! Both teams confirmed.');
             } else {
-                ToastService.showSuccess('Slot confirmed — waiting for opponent');
+                ToastService.showSuccess('Slot confirmed -- waiting for opponent');
             }
             // UI updates via listener automatically
         } else {
             ToastService.showError(result.error || 'Failed to confirm');
         }
     } catch (error) {
-        ToastService.showError('Network error — please try again');
+        ToastService.showError('Network error -- please try again');
     }
-    // No finally — listener will re-render the card
+    // No finally -- listener will re-render the card
 }
 ```
 
@@ -770,7 +770,7 @@ Cloud Function: confirmSlot()
     |       - Other proposals for these teams: blocked slot now filtered out
     |
     v
-Toast: "Match scheduled!" or "Slot confirmed — waiting for opponent"
+Toast: "Match scheduled!" or "Slot confirmed -- waiting for opponent"
 ```
 
 ### Live Slot Updates (Availability Changes)
@@ -785,10 +785,10 @@ onSnapshot fires on ProposalCard (subscribed to availability/{teamId}_{weekId} w
     |
     v
 ProposalCard recalculates viable slots:
-    ProposalService.computeViableSlots(...) — includes blocked-slot filtering
+    ProposalService.computeViableSlots(...) -- includes blocked-slot filtering
     |
     v
-New slot appears in proposal card (e.g., "Wed 21:00 — 4 vs 4")
+New slot appears in proposal card (e.g., "Wed 21:00 -- 4 vs 4")
                                                  (now meets filter!)
 
 --- OR ---
@@ -796,7 +796,7 @@ New slot appears in proposal card (e.g., "Wed 21:00 — 4 vs 4")
 Player removes availability, dropping below countAtConfirm:
     |
     v
-Slot shows warning: "Wed 21:00 — 2 vs 4 ⚠ Confirmed (was 3)"
+Slot shows warning: "Wed 21:00 -- 2 vs 4 ⚠ Confirmed (was 3)"
     Leader decides: withdraw or keep (standin coming)
 ```
 
@@ -840,14 +840,14 @@ case 'matches':
 |         Week 5 . Min 4v3                    |
 |---------------------------------------------|
 |  Wed 5th 20:00   4 vs 3  ⚠ you    [Withdraw]|  <- confirmed but player dropped
-|  Wed 5th 21:00   4 vs 4  ✓✓     SCHEDULED   |  <- both confirmed
-|  Thu 6th 20:30   4 vs 4  ✓ them   [Confirm] |  <- they confirmed, you haven't
+|  Wed 5th 21:00   4 vs 4  [ok][ok]     SCHEDULED   |  <- both confirmed
+|  Thu 6th 20:30   4 vs 4  [ok] them   [Confirm] |  <- they confirmed, you haven't
 |                                              |
 |  [Load Grid View]              [Cancel]      |
 +---------------------------------------------+
 ```
 
-**Note:** Past timeslots are hidden entirely (not muted). "✓ you" / "✓ them" / "✓✓" indicates confirmation status.
+**Note:** Past timeslots are hidden entirely (not muted). "[ok] you" / "[ok] them" / "[ok][ok]" indicates confirmation status.
 
 ---
 
@@ -924,17 +924,17 @@ Toggle adds/removes userId from `team.schedulers[]`. Uses existing `updateTeamSe
 
 ## Common Integration Pitfalls
 
-- [ ] **Frontend calls Cloud Function but doesn't handle errors** — wrap all ProposalService calls in try/catch, show user-friendly messages
-- [ ] **Proposal created but no listener for updates** — MatchesPanel MUST set up onSnapshot on matchProposals collection
-- [ ] **Slot computation doesn't use latest availability** — ProposalCard must subscribe to BOTH teams' availability docs on expand
-- [ ] **Forgot to filter blocked slots** — computeViableSlots must check ScheduledMatchService for blocked slots
-- [ ] **Loading states missing** — "Propose Match" and "Confirm" buttons must show loading during Cloud Function call
-- [ ] **Cache not updated from listener** — every onSnapshot callback must call ProposalService.updateCache()
-- [ ] **Timezone conversion forgotten in slot display** — always use TimezoneService.formatSlotForDisplay() for slot times
-- [ ] **Using set({ merge: true }) for confirmedSlots** — use update() with dot-notation: `update({ 'proposerConfirmedSlots.mon_2000': { userId, countAtConfirm } })`
-- [ ] **Not cleaning up listeners** — MatchesPanel.cleanup() must unsubscribe all listeners when tab switches; ProposalCard must unsubscribe availability listeners on collapse
-- [ ] **Week boundary not computed correctly** — use WeekNavigation.getCurrentWeekNumber() and UTC consistently
-- [ ] **Authorization checking snapshot instead of live** — always read fresh team doc for leaderId + schedulers in Cloud Functions
+- [ ] **Frontend calls Cloud Function but doesn't handle errors** -- wrap all ProposalService calls in try/catch, show user-friendly messages
+- [ ] **Proposal created but no listener for updates** -- MatchesPanel MUST set up onSnapshot on matchProposals collection
+- [ ] **Slot computation doesn't use latest availability** -- ProposalCard must subscribe to BOTH teams' availability docs on expand
+- [ ] **Forgot to filter blocked slots** -- computeViableSlots must check ScheduledMatchService for blocked slots
+- [ ] **Loading states missing** -- "Propose Match" and "Confirm" buttons must show loading during Cloud Function call
+- [ ] **Cache not updated from listener** -- every onSnapshot callback must call ProposalService.updateCache()
+- [ ] **Timezone conversion forgotten in slot display** -- always use TimezoneService.formatSlotForDisplay() for slot times
+- [ ] **Using set({ merge: true }) for confirmedSlots** -- use update() with dot-notation: `update({ 'proposerConfirmedSlots.mon_2000': { userId, countAtConfirm } })`
+- [ ] **Not cleaning up listeners** -- MatchesPanel.cleanup() must unsubscribe all listeners when tab switches; ProposalCard must unsubscribe availability listeners on collapse
+- [ ] **Week boundary not computed correctly** -- use WeekNavigation.getCurrentWeekNumber() and UTC consistently
+- [ ] **Authorization checking snapshot instead of live** -- always read fresh team doc for leaderId + schedulers in Cloud Functions
 
 ---
 
@@ -960,14 +960,14 @@ Create composite indexes in `firebase.json` or via the Firebase console:
 - `scheduledMatches`: `blockedTeams` (array-contains) + `weekId` ASC
 
 ### Dependencies on Other Slices
-- Slice 3.4 (ComparisonEngine) — slot matching logic
-- Slice 4.2 (ComparisonModal) — "Propose Match" button entry point
-- Slice 7.0 (UTC) — all slot IDs are UTC, display conversion via TimezoneService
-- Slice 5.0a (BottomPanelController) — adding "matches" tab
+- Slice 3.4 (ComparisonEngine) -- slot matching logic
+- Slice 4.2 (ComparisonModal) -- "Propose Match" button entry point
+- Slice 7.0 (UTC) -- all slot IDs are UTC, display conversion via TimezoneService
+- Slice 5.0a (BottomPanelController) -- adding "matches" tab
 
 ### Related Future Slices
-- Slice 2.8 (Proxy Availability) — leader fills availability for roster members; independent of 8.0 but enhances proposal quality
-- Slice 9.0 (Team Privacy) — affects proposal visibility and roster display in slots
+- Slice 2.8 (Proxy Availability) -- leader fills availability for roster members; independent of 8.0 but enhances proposal quality
+- Slice 9.0 (Team Privacy) -- affects proposal visibility and roster display in slots
 
 ---
 

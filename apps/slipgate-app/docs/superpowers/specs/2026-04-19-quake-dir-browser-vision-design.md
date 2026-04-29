@@ -90,7 +90,7 @@ Notes for the implementation-spec session:
 
 - **Use cvar bindings' `load_trigger` as the authoritative startup signal.** Only 9 loader sites are tagged `startup` directly; inferring startup from call sites is thin. Cvar bindings carry explicit triggers (`startup`, `on_demand`, `on_connect`, `on_map_load`).
 - **Plan an extension+path_hint fallback** in the slipgate classifier for files that match no loader site (29 sites have null category; many reads go through generic `FS_OpenVFS`/`FS_LoadFile` whose runtime path argument can't be resolved statically).
-- **Path rules are already plain prose** and source-verified — they can feed UI tooltips/explainers directly without rewriting.
+- **Path rules are already plain prose** and source-verified -- they can feed UI tooltips/explainers directly without rewriting.
 
 With these in hand, the spec is ready to progress to a fresh-context implementation brainstorm.
 

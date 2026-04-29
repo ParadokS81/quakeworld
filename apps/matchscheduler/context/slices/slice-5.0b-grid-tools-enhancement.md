@@ -279,7 +279,7 @@ const SelectionActionButton = (function() {
         document.addEventListener('grid-selection-change', _handleSelectionChange);
         document.addEventListener('keydown', _handleKeydown);
 
-        console.log('✨ SelectionActionButton initialized');
+        console.log('  SelectionActionButton initialized');
     }
 
     function cleanup() {
@@ -389,12 +389,12 @@ function _render() {
 
 ```
 HOT PATHS (<50ms):
-- Selection change → Button appears: Purely DOM, no async operations
+- Selection change -> Button appears: Purely DOM, no async operations
 - Button position calculation: Simple math on cached bounds
-- Add/Remove click → Loading state: Immediate UI feedback
+- Add/Remove click -> Loading state: Immediate UI feedback
 
 COLD PATHS (<2s):
-- Add/Remove → Database sync: Shows button loading state, handled by existing AvailabilityService
+- Add/Remove -> Database sync: Shows button loading state, handled by existing AvailabilityService
 - Template load: Existing cold path behavior unchanged
 
 BACKEND PERFORMANCE:
@@ -409,28 +409,28 @@ BACKEND PERFORMANCE:
 
 ```
 SELECTION FLOW:
-User drags on grid → AvailabilityGrid._handleMouseUp()
-    → _notifySelectionChange()
-    → dispatchEvent('grid-selection-change', {bounds, cells, gridId})
-    → SelectionActionButton._handleSelectionChange()
-    → _updateButtonState() + _positionButton() + _show()
+User drags on grid -> AvailabilityGrid._handleMouseUp()
+    -> _notifySelectionChange()
+    -> dispatchEvent('grid-selection-change', {bounds, cells, gridId})
+    -> SelectionActionButton._handleSelectionChange()
+    -> _updateButtonState() + _positionButton() + _show()
 
 ACTION FLOW:
-User clicks floating button → SelectionActionButton._handleAction()
-    → Show "Adding..." or "Removing..." loading text
-    → GridActionButtons.addMe() or .removeMe()
-    → AvailabilityService.addMeToSlots() or .removeMeFromSlots()
-    → Cloud Function → Firestore update
-    → onSnapshot listener fires → Grid UI updates
-    → SelectionActionButton._hide()
+User clicks floating button -> SelectionActionButton._handleAction()
+    -> Show "Adding..." or "Removing..." loading text
+    -> GridActionButtons.addMe() or .removeMe()
+    -> AvailabilityService.addMeToSlots() or .removeMeFromSlots()
+    -> Cloud Function -> Firestore update
+    -> onSnapshot listener fires -> Grid UI updates
+    -> SelectionActionButton._hide()
 
 KEYBOARD FLOW:
-User presses Enter → SelectionActionButton._handleKeydown()
-    → _handleAction() → (same as click flow)
+User presses Enter -> SelectionActionButton._handleKeydown()
+    -> _handleAction() -> (same as click flow)
 
-User presses Escape → SelectionActionButton._handleKeydown()
-    → _hide() → GridActionButtons.clearAll() → Grids clear selection
-    → AvailabilityGrid dispatches event with empty selection
+User presses Escape -> SelectionActionButton._handleKeydown()
+    -> _hide() -> GridActionButtons.clearAll() -> Grids clear selection
+    -> AvailabilityGrid dispatches event with empty selection
 ```
 
 ---
@@ -440,7 +440,7 @@ User presses Escape → SelectionActionButton._handleKeydown()
 ```
 FRONTEND TESTS:
 - [ ] Grid Tools panel renders in 2 compact rows
-- [ ] Display toggle works (ABC ↔ Avatar icon)
+- [ ] Display toggle works (ABC <-> Avatar icon)
 - [ ] Clear All button clears selections in both grids
 - [ ] Template dropdown shows saved templates
 - [ ] W1/W2 buttons enable when template selected
@@ -459,22 +459,22 @@ FLOATING BUTTON TESTS:
 - [ ] Button hidden when selection cleared
 
 INTERACTION TESTS:
-- [ ] Click "Add Me" → Button shows "Adding..." → Success toast → Button hidden
-- [ ] Click "Remove Me" → Button shows "Removing..." → Success toast → Button hidden
-- [ ] Press Enter → Same as clicking the visible action
-- [ ] Press Escape → Button hidden, selections cleared
-- [ ] New selection after action → Button reappears with correct state
+- [ ] Click "Add Me" -> Button shows "Adding..." -> Success toast -> Button hidden
+- [ ] Click "Remove Me" -> Button shows "Removing..." -> Success toast -> Button hidden
+- [ ] Press Enter -> Same as clicking the visible action
+- [ ] Press Escape -> Button hidden, selections cleared
+- [ ] New selection after action -> Button reappears with correct state
 
 INTEGRATION TESTS:
-- [ ] Add Me → Firebase updated → Grid shows user in cells
-- [ ] Remove Me → Firebase updated → Grid removes user from cells
-- [ ] Multiple cells across times/days → All updated correctly
-- [ ] Error from backend → Error toast shown, button re-enabled
+- [ ] Add Me -> Firebase updated -> Grid shows user in cells
+- [ ] Remove Me -> Firebase updated -> Grid removes user from cells
+- [ ] Multiple cells across times/days -> All updated correctly
+- [ ] Error from backend -> Error toast shown, button re-enabled
 
 END-TO-END TESTS:
-- [ ] Complete flow: Select → Add → See badge → Remove → Badge gone
-- [ ] Template: Save → Select from dropdown → Load to W1 → Grid populates
-- [ ] Keyboard-only: Tab to grid → Select with Shift+Click → Enter → Success
+- [ ] Complete flow: Select -> Add -> See badge -> Remove -> Badge gone
+- [ ] Template: Save -> Select from dropdown -> Load to W1 -> Grid populates
+- [ ] Keyboard-only: Tab to grid -> Select with Shift+Click -> Enter -> Success
 ```
 
 ---
@@ -596,9 +596,9 @@ SelectionActionButton.init();
 Before implementation complete:
 - [x] Frontend changes specified (no backend needed)
 - [x] Integration examples show actual code
-- [x] Hot paths are cache/optimistic (selection → button is instant)
+- [x] Hot paths are cache/optimistic (selection -> button is instant)
 - [x] Test scenarios cover full stack interactions
-- [x] Data flow is complete (UI → Event → Button → Service → DB → Listener → UI)
+- [x] Data flow is complete (UI -> Event -> Button -> Service -> DB -> Listener -> UI)
 - [x] Error handling specified (backend errors surface as toasts)
 - [x] Loading states defined (button shows "Adding..."/"Removing..." during action)
 - [x] Keyboard accessibility included (Enter/Escape)

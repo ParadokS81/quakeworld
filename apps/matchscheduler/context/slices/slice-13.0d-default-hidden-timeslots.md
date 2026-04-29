@@ -27,7 +27,7 @@ Change the default hidden timeslots from empty to `['1800', '1830', '1900']` for
 
 ## Changes
 
-### 1. TimezoneService.js — Update default hidden slots
+### 1. TimezoneService.js -- Update default hidden slots
 
 **File:** `public/js/services/TimezoneService.js`
 
@@ -58,7 +58,7 @@ return {
 
 ---
 
-### 2. User Profile Loading — Respect saved preferences
+### 2. User Profile Loading -- Respect saved preferences
 
 **File:** `public/js/services/TimezoneService.js` or wherever preferences are loaded
 
@@ -87,7 +87,7 @@ function loadUserPreferences(userProfile) {
 
 ---
 
-### 3. Saving Preferences — Explicit empty array
+### 3. Saving Preferences -- Explicit empty array
 
 When a user explicitly enables all timeslots (hides none), save an empty array to Firestore:
 

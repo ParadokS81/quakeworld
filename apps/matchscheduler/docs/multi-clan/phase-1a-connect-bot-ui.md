@@ -1,8 +1,8 @@
-# Phase 1a: Connect Voice Bot — Team Settings UI + Pending Registration
+# Phase 1a: Connect Voice Bot -- Team Settings UI + Pending Registration
 
 ## Context
 
-We're building multi-clan voice replay. The registration flow starts here in MatchScheduler — a team leader initiates the connection from their team settings page, then completes it in Discord by running `/register` on the bot (Phase 1b, separate project).
+We're building multi-clan voice replay. The registration flow starts here in MatchScheduler -- a team leader initiates the connection from their team settings page, then completes it in Discord by running `/register` on the bot (Phase 1b, separate project).
 
 This phase adds:
 1. A "Voice Bot" section to the team settings UI
@@ -11,7 +11,7 @@ This phase adds:
 
 ## Prerequisites
 
-The leader must have their Discord linked on MatchScheduler (via Discord OAuth). The `discordUserId` field on their user profile is required — it becomes the authorization token that the bot checks.
+The leader must have their Discord linked on MatchScheduler (via Discord OAuth). The `discordUserId` field on their user profile is required -- it becomes the authorization token that the bot checks.
 
 ## What to Build
 
@@ -60,9 +60,9 @@ A callable Cloud Function that handles connect and disconnect.
 ```
 
 **Error cases:**
-- "Discord not linked" → leader needs to link Discord first in profile settings
-- "Already connected" → show current connection, offer disconnect
-- "Not a team leader" → only leaders can manage bot registration
+- "Discord not linked" -> leader needs to link Discord first in profile settings
+- "Already connected" -> show current connection, offer disconnect
+- "Not a team leader" -> only leaders can manage bot registration
 
 ### 2. Firestore Security Rules
 
@@ -79,7 +79,7 @@ match /botRegistrations/{teamId} {
 }
 ```
 
-### 3. Team Settings UI — "Voice Bot" Section
+### 3. Team Settings UI -- "Voice Bot" Section
 
 Add a section to the team settings area (visible only to the team leader). This section has three states:
 
@@ -103,7 +103,7 @@ Add a section to the team settings area (visible only to the team leader). This 
 │                                     │
 │ Complete setup in Discord:          │
 │ 1. Add the bot to your server       │
-│    [Invite Bot →]                   │
+│    [Invite Bot ->]                   │
 │ 2. Run /register in any channel     │
 │                                     │
 │ [Cancel]                            │
@@ -113,7 +113,7 @@ Add a section to the team settings area (visible only to the team leader). This 
 **State: Connected** (`status: 'active'`, `guildId` populated)
 ```
 ┌─────────────────────────────────────┐
-│ Voice Bot                      ✓    │
+│ Voice Bot                      [ok]    │
 │                                     │
 │ Connected to: Slackers              │
 │ (Discord server)                    │
@@ -129,7 +129,7 @@ The invite link is a standard Discord OAuth2 URL:
 https://discord.com/oauth2/authorize?client_id={BOT_CLIENT_ID}&permissions={PERMISSIONS}&scope=bot+applications.commands
 ```
 
-**Bot Client ID**: This needs to be a configured constant. For now, the bot's client ID is `1470520759842640024`. Store this as a constant in the service or config — not hardcoded in the UI template.
+**Bot Client ID**: This needs to be a configured constant. For now, the bot's client ID is `1470520759842640024`. Store this as a constant in the service or config -- not hardcoded in the UI template.
 
 **Permissions needed** (for voice recording + slash commands):
 - Connect (to voice channels)
@@ -158,11 +158,11 @@ async function getRegistration(teamId) { ... }
 function onRegistrationChange(teamId, callback) { ... }
 ```
 
-The listener is important — when the bot completes `/register` in Discord, the Firestore document updates from `pending` to `active` with guildName populated. The MatchScheduler UI should reflect this change in real-time without the leader needing to refresh.
+The listener is important -- when the bot completes `/register` in Discord, the Firestore document updates from `pending` to `active` with guildName populated. The MatchScheduler UI should reflect this change in real-time without the leader needing to refresh.
 
 ## Firestore Schema for Reference
 
-### `/botRegistrations/{teamId}` (new — this phase creates it)
+### `/botRegistrations/{teamId}` (new -- this phase creates it)
 ```typescript
 {
   teamId: string;                     // = document ID
@@ -180,7 +180,7 @@ The listener is important — when the bot completes `/register` in Discord, the
 }
 ```
 
-### `/users/{userId}` (existing — read only)
+### `/users/{userId}` (existing -- read only)
 ```typescript
 {
   discordUserId: string | null;       // Must not be null for connect to work
@@ -189,7 +189,7 @@ The listener is important — when the bot completes `/register` in Discord, the
 }
 ```
 
-### `/teams/{teamId}` (existing — read only)
+### `/teams/{teamId}` (existing -- read only)
 ```typescript
 {
   teamName: string;
@@ -207,10 +207,10 @@ The listener is important — when the bot completes `/register` in Discord, the
 
 ## Testing
 
-1. As a team leader with Discord linked → "Connect Voice Bot" button should appear
-2. Click connect → should create `botRegistrations/{teamId}` in Firestore with status: 'pending'
+1. As a team leader with Discord linked -> "Connect Voice Bot" button should appear
+2. Click connect -> should create `botRegistrations/{teamId}` in Firestore with status: 'pending'
 3. UI should show pending state with invite link and instructions
-4. Manually update the Firestore doc to `status: 'active'` with a guildName → UI should auto-update to "Connected" state
-5. Click disconnect → document should be deleted, UI returns to "Not connected"
-6. As a non-leader → Voice Bot section should not appear
-7. As a leader without Discord linked → should show "Link your Discord first" message on connect attempt
+4. Manually update the Firestore doc to `status: 'active'` with a guildName -> UI should auto-update to "Connected" state
+5. Click disconnect -> document should be deleted, UI returns to "Not connected"
+6. As a non-leader -> Voice Bot section should not appear
+7. As a leader without Discord linked -> should show "Link your Discord first" message on connect attempt

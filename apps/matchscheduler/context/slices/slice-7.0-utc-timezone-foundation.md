@@ -34,7 +34,7 @@ Real-world data analysis (QWHub 4on4 data, 6 months, 2,447 team games) confirms 
 ## Solution
 
 1. **Slot IDs remain `day_time` format but represent UTC** - `mon_2000` = Monday 20:00 UTC (displays as 21:00 CET, 15:00 EST). Self-documenting, no lookup tables.
-2. **New `TimezoneService.js`** - Central conversion logic: local↔UTC slot mapping, offset calculation via Intl API, DST-aware.
+2. **New `TimezoneService.js`** - Central conversion logic: local<->UTC slot mapping, offset calculation via Intl API, DST-aware.
 3. **IANA timezones** - Store `"Europe/Stockholm"` not `UTC+1`. Browser `Intl.DateTimeFormat` handles DST automatically.
 4. **Grid unchanged visually** - CET users still see 18:00-23:00. The UTC conversion layer is invisible.
 5. **Validation opens up** - Cloud Functions accept any hour (00-23) since different timezones map to different UTC hours.
@@ -138,13 +138,13 @@ const TimezoneService = (function() {
         // Returns e.g., +60 for CET, -300 for EST
     }
 
-    // LOCAL → UTC: User clicks "mon 21:00" in CET → stores "mon_2000"
+    // LOCAL -> UTC: User clicks "mon 21:00" in CET -> stores "mon_2000"
     function localToUtcSlot(localDay, localTime, refDate) {
         // Subtract offset, handle day wrapping
         // Returns { day, time, slotId }
     }
 
-    // UTC → LOCAL: Firestore has "mon_2000" → display "21:00" for CET user
+    // UTC -> LOCAL: Firestore has "mon_2000" -> display "21:00" for CET user
     function utcToLocalSlot(utcDay, utcTime, refDate) {
         // Add offset, handle day wrapping
         // Returns { day, time, displayTime }
@@ -153,15 +153,15 @@ const TimezoneService = (function() {
     // Build full grid mapping for one week
     function buildGridToUtcMap(refDate) {
         // Returns Map<localCellId, utcSlotId>
-        // e.g., "mon_1800" → "mon_1700" for CET
+        // e.g., "mon_1800" -> "mon_1700" for CET
     }
 
     function buildUtcToGridMap(refDate) {
         // Reverse of above
-        // e.g., "mon_1700" → "mon_1800" for CET
+        // e.g., "mon_1700" -> "mon_1800" for CET
     }
 
-    // Format UTC slot for display: "mon_2000" → "Monday at 21:00"
+    // Format UTC slot for display: "mon_2000" -> "Monday at 21:00"
     function formatSlotForDisplay(utcSlotId, refDate) {
         // Returns { dayLabel, timeLabel, fullLabel }
     }
@@ -185,21 +185,21 @@ const TimezoneService = (function() {
 
 ### Current flow (implicit CET):
 ```
-User clicks cell → cellId = "mon_2100" → write to Firestore as "mon_2100"
-Load from Firestore → "mon_2100" → render in grid row "21:00"
+User clicks cell -> cellId = "mon_2100" -> write to Firestore as "mon_2100"
+Load from Firestore -> "mon_2100" -> render in grid row "21:00"
 ```
 
 ### New flow (UTC-aware):
 ```
-User clicks cell → localCellId = "mon_2100"
-  → TimezoneService.localToUtcSlot('mon', '2100', weekDate)
-  → utcSlotId = "mon_2000"
-  → write to Firestore as "mon_2000"
+User clicks cell -> localCellId = "mon_2100"
+  -> TimezoneService.localToUtcSlot('mon', '2100', weekDate)
+  -> utcSlotId = "mon_2000"
+  -> write to Firestore as "mon_2000"
 
-Load from Firestore → utcSlotId = "mon_2000"
-  → TimezoneService.utcToLocalSlot('mon', '2000', weekDate)
-  → localCellId = "mon_2100"
-  → render in grid row "21:00"
+Load from Firestore -> utcSlotId = "mon_2000"
+  -> TimezoneService.utcToLocalSlot('mon', '2000', weekDate)
+  -> localCellId = "mon_2100"
+  -> render in grid row "21:00"
 ```
 
 ### Key changes in AvailabilityGrid.js:
@@ -347,7 +347,7 @@ Dropdown expanded:
 3. Selecting a timezone:
    - Updates `TimezoneService.setUserTimezone()`
    - Persists to user document in Firestore (`timezone` field)
-   - Rebuilds grid mapping (new UTC↔local maps)
+   - Rebuilds grid mapping (new UTC<->local maps)
    - Re-renders grid with new time labels (same data, different display)
 4. The grid data does NOT change when switching timezone - it's already UTC in Firestore
 
@@ -459,11 +459,11 @@ After seed, re-seed emulator: `npm run seed:emulator`
 - `TimezoneService.localToUtcSlot()` - Pure arithmetic, instant
 - `TimezoneService.utcToLocalSlot()` - Pure arithmetic, instant
 - `TimezoneService.buildGridToUtcMap()` - 77 slot conversions, instant
-- Grid cell click → UTC conversion → optimistic update
+- Grid cell click -> UTC conversion -> optimistic update
 - Timezone selector toggle (show/hide dropdown)
 
 ### COLD PATHS (<2s)
-- Timezone change → grid re-render (rebuilds maps, re-renders all cells)
+- Timezone change -> grid re-render (rebuilds maps, re-renders all cells)
 - Timezone preference save to Firestore (background, non-blocking)
 
 ---
@@ -496,7 +496,7 @@ AvailabilityGrid.updateTeamDisplay(data)
     │
     ▼
 TimezoneService.buildUtcToGridMap(weekDate)
-    │ maps "mon_2000" → "mon_2100"
+    │ maps "mon_2000" -> "mon_2100"
     ▼
 Render player badge in cell "mon_2100" (row 21:00, col Monday)
 ```
@@ -518,7 +518,7 @@ Render player badge in cell "mon_2100" (row 21:00, col Monday)
 - [ ] Template apply: template slot IDs are UTC, applied correctly
 - [ ] Timezone selector: opens, shows grouped list, selection persists
 - [ ] Timezone auto-detect: new user gets browser timezone by default
-- [ ] Seed data: fresh seed → grid displays correctly for CET user
+- [ ] Seed data: fresh seed -> grid displays correctly for CET user
 
 ---
 

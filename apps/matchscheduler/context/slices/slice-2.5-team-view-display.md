@@ -42,9 +42,9 @@ FRONTEND COMPONENTS:
     - NEW: Open overflow modal on [+X] click (backup for touch devices)
     - EXISTING: Handle cell selection (clicking empty space or cell edge)
   - User actions:
-    - Click empty cell space → toggle cell selection (existing)
-    - Hover cell with 4+ players → show tooltip with full list (NEW)
-    - Click [+X] badge → open overflow modal (NEW, fallback for mobile)
+    - Click empty cell space -> toggle cell selection (existing)
+    - Hover cell with 4+ players -> show tooltip with full list (NEW)
+    - Click [+X] badge -> open overflow modal (NEW, fallback for mobile)
 
 - PlayerBadge (NEW - internal to AvailabilityGrid)
   - Display mode: initials (default) or avatar
@@ -77,17 +77,17 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - AvailabilityService (existing)
-  - getSlotPlayers(teamId, weekId, slotId) → returns array of userIds
+  - getSlotPlayers(teamId, weekId, slotId) -> returns array of userIds
   - Already has real-time subscription to availability docs
 
 - TeamService (existing)
-  - getTeam(teamId) → returns team with playerRoster array
+  - getTeam(teamId) -> returns team with playerRoster array
   - Each player has: userId, displayName, initials, role
 
 - PlayerDisplayService (NEW - lightweight helper)
-  - getDisplayMode() → 'initials' | 'avatars'
-  - setDisplayMode(mode) → saves to localStorage
-  - getPlayerDisplay(userId, teamRoster) → { initials, displayName, photoURL, isCurrentUser }
+  - getDisplayMode() -> 'initials' | 'avatars'
+  - setDisplayMode(mode) -> saves to localStorage
+  - getPlayerDisplay(userId, teamRoster) -> { initials, displayName, photoURL, isCurrentUser }
 
 BACKEND REQUIREMENTS:
 ⚠️ NO NEW CLOUD FUNCTIONS NEEDED
@@ -105,9 +105,9 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 - Frontend data flow:
-  Availability listener fires → getSlotPlayers() → match with team roster → render badges
-- Player lookup: userId from slot → find in team.playerRoster → get initials/displayName
-- Display mode: localStorage preference → apply to badge rendering
+  Availability listener fires -> getSlotPlayers() -> match with team roster -> render badges
+- Player lookup: userId from slot -> find in team.playerRoster -> get initials/displayName
+- Display mode: localStorage preference -> apply to badge rendering
 ```
 
 ## 4. Integration Code Examples
@@ -516,7 +516,7 @@ const OverflowModal = (function() {
     let _isOpen = false;
 
     function _render(slotId, weekId, players, currentUserId) {
-        // Format slot ID for display (e.g., "mon_1900" → "Monday 19:00")
+        // Format slot ID for display (e.g., "mon_1900" -> "Monday 19:00")
         const [day, time] = slotId.split('_');
         const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
         const formattedDay = dayNames[day] || day;
@@ -991,15 +991,15 @@ BACKEND PERFORMANCE:
 ## 6. Data Flow Diagram
 ```
 INITIAL LOAD:
-App Load → TeamService.getTeam() → Cache team roster
-         → AvailabilityService.subscribe() → Cache availability
+App Load -> TeamService.getTeam() -> Cache team roster
+         -> AvailabilityService.subscribe() -> Cache availability
                                                     ↓
                                            Grid renders with updateTeamDisplay()
                                                     ↓
                                            Player badges shown in cells
 
 REAL-TIME UPDATE:
-Teammate adds availability → Firebase document updates
+Teammate adds availability -> Firebase document updates
                                     ↓
                             onSnapshot fires
                                     ↓
@@ -1010,7 +1010,7 @@ Teammate adds availability → Firebase document updates
                             Grid.updateTeamDisplay() re-renders cells
 
 HOVER TOOLTIP (cells with 4+ players):
-User hovers cell with has-overflow class → _handleCellMouseEnter()
+User hovers cell with has-overflow class -> _handleCellMouseEnter()
                                                    ↓
                                            Get players from cache
                                                    ↓
@@ -1018,10 +1018,10 @@ User hovers cell with has-overflow class → _handleCellMouseEnter()
                                                    ↓
                                            Tooltip displays full player list
                                                    ↓
-User moves mouse away → _handleCellMouseLeave() → PlayerTooltip.hide()
+User moves mouse away -> _handleCellMouseLeave() -> PlayerTooltip.hide()
 
 OVERFLOW CLICK (fallback for mobile):
-User clicks [+X] badge → _handleOverflowClick()
+User clicks [+X] badge -> _handleOverflowClick()
                               ↓
                         onOverflowClick callback fires
                               ↓
@@ -1030,7 +1030,7 @@ User clicks [+X] badge → _handleOverflowClick()
                         Modal displays all players
 
 DISPLAY MODE TOGGLE:
-User clicks Initials/Avatars → _setDisplayMode()
+User clicks Initials/Avatars -> _setDisplayMode()
                                      ↓
                                localStorage updated
                                      ↓
@@ -1086,22 +1086,22 @@ OVERFLOW MODAL TESTS (mobile fallback):
 - [ ] ESC key closes modal
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Real-time: User A adds availability → User B sees badge appear within 2s
-- [ ] Real-time: User A removes availability → Badge disappears on User B's screen
+- [ ] Real-time: User A adds availability -> User B sees badge appear within 2s
+- [ ] Real-time: User A removes availability -> Badge disappears on User B's screen
 - [ ] Team switch: Changing teams shows correct roster badges for each team
 - [ ] Week navigation: Moving between weeks shows correct availability per week
 - [ ] Display toggle: Switching mode updates all visible grids immediately
-- [ ] Roster change: New member joins → Their badge can appear in slots
-- [ ] Tooltip data updates: Teammate joins slot → Tooltip shows updated list
+- [ ] Roster change: New member joins -> Their badge can appear in slots
+- [ ] Tooltip data updates: Teammate joins slot -> Tooltip shows updated list
 
 END-TO-END TESTS:
-- [ ] New user sets availability → Badge appears in correct slots
-- [ ] 5 players mark same slot → [+2] overflow shows correctly
-- [ ] Hover slot with 5 players → Tooltip shows all 5 players
-- [ ] Click [+2] → Modal shows all 5 players with correct details
-- [ ] Change display mode → All badges switch to new mode
-- [ ] Page refresh → Display mode preference restored
-- [ ] Real-time: Multiple teammates update simultaneously → UI stays consistent
+- [ ] New user sets availability -> Badge appears in correct slots
+- [ ] 5 players mark same slot -> [+2] overflow shows correctly
+- [ ] Hover slot with 5 players -> Tooltip shows all 5 players
+- [ ] Click [+2] -> Modal shows all 5 players with correct details
+- [ ] Change display mode -> All badges switch to new mode
+- [ ] Page refresh -> Display mode preference restored
+- [ ] Real-time: Multiple teammates update simultaneously -> UI stays consistent
 ```
 
 ## 8. Common Integration Pitfalls
@@ -1164,9 +1164,9 @@ Default to 'initials' if not set (more reliable than avatars).
 
 ### Click Handling Priority
 When cell has player badges:
-1. Click on `.player-badge.overflow` → Open modal (stopPropagation)
-2. Click on `.player-badge` (non-overflow) → Do nothing (let event bubble to cell)
-3. Click on empty cell space → Toggle cell selection (existing behavior)
+1. Click on `.player-badge.overflow` -> Open modal (stopPropagation)
+2. Click on `.player-badge` (non-overflow) -> Do nothing (let event bubble to cell)
+3. Click on empty cell space -> Toggle cell selection (existing behavior)
 
 ### Existing Behaviors to Preserve
 - Blue border on cells where current user is available (user-available class)
@@ -1203,7 +1203,7 @@ Before considering this slice spec complete:
 - [x] Hot paths clearly identified (all operations use cache)
 - [x] Test scenarios cover full stack
 - [x] No anti-patterns present
-- [x] Data flow complete (Cache → Render → Update)
+- [x] Data flow complete (Cache -> Render -> Update)
 - [x] Integration examples show actual code
 - [x] Error handling specified (unknown player fallback)
 - [x] Loading states defined (N/A - all cached data)

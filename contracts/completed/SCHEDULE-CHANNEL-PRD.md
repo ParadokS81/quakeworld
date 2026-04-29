@@ -1,4 +1,4 @@
-# Schedule Channel — Product Requirements Document
+# Schedule Channel -- Product Requirements Document
 
 > Discord-native availability management and match visibility for QW teams.
 > Bridges MatchScheduler's scheduling system into Discord via a dedicated `#schedule` channel per registered team.
@@ -7,15 +7,15 @@
 
 ## Problem
 
-Players must visit matchscheduler.web.app to see who's available and manage their availability. Most QW players live in Discord — the extra step reduces engagement. Team leaders can't quickly glance at availability without opening a browser.
+Players must visit matchscheduler.web.app to see who's available and manage their availability. Most QW players live in Discord -- the extra step reduces engagement. Team leaders can't quickly glance at availability without opening a browser.
 
 ## Solution
 
 A dedicated `#schedule` channel in each registered Discord server, managed by the Quad bot:
 
-1. **Persistent grid message** — Canvas-rendered availability image, auto-updated via Firestore listener. Always visible as the single message in the channel.
-2. **Interactive buttons/dropdowns** — Players mark availability directly from Discord. Two-step flow: pick day → pick time slots.
-3. **Event posts in notification channel** — Challenges, confirmations, scheduled matches posted to the existing notification channel (already implemented by scheduler module).
+1. **Persistent grid message** -- Canvas-rendered availability image, auto-updated via Firestore listener. Always visible as the single message in the channel.
+2. **Interactive buttons/dropdowns** -- Players mark availability directly from Discord. Two-step flow: pick day -> pick time slots.
+3. **Event posts in notification channel** -- Challenges, confirmations, scheduled matches posted to the existing notification channel (already implemented by scheduler module).
 
 ## Non-Goals (for now)
 
@@ -36,7 +36,7 @@ A dedicated channel where only the bot posts. Members can interact via component
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  [Canvas-rendered availability grid — PNG image]  │
+│  [Canvas-rendered availability grid -- PNG image]  │
 │                                                   │
 │  Shows: full week, past days dimmed               │
 │  Player initials colored per-player               │
@@ -45,8 +45,8 @@ A dedicated channel where only the bot posts. Members can interact via component
 │  Scheduled matches shown in cells                 │
 └──────────────────────────────────────────────────┘
 
-Embed: ]SR[ · Week 8 · Feb 16-22
-       Upcoming: vs Book — Sat 21st 21:00 CET
+Embed: ]SR[ - Week 8 - Feb 16-22
+       Upcoming: vs Book -- Sat 21st 21:00 CET
        Open proposals: vs Suddendeath (3 viable slots)
 
 Row 1: [-Me This Week]
@@ -54,24 +54,24 @@ Row 2: [📅 Edit day...                              ▼]
 ```
 
 **Component layout** (2 of 5 allowed action rows):
-- **Row 1**: Button — clear all availability for the week (the only bulk action worth a shortcut)
-- **Row 2**: StringSelectMenu — day picker for granular slot editing (the core interaction)
+- **Row 1**: Button -- clear all availability for the week (the only bulk action worth a shortcut)
+- **Row 2**: StringSelectMenu -- day picker for granular slot editing (the core interaction)
 
 ### Flow: Edit a Specific Day
 
-1. **User clicks "Edit day" dropdown** — shows 7 days with current availability summary per day:
+1. **User clicks "Edit day" dropdown** -- shows 7 days with current availability summary per day:
    ```
    Mon 17th (past)
    Tue 18th (past)
    Wed 19th (past)
-   Thu 20th — you: 21:30-23:00
-   Fri 21st — you: 20:00-21:00
-   Sat 22nd — you: 20:00-23:00
+   Thu 20th -- you: 21:30-23:00
+   Fri 21st -- you: 20:00-21:00
+   Sat 22nd -- you: 20:00-23:00
    Sun 23rd
    ```
-   Past days are shown but labeled "(past)" — selecting one returns an ephemeral "This day has passed" message.
+   Past days are shown but labeled "(past)" -- selecting one returns an ephemeral "This day has passed" message.
 
-2. **User picks a day** — bot responds with an **ephemeral message** (only visible to the user) containing a multi-select dropdown of time slots:
+2. **User picks a day** -- bot responds with an **ephemeral message** (only visible to the user) containing a multi-select dropdown of time slots:
    ```
    Friday Feb 21st
    Select which times you're available:
@@ -79,9 +79,9 @@ Row 2: [📅 Edit day...                              ▼]
    ┌─────────────────────────────┐
    │ ☐ 19:00 CET                │
    │ ☐ 19:30 CET                │
-   │ ☑ 20:00 CET  ← current    │
-   │ ☑ 20:30 CET  ← current    │
-   │ ☑ 21:00 CET  ← current    │
+   │ ☑ 20:00 CET  <- current    │
+   │ ☑ 20:30 CET  <- current    │
+   │ ☑ 21:00 CET  <- current    │
    │ ☐ 21:30 CET                │
    │ ☐ 22:00 CET                │
    │ ☐ 22:30 CET                │
@@ -90,24 +90,24 @@ Row 2: [📅 Edit day...                              ▼]
    ```
    Current available slots are **pre-selected** via `StringSelectMenu` default values.
 
-3. **User modifies selections and closes dropdown** — Discord fires the interaction with all checked values. No separate confirm button needed.
+3. **User modifies selections and closes dropdown** -- Discord fires the interaction with all checked values. No separate confirm button needed.
 
-4. **Bot diffs** new selections vs current state → writes adds/removes to Firestore atomically. If selections are unchanged (user opened and closed without changing), the bot skips the write entirely — no no-op Firestore operations.
+4. **Bot diffs** new selections vs current state -> writes adds/removes to Firestore atomically. If selections are unchanged (user opened and closed without changing), the bot skips the write entirely -- no no-op Firestore operations.
 
 5. **Ephemeral updates** with confirmation:
    ```
-   ✓ Friday updated
+   [ok] Friday updated
    Added: 21:30, 22:00
    Removed: 20:00
 
    [📅 Edit another day ▼]  [Dismiss]
    ```
 
-6. **Firestore onSnapshot fires** → canvas re-renders → persistent grid message updates for everyone.
+6. **Firestore onSnapshot fires** -> canvas re-renders -> persistent grid message updates for everyone.
 
 ### Flow: Clear All (-Me This Week)
 
-The only shortcut button on the persistent message. Clears **all** availability and away marks for the entire week in one click. Useful when going on vacation or dropping out for the week — clearing 7 days one-by-one via Edit Day would be tedious.
+The only shortcut button on the persistent message. Clears **all** availability and away marks for the entire week in one click. Useful when going on vacation or dropping out for the week -- clearing 7 days one-by-one via Edit Day would be tedious.
 
 Bot responds with ephemeral confirmation: "Cleared all your availability for Week 8."
 
@@ -121,7 +121,7 @@ Bot responds with ephemeral confirmation: "Cleared all your availability for Wee
 | Persistent message deleted | Re-post on next availability change or bot restart |
 | Schedule channel deleted | Bot catches `DiscordAPIError: Unknown Channel`, nulls out `scheduleChannelId` on the registration, logs warning |
 | Bot removed and re-added to guild | On re-ready, detects stale `scheduleMessageId`, posts fresh message |
-| Firestore write fails | Ephemeral: "Failed to update — try again" |
+| Firestore write fails | Ephemeral: "Failed to update -- try again" |
 | Availability doc doesn't exist yet (new week) | Bot creates it with `set({ merge: true })` on first write |
 
 ---
@@ -140,12 +140,12 @@ Team membership verified
 Availability updated
 ```
 
-The bot uses **Firebase Admin SDK** (service account) to write directly to Firestore — no Cloud Function call needed. Admin SDK bypasses security rules. The bot performs its own team membership validation.
+The bot uses **Firebase Admin SDK** (service account) to write directly to Firestore -- no Cloud Function call needed. Admin SDK bypasses security rules. The bot performs its own team membership validation.
 
 ### User Resolution & Caching
 
 ```typescript
-// Per-guild cache: discordUserId → { uid, displayName, teamId, initials }
+// Per-guild cache: discordUserId -> { uid, displayName, teamId, initials }
 // Populated on first interaction, refreshed on cache miss
 // Cache TTL: 1 hour (team membership rarely changes mid-session)
 
@@ -166,14 +166,14 @@ async function resolveUser(discordUserId: string, teamId: string): Promise<Resol
 The bot replicates the same atomic write pattern as `updateAvailability` Cloud Function:
 
 ```typescript
-// Action: "add" — mark available
+// Action: "add" -- mark available
 updateData[`slots.${slotId}`] = FieldValue.arrayUnion(uid);
 updateData[`unavailable.${slotId}`] = FieldValue.arrayRemove(uid);  // mutual exclusion
 
-// Action: "remove" — clear
+// Action: "remove" -- clear
 updateData[`slots.${slotId}`] = FieldValue.arrayRemove(uid);
 
-// Action: "markUnavailable" — mark away
+// Action: "markUnavailable" -- mark away
 updateData[`unavailable.${slotId}`] = FieldValue.arrayUnion(uid);
 updateData[`slots.${slotId}`] = FieldValue.arrayRemove(uid);  // mutual exclusion
 
@@ -190,8 +190,8 @@ updateData.lastUpdated = FieldValue.serverTimestamp();
 ### Timezone Handling
 
 - Firestore stores **UTC** slot IDs
-- Discord displays **CET/CEST** (matching the MatchScheduler default — conscious simplification for the ~300 European QW players)
-- Conversion: the existing scheduler module already has CET↔UTC logic in `time.ts`
+- Discord displays **CET/CEST** (matching the MatchScheduler default -- conscious simplification for the ~300 European QW players)
+- Conversion: the existing scheduler module already has CET<->UTC logic in `time.ts`
 - Base display range: 19:00-23:00 CET (= 18:00-22:00 UTC winter, 17:00-21:00 UTC summer)
 
 ---
@@ -206,7 +206,7 @@ Add two fields (flat, consistent with existing `notificationChannelId` pattern):
 interface BotRegistrationDocument {
   // ... existing fields (guildId, notificationChannelId, availableChannels, etc.) ...
 
-  // NEW — schedule channel configuration
+  // NEW -- schedule channel configuration
   scheduleChannelId: string | null;    // Discord channel ID for the persistent grid
   scheduleMessageId: string | null;    // Message ID of the persistent grid (for editing)
 }
@@ -240,15 +240,15 @@ Note: `scheduleChannelId` is written by MatchScheduler (team settings UI), not b
 
 ### Design Approach
 
-The canvas renders a hybrid between the MatchScheduler desktop and mobile views — optimized for Discord's image display constraints (~520px wide on desktop Discord, ~350px on mobile Discord).
+The canvas renders a hybrid between the MatchScheduler desktop and mobile views -- optimized for Discord's image display constraints (~520px wide on desktop Discord, ~350px on mobile Discord).
 
-**Render resolution**: 800×480 pixels (displays crisp on both desktop and mobile Discord).
+**Render resolution**: 800x480 pixels (displays crisp on both desktop and mobile Discord).
 
 ### Visual Layout
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                     ]SR[ · Week 8 · Feb 16-22                        │
+│                     ]SR[ - Week 8 - Feb 16-22                        │
 ├──────┬────────┬────────┬────────┬────────┬────────┬────────┬────────┤
 │      │ Mon 16 │ Tue 17 │ Wed 18 │ Thu 19 │ Fri 20 │ Sat 21 │ Sun 22 │
 ├──────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┤
@@ -257,10 +257,10 @@ The canvas renders a hybrid between the MatchScheduler desktop and mobile views 
 │20:00 │  P R   │  P R   │  P R   │  P R   │   P    │   P    │  P R   │
 │20:30 │  P R   │  P R   │  P R   │  P R   │   P    │   P    │  P R   │
 │21:00 │  P R   │  P R   │  P R   │  P R   │   P    │   P    │  P R   │
-│21:30 │  P R   │ G P R  │  P R   │ GPRZ   │   P    │  G P   │ ⚔ vs… │
+│21:30 │  P R   │ G P R  │  P R   │ GPRZ   │   P    │  G P   │ ⚔ vs... │
 │22:00 │ P R Z  │ GPRZ   │ P R Z  │ GPRZ   │  P Z   │  GPZ   │ GPRZ   │
 │22:30 │ P R Z  │ GPRZ   │ P R Z  │ GPRZ   │  P Z   │  GPZ   │ GPRZ   │
-│23:00 │ P R Z  │ GPRZ   │ P R Z  │ GPRZ   │  P Z   │  GPZ   │ ⚔ vs… │
+│23:00 │ P R Z  │ GPRZ   │ P R Z  │ GPRZ   │  P Z   │  GPZ   │ ⚔ vs... │
 ├──────┴────────┴────────┴────────┴────────┴────────┴────────┴────────┤
 │  P ParadokS   R Razor   Z Zero   G Grisling                         │
 └──────────────────────────────────────────────────────────────────────┘
@@ -292,31 +292,31 @@ The canvas renders a hybrid between the MatchScheduler desktop and mobile views 
 | Blue | `#6D9EEB` | 240° |
 | Pink | `#C27BA0` | 300° |
 
-Assignment: hash `userId` to one of the 6 colors. Consistent across renders (same user = same color always). The bot doesn't need to read per-viewer `playerColors` from Firestore — it uses a single deterministic mapping for all viewers, since the Discord image is the same for everyone (unlike the web app where each user can customize colors).
+Assignment: hash `userId` to one of the 6 colors. Consistent across renders (same user = same color always). The bot doesn't need to read per-viewer `playerColors` from Firestore -- it uses a single deterministic mapping for all viewers, since the Discord image is the same for everyone (unlike the web app where each user can customize colors).
 
 ### Rendering Rules
 
-- **Full week always shown** (Mon-Sun) — provides full context at a glance
+- **Full week always shown** (Mon-Sun) -- provides full context at a glance
 - **Past days**: Dimmed with 30% opacity overlay. Still visible but clearly distinguished
 - **Today column**: Header text in primary purple, subtle left border highlight
 - **Match-ready cells** (4+ available players): Purple background (`#4a3d8f`)
 - **Scheduled matches**: Saturated purple cell (`#5b4fa0`) with "⚔ vs TAG" text replacing initials
 - **Player initials**: Colored per the 6-color palette above, bold, centered in cell
-- **Unavailable players**: Not shown in cells (they're explicitly "away" — showing them would be confusing)
+- **Unavailable players**: Not shown in cells (they're explicitly "away" -- showing them would be confusing)
 - **Player count badge**: Small superscript number in match-ready cells (like the desktop view)
-- **Legend row**: Bottom of image, maps initial → display name with matching color
+- **Legend row**: Bottom of image, maps initial -> display name with matching color
 - **Team header**: Top row with team tag, week number, date range
 
 ### Technology
 
-- **`@napi-rs/canvas`** — Pure Rust bindings, no system dependencies, works in Docker without cairo/pango. CPU-only rendering (the RTX 4090 is irrelevant here).
+- **`@napi-rs/canvas`** -- Pure Rust bindings, no system dependencies, works in Docker without cairo/pango. CPU-only rendering (the RTX 4090 is irrelevant here).
 - Image attached to message via `AttachmentBuilder` in discord.js
 
 ### Update Debouncing
 
 Multiple rapid Firestore changes (e.g., user adding 5 slots via +Me) should not trigger 5 re-renders:
 - Debounce: **3-second window** after last Firestore change before re-rendering
-- If the bot itself wrote the change, it can set a flag to expect the echo — still debounces but doesn't add extra delay
+- If the bot itself wrote the change, it can set a flag to expect the echo -- still debounces but doesn't add extra delay
 
 ---
 
@@ -325,15 +325,15 @@ Multiple rapid Firestore changes (e.g., user adding 5 slots via +Me) should not 
 The Discord embed below the canvas image shows context that doesn't need to be rendered as pixels:
 
 ```
-]SR[ · Week 8 · Feb 16-22
+]SR[ - Week 8 - Feb 16-22
 ━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 YOUR MATCHES
-  vs Book — Sat 21st 21:00 CET
-  vs Suddendeath — Sun 22nd 23:00 CET
+  vs Book -- Sat 21st 21:00 CET
+  vs Suddendeath -- Sun 22nd 23:00 CET
 
 📨 OPEN PROPOSALS
-  vs Suddendeath — 3 viable slots (view on site)
+  vs Suddendeath -- 3 viable slots (view on site)
 
 Last updated: 2 min ago
 ```
@@ -342,7 +342,7 @@ Last updated: 2 min ago
 - `scheduledMatches` collection, filtered by `teamId` + current/future dates
 - `matchProposals` collection, filtered by `teamId` + `status: 'pending'`
 
-These can be polled periodically (every 5 min) rather than requiring real-time listeners — match data changes infrequently compared to availability.
+These can be polled periodically (every 5 min) rather than requiring real-time listeners -- match data changes infrequently compared to availability.
 
 ---
 
@@ -351,29 +351,29 @@ These can be polled periodically (every 5 min) rather than requiring real-time l
 ### How a team gets #schedule
 
 1. **Team leader creates a channel** in their Discord server (e.g., `#schedule`, `#availability`, or any name they choose)
-2. **Bot syncs channel list** — `channels.ts` already writes `availableChannels` to `botRegistrations/{teamId}` on startup and periodically. The new channel appears in this list.
-3. **Leader selects it in MatchScheduler** — Team Settings → Discord tab → "Schedule channel" dropdown (same pattern as the existing "Notification channel" dropdown). Writes `scheduleChannelId` to `botRegistrations/{teamId}`.
-4. **Bot detects the change** — listener on `botRegistrations/{teamId}` sees `scheduleChannelId` set, starts the availability listener, renders the grid, and posts the persistent message. Stores the resulting `scheduleMessageId` back.
+2. **Bot syncs channel list** -- `channels.ts` already writes `availableChannels` to `botRegistrations/{teamId}` on startup and periodically. The new channel appears in this list.
+3. **Leader selects it in MatchScheduler** -- Team Settings -> Discord tab -> "Schedule channel" dropdown (same pattern as the existing "Notification channel" dropdown). Writes `scheduleChannelId` to `botRegistrations/{teamId}`.
+4. **Bot detects the change** -- listener on `botRegistrations/{teamId}` sees `scheduleChannelId` set, starts the availability listener, renders the grid, and posts the persistent message. Stores the resulting `scheduleMessageId` back.
 
 **No auto-creation**. Teams manage their own Discord channels. The bot only needs to post in the channel they choose.
 
 ### Channel Permissions
 
 The bot needs these Discord permissions in the schedule channel:
-- `ViewChannel` — see the channel
-- `SendMessages` — post the persistent message
-- `EmbedLinks` — for the embed content
-- `AttachFiles` — for the canvas PNG image (**new requirement** — not in current bot invite permissions)
+- `ViewChannel` -- see the channel
+- `SendMessages` -- post the persistent message
+- `EmbedLinks` -- for the embed content
+- `AttachFiles` -- for the canvas PNG image (**new requirement** -- not in current bot invite permissions)
 
-**Bot invite permissions update**: Current permission integer `3148800` needs `AttachFiles` (bit 15 = `32768`) added → new value: `3181568`.
+**Bot invite permissions update**: Current permission integer `3148800` needs `AttachFiles` (bit 15 = `32768`) added -> new value: `3181568`.
 
-The channel should ideally be configured so regular members cannot send messages (only interact via components). This is a Discord channel permission the team leader sets — not enforced by the bot.
+The channel should ideally be configured so regular members cannot send messages (only interact via components). This is a Discord channel permission the team leader sets -- not enforced by the bot.
 
 ---
 
 ## Implementation Scope
 
-### Quad (bot) — ~80% of work
+### Quad (bot) -- ~80% of work
 
 New module: `src/modules/availability/`
 
@@ -381,39 +381,39 @@ New module: `src/modules/availability/`
 src/modules/availability/
 ├── index.ts           # BotModule export, lifecycle hooks
 ├── types.ts           # TypeScript interfaces
-├── renderer.ts        # Canvas grid renderer → PNG buffer
+├── renderer.ts        # Canvas grid renderer -> PNG buffer
 ├── listener.ts        # Firestore onSnapshot for availability + match data
 ├── interactions.ts    # Button + select menu handlers
-├── user-resolver.ts   # Discord ID → Firebase UID resolution + cache
+├── user-resolver.ts   # Discord ID -> Firebase UID resolution + cache
 ├── message.ts         # Persistent message management (create, edit, recover)
-└── time.ts            # CET↔UTC slot conversion (reuse from scheduler module)
+└── time.ts            # CET<->UTC slot conversion (reuse from scheduler module)
 ```
 
 **Components**:
-1. **Canvas renderer** — Renders availability grid as PNG from Firestore data + team roster
-2. **Firestore listener** — `onSnapshot` on `availability/{teamId}_{weekId}`, triggers debounced re-render
-3. **Interaction handlers** — Button clicks (+Me, -Me, Mark Away) and select menu interactions (day picker, time slot picker)
-4. **User resolver** — Maps Discord user ID to Firebase UID with TTL cache
-5. **Message manager** — Posts/edits the persistent message, recovers on restart or deletion
-6. **Embed builder** — Reads scheduled matches and open proposals, renders as embed fields
+1. **Canvas renderer** -- Renders availability grid as PNG from Firestore data + team roster
+2. **Firestore listener** -- `onSnapshot` on `availability/{teamId}_{weekId}`, triggers debounced re-render
+3. **Interaction handlers** -- Button clicks (+Me, -Me, Mark Away) and select menu interactions (day picker, time slot picker)
+4. **User resolver** -- Maps Discord user ID to Firebase UID with TTL cache
+5. **Message manager** -- Posts/edits the persistent message, recovers on restart or deletion
+6. **Embed builder** -- Reads scheduled matches and open proposals, renders as embed fields
 
 **Module lifecycle**:
 - `onReady()`: Load active botRegistrations with `scheduleChannelId` set, start availability listeners per team, recover/post persistent messages
 - `onShutdown()`: Unsubscribe all Firestore listeners
 - `registerEvents()`: Register `interactionCreate` handler for button + select menu custom IDs
-- `commands`: No slash commands — setup is done via MatchScheduler settings UI
+- `commands`: No slash commands -- setup is done via MatchScheduler settings UI
 
 **Interaction custom IDs** (prefixed to avoid collision with other modules):
-- `avail:clearWeek` — -Me This Week button
-- `avail:editDay` — Edit day select menu
-- `avail:editSlots:{teamId}:{day}` — Time slot multi-select (ephemeral)
-- `avail:editAnother` — Edit another day (from confirmation ephemeral)
+- `avail:clearWeek` -- -Me This Week button
+- `avail:editDay` -- Edit day select menu
+- `avail:editSlots:{teamId}:{day}` -- Time slot multi-select (ephemeral)
+- `avail:editAnother` -- Edit another day (from confirmation ephemeral)
 
-### MatchScheduler (site) — ~20% of work
+### MatchScheduler (site) -- ~20% of work
 
-1. **Settings UI**: Add "Schedule channel" dropdown to the Discord tab in Team Management Modal — same pattern as existing "Notification channel" dropdown. Only shows channels where bot `canPost` + has `AttachFiles`.
+1. **Settings UI**: Add "Schedule channel" dropdown to the Discord tab in Team Management Modal -- same pattern as existing "Notification channel" dropdown. Only shows channels where bot `canPost` + has `AttachFiles`.
 2. **Cloud Function update**: Extend `manageBotRegistration` action `updateSettings` to accept `scheduleChannelId`.
-3. **Channel list filtering**: `channels.ts` already syncs `availableChannels` — may need to add `canAttach` permission flag alongside existing `canPost`.
+3. **Channel list filtering**: `channels.ts` already syncs `availableChannels` -- may need to add `canAttach` permission flag alongside existing `canPost`.
 
 No frontend availability logic changes. No new Cloud Functions for availability writes (bot uses Admin SDK directly).
 
@@ -427,12 +427,12 @@ The bot must handle various failure modes for the persistent message:
 
 ```
 1. Read scheduleChannelId and scheduleMessageId from botRegistrations
-2. If no scheduleChannelId → skip (not configured)
+2. If no scheduleChannelId -> skip (not configured)
 3. Try to fetch the channel
-   → Unknown Channel error → null out scheduleChannelId, log warning, skip
+   -> Unknown Channel error -> null out scheduleChannelId, log warning, skip
 4. Try to fetch the message by scheduleMessageId
-   → Success → edit it with fresh render (data may have changed while bot was down)
-   → Not found / null → post new message, store new scheduleMessageId
+   -> Success -> edit it with fresh render (data may have changed while bot was down)
+   -> Not found / null -> post new message, store new scheduleMessageId
 ```
 
 ### On Channel Deletion (runtime)
@@ -481,20 +481,20 @@ The grid always shows the current ISO week. At week boundary (Monday 00:00 CET):
 
 ### Phase 2: Persistent Message (read-only, live Firestore)
 - Deploy to Slackers guild test channel
-- Firestore listener → auto-render → post message
-- Verify: change availability on the website → Discord grid updates within 5 seconds
-- Verify: bot restart → message recovered (same message edited, not duplicated)
-- Verify: delete message in Discord → bot re-posts on next availability change
+- Firestore listener -> auto-render -> post message
+- Verify: change availability on the website -> Discord grid updates within 5 seconds
+- Verify: bot restart -> message recovered (same message edited, not duplicated)
+- Verify: delete message in Discord -> bot re-posts on next availability change
 - Verify: week rollover (change system clock or wait for Monday)
 
 ### Phase 3: Interactive (full read-write)
 - Enable buttons and select menus
 - Test: +Me Rest of Week (verify only future days affected)
 - Test: -Me This Week (verify all days cleared)
-- Test: Edit day → time slot multi-select → Firestore write → grid update
+- Test: Edit day -> time slot multi-select -> Firestore write -> grid update
 - Test: Mark Away flow (verify mutual exclusion with available slots)
-- Test: open dropdown, close without changes → verify no Firestore write
-- Verify bidirectional: change on Discord → site reflects it, and vice versa
+- Test: open dropdown, close without changes -> verify no Firestore write
+- Verify bidirectional: change on Discord -> site reflects it, and vice versa
 - Verify: unlinked Discord user gets helpful error message
 - Verify: user not on team gets appropriate error
 
@@ -516,4 +516,4 @@ The grid always shows the current ISO week. At week boundary (Monday 00:00 CET):
 
 No new external services. No new Firestore collections. No new Cloud Functions for availability writes.
 
-**Bot invite permission update**: `3148800` → `3181568` (adds `AttachFiles`).
+**Bot invite permission update**: `3148800` -> `3181568` (adds `AttachFiles`).

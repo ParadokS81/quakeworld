@@ -7,8 +7,8 @@ The persistent schedule message in Discord currently has one action row (the "Ed
 Read `AVAILABILITY-ENHANCEMENT-CONTRACT.md` at the orchestrator level for the full contract.
 
 **Prerequisites**:
-- Phase A1 (schema — `users/{userId}.template` field must exist)
-- Phase A5 (same codebase area — `interactions.ts` and `message.ts`)
+- Phase A1 (schema -- `users/{userId}.template` field must exist)
+- Phase A5 (same codebase area -- `interactions.ts` and `message.ts`)
 
 ---
 
@@ -77,7 +77,7 @@ import { getNextWeekId, getCurrentWeekId } from './time.js';  // Add getCurrentW
 
 **Note on TypeScript return type**: The function return type changes from `ActionRowBuilder<StringSelectMenuBuilder>[]` to `Array<ActionRowBuilder<StringSelectMenuBuilder | ButtonBuilder>>`. The callers in `postOrRecoverMessage()` and `updateMessage()` pass this to Discord's `components` field which accepts mixed row types, so this is safe.
 
-Alternatively, just use `ActionRowBuilder<any>[]` for simplicity — Discord.js accepts it.
+Alternatively, just use `ActionRowBuilder<any>[]` for simplicity -- Discord.js accepts it.
 
 ---
 
@@ -153,7 +153,7 @@ async function handleSaveTemplate(interaction: ButtonInteraction): Promise<void>
     });
 
     await interaction.editReply({
-        content: `✓ Template saved (${userSlots.length} slots from this week)`,
+        content: `[ok] Template saved (${userSlots.length} slots from this week)`,
     });
 
     logger.info('Template saved via Discord', { teamId, userId: user.uid, slotCount: userSlots.length });
@@ -193,7 +193,7 @@ async function handleOptions(interaction: ButtonInteraction): Promise<void> {
         new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setCustomId(`avail:toggleRecurring:${teamId}`)
-                .setLabel(recurring ? '✓ Recurring ON — Turn Off' : 'Turn On Recurring')
+                .setLabel(recurring ? '[ok] Recurring ON -- Turn Off' : 'Turn On Recurring')
                 .setStyle(recurring ? ButtonStyle.Success : ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId(`avail:clearTemplate:${teamId}`)
@@ -257,12 +257,12 @@ async function handleToggleRecurring(interaction: ButtonInteraction): Promise<vo
         });
 
         await interaction.editReply({
-            content: `**Your template:** ${template.slots.length} slots\n**Recurring:** ON ✓\n\nApplied to current + next week.`,
+            content: `**Your template:** ${template.slots.length} slots\n**Recurring:** ON [ok]\n\nApplied to current + next week.`,
             components: [
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
                         .setCustomId(`avail:toggleRecurring:${teamId}`)
-                        .setLabel('✓ Recurring ON — Turn Off')
+                        .setLabel('[ok] Recurring ON -- Turn Off')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
                         .setCustomId(`avail:clearTemplate:${teamId}`)
@@ -353,7 +353,7 @@ async function applyTemplateToWeek(
         const slots = doc.data()?.slots || {};
         for (const users of Object.values(slots)) {
             if (Array.isArray(users) && users.includes(userId)) {
-                return; // Already has availability — don't overwrite
+                return; // Already has availability -- don't overwrite
             }
         }
     }
@@ -389,11 +389,11 @@ npx tsc --noEmit
 Then test in Discord:
 
 1. **Persistent message**: Verify both current-week and next-week messages show the new action row with "Save Template" and "⚙ Options" buttons
-2. **Save Template**: Mark some availability → click Save Template → verify ephemeral confirmation with slot count
-3. **Save Template (no availability)**: Click Save Template with no availability → verify error message
-4. **Options (no template)**: Click Options before saving → verify "No template saved" message
-5. **Options (with template)**: Save a template → click Options → verify status shows slot count + recurring state + buttons
-6. **Toggle Recurring ON**: Click "Turn On Recurring" → verify confirmation + check availability was applied to both weeks
-7. **Toggle Recurring OFF**: Click "Turn Off" → verify confirmation + existing availability preserved
-8. **Clear Template**: Click "Clear Template" → verify template removed
-9. **Verify frontend sync**: After saving template from Discord, open MatchScheduler web app → verify template shows in the frontend UI
+2. **Save Template**: Mark some availability -> click Save Template -> verify ephemeral confirmation with slot count
+3. **Save Template (no availability)**: Click Save Template with no availability -> verify error message
+4. **Options (no template)**: Click Options before saving -> verify "No template saved" message
+5. **Options (with template)**: Save a template -> click Options -> verify status shows slot count + recurring state + buttons
+6. **Toggle Recurring ON**: Click "Turn On Recurring" -> verify confirmation + check availability was applied to both weeks
+7. **Toggle Recurring OFF**: Click "Turn Off" -> verify confirmation + existing availability preserved
+8. **Clear Template**: Click "Clear Template" -> verify template removed
+9. **Verify frontend sync**: After saving template from Discord, open MatchScheduler web app -> verify template shows in the frontend UI

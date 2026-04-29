@@ -6,13 +6,13 @@
 
 **Architecture:** Reuse the existing stateless `KeyboardLayout` component. Add a new `ConfigKeyboardPanel` container that composes one or two instances with a shared toggle bar, owner-frame tints, and linked selection state. Extract Profile's highlight/label builders into a shared helpers file so Profile and ConfigKeyboardPanel both consume them. Add a `Movement > Binds` sidebar section. Persist the toggle state and "Show keyboard" pref through `ProfilePrefs` / `updatePrefs`.
 
-**Tech stack:** SolidJS + TypeScript, Tauri v2, Tailwind + DaisyUI, `tauri-plugin-store` via `src/store.ts`. No Rust changes — the existing `classify_chain_binds` command and `EzQuakeConfig` shape already provide everything needed.
+**Tech stack:** SolidJS + TypeScript, Tauri v2, Tailwind + DaisyUI, `tauri-plugin-store` via `src/store.ts`. No Rust changes -- the existing `classify_chain_binds` command and `EzQuakeConfig` shape already provide everything needed.
 
 **Testing note:** slipgate-app has **no test suite and no test runner configured** (no vitest/jest in `package.json`). Per the monorepo CLAUDE.md testing philosophy, automated tests are NOT added speculatively. Verification in every task uses three gates:
 
-1. `cd apps/slipgate-app && bunx tsc --noEmit` — must produce 0 errors (memory rule: always typecheck slipgate frontend work)
-2. `cd apps/slipgate-app && bun run build` — must succeed
-3. Manual interaction in the running dev app — specific steps listed per task
+1. `cd apps/slipgate-app && bunx tsc --noEmit` -- must produce 0 errors (memory rule: always typecheck slipgate frontend work)
+2. `cd apps/slipgate-app && bun run build` -- must succeed
+3. Manual interaction in the running dev app -- specific steps listed per task
 
 If a task introduces a pure helper that is easy to unit-check manually, the plan shows a small driver snippet for the developer to paste into the console. No test files are created.
 
@@ -29,29 +29,29 @@ If a task introduces a pure helper that is easy to unit-check manually, the plan
 
 - `apps/slipgate-app/src/components/keyboardHighlights.ts`
   Pure helper module. Exports:
-  - `buildKeyHighlights(input): Map<string, KeyHighlight>` — builds the per-key color map from weapon_binds + teamsay_binds, honoring the three toggles.
-  - `buildKeyLabels(input): Map<string, string> | undefined` — builds the per-key label override map when label mode is on.
+  - `buildKeyHighlights(input): Map<string, KeyHighlight>` -- builds the per-key color map from weapon_binds + teamsay_binds, honoring the three toggles.
+  - `buildKeyLabels(input): Map<string, string> | undefined` -- builds the per-key label override map when label mode is on.
   - `TEAMSAY_COLORS`, `WEAPON_LABELS`, `MOVE_ARROWS` constants currently hardcoded in `ProfileTab.tsx`.
-  - `resolveCommandKeys(config, command): string[]` — given a parsed config and a canonical command name (e.g. `"safe"`, `"rl"`), returns all layout-key IDs bound to that command in that config. Used by click-to-pin to match by command across sides.
+  - `resolveCommandKeys(config, command): string[]` -- given a parsed config and a canonical command name (e.g. `"safe"`, `"rl"`), returns all layout-key IDs bound to that command in that config. Used by click-to-pin to match by command across sides.
 
 ### Modified files
 
-- `apps/slipgate-app/src/components/KeyboardLayout.tsx` — add optional `onKeyClick?(id: string): void` and `selectedKeyIds?: Set<string>` props; render a "neon frame" styling for selected keys. Profile behavior unchanged when new props are unused.
-- `apps/slipgate-app/src/components/ProfileTab.tsx` — refactor to import highlight/label builders from `keyboardHighlights.ts`. Remove local duplicates. No user-visible behavior change.
-- `apps/slipgate-app/src/components/ConfigSidebar.tsx` — add a "Movement" domain block with a "Binds" button, mirroring the existing Weapons/Teamplay pattern.
-- `apps/slipgate-app/src/components/ConfigViewer.tsx` — add `movement:binds` section rendering; add `<ConfigKeyboardPanel>` in the right rail; add selection-pin signal; extend row-click handlers to emit selection into the panel and to accept selection from it.
-- `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` — add a new `ConfigMovementBindsSection` export rendering movement keys as a list. Sibling to the existing weapon/teamsay sections.
-- `apps/slipgate-app/src/store.ts` — extend `ProfilePrefs` with `config_keyboard_visible: boolean`, `config_keyboard_show_movement: boolean`, `config_keyboard_show_weapons: boolean`, `config_keyboard_show_teamplay: boolean`. Update `DEFAULT_PREFS`.
-- `apps/slipgate-app/src/app.css` — add new styles: `sg-config-kb-panel`, `sg-config-kb-frame-you`, `sg-config-kb-frame-them`, `sg-kb-key-selected`, `sg-config-kb-toggle-bar`, `sg-config-kb-label`.
+- `apps/slipgate-app/src/components/KeyboardLayout.tsx` -- add optional `onKeyClick?(id: string): void` and `selectedKeyIds?: Set<string>` props; render a "neon frame" styling for selected keys. Profile behavior unchanged when new props are unused.
+- `apps/slipgate-app/src/components/ProfileTab.tsx` -- refactor to import highlight/label builders from `keyboardHighlights.ts`. Remove local duplicates. No user-visible behavior change.
+- `apps/slipgate-app/src/components/ConfigSidebar.tsx` -- add a "Movement" domain block with a "Binds" button, mirroring the existing Weapons/Teamplay pattern.
+- `apps/slipgate-app/src/components/ConfigViewer.tsx` -- add `movement:binds` section rendering; add `<ConfigKeyboardPanel>` in the right rail; add selection-pin signal; extend row-click handlers to emit selection into the panel and to accept selection from it.
+- `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` -- add a new `ConfigMovementBindsSection` export rendering movement keys as a list. Sibling to the existing weapon/teamsay sections.
+- `apps/slipgate-app/src/store.ts` -- extend `ProfilePrefs` with `config_keyboard_visible: boolean`, `config_keyboard_show_movement: boolean`, `config_keyboard_show_weapons: boolean`, `config_keyboard_show_teamplay: boolean`. Update `DEFAULT_PREFS`.
+- `apps/slipgate-app/src/app.css` -- add new styles: `sg-config-kb-panel`, `sg-config-kb-frame-you`, `sg-config-kb-frame-them`, `sg-kb-key-selected`, `sg-config-kb-toggle-bar`, `sg-config-kb-label`.
 
 ---
 
 ## Task 1: Add Movement domain to ConfigSidebar
 
-**Goal:** Sidebar shows a new "Movement > Binds" pill alongside Teamplay and Weapons. Clicking it toggles `movement:binds` in `activeRow2`, same mechanism as other domain pills. The content section it would reveal does not exist yet — that comes in Task 2. This task is purely additive UI.
+**Goal:** Sidebar shows a new "Movement > Binds" pill alongside Teamplay and Weapons. Clicking it toggles `movement:binds` in `activeRow2`, same mechanism as other domain pills. The content section it would reveal does not exist yet -- that comes in Task 2. This task is purely additive UI.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigSidebar.tsx:141` — insert Movement block after the Weapons block
+- Modify: `apps/slipgate-app/src/components/ConfigSidebar.tsx:141` -- insert Movement block after the Weapons block
 
 - [ ] **Step 1: Add the Movement domain block**
 
@@ -75,11 +75,11 @@ Edit `apps/slipgate-app/src/components/ConfigSidebar.tsx`. Find the closing `</d
 cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit
 ```
 
-Expected: 0 errors. ConfigSidebar's props interface already takes `activeRow2: Set<string>` and `onToggleRow2Pill: (key: string) => void` — no signature change needed.
+Expected: 0 errors. ConfigSidebar's props interface already takes `activeRow2: Set<string>` and `onToggleRow2Pill: (key: string) => void` -- no signature change needed.
 
 - [ ] **Step 3: Manual check**
 
-Run `cd apps/slipgate-app && bun run dev` (from Windows terminal per CLAUDE.md). Open ConfigViewer in the app. The sidebar Domains area now shows Teamplay, Weapons, **Movement**. Click Movement > Binds. The pill should toggle visually (badge-binds when active). Nothing appears in the content area yet — expected, handled in Task 2.
+Run `cd apps/slipgate-app && bun run dev` (from Windows terminal per CLAUDE.md). Open ConfigViewer in the app. The sidebar Domains area now shows Teamplay, Weapons, **Movement**. Click Movement > Binds. The pill should toggle visually (badge-binds when active). Nothing appears in the content area yet -- expected, handled in Task 2.
 
 - [ ] **Step 4: Commit**
 
@@ -88,7 +88,7 @@ cd /home/paradoks/projects/quakeworld && git add apps/slipgate-app/src/component
 feat(slipgate): add Movement > Binds pill to ConfigSidebar
 
 First of three steps adding a Movement domain section. Sidebar pill
-only — content rendering comes in the next commit.
+only -- content rendering comes in the next commit.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
 EOF
@@ -102,8 +102,8 @@ EOF
 **Goal:** Clicking the new "Movement > Binds" pill shows a section listing the 7 movement key bindings (forward, back, left, right, jump, moveup, movedown) with their values, in compare mode showing both sides.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` — add `ConfigMovementBindsSection` export
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` — import and render it under `activeRow2().has("movement:binds")`
+- Modify: `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` -- add `ConfigMovementBindsSection` export
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` -- import and render it under `activeRow2().has("movement:binds")`
 
 - [ ] **Step 1: Add the MovementBindsSection component**
 
@@ -204,7 +204,7 @@ Expected: 0 errors.
 
 - [ ] **Step 4: Manual check**
 
-In the running dev app, click **Movement > Binds** in the sidebar. The content area should now show a "Movement Binds" table with 7 rows (Forward / Back / Strafe Left / Strafe Right / Jump / Swim Up / Swim Down) and the key bound to each in your current config. Load a compare config — the table should gain a "Comparison" column with the opponent's movement keys.
+In the running dev app, click **Movement > Binds** in the sidebar. The content area should now show a "Movement Binds" table with 7 rows (Forward / Back / Strafe Left / Strafe Right / Jump / Swim Up / Swim Down) and the key bound to each in your current config. Load a compare config -- the table should gain a "Comparison" column with the opponent's movement keys.
 
 - [ ] **Step 5: Commit**
 
@@ -227,8 +227,8 @@ EOF
 **Goal:** Add optional `onKeyClick` and `selectedKeyIds` props to `<KeyboardLayout>` so consumers can opt into click-to-pin without breaking Profile's current usage.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/KeyboardLayout.tsx:186-195` — extend props interface
-- Modify: `apps/slipgate-app/src/components/KeyboardLayout.tsx:271-318` — wire click handler and selected styling
+- Modify: `apps/slipgate-app/src/components/KeyboardLayout.tsx:186-195` -- extend props interface
+- Modify: `apps/slipgate-app/src/components/KeyboardLayout.tsx:271-318` -- wire click handler and selected styling
 
 - [ ] **Step 1: Extend the props interface**
 
@@ -238,11 +238,11 @@ Open `apps/slipgate-app/src/components/KeyboardLayout.tsx`. Replace the `Keyboar
 interface KeyboardLayoutProps {
   movement: MovementKeys;
   keyboardName?: string | null;
-  /** Per-key highlights (key layout ID → color). Overrides movement highlights when present. */
+  /** Per-key highlights (key layout ID -> color). Overrides movement highlights when present. */
   highlights?: Map<string, KeyHighlight>;
   /** When true, movement keys are dimmed instead of highlighted (bind viz mode). */
   showMovement?: boolean;
-  /** Per-key label overrides (key layout ID → display label). Shows bound function instead of physical key. */
+  /** Per-key label overrides (key layout ID -> display label). Shows bound function instead of physical key. */
   keyLabels?: Map<string, string>;
   /** Click handler. When set, every key becomes an interactive target. Click events emit the layout ID. */
   onKeyClick?: (id: string) => void;
@@ -302,7 +302,7 @@ Open `apps/slipgate-app/src/app.css`. Search for `sg-kb-key` to find the existin
 }
 ```
 
-The color (`oklch(0.92 0.18 85)` — bright yellow) is intentionally distinct from the category tints (cyan/green/red/purple) and the owner-frame tints added in Task 6. Iterate during Task 11 if it reads poorly next to real content.
+The color (`oklch(0.92 0.18 85)` -- bright yellow) is intentionally distinct from the category tints (cyan/green/red/purple) and the owner-frame tints added in Task 6. Iterate during Task 11 if it reads poorly next to real content.
 
 - [ ] **Step 5: Typecheck + build**
 
@@ -312,7 +312,7 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 6: Manual regression check — Profile must be unchanged**
+- [ ] **Step 6: Manual regression check -- Profile must be unchanged**
 
 Open the Profile tab. Toggle Movement / Weapons / Teamplay on the keyboard. Verify: colors render identically to before, no visible selection frame anywhere, no cursor pointer over keys (because Profile does not pass `onKeyClick`). This task must not change Profile's appearance or behavior at all.
 
@@ -323,7 +323,7 @@ cd /home/paradoks/projects/quakeworld && git add apps/slipgate-app/src/component
 feat(slipgate): add click + selection props to KeyboardLayout
 
 Optional onKeyClick and selectedKeyIds props for consumers that need
-click-to-pin interactions. Profile's usage is unchanged — no click
+click-to-pin interactions. Profile's usage is unchanged -- no click
 handler passed means keys stay non-interactive, no cursor change.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
@@ -339,7 +339,7 @@ EOF
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/keyboardHighlights.ts`
-- Modify: `apps/slipgate-app/src/components/ProfileTab.tsx:92-194` — remove locals, import from new module
+- Modify: `apps/slipgate-app/src/components/ProfileTab.tsx:92-194` -- remove locals, import from new module
 
 - [ ] **Step 1: Create the shared helper module**
 
@@ -351,7 +351,7 @@ import type { KeyHighlight } from "./KeyboardLayout";
 import { toLayoutId } from "./KeyboardLayout";
 import { WEAPON_COLORS } from "./WeaponBindViz";
 
-/** Teamsay category → OKLCH color, shared between Profile and ConfigViewer. */
+/** Teamsay category -> OKLCH color, shared between Profile and ConfigViewer. */
 export const TEAMSAY_COLORS: Record<string, string> = {
   status:   "oklch(0.7 0.15 210)",
   death:    "oklch(0.65 0.2 25)",
@@ -370,7 +370,7 @@ export const WEAPON_LABELS: Record<string, string> = {
 };
 
 export const MOVE_ARROWS: Record<string, string> = {
-  forward: "↑", back: "↓", moveleft: "←", moveright: "→",
+  forward: "↑", back: "↓", moveleft: "<-", moveright: "->",
 };
 
 export interface HighlightToggles {
@@ -509,7 +509,7 @@ export function identifyKeyCommands(
       matches.push({ kind: "teamsay", label: tb.label, category: tb.category });
       continue;
     }
-    // Modifier-combo binds like "CTRL+F" — split and match the target half
+    // Modifier-combo binds like "CTRL+F" -- split and match the target half
     if (tb.key.includes("+")) {
       const parts = tb.key.split("+").map(p => p.trim());
       const target = parts[parts.length - 1];
@@ -533,9 +533,9 @@ At the top (around line 11), add an import:
 import { buildKeyHighlights, buildKeyLabels, TEAMSAY_COLORS } from "./keyboardHighlights";
 ```
 
-**Delete the local `TEAMSAY_COLORS` constant at lines 92-102** — it now lives in the helper.
+**Delete the local `TEAMSAY_COLORS` constant at lines 92-102** -- it now lives in the helper.
 
-**Delete the local `WEAPON_LABELS` and `MOVE_ARROWS` constants at lines 150-156** — they are now internal to the helper.
+**Delete the local `WEAPON_LABELS` and `MOVE_ARROWS` constants at lines 150-156** -- they are now internal to the helper.
 
 **Replace the `weaponKeyHighlights` memo (lines 105-128)** with:
 
@@ -581,7 +581,7 @@ import { buildKeyHighlights, buildKeyLabels, TEAMSAY_COLORS } from "./keyboardHi
   });
 ```
 
-Leave the `teamsayMouseHighlights` memo at lines 131-147 in place — it's Profile-specific (mouse highlights, not keyboard) and not part of this extraction. It still references `TEAMSAY_COLORS` but now imports it.
+Leave the `teamsayMouseHighlights` memo at lines 131-147 in place -- it's Profile-specific (mouse highlights, not keyboard) and not part of this extraction. It still references `TEAMSAY_COLORS` but now imports it.
 
 - [ ] **Step 3: Typecheck + build**
 
@@ -591,9 +591,9 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 4: Manual regression check — Profile tab**
+- [ ] **Step 4: Manual regression check -- Profile tab**
 
-Open the Profile tab. Toggle **Weapons** — the weapon keys light up in the same colors as before. Toggle **Teamplay** — teamsay keys light up, mouse highlights still render. Toggle **Movement** off — movement keys dim. Toggle **Bind labels** (if the UI exposes it) — weapon labels and arrows appear on keys. Every one of these should look **exactly** the same as before the refactor. If anything differs, the extraction introduced a regression — fix before committing.
+Open the Profile tab. Toggle **Weapons** -- the weapon keys light up in the same colors as before. Toggle **Teamplay** -- teamsay keys light up, mouse highlights still render. Toggle **Movement** off -- movement keys dim. Toggle **Bind labels** (if the UI exposes it) -- weapon labels and arrows appear on keys. Every one of these should look **exactly** the same as before the refactor. If anything differs, the extraction introduced a regression -- fix before committing.
 
 - [ ] **Step 5: Commit**
 
@@ -605,7 +605,7 @@ Moves TEAMSAY_COLORS, buildKeyHighlights, buildKeyLabels out of
 ProfileTab into keyboardHighlights.ts. Adds resolveCommandKeys and
 identifyKeyCommands for click-to-pin command matching.
 
-Profile behavior unchanged — same colors, same labels, same toggles.
+Profile behavior unchanged -- same colors, same labels, same toggles.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
 EOF
@@ -616,11 +616,11 @@ EOF
 
 ## Task 5: Build ConfigKeyboardPanel (single view, local toggle state, no selection, no compare)
 
-**Goal:** Create the container component that renders one keyboard in the ConfigViewer right rail. Toggle bar with three buttons (Movement / Weapons / Teamplay) — state is local to the component for now. Not yet visible in ConfigViewer — that happens in Task 6.
+**Goal:** Create the container component that renders one keyboard in the ConfigViewer right rail. Toggle bar with three buttons (Movement / Weapons / Teamplay) -- state is local to the component for now. Not yet visible in ConfigViewer -- that happens in Task 6.
 
 **Files:**
 - Create: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx`
-- Modify: `apps/slipgate-app/src/app.css` — add panel styles
+- Modify: `apps/slipgate-app/src/app.css` -- add panel styles
 
 - [ ] **Step 1: Create the component**
 
@@ -805,7 +805,7 @@ Colors `oklch(0.65 0.18 230)` (you = blue) and `oklch(0.7 0.18 40)` (them = oran
 cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && bun run build
 ```
 
-Expected: 0 errors, build succeeds. Component is not yet rendered anywhere — this task only checks the component compiles on its own.
+Expected: 0 errors, build succeeds. Component is not yet rendered anywhere -- this task only checks the component compiles on its own.
 
 - [ ] **Step 4: Commit**
 
@@ -814,7 +814,7 @@ cd /home/paradoks/projects/quakeworld && git add apps/slipgate-app/src/component
 feat(slipgate): add ConfigKeyboardPanel (not yet wired)
 
 Container composes one or two KeyboardLayout instances with a shared
-toggle bar and owner-frame tints. Not yet rendered in ConfigViewer —
+toggle bar and owner-frame tints. Not yet rendered in ConfigViewer --
 that wiring comes in the next commit.
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
@@ -826,11 +826,11 @@ EOF
 
 ## Task 6: Wire ConfigKeyboardPanel into ConfigViewer's right rail
 
-**Goal:** Make the keyboard panel visible in the ConfigViewer when a Binds section is focused. Single view (no compare yet — compare already works from Task 5 because the panel accepts optional compare data, and ConfigViewer already has `compareBinds`).
+**Goal:** Make the keyboard panel visible in the ConfigViewer when a Binds section is focused. Single view (no compare yet -- compare already works from Task 5 because the panel accepts optional compare data, and ConfigViewer already has `compareBinds`).
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx:16` — import panel
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx:793-886` — insert panel in flex row between content and minimap
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx:16` -- import panel
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx:793-886` -- insert panel in flex row between content and minimap
 
 - [ ] **Step 1: Import the panel in ConfigViewer**
 
@@ -885,7 +885,7 @@ Insert a new `<Show>` block between the scroll-content closing `</div>` (line 88
               </div>
 ```
 
-Placement note: the panel sits between the scroll-content column and the minimap column within the existing `flex-1 flex overflow-hidden` row. Its flex sizing comes from the `sg-config-kb-panel` class (`display: flex; flex-direction: column`) — the panel takes the space its content requires and leaves room for the minimap.
+Placement note: the panel sits between the scroll-content column and the minimap column within the existing `flex-1 flex overflow-hidden` row. Its flex sizing comes from the `sg-config-kb-panel` class (`display: flex; flex-direction: column`) -- the panel takes the space its content requires and leaves room for the minimap.
 
 - [ ] **Step 4: Typecheck + build**
 
@@ -895,13 +895,13 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 5: Manual check — single view**
+- [ ] **Step 5: Manual check -- single view**
 
-In the dev app, load a config and click **Weapons > Binds**. The right side of the content area now shows a keyboard with weapon keys lit up. Toggle **Weapons** off on the panel's toggle bar — weapon keys go dark. Toggle **Movement** on — the W/A/S/D (or equivalent) light up. Click **Teamplay > Binds** — the text list updates, the keyboard stays visible and still honors the toggles. Click **Settings > HUD** (a non-Binds section) — the keyboard panel disappears entirely.
+In the dev app, load a config and click **Weapons > Binds**. The right side of the content area now shows a keyboard with weapon keys lit up. Toggle **Weapons** off on the panel's toggle bar -- weapon keys go dark. Toggle **Movement** on -- the W/A/S/D (or equivalent) light up. Click **Teamplay > Binds** -- the text list updates, the keyboard stays visible and still honors the toggles. Click **Settings > HUD** (a non-Binds section) -- the keyboard panel disappears entirely.
 
-- [ ] **Step 6: Manual check — compare view**
+- [ ] **Step 6: Manual check -- compare view**
 
-Drop or load a second config to enter compare mode. Click **Weapons > Binds**. The panel should now show **two stacked keyboards** — top tinted blue ("You"), bottom tinted orange with the compare filename as the label. Both respect the shared toggle bar.
+Drop or load a second config to enter compare mode. Click **Weapons > Binds**. The panel should now show **two stacked keyboards** -- top tinted blue ("You"), bottom tinted orange with the compare filename as the label. Both respect the shared toggle bar.
 
 - [ ] **Step 7: Commit**
 
@@ -925,9 +925,9 @@ EOF
 **Goal:** Add a persisted user preference to hide/show the keyboard panel entirely. Defaults to visible. Survives app restart. Adds the toggle control to the top of the panel.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/store.ts:58-60, 113-115` — extend `ProfilePrefs` + defaults
-- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` — accept visibility prop (pulled up to ConfigViewer which owns profile)
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` — wire pref + hide button
+- Modify: `apps/slipgate-app/src/store.ts:58-60, 113-115` -- extend `ProfilePrefs` + defaults
+- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` -- accept visibility prop (pulled up to ConfigViewer which owns profile)
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` -- wire pref + hide button
 
 - [ ] **Step 1: Extend ProfilePrefs**
 
@@ -1055,7 +1055,7 @@ At the top, add an import for the update helper (if not already imported):
 import { updatePrefs } from "../store";
 ```
 
-Check where the component accesses `profile` (it should already receive profile-related props through app state — look for an existing `props.profile` or similar around the component signature at line 96-100). If it does not currently have profile access, route `profile` from App.tsx. Inspect `src/App.tsx` for how Profile tab receives `profile={profile()}` and add the same pattern for ConfigViewer's JSX invocation.
+Check where the component accesses `profile` (it should already receive profile-related props through app state -- look for an existing `props.profile` or similar around the component signature at line 96-100). If it does not currently have profile access, route `profile` from App.tsx. Inspect `src/App.tsx` for how Profile tab receives `profile={profile()}` and add the same pattern for ConfigViewer's JSX invocation.
 
 Add a local signal that mirrors the pref and updates in both directions:
 
@@ -1119,7 +1119,7 @@ Expected: 0 errors, build succeeds.
 
 - [ ] **Step 6: Manual check**
 
-Open the dev app on a Binds section. A "Hide keyboard" button appears at the top-right of the panel. Click it — the keyboards and toggle bar disappear; a slim "Show keyboard" button remains. Click that — panel restores. Close the app completely and reopen — the hidden state should persist across sessions.
+Open the dev app on a Binds section. A "Hide keyboard" button appears at the top-right of the panel. Click it -- the keyboards and toggle bar disappear; a slim "Show keyboard" button remains. Click that -- panel restores. Close the app completely and reopen -- the hidden state should persist across sessions.
 
 - [ ] **Step 7: Commit**
 
@@ -1137,12 +1137,12 @@ EOF
 
 ---
 
-## Task 8: Click-to-pin selection — key click lights up both keyboards
+## Task 8: Click-to-pin selection -- key click lights up both keyboards
 
 **Goal:** Clicking a key on either keyboard identifies the bound command(s), matches by command on the other keyboard, and highlights the matching key(s) on both. Row expansion comes in Task 9.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` — selection state + click handler + selectedKeyIds prop
+- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` -- selection state + click handler + selectedKeyIds prop
 
 - [ ] **Step 1: Add selection state and click logic**
 
@@ -1195,7 +1195,7 @@ Inside the component body, add selection state:
     if (!sideInput) return;
     const matches = identifyKeyCommands(sideInput, keyId);
     if (matches.length === 0) {
-      // Clicked an unbound key — clear selection
+      // Clicked an unbound key -- clear selection
       setSelection(null);
       return;
     }
@@ -1255,13 +1255,13 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 3: Manual check — single view**
+- [ ] **Step 3: Manual check -- single view**
 
-Single config loaded (no compare). Click a weapon key on the keyboard (e.g. the key bound to RL). It should get a bright neon frame. Click the same key again — frame clears. Click a different weapon key — frame moves to the new key. Click an unbound key — frame clears.
+Single config loaded (no compare). Click a weapon key on the keyboard (e.g. the key bound to RL). It should get a bright neon frame. Click the same key again -- frame clears. Click a different weapon key -- frame moves to the new key. Click an unbound key -- frame clears.
 
-- [ ] **Step 4: Manual check — compare view**
+- [ ] **Step 4: Manual check -- compare view**
 
-Load a compare config where you and the opponent both bind the same weapon to DIFFERENT keys (e.g. both have `+attack` but your RL is on 4, theirs is on F3). Click your 4 key. **Both** 4 on your keyboard **and** F3 on theirs should light up. Click a key that only you have bound — only your key lights up, theirs stays dark. Click a key that only they have bound — only their key lights up.
+Load a compare config where you and the opponent both bind the same weapon to DIFFERENT keys (e.g. both have `+attack` but your RL is on 4, theirs is on F3). Click your 4 key. **Both** 4 on your keyboard **and** F3 on theirs should light up. Click a key that only you have bound -- only your key lights up, theirs stays dark. Click a key that only they have bound -- only their key lights up.
 
 - [ ] **Step 5: Commit**
 
@@ -1280,14 +1280,14 @@ EOF
 
 ---
 
-## Task 9: Click-to-pin — expand matching rows in the left text list
+## Task 9: Click-to-pin -- expand matching rows in the left text list
 
 **Goal:** Extend click-to-pin so key clicks also expand the matching row in the left text list, and row clicks highlight the matching key on both keyboards. Selection is shared state between the panel and the ConfigViewer.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` — emit selection upward via callback prop
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` — own the selection, pipe into panel and into bind sections
-- Modify: `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` — accept `selectedBindKey` + `onBindKeyClick` props on weapon/teamsay/movement sections, visually mark expanded row
+- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` -- emit selection upward via callback prop
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` -- own the selection, pipe into panel and into bind sections
+- Modify: `apps/slipgate-app/src/components/ConfigDomainBinds.tsx` -- accept `selectedBindKey` + `onBindKeyClick` props on weapon/teamsay/movement sections, visually mark expanded row
 
 - [ ] **Step 1: Pull selection state up to ConfigViewer**
 
@@ -1313,7 +1313,7 @@ interface ConfigKeyboardPanelProps {
   compareName?: string | null;
   visible: boolean;
   onToggleVisible: () => void;
-  /** External selection — when set, keyboards highlight matching keys. */
+  /** External selection -- when set, keyboards highlight matching keys. */
   selection: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null;
   onSelectionChange: (sel: { kind: "weapon"; weapon: string } | { kind: "teamsay"; label: string } | null) => void;
 }
@@ -1418,7 +1418,7 @@ const isSelected = props.selectedWeapon === bind.weapon;
 
 Apply a CSS class (add a new one to `app.css` if needed) like `sg-domain-bind-row-selected` that visually emphasizes the row, and wrap the row with an `onClick` that calls `props.onWeaponClick?.(bind.weapon)`. If the existing row layout is not clickable, wrap the row in a `<button class="contents">` so it's both accessible and clickable without breaking grid/flex layout.
 
-Do the same for `ConfigTeamsayBindsSection` with a `selectedLabel` / `onLabelClick` pair, and for `ConfigMovementBindsSection` with `selectedMovement` / `onMovementClick` (movement clicks select movement binds, which for v1 we can map as a teamsay-style match on `forward`/`back`/etc. — or skip movement selection entirely in v1 since movement binds don't have commands, they have directions).
+Do the same for `ConfigTeamsayBindsSection` with a `selectedLabel` / `onLabelClick` pair, and for `ConfigMovementBindsSection` with `selectedMovement` / `onMovementClick` (movement clicks select movement binds, which for v1 we can map as a teamsay-style match on `forward`/`back`/etc. -- or skip movement selection entirely in v1 since movement binds don't have commands, they have directions).
 
 **v1 simplification:** movement binds do not participate in click-to-pin. Movement keys still light up visually when `showMovement` is on, but clicking them does nothing (no row expansion, no cross-highlight). The spec allows this because movement is a baseline-every-player-has-it category, not the main insight target. Revisit in a follow-up if users ask for it.
 
@@ -1484,16 +1484,16 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds. Address any typing issues by narrowing the `bindSelection()` return before passing into subsections (use `createMemo` to pre-narrow if inline narrowing breaks type inference).
 
-- [ ] **Step 8: Manual check — bidirectional linking**
+- [ ] **Step 8: Manual check -- bidirectional linking**
 
 Compare mode. Weapons > Binds section focused.
 
 1. Click the RL row in the left text list. The row should get a left-border + subtle background tint, and the key bound to `rl` on both keyboards should light up with the neon frame.
-2. Click the same row again — selection clears.
+2. Click the same row again -- selection clears.
 3. Click a key on the keyboard (e.g. `F3` if that's bound to something). The matching row in the left list should gain the same visual emphasis and scroll into view if it was below the fold.
-4. Switch to Teamplay > Binds. Click the "SAFE" row — the keys bound to safe on both keyboards light up.
-5. Press Escape — selection clears.
-6. Switch to Movement > Binds — clicking rows or movement keys does nothing (v1 simplification).
+4. Switch to Teamplay > Binds. Click the "SAFE" row -- the keys bound to safe on both keyboards light up.
+5. Press Escape -- selection clears.
+6. Switch to Movement > Binds -- clicking rows or movement keys does nothing (v1 simplification).
 
 If the row does not scroll into view when expanded via a keyboard click, that is OK for v1 unless the text list is long enough to actually hide the row. If it's a problem in practice, add `scrollIntoView({ behavior: "smooth", block: "nearest" })` on the selected row element via a `createEffect` in the bind section.
 
@@ -1520,8 +1520,8 @@ EOF
 **Goal:** When a key participates in a modifier combo (e.g. `F` = safe, `Ctrl+F` = lost), clicking `F` highlights both `F` and `Ctrl` on the keyboard and expands BOTH rows in the left list.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` — return multi-match selection upward
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` — widen `bindSelection` to accept arrays
+- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` -- return multi-match selection upward
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` -- widen `bindSelection` to accept arrays
 
 - [ ] **Step 1: Widen the bind selection type**
 
@@ -1657,7 +1657,7 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 4: Manual check — multi-bind**
+- [ ] **Step 4: Manual check -- multi-bind**
 
 Load a config that has a modifier combo teamsay bind. If the current test configs don't have one, craft a small `multibind.cfg` with:
 
@@ -1666,9 +1666,9 @@ bind f "safe"
 bind ctrl+f "lost"
 ```
 
-Load it as the primary. Click Teamplay > Binds. Click the `F` key on the keyboard. Both `F` and `Ctrl` should light up. The safe AND lost rows should both get the selected styling on the left. Click `F` again — selection clears.
+Load it as the primary. Click Teamplay > Binds. Click the `F` key on the keyboard. Both `F` and `Ctrl` should light up. The safe AND lost rows should both get the selected styling on the left. Click `F` again -- selection clears.
 
-Regression: click a plain (non-combo) bind like just `f` → safe. Only `F` lights up. `Ctrl` stays dark.
+Regression: click a plain (non-combo) bind like just `f` -> safe. Only `F` lights up. `Ctrl` stays dark.
 
 - [ ] **Step 5: Commit**
 
@@ -1692,9 +1692,9 @@ EOF
 **Goal:** The three panel toggles move from local signals into `ProfilePrefs` so they survive restart.
 
 **Files:**
-- Modify: `apps/slipgate-app/src/store.ts` — extend `ProfilePrefs` + defaults
-- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` — drive toggles from props, not local signals
-- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` — own toggle state, update pref on change
+- Modify: `apps/slipgate-app/src/store.ts` -- extend `ProfilePrefs` + defaults
+- Modify: `apps/slipgate-app/src/components/ConfigKeyboardPanel.tsx` -- drive toggles from props, not local signals
+- Modify: `apps/slipgate-app/src/components/ConfigViewer.tsx` -- own toggle state, update pref on change
 
 - [ ] **Step 1: Extend ProfilePrefs**
 
@@ -1812,7 +1812,7 @@ cd /home/paradoks/projects/quakeworld/apps/slipgate-app && bunx tsc --noEmit && 
 
 Expected: 0 errors, build succeeds.
 
-- [ ] **Step 5: Manual check — persistence**
+- [ ] **Step 5: Manual check -- persistence**
 
 Open the dev app, focus Weapons > Binds. Toggle Movement OFF in the panel toggle bar. Fully close the app and reopen. Focus Weapons > Binds again. Movement should still be OFF. Repeat for Weapons and Teamplay.
 
@@ -1833,39 +1833,39 @@ EOF
 
 ## Task 12: Final verification against the spec's success criteria
 
-**Goal:** Walk the full spec success-criteria list and confirm each one passes in the running dev app. This task is not "write code" — it is "prove the feature works end-to-end." Fixes found during this pass should be one-off commits with clear messages.
+**Goal:** Walk the full spec success-criteria list and confirm each one passes in the running dev app. This task is not "write code" -- it is "prove the feature works end-to-end." Fixes found during this pass should be one-off commits with clear messages.
 
 - [ ] **Step 1: Checklist run, single view**
 
 Single config loaded, no compare.
 
-- [ ] Focus Weapons > Binds — one keyboard appears on the right with weapon keys lit, toggles show Movement/Weapons/Teamplay as independent badges.
-- [ ] Toggle Movement off — W/A/S/D go dark. Toggle back on — they light up.
-- [ ] Toggle Weapons off — weapon keys go dark. Teamplay keys (if any) remain lit if Teamplay is on.
-- [ ] Click an unbound key — selection stays clear, no errors in console.
-- [ ] Click a weapon key (e.g. the key for RL) — the key gets a neon frame, the RL row in the left list gains selected styling.
-- [ ] Click the same key again — selection clears.
-- [ ] Click the RL row in the left list — same behavior from the reverse direction.
-- [ ] Press Escape with a selection active — clears.
-- [ ] Click "Hide keyboard" — panel collapses to a slim button. Click "Show keyboard" — panel restores.
-- [ ] Focus Settings > HUD (a non-Binds section) — panel disappears entirely (regardless of Hide/Show state).
+- [ ] Focus Weapons > Binds -- one keyboard appears on the right with weapon keys lit, toggles show Movement/Weapons/Teamplay as independent badges.
+- [ ] Toggle Movement off -- W/A/S/D go dark. Toggle back on -- they light up.
+- [ ] Toggle Weapons off -- weapon keys go dark. Teamplay keys (if any) remain lit if Teamplay is on.
+- [ ] Click an unbound key -- selection stays clear, no errors in console.
+- [ ] Click a weapon key (e.g. the key for RL) -- the key gets a neon frame, the RL row in the left list gains selected styling.
+- [ ] Click the same key again -- selection clears.
+- [ ] Click the RL row in the left list -- same behavior from the reverse direction.
+- [ ] Press Escape with a selection active -- clears.
+- [ ] Click "Hide keyboard" -- panel collapses to a slim button. Click "Show keyboard" -- panel restores.
+- [ ] Focus Settings > HUD (a non-Binds section) -- panel disappears entirely (regardless of Hide/Show state).
 
 - [ ] **Step 2: Checklist run, compare view**
 
 Load a second config via drag-drop or the compare UI.
 
-- [ ] Focus Weapons > Binds — two stacked keyboards appear, top has blue tint + "You" label, bottom has orange tint + the compare filename.
-- [ ] Both keyboards honor the shared toggle bar — toggling Teamplay affects both simultaneously.
-- [ ] Find a weapon both players bind to DIFFERENT keys (if none exist in the test configs, craft a minimal compare.cfg that binds RL to a different key). Click that key on your keyboard — your key AND the corresponding key on their keyboard both light up; the RL row expands.
-- [ ] Click a key that only one side has bound — only that side's key lights up; the other stays dark. Row expansion still happens on the side that has the bind.
-- [ ] Switch the compare filter tab to "Different" then "Only yours" — click-to-pin still works even when the target row is hidden by the filter (spec: the click is authoritative).
+- [ ] Focus Weapons > Binds -- two stacked keyboards appear, top has blue tint + "You" label, bottom has orange tint + the compare filename.
+- [ ] Both keyboards honor the shared toggle bar -- toggling Teamplay affects both simultaneously.
+- [ ] Find a weapon both players bind to DIFFERENT keys (if none exist in the test configs, craft a minimal compare.cfg that binds RL to a different key). Click that key on your keyboard -- your key AND the corresponding key on their keyboard both light up; the RL row expands.
+- [ ] Click a key that only one side has bound -- only that side's key lights up; the other stays dark. Row expansion still happens on the side that has the bind.
+- [ ] Switch the compare filter tab to "Different" then "Only yours" -- click-to-pin still works even when the target row is hidden by the filter (spec: the click is authoritative).
 
 - [ ] **Step 3: Checklist run, multi-bind**
 
 Load the `multibind.cfg` test (or craft one per Task 10 Step 4).
 
-- [ ] Click the `F` key — both `F` and `Ctrl` light up; both safe and lost rows get selected styling.
-- [ ] Click one of the two rows — the same key + modifier light up; the OTHER row also gains selected styling (because both rows map to the same key).
+- [ ] Click the `F` key -- both `F` and `Ctrl` light up; both safe and lost rows get selected styling.
+- [ ] Click one of the two rows -- the same key + modifier light up; the OTHER row also gains selected styling (because both rows map to the same key).
 - [ ] Escape clears everything.
 
 - [ ] **Step 4: Checklist run, 1080p**
@@ -1876,9 +1876,9 @@ Resize the window to 1920x1080 or run on a 1080p display. Focus Weapons > Binds 
 - [ ] If horizontal space is genuinely cramped, use the "Hide keyboard" toggle and confirm the text list reclaims the full width.
 - [ ] No visual breakage (clipped labels, overlapping keyboards, broken border radii).
 
-- [ ] **Step 5: Regression check — Profile unchanged**
+- [ ] **Step 5: Regression check -- Profile unchanged**
 
-Open the Profile tab. Toggle every combination of Movement/Weapons/Teamplay. Verify the keyboard looks identical to pre-plan behavior — same colors, same labels, same mouse highlights. If anything differs, open a fix commit referencing the extraction in Task 4.
+Open the Profile tab. Toggle every combination of Movement/Weapons/Teamplay. Verify the keyboard looks identical to pre-plan behavior -- same colors, same labels, same mouse highlights. If anything differs, open a fix commit referencing the extraction in Task 4.
 
 - [ ] **Step 6: If everything passes, final commit (empty or a fix roll-up)**
 
@@ -1901,22 +1901,22 @@ If no fixes were needed, no commit required. Report success to the user.
 
 **Spec coverage:**
 
-- Single view keyboard panel — Task 6
-- Compare view with stacked keyboards + owner tint + labels — Task 5 (panel shell) + Task 6 (wiring)
-- Toggle bar (Movement/Weapons/Teamplay, independent, one set controls both in compare) — Task 5 (local) + Task 11 (persisted)
-- Show keyboard pref — Task 7
-- Movement > Binds sidebar + content section — Tasks 1-2
-- KeyboardLayout reuse — Task 3 (extend) + Task 4 (extract helpers) + Task 5 (compose)
-- Click-to-pin, bidirectional, command-matched — Tasks 8-9
-- Multi-bind key handling — Task 10
-- Command-bound-on-one-side behavior — falls out naturally from Task 8's matching logic (covered in Task 12 Step 2)
-- Dismiss behavior (click again, Escape, click empty area) — Tasks 8-9 (click-again and Escape); click-empty-area is not explicitly wired as v1 simplification. Added to non-goals retroactively if it becomes an issue.
-- Orientation cues — Task 5 (frame tints) + labels in Task 5
-- Profile regression — Tasks 3-4 + Task 12 Step 5
+- Single view keyboard panel -- Task 6
+- Compare view with stacked keyboards + owner tint + labels -- Task 5 (panel shell) + Task 6 (wiring)
+- Toggle bar (Movement/Weapons/Teamplay, independent, one set controls both in compare) -- Task 5 (local) + Task 11 (persisted)
+- Show keyboard pref -- Task 7
+- Movement > Binds sidebar + content section -- Tasks 1-2
+- KeyboardLayout reuse -- Task 3 (extend) + Task 4 (extract helpers) + Task 5 (compose)
+- Click-to-pin, bidirectional, command-matched -- Tasks 8-9
+- Multi-bind key handling -- Task 10
+- Command-bound-on-one-side behavior -- falls out naturally from Task 8's matching logic (covered in Task 12 Step 2)
+- Dismiss behavior (click again, Escape, click empty area) -- Tasks 8-9 (click-again and Escape); click-empty-area is not explicitly wired as v1 simplification. Added to non-goals retroactively if it becomes an issue.
+- Orientation cues -- Task 5 (frame tints) + labels in Task 5
+- Profile regression -- Tasks 3-4 + Task 12 Step 5
 
 **Placeholder scan:** no "TBD" / "implement later" strings. Every code step contains actual code.
 
-**Type consistency:** `BindSelection` type changes from a scalar to an array in Task 10 — the refactor is explicit, not silent. `ProfilePrefs` grows in Tasks 7 and 11 — both tasks show the full new interface. `ConfigKeyboardPanelProps` evolves across Tasks 5, 7, 8, 10, 11 — each evolution shows the full new interface.
+**Type consistency:** `BindSelection` type changes from a scalar to an array in Task 10 -- the refactor is explicit, not silent. `ProfilePrefs` grows in Tasks 7 and 11 -- both tasks show the full new interface. `ConfigKeyboardPanelProps` evolves across Tasks 5, 7, 8, 10, 11 -- each evolution shows the full new interface.
 
 **Plan size check:** 12 tasks, most with 4-7 small steps. Each task produces a committable, typecheck-clean, visibly testable increment. Estimated 3-5 minutes per step on average.
 
@@ -1928,8 +1928,8 @@ If no fixes were needed, no commit required. Report success to the user.
 
 Two execution options:
 
-1. **Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review the diff between tasks, fast iteration. Best for long plans and when you want to catch regressions before they compound.
+1. **Subagent-Driven (recommended)** -- I dispatch a fresh subagent per task, review the diff between tasks, fast iteration. Best for long plans and when you want to catch regressions before they compound.
 
-2. **Inline Execution** — Execute tasks in this session using executing-plans, batch execution with checkpoints for review. Faster but uses more of the main conversation context.
+2. **Inline Execution** -- Execute tasks in this session using executing-plans, batch execution with checkpoints for review. Faster but uses more of the main conversation context.
 
 **Which approach?**

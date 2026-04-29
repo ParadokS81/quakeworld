@@ -1,7 +1,7 @@
-# H2H Feature Design — Head-to-Head Tab
+# H2H Feature Design -- Head-to-Head Tab
 
 > Extracted from brainstorming session (2026-02-04).
-> This is the **agreed direction** — supersedes slice-5.1c and slice-5.2d.
+> This is the **agreed direction** -- supersedes slice-5.1c and slice-5.2d.
 > Next step: `/qplan` to turn this into an implementation slice.
 
 ## Overview
@@ -41,9 +41,9 @@ Both APIs use **lowercase ASCII** team names:
 │ Results list           │ Context area                 │
 │                        │                              │
 │ Default: result rows   │ Default: roster/activity     │
-│ Hover → highlight row  │ Hover → scoreboard preview   │
-│ Click → select row     │ Click → full stats page      │
-│ Click again → deselect │ Click again → back to roster │
+│ Hover -> highlight row  │ Hover -> scoreboard preview   │
+│ Click -> select row     │ Click -> full stats page      │
+│ Click again -> deselect │ Click again -> back to roster │
 └────────────────────────┴─────────────────────────────┘
 ```
 
@@ -55,13 +55,13 @@ Default (no hover):
 │ (vs everyone, 3mo/10)  │ (vs everyone, 3mo/10)        │
 └────────────────────────┴─────────────────────────────┘
 
-Hover LEFT result → flip to ~40:60:
+Hover LEFT result -> flip to ~40:60:
 ┌──────── ~40% ─────────┬──────────── ~60% ───────────┐
 │ Team A results (list)  │ Scoreboard/stats for hovered │
 │ [hovered row hl]       │ game from Team A's list       │
 └────────────────────────┴─────────────────────────────┘
 
-Hover RIGHT result → flip to ~60:40:
+Hover RIGHT result -> flip to ~60:40:
 ┌──────────── ~60% ─────┬──────────── ~40% ───────────┐
 │ Scoreboard/stats for   │ Team B results (list)        │
 │ hovered game from B    │ [hovered row hl]              │
@@ -86,38 +86,38 @@ The content (scoreboard/stats) always appears on the **opposite side** of the ho
 │                  │ "Team A dominates"                 │
 └──────────────────┴───────────────────────────────────┘
 ```
-Maps tab is **informational only** — no hover/click interactions. Sorted by combined activity (most played maps first).
+Maps tab is **informational only** -- no hover/click interactions. Sorted by combined activity (most played maps first).
 
 ## Three Sub-Tabs
 
-### H2H Tab — Direct matchup results between the two teams
+### H2H Tab -- Direct matchup results between the two teams
 
 - Left (~40%): H2H result list (3mo, capped 10, filterable by map)
 - Right (~60%) default: Roster/activity from both teams (from `/api/roster`)
   - Players sorted by games played, core 4-5 highlighted
   - If viewing a scheduled match: players who marked available get a star marker
-- Hover result → right shows scoreboard (reuse Match History hover pattern)
-- Click result → right shows stats page (reuse Match History click pattern)
-- Click again → right returns to roster
+- Hover result -> right shows scoreboard (reuse Match History hover pattern)
+- Click result -> right shows stats page (reuse Match History click pattern)
+- Click again -> right returns to roster
 
-### Form Tab — Recent results against everyone (symmetric split)
+### Form Tab -- Recent results against everyone (symmetric split)
 
-- Default: ~50/50 split — Team A results left, Team B results right
+- Default: ~50/50 split -- Team A results left, Team B results right
 - Each side shows team's recent results (3mo, capped 10, filterable by map)
-- Hover left result → layout shifts ~40:60, right shows scoreboard for that game
-- Hover right result → layout shifts ~60:40, left shows scoreboard for that game
+- Hover left result -> layout shifts ~40:60, right shows scoreboard for that game
+- Hover right result -> layout shifts ~60:40, left shows scoreboard for that game
 - Content always appears on the **opposite side** of the hovered result
-- Only one side "active" at a time — hovering one side clears the other
+- Only one side "active" at a time -- hovering one side clears the other
 - Click behavior: same as H2H (locks the stats view on opposite side)
 
-### Maps Tab — Map strength analysis (visual, alternating layout)
+### Maps Tab -- Map strength analysis (visual, alternating layout)
 
 - Alternating rows: [mapshot | stats] then [stats | mapshot]
 - Map images from `a.quake.world/mapshots/webp/lg/{map}.webp`
 - Stats per row: win rate, games played, avg frag diff for each team
 - Sorted by combined activity (most played maps first)
 - Short annotations: "Team A favors", "Even", "Team B avoids", "Team A dominates"
-- Informational only — no hover/click interactions
+- Informational only -- no hover/click interactions
 
 ## Data Sources Per Tab
 
@@ -125,12 +125,12 @@ Maps tab is **informational only** — no hover/click interactions. Sorted by co
 |-----|---------------|----------|
 | H2H results | QW Stats API `/api/h2h` | Show "No data" message |
 | Form results | QW Stats API `/api/form` | Show "No data" message |
-| Maps analysis | QW Stats API `/api/maps` | — (needs PostgreSQL) |
-| Roster activity | QW Stats API `/api/roster` | — (needs PostgreSQL) |
+| Maps analysis | QW Stats API `/api/maps` | -- (needs PostgreSQL) |
+| Roster activity | QW Stats API `/api/roster` | -- (needs PostgreSQL) |
 | Scoreboard hover | ktxstats S3 via demoSha256 | Already works in Match History |
 | Stats click | ktxstats S3 via demoSha256 | Already works in Match History |
 
-No Supabase fallback in v1 — the QW Stats API has 4 years of data and is the authoritative source. If the API is unreachable, show a clear error state.
+No Supabase fallback in v1 -- the QW Stats API has 4 years of data and is the authoritative source. If the API is unreachable, show a clear error state.
 
 ## Team Selection
 
@@ -153,9 +153,9 @@ This keeps the interaction consistent across Match History, H2H, and Form tabs.
 ## States & Loading
 
 - **Loading**: Skeleton loader while fetching from QW Stats API (external call, may have latency)
-- **Empty H2H**: "No direct matchups found between these teams" — suggest checking Form tab
+- **Empty H2H**: "No direct matchups found between these teams" -- suggest checking Form tab
 - **Empty Form**: "No recent matches found for [team]" (unlikely for active teams)
-- **API Error**: "Unable to load match data — try again later" with retry button
+- **API Error**: "Unable to load match data -- try again later" with retry button
 - **No Team B selected**: Show prompt "Select an opponent to compare" with the dropdown highlighted
 
 ## Mobile
@@ -164,15 +164,15 @@ Desktop-first. Mobile gets a simplified single-column version (TBD).
 
 ## Resolved Decisions
 
-1. **Roster star markers** — Include in v1. Query each team's availability for the scheduled match time, mark available players with a star in the roster view. Straightforward — just cross-reference roster data with availability data already in the system.
+1. **Roster star markers** -- Include in v1. Query each team's availability for the scheduled match time, mark available players with a star in the roster view. Straightforward -- just cross-reference roster data with availability data already in the system.
 
-2. **Time period control** — Dropdown with **1mo, 3mo, 6mo** options. Default to **3mo**. Results capped at 10 per list. The date column on results lets users gauge activity density (clustered = active, spread = sporadic). Shorter default shows recent form; longer options available for deeper history.
+2. **Time period control** -- Dropdown with **1mo, 3mo, 6mo** options. Default to **3mo**. Results capped at 10 per list. The date column on results lets users gauge activity density (clustered = active, spread = sporadic). Shorter default shows recent form; longer options available for deeper history.
 
-3. **Map filter scope** — Filter lives in the **H2H sub-tab header** and applies only to the H2H result list. Form and Maps sub-tabs handle their own data independently (Form shows all maps by default, Maps tab inherently shows all maps).
+3. **Map filter scope** -- Filter lives in the **H2H sub-tab header** and applies only to the H2H result list. Form and Maps sub-tabs handle their own data independently (Form shows all maps by default, Maps tab inherently shows all maps).
 
 ## Supersedes
 
-- `context/slices/slice-5.1c-head-to-head-compare.md` — Original H2H concept (simple button, single view, Supabase only)
-- `context/slices/slice-5.2d-head-to-head-tab.md` — Tabbed version (still Supabase only, no sub-tabs)
+- `context/slices/slice-5.1c-head-to-head-compare.md` -- Original H2H concept (simple button, single view, Supabase only)
+- `context/slices/slice-5.2d-head-to-head-tab.md` -- Tabbed version (still Supabase only, no sub-tabs)
 
 Both older slices used QWHub Supabase with limited data. This design uses the full PostgreSQL dataset (18k games, 4 years) via the QW Stats API.

@@ -65,10 +65,10 @@ Compare mode is absorbed into ConfigViewer. No separate view/component.
 
 | File | Action |
 |------|--------|
-| `CvarRow.tsx` | Rewrite — strip to name + value grid |
-| `CvarDetail.tsx` | Rewrite — shared layout for tooltip and expanded view |
-| `ConfigViewer.tsx` | Modify — add compare state, compare filters, tooltip, paste UI |
-| `ConfigCompare.tsx` | Delete — functionality merged into ConfigViewer |
+| `CvarRow.tsx` | Rewrite -- strip to name + value grid |
+| `CvarDetail.tsx` | Rewrite -- shared layout for tooltip and expanded view |
+| `ConfigViewer.tsx` | Modify -- add compare state, compare filters, tooltip, paste UI |
+| `ConfigCompare.tsx` | Delete -- functionality merged into ConfigViewer |
 
 ### 6. Component Structure
 
@@ -81,7 +81,7 @@ ConfigViewer
   ├── Cvar list (scrollable)
   │   └── For each cvar:
   │       ├── CvarRow (name + value + optional compare value)
-  │       │   └── onMouseEnter/Leave → show/hide tooltip
+  │       │   └── onMouseEnter/Leave -> show/hide tooltip
   │       ├── CvarTooltip (absolutely positioned below row, shown on hover)
   │       └── CvarDetail (expanded view, shown on click, replaces tooltip)
   └── Paste textarea (shown when entering compare mode)

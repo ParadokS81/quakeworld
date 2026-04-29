@@ -1,4 +1,4 @@
-# FTE Layer 1 Extraction — Phase 2d-core Implementation Plan
+# FTE Layer 1 Extraction -- Phase 2d-core Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -22,8 +22,8 @@
 - No Apple variant (FTE has 0 Apple-gated cvars per verification 2026-04-26).
 - No plugins beyond `ezhud`.
 - No QuakeC.
-- No deep-time backfill — single `head` snapshot only.
-- No help-JSON authoring — descriptions come from `CVARD` macro args directly.
+- No deep-time backfill -- single `head` snapshot only.
+- No help-JSON authoring -- descriptions come from `CVARD` macro args directly.
 
 ---
 
@@ -33,7 +33,7 @@
 
 | File | Responsibility | Approx LoC |
 |---|---|---|
-| `extract.py` | Driver: walks SOURCE_ROOTS × variant matrix, dispatches to handlers | ~140 |
+| `extract.py` | Driver: walks SOURCE_ROOTS x variant matrix, dispatches to handlers | ~140 |
 | `_handler_cvars.py` | Detects `cvar_t` post-macro struct-init from CVARD-family macros + Cvar_Register group attribution | ~220 |
 | `_handler_commands.py` | Detects `Cmd_AddCommand`/`Cmd_AddCommandD`/`Cmd_AddCommandAD`/`Cmd_AddCommandOld` callsites | ~120 |
 | `_handler_macros.py` | Detects `Cmd_AddMacro`/`Cmd_AddMacroD` callsites | ~80 |
@@ -120,7 +120,7 @@ git commit -m "plan: lock FTE head SHA + autobuild number for Phase 2d-core"
 
 ---
 
-## Task 2: Schema migration v11 — add source_root column + widen project allowlist
+## Task 2: Schema migration v11 -- add source_root column + widen project allowlist
 
 **Files:**
 - Modify: `apps/qw-oracle/scripts/load-knowledge/schema.ts`
@@ -136,7 +136,7 @@ Expected: shows `SCHEMA_VERSION = 10` (or whatever is current) and the `CHECK (p
 
 - [ ] **Step 2: Bump SCHEMA_VERSION to 11 and add migration**
 
-In `schema.ts`, locate the `migrations` block (typically a list/map of version → SQL strings). Append a new migration for v11:
+In `schema.ts`, locate the `migrations` block (typically a list/map of version -> SQL strings). Append a new migration for v11:
 
 ```typescript
 // v10 -> v11: add source_root column to per-type version tables; widen project CHECK to include fte
@@ -197,11 +197,11 @@ In `apps/qw-oracle/SCHEMA.md`, add a new section near the field-reference area:
 Optional column on `cvar_versions`, `command_versions`, `macro_versions`. Identifies which source root the entity row came from when the project has multiple sources (e.g., FTE engine + plugins).
 
 Values:
-- `NULL` — backwards compat for pre-v11 rows; semantically equivalent to `"engine"`.
-- `"engine"` — entity was registered in the project's main engine source tree.
-- `"plugin:<name>"` — entity was registered inside a named plugin under the project's plugin directory (e.g., `"plugin:ezhud"` for FTE's ezQuake-HUD plugin).
+- `NULL` -- backwards compat for pre-v11 rows; semantically equivalent to `"engine"`.
+- `"engine"` -- entity was registered in the project's main engine source tree.
+- `"plugin:<name>"` -- entity was registered inside a named plugin under the project's plugin directory (e.g., `"plugin:ezhud"` for FTE's ezQuake-HUD plugin).
 
-Cmdline_params, keynames, hud_elements, rulesets, and token_primitives do NOT carry this field — they are engine-only by definition.
+Cmdline_params, keynames, hud_elements, rulesets, and token_primitives do NOT carry this field -- they are engine-only by definition.
 ```
 
 - [ ] **Step 6: Commit**
@@ -209,7 +209,7 @@ Cmdline_params, keynames, hud_elements, rulesets, and token_primitives do NOT ca
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/load-knowledge/schema.ts apps/qw-oracle/SCHEMA.md
-git commit -m "feat(qw-oracle): schema v11 — source_root column + fte project allowlist"
+git commit -m "feat(qw-oracle): schema v11 -- source_root column + fte project allowlist"
 ```
 
 ---
@@ -316,19 +316,19 @@ print(f"Serious diagnostics on cmd.c: {len(serious)}")
 EOF
 ```
 
-Expected: `Serious diagnostics on cmd.c: <small number, ideally 0-5>`. If >50, the include paths in `_clang_args_fte_base` are wrong — re-check the engine subdirectory list.
+Expected: `Serious diagnostics on cmd.c: <small number, ideally 0-5>`. If >50, the include paths in `_clang_args_fte_base` are wrong -- re-check the engine subdirectory list.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/extractor_lib/clang_config.py
-git commit -m "feat(qw-oracle): clang_config — FTE variants (client/server/win/vk)"
+git commit -m "feat(qw-oracle): clang_config -- FTE variants (client/server/win/vk)"
 ```
 
 ---
 
-## Task 4: Driver scaffold — extract.py with SOURCE_ROOTS × variant matrix
+## Task 4: Driver scaffold -- extract.py with SOURCE_ROOTS x variant matrix
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/extract.py`
@@ -395,7 +395,7 @@ VARIANT_FUNCS = [
 
 
 def collect_handlers(names: str):
-    """Lazy import handlers — added one by one across Tasks 5-9.
+    """Lazy import handlers -- added one by one across Tasks 5-9.
     Returns dict[name, handler_instance] for the requested set."""
     available = {}
     # Tasks 5-9 will add imports + entries here.
@@ -501,7 +501,7 @@ If `source_root` is not supported, add it as an optional kwarg in `_visitor.py` 
 chmod +x /home/paradoks/projects/quakeworld/apps/qw-oracle/scripts/extractors/fte/extract.py
 ```
 
-- [ ] **Step 3: Smoke-test (no handlers yet — should print "no handlers selected")**
+- [ ] **Step 3: Smoke-test (no handlers yet -- should print "no handlers selected")**
 
 ```bash
 cd /home/paradoks/projects/quakeworld
@@ -527,7 +527,7 @@ git commit -m "feat(qw-oracle): FTE extractor driver scaffold (no handlers yet)"
 
 ---
 
-## Task 5: Cvars handler — CVARD/CVARFD/CVARAFD/CVARAD detection
+## Task 5: Cvars handler -- CVARD/CVARFD/CVARAFD/CVARAD detection
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/_handler_cvars.py`
@@ -648,7 +648,7 @@ class CvarsFteHandler:
         elif cursor.kind == CursorKind.CALL_EXPR and cursor.spelling == "Cvar_Register":
             args = list(cursor.get_arguments())
             if len(args) >= 2:
-                # arg[0]: &var_identifier — extract the identifier
+                # arg[0]: &var_identifier -- extract the identifier
                 var_id = self._extract_addressof_identifier(args[0])
                 # arg[1]: cvargroup_xxx
                 grp_tokens = _tokens_of(args[1])
@@ -834,12 +834,12 @@ If 0 rows: re-check libclang macro expansion path (PARSE_DETAILED_PROCESSING_REC
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/fte/_handler_cvars.py apps/qw-oracle/scripts/extractors/fte/extract.py
-git commit -m "feat(qw-oracle): FTE cvars handler — CVARD-family struct-init detection"
+git commit -m "feat(qw-oracle): FTE cvars handler -- CVARD-family struct-init detection"
 ```
 
 ---
 
-## Task 6: Commands handler — Cmd_AddCommand{,D,AD,Old}
+## Task 6: Commands handler -- Cmd_AddCommand{,D,AD,Old}
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/_handler_commands.py`
@@ -853,10 +853,10 @@ grep -hE 'void\s+Cmd_AddCommand[A-Za-z]*\s*\(' /home/paradoks/projects/quakeworl
 ```
 
 Confirms argument order. Expected:
-- `Cmd_AddCommand(char *cmd_name, xcommand_t function)` — 2 args
-- `Cmd_AddCommandD(char *cmd_name, xcommand_t function, char *description)` — 3 args
-- `Cmd_AddCommandAD(char *cmd_name, xcommand_t function, struct argcompletion_ctx *(*argcompletion)(...), char *description)` — 4 args
-- `Cmd_AddCommandOld(char *old_name, xcommand_t function, char *new_name)` — 3 args, legacy alias
+- `Cmd_AddCommand(char *cmd_name, xcommand_t function)` -- 2 args
+- `Cmd_AddCommandD(char *cmd_name, xcommand_t function, char *description)` -- 3 args
+- `Cmd_AddCommandAD(char *cmd_name, xcommand_t function, struct argcompletion_ctx *(*argcompletion)(...), char *description)` -- 4 args
+- `Cmd_AddCommandOld(char *old_name, xcommand_t function, char *new_name)` -- 3 args, legacy alias
 
 - [ ] **Step 2: Create the commands handler**
 
@@ -1049,12 +1049,12 @@ Expected: 5+ rows with names like `exec`, `echo`, `alias`, `cmdlist`, etc.
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/fte/_handler_commands.py apps/qw-oracle/scripts/extractors/fte/extract.py
-git commit -m "feat(qw-oracle): FTE commands handler — Cmd_AddCommand variants"
+git commit -m "feat(qw-oracle): FTE commands handler -- Cmd_AddCommand variants"
 ```
 
 ---
 
-## Task 7: Macros handler — Cmd_AddMacro{,D}
+## Task 7: Macros handler -- Cmd_AddMacro{,D}
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/_handler_macros.py`
@@ -1068,7 +1068,7 @@ Create `apps/qw-oracle/scripts/extractors/fte/_handler_macros.py`:
 """FTE macros handler.
 
 Detects Cmd_AddMacro and Cmd_AddMacroD callsites. Macro expansions in FTE
-work like ezQuake's macros — runtime-resolved $name tokens.
+work like ezQuake's macros -- runtime-resolved $name tokens.
 """
 from __future__ import annotations
 
@@ -1207,12 +1207,12 @@ Expected: a handful of files. Pick one, run a parallel smoke test pattern as in 
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/fte/_handler_macros.py apps/qw-oracle/scripts/extractors/fte/extract.py
-git commit -m "feat(qw-oracle): FTE macros handler — Cmd_AddMacro{,D}"
+git commit -m "feat(qw-oracle): FTE macros handler -- Cmd_AddMacro{,D}"
 ```
 
 ---
 
-## Task 8: Cmdline handler — COM_CheckParm callsites
+## Task 8: Cmdline handler -- COM_CheckParm callsites
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/_handler_cmdline.py`
@@ -1344,12 +1344,12 @@ Run targeted smoke test against `engine/common/common.c`. Expected: at least 10 
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/fte/_handler_cmdline.py apps/qw-oracle/scripts/extractors/fte/extract.py
-git commit -m "feat(qw-oracle): FTE cmdline handler — COM_CheckParm callsites"
+git commit -m "feat(qw-oracle): FTE cmdline handler -- COM_CheckParm callsites"
 ```
 
 ---
 
-## Task 9: Ezhud plugin handler — HUD_Register synth + GetNVFDG
+## Task 9: Ezhud plugin handler -- HUD_Register synth + GetNVFDG
 
 **Files:**
 - Create: `apps/qw-oracle/scripts/extractors/fte/_handler_ezhud.py`
@@ -1517,7 +1517,7 @@ class EzhudFteHandler:
         for i in range(7, 16):
             v = _literal_string(args[i])
             if v is None:
-                # Identifier — record as-is for downstream resolution
+                # Identifier -- record as-is for downstream resolution
                 toks = _tokens_of(args[i])
                 v = toks[0] if toks else ""
             standard_defaults.append(v)
@@ -1714,7 +1714,7 @@ Expected: hundreds of synthesized cvars, names like `hud_speed_show`, `hud_speed
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add apps/qw-oracle/scripts/extractors/fte/_handler_ezhud.py apps/qw-oracle/scripts/extractors/fte/seeds/ezhud-hud-elements.yaml apps/qw-oracle/scripts/extractors/fte/extract.py
-git commit -m "feat(qw-oracle): FTE ezhud handler — HUD_Register synth + GetNVFDG"
+git commit -m "feat(qw-oracle): FTE ezhud handler -- HUD_Register synth + GetNVFDG"
 ```
 
 ---
@@ -1813,7 +1813,7 @@ cd /home/paradoks/projects/quakeworld/apps/qw-oracle
 sqlite3 data/knowledge.db "SELECT COUNT(*) FROM cvar_versions WHERE source_root IS NULL"
 ```
 
-Expected: equal to total ezQuake cvar version rows (no source_root assigned for them; remains NULL → "engine" semantically).
+Expected: equal to total ezQuake cvar version rows (no source_root assigned for them; remains NULL -> "engine" semantically).
 
 - [ ] **Step 8: Commit**
 
@@ -1856,7 +1856,7 @@ Expected counts (per spec):
 - macros: 50-100
 - cmdline: 150-250
 
-If counts dramatically off, do NOT proceed to load — investigate first. See spec Section 5 troubleshooting.
+If counts dramatically off, do NOT proceed to load -- investigate first. See spec Section 5 troubleshooting.
 
 - [ ] **Step 3: Load each type into the DB**
 
@@ -1913,7 +1913,7 @@ git commit -m "data(qw-oracle): FTE head AST outputs (build-<N>, sha <SHORT_SHA>
 
 ---
 
-## Task 13: Validation Pass 1 — runtime cvarlist diff
+## Task 13: Validation Pass 1 -- runtime cvarlist diff
 
 **Files:**
 - Created (transient): `/tmp/runtime-fte-cvars.txt`, `/tmp/db-fte-cvars.txt`, `/tmp/runtime-only.txt`, `/tmp/db-only.txt`
@@ -1976,19 +1976,19 @@ grep -lE '#ifdef\s+(Q2CLIENT|Q3CLIENT|HEXEN2|VM_Q1|Q3BSPS)' \
 # (then manually inspect each runtime-only name against this set)
 
 # Plugin candidates (registered by plugins beyond ezhud)
-# — visible if the user has ffmpeg / cef / quakebot / etc. plugins loaded.
+# -- visible if the user has ffmpeg / cef / quakebot / etc. plugins loaded.
 
 # Dynamic registrations (Cvar_Get/Cvar_FindOrGet/exec-driven)
-# — typically user-defined script names like nick, tpname.
+# -- typically user-defined script names like nick, tpname.
 
-# Genuine extractor gap → goal is zero or near-zero.
+# Genuine extractor gap -> goal is zero or near-zero.
 ```
 
 Document the categorization in a temporary file `/tmp/runtime-only-categorized.md` for use in the findings doc (Task 18).
 
 - [ ] **Step 6: Categorize DB-only entries**
 
-DB-only is expected — these are cvars source-visible under our variant matrix but not loaded in this specific runtime build. Common categories:
+DB-only is expected -- these are cvars source-visible under our variant matrix but not loaded in this specific runtime build. Common categories:
 - Server-only cvars when runtime is a client build.
 - Vulkan cvars when runtime is GL.
 - Win-specific cvars on Linux runtime (or vice versa).
@@ -1997,7 +1997,7 @@ Scan `db-only-fte.txt` and confirm each entry maps to a known variant gate.
 
 - [ ] **Step 7: Pass criterion**
 
-Pass criterion: runtime-only "genuine extractor gap" bucket is zero or near-zero (≤5 entries, each documented in findings).
+Pass criterion: runtime-only "genuine extractor gap" bucket is zero or near-zero (<=5 entries, each documented in findings).
 
 If pass: proceed to Task 14. If fail: investigate gaps before continuing. Common causes: missing CVAR macro variant, missing variant in matrix, identifier-resolution-via-#define needed.
 
@@ -2020,7 +2020,7 @@ git commit -m "validation(qw-oracle): FTE Pass 1 runtime cvarlist diff artifacts
 
 ---
 
-## Task 14: Validation Pass 2 — field-accuracy sample audit
+## Task 14: Validation Pass 2 -- field-accuracy sample audit
 
 **Files:**
 - Created (transient): a sample-audit checklist file in `docs/superpowers/specs/assets/`.
@@ -2072,7 +2072,7 @@ Run the script, eyeball each of the 20 cvars. Mark each as PASS or FAIL.
 
 - [ ] **Step 3: Pass criterion**
 
-Pass criterion: 20/20 rows accurate (no field mismatched against source). If 1-2 mismatches: log as findings, investigate, may be deferrable. If 3+ mismatches: systematic misparse — investigate before declaring done.
+Pass criterion: 20/20 rows accurate (no field mismatched against source). If 1-2 mismatches: log as findings, investigate, may be deferrable. If 3+ mismatches: systematic misparse -- investigate before declaring done.
 
 - [ ] **Step 4: Save audit artifact**
 
@@ -2084,7 +2084,7 @@ cp /tmp/fte-sample-audit.json /home/paradoks/projects/quakeworld/docs/superpower
 
 ---
 
-## Task 15: Validation Pass 3 — source_root sanity check
+## Task 15: Validation Pass 3 -- source_root sanity check
 
 **Files:**
 - Verification queries only.
@@ -2107,7 +2107,7 @@ Expected: two buckets:
 - `plugin:ezhud` (~10-20% of rows)
 - Zero rows with `NULL` source_root
 
-If any rows are NULL: the loader passthrough has a bug — check Task 11 implementation.
+If any rows are NULL: the loader passthrough has a bug -- check Task 11 implementation.
 
 - [ ] **Step 2: Spot-check 5 plugin:ezhud rows**
 
@@ -2122,7 +2122,7 @@ LIMIT 5;
 SQL
 ```
 
-Expected: 5 rows, every `source_file` starts with `plugins/ezhud/`. If any row has `source_file` from `engine/` while tagged `plugin:ezhud` — investigate.
+Expected: 5 rows, every `source_file` starts with `plugins/ezhud/`. If any row has `source_file` from `engine/` while tagged `plugin:ezhud` -- investigate.
 
 - [ ] **Step 3: Confirm no engine row has plugin source_file**
 
@@ -2158,7 +2158,7 @@ grep -n "'ezquake'\|'qwcl'" /home/paradoks/projects/quakeworld/apps/qw-oracle/sc
 
 - [ ] **Step 2: Add fte regression + anomaly probes**
 
-Add an FTE entry to whichever data structure holds project probes. Regression probes verify counts within ±5% of last run; anomaly probes verify field invariants.
+Add an FTE entry to whichever data structure holds project probes. Regression probes verify counts within +/-5% of last run; anomaly probes verify field invariants.
 
 Sample additions:
 
@@ -2242,7 +2242,7 @@ ls -la packages/qw-config/src/data/fte-variables.json 2>&1 || echo "old output n
 python3 -c "import json; d=json.load(open('apps/qw-oracle/scripts/extractors/fte/output/fte-variables-ast.json')); print(d['_stats'])"
 ```
 
-Confirm new count is in the expected range (≥2500 cvars).
+Confirm new count is in the expected range (>=2500 cvars).
 
 - [ ] **Step 2: Delete the retired files**
 
@@ -2272,7 +2272,7 @@ git commit -m "cleanup(qw-oracle): retire pre-libclang FTE prototypes"
 Create `docs/superpowers/specs/2026-04-26-fte-extraction-findings.md`:
 
 ```markdown
-# FTE Extraction Findings — Phase 2d-core
+# FTE Extraction Findings -- Phase 2d-core
 
 **Date:** 2026-04-26
 **Snapshot:** build-<N> at SHA <SHORT_SHA>
@@ -2299,9 +2299,9 @@ Create `docs/superpowers/specs/2026-04-26-fte-extraction-findings.md`:
 ## Pattern catalog vs. ezQuake
 
 What's the same:
-- Pattern 1 (literal cvar_t struct-init via macro expansion) — base case for cvars; handled by libclang's PARSE_DETAILED_PROCESSING_RECORD.
-- Pattern 5 (legacy alias) — handled via Cmd_AddCommandOld.
-- Pattern 7 (platform-guarded code via multi-variant parse) — handled via 4-variant matrix (client/server/win/client_vk).
+- Pattern 1 (literal cvar_t struct-init via macro expansion) -- base case for cvars; handled by libclang's PARSE_DETAILED_PROCESSING_RECORD.
+- Pattern 5 (legacy alias) -- handled via Cmd_AddCommandOld.
+- Pattern 7 (platform-guarded code via multi-variant parse) -- handled via 4-variant matrix (client/server/win/client_vk).
 
 What's specific to FTE:
 - Different macro families: CVARD/CVARFD/CVARAFD/CVARAD (not literal cvar_t).
@@ -2313,7 +2313,7 @@ What's specific to FTE:
 
 ## Runtime validation
 
-### Pass 1 — cvarlist diff
+### Pass 1 -- cvarlist diff
 - Common: <X>
 - Runtime-only: <X>
   - Categorized as Q2/Q3/H2-gated (expected): <X>
@@ -2321,10 +2321,10 @@ What's specific to FTE:
   - Categorized as dynamic (Cvar_Get/exec): <X>
   - Genuine extractor gap: <X> (target: 0)
 
-### Pass 2 — field accuracy
+### Pass 2 -- field accuracy
 - 20/20 rows accurate. (Or document mismatches.)
 
-### Pass 3 — source_root sanity
+### Pass 3 -- source_root sanity
 - All checks PASS.
 
 ## Known absences
@@ -2368,7 +2368,7 @@ git commit -m "docs(specs): FTE Phase 2d-core extraction findings"
 In `HANDOVER.md`, find the "Phase 2d-2h: remaining QW knowledge rollout" section. Update the leading "Updated:" timestamp to today, and amend the body:
 
 ```markdown
-**Updated:** 2026-04-26 — **FTE Phase 2d-core SHIPPED.** build-<N> at SHA <SHORT_SHA>: <X> cvars / <X> commands / <X> macros / <X> cmdline_params; engine + plugin:ezhud source roots; schema v11 stamped (source_root TEXT additive). Quality grid passes; 20/20 field accuracy. Findings: `docs/superpowers/specs/2026-04-26-fte-extraction-findings.md`. Next: Phase 2d-bundle (asset extraction) — separate plan; Phase 2e MVDSV+KTX after.
+**Updated:** 2026-04-26 -- **FTE Phase 2d-core SHIPPED.** build-<N> at SHA <SHORT_SHA>: <X> cvars / <X> commands / <X> macros / <X> cmdline_params; engine + plugin:ezhud source roots; schema v11 stamped (source_root TEXT additive). Quality grid passes; 20/20 field accuracy. Findings: `docs/superpowers/specs/2026-04-26-fte-extraction-findings.md`. Next: Phase 2d-bundle (asset extraction) -- separate plan; Phase 2e MVDSV+KTX after.
 ```
 
 - [ ] **Step 2: Create new memory entry**
@@ -2385,7 +2385,7 @@ type: project
 FTE Layer 1 extraction Phase 2d-core shipped 2026-04-26 at FTE build-<N> (SHA <SHORT_SHA>):
 - <X> cvars (engine ~<a>, plugin:ezhud ~<b>) + <X> commands + <X> macros + <X> cmdline_params loaded into knowledge.db
 - Schema v11 with additive source_root TEXT column on cvar/command/macro version tables (NULL = "engine" backwards compat)
-- 4-variant clang matrix: client/server/win/client_vk (no Apple — 0 Apple-gated cvars in FTE; no Q2/Q3/H2 — Option B QW-only scope; no software/D3D — renderer scope GL+VK only)
+- 4-variant clang matrix: client/server/win/client_vk (no Apple -- 0 Apple-gated cvars in FTE; no Q2/Q3/H2 -- Option B QW-only scope; no software/D3D -- renderer scope GL+VK only)
 - ezhud is the only plugin in scope; allowlist supports future plugins via single-line addition to SOURCE_ROOTS
 - Pre-libclang regex-based prototype (cvars.ts) and validation script (cvars-check.py) retired
 
@@ -2393,7 +2393,7 @@ FTE Layer 1 extraction Phase 2d-core shipped 2026-04-26 at FTE build-<N> (SHA <S
 
 **How to apply:** When working on slipgate's FTE-side config converter, the build-snapshot CLI will emit `apps/slipgate-app/src/lib/config/data/fte-variables.json` with source_root field per row; UI can render plugin:ezhud cvars distinctly.
 
-**Open follow-ups:** Phase 2d-bundle (asset extraction) — separate plan to be written after this one ships. Quarterly cadence for FTE snapshot updates (manual; Phase 2h automation deferred).
+**Open follow-ups:** Phase 2d-bundle (asset extraction) -- separate plan to be written after this one ships. Quarterly cadence for FTE snapshot updates (manual; Phase 2h automation deferred).
 ```
 
 - [ ] **Step 3: Update MEMORY.md index**
@@ -2401,7 +2401,7 @@ FTE Layer 1 extraction Phase 2d-core shipped 2026-04-26 at FTE build-<N> (SHA <S
 In `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/MEMORY.md`, add this line in alphabetical/topical order (near other project_* entries):
 
 ```markdown
-- [FTE Phase 2d-core shipped](project_fte_phase2d.md) — FTE Layer 1 cvars/commands/macros/cmdline loaded; schema v11 source_root field; ezhud plugin scope
+- [FTE Phase 2d-core shipped](project_fte_phase2d.md) -- FTE Layer 1 cvars/commands/macros/cmdline loaded; schema v11 source_root field; ezhud plugin scope
 ```
 
 Also update the top-line "Latest arc shipped" pointer to mention FTE Phase 2d-core.
@@ -2415,7 +2415,7 @@ Append a new updated-date line referencing FTE Phase 2d-core completion.
 ```bash
 cd /home/paradoks/projects/quakeworld
 git add HANDOVER.md
-git commit -m "docs: HANDOVER + memory — FTE Phase 2d-core shipped"
+git commit -m "docs: HANDOVER + memory -- FTE Phase 2d-core shipped"
 ```
 
 (Memory files are outside the repo; their changes are already saved by the writes above.)
@@ -2425,30 +2425,30 @@ git commit -m "docs: HANDOVER + memory — FTE Phase 2d-core shipped"
 ## Self-Review
 
 **1. Spec coverage:**
-- ✓ Locked scope decisions (Task 2 + 3 + 10): schema, project allowlist, clang variants, project gates
-- ✓ File layout (Tasks 4-9): driver + 5 handlers + seed YAML
-- ✓ Source-root concept (Tasks 4 + 5 + loader 11): SOURCE_ROOTS list + per-row tagging + DB column
-- ✓ Variant matrix (Task 3): 4 variants in clang_config
-- ✓ Handler responsibilities (Tasks 5-9): all 5 spec'd handlers covered
-- ✓ Loader & schema (Tasks 2 + 10 + 11): v11 migration + project gates + source_root passthrough
-- ✓ Versioning & cadence (Task 1 + 12): autobuild number capture + single head load
-- ✓ Validation (Tasks 13 + 14 + 15): Pass 1 cvarlist diff + Pass 2 field accuracy + Pass 3 source_root sanity
-- ✓ Quality grid integration (Task 16)
-- ✓ Cleanup (Task 17): retire prototype files
-- ✓ Findings doc (Task 18)
-- ✓ HANDOVER + memory (Task 19)
-- Phase 2d-bundle (asset extraction) explicitly out of scope → separate plan, called out at top of plan + in Task 19's followups list.
+- [ok] Locked scope decisions (Task 2 + 3 + 10): schema, project allowlist, clang variants, project gates
+- [ok] File layout (Tasks 4-9): driver + 5 handlers + seed YAML
+- [ok] Source-root concept (Tasks 4 + 5 + loader 11): SOURCE_ROOTS list + per-row tagging + DB column
+- [ok] Variant matrix (Task 3): 4 variants in clang_config
+- [ok] Handler responsibilities (Tasks 5-9): all 5 spec'd handlers covered
+- [ok] Loader & schema (Tasks 2 + 10 + 11): v11 migration + project gates + source_root passthrough
+- [ok] Versioning & cadence (Task 1 + 12): autobuild number capture + single head load
+- [ok] Validation (Tasks 13 + 14 + 15): Pass 1 cvarlist diff + Pass 2 field accuracy + Pass 3 source_root sanity
+- [ok] Quality grid integration (Task 16)
+- [ok] Cleanup (Task 17): retire prototype files
+- [ok] Findings doc (Task 18)
+- [ok] HANDOVER + memory (Task 19)
+- Phase 2d-bundle (asset extraction) explicitly out of scope -> separate plan, called out at top of plan + in Task 19's followups list.
 
 **2. Placeholder scan:**
-- `<SHA>` and `<N>` placeholders in Task 12 + 18 — these are intentional reference to Task 1's locked values; user replaces them when executing.
-- `<X>` in Task 18 is the same — gets filled with real counts when the findings doc is written.
+- `<SHA>` and `<N>` placeholders in Task 12 + 18 -- these are intentional reference to Task 1's locked values; user replaces them when executing.
+- `<X>` in Task 18 is the same -- gets filled with real counts when the findings doc is written.
 - `<a>` / `<b>` in Task 19 same pattern.
 - All other steps have concrete code, exact paths, exact commands.
 
 **3. Type consistency:**
 - `source_root` field name used consistently across schema, handlers, loader.
 - `current_source_root` attr name used consistently across handlers (set by driver before walk).
-- Handler class names: `CvarsFteHandler`, `CommandsFteHandler`, `MacrosFteHandler`, `CmdlineFteHandler`, `EzhudFteHandler` — consistent suffix convention.
+- Handler class names: `CvarsFteHandler`, `CommandsFteHandler`, `MacrosFteHandler`, `CmdlineFteHandler`, `EzhudFteHandler` -- consistent suffix convention.
 - `output_top_key` attribute used consistently for finalize step.
 
 ---

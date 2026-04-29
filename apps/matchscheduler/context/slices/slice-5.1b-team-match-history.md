@@ -12,11 +12,11 @@
   - "View on QW Hub" link opens filtered results on hub.quakeworld.nu
   - Teams without teamTag show appropriate message
   - Loading and error states handled gracefully
-  - Teams/Players toggle preserved — Players view unchanged
+  - Teams/Players toggle preserved -- Players view unchanged
 
 ## Problem Statement
 
-The current Teams tab (Slice 5.1) has a two-panel layout: team list on the left, detail on the right. But Browse Teams in the bottom-right panel already provides team search, division filtering, and selection. This creates redundancy — two team lists side by side doing the same job.
+The current Teams tab (Slice 5.1) has a two-panel layout: team list on the left, detail on the right. But Browse Teams in the bottom-right panel already provides team search, division filtering, and selection. This creates redundancy -- two team lists side by side doing the same job.
 
 Additionally, users want to know:
 - How active is a team?
@@ -32,7 +32,7 @@ This information exists on hub.quakeworld.nu but requires manual lookup.
 2. Roster (leader first, then alphabetical)
 3. Recent Matches from QW Hub API (new)
 
-The **Players view** (toggle) remains unchanged — it still has its own search bar and division filters since Browse Teams doesn't cover player search.
+The **Players view** (toggle) remains unchanged -- it still has its own search bar and division filters since Browse Teams doesn't cover player search.
 
 ---
 
@@ -49,7 +49,7 @@ The **Players view** (toggle) remains unchanged — it still has its own search 
 │                       │                                  │  Div 1  Div 2  Div 3  │
 │                       │  ┌──────────────────────────┐    │                       │
 │                       │  │ [LOGO]  Slackers         │    │  Bear Beer Bal...  ☆  │
-│                       │  │         D1 • 5 players ☆ │    │  Black Book      ☆  │
+│                       │  │         D1 - 5 players ☆ │    │  Black Book      ☆  │
 │                       │  │                          │    │  Death Dealers   ☆  │
 │                       │  │ Roster                   │    │  Deathbound      ☆  │
 │                       │  │ ● ParadokS (Leader)      │    │  Demolition Crew ☆  │
@@ -58,7 +58,7 @@ The **Players view** (toggle) remains unchanged — it still has its own search 
 │                       │  │ ○ Phrenic                │    │                       │
 │                       │  │ ○ Macler                 │    │                       │
 │                       │  │                          │    │                       │
-│                       │  │ Recent Matches  [Hub →]  │    │                       │
+│                       │  │ Recent Matches  [Hub ->]  │    │                       │
 │                       │  │ ──────────────────────── │    │                       │
 │                       │  │ Jan 28  schloss  ]sr[    │    │                       │
 │                       │  │   269-157  [hx]     W   │    │                       │
@@ -92,7 +92,7 @@ The **Players view** (toggle) remains unchanged — it still has its own search 
 │                                                        │
 │  ┌─────────┐                                           │
 │  │  [SLK]  │  Slackers  ☆                              │
-│  │  LOGO   │  Division 1 • 5 players                   │
+│  │  LOGO   │  Division 1 - 5 players                   │
 │  └─────────┘                                           │
 │                                                        │
 │  ──────────────────────────────────────────────────── │
@@ -106,7 +106,7 @@ The **Players view** (toggle) remains unchanged — it still has its own search 
 │                                                        │
 │  ──────────────────────────────────────────────────── │
 │                                                        │
-│  Recent Matches                     [View on QW Hub →] │
+│  Recent Matches                     [View on QW Hub ->] │
 │  ──────────────────────────────────────────────────── │
 │  Jan 28   schloss   ]sr[  269 - 157  [hx]          W  │
 │  Jan 28   dm2       ]sr[  288 - 178  [hx]          W  │
@@ -138,7 +138,7 @@ The **Players view** (toggle) remains unchanged — it still has its own search 
 
 **Loading:**
 ```
-Recent Matches                              [View on QW Hub →]
+Recent Matches                              [View on QW Hub ->]
 ─────────────────────────────────────────────────────────────
 Loading match history...
 ```
@@ -153,14 +153,14 @@ Team leader can configure QW Hub tag in Team Settings
 
 **No Matches Found:**
 ```
-Recent Matches                              [View on QW Hub →]
+Recent Matches                              [View on QW Hub ->]
 ─────────────────────────────────────────────────────────────
 No recent 4on4 matches found
 ```
 
 **Error:**
 ```
-Recent Matches                              [View on QW Hub →]
+Recent Matches                              [View on QW Hub ->]
 ─────────────────────────────────────────────────────────────
 Couldn't load match history
 [Retry]
@@ -181,8 +181,8 @@ No communication between them
 
 **New flow (Slice 5.1b):**
 ```
-Browse Teams (bottom-right) → dispatches 'team-browser-detail-select' event
-    → TeamsBrowserPanel listens → renders full-width detail in Teams view
+Browse Teams (bottom-right) -> dispatches 'team-browser-detail-select' event
+    -> TeamsBrowserPanel listens -> renders full-width detail in Teams view
 TeamsBrowserPanel keeps Players view self-contained (own search/filter)
 ```
 
@@ -447,7 +447,7 @@ function cleanup() {
 
 ```javascript
 // In TeamBrowser's team row click handler
-// Single click on team name/row → dispatch detail event
+// Single click on team name/row -> dispatch detail event
 function _handleTeamClick(teamId) {
     window.dispatchEvent(new CustomEvent('team-browser-detail-select', {
         detail: { teamId }
@@ -675,7 +675,7 @@ TeamsBrowserPanel._handleBrowseTeamSelect(event)
     ↓
 Sets _selectedTeamId, calls _renderCurrentView()
     ↓
-_renderTeamsView() → _renderTeamHeader() + _renderTeamRoster() + _renderMatchHistory()
+_renderTeamsView() -> _renderTeamHeader() + _renderTeamRoster() + _renderMatchHistory()
     ↓
 _renderMatchHistory checks team.teamTag
     ↓
@@ -684,11 +684,11 @@ If missing: render "not configured" message
     ↓
 QWHubService.getRecentMatches(tag)
     ↓
-Check in-memory cache → if fresh, return instantly (HOT PATH)
+Check in-memory cache -> if fresh, return instantly (HOT PATH)
     ↓
 If stale/missing: fetch from QW Hub API (COLD PATH)
     ↓
-Transform response → cache → return matches
+Transform response -> cache -> return matches
     ↓
 Guard against stale render (team may have changed)
     ↓
@@ -801,11 +801,11 @@ src/css/input.css
 
 ## Common Pitfalls
 
-1. **Race condition on rapid team switching** — Always guard with `container.dataset.teamTag !== teamTag` before updating DOM after async fetch
-2. **teamTag vs qwHubTag** — Slice 5.1a merged these into `teamTag`. Use `team.teamTag` everywhere, not `team.qwHubTag`
-3. **Event cleanup** — Must remove `team-browser-detail-select` listener in `cleanup()` to avoid memory leaks when tab switches
-4. **Players view unchanged** — Don't accidentally remove search/filter functionality from Players view while restructuring Teams view toolbar
-5. **Browse Teams independence** — Don't break existing Browse Teams behavior (stars, multi-select for Compare). Detail select is additive.
+1. **Race condition on rapid team switching** -- Always guard with `container.dataset.teamTag !== teamTag` before updating DOM after async fetch
+2. **teamTag vs qwHubTag** -- Slice 5.1a merged these into `teamTag`. Use `team.teamTag` everywhere, not `team.qwHubTag`
+3. **Event cleanup** -- Must remove `team-browser-detail-select` listener in `cleanup()` to avoid memory leaks when tab switches
+4. **Players view unchanged** -- Don't accidentally remove search/filter functionality from Players view while restructuring Teams view toolbar
+5. **Browse Teams independence** -- Don't break existing Browse Teams behavior (stars, multi-select for Compare). Detail select is additive.
 
 ---
 

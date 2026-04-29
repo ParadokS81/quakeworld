@@ -1,18 +1,18 @@
-# Extraction-review skill + CLI — Design
+# Extraction-review skill + CLI -- Design
 
 **Date:** 2026-04-23
 **Status:** Design (pre-implementation). Ships the skill + CLI that gate Phase 2f historical backfill.
-**Related HANDOVER items:** #1 (Extraction-review skill + CLI — this spec resolves), #4 (Rebuild-and-load CLI subcommand — absorbed by `extract-tag`).
+**Related HANDOVER items:** #1 (Extraction-review skill + CLI -- this spec resolves), #4 (Rebuild-and-load CLI subcommand -- absorbed by `extract-tag`).
 
 ## Goal
 
-Build a per-tag-pair review process that prevents Phase 2f historical backfill from silently absorbing novel findings (new entity types, retirements, category crossings, unclassified promotions, source-invisible release-note changes). Every finding gets forced into exactly one of five dispositions — classify / mark-orphan / concept-note / handover / reject-as-noise — so that walking backwards through 15+ ezQuake tags produces curated hygiene events, not a pile of uncaptured debt.
+Build a per-tag-pair review process that prevents Phase 2f historical backfill from silently absorbing novel findings (new entity types, retirements, category crossings, unclassified promotions, source-invisible release-note changes). Every finding gets forced into exactly one of five dispositions -- classify / mark-orphan / concept-note / handover / reject-as-noise -- so that walking backwards through 15+ ezQuake tags produces curated hygiene events, not a pile of uncaptured debt.
 
 ezQuake is the sole target for the first-run validation. FTE / MVDSV / KTX ports come only after the ezQuake walk is fully satisfied.
 
 ## The problem this solves
 
-Today's pipeline extracts-then-loads silently. Novel findings during a tag-pair diff pass unnoticed unless someone eyeballs the change_events stream. The schema-v7 `.kmap` finding (an orphaned-historical loader that survived as a bundled asset via nQuake) was surfaced by accident while auditing one specific extension. Without a deliberate review step, the next such finding — and there will be many across 15 tags of history — will absorb silently and the knowledge base will drift out of alignment with source truth.
+Today's pipeline extracts-then-loads silently. Novel findings during a tag-pair diff pass unnoticed unless someone eyeballs the change_events stream. The schema-v7 `.kmap` finding (an orphaned-historical loader that survived as a bundled asset via nQuake) was surfaced by accident while auditing one specific extension. Without a deliberate review step, the next such finding -- and there will be many across 15 tags of history -- will absorb silently and the knowledge base will drift out of alignment with source truth.
 
 The review skill + CLI is the forcing function that closes that gap.
 
@@ -20,12 +20,12 @@ The review skill + CLI is the forcing function that closes that gap.
 
 Two composable halves:
 
-- **CLI** — mechanical. New `review` subcommand in `apps/qw-oracle/scripts/load-knowledge/` reads change_events, relation_changes, source_state_transitions, release_notes, seed YAMLs, entity-types.md, and concept-notes index. Emits a findings report as JSON on stdout and pre-seeds a markdown review draft at `apps/qw-oracle/docs/reviews/YYYY-MM-DD-<project>-<from>-to-<to>.md`. No decisions, no side-effects outside that draft file. A companion `extract-tag` subcommand encapsulates the mechanical prep (checkout + python extractor + load-version x9 + load-assets + release-notes) so skill pre-flight can call it atomically.
-- **Skill** — judgment. User-global `~/.claude/skills/extraction-review/SKILL.md`. Orchestrates extraction pre-flight by shelling out to CLI subcommands (extract-tag, diff, release-notes, enrich) only when the DB state requires them, then calls `review` to produce findings, then walks findings interactively in a Model B shape: Claude proposes a disposition with rationale, user approves / overrides / skips / aborts. On approval, skill writes the disposition's side-effect (seed update, DB column stamp, concept-note stub, HANDOVER entry) and fills the matching block in the draft markdown. Commits at the end when all findings are non-pending.
+- **CLI** -- mechanical. New `review` subcommand in `apps/qw-oracle/scripts/load-knowledge/` reads change_events, relation_changes, source_state_transitions, release_notes, seed YAMLs, entity-types.md, and concept-notes index. Emits a findings report as JSON on stdout and pre-seeds a markdown review draft at `apps/qw-oracle/docs/reviews/YYYY-MM-DD-<project>-<from>-to-<to>.md`. No decisions, no side-effects outside that draft file. A companion `extract-tag` subcommand encapsulates the mechanical prep (checkout + python extractor + load-version x9 + load-assets + release-notes) so skill pre-flight can call it atomically.
+- **Skill** -- judgment. User-global `~/.claude/skills/extraction-review/SKILL.md`. Orchestrates extraction pre-flight by shelling out to CLI subcommands (extract-tag, diff, release-notes, enrich) only when the DB state requires them, then calls `review` to produce findings, then walks findings interactively in a Model B shape: Claude proposes a disposition with rationale, user approves / overrides / skips / aborts. On approval, skill writes the disposition's side-effect (seed update, DB column stamp, concept-note stub, HANDOVER entry) and fills the matching block in the draft markdown. Commits at the end when all findings are non-pending.
 
-The review log itself — `apps/qw-oracle/docs/reviews/<date>-<project>-<from>-to-<to>.md` — is process exhaust, not a knowledge layer. It records "we looked at this tag-pair, found N findings, these were the dispositions and why" for human re-read. Knowledge produced by the review (seeds, DB stamps, concept notes) flows into the correct existing layer; the review log only documents the paper trail.
+The review log itself -- `apps/qw-oracle/docs/reviews/<date>-<project>-<from>-to-<to>.md` -- is process exhaust, not a knowledge layer. It records "we looked at this tag-pair, found N findings, these were the dispositions and why" for human re-read. Knowledge produced by the review (seeds, DB stamps, concept notes) flows into the correct existing layer; the review log only documents the paper trail.
 
-## Scope — in
+## Scope -- in
 
 - `review` subcommand in `apps/qw-oracle/scripts/load-knowledge/` that produces findings JSON + pre-seeded markdown for a single (project, from, to) tuple.
 - `extract-tag` subcommand that encapsulates the mechanical prep for one tag (absorbs HANDOVER item #4).
@@ -33,12 +33,12 @@ The review log itself — `apps/qw-oracle/docs/reviews/<date>-<project>-<from>-t
 - New directory `apps/qw-oracle/docs/reviews/` for committed review logs.
 - ezQuake as the sole first-run target.
 
-## Scope — out (deferred)
+## Scope -- out (deferred)
 
 - Schema v9 widening `verification_status` to `asset_loader_sites` / `asset_cvar_bindings`. Only add when a Phase 2f finding on a non-extension relation demands it.
 - MCP integration for reading review logs (they are process exhaust; consumers should not need them).
 - FTE / MVDSV / KTX support in `extract-tag`. ezQuake-only stub; other projects added when their extractors ship and after the ezQuake walk is fully validated.
-- Dashboard regen on review commits (dashboard itself is shelved — HANDOVER item #3).
+- Dashboard regen on review commits (dashboard itself is shelved -- HANDOVER item #3).
 - Automated tests. First live review run is the validation.
 
 ## Architecture
@@ -109,7 +109,7 @@ npm run load-knowledge -- review \
 3. `release_notes` has rows for the to-version.
 4. Output path does not exist with partial dispositions unless `--force`.
 
-Errors point at the prerequisite subcommand to run first. No auto-run from the CLI side — the skill decides when to trigger prerequisites.
+Errors point at the prerequisite subcommand to run first. No auto-run from the CLI side -- the skill decides when to trigger prerequisites.
 
 ### `review/` subdirectory layout
 
@@ -188,13 +188,13 @@ npm run load-knowledge -- extract-tag \
 4. Call `loadAssets` for the asset bundle.
 5. Call `loadReleaseNotes` if a GitHub token is provided (or the env var is set); otherwise leave release_notes empty and let the review pre-flight catch it.
 
-Errors halt on step failure. Re-running is safe — all underlying loaders are idempotent on (project, version) keys.
+Errors halt on step failure. Re-running is safe -- all underlying loaders are idempotent on (project, version) keys.
 
 ## Skill shape
 
 ### Location
 
-`~/.claude/skills/extraction-review/SKILL.md` — user-global, peer to `docs-check`. Skill invocation via `/extraction-review` or trigger phrases like "extraction review", "review tag pair", "phase 2f review".
+`~/.claude/skills/extraction-review/SKILL.md` -- user-global, peer to `docs-check`. Skill invocation via `/extraction-review` or trigger phrases like "extraction review", "review tag pair", "phase 2f review".
 
 ### Pre-flight protocol (skill drives, CLI executes)
 
@@ -215,15 +215,15 @@ Only after all five pass does the skill invoke `review`.
 For each finding in the JSON response with disposition still pending:
 
 1. Show `summary` + key evidence fields.
-2. If `proposed_disposition` is present → show it with rationale and ask "approve / override / skip?"
-3. If absent → skill reads seeds, entity-types.md, concept-notes/, and runs `git log <commit_sha>` to derive its own proposal, then presents "I propose X because Y — approve / override / skip?"
+2. If `proposed_disposition` is present -> show it with rationale and ask "approve / override / skip?"
+3. If absent -> skill reads seeds, entity-types.md, concept-notes/, and runs `git log <commit_sha>` to derive its own proposal, then presents "I propose X because Y -- approve / override / skip?"
 
 User responses:
 
-- **approve** — apply side-effect, record disposition in draft markdown with `Applied:` timestamp.
-- **override** — user picks a different disposition; re-apply.
-- **skip** — leave finding as `pending` in draft; do not commit.
-- **abort** — halt the walk, leave partial draft on disk (resumable).
+- **approve** -- apply side-effect, record disposition in draft markdown with `Applied:` timestamp.
+- **override** -- user picks a different disposition; re-apply.
+- **skip** -- leave finding as `pending` in draft; do not commit.
+- **abort** -- halt the walk, leave partial draft on disk (resumable).
 
 ### Side-effect routing
 
@@ -232,13 +232,13 @@ User responses:
 | addition | classify | Edit `packages/qw-config/seeds/<appropriate>.yaml` or prose update to `entity-types.md` |
 | addition | concept-note | Create `apps/qw-oracle/concept-notes/<slug>.md` from the README template, frontmatter pre-filled |
 | addition | reject-as-noise | Record reason in draft; no file change |
-| retirement | mark-orphan | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=?` — widen to peer tables (schema v9) only when a real non-extension case appears |
+| retirement | mark-orphan | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=?` -- widen to peer tables (schema v9) only when a real non-extension case appears |
 | retirement | classify | Update entity-types.md taxonomy prose; entity row `source_retired` is already stamped by diff pipeline |
 | retirement | concept-note | Same as addition variant |
 | semantic-crossing | classify | Edit appropriate seed |
 | semantic-crossing | concept-note | Category shifts are the canonical Layer 3 source |
 | semantic-crossing | reject-as-noise | Record; rare |
-| unclassified | classify | Promote `confidence='unclassified'`/`'heuristic'` → `'certain'`, edit notes |
+| unclassified | classify | Promote `confidence='unclassified'`/`'heuristic'` -> `'certain'`, edit notes |
 | unclassified | handover | Defer as HANDOVER entry if extractor work is needed |
 | source-invisible | concept-note | Release-note facts that don't fit Layer 1 shape |
 | source-invisible | handover | Implies extractor-missing-feature |
@@ -270,7 +270,7 @@ status: draft | complete
 
 ## Findings
 
-### F-001 addition · cvar · cl_newfeature
+### F-001 addition - cvar - cl_newfeature
 
 **Summary:** New cvar `cl_newfeature` added at `cl_cmd.c:1340`.
 
@@ -302,7 +302,7 @@ Finding IDs are stable hashes (bucket + natural-key). Re-running `review` on the
 
 No new schema version for this feature. The review process reads existing tables (change_events, relation_changes, source_state_transitions, release_notes) and writes to the existing `asset_extensions.verification_status` column.
 
-A schema v9 widening of `verification_status` to `asset_loader_sites` or `asset_cvar_bindings` may be triggered by a Phase 2f finding where a `mark-orphan` disposition applies to a non-extension relation. That migration is deferred until a real case demands it — the review skill itself does not pre-empt the schema evolution.
+A schema v9 widening of `verification_status` to `asset_loader_sites` or `asset_cvar_bindings` may be triggered by a Phase 2f finding where a `mark-orphan` disposition applies to a non-extension relation. That migration is deferred until a real case demands it -- the review skill itself does not pre-empt the schema evolution.
 
 ## Testing strategy
 
@@ -311,7 +311,7 @@ A schema v9 widening of `verification_status` to `asset_loader_sites` or `asset_
 - **Idempotency check:** running `review` twice against the same DB state produces byte-identical JSON output (modulo timestamp).
 - **No automated tests.** Judgment paths are non-deterministic by design; mechanical paths are thin SQL adapters that will fail loudly.
 
-Observations from the first review become inputs to the second pair — tight feedback loop, not a big-bang validation.
+Observations from the first review become inputs to the second pair -- tight feedback loop, not a big-bang validation.
 
 ## File inventory
 
@@ -347,14 +347,14 @@ None.
 
 Smallest-unit-first so each step compiles in isolation:
 
-1. `review/types.ts` — interfaces only. Compiles standalone.
-2. `review/draft-writer.ts` — pure function emitting markdown from Finding[] + metadata.
-3. Five `findings-*.ts` modules — each exports a single `find` function against existing schema. Exercised one at a time against the live DB.
-4. `review/index.ts` — composes finders, calls draft-writer, emits JSON.
-5. `extract-tag.ts` — orchestrates checkout + python extractor + 9 load-version calls + load-assets + release-notes via existing loader modules.
+1. `review/types.ts` -- interfaces only. Compiles standalone.
+2. `review/draft-writer.ts` -- pure function emitting markdown from Finding[] + metadata.
+3. Five `findings-*.ts` modules -- each exports a single `find` function against existing schema. Exercised one at a time against the live DB.
+4. `review/index.ts` -- composes finders, calls draft-writer, emits JSON.
+5. `extract-tag.ts` -- orchestrates checkout + python extractor + 9 load-version calls + load-assets + release-notes via existing loader modules.
 6. `index.ts` subcommand registration for `extract-tag` and `review`.
-7. `SKILL.md` — skill prompt with pre-flight protocol, Model B walk template, side-effect routing, commit protocol, resume protocol.
-8. **First live run** — Phase 2f first ezQuake tag-pair. Replaces automated tests.
+7. `SKILL.md` -- skill prompt with pre-flight protocol, Model B walk template, side-effect routing, commit protocol, resume protocol.
+8. **First live run** -- Phase 2f first ezQuake tag-pair. Replaces automated tests.
 9. HANDOVER cleanup: delete items #1 and #4.
 
 ## Acceptance criteria
@@ -368,9 +368,9 @@ Smallest-unit-first so each step compiles in isolation:
 
 None. All five design questions closed during brainstorm:
 
-1. Disposition model: **B** — Claude proposes, user approves.
-2. Audit trail location: **A** — markdown at `apps/qw-oracle/docs/reviews/`, not a knowledge layer.
-3. Release-notes coverage: **C** — CLI hard-errors if `release_notes` missing for to-version.
-4. Skill cadence: **A** — one tag-pair per invocation.
-5. CLI output shape: **B** — stdout JSON + pre-seeded markdown draft.
-6. Extraction orchestration: **C** — new `extract-tag` CLI subcommand; skill orchestrates decisions via CLI calls.
+1. Disposition model: **B** -- Claude proposes, user approves.
+2. Audit trail location: **A** -- markdown at `apps/qw-oracle/docs/reviews/`, not a knowledge layer.
+3. Release-notes coverage: **C** -- CLI hard-errors if `release_notes` missing for to-version.
+4. Skill cadence: **A** -- one tag-pair per invocation.
+5. CLI output shape: **B** -- stdout JSON + pre-seeded markdown draft.
+6. Extraction orchestration: **C** -- new `extract-tag` CLI subcommand; skill orchestrates decisions via CLI calls.

@@ -15,7 +15,7 @@ Create a shared session registry for tracking active recording sessions across D
 
 ## Task 1: Session Registry
 
-Create `src/shared/session-registry.ts` — a lightweight in-memory registry that tracks all active recording sessions across both platforms.
+Create `src/shared/session-registry.ts` -- a lightweight in-memory registry that tracks all active recording sessions across both platforms.
 
 ### Interface
 
@@ -48,7 +48,7 @@ getByGuildId(guildId: string): RegisteredSession[]    // All sessions for a guil
 getByPlatform(platform: Platform): RegisteredSession[]
 getAllSessions(): RegisteredSession[]
 
-// Suppression (manual stop of auto-record → suppress until channel empties)
+// Suppression (manual stop of auto-record -> suppress until channel empties)
 suppress(key: string): void
 isSuppressed(key: string): boolean
 clearSuppression(key: string): void
@@ -60,9 +60,9 @@ clearSuppression(key: string): void
 
 ### Notes
 - This is a simple `Map<string, RegisteredSession>` with helper methods
-- No Firestore persistence needed — in-memory only, rebuilds on restart
+- No Firestore persistence needed -- in-memory only, rebuilds on restart
 - Export a singleton instance
-- Keep it minimal — no over-engineering
+- Keep it minimal -- no over-engineering
 
 ---
 
@@ -95,7 +95,7 @@ Update `src/modules/recording/commands/record.ts`:
 - Import the session registry singleton
 - In `handleStart()` (after session is registered in `activeSessions` map ~line 468): also register in session registry with key `discord:${guildId}`, origin `'manual'`
 - In `stopRecording()` / `performStop()`: also unregister from session registry
-- The existing `activeSessions` map stays as-is — registry is an additional metadata layer
+- The existing `activeSessions` map stays as-is -- registry is an additional metadata layer
 
 ### Do NOT change:
 - The `activeSessions` Map (it holds the actual RecordingSession objects)

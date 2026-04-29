@@ -1,4 +1,4 @@
-# QW Stats — QuakeWorld 4on4 Ranking Engine
+# QW Stats -- QuakeWorld 4on4 Ranking Engine
 
 A data-driven ranking system for QuakeWorld 4on4 players and teams, built on 18,206 games (2022-2026) from the [QWHub](https://hub.quakeworld.nu) ktxstats archive.
 
@@ -8,7 +8,7 @@ A data-driven ranking system for QuakeWorld 4on4 players and teams, built on 18,
 - **Analysis scripts** for data exploration, name deduplication, clan rosters, team comparisons
 - **Research docs** on ranking methodology (Stats Composite, RAPM, OpenSkill) and identity resolution
 - **Express API** for serving H2H, form, map stats, and roster data
-- **Identity resolution tools** — the hard problem: 2,355 unique names represent ~800-1,000 real people
+- **Identity resolution tools** -- the hard problem: 2,355 unique names represent ~800-1,000 real people
 
 ## Getting Started with Claude Code
 
@@ -95,7 +95,7 @@ Good first prompts:
 
 ## Project Status
 
-See [ROADMAP.md](ROADMAP.md) for the full project direction. Currently in **Phase 0: Identity Resolution** — merging the 2,355 unique player names into ~800-1,000 real identities before building rankings.
+See [ROADMAP.md](ROADMAP.md) for the full project direction. Currently in **Phase 0: Identity Resolution** -- merging the 2,355 unique player names into ~800-1,000 real identities before building rankings.
 
 ## Key Documents
 
@@ -103,7 +103,7 @@ See [ROADMAP.md](ROADMAP.md) for the full project direction. Currently in **Phas
 |------|---------------|
 | [VISION.md](VISION.md) | Why this project exists, the sniff-test problem, the identity-resolution blocker, non-goals |
 | [OVERVIEW.md](OVERVIEW.md) | Current-state living map: what is loaded, what the API serves, research docs, code landmarks |
-| [CLAUDE.md](CLAUDE.md) | Technical reference — schema, scripts, API, methodology, domain notes |
+| [CLAUDE.md](CLAUDE.md) | Technical reference -- schema, scripts, API, methodology, domain notes |
 | [ROADMAP.md](ROADMAP.md) | Project direction, phases, current status |
 | [ANALYSIS.md](ANALYSIS.md) | Statistical findings from initial data exploration |
 | [RESEARCH-RANKING.md](RESEARCH-RANKING.md) | Ranking methodology research (Stats Composite, RAPM, OpenSkill) |

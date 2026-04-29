@@ -1,4 +1,4 @@
-# Slice 8.3: Matches Panel Layout — Proposals Left, Scheduled Right
+# Slice 8.3: Matches Panel Layout -- Proposals Left, Scheduled Right
 
 **Dependencies:** Slice 8.0 (Match Proposals), Slice 8.2a (Cancel Match), Slice 8.2c (Compact Match Display)
 **Supersedes:** Slice 8.2b column layout (was 3-week columns + upcoming column; never fully implemented)
@@ -26,9 +26,9 @@
 | Decision | Answer | Rationale |
 |----------|--------|-----------|
 | Column split | Keep ~60/40 (flex-[3] / flex-[2]) | Proposals need more space for card content |
-| Left column grouping | Current week → future weeks → past weeks | Most important first; past proposals still visible but deprioritized |
+| Left column grouping | Current week -> future weeks -> past weeks | Most important first; past proposals still visible but deprioritized |
 | Right column title | "Scheduled Matches" | Clear, matches existing label already used in 8.2c |
-| Empty right column | Header only, no placeholder text | User preference — "Scheduled Matches" header is self-explanatory |
+| Empty right column | Header only, no placeholder text | User preference -- "Scheduled Matches" header is self-explanatory |
 | Empty left column | "No active proposals" italic placeholder | Needed to avoid completely blank panel |
 | Week group headers | Same `.future-week-header` style | Consistent with existing design |
 | Current week highlight | Slightly brighter header text | Distinguishes "this week" from other groups |
@@ -41,13 +41,13 @@
 ### FRONTEND COMPONENTS
 
 **MatchesPanel** (MODIFY: `public/js/components/MatchesPanel.js`)
-- Firebase listeners: **Unchanged** — same proposal + scheduledMatch listeners
-- Cache interactions: **Unchanged** — reads ProposalService, ScheduledMatchService, TeamService caches
+- Firebase listeners: **Unchanged** -- same proposal + scheduledMatch listeners
+- Cache interactions: **Unchanged** -- reads ProposalService, ScheduledMatchService, TeamService caches
 - UI change: Replace `_renderAll()` layout logic
-  - **Left column**: All active proposals grouped by week (current → future → past)
+  - **Left column**: All active proposals grouped by week (current -> future -> past)
   - **Right column**: Scheduled matches only (existing `_renderUpcomingMatchCompact`)
   - **Bottom**: Archived section (unchanged)
-- User actions: **All unchanged** — expand, collapse, confirm, withdraw, cancel, Discord, game type, standin, roster tooltip
+- User actions: **All unchanged** -- expand, collapse, confirm, withdraw, cancel, Discord, game type, standin, roster tooltip
 
 ### FRONTEND SERVICES
 
@@ -82,8 +82,8 @@ async function _renderAll() {
 
     // ─── Categorize proposals ───────────────────────────────
     const currentWeekProposals = [];
-    const futureWeekGroups = {};   // weekId → proposals[]
-    const pastWeekGroups = {};     // weekId → proposals[]
+    const futureWeekGroups = {};   // weekId -> proposals[]
+    const pastWeekGroups = {};     // weekId -> proposals[]
     const archived = [];
 
     for (const p of proposals) {
@@ -96,7 +96,7 @@ async function _renderAll() {
                 if (!futureWeekGroups[p.weekId]) futureWeekGroups[p.weekId] = [];
                 futureWeekGroups[p.weekId].push(p);
             } else {
-                // Past week — still active proposal but week has passed
+                // Past week -- still active proposal but week has passed
                 if (!pastWeekGroups[p.weekId]) pastWeekGroups[p.weekId] = [];
                 pastWeekGroups[p.weekId].push(p);
             }
@@ -123,7 +123,7 @@ async function _renderAll() {
     leftColumnHtml += `
         <div class="week-group">
             <div class="week-group-header current">
-                This Week · W${String(currentWeek.weekNumber).padStart(2, '0')} · ${currentWeek.dateRange}
+                This Week - W${String(currentWeek.weekNumber).padStart(2, '0')} - ${currentWeek.dateRange}
             </div>
             <div class="space-y-2">
                 ${currentWeekProposals.length > 0
@@ -142,7 +142,7 @@ async function _renderAll() {
         leftColumnHtml += `
             <div class="week-group">
                 <div class="week-group-header">
-                    W${String(weekNum).padStart(2, '0')} · ${dateRange}
+                    W${String(weekNum).padStart(2, '0')} - ${dateRange}
                 </div>
                 <div class="space-y-2">
                     ${futureWeekGroups[weekId].map(p => _renderProposalCard(p, 'active')).join('')}
@@ -160,7 +160,7 @@ async function _renderAll() {
         leftColumnHtml += `
             <div class="week-group">
                 <div class="week-group-header past">
-                    W${String(weekNum).padStart(2, '0')} · ${dateRange}
+                    W${String(weekNum).padStart(2, '0')} - ${dateRange}
                 </div>
                 <div class="space-y-2">
                     ${pastWeekGroups[weekId].map(p => _renderProposalCard(p, 'active')).join('')}
@@ -228,7 +228,7 @@ async function _renderAll() {
 
 ## Bug Fix: Past Weeks as "Upcoming"
 
-**Root cause:** Lines 249-259 in current `_renderAll()` — the `else` branch categorizes everything that isn't `currentWeek.weekId` as "future", including past weeks.
+**Root cause:** Lines 249-259 in current `_renderAll()` -- the `else` branch categorizes everything that isn't `currentWeek.weekId` as "future", including past weeks.
 
 **Fix:** The new categorization logic (shown above) explicitly compares `p.weekId` against `currentWeek.weekId` using string comparison (`>` for future, `<` for past). Since weekIds are formatted as `YYYY-WW` with zero-padded weeks, string comparison correctly orders them.
 
@@ -247,7 +247,7 @@ COLD PATHS (<2s):
 - Availability load on expand: Firestore reads (lazy, per-card, existing)
 
 BACKEND PERFORMANCE:
-- No backend changes — N/A
+- No backend changes -- N/A
 ```
 
 ---
@@ -256,9 +256,9 @@ BACKEND PERFORMANCE:
 
 ```
 Page Load (unchanged):
-MatchesPanel.init() → _setupProposalListeners() + _setupScheduledMatchListeners()
-→ onSnapshot fires → ProposalService.updateCache() + ScheduledMatchService.updateCache()
-→ _renderAll()
+MatchesPanel.init() -> _setupProposalListeners() + _setupScheduledMatchListeners()
+-> onSnapshot fires -> ProposalService.updateCache() + ScheduledMatchService.updateCache()
+-> _renderAll()
 
 _renderAll() data flow (CHANGED):
 1. Get all proposals from cache
@@ -283,7 +283,7 @@ FRONTEND TESTS:
 - [ ] Right column header says "Scheduled Matches"
 - [ ] Empty right column shows just the header (no placeholder text)
 - [ ] Empty current week shows italic "No proposals this week" text
-- [ ] Week group headers show correct format: "W07 · Feb 16-22"
+- [ ] Week group headers show correct format: "W07 - Feb 16-22"
 - [ ] Current week header is visually distinct (brighter text)
 - [ ] Archived section still works (collapsed/expanded toggle)
 
@@ -311,34 +311,34 @@ EDGE CASES:
 
 ## Common Integration Pitfalls
 
-- [ ] **String comparison for weekIds** — `"2026-06" < "2026-07"` works because of zero-padding; verify weeks 1-9 are padded (`"2026-01"` not `"2026-1"`)
-- [ ] **WeekNavigation vs actual calendar week** — `_getCurrentWeek()` uses `WeekNavigation.getCurrentWeekNumber()` which returns the *navigated* week, not necessarily today's week. This is intentional (user may navigate to different weeks).
-- [ ] **Scheduled matches listener unchanged** — Right column still fed by `ScheduledMatchService.getUpcomingMatchesForTeams()` which filters `status='upcoming'` — no change needed
-- [ ] **Don't break event delegation** — The central `_handleClick` uses `data-action` attributes on DOM elements. New week-group wrappers must not interfere with click bubbling.
-- [ ] **Expanded card state preserved across re-renders** — `_expandedProposalId` must still work; proposal cards rendered inside week groups must keep the same `data-proposal-id` attributes.
-- [ ] **Scroll position reset on re-render** — `innerHTML` replacement resets scroll. Left column scroll position will reset on each listener update. This is existing behavior (acceptable for now).
-- [ ] **No empty state text on right column** — User explicitly said header is sufficient. Don't add placeholder text.
-- [ ] **CSS: use `.future-week-header` or new `.week-group-header`** — If reusing existing class, ensure current-week variant styling doesn't break other uses of `.future-week-header`. Recommend new class name to avoid conflict.
-- [ ] **Archived proposals: don't double-count** — Expired active proposals go to `archived`, not to past-week groups. The `expiresAt` check must happen before the week comparison.
-- [ ] **Availability pre-load still needed** — `_ensureAvailabilityLoaded()` must receive all active proposals (from all week groups), not just current week.
+- [ ] **String comparison for weekIds** -- `"2026-06" < "2026-07"` works because of zero-padding; verify weeks 1-9 are padded (`"2026-01"` not `"2026-1"`)
+- [ ] **WeekNavigation vs actual calendar week** -- `_getCurrentWeek()` uses `WeekNavigation.getCurrentWeekNumber()` which returns the *navigated* week, not necessarily today's week. This is intentional (user may navigate to different weeks).
+- [ ] **Scheduled matches listener unchanged** -- Right column still fed by `ScheduledMatchService.getUpcomingMatchesForTeams()` which filters `status='upcoming'` -- no change needed
+- [ ] **Don't break event delegation** -- The central `_handleClick` uses `data-action` attributes on DOM elements. New week-group wrappers must not interfere with click bubbling.
+- [ ] **Expanded card state preserved across re-renders** -- `_expandedProposalId` must still work; proposal cards rendered inside week groups must keep the same `data-proposal-id` attributes.
+- [ ] **Scroll position reset on re-render** -- `innerHTML` replacement resets scroll. Left column scroll position will reset on each listener update. This is existing behavior (acceptable for now).
+- [ ] **No empty state text on right column** -- User explicitly said header is sufficient. Don't add placeholder text.
+- [ ] **CSS: use `.future-week-header` or new `.week-group-header`** -- If reusing existing class, ensure current-week variant styling doesn't break other uses of `.future-week-header`. Recommend new class name to avoid conflict.
+- [ ] **Archived proposals: don't double-count** -- Expired active proposals go to `archived`, not to past-week groups. The `expiresAt` check must happen before the week comparison.
+- [ ] **Availability pre-load still needed** -- `_ensureAvailabilityLoaded()` must receive all active proposals (from all week groups), not just current week.
 
 ---
 
 ## Implementation Notes
 
 ### What Changes
-1. **`_renderAll()` in MatchesPanel.js** — Replace the categorization logic (lines 244-265) and layout template (lines 285-320)
-2. **`src/css/input.css`** — Add `.week-group-header` with `.current` and `.past` variants
+1. **`_renderAll()` in MatchesPanel.js** -- Replace the categorization logic (lines 244-265) and layout template (lines 285-320)
+2. **`src/css/input.css`** -- Add `.week-group-header` with `.current` and `.past` variants
 3. **Remove**: The `futureWeeksHtml` variable and `_renderFutureWeekGroup()` helper become unnecessary (inline into the new loop), or repurpose them
 
 ### What Does NOT Change
-- `_renderProposalCard()` — Cards render identically, just in different containers
-- `_renderUpcomingMatchCompact()` — Scheduled match rows are identical
-- `_renderArchivedSection()` — Same collapsed section at bottom
-- `_renderExpandedProposal()` — Expanded card content unchanged
-- All event handlers — Same delegation pattern
-- All Firestore listeners — Same queries
-- All services — No API changes
+- `_renderProposalCard()` -- Cards render identically, just in different containers
+- `_renderUpcomingMatchCompact()` -- Scheduled match rows are identical
+- `_renderArchivedSection()` -- Same collapsed section at bottom
+- `_renderExpandedProposal()` -- Expanded card content unchanged
+- All event handlers -- Same delegation pattern
+- All Firestore listeners -- Same queries
+- All services -- No API changes
 
 ### Files Touched
 | File | Change |

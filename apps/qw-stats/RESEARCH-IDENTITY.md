@@ -1,8 +1,8 @@
-# RESEARCH-IDENTITY.md — Player Alias Resolution
+# RESEARCH-IDENTITY.md -- Player Alias Resolution
 
 ## Problem Statement
 
-2,355 unique `player_name_normalized` values represent ~800-1,000 real people. QWHub does NOT do identity resolution. The `login` field is mostly empty. Players change names freely — "valla" and "nitram" are the same person, but nothing in the data tells us that directly.
+2,355 unique `player_name_normalized` values represent ~800-1,000 real people. QWHub does NOT do identity resolution. The `login` field is mostly empty. Players change names freely -- "valla" and "nitram" are the same person, but nothing in the data tells us that directly.
 
 **Constraint:** False merges are catastrophically worse than false splits. Merging two different players corrupts every stat derived from both. Leaving two names unlinked just means slightly incomplete profiles.
 
@@ -12,7 +12,7 @@
 
 ### 1. Cannot-Link: Co-occurrence in Same Game (STRONGEST)
 
-Two names in the same match are **definitively** different people. This is binary, error-free, and our most valuable signal. It eliminates false merges — no amount of name similarity or stat similarity can override this.
+Two names in the same match are **definitively** different people. This is binary, error-free, and our most valuable signal. It eliminates false merges -- no amount of name similarity or stat similarity can override this.
 
 **Implementation:** Build a co-occurrence matrix from `game_players`. For any candidate pair, check if they ever shared a `game_id`. If yes, they are guaranteed different people.
 
@@ -57,7 +57,7 @@ The killer feature for cases where names share zero characters. Every player has
 - **Minimum sample:** Names with <10 games produce unreliable profiles. Skip stat comparison for those.
 - **Team role:** A player might carry on one team and support on another. Solution: weight role-invariant features (accuracy) higher than role-dependent features (item control).
 
-**Academic backing:** Riot Games uses behavioral fingerprinting for VALORANT smurf detection — dropped smurf counts ~17%. IEEE 2024 papers confirm in-game behavioral biometrics work for player identification in competitive FPS.
+**Academic backing:** Riot Games uses behavioral fingerprinting for VALORANT smurf detection -- dropped smurf counts ~17%. IEEE 2024 papers confirm in-game behavioral biometrics work for player identification in competitive FPS.
 
 ### 4. Team Succession (HIGH)
 
@@ -68,7 +68,7 @@ If "name_a" disappears from team X and "name_b" appears on team X around the sam
 -- Find temporal gaps in team roster
 -- name_a's last game on team X: 2024-06-15
 -- name_b's first game on team X: 2024-06-22
--- No overlap → candidate pair
+-- No overlap -> candidate pair
 ```
 
 Combine with stat similarity for high-confidence matches.
@@ -82,22 +82,22 @@ Catches variants (paradoks/paradokz, xantom/xantoom) but misses creative changes
 | Level | Criteria | Evidence Strength |
 |-------|----------|-------------------|
 | 1 (exact) | Core names identical | Very high |
-| 2 (near) | Jaro-Winkler ≥ 0.92 | High |
-| 3 (moderate) | Jaro-Winkler ≥ 0.80 OR bigram Dice ≥ 0.70 | Medium |
+| 2 (near) | Jaro-Winkler >= 0.92 | High |
+| 3 (moderate) | Jaro-Winkler >= 0.80 OR bigram Dice >= 0.70 | Medium |
 | 4 (phonetic) | Same Double Metaphone code | Low-Medium |
 | 5 (else) | Below all thresholds | Negative (evidence of different person) |
 
 **QW-specific preprocessing before comparison:**
 1. Strip clan tags: `[tag]name`, `name[tag]`, `{tag}name`, `.tag.name`, `-tag-name`
-2. Leetspeak normalization: 4→a, 3→e, 0→o, 1→i, 5→s, 7→t
-3. Strip decorators: leading/trailing dots, underscores, x's (`xXnameXx` → `name`)
-4. Result = "core name" — compare this, not the raw normalized name
+2. Leetspeak normalization: 4->a, 3->e, 0->o, 1->i, 5->s, 7->t
+3. Strip decorators: leading/trailing dots, underscores, x's (`xXnameXx` -> `name`)
+4. Result = "core name" -- compare this, not the raw normalized name
 
 **Why Jaro-Winkler over Levenshtein:** Prefix weighting is ideal for gaming aliases where players keep recognizable prefixes but change suffixes. Score is naturally [0,1]. Fewer false positives on short strings.
 
 ### 6. Temporal Exclusion (MEDIUM)
 
-Two names that NEVER appear in the same game and have non-overlapping activity periods are more likely the same person. Necessary but not sufficient — many players simply stopped playing.
+Two names that NEVER appear in the same game and have non-overlapping activity periods are more likely the same person. Necessary but not sufficient -- many players simply stopped playing.
 
 ### 7. Phonetic Similarity (LOW)
 
@@ -113,8 +113,8 @@ The foundational framework for probabilistic record linkage (1969). For each can
 
 **How it works:**
 - For each comparison field (name similarity, stat similarity, team overlap, temporal pattern), estimate:
-  - **m-probability:** P(field agrees | true match) — how often matching records agree on this field
-  - **u-probability:** P(field agrees | non-match) — how often random non-matching records agree by chance
+  - **m-probability:** P(field agrees | true match) -- how often matching records agree on this field
+  - **u-probability:** P(field agrees | non-match) -- how often random non-matching records agree by chance
 - Match weight per field:
   - Agreement: w = log2(m/u)
   - Disagreement: w = log2((1-m)/(1-u))
@@ -123,7 +123,7 @@ The foundational framework for probabilistic record linkage (1969). For each can
 
 **Key properties:**
 - Equivalent to Naive Bayes classification under conditional independence
-- Parameters estimated via EM (Expectation-Maximization) — **fully unsupervised, no training data needed**
+- Parameters estimated via EM (Expectation-Maximization) -- **fully unsupervised, no training data needed**
 - The "clerical review zone" maps directly to our "human review" requirement
 - Can incorporate graduated comparison levels (not just binary agree/disagree): "exact match / JW > 0.9 / JW > 0.7 / else" each get their own m/u probabilities
 - Term frequency adjustments: agreeing on a rare name ("xantom") is stronger evidence than agreeing on a common name
@@ -142,10 +142,10 @@ After pairwise scoring, we need to group names into identity clusters. Leiden is
 |----------|---------|--------|
 | Well-connected communities | No (up to 25% badly connected) | Yes (guaranteed) |
 | Resolution limit | Yes (merges small clusters) | No (with CPM quality function) |
-| Small cluster detection | Poor | Good — detects our typical 2-3 name alias sets |
+| Small cluster detection | Poor | Good -- detects our typical 2-3 name alias sets |
 | Speed | Fast | Faster |
 
-The **CPM (Constant Potts Model)** quality function is critical. Unlike modularity, CPM has no resolution limit — it can detect clusters of 2-3 nodes without merging them into larger groups. This is exactly our use case: most players have 1-4 aliases.
+The **CPM (Constant Potts Model)** quality function is critical. Unlike modularity, CPM has no resolution limit -- it can detect clusters of 2-3 nodes without merging them into larger groups. This is exactly our use case: most players have 1-4 aliases.
 
 **Cannot-link enforcement:** After clustering, validate that no cluster contains names that co-occurred in the same game. Split any violating cluster. This is simpler and more transparent than incorporating constraints into the clustering algorithm itself.
 
@@ -169,7 +169,7 @@ Phase 2: Blocking (Candidate Generation)
   ├── Phonetic blocks (Double Metaphone code)
   ├── Team co-occurrence blocks (ever on same team)
   ├── Stat-profile blocks (similar skill tier + weapon preference cluster)
-  └── UNION all blocks → candidate pairs
+  └── UNION all blocks -> candidate pairs
       (At 2,355 names, all-pairs is feasible as fallback: ~2.77M pairs)
 
 Phase 3: Pairwise Scoring (Fellegi-Sunter)
@@ -178,7 +178,7 @@ Phase 3: Pairwise Scoring (Fellegi-Sunter)
   ├── Team overlap (Jaccard of team sets)
   ├── Temporal pattern (activity overlap vs succession score)
   ├── Cannot-link check (instant rejection if co-occurred in game)
-  └── Combined FS score → match probability per pair
+  └── Combined FS score -> match probability per pair
 
 Phase 4: Clustering (Leiden)
   ├── Build weighted graph: nodes=names, edges=match probability
@@ -193,9 +193,9 @@ Phase 5: Human Review
   └── Present evidence to reviewer: names, teams, stat comparison, timeline
 
 Phase 6: Iterate (3-4 cycles)
-  ├── Confirmed merges → must-link constraints
-  ├── Confirmed splits → cannot-link constraints
-  ├── Re-run FS with updated constraints → better scores
+  ├── Confirmed merges -> must-link constraints
+  ├── Confirmed splits -> cannot-link constraints
+  ├── Re-run FS with updated constraints -> better scores
   └── Converges when review queue is empty
 ```
 
@@ -207,10 +207,10 @@ Phase 6: Iterate (3-4 cycles)
 
 | Metric | How It Works | QW Suitability | Best For |
 |--------|-------------|----------------|----------|
-| **Levenshtein** | Min edits (insert/delete/substitute) | OK — poor on short strings | Typos, minor variations |
-| **Jaro-Winkler** | Matching chars + transpositions + prefix bonus | **Best** — prefix weighting ideal for aliases | Primary name comparator |
-| **Bigram Dice** | Overlap of character bigrams | Good — order-insensitive | Clan tag reordering |
-| **Double Metaphone** | Phonetic encoding (2 codes per word) | Low — fails on numbers/leetspeak | Supplementary blocking |
+| **Levenshtein** | Min edits (insert/delete/substitute) | OK -- poor on short strings | Typos, minor variations |
+| **Jaro-Winkler** | Matching chars + transpositions + prefix bonus | **Best** -- prefix weighting ideal for aliases | Primary name comparator |
+| **Bigram Dice** | Overlap of character bigrams | Good -- order-insensitive | Clan tag reordering |
+| **Double Metaphone** | Phonetic encoding (2 codes per word) | Low -- fails on numbers/leetspeak | Supplementary blocking |
 
 **Recommendations:**
 - Primary metric: **Jaro-Winkler** with threshold 0.85 for blocking, 0.92 for high confidence
@@ -269,7 +269,7 @@ This directly implements: "start with community-contributed known aliases, propa
 
 ### Feature Vector Construction
 
-From `game_players` data, for each `player_name_normalized` with ≥10 games:
+From `game_players` data, for each `player_name_normalized` with >=10 games:
 
 ```
 Weapon Preference (6D, normalized to sum=1):
@@ -326,7 +326,7 @@ Weight the stable features higher in the fingerprint comparison.
 | Platform | Approach | Automated? | Scale | Relevance |
 |----------|----------|------------|-------|-----------|
 | **HLTV** | Manual editorial + numeric player IDs | No | ~3K pros | Similar scale, manual curation works |
-| **Liquipedia** | Community wiki + structured alias pages | No | Thousands | Closest model — community-driven |
+| **Liquipedia** | Community wiki + structured alias pages | No | Thousands | Closest model -- community-driven |
 | **Steam** | Immutable SteamID + name history | Yes (account system) | Millions | QW lacks reliable account IDs |
 | **FACEIT** | Account linking via Steam ID | Yes | Millions | Account-based, not applicable |
 | **Riot/Valorant** | Behavioral ML smurf detection | Yes (fully) | Millions | Stat fingerprinting directly applies |
@@ -341,16 +341,16 @@ Weight the stable features higher in the fingerprint comparison.
 ### The Virtuous Cycle
 
 ```
-1. Bootstrap → unsupervised FS model finds initial high-confidence merges
-2. Validate → community reviewers confirm or reject
-3. Seed → confirmed merges become must-link, rejections become cannot-link
-4. Retrain → re-run model with new constraints, better scores
-5. Repeat → each cycle improves quality, 3-4 cycles to convergence
+1. Bootstrap -> unsupervised FS model finds initial high-confidence merges
+2. Validate -> community reviewers confirm or reject
+3. Seed -> confirmed merges become must-link, rejections become cannot-link
+4. Retrain -> re-run model with new constraints, better scores
+5. Repeat -> each cycle improves quality, 3-4 cycles to convergence
 ```
 
 ### Active Learning
 
-Instead of randomly selecting pairs for review, select the **most informative** pairs — those where the model is most uncertain (closest to the match/non-match decision boundary).
+Instead of randomly selecting pairs for review, select the **most informative** pairs -- those where the model is most uncertain (closest to the match/non-match decision boundary).
 
 **Review interface should present:**
 ```
@@ -360,7 +360,7 @@ Instead of randomly selecting pairs for review, select the **most informative** 
 
  Model confidence: 0.72 (uncertain)
  Evidence: Name JW 0.72, Same team ]sr[, Stat cosine 0.89
- Co-occurrence check: NEVER in same game ✓
+ Co-occurrence check: NEVER in same game [ok]
 
  [Merge] [Split] [Unsure]
 ```
@@ -381,19 +381,19 @@ SystemER (Qian et al., 2019) learns human-comprehensible rules for entity resolu
 
 ### Phase 1: Quick Wins (Immediate Value)
 
-1. **Build co-occurrence matrix** — the cannot-link set. Computationally cheap, immediately useful for validation.
+1. **Build co-occurrence matrix** -- the cannot-link set. Computationally cheap, immediately useful for validation.
 
-2. **Name variant detection** — Run Jaro-Winkler on all core names with threshold ≥ 0.92. Cross-check against cannot-link set. Catches paradoks/paradokz, xantom/xantoom type variants.
+2. **Name variant detection** -- Run Jaro-Winkler on all core names with threshold >= 0.92. Cross-check against cannot-link set. Catches paradoks/paradokz, xantom/xantoom type variants.
 
-3. **Community seed collection** — Create simple alias table from QWiki + community input. Even 50 confirmed pairs dramatically improve everything downstream.
+3. **Community seed collection** -- Create simple alias table from QWiki + community input. Even 50 confirmed pairs dramatically improve everything downstream.
 
 **Expected yield:** 100-200 obvious merges eliminating simple spelling variants.
 
 ### Phase 2: Stat Fingerprinting (Creative Aliases)
 
-1. Compute map-residualized stat profiles for all names with ≥10 games (~500-700 names)
+1. Compute map-residualized stat profiles for all names with >=10 games (~500-700 names)
 2. Compute pairwise cosine similarity within blocking groups
-3. High-similarity pairs (>0.93) that pass cannot-link check → review queue
+3. High-similarity pairs (>0.93) that pass cannot-link check -> review queue
 4. Community validation of candidates
 
 **Expected yield:** 50-100 additional merges (the valla/nitram type cases).
@@ -439,7 +439,7 @@ When querying stats, JOIN through `player_aliases` to aggregate across all names
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| **[Splink](https://github.com/moj-analytical-services/splink)** | Probabilistic record linkage | FS model, blocking, EM — our primary tool |
+| **[Splink](https://github.com/moj-analytical-services/splink)** | Probabilistic record linkage | FS model, blocking, EM -- our primary tool |
 | **[RapidFuzz](https://github.com/maxbachmann/RapidFuzz)** | Fast Jaro-Winkler + Levenshtein | C++ backend, handles scale |
 | **[scikit-learn](https://scikit-learn.org)** | Cosine similarity, PCA, z-score | Stat fingerprinting |
 | **[leidenalg](https://leidenalg.readthedocs.io/)** + **[igraph](https://igraph.org/)** | Leiden clustering with CPM | Community detection |
@@ -459,17 +459,17 @@ When querying stats, JOIN through `player_aliases` to aggregate across all names
 ## Key References
 
 ### Must-Read
-1. Binette & Steorts (2022). ["(Almost) All of Entity Resolution"](https://pmc.ncbi.nlm.nih.gov/articles/PMC11636688/) — Comprehensive survey of the field
-2. Traag et al. (2019). ["From Louvain to Leiden"](https://www.nature.com/articles/s41598-019-41695-z) — Why Leiden > Louvain for small clusters
-3. Riot Games. ["Smurf Detection"](https://playvalorant.com/en-us/news/dev/valorant-systems-health-series-smurf-detection/) — Behavioral fingerprinting in production
+1. Binette & Steorts (2022). ["(Almost) All of Entity Resolution"](https://pmc.ncbi.nlm.nih.gov/articles/PMC11636688/) -- Comprehensive survey of the field
+2. Traag et al. (2019). ["From Louvain to Leiden"](https://www.nature.com/articles/s41598-019-41695-z) -- Why Leiden > Louvain for small clusters
+3. Riot Games. ["Smurf Detection"](https://playvalorant.com/en-us/news/dev/valorant-systems-health-series-smurf-detection/) -- Behavioral fingerprinting in production
 
 ### Implementation
-4. [Splink Documentation](https://moj-analytical-services.github.io/splink/index.html) — Primary tool
-5. [Splink: Fellegi-Sunter Theory](https://moj-analytical-services.github.io/splink/topic_guides/theory/fellegi_sunter.html) — Math behind the model
-6. [Dedupe Documentation](https://docs.dedupe.io/) — Alternative with active learning
+4. [Splink Documentation](https://moj-analytical-services.github.io/splink/index.html) -- Primary tool
+5. [Splink: Fellegi-Sunter Theory](https://moj-analytical-services.github.io/splink/topic_guides/theory/fellegi_sunter.html) -- Math behind the model
+6. [Dedupe Documentation](https://docs.dedupe.io/) -- Alternative with active learning
 
 ### Behavioral Biometrics
-7. ["Fair Play and Identity: In-Game Behavioral Biometrics"](https://ieeexplore.ieee.org/document/11114281/) — IEEE, 2024
+7. ["Fair Play and Identity: In-Game Behavioral Biometrics"](https://ieeexplore.ieee.org/document/11114281/) -- IEEE, 2024
 8. ["Game Telemetry as Biometric Signatures"](https://videogamedatascience.medium.com/game-telemetry-as-biometric-signatures-39f42841373d)
 
 ### Foundational
@@ -490,11 +490,11 @@ When querying stats, JOIN through `player_aliases` to aggregate across all names
 
 The alias resolution problem is well-suited to established record linkage techniques because:
 
-1. **Small scale** (2,355 names) — can afford expensive computations, even all-pairs comparison
-2. **Rich per-game stats** — behavioral fingerprinting that most ER problems lack
-3. **Cannot-link constraints** (co-occurrence) — uniquely powerful and error-free
-4. **Community knowledge** — can seed and validate the system
-5. **Conservative bias** (prefer false splits) — aligns with Fellegi-Sunter's clerical review zone
+1. **Small scale** (2,355 names) -- can afford expensive computations, even all-pairs comparison
+2. **Rich per-game stats** -- behavioral fingerprinting that most ER problems lack
+3. **Cannot-link constraints** (co-occurrence) -- uniquely powerful and error-free
+4. **Community knowledge** -- can seed and validate the system
+5. **Conservative bias** (prefer false splits) -- aligns with Fellegi-Sunter's clerical review zone
 
 **Start with Phase 1** (name variants + community seeds + co-occurrence matrix). Delivers immediate value with minimal infrastructure. Build toward the full Fellegi-Sunter + Leiden pipeline as the alias table grows.
 
@@ -502,7 +502,7 @@ The alias resolution problem is well-suited to established record linkage techni
 
 ---
 
-## 15. Field Notes — What Actually Works (Feb 2026)
+## 15. Field Notes -- What Actually Works (Feb 2026)
 
 After the first real curation session (walking through oeks, HX rosters with ParadokS), here's how the researched signals performed in practice:
 
@@ -510,37 +510,37 @@ After the first real curation session (walking through oeks, HX rosters with Par
 
 | Signal | Research Rank | Practical Value | Example |
 |--------|-------------|-----------------|---------|
-| **Co-occurrence (cannot-link)** | #1 | Essential — the gatekeeper | Caught shazam ≠ sham (16 shared games) that name similarity would've false-merged |
-| **Community knowledge (must-link)** | #2 | Dominant for hard cases | realpit=medic, tco=thechosenone, zamsha=shazam — zero name similarity, no algorithm catches these |
-| **Team succession** | #4 | Surprisingly powerful | medic vanishes from HX Apr 2024, realpit appears on HX Apr 2024 — obvious to a human scanning a roster |
+| **Co-occurrence (cannot-link)** | #1 | Essential -- the gatekeeper | Caught shazam != sham (16 shared games) that name similarity would've false-merged |
+| **Community knowledge (must-link)** | #2 | Dominant for hard cases | realpit=medic, tco=thechosenone, zamsha=shazam -- zero name similarity, no algorithm catches these |
+| **Team succession** | #4 | Surprisingly powerful | medic vanishes from HX Apr 2024, realpit appears on HX Apr 2024 -- obvious to a human scanning a roster |
 | **Core name extraction + Jaro-Winkler** | #5 | High volume, low effort | 118 exact core name groups found automatically (leetspeak, decorators, clan tags) |
 
 ### Signals Not Yet Needed
 
 | Signal | Research Rank | Status | When It's Needed |
 |--------|-------------|--------|-----------------|
-| **Behavioral fingerprinting** | #3 | Unused so far | Phase 2 — for creative aliases where names share zero characters (valla/nitram type) |
-| **Fellegi-Sunter model** | Core framework | Overkill for current scale | Phase 3 — when automating thousands of candidate pairs without a human curator |
-| **Leiden clustering** | Clustering step | Not needed yet | Phase 3 — when building clusters from automated pairwise scores |
+| **Behavioral fingerprinting** | #3 | Unused so far | Phase 2 -- for creative aliases where names share zero characters (valla/nitram type) |
+| **Fellegi-Sunter model** | Core framework | Overkill for current scale | Phase 3 -- when automating thousands of candidate pairs without a human curator |
+| **Leiden clustering** | Clustering step | Not needed yet | Phase 3 -- when building clusters from automated pairwise scores |
 | **Phonetic matching** | #7 (weakest) | Likely never needed | QW names are leetspeak/creative, not phonetic variants |
 
 ### Key Insight
 
 With a community of ~1,000 real people and a knowledgeable curator, **human-in-the-loop dominates automated methods**. The first session confirmed 6 identity clusters (~7,871 games) and 14 auto-detected clusters using only co-occurrence checks, core name matching, and domain knowledge. No ML, no probabilistic models, no graph clustering needed.
 
-The fancy tools (FS, Leiden, stat fingerprinting) are insurance for the **long tail** — the 200-300 players the curator doesn't personally know. They remain in the toolkit for Phase 2-3 but shouldn't be the focus.
+The fancy tools (FS, Leiden, stat fingerprinting) are insurance for the **long tail** -- the 200-300 players the curator doesn't personally know. They remain in the toolkit for Phase 2-3 but shouldn't be the focus.
 
 ### Revised Signal Ranking (Empirical)
 
 ```
-1. Co-occurrence (cannot-link)     — binary, error-free, non-negotiable gate
-2. Community knowledge (must-link) — catches what no algorithm can
-3. Team succession + roster scan   — visual pattern matching on clan rosters
-4. Core name extraction + JW       — automated bulk, high confidence
-5. Stat profile eyeballing         — human noticed medic≠hmm via eff% difference
+1. Co-occurrence (cannot-link)     -- binary, error-free, non-negotiable gate
+2. Community knowledge (must-link) -- catches what no algorithm can
+3. Team succession + roster scan   -- visual pattern matching on clan rosters
+4. Core name extraction + JW       -- automated bulk, high confidence
+5. Stat profile eyeballing         -- human noticed medic!=hmm via eff% difference
 ─── diminishing returns line ───
-6. Behavioral fingerprinting       — for creative aliases (Phase 2)
-7. Fellegi-Sunter automation       — for scale (Phase 3)
-8. Leiden clustering               — for scale (Phase 3)
-9. Phonetic matching               — probably never
+6. Behavioral fingerprinting       -- for creative aliases (Phase 2)
+7. Fellegi-Sunter automation       -- for scale (Phase 3)
+8. Leiden clustering               -- for scale (Phase 3)
+9. Phonetic matching               -- probably never
 ```

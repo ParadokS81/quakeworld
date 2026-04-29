@@ -53,7 +53,7 @@ fires as before because there is no "later" tag to reveal source presence.
 - Loader fixes shipped this session: cmdline manifest-fallback citation (params declared but not COM_CheckParm'd), case-fold dict-key merge (loadFragfile vs loadfragfile, HUD262_* family, -forceTextureReload), per-version retirement detection.
 - FTE / MVDSV / KTX: not started.
 
-## Cliffs ahead — ezQuake deep-time walk (3.0 → 3.6.0)
+## Cliffs ahead -- ezQuake deep-time walk (3.0 -> 3.6.0)
 
 Walking back to 2016 (commit history goes to ~3.0) will surface structural shapes the current marathon hasn't tested. None of these are blockers; each is "watch for, address when grid surfaces it."
 
@@ -81,7 +81,7 @@ Cvars and commands get renamed across years. The schema has `entities.predecesso
 
 What to watch for: a deletion at tag N alongside a creation at tag N+1 with similar name. The skill clusters these; operator decides if it's a rename or coincidence. Rename annotation is manual but bounded; one rename = one operator decision.
 
-### 5. Per-version source_state — RESOLVED 2026-04-25
+### 5. Per-version source_state -- RESOLVED 2026-04-25
 
 Schema gap surfaced and resolved in same session. Loading 3.2.3 surfaced 17 entities (11 cvar + 5 command + 1 cmdline_param) source-backed at older tags but only doc_only at modern tags (`gl_motion_blur` family, `gl_particle_fasttrails`, `r_glstats`, `showram`, `sv_enableprofile`, etc.). Resolution went with Path 2: per-version retirement transitions (`source_retired_at_version`) on the existing `source_state_transitions` log. Entity-level `source_state` stays meaningful as "was real at some loaded version"; the per-version biography lives on the transition rows. Schema v9 widens the reason CHECK; loader runs the retirement scan after each orphan-prune; quality-grid F2 probe filters NULL rows that are explained by either retirement (at-or-before the row) or backfill_match (strictly-after the row, for the inverse "introduced at version X" case).
 
@@ -93,7 +93,7 @@ The extraction infrastructure is project-keyed. Adding a new engine = writing en
 
 ### FTE (Phase 2d)
 
-First port. Biggest structural risk: codebase layout differs (`engine/client/`, `engine/server/`). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signalling the extractor must emit repo-relative paths directly. Macro-heavy codebase (regex extraction historically painful — see Phase 2 motivation in `project_extraction_pipeline_vision` memory).
+First port. Biggest structural risk: codebase layout differs (`engine/client/`, `engine/server/`). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signalling the extractor must emit repo-relative paths directly. Macro-heavy codebase (regex extraction historically painful -- see Phase 2 motivation in `project_extraction_pipeline_vision` memory).
 
 ### MVDSV + KTX (Phase 2e)
 
@@ -108,8 +108,8 @@ Not yet cloned to `research/repos/`. Add when scoping Phase 2e.
 
 These are roadmapped but should not be pulled forward without an explicit blocker forcing them:
 
-- **Phase 2g — MCP tool upgrades**: `version` parameter on `lookup_entity`, new `get_entity_history` tool, etc. Wait until an active consumer needs version-aware queries.
-- **Phase 2h — automation**: scheduled job to detect new tags, run delta extraction, enrich. Wait until manual cadence becomes a friction.
+- **Phase 2g -- MCP tool upgrades**: `version` parameter on `lookup_entity`, new `get_entity_history` tool, etc. Wait until an active consumer needs version-aware queries.
+- **Phase 2h -- automation**: scheduled job to detect new tags, run delta extraction, enrich. Wait until manual cadence becomes a friction.
 - **Slipgate-app refactor to consume new data**: deferred by operator. Phase 2 builds the foundation; consumption follows when foundation is complete.
 - **dusty-ktx QuakeC client module** (`qcsrc/`): different language. Separate spike.
 

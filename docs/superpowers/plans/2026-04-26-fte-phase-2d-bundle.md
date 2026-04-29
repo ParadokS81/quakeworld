@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the FTE asset-extraction layer in qw-oracle — two AST handlers + five hand-authored seed YAMLs + a path-rules verifier — and produce `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json` consumable by slipgate's directory scanner. Mirrors the existing ezQuake stack at `apps/qw-oracle/scripts/extractors/ezquake/`.
+**Goal:** Build the FTE asset-extraction layer in qw-oracle -- two AST handlers + five hand-authored seed YAMLs + a path-rules verifier -- and produce `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json` consumable by slipgate's directory scanner. Mirrors the existing ezQuake stack at `apps/qw-oracle/scripts/extractors/ezquake/`.
 
-**Architecture:** Two new Visitor handlers (`_handler_asset_loader_sites.py`, `_handler_asset_cvar_bindings.py`) live alongside the existing FTE handlers at `apps/qw-oracle/scripts/extractors/fte/`. Five seed YAMLs at `fte/seeds/` capture FTE's category taxonomy, extension surface, search-path behavior, cvar bindings, and client-defaults. The existing project-parameterized `buildAssetBundle` (`apps/qw-oracle/scripts/load-knowledge/build-asset-bundle.ts`) reads `<project>-*` files automatically — no edits needed. extract-tag picks up the new bundle once `PROJECT_HAS_ASSET_BUNDLE.fte` flips to `true` and `ENTITY_JSON_FILES.fte.asset_category` is populated.
+**Architecture:** Two new Visitor handlers (`_handler_asset_loader_sites.py`, `_handler_asset_cvar_bindings.py`) live alongside the existing FTE handlers at `apps/qw-oracle/scripts/extractors/fte/`. Five seed YAMLs at `fte/seeds/` capture FTE's category taxonomy, extension surface, search-path behavior, cvar bindings, and client-defaults. The existing project-parameterized `buildAssetBundle` (`apps/qw-oracle/scripts/load-knowledge/build-asset-bundle.ts`) reads `<project>-*` files automatically -- no edits needed. extract-tag picks up the new bundle once `PROJECT_HAS_ASSET_BUNDLE.fte` flips to `true` and `ENTITY_JSON_FILES.fte.asset_category` is populated.
 
-**Tech stack:** Python 3 + libclang 18 (handlers), TypeScript + Bun (loader + verifier integration), js-yaml (seed parsing), SQLite via better-sqlite3 (storage). Schema delta: zero — all changes are additive at the data level.
+**Tech stack:** Python 3 + libclang 18 (handlers), TypeScript + Bun (loader + verifier integration), js-yaml (seed parsing), SQLite via better-sqlite3 (storage). Schema delta: zero -- all changes are additive at the data level.
 
 ---
 
@@ -14,11 +14,11 @@
 
 Read this section before starting. These gotchas are not optional knowledge.
 
-1. **No schema changes.** Phase 2d-bundle is a data-only delivery. The five asset-related tables (`asset_categories`, `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`) already accommodate FTE — `project` CHECK includes `'fte'` since v10. Do not invent schema additions. If you find yourself wanting one, reread the spec section "Schema delta" before proceeding.
+1. **No schema changes.** Phase 2d-bundle is a data-only delivery. The five asset-related tables (`asset_categories`, `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`) already accommodate FTE -- `project` CHECK includes `'fte'` since v10. Do not invent schema additions. If you find yourself wanting one, reread the spec section "Schema delta" before proceeding.
 
 2. **buildAssetBundle is already project-parameterized.** `apps/qw-oracle/scripts/load-knowledge/build-asset-bundle.ts:149` takes `options.project: Project` and resolves every input path via the project name. Phase 1 succeeds by providing `fte-asset-categories.yaml` etc.; do not modify build-asset-bundle.ts.
 
-3. **AST-first authoring order.** Per the spec, the seeds are authored AFTER the loader-sites handler runs and produces a research-artifact JSON. The Phase 1 task order reflects this. Do not write seed YAMLs first — you will guess wrong about which categories actually appear in FTE source.
+3. **AST-first authoring order.** Per the spec, the seeds are authored AFTER the loader-sites handler runs and produces a research-artifact JSON. The Phase 1 task order reflects this. Do not write seed YAMLs first -- you will guess wrong about which categories actually appear in FTE source.
 
 4. **Phase 1 commits twice.** Operator-mandated checkpoint. Commit 1 lands the handlers + raw extractor output (research artifact). Commit 2 lands the seeds + bundle. This produces a natural review surface between observing reality and curating it.
 
@@ -40,11 +40,11 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 6. **FTE has six archive backends.** `engine/common/fs_pak.c` (.pak), `fs_zip.c` (.pk3/.pk4/.zip), `fs_dzip.c` (.dz demos), `fs_xz.c` (.xz downloads), `fs_stdio.c` (raw OS fs), `fs_win32.c` (Windows native). vs ezQuake's two (pak + pk3). Path-rules seed (Task 1.9) must capture pk4 > pk3 > pak archive precedence and the `numbered before wildcard` ordering convention.
 
-7. **Plugin source roots are already wired.** `extract.py` SOURCE_ROOTS contains `engine`, `plugin:ezhud`, and `plugin:ezscript` (the last added 2026-04-26 for sub-thread #3). The new asset handlers run against all three roots — no extract.py SOURCE_ROOTS edit needed. ezhud calls `Draw_CachePicSafe`-family loaders for HUD images; ezscript has zero asset loader call sites and emits no rows.
+7. **Plugin source roots are already wired.** `extract.py` SOURCE_ROOTS contains `engine`, `plugin:ezhud`, and `plugin:ezscript` (the last added 2026-04-26 for sub-thread #3). The new asset handlers run against all three roots -- no extract.py SOURCE_ROOTS edit needed. ezhud calls `Draw_CachePicSafe`-family loaders for HUD images; ezscript has zero asset loader call sites and emits no rows.
 
-8. **Mirror, don't refactor.** The two existing ezQuake handlers (`extractor_lib/handler_asset_loader_sites.py`, `extractor_lib/handler_asset_cvar_bindings.py`) live in `extractor_lib/` for historical reasons but contain ezQuake-specific constants. Do NOT lift them into a shared base class for FTE — copy verbatim into `fte/_handler_asset_*.py` with FTE constants. If MVDSV/KTX makes a 3rd copy painful later, that's the trigger to refactor; not now. (Spec § 3.)
+8. **Mirror, don't refactor.** The two existing ezQuake handlers (`extractor_lib/handler_asset_loader_sites.py`, `extractor_lib/handler_asset_cvar_bindings.py`) live in `extractor_lib/` for historical reasons but contain ezQuake-specific constants. Do NOT lift them into a shared base class for FTE -- copy verbatim into `fte/_handler_asset_*.py` with FTE constants. If MVDSV/KTX makes a 3rd copy painful later, that's the trigger to refactor; not now. (Spec Section  3.)
 
-9. **Path-rules verifier is its own ~50-line port.** `apps/qw-oracle/scripts/extractors/ezquake/asset-path-rules-verify.py` parses each path-rules-seed `source_ref`, opens the file, confirms the cited line falls in the expected function. FTE needs a sibling at `fte/asset-path-rules-verify.py` because FTE's source layout is different (engine/common/fs.c vs ezQuake's src/fs.c). Do not generalize — copy and adapt to FTE's path conventions.
+9. **Path-rules verifier is its own ~50-line port.** `apps/qw-oracle/scripts/extractors/ezquake/asset-path-rules-verify.py` parses each path-rules-seed `source_ref`, opens the file, confirms the cited line falls in the expected function. FTE needs a sibling at `fte/asset-path-rules-verify.py` because FTE's source layout is different (engine/common/fs.c vs ezQuake's src/fs.c). Do not generalize -- copy and adapt to FTE's path conventions.
 
 10. **buildAssetBundle expects the verifier's output JSON.** `build-asset-bundle.ts:188` reads `<project>-asset-path-rules-verified.json` from the project's `output/` dir. Without this file, the bundle build fails. Phase 2 wires the verifier into extract-tag as a step before buildAssetBundle.
 
@@ -52,7 +52,7 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 12. **Bundle output goes to slipgate-app/src/lib/config/data/.** Per `DEFAULT_BUNDLE_OUTPUT_DIR` in build-asset-bundle.ts. The file is a build artifact at that path; no slipgate code is touched. ezQuake's bundle is already there. This does NOT violate the dispatch's "no apps/slipgate-app/" rule because we are writing a producer-side data file, not application code.
 
-13. **No TypeScript test harness for the bundle today.** ezQuake had `packages/qw-config/tests/asset-bundle-shape.test.ts` historically; that legacy package was dissolved. Bundle-shape verification for FTE happens via quality-grid probes (Phase 2) and a bun:test smoke test under `apps/qw-oracle/tests/` if one is added — only if simple enough to fit on top of existing infra. Default: skip the TS test, rely on quality-grid + manual SQL spot-checks.
+13. **No TypeScript test harness for the bundle today.** ezQuake had `packages/qw-config/tests/asset-bundle-shape.test.ts` historically; that legacy package was dissolved. Bundle-shape verification for FTE happens via quality-grid probes (Phase 2) and a bun:test smoke test under `apps/qw-oracle/tests/` if one is added -- only if simple enough to fit on top of existing infra. Default: skip the TS test, rely on quality-grid + manual SQL spot-checks.
 
 14. **Quality-grid F1 + F2 probes go in `quality-grid.ts` next to existing FTE probes.** That file already has FTE-specific count probes (cvars 2482, commands 556, etc.). Add asset-table count + anomaly probes following the same pattern.
 
@@ -68,7 +68,7 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 **Decision:** Two new files at `apps/qw-oracle/scripts/extractors/fte/`: `_handler_asset_loader_sites.py` and `_handler_asset_cvar_bindings.py`. Each is a near-mirror of the corresponding `extractor_lib/handler_asset_*.py` with FTE-specific constants (LOADER_FUNCTIONS, FUNCTION_TO_CATEGORY, EXT_TO_CATEGORY, ENCLOSING_FN_CATEGORY_RULES, TRIGGER_RULES). Helper functions (format-call detection, buffer-write lookup, deref-assignment classifier) are copied verbatim.
 
-**Why:** ezQuake's handlers were authored with project-specific constants baked in — the helper functions are project-agnostic but the constants tables are not. Refactoring to a base-class shape adds ~1.5 sessions of work and YAGNI: there's only one "different project" (FTE) being added today. If MVDSV/KTX later makes three copies painful, lift helpers into `extractor_lib/asset_helpers.py` then.
+**Why:** ezQuake's handlers were authored with project-specific constants baked in -- the helper functions are project-agnostic but the constants tables are not. Refactoring to a base-class shape adds ~1.5 sessions of work and YAGNI: there's only one "different project" (FTE) being added today. If MVDSV/KTX later makes three copies painful, lift helpers into `extractor_lib/asset_helpers.py` then.
 
 **Phase:** 1.
 
@@ -88,7 +88,7 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 **Phase:** 1.
 
-### D4. Categories — start from ezQuake's, prune + extend
+### D4. Categories -- start from ezQuake's, prune + extend
 
 **Decision:** Begin with the union of ezQuake's 24 categories. Drop those that don't apply to FTE: `kmap` (FTE has no keymap subsystem). Add FTE-specific: `shader` (R_RegisterShader output, 134 call sites), and reconsider `package` if the FTE package-manager surface justifies it (likely yes given FTE's `pkg` command). Keep `plugin` but with FTE as the owner (not the cross-engine signal it is for ezQuake).
 
@@ -122,7 +122,7 @@ Read this section before starting. These gotchas are not optional knowledge.
 
 ### D8. No `source_root` column on relation tables
 
-**Decision:** Per spec § 2 and operator confirmation Q1, no schema delta. Plugin-side asset usage (ezhud's HUD-image loaders) is queryable today via `source_file LIKE '%plugins/ezhud/%'`. Adding a `source_root` column to `asset_loader_sites` and `asset_cvar_bindings` for symmetry with cvar/command/macro_versions is YAGNI.
+**Decision:** Per spec Section  2 and operator confirmation Q1, no schema delta. Plugin-side asset usage (ezhud's HUD-image loaders) is queryable today via `source_file LIKE '%plugins/ezhud/%'`. Adding a `source_root` column to `asset_loader_sites` and `asset_cvar_bindings` for symmetry with cvar/command/macro_versions is YAGNI.
 
 **Why:** Symmetry alone isn't a reason. Add the column when a concrete query needs it.
 
@@ -175,7 +175,7 @@ apps/qw-oracle/scripts/load-knowledge/
 
 ---
 
-## Phase 1 — AST extraction + seed authoring
+## Phase 1 -- AST extraction + seed authoring
 
 Internal commit checkpoint after Task 1.5 (research artifact). Second commit after Task 1.13 (bundle assembled).
 
@@ -238,7 +238,7 @@ GENERIC_FS_PRIMITIVES: set[str] = {
 }
 ```
 
-- [ ] **Step 4: Replace `FUNCTION_TO_CATEGORY`** with FTE's mapping. Targets reference `fte:asset_category:*` canonical IDs — these will exist after Task 1.6:
+- [ ] **Step 4: Replace `FUNCTION_TO_CATEGORY`** with FTE's mapping. Targets reference `fte:asset_category:*` canonical IDs -- these will exist after Task 1.6:
 
 ```python
 FUNCTION_TO_CATEGORY: dict[str, str] = {
@@ -295,7 +295,7 @@ EXT_TO_CATEGORY: dict[str, str] = {
 }
 ```
 
-   Note: this is the INITIAL mapping. Phase 1.7's seed authoring may refine it after AST inspection. Keep these constants as the handler-side defaults; the seed can override extension→category at the bundle layer.
+   Note: this is the INITIAL mapping. Phase 1.7's seed authoring may refine it after AST inspection. Keep these constants as the handler-side defaults; the seed can override extension->category at the bundle layer.
 
 - [ ] **Step 6: Replace `GENERIC_LITERAL_CATEGORY`:**
 
@@ -335,13 +335,13 @@ TRIGGER_RULES: list[tuple[re.Pattern, str]] = [
 
 Run: `python3 -c "import sys; sys.path.insert(0, 'apps/qw-oracle/scripts/extractors'); sys.path.insert(0, 'apps/qw-oracle/scripts/extractors/fte'); from _handler_asset_loader_sites import AssetLoaderSitesHandler; h = AssetLoaderSitesHandler(); print(h.name, h.output_filename)"`
 
-Expected: `asset_loader_sites fte-asset-loader-sites-ast.json` (or whatever the handler's `name` and `output_filename` are set to — confirm they match).
+Expected: `asset_loader_sites fte-asset-loader-sites-ast.json` (or whatever the handler's `name` and `output_filename` are set to -- confirm they match).
 
 - [ ] **Step 11: Adjust `name` and `output_filename` if needed.**
 
 The handler's `output_filename` should be `fte-asset-loader-sites-ast.json` (matches buildAssetBundle's expected `<project>-asset-loader-sites-ast.json` convention). If the verbatim copy left the ezQuake filename, change it.
 
-   No commit yet — bundled with Task 1.3 + 1.4.
+   No commit yet -- bundled with Task 1.3 + 1.4.
 
 ### Task 1.3: Port `_handler_asset_cvar_bindings.py` to FTE
 
@@ -395,7 +395,7 @@ available: dict = {
 }
 ```
 
-- [ ] **Step 4: Confirm SOURCE_ROOTS is unchanged** — both new handlers run against `engine`, `plugin:ezhud`, and `plugin:ezscript` and gate themselves via path filters or visitor hooks. Do NOT add new SOURCE_ROOTS.
+- [ ] **Step 4: Confirm SOURCE_ROOTS is unchanged** -- both new handlers run against `engine`, `plugin:ezhud`, and `plugin:ezscript` and gate themselves via path filters or visitor hooks. Do NOT add new SOURCE_ROOTS.
 
 - [ ] **Step 5: Smoke-test the registry:**
 
@@ -421,7 +421,7 @@ Expected: `35843773...` (full SHA matches `35843773` prefix).
 
 Run: `cd apps/qw-oracle/scripts/extractors/fte && python3 extract.py --handlers asset_loader_sites,asset_cvar_bindings --workers 1`
 
-Expected: ~5-6 minute serial run (≈350 files × 4 variants); final summary line shows non-zero row counts for both handlers; both JSON outputs written.
+Expected: ~5-6 minute serial run (≈350 files x 4 variants); final summary line shows non-zero row counts for both handlers; both JSON outputs written.
 
 - [ ] **Step 3: Sanity-check the loader-sites output.**
 
@@ -435,7 +435,7 @@ Run: `python3 -c "import json; d=json.load(open('apps/qw-oracle/scripts/extracto
 
 Expected: at least 5 auto-detected bindings (more is fine; the cvar-bindings auto-pass is conservative by design).
 
-- [ ] **Step 5: First commit — research artifact.**
+- [ ] **Step 5: First commit -- research artifact.**
 
 ```bash
 git add \
@@ -476,7 +476,7 @@ for cat, n in cats.most_common():
     print(f'{n:6d}  {cat}')
 "`
 
-Expected: a histogram of categories the handler classified. Use this to confirm the seed includes every category the handler emits, and to identify any that need adding (e.g. if `fte:asset_category:shader` is absent, that's a regression — the seed and handler must agree).
+Expected: a histogram of categories the handler classified. Use this to confirm the seed includes every category the handler emits, and to identify any that need adding (e.g. if `fte:asset_category:shader` is absent, that's a regression -- the seed and handler must agree).
 
 - [ ] **Step 2: Author the seed.** Start from ezQuake's category list (24 entries at `apps/qw-oracle/scripts/extractors/ezquake/seeds/ezquake-asset-categories.yaml`) and adapt:
 
@@ -569,7 +569,7 @@ categories:
     description: "Native plugin DLL/SO (FTE's fteplug_*.dll family). Loaded via the plug command."
 ```
 
-   Note: the `kmap` category from ezQuake is intentionally absent (FTE has no keymap subsystem). The `package` category is held back pending Phase 1.8 cvar-binding survey — if FTE's package-manager command surface produces meaningful cvar bindings, add it then.
+   Note: the `kmap` category from ezQuake is intentionally absent (FTE has no keymap subsystem). The `package` category is held back pending Phase 1.8 cvar-binding survey -- if FTE's package-manager command surface produces meaningful cvar bindings, add it then.
 
 - [ ] **Step 3: Cross-check the seed covers every `reads_category_id` emitted by the loader-sites handler.**
 
@@ -881,7 +881,7 @@ Read these files end-to-end:
   description: >
     At startup COM_InitFilesystem mounts id1/, then qw/, then the user's
     home directory if set. Each is pushed onto fs_searchpaths via
-    FS_AddPathHandle, which inserts at the head of the list — so the
+    FS_AddPathHandle, which inserts at the head of the list -- so the
     effective lookup order is homedir > qw > id1.
   source_ref: "engine/common/fs.c:????"
 ```
@@ -929,10 +929,10 @@ Expected: empty list (every rule verified). If any rows are unverified, fix the 
 - [ ] **Step 1: Look up FTE's client conventions.** Grep FTE source for:
    - Screenshot filename prefix: `grep -rn 'cl_screenshotname\|sshot_format\|SCR_ScreenShot' research/repos/fteqw/engine/client/ | head -20`
    - Screenshot dir name: search for `"screenshots"` and `"sshots"` literals in same files
-   - Demo extensions: confirmed `.qwd`, `.mvd`, `.dem`, `.qtv` from earlier grep — verify which is FTE's default
+   - Demo extensions: confirmed `.qwd`, `.mvd`, `.dem`, `.qtv` from earlier grep -- verify which is FTE's default
    - Log extension: standard `.log`
-   - Match-format cvars: FTE may not have `match_format_*` family — verify with `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name FROM entities WHERE project='fte' AND type='cvar' AND name LIKE 'match_%'"`. Likely empty.
-   - Owned gamedirs: FTE's primary gamedir is `qw` (no `fte` gamedir typically — confirm)
+   - Match-format cvars: FTE may not have `match_format_*` family -- verify with `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name FROM entities WHERE project='fte' AND type='cvar' AND name LIKE 'match_%'"`. Likely empty.
+   - Owned gamedirs: FTE's primary gamedir is `qw` (no `fte` gamedir typically -- confirm)
 
 - [ ] **Step 2: Author the seed.**
 
@@ -980,7 +980,7 @@ client_defaults:
 
 Run: `grep -n 'project\|fte\|ezquake' apps/qw-oracle/scripts/extractors/shared/derive-reserved-subdirs.ts | head -20`
 
-Expected: it takes `--project` argument or scans per-project files. If hardcoded to ezQuake, this step is a no-op for FTE Phase 1 — the bundle build accepts the absence of this file (it's optional in `build-asset-bundle.ts:252`).
+Expected: it takes `--project` argument or scans per-project files. If hardcoded to ezQuake, this step is a no-op for FTE Phase 1 -- the bundle build accepts the absence of this file (it's optional in `build-asset-bundle.ts:252`).
 
 - [ ] **Step 2: If parameterized, run for FTE:**
 
@@ -1018,7 +1018,7 @@ print('client_defaults present:', b.get('client_defaults') is not None)
 
 Expected: project=fte, version=build-6698, all counts non-zero, client_defaults present.
 
-- [ ] **Step 3: Second commit — seeds + bundle.**
+- [ ] **Step 3: Second commit -- seeds + bundle.**
 
 ```bash
 git add \
@@ -1047,7 +1047,7 @@ Phase 2 (extract-tag wiring + quality-grid probes + Path-1 fixtures) follows."
 
 ---
 
-## Phase 2 — Loader integration + verification
+## Phase 2 -- Loader integration + verification
 
 ### Task 2.1: Wire FTE asset bundle into extract-tag
 
@@ -1107,7 +1107,7 @@ const LEGACY_EXTRACTORS_FTE: ReadonlyArray<{ script: string; output: string }> =
 
    And a corresponding loop after the main extractor invocation, gated `if (options.project === 'fte')`. If extract-tag's existing structure already handles per-project legacy scripts via a single dispatch table, slot the FTE entry in there instead.
 
-- [ ] **Step 4: Wire the asset bundle build.** Find the existing `if (hasAssetBundle) buildAssetBundle({ project, version })` call (around line 259). Confirm it does NOT need changes — `hasAssetBundle` is the flag we just flipped, so the call fires automatically for FTE now.
+- [ ] **Step 4: Wire the asset bundle build.** Find the existing `if (hasAssetBundle) buildAssetBundle({ project, version })` call (around line 259). Confirm it does NOT need changes -- `hasAssetBundle` is the flag we just flipped, so the call fires automatically for FTE now.
 
 - [ ] **Step 5: Typecheck.**
 
@@ -1115,7 +1115,7 @@ Run: `cd apps/qw-oracle && bunx tsc --noEmit`
 
 Expected: clean.
 
-- [ ] **Step 6: No commit yet** — bundled with Task 2.2's verification run.
+- [ ] **Step 6: No commit yet** -- bundled with Task 2.2's verification run.
 
 ### Task 2.2: Run extract-tag end-to-end for FTE@build-6698
 
@@ -1144,7 +1144,7 @@ Expected (rough order-of-magnitude):
 - asset_loader_sites: 200+
 - asset_categories: 22-24
 
-- [ ] **Step 3: No commit yet** — bundled with Task 2.3.
+- [ ] **Step 3: No commit yet** -- bundled with Task 2.3.
 
 ### Task 2.3: Add FTE asset quality-grid probes
 
@@ -1229,7 +1229,7 @@ Run: `cd apps/qw-oracle && npm run load-knowledge -- quality-grid --project fte`
 
 Expected: all probes PASS / CLEAN. Existing 21 probes + 9 new = 30/30 clean for FTE. Adjust ranges if any new probe fails on the actual data.
 
-- [ ] **Step 5: No commit yet** — bundled with Task 2.4.
+- [ ] **Step 5: No commit yet** -- bundled with Task 2.4.
 
 ### Task 2.4: Author Path-1 fixtures for FTE patterns
 
@@ -1241,7 +1241,7 @@ Expected: all probes PASS / CLEAN. Existing 21 probes + 9 new = 30/30 clean for 
 
 - [ ] **Step 1: Read the existing ezQuake fixture suite** at `apps/qw-oracle/scripts/extractors/ezquake/tests/test_parameterized_paths.py` and `apps/qw-oracle/scripts/extractors/ezquake/tests/fixtures/param_paths/01..08/`. Note the structure: each fixture is a tiny .c file, the runner parses it via libclang, runs the asset_loader_sites handler, asserts on the extracted output.
 
-- [ ] **Step 2: Author fixture 01 — R_RegisterShader with va().**
+- [ ] **Step 2: Author fixture 01 -- R_RegisterShader with va().**
 
 Create `tests/fixtures/fte_paths/01_register_shader_va/main.c`:
 
@@ -1259,7 +1259,7 @@ void R_LoadMap(const char *mapname) {
 
    Expected extraction: one site with `function_name=R_RegisterShader`, `path_template="textures/{0}/baseshader"`, `path_extension=null`, `path_parameters=[{slot:0, semantic:"current_map_name"}]`.
 
-- [ ] **Step 3: Author fixture 02 — FS_OpenVFS with buffer write.**
+- [ ] **Step 3: Author fixture 02 -- FS_OpenVFS with buffer write.**
 
 Create `tests/fixtures/fte_paths/02_fs_openvfs_buffer/main.c`:
 
@@ -1278,7 +1278,7 @@ void FS_LoadCustomFile(const char *userpath) {
 
    Expected extraction: one site with `function_name=FS_OpenVFS`, `path_template="users/{0}/config.cfg"`, `path_extension=".cfg"`, `path_parameters=[{slot:0, semantic:"function_parameter"}]`.
 
-- [ ] **Step 4: Author fixture 03 — COM_LoadFile with literal.**
+- [ ] **Step 4: Author fixture 03 -- COM_LoadFile with literal.**
 
 Create `tests/fixtures/fte_paths/03_com_loadfile_literal/main.c`:
 
@@ -1291,7 +1291,7 @@ void Init_CharsetIndex(void) {
 }
 ```
 
-   Expected extraction: one site with `function_name=COM_LoadFile`, `path_source="literal"`, `path_literal="gfx/charset.png"`, `reads_category_id="fte:asset_category:charset"` or `:texture` depending on EXT_TO_CATEGORY priority. (The handler's path_hint for `gfx/` prefix → charset; this fixture is the regression for that classification.)
+   Expected extraction: one site with `function_name=COM_LoadFile`, `path_source="literal"`, `path_literal="gfx/charset.png"`, `reads_category_id="fte:asset_category:charset"` or `:texture` depending on EXT_TO_CATEGORY priority. (The handler's path_hint for `gfx/` prefix -> charset; this fixture is the regression for that classification.)
 
 - [ ] **Step 5: Author the test runner.**
 
@@ -1387,7 +1387,7 @@ Run: `python3 apps/qw-oracle/scripts/extractors/fte/tests/test_fte_asset_paths.p
 
 Expected: `3 PASS` and exit code 0. If any fail, fix the handler or the fixture (whichever is wrong) and re-run.
 
-- [ ] **Step 7: No commit yet** — bundled with Task 2.5.
+- [ ] **Step 7: No commit yet** -- bundled with Task 2.5.
 
 ### Task 2.5: Cross-engine consistency check
 
@@ -1397,7 +1397,7 @@ Expected: `3 PASS` and exit code 0. If any fail, fix the handler or the fixture 
 
 Run: `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT ab.project, ab.cvar_canonical_id, ab.category_id FROM asset_cvar_bindings ab WHERE (ab.cvar_canonical_id LIKE '%:cvar:baseskin' OR ab.cvar_canonical_id LIKE '%:cvar:teamskin' OR ab.cvar_canonical_id LIKE '%:cvar:enemyskin') AND ab.category_id LIKE '%:skin' ORDER BY ab.project, ab.cvar_canonical_id"`
 
-Expected: 6 rows — 3 ezQuake (baseskin/teamskin/enemyskin → ezquake:asset_category:skin) and 3 FTE (same names → fte:asset_category:skin). If FTE doesn't have one of these as a binding, that's an authoring miss in Task 1.8 — go fix the seed and re-run buildAssetBundle.
+Expected: 6 rows -- 3 ezQuake (baseskin/teamskin/enemyskin -> ezquake:asset_category:skin) and 3 FTE (same names -> fte:asset_category:skin). If FTE doesn't have one of these as a binding, that's an authoring miss in Task 1.8 -- go fix the seed and re-run buildAssetBundle.
 
 - [ ] **Step 2: Confirm shader sites are FTE-exclusive.**
 
@@ -1474,6 +1474,6 @@ After Phase 2 completes, the following layers all hold:
 ## Coordination
 
 - Path A (Quake Dir Control Phase 3) operates on `apps/slipgate-app/src-tauri/` and frontend. Zero file overlap with Phase 2d-bundle.
-- Files this plan touches: `apps/qw-oracle/scripts/extractors/fte/`, `apps/qw-oracle/scripts/load-knowledge/extract-tag.ts`, `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`, `apps/qw-oracle/SCHEMA.md` (no edits — schema unchanged), and the producer-side data file at `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json`.
+- Files this plan touches: `apps/qw-oracle/scripts/extractors/fte/`, `apps/qw-oracle/scripts/load-knowledge/extract-tag.ts`, `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`, `apps/qw-oracle/SCHEMA.md` (no edits -- schema unchanged), and the producer-side data file at `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json`.
 - The bundle output path lives under `apps/slipgate-app/` but is producer-side: the file is generated by build-asset-bundle.ts; no slipgate application code is touched. ezQuake's `ezquake-asset-bundle.json` is already there. This pattern was established during qw-config dissolution Half 2a (2026-04-25).
 - Two implementation sessions, ~5-6 hours total. Phase 1 internal commit checkpoint after Task 1.5 (research artifact) gives a natural review surface mid-phase.

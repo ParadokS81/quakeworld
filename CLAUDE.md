@@ -54,7 +54,7 @@ Compile and build first. Manual verification second. Automated tests only when t
 
 ### Git workflow
 
-The user does not touch git. Claude runs all git operations silently — no merge menus, no PR prompts, no branch questions. Git is a tool for Claude, not a UX for the user.
+The user does not touch git. Claude runs all git operations silently -- no merge menus, no PR prompts, no branch questions. Git is a tool for Claude, not a UX for the user.
 
 **Layout:**
 - Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. All work happens here unless a worktree is explicitly created for parallelism.
@@ -74,10 +74,10 @@ The user does not touch git. Claude runs all git operations silently — no merg
 - Inside a worktree, cut a fresh feature branch only if the work is genuinely risky (big refactor, throwaway experiment). Otherwise commit directly on the worktree's own branch.
 
 **Superpowers skill overrides:**
-- `superpowers:finishing-a-development-branch` — do NOT present 4-option merge menus. Just merge and push.
-- `superpowers:using-git-worktrees` — skip the baseline-test + auto-setup ceremony. Create worktrees with a plain `git worktree add` when parallelism is actually needed.
-- `superpowers:executing-plans` and `superpowers:subagent-driven-development` worktree pre-steps — do NOT create a fresh worktree per plan. Execute plans in the worktree you are already in.
-- Other superpowers skills (brainstorming, systematic-debugging, writing-plans, verification-before-completion, etc.) are fine — keep using them.
+- `superpowers:finishing-a-development-branch` -- do NOT present 4-option merge menus. Just merge and push.
+- `superpowers:using-git-worktrees` -- skip the baseline-test + auto-setup ceremony. Create worktrees with a plain `git worktree add` when parallelism is actually needed.
+- `superpowers:executing-plans` and `superpowers:subagent-driven-development` worktree pre-steps -- do NOT create a fresh worktree per plan. Execute plans in the worktree you are already in.
+- Other superpowers skills (brainstorming, systematic-debugging, writing-plans, verification-before-completion, etc.) are fine -- keep using them.
 
 **Safety net:**
 - The `SessionStart` hook at `.claude/scripts/session-start-git-state.sh` prints worktree path, branch, drift vs main, and uncommitted count at every session open. Read the banner first. Loud drift warnings mean investigate, not proceed blindly.
@@ -102,18 +102,22 @@ All projects except slipgate-app run in WSL Ubuntu.
 - **SSH keys**: WSL `~/.ssh/` - `id_rsa` (Unraid), `qwvoice_key` (Xerial)
 - **Tailscale**: Required for Unraid access (100.114.81.91)
 - **Firebase emulators**: matchscheduler dev on `localhost:5000`
-- **Reading Windows screenshots from WSL**: Windows paths like `C:\Users\Administrator\Downloads\foo.png` are reachable from WSL as `/mnt/c/Users/Administrator/Downloads/foo.png`. Use Read directly on that path — do not claim the file is unreachable.
+- **Reading Windows screenshots from WSL**: Windows paths like `C:\Users\Administrator\Downloads\foo.png` are reachable from WSL as `/mnt/c/Users/Administrator/Downloads/foo.png`. Use Read directly on that path -- do not claim the file is unreachable.
 
-## Output discipline
+## Verification discipline
 
-- Answer briefly and objectively.
-- Never guess - if unsure, say so.
-- ASCII only in code and docs: no em dashes, smart quotes, or Unicode decorations.
-- Never express emotions; no filler sentences.
+Before naming a number, file path, function name, schema version, or any specific factual claim in a response: verify against the live source (grep, Read, SQL, etc.). Evidence first, conclusion second — not the other way around. When a claim genuinely can't be verified, mark the uncertainty in a different register from verified facts; don't slip "likely" or "probably" into prose that otherwise reads as fact. Don't propose scope deferrals (skipping a finding, deferring a fix) without explicit user approval — that's a decision the operator makes, not a default Claude takes.
+
+## Communication style
+
+Lead with plain English: what changes, what the tradeoff is, what the recommendation is. Follow with the technical chain only where it carries decision content — the parts where the operator can spot a flaw or push back. Compress or skip mechanism explanations that don't change the decision (which APIs are involved, how a helper resolves a reference, internal control flow). Length follows from this — short by default, long only when load-bearing detail justifies it.
+
+The operator is conceptually fluent (data transforms, system boundaries, contracts) but does not have deep implementation-level knowledge for every project. Plain-English-first is not dumbing-down; it's calibrating to where decisions actually live.
+
+## Misc conventions
+
 - Comments explain *why*, not *what*.
 - TypeScript regex iteration: prefer `string.matchAll(re)` over the stateful RegExp method. A repo-wide security-scanning hook pattern-matches the literal call site and false-positives on the RegExp version (not distinguishing it from the Node child_process one). Using matchAll avoids the false positive and is cleaner anyway.
-
-These rules apply literally in code and docs. In conversation with the user, follow the spirit - direct, honest, no filler - but a natural voice is fine. See the feedback memory `feedback_output_discipline_sentiment.md` for context.
 
 ## Shared philosophy
 

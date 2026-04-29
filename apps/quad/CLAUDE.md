@@ -22,10 +22,10 @@ Start with `OVERVIEW.md` when returning to the project after a break.
 ## Tech Stack
 
 - **Node.js 22.12.0+**, **TypeScript 5+**, **discord.js v14** (14.25.1)
-- **@discordjs/voice 0.19.0** — voice connection, DAVE protocol support
-- **prism-media 2.0.0-alpha.0** — OGG/Opus muxer. Requires `node-crc@^1.3.2` (v1, CJS only)
-- **@snazzah/davey** — peer dep of @discordjs/voice, installed explicitly
-- **Docker** — primary distribution method
+- **@discordjs/voice 0.19.0** -- voice connection, DAVE protocol support
+- **prism-media 2.0.0-alpha.0** -- OGG/Opus muxer. Requires `node-crc@^1.3.2` (v1, CJS only)
+- **@snazzah/davey** -- peer dep of @discordjs/voice, installed explicitly
+- **Docker** -- primary distribution method
 
 ## Architecture
 

@@ -28,7 +28,7 @@ iframe.contentWindow.postMessage({
 3. Render a floating control panel (only when `tracks.length > 0`):
    - Master volume slider
    - Per-track volume slider + mute toggle + player name label
-   - Sync offset slider (±5s range)
+   - Sync offset slider (+/-5s range)
 4. Sync audio playback position with demo timeline:
    - `audio.currentTime = demoCurrentTime + offset`
    - Play/pause audio when demo plays/pauses

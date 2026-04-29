@@ -3,8 +3,8 @@
 ## Slice Definition
 - **Slice ID:** 5.2d
 - **Name:** Head-to-Head Compare Tab
-- **Depends on:** Slice 5.2a (Tab infrastructure), Slice 5.2b (Match History — reuses scoreboard/stats patterns)
-- **Supersedes:** Slice 5.1c (Head-to-Head Compare View — same concept, updated to tabbed layout)
+- **Depends on:** Slice 5.2a (Tab infrastructure), Slice 5.2b (Match History -- reuses scoreboard/stats patterns)
+- **Supersedes:** Slice 5.1c (Head-to-Head Compare View -- same concept, updated to tabbed layout)
 - **User Story:** As a user, I can compare two teams' head-to-head record with win/loss stats, per-map breakdown, and match list, so I can prepare for upcoming matches and evaluate matchups
 - **Success Criteria:**
   - H2H tab shows within team detail tabbed navigation
@@ -22,16 +22,16 @@
 
 When scheduling a match, teams want to answer: "How do we historically perform against this opponent? Which maps favor us?" Currently this requires manually searching QWHub, filtering by both team names, and mentally tallying results across pages.
 
-Slice 5.1c originally designed this as a full-page replacement for the team detail view with a "back" button. With the tabbed structure from 5.2a, it fits naturally as a third tab — no navigation disruption, and users can flip between Details, Match History, and H2H without losing context.
+Slice 5.1c originally designed this as a full-page replacement for the team detail view with a "back" button. With the tabbed structure from 5.2a, it fits naturally as a third tab -- no navigation disruption, and users can flip between Details, Match History, and H2H without losing context.
 
 ## Solution
 
 The **Head to Head** tab in the team detail tabbed navigation. Flow:
 
 1. User is browsing a team's Details tab
-2. Clicks "Compare H2H" button → switches to H2H tab with this team pre-selected as Team A
+2. Clicks "Compare H2H" button -> switches to H2H tab with this team pre-selected as Team A
 3. H2H tab shows a team selector for the opponent (Team B)
-4. Once opponent is selected → fetch H2H matches from Supabase and render:
+4. Once opponent is selected -> fetch H2H matches from Supabase and render:
    - Overall record: `3W - 2L (60%)`
    - Per-map breakdown with win bars
    - Full match list with click-to-preview scoreboard
@@ -42,7 +42,7 @@ Alternatively, user can navigate directly to H2H tab and select both teams.
 
 ## Visual Design
 
-### H2H Tab — Initial State (Team A pre-selected)
+### H2H Tab -- Initial State (Team A pre-selected)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -58,7 +58,7 @@ Alternatively, user can navigate directly to H2H tab and select both teams.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### H2H Tab — Both Teams Selected, Results Loaded
+### H2H Tab -- Both Teams Selected, Results Loaded
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -93,7 +93,7 @@ Alternatively, user can navigate directly to H2H tab and select both teams.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### H2H Tab — No Matches Found
+### H2H Tab -- No Matches Found
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -112,7 +112,7 @@ Alternatively, user can navigate directly to H2H tab and select both teams.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### H2H Tab — Team Missing Tag
+### H2H Tab -- Team Missing Tag
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -134,15 +134,15 @@ Alternatively, user can navigate directly to H2H tab and select both teams.
 
 ### Key Design Decisions
 
-1. **Opponent selector = searchable dropdown** — Lists all teams with QWHub tags from the TeamService cache. Type-ahead search. No external API call for the selector — it reads from already-loaded team data.
+1. **Opponent selector = searchable dropdown** -- Lists all teams with QWHub tags from the TeamService cache. Type-ahead search. No external API call for the selector -- it reads from already-loaded team data.
 
-2. **Supabase H2H query** — Uses the `cs.{teamA,teamB}` PostgREST array containment filter to find matches where both teams played. Fetches up to 20 results from last 6 months.
+2. **Supabase H2H query** -- Uses the `cs.{teamA,teamB}` PostgREST array containment filter to find matches where both teams played. Fetches up to 20 results from last 6 months.
 
-3. **Reuses match list and scoreboard patterns** — H2H match list reuses the styling from 5.2b. Click-to-preview scoreboard works the same way. Full Stats opens the same MatchStatsModal from 5.2c.
+3. **Reuses match list and scoreboard patterns** -- H2H match list reuses the styling from 5.2b. Click-to-preview scoreboard works the same way. Full Stats opens the same MatchStatsModal from 5.2c.
 
-4. **Pre-selection flow** — When `switchTab('h2h')` is called from the Details tab, the current team is set as Team A. The H2H tab renders with Team A locked and the opponent selector focused.
+4. **Pre-selection flow** -- When `switchTab('h2h')` is called from the Details tab, the current team is set as Team A. The H2H tab renders with Team A locked and the opponent selector focused.
 
-5. **Separate H2H cache** — Keyed by sorted team pair (alphabetical) so `]sr[ vs pol` and `pol vs ]sr[` share the same cache entry.
+5. **Separate H2H cache** -- Keyed by sorted team pair (alphabetical) so `]sr[ vs pol` and `pol vs ]sr[` share the same cache entry.
 
 ### New QWHubService Method
 
@@ -206,8 +206,8 @@ async function getH2HMatches(teamTagA, teamTagB, limit = 20) {
 
 **New private state:**
 ```javascript
-let _h2hTeamA = null;       // { id, teamName, teamTag, logoUrl, division } — pre-selected from Details
-let _h2hTeamB = null;       // Same shape — opponent selected by user
+let _h2hTeamA = null;       // { id, teamName, teamTag, logoUrl, division } -- pre-selected from Details
+let _h2hTeamB = null;       // Same shape -- opponent selected by user
 let _h2hMatches = [];       // Fetched H2H match data
 let _h2hLoading = false;    // Loading state
 let _h2hError = null;       // Error message
@@ -215,15 +215,15 @@ let _h2hSelectedMatchId = null;  // Clicked match for preview
 ```
 
 **New methods:**
-- `_renderH2HTab(team)` — Main H2H tab renderer
-- `_renderH2HTeamCard(teamData, side)` — Team logo + name + division card
-- `_renderOpponentSelector()` — Searchable dropdown of teams with tags
-- `_renderH2HResults()` — Record + map breakdown + match list
-- `_renderH2HMapBreakdown(matches, ourTag)` — Per-map win bars
-- `_renderH2HMatchList(matches)` — Chronological match list with preview support
-- `_loadH2HData()` — Fetches matches + computes aggregates
-- `selectOpponent(teamId)` — Public method for opponent selection
-- `_handleH2HMatchClick(matchId)` — Click-to-preview in H2H context
+- `_renderH2HTab(team)` -- Main H2H tab renderer
+- `_renderH2HTeamCard(teamData, side)` -- Team logo + name + division card
+- `_renderOpponentSelector()` -- Searchable dropdown of teams with tags
+- `_renderH2HResults()` -- Record + map breakdown + match list
+- `_renderH2HMapBreakdown(matches, ourTag)` -- Per-map win bars
+- `_renderH2HMatchList(matches)` -- Chronological match list with preview support
+- `_loadH2HData()` -- Fetches matches + computes aggregates
+- `selectOpponent(teamId)` -- Public method for opponent selection
+- `_handleH2HMatchClick(matchId)` -- Click-to-preview in H2H context
 
 **Modified switchTab:**
 ```javascript
@@ -788,7 +788,7 @@ COLD PATHS (<2s):
 
 BACKEND PERFORMANCE:
 - Single Supabase query per team pair (up to 20 matches)
-- Cache keyed by sorted team pair — reversing teams hits same cache
+- Cache keyed by sorted team pair -- reversing teams hits same cache
 - No new Firebase queries or Cloud Functions
 ```
 
@@ -798,32 +798,32 @@ BACKEND PERFORMANCE:
 
 ```
 User clicks "Compare H2H" on Details tab
-    → switchTab('h2h')
-        → _h2hTeamA = current team (from cache)
-        → _h2hTeamB = null
-        → Render H2H tab with Team A card + opponent selector
+    -> switchTab('h2h')
+        -> _h2hTeamA = current team (from cache)
+        -> _h2hTeamB = null
+        -> Render H2H tab with Team A card + opponent selector
 
 User types in opponent search
-    → Filter dropdown options (client-side)
-    → Show matching teams
+    -> Filter dropdown options (client-side)
+    -> Show matching teams
 
 User selects opponent
-    → selectOpponent(teamId)
-        → _h2hTeamB = selected team data
-        → Re-render (shows both team cards)
-        → _loadH2HData()
-            → QWHubService.getH2HMatches(tagA, tagB, 20)
-                → Cache hit? Instant
-                → Cache miss? Supabase cs.{tagA,tagB} query
-            → _h2hMatches = results
-            → Cache match data in _matchDataById
-            → Render: record badge + map breakdown + match list
+    -> selectOpponent(teamId)
+        -> _h2hTeamB = selected team data
+        -> Re-render (shows both team cards)
+        -> _loadH2HData()
+            -> QWHubService.getH2HMatches(tagA, tagB, 20)
+                -> Cache hit? Instant
+                -> Cache miss? Supabase cs.{tagA,tagB} query
+            -> _h2hMatches = results
+            -> Cache match data in _matchDataById
+            -> Render: record badge + map breakdown + match list
 
 User clicks eye icon on match
-    → openFullStats(matchId)
-        → Get match from _matchDataById
-        → Fetch ktxstats if needed
-        → Open MatchStatsModal (Slice 5.2c)
+    -> openFullStats(matchId)
+        -> Get match from _matchDataById
+        -> Fetch ktxstats if needed
+        -> Open MatchStatsModal (Slice 5.2c)
 ```
 
 ---
@@ -850,9 +850,9 @@ User clicks eye icon on match
 ## Common Integration Pitfalls
 
 - [ ] Opponent selector must exclude the currently browsed team from the list
-- [ ] H2H Supabase query uses `cs.{tagA,tagB}` which requires BOTH team names — URL encoding must handle special chars (brackets, exclamation marks)
+- [ ] H2H Supabase query uses `cs.{tagA,tagB}` which requires BOTH team names -- URL encoding must handle special chars (brackets, exclamation marks)
 - [ ] Cache key must sort team tags alphabetically so `a_vs_b` and `b_vs_a` share cache
-- [ ] The `_transformMatch` in QWHubService uses `ourTeamTag` — for H2H, ensure Team A is passed as "our" team
+- [ ] The `_transformMatch` in QWHubService uses `ourTeamTag` -- for H2H, ensure Team A is passed as "our" team
 - [ ] Expose `selectOpponent`, `retryH2H` in public API for onclick handlers
 - [ ] Dropdown z-index must be above other elements in the tab content
 - [ ] Reset H2H state (`_h2hTeamB`, `_h2hMatches`, etc.) when selecting a different team in Browse Teams

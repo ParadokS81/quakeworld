@@ -68,8 +68,8 @@ interface ModuleDecorationCtx {
 Three new files under `src/components/keyboardModules/`:
 
 - `navModule.ts` - exports `NAV_MODULE: KeyboardModule`. Contains exactly the keys currently hardcoded as the nav cluster (`Insert`, `Home`, `PageUp`, `Delete`, `End`, `PageDown`) plus the arrow cluster (`UpArrow`, `LeftArrow`, `DownArrow`, `RightArrow`). `widthU = 3`. Moved verbatim from the current `LAYOUT` array in `KeyboardLayout.tsx`.
-- `numpadModule.ts` - exports `NUMPAD_MODULE: KeyboardModule`. Contains ~18 numpad keys. `widthU = 4`. Uses rows 1-5 (no F-row content). Exact key `id` strings match ezQuake's canonical `KP_*` names, **to be verified in planning phase** (see §8).
-- `mouseModule.ts` - exports `MOUSE_MODULE: KeyboardModule`. 8 cells, `widthU = 4`, includes a `decoration` function. See §3.4 for layout.
+- `numpadModule.ts` - exports `NUMPAD_MODULE: KeyboardModule`. Contains ~18 numpad keys. `widthU = 4`. Uses rows 1-5 (no F-row content). Exact key `id` strings match ezQuake's canonical `KP_*` names, **to be verified in planning phase** (see Section 8).
+- `mouseModule.ts` - exports `MOUSE_MODULE: KeyboardModule`. 8 cells, `widthU = 4`, includes a `decoration` function. See Section 3.4 for layout.
 
 ### 3.3 Module registry
 
@@ -112,7 +112,7 @@ Row-by-row (conceptual - exact row heights tuned in implementation):
 - `MOUSE1` -> `"Mouse1"` through `MOUSE6` -> `"Mouse6"` (matches the six cells defined in the mouse module).
 - `MOUSE7` / `MOUSE8` continue to return `null` - no cells for them in the module today, so highlights for those inputs silently do not render. Adding them later means one new cell in `mouseModule.ts` plus one new mapping line; no other plumbing changes.
 - `MWHEELUP` -> `"MWheelUp"`, `MWHEELDOWN` -> `"MWheelDown"`.
-- Full `KP_*` set -> canonical numpad IDs (exact names verified in planning phase - see §8).
+- Full `KP_*` set -> canonical numpad IDs (exact names verified in planning phase - see Section 8).
 
 ### 3.6 Canonical width
 
@@ -192,7 +192,7 @@ interface UseKeyboardPanelStateInput {
 }
 ```
 
-**Note — auto-reveal does not live in the hook.** See §6 for the corrected placement. The hook owns the selection signal but not the primary config's `HighlightInput`, which is required to resolve a selection into layout IDs. The `HighlightInput` lives in `ConfigKeyboardPanel`, so the auto-reveal `createEffect` lives there as well.
+**Note -- auto-reveal does not live in the hook.** See Section 6 for the corrected placement. The hook owns the selection signal but not the primary config's `HighlightInput`, which is required to resolve a selection into layout IDs. The `HighlightInput` lives in `ConfigKeyboardPanel`, so the auto-reveal `createEffect` lives there as well.
 
 ### 5.2 New outputs
 
@@ -217,7 +217,7 @@ availableModules: readonly KeyboardRightModule[];  // pass-through for the panel
 
 ### 6.1 Where it lives
 
-The `createEffect` lives in `ConfigKeyboardPanel`, not in `useKeyboardPanelState`. Reason: the effect has to resolve the current selection into layout IDs via `buildSelectedIds(primaryInput, selection)`, and `primaryInput` is a config-specific `HighlightInput` built from the primary `EzQuakeConfig` prop. That data is local to the panel — the hook doesn't know about it.
+The `createEffect` lives in `ConfigKeyboardPanel`, not in `useKeyboardPanelState`. Reason: the effect has to resolve the current selection into layout IDs via `buildSelectedIds(primaryInput, selection)`, and `primaryInput` is a config-specific `HighlightInput` built from the primary `EzQuakeConfig` prop. That data is local to the panel -- the hook doesn't know about it.
 
 ProfileTab does not render `ConfigKeyboardPanel` (Profile has its own keyboard rendering path that doesn't use click-to-pin), so Profile automatically gets no auto-reveal. No gating is needed.
 
@@ -256,7 +256,7 @@ createEffect(() => {
 ### 6.3 Intentional non-behaviors
 
 - **Keys in `main` never trigger a switch.** Main block is always visible regardless of which right module is active.
-- **Compare side does not drive auto-reveal.** Primary keyboard is the source of truth; compare keyboard shows the same module via the §4.2 sync rule.
+- **Compare side does not drive auto-reveal.** Primary keyboard is the source of truth; compare keyboard shows the same module via the Section 4.2 sync rule.
 - **Category toggles (Movement / Weapons / Teamplay) do not trigger auto-reveal.** They change highlight sets, not selection.
 - **No auto-revert on selection clear.** Module stays on whatever the user last saw.
 

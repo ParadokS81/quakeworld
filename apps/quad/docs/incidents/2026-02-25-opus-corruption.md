@@ -1,30 +1,30 @@
 # Incident: Corrupt Opus Packets in Harvarligan Guild Recordings
 
 **Date**: 2026-02-25
-**Status**: Open — DAVE passthrough bug identified as likely root cause, mitigation deployed
+**Status**: Open -- DAVE passthrough bug identified as likely root cause, mitigation deployed
 **Impact**: Audio files from Suddendeath (-s-) recordings are partially corrupt, affecting voice replay playback
-**Affected sessions**: Feb 23 (`7344dc4a`) and Feb 24 (`b268cdcb`, `7a8a7647`) — all Harvarligan guild
-**Not affected**: Slackers guild recordings from the same evening (session `6ecd5397`) — 100% clean
+**Affected sessions**: Feb 23 (`7344dc4a`) and Feb 24 (`b268cdcb`, `7a8a7647`) -- all Harvarligan guild
+**Not affected**: Slackers guild recordings from the same evening (session `6ecd5397`) -- 100% clean
 
 ## Symptoms
 
 Andeh (Suddendeath player) reported:
 - Voice replay player only plays carapace's audio after ~30 seconds on phantombase
 - e1m2 recording "lagged out about a minute in" and went out of sync
-- Fast-forwarding made it worse — eventually only bps's voice audible
+- Fast-forwarding made it worse -- eventually only bps's voice audible
 - Downloading individual .ogg files: some sound decent, some "corrupt, stopped mid-file"
 
 ## Investigation Findings
 
-### 1. ffprobe says files are fine — but they're NOT
+### 1. ffprobe says files are fine -- but they're NOT
 
-All split OGG files pass `ffprobe -show_entries format=duration` with consistent 1210s durations. This is misleading — ffprobe reads OGG container metadata (granule positions), not actual audio content.
+All split OGG files pass `ffprobe -show_entries format=duration` with consistent 1210s durations. This is misleading -- ffprobe reads OGG container metadata (granule positions), not actual audio content.
 
 ### 2. Whisper transcription reveals truncation
 
 Running faster-whisper on the split files shows actual decodable audio is far shorter than container duration:
 
-**Feb 24 — phantombase (HX vs SD, session `7a8a7647`):**
+**Feb 24 -- phantombase (HX vs SD, session `7a8a7647`):**
 
 | Track | ffprobe | Whisper duration | Segments |
 |-------|---------|-----------------|----------|
@@ -33,7 +33,7 @@ Running faster-whisper on the split files shows actual decodable audio is far sh
 | goblin tralmaks | 1210s | **48s** | 6 |
 | reppie | 1210s | **22s** | 2 |
 
-**Feb 24 — e1m2 (SR vs SD, session `b268cdcb`):**
+**Feb 24 -- e1m2 (SR vs SD, session `b268cdcb`):**
 
 | Track | ffprobe | Whisper duration | Segments |
 |-------|---------|-----------------|----------|
@@ -43,13 +43,13 @@ Running faster-whisper on the split files shows actual decodable audio is far sh
 | goblin tralmaks | 1210s | **1210s** | 0 (silent) |
 | reppie | 1210s | **48s** | 1 |
 
-**Feb 23 — also corrupted (session `7344dc4a`):**
+**Feb 23 -- also corrupted (session `7344dc4a`):**
 - dm2: 4/5 tracks truncated (56-174s)
 - dm3: 3/5 tracks truncated (441-658s)
 - e1m2: 2/5 tracks truncated (18-42s)
-- schloss (last map): ALL CLEAN — all 1210s
+- schloss (last map): ALL CLEAN -- all 1210s
 
-**Feb 24 — SR session `6ecd5397` — 100% clean:**
+**Feb 24 -- SR session `6ecd5397` -- 100% clean:**
 All 24 files (4 tracks x 6 maps) show correct 1210s. Zero corruption.
 
 ### 3. Full decode reveals corrupt Opus packets
@@ -63,14 +63,14 @@ Running `ffmpeg -v error -i file.ogg -f null -` on Andeh's e1m2 file shows:
 ```
 
 These errors appear at DTS ~2104320 samples = **~43.8 seconds** (exactly where whisper stops).
-Errors then repeat throughout the entire file — hundreds of corrupt packets.
+Errors then repeat throughout the entire file -- hundreds of corrupt packets.
 
 ffmpeg reaches `time=00:20:18.65` (full file) because it's lenient and skips bad packets.
 Stricter decoders (whisper/CTranslate2, browser Web Audio API) stop at first error.
 
 ### 4. The splitter is NOT the cause
 
-The audio-splitter uses `ffmpeg -ss X -to Y -i input.ogg -c copy output.ogg`. Since SR files processed with the exact same code are 100% clean, the splitter preserves what's in the source — it doesn't create corruption.
+The audio-splitter uses `ffmpeg -ss X -to Y -i input.ogg -c copy output.ogg`. Since SR files processed with the exact same code are 100% clean, the splitter preserves what's in the source -- it doesn't create corruption.
 
 ## Key Observations
 
@@ -78,14 +78,14 @@ The audio-splitter uses `ffmpeg -ss X -to Y -i input.ogg -c copy output.ogg`. Si
 2. **Recurring**: Both Feb 23 and Feb 24 SD sessions are corrupted.
 3. **Not uniform**: Corruption varies by track and map. Later maps tend to be cleaner (schloss on Feb 23 was perfect).
 4. **DTS ordering issues**: "non monotonically increasing dts" suggests timestamp/granule position problems in the OGG stream.
-5. **Packet header errors**: "Error parsing the packet header" means the Opus frame data itself is garbage — not just timing issues.
+5. **Packet header errors**: "Error parsing the packet header" means the Opus frame data itself is garbage -- not just timing issues.
 
 ## Hypothesis: DAVE Protocol Corruption
 
 Discord's DAVE (Discord Audio & Video E2E Encryption) uses MLS for group key exchange and AES128-GCM for frame encryption. When DAVE does a key rotation or MLS group state change:
 - Packets encrypted with the old key get decrypted with the new key (or vice versa)
 - Result: garbage data that passes through as "Opus packets" but fails parsing
-- @discordjs/voice handles DAVE transparently — our code never sees the encryption layer
+- @discordjs/voice handles DAVE transparently -- our code never sees the encryption layer
 
 Supporting evidence:
 - Different guilds = different DAVE groups = different key exchange behavior
@@ -103,21 +103,21 @@ Deep analysis of `@discordjs/voice` 0.19.0 source code (`node_modules/@discordjs
 decrypt(packet, userId) {
     const canDecrypt = this.session?.ready && (...);
     if (packet.equals(SILENCE_FRAME) || !canDecrypt || !this.session)
-        return packet;  // ← returns ENCRYPTED ciphertext as "Opus"
+        return packet;  // <- returns ENCRYPTED ciphertext as "Opus"
     // ...
 }
 ```
 
-When `canDecrypt` is false (because `session.ready` is false after an MLS reinit), **the DAVE-encrypted ciphertext is returned unchanged** instead of being dropped. The calling code in `VoiceReceiver.onUdpMessage()` has a null check (`if (packet) stream.push(packet)`) that drops null returns — but the passthrough returns the *actual encrypted bytes*, not null. These ciphertext bytes flow through as "Opus" audio.
+When `canDecrypt` is false (because `session.ready` is false after an MLS reinit), **the DAVE-encrypted ciphertext is returned unchanged** instead of being dropped. The calling code in `VoiceReceiver.onUdpMessage()` has a null check (`if (packet) stream.push(packet)`) that drops null returns -- but the passthrough returns the *actual encrypted bytes*, not null. These ciphertext bytes flow through as "Opus" audio.
 
 #### The sequence during a recording:
 
 1. DAVE key rotation / MLS epoch transition begins
-2. Decryption starts failing → `consecutiveFailures` counts up
-3. After **36 failures** (default `decryptionFailureTolerance`) → `recoverFromInvalidTransition()` → `reinit()`
-4. `session.reinit()` resets the MLS state → `session.ready = false`
-5. **Passthrough window opens**: all packets pass through as AES-128-GCM ciphertext → garbage written to OGG
-6. New MLS handshake completes → `session.ready = true` → good audio resumes
+2. Decryption starts failing -> `consecutiveFailures` counts up
+3. After **36 failures** (default `decryptionFailureTolerance`) -> `recoverFromInvalidTransition()` -> `reinit()`
+4. `session.reinit()` resets the MLS state -> `session.ready = false`
+5. **Passthrough window opens**: all packets pass through as AES-128-GCM ciphertext -> garbage written to OGG
+6. New MLS handshake completes -> `session.ready = true` -> good audio resumes
 
 DAVE-encrypted frames include a `0xFAFA` magic marker at the end (per daveprotocol.com). This is how the packet validator detects passthrough.
 
@@ -196,11 +196,11 @@ Both guilds record simultaneously. While sessions use separate `Map` entries, th
 
 ## Key File Locations for Investigation
 
-- **OGG muxer**: `src/modules/recording/track.ts` — where Opus packets are written to OGG via prism-media
-- **Silence handler**: `src/modules/recording/silence.ts` — generates and inserts silent Opus frames
-- **Audio splitter**: `src/modules/processing/stages/audio-splitter.ts` — ffmpeg slice command
-- **Voice connection**: `src/modules/recording/session.ts` — DAVE/voice connection setup
-- **prism-media**: `node_modules/prism-media/src/opus/OggLogicalBitstream.js` — OGG page structure
+- **OGG muxer**: `src/modules/recording/track.ts` -- where Opus packets are written to OGG via prism-media
+- **Silence handler**: `src/modules/recording/silence.ts` -- generates and inserts silent Opus frames
+- **Audio splitter**: `src/modules/processing/stages/audio-splitter.ts` -- ffmpeg slice command
+- **Voice connection**: `src/modules/recording/session.ts` -- DAVE/voice connection setup
+- **prism-media**: `node_modules/prism-media/src/opus/OggLogicalBitstream.js` -- OGG page structure
 
 ## Quick Validation Commands
 

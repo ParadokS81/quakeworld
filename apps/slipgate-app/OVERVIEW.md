@@ -27,7 +27,7 @@ For per-tab detail - component paths, line counts, what each sub-feature actuall
 - **Updater** - generic `ClientDef` drives 5 clients (ezQuake + unezQuake installable; KTX + MVDSV + QWFWD changelog-only). Stable via GitHub Releases, snapshot via `builds.quakeworld.nu`. SHA256/MD5 verify, atomic rename-backup install.
 - **Player State Simulator + StatePanel** - pure-TS port of ezQuake's `Expr_Eval` grammar and derivation rules. Edit live PlayerState in the ConfigViewer's right rail; teamsay chains render with resolved `%token` values, real color codes, and dimmed inactive if/then/else branches. 92 tests.
 
-See `VISION.md` § "Three subsystems carry the current thesis" for why these three in particular.
+See `VISION.md` Section  "Three subsystems carry the current thesis" for why these three in particular.
 
 ## External integrations
 

@@ -38,9 +38,9 @@ Add a "Compare H2H" button to the team detail panel that opens a head-to-head co
 ┌─────────────────────────────────────────────────────────────────┐
 │      ┌───────────┐                                              │
 │      │   [-s-]   │    -s- Clan                                  │
-│      └───────────┘    Division 1 • 6 players                    │
+│      └───────────┘    Division 1 - 6 players                    │
 │                                                                 │
-│      [Compare H2H]  ← NEW BUTTON                                │
+│      [Compare H2H]  <- NEW BUTTON                                │
 │                                                                 │
 │  ─────────────────────────────────────────────────────────────  │
 │  Roster: ...                                                    │
@@ -53,7 +53,7 @@ Add a "Compare H2H" button to the team detail panel that opens a head-to-head co
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  [← Back to Teams]                                              │
+│  [<- Back to Teams]                                              │
 │                                                                 │
 │  ┌─────────┐              vs              ┌─────────┐          │
 │  │  [SLK]  │                              │  [-s-]  │          │
@@ -72,11 +72,11 @@ Add a "Compare H2H" button to the team detail panel that opens a head-to-head co
 │  dm2       ████░░░░  1-1   (50%)                               │
 │  dm3       ████████  1-0   (100%)                              │
 │  schloss   ████░░░░  1-1   (50%)                               │
-│  e1m2      ░░░░░░░░  0-0   (—)                                 │
+│  e1m2      ░░░░░░░░  0-0   (--)                                 │
 │                                                                 │
 │  ─────────────────────────────────────────────────────────────  │
 │                                                                 │
-│  Match History                           [View on QW Hub →]    │
+│  Match History                           [View on QW Hub ->]    │
 │  ─────────────────────────────────────────────────────────────  │
 │                                                                 │
 │  Jan 27   schloss   ]sr[  240 - 220  -s-               W       │
@@ -303,7 +303,7 @@ function _renderH2HView(opponent) {
     return `
         <div class="h2h-view">
             <button class="btn-link text-sm mb-4" onclick="TeamsBrowserPanel.exitH2H()">
-                ← Back to Teams
+                <- Back to Teams
             </button>
 
             <div class="h2h-header">
@@ -399,7 +399,7 @@ function _renderMapBreakdown(mapStats) {
                                 <div class="map-bar-fill" style="width: ${winPct}%"></div>
                             </div>
                             <span class="map-record">${stats.wins}-${stats.losses}</span>
-                            <span class="map-pct">${total > 0 ? `${winPct}%` : '—'}</span>
+                            <span class="map-pct">${total > 0 ? `${winPct}%` : '--'}</span>
                         </div>
                     `;
                 }).join('')}
@@ -415,7 +415,7 @@ function _renderH2HMatchList(matches, team1Tag, team2Tag) {
                 <h4 class="section-title">Match History</h4>
                 <a href="${QWHubService.getH2HUrl(team1Tag, team2Tag)}"
                    target="_blank" class="link-muted text-xs">
-                    View on QW Hub →
+                    View on QW Hub ->
                 </a>
             </div>
             <div class="match-list">
@@ -579,7 +579,7 @@ startH2H(opponentTeamId) called
     ↓
 Set _h2hMode = true, store opponent
     ↓
-Re-render detail panel → shows H2H view
+Re-render detail panel -> shows H2H view
     ↓
 Get user's team qwHubTag + opponent qwHubTag
     ↓
@@ -587,13 +587,13 @@ QWHubService.getHeadToHead(tag1, tag2)
     ↓
 API query with both teams in cs.{team1,team2}
     ↓
-Process results → record, mapBreakdown, matches
+Process results -> record, mapBreakdown, matches
     ↓
 Render H2H components
     ↓
 User clicks "Back to Teams"
     ↓
-exitH2H() → _h2hMode = false
+exitH2H() -> _h2hMode = false
     ↓
 Re-render normal team detail
 ```

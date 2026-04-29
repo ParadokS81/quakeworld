@@ -51,7 +51,7 @@ The existing `linkOnly` flow in `discordOAuthExchange` already does exactly what
 4. Updates user doc with new Discord fields
 5. Updates team rosters with new avatar/photoURL
 
-Discord-primary users are authenticated and have a UID. The `linkOnly` path works for them too — it just updates their Discord fields in Firestore. **No Cloud Function changes needed.**
+Discord-primary users are authenticated and have a UID. The `linkOnly` path works for them too -- it just updates their Discord fields in Firestore. **No Cloud Function changes needed.**
 
 ```
 FRONTEND COMPONENTS:
@@ -59,12 +59,12 @@ FRONTEND COMPONENTS:
   - Firebase listeners: none (profile data loaded on open)
   - Cache interactions: updates _userProfile after re-link
   - UI responsibilities: Adds "Re-link" button to Case 1 (Discord-primary)
-  - User actions: Click "Re-link" → OAuth popup → swap Discord account
+  - User actions: Click "Re-link" -> OAuth popup -> swap Discord account
 
 FRONTEND SERVICES:
 - AuthService.js
-  - relinkDiscordAccount() → reuses linkDiscordAccount() internally
-  - No new Cloud Function call needed — linkOnly flow handles it
+  - relinkDiscordAccount() -> reuses linkDiscordAccount() internally
+  - No new Cloud Function call needed -- linkOnly flow handles it
 
 BACKEND REQUIREMENTS:
 ⚠️ NO BACKEND CHANGES NEEDED
@@ -75,20 +75,20 @@ BACKEND REQUIREMENTS:
 - The only requirement is context.auth.uid exists (Discord-primary users have this)
 
 INTEGRATION POINTS:
-- Frontend → Backend: AuthService.relinkDiscordAccount() → discordOAuthExchange(linkOnly: true)
+- Frontend -> Backend: AuthService.relinkDiscordAccount() -> discordOAuthExchange(linkOnly: true)
 - Same OAuth popup, same callback page, same Cloud Function
-- Real-time: No listener needed — profile modal re-renders from returned data
+- Real-time: No listener needed -- profile modal re-renders from returned data
 ```
 
 ---
 
 ## 4. Integration Code Examples
 
-### ProfileModal.js — Updated Case 1 Rendering
+### ProfileModal.js -- Updated Case 1 Rendering
 
 ```javascript
 // In _renderDiscordSection()
-// Case 1: Discord auth — was read-only, now has Re-link button
+// Case 1: Discord auth -- was read-only, now has Re-link button
 if (isDiscordAuth) {
     const username = _userProfile?.discordUsername || 'Unknown';
     const userId = _userProfile?.discordUserId || '';
@@ -115,7 +115,7 @@ if (isDiscordAuth) {
 }
 ```
 
-### ProfileModal.js — Re-link Handler
+### ProfileModal.js -- Re-link Handler
 
 ```javascript
 async function _handleRelinkDiscord() {
@@ -160,7 +160,7 @@ async function _handleRelinkDiscord() {
 }
 ```
 
-### ProfileModal.js — Attach Event Listener
+### ProfileModal.js -- Attach Event Listener
 
 ```javascript
 // In _attachDiscordEventListeners()
@@ -170,7 +170,7 @@ if (relinkBtn) {
 }
 ```
 
-### AuthService.js — Re-link Method
+### AuthService.js -- Re-link Method
 
 ```javascript
 /**
@@ -193,7 +193,7 @@ async function relinkDiscordAccount() {
         };
     }
 
-    // Reuse the existing linkDiscordAccount() — it calls discordOAuthExchange
+    // Reuse the existing linkDiscordAccount() -- it calls discordOAuthExchange
     // with linkOnly: true, which updates the user doc and team rosters
     return linkDiscordAccount();
 }
@@ -205,16 +205,16 @@ async function relinkDiscordAccount() {
 
 ```
 HOT PATHS (<50ms):
-- None — re-linking is a rare, one-time operation
+- None -- re-linking is a rare, one-time operation
 
 COLD PATHS (<2s):
-- Click "Re-link" → confirm → OAuth popup opens (instant)
-- Complete OAuth → Cloud Function exchange (~1-2s)
+- Click "Re-link" -> confirm -> OAuth popup opens (instant)
+- Complete OAuth -> Cloud Function exchange (~1-2s)
 - Button shows "Linking..." during operation
 
 BACKEND PERFORMANCE:
-- No new Cloud Function — reuses existing discordOAuthExchange
-- No new Firestore queries — same duplicate check as linkOnly flow
+- No new Cloud Function -- reuses existing discordOAuthExchange
+- No new Firestore queries -- same duplicate check as linkOnly flow
 ```
 
 ---
@@ -222,19 +222,19 @@ BACKEND PERFORMANCE:
 ## 6. Data Flow Diagram
 
 ```
-Click "Re-link" → Confirm dialog → AuthService.relinkDiscordAccount()
+Click "Re-link" -> Confirm dialog -> AuthService.relinkDiscordAccount()
                                           ↓
                                     Open Discord OAuth popup
                                           ↓
                                     User authorizes new Discord account
                                           ↓
-                                    callback.html → postMessage(code)
+                                    callback.html -> postMessage(code)
                                           ↓
                                     discordOAuthExchange({ code, linkOnly: true })
                                           ↓
                                     Cloud Function:
-                                    1. Exchange code → Discord API → new user data
-                                    2. Check: new Discord ID linked to another user? → reject
+                                    1. Exchange code -> Discord API -> new user data
+                                    2. Check: new Discord ID linked to another user? -> reject
                                     3. Update /users/{uid}: discordUsername, discordUserId,
                                        discordAvatarHash, photoURL
                                     4. Update team rosters with new photoURL
@@ -269,7 +269,7 @@ Click "Re-link" → Confirm dialog → AuthService.relinkDiscordAccount()
 
 | Test | Action | Expected |
 |------|--------|----------|
-| No backend changes | — | Existing `discordOAuthExchange` linkOnly tests still pass |
+| No backend changes | -- | Existing `discordOAuthExchange` linkOnly tests still pass |
 | Duplicate check | Re-link to Discord ID owned by another user | Returns error |
 | Same account | Re-link to same Discord account | Updates timestamp, no error |
 
@@ -277,43 +277,43 @@ Click "Re-link" → Confirm dialog → AuthService.relinkDiscordAccount()
 
 | Test | Flow | Validation |
 |------|------|------------|
-| Full re-link | Click Re-link → OAuth → new account | Firestore user doc has new Discord fields |
-| Team roster sync | Re-link → check team docs | playerRoster entries have new photoURL |
+| Full re-link | Click Re-link -> OAuth -> new account | Firestore user doc has new Discord fields |
+| Team roster sync | Re-link -> check team docs | playerRoster entries have new photoURL |
 | Avatar update | Re-link to account with different avatar | photoURL updated in user doc + team rosters |
 
 ---
 
 ## 8. Common Pitfalls
 
-- [ ] **Forgetting to attach the relink event listener** — `_attachDiscordEventListeners()` must handle `#relink-discord-btn`
-- [ ] **Not updating cache after re-link** — `_userProfile` must reflect new Discord data immediately
-- [ ] **Re-rendering wrong section** — Must re-render Case 1 (Discord-primary), not switch to Case 3 (no Discord)
-- [ ] **Not handling dev mode** — `relinkDiscordAccount()` needs dev mode bypass like `linkDiscordAccount()`
+- [ ] **Forgetting to attach the relink event listener** -- `_attachDiscordEventListeners()` must handle `#relink-discord-btn`
+- [ ] **Not updating cache after re-link** -- `_userProfile` must reflect new Discord data immediately
+- [ ] **Re-rendering wrong section** -- Must re-render Case 1 (Discord-primary), not switch to Case 3 (no Discord)
+- [ ] **Not handling dev mode** -- `relinkDiscordAccount()` needs dev mode bypass like `linkDiscordAccount()`
 
 ---
 
 ## 9. Implementation Notes
 
 ### Order of Implementation
-1. **AuthService.js** — Add `relinkDiscordAccount()` method (trivial: wraps `linkDiscordAccount()`)
-2. **ProfileModal.js** — Update Case 1 rendering to include "Re-link" button
-3. **ProfileModal.js** — Add `_handleRelinkDiscord()` handler
-4. **ProfileModal.js** — Update `_attachDiscordEventListeners()` to attach relink handler
+1. **AuthService.js** -- Add `relinkDiscordAccount()` method (trivial: wraps `linkDiscordAccount()`)
+2. **ProfileModal.js** -- Update Case 1 rendering to include "Re-link" button
+3. **ProfileModal.js** -- Add `_handleRelinkDiscord()` handler
+4. **ProfileModal.js** -- Update `_attachDiscordEventListeners()` to attach relink handler
 5. Test on production (OAuth requires real Discord app)
 
 ### Key Reuse Points
-- **OAuth popup** — Same as `linkDiscordAccount()` / `signInWithDiscord()`
-- **Cloud Function** — `discordOAuthExchange` with `linkOnly: true` (unchanged)
-- **Callback page** — No changes
-- **Team roster update** — Already handled by Cloud Function
+- **OAuth popup** -- Same as `linkDiscordAccount()` / `signInWithDiscord()`
+- **Cloud Function** -- `discordOAuthExchange` with `linkOnly: true` (unchanged)
+- **Callback page** -- No changes
+- **Team roster update** -- Already handled by Cloud Function
 
 ### Why No Backend Changes
 The `linkOnly` path in `discordOAuthExchange` (discord-auth.js ~line 112-172):
-1. Gets `callerUid` from `context.auth.uid` ← Discord-primary users have this
-2. Exchanges OAuth code for Discord user data ← Same flow
-3. Checks duplicate Discord ID ← Same validation needed
-4. Updates user doc fields ← Exactly what re-link needs
-5. Updates team rosters ← Exactly what re-link needs
+1. Gets `callerUid` from `context.auth.uid` <- Discord-primary users have this
+2. Exchanges OAuth code for Discord user data <- Same flow
+3. Checks duplicate Discord ID <- Same validation needed
+4. Updates user doc fields <- Exactly what re-link needs
+5. Updates team rosters <- Exactly what re-link needs
 
 The only assumption is `context.auth.uid` exists, which is true for all authenticated users regardless of provider.
 

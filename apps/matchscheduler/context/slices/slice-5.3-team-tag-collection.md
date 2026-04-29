@@ -5,7 +5,7 @@
 - **Slice ID:** 5.3
 - **Name:** Team Tag Collection
 - **User Story:** As a team leader, I can add multiple historical team tags to my team so that match history, H2H stats, and map stats aggregate results from all tags the team has played under.
-- **Success Criteria:** Leader adds tags via Team Settings → QWHub/QWStats queries use all tags → Match history shows unified results deduplicated by match ID → H2H and Form tabs work with multi-tag teams.
+- **Success Criteria:** Leader adds tags via Team Settings -> QWHub/QWStats queries use all tags -> Match history shows unified results deduplicated by match ID -> H2H and Form tabs work with multi-tag teams.
 
 ---
 
@@ -42,29 +42,29 @@ IGNORED SECTIONS:
   - Input + "Add" button for new tags
   - Click star on non-primary chip to change primary
 - User actions:
-  - Add tag → calls `updateTeamTags` Cloud Function
-  - Remove tag → calls `updateTeamTags` Cloud Function
-  - Set primary → calls `updateTeamTags` Cloud Function
+  - Add tag -> calls `updateTeamTags` Cloud Function
+  - Remove tag -> calls `updateTeamTags` Cloud Function
+  - Set primary -> calls `updateTeamTags` Cloud Function
 
 ### FRONTEND SERVICES
 
 **QWHubService** (`public/js/services/QWHubService.js`)
 - Modified methods:
-  - `getRecentMatches(teamTags[], limit)` — accepts array, parallel queries, merge + dedup
-  - `getMatchHistory(teamTags[], months)` — same pattern
-  - `getTeamMapStats(teamTags[], months)` — same pattern
-  - `getH2HMatches(teamTagsA[], teamTagsB[])` — cross-product queries, dedup
+  - `getRecentMatches(teamTags[], limit)` -- accepts array, parallel queries, merge + dedup
+  - `getMatchHistory(teamTags[], months)` -- same pattern
+  - `getTeamMapStats(teamTags[], months)` -- same pattern
+  - `getH2HMatches(teamTagsA[], teamTagsB[])` -- cross-product queries, dedup
 
 **QWStatsService** (`public/js/services/QWStatsService.js`)
 - Modified methods:
-  - `getH2H(teamTagsA[], teamTagsB[], opts)` — passes arrays to backend
-  - `getForm(teamTags[], opts)` — passes array to backend
-  - `getMaps(teamTags[], opts)` — passes array to backend
-  - `getRoster(teamTags[], opts)` — passes array to backend
+  - `getH2H(teamTagsA[], teamTagsB[], opts)` -- passes arrays to backend
+  - `getForm(teamTags[], opts)` -- passes array to backend
+  - `getMaps(teamTags[], opts)` -- passes array to backend
+  - `getRoster(teamTags[], opts)` -- passes array to backend
 
 **TeamService** (`public/js/services/TeamService.js`)
-- New helper: `getTeamAllTags(teamId)` — returns all tags (lowercased) from cache
-- New helper: `getTeamPrimaryTag(teamId)` — returns primary tag from cache
+- New helper: `getTeamAllTags(teamId)` -- returns all tags (lowercased) from cache
+- New helper: `getTeamPrimaryTag(teamId)` -- returns primary tag from cache
 
 ### BACKEND REQUIREMENTS
 
@@ -79,7 +79,7 @@ IGNORED SECTIONS:
   - At least 1 tag (can't have empty)
   - Max 6 tags (practical limit)
 - Operations:
-  - Update `/teams/{teamId}` → `teamTags` array and `teamTag` (primary)
+  - Update `/teams/{teamId}` -> `teamTags` array and `teamTag` (primary)
   - Propagate primary tag change to active proposals/scheduled matches (existing `_propagateTeamTagChange`)
 - Returns: `{ success: true }` or `{ success: false, error: "message" }`
 - Event log: `team-tags-updated` with old/new tags
@@ -87,10 +87,10 @@ IGNORED SECTIONS:
 **QWStats API: Update all endpoints to accept tag arrays**
 - File: `/qw-stats/api/server.js`
 - Endpoints to update:
-  - `GET /api/h2h?teamA=tag1,tag2&teamB=tag3,tag4` → SQL `ANY($1::text[])`
-  - `GET /api/form?team=tag1,tag2` → SQL `ANY($1::text[])`
-  - `GET /api/maps?team=tag1,tag2` → SQL `ANY($1::text[])`
-  - `GET /api/roster?team=tag1,tag2` → SQL `ANY($1::text[])`
+  - `GET /api/h2h?teamA=tag1,tag2&teamB=tag3,tag4` -> SQL `ANY($1::text[])`
+  - `GET /api/form?team=tag1,tag2` -> SQL `ANY($1::text[])`
+  - `GET /api/maps?team=tag1,tag2` -> SQL `ANY($1::text[])`
+  - `GET /api/roster?team=tag1,tag2` -> SQL `ANY($1::text[])`
 - SQL change pattern:
   ```sql
   -- Before:
@@ -121,9 +121,9 @@ IGNORED SECTIONS:
 
 ### INTEGRATION POINTS
 
-- Frontend → Backend: `TeamService.callFunction('updateTeamTags', { teamId, teamTags })`
-- Frontend → QWHub API: `QWHubService.getRecentMatches(tags)` fires parallel Supabase queries per tag
-- Frontend → QWStats API: `QWStatsService.getH2H(tagsA, tagsB)` passes comma-separated to query param
+- Frontend -> Backend: `TeamService.callFunction('updateTeamTags', { teamId, teamTags })`
+- Frontend -> QWHub API: `QWHubService.getRecentMatches(tags)` fires parallel Supabase queries per tag
+- Frontend -> QWStats API: `QWStatsService.getH2H(tagsA, tagsB)` passes comma-separated to query param
 - Real-time: Existing team doc listener picks up `teamTags` changes automatically
 - Cache: `TeamService.getTeamAllTags(teamId)` reads from cached team doc
 
@@ -131,10 +131,10 @@ IGNORED SECTIONS:
 
 ## 4. Integration Code Examples
 
-### Tag Management UI → Backend
+### Tag Management UI -> Backend
 
 ```javascript
-// In TeamManagementModal — handling "Add Tag" click
+// In TeamManagementModal -- handling "Add Tag" click
 async function _handleAddTag() {
     const newTag = document.getElementById('new-tag-input').value.trim();
     if (!newTag) return;
@@ -164,17 +164,17 @@ async function _handleAddTag() {
         }
         // Success: listener will update UI
     } catch (err) {
-        _showTagError('Network error — try again');
+        _showTagError('Network error -- try again');
     } finally {
         _setTagsLoading(false);
     }
 }
 ```
 
-### QWHubService — Parallel Multi-Tag Query
+### QWHubService -- Parallel Multi-Tag Query
 
 ```javascript
-// QWHubService.getRecentMatches — updated for tag arrays
+// QWHubService.getRecentMatches -- updated for tag arrays
 async function getRecentMatches(teamTags, limit = 5) {
     if (!Array.isArray(teamTags)) teamTags = [teamTags];
     const apiTags = teamTags.map(t => t.toLowerCase());
@@ -213,10 +213,10 @@ async function getRecentMatches(teamTags, limit = 5) {
 }
 ```
 
-### QWStats API — SQL with ANY()
+### QWStats API -- SQL with ANY()
 
 ```javascript
-// qw-stats/api/server.js — H2H endpoint updated
+// qw-stats/api/server.js -- H2H endpoint updated
 app.get('/api/h2h', async (req, res) => {
     const tagsA = req.query.teamA.split(',').map(t => t.trim().toLowerCase());
     const tagsB = req.query.teamB.split(',').map(t => t.trim().toLowerCase());
@@ -241,7 +241,7 @@ app.get('/api/h2h', async (req, res) => {
 ### Callers Pass Tag Arrays
 
 ```javascript
-// TeamsBrowserPanel._loadH2HData() — updated to pass all tags
+// TeamsBrowserPanel._loadH2HData() -- updated to pass all tags
 async function _loadH2HData(teamA, teamB) {
     const tagsA = TeamService.getTeamAllTags(teamA.id); // ["sr", "]sr[", "slax"]
     const tagsB = TeamService.getTeamAllTags(teamB.id); // ["ving", "v!ng"]
@@ -263,7 +263,7 @@ async function _loadH2HData(teamA, teamB) {
 
 ```
 HOT PATHS (<50ms):
-- Reading team tags from cache: TeamService.getTeamAllTags() — instant from _teamCache
+- Reading team tags from cache: TeamService.getTeamAllTags() -- instant from _teamCache
 - Rendering tag chips in modal: Pure DOM render from cached data
 - QWHub cached queries: Per-tag cache hit returns instantly
 
@@ -274,8 +274,8 @@ COLD PATHS (<2s):
 
 BACKEND PERFORMANCE:
 - updateTeamTags Cloud Function: Single Firestore update + propagation batch (~500ms)
-- QWStats SQL with ANY(): Uses existing indexes on team_a_ascii/team_b_ascii — no new indexes needed, ANY() leverages btree indexes
-- No cold start concern — shares existing v1 function container
+- QWStats SQL with ANY(): Uses existing indexes on team_a_ascii/team_b_ascii -- no new indexes needed, ANY() leverages btree indexes
+- No cold start concern -- shares existing v1 function container
 ```
 
 ---
@@ -284,31 +284,31 @@ BACKEND PERFORMANCE:
 
 ### Tag Management Flow
 ```
-Leader clicks "Add Tag" → TeamManagementModal._handleAddTag()
-    → TeamService.callFunction('updateTeamTags', { teamId, teamTags })
-        → Cloud Function validates + updates /teams/{teamId}
-            → Propagates primary tag to proposals/matches
-                → onSnapshot fires on team doc
-                    → TeamService.updateCachedTeam()
-                    → TeamManagementModal re-renders tag chips
+Leader clicks "Add Tag" -> TeamManagementModal._handleAddTag()
+    -> TeamService.callFunction('updateTeamTags', { teamId, teamTags })
+        -> Cloud Function validates + updates /teams/{teamId}
+            -> Propagates primary tag to proposals/matches
+                -> onSnapshot fires on team doc
+                    -> TeamService.updateCachedTeam()
+                    -> TeamManagementModal re-renders tag chips
 ```
 
 ### Stats Query Flow (after tags saved)
 ```
 User opens Match History tab
-    → QWHubService.getRecentMatches(TeamService.getTeamAllTags(teamId))
-        → Per-tag cache check (instant if cached)
-        → Parallel Supabase queries for uncached tags
-        → Merge + deduplicate by match ID
-        → Sort by timestamp, apply limit
-    → Render match cards
+    -> QWHubService.getRecentMatches(TeamService.getTeamAllTags(teamId))
+        -> Per-tag cache check (instant if cached)
+        -> Parallel Supabase queries for uncached tags
+        -> Merge + deduplicate by match ID
+        -> Sort by timestamp, apply limit
+    -> Render match cards
 
 User opens H2H tab
-    → QWStatsService.getH2H(tagsA[], tagsB[], opts)
-        → GET /api/h2h?teamA=sr,]sr[,slax&teamB=ving,v!ng
-            → SQL: WHERE team_a_ascii = ANY($1) AND team_b_ascii = ANY($2)
-        → Return unified results
-    → Render H2H panel
+    -> QWStatsService.getH2H(tagsA[], tagsB[], opts)
+        -> GET /api/h2h?teamA=sr,]sr[,slax&teamB=ving,v!ng
+            -> SQL: WHERE team_a_ascii = ANY($1) AND team_b_ascii = ANY($2)
+        -> Return unified results
+    -> Render H2H panel
 ```
 
 ---
@@ -337,16 +337,16 @@ BACKEND TESTS:
 - [ ] QWStats deduplicates when same match appears under multiple tags (shouldn't happen but guard)
 
 INTEGRATION TESTS:
-- [ ] Add tag → Firestore updates → listener fires → UI shows new chip
-- [ ] Change primary → proposals/matches update → sidebar shows new tag
+- [ ] Add tag -> Firestore updates -> listener fires -> UI shows new chip
+- [ ] Change primary -> proposals/matches update -> sidebar shows new tag
 - [ ] QWHub match history shows results from ALL team tags
 - [ ] H2H tab shows combined results across tag aliases
 - [ ] Form tab shows combined recent form across tag aliases
-- [ ] Error from backend → user sees error message, tags unchanged
+- [ ] Error from backend -> user sees error message, tags unchanged
 
 END-TO-END:
-- [ ] Leader adds historical tag → views match history → sees older matches appear
-- [ ] Leader changes primary tag → sidebar/proposals show new tag
+- [ ] Leader adds historical tag -> views match history -> sees older matches appear
+- [ ] Leader changes primary tag -> sidebar/proposals show new tag
 - [ ] Team with 3 tags: match history merges all 3 sources correctly
 - [ ] H2H between two multi-tag teams returns complete matchup history
 ```
@@ -355,14 +355,14 @@ END-TO-END:
 
 ## 8. Common Integration Pitfalls
 
-- [ ] **Forgetting lowercase normalization** — All tags must be lowercased before API calls. Store case-sensitive in Firestore (display), lowercase before Supabase/PostgreSQL queries.
-- [ ] **Not deduplicating QWHub results** — Parallel queries for tags like `sr` and `]sr[` might return the same match if a team name appears both ways in QWHub. Must deduplicate by match `id`.
-- [ ] **Backward compatibility** — All existing code reads `teamTag` (singular). Must keep `teamTag` synced with primary from `teamTags[]`. Existing callers that pass a single string must still work.
-- [ ] **QWHubService cache key** — Currently caches by single tag string. With arrays, cache each tag independently (not the combined array) so adding a tag only fetches data for the new one.
-- [ ] **PostgREST URL encoding** — Special QW chars like `]`, `[`, `!` need proper URL encoding in Supabase queries. Test with real tags like `]sr[`.
-- [ ] **QWStats comma parsing** — Tags like `GoF!` contain no commas, but validate backend doesn't break on edge-case tag characters in query params.
-- [ ] **Empty teamTags migration** — Teams created before migration won't have `teamTags[]`. Service helpers must fall back to `[teamTag]` when array is missing.
-- [ ] **Propagation scope** — Only the primary tag propagates to proposals/matches. Historical tags are stats-only, never shown in proposals.
+- [ ] **Forgetting lowercase normalization** -- All tags must be lowercased before API calls. Store case-sensitive in Firestore (display), lowercase before Supabase/PostgreSQL queries.
+- [ ] **Not deduplicating QWHub results** -- Parallel queries for tags like `sr` and `]sr[` might return the same match if a team name appears both ways in QWHub. Must deduplicate by match `id`.
+- [ ] **Backward compatibility** -- All existing code reads `teamTag` (singular). Must keep `teamTag` synced with primary from `teamTags[]`. Existing callers that pass a single string must still work.
+- [ ] **QWHubService cache key** -- Currently caches by single tag string. With arrays, cache each tag independently (not the combined array) so adding a tag only fetches data for the new one.
+- [ ] **PostgREST URL encoding** -- Special QW chars like `]`, `[`, `!` need proper URL encoding in Supabase queries. Test with real tags like `]sr[`.
+- [ ] **QWStats comma parsing** -- Tags like `GoF!` contain no commas, but validate backend doesn't break on edge-case tag characters in query params.
+- [ ] **Empty teamTags migration** -- Teams created before migration won't have `teamTags[]`. Service helpers must fall back to `[teamTag]` when array is missing.
+- [ ] **Propagation scope** -- Only the primary tag propagates to proposals/matches. Historical tags are stats-only, never shown in proposals.
 
 ---
 
@@ -382,13 +382,13 @@ Keep `teamTag` field always in sync with the primary tag from `teamTags[]`. This
 - The `updateTeamTags` Cloud Function writes BOTH fields atomically
 
 ### Implementation Order
-1. **Schema + migration** — Add `teamTags[]`, run migration, keep `teamTag` synced
-2. **Cloud Function** — `updateTeamTags` with validation + propagation
-3. **Team Settings UI** — Tag chips, add/remove, primary selection
-4. **QWStats API** — Update SQL to use `ANY()` for all 4 endpoints
-5. **QWStatsService** — Update to pass tag arrays
-6. **QWHubService** — Update to parallel-query + merge for tag arrays
-7. **Callers** — Update TeamsBrowserPanel, match history, H2H to pass tag arrays
+1. **Schema + migration** -- Add `teamTags[]`, run migration, keep `teamTag` synced
+2. **Cloud Function** -- `updateTeamTags` with validation + propagation
+3. **Team Settings UI** -- Tag chips, add/remove, primary selection
+4. **QWStats API** -- Update SQL to use `ANY()` for all 4 endpoints
+5. **QWStatsService** -- Update to pass tag arrays
+6. **QWHubService** -- Update to parallel-query + merge for tag arrays
+7. **Callers** -- Update TeamsBrowserPanel, match history, H2H to pass tag arrays
 
 ### Dependencies
 - No new npm packages needed
@@ -398,4 +398,4 @@ Keep `teamTag` field always in sync with the primary tag from `teamTags[]`. This
 
 ### Gotchas
 - `getH2HMatches` in QWHubService already uses `cs.{tagA,tagB}` for "both teams in same match". With multi-tag, this becomes multiple queries with tag combinations. Consider using the QWStats H2H endpoint instead (which handles arrays natively with SQL).
-- Max 6 tags × parallel queries = max 6 Supabase API calls. With 5-min cache, this only happens on first load after cache expires. Acceptable for 300-player community app.
+- Max 6 tags x parallel queries = max 6 Supabase API calls. With 5-min cache, this only happens on first load after cache expires. Acceptable for 300-player community app.

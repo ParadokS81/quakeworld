@@ -1,6 +1,6 @@
-# QW Stats API — Collaborator Guide
+# QW Stats API -- Collaborator Guide
 
-Public API serving QuakeWorld 4on4 match data from 18,000+ games (2022–present). Data auto-syncs from [QWHub](https://hub.quakeworld.nu) every 15 minutes.
+Public API serving QuakeWorld 4on4 match data from 18,000+ games (2022-present). Data auto-syncs from [QWHub](https://hub.quakeworld.nu) every 15 minutes.
 
 ## Base URL
 
@@ -17,13 +17,13 @@ No authentication required. All responses are JSON. CORS is open.
 ### Health Check
 ```
 GET /health
-→ { "status": "ok", "service": "qw-stats-api" }
+-> { "status": "ok", "service": "qw-stats-api" }
 ```
 
 ### Sync Status
 ```
 GET /api/sync-status
-→ { "lastSync": { "imported": 3, "totalGames": 18372, "at": "2026-02-08T21:58:35Z" }, ... }
+-> { "lastSync": { "imported": 3, "totalGames": 18372, "at": "2026-02-08T21:58:35Z" }, ... }
 ```
 Check when the database last pulled new games and how many are in it.
 
@@ -39,8 +39,8 @@ Direct matchup history between two teams. Results from teamA's perspective (W/L/
 **Parameters:**
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
-| teamA | yes | — | First team tag (lowercase) |
-| teamB | yes | — | Second team tag (lowercase) |
+| teamA | yes | -- | First team tag (lowercase) |
+| teamB | yes | -- | Second team tag (lowercase) |
 | map | no | all | Filter by map (dm2, dm3, e1m2, schloss, phantombase) |
 | months | no | 3 | How far back to look |
 | limit | no | 10 | Max games returned |
@@ -77,7 +77,7 @@ A team's recent results against all opponents.
 **Parameters:**
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
-| team | yes | — | Team tag (lowercase) |
+| team | yes | -- | Team tag (lowercase) |
 | map | no | all | Filter by map |
 | months | no | 3 | How far back |
 | limit | no | 10 | Max games |
@@ -114,7 +114,7 @@ Win rates per map for a team. Optionally filtered to a specific opponent.
 **Parameters:**
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
-| team | yes | — | Team tag (lowercase) |
+| team | yes | -- | Team tag (lowercase) |
 | vsTeam | no | all opponents | Compare against specific team |
 | months | no | 6 | How far back |
 
@@ -136,12 +136,12 @@ Win rates per map for a team. Optionally filtered to a specific opponent.
 ```
 GET /api/roster?team=book&months=3
 ```
-Player activity for a team — who played, how often, how well.
+Player activity for a team -- who played, how often, how well.
 
 **Parameters:**
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
-| team | yes | — | Team tag (lowercase) |
+| team | yes | -- | Team tag (lowercase) |
 | months | no | 3 | How far back |
 
 **Response:**
@@ -170,11 +170,11 @@ Player activity for a team — who played, how often, how well.
 
 ## Need Different Data?
 
-The API serves pre-computed queries. If you need data in a shape these endpoints don't provide, **don't query the database directly** — instead:
+The API serves pre-computed queries. If you need data in a shape these endpoints don't provide, **don't query the database directly** -- instead:
 
 1. Describe what you need (what question are you trying to answer?)
 2. Include example input/output if possible
-3. Send it to ParadokS — he'll add a new endpoint
+3. Send it to ParadokS -- he'll add a new endpoint
 
 Examples of things that can be added quickly:
 - Top players by efficiency/damage

@@ -1,17 +1,17 @@
-# Slice 14.0 — Extended Timeslot Support
+# Slice 14.0 -- Extended Timeslot Support
 
 ## Overview
 
-Allows users to add timeslots outside the base 18:00–23:00 CET window (e.g., 12:00–16:00 CET for NA/BR cross-region matches). The grid scrolls vertically when visible slots exceed the panel height. Per-user setting — does not affect teammates.
+Allows users to add timeslots outside the base 18:00-23:00 CET window (e.g., 12:00-16:00 CET for NA/BR cross-region matches). The grid scrolls vertically when visible slots exceed the panel height. Per-user setting -- does not affect teammates.
 
 **Subslices:**
-- **14.0a** — TimezoneService engine: `extraTimeSlots` state + modified `getVisibleTimeSlots()`
-- **14.0b** — Scrollable grid: CSS overflow, min-height rows, auto-scroll to EU evening
-- **14.0c** — Modal UI + persistence: "Add time range" section in Edit Timeslots modal, Firestore read/write
+- **14.0a** -- TimezoneService engine: `extraTimeSlots` state + modified `getVisibleTimeSlots()`
+- **14.0b** -- Scrollable grid: CSS overflow, min-height rows, auto-scroll to EU evening
+- **14.0c** -- Modal UI + persistence: "Add time range" section in Edit Timeslots modal, Firestore read/write
 
 ---
 
-## Slice 14.0a — Extra Timeslot Engine
+## Slice 14.0a -- Extra Timeslot Engine
 
 ### 1. Slice Definition
 
@@ -63,17 +63,17 @@ INTEGRATION POINTS:
 ### 4. Integration Code Examples
 
 ```javascript
-// TimezoneService — new constant
+// TimezoneService -- new constant
 const ALL_HALF_HOUR_SLOTS = [];
 for (let h = 0; h < 24; h++) {
     ALL_HALF_HOUR_SLOTS.push(String(h).padStart(2, '0') + '00');
     ALL_HALF_HOUR_SLOTS.push(String(h).padStart(2, '0') + '30');
 }
-// → ['0000', '0030', '0100', ..., '2300', '2330']
+// -> ['0000', '0030', '0100', ..., '2300', '2330']
 
 let _extraTimeSlots = new Set();
 
-// TimezoneService — modified getVisibleTimeSlots()
+// TimezoneService -- modified getVisibleTimeSlots()
 function getVisibleTimeSlots() {
     // Base slots minus hidden
     let slots = DISPLAY_TIME_SLOTS.filter(s => !_hiddenTimeSlots.has(s));
@@ -87,7 +87,7 @@ function getVisibleTimeSlots() {
     return slots.sort((a, b) => parseInt(a) - parseInt(b));
 }
 
-// TimezoneService — setExtraTimeSlots()
+// TimezoneService -- setExtraTimeSlots()
 function setExtraTimeSlots(extraSlots) {
     const valid = new Set(
         extraSlots.filter(s => ALL_HALF_HOUR_SLOTS.includes(s))
@@ -106,7 +106,7 @@ function getAllHalfHourSlots() {
 ```
 
 ```javascript
-// UserProfile._loadUserProfile() — load extra timeslots
+// UserProfile._loadUserProfile() -- load extra timeslots
 // (add after the existing hiddenTimeSlots block, ~line 179)
 if (typeof TimezoneService !== 'undefined' && Array.isArray(_userProfile.extraTimeSlots)) {
     TimezoneService.setExtraTimeSlots(_userProfile.extraTimeSlots);
@@ -117,7 +117,7 @@ if (typeof TimezoneService !== 'undefined' && Array.isArray(_userProfile.extraTi
 ```
 
 ```javascript
-// functions/user-profile.js — validation for extraTimeSlots
+// functions/user-profile.js -- validation for extraTimeSlots
 // (add after hiddenTimeSlots validation block, ~line 276)
 if (extraTimeSlots !== undefined) {
     if (!Array.isArray(extraTimeSlots)) {
@@ -140,8 +140,8 @@ if (extraTimeSlots !== undefined) {
 
 ```
 HOT PATHS (<50ms):
-- getVisibleTimeSlots(): Array filter + concat + sort on max 48 items — instant
-- buildGridToUtcMap(): Iterates visible slots × 7 days — max 336 entries — instant
+- getVisibleTimeSlots(): Array filter + concat + sort on max 48 items -- instant
+- buildGridToUtcMap(): Iterates visible slots x 7 days -- max 336 entries -- instant
 
 COLD PATHS (<2s):
 - setExtraTimeSlots persistence via updateProfile Cloud Function
@@ -151,14 +151,14 @@ COLD PATHS (<2s):
 ### 6. Data Flow Diagram
 
 ```
-App startup → UserProfile._loadUserProfile()
-  → reads /users/{userId}.extraTimeSlots from Firestore
-  → TimezoneService.setExtraTimeSlots(slots)
-  → dispatch 'timeslots-changed' event
-  → app.js listener: _updateGridLayout() + rebuildGrid()
-  → AvailabilityGrid._getTimeSlots() returns expanded set
-  → _buildUtcMaps() creates correct UTC mappings for all visible slots
-  → _render() builds grid rows for all visible slots
+App startup -> UserProfile._loadUserProfile()
+  -> reads /users/{userId}.extraTimeSlots from Firestore
+  -> TimezoneService.setExtraTimeSlots(slots)
+  -> dispatch 'timeslots-changed' event
+  -> app.js listener: _updateGridLayout() + rebuildGrid()
+  -> AvailabilityGrid._getTimeSlots() returns expanded set
+  -> _buildUtcMaps() creates correct UTC mappings for all visible slots
+  -> _render() builds grid rows for all visible slots
 ```
 
 ### 7. Test Scenarios
@@ -188,27 +188,27 @@ INTEGRATION TESTS:
 
 ### 8. Common Integration Pitfalls
 
-- [ ] Forgetting to sort the combined array — grid row order would be wrong
-- [ ] Not filtering duplicates between extra and base — would create duplicate grid rows
-- [ ] Not rebuilding UTC maps after extra slots change — grid cells would have stale mappings
+- [ ] Forgetting to sort the combined array -- grid row order would be wrong
+- [ ] Not filtering duplicates between extra and base -- would create duplicate grid rows
+- [ ] Not rebuilding UTC maps after extra slots change -- grid cells would have stale mappings
 - [ ] Backend validation allowing slots outside 00:00-23:30 range
 
 ### 9. Implementation Notes
 
-- `_updateGridLayout()` in app.js uses `getVisibleTimeSlots().length` to scale `gridTemplateRows`. With >11 slots, the top grid row fraction would exceed 1fr, making it taller than the bottom. This is addressed in 14.0b with the scroll approach — for 14.0a alone, the grid just gets taller rows (acceptable for testing).
+- `_updateGridLayout()` in app.js uses `getVisibleTimeSlots().length` to scale `gridTemplateRows`. With >11 slots, the top grid row fraction would exceed 1fr, making it taller than the bottom. This is addressed in 14.0b with the scroll approach -- for 14.0a alone, the grid just gets taller rows (acceptable for testing).
 - The `_getCellsInRectangle()` function uses `.indexOf()` on the sorted `_getTimeSlots()` array. This works correctly as long as the array is sorted, which `getVisibleTimeSlots()` guarantees.
-- All 48 possible slots map cleanly to UTC via `_toUtcWithOffset()` — no changes needed in conversion logic.
+- All 48 possible slots map cleanly to UTC via `_toUtcWithOffset()` -- no changes needed in conversion logic.
 
 ---
 
-## Slice 14.0b — Scrollable Grid
+## Slice 14.0b -- Scrollable Grid
 
 ### 1. Slice Definition
 
 - **Slice ID:** 14.0b
 - **Name:** Scrollable Availability Grid
 - **User Story:** As a player with extra timeslots, my grid scrolls vertically so that all slots are accessible without breaking the layout
-- **Success Criteria:** Grid body scrolls when visible slots exceed threshold. Day headers stay pinned. Default scroll position shows EU evening window. Normal users (≤11 slots) see zero visual change.
+- **Success Criteria:** Grid body scrolls when visible slots exceed threshold. Day headers stay pinned. Default scroll position shows EU evening window. Normal users (<=11 slots) see zero visual change.
 
 ### 2. PRD Mapping
 
@@ -218,10 +218,10 @@ PRIMARY SECTIONS:
 
 DEPENDENT SECTIONS:
 - Slice 14.0a: Extra timeslot engine provides expanded slot list
-- Pillar 1 Section 3.2: Sacred 3×3 grid layout constraints
+- Pillar 1 Section 3.2: Sacred 3x3 grid layout constraints
 
 IGNORED SECTIONS:
-- Mobile scroll (documented as future enhancement — touch-to-select conflicts)
+- Mobile scroll (documented as future enhancement -- touch-to-select conflicts)
 ```
 
 ### 3. Full Stack Architecture
@@ -230,7 +230,7 @@ IGNORED SECTIONS:
 FRONTEND COMPONENTS:
 - AvailabilityGrid (public/js/components/AvailabilityGrid.js)
   - _render(): Add .scrollable class to .grid-body when slots > SCROLL_THRESHOLD
-  - New: _scrollToDefaultPosition() — scrolls to EU evening row after render
+  - New: _scrollToDefaultPosition() -- scrolls to EU evening row after render
   - Modified: _render() calls _scrollToDefaultPosition() when scrollable
 
 - app.js
@@ -247,13 +247,13 @@ BACKEND REQUIREMENTS:
 
 INTEGRATION POINTS:
 - 14.0b depends on 14.0a (extra slots must be in getVisibleTimeSlots())
-- 'timeslots-changed' event → rebuildGrid() → _render() applies scroll if needed
+- 'timeslots-changed' event -> rebuildGrid() -> _render() applies scroll if needed
 ```
 
 ### 4. Integration Code Examples
 
 ```css
-/* src/css/input.css — scrollable grid body */
+/* src/css/input.css -- scrollable grid body */
 
 .grid-body.scrollable {
     flex: 1;
@@ -279,13 +279,13 @@ INTEGRATION POINTS:
 }
 
 .grid-body.scrollable .grid-row {
-    flex: 0 0 auto;       /* Don't flex — use fixed height */
+    flex: 0 0 auto;       /* Don't flex -- use fixed height */
     min-height: 2.5rem;   /* ~40px, matches natural 8-slot row height */
 }
 ```
 
 ```javascript
-// AvailabilityGrid._render() — add scrollable class conditionally
+// AvailabilityGrid._render() -- add scrollable class conditionally
 // (inside _render(), after building grid HTML)
 
 const SCROLL_THRESHOLD = 11; // Same as base slot count
@@ -335,7 +335,7 @@ function _render() {
 ```
 
 ```javascript
-// AvailabilityGrid — scroll to EU evening window
+// AvailabilityGrid -- scroll to EU evening window
 function _scrollToDefaultPosition() {
     const gridBody = _container?.querySelector('.grid-body');
     if (!gridBody) return;
@@ -356,7 +356,7 @@ function _scrollToDefaultPosition() {
 ```
 
 ```javascript
-// app.js — _updateGridLayout() modification
+// app.js -- _updateGridLayout() modification
 function _updateGridLayout() {
     const grid = document.querySelector('.main-grid-v3');
     if (!grid) return;
@@ -371,7 +371,7 @@ function _updateGridLayout() {
         ? TimezoneService.getVisibleTimeSlots().length
         : 11;
 
-    // Cap at 1fr — extra slots handled by scroll, not by making panel taller
+    // Cap at 1fr -- extra slots handled by scroll, not by making panel taller
     const fraction = Math.min(count / 11, 1);
     grid.style.gridTemplateRows = `${fraction}fr 3rem 1fr`;
 }
@@ -381,33 +381,33 @@ function _updateGridLayout() {
 
 ```
 HOT PATHS (<50ms):
-- Scroll: Native browser overflow — zero JS overhead
-- _scrollToDefaultPosition(): Single DOM query + scrollTop assignment — instant
+- Scroll: Native browser overflow -- zero JS overhead
+- _scrollToDefaultPosition(): Single DOM query + scrollTop assignment -- instant
 
 COLD PATHS:
-- None — this subslice is pure rendering
+- None -- this subslice is pure rendering
 ```
 
 ### 6. Data Flow Diagram
 
 ```
 timeslots-changed event (from 14.0a or 14.0c)
-  → app.js: _updateGridLayout() — caps row fraction at 1fr
-  → app.js: rebuildGrid()
-    → AvailabilityGrid.cleanup() + init()
-      → _render()
-        → _getTimeSlots() returns 11+ slots
-        → .grid-body gets .scrollable class
-        → All rows rendered (including extra)
-        → _scrollToDefaultPosition() → scrollTop to 1930 row
-        → _attachEventListeners() — drag/click/hover work within scrollable container
+  -> app.js: _updateGridLayout() -- caps row fraction at 1fr
+  -> app.js: rebuildGrid()
+    -> AvailabilityGrid.cleanup() + init()
+      -> _render()
+        -> _getTimeSlots() returns 11+ slots
+        -> .grid-body gets .scrollable class
+        -> All rows rendered (including extra)
+        -> _scrollToDefaultPosition() -> scrollTop to 1930 row
+        -> _attachEventListeners() -- drag/click/hover work within scrollable container
 ```
 
 ### 7. Test Scenarios
 
 ```
 FRONTEND TESTS:
-- [ ] ≤11 visible slots: .grid-body does NOT have .scrollable class
+- [ ] <=11 visible slots: .grid-body does NOT have .scrollable class
 - [ ] >11 visible slots: .grid-body HAS .scrollable class
 - [ ] Scrollable grid: day headers remain visible (pinned outside scroll container)
 - [ ] Scrollable grid: default scroll position shows 19:30 CET row near top
@@ -433,21 +433,21 @@ VISUAL TESTS:
 ### 8. Common Integration Pitfalls
 
 - [ ] Scroll position not restored after `rebuildGrid()` (week change, team switch)
-- [ ] Drag selection broken when pointer moves outside scrollable area — `_handlePointerMove` uses `elementFromPoint` which works across scroll boundaries, but verify
-- [ ] `_updateGridLayout()` making top panel taller than bottom when extra slots present — must cap at 1fr
-- [ ] Mobile: accidentally enabling scroll where touch-to-select is primary interaction — skip `.scrollable` on mobile for v1
-- [ ] Player tooltip positioning off when grid is scrolled — tooltip uses `getBoundingClientRect()` which returns viewport coords, so should be fine
+- [ ] Drag selection broken when pointer moves outside scrollable area -- `_handlePointerMove` uses `elementFromPoint` which works across scroll boundaries, but verify
+- [ ] `_updateGridLayout()` making top panel taller than bottom when extra slots present -- must cap at 1fr
+- [ ] Mobile: accidentally enabling scroll where touch-to-select is primary interaction -- skip `.scrollable` on mobile for v1
+- [ ] Player tooltip positioning off when grid is scrolled -- tooltip uses `getBoundingClientRect()` which returns viewport coords, so should be fine
 
 ### 9. Implementation Notes
 
-- **Mobile exclusion**: On mobile (`max-width: 1024px`), do NOT add `.scrollable` class. Extra slots would just make rows thinner (same as having all 11 base slots visible). Mobile users with extra slots get a dense grid but no scroll — prevents touch-action conflict. Can revisit with two-finger-scroll in a future slice.
-- **Drag across scroll**: `_handlePointerMove` already uses `document.elementFromPoint(e.clientX, e.clientY)` which works correctly regardless of scroll position. The main risk is auto-scrolling during drag (when dragging to a cell below the visible area). This is a nice-to-have, not required for v1 — user can scroll first, then drag.
-- **Comparison mode**: `updateComparisonHighlights()` queries all `.grid-cell` elements by DOM — includes scrolled-out cells. No change needed.
-- **Scheduled match labels**: `updateScheduledMatchHighlights()` also queries all cells — works regardless of scroll.
+- **Mobile exclusion**: On mobile (`max-width: 1024px`), do NOT add `.scrollable` class. Extra slots would just make rows thinner (same as having all 11 base slots visible). Mobile users with extra slots get a dense grid but no scroll -- prevents touch-action conflict. Can revisit with two-finger-scroll in a future slice.
+- **Drag across scroll**: `_handlePointerMove` already uses `document.elementFromPoint(e.clientX, e.clientY)` which works correctly regardless of scroll position. The main risk is auto-scrolling during drag (when dragging to a cell below the visible area). This is a nice-to-have, not required for v1 -- user can scroll first, then drag.
+- **Comparison mode**: `updateComparisonHighlights()` queries all `.grid-cell` elements by DOM -- includes scrolled-out cells. No change needed.
+- **Scheduled match labels**: `updateScheduledMatchHighlights()` also queries all cells -- works regardless of scroll.
 
 ---
 
-## Slice 14.0c — Modal UI + Persistence
+## Slice 14.0c -- Modal UI + Persistence
 
 ### 1. Slice Definition
 
@@ -477,8 +477,8 @@ IGNORED SECTIONS:
 FRONTEND COMPONENTS:
 - GridActionButtons (public/js/components/GridActionButtons.js)
   - _showTimeslotsModal(): Enhanced with "Add extra timeslots" collapsible section
-  - New: _renderExtraTimeslotsSection() — builds the add-range UI
-  - New: _persistExtraTimeslots(extraSlots) — calls AuthService.updateProfile
+  - New: _renderExtraTimeslotsSection() -- builds the add-range UI
+  - New: _persistExtraTimeslots(extraSlots) -- calls AuthService.updateProfile
   - Modified: Save button persists both hiddenTimeSlots AND extraTimeSlots
 
 FRONTEND SERVICES:
@@ -489,14 +489,14 @@ BACKEND REQUIREMENTS:
 - updateProfile Cloud Function (from 14.0a): Already validates extraTimeSlots
 
 INTEGRATION POINTS:
-- Modal save → TimezoneService.setExtraTimeSlots() + AuthService.updateProfile()
-- Dispatch 'timeslots-changed' → grid rebuilds with scroll (14.0b)
+- Modal save -> TimezoneService.setExtraTimeSlots() + AuthService.updateProfile()
+- Dispatch 'timeslots-changed' -> grid rebuilds with scroll (14.0b)
 ```
 
 ### 4. Integration Code Examples
 
 ```javascript
-// GridActionButtons._showTimeslotsModal() — enhanced modal structure
+// GridActionButtons._showTimeslotsModal() -- enhanced modal structure
 // After the existing timeslot toggles div, before the footer:
 
 function _buildExtraTimeslotsSection() {
@@ -522,7 +522,7 @@ function _buildExtraTimeslotsSection() {
             const toLocal = TimezoneService.baseToLocalDisplay(range.to, refDate);
             return `
                 <div class="flex items-center justify-between py-1">
-                    <span class="text-sm">${fromLocal} – ${toLocal}</span>
+                    <span class="text-sm">${fromLocal} - ${toLocal}</span>
                     <button class="extra-range-remove text-muted-foreground hover:text-destructive text-xs px-1"
                             data-from="${range.from}" data-to="${range.to}">✕</button>
                 </div>
@@ -539,7 +539,7 @@ function _buildExtraTimeslotsSection() {
             <div id="extra-timeslots-panel" class="hidden mt-2">
                 <p class="text-xs text-muted-foreground mb-2">
                     Add slots outside the standard evening window.
-                    Only you see these — other players are not affected.
+                    Only you see these -- other players are not affected.
                 </p>
                 <div class="flex items-center gap-2 mb-2">
                     <label class="text-xs text-muted-foreground">From</label>
@@ -563,7 +563,7 @@ function _buildExtraTimeslotsSection() {
 
 ```javascript
 // Group individual HHMM slots into contiguous ranges
-// e.g., ['1200','1230','1300'] → [{ from: '1200', to: '1300' }]
+// e.g., ['1200','1230','1300'] -> [{ from: '1200', to: '1300' }]
 function _groupSlotsIntoRanges(slots) {
     if (!slots || slots.length === 0) return [];
 
@@ -586,7 +586,7 @@ function _groupSlotsIntoRanges(slots) {
     return ranges;
 }
 
-// Get next half-hour slot (e.g., '1230' → '1300', '2330' → '0000')
+// Get next half-hour slot (e.g., '1230' -> '1300', '2330' -> '0000')
 function _nextHalfHour(slot) {
     let mins = parseInt(slot.slice(0, 2)) * 60 + parseInt(slot.slice(2));
     mins += 30;
@@ -599,7 +599,7 @@ function _nextHalfHour(slot) {
 
 ```javascript
 // Expand a from/to range into individual HHMM slots
-// e.g., ('1200', '1330') → ['1200', '1230', '1300', '1330']
+// e.g., ('1200', '1330') -> ['1200', '1230', '1300', '1330']
 function _expandRange(from, to) {
     const slots = [];
     let current = from;
@@ -614,7 +614,7 @@ function _expandRange(from, to) {
 ```
 
 ```javascript
-// Modal event wiring — inside _showTimeslotsModal()
+// Modal event wiring -- inside _showTimeslotsModal()
 
 // Toggle expand/collapse
 modal.querySelector('#extra-timeslots-toggle')?.addEventListener('click', () => {
@@ -660,7 +660,7 @@ modal.querySelector('#extra-ranges-list')?.addEventListener('click', (e) => {
 ```
 
 ```javascript
-// Save handler — enhanced to persist both hidden and extra
+// Save handler -- enhanced to persist both hidden and extra
 modal.querySelector('#timeslots-save-btn').addEventListener('click', async () => {
     const saveBtn = modal.querySelector('#timeslots-save-btn');
 
@@ -723,7 +723,7 @@ HOT PATHS (<50ms):
 - Dropdown interactions: Native select elements
 
 COLD PATHS (<2s):
-- Save: AuthService.updateProfile() → Cloud Function → Firestore write
+- Save: AuthService.updateProfile() -> Cloud Function -> Firestore write
 - Loading state: Save button shows "Saving..." during persistence
 ```
 
@@ -731,22 +731,22 @@ COLD PATHS (<2s):
 
 ```
 User opens Edit Timeslots modal
-  → _showTimeslotsModal() renders base toggles + extra timeslots section
-  → User expands "Add extra timeslots"
-  → Selects From: 13:00, To: 16:00 (local time)
-  → Clicks "Add"
-    → _expandRange('1200', '1500') → ['1200','1230',...,'1500'] (CET times)
-    → _pendingExtraSlots updated in memory
-    → Range list refreshed in modal
-  → User clicks "Save"
-    → TimezoneService.setHiddenTimeSlots(unchecked)
-    → TimezoneService.setExtraTimeSlots(extraSlots)
-    → dispatch 'timeslots-changed'
-      → app.js: _updateGridLayout() + rebuildGrid()
-      → Grid re-renders with extra rows + scrollable
-    → AuthService.updateProfile({ hiddenTimeSlots, extraTimeSlots })
-      → Cloud Function validates + writes to /users/{userId}
-    → Modal closes
+  -> _showTimeslotsModal() renders base toggles + extra timeslots section
+  -> User expands "Add extra timeslots"
+  -> Selects From: 13:00, To: 16:00 (local time)
+  -> Clicks "Add"
+    -> _expandRange('1200', '1500') -> ['1200','1230',...,'1500'] (CET times)
+    -> _pendingExtraSlots updated in memory
+    -> Range list refreshed in modal
+  -> User clicks "Save"
+    -> TimezoneService.setHiddenTimeSlots(unchecked)
+    -> TimezoneService.setExtraTimeSlots(extraSlots)
+    -> dispatch 'timeslots-changed'
+      -> app.js: _updateGridLayout() + rebuildGrid()
+      -> Grid re-renders with extra rows + scrollable
+    -> AuthService.updateProfile({ hiddenTimeSlots, extraTimeSlots })
+      -> Cloud Function validates + writes to /users/{userId}
+    -> Modal closes
 ```
 
 ### 7. Test Scenarios
@@ -769,31 +769,31 @@ BACKEND TESTS:
 - [ ] Saved extraTimeSlots persists and loads correctly on next session
 
 INTEGRATION TESTS:
-- [ ] Save → grid immediately shows extra slots (no page refresh)
-- [ ] Save → scroll to default position (EU evening visible)
-- [ ] Save → availability data in extra slots is writeable (click cells, add me)
-- [ ] Remove all extra ranges → Save → grid returns to base slots only
+- [ ] Save -> grid immediately shows extra slots (no page refresh)
+- [ ] Save -> scroll to default position (EU evening visible)
+- [ ] Save -> availability data in extra slots is writeable (click cells, add me)
+- [ ] Remove all extra ranges -> Save -> grid returns to base slots only
 - [ ] Extra slots survive page refresh (loaded from Firestore on init)
 
 END-TO-END TESTS:
 - [ ] User adds 13:00-15:00 range, marks availability at 14:00 Tue, saves
-- [ ] Refreshes page → extra slots visible, availability at 14:00 Tue persists
-- [ ] User removes the range → 14:00 Tue availability still in Firestore but no longer visible in grid
+- [ ] Refreshes page -> extra slots visible, availability at 14:00 Tue persists
+- [ ] User removes the range -> 14:00 Tue availability still in Firestore but no longer visible in grid
 ```
 
 ### 8. Common Integration Pitfalls
 
-- [ ] Local-to-CET conversion in dropdown: User selects "13:00 local" but we need to store the CET equivalent — use existing `baseToLocalDisplay()` in reverse, or store CET directly since dropdowns are populated from CET values
-- [ ] _pendingExtraSlots not initialized on modal open — must start as null (meaning "unchanged") vs empty array (meaning "remove all")
-- [ ] Forgetting to persist extraTimeSlots alongside hiddenTimeSlots — both should go in single updateProfile call
+- [ ] Local-to-CET conversion in dropdown: User selects "13:00 local" but we need to store the CET equivalent -- use existing `baseToLocalDisplay()` in reverse, or store CET directly since dropdowns are populated from CET values
+- [ ] _pendingExtraSlots not initialized on modal open -- must start as null (meaning "unchanged") vs empty array (meaning "remove all")
+- [ ] Forgetting to persist extraTimeSlots alongside hiddenTimeSlots -- both should go in single updateProfile call
 - [ ] Modal re-open after save: must read fresh state from TimezoneService, not stale closure
-- [ ] Edge: user has extras from a previous session but they're no longer needed — "Remove" must work for previously-saved ranges
+- [ ] Edge: user has extras from a previous session but they're no longer needed -- "Remove" must work for previously-saved ranges
 
 ### 9. Implementation Notes
 
-- **Dropdown values are CET times, labels are local times.** The `<option value="1200">` displays as the user's local equivalent via `baseToLocalDisplay('1200')`. This avoids a conversion step on save — we always store CET strings.
-- **From/To wrapping across midnight:** If user selects From=23:00, To=02:00 local — this maps to CET times that might wrap. For v1, disallow From > To (simple numeric comparison on CET values). Midnight-crossing ranges are an edge case of an edge case — can be addressed later if needed.
-- **No frequency data for extra slots.** The bars in the toggle section only exist for the base 11 slots. Extra slots added via the range picker don't get bars — that's fine since there's no EU 4on4 data for those times anyway.
+- **Dropdown values are CET times, labels are local times.** The `<option value="1200">` displays as the user's local equivalent via `baseToLocalDisplay('1200')`. This avoids a conversion step on save -- we always store CET strings.
+- **From/To wrapping across midnight:** If user selects From=23:00, To=02:00 local -- this maps to CET times that might wrap. For v1, disallow From > To (simple numeric comparison on CET values). Midnight-crossing ranges are an edge case of an edge case -- can be addressed later if needed.
+- **No frequency data for extra slots.** The bars in the toggle section only exist for the base 11 slots. Extra slots added via the range picker don't get bars -- that's fine since there's no EU 4on4 data for those times anyway.
 - **The existing `_persistHiddenTimeslots()` function gets replaced** by the combined `_persistTimeslotPreferences()` that sends both fields in one call.
 
 ### 10. Pragmatic Assumptions
@@ -804,7 +804,7 @@ END-TO-END TESTS:
 
 - **[ASSUMPTION]**: No hard cap on total visible slots beyond the natural 48 maximum
 - **Rationale**: Nobody will add 37 extra slots. The UI naturally limits via range picker. Backend validates max 37 extras.
-- **Alternative**: Cap at 24 total visible — rejected as unnecessary constraint
+- **Alternative**: Cap at 24 total visible -- rejected as unnecessary constraint
 
 ---
 
@@ -812,8 +812,8 @@ END-TO-END TESTS:
 
 ```
 /users/{userId}
-  hiddenTimeSlots: string[] | null    // EXISTING — unchanged
-  extraTimeSlots: string[] | null     // NEW — CET HHMM strings outside base range
+  hiddenTimeSlots: string[] | null    // EXISTING -- unchanged
+  extraTimeSlots: string[] | null     // NEW -- CET HHMM strings outside base range
                                       // Default: null (no extra slots)
                                       // Example: ['1200', '1230', '1300', '1330']
                                       // Max: 37 entries (48 total - 11 base)
@@ -822,9 +822,9 @@ END-TO-END TESTS:
 
 ## Implementation Order
 
-1. **14.0a** — Engine changes (TimezoneService + backend validation + UserProfile loading)
-2. **14.0b** — Scrollable grid (CSS + _render changes + auto-scroll)
-3. **14.0c** — Modal UI (range picker + persistence)
+1. **14.0a** -- Engine changes (TimezoneService + backend validation + UserProfile loading)
+2. **14.0b** -- Scrollable grid (CSS + _render changes + auto-scroll)
+3. **14.0c** -- Modal UI (range picker + persistence)
 
 Each subslice is independently testable. 14.0a can be verified by manually setting `extraTimeSlots` in Firestore. 14.0b can be verified by temporarily hardcoding extra slots. 14.0c completes the user-facing feature.
 

@@ -3,7 +3,7 @@
 Per-entity-type short-form documentation for Layer 1 of the QW Oracle knowledge service. Each entry uses the same five-field template plus a verification-status field, so consumers reason about each type in a consistent shape.
 
 > **Scope and currency note (2026-04-29):** this doc covers **ezQuake only** (the 10 entity types loaded for that project). It was authored 2026-04-22 by Pass 2 of the knowledge-service realignment roadmap and predates the FTE / QWCL / MVDSV ports. Numbers and paths below are pre-Phase-6:
-> - Entity counts (e.g. "cvar 2901") are from a 2026-04-22 snapshot; current ezQuake@head counts live in the DB and `OVERVIEW.md` § Domain inventory.
+> - Entity counts (e.g. "cvar 2901") are from a 2026-04-22 snapshot; current ezQuake@head counts live in the DB and `OVERVIEW.md` Section  Domain inventory.
 > - All `Sources:` / `Extractor:` references citing `packages/qw-config/scripts/...` paths predate the qw-config dissolution (2026-04-25). Real paths are `apps/qw-oracle/scripts/extractors/<project>/_handler_*.py` (post 2026-04-28 architecture consolidation).
 > - The closing "Future engine ports inherit this shape" section was authored when only ezQuake was loaded; FTE / QWCL / MVDSV all shipped between 2026-04-25 and 2026-04-27.
 >
@@ -12,10 +12,10 @@ Per-entity-type short-form documentation for Layer 1 of the QW Oracle knowledge 
 This doc is linked from `apps/qw-oracle/README.md` and from the monorepo-level `OVERVIEW.md`.
 
 **Runtime coverage verified 2026-04-25** via in-engine `cvarlist` / `cmdlist` dump diff:
-- **cvar**: 99.8% name coverage (2688/2693 runtime cvars in DB). Real gaps = 0; the 4 residuals are dynamically-created teamsay macros (`Cvar_Create` at config-exec time — out of reach for static extraction).
+- **cvar**: 99.8% name coverage (2688/2693 runtime cvars in DB). Real gaps = 0; the 4 residuals are dynamically-created teamsay macros (`Cvar_Create` at config-exec time -- out of reach for static extraction).
 - **command**: 100% of source-registered commands. The 130 runtime "gaps" are all HUD auto-synthesized names (+hud_*, -hud_*, plain plain-name toggles) already present in the DB as `hud_element`, a richer type.
 - **20-row field-accuracy sample**: 20/20 fields (default_value, flags_raw, on_change, source_file/line, trailing_comment) match source exactly, including binary-escaped default values and HUD positional-arg defaults.
-- See `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` § Registration pattern catalog and `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` for the post-Phase-6 procedures, or `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` for the original audit that produced these numbers.
+- See `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` Section  Registration pattern catalog and `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` for the post-Phase-6 procedures, or `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` for the original audit that produced these numbers.
 
 ## Contents
 
@@ -366,18 +366,18 @@ The seven speculative extensions audited 2026-04-22 (`.log`, `.loc`, `.lit`, `.x
 
 - `.loc` - **ast_verified** (DB: 3 rows). Primary loader `src/teamplay_locfiles.c:84` `TP_LoadLocFile`, autoloaded on map change at `:558-560` via `va("%s.loc", mapname)` with mapgroup fallback. Also exposed as `loadloc`/`saveloc`/`addloc`/`removeloc` console commands.
 - `.lit` - **ast_verified** (DB: 5 rows). Loaded via `FS_LoadHunkFile` deref-assignment pattern in `r_brushmodel_load.c`; the engine reads colored-lightmap overrides when present alongside the `.bsp`.
-- `.dat` - **ast_verified** (DB: 5+ rows). Loaded via `FS_LoadHunkFile` + literal paths in `pr_edict.c` (QuakeC `progs.dat`). Confirms the seed claim — this extension is the QuakeC bytecode format, not random `.dat` scraps.
+- `.dat` - **ast_verified** (DB: 5+ rows). Loaded via `FS_LoadHunkFile` + literal paths in `pr_edict.c` (QuakeC `progs.dat`). Confirms the seed claim -- this extension is the QuakeC bytecode format, not random `.dat` scraps.
 - `.qwz` - **ast_verified** (DB: 1 row). `PlayQWZDemo` call site handles the compressed demo format; external `qwdtools` decodes `.qwz` to `.mvd` before ezQuake loads it, but ezQuake has a first-class hookup for the format at the playback entry point.
-- `.log` - **ast_verified** (DB: 0 rows — wrapper gap). Raw `fopen` in `src/logging.c:146, 280` (write), `:336` (read, for incremental-filename probing), extension forced via `COM_ForceExtensionEx` at `:144, 277`. Filename format at `:331` follows `"%s_%03i.log" % (auto_matchname, num)` — the `auto_matchname` pipeline ties into `match_format_*` conventions via `cl_screenshot.c`. Driving cvar `match_auto_logconsole` at `match_tools.c:623`. Zero DB rows because raw `fopen` is not on the extractor's `LOADER_FUNCTIONS` watchlist.
-- `.xml` - **ast_verified** (DB: 0 rows — wrapper gap). Two orthogonal features share this extension:
+- `.log` - **ast_verified** (DB: 0 rows -- wrapper gap). Raw `fopen` in `src/logging.c:146, 280` (write), `:336` (read, for incremental-filename probing), extension forced via `COM_ForceExtensionEx` at `:144, 277`. Filename format at `:331` follows `"%s_%03i.log" % (auto_matchname, num)` -- the `auto_matchname` pipeline ties into `match_format_*` conventions via `cl_screenshot.c`. Driving cvar `match_auto_logconsole` at `match_tools.c:623`. Zero DB rows because raw `fopen` is not on the extractor's `LOADER_FUNCTIONS` watchlist.
+- `.xml` - **ast_verified** (DB: 0 rows -- wrapper gap). Two orthogonal features share this extension:
   - **Reader (client, ingame help):** `help_files.c:49` opens `help/index.xml` via `CPageViewer_GoUrl`; `Ctrl_PageViewer.c:177` is the handler; `help_files.c:83` registers `.xml` as a browsable file type.
   - **Writer (server, stats output):** `mvd_xmlstats.c:259` emits `stats.xml`; `sv_demo.c:1813` emits per-demo XML stats. This is the same `stats.xml` that qw-stats ingests.
   - Zero DB rows because `CPageViewer_GoUrl` and the server-side snprintf writers are not on the watchlist. Seed-side follow-up worth considering: `.xml` covers two distinct meanings; a `path_hint` split similar to `.tga` (`textures/` vs `skins/` vs `env/`) may be appropriate for `help/` vs demo-output paths.
-- `.spr` - **ast_verified** (DB: 0 rows — wrapper gap). Vanilla Quake sprite format, retained as a first-class ezQuake feature. Format parser `src/r_sprites.c:151` `Mod_LoadSpriteModel` (validates `SPRITE_VERSION` in `spritegn.h`, parses `dsprite_t` frames). Dispatched from the unified model loader at `r_model.c:295-296` when a model's magic bytes match `IDSPRITEHEADER`. Literal paths registered in `cl_ents.c:80-88` (explosion sprites: `progs/s_explod.spr`, `s_expl.spr`, `s_bubble.spr`) and `cl_ents.c:131-147` (**2D simple-items feature** — `sprites/s_shells.spr`, `s_rockets.spr`, `s_mega.spr`, `s_invuln.spr`, `s_quad.spr`, etc.). Active rendering pipeline across `r_sprites.c`, `r_sprite3d.c`, `glc_sprite3d.c`, `glm_sprite.c`, `gl_sprite3d.c`. Zero DB rows because the `cl_modelnames[]` → `Mod_ForName` indirection hides the literal paths from the watchlist classifier.
+- `.spr` - **ast_verified** (DB: 0 rows -- wrapper gap). Vanilla Quake sprite format, retained as a first-class ezQuake feature. Format parser `src/r_sprites.c:151` `Mod_LoadSpriteModel` (validates `SPRITE_VERSION` in `spritegn.h`, parses `dsprite_t` frames). Dispatched from the unified model loader at `r_model.c:295-296` when a model's magic bytes match `IDSPRITEHEADER`. Literal paths registered in `cl_ents.c:80-88` (explosion sprites: `progs/s_explod.spr`, `s_expl.spr`, `s_bubble.spr`) and `cl_ents.c:131-147` (**2D simple-items feature** -- `sprites/s_shells.spr`, `s_rockets.spr`, `s_mega.spr`, `s_invuln.spr`, `s_quad.spr`, etc.). Active rendering pipeline across `r_sprites.c`, `r_sprite3d.c`, `glc_sprite3d.c`, `glm_sprite.c`, `gl_sprite3d.c`. Zero DB rows because the `cl_modelnames[]` -> `Mod_ForName` indirection hides the literal paths from the watchlist classifier.
 
 **Extractor coverage observations surfaced by the audit (for future extractor work):**
 - Three distinct wrapper-gap classes appear in the zero-DB-row cases: raw `fopen` (`.log`), page-viewer URL handler (`.xml`), and table-registered-literal indirection (`.spr`). Each is a candidate for `LOADER_FUNCTIONS` watchlist expansion or a specialized handler pattern.
-- `asset_loader_sites` table has `path_literal` but not the `path_template` / `path_parameters` / `path_extension` fields the bundle JSON carries — those are dropped at load time. Not a blocker for this audit (stamps use source citations directly) but worth tracking.
+- `asset_loader_sites` table has `path_literal` but not the `path_template` / `path_parameters` / `path_extension` fields the bundle JSON carries -- those are dropped at load time. Not a blocker for this audit (stamps use source citations directly) but worth tracking.
 
 **Sources:**
 - Schema: `SCHEMA.md` - `asset_extensions`.

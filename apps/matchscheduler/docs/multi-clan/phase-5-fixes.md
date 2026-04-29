@@ -2,7 +2,7 @@
 
 ## Context
 
-Phase 5 is implemented but local testing revealed two bugs and three polish items. The bugs are blocking — they break voice discovery and the recordings tab.
+Phase 5 is implemented but local testing revealed two bugs and three polish items. The bugs are blocking -- they break voice discovery and the recordings tab.
 
 ---
 
@@ -18,8 +18,8 @@ Failed to resolve module specifier 'firebase/firestore'
 ```
 
 **Affected locations:**
-- `TeamsBrowserPanel.js` → `_fetchVoiceRecordings()` (~line 2007)
-- `TeamManagementModal.js` → `_initRecordingsTab()` (~line 1559)
+- `TeamsBrowserPanel.js` -> `_fetchVoiceRecordings()` (~line 2007)
+- `TeamManagementModal.js` -> `_initRecordingsTab()` (~line 1559)
 
 ### Fix
 
@@ -37,7 +37,7 @@ const { collection, query, where, getDocs, orderBy } = await import(
 
 The Firestore instance is `window.firebase.db` (not `firebase.firestore()`).
 
-**Reference pattern** — see how `BotRegistrationService.js` does it (line 107):
+**Reference pattern** -- see how `BotRegistrationService.js` does it (line 107):
 ```javascript
 const { doc, onSnapshot } = await import(
     'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js'
@@ -67,10 +67,10 @@ The modal shows "Team Settings" as the h2 header title AND "Team Settings" as th
 Remove the separate h2 header row. Make the tab bar serve as the header:
 
 - Remove the `<h2>Team Settings</h2>` from the header section
-- Keep the close (X) button — position it in the tab bar row or as an absolute-positioned element
+- Keep the close (X) button -- position it in the tab bar row or as an absolute-positioned element
 - The tab bar becomes the top element of the modal (right below the border/padding)
 
-For non-leaders (who don't see tabs), show a simple "Team Settings" text header instead — this is the fallback.
+For non-leaders (who don't see tabs), show a simple "Team Settings" text header instead -- this is the fallback.
 
 ---
 
@@ -99,11 +99,11 @@ The team detail page URL pattern is `#/teams/{teamId}` (e.g., `#/teams/team-sr-0
 
 The score columns use Tailwind classes `text-green-500`, `text-red-500`, and `text-muted-foreground` but these may not render because:
 1. The `.mh-td-score` class in `input.css` has a hardcoded `color: var(--foreground)` that overrides Tailwind utility classes
-2. Per the QCODE summary, this was supposedly removed — verify it's actually gone
+2. Per the QCODE summary, this was supposedly removed -- verify it's actually gone
 
 ### Fix
 
-Check `input.css` for `.mh-td-score` — ensure there's no hardcoded `color` property that would override the inline Tailwind classes. The score spans need to inherit their color from the Tailwind utility class applied in the HTML.
+Check `input.css` for `.mh-td-score` -- ensure there's no hardcoded `color` property that would override the inline Tailwind classes. The score spans need to inherit their color from the Tailwind utility class applied in the HTML.
 
 If Tailwind classes `text-green-500` and `text-red-500` aren't being generated (not in the compiled CSS), add them to the safelist in `tailwind.config.js`, or use inline styles instead:
 

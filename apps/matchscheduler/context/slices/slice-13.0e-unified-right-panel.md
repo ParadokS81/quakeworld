@@ -4,9 +4,9 @@
 Consolidate the three right-side panels (panel-top-right, panel-mid-right, panel-bottom-right) into a single unified panel that spans all grid rows. This reduces visual clutter, recovers space lost to inter-panel gaps, and creates a calmer sidebar that complements the active center grid.
 
 ## User Value
-- Cleaner visual hierarchy — one calm sidebar instead of three stacked boxes
+- Cleaner visual hierarchy -- one calm sidebar instead of three stacked boxes
 - More vertical space for the team browser list (no padding/margins between sections)
-- Less cognitive load — related controls grouped in one continuous panel
+- Less cognitive load -- related controls grouped in one continuous panel
 - Symmetrical foundation for future left-side unification
 
 ## Current State
@@ -48,13 +48,13 @@ For this slice, only the right side changes. Left side remains 3 panels.
 ### Unified Right Panel Layout
 ```
 ┌───────────────────────────────┐
-│ [Compare]       [1] vs [1]    │  ← Single row: toggle + min filters
+│ [Compare]       [1] vs [1]    │  <- Single row: toggle + min filters
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-│ 🔍 Search teams...            │  ← Search input
-│ [★Fav] [D1] [D2] [D3]         │  ← Filter buttons (Fav is first)
+│ 🔍 Search teams...            │  <- Search input
+│ [★Fav] [D1] [D2] [D3]         │  <- Filter buttons (Fav is first)
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
 │                               │
-│ Team list                     │  ← Scrollable, gets bulk of space
+│ Team list                     │  <- Scrollable, gets bulk of space
 │ (flex-1, overflow-y)          │
 │                               │
 └───────────────────────────────┘
@@ -63,11 +63,11 @@ For this slice, only the right side changes. Left side remains 3 panels.
 Internal sections use subtle dividers (border or spacing), not hard panel breaks.
 
 ### Key Changes
-1. **Remove selected team cards** — selection state shown via highlight on list items (already works)
-2. **Remove Select All/Deselect All** — move to header row or keep in list header
-3. **Compare toggle always visible** — prominent at top
-4. **Min filter** — behind gear icon or inline when Compare is ON
-5. **Favorites becomes a filter** — first filter button, not a separate section
+1. **Remove selected team cards** -- selection state shown via highlight on list items (already works)
+2. **Remove Select All/Deselect All** -- move to header row or keep in list header
+3. **Compare toggle always visible** -- prominent at top
+4. **Min filter** -- behind gear icon or inline when Compare is ON
+5. **Favorites becomes a filter** -- first filter button, not a separate section
 
 ---
 
@@ -222,11 +222,11 @@ Update grid to use explicit placement for remaining panels:
 
 ## Migration Strategy
 
-1. **Keep old panels temporarily** — add new unified panel, verify rendering
-2. **Switch components one by one** — FilterPanel → TeamBrowser
-3. **Remove old panels** — once everything renders in new location
-4. **Test mobile** — verify drawer still works
-5. **Clean up** — remove dead code, unused containers
+1. **Keep old panels temporarily** -- add new unified panel, verify rendering
+2. **Switch components one by one** -- FilterPanel -> TeamBrowser
+3. **Remove old panels** -- once everything renders in new location
+4. **Test mobile** -- verify drawer still works
+5. **Clean up** -- remove dead code, unused containers
 
 ---
 
@@ -240,20 +240,20 @@ Update grid to use explicit placement for remaining panels:
 ```
 
 **Compare Button:**
-- No "ON/OFF" text — visual state only
+- No "ON/OFF" text -- visual state only
 - OFF state: muted fill (`bg-muted`)
-- ON state: light blue fill (`bg-primary`) — same pattern as active tab in mid-center menu
+- ON state: light blue fill (`bg-primary`) -- same pattern as active tab in mid-center menu
 - Compact, icon-optional (or just "Compare" text)
 
 **Min Filter Dropdowns:**
 - Framed buttons showing current value (1-4)
-- No dropdown chevron icon — clean appearance
+- No dropdown chevron icon -- clean appearance
 - Border indicates clickability (`border border-border`)
 - Click reveals option list (1, 2, 3, 4)
 - Always visible, not hidden behind gear icon
 - "vs" label between the two dropdowns
 
-**Layout:** Flexbox with `justify-between` — Compare on left, min filters on right.
+**Layout:** Flexbox with `justify-between` -- Compare on left, min filters on right.
 
 ### Filter Buttons
 ```
@@ -268,8 +268,8 @@ Update grid to use explicit placement for remaining panels:
 ### Team List Item
 ```
 ┌─────────────────────────────┐
-│ [logo] Team Name        ★   │  ← Star on right, filled if favorite
-│        D1 · 7 players       │  ← Division + player count
+│ [logo] Team Name        ★   │  <- Star on right, filled if favorite
+│        D1 - 7 players       │  <- Division + player count
 └─────────────────────────────┘
 ```
 - Selected teams get accent border (existing behavior)
@@ -280,7 +280,7 @@ Update grid to use explicit placement for remaining panels:
 ## Testing Checklist
 
 - [ ] Unified panel renders correctly, spans full height
-- [ ] Compare button toggles state (muted fill ↔ blue fill)
+- [ ] Compare button toggles state (muted fill <-> blue fill)
 - [ ] Compare toggle affects grid highlighting
 - [ ] Min dropdowns (1-4) work, framed button style, no chevron
 - [ ] Search filters team list
@@ -299,7 +299,7 @@ Update grid to use explicit placement for remaining panels:
 
 Same pattern applied to left side:
 - Merge panel-top-left, panel-mid-left, panel-bottom-left
-- Sections: Team Identity → Roster → H2H Summary → Upcoming Matches
+- Sections: Team Identity -> Roster -> H2H Summary -> Upcoming Matches
 - `grid-row: 1 / 4` spanning
 
 ---

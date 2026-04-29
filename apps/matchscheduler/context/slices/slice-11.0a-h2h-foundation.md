@@ -1,9 +1,9 @@
-# Slice 11.0a: H2H Foundation — Service, Team Selector & Direct Matchup Tab
+# Slice 11.0a: H2H Foundation -- Service, Team Selector & Direct Matchup Tab
 
 ## Slice Definition
 - **Slice ID:** 11.0a
-- **Name:** H2H Foundation — QWStatsService, Team Selector & Direct Matchup
-- **Depends on:** Slice 5.2b (Match History Split-Panel — tab infrastructure, hover/click patterns)
+- **Name:** H2H Foundation -- QWStatsService, Team Selector & Direct Matchup
+- **Depends on:** Slice 5.2b (Match History Split-Panel -- tab infrastructure, hover/click patterns)
 - **User Story:** As a user, I can select two teams and see their direct head-to-head matchup history with scoreboard previews, so I can assess how teams have performed against each other before scheduling a match
 - **Success Criteria:**
   - H2H tab replaces "coming soon" placeholder with working content
@@ -11,8 +11,8 @@
   - Team B selectable via dropdown (all MatchScheduler teams with teamTag)
   - Sub-tabs (H2H | Form | Maps) appear right-aligned on the tab bar row when H2H tab is active
   - H2H sub-tab shows split-panel: results left (~40%), roster/activity right (~60%)
-  - Hover result → right panel shows scoreboard (reuses Match History hover pattern)
-  - Click result → right panel shows full stats (reuses Match History click pattern)
+  - Hover result -> right panel shows scoreboard (reuses Match History hover pattern)
+  - Click result -> right panel shows full stats (reuses Match History click pattern)
   - Default right panel shows roster activity for both teams
   - Period selector (1M | 3M | 6M) with 3M default
   - Map filter dropdown (derived from results, H2H sub-tab only)
@@ -21,7 +21,7 @@
 
 ## Problem Statement
 
-The H2H tab is currently a placeholder. Users need to compare two teams' competitive history before scheduling matches. The QW Stats API has 18k+ games over 4 years — far richer data than the QWHub Supabase API used by Match History.
+The H2H tab is currently a placeholder. Users need to compare two teams' competitive history before scheduling matches. The QW Stats API has 18k+ games over 4 years -- far richer data than the QWHub Supabase API used by Match History.
 
 This slice establishes the foundation: a new service for the QW Stats API, the team selector UI, the sub-tab system, and the first functional sub-tab (H2H direct matchups).
 
@@ -29,16 +29,16 @@ This slice establishes the foundation: a new service for the QW Stats API, the t
 
 Build on the existing tab infrastructure and reuse the split-panel hover/click pattern from Match History (5.2b). The key additions are:
 
-1. **QWStatsService** — New service for the QW Stats API (`qw-api.poker-affiliate.org`)
-2. **Team selector** — Team A (current team) + Team B (dropdown)
-3. **Inline sub-tabs** — Right-aligned on the same row as main tabs (avoids 3-layer menu stacking)
-4. **H2H direct matchup** — Split-panel with results list + roster/scoreboard
+1. **QWStatsService** -- New service for the QW Stats API (`qw-api.poker-affiliate.org`)
+2. **Team selector** -- Team A (current team) + Team B (dropdown)
+3. **Inline sub-tabs** -- Right-aligned on the same row as main tabs (avoids 3-layer menu stacking)
+4. **H2H direct matchup** -- Split-panel with results list + roster/scoreboard
 
 ---
 
 ## Visual Design
 
-### Tab Bar — H2H Active (clustered group with accent background)
+### Tab Bar -- H2H Active (clustered group with accent background)
 
 When "Head to Head" is clicked, it expands into a visually grouped cluster with an accent
 background wrapping all three sub-sections. This avoids 3-layer menu stacking and makes it
@@ -58,7 +58,7 @@ clear that H2H, Form, and Maps are sub-sections of the same feature.
 └────────────────────────┴────────────────────────────────────────┘
 ```
 
-### H2H Sub-Tab — Default (roster/activity)
+### H2H Sub-Tab -- Default (roster/activity)
 
 ```
 ┌────────────────────────┬────────────────────────────────────────┐
@@ -77,7 +77,7 @@ clear that H2H, Form, and Maps are sub-sections of the same feature.
 └────────────────────────┴────────────────────────────────────────┘
 ```
 
-### H2H Sub-Tab — Hover Preview
+### H2H Sub-Tab -- Hover Preview
 
 ```
 ┌────────────────────────┬────────────────────────────────────────┐
@@ -94,7 +94,7 @@ clear that H2H, Form, and Maps are sub-sections of the same feature.
 └────────────────────────┴────────────────────────────────────────┘
 ```
 
-### H2H Sub-Tab — No Team B Selected
+### H2H Sub-Tab -- No Team B Selected
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -105,7 +105,7 @@ clear that H2H, Form, and Maps are sub-sections of the same feature.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### H2H Sub-Tab — No Matchups Found
+### H2H Sub-Tab -- No Matchups Found
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -116,7 +116,7 @@ clear that H2H, Form, and Maps are sub-sections of the same feature.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### H2H Sub-Tab — No Team Tag
+### H2H Sub-Tab -- No Team Tag
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -305,39 +305,39 @@ let _h2hDataById = new Map();      // Result objects by ID for hover/click looku
 
 **New methods:**
 
-- `_renderH2HTab(team)` — Main H2H tab renderer with team selector header
-- `_renderH2HSubTabs()` — Returns sub-tab HTML for right-alignment in tab bar
-- `_renderTeamSelector(team)` — Team A (fixed) + Team B (dropdown) + period + map filter
-- `_renderH2HSubTabContent()` — Dispatches to h2h/form/maps renderers
-- `_renderH2HDirectTab()` — Split-panel for direct matchups
-- `_renderH2HResultList(games)` — Left panel: result rows
-- `_renderH2HRosterPanel()` — Right panel default: roster/activity for both teams
-- `_renderH2HSummaryBar(results)` — Record summary (e.g., "5W 3L — 62%")
-- `_loadH2HData()` — Fetches H2H results + rosters, populates state
-- `_resetH2HState()` — Clears all H2H state (called on team switch)
+- `_renderH2HTab(team)` -- Main H2H tab renderer with team selector header
+- `_renderH2HSubTabs()` -- Returns sub-tab HTML for right-alignment in tab bar
+- `_renderTeamSelector(team)` -- Team A (fixed) + Team B (dropdown) + period + map filter
+- `_renderH2HSubTabContent()` -- Dispatches to h2h/form/maps renderers
+- `_renderH2HDirectTab()` -- Split-panel for direct matchups
+- `_renderH2HResultList(games)` -- Left panel: result rows
+- `_renderH2HRosterPanel()` -- Right panel default: roster/activity for both teams
+- `_renderH2HSummaryBar(results)` -- Record summary (e.g., "5W 3L -- 62%")
+- `_loadH2HData()` -- Fetches H2H results + rosters, populates state
+- `_resetH2HState()` -- Clears all H2H state (called on team switch)
 
 **Reused methods from Match History (5.2b):**
 
-- `_renderScoreboard(match)` — Scoreboard with mapshot background (hover preview)
-- `_renderStatsView(match, ktxstats)` — Unified stats-on-map view (click selection)
-- `_renderStatsTable(ktxstats, match)` — Per-player stats table with tabs
+- `_renderScoreboard(match)` -- Scoreboard with mapshot background (hover preview)
+- `_renderStatsView(match, ktxstats)` -- Unified stats-on-map view (click selection)
+- `_renderStatsTable(ktxstats, match)` -- Per-player stats table with tabs
 
 **Modified methods:**
 
-- `_renderTabBar()` — When `_activeTab === 'h2h'`, append sub-tabs right-aligned
-- `switchTab(tabName)` — Reset H2H state when switching away from H2H
-- `_renderTeamsView()` — Route `case 'h2h'` to `_renderH2HTab(team)`
-- `_renderCurrentView()` — When H2H tab active + team selected, trigger lazy-load
+- `_renderTabBar()` -- When `_activeTab === 'h2h'`, append sub-tabs right-aligned
+- `switchTab(tabName)` -- Reset H2H state when switching away from H2H
+- `_renderTeamsView()` -- Route `case 'h2h'` to `_renderH2HTab(team)`
+- `_renderCurrentView()` -- When H2H tab active + team selected, trigger lazy-load
 
 **New public methods (for onclick handlers):**
 
-- `selectOpponent(teamId)` — Team B dropdown change handler
-- `switchH2HSubTab(subTab)` — Sub-tab click handler
-- `changeH2HPeriod(months)` — Period button click handler
-- `filterH2HByMap(map)` — Map filter change handler
-- `previewH2HResult(resultId)` — Hover handler (reuses hover pattern)
-- `clearH2HPreview()` — Mouse leave handler
-- `selectH2HResult(resultId)` — Click handler (reuses click pattern)
+- `selectOpponent(teamId)` -- Team B dropdown change handler
+- `switchH2HSubTab(subTab)` -- Sub-tab click handler
+- `changeH2HPeriod(months)` -- Period button click handler
+- `filterH2HByMap(map)` -- Map filter change handler
+- `previewH2HResult(resultId)` -- Hover handler (reuses hover pattern)
+- `clearH2HPreview()` -- Mouse leave handler
+- `selectH2HResult(resultId)` -- Click handler (reuses click pattern)
 
 ---
 
@@ -736,7 +736,7 @@ function _renderH2HPreviewPanel(resultId) {
         `;
     }
 
-    // Hover or sticky without stats yet — show simple scoreboard
+    // Hover or sticky without stats yet -- show simple scoreboard
     return _renderH2HSimpleScoreboard(game);
 }
 
@@ -755,7 +755,7 @@ function _renderH2HSimpleScoreboard(game) {
     return `
         <div class="h2h-scoreboard" style="background-image: url('${mapImg}')">
             <div class="h2h-scoreboard-overlay">
-                <div class="h2h-scoreboard-date">${dateStr} — ${game.map}</div>
+                <div class="h2h-scoreboard-date">${dateStr} -- ${game.map}</div>
                 <div class="h2h-scoreboard-score">
                     <span class="h2h-scoreboard-tag">${_escapeHtml(teamA)}</span>
                     <span class="h2h-scoreboard-frags ${resultClass}">${game.teamAFrags}</span>
@@ -800,7 +800,7 @@ Add to `src/css/input.css`:
    Slice 11.0a: H2H Foundation
    ============================================ */
 
-/* H2H clustered tab group — accent background wrapping Head to Head + Form + Maps */
+/* H2H clustered tab group -- accent background wrapping Head to Head + Form + Maps */
 .h2h-tab-cluster {
     display: flex;
     gap: 0;
@@ -1084,7 +1084,7 @@ Add `<script src="/js/services/QWStatsService.js"></script>` in `public/index.ht
 
 The H2H hover/click preview needs to render scoreboards. Two approaches:
 
-1. **Simple scoreboard** (hover, no player data): `_renderH2HSimpleScoreboard()` — shows team names, frags, map, date. This is new and H2H-specific since the QW Stats API `/api/h2h` endpoint only returns aggregate scores, not per-player data.
+1. **Simple scoreboard** (hover, no player data): `_renderH2HSimpleScoreboard()` -- shows team names, frags, map, date. This is new and H2H-specific since the QW Stats API `/api/h2h` endpoint only returns aggregate scores, not per-player data.
 
 2. **Full stats view** (click, with ktxstats): Reuse `_renderStatsView()` and `_renderStatsTable()` from Match History. Requires transforming the H2H game object to match the format expected by these functions.
 
@@ -1092,7 +1092,7 @@ The H2H hover/click preview needs to render scoreboards. Two approaches:
 
 ```javascript
 function _transformH2HGameForScoreboard(game) {
-    // Transform QW Stats API game → Match History format for scoreboard reuse
+    // Transform QW Stats API game -> Match History format for scoreboard reuse
     return {
         id: game.id,
         map: game.map,
@@ -1119,7 +1119,7 @@ HOT PATHS (<50ms):
 - Hover preview: Scoreboard rendered from cached API data (no API call)
 
 COLD PATHS (<2s):
-- Team B selection: Triggers _loadH2HData() — 3 parallel API calls (~500-1000ms)
+- Team B selection: Triggers _loadH2HData() -- 3 parallel API calls (~500-1000ms)
 - Period change: Re-fetches H2H + rosters with new period
 - ktxstats fetch on click: ~300-500ms, cached indefinitely
 - First H2H tab load: Lazy-loaded on tab click
@@ -1136,47 +1136,47 @@ BACKEND PERFORMANCE:
 
 ```
 User clicks "Head to Head" tab
-    → _activeTab = 'h2h'
-    → _renderTabBar() includes sub-tabs right-aligned
-    → _renderH2HTab(team)
-        → No Team B selected → shows "Select an opponent" state
+    -> _activeTab = 'h2h'
+    -> _renderTabBar() includes sub-tabs right-aligned
+    -> _renderH2HTab(team)
+        -> No Team B selected -> shows "Select an opponent" state
 
 User selects Team B from dropdown
-    → selectOpponent(teamId)
-    → _h2hOpponentId = teamId
-    → _loadH2HData()
-        → QWStatsService.getH2H(teamA.tag, teamB.tag, { months: 3 })
-        → QWStatsService.getRoster(teamA.tag, { months: 3 })
-        → QWStatsService.getRoster(teamB.tag, { months: 3 })
-        → All three fetched in parallel
-    → Guard: still same teams?
-    → Populate _h2hResults, _h2hRosterA, _h2hRosterB, _h2hDataById
-    → _renderCurrentView()
-        → Split panel: result list left, roster/activity right
+    -> selectOpponent(teamId)
+    -> _h2hOpponentId = teamId
+    -> _loadH2HData()
+        -> QWStatsService.getH2H(teamA.tag, teamB.tag, { months: 3 })
+        -> QWStatsService.getRoster(teamA.tag, { months: 3 })
+        -> QWStatsService.getRoster(teamB.tag, { months: 3 })
+        -> All three fetched in parallel
+    -> Guard: still same teams?
+    -> Populate _h2hResults, _h2hRosterA, _h2hRosterB, _h2hDataById
+    -> _renderCurrentView()
+        -> Split panel: result list left, roster/activity right
 
 User hovers a result row
-    → previewH2HResult(resultId)
-        → _h2hHoveredId = resultId
-        → _renderH2HSimpleScoreboard(game) into right panel
+    -> previewH2HResult(resultId)
+        -> _h2hHoveredId = resultId
+        -> _renderH2HSimpleScoreboard(game) into right panel
 
 User clicks a result row
-    → selectH2HResult(resultId)
-        → _h2hSelectedId = resultId
-        → Render simple scoreboard immediately
-        → Fetch ktxstats async (demoSha256)
-        → Guard: still same selection?
-        → _renderStatsView() with full player data
+    -> selectH2HResult(resultId)
+        -> _h2hSelectedId = resultId
+        -> Render simple scoreboard immediately
+        -> Fetch ktxstats async (demoSha256)
+        -> Guard: still same selection?
+        -> _renderStatsView() with full player data
 
-User changes period (1M → 6M)
-    → changeH2HPeriod(6)
-        → _h2hPeriod = 6
-        → _loadH2HData() (re-fetches with new period)
+User changes period (1M -> 6M)
+    -> changeH2HPeriod(6)
+        -> _h2hPeriod = 6
+        -> _loadH2HData() (re-fetches with new period)
 
 User changes map filter
-    → filterH2HByMap('dm2')
-        → _h2hMapFilter = 'dm2'
-        → Client-side filter on _h2hResults.games
-        → Re-render result list (left panel only)
+    -> filterH2HByMap('dm2')
+        -> _h2hMapFilter = 'dm2'
+        -> Client-side filter on _h2hResults.games
+        -> Re-render result list (left panel only)
 ```
 
 ---
@@ -1191,7 +1191,7 @@ User changes map filter
 - [ ] Selecting Team B triggers data fetch (3 parallel API calls)
 - [ ] Loading state shows while fetching
 - [ ] H2H results display in left panel with date, map, score, result
-- [ ] Summary bar shows record (e.g., "5W 3L — 62%")
+- [ ] Summary bar shows record (e.g., "5W 3L -- 62%")
 - [ ] Right panel shows roster/activity by default (both teams side by side)
 - [ ] Core 4-5 players highlighted in roster
 - [ ] Hovering a result shows simple scoreboard with mapshot in right panel
@@ -1214,13 +1214,13 @@ User changes map filter
 ## Common Integration Pitfalls
 
 - [ ] Team tags must be lowercased before API calls (`teamTag.toLowerCase()`)
-- [ ] QW Stats API returns `demoSha256`, not `demoHash` — field name difference from QWHub
-- [ ] H2H results use `teamAFrags`/`teamBFrags`, not `ourScore`/`opponentScore` — transform needed for scoreboard reuse
-- [ ] Hover must NOT override sticky selection — check `_h2hSelectedId` first
+- [ ] QW Stats API returns `demoSha256`, not `demoHash` -- field name difference from QWHub
+- [ ] H2H results use `teamAFrags`/`teamBFrags`, not `ourScore`/`opponentScore` -- transform needed for scoreboard reuse
+- [ ] Hover must NOT override sticky selection -- check `_h2hSelectedId` first
 - [ ] Three parallel fetches need a guard: verify teams haven't changed when responses arrive
-- [ ] ktxstats player team names are QW-encoded — use `QWHubService.qwToAscii()` for comparison
+- [ ] ktxstats player team names are QW-encoded -- use `QWHubService.qwToAscii()` for comparison
 - [ ] Expose all handler methods (selectOpponent, switchH2HSubTab, etc.) in the public return object
-- [ ] Tab bar CSS change affects all tabs — test Details and Match History still look correct
+- [ ] Tab bar CSS change affects all tabs -- test Details and Match History still look correct
 - [ ] QWStatsService script must load before TeamsBrowserPanel in index.html
 
 ## File Changes Summary

@@ -6,13 +6,13 @@
 - **Name:** MobileLayout.js Core + Drawer Management
 - **User Story:** As a mobile player in landscape mode, I can open left/right drawers to access team info and browse teams, with an overlay preventing interaction with the grid while a drawer is open, so that I can manage my experience in the constrained mobile viewport.
 - **Success Criteria:**
-  - MobileLayout.js detects mobile viewport (≤900px landscape) and relocates DOM nodes to drawers
+  - MobileLayout.js detects mobile viewport (<=900px landscape) and relocates DOM nodes to drawers
   - Left drawer contains Team Info content (moved from `#panel-top-left`)
   - Right drawer contains Favorites + Browse Teams content (moved from `#panel-top-right`, `#panel-mid-right`)
   - Tapping overlay closes the open drawer
-  - Drawers are mutually exclusive — opening one closes the other
+  - Drawers are mutually exclusive -- opening one closes the other
   - Resizing back to desktop (>900px) restores DOM nodes to original panels
-  - Desktop layout has zero regression — all changes gated behind mobile detection
+  - Desktop layout has zero regression -- all changes gated behind mobile detection
   - Drawer open/close transitions use the existing 200ms CSS transition
 
 ## 2. PRD Mapping
@@ -23,8 +23,8 @@ PRIMARY SECTIONS:
 - Section 6.1-6.7 (UI Patterns): Adapted for mobile drawer context
 
 DEPENDENT SECTIONS:
-- Slice 10.0a: CSS foundation + HTML skeleton (drawer containers, overlay, media queries) ✅ COMPLETE
-- Slice 5.0a: 3x3 grid layout (`main-grid-v3`) — source of DOM nodes to relocate
+- Slice 10.0a: CSS foundation + HTML skeleton (drawer containers, overlay, media queries) [OK] COMPLETE
+- Slice 5.0a: 3x3 grid layout (`main-grid-v3`) -- source of DOM nodes to relocate
 
 IGNORED SECTIONS (deferred to later sub-slices):
 - 10.0c: Bottom bar tab switching, week navigation, drawer toggle BUTTONS
@@ -37,20 +37,20 @@ IGNORED SECTIONS (deferred to later sub-slices):
 ```
 FRONTEND COMPONENTS:
 
-NEW — MobileLayout.js (Revealing Module Pattern)
+NEW -- MobileLayout.js (Revealing Module Pattern)
   - Firebase listeners: none
   - Cache interactions: none
   - UI responsibilities:
     - Detect mobile breakpoint via matchMedia
-    - Move DOM nodes: TeamInfo → left drawer, Favorites+Browser → right drawer
+    - Move DOM nodes: TeamInfo -> left drawer, Favorites+Browser -> right drawer
     - Toggle drawer open/close state (add/remove .open class + .hidden on overlay)
     - Prevent body scroll when drawer open
     - Restore DOM nodes to original panels on desktop resize
   - User actions:
-    - Tap overlay → close drawer
-    - (Drawer toggle buttons added in 10.0c — MobileLayout exposes public API)
+    - Tap overlay -> close drawer
+    - (Drawer toggle buttons added in 10.0c -- MobileLayout exposes public API)
 
-MODIFIED — app.js (minimal)
+MODIFIED -- app.js (minimal)
   - Add MobileLayout.init() call after component initialization
   - Add <script> tag for MobileLayout.js in index.html
 
@@ -58,15 +58,15 @@ FRONTEND SERVICES:
 - No service changes
 
 BACKEND REQUIREMENTS:
-- None — purely frontend DOM manipulation
+- None -- purely frontend DOM manipulation
 
 INTEGRATION POINTS:
 - MobileLayout exposes public API for 10.0c to consume:
   - openLeftDrawer()
   - openRightDrawer()
   - closeDrawer()
-  - isDrawerOpen() → boolean
-  - isMobile() → boolean
+  - isDrawerOpen() -> boolean
+  - isMobile() -> boolean
 - MobileLayout listens to:
   - matchMedia('(max-width: 900px) and (orientation: landscape)') change events
   - Overlay click events
@@ -74,7 +74,7 @@ INTEGRATION POINTS:
 
 ## 4. Integration Code Examples
 
-### 4a. MobileLayout.js — Core Module
+### 4a. MobileLayout.js -- Core Module
 
 ```javascript
 const MobileLayout = (function() {
@@ -280,7 +280,7 @@ if (typeof MobileLayout !== 'undefined') {
 The side panels have `display: none` on mobile from 10.0a CSS. Once moved into drawers, they need to be visible inside the drawer context:
 
 ```css
-/* In src/css/input.css — inside the mobile media query */
+/* In src/css/input.css -- inside the mobile media query */
 @media (max-width: 900px) and (orientation: landscape) {
   /* Panels moved into drawers need to be visible */
   .mobile-drawer-content #panel-top-left,
@@ -304,44 +304,44 @@ COLD PATHS (<2s):
 - Initial MobileLayout.init(): matchMedia setup + conditional DOM moves
 
 BACKEND PERFORMANCE:
-- N/A — no backend changes
+- N/A -- no backend changes
 ```
 
 ## 6. Data Flow Diagram
 
 ```
-No Firestore data flow changes — this slice is DOM manipulation only.
+No Firestore data flow changes -- this slice is DOM manipulation only.
 
 DRAWER OPEN FLOW:
-10.0c button tap (future) → MobileLayout.openLeftDrawer()
-  → Remove .hidden from drawer + overlay
-  → Force reflow
-  → Add .open to drawer (triggers CSS transform transition)
-  → Set aria-hidden="false"
-  → Lock body scroll
-  → _activeDrawer = 'left'
+10.0c button tap (future) -> MobileLayout.openLeftDrawer()
+  -> Remove .hidden from drawer + overlay
+  -> Force reflow
+  -> Add .open to drawer (triggers CSS transform transition)
+  -> Set aria-hidden="false"
+  -> Lock body scroll
+  -> _activeDrawer = 'left'
 
 DRAWER CLOSE FLOW:
-Overlay tap → MobileLayout.closeDrawer()
-  → Remove .open from drawer (triggers CSS transition)
-  → Set aria-hidden="true"
-  → Add .hidden to overlay
-  → Unlock body scroll
-  → On transitionend → Add .hidden to drawer
-  → _activeDrawer = null
+Overlay tap -> MobileLayout.closeDrawer()
+  -> Remove .open from drawer (triggers CSS transition)
+  -> Set aria-hidden="true"
+  -> Add .hidden to overlay
+  -> Unlock body scroll
+  -> On transitionend -> Add .hidden to drawer
+  -> _activeDrawer = null
 
 BREAKPOINT CHANGE FLOW:
-Window resize crosses 900px → matchMedia fires
-  → If entering mobile:
-    → Move panel nodes into drawer containers
-    → Set _isMobile = true
-  → If leaving mobile:
-    → Close any open drawer
-    → Restore panel nodes to original parents
-    → Set _isMobile = false
+Window resize crosses 900px -> matchMedia fires
+  -> If entering mobile:
+    -> Move panel nodes into drawer containers
+    -> Set _isMobile = true
+  -> If leaving mobile:
+    -> Close any open drawer
+    -> Restore panel nodes to original parents
+    -> Set _isMobile = false
 
 IMPORTANT: Firebase listeners on moved nodes (TeamInfo, FavoritesPanel)
-continue working after DOM relocation — listeners are not DOM-dependent.
+continue working after DOM relocation -- listeners are not DOM-dependent.
 ```
 
 ## 7. Test Scenarios
@@ -350,21 +350,21 @@ continue working after DOM relocation — listeners are not DOM-dependent.
 FRONTEND TESTS (Manual):
 - [ ] MobileLayout.js loads without errors on desktop
 - [ ] At desktop viewport (>900px): No DOM changes, drawers hidden
-- [ ] At mobile viewport (≤900px landscape): panel-top-left is inside left drawer
+- [ ] At mobile viewport (<=900px landscape): panel-top-left is inside left drawer
 - [ ] At mobile viewport: panel-top-right + panel-mid-right are inside right drawer
 - [ ] MobileLayout.openLeftDrawer() shows left drawer with slide-in animation
 - [ ] MobileLayout.openRightDrawer() shows right drawer with slide-in animation
-- [ ] Opening left while right is open → right closes, left opens
-- [ ] Opening right while left is open → left closes, right opens
+- [ ] Opening left while right is open -> right closes, left opens
+- [ ] Opening right while left is open -> left closes, right opens
 - [ ] Tapping overlay closes whichever drawer is open
 - [ ] Body cannot scroll while drawer is open
 - [ ] Body scroll restored after drawer closes
 - [ ] aria-hidden updates correctly on open/close
 
 RESPONSIVE TESTS:
-- [ ] Resize from desktop → mobile: nodes move to drawers
-- [ ] Resize from mobile → desktop: nodes restored to original panels
-- [ ] Resize from mobile (drawer open) → desktop: drawer closes, nodes restored
+- [ ] Resize from desktop -> mobile: nodes move to drawers
+- [ ] Resize from mobile -> desktop: nodes restored to original panels
+- [ ] Resize from mobile (drawer open) -> desktop: drawer closes, nodes restored
 - [ ] Rotate to portrait on mobile: portrait overlay appears (existing 10.0a behavior)
 - [ ] Rotate back to landscape: drawer state is closed (clean start)
 
@@ -386,21 +386,21 @@ REGRESSION TESTS (Desktop):
 
 ## 8. Common Integration Pitfalls
 
-- [ ] **Forgetting to show moved panels inside drawers** — 10.0a CSS hides side panels with `display: none` on mobile. Must add CSS override for panels when they're inside `.mobile-drawer-content`
-- [ ] **DOM move order matters** — Components must be initialized BEFORE MobileLayout.init() so their DOM nodes exist to move
-- [ ] **Transition timing with .hidden** — Cannot add `.hidden` (display:none) before CSS transition completes. Must use `transitionend` event
-- [ ] **matchMedia initial check** — Must call handler on init, not just on change events
-- [ ] **Original parent references going stale** — Store references BEFORE any DOM moves happen
-- [ ] **Force reflow before .open** — Adding `.hidden` removal and `.open` in same frame skips transition. Need `offsetHeight` read between them
-- [ ] **Overlay z-index** — Overlay (44) must be between bottom bar (43) and drawer (45), but below modals (50+)
-- [ ] **Body scroll lock leaking** — If user resizes to desktop while drawer open, scroll lock must be removed
+- [ ] **Forgetting to show moved panels inside drawers** -- 10.0a CSS hides side panels with `display: none` on mobile. Must add CSS override for panels when they're inside `.mobile-drawer-content`
+- [ ] **DOM move order matters** -- Components must be initialized BEFORE MobileLayout.init() so their DOM nodes exist to move
+- [ ] **Transition timing with .hidden** -- Cannot add `.hidden` (display:none) before CSS transition completes. Must use `transitionend` event
+- [ ] **matchMedia initial check** -- Must call handler on init, not just on change events
+- [ ] **Original parent references going stale** -- Store references BEFORE any DOM moves happen
+- [ ] **Force reflow before .open** -- Adding `.hidden` removal and `.open` in same frame skips transition. Need `offsetHeight` read between them
+- [ ] **Overlay z-index** -- Overlay (44) must be between bottom bar (43) and drawer (45), but below modals (50+)
+- [ ] **Body scroll lock leaking** -- If user resizes to desktop while drawer open, scroll lock must be removed
 
 ## 9. Implementation Notes
 
 - **Pattern follows:** Revealing Module Pattern per CLAUDE.md. No Firebase, no services, pure DOM management.
-- **Similar to:** SelectionActionButton.js (Slice 5.0b) — DOM positioning, show/hide logic, viewport awareness.
-- **Dependencies:** 10.0a must be complete (✅). Drawer HTML + CSS already in place.
-- **Consumed by:** 10.0c will call `MobileLayout.openLeftDrawer()` / `openRightDrawer()` from bottom bar buttons. This slice only provides the API — no visible toggle buttons yet.
+- **Similar to:** SelectionActionButton.js (Slice 5.0b) -- DOM positioning, show/hide logic, viewport awareness.
+- **Dependencies:** 10.0a must be complete ([OK]). Drawer HTML + CSS already in place.
+- **Consumed by:** 10.0c will call `MobileLayout.openLeftDrawer()` / `openRightDrawer()` from bottom bar buttons. This slice only provides the API -- no visible toggle buttons yet.
 - **Testing without buttons:** During development, use browser console: `MobileLayout.openLeftDrawer()` to test drawers since 10.0c hasn't added the UI buttons yet.
 - **Tailwind watcher:** Must be running to pick up any CSS changes in `src/css/input.css`.
 
@@ -408,7 +408,7 @@ REGRESSION TESTS (Desktop):
 
 - **[ASSUMPTION]**: No keyboard handling needed for drawers on mobile (no physical keyboard)
   - **Rationale**: Mobile landscape users don't have Escape key. Desktop never shows drawers.
-- **[ASSUMPTION]**: Moving entire panel elements (including all children) is sufficient — no need to move individual sub-components
+- **[ASSUMPTION]**: Moving entire panel elements (including all children) is sufficient -- no need to move individual sub-components
   - **Rationale**: Panel elements contain all rendered component content. Moving the parent moves everything.
 - **[ASSUMPTION]**: Drawers default to closed state on every mobile entry (resize or page load)
   - **Rationale**: No need to persist drawer state. Clean start is predictable UX.
@@ -421,7 +421,7 @@ REGRESSION TESTS (Desktop):
 
 | File | Change Type | Scope |
 |------|------------|-------|
-| `public/js/MobileLayout.js` | **NEW** | ~120 lines — drawer management module |
+| `public/js/MobileLayout.js` | **NEW** | ~120 lines -- drawer management module |
 | `public/index.html` | Modify | Add `<script>` tag for MobileLayout.js |
 | `public/js/app.js` | Modify | Add `MobileLayout.init()` call (~3 lines) |
 | `src/css/input.css` | Modify | Add drawer-content panel visibility override (~6 lines) |
@@ -432,6 +432,6 @@ REGRESSION TESTS (Desktop):
 2. Add `<script>` tag in `index.html` before `app.js`
 3. Add `MobileLayout.init()` call in `app.js` after component init
 4. Add CSS override for panels inside drawer content
-5. Test on desktop — verify zero regression
-6. Test on mobile viewport — verify DOM moves, drawer open/close via console
-7. Test resize between desktop ↔ mobile — verify DOM restoration
+5. Test on desktop -- verify zero regression
+6. Test on mobile viewport -- verify DOM moves, drawer open/close via console
+7. Test resize between desktop <-> mobile -- verify DOM restoration

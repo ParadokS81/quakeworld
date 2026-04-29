@@ -1,18 +1,18 @@
-# Voice Replay — Tier 3: Firebase Storage Auto-Loading
+# Voice Replay -- Tier 3: Firebase Storage Auto-Loading
 
 ## Status: Ready to Build (2026-02-13)
 
 CORS test confirmed Google Drive API works for audio streaming.
-This spec covers Tier 3 (Firebase Storage) — the fastest path to auto-loading.
+This spec covers Tier 3 (Firebase Storage) -- the fastest path to auto-loading.
 Tier 2 (Google Drive) adds privacy layer on top of the same pipeline later.
 
 ---
 
-## What Exists Today (PoC — Tier 1)
+## What Exists Today (PoC -- Tier 1)
 
-- `public/replay.html` — standalone page with Hub demo player iframe
-- `public/js/components/VoiceReplayPlayer.js` — UI: drop zone, volume sliders, mute toggles, sync offset
-- `public/js/services/VoiceReplayService.js` — sync engine: postMessage with Hub iframe, drift correction, per-track audio
+- `public/replay.html` -- standalone page with Hub demo player iframe
+- `public/js/components/VoiceReplayPlayer.js` -- UI: drop zone, volume sliders, mute toggles, sync offset
+- `public/js/services/VoiceReplayService.js` -- sync engine: postMessage with Hub iframe, drift correction, per-track audio
 - Audio loaded via **drag-and-drop only** (OGG files or zip archives)
 - No backend, no Firestore, no auto-loading
 - Deployed at `scheduler.quake.world/replay.html?demo={sha256}`
@@ -51,8 +51,8 @@ Quad Docker (outbound only)
       └── Write manifest to Firestore: /voiceRecordings/{demoSha256}
 
 MatchScheduler (browser)
-  ├── Firestore listener on /voiceRecordings → show speaker icons on matches
-  ├── replay.html → check Firestore for manifest → auto-fetch audio from Storage
+  ├── Firestore listener on /voiceRecordings -> show speaker icons on matches
+  ├── replay.html -> check Firestore for manifest -> auto-fetch audio from Storage
   └── Fallback: drag-and-drop still works if no auto-loaded recordings
 ```
 
@@ -104,7 +104,7 @@ voice-recordings/
       └── bps.ogg
 ```
 
-**Storage rules** — public read, no client uploads:
+**Storage rules** -- public read, no client uploads:
 
 ```javascript
 match /voice-recordings/{allPaths=**} {
@@ -115,7 +115,7 @@ match /voice-recordings/{allPaths=**} {
 
 Public read is fine because:
 - Discovery requires knowing the demoSha256 (not guessable)
-- This is Tier 3 — teams that trust the platform
+- This is Tier 3 -- teams that trust the platform
 - Tier 2 (Google Drive) handles privacy-conscious teams
 
 ---
@@ -124,7 +124,7 @@ Public read is fine because:
 
 ### Step 1: Firestore Schema + Storage Rules
 
-- Add `/voiceRecordings` collection (no Cloud Function needed — Quad writes via Admin SDK)
+- Add `/voiceRecordings` collection (no Cloud Function needed -- Quad writes via Admin SDK)
 - Add Storage rules for `voice-recordings/` path
 - Add seed data: create a test `/voiceRecordings/{testDemoSha256}` document
 
@@ -134,7 +134,7 @@ Public read is fine because:
 - Or write a quick seed script that copies local OGG files to Storage
 - Verify files are accessible via Storage download URL
 
-### Step 3: VoiceReplayService — Add Auto-Loading
+### Step 3: VoiceReplayService -- Add Auto-Loading
 
 Extend the service with a new method:
 
@@ -172,20 +172,20 @@ async loadFromFirestore(demoSha256) {
 }
 ```
 
-### Step 4: VoiceReplayPlayer — Auto-Load on Page Open
+### Step 4: VoiceReplayPlayer -- Auto-Load on Page Open
 
 Modify `replay.html` / VoiceReplayPlayer to:
 
 1. On init, check Firestore for recording manifest
-2. If found → auto-load tracks, hide drop zone, show controls
-3. If not found → show drop zone as today (Tier 1 fallback)
+2. If found -> auto-load tracks, hide drop zone, show controls
+3. If not found -> show drop zone as today (Tier 1 fallback)
 4. Show loading state while fetching ("Loading voice recordings...")
 
 ```
-Page opens → init(demoSha256)
+Page opens -> init(demoSha256)
   ├── Check Firestore for /voiceRecordings/{demoSha256}
-  │   ├── Found → fetch audio from Storage → show controls
-  │   └── Not found → show drop zone (drag-and-drop fallback)
+  │   ├── Found -> fetch audio from Storage -> show controls
+  │   └── Not found -> show drop zone (drag-and-drop fallback)
   └── Either way, Hub iframe loads the demo
 ```
 
@@ -196,7 +196,7 @@ Page opens → init(demoSha256)
 - Show a speaker/headphone icon on matches that have recordings
 - Icon links to `replay.html?demo={demoSha256}`
 
-### Step 6: Docker Upload (Quad Side — Separate Repo)
+### Step 6: Docker Upload (Quad Side -- Separate Repo)
 
 This is Quad Docker code, not MatchScheduler code. Documenting the interface:
 
@@ -240,8 +240,8 @@ async function uploadVoiceRecording(demoSha256, teamTag, audioFiles) {
 
 1. Seed a test document in Firestore emulator: `/voiceRecordings/{testDemoSha256}`
 2. Upload test OGG files to Storage emulator
-3. Open `replay.html?demo={testDemoSha256}` — should auto-load
-4. Open `replay.html?demo={unknownDemo}` — should show drop zone fallback
+3. Open `replay.html?demo={testDemoSha256}` -- should auto-load
+4. Open `replay.html?demo={unknownDemo}` -- should show drop zone fallback
 5. Verify speaker icons appear on seeded matches
 
 ### With Real Quad (Step 6)
@@ -249,7 +249,7 @@ async function uploadVoiceRecording(demoSha256, teamTag, audioFiles) {
 - Deploy Quad changes
 - Run a test match
 - Verify recording appears in Firestore + Storage
-- Open replay page — audio auto-loads
+- Open replay page -- audio auto-loads
 
 ---
 

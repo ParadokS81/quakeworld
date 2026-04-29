@@ -8,12 +8,12 @@ Oracle maintains two SQLite stores side-by-side:
 
 | Database | Purpose | Populated |
 |---|---|---|
-| `data/knowledge.db` | **Layer 1** - structured engine + game-content facts. Engine entity types (per-version arc): cvar, command, macro, cmdline_param, keyname, hud_element, ruleset, token_primitive, asset_category, flag_bit, cvar_alias, protocol_message, info_key, log_template, qc_builtin (15 total). Asset relations (4 tables): asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites. Game content (`qw` namespace, no version arc): maps, gameplay_sources, gameplay_entity_defs, gameplay_mechanics. Plus source_overrides blame index, change_events / relation_changes diff streams, source_state_transitions per-version log. | ezQuake (15 versions: v3.0 → 3.6.9 + head); FTE@build-6698 (engine + ezhud plugin + asset bundle); QWCL@2.33; MVDSV@head (f816d28, 2026-01-04 snapshot). KTX pending. |
+| `data/knowledge.db` | **Layer 1** - structured engine + game-content facts. Engine entity types (per-version arc): cvar, command, macro, cmdline_param, keyname, hud_element, ruleset, token_primitive, asset_category, flag_bit, cvar_alias, protocol_message, info_key, log_template, qc_builtin (15 total). Asset relations (4 tables): asset_extensions, asset_path_rules, asset_cvar_bindings, asset_loader_sites. Game content (`qw` namespace, no version arc): maps, gameplay_sources, gameplay_entity_defs, gameplay_mechanics. Plus source_overrides blame index, change_events / relation_changes diff streams, source_state_transitions per-version log. | ezQuake (15 versions: v3.0 -> 3.6.9 + head); FTE@build-6698 (engine + ezhud plugin + asset bundle); QWCL@2.33; MVDSV@head (f816d28, 2026-01-04 snapshot). KTX pending. |
 | `data/qw.db` | **Layer 2** - community chat corpus (IRC 2005-2016 + Discord 2016-present). ~2.66M messages. | Fully imported. Processing pipeline not yet built. |
 
 **Layer 3** (curated concept notes that synthesize Layer 1 + Layer 2 into usable guidance) lives at `concept-notes/`. Nine notes shipped + README (template) + OPERATIONS (stewardship playbook) + _gap-report (contributor onboarding seed).
 
-**MCP server** at `serve/mcp/` (v0.4.0). Ten tools: `lookup_entity` and `search_entities` (engine entities — case-insensitive lookup / substring search across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes); `lookup_map` and `search_maps` (qw maps — full record with Levenshtein typo suggestion / 15-dimension filter set with popularity sort); `lookup_gameplay_entity` and `search_gameplay_entities` (id1 baseline weapons/items/projectiles); `lookup_mechanic` and `search_mechanics` (id1 baseline death rules / spawn rules / env hazards); `get_concept_note` (Layer 3 retrieval with frontmatter passthrough); `search_solved_issues` (FTS5 over the chat corpus). Runs under Bun reading both `data/knowledge.db` and `data/qw.db` read-only. The librarian volunteers cross-references in one tool call.
+**MCP server** at `serve/mcp/` (v0.4.0). Ten tools: `lookup_entity` and `search_entities` (engine entities -- case-insensitive lookup / substring search across cvar/command/macro/cmdline_param/ruleset, returns rich record with source_state + version arc + asset relations + linked concept notes); `lookup_map` and `search_maps` (qw maps -- full record with Levenshtein typo suggestion / 15-dimension filter set with popularity sort); `lookup_gameplay_entity` and `search_gameplay_entities` (id1 baseline weapons/items/projectiles); `lookup_mechanic` and `search_mechanics` (id1 baseline death rules / spawn rules / env hazards); `get_concept_note` (Layer 3 retrieval with frontmatter passthrough); `search_solved_issues` (FTS5 over the chat corpus). Runs under Bun reading both `data/knowledge.db` and `data/qw.db` read-only. The librarian volunteers cross-references in one tool call.
 
 ## Where to find things
 
@@ -107,7 +107,7 @@ bun run scripts/verify-rewrite.ts                         # 24-assertion smoke t
 bunx tsc --noEmit                                         # typecheck
 ```
 
-Supported entity types (15): `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`, `asset_category`, `flag_bit`, `cvar_alias`, `protocol_message`, `info_key`, `log_template`, `qc_builtin`. The `qw` namespace tables (`maps` at schema v13; `gameplay_sources` / `gameplay_entity_defs` / `gameplay_mechanics` at schema v14) are flat — outside the entity/version model — no `entities` row, no per-version snapshot, no `project` column.
+Supported entity types (15): `cvar`, `command`, `macro`, `cmdline_param`, `keyname`, `hud_element`, `ruleset`, `token_primitive`, `asset_category`, `flag_bit`, `cvar_alias`, `protocol_message`, `info_key`, `log_template`, `qc_builtin`. The `qw` namespace tables (`maps` at schema v13; `gameplay_sources` / `gameplay_entity_defs` / `gameplay_mechanics` at schema v14) are flat -- outside the entity/version model -- no `entities` row, no per-version snapshot, no `project` column.
 
 ## Always-on rules
 
@@ -117,7 +117,7 @@ Supported entity types (15): `cvar`, `command`, `macro`, `cmdline_param`, `keyna
 - **Layer 1 extractors are idempotent** - re-running against the same tag produces the same rows.
 - **Regression guards are load-bearing** - `load-version` aborts when entity counts drop >50% without `--force`. Don't bypass.
 - **Source citation discipline** - every Layer 1 row that can carry a `source_ref` must; every Layer 2 summary must trace back to message IDs.
-- **Schema evolution updates SCHEMA.md** - schema changes update `SCHEMA.md` alongside the migration. Architecturally-significant changes (new entity-identity concepts, cross-cutting blame models, migrations that reshape how diffs work) additionally get a dated spec under root `docs/superpowers/specs/` for the design discussion. Small additive migrations (one new table, one new field) don't need a spec — SCHEMA.md + git history + schema.ts comments are enough.
+- **Schema evolution updates SCHEMA.md** - schema changes update `SCHEMA.md` alongside the migration. Architecturally-significant changes (new entity-identity concepts, cross-cutting blame models, migrations that reshape how diffs work) additionally get a dated spec under root `docs/superpowers/specs/` for the design discussion. Small additive migrations (one new table, one new field) don't need a spec -- SCHEMA.md + git history + schema.ts comments are enough.
 
 ## Non-negotiable rules
 

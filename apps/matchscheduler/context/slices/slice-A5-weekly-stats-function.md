@@ -17,7 +17,7 @@
 3. Stats include: activeUsers, activeTeams, proposalCount, scheduledCount, teamBreakdown
 4. teamBreakdown has per-team counts for identifying inactive teams
 5. Backfill script populates historical stats for all past weeks with data
-6. Function is idempotent — re-running for the same week overwrites with fresh data
+6. Function is idempotent -- re-running for the same week overwrites with fresh data
 7. A2's AdminStatsService reads stored stats instead of computing from scratch
 
 ---
@@ -76,7 +76,7 @@ exports.computeWeeklyStats = functions
     });
 
 /**
- * Core computation logic — shared between scheduled function and backfill script.
+ * Core computation logic -- shared between scheduled function and backfill script.
  */
 async function computeStatsForWeek(db, weekId) {
     // 1. Availability: count unique users and active teams
@@ -174,7 +174,7 @@ exports.computeStatsForWeek = computeStatsForWeek;
 exports.getISOWeekId = getISOWeekId;
 ```
 
-### 2. `functions/index.js` — Export
+### 2. `functions/index.js` -- Export
 
 Add after line 73:
 ```javascript
@@ -317,19 +317,19 @@ main().catch(err => { console.error(err); process.exit(1); });
 
 ```
 Every Monday 00:05 UTC:
-  Cloud Scheduler → Pub/Sub → computeWeeklyStats function
-    → Query availability for previous weekId
-    → Query matchProposals for previous weekId
-    → Query scheduledMatches for previous weekId
-    → Compute: activeUsers, activeTeams, proposalCount, scheduledCount, teamBreakdown
-    → Write to weeklyStats/{weekId}
-    → AdminStatsService (A2) reads this on next admin panel load
+  Cloud Scheduler -> Pub/Sub -> computeWeeklyStats function
+    -> Query availability for previous weekId
+    -> Query matchProposals for previous weekId
+    -> Query scheduledMatches for previous weekId
+    -> Compute: activeUsers, activeTeams, proposalCount, scheduledCount, teamBreakdown
+    -> Write to weeklyStats/{weekId}
+    -> AdminStatsService (A2) reads this on next admin panel load
 
 One-time backfill:
   node scripts/backfill-weekly-stats.js
-    → Discover all weekIds from availability collection
-    → For each weekId, compute and write stats
-    → Historical data available immediately
+    -> Discover all weekIds from availability collection
+    -> For each weekId, compute and write stats
+    -> Historical data available immediately
 ```
 
 ---
@@ -341,14 +341,14 @@ One-time backfill:
 firebase deploy --only functions:computeWeeklyStats
 
 # 2. Verify Cloud Scheduler job was created
-# Check Firebase Console → Functions → computeWeeklyStats
+# Check Firebase Console -> Functions -> computeWeeklyStats
 # Should show schedule: "5 0 * * 1" (UTC)
 
 # 3. Run backfill for historical data
 node scripts/backfill-weekly-stats.js
 
 # 4. (Optional) Manually trigger for testing
-# In Firebase Console → Functions → computeWeeklyStats → "Run Now"
+# In Firebase Console -> Functions -> computeWeeklyStats -> "Run Now"
 # Or via gcloud:
 gcloud scheduler jobs run firebase-schedule-computeWeeklyStats-europe-west3 --location=europe-west3
 ```
@@ -358,19 +358,19 @@ gcloud scheduler jobs run firebase-schedule-computeWeeklyStats-europe-west3 --lo
 ## Performance Classification
 
 - **Scheduled function:** Runs once per week. Queries 3 collections. ~40 availability docs, ~20 proposals, ~15 matches per week. Total execution <5s.
-- **Backfill script:** One-time. Queries N weeks × 3 collections. For 20 weeks of data: ~60 queries. Runs in <30s.
+- **Backfill script:** One-time. Queries N weeks x 3 collections. For 20 weeks of data: ~60 queries. Runs in <30s.
 
 ---
 
 ## Test Scenarios
 
-1. **Scheduled function runs** → `weeklyStats/{prevWeekId}` doc appears in Firestore console
-2. **Stats accuracy** → manually count availability docs for a week, compare with stored `activeUsers`
-3. **teamBreakdown** → verify per-team counts match reality
-4. **Idempotent** → run function twice for same week → same result, no duplicates
-5. **Backfill** → run script → verify docs exist for all past weeks
-6. **A2 integration** → with stored stats, AdminStatsDisplay shows instant previous week comparison (no live computation needed)
-7. **Empty week** → week with no availability → stats are all 0, doc still created
+1. **Scheduled function runs** -> `weeklyStats/{prevWeekId}` doc appears in Firestore console
+2. **Stats accuracy** -> manually count availability docs for a week, compare with stored `activeUsers`
+3. **teamBreakdown** -> verify per-team counts match reality
+4. **Idempotent** -> run function twice for same week -> same result, no duplicates
+5. **Backfill** -> run script -> verify docs exist for all past weeks
+6. **A2 integration** -> with stored stats, AdminStatsDisplay shows instant previous week comparison (no live computation needed)
+7. **Empty week** -> week with no availability -> stats are all 0, doc still created
 
 ---
 
@@ -386,6 +386,6 @@ gcloud scheduler jobs run firebase-schedule-computeWeeklyStats-europe-west3 --lo
 
 ## Implementation Notes
 
-- This is the first scheduled function in the project. All existing 25 functions are v1 onCall. The `pubsub.schedule` pattern is also v1 — it deploys as a regular Cloud Function triggered by Pub/Sub, with Cloud Scheduler configured automatically.
+- This is the first scheduled function in the project. All existing 25 functions are v1 onCall. The `pubsub.schedule` pattern is also v1 -- it deploys as a regular Cloud Function triggered by Pub/Sub, with Cloud Scheduler configured automatically.
 - The backfill script should be run AFTER deploying Firestore rules (A1) since it writes to `weeklyStats` via Admin SDK (bypasses rules, but good to have rules in place).
 - After backfill, A2's `AdminStatsService._loadStoredStats()` will find docs and skip the expensive live computation for past weeks.

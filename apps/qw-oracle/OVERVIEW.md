@@ -2,7 +2,7 @@
 
 Living map of what is in this project right now. If you want why it exists, see `VISION.md`. For rules that apply while working here, see `CLAUDE.md`. For the Layer 1 data model, see `SCHEMA.md`. When in doubt, the code is the source of truth; this is the map.
 
-**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + the `qw` game-content namespace) with KTX as the only outstanding port; ezQuake deep-time walk is at v3.0 floor. Schema at v18. Layer 2 corpus is imported but the processing pipeline on top of it hasn't been touched in weeks and is not inventoried (see "Layer 2" below). Most recent shipped arc: zero-debt-before-KTX hygiene pass (2026-04-29) — see [`docs/arc-history.md`](docs/arc-history.md) for the chronological log.
+**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + the `qw` game-content namespace) with KTX as the only outstanding port; ezQuake deep-time walk is at v3.0 floor. Schema at v18. Layer 2 corpus is imported but the processing pipeline on top of it hasn't been touched in weeks and is not inventoried (see "Layer 2" below). Most recent shipped arc: zero-debt-before-KTX hygiene pass (2026-04-29) -- see [`docs/arc-history.md`](docs/arc-history.md) for the chronological log.
 
 ## What the project is
 
@@ -17,7 +17,7 @@ Two SQLite databases side by side at `data/`:
 
 **Layer 3** (hand-authored concept notes that synthesize Layer 1 + Layer 2 into usable guidance) bootstrapped 2026-04-22; now holds 9 notes plus a stewardship playbook and a gap-report. `weapon-scripts.md` (landed 2026-04-24) is the first R7 opinionated-best-practice exemplar, introducing the three-method taxonomy and the authority-grounding triad (engine mechanics + community consensus + credited SME). See `concept-notes/README.md` for the entry template + 6 recognized shapes + voice-and-length table; `concept-notes/OPERATIONS.md` for the stewardship playbook; `docs/superpowers/specs/2026-04-24-layer3-role-map.md` for the 7-role evidence-based map of Layer 3 content. The `get_concept_note` MCP tool serves this directory live. Framing locked 2026-04-25: Oracle is the authoritative current-state source; ezquake.com/docs is a downstream human-readable surface that Oracle's Layer 3 can feed rather than mirror. Active work on Layer 3 proceeds via the `guide-rewrite` user-global skill, one ezquake.com/docs page per session. Gap-report at `concept-notes/_gap-report.md` seeds the contributor-onboarding kit for upstream ezquake.com guide updates.
 
-Both are gitignored — they regenerate from source (Layer 1) or from raw import dumps (Layer 2).
+Both are gitignored -- they regenerate from source (Layer 1) or from raw import dumps (Layer 2).
 
 ## Layer 1 - where things stand
 
@@ -28,23 +28,23 @@ The single source of truth for "what does Oracle currently know about?". Update 
 | Namespace | Project / domain | Model | Entity types / tables | Counts (head / canonical) | Status |
 |---|---|---|---|---|---|
 | `ezquake` | engine | per-version arc | 10 entity types + 4 asset relation tables | 4042 entities total across 15 versions; at HEAD: 2899 cvar + 536 command + 68 macro + 72 cmdline + 148 keyname + 83 hud_element + 6 ruleset + 33 token_primitive + 50 flag_bit + 26 asset_category | head + 14-tag deep-time walk to v3.0 floor |
-| `fte` | engine | per-version arc | 5 entity types (cvar / command / macro / cmdline_param / cvar_alias) + asset bundle | 3279 entities (2482 cvar — 1397 engine + 1085 plugin:ezhud — / 556 command / 67 macro / 108 cmdline_param / 38 cvar_alias) + 28 asset_category + 25 asset_cvar_bindings + 13 asset_path_rules + 61 asset_extensions + 717 asset_loader_sites | Phase 2d-core SHIPPED 2026-04-26 (build-6698 / SHA 35843773); Phase 2d-bundle SHIPPED 2026-04-27 |
+| `fte` | engine | per-version arc | 5 entity types (cvar / command / macro / cmdline_param / cvar_alias) + asset bundle | 3279 entities (2482 cvar -- 1397 engine + 1085 plugin:ezhud -- / 556 command / 67 macro / 108 cmdline_param / 38 cvar_alias) + 28 asset_category + 25 asset_cvar_bindings + 13 asset_path_rules + 61 asset_extensions + 717 asset_loader_sites | Phase 2d-core SHIPPED 2026-04-26 (build-6698 / SHA 35843773); Phase 2d-bundle SHIPPED 2026-04-27 |
 | `qwcl` | engine | per-version arc | 3 entity types (cvar / command / cmdline_param) | 380 entities (187 cvar + 121 command + 72 cmdline_param) | shipped 2026-04-25 (single tag `2.33`, no asset taxonomy) |
 | `mvdsv` | engine (server) | per-version arc | 7 entity types (cvar / command / cmdline_param + the four MVDSV-introduced: protocol_message / info_key / log_template / qc_builtin) | 1236 entities (183 cvar + 108 command + 11 cmdline_param + 105 protocol_message + 45 info_key + 691 log_template + 93 qc_builtin) | Phase 2e SHIPPED 2026-04-27 (head snapshot `f816d28`, 2026-01-04); no client snapshot |
 | `ktx` | engine (mod, QuakeC) | per-version arc | -- | -- | not started; tree-sitter spike done; py-tree-sitter (NOT Node tree-sitter@0.25 which segfaulted on WSL/Node 20) |
 | `qw` | game content (the game itself) | flat per-domain tables | `maps` (1 table, 1 row per canonical map) | 254 maps (38 id1 stock from pak0/pak1 + 216 from maps.qw.nu/base/) | shipped 2026-04-27 |
-| `qw` | game mechanics (id1 baseline) — sources registry | flat table | `gameplay_sources` (1 row per source codebase) | 1 row (`id1`); KTX queued as arc 2 | shipped 2026-04-27 (schema v14) |
-| `qw` | game mechanics (id1 baseline) — entity defs | flat polymorphic table | `gameplay_entity_defs` | 37 rows (8 weapons + 4 projectiles + 25 items) | shipped 2026-04-27 |
-| `qw` | game mechanics (id1 baseline) — rules | flat polymorphic table | `gameplay_mechanics` | 41 rows (2 constants + 7 env_hazards + 12 player_stats + 3 powerup_behaviors + 1 armor_model + 7 death_rules + 5 spawn_rules + 4 dm_mode_rules). v4 splits: telefrag (triggers.qc:334) vs exit_level_kill (client.qc:230); trigger_hurt env_hazard for void-brush mechanism | shipped 2026-04-27 |
+| `qw` | game mechanics (id1 baseline) -- sources registry | flat table | `gameplay_sources` (1 row per source codebase) | 1 row (`id1`); KTX queued as arc 2 | shipped 2026-04-27 (schema v14) |
+| `qw` | game mechanics (id1 baseline) -- entity defs | flat polymorphic table | `gameplay_entity_defs` | 37 rows (8 weapons + 4 projectiles + 25 items) | shipped 2026-04-27 |
+| `qw` | game mechanics (id1 baseline) -- rules | flat polymorphic table | `gameplay_mechanics` | 41 rows (2 constants + 7 env_hazards + 12 player_stats + 3 powerup_behaviors + 1 armor_model + 7 death_rules + 5 spawn_rules + 4 dm_mode_rules). v4 splits: telefrag (triggers.qc:334) vs exit_level_kill (client.qc:230); trigger_hurt env_hazard for void-brush mechanism | shipped 2026-04-27 |
 
-**Tags loaded:** ezQuake 15 rows in `versions` (14 release tags `v3.0` / `v3.0.1` / `3.1` / `3.2` / `3.2.1` / `3.2.2` / `3.2.3` / `3.6.0` / `3.6.1` / `3.6.2` / `3.6.5` / `3.6.6` / `3.6.8` / `3.6.9` plus `head`). FTE: `build-6698`. QWCL: `2.33` (single-commit repo; canonical version label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES`). MVDSV: `head` (2026-01-04 snapshot, `f816d28`). The `qw` namespace has no `versions` row — game content doesn't change with engine versions, so `build-snapshot --project qw` uses the sentinel version `static`.
+**Tags loaded:** ezQuake 15 rows in `versions` (14 release tags `v3.0` / `v3.0.1` / `3.1` / `3.2` / `3.2.1` / `3.2.2` / `3.2.3` / `3.6.0` / `3.6.1` / `3.6.2` / `3.6.5` / `3.6.6` / `3.6.8` / `3.6.9` plus `head`). FTE: `build-6698`. QWCL: `2.33` (single-commit repo; canonical version label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES`). MVDSV: `head` (2026-01-04 snapshot, `f816d28`). The `qw` namespace has no `versions` row -- game content doesn't change with engine versions, so `build-snapshot --project qw` uses the sentinel version `static`.
 
-Deep-time walk floor for ezQuake is `v3.0` (2016-06-04); pre-3.0 era is **deliberately de-scoped** per 2026-04-25 chat with infiniti — security framing (pre-3.6 has known attack vectors; Oracle should not surface settings nudging users into vulnerable defaults) plus diminishing-returns. Walk procedure documented in `docs/layer1-extraction-roadmap.md`. Layer 1 quality gates run via `quality-grid` CLI.
+Deep-time walk floor for ezQuake is `v3.0` (2016-06-04); pre-3.0 era is **deliberately de-scoped** per 2026-04-25 chat with infiniti -- security framing (pre-3.6 has known attack vectors; Oracle should not surface settings nudging users into vulnerable defaults) plus diminishing-returns. Walk procedure documented in `docs/layer1-extraction-roadmap.md`. Layer 1 quality gates run via `quality-grid` CLI.
 
-**Schema version:** 18 (tracked in `schema_meta` table, not PRAGMA `user_version`). Migrations v1→v18 all live in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape (preamble pending refresh — body still useful) and `docs/arc-history.md` for the per-arc schema bump chain. Most recent additions:
+**Schema version:** 18 (tracked in `schema_meta` table, not PRAGMA `user_version`). Migrations v1->v18 all live in `scripts/load-knowledge/schema.ts` and run automatically on DB open. See `SCHEMA.md` for the cumulative shape (preamble pending refresh -- body still useful) and `docs/arc-history.md` for the per-arc schema bump chain. Most recent additions:
 - **v18** (2026-04-28, pure-additive on existing tables): qc_builtin canonical name carries `:<table_name>` suffix mirroring info_key Phase B `:<scope>`. Plan: cross-extractor shared-lib arc.
-- **v17** (2026-04-28): info_key canonical name carries `<bare>:<scope>` so cross-scope dups survive; protocol_message kind taxonomy widens 6→13; log_template gains `all_call_sites_json`; cvar `flags_raw` canonicalises to empty string for absent / `0` / `CVAR_NONE`; cvar `default_value` interprets standard C escapes.
-- **v15** (2026-04-27, pure-additive): four new entity types for MVDSV — protocol_message + info_key + log_template + qc_builtin — plus their per-version tables.
+- **v17** (2026-04-28): info_key canonical name carries `<bare>:<scope>` so cross-scope dups survive; protocol_message kind taxonomy widens 6->13; log_template gains `all_call_sites_json`; cvar `flags_raw` canonicalises to empty string for absent / `0` / `CVAR_NONE`; cvar `default_value` interprets standard C escapes.
+- **v15** (2026-04-27, pure-additive): four new entity types for MVDSV -- protocol_message + info_key + log_template + qc_builtin -- plus their per-version tables.
 - **v14** (2026-04-27, pure-additive): game-mechanics tables in the `qw` namespace (gameplay_sources / gameplay_entity_defs / gameplay_mechanics).
 - **v13** (2026-04-27, pure-additive): `maps` table for the `qw` namespace + 2 indexes.
 - **v12** (2026-04-26, full table-rebuild): widened `entities.type` CHECK to admit `cvar_alias`; added `cvar_alias_versions` table.
@@ -54,9 +54,9 @@ Deep-time walk floor for ezQuake is `v3.0` (2016-06-04); pre-3.0 era is **delibe
 
 **Still open on Layer 1:**
 - **Phase 2e KTX.** Tree-sitter-based (use `py-tree-sitter`, NOT Node `tree-sitter@0.25` which segfaulted during the spike). The "zero-debt-before-KTX" arc shipped 2026-04-29 to clean foundations before this work begins.
-- **Phase 2f historical backfill** beyond ezQuake. Walk infrastructure (`extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection) is reusable across FTE / MVDSV / KTX walks. FTE today has only `build-6698`; QWCL only `2.33`; MVDSV only `head`. Multi-version walks must re-extract under post-Phase-6 handlers (HANDOVER: "Cross-extractor Phase 6 residuals — Deep-time-walk re-extract obligation").
+- **Phase 2f historical backfill** beyond ezQuake. Walk infrastructure (`extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection) is reusable across FTE / MVDSV / KTX walks. FTE today has only `build-6698`; QWCL only `2.33`; MVDSV only `head`. Multi-version walks must re-extract under post-Phase-6 handlers (HANDOVER: "Cross-extractor Phase 6 residuals -- Deep-time-walk re-extract obligation").
 - **Phase 2g MCP tool upgrades.** Add `version` / `as_of` parameters to existing tools; add `get_entity_history`; add version/date filters on `search_entities`.
-- **Phase 2h automation.** Scheduled tag-delta job (detect new upstream tag → extract → load → enrich → insert).
+- **Phase 2h automation.** Scheduled tag-delta job (detect new upstream tag -> extract -> load -> enrich -> insert).
 - **Asset-bundle loader-family wrapper gaps.** Seven speculative extensions (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) all stamped `ast_verified` in the 2026-04-22 audit. Watchlist widening to convert grep-cited verifications into AST-backed ones is a future extractor pass; `.kmap` / `.dll` are first-class via `verification_status`. PNG/JPG path_hint variants still pending.
 - **Asset reference-resolution graph.** Research-foundation spec at `docs/superpowers/specs/2026-04-21-asset-reference-resolution-graph-design.md` proposes the shift from category-classification to consumer-reference graph (parameterized-path extraction + BSP/progs parsers + `asset_companions` / `asset_consumers` schema). Implementation plan not yet written.
 - **`qw` namespace expansion.** Maps + id1 game mechanics shipped 2026-04-27. Future game-content domains (e.g. KTX gameplay overrides, official match-stats subset, player registry, official vs unofficial event metadata) will land as additional flat tables under the same `qw` namespace.
@@ -67,7 +67,7 @@ Deep-time walk floor for ezQuake is `v3.0` (2016-06-04); pre-3.0 era is **delibe
 
 TypeScript. Opens `data/knowledge.db`, migrates if needed, dispatches per-type loader adapters.
 
-CLI entry: `npm run load-knowledge -- <subcommand> [...args]` — see `scripts/load-knowledge/index.ts`. Subcommands:
+CLI entry: `npm run load-knowledge -- <subcommand> [...args]` -- see `scripts/load-knowledge/index.ts`. Subcommands:
 
 | Subcommand | Purpose |
 |---|---|
@@ -76,7 +76,7 @@ CLI entry: `npm run load-knowledge -- <subcommand> [...args]` — see `scripts/l
 | `release-notes` | Fetch a tag's GitHub release body, parse bullets, write to `release_notes`. Requires GitHub token. |
 | `diff` | Walk two versions, compare per-entity `*_versions` rows, write `change_events` + `relation_changes`. |
 | `enrich` | Backfill `pr_*` columns on `change_events` via GitHub API. Requires GitHub token. |
-| `extract-tag` | Atomic "ensure one tag is fully loaded": checkout source, run unified + legacy Python extractors, build asset bundle (when project has one), load all entity types + asset relations, fetch release notes (when project has a GitHub upstream). Per-project gates: `PROJECT_HAS_ASSET_BUNDLE`, `projectHasGithubUpstream`, `PROJECT_VERSION_ALIASES`, per-project `ENTITY_JSON_FILES` filename map. Engine projects only — `qw` namespace skips this. |
+| `extract-tag` | Atomic "ensure one tag is fully loaded": checkout source, run unified + legacy Python extractors, build asset bundle (when project has one), load all entity types + asset relations, fetch release notes (when project has a GitHub upstream). Per-project gates: `PROJECT_HAS_ASSET_BUNDLE`, `projectHasGithubUpstream`, `PROJECT_VERSION_ALIASES`, per-project `ENTITY_JSON_FILES` filename map. Engine projects only -- `qw` namespace skips this. |
 | `review` | Emit a 5-question findings report (JSON on stdout + pre-seeded markdown draft at `docs/reviews/`) for a tag-pair. Hard-errors on missing prerequisites. Consumed by the `extraction-review` user-global skill. |
 | `load-maps` | Load the `maps` table from the qw extractor's `qw-maps-ast.json` output. Idempotent UPSERT keyed on `canonical_name`. Default JSON path resolves to `scripts/extractors/qw/output/qw-maps-ast.json`. |
 | `build-snapshot` | Read `knowledge.db` and emit slipgate-shaped JSON snapshots into `apps/slipgate-app/src/lib/config/data/`. Shape parity with legacy slipgate files preserved; 5 enrichment fields added per engine entity. Per-project version defaults (qwcl: `2.33`, qw: `static`, engines: `head`). For `--project qw` emits `qw-maps.json` (full per-map record array). |
@@ -89,7 +89,7 @@ Stateless findings generator over existing Layer 1 tables. Five finding modules 
 
 - `clusters.ts` - mechanical cluster detection (PR, commit-window, entity-name prefix).
 - `prior-walks.ts` - cross-walk `prior_cluster_refs` lookup so a pair's clusters can be tied back to matching clusters in earlier walks.
-- `semantic-match.ts` - Q5 semantic-pass proposal: suggests joining a source-invisible finding to a non-Q5 cluster via entity-name overlap or shared commit-message theme. Proposal, not mandate — operator confirms at preamble.
+- `semantic-match.ts` - Q5 semantic-pass proposal: suggests joining a source-invisible finding to a non-Q5 cluster via entity-name overlap or shared commit-message theme. Proposal, not mandate -- operator confirms at preamble.
 - `cross-codebase.ts` - entity-name hint (`likely-shared` / `ezquake-only` / `unknown`) to bias cross-codebase-pattern concept-note creation.
 
 Composed by `review/index.ts`, rendered to markdown by `review/draft-writer.ts`. Schema-expansion events (NULL -> falsy-default) are filtered out of Q3 as non-semantic. Q4 surfaces only confidence demotions, not pre-existing low-confidence debt. Finding IDs are stable hashes so re-runs are resume-safe.
@@ -111,7 +111,7 @@ One file per entity type at `scripts/load-knowledge/load-<type>.ts`. Each is ~40
 
 ### Where extractors live
 
-The extractor fleet is **oracle's responsibility** — it produces Layer 1 facts. As of qw-config dissolution Half 1 (2026-04-25) it lives at `apps/qw-oracle/scripts/extractors/` with project-scoped subdirs. Python + libclang 18 for ezQuake / FTE / MVDSV / QWCL / QWFWD; tree-sitter for KTX (different language); pure stdlib Python for `qw` (BSP binary parsing, no compiler).
+The extractor fleet is **oracle's responsibility** -- it produces Layer 1 facts. As of qw-config dissolution Half 1 (2026-04-25) it lives at `apps/qw-oracle/scripts/extractors/` with project-scoped subdirs. Python + libclang 18 for ezQuake / FTE / MVDSV / QWCL / QWFWD; tree-sitter for KTX (different language); pure stdlib Python for `qw` (BSP binary parsing, no compiler).
 
 ```
 scripts/extractors/
@@ -160,28 +160,28 @@ All engine extractors accept `--repo-root` / `--output` and auto-detect `<repo>/
 
 Extractor JSON outputs at `scripts/extractors/<project>/output/` are committed so the loader has deterministic input without requiring a libclang install to re-build.
 
-Hand-authored seed YAMLs are at `scripts/extractors/<project>/seeds/` (asset taxonomy + cvar→category bindings for engines; map author overrides for `qw`). The `scripts/load-knowledge/build-asset-bundle.ts` script reconciles asset seed against AST auto-pass and emits `<project>-asset-bundle.json` directly into `apps/slipgate-app/src/lib/config/data/` (qw-config dissolution Half 2 closed this loop 2026-04-25).
+Hand-authored seed YAMLs are at `scripts/extractors/<project>/seeds/` (asset taxonomy + cvar->category bindings for engines; map author overrides for `qw`). The `scripts/load-knowledge/build-asset-bundle.ts` script reconciles asset seed against AST auto-pass and emits `<project>-asset-bundle.json` directly into `apps/slipgate-app/src/lib/config/data/` (qw-config dissolution Half 2 closed this loop 2026-04-25).
 
 ### Enrichment - `enrich-prs.ts` + GitHub
 
-Second pass after `diff`. Reads `change_events` with empty `pr_*` columns, queries GitHub's commit-to-PR API, stuffs PR number / title / body excerpt / linked issues into the row. Staged from the diff pass because PR enrichment is rate-limited and the diff is cheap — you want them decoupled.
+Second pass after `diff`. Reads `change_events` with empty `pr_*` columns, queries GitHub's commit-to-PR API, stuffs PR number / title / body excerpt / linked issues into the row. Staged from the diff pass because PR enrichment is rate-limited and the diff is cheap -- you want them decoupled.
 
 ## Code landmarks
 
 If you want to... | Look at...
 ---|---
-Add a new entity type | `schema.ts` (new `*_versions` table + CHECK widening for `entities.type`) → `types.ts` (row interface) → `natural-keys.ts` (upsert helper) → new `load-<type>.ts` adapter → `load-version.ts` (register in dispatcher) → `diff-versions.ts` (`TYPE_DIFF_CONFIGS` entry)
-Change how diff blame is resolved | `diff-versions.ts` — the Map preload + override lookup hot loop
-Add per-field blame for a new type | Extractor emits `field_source_lines` payload → adapter calls `upsertSourceOverride` with `override_kind`
-Tune drop-guard | `load-version.ts` — the `dropGuard` check
-Add an MCP tool | Not in this repo — MCP server is separate. The queries live against the shape documented in `SCHEMA.md`.
-Migrate schema (additive — new column on existing table) | `schema.ts` — bump `SCHEMA_VERSION`, add `SCHEMA_V<N>_MIGRATION_SQL` (e.g. `ALTER TABLE foo ADD COLUMN bar TEXT...`), add `migrateV<N-1>ToV<N>`, extend `applySchema`'s chain. Pattern at v7 (asset_extensions verification columns).
-Migrate schema (CHECK widening on existing column) | `schema.ts` — table rebuild required since SQLite can't ALTER CHECK in place. Pattern at v8 (asset_loader_sites confidence — `<TABLE>_V<N>_MIGRATION_SQL` rebuild block + `foreign_keys = OFF` outside the txn). Update the v3 `CREATE TABLE` block too so fresh DBs land on the widened CHECK.
+Add a new entity type | `schema.ts` (new `*_versions` table + CHECK widening for `entities.type`) -> `types.ts` (row interface) -> `natural-keys.ts` (upsert helper) -> new `load-<type>.ts` adapter -> `load-version.ts` (register in dispatcher) -> `diff-versions.ts` (`TYPE_DIFF_CONFIGS` entry)
+Change how diff blame is resolved | `diff-versions.ts` -- the Map preload + override lookup hot loop
+Add per-field blame for a new type | Extractor emits `field_source_lines` payload -> adapter calls `upsertSourceOverride` with `override_kind`
+Tune drop-guard | `load-version.ts` -- the `dropGuard` check
+Add an MCP tool | Not in this repo -- MCP server is separate. The queries live against the shape documented in `SCHEMA.md`.
+Migrate schema (additive -- new column on existing table) | `schema.ts` -- bump `SCHEMA_VERSION`, add `SCHEMA_V<N>_MIGRATION_SQL` (e.g. `ALTER TABLE foo ADD COLUMN bar TEXT...`), add `migrateV<N-1>ToV<N>`, extend `applySchema`'s chain. Pattern at v7 (asset_extensions verification columns).
+Migrate schema (CHECK widening on existing column) | `schema.ts` -- table rebuild required since SQLite can't ALTER CHECK in place. Pattern at v8 (asset_loader_sites confidence -- `<TABLE>_V<N>_MIGRATION_SQL` rebuild block + `foreign_keys = OFF` outside the txn). Update the v3 `CREATE TABLE` block too so fresh DBs land on the widened CHECK.
 Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md`
 
 ## Layer 2 - state unknown
 
-The Layer 2 corpus is imported into `data/qw.db` and a basic FTS5 search index exists. The processing pipeline on top of it — tier classification, session segmentation, summarization, curation — hasn't been touched in weeks and has not been audited for this doc. The scripts at `scripts/*.mjs` are what exists, not what is necessarily still in use:
+The Layer 2 corpus is imported into `data/qw.db` and a basic FTS5 search index exists. The processing pipeline on top of it -- tier classification, session segmentation, summarization, curation -- hasn't been touched in weeks and has not been audited for this doc. The scripts at `scripts/*.mjs` are what exists, not what is necessarily still in use:
 
 - `import-discord.mjs` / `import-irc.mjs` - raw import from the respective dumps
 - `db.mjs` - Layer 2 schema + connection (legacy .mjs, not TypeScript)
@@ -192,11 +192,11 @@ The Layer 2 corpus is imported into `data/qw.db` and a basic FTS5 search index e
 - `sample-*.mjs` - ad-hoc sampling scripts used during design spikes
 - `helpdesk-benchmark.mjs` / `helpdesk-coverage.mjs` - the "can this answer a real question" bench
 
-This list is a file inventory, not a working map. Before the next Layer 2 push, this section needs its own audit pass — which scripts are current, which are scratchpads to delete, which compose into a pipeline. See HANDOVER for the follow-up item if one exists; if not, add one when Layer 2 work restarts.
+This list is a file inventory, not a working map. Before the next Layer 2 push, this section needs its own audit pass -- which scripts are current, which are scratchpads to delete, which compose into a pipeline. See HANDOVER for the follow-up item if one exists; if not, add one when Layer 2 work restarts.
 
 ## Serving surfaces
 
-Two paths through which consumers reach the knowledge foundation. See `VISION.md` § "Serving surfaces" for the framing.
+Two paths through which consumers reach the knowledge foundation. See `VISION.md` Section  "Serving surfaces" for the framing.
 
 ### MCP (live)
 

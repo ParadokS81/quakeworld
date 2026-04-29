@@ -1,4 +1,4 @@
-# Slice 16.0b — Live Server Status
+# Slice 16.0b -- Live Server Status
 
 ## 1. Slice Definition
 
@@ -20,11 +20,11 @@ PRIMARY SECTIONS:
 DEPENDENT SECTIONS:
 - QWHubService: New method for fetching active server data
 - StandinFinderService: Provides the filtered player list to match against
-- Find Standin (16.0a): Must be implemented first — this layers on top
+- Find Standin (16.0a): Must be implemented first -- this layers on top
 
 IGNORED SECTIONS:
 - Supabase match data: Not relevant (this is live server data, not match history)
-- Player identity resolution: Full alias system (qw-stats research) is overkill — simple fuse.js matching is sufficient
+- Player identity resolution: Full alias system (qw-stats research) is overkill -- simple fuse.js matching is sufficient
 ```
 
 ---
@@ -44,15 +44,15 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - LiveServerService (NEW):
-  - fetchActiveServers() → GET hubapi.quakeworld.nu/v2/servers/mvdsv
-  - getActivePlayerMap() → returns Map<normalizedName, { status, server, address, mode, team }>
+  - fetchActiveServers() -> GET hubapi.quakeworld.nu/v2/servers/mvdsv
+  - getActivePlayerMap() -> returns Map<normalizedName, { status, server, address, mode, team }>
     Collects from: players[], spectator_names[], qtv_stream.spectator_names[]
-  - matchPlayerToServer(displayName) → fuzzy match displayName against active player map using fuse.js
+  - matchPlayerToServer(displayName) -> fuzzy match displayName against active player map using fuse.js
   - Cache: 30-second TTL (servers change fast), in-memory
   - Deduplication: single in-flight request (same pattern as QWHubService)
 
 - QWHubService (EXTENDED):
-  - qwToAscii() already exists — used for name normalization
+  - qwToAscii() already exists -- used for name normalization
   - Add: getActiveServers() method (or put in LiveServerService directly)
 
 BACKEND REQUIREMENTS:
@@ -67,18 +67,18 @@ NEW DEPENDENCY:
   - Recommended by vikpe (QWHub maintainer)
 
 INTEGRATION POINTS:
-- LiveServerService → hubapi: Fetch active servers (external API)
-- LiveServerService → QWHubService: qwToAscii() for name normalization
-- LiveServerService → fuse.js: Fuzzy match normalized server names against our player names
-- PlayersPanel → LiveServerService: Check online status for each player in results
-- StandinFinderService → LiveServerService: Trigger server fetch when standin search activates
+- LiveServerService -> hubapi: Fetch active servers (external API)
+- LiveServerService -> QWHubService: qwToAscii() for name normalization
+- LiveServerService -> fuse.js: Fuzzy match normalized server names against our player names
+- PlayersPanel -> LiveServerService: Check online status for each player in results
+- StandinFinderService -> LiveServerService: Trigger server fetch when standin search activates
 ```
 
 ---
 
 ## 4. Integration Code Examples
 
-### 4a. LiveServerService — New Module
+### 4a. LiveServerService -- New Module
 
 ```javascript
 // public/js/services/LiveServerService.js
@@ -175,7 +175,7 @@ const LiveServerService = (function() {
             const entries = Array.from(map.entries()).map(([name, info]) => ({ name, ...info }));
             _fuseInstance = new Fuse(entries, {
                 keys: ['name'],
-                threshold: 0.3,     // strict-ish — 0.0 = exact, 1.0 = match anything
+                threshold: 0.3,     // strict-ish -- 0.0 = exact, 1.0 = match anything
                 includeScore: true
             });
             _fuseInstance._mapSize = map.size;
@@ -232,10 +232,10 @@ const LiveServerService = (function() {
 })();
 ```
 
-### 4b. PlayersPanel — Quake Icon Integration
+### 4b. PlayersPanel -- Quake Icon Integration
 
 ```javascript
-// In PlayersPanel._renderFilteredPlayers() — extend player row rendering
+// In PlayersPanel._renderFilteredPlayers() -- extend player row rendering
 
 async function _renderFilteredPlayers(availableMap, divisionFilter) {
     // ... existing rendering from 16.0a ...
@@ -261,7 +261,7 @@ async function _renderFilteredPlayers(availableMap, divisionFilter) {
 }
 ```
 
-### 4c. Player Tooltip — Server Details + Copy IP
+### 4c. Player Tooltip -- Server Details + Copy IP
 
 ```javascript
 // Enhanced tooltip when hovering a player with quake icon
@@ -296,7 +296,7 @@ function _showStandinTooltip(userId, playerData, serverInfo, event) {
     const html = `
         <div class="standin-tooltip">
             <div class="tooltip-name">${escapeHtml(playerData.displayName)}</div>
-            <div class="tooltip-team">${escapeHtml(playerData.teamTag)} · ${escapeHtml(playerData.teamName)}</div>
+            <div class="tooltip-team">${escapeHtml(playerData.teamTag)} - ${escapeHtml(playerData.teamName)}</div>
             <div class="tooltip-slots">
                 ${slots.map(s => `<span class="tooltip-slot-chip">${s}</span>`).join('')}
             </div>
@@ -307,13 +307,13 @@ function _showStandinTooltip(userId, playerData, serverInfo, event) {
     // Attach copy handler
     tooltip.querySelector('.tooltip-copy-btn')?.addEventListener('click', (e) => {
         navigator.clipboard.writeText(e.target.dataset.copy);
-        e.target.textContent = '✓';
+        e.target.textContent = '[ok]';
         setTimeout(() => e.target.textContent = '📋', 1500);
     });
 }
 ```
 
-### 4d. CSS — Online Indicator + Tooltip Styling
+### 4d. CSS -- Online Indicator + Tooltip Styling
 
 ```css
 /* In src/css/input.css */
@@ -408,27 +408,27 @@ BACKEND PERFORMANCE:
 ```
 STANDIN SEARCH WITH LIVE STATUS:
 Find Standin activated (from 16.0a)
-→ AvailabilityService.loadAllTeamAvailability() + LiveServerService.fetchActiveServers()
+-> AvailabilityService.loadAllTeamAvailability() + LiveServerService.fetchActiveServers()
   (both in parallel)
-→ Availability loaded → Render filtered players
-→ Server data loaded → LiveServerService.matchPlayers(displayNames)
-  → For each player: qwToAscii() server names → fuse.js match against displayName
-  → Returns Map<displayName, serverInfo>
-→ Add quake icon to matched player rows
-→ Done (both data sources merged in UI)
+-> Availability loaded -> Render filtered players
+-> Server data loaded -> LiveServerService.matchPlayers(displayNames)
+  -> For each player: qwToAscii() server names -> fuse.js match against displayName
+  -> Returns Map<displayName, serverInfo>
+-> Add quake icon to matched player rows
+-> Done (both data sources merged in UI)
 
 TOOLTIP ON QUAKE ICON:
-Hover player with quake icon → _showStandinTooltip()
-→ Show: available slots + server name + status + ip:port [copy]
+Hover player with quake icon -> _showStandinTooltip()
+-> Show: available slots + server name + status + ip:port [copy]
 
 COPY SERVER ADDRESS:
-Click 📋 button in tooltip → navigator.clipboard.writeText(address)
-→ Button changes to ✓ for 1.5s → User can /connect in QW client
+Click 📋 button in tooltip -> navigator.clipboard.writeText(address)
+-> Button changes to [ok] for 1.5s -> User can /connect in QW client
 
 CACHE REFRESH:
 After 30s, next matchPlayers() call triggers fresh fetchActiveServers()
-→ Updated online status on next render cycle
-→ No auto-refresh — only refreshes when user interacts (re-runs Find Standin)
+-> Updated online status on next render cycle
+-> No auto-refresh -- only refreshes when user interacts (re-runs Find Standin)
 ```
 
 ---
@@ -442,12 +442,12 @@ FRONTEND TESTS:
 - [ ] No icon for players not on any server
 - [ ] Hover tooltip shows server name, status, mode
 - [ ] Copy button copies ip:port to clipboard
-- [ ] Copy button shows ✓ feedback after click
+- [ ] Copy button shows [ok] feedback after click
 
 NAME MATCHING TESTS:
 - [ ] Exact match: "ParadokS" on server matches "ParadokS" in our system
 - [ ] Case insensitive: "paradoks" matches "ParadokS"
-- [ ] QW encoding: qwToAscii("• ParadokS") matches "ParadokS"
+- [ ] QW encoding: qwToAscii("- ParadokS") matches "ParadokS"
 - [ ] Fuzzy: "paradok" matches "ParadokS" (threshold 0.3)
 - [ ] No false positive: "para" does NOT match "ParadokS" (too different)
 - [ ] Spectator name matching works (plain strings, not objects)
@@ -469,10 +469,10 @@ INTEGRATION TESTS:
 - [ ] Running Find Standin again refreshes server status if cache expired
 
 EDGE CASES:
-- [ ] No active servers (empty API response) → no icons, no errors
-- [ ] API unreachable → graceful degradation, standin search still works without icons
-- [ ] Player on multiple servers (shouldn't happen but handle) → show first match
-- [ ] Very long server name → truncate in tooltip
+- [ ] No active servers (empty API response) -> no icons, no errors
+- [ ] API unreachable -> graceful degradation, standin search still works without icons
+- [ ] Player on multiple servers (shouldn't happen but handle) -> show first match
+- [ ] Very long server name -> truncate in tooltip
 ```
 
 ---
@@ -483,8 +483,8 @@ EDGE CASES:
 - [ ] **qwToAscii availability**: The function exists on QWHubService. Make sure it's accessible (public method, not private).
 - [ ] **Name normalization consistency**: Both our player names and server names must go through the same normalization pipeline (trim, lowercase) before matching.
 - [ ] **Threshold tuning**: fuse.js threshold 0.3 is a starting point. May need adjustment after real-world testing. Too low = misses valid matches, too high = false positives.
-- [ ] **Clipboard API**: `navigator.clipboard.writeText()` requires HTTPS or localhost. Works in dev, works in production. May fail in some older browsers — add try/catch.
-- [ ] **No auto-refresh**: The 30s cache does NOT poll. Server status is a snapshot when Find Standin is triggered. This is fine — if user needs fresh data, they run Find Standin again.
+- [ ] **Clipboard API**: `navigator.clipboard.writeText()` requires HTTPS or localhost. Works in dev, works in production. May fail in some older browsers -- add try/catch.
+- [ ] **No auto-refresh**: The 30s cache does NOT poll. Server status is a snapshot when Find Standin is triggered. This is fine -- if user needs fresh data, they run Find Standin again.
 - [ ] **Quake icon asset**: Need a small quake logo SVG/PNG. Can use a simple unicode alternative (⚡ or similar) as placeholder until proper asset is available.
 
 ---
@@ -500,16 +500,16 @@ EDGE CASES:
 ```
 // FUTURE: When full alias resolution is implemented (qw-stats research Phase 2),
 // replace fuse.js matching with lookup against confirmed alias pairs:
-//   matchPlayerToServer(userId) → check alias DB for all known names → match against server
+//   matchPlayerToServer(userId) -> check alias DB for all known names -> match against server
 //
-// FUTURE: Auto-refresh toggle — poll every 30s while standin search is active
-//   Adds complexity (managing interval, cleanup) — skip for MVP
+// FUTURE: Auto-refresh toggle -- poll every 30s while standin search is active
+//   Adds complexity (managing interval, cleanup) -- skip for MVP
 //
-// FUTURE: "Invite to game" deep link — if QW client supports connect:// URLs
+// FUTURE: "Invite to game" deep link -- if QW client supports connect:// URLs
 ```
 
 ### Dependencies
-- **16.0a (Find Standin)**: Must be implemented first — this slice extends the filtered Players panel
+- **16.0a (Find Standin)**: Must be implemented first -- this slice extends the filtered Players panel
 - **fuse.js**: New external dependency (~6KB gzipped, zero sub-dependencies)
 - **QWHubService.qwToAscii()**: Must be a public method (verify it's exported)
 - **Quake icon asset**: Small SVG for the online indicator

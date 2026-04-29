@@ -460,32 +460,32 @@ BACKEND PERFORMANCE:
 
 ```
 DISPLAY MODE CHANGE:
-User clicks mode toggle → PlayerDisplayService.setDisplayMode()
-    → localStorage.setItem() + dispatch 'display-mode-changed'
-    → AvailabilityGrid listens → _renderCells() with new mode
-    → Cells re-render with appropriate style (instant)
+User clicks mode toggle -> PlayerDisplayService.setDisplayMode()
+    -> localStorage.setItem() + dispatch 'display-mode-changed'
+    -> AvailabilityGrid listens -> _renderCells() with new mode
+    -> Cells re-render with appropriate style (instant)
 
 COLOR ASSIGNMENT:
-User hovers roster member → Color indicator appears
-    → User clicks → ColorPickerPopover.show()
-    → User selects color → UserService.setPlayerColor()
-    → Optimistic: _playerColors updated immediately
-    → dispatch 'player-colors-changed'
-    → AvailabilityGrid + RosterList re-render
-    → Background: Firestore updateDoc()
+User hovers roster member -> Color indicator appears
+    -> User clicks -> ColorPickerPopover.show()
+    -> User selects color -> UserService.setPlayerColor()
+    -> Optimistic: _playerColors updated immediately
+    -> dispatch 'player-colors-changed'
+    -> AvailabilityGrid + RosterList re-render
+    -> Background: Firestore updateDoc()
 
 AVATAR DISPLAY:
-Grid needs to render avatar → Check player.avatarUrls.small
-    → If exists: Use small URL (32px, cached by browser)
-    → If not: Fall back to photoURL or default avatar
-    → Render as <img> with appropriate styling
+Grid needs to render avatar -> Check player.avatarUrls.small
+    -> If exists: Use small URL (32px, cached by browser)
+    -> If not: Fall back to photoURL or default avatar
+    -> Render as <img> with appropriate styling
 
 AVATAR UPLOAD (existing flow, enhanced):
-User uploads avatar → Storage trigger → processAvatarUpload()
-    → Create 3 sizes → Upload to Storage
-    → Update user document with avatarUrls object (NEW)
-    → Also update photoURL for backwards compat
-    → onSnapshot listener → UI updates
+User uploads avatar -> Storage trigger -> processAvatarUpload()
+    -> Create 3 sizes -> Upload to Storage
+    -> Update user document with avatarUrls object (NEW)
+    -> Also update photoURL for backwards compat
+    -> onSnapshot listener -> UI updates
 ```
 
 ---
@@ -529,10 +529,10 @@ SCHEMA/BACKEND TESTS:
 - [ ] Color cleared with deleteField() not null
 
 INTEGRATION TESTS:
-- [ ] Switch team → colors still apply (user-level, not team-level)
-- [ ] New roster member → no color assigned (gray default in dots mode)
-- [ ] Player leaves team → their color assignment remains (for if they rejoin)
-- [ ] 5+ players in slot → 4 visible + overflow indicator in all modes
+- [ ] Switch team -> colors still apply (user-level, not team-level)
+- [ ] New roster member -> no color assigned (gray default in dots mode)
+- [ ] Player leaves team -> their color assignment remains (for if they rejoin)
+- [ ] 5+ players in slot -> 4 visible + overflow indicator in all modes
 ```
 
 ---

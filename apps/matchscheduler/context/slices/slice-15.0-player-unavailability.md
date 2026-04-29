@@ -1,4 +1,4 @@
-# Slice 15.0 — Player Unavailability Marking
+# Slice 15.0 -- Player Unavailability Marking
 
 ## 1. Slice Definition
 
@@ -22,7 +22,7 @@ DEPENDENT SECTIONS:
 
 IGNORED SECTIONS:
 - Team Comparison: Unavailability is internal team view only, does not affect comparison engine
-- Match Proposals: Future expansion (leader off-limits slots) — out of scope for this slice
+- Match Proposals: Future expansion (leader off-limits slots) -- out of scope for this slice
 ```
 
 ---
@@ -35,7 +35,7 @@ FRONTEND COMPONENTS:
   - Firebase listeners: none (uses GridActionButtons service)
   - Cache interactions: reads AvailabilityService cache to check current state
   - UI responsibilities: New "Unavailable" button row in floating action panel
-  - User actions: Click "⊘ Me" to mark self unavailable, "⊘ Others →" flyout for on-behalf-of
+  - User actions: Click "⊘ Me" to mark self unavailable, "⊘ Others ->" flyout for on-behalf-of
 
 - AvailabilityGrid
   - Firebase listeners: existing onSnapshot on availability/{teamId}_{weekId}
@@ -52,23 +52,23 @@ FRONTEND COMPONENTS:
 
 FRONTEND SERVICES:
 - AvailabilityService:
-  - markUnavailable(teamId, weekId, slotIds) → Cloud Function or dev direct write
-  - removeUnavailable(teamId, weekId, slotIds) → Cloud Function or dev direct write
-  - markPlayerUnavailable(teamId, weekId, slotIds, targetUserId) → on-behalf-of
-  - removePlayerUnavailable(teamId, weekId, slotIds, targetUserId) → on-behalf-of
-  - getSlotUnavailablePlayers(teamId, weekId, slotId) → from cache
-  - isUserUnavailableInSlot(teamId, weekId, slotId, userId) → from cache
+  - markUnavailable(teamId, weekId, slotIds) -> Cloud Function or dev direct write
+  - removeUnavailable(teamId, weekId, slotIds) -> Cloud Function or dev direct write
+  - markPlayerUnavailable(teamId, weekId, slotIds, targetUserId) -> on-behalf-of
+  - removePlayerUnavailable(teamId, weekId, slotIds, targetUserId) -> on-behalf-of
+  - getSlotUnavailablePlayers(teamId, weekId, slotId) -> from cache
+  - isUserUnavailableInSlot(teamId, weekId, slotId, userId) -> from cache
 
 - GridActionButtons:
-  - markMeUnavailable() → calls AvailabilityService.markUnavailable()
-  - markOtherUnavailable(targetUserId) → calls AvailabilityService.markPlayerUnavailable()
-  - unmarkMeUnavailable() → calls AvailabilityService.removeUnavailable()
-  - unmarkOtherUnavailable(targetUserId) → calls AvailabilityService.removePlayerUnavailable()
+  - markMeUnavailable() -> calls AvailabilityService.markUnavailable()
+  - markOtherUnavailable(targetUserId) -> calls AvailabilityService.markPlayerUnavailable()
+  - unmarkMeUnavailable() -> calls AvailabilityService.removeUnavailable()
+  - unmarkOtherUnavailable(targetUserId) -> calls AvailabilityService.removePlayerUnavailable()
 
 BACKEND REQUIREMENTS:
 ⚠️ CLOUD FUNCTION UPDATE IN /functions/availability.js:
 - Cloud Functions:
-  - updateAvailability(params) — EXTEND existing function:
+  - updateAvailability(params) -- EXTEND existing function:
     - File: /functions/availability.js
     - New actions: "markUnavailable" and "removeUnavailable"
     - Purpose: Add/remove userId from unavailable map, auto-remove from slots if marking unavailable
@@ -78,7 +78,7 @@ BACKEND REQUIREMENTS:
       - "removeUnavailable": arrayRemove userId from unavailable.{slotId}
     - Returns: { success: boolean, error?: "message" }
 
-  NOTE: No new Cloud Function needed — extend updateAvailability with new action values.
+  NOTE: No new Cloud Function needed -- extend updateAvailability with new action values.
 
 - Firestore Operations:
   - Collection: /availability/{teamId}_{weekId}
@@ -87,26 +87,26 @@ BACKEND REQUIREMENTS:
   - Mutual exclusion: marking unavailable auto-removes from slots (same slot)
 
 - Security Rules:
-  - Same rules as availability slots — team members can read, authenticated members can write own,
+  - Same rules as availability slots -- team members can read, authenticated members can write own,
     leaders/schedulers can write for others
   - No new rules needed since we're using the same document and Cloud Function validation
 
 - Event Logging:
   - Type: "unavailability_marked" / "unavailability_removed"
   - Details: { teamId, weekId, slotIds, targetUserId? }
-  - Optional for v1 — can add later
+  - Optional for v1 -- can add later
 
 - External Services: none
 
 INTEGRATION POINTS:
-- Frontend → Backend: AvailabilityService methods → updateAvailability Cloud Function (extended)
+- Frontend -> Backend: AvailabilityService methods -> updateAvailability Cloud Function (extended)
 - API Contract:
   - Request: { teamId, weekId, action: "markUnavailable"|"removeUnavailable", slotIds, targetUserId? }
   - Success: { success: true }
   - Error: { success: false, error: "message" }
 - Real-time listeners: existing onSnapshot on availability doc picks up unavailable field automatically
-- Data flow: User selects cells → clicks "⊘ Me" → AvailabilityService.markUnavailable() →
-  optimistic cache update → Cloud Function/dev write → Firestore update → onSnapshot fires →
+- Data flow: User selects cells -> clicks "⊘ Me" -> AvailabilityService.markUnavailable() ->
+  optimistic cache update -> Cloud Function/dev write -> Firestore update -> onSnapshot fires ->
   AvailabilityGrid re-renders with unavailable badges
 ```
 
@@ -114,7 +114,7 @@ INTEGRATION POINTS:
 
 ## 4. Integration Code Examples
 
-### 4a. Data Model — Availability Document (extended)
+### 4a. Data Model -- Availability Document (extended)
 
 ```javascript
 // /availability/{teamId}_{weekId}
@@ -125,9 +125,9 @@ INTEGRATION POINTS:
     "mon_1800": ["user1", "user2"],  // available players
     "tue_2000": ["user3"]
   },
-  // NEW: unavailable map — same structure as slots
+  // NEW: unavailable map -- same structure as slots
   // FUTURE: Could store objects instead of strings for type/source metadata
-  // e.g., [{ userId: "user4", type: "player" }] — but for now, simple string arrays
+  // e.g., [{ userId: "user4", type: "player" }] -- but for now, simple string arrays
   unavailable: {
     "mon_1800": ["user4"],           // user4 explicitly cannot play this slot
     "wed_2100": ["user1", "user5"]   // user1 and user5 away this slot
@@ -136,7 +136,7 @@ INTEGRATION POINTS:
 }
 ```
 
-### 4b. AvailabilityService — New Methods
+### 4b. AvailabilityService -- New Methods
 
 ```javascript
 // In AvailabilityService (add to existing module)
@@ -207,10 +207,10 @@ async function markUnavailable(teamId, weekId, slotIds) {
 }
 ```
 
-### 4c. Cloud Function — Extended updateAvailability
+### 4c. Cloud Function -- Extended updateAvailability
 
 ```javascript
-// In functions/availability.js — extend the action validation and handling
+// In functions/availability.js -- extend the action validation and handling
 
 // Change validation line:
 if (!['add', 'remove', 'markUnavailable', 'removeUnavailable'].includes(action)) {
@@ -232,10 +232,10 @@ if (action === 'markUnavailable') {
 }
 ```
 
-### 4d. GridActionButtons — New Handlers
+### 4d. GridActionButtons -- New Handlers
 
 ```javascript
-// In GridActionButtons — follow exact pattern of _handleAddMe / _handleRemoveMe
+// In GridActionButtons -- follow exact pattern of _handleAddMe / _handleRemoveMe
 
 async function _handleMarkMeUnavailable() {
     const teamId = MatchSchedulerApp.getSelectedTeam()?.id;
@@ -261,27 +261,27 @@ async function _handleMarkMeUnavailable() {
 }
 ```
 
-### 4e. SelectionActionButton — New Button Row
+### 4e. SelectionActionButton -- New Button Row
 
 ```javascript
-// In SelectionActionButton._buildLayout() — add row between remove and escape rows
+// In SelectionActionButton._buildLayout() -- add row between remove and escape rows
 
 // For scheduler layout:
-// Row 1: [+ Me]         [+ Others →]
-// Row 2: [− Me]         [− Others →]
-// Row 3: [⊘ Me]         [⊘ Others →]     ← NEW
+// Row 1: [+ Me]         [+ Others ->]
+// Row 2: [− Me]         [− Others ->]
+// Row 3: [⊘ Me]         [⊘ Others ->]     <- NEW
 // Row 4: [Escape]       [Template]
 
 // For non-scheduler layout:
 // Row 1: [+ Me]         [Template]
 // Row 2: [− Me]         [Escape]
-// Row 3: [⊘ Me]                           ← NEW (no "others" for non-schedulers)
+// Row 3: [⊘ Me]                           <- NEW (no "others" for non-schedulers)
 ```
 
-### 4f. AvailabilityGrid — Badge Rendering
+### 4f. AvailabilityGrid -- Badge Rendering
 
 ```javascript
-// In AvailabilityGrid._renderPlayerBadges() — after rendering available badges
+// In AvailabilityGrid._renderPlayerBadges() -- after rendering available badges
 
 // Render unavailable players (greyscale + red prohibition overlay)
 const unavailablePlayers = unavailableData?.[cellId] || [];
@@ -302,7 +302,7 @@ if (unavailablePlayers.length > 0) {
 }
 ```
 
-### 4g. CSS — Unavailable Badge Styling
+### 4g. CSS -- Unavailable Badge Styling
 
 ```css
 /* In src/css/input.css */
@@ -347,10 +347,10 @@ if (unavailablePlayers.length > 0) {
 }
 ```
 
-### 4h. PlayerTooltip — Separated Sections
+### 4h. PlayerTooltip -- Separated Sections
 
 ```javascript
-// In PlayerTooltip.show() — split players into available and unavailable groups
+// In PlayerTooltip.show() -- split players into available and unavailable groups
 
 const availableHtml = sortedAvailable.map(player => {
     // ... existing badge rendering
@@ -382,17 +382,17 @@ _tooltip.innerHTML = `
 
 ```
 HOT PATHS (<50ms):
-- Mark self unavailable: Optimistic cache update → instant UI feedback → async persist
+- Mark self unavailable: Optimistic cache update -> instant UI feedback -> async persist
 - View unavailable badges: Rendered from cache, no fetch needed
 - Tooltip hover: Reads from same cached availability data, no extra query
 
 COLD PATHS (<2s):
 - Mark other player unavailable: Same optimistic pattern, loading state on button
-- Initial load: Unavailable data comes with existing availability document — no extra query
+- Initial load: Unavailable data comes with existing availability document -- no extra query
 
 BACKEND PERFORMANCE:
-- Cloud Function: Extends existing updateAvailability — no cold start impact
-- Database: Same document, same listener — zero additional reads
+- Cloud Function: Extends existing updateAvailability -- no cold start impact
+- Database: Same document, same listener -- zero additional reads
 - No new indexes needed (unavailable map uses same pattern as slots)
 ```
 
@@ -402,29 +402,29 @@ BACKEND PERFORMANCE:
 
 ```
 MARK SELF UNAVAILABLE:
-Select cells → Click "⊘ Me" → SelectionActionButton._handleMeAction('unavailable')
-→ GridActionButtons.markMeUnavailable() → AvailabilityService.markUnavailable(teamId, weekId, slotIds)
-→ Optimistic: add to cache.unavailable, remove from cache.slots → UI updates instantly
-→ Cloud Function: updateAvailability({ action: 'markUnavailable', ... })
-→ Firestore: arrayUnion unavailable.{slot}, arrayRemove slots.{slot}
-→ onSnapshot fires → AvailabilityService cache updated → AvailabilityGrid re-renders
-→ Unavailable badges (greyscale + ⊘) appear, available badge removed
+Select cells -> Click "⊘ Me" -> SelectionActionButton._handleMeAction('unavailable')
+-> GridActionButtons.markMeUnavailable() -> AvailabilityService.markUnavailable(teamId, weekId, slotIds)
+-> Optimistic: add to cache.unavailable, remove from cache.slots -> UI updates instantly
+-> Cloud Function: updateAvailability({ action: 'markUnavailable', ... })
+-> Firestore: arrayUnion unavailable.{slot}, arrayRemove slots.{slot}
+-> onSnapshot fires -> AvailabilityService cache updated -> AvailabilityGrid re-renders
+-> Unavailable badges (greyscale + ⊘) appear, available badge removed
 
 MARK OTHER UNAVAILABLE (leader/scheduler):
-Select cells → Hover "⊘ Others →" → Roster flyout → Click player
-→ GridActionButtons.markOtherUnavailable(targetUserId)
-→ AvailabilityService.markPlayerUnavailable(teamId, weekId, slotIds, targetUserId)
-→ Same flow as above with targetUserId parameter
+Select cells -> Hover "⊘ Others ->" -> Roster flyout -> Click player
+-> GridActionButtons.markOtherUnavailable(targetUserId)
+-> AvailabilityService.markPlayerUnavailable(teamId, weekId, slotIds, targetUserId)
+-> Same flow as above with targetUserId parameter
 
 REAL-TIME SYNC:
-Another user marks unavailable → Firestore update → onSnapshot on availability doc
-→ AvailabilityService cache updated (includes unavailable map)
-→ AvailabilityGrid.updateTeamDisplay() called → _renderPlayerBadges() renders both clusters
+Another user marks unavailable -> Firestore update -> onSnapshot on availability doc
+-> AvailabilityService cache updated (includes unavailable map)
+-> AvailabilityGrid.updateTeamDisplay() called -> _renderPlayerBadges() renders both clusters
 
 TOOLTIP:
-Hover cell with unavailable players → PlayerTooltip.show()
-→ Reads available from slots, unavailable from unavailable map
-→ Renders two sections: "X available" + "Away: ..."
+Hover cell with unavailable players -> PlayerTooltip.show()
+-> Reads available from slots, unavailable from unavailable map
+-> Renders two sections: "X available" + "Away: ..."
 ```
 
 ---
@@ -434,7 +434,7 @@ Hover cell with unavailable players → PlayerTooltip.show()
 ```
 FRONTEND TESTS:
 - [ ] "⊘ Me" button appears in SelectionActionButton when cells are selected
-- [ ] "⊘ Others →" button appears for leaders/schedulers only
+- [ ] "⊘ Others ->" button appears for leaders/schedulers only
 - [ ] Clicking "⊘ Me" triggers markUnavailable with correct slotIds
 - [ ] Unavailable badges render with greyscale + red prohibition overlay
 - [ ] Available and unavailable badges are visually separated
@@ -453,15 +453,15 @@ BACKEND TESTS:
 - [ ] Invalid slot formats rejected
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Mark unavailable → badge appears with correct styling in real-time
-- [ ] Mark unavailable → availability badge disappears from same slot
-- [ ] Mark available on unavailable slot → unavailable badge disappears
+- [ ] Mark unavailable -> badge appears with correct styling in real-time
+- [ ] Mark unavailable -> availability badge disappears from same slot
+- [ ] Mark available on unavailable slot -> unavailable badge disappears
 - [ ] Other team members see unavailable badges via real-time listener
-- [ ] Error from backend → cache rolls back → UI reverts
+- [ ] Error from backend -> cache rolls back -> UI reverts
 - [ ] Optimistic update shows immediately, confirmed by listener
 
 END-TO-END TESTS:
-- [ ] Full journey: select cells → mark unavailable → see badges → hover tooltip → unmark
+- [ ] Full journey: select cells -> mark unavailable -> see badges -> hover tooltip -> unmark
 - [ ] Leader marks player unavailable on their behalf
 - [ ] Cross-week unavailability (slots spanning multiple weeks)
 - [ ] Multiple players unavailable in same slot
@@ -472,8 +472,8 @@ END-TO-END TESTS:
 ## 8. Common Integration Pitfalls
 
 - [ ] **Mutual exclusion not enforced**: Marking unavailable MUST also remove from available (both in optimistic update AND Cloud Function)
-- [ ] **Cache missing unavailable field**: Existing cached availability docs won't have `unavailable` — default to empty object `{}`
-- [ ] **Listener not picking up new field**: Existing onSnapshot already gets full document — unavailable map comes free. But rendering code must read it.
+- [ ] **Cache missing unavailable field**: Existing cached availability docs won't have `unavailable` -- default to empty object `{}`
+- [ ] **Listener not picking up new field**: Existing onSnapshot already gets full document -- unavailable map comes free. But rendering code must read it.
 - [ ] **Overflow count wrong**: Badge overflow (4+ players) must count available and unavailable separately. Available players get priority for visible badge slots.
 - [ ] **"Ready for match" threshold**: The purple highlight (4+ players) must only count available players, NOT unavailable ones.
 - [ ] **Marking available doesn't clear unavailable**: When using existing "Add Me" on a slot where user is unavailable, must also remove from unavailable.
@@ -486,7 +486,7 @@ END-TO-END TESTS:
 
 ### Gotchas
 - **Existing addMeToSlots/addPlayerToSlots must also remove unavailable**: When marking someone available, if they were previously marked unavailable in that slot, the unavailable entry must be cleaned up. This is the reverse side of mutual exclusion. Extend the existing `add` action in the Cloud Function to also do `arrayRemove` on `unavailable.{slotId}`.
-- **Empty unavailable arrays**: After removing the last user from an unavailable slot, an empty array remains. This is fine (sparse storage pattern) — the rendering code should handle `[]` gracefully.
+- **Empty unavailable arrays**: After removing the last user from an unavailable slot, an empty array remains. This is fine (sparse storage pattern) -- the rendering code should handle `[]` gracefully.
 - **Badge sort order**: Within the unavailable cluster, maintain same sort order as available (current user first, then alphabetical).
 
 ### Future Expansion Notes
@@ -506,15 +506,15 @@ END-TO-END TESTS:
 //     { type: "team", reason: "playoff_conflict", setBy: "leaderId" }
 //   ]}
 //
-// The current simple array approach is intentional — keeps it lean for the
+// The current simple array approach is intentional -- keeps it lean for the
 // common case (player self-reported) and the migration path is straightforward.
 ```
 
 ### Similar Patterns
 - **On-behalf-of availability** (Slice 2.8): Same permission model, same targetUserId parameter, same flyout roster pattern. Unavailability on-behalf-of is identical.
-- **Display modes** (Slice 5.0.1): The greyscale+overlay CSS approach means we don't need mode-specific rendering — `filter: grayscale(100%)` works universally on any badge type.
+- **Display modes** (Slice 5.0.1): The greyscale+overlay CSS approach means we don't need mode-specific rendering -- `filter: grayscale(100%)` works universally on any badge type.
 
 ### Dependencies
 - Existing `SelectionActionButton` layout must accommodate a 3rd row (for schedulers, 4th row total)
-- Existing `updateAvailability` Cloud Function extended — backwards compatible (new action values)
-- No new collections, no new Cloud Functions, no new listeners — minimal infrastructure change
+- Existing `updateAvailability` Cloud Function extended -- backwards compatible (new action values)
+- No new collections, no new Cloud Functions, no new listeners -- minimal infrastructure change

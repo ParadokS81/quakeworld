@@ -16,11 +16,11 @@
 
 | Decision | Answer | Rationale |
 |----------|--------|-----------|
-| Opponent confirmation | **Not required** | Trust-based system — leaders only add confirmed-elsewhere matches |
+| Opponent confirmation | **Not required** | Trust-based system -- leaders only add confirmed-elsewhere matches |
 | Entry point | **"+" in SCHEDULED MATCHES header** | Contextual, discoverable, doesn't clutter proposal workflow |
 | Time input | **Free-form date + time** | Maximum flexibility for pre-arranged matches from any source |
 | Notification | **Event log entry** | Match appears + eventLog so it shows in activity feed |
-| Permissions | **Leaders + schedulers** | Same as proposal confirmation — consistent permission model |
+| Permissions | **Leaders + schedulers** | Same as proposal confirmation -- consistent permission model |
 | Origin tracking | **`origin` field on scheduledMatch** | Distinguish quick-add from proposal-created matches |
 | Team selection | **Auto-select if 1 team, dropdown if 2** | Minimize clicks for the common case |
 
@@ -52,7 +52,7 @@ IGNORED SECTIONS:
 FRONTEND COMPONENTS:
 - MatchesPanel (MODIFY)
   - Add "+" button in SCHEDULED MATCHES header (right column)
-  - Button visible only when user is leader/scheduler on ≥1 team
+  - Button visible only when user is leader/scheduler on >=1 team
   - Click opens QuickAddMatchModal
 
 - QuickAddMatchModal (NEW)
@@ -65,12 +65,12 @@ FRONTEND COMPONENTS:
     - Time picker (dropdown: 30-min intervals from 12:00-23:30 in user's timezone)
     - Game type toggle (Official / Practice)
     - Submit button with loading state
-  - User actions: Submit → calls quickAddMatch Cloud Function
+  - User actions: Submit -> calls quickAddMatch Cloud Function
 
 FRONTEND SERVICES:
 - ScheduledMatchService (MODIFY)
-  - Add: quickAddMatch(params) → calls 'quickAddMatch' Cloud Function
-  - Method → Backend mapping: quickAddMatch → functions/match-proposals.js:quickAddMatch
+  - Add: quickAddMatch(params) -> calls 'quickAddMatch' Cloud Function
+  - Method -> Backend mapping: quickAddMatch -> functions/match-proposals.js:quickAddMatch
 
 BACKEND REQUIREMENTS:
 ⚠️ CLOUD FUNCTION MUST BE IMPLEMENTED IN /functions/match-proposals.js:
@@ -82,7 +82,7 @@ BACKEND REQUIREMENTS:
       - User authenticated
       - User is leader/scheduler on teamId
       - opponentTeamId exists and is active
-      - teamId ≠ opponentTeamId
+      - teamId != opponentTeamId
       - dateTime is in the future
       - gameType is 'official' or 'practice'
       - Slot not already blocked for either team
@@ -111,20 +111,20 @@ BACKEND REQUIREMENTS:
   - Details: { matchId, teams, slotId, weekId, gameType, origin: 'quick_add' }
 
 INTEGRATION POINTS:
-- Frontend → Backend: ScheduledMatchService.quickAddMatch() → Cloud Function
+- Frontend -> Backend: ScheduledMatchService.quickAddMatch() -> Cloud Function
 - API Contract:
   - Request: { teamId: string, opponentTeamId: string, dateTime: string (ISO 8601), gameType: 'official'|'practice' }
   - Success: { success: true, matchId: string }
   - Error: { success: false, error: string }
 - Real-time: Existing scheduledMatches listener in MatchesPanel picks up new document automatically
-- Data flow: Submit → Cloud Function → scheduledMatches doc → onSnapshot → UI update
+- Data flow: Submit -> Cloud Function -> scheduledMatches doc -> onSnapshot -> UI update
 ```
 
 ---
 
 ## 4. Schema Changes
 
-### scheduledMatches — New Fields
+### scheduledMatches -- New Fields
 
 ```typescript
 interface ScheduledMatchDocument {
@@ -142,7 +142,7 @@ interface ScheduledMatchDocument {
 }
 ```
 
-### eventLog — New Event Type
+### eventLog -- New Event Type
 
 ```typescript
 type EventType =
@@ -304,7 +304,7 @@ const QuickAddMatchModal = (function() {
             }
         } catch (error) {
             console.error('Quick add match failed:', error);
-            ToastService.show('Network error — please try again', 'error');
+            ToastService.show('Network error -- please try again', 'error');
             btn.disabled = false;
             btn.textContent = 'Add Match';
         }
@@ -495,11 +495,11 @@ function computeSlotId(date) {
 
 ```
 HOT PATHS (<50ms):
-- Opening modal: Instant — team list comes from TeamService cache
+- Opening modal: Instant -- team list comes from TeamService cache
 - Toggling game type: Pure DOM toggle, no backend call
 
 COLD PATHS (<2s):
-- Submit: Cloud Function call — show loading state ("Adding...")
+- Submit: Cloud Function call -- show loading state ("Adding...")
 - After submit: UI updates via existing onSnapshot listener (already set up)
 
 BACKEND PERFORMANCE:
@@ -513,19 +513,19 @@ BACKEND PERFORMANCE:
 ## 7. Data Flow Diagram
 
 ```
-Click "+" → QuickAddMatchModal.show()
-         → Fill form (team, opponent, date, time, type)
-         → Submit
-         → ScheduledMatchService.quickAddMatch()
-         → Cloud Function: quickAddMatch
-         → Validate + derive weekId/slotId + check blocked slots
-         → Create scheduledMatches doc + eventLog doc
-         → Return { success, matchId }
-         → Toast "Match added!"
-         → Modal closes
-         → Existing onSnapshot on scheduledMatches fires
-         → MatchesPanel._renderAll() re-renders right column
-         → UpcomingMatchesPanel re-renders (both teams see the match)
+Click "+" -> QuickAddMatchModal.show()
+         -> Fill form (team, opponent, date, time, type)
+         -> Submit
+         -> ScheduledMatchService.quickAddMatch()
+         -> Cloud Function: quickAddMatch
+         -> Validate + derive weekId/slotId + check blocked slots
+         -> Create scheduledMatches doc + eventLog doc
+         -> Return { success, matchId }
+         -> Toast "Match added!"
+         -> Modal closes
+         -> Existing onSnapshot on scheduledMatches fires
+         -> MatchesPanel._renderAll() re-renders right column
+         -> UpcomingMatchesPanel re-renders (both teams see the match)
 ```
 
 ---
@@ -560,15 +560,15 @@ BACKEND TESTS:
 - [ ] Returns matchId on success
 
 INTEGRATION TESTS (CRITICAL):
-- [ ] Submit → Cloud Function → scheduledMatch doc → listener fires → UI shows new match
+- [ ] Submit -> Cloud Function -> scheduledMatch doc -> listener fires -> UI shows new match
 - [ ] New match appears in BOTH teams' scheduled matches panels
 - [ ] New match blocks the slot for both teams in future proposals
 - [ ] Quick-added match shows in UpcomingMatchesPanel (bottom-left)
-- [ ] Cloud Function error → toast error → form still open
-- [ ] Permission denied → user sees explanation
+- [ ] Cloud Function error -> toast error -> form still open
+- [ ] Permission denied -> user sees explanation
 
 END-TO-END:
-- [ ] Leader quick-adds match → appears in Matches tab right column
+- [ ] Leader quick-adds match -> appears in Matches tab right column
 - [ ] Opponent team member sees match in their view (without logging out/in)
 - [ ] Quick-added match correctly blocks slot in proposal viable-slot computation
 ```
@@ -577,29 +577,29 @@ END-TO-END:
 
 ## 9. Common Integration Pitfalls
 
-- [ ] Forgetting to add `origin: 'quick_add'` field — existing code rendering matches must handle missing `origin` gracefully (treat as `'proposal'`)
+- [ ] Forgetting to add `origin: 'quick_add'` field -- existing code rendering matches must handle missing `origin` gracefully (treat as `'proposal'`)
 - [ ] Not exporting `quickAddMatch` in `functions/index.js`
 - [ ] Forgetting `europe-west3` region on both frontend `getFunctions()` and backend function definition
-- [ ] Time picker showing local times but sending UTC without conversion — must use `TimezoneService.localToUTC()`
+- [ ] Time picker showing local times but sending UTC without conversion -- must use `TimezoneService.localToUTC()`
 - [ ] Submit button not re-enabled after error (always use `finally` block)
 - [ ] Opponent dropdown not updating when user switches their team (if on 2 teams)
-- [ ] Missing `blockedTeams` array on the new document — breaks double-booking prevention queries
-- [ ] `computeWeekId` using different ISO week logic than existing `week-utils.js` — reuse existing functions
+- [ ] Missing `blockedTeams` array on the new document -- breaks double-booking prevention queries
+- [ ] `computeWeekId` using different ISO week logic than existing `week-utils.js` -- reuse existing functions
 
 ---
 
 ## 10. Implementation Notes
 
 ### Files to Create
-- `public/js/components/QuickAddMatchModal.js` — New modal component
+- `public/js/components/QuickAddMatchModal.js` -- New modal component
 
 ### Files to Modify
-- `public/js/components/MatchesPanel.js` — Add "+" button + click handler
-- `public/js/services/ScheduledMatchService.js` — Add `quickAddMatch()` method
-- `functions/match-proposals.js` — Add `quickAddMatch` Cloud Function + helper functions
-- `functions/index.js` — Export `quickAddMatch`
-- `public/index.html` — Add `<script>` tag for QuickAddMatchModal.js
-- `context/SCHEMA.md` — Document new fields (`origin`, `addedBy`) and event type
+- `public/js/components/MatchesPanel.js` -- Add "+" button + click handler
+- `public/js/services/ScheduledMatchService.js` -- Add `quickAddMatch()` method
+- `functions/match-proposals.js` -- Add `quickAddMatch` Cloud Function + helper functions
+- `functions/index.js` -- Export `quickAddMatch`
+- `public/index.html` -- Add `<script>` tag for QuickAddMatchModal.js
+- `context/SCHEMA.md` -- Document new fields (`origin`, `addedBy`) and event type
 
 ### Patterns to Follow
 - Modal: Follow `KickPlayerModal.js` pattern (backdrop, ESC close, backdrop click close)
@@ -612,10 +612,10 @@ END-TO-END:
 - `getBlockedSlotsForTeam()` for double-booking checks
 - `generateEventId()` for event log document IDs
 - `computeScheduledDate()` from week-utils.js (may need adaptation for free-form dates)
-- `TimezoneService` for local ↔ UTC conversion on frontend
+- `TimezoneService` for local <-> UTC conversion on frontend
 
 ### Edge Cases
-- User on 2 teams that are opponents of each other — allow it (they pick which side)
-- Match date far in the future (no availability data) — fine, no availability needed
-- Same opponent, same slot — blocked-slot check prevents duplicates
-- User switches team in dropdown — must refresh opponent list to exclude new selection
+- User on 2 teams that are opponents of each other -- allow it (they pick which side)
+- Match date far in the future (no availability data) -- fine, no availability needed
+- Same opponent, same slot -- blocked-slot check prevents duplicates
+- User switches team in dropdown -- must refresh opponent list to exclude new selection

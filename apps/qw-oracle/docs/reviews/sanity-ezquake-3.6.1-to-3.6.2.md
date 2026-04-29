@@ -81,7 +81,7 @@ Members (55):
 
 ## Findings
 
-### addition:ezquake:command:find_and_follow · addition · ezquake:command:find_and_follow
+### addition:ezquake:command:find_and_follow - addition - ezquake:command:find_and_follow
 
 **Summary:** New command `find_and_follow` first observed at 3.6.2.
 
@@ -100,7 +100,7 @@ Members (55):
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:cl_maxfps_menu · addition · ezquake:cvar:cl_maxfps_menu
+### addition:ezquake:cvar:cl_maxfps_menu - addition - ezquake:cvar:cl_maxfps_menu
 
 **Summary:** New cvar `cl_maxfps_menu` first observed at 3.6.2.
 
@@ -124,7 +124,7 @@ fix windowed fps, fix wh...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvanced · addition · ezquake:cvar:joyadvanced
+### addition:ezquake:cvar:joyadvanced - addition - ezquake:cvar:joyadvanced
 
 **Summary:** New cvar `joyadvanced` first observed at 3.6.2.
 
@@ -143,7 +143,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisr · addition · ezquake:cvar:joyadvaxisr
+### addition:ezquake:cvar:joyadvaxisr - addition - ezquake:cvar:joyadvaxisr
 
 **Summary:** New cvar `joyadvaxisr` first observed at 3.6.2.
 
@@ -162,7 +162,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisu · addition · ezquake:cvar:joyadvaxisu
+### addition:ezquake:cvar:joyadvaxisu - addition - ezquake:cvar:joyadvaxisu
 
 **Summary:** New cvar `joyadvaxisu` first observed at 3.6.2.
 
@@ -181,7 +181,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisv · addition · ezquake:cvar:joyadvaxisv
+### addition:ezquake:cvar:joyadvaxisv - addition - ezquake:cvar:joyadvaxisv
 
 **Summary:** New cvar `joyadvaxisv` first observed at 3.6.2.
 
@@ -200,7 +200,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisx · addition · ezquake:cvar:joyadvaxisx
+### addition:ezquake:cvar:joyadvaxisx - addition - ezquake:cvar:joyadvaxisx
 
 **Summary:** New cvar `joyadvaxisx` first observed at 3.6.2.
 
@@ -219,7 +219,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisy · addition · ezquake:cvar:joyadvaxisy
+### addition:ezquake:cvar:joyadvaxisy - addition - ezquake:cvar:joyadvaxisy
 
 **Summary:** New cvar `joyadvaxisy` first observed at 3.6.2.
 
@@ -238,7 +238,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyadvaxisz · addition · ezquake:cvar:joyadvaxisz
+### addition:ezquake:cvar:joyadvaxisz - addition - ezquake:cvar:joyadvaxisz
 
 **Summary:** New cvar `joyadvaxisz` first observed at 3.6.2.
 
@@ -257,7 +257,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyflysensitivity · addition · ezquake:cvar:joyflysensitivity
+### addition:ezquake:cvar:joyflysensitivity - addition - ezquake:cvar:joyflysensitivity
 
 **Summary:** New cvar `joyflysensitivity` first observed at 3.6.2.
 
@@ -276,7 +276,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyflythreshold · addition · ezquake:cvar:joyflythreshold
+### addition:ezquake:cvar:joyflythreshold - addition - ezquake:cvar:joyflythreshold
 
 **Summary:** New cvar `joyflythreshold` first observed at 3.6.2.
 
@@ -295,7 +295,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyforwardsensitivity · addition · ezquake:cvar:joyforwardsensitivity
+### addition:ezquake:cvar:joyforwardsensitivity - addition - ezquake:cvar:joyforwardsensitivity
 
 **Summary:** New cvar `joyforwardsensitivity` first observed at 3.6.2.
 
@@ -314,7 +314,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyforwardthreshold · addition · ezquake:cvar:joyforwardthreshold
+### addition:ezquake:cvar:joyforwardthreshold - addition - ezquake:cvar:joyforwardthreshold
 
 **Summary:** New cvar `joyforwardthreshold` first observed at 3.6.2.
 
@@ -333,7 +333,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyindex · addition · ezquake:cvar:joyindex
+### addition:ezquake:cvar:joyindex - addition - ezquake:cvar:joyindex
 
 **Summary:** New cvar `joyindex` first observed at 3.6.2.
 
@@ -352,7 +352,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyname · addition · ezquake:cvar:joyname
+### addition:ezquake:cvar:joyname - addition - ezquake:cvar:joyname
 
 **Summary:** New cvar `joyname` first observed at 3.6.2.
 
@@ -371,7 +371,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joypitchsensitivity · addition · ezquake:cvar:joypitchsensitivity
+### addition:ezquake:cvar:joypitchsensitivity - addition - ezquake:cvar:joypitchsensitivity
 
 **Summary:** New cvar `joypitchsensitivity` first observed at 3.6.2.
 
@@ -390,7 +390,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joypitchthreshold · addition · ezquake:cvar:joypitchthreshold
+### addition:ezquake:cvar:joypitchthreshold - addition - ezquake:cvar:joypitchthreshold
 
 **Summary:** New cvar `joypitchthreshold` first observed at 3.6.2.
 
@@ -409,7 +409,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joysidesensitivity · addition · ezquake:cvar:joysidesensitivity
+### addition:ezquake:cvar:joysidesensitivity - addition - ezquake:cvar:joysidesensitivity
 
 **Summary:** New cvar `joysidesensitivity` first observed at 3.6.2.
 
@@ -428,7 +428,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joysidethreshold · addition · ezquake:cvar:joysidethreshold
+### addition:ezquake:cvar:joysidethreshold - addition - ezquake:cvar:joysidethreshold
 
 **Summary:** New cvar `joysidethreshold` first observed at 3.6.2.
 
@@ -447,7 +447,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyyawsensitivity · addition · ezquake:cvar:joyyawsensitivity
+### addition:ezquake:cvar:joyyawsensitivity - addition - ezquake:cvar:joyyawsensitivity
 
 **Summary:** New cvar `joyyawsensitivity` first observed at 3.6.2.
 
@@ -466,7 +466,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:cvar:joyyawthreshold · addition · ezquake:cvar:joyyawthreshold
+### addition:ezquake:cvar:joyyawthreshold - addition - ezquake:cvar:joyyawthreshold
 
 **Summary:** New cvar `joyyawthreshold` first observed at 3.6.2.
 
@@ -485,7 +485,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux1 · addition · ezquake:keyname:aux1
+### addition:ezquake:keyname:aux1 - addition - ezquake:keyname:aux1
 
 **Summary:** New keyname `aux1` first observed at 3.6.2.
 
@@ -504,7 +504,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux10 · addition · ezquake:keyname:aux10
+### addition:ezquake:keyname:aux10 - addition - ezquake:keyname:aux10
 
 **Summary:** New keyname `aux10` first observed at 3.6.2.
 
@@ -523,7 +523,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux11 · addition · ezquake:keyname:aux11
+### addition:ezquake:keyname:aux11 - addition - ezquake:keyname:aux11
 
 **Summary:** New keyname `aux11` first observed at 3.6.2.
 
@@ -542,7 +542,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux12 · addition · ezquake:keyname:aux12
+### addition:ezquake:keyname:aux12 - addition - ezquake:keyname:aux12
 
 **Summary:** New keyname `aux12` first observed at 3.6.2.
 
@@ -561,7 +561,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux13 · addition · ezquake:keyname:aux13
+### addition:ezquake:keyname:aux13 - addition - ezquake:keyname:aux13
 
 **Summary:** New keyname `aux13` first observed at 3.6.2.
 
@@ -580,7 +580,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux14 · addition · ezquake:keyname:aux14
+### addition:ezquake:keyname:aux14 - addition - ezquake:keyname:aux14
 
 **Summary:** New keyname `aux14` first observed at 3.6.2.
 
@@ -599,7 +599,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux15 · addition · ezquake:keyname:aux15
+### addition:ezquake:keyname:aux15 - addition - ezquake:keyname:aux15
 
 **Summary:** New keyname `aux15` first observed at 3.6.2.
 
@@ -618,7 +618,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux16 · addition · ezquake:keyname:aux16
+### addition:ezquake:keyname:aux16 - addition - ezquake:keyname:aux16
 
 **Summary:** New keyname `aux16` first observed at 3.6.2.
 
@@ -637,7 +637,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux17 · addition · ezquake:keyname:aux17
+### addition:ezquake:keyname:aux17 - addition - ezquake:keyname:aux17
 
 **Summary:** New keyname `aux17` first observed at 3.6.2.
 
@@ -656,7 +656,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux18 · addition · ezquake:keyname:aux18
+### addition:ezquake:keyname:aux18 - addition - ezquake:keyname:aux18
 
 **Summary:** New keyname `aux18` first observed at 3.6.2.
 
@@ -675,7 +675,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux19 · addition · ezquake:keyname:aux19
+### addition:ezquake:keyname:aux19 - addition - ezquake:keyname:aux19
 
 **Summary:** New keyname `aux19` first observed at 3.6.2.
 
@@ -694,7 +694,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux2 · addition · ezquake:keyname:aux2
+### addition:ezquake:keyname:aux2 - addition - ezquake:keyname:aux2
 
 **Summary:** New keyname `aux2` first observed at 3.6.2.
 
@@ -713,7 +713,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux20 · addition · ezquake:keyname:aux20
+### addition:ezquake:keyname:aux20 - addition - ezquake:keyname:aux20
 
 **Summary:** New keyname `aux20` first observed at 3.6.2.
 
@@ -732,7 +732,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux21 · addition · ezquake:keyname:aux21
+### addition:ezquake:keyname:aux21 - addition - ezquake:keyname:aux21
 
 **Summary:** New keyname `aux21` first observed at 3.6.2.
 
@@ -751,7 +751,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux22 · addition · ezquake:keyname:aux22
+### addition:ezquake:keyname:aux22 - addition - ezquake:keyname:aux22
 
 **Summary:** New keyname `aux22` first observed at 3.6.2.
 
@@ -770,7 +770,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux23 · addition · ezquake:keyname:aux23
+### addition:ezquake:keyname:aux23 - addition - ezquake:keyname:aux23
 
 **Summary:** New keyname `aux23` first observed at 3.6.2.
 
@@ -789,7 +789,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux24 · addition · ezquake:keyname:aux24
+### addition:ezquake:keyname:aux24 - addition - ezquake:keyname:aux24
 
 **Summary:** New keyname `aux24` first observed at 3.6.2.
 
@@ -808,7 +808,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux25 · addition · ezquake:keyname:aux25
+### addition:ezquake:keyname:aux25 - addition - ezquake:keyname:aux25
 
 **Summary:** New keyname `aux25` first observed at 3.6.2.
 
@@ -827,7 +827,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux26 · addition · ezquake:keyname:aux26
+### addition:ezquake:keyname:aux26 - addition - ezquake:keyname:aux26
 
 **Summary:** New keyname `aux26` first observed at 3.6.2.
 
@@ -846,7 +846,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux27 · addition · ezquake:keyname:aux27
+### addition:ezquake:keyname:aux27 - addition - ezquake:keyname:aux27
 
 **Summary:** New keyname `aux27` first observed at 3.6.2.
 
@@ -865,7 +865,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux28 · addition · ezquake:keyname:aux28
+### addition:ezquake:keyname:aux28 - addition - ezquake:keyname:aux28
 
 **Summary:** New keyname `aux28` first observed at 3.6.2.
 
@@ -884,7 +884,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux3 · addition · ezquake:keyname:aux3
+### addition:ezquake:keyname:aux3 - addition - ezquake:keyname:aux3
 
 **Summary:** New keyname `aux3` first observed at 3.6.2.
 
@@ -903,7 +903,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux4 · addition · ezquake:keyname:aux4
+### addition:ezquake:keyname:aux4 - addition - ezquake:keyname:aux4
 
 **Summary:** New keyname `aux4` first observed at 3.6.2.
 
@@ -922,7 +922,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux5 · addition · ezquake:keyname:aux5
+### addition:ezquake:keyname:aux5 - addition - ezquake:keyname:aux5
 
 **Summary:** New keyname `aux5` first observed at 3.6.2.
 
@@ -941,7 +941,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux6 · addition · ezquake:keyname:aux6
+### addition:ezquake:keyname:aux6 - addition - ezquake:keyname:aux6
 
 **Summary:** New keyname `aux6` first observed at 3.6.2.
 
@@ -960,7 +960,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux7 · addition · ezquake:keyname:aux7
+### addition:ezquake:keyname:aux7 - addition - ezquake:keyname:aux7
 
 **Summary:** New keyname `aux7` first observed at 3.6.2.
 
@@ -979,7 +979,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux8 · addition · ezquake:keyname:aux8
+### addition:ezquake:keyname:aux8 - addition - ezquake:keyname:aux8
 
 **Summary:** New keyname `aux8` first observed at 3.6.2.
 
@@ -998,7 +998,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:aux9 · addition · ezquake:keyname:aux9
+### addition:ezquake:keyname:aux9 - addition - ezquake:keyname:aux9
 
 **Summary:** New keyname `aux9` first observed at 3.6.2.
 
@@ -1017,7 +1017,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joy1 · addition · ezquake:keyname:joy1
+### addition:ezquake:keyname:joy1 - addition - ezquake:keyname:joy1
 
 **Summary:** New keyname `joy1` first observed at 3.6.2.
 
@@ -1036,7 +1036,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joy2 · addition · ezquake:keyname:joy2
+### addition:ezquake:keyname:joy2 - addition - ezquake:keyname:joy2
 
 **Summary:** New keyname `joy2` first observed at 3.6.2.
 
@@ -1055,7 +1055,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joy3 · addition · ezquake:keyname:joy3
+### addition:ezquake:keyname:joy3 - addition - ezquake:keyname:joy3
 
 **Summary:** New keyname `joy3` first observed at 3.6.2.
 
@@ -1074,7 +1074,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joy4 · addition · ezquake:keyname:joy4
+### addition:ezquake:keyname:joy4 - addition - ezquake:keyname:joy4
 
 **Summary:** New keyname `joy4` first observed at 3.6.2.
 
@@ -1093,7 +1093,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joypovdn · addition · ezquake:keyname:joypovdn
+### addition:ezquake:keyname:joypovdn - addition - ezquake:keyname:joypovdn
 
 **Summary:** New keyname `joypovdn` first observed at 3.6.2.
 
@@ -1112,7 +1112,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joypovlt · addition · ezquake:keyname:joypovlt
+### addition:ezquake:keyname:joypovlt - addition - ezquake:keyname:joypovlt
 
 **Summary:** New keyname `joypovlt` first observed at 3.6.2.
 
@@ -1131,7 +1131,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joypovrt · addition · ezquake:keyname:joypovrt
+### addition:ezquake:keyname:joypovrt - addition - ezquake:keyname:joypovrt
 
 **Summary:** New keyname `joypovrt` first observed at 3.6.2.
 
@@ -1150,7 +1150,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### addition:ezquake:keyname:joypovup · addition · ezquake:keyname:joypovup
+### addition:ezquake:keyname:joypovup - addition - ezquake:keyname:joypovup
 
 **Summary:** New keyname `joypovup` first observed at 3.6.2.
 
@@ -1169,7 +1169,7 @@ platform-specific I/O, s...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:command:follow · retirement · ezquake:command:follow
+### retirement:ezquake:command:follow - retirement - ezquake:command:follow
 
 **Summary:** command `follow` present in 3.6.1, gone in 3.6.2.
 
@@ -1187,7 +1187,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:flag_bit:fpd_enable_player_count · retirement · ezquake:flag_bit:fpd_enable_player_count
+### retirement:ezquake:flag_bit:fpd_enable_player_count - retirement - ezquake:flag_bit:fpd_enable_player_count
 
 **Summary:** flag_bit `fpd_enable_player_count` present in 3.6.1, gone in 3.6.2.
 
@@ -1204,7 +1204,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### retirement:ezquake:ruleset:smackdrive · retirement · ezquake:ruleset:smackdrive
+### retirement:ezquake:ruleset:smackdrive - retirement - ezquake:ruleset:smackdrive
 
 **Summary:** ruleset `smackdrive` present in 3.6.1, gone in 3.6.2.
 
@@ -1223,7 +1223,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:cvar:joystick:flag_names · semantic-crossing · ezquake:cvar:joystick
+### semantic-crossing:ezquake:cvar:joystick:flag_names - semantic-crossing - ezquake:cvar:joystick
 
 **Summary:** cvar `joystick`: flag_names changed.
 
@@ -1241,7 +1241,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### semantic-crossing:ezquake:ruleset:smackdown:locked_cvars_json · semantic-crossing · ezquake:ruleset:smackdown
+### semantic-crossing:ezquake:ruleset:smackdown:locked_cvars_json - semantic-crossing - ezquake:ruleset:smackdown
 
 **Summary:** ruleset `smackdown`: locked_cvars_json changed.
 
@@ -1259,7 +1259,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:27 · source-invisible · (no-ref)
+### source-invisible:release_notes:27 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -1277,7 +1277,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:29 · source-invisible · (no-ref)
+### source-invisible:release_notes:29 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `bugfixes` without entity / commit coverage.
 
@@ -1295,7 +1295,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:18 · source-invisible · (no-ref)
+### source-invisible:release_notes:18 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1313,7 +1313,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:20 · source-invisible · (no-ref)
+### source-invisible:release_notes:20 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1331,7 +1331,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:21 · source-invisible · (no-ref)
+### source-invisible:release_notes:21 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1349,7 +1349,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:22 · source-invisible · (no-ref)
+### source-invisible:release_notes:22 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1367,7 +1367,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:23 · source-invisible · (no-ref)
+### source-invisible:release_notes:23 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1385,7 +1385,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:24 · source-invisible · (no-ref)
+### source-invisible:release_notes:24 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 
@@ -1403,7 +1403,7 @@ Works much like the find command, excep...`
 **Upstream cvar reference:** _(pending)_
 **Upstream guide candidate:** _(pending)_
 
-### source-invisible:release_notes:25 · source-invisible · (no-ref)
+### source-invisible:release_notes:25 - source-invisible - (no-ref)
 
 **Summary:** Release-note bullet in section `improvements` without entity / commit coverage.
 

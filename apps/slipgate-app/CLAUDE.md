@@ -32,8 +32,8 @@ Start with `docs/OVERVIEW.md` when returning to the project after a break - it i
 | Desktop framework | Tauri v2 (Rust backend + OS WebView2) |
 | Frontend | SolidJS + TypeScript |
 | Styling | Tailwind CSS 4 + DaisyUI 5 (OKLCH theme system) |
-| Backend | Rust — `sysinfo`, `wmi`, `windows` (SetupAPI), `reqwest`, `notify-debouncer-mini`, `zip` |
-| Auth | Discord OAuth → MatchScheduler cloud function → Firebase custom token |
+| Backend | Rust -- `sysinfo`, `wmi`, `windows` (SetupAPI), `reqwest`, `notify-debouncer-mini`, `zip` |
+| Auth | Discord OAuth -> MatchScheduler cloud function -> Firebase custom token |
 | Package manager | Bun |
 | Build | Vite |
 | Linting | Biome |
@@ -55,17 +55,17 @@ Start with `docs/OVERVIEW.md` when returning to the project after a break - it i
 - **User-facing strings in English.** No localization yet.
 
 **Dev workflow:**
-- **Rust sync hook is live.** The monorepo's `PostToolUse` hook auto-rsyncs `src-tauri/` to the Windows build mirror after every edit. No manual sync needed — see `docs/DEVELOPMENT.md` for the details if something breaks.
-- **Commit to main.** Slipgate work happens in the main tree at `/home/paradoks/projects/quakeworld/` on branch `main`. Commit directly to `main` and push at natural checkpoints. Feature branches are for genuinely risky work only (big refactor, throwaway experiment) — otherwise commit on `main`. The `src-tauri/` rsync hook hardcodes the main-tree path, so slipgate must stay in the main tree — do not relocate to a worktree. See root `CLAUDE.md` § Git workflow for the full rules.
-- **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo — I won't repeat it here.
+- **Rust sync hook is live.** The monorepo's `PostToolUse` hook auto-rsyncs `src-tauri/` to the Windows build mirror after every edit. No manual sync needed -- see `docs/DEVELOPMENT.md` for the details if something breaks.
+- **Commit to main.** Slipgate work happens in the main tree at `/home/paradoks/projects/quakeworld/` on branch `main`. Commit directly to `main` and push at natural checkpoints. Feature branches are for genuinely risky work only (big refactor, throwaway experiment) -- otherwise commit on `main`. The `src-tauri/` rsync hook hardcodes the main-tree path, so slipgate must stay in the main tree -- do not relocate to a worktree. See root `CLAUDE.md` Section  Git workflow for the full rules.
+- **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo -- I won't repeat it here.
 
 **Things to know about the code:**
 - `src-tauri/src/commands/ezquake.rs` is a 2,124-line monolith with a wide public surface. Adding a second client (FTE) will probably require splitting it. See `docs/HEALTH.md` for the full structural note.
 - The ConfigViewer subsystem (20+ components under `src/components/Config*`) is the biggest feature by far and the main active work area.
-- `configMerger.ts` is pure — no side effects, easy to reason about.
-- `src-tauri/src/commands/screenshot.rs` is marked POC — active goal but fragile timing, not yet production.
+- `configMerger.ts` is pure -- no side effects, easy to reason about.
+- `src-tauri/src/commands/screenshot.rs` is marked POC -- active goal but fragile timing, not yet production.
 - Adding a new Rust command module requires a `pub mod` declaration in `src-tauri/src/commands/mod.rs` plus registration in the `tauri::generate_handler![]` macro in `src-tauri/src/lib.rs`.
 
 ## Known cleanup items
 
-See `docs/HEALTH.md` for the full list with severity tags and fix priorities. Do not duplicate the list here — HEALTH.md is the single source of truth for tech debt.
+See `docs/HEALTH.md` for the full list with severity tags and fix priorities. Do not duplicate the list here -- HEALTH.md is the single source of truth for tech debt.

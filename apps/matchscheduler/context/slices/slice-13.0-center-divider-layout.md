@@ -15,10 +15,10 @@ With 5+ roster members and the grid tools drawer, the team panel overflows and r
 
 ## Solution
 
-1. **Move team name → mid-left panel** (replace compact profile)
-2. **Move profile → bottom-left panel** (above upcoming matches)
-3. **Move grid tools → grid header** (hover-revealed on header row)
-4. **Templates → modal** (triggered from grid header)
+1. **Move team name -> mid-left panel** (replace compact profile)
+2. **Move profile -> bottom-left panel** (above upcoming matches)
+3. **Move grid tools -> grid header** (hover-revealed on header row)
+4. **Templates -> modal** (triggered from grid header)
 5. **Default hidden timeslots** (18:00, 18:30, 19:00 hidden by default)
 
 ---
@@ -69,18 +69,18 @@ Left group                    Center                         Right group
 ```
 ┌─────────────────┬────────────────────────────────┬─────────────────┐
 │ TOP-LEFT        │ TOP-CENTER                     │ TOP-RIGHT       │
-│ • Logo          │ • Week header + nav            │ • Favorites     │
-│ • Team name     │ • Week 1 grid                  │   panel         │
-│ • Roster        │                                │                 │
-│ • Grid tools    │                                │                 │
+│ - Logo          │ - Week header + nav            │ - Favorites     │
+│ - Team name     │ - Week 1 grid                  │   panel         │
+│ - Roster        │                                │                 │
+│ - Grid tools    │                                │                 │
 │   drawer        │                                │                 │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ MID-LEFT        │ MID-CENTER                     │ MID-RIGHT       │
-│ • Profile       │ • Tab buttons                  │ • Min players   │
+│ - Profile       │ - Tab buttons                  │ - Min players   │
 │   (compact)     │                                │   filter        │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ BOTTOM-LEFT     │ BOTTOM-CENTER                  │ BOTTOM-RIGHT    │
-│ • Upcoming      │ • Week 2 / Content             │ • Team browser  │
+│ - Upcoming      │ - Week 2 / Content             │ - Team browser  │
 │   matches       │                                │                 │
 └─────────────────┴────────────────────────────────┴─────────────────┘
 ```
@@ -89,19 +89,19 @@ Left group                    Center                         Right group
 ```
 ┌─────────────────┬────────────────────────────────┬─────────────────┐
 │ TOP-LEFT        │ TOP-CENTER                     │ TOP-RIGHT       │
-│ • Logo          │ • Week header:                 │ • Favorites     │
-│ • Roster        │   [⚙️][Templates][●○◐]..nav..  │   panel         │
+│ - Logo          │ - Week header:                 │ - Favorites     │
+│ - Roster        │   [⚙️][Templates][●○◐]..nav..  │   panel         │
 │                 │   [Timeslots][TZ]              │   (simplified)  │
-│                 │ • Week 1 grid                  │                 │
+│                 │ - Week 1 grid                  │                 │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ MID-LEFT        │ MID-CENTER                     │ MID-RIGHT       │
-│ • Team name     │ • Tab buttons                  │ • Min players   │
+│ - Team name     │ - Tab buttons                  │ - Min players   │
 │   + tag         │                                │   filter        │
 ├─────────────────┼────────────────────────────────┼─────────────────┤
 │ BOTTOM-LEFT     │ BOTTOM-CENTER                  │ BOTTOM-RIGHT    │
-│ • Profile       │ • Week 2 / Content             │ • Team browser  │
+│ - Profile       │ - Week 2 / Content             │ - Team browser  │
 │   (compact)     │                                │                 │
-│ • Upcoming      │                                │                 │
+│ - Upcoming      │                                │                 │
 │   matches       │                                │                 │
 └─────────────────┴────────────────────────────────┴─────────────────┘
 ```

@@ -53,7 +53,7 @@ We've successfully refactored the codebase to follow the original architecture f
 
 ## Console Messages to Verify:
 
-✅ Should see:
+[OK] Should see:
 - `📡 Direct Firebase listener attached for team: [team name]`
 - `🔄 Team data updated via direct listener: [team name]`
 - `📦 Team loaded from cache: [team id]` (when switching teams)

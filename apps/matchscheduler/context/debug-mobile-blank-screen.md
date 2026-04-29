@@ -1,38 +1,38 @@
 # DEBUG: Mobile Layout Blank Screen
 
 ## The Problem
-Slice M1.0 implements a portrait-first mobile layout. All JS initializes correctly, CSS media query matches, but **the screen is blank** — only the dark background and DEV toolbar show.
+Slice M1.0 implements a portrait-first mobile layout. All JS initializes correctly, CSS media query matches, but **the screen is blank** -- only the dark background and DEV toolbar show.
 
 ## What Works (confirmed by console)
-- `📱 mobile-app computed: {display: 'flex', height: '844px', visibility: 'visible'}` — container IS flex, full height, visible
-- `📱 Grid: rendering 8 time slots into mobile-calendar` — grid HTML was injected
+- `📱 mobile-app computed: {display: 'flex', height: '844px', visibility: 'visible'}` -- container IS flex, full height, visible
+- `📱 Grid: rendering 8 time slots into mobile-calendar` -- grid HTML was injected
 - Auth works (ParadokS signed in), team loaded from cache (team-sr-001)
 - All services initialized (TimezoneService, WeekNavigation, PlayerColorService, etc.)
 - **No JS errors in console**
 
 ## What Doesn't Work
 - Nothing visible on screen in portrait mode (390x844, iPhone 12 Pro DevTools)
-- Landscape mode (844x390) shows the **desktop** layout (expected — 844px > 768px breakpoint)
+- Landscape mode (844x390) shows the **desktop** layout (expected -- 844px > 768px breakpoint)
 
 ## Architecture
-- **CSS**: `src/css/input.css` → Tailwind builds → `public/css/main.css`
+- **CSS**: `src/css/input.css` -> Tailwind builds -> `public/css/main.css`
 - **Tailwind watcher**: Running and rebuilding on changes
 - **Mobile detection**: `app.js` checks `(max-width: 768px)`, if true calls `MobileApp.init()` and returns (skips desktop)
-- **Visibility**: Pure CSS — `.mobile-app { display: none; }` base, `@media (max-width: 768px) { .mobile-app { display: flex !important; } }`
-- **No `hidden` class** — removed from HTML, CSS handles everything
+- **Visibility**: Pure CSS -- `.mobile-app { display: none; }` base, `@media (max-width: 768px) { .mobile-app { display: flex !important; } }`
+- **No `hidden` class** -- removed from HTML, CSS handles everything
 
 ## Files Involved
 
 ### New mobile files (in `public/js/mobile/`):
-- `MobileApp.js` — orchestrator, team loading, week nav, Firestore data listeners
-- `MobileCalendarGrid.js` — 7-day grid, tap selection, player initials
-- `MobileHomeContent.js` — context panel (proposals/matches/actions)
-- `MobileBottomNav.js` — 4-tab bottom nav
+- `MobileApp.js` -- orchestrator, team loading, week nav, Firestore data listeners
+- `MobileCalendarGrid.js` -- 7-day grid, tap selection, player initials
+- `MobileHomeContent.js` -- context panel (proposals/matches/actions)
+- `MobileBottomNav.js` -- 4-tab bottom nav
 
 ### Modified files:
-- `public/index.html` — `#mobile-app` container at line ~257, script tags at ~428-431
-- `public/js/app.js` — mobile detection at line ~45-60
-- `src/css/input.css` — mobile CSS starts at line ~4663
+- `public/index.html` -- `#mobile-app` container at line ~257, script tags at ~428-431
+- `public/js/app.js` -- mobile detection at line ~45-60
+- `src/css/input.css` -- mobile CSS starts at line ~4663
 
 ## CSS Structure (in `src/css/input.css`)
 
@@ -70,17 +70,17 @@ Line ~4952: .mobile-nav { height: 3.5rem; background: var(--card); }
 ```
 
 ## What We Already Tried
-1. ❌ `hidden` class + JS removal — container fell back to `display: block` instead of flex. **Fixed** by removing `hidden` and using pure CSS.
-2. ❌ Stale cache — bumped all cache busters to `v=20260216c`
-3. ❌ Emulator data gone — reseeded with `npm run seed:quick`
-4. ✅ Confirmed via `getComputedStyle` that container is `display: flex`, `height: 844px`, `visibility: visible`
-5. ✅ Confirmed grid renders 8 time slots via console log
-6. ⏳ Added debug outlines (red/lime/cyan) to header/calendar/context — not yet verified by user
+1. ❌ `hidden` class + JS removal -- container fell back to `display: block` instead of flex. **Fixed** by removing `hidden` and using pure CSS.
+2. ❌ Stale cache -- bumped all cache busters to `v=20260216c`
+3. ❌ Emulator data gone -- reseeded with `npm run seed:quick`
+4. [OK] Confirmed via `getComputedStyle` that container is `display: flex`, `height: 844px`, `visibility: visible`
+5. [OK] Confirmed grid renders 8 time slots via console log
+6. ⏳ Added debug outlines (red/lime/cyan) to header/calendar/context -- not yet verified by user
 
 ## What To Investigate Next
 
 ### 1. Check if children are physically present but invisible
-Open DevTools Elements panel → find `#mobile-app` → check:
+Open DevTools Elements panel -> find `#mobile-app` -> check:
 - Does it have child elements (header, calendar, context, nav)?
 - What are their computed dimensions?
 - Are they being covered by another element?
@@ -99,7 +99,7 @@ In DevTools Network tab, check that `main.css?v=20260216c` loads and contains `.
 
 ### 5. Service worker caching
 There's a service worker (`sw.js`) that may be serving stale HTML/CSS. Try:
-- DevTools → Application → Service Workers → Unregister
+- DevTools -> Application -> Service Workers -> Unregister
 - Then hard refresh
 
 ### 6. Inspect the actual rendered DOM
@@ -123,10 +123,10 @@ console.log('desktop grid display:', d ? window.getComputedStyle(d).display : 'n
 
 ## Quick Debug CSS (already added, needs verification)
 Debug outlines were added to `src/css/input.css`:
-- `.mobile-header` → `outline: 2px solid red`
-- `.mobile-calendar` → `outline: 2px solid lime`
-- `.mobile-context` → `outline: 2px solid cyan`
-- `.mobile-grid-cell` → `border: 1px solid #666`
+- `.mobile-header` -> `outline: 2px solid red`
+- `.mobile-calendar` -> `outline: 2px solid lime`
+- `.mobile-context` -> `outline: 2px solid cyan`
+- `.mobile-grid-cell` -> `border: 1px solid #666`
 
 If these don't show after hard refresh, the compiled CSS isn't being picked up.
 

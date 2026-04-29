@@ -1,17 +1,17 @@
-# Slice 11.0b: H2H Form Tab — Recent Results (Symmetric Split)
+# Slice 11.0b: H2H Form Tab -- Recent Results (Symmetric Split)
 
 ## Slice Definition
 - **Slice ID:** 11.0b
-- **Name:** H2H Form Tab — Recent Results with Symmetric Hover
-- **Depends on:** Slice 11.0a (H2H Foundation — service, team selector, sub-tabs)
+- **Name:** H2H Form Tab -- Recent Results with Symmetric Hover
+- **Depends on:** Slice 11.0a (H2H Foundation -- service, team selector, sub-tabs)
 - **User Story:** As a user, I can see both teams' recent match results side by side, with scoreboard previews appearing on the opposite side when I hover, so I can compare their current form before scheduling a match
 - **Success Criteria:**
   - Form sub-tab shows symmetric ~50/50 split: Team A results left, Team B results right
   - Each side fetches independently via `QWStatsService.getForm()` (3mo, 10 results)
-  - Hover a LEFT result → layout shifts ~40:60, RIGHT side shows scoreboard
-  - Hover a RIGHT result → layout shifts ~60:40, LEFT side shows scoreboard
+  - Hover a LEFT result -> layout shifts ~40:60, RIGHT side shows scoreboard
+  - Hover a RIGHT result -> layout shifts ~60:40, LEFT side shows scoreboard
   - Content (scoreboard) always appears on the **opposite side** of the hovered result
-  - Only one side active at a time — hovering one side clears the other
+  - Only one side active at a time -- hovering one side clears the other
   - Click behavior: locks the stats view (same as H2H tab)
   - Click again: toggles off (returns to symmetric view)
   - Period selector (from 11.0a) applies to Form data
@@ -22,13 +22,13 @@
 
 The H2H tab (11.0a) shows direct matchups between two teams, but many team pairs have few or no direct meetings. The Form tab fills this gap by showing each team's recent results against everyone, letting users gauge overall form, activity level, and strength independent of the matchup.
 
-The symmetric layout with hover-flip interaction is unique to this tab — it needs to feel like a natural extension of the split-panel patterns already established.
+The symmetric layout with hover-flip interaction is unique to this tab -- it needs to feel like a natural extension of the split-panel patterns already established.
 
 ---
 
 ## Visual Design
 
-### Form Tab — Default (no hover, ~50/50)
+### Form Tab -- Default (no hover, ~50/50)
 
 ```
 ┌────────────────────────────┬────────────────────────────────┐
@@ -50,7 +50,7 @@ The symmetric layout with hover-flip interaction is unique to this tab — it ne
 └────────────────────────────┴────────────────────────────────┘
 ```
 
-### Form Tab — Hover LEFT Result (~40:60)
+### Form Tab -- Hover LEFT Result (~40:60)
 
 ```
 ┌──────────────────┬──────────────────────────────────────────┐
@@ -68,7 +68,7 @@ The symmetric layout with hover-flip interaction is unique to this tab — it ne
 └──────────────────┴──────────────────────────────────────────┘
 ```
 
-### Form Tab — Hover RIGHT Result (~60:40)
+### Form Tab -- Hover RIGHT Result (~60:40)
 
 ```
 ┌──────────────────────────────────────────┬──────────────────┐
@@ -86,7 +86,7 @@ The symmetric layout with hover-flip interaction is unique to this tab — it ne
 └──────────────────────────────────────────┴──────────────────┘
 ```
 
-### Form Tab — Click (Sticky Stats)
+### Form Tab -- Click (Sticky Stats)
 
 Same as hover, but the stats view locks and shows full ktxstats stats table (Performance/Weapons/Resources tabs) instead of just the scoreboard preview. Click same result again to unlock.
 
@@ -102,9 +102,9 @@ Same as hover, but the stats view locks and shows full ktxstats stats table (Per
 let _formResultsA = null;          // QWStatsService.getForm() response for Team A
 let _formResultsB = null;          // QWStatsService.getForm() response for Team B
 let _formLoading = false;          // Loading state
-let _formHoveredSide = null;       // 'left' | 'right' | null — which side is hovered
+let _formHoveredSide = null;       // 'left' | 'right' | null -- which side is hovered
 let _formHoveredId = null;         // Hovered result ID
-let _formSelectedSide = null;      // 'left' | 'right' | null — which side has sticky selection
+let _formSelectedSide = null;      // 'left' | 'right' | null -- which side has sticky selection
 let _formSelectedId = null;        // Clicked/sticky result ID
 let _formSelectedStats = null;     // ktxstats for selected result
 let _formStatsLoading = false;     // Loading ktxstats
@@ -114,26 +114,26 @@ let _formDataByIdB = new Map();    // Team B result objects by ID
 
 **New methods:**
 
-- `_renderFormTab()` — Dispatches to default/hover-left/hover-right layouts
-- `_renderFormDefault()` — Symmetric ~50/50 split
-- `_renderFormHoverLeft()` — ~40:60 layout (list left, scoreboard right)
-- `_renderFormHoverRight()` — ~60:40 layout (scoreboard left, list right)
-- `_renderFormResultList(games, side)` — Result rows for one team
-- `_renderFormSummary(games)` — Record summary per side
-- `_loadFormData()` — Fetches form for both teams in parallel
-- `_resetFormState()` — Clears form state
+- `_renderFormTab()` -- Dispatches to default/hover-left/hover-right layouts
+- `_renderFormDefault()` -- Symmetric ~50/50 split
+- `_renderFormHoverLeft()` -- ~40:60 layout (list left, scoreboard right)
+- `_renderFormHoverRight()` -- ~60:40 layout (scoreboard left, list right)
+- `_renderFormResultList(games, side)` -- Result rows for one team
+- `_renderFormSummary(games)` -- Record summary per side
+- `_loadFormData()` -- Fetches form for both teams in parallel
+- `_resetFormState()` -- Clears form state
 
 **New public methods:**
 
-- `previewFormResult(resultId, side)` — Hover handler with side awareness
-- `clearFormPreview(side)` — Mouse leave handler
-- `selectFormResult(resultId, side)` — Click handler with side awareness
+- `previewFormResult(resultId, side)` -- Hover handler with side awareness
+- `clearFormPreview(side)` -- Mouse leave handler
+- `selectFormResult(resultId, side)` -- Click handler with side awareness
 
 **Modified methods:**
 
-- `_renderH2HSubTabContent()` — Route `case 'form'` to `_renderFormTab()`
-- `switchH2HSubTab(subTab)` — When switching to 'form', trigger `_loadFormData()` if not loaded
-- `_resetH2HState()` — Also call `_resetFormState()`
+- `_renderH2HSubTabContent()` -- Route `case 'form'` to `_renderFormTab()`
+- `switchH2HSubTab(subTab)` -- When switching to 'form', trigger `_loadFormData()` if not loaded
+- `_resetH2HState()` -- Also call `_resetFormState()`
 
 ### No New Services
 
@@ -480,7 +480,7 @@ Add to `src/css/input.css`:
 
 ```css
 /* ============================================
-   Slice 11.0b: Form Tab — Symmetric Split
+   Slice 11.0b: Form Tab -- Symmetric Split
    ============================================ */
 
 /* Default 50/50 layout */
@@ -577,7 +577,7 @@ Add to `src/css/input.css`:
 
 ```
 HOT PATHS (<50ms):
-- Hover: Layout shift from 50/50 → 40/60 or 60/40 (DOM re-render, no API call)
+- Hover: Layout shift from 50/50 -> 40/60 or 60/40 (DOM re-render, no API call)
 - Mouse leave: Return to 50/50 layout
 - Scoreboard preview: Rendered from cached API data
 
@@ -602,48 +602,48 @@ This is acceptable because:
 
 ```
 User switches to Form sub-tab
-    → switchH2HSubTab('form')
-    → _h2hSubTab = 'form'
-    → _loadFormData() (if not already loaded)
-        → QWStatsService.getForm(teamA.tag, { months: _h2hPeriod })
-        → QWStatsService.getForm(teamB.tag, { months: _h2hPeriod })
-        → Both fetched in parallel
-    → Populate _formResultsA, _formResultsB, _formDataByIdA, _formDataByIdB
-    → Render symmetric 50/50 layout
+    -> switchH2HSubTab('form')
+    -> _h2hSubTab = 'form'
+    -> _loadFormData() (if not already loaded)
+        -> QWStatsService.getForm(teamA.tag, { months: _h2hPeriod })
+        -> QWStatsService.getForm(teamB.tag, { months: _h2hPeriod })
+        -> Both fetched in parallel
+    -> Populate _formResultsA, _formResultsB, _formDataByIdA, _formDataByIdB
+    -> Render symmetric 50/50 layout
 
 User hovers a result on LEFT side
-    → previewFormResult(resultId, 'left')
-    → _formHoveredSide = 'left', _formHoveredId = resultId
-    → _rerenderFormTab()
-        → _renderFormHoverLeft(resultId)
-        → Left panel narrows to ~40%
-        → Right panel shows scoreboard for hovered game
+    -> previewFormResult(resultId, 'left')
+    -> _formHoveredSide = 'left', _formHoveredId = resultId
+    -> _rerenderFormTab()
+        -> _renderFormHoverLeft(resultId)
+        -> Left panel narrows to ~40%
+        -> Right panel shows scoreboard for hovered game
 
 User moves mouse away
-    → clearFormPreview('left')
-    → _formHoveredSide = null
-    → _rerenderFormTab() → back to 50/50
+    -> clearFormPreview('left')
+    -> _formHoveredSide = null
+    -> _rerenderFormTab() -> back to 50/50
 
 User hovers a result on RIGHT side
-    → previewFormResult(resultId, 'right')
-    → _formHoveredSide = 'right'
-    → _rerenderFormTab()
-        → _renderFormHoverRight(resultId)
-        → Right panel narrows to ~40%
-        → Left panel shows scoreboard
+    -> previewFormResult(resultId, 'right')
+    -> _formHoveredSide = 'right'
+    -> _rerenderFormTab()
+        -> _renderFormHoverRight(resultId)
+        -> Right panel narrows to ~40%
+        -> Left panel shows scoreboard
 
 User clicks a result
-    → selectFormResult(resultId, side)
-    → _formSelectedSide = side, _formSelectedId = resultId
-    → Layout locks in hover position
-    → Fetch ktxstats async
-    → Guard: verify selection unchanged
-    → Render full stats view in content panel
+    -> selectFormResult(resultId, side)
+    -> _formSelectedSide = side, _formSelectedId = resultId
+    -> Layout locks in hover position
+    -> Fetch ktxstats async
+    -> Guard: verify selection unchanged
+    -> Render full stats view in content panel
 
 User clicks same result again
-    → Toggle off
-    → _formSelectedSide = null
-    → Return to 50/50 layout
+    -> Toggle off
+    -> _formSelectedSide = null
+    -> Return to 50/50 layout
 ```
 
 ---
@@ -658,10 +658,10 @@ User clicks same result again
 - [ ] Hovering LEFT result shifts layout to ~40:60 with scoreboard on right
 - [ ] Hovering RIGHT result shifts layout to ~60:40 with scoreboard on left
 - [ ] Mouse leave returns to 50/50 (when no sticky selection)
-- [ ] Hovering one side while other side hovered → switches (only one side active)
+- [ ] Hovering one side while other side hovered -> switches (only one side active)
 - [ ] Click locks the layout and shows scoreboard
-- [ ] Click → ktxstats fetch → full stats view (guards against race condition)
-- [ ] Click same result again toggles off → 50/50
+- [ ] Click -> ktxstats fetch -> full stats view (guards against race condition)
+- [ ] Click same result again toggles off -> 50/50
 - [ ] Sticky selection blocks hover on either side
 - [ ] Period change re-fetches both teams' form data
 - [ ] Loading state shown while fetching
@@ -673,7 +673,7 @@ User clicks same result again
 ## Common Integration Pitfalls
 
 - [ ] Form tab hover requires **full re-render** (not just panel update) because the layout structure changes. Use a dedicated `_rerenderFormTab()` method, not `_renderCurrentView()`
-- [ ] Two separate data maps (_formDataByIdA, _formDataByIdB) — must use correct map based on `side` parameter
+- [ ] Two separate data maps (_formDataByIdA, _formDataByIdB) -- must use correct map based on `side` parameter
 - [ ] Form API returns `teamFrags`/`oppFrags`/`opponent`, different field names from H2H API
 - [ ] Must transform Form game to H2H-compatible format for scoreboard reuse
 - [ ] Side parameter must be passed through all hover/click handlers to identify which team's data to look up
@@ -687,7 +687,7 @@ User clicks same result again
 | `public/js/components/TeamsBrowserPanel.js` | Modify | Form tab renderer, side-aware hover/click, layout switching |
 | `src/css/input.css` | Modify | Form split layouts (default, hover-left, hover-right) |
 
-No new files needed — builds on 11.0a foundation.
+No new files needed -- builds on 11.0a foundation.
 
 ## Quality Checklist
 

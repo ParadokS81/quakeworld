@@ -1,8 +1,8 @@
-# Phase C4: Connect Bot UI — MatchScheduler Side
+# Phase C4: Connect Bot UI -- MatchScheduler Side
 
 ## Context
 
-With quad now supporting multiple teams per Discord server (C1-C3), the MatchScheduler "Connect Bot" UI needs to detect when the bot is already in a server the user belongs to, and adjust the instructions accordingly. Instead of always showing "Invite Bot →", it should say "The bot is already in [ServerName]. Run /register in your team's channel."
+With quad now supporting multiple teams per Discord server (C1-C3), the MatchScheduler "Connect Bot" UI needs to detect when the bot is already in a server the user belongs to, and adjust the instructions accordingly. Instead of always showing "Invite Bot ->", it should say "The bot is already in [ServerName]. Run /register in your team's channel."
 
 Read `COMMUNITY-SERVER-CONTRACT.md` for the full contract.
 
@@ -54,7 +54,7 @@ async function _handleConnect(userId, teamId, team) {
             }
         }
     } catch (err) {
-        // Non-fatal — just don't show the hint
+        // Non-fatal -- just don't show the hint
         console.warn('Failed to check existing guild memberships:', err.message);
     }
 
@@ -203,6 +203,6 @@ Apply the same pending-state changes to the mobile version. The mobile tab has a
 
 ## What's NOT in this phase
 
-- quad changes — those are C1-C3
-- Auto-record UI changes — auto-record isn't implemented yet
-- Community admin dashboard — not in scope per contract
+- quad changes -- those are C1-C3
+- Auto-record UI changes -- auto-record isn't implemented yet
+- Community admin dashboard -- not in scope per contract

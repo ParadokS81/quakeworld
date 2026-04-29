@@ -23,7 +23,7 @@ export const recordCommand = new SlashCommandBuilder()
   .setDescription('Voice recording commands')
   .addSubcommand((sub) =>
     sub.setName('start')
-      .setDescription('Start recording — auto-detects platform or specify one')
+      .setDescription('Start recording -- auto-detects platform or specify one')
       .addStringOption((opt) =>
         opt.setName('platform')
           .setDescription('Which voice platform to record')
@@ -65,13 +65,13 @@ function detectPlatform(
 ```
 
 **Logic:**
-1. Check if invoking user is in a Discord voice channel → `discordSignal = true`, capture channel reference
-2. Call `getMumbleChannelUsers(teamId)` (exported from mumble module in U3) → if users present, `mumbleSignal = true`
-3. If both signals and user IS in Discord voice → return `'discord'` (user chose to be there)
-4. If both signals and user is NOT in Discord voice → return platform with more users
-5. If only Discord signal → return `'discord'`
-6. If only Mumble signal → return `'mumble'`
-7. If neither → return error (no active voice channels)
+1. Check if invoking user is in a Discord voice channel -> `discordSignal = true`, capture channel reference
+2. Call `getMumbleChannelUsers(teamId)` (exported from mumble module in U3) -> if users present, `mumbleSignal = true`
+3. If both signals and user IS in Discord voice -> return `'discord'` (user chose to be there)
+4. If both signals and user is NOT in Discord voice -> return platform with more users
+5. If only Discord signal -> return `'discord'`
+6. If only Mumble signal -> return `'mumble'`
+7. If neither -> return error (no active voice channels)
 
 ---
 
@@ -205,7 +205,7 @@ async function handleStatus(interaction: ChatInputCommandInteraction): Promise<v
     const duration = Math.floor((Date.now() - s.startTime.getTime()) / 1000);
     const mins = Math.floor(duration / 60);
     const secs = duration % 60;
-    return `**${s.platform}** — ${mins}m ${secs}s — ${s.origin} — channel: ${s.channelId}`;
+    return `**${s.platform}** -- ${mins}m ${secs}s -- ${s.origin} -- channel: ${s.channelId}`;
   });
 
   return interaction.reply({ content: `Active recordings:\n${lines.join('\n')}`, ephemeral: true });
@@ -254,10 +254,10 @@ These were exported in U3. If Mumble is not configured (no `MUMBLE_HOST`), these
 
 ## Verification
 - `npm run build` compiles without errors
-- `/record start` — auto-detects when user is in Discord voice
-- `/record start platform:discord` — records Discord explicitly
-- `/record start platform:mumble` — records Mumble from Discord text channel
-- `/record stop` — stops both platforms if both recording
-- `/record status` — shows active recording info
-- `/record stop` during auto-record → suppression flag set
-- `/record start` after suppression → works (manual overrides suppression)
+- `/record start` -- auto-detects when user is in Discord voice
+- `/record start platform:discord` -- records Discord explicitly
+- `/record start platform:mumble` -- records Mumble from Discord text channel
+- `/record stop` -- stops both platforms if both recording
+- `/record status` -- shows active recording info
+- `/record stop` during auto-record -> suppression flag set
+- `/record start` after suppression -> works (manual overrides suppression)

@@ -1,4 +1,4 @@
-# Phase D1: Guild Member Sync — quad Side
+# Phase D1: Guild Member Sync -- quad Side
 
 ## Context
 
@@ -10,10 +10,10 @@ Read `docs/multi-clan/CONTRACT.md` for the full Discord Roster Management contra
 
 ## What Changes
 
-1. **On `/register` completion** — write `guildMembers` map to `botRegistrations/{teamId}` alongside existing `knownPlayers`
-2. **On `guildMemberAdd` event** — add new member to the cache
-3. **On `guildMemberRemove` event** — remove member from the cache
-4. **On bot startup** — refresh the cache for all active registrations
+1. **On `/register` completion** -- write `guildMembers` map to `botRegistrations/{teamId}` alongside existing `knownPlayers`
+2. **On `guildMemberAdd` event** -- add new member to the cache
+3. **On `guildMemberRemove` event** -- remove member from the cache
+4. **On bot startup** -- refresh the cache for all active registrations
 
 ---
 
@@ -24,7 +24,7 @@ interface GuildMemberEntry {
   username: string;          // Discord username (unique handle, e.g. "paradoks")
   displayName: string;       // Server nick or global display name (e.g. "ParadokS")
   avatarUrl: string | null;  // Full Discord CDN URL (128px) or null for default avatar
-  isBot: boolean;            // true for bot accounts — MatchScheduler filters these from UI
+  isBot: boolean;            // true for bot accounts -- MatchScheduler filters these from UI
 }
 
 // Added to existing BotRegistrationDocument:
@@ -274,19 +274,19 @@ client.once(Events.ClientReady, async () => {
 
 ## What NOT to Touch
 
-- **`knownPlayers`** — this is a separate concern (QW name mapping for voice recording resolution). Don't merge it with `guildMembers`. They serve different purposes and are updated at different times.
-- **Recording/processing modules** — no changes needed. They continue using `knownPlayers` for match pairing.
-- **Availability module** — no changes needed. It reads roster data from Firestore, not from guild members.
-- **`/register` slash command** — only add the `guildMembers` write to the existing update call. Don't change the command structure or user-facing messages.
+- **`knownPlayers`** -- this is a separate concern (QW name mapping for voice recording resolution). Don't merge it with `guildMembers`. They serve different purposes and are updated at different times.
+- **Recording/processing modules** -- no changes needed. They continue using `knownPlayers` for match pairing.
+- **Availability module** -- no changes needed. It reads roster data from Firestore, not from guild members.
+- **`/register` slash command** -- only add the `guildMembers` write to the existing update call. Don't change the command structure or user-facing messages.
 
 ---
 
 ## Edge Cases
 
-- **Bot not in guild anymore:** `client.guilds.cache.get(guildId)` returns undefined. Log a warning, skip refresh. The stale cache is acceptable — MatchScheduler will show the last known list.
+- **Bot not in guild anymore:** `client.guilds.cache.get(guildId)` returns undefined. Log a warning, skip refresh. The stale cache is acceptable -- MatchScheduler will show the last known list.
 - **Large servers:** QW clan servers are 4-20 members. If a team somehow registers from a 1000+ member server, `guild.members.fetch()` works but the Firestore doc gets large. Not a real concern for our use case. If needed in the future, limit to members with specific roles.
-- **Rate limiting:** `guild.members.fetch()` is a single Discord API call per guild. On startup with 30 teams, that's 30 calls — well within rate limits (especially spread over sequential iteration).
-- **`guildMemberAdd` for bots:** When another bot joins the server, it fires `guildMemberAdd`. We still add it to the cache with `isBot: true`. MatchScheduler filters these from the UI. This is intentional — simpler than filtering at the source.
+- **Rate limiting:** `guild.members.fetch()` is a single Discord API call per guild. On startup with 30 teams, that's 30 calls -- well within rate limits (especially spread over sequential iteration).
+- **`guildMemberAdd` for bots:** When another bot joins the server, it fires `guildMemberAdd`. We still add it to the cache with `isBot: true`. MatchScheduler filters these from the UI. This is intentional -- simpler than filtering at the source.
 
 ---
 

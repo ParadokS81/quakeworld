@@ -20,7 +20,7 @@ If no new feedback, also check all feedback for context:
 wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && node scripts/read-feedback.js"
 ```
 
-**Always check the shelf:** Read `feedback-reviews/REVIEW-LOG.md` and look for any items marked **SHELVED**. Present these to the user as candidates to act on — they represent validated features/fixes that were deferred and may now be ready to pick up.
+**Always check the shelf:** Read `feedback-reviews/REVIEW-LOG.md` and look for any items marked **SHELVED**. Present these to the user as candidates to act on -- they represent validated features/fixes that were deferred and may now be ready to pick up.
 
 ## Phase 2: View Screenshots
 

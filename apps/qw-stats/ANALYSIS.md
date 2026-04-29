@@ -1,11 +1,11 @@
-# QW 4on4 Stats — Analysis & Findings
+# QW 4on4 Stats -- Analysis & Findings
 
 ## Dataset Overview
 
-### Full Dataset (PostgreSQL — LIVE)
+### Full Dataset (PostgreSQL -- LIVE)
 
-**Source**: Full ktxstats archive from vikpe (QWHub maintainer) — `4on4_json.zip`
-**Database**: PostgreSQL on Unraid (`quake_stats`) — see `CLAUDE.md` for connection details
+**Source**: Full ktxstats archive from vikpe (QWHub maintainer) -- `4on4_json.zip`
+**Database**: PostgreSQL on Unraid (`quake_stats`) -- see `CLAUDE.md` for connection details
 
 | Metric | Value |
 |--------|-------|
@@ -13,7 +13,7 @@
 | Clan games | 9,868 (54%) |
 | Mix/pickup games | 8,338 (46%) |
 | Unique players | 2,355 |
-| Date range | Jan 2022 → Feb 2026 (4 years) |
+| Date range | Jan 2022 -> Feb 2026 (4 years) |
 
 ### Game Distribution by Map (Full Dataset)
 | Map | Total | Clan |
@@ -24,7 +24,7 @@
 | e1m2 | 2,919 | 1,769 |
 | phantombase | 931 | 673 |
 
-### Legacy Sample (SQLite — still available for reference)
+### Legacy Sample (SQLite -- still available for reference)
 
 The analysis findings below (correlations, distributions, archetypes, rankings) are based on the **4-month sample** (May-Sep 2025, 1,937 games, 177 qualified players). These need to be **re-run on the full 4-year dataset** in PostgreSQL to validate whether patterns hold at scale.
 
@@ -34,11 +34,11 @@ The analysis findings below (correlations, distributions, archetypes, rankings) 
 | Clan 4on4 games | 660 (34%) |
 | Unique players | 529 |
 | Qualified players (15+ games) | 177 |
-| Date range | 2025-05-16 → 2025-09-07 |
+| Date range | 2025-05-16 -> 2025-09-07 |
 
 ---
 
-## Stat Distributions (177 players, 15+ comp 4on4 games — 4-month sample)
+## Stat Distributions (177 players, 15+ comp 4on4 games -- 4-month sample)
 
 > **⚠ Based on 4-month sample.** Needs re-running on full 4-year PostgreSQL dataset.
 
@@ -88,24 +88,24 @@ Frag            0.89  0.98  0.65  0.55 -0.29  0.71  0.88  0.56  0.47  1.00
 ### Key Correlation Insights
 
 **Strongest predictors of winning (correlation with Win Rate):**
-1. Efficiency: r=0.53 (MODERATE) — best single predictor
-2. Armor Control: r=0.49 (MODERATE) — map control matters
-3. Taken-to-Die: r=0.45 (MODERATE) — survivability
-4. Avg Damage: r=0.42 (MODERATE) — raw output
+1. Efficiency: r=0.53 (MODERATE) -- best single predictor
+2. Armor Control: r=0.49 (MODERATE) -- map control matters
+3. Taken-to-Die: r=0.45 (MODERATE) -- survivability
+4. Avg Damage: r=0.42 (MODERATE) -- raw output
 5. Enemy Wpn Dmg: r=0.24 (WEAK)
 6. Team Damage: r=0.22 (WEAK)
-7. SG Accuracy: r=0.12 (NONE) — aim alone doesn't win
+7. SG Accuracy: r=0.12 (NONE) -- aim alone doesn't win
 8. RL Accuracy: r=-0.08 (NONE/NEGATIVE)
 
 **Critical redundancies:**
-- **TTD ↔ Armor: r=0.92** — Nearly identical signals. A player with high TTD almost always has high armor control. These measure the same underlying skill (map control / survivability). Rating should use ONE of these, not both at full weight.
-- **Damage ↔ Frags: r=0.98** — Almost perfectly correlated. Using both is pure double-counting.
-- **Damage ↔ Enemy Wpn Dmg: r=0.93** — Enemy weapon damage is a subset of total damage.
+- **TTD <-> Armor: r=0.92** -- Nearly identical signals. A player with high TTD almost always has high armor control. These measure the same underlying skill (map control / survivability). Rating should use ONE of these, not both at full weight.
+- **Damage <-> Frags: r=0.98** -- Almost perfectly correlated. Using both is pure double-counting.
+- **Damage <-> Enemy Wpn Dmg: r=0.93** -- Enemy weapon damage is a subset of total damage.
 
 **Surprising findings:**
 - **SG accuracy barely matters for winning** (r=0.12). Good aim without positioning/map control doesn't translate to wins.
 - **RL accuracy is slightly NEGATIVE** (r=-0.08). Hypothesis: weaker players spam RL at close range (higher hit% but bad play), while better players use it at proper distance (lower hit% but more effective).
-- **Team damage positively correlates with damage output** (r=0.60). High-damage players inevitably do more team damage too — it's a byproduct of aggression, not carelessness. The penalty should be modest.
+- **Team damage positively correlates with damage output** (r=0.60). High-damage players inevitably do more team damage too -- it's a byproduct of aggression, not carelessness. The penalty should be modest.
 
 ---
 
@@ -120,7 +120,7 @@ Players split into 4 groups by Taken-to-Die:
 | Q3 | 158-169 | 49.0% | 8,585 | 38.0% | 12.7% | 512s | 52.3% |
 | Q4 (highest) | 169-218 | 55.9% | 9,591 | 40.5% | 12.9% | 588s | 55.8% |
 
-**Interpretation**: TTD shows a clear linear progression — higher TTD correlates with better everything EXCEPT RL accuracy (which goes slightly down) and SG accuracy (roughly flat). This confirms TTD is a strong "meta-skill" indicator but highly redundant with armor control (r=0.92).
+**Interpretation**: TTD shows a clear linear progression -- higher TTD correlates with better everything EXCEPT RL accuracy (which goes slightly down) and SG accuracy (roughly flat). This confirms TTD is a strong "meta-skill" indicator but highly redundant with armor control (r=0.92).
 
 ---
 
@@ -128,24 +128,24 @@ Players split into 4 groups by Taken-to-Die:
 
 The data reveals distinct player types where stats don't all move together:
 
-### "Efficient but passive" — High Eff, Low Damage
+### "Efficient but passive" -- High Eff, Low Damage
 Players like `duce` (62% eff, p98 but only p29 damage). They don't die but also don't deal much damage. Safe, conservative play. Often still win (duce: 69% win rate) because not dying is valuable in 4on4.
 
-### "Aggressive but reckless" — Low Eff, High Damage
+### "Aggressive but reckless" -- Low Eff, High Damage
 Players like `tim` (45% eff, p31 but p77 damage). High output but die a lot. The entry fraggers / aggressive RL players who trade kills frequently.
 
-### "Individually strong, team losing" — High stats, Low Win%
+### "Individually strong, team losing" -- High stats, Low Win%
 Players like `Mortuary` (63% eff, p97 TTD, but 43% win rate). Great individual stats but consistently on losing teams. Could indicate: playing in a weaker region, weak teammates, or stats inflated by playing against weak opposition.
 
-### "Sharp aim, low output" — High SG%, Low Damage
+### "Sharp aim, low output" -- High SG%, Low Damage
 Players like `aki` (48% SG accuracy, p96 but only p32 damage). Great mechanical aim but not converting it into damage output. Possibly passive or poor positioning.
 
-### "Controlling but losing" — High Armor, Low Win%
+### "Controlling but losing" -- High Armor, Low Win%
 Players like `bliXem` (p100 armor control, but 46% win). Dominating item control individually but still losing games. Suggests armor control alone isn't enough without team coordination.
 
 ---
 
-## Current Top 10 (Composite Rating — 4-month sample)
+## Current Top 10 (Composite Rating -- 4-month sample)
 
 > **⚠ Based on 4-month sample.** Rankings will change significantly with full 4-year dataset.
 
@@ -163,8 +163,8 @@ Players like `bliXem` (p100 armor control, but 46% win). Dominating item control
 | 10 | mutilator | 81.0 | 21 | 64.2 | 10,196 | 218 | 38.3 | 12.5 | 62% |
 
 **Issues with current rankings:**
-- Mortuary (#1) has only 21 games and 43% win rate — small sample inflation
-- Several top-10 players have < 25 games — need higher threshold
+- Mortuary (#1) has only 21 games and 43% win rate -- small sample inflation
+- Several top-10 players have < 25 games -- need higher threshold
 - Milton should be #1 undisputed with 129 games
 - TTD + Armor double-counting inflates players with high survivability
 
@@ -172,27 +172,27 @@ Players like `bliXem` (p100 armor control, but 46% win). Dominating item control
 
 ## Per-Map Leaders (by avg damage, min 10 games)
 
-### dm2 — Highest damage map
-1. Milton (15,123 avg dmg, 33 games) — absolute dominance
+### dm2 -- Highest damage map
+1. Milton (15,123 avg dmg, 33 games) -- absolute dominance
 2. bogojoker (14,152, 24 games)
 3. sane (13,438, 17 games)
 
-### dm3 — Classic map
+### dm3 -- Classic map
 1. chr1s (10,821, 24 games)
 2. Milton (10,269, 28 games)
 3. sane (9,833, 14 games)
 
-### e1m2 — Tight corridors
+### e1m2 -- Tight corridors
 1. bogojoker (11,913, 19 games)
 2. Milton (11,574, 19 games)
 3. chr1s (10,893, 14 games)
 
-### schloss — Open layout
+### schloss -- Open layout
 1. bogojoker (14,338, 30 games)
 2. Milton (13,722, 35 games)
 3. gosciu (12,621, 26 games)
 
-### phantombase — Least played
+### phantombase -- Least played
 1. Milton (11,325, 14 games)
 2. Xunito (10,012, 13 games)
 3. irn (9,206, 16 games)
@@ -211,8 +211,8 @@ The legacy SQLite schema (`qw-stats/data/qw-stats.db`) is only used by old analy
 ## Pending Improvements
 
 ### Data
-- [x] Get full archive from vikpe — DONE (18,206 4on4 games, Jan 2022 - Feb 2026)
-- [x] Import to PostgreSQL — DONE
+- [x] Get full archive from vikpe -- DONE (18,206 4on4 games, Jan 2022 - Feb 2026)
+- [x] Import to PostgreSQL -- DONE
 - [ ] **Re-run analysis** on full 4-year PostgreSQL dataset (all findings above are from 4-month sample)
 - [ ] Fix player name normalization (strip QW decoration chars, build manual alias table)
 

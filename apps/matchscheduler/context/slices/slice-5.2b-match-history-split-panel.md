@@ -3,7 +3,7 @@
 ## Slice Definition
 - **Slice ID:** 5.2b
 - **Name:** Match History Split-Panel with Hover Preview
-- **Depends on:** Slice 5.2a (Team Details Landing Page — tab infrastructure)
+- **Depends on:** Slice 5.2a (Team Details Landing Page -- tab infrastructure)
 - **User Story:** As a user, I can browse a team's match history with filters and preview scoreboards by hovering or clicking matches, so I can quickly assess individual match results without leaving the page
 - **Success Criteria:**
   - Match History tab shows left/right split layout
@@ -20,7 +20,7 @@
 
 The current match history (Slice 5.1b) is a simple vertical list with expandable scoreboards inline. This works for a quick glance at 5 matches, but doesn't scale well for deeper browsing:
 
-- No filtering — can't isolate matches on a specific map
+- No filtering -- can't isolate matches on a specific map
 - Inline scoreboards push content down, making it hard to scan
 - No way to quickly compare multiple matches visually
 - Key stats (efficiency, RL accuracy) require navigating to QWHub
@@ -36,7 +36,7 @@ A **split-panel layout** within the Match History tab:
 
 Interaction model:
 1. **Hover** a match row = preview its scoreboard in the right panel (instant, uses already-fetched Supabase teams/players data)
-2. **Click** a match row = sticky selection — scoreboard stays, key team stats bar appears below, action links shown
+2. **Click** a match row = sticky selection -- scoreboard stays, key team stats bar appears below, action links shown
 3. Click another match = replaces the sticky selection
 
 This keeps the list scannable while giving a rich preview without layout shifts.
@@ -45,7 +45,7 @@ This keeps the list scannable while giving a rich preview without layout shifts.
 
 ## Visual Design
 
-### Match History Tab — Default (no selection)
+### Match History Tab -- Default (no selection)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -73,7 +73,7 @@ This keeps the list scannable while giving a rich preview without layout shifts.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Match History Tab — Hover Preview
+### Match History Tab -- Hover Preview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -98,7 +98,7 @@ This keeps the list scannable while giving a rich preview without layout shifts.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Match History Tab — Clicked (Sticky + Stats)
+### Match History Tab -- Clicked (Sticky + Stats)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -117,13 +117,13 @@ This keeps the list scannable while giving a rich preview without layout shifts.
 │ │         136 - 270    L │                                      │
 │ │                        │  Eff: 73%  RL#: 26  Dmg: 40685      │
 │ │ Nov 22  dm4  vs book   │                                      │
-│ │         198 - 165    W │  [View on QW Hub →]  [Full Stats ⧉] │
+│ │         198 - 165    W │  [View on QW Hub ->]  [Full Stats ⧉] │
 │ │                        │                                      │
 │ └────────────────────────┴──────────────────────────────────────┘
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Match History — No Tag
+### Match History -- No Tag
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -142,15 +142,15 @@ This keeps the list scannable while giving a rich preview without layout shifts.
 
 ### Key Design Decisions
 
-1. **Hover = instant preview from Supabase data** — The scoreboard uses teams/players arrays already fetched in the match list response. No additional API call on hover. This makes previewing feel instant.
+1. **Hover = instant preview from Supabase data** -- The scoreboard uses teams/players arrays already fetched in the match list response. No additional API call on hover. This makes previewing feel instant.
 
-2. **Click = sticky + fetch ktxstats for team stats bar** — Only on click do we call `getGameStats(demoHash)` to get the detailed ktxstats data. This is a cold-path call (~500ms, cached indefinitely). We show a small loading indicator for the stats bar only.
+2. **Click = sticky + fetch ktxstats for team stats bar** -- Only on click do we call `getGameStats(demoHash)` to get the detailed ktxstats data. This is a cold-path call (~500ms, cached indefinitely). We show a small loading indicator for the stats bar only.
 
-3. **Increased fetch limit to 20** — Details tab covers activity summary. Match History tab needs more matches for meaningful filtering. 20 is a good balance between data richness and API load.
+3. **Increased fetch limit to 20** -- Details tab covers activity summary. Match History tab needs more matches for meaningful filtering. 20 is a good balance between data richness and API load.
 
-4. **Filters derived from data** — The map dropdown is populated from the unique maps in the fetched matches. No extra API calls. If all 20 matches are dm2, only dm2 appears in the filter.
+4. **Filters derived from data** -- The map dropdown is populated from the unique maps in the fetched matches. No extra API calls. If all 20 matches are dm2, only dm2 appears in the filter.
 
-5. **Reuse existing scoreboard renderer** — `_renderScoreboard(match)` from Slice 5.1b is reused as-is. It renders into the right panel instead of inline.
+5. **Reuse existing scoreboard renderer** -- `_renderScoreboard(match)` from Slice 5.1b is reused as-is. It renders into the right panel instead of inline.
 
 ### Component Changes: TeamsBrowserPanel
 
@@ -165,18 +165,18 @@ let _statsLoading = false;        // Loading indicator for ktxstats fetch
 ```
 
 **New methods:**
-- `_renderHistoryTab(team)` — Split-panel layout
-- `_renderMatchList(matches)` — Left panel with match rows
-- `_renderMatchFilters()` — Map dropdown derived from `_historyMatches`
-- `_renderPreviewPanel()` — Right panel: scoreboard + stats bar + links
-- `_renderTeamStatsBar(stats, match)` — Key aggregated stats from ktxstats
-- `_handleMatchHover(matchId)` — Updates preview (instant)
-- `_handleMatchClick(matchId)` — Sticks selection + fetches ktxstats
-- `_handleMapFilterChange(map)` — Filters match list
-- `_loadHistoryMatches(teamTag)` — Fetches 20 matches, populates filters
+- `_renderHistoryTab(team)` -- Split-panel layout
+- `_renderMatchList(matches)` -- Left panel with match rows
+- `_renderMatchFilters()` -- Map dropdown derived from `_historyMatches`
+- `_renderPreviewPanel()` -- Right panel: scoreboard + stats bar + links
+- `_renderTeamStatsBar(stats, match)` -- Key aggregated stats from ktxstats
+- `_handleMatchHover(matchId)` -- Updates preview (instant)
+- `_handleMatchClick(matchId)` -- Sticks selection + fetches ktxstats
+- `_handleMapFilterChange(map)` -- Filters match list
+- `_loadHistoryMatches(teamTag)` -- Fetches 20 matches, populates filters
 
 **Modified methods:**
-- `_renderCurrentView()` — When history tab active + team has tag, call `_loadHistoryMatches`
+- `_renderCurrentView()` -- When history tab active + team has tag, call `_loadHistoryMatches`
 
 ### Service Changes: QWHubService
 
@@ -186,7 +186,7 @@ The existing method already supports a `limit` parameter. We just call it with `
 
 **Recommendation:** Keep using `getRecentMatches` but with `limit=20`. The 5-min cache will serve both the details tab (map stats from `getTeamMapStats`) and the history tab (match list from `getRecentMatches` with higher limit). If the details tab already cached 5 matches, the history tab fetch will replace the cache with 20.
 
-Alternatively, add a note that `getRecentMatches` should always cache the largest fetched limit. For simplicity, we'll just call `getRecentMatches(tag, 20)` and the existing cache logic works fine — it caches whatever was last fetched.
+Alternatively, add a note that `getRecentMatches` should always cache the largest fetched limit. For simplicity, we'll just call `getRecentMatches(tag, 20)` and the existing cache logic works fine -- it caches whatever was last fetched.
 
 ---
 
@@ -329,7 +329,7 @@ function _renderTeamStatsBar(ktxstats, match) {
 
     const totalRLHits = ourPlayers.reduce((sum, p) => sum + (p.weapons?.rl?.acc?.hits || 0), 0);
 
-    // LG% — average across players who used LG
+    // LG% -- average across players who used LG
     const lgPlayers = ourPlayers.filter(p => p.weapons?.lg?.acc?.attacks > 0);
     const lgPct = lgPlayers.length > 0
         ? Math.round(lgPlayers.reduce((sum, p) => {
@@ -649,8 +649,8 @@ HOT PATHS (<50ms):
 - Match list scroll: Native browser scrolling
 
 COLD PATHS (<2s):
-- Initial match list load: getRecentMatches(tag, 20) — ~500-1000ms, 5-min cache
-- ktxstats fetch on click: getGameStats(demoHash) — ~300-500ms, cached indefinitely
+- Initial match list load: getRecentMatches(tag, 20) -- ~500-1000ms, 5-min cache
+- ktxstats fetch on click: getGameStats(demoHash) -- ~300-500ms, cached indefinitely
 - First click stats: Shows "Loading stats..." then renders when ready
 
 BACKEND PERFORMANCE:
@@ -664,43 +664,43 @@ BACKEND PERFORMANCE:
 
 ```
 User switches to Match History tab
-    → _activeTab = 'history'
-    → _renderHistoryTab(team)
-        → Split layout rendered with loading placeholder
-    → _loadHistoryMatches(teamTag)
-        → QWHubService.getRecentMatches(teamTag, 20)
-            → Cache hit? Instant
-            → Cache miss? Supabase fetch
-        → _historyMatches = matches
-        → Populate _matchDataById map
-        → Derive unique maps for filter dropdown
-        → Render match list in left panel
+    -> _activeTab = 'history'
+    -> _renderHistoryTab(team)
+        -> Split layout rendered with loading placeholder
+    -> _loadHistoryMatches(teamTag)
+        -> QWHubService.getRecentMatches(teamTag, 20)
+            -> Cache hit? Instant
+            -> Cache miss? Supabase fetch
+        -> _historyMatches = matches
+        -> Populate _matchDataById map
+        -> Derive unique maps for filter dropdown
+        -> Render match list in left panel
 
 User hovers a match row
-    → previewMatch(matchId)
-        → _hoveredMatchId = matchId
-        → _renderPreviewPanel(matchId) into right panel
-            → _renderScoreboard(match) — instant from Supabase data
+    -> previewMatch(matchId)
+        -> _hoveredMatchId = matchId
+        -> _renderPreviewPanel(matchId) into right panel
+            -> _renderScoreboard(match) -- instant from Supabase data
 
 User moves mouse away
-    → clearPreview()
-        → If no sticky selection: show "hover to preview" placeholder
-        → If sticky selection exists: do nothing (keep showing selected)
+    -> clearPreview()
+        -> If no sticky selection: show "hover to preview" placeholder
+        -> If sticky selection exists: do nothing (keep showing selected)
 
 User clicks a match row
-    → selectMatch(matchId)
-        → _selectedMatchId = matchId
-        → Render scoreboard immediately
-        → Fetch ktxstats async → _selectedMatchStats
-        → Re-render preview with stats bar + action links
-        → Guard: verify selected match hasn't changed during fetch
+    -> selectMatch(matchId)
+        -> _selectedMatchId = matchId
+        -> Render scoreboard immediately
+        -> Fetch ktxstats async -> _selectedMatchStats
+        -> Re-render preview with stats bar + action links
+        -> Guard: verify selected match hasn't changed during fetch
 
 User changes map filter
-    → _handleMapFilterChange(map)
-        → _historyMapFilter = map
-        → Filter _historyMatches by map
-        → Re-render match list (left panel only)
-        → Clear selection if filtered match is no longer visible
+    -> _handleMapFilterChange(map)
+        -> _historyMapFilter = map
+        -> Filter _historyMatches by map
+        -> Re-render match list (left panel only)
+        -> Clear selection if filtered match is no longer visible
 ```
 
 ---
@@ -729,12 +729,12 @@ User changes map filter
 
 ## Common Integration Pitfalls
 
-- [ ] Hover preview must NOT override sticky selection — check `_selectedMatchId` in `previewMatch()`
-- [ ] ktxstats player team names are QW-encoded — must use `qwToAscii()` for comparison
-- [ ] `_matchDataById` must be populated before hover/click handlers work — ensure matches are cached during list render
+- [ ] Hover preview must NOT override sticky selection -- check `_selectedMatchId` in `previewMatch()`
+- [ ] ktxstats player team names are QW-encoded -- must use `qwToAscii()` for comparison
+- [ ] `_matchDataById` must be populated before hover/click handlers work -- ensure matches are cached during list render
 - [ ] Map filter select must re-derive options when match list is refreshed (new team selected)
 - [ ] Expose `previewMatch`, `clearPreview`, `selectMatch`, `openFullStats` in public API for onclick handlers
-- [ ] Scoreboard rendering reuses existing `_renderScoreboard()` — don't duplicate
+- [ ] Scoreboard rendering reuses existing `_renderScoreboard()` -- don't duplicate
 - [ ] Reset `_selectedMatchId`, `_hoveredMatchId`, `_selectedMatchStats` when switching teams
 
 ## File Changes Summary
@@ -744,7 +744,7 @@ User changes map filter
 | `public/js/components/TeamsBrowserPanel.js` | Modify | Add history tab renderer, split-panel, hover/click handlers |
 | `src/css/input.css` | Modify | Add split-panel, match list, preview panel styles |
 
-No service changes needed — uses existing `getRecentMatches()` and `getGameStats()`.
+No service changes needed -- uses existing `getRecentMatches()` and `getGameStats()`.
 
 ## Quality Checklist
 

@@ -7,10 +7,10 @@
 **Goal:** port the remaining three ezQuake extractors (commands, macros, cmdline-params) to AST quality (or grep-quality for cmdline) and wire them through the existing Phase 2b loader. End state: ezQuake is fully represented in `knowledge.db` across all four entity types (cvar, command, macro, cmdline_param), queryable with the same loader/diff/enrich pipeline.
 
 **Non-goals:**
-- MVDSV / KTX / FTE extractors — Phase 2d/2e.
-- Historical backfill across tags — Phase 2f.
-- Slipgate app refactor to consume `knowledge.db` — deferred, user intends to do this after ezQuake is fully in SQL.
-- Replacing the old TS scrapers (`extract-ezquake-commands.ts`, etc.) — slipgate still consumes their JSON. New libclang extractors write to parallel `*-ast.json` files.
+- MVDSV / KTX / FTE extractors -- Phase 2d/2e.
+- Historical backfill across tags -- Phase 2f.
+- Slipgate app refactor to consume `knowledge.db` -- deferred, user intends to do this after ezQuake is fully in SQL.
+- Replacing the old TS scrapers (`extract-ezquake-commands.ts`, etc.) -- slipgate still consumes their JSON. New libclang extractors write to parallel `*-ast.json` files.
 
 **Verification discipline:** per monorepo CLAUDE.md, compile first, manual-verify second. No TDD. Each task ends with a concrete end-to-end check (extractor runs, loader runs, DB query returns sensible rows).
 
@@ -24,8 +24,8 @@
 - Schema already has `command_versions`, `macro_versions`, `cmdline_param_versions` tables (see `schema.ts`). Natural key `(entity_id, version)` same as cvar. No schema change required.
 
 **Registration patterns surveyed:**
-- **Commands:** `Cmd_AddCommand("name", handler_fn, flags?)` — clean callexpr. ~540 live in help_commands.json. Scatter across all `.c` files.
-- **Macros:** `Cmd_AddMacro("name", handler_fn)` plus `Cmd_AddMacroEx(...)` — 35+ callexprs across 7 files, mostly `teamplay.c`. ~120 live in help_macros.json.
+- **Commands:** `Cmd_AddCommand("name", handler_fn, flags?)` -- clean callexpr. ~540 live in help_commands.json. Scatter across all `.c` files.
+- **Macros:** `Cmd_AddMacro("name", handler_fn)` plus `Cmd_AddMacroEx(...)` -- 35+ callexprs across 7 files, mostly `teamplay.c`. ~120 live in help_macros.json.
 - **Cmdline params:** NO single registration point. `COM_CheckParm("-foo")` called at the use site. ~130 live in help_cmdline_params.json. Source-backed detection = grep for `COM_CheckParm("<name>")`.
 
 **Output JSON file naming:**
@@ -37,8 +37,8 @@
 
 **Loader dispatch refactor:**
 - `load-version.ts` becomes a thin dispatcher that hands off to per-type builder modules.
-- `load-cvars.ts` — existing cvar-specific row build logic (moved, not rewritten).
-- `load-commands.ts` / `load-macros.ts` / `load-cmdline-params.ts` — new parallel modules.
+- `load-cvars.ts` -- existing cvar-specific row build logic (moved, not rewritten).
+- `load-commands.ts` / `load-macros.ts` / `load-cmdline-params.ts` -- new parallel modules.
 - Shared scaffolding (version upsert, entity upsert, transitions, schema_meta, partial-drop guard) stays in `load-version.ts`.
 - `types.ts` grows a generic `ExtractorOutput<T>` shape and per-type entry interfaces.
 - `natural-keys.ts` gains `upsertCommandVersion`, `upsertMacroVersion`, `upsertCmdlineParamVersion` parallel to `upsertCvarVersion`.
@@ -53,8 +53,8 @@
 - [ ] Mirror CLI flags from cvar extractor: `--repo-root`, `--output`. Default repo = `research/repos/ezquake-source`, default output = `packages/qw-config/src/data/ezquake-commands-ast.json`.
 - [ ] Reuse `CLANG_ARGS` / `CLANG_ARGS_SERVER` dual-TU parse so `#ifdef`-gated commands surface in both branches.
 - [ ] Per `.c` file: walk AST, find `CALL_EXPR` nodes whose spelling is `Cmd_AddCommand` (also watch for `Cmd_AddCommandAlias` / `Cmd_AddCommandExt` variants if they exist - grep first to confirm).
-- [ ] Per call, extract: command name (arg 0 string literal), handler function identifier (arg 1 — resolve via `_resolve_var_ref` equivalent), source file basename, source line, source column, enclosing function name (registration site — this is useful metadata: `CL_InitCommands` vs `TP_Init` etc.).
-- [ ] Enrich each command with `help_commands.json` entries (desc, remarks, group-id). Commands in help-json but NOT in source flip to `source_state='doc_only'` downstream — extractor just flags `ast=null`.
+- [ ] Per call, extract: command name (arg 0 string literal), handler function identifier (arg 1 -- resolve via `_resolve_var_ref` equivalent), source file basename, source line, source column, enclosing function name (registration site -- this is useful metadata: `CL_InitCommands` vs `TP_Init` etc.).
+- [ ] Enrich each command with `help_commands.json` entries (desc, remarks, group-id). Commands in help-json but NOT in source flip to `source_state='doc_only'` downstream -- extractor just flags `ast=null`.
 - [ ] Output JSON shape:
   ```json
   {
@@ -78,7 +78,7 @@
 - [ ] Add a diagnostics log path mirroring `ast-spike-diagnostics.log`.
 - [ ] **Verify:** run extractor; spot-check 5 commands from different files (e.g., `say_team`, `record`, `exec`, `bind`, `kill`). Each should have a valid `ast` block with a plausible handler function name.
 
-**Done signal:** extractor runs to completion on ezQuake head; output JSON has ~540 commands; at least 4 out of 5 spot-check entries have AST data (some may be help-only deprecated → `ast=null`).
+**Done signal:** extractor runs to completion on ezQuake head; output JSON has ~540 commands; at least 4 out of 5 spot-check entries have AST data (some may be help-only deprecated -> `ast=null`).
 
 ---
 
@@ -110,23 +110,23 @@
     }
   }
   ```
-- [ ] **Verify:** spot-check 5 macros (`health`, `armor`, `weapon`, `bestammo`, `location` — or whichever names land in the output). Each should resolve its handler and cite a registration site in `teamplay.c` for most, `cl_demo.c` / `cmd.c` for outliers.
+- [ ] **Verify:** spot-check 5 macros (`health`, `armor`, `weapon`, `bestammo`, `location` -- or whichever names land in the output). Each should resolve its handler and cite a registration site in `teamplay.c` for most, `cl_demo.c` / `cmd.c` for outliers.
 
 **Done signal:** extractor runs to completion; output JSON has ~120 macros; 4 out of 5 spot-checks have valid AST data.
 
 ---
 
-## Task 3: Cmdline params — grep-scan + help merge
+## Task 3: Cmdline params -- grep-scan + help merge
 
 **Intent:** cmdline params are doc-first (help_cmdline_params.json is authoritative). Augment with source-backed detection so we know which params are actually used in the codebase vs. documented only.
 
-- [ ] Create `packages/qw-config/scripts/extract-ezquake-cmdline-clang.py` — naming parity with the others, but internally it's a grep + help merge (no libclang call-expr walk; simpler and more appropriate for this pattern).
+- [ ] Create `packages/qw-config/scripts/extract-ezquake-cmdline-clang.py` -- naming parity with the others, but internally it's a grep + help merge (no libclang call-expr walk; simpler and more appropriate for this pattern).
 - [ ] Same CLI flags. Default output = `packages/qw-config/src/data/ezquake-cmdline-params-ast.json`.
 - [ ] Algorithm:
   1. Load `help_cmdline_params.json` (authoritative set of ~130 documented params).
-  2. Grep all `.c` files for `COM_CheckParm\s*\(\s*"(-[a-zA-Z0-9_-]+)"` → map param → list of (source_file, line) hits.
+  2. Grep all `.c` files for `COM_CheckParm\s*\(\s*"(-[a-zA-Z0-9_-]+)"` -> map param -> list of (source_file, line) hits.
   3. For each help entry: if grep found hits, `ast = { first_source_file, first_source_line, check_sites: N }`; else `ast = null`.
-  4. Also: any `-foo` in source but NOT in help-json → emit with `ast` present but no desc/remarks (source-backed, doc-missing — interesting signal).
+  4. Also: any `-foo` in source but NOT in help-json -> emit with `ast` present but no desc/remarks (source-backed, doc-missing -- interesting signal).
 - [ ] Output JSON shape:
   ```json
   {
@@ -145,7 +145,7 @@
     }
   }
   ```
-- [ ] **Verify:** spot-check `-basedir`, `-port`, `-width`, `-mem`, `-condebug` — all should have `ast` (they're definitely used in source). Any known deprecated param (if any) should have `ast=null`.
+- [ ] **Verify:** spot-check `-basedir`, `-port`, `-width`, `-mem`, `-condebug` -- all should have `ast` (they're definitely used in source). Any known deprecated param (if any) should have `ast=null`.
 
 **Done signal:** extractor runs to completion; output JSON has ~130 params; the source-backed subset is plausible (most documented params should be source-backed).
 
@@ -168,7 +168,7 @@
 - [ ] Update `types.ts` row interfaces: `CommandVersionRow`, `MacroVersionRow`, `CmdlineParamVersionRow` mapped to the schema columns in `schema.ts`.
 - [ ] Update `index.ts` usage help text to list all four types.
 - [ ] `bunx tsc --noEmit` passes.
-- [ ] **Verify:** run existing cvar pipeline end-to-end (`load-version` against the existing 3.6.9 snapshot) — row counts must match the Phase 2b e2e snapshot (2901 entities). Regression guard.
+- [ ] **Verify:** run existing cvar pipeline end-to-end (`load-version` against the existing 3.6.9 snapshot) -- row counts must match the Phase 2b e2e snapshot (2901 entities). Regression guard.
 
 **Done signal:** typecheck clean; cvar pipeline still produces identical results; code paths for command/macro/cmdline_param compile and are reachable but unverified until Task 5.
 
@@ -186,9 +186,9 @@
   ```
   Expected: ezquake/cvar ~2901, ezquake/command ~540, ezquake/macro ~120, ezquake/cmdline_param ~130.
 - [ ] Spot-check via direct SQL:
-  - `say_team` → ezquake/command with handler_fn set, source_file populated
-  - `$health` (stored as `health` in the `name` column) → ezquake/macro with handler in teamplay.c
-  - `-basedir` → ezquake/cmdline_param, source_backed
+  - `say_team` -> ezquake/command with handler_fn set, source_file populated
+  - `$health` (stored as `health` in the `name` column) -> ezquake/macro with handler in teamplay.c
+  - `-basedir` -> ezquake/cmdline_param, source_backed
 - [ ] Update `apps/qw-oracle/scripts/load-knowledge/e2e-verify.md` with the full four-type snapshot.
 - [ ] Commit each of Tasks 1-5 as its own git commit. Push at the end.
 
@@ -200,17 +200,17 @@
 
 1. **`Cmd_AddCommand` variants.** Need to grep for `Cmd_AddCommandAlias` / `Cmd_AddCommandExt` / similar before writing Task 1 extractor. If they exist, handle all in one pass.
 2. **Array-form command tables.** Some codebases register commands via `{ "name", handler } cmdlist[]` arrays. Grep first. If ezQuake has these, replicate the cvar extractor's `cvar_t xs[N]` array handling pattern.
-3. **Macro handler resolution when `Cmd_AddMacroEx` passes a flags arg.** Arg positions differ — inspect both signatures before writing the visitor.
+3. **Macro handler resolution when `Cmd_AddMacroEx` passes a flags arg.** Arg positions differ -- inspect both signatures before writing the visitor.
 4. **`COM_CheckParm` variants.** ezQuake may also call `COM_CheckParmOffset` or similar. Grep-survey first.
-5. **Help-JSON staleness.** help_*.json files are manually curated; some documented names may no longer exist in source. The source_state=doc_only path handles this cleanly — flag count of doc_only entries per type in verification for sanity.
+5. **Help-JSON staleness.** help_*.json files are manually curated; some documented names may no longer exist in source. The source_state=doc_only path handles this cleanly -- flag count of doc_only entries per type in verification for sanity.
 
 ---
 
 ## Commit plan
 
-- Task 1 complete → commit `feat(qw-config): libclang AST extractor for ezQuake commands`
-- Task 2 complete → commit `feat(qw-config): libclang AST extractor for ezQuake macros`
-- Task 3 complete → commit `feat(qw-config): grep+help AST extractor for ezQuake cmdline params`
-- Task 4 complete → commit `refactor(qw-oracle): per-type loader modules for all entity types`
-- Task 5 complete → commit `feat(qw-oracle): Phase 2c e2e - ezQuake fully loaded across 4 types`
+- Task 1 complete -> commit `feat(qw-config): libclang AST extractor for ezQuake commands`
+- Task 2 complete -> commit `feat(qw-config): libclang AST extractor for ezQuake macros`
+- Task 3 complete -> commit `feat(qw-config): grep+help AST extractor for ezQuake cmdline params`
+- Task 4 complete -> commit `refactor(qw-oracle): per-type loader modules for all entity types`
+- Task 5 complete -> commit `feat(qw-oracle): Phase 2c e2e - ezQuake fully loaded across 4 types`
 - Final: push main, drain Phase 2c-leading-bullet from HANDOVER (Phase 2d-2h remain).

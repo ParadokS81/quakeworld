@@ -1,4 +1,4 @@
-# Split-Process Dev Workflow — Implementation Plan
+# Split-Process Dev Workflow -- Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -22,7 +22,7 @@
 ```bash
 #!/bin/bash
 # Sync src-tauri/ from WSL monorepo to Windows build mirror.
-# Excludes target/ (build artifacts) — Windows has its own cargo cache.
+# Excludes target/ (build artifacts) -- Windows has its own cargo cache.
 set -euo pipefail
 
 MONOREPO="$HOME/projects/quakeworld/apps/slipgate-app"
@@ -56,7 +56,7 @@ Expected: no output (files match).
 
 ```bash
 git add apps/slipgate-app/scripts/sync-rust.sh
-git commit -m "Add sync-rust.sh — rsync src-tauri/ to Windows build mirror"
+git commit -m "Add sync-rust.sh -- rsync src-tauri/ to Windows build mirror"
 ```
 
 ---
@@ -67,7 +67,7 @@ git commit -m "Add sync-rust.sh — rsync src-tauri/ to Windows build mirror"
 - Create: `/mnt/c/Users/Administrator/projects/slipgate-app/tauri.dev.conf.json`
 - Create: `/mnt/c/Users/Administrator/projects/slipgate-app/dev-no-vite.cmd`
 
-These files live on the Windows filesystem only — they are not part of the monorepo.
+These files live on the Windows filesystem only -- they are not part of the monorepo.
 
 - [ ] **Step 1: Create the Tauri config override**
 
@@ -100,7 +100,7 @@ DEV_PID=$!
 sleep 5
 kill $DEV_PID 2>/dev/null
 ```
-Expected: Cargo output appears (compilation or "Compiling..." messages). It will fail to load localhost:1420 since Vite isn't running — that's fine, we just need to confirm Cargo starts.
+Expected: Cargo output appears (compilation or "Compiling..." messages). It will fail to load localhost:1420 since Vite isn't running -- that's fine, we just need to confirm Cargo starts.
 
 Note: if this is the first run after a while, Cargo may need to compile dependencies. Let it run longer if needed. Kill with Ctrl+C.
 
@@ -161,7 +161,7 @@ if ! curl -s http://localhost:1420 >/dev/null 2>&1; then
   exit 1
 fi
 
-# 4. Launch Tauri on Windows (foreground — blocks until closed)
+# 4. Launch Tauri on Windows (foreground -- blocks until closed)
 echo "Starting Tauri (Windows)..."
 cmd.exe /c "$WINDOWS_CMD"
 ```
@@ -172,7 +172,7 @@ cmd.exe /c "$WINDOWS_CMD"
 chmod +x apps/slipgate-app/scripts/slipgate-dev.sh
 ```
 
-- [ ] **Step 3: Smoke test — verify Vite starts and becomes reachable**
+- [ ] **Step 3: Smoke test -- verify Vite starts and becomes reachable**
 
 Run:
 ```bash
@@ -189,7 +189,7 @@ Expected: HTML output from Vite (the index.html with SolidJS app). This confirms
 
 ```bash
 git add apps/slipgate-app/scripts/slipgate-dev.sh
-git commit -m "Add slipgate-dev.sh — single-command dev environment startup"
+git commit -m "Add slipgate-dev.sh -- single-command dev environment startup"
 ```
 
 ---
@@ -209,7 +209,7 @@ In `/home/paradoks/projects/quakeworld/.claude/settings.json`, add a `PostToolUs
 {
   "hooks": {
     "PreToolUse": [
-      ... (existing — do not modify)
+      ... (existing -- do not modify)
     ],
     "PostToolUse": [
       {
@@ -247,7 +247,7 @@ git commit -m "Add post-edit hook: auto-sync src-tauri/ to Windows on Rust file 
 - Remove: `/mnt/c/Users/Administrator/projects/slipgate-app/.git/`
 - Run: `bun install` on Windows copy
 
-The Windows copy had its own standalone git repo from before the monorepo migration. It's now a build mirror — git belongs in the WSL monorepo only.
+The Windows copy had its own standalone git repo from before the monorepo migration. It's now a build mirror -- git belongs in the WSL monorepo only.
 
 - [ ] **Step 1: Remove the standalone .git directory**
 
@@ -270,20 +270,20 @@ cd /mnt/c/Users/Administrator/projects/slipgate-app && bun.exe install
 ```
 Expected: dependencies install successfully, `node_modules/` is created.
 
-Note: `bun.exe` (not `bun`) — this invokes the Windows binary from WSL via interop.
+Note: `bun.exe` (not `bun`) -- this invokes the Windows binary from WSL via interop.
 
 - [ ] **Step 3: Verify Cargo dependencies are cached**
 
 ```bash
 ls /mnt/c/Users/Administrator/projects/slipgate-app/src-tauri/target/debug/build/ | head -5
 ```
-Expected: directories present from previous builds. Cargo will incrementally recompile — no full rebuild needed.
+Expected: directories present from previous builds. Cargo will incrementally recompile -- no full rebuild needed.
 
 ---
 
 ### Task 6: End-to-end test
 
-No files to create — this validates the full workflow.
+No files to create -- this validates the full workflow.
 
 - [ ] **Step 1: Run the startup script**
 
@@ -292,25 +292,25 @@ No files to create — this validates the full workflow.
 ```
 
 Expected sequence:
-1. "Syncing src-tauri/ to Windows..." → "src-tauri/ synced to Windows"
-2. "Starting Vite..." → Vite output appears
-3. "Waiting for localhost:1420..." → "Vite ready."
-4. "Starting Tauri (Windows)..." → Cargo compilation output
+1. "Syncing src-tauri/ to Windows..." -> "src-tauri/ synced to Windows"
+2. "Starting Vite..." -> Vite output appears
+3. "Waiting for localhost:1420..." -> "Vite ready."
+4. "Starting Tauri (Windows)..." -> Cargo compilation output
 5. A native Windows window appears showing the Slipgate app
 
 - [ ] **Step 2: Test frontend hot reload**
 
 With the dev environment running, make a visible change to a frontend file:
 
-Edit `apps/slipgate-app/src/App.tsx` — change any visible text string (e.g., a tab label or heading). Save.
+Edit `apps/slipgate-app/src/App.tsx` -- change any visible text string (e.g., a tab label or heading). Save.
 
-Expected: The Tauri window updates within 1-2 seconds without restarting. This confirms Vite HMR works through the WSL→localhost→WebView2 chain.
+Expected: The Tauri window updates within 1-2 seconds without restarting. This confirms Vite HMR works through the WSL->localhost->WebView2 chain.
 
 Revert the change after testing.
 
 - [ ] **Step 3: Test Rust sync**
 
-Edit `apps/slipgate-app/src-tauri/src/lib.rs` — add a comment line `// sync test` anywhere. Save.
+Edit `apps/slipgate-app/src-tauri/src/lib.rs` -- add a comment line `// sync test` anywhere. Save.
 
 Expected: If the Claude Code hook is active, `sync-rust.sh` fires automatically. If testing manually, run `./apps/slipgate-app/scripts/sync-rust.sh`. Then Cargo should recompile (visible in terminal output, ~5-15 seconds).
 
@@ -320,7 +320,7 @@ Revert the change after testing.
 
 Close the Tauri window (click X) or press Ctrl+C in the terminal.
 
-Expected: "Shutting down..." → "Done." Both Vite and Tauri processes stop.
+Expected: "Shutting down..." -> "Done." Both Vite and Tauri processes stop.
 
 Verify nothing is left running:
 ```bash
@@ -354,7 +354,7 @@ Keep the existing sections that are still accurate:
 Remove:
 - "Project Setup (First Time)" section that assumes cloning to Windows
 - References to developing "on native Windows" as the primary workflow
-- The "Differences from Other QW Projects" table (no longer accurate — slipgate-app now uses WSL too)
+- The "Differences from Other QW Projects" table (no longer accurate -- slipgate-app now uses WSL too)
 
 - [ ] **Step 2: Commit**
 

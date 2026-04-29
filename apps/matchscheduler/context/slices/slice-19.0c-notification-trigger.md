@@ -15,9 +15,9 @@
 
 ## Problem Statement
 
-After 19.0b, proposals are created with substance (pre-confirmed slots). But the opponent still only finds out via manual Discord DM. The "Contact on Discord" step (copy → paste → hope they see it) is unreliable and adds friction.
+After 19.0b, proposals are created with substance (pre-confirmed slots). But the opponent still only finds out via manual Discord DM. The "Contact on Discord" step (copy -> paste -> hope they see it) is unreliable and adds friction.
 
-We need a Firestore-based notification queue that the quad bot can consume. This slice creates the **write side** — the MatchScheduler writes notification documents. The **read side** (quad bot delivering to Discord) is a separate quad task.
+We need a Firestore-based notification queue that the quad bot can consume. This slice creates the **write side** -- the MatchScheduler writes notification documents. The **read side** (quad bot delivering to Discord) is a separate quad task.
 
 ---
 
@@ -32,7 +32,7 @@ createProposal Cloud Function
   │
   └── Creates notifications/{id} (NEW)
         │
-        └── Quad bot listens → delivers to Discord
+        └── Quad bot listens -> delivers to Discord
 ```
 
 The `notifications/` collection is a **one-way queue**: MatchScheduler writes, quad bot reads and processes. This follows the same Firestore-as-a-bus pattern used by `standin_requests/`.
@@ -112,7 +112,7 @@ interface NotificationDocument {
 ```
 
 **Why a separate collection (not a field on `matchProposals`)?**
-- Clean separation of concerns — proposals are about scheduling, notifications are about delivery
+- Clean separation of concerns -- proposals are about scheduling, notifications are about delivery
 - Quad bot only needs to listen to one collection for all notification types
 - Future notification types (slot confirmed, match sealed, match cancelled) use the same collection
 - Doesn't bloat the proposal document with delivery metadata
@@ -214,24 +214,24 @@ await db.runTransaction(async (transaction) => {
 });
 ```
 
-**Note:** The `botRegistrations` and `users` reads happen OUTSIDE the transaction (they're not part of the atomic proposal creation — if delivery info is slightly stale, the bot can handle it). Only the notification document write is inside the transaction to ensure it's created atomically with the proposal.
+**Note:** The `botRegistrations` and `users` reads happen OUTSIDE the transaction (they're not part of the atomic proposal creation -- if delivery info is slightly stale, the bot can handle it). Only the notification document write is inside the transaction to ensure it's created atomically with the proposal.
 
-Actually, correction: Firestore transactions require all reads before writes. The botRegistration and user reads should happen before `db.runTransaction()`, and only the writes go inside. This is already the pattern — just adding one more `transaction.set()` call.
+Actually, correction: Firestore transactions require all reads before writes. The botRegistration and user reads should happen before `db.runTransaction()`, and only the writes go inside. This is already the pattern -- just adding one more `transaction.set()` call.
 
 ---
 
 ## Frontend Changes
 
-### ComparisonModal.js — Step 3 update
+### ComparisonModal.js -- Step 3 update
 
 After proposal creation succeeds, Step 3 now shows:
 
 ```
-Step 3: Sent ✓
+Step 3: Sent [ok]
 Proposal created with 2 timeslots.
 Opponent will be notified.
 
-[DM their leader]  [Copy Message]   ← optional, secondary
+[DM their leader]  [Copy Message]   <- optional, secondary
 [Done]
 ```
 
@@ -239,7 +239,7 @@ The "Opponent will be notified" text replaces the current "Contact Leader" as th
 
 **If opponent has no bot and no Discord linked:**
 ```
-Step 3: Created ✓
+Step 3: Created [ok]
 Proposal created with 2 timeslots.
 Share the link with your opponent:
 
@@ -247,7 +247,7 @@ Share the link with your opponent:
 [Done]
 ```
 
-### MobileCompareDetail.js — Post-proposal
+### MobileCompareDetail.js -- Post-proposal
 
 After successful proposal creation, the toast message changes from "Proposal created!" to "Proposal sent! Opponent will be notified." Then closes sheet and opens MobileProposalDetail as before.
 
@@ -284,8 +284,8 @@ match /notifications/{notificationId} {
 ## What This Slice Does NOT Include
 
 - Quad bot reading and delivering notifications (that's quad-side work)
-- Notification status display in MatchScheduler UI (future — showing "delivered" badge)
-- Other notification types (slot confirmed, match sealed, etc.) — just the `challenge_proposed` type
+- Notification status display in MatchScheduler UI (future -- showing "delivered" badge)
+- Other notification types (slot confirmed, match sealed, etc.) -- just the `challenge_proposed` type
 - Retry logic for failed deliveries (the bot handles this)
 - Notification preferences beyond on/off (granularity is future)
 
@@ -293,13 +293,13 @@ match /notifications/{notificationId} {
 
 ## Testing Checklist
 
-1. Create a proposal via the new 19.0b flow → verify `notifications/` document created in Firestore
+1. Create a proposal via the new 19.0b flow -> verify `notifications/` document created in Firestore
 2. Check notification document has correct teams, timeslots, delivery targets
 3. Verify opponent's bot registration info is correctly resolved (or null if no bot)
 4. Verify proposer's bot registration info is correctly resolved
 5. Verify opponent leader's Discord ID is resolved for DM fallback
 6. Verify proposer leader's Discord ID is included (for "DM them" button in embed)
-7. Create proposal for team WITHOUT bot → delivery.opponent.botRegistered = false
-8. Create proposal for team WITH bot but notifications off → delivery.opponent.notificationsEnabled = false
+7. Create proposal for team WITHOUT bot -> delivery.opponent.botRegistered = false
+8. Create proposal for team WITH bot but notifications off -> delivery.opponent.notificationsEnabled = false
 9. Step 3 in ComparisonModal shows "Opponent will be notified" text
 10. Firestore rules: verify frontend cannot read/write notifications (Admin SDK only)

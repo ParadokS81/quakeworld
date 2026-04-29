@@ -2,7 +2,7 @@
 
 **Status:** ready to execute (post-consolidation; D.5 architecture meta-finding answered)
 **Date:** 2026-04-28
-**Updated:** 2026-04-28 (post architecture-consolidation arc, commits 5b943d4 → 8115b48)
+**Updated:** 2026-04-28 (post architecture-consolidation arc, commits 5b943d4 -> 8115b48)
 **Mode:** cross-project (Mode C in `validate-extractor` skill)
 **Schema baseline:** v17
 **Architecture baseline:** post-consolidation -- all four projects use `<project>/_handler_*.py`; `extractor_lib/` contains only Tier-1 infrastructure (`_visitor`, `_base`, `_resolve`, `clang_config`, `__init__`).
@@ -13,7 +13,7 @@ The MVDSV Phase 2e validation (2026-04-28) was the first third-party validation 
 
 The MVDSV pass was deep-per-project. This audit is the orthogonal direction: **shallow per-project, wide cross-project.** Look for shape divergences, duplicated logic with policy drift, undocumented divergences, and `extractor_lib` lift candidates that the per-project deep dives would miss because each project looks healthy in isolation.
 
-This audit's output drives a shared-lib follow-up arc that drains cross-cutting issues BEFORE the per-project deep validations run. Same sequencing logic as: drain MVDSV follow-up → then write the runbook + skill. Cleaner baseline = smaller per-project plans = less duplicate work.
+This audit's output drives a shared-lib follow-up arc that drains cross-cutting issues BEFORE the per-project deep validations run. Same sequencing logic as: drain MVDSV follow-up -> then write the runbook + skill. Cleaner baseline = smaller per-project plans = less duplicate work.
 
 ## Goal
 
@@ -36,7 +36,7 @@ Before the audit can name divergences, it has to map the current shape. Pre-audi
 
 ### A.1 Extractor architecture per project (POST-CONSOLIDATION)
 
-Each of the four projects now follows the canonical project-private shape post architecture-consolidation arc (commits 5b943d4 → 8115b48, 2026-04-28). For each, confirm:
+Each of the four projects now follows the canonical project-private shape post architecture-consolidation arc (commits 5b943d4 -> 8115b48, 2026-04-28). For each, confirm:
 
 - ezQuake: `apps/qw-oracle/scripts/extractors/ezquake/extract.py` + 8 `_handler_*.py` (cvars, commands, cmdline, macros, hud_elements, keynames, asset_cvar_bindings, asset_loader_sites). Class names: `Cvars<Project>EzquakeHandler` etc.
 - FTE: `apps/qw-oracle/scripts/extractors/fte/extract.py` + 8 `_handler_*.py` (cvars, commands, cmdline, macros, asset_cvar_bindings, asset_loader_sites, ezhud, ezscript).
@@ -121,7 +121,7 @@ Anchor case (from HANDOVER): `validInfoKey` alphabet is hardcoded -- limits futu
 
 ### D.5 Project-private vs shared handler architecture (ANSWERED)
 
-Resolved by the architecture-consolidation arc (commits 5b943d4 → 8115b48, 2026-04-28). The canonical shape is:
+Resolved by the architecture-consolidation arc (commits 5b943d4 -> 8115b48, 2026-04-28). The canonical shape is:
 
 - All projects use `<project>/_handler_*.py` (Tier 3).
 - `extractor_lib/` holds Tier-1 shared infrastructure only.

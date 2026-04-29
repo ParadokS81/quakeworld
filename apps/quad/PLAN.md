@@ -1,20 +1,20 @@
-# Quad — Implementation Plan
+# Quad -- Implementation Plan
 
 > Read CLAUDE.md first for full context, architecture decisions, and non-negotiable rules.
-> This plan is ordered — each phase builds on the previous one.
+> This plan is ordered -- each phase builds on the previous one.
 
 ---
 
-## Phase 1: Project Scaffold + Module System + Bot Connects to Discord ✓
+## Phase 1: Project Scaffold + Module System + Bot Connects to Discord [ok]
 
-**Status**: COMPLETE — Tested 2026-02-09
+**Status**: COMPLETE -- Tested 2026-02-09
 
 **Goal**: Bot starts, logs in, loads modules, responds to a slash command. No audio yet.
 
 ### Implementation Notes
 - `BotModule` interface extended with `handleCommand()` method for clean command routing from `bot.ts`
-- discord.js deprecated `ephemeral: true` — use `flags: MessageFlags.Ephemeral` instead
-- `@snazzah/davey` is NOT bundled — must be installed explicitly: `npm install @snazzah/davey`
+- discord.js deprecated `ephemeral: true` -- use `flags: MessageFlags.Ephemeral` instead
+- `@snazzah/davey` is NOT bundled -- must be installed explicitly: `npm install @snazzah/davey`
 - ESM + ts-node requires `--loader ts-node/esm` flag
 - `.env` loaded via Node's `--env-file=.env` flag (not dotenv)
 
@@ -32,59 +32,59 @@ src/modules/recording/commands/record.ts
 
 ---
 
-## Phase 2: Join Voice Channel + Receive Audio Streams ✓
+## Phase 2: Join Voice Channel + Receive Audio Streams [ok]
 
-**Status**: COMPLETE — Tested 2026-02-09
+**Status**: COMPLETE -- Tested 2026-02-09
 
 **Goal**: Bot joins a voice channel and subscribes to per-user Opus streams. Audio logged to console but not yet written to disk.
 
 ### Implementation Notes
-- DAVE protocol is now mandatory — `@snazzah/davey` must be installed or voice connection crashes
-- Opus stream emits `error` events during DAVE handshake (early packets before E2E negotiation) — must handle with `opusStream.on('error', ...)` or process crashes
-- `receiver.speaking.on('start')` fires when a user starts talking — we subscribe at that point
+- DAVE protocol is now mandatory -- `@snazzah/davey` must be installed or voice connection crashes
+- Opus stream emits `error` events during DAVE handshake (early packets before E2E negotiation) -- must handle with `opusStream.on('error', ...)` or process crashes
+- `receiver.speaking.on('start')` fires when a user starts talking -- we subscribe at that point
 - `voiceStateUpdate` in module `registerEvents` handles mid-session joins/leaves
 - Guards: double-start prevented, stop-when-not-recording handled
 - `entersState(connection, VoiceConnectionStatus.Ready, 10_000)` with 10s timeout for join
 
 ### Files modified
 ```
-src/modules/recording/commands/record.ts (major update — voice join, subscribe, stop)
+src/modules/recording/commands/record.ts (major update -- voice join, subscribe, stop)
 src/modules/recording/index.ts (voiceStateUpdate events, onShutdown cleanup)
 ```
 
 ---
 
-## Phase 3: Write OGG/Opus to Disk ✓
+## Phase 3: Write OGG/Opus to Disk [ok]
 
-**Status**: COMPLETE — Tested 2026-02-09
+**Status**: COMPLETE -- Tested 2026-02-09
 
 **Goal**: Per-user audio streams written as OGG/Opus files. This is the core recording functionality.
 
 ### Implementation Notes
-- prism-media v1.3.5 only has OGG *demuxers* — switched to v2.0.0-alpha.0 which has `OggLogicalBitstream` + `OpusHead` (the actual muxer)
-- `crc: true` is required — `crc: false` produces files ffprobe/ffmpeg reject. Requires `node-crc@^1.3.2` (CJS; v3+ is ESM-only and breaks)
+- prism-media v1.3.5 only has OGG *demuxers* -- switched to v2.0.0-alpha.0 which has `OggLogicalBitstream` + `OpusHead` (the actual muxer)
+- `crc: true` is required -- `crc: false` produces files ffprobe/ffmpeg reject. Requires `node-crc@^1.3.2` (CJS; v3+ is ESM-only and breaks)
 - `RecordingSession` class owns the voice connection, speaking events, and all tracks
-- `UserTrack` class handles the `opusStream → OggLogicalBitstream → file` pipeline per user
+- `UserTrack` class handles the `opusStream -> OggLogicalBitstream -> file` pipeline per user
 - Uses `randomUUID()` for session IDs (ULID deferred to Phase 5 with metadata)
 - `pipeline()` from `node:stream/promises` for backpressure-safe piping
-- `ERR_STREAM_PREMATURE_CLOSE` is expected on stop (opus stream destroyed) — handled gracefully
+- `ERR_STREAM_PREMATURE_CLOSE` is expected on stop (opus stream destroyed) -- handled gracefully
 - Verified: ffprobe reads clean `Audio: opus, 48000 Hz, stereo, fltp`, ~60KB for 23s recording
 
 ### Steps
 
-1. **Create `src/modules/recording/track.ts` — `UserTrack` class**
+1. **Create `src/modules/recording/track.ts` -- `UserTrack` class**
    - Properties: `trackNumber`, `userId`, `username`, `displayName`, `joinedAt`, `oggStream`, `fileStream`, `filePath`
    - Constructor: creates output directory, opens `fs.createWriteStream()`, creates `prism.opus.OggLogicalBitstream` (48kHz, stereo)
-   - Method: `start(opusStream)` — pipe: `opusStream → oggStream → fileStream`
-   - Method: `stop()` — end the pipeline gracefully, close file stream
-   - Method: `getMetadata()` — return track info for `session_metadata.json`
+   - Method: `start(opusStream)` -- pipe: `opusStream -> oggStream -> fileStream`
+   - Method: `stop()` -- end the pipeline gracefully, close file stream
+   - Method: `getMetadata()` -- return track info for `session_metadata.json`
 
-2. **Create `src/modules/recording/session.ts` — `RecordingSession` class**
+2. **Create `src/modules/recording/session.ts` -- `RecordingSession` class**
    - Properties: `sessionId` (ULID), `startTime`, `endTime`, `outputDir`, `tracks` Map<userId, UserTrack>
-   - Method: `start(connection)` — set up receiver, subscribe to speaking events
-   - Method: `addUser(userId, username, displayName)` — create new `UserTrack`, subscribe to their opus stream
-   - Method: `removeUser(userId)` — mark track `left_at`, but keep stream open (pad silence until session ends)
-   - Method: `stop()` — end all tracks, write `session_metadata.json`, return session summary
+   - Method: `start(connection)` -- set up receiver, subscribe to speaking events
+   - Method: `addUser(userId, username, displayName)` -- create new `UserTrack`, subscribe to their opus stream
+   - Method: `removeUser(userId)` -- mark track `left_at`, but keep stream open (pad silence until session ends)
+   - Method: `stop()` -- end all tracks, write `session_metadata.json`, return session summary
    - Track numbering: auto-increment as users are added (1-based, matching filename)
 
 3. **Create output directory structure**
@@ -92,8 +92,8 @@ src/modules/recording/index.ts (voiceStateUpdate events, onShutdown cleanup)
    - Filename convention: `{trackNumber}-{username}.ogg`
 
 4. **Wire up commands**
-   - `/record start` → create `RecordingSession`, call `session.start(connection)`
-   - `/record stop` → call `session.stop()`, disconnect, reply with summary
+   - `/record start` -> create `RecordingSession`, call `session.start(connection)`
+   - `/record stop` -> call `session.stop()`, disconnect, reply with summary
 
 5. **Test**: Record a real voice session. Verify:
    - One `.ogg` file per speaker in `recordings/{sessionId}/`
@@ -114,16 +114,16 @@ src/modules/recording/commands/record.ts (wire up session)
 
 ---
 
-## Phase 4: Silence Handling + Track Sync ✓
+## Phase 4: Silence Handling + Track Sync [ok]
 
-**Status**: COMPLETE — 2026-02-10
+**Status**: COMPLETE -- 2026-02-10
 
 **Goal**: All tracks are time-aligned to recording start. Silence gaps are handled.
 
 ### Implementation Notes
-- Used the standard 3-byte silent Opus frame (`0xF8, 0xFF, 0xFE`) — universal constant across discord.js, discord.py, and all major Discord libraries. No encoder needed.
-- Replaced `pipeline(opusStream, oggStream, fileStream)` with manual `oggStream.pipe(fileStream)` + `opusStream.on('data')` — allows mixing real packets and silence frames via direct `oggStream.write()` calls
-- Option A (real-time 20ms `setInterval` timer) implemented — produces continuous OGG files with no gaps, matches Craig's behavior
+- Used the standard 3-byte silent Opus frame (`0xF8, 0xFF, 0xFE`) -- universal constant across discord.js, discord.py, and all major Discord libraries. No encoder needed.
+- Replaced `pipeline(opusStream, oggStream, fileStream)` with manual `oggStream.pipe(fileStream)` + `opusStream.on('data')` -- allows mixing real packets and silence frames via direct `oggStream.write()` calls
+- Option A (real-time 20ms `setInterval` timer) implemented -- produces continuous OGG files with no gaps, matches Craig's behavior
 - Late-join silence prepend: calculates gap from recording start to user join, writes N silent frames upfront
 - Rejoin handling: `reattach()` method swaps the opus stream on an existing track; silence timer was running the whole time so the file stays continuous
 - `voiceStateUpdate` detects rejoins and calls `session.reattachUser()`
@@ -143,17 +143,17 @@ src/modules/recording/index.ts (rejoin detection in voiceStateUpdate)
 
 ---
 
-## Phase 5: Metadata + Pipeline Compatibility ✓
+## Phase 5: Metadata + Pipeline Compatibility [ok]
 
-**Status**: COMPLETE — 2026-02-10
+**Status**: COMPLETE -- 2026-02-10
 
 **Goal**: Bot writes `session_metadata.json` that the voice-analysis pipeline can consume.
 
 ### Implementation Notes
 - `writeSessionMetadata()` writes all fields from the schema: `schema_version`, `recording_start_time`, `recording_end_time`, `recording_id`, `source` ("quad"), `source_version`, `guild`, `channel`, `tracks`
 - `team` field included only when `TEAM_TAG` env var is set (optional per schema)
-- Used existing UUID `sessionId` as `recording_id` — ULID deferred (no extra dependency needed, UUID works fine)
-- `source_version` hardcoded as `"1.0.0"` — matches `package.json`
+- Used existing UUID `sessionId` as `recording_id` -- ULID deferred (no extra dependency needed, UUID works fine)
+- `source_version` hardcoded as `"1.0.0"` -- matches `package.json`
 - Called from `session.stop()` after all tracks are flushed
 - Schema matches `docs/session_metadata_schema.json` exactly
 - Pipeline compatibility: `craig_parser.py` in voice-analysis needs a small update to detect `source: "quad"` and read this JSON instead of `raw.dat`
@@ -170,26 +170,26 @@ src/modules/recording/session.ts (import + call writeSessionMetadata)
 
 ### Cross-project change needed (voice-analysis)
 ```
-src/processing/craig_parser.py — detect source: "quad", glob *.ogg, read session_metadata.json
+src/processing/craig_parser.py -- detect source: "quad", glob *.ogg, read session_metadata.json
 ```
 
 ---
 
-## Phase 6: Error Handling + Robustness ✓
+## Phase 6: Error Handling + Robustness [ok]
 
-**Status**: COMPLETE — 2026-02-10
+**Status**: COMPLETE -- 2026-02-10
 
 **Goal**: Bot handles edge cases gracefully and doesn't crash on unexpected events.
 
 ### Implementation Notes
 - Per-track error isolation: `failed` flag + `closeOnError()` method. If one track's OGG or file stream errors, that track is closed cleanly while all others keep recording. All write paths (data handler, silence timer, reattach) guard on `failed`.
-- Voice connection resilience: `Disconnected` → attempt reconnect (30s timeout via `Promise.race` on Signalling/Connecting states). `Destroyed` → null out connection so `stop()` doesn't double-destroy. Both fire `onConnectionLost` callback → auto-stop recording.
-- `connection.destroy()` wrapped in try/catch — can throw if connection is already in a bad state after disconnect timeout.
-- `stopRecording()` clears `activeSession` immediately before awaiting `session.stop()` — prevents double-stop from concurrent `/record stop` + `onConnectionLost` race.
+- Voice connection resilience: `Disconnected` -> attempt reconnect (30s timeout via `Promise.race` on Signalling/Connecting states). `Destroyed` -> null out connection so `stop()` doesn't double-destroy. Both fire `onConnectionLost` callback -> auto-stop recording.
+- `connection.destroy()` wrapped in try/catch -- can throw if connection is already in a bad state after disconnect timeout.
+- `stopRecording()` clears `activeSession` immediately before awaiting `session.stop()` -- prevents double-stop from concurrent `/record stop` + `onConnectionLost` race.
 - `reattach()` uses `removeAllListeners()` (not just `removeAllListeners('data')`) to clean up stale error handlers on old opus stream.
 - `unhandledRejection` logs but doesn't crash (keeps bot running). `uncaughtException` flushes recordings then exits.
 - Double SIGTERM/SIGINT guarded by `shuttingDown` flag.
-- Disk space check via `statfs()` on session init — warns if < 1 GB free, never fails the session.
+- Disk space check via `statfs()` on session init -- warns if < 1 GB free, never fails the session.
 - Double-start/stop guards were already in place from Phase 2.
 - SIGTERM/SIGINT + module `onShutdown` were already in place from Phase 1.
 
@@ -210,10 +210,10 @@ src/index.ts (unhandledRejection, uncaughtException, shuttingDown guard)
 ### Steps
 
 1. **Create `Dockerfile`**
-   - Multi-stage: build TypeScript → run compiled JS
+   - Multi-stage: build TypeScript -> run compiled JS
    - Base: `node:22-slim` (need native addons for opus, Node >= 22.12.0 required)
    - Install system deps: `python3`, `make`, `g++` (for node-gyp / @discordjs/opus native build)
-   - Copy package.json → npm ci → copy src → tsc → prune dev deps
+   - Copy package.json -> npm ci -> copy src -> tsc -> prune dev deps
    - CMD: `node dist/index.js`
 
 2. **Create `docker-compose.yml`**
@@ -249,13 +249,13 @@ docker-compose.yml
 
 1. **Health check endpoint in `core/bot.ts`**
    - Simple HTTP server on configurable port (default 3000)
-   - `GET /health` → 200 OK with `{ status: "ok", modules: ["recording"], uptime: N }`
+   - `GET /health` -> 200 OK with `{ status: "ok", modules: ["recording"], uptime: N }`
    - Used by Docker health checks and monitoring
    - Reports loaded modules and their status
 
 2. **Reply messages**
-   - `/record start` → ephemeral reply: "Recording started in #{channel}. {N} users detected."
-   - `/record stop` → reply: "Recording saved. {N} tracks, {duration}. Session: {sessionId}"
+   - `/record start` -> ephemeral reply: "Recording started in #{channel}. {N} users detected."
+   - `/record stop` -> reply: "Recording saved. {N} tracks, {duration}. Session: {sessionId}"
    - Include track list in stop message
 
 3. **Logging polish**
@@ -284,7 +284,7 @@ src/core/logger.ts (polish)
 | `@discordjs/voice` | ^0.19.0 | Voice connection + audio receive + DAVE |
 | `@discordjs/opus` | latest | Native Opus codec (required for voice) |
 | `prism-media` | 2.0.0-alpha.0 | OGG/Opus muxer (`OggLogicalBitstream`). Use with `crc: false`. |
-| `@snazzah/davey` | ^0.1.6 | DAVE protocol — must be installed explicitly (peer dep of @discordjs/voice) |
+| `@snazzah/davey` | ^0.1.6 | DAVE protocol -- must be installed explicitly (peer dep of @discordjs/voice) |
 | `ulid` | latest | Time-sortable unique IDs for sessions |
 
 ### Dev
@@ -309,9 +309,9 @@ After each phase, verify:
 - [x] Bot comes online, modules loaded (Phase 1)
 - [x] Bot joins voice channel on `/record start` (Phase 2)
 - [x] OGG files appear in output directory (Phase 3)
-- [x] All OGG files have same duration (Phase 4) — tested single user, silence padding works
-- [x] `session_metadata.json` is valid and complete (Phase 5) — verified 2026-02-10
-- [x] Bot survives disconnects and force-kills (Phase 6) — code reviewed, not live-tested
+- [x] All OGG files have same duration (Phase 4) -- tested single user, silence padding works
+- [x] `session_metadata.json` is valid and complete (Phase 5) -- verified 2026-02-10
+- [x] Bot survives disconnects and force-kills (Phase 6) -- code reviewed, not live-tested
 - [ ] `docker compose up` works end-to-end (Phase 7)
 - [ ] voice-analysis pipeline reads Quad output correctly (Phase 5, cross-project)
 
@@ -328,14 +328,14 @@ After each phase, verify:
 ---
 ---
 
-# Processing Module — Integration Plan
+# Processing Module -- Integration Plan
 
 > Port the voice-analysis Python pipeline into Quad as a TypeScript module.
 > Source project: `/home/paradoks/projects/quake/voice-analysis/`
 
 ## Context
 
-Recording bot is complete. The `voice-analysis` Python project has a proven pipeline: parse recordings → query QW Hub → pair matches → split audio → transcribe → analyze. The goal is to bundle this into Quad so any QW clan gets the full capability from `docker-compose up`.
+Recording bot is complete. The `voice-analysis` Python project has a proven pipeline: parse recordings -> query QW Hub -> pair matches -> split audio -> transcribe -> analyze. The goal is to bundle this into Quad so any QW clan gets the full capability from `docker-compose up`.
 
 **Approach:** Port to TypeScript. One exception: transcription calls a thin Python wrapper around `faster-whisper` (~50 lines) because Node.js whisper bindings lack VAD filtering and word-level timestamps. Docker bundles Python + faster-whisper for this one step.
 
@@ -361,14 +361,14 @@ Recording bot is complete. The `voice-analysis` Python project has a proven pipe
 | `scripts/transcribe.py` | Thin wrapper: load faster-whisper, transcribe all tracks in a directory, output raw segments + word timestamps as JSON. TS does re-segmentation. |
 
 ### Copy as-is (YAML knowledge bases)
-- `knowledge/terminology/qw_glossary.yaml` → `src/modules/processing/knowledge/terminology/qw-glossary.yaml`
-- `knowledge/maps/map_strategies.yaml` → `src/modules/processing/knowledge/maps/map-strategies.yaml`
-- `knowledge/templates/map_report.yaml` → `src/modules/processing/knowledge/templates/map-report.yaml`
+- `knowledge/terminology/qw_glossary.yaml` -> `src/modules/processing/knowledge/terminology/qw-glossary.yaml`
+- `knowledge/maps/map_strategies.yaml` -> `src/modules/processing/knowledge/maps/map-strategies.yaml`
+- `knowledge/templates/map_report.yaml` -> `src/modules/processing/knowledge/templates/map-report.yaml`
 
 ### Don't port
-- `tone_detector.py`, `audio_splitter.py` — legacy
-- `craig_parser.py` — we read our own `session_metadata.json`
-- `generate_tones.py` — legacy capture helper
+- `tone_detector.py`, `audio_splitter.py` -- legacy
+- `craig_parser.py` -- we read our own `session_metadata.json`
+- `generate_tones.py` -- legacy capture helper
 
 ---
 
@@ -379,7 +379,7 @@ src/modules/processing/
 ├── index.ts                     # BotModule: /process command, auto-trigger hook
 ├── commands/
 │   └── process.ts               # /process status|transcribe|analyze|rerun
-├── pipeline.ts                  # Orchestrator — two-stage (fast + slow)
+├── pipeline.ts                  # Orchestrator -- two-stage (fast + slow)
 ├── stages/
 │   ├── hub-client.ts            # QW Hub Supabase API + ktxstats fetcher
 │   ├── match-pairer.ts          # Confidence scoring, offset calc, overlap trim
@@ -399,8 +399,8 @@ scripts/
 ```
 
 ### New dependencies
-- `js-yaml` + `@types/js-yaml` — parse YAML knowledge files
-- `@anthropic-ai/sdk` — Claude analysis
+- `js-yaml` + `@types/js-yaml` -- parse YAML knowledge files
+- `@anthropic-ai/sdk` -- Claude analysis
 
 ### Config additions (.env)
 ```
@@ -431,9 +431,9 @@ PROCESSING_INTERMISSIONS=true  # Extract between-map discussion
 7. Claude analysis (optional, needs API key)
 
 **Triggers:**
-- `PROCESSING_TRANSCRIBE=true` → auto-runs slow pipeline after fast
-- `/process transcribe {session_id}` → manual trigger
-- `/process analyze {session_id}` → analysis only (needs transcripts first)
+- `PROCESSING_TRANSCRIBE=true` -> auto-runs slow pipeline after fast
+- `/process transcribe {session_id}` -> manual trigger
+- `/process analyze {session_id}` -> analysis only (needs transcripts first)
 - Default: fast auto, slow manual
 
 ---
@@ -456,7 +456,7 @@ PROCESSING_INTERMISSIONS=true  # Extract between-map discussion
 | Audio Splitting | OGG seeking | `-avoid_negative_ts make_zero` flag (proven) |
 | Transcription | Processing time (2-3hrs on CPU) | Must run async, don't block bot |
 | Transcription | Model download (~500MB) | Pre-download in Docker build |
-| Claude Analysis | API key required | Make optional — pipeline works without it |
+| Claude Analysis | API key required | Make optional -- pipeline works without it |
 | Claude Analysis | Token cost (~$0.10/map) | Document cost, make opt-in |
 
 ---
@@ -492,30 +492,30 @@ recordings/{session_id}/
 - **Verify:** `npx tsc --noEmit` passes
 
 ### Phase P2: Hub Client + Match Pairer ⬜
-- Port `qwhub_client.py` → `stages/hub-client.ts`
-- Port `match_pairer.py` → `stages/match-pairer.ts`
+- Port `qwhub_client.py` -> `stages/hub-client.ts`
+- Port `match_pairer.py` -> `stages/match-pairer.ts`
 - **Verify:** Test against live QW Hub API with test session timestamps
 
 ### Phase P3: Audio Splitter ⬜
-- Port `timestamp_splitter.py` → `stages/audio-splitter.ts` (incl. intermission extraction)
+- Port `timestamp_splitter.py` -> `stages/audio-splitter.ts` (incl. intermission extraction)
 - **Verify:** Split test recording, compare durations with Python output
 
 ### Phase P4: Transcriber ⬜
 - Write `scripts/transcribe.py` (thin Python wrapper)
-- Port re-segmentation + prompt builder → `stages/transcriber.ts`
+- Port re-segmentation + prompt builder -> `stages/transcriber.ts`
 - **Verify:** Transcribe one split segment, compare with Python output
 
 ### Phase P5: Timeline Merger ⬜
-- Port `timeline_merger.py` → `stages/timeline-merger.ts`
+- Port `timeline_merger.py` -> `stages/timeline-merger.ts`
 - **Verify:** Compare merged timeline, overlaps, stats
 
 ### Phase P6: Claude Analyzer ⬜
-- Port `analyzer.py` → `stages/analyzer.ts`
+- Port `analyzer.py` -> `stages/analyzer.ts`
 - Port all prompt construction (map context, ktxstats, report template)
 - **Verify:** Run analysis on one segment
 
 ### Phase P7: Pipeline Orchestrator + Commands ⬜
-- Build `pipeline.ts` — two-stage (fast auto + slow opt-in), status tracking
+- Build `pipeline.ts` -- two-stage (fast auto + slow opt-in), status tracking
 - Build `/process` command (status, transcribe, analyze, rerun)
 - Wire auto-trigger from recording module
 - Background execution
@@ -523,12 +523,12 @@ recordings/{session_id}/
 
 ### Phase P8: Docker ⬜
 - Update Dockerfile: add Python, faster-whisper, ffmpeg, pre-download model
-- **Verify:** `docker build` + `docker run` → record + process works
+- **Verify:** `docker build` + `docker run` -> record + process works
 
 ### Parallelization Note
-- Phase P1 is foundational — must complete first
-- Phases P2-P6 are independent — can run in parallel (agent teams or Task subagents)
-- Phase P7 wires everything together — needs P2-P6 complete
+- Phase P1 is foundational -- must complete first
+- Phases P2-P6 are independent -- can run in parallel (agent teams or Task subagents)
+- Phase P7 wires everything together -- needs P2-P6 complete
 - Phase P8 is final integration
 
 ---

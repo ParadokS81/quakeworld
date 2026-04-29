@@ -46,7 +46,7 @@ Add grid tools to the top grid's header bar with hover reveal:
 
 ## Changes
 
-### 1. WeekDisplay.js — Add grid tools to header
+### 1. WeekDisplay.js -- Add grid tools to header
 
 **File:** `public/js/components/WeekDisplay.js`
 
@@ -159,7 +159,7 @@ function _buildDisplayModeButtons() {
 }
 
 function _attachGridToolsHandlers() {
-    // Templates button → open modal
+    // Templates button -> open modal
     const templatesBtn = _panel?.querySelector('.grid-tool-templates');
     if (templatesBtn) {
         templatesBtn.addEventListener('click', () => {
@@ -182,7 +182,7 @@ function _attachGridToolsHandlers() {
         });
     });
 
-    // Timeslots button → open modal
+    // Timeslots button -> open modal
     const timeslotsBtn = _panel?.querySelector('.grid-tool-timeslots');
     if (timeslotsBtn) {
         timeslotsBtn.addEventListener('click', () => {
@@ -209,7 +209,7 @@ function _updateDisplayModeButtons() {
 
 ---
 
-### 2. CSS — Grid header tools styling
+### 2. CSS -- Grid header tools styling
 
 **File:** `src/css/input.css`
 
@@ -328,7 +328,7 @@ Add styles for the new header layout:
 
 ---
 
-### 3. GridActionButtons.js — Remove drawer-specific code
+### 3. GridActionButtons.js -- Remove drawer-specific code
 
 **File:** `public/js/components/GridActionButtons.js`
 
@@ -342,7 +342,7 @@ The component becomes a service-like module that just handles operations, not re
 
 ---
 
-### 4. TemplatesModal.js — Templates in modal (Slice 13.0c)
+### 4. TemplatesModal.js -- Templates in modal (Slice 13.0c)
 
 This will be a separate slice (13.0c). For now, clicking "Templates" can either:
 - Open existing modal if it exists

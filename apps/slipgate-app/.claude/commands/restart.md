@@ -21,4 +21,4 @@ Clean restart of the Tauri dev environment.
    - App is running
 6. Report status to the user: what was killed, whether the build succeeded, any errors.
 
-If the build fails, show the error and suggest next steps. Do NOT retry automatically — let the user decide.
+If the build fails, show the error and suggest next steps. Do NOT retry automatically -- let the user decide.

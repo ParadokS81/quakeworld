@@ -18,14 +18,14 @@
 
 | Decision | Answer | Rationale |
 |----------|--------|-----------|
-| Opponent confirmation | **Not required** | Good-faith operation — same trust model as quick-add. Teams agreed on Discord already |
+| Opponent confirmation | **Not required** | Good-faith operation -- same trust model as quick-add. Teams agreed on Discord already |
 | Entry point | **"Edit" button on match card** | Contextual, hover-revealed alongside Cancel |
-| Time input | **Date + time picker** | Same as QuickAddMatchModal — familiar pattern |
+| Time input | **Date + time picker** | Same as QuickAddMatchModal -- familiar pattern |
 | Week change | **Allowed** | Match can move to a different week (e.g., postponed by a week) |
-| Document update | **In-place update** | Same scheduledMatch doc — preserves ID, origin, proposal link |
+| Document update | **In-place update** | Same scheduledMatch doc -- preserves ID, origin, proposal link |
 | Discord notification | **New `match_rescheduled` type** | Both teams need to know the new time. Quad bot renders it |
 | Proposal sync | **Update confirmedSlotId** | If proposal-backed, keep proposal in sync with actual match |
-| Permissions | **Leaders + schedulers of EITHER team** | Same as cancel — either side can reschedule |
+| Permissions | **Leaders + schedulers of EITHER team** | Same as cancel -- either side can reschedule |
 
 ---
 
@@ -44,7 +44,7 @@ DEPENDENT SECTIONS:
 
 IGNORED SECTIONS:
 - Proposal workflow: No re-confirmation needed
-- Availability comparison: Good-faith — leader picks the time
+- Availability comparison: Good-faith -- leader picks the time
 ```
 
 ---
@@ -69,13 +69,13 @@ FRONTEND COMPONENTS:
     - Time picker (dropdown: 30-min intervals, 12:00-23:30, user's timezone)
     - Pre-filled with current match date+time
     - Submit button with loading state ("Reschedule" label)
-  - User actions: Submit → calls rescheduleMatch Cloud Function
-  - Error handling: blocked slot → "This slot is blocked by another match"
+  - User actions: Submit -> calls rescheduleMatch Cloud Function
+  - Error handling: blocked slot -> "This slot is blocked by another match"
 
 FRONTEND SERVICES:
 - ScheduledMatchService (MODIFY)
-  - Add: rescheduleMatch(matchId, dateTime) → calls 'rescheduleMatch' Cloud Function
-  - Method → Backend mapping: rescheduleMatch → functions/match-proposals.js:rescheduleMatch
+  - Add: rescheduleMatch(matchId, dateTime) -> calls 'rescheduleMatch' Cloud Function
+  - Method -> Backend mapping: rescheduleMatch -> functions/match-proposals.js:rescheduleMatch
 
 BACKEND REQUIREMENTS:
 ⚠️ CLOUD FUNCTION MUST BE IMPLEMENTED IN /functions/match-proposals.js:
@@ -115,20 +115,20 @@ INTEGRATION POINTS:
 
 ## 4. Schema Changes
 
-### scheduledMatches/{matchId} — New fields
+### scheduledMatches/{matchId} -- New fields
 
 ```javascript
 {
   // ... existing fields ...
 
-  // Reschedule tracking (optional — only present after reschedule)
+  // Reschedule tracking (optional -- only present after reschedule)
   rescheduledAt: Date | null,          // When last rescheduled
   rescheduledBy: string | null,        // userId who rescheduled
   previousSlotId: string | null        // Slot before reschedule (for audit trail)
 }
 ```
 
-### notifications — New type
+### notifications -- New type
 
 ```javascript
 {
@@ -172,7 +172,7 @@ INTEGRATION POINTS:
 }
 ```
 
-### eventLog — New event type
+### eventLog -- New event type
 
 ```javascript
 {
@@ -234,7 +234,7 @@ if (action === 'reschedule-match') {
             }
         } catch (error) {
             console.error('Reschedule failed:', error);
-            ToastService.showError('Network error — please try again');
+            ToastService.showError('Network error -- please try again');
         }
     });
 }
@@ -261,7 +261,7 @@ const RescheduleMatchModal = (function() {
         // Same pattern as QuickAddMatchModal._buildTimeOptions()
         // Pre-select current date and time
 
-        // On submit: validate → call _onConfirm(matchId, newDateTime)
+        // On submit: validate -> call _onConfirm(matchId, newDateTime)
     }
 
     function close() { /* remove modal, cleanup listeners */ }
@@ -347,7 +347,7 @@ exports.rescheduleMatch = functions
                 proposalDoc = await transaction.get(proposalRef);
             }
 
-            // Check blocked slots — exclude THIS match from the check
+            // Check blocked slots -- exclude THIS match from the check
             // (non-transactional, same pattern as confirmSlot)
             const [teamABlocked, teamBBlocked] = await Promise.all([
                 getBlockedSlotsForTeam(matchData.teamAId, newWeekId, matchId),
@@ -454,13 +454,13 @@ Cloud Function: rescheduleMatch
     │   └─ Write eventLog/{eventId}: MATCH_RESCHEDULED
     │
     └─ Post-transaction (best-effort):
-        └─ Write notifications: type 'match_rescheduled' × 2 (one per team)
+        └─ Write notifications: type 'match_rescheduled' x 2 (one per team)
     ↓
 Return { success, newSlotId, newScheduledDate }
     ↓
 Frontend: Toast "Match rescheduled." + listener auto-updates card
     ↓
-Quad bot: picks up 'match_rescheduled' notification → Discord message
+Quad bot: picks up 'match_rescheduled' notification -> Discord message
 ```
 
 ---
@@ -493,7 +493,7 @@ async function getBlockedSlotsForTeam(teamId, weekId, excludeMatchId = null) {
 }
 ```
 
-This is backward-compatible — existing callers pass no `excludeMatchId` and get current behavior.
+This is backward-compatible -- existing callers pass no `excludeMatchId` and get current behavior.
 
 ---
 
@@ -532,11 +532,11 @@ This is backward-compatible — existing callers pass no `excludeMatchId` and ge
 
 ## 10. Common Integration Pitfalls
 
-1. **Forgetting to exclude self from blocked slots** — Without `excludeMatchId`, the current match's slot appears blocked and you can't reschedule to an adjacent time
-2. **Not updating proposal confirmedSlotId** — If proposal-backed, the proposal will show the old slot as confirmed while the match is at the new slot
-3. **Week change not handled** — If rescheduling to a different week, `weekId` must also update (not just slotId)
-4. **Timezone confusion in pre-fill** — Modal must convert stored UTC slotId back to user's local timezone for the date+time pickers
-5. **Missing `blockedSlot` update** — Must update both `slotId` AND `blockedSlot` (they're the same value but stored separately)
+1. **Forgetting to exclude self from blocked slots** -- Without `excludeMatchId`, the current match's slot appears blocked and you can't reschedule to an adjacent time
+2. **Not updating proposal confirmedSlotId** -- If proposal-backed, the proposal will show the old slot as confirmed while the match is at the new slot
+3. **Week change not handled** -- If rescheduling to a different week, `weekId` must also update (not just slotId)
+4. **Timezone confusion in pre-fill** -- Modal must convert stored UTC slotId back to user's local timezone for the date+time pickers
+5. **Missing `blockedSlot` update** -- Must update both `slotId` AND `blockedSlot` (they're the same value but stored separately)
 
 ---
 
@@ -564,10 +564,10 @@ This is backward-compatible — existing callers pass no `excludeMatchId` and ge
 - **Permission check**: `_canUserCancelMatch` reuse or extract to `_canUserEditMatch` (same logic)
 
 ### Implementation Order
-1. Backend: `getBlockedSlotsForTeam` — add `excludeMatchId` param (backward-compatible)
+1. Backend: `getBlockedSlotsForTeam` -- add `excludeMatchId` param (backward-compatible)
 2. Backend: `rescheduleMatch` Cloud Function (transaction + event log)
 3. Backend: Post-transaction notification writes
 4. Frontend: `RescheduleMatchModal.js` component
 5. Frontend: `ScheduledMatchService.rescheduleMatch()` method
-6. Frontend: MatchesPanel — Edit button + click handler
+6. Frontend: MatchesPanel -- Edit button + click handler
 7. Wire up: `index.html` script tag, `functions/index.js` export

@@ -10,7 +10,7 @@ The offset is not perfectly consistent across maps/sessions.
 
 ## The Full Timestamp Chain
 
-Every step from "sound enters microphone" to "audio plays in browser" — and where precision is lost.
+Every step from "sound enters microphone" to "audio plays in browser" -- and where precision is lost.
 
 ```
  QW Server (mvdsv + KTX)                    Discord / Craig
@@ -102,7 +102,7 @@ Every step from "sound enters microphone" to "audio plays in browser" — and wh
 
 ## Suspect Analysis
 
-### Suspect 1: QW Server Clock Skew (HIGH — most likely primary cause)
+### Suspect 1: QW Server Clock Skew (HIGH -- most likely primary cause)
 
 **The theory:** If the QW server's system clock is N seconds ahead of UTC, the epoch will be N seconds ahead of reality. The recording bot's clock (Discord server / Craig NTP) is presumably correct. Result: `audioStart` is calculated N seconds too late, slicing starts N seconds into the countdown instead of at the beginning.
 
@@ -117,7 +117,7 @@ Every step from "sound enters microphone" to "audio plays in browser" — and wh
 - Run `date +%s` on the QW server and compare with `date +%s` on the recording machine simultaneously
 - Or: record a match where you know the exact countdown start time and compare
 
-### Suspect 2: Second-Precision Rounding (MEDIUM — contributes 0-1s)
+### Suspect 2: Second-Precision Rounding (MEDIUM -- contributes 0-1s)
 
 **The theory:** `time(NULL)` truncates to whole seconds. If countdown starts at 12:00:00.800, epoch records 12:00:00. This means the hub timestamp is 0.8 seconds early. Combined with the recording start having millisecond precision, you get up to 1 second of random offset per match.
 
@@ -137,7 +137,7 @@ Every step from "sound enters microphone" to "audio plays in browser" — and wh
 - Check actual slice start time with `ffprobe` on the output file
 - Compare requested vs actual start time
 
-### Suspect 4: MatchScheduler +1.0s Default Offset (KNOWN — already compensates)
+### Suspect 4: MatchScheduler +1.0s Default Offset (KNOWN -- already compensates)
 
 The MatchScheduler playback code has a hardcoded `manualOffset = 1.0` that shifts audio 1 second forward. This was added to compensate for "audio element decode latency." If the actual issue is clock skew, this offset partially masks it but doesn't fix it.
 
@@ -201,19 +201,19 @@ Close to the observed ~2 second discrepancy.
 
 Measure the clock difference between QW server and recording source.
 
-**Method A — Simultaneous epoch comparison:**
+**Method A -- Simultaneous epoch comparison:**
 1. SSH into QW server, run: `date +%s.%N` (or `date +%s`)
 2. Simultaneously on recording machine: `date +%s.%N`
 3. Compare. Difference = clock skew.
 
-**Method B — Bot match with known timing:**
+**Method B -- Bot match with known timing:**
 1. Start quad recording (captures `recording_start_time`)
 2. Start a bot match on a local QW server (where you control the clock)
 3. Note the exact time countdown starts (from server console)
 4. Process through pipeline
 5. Check: does `audioStart` match the actual offset between recording start and countdown?
 
-**Method C — NTP verification on QW servers:**
+**Method C -- NTP verification on QW servers:**
 ```bash
 # On QW server:
 ntpq -p              # Show NTP peers and offset
@@ -224,9 +224,9 @@ timedatectl status   # systemd NTP sync status
 ### Test 2: Calibration Recordings (Already Started)
 
 The beep test files (`calibration_dm3_zero.ogg` etc.) with:
-- Low beep (440Hz) at 0:00 — slice start (should be countdown start)
-- Mid beep (880Hz) at ~10.1s — expected gameplay start
-- High beep (1320Hz) at ~20:10 — match end
+- Low beep (440Hz) at 0:00 -- slice start (should be countdown start)
+- Mid beep (880Hz) at ~10.1s -- expected gameplay start
+- High beep (1320Hz) at ~20:10 -- match end
 
 **Measurement:** Listen for keyboard/mouse noise kicking in relative to the mid beep.
 If keyboard starts before the beep: audio slice started too late (clock skew positive).
@@ -241,8 +241,8 @@ Test the full pipeline without relying on live matches or Hub.
 3. **Play bot match** (`/map dm3`, add bots, `ready`)
 4. **Download the MVD demo** from the server
 5. **Read the epoch** from the demo: `strings demo.mvd | grep epoch`
-6. **Compare:** `epoch` vs `recording_start_time` — the difference should match `audioStart`
-7. **Process through pipeline** — listen to calibration tones for alignment
+6. **Compare:** `epoch` vs `recording_start_time` -- the difference should match `audioStart`
+7. **Process through pipeline** -- listen to calibration tones for alignment
 
 **Advantages:**
 - Eliminates Hub API as a variable (you have the raw MVD epoch)
@@ -256,7 +256,7 @@ Record a distinctive audio cue at a known demo moment:
 1. Start recording, start bot match
 2. At a specific game event (e.g., first frag, countdown "fight!" text), make a distinctive sound (clap, whistle)
 3. Process through pipeline
-4. In MatchScheduler, play the demo — check if the audio cue aligns with the game event
+4. In MatchScheduler, play the demo -- check if the audio cue aligns with the game event
 5. Measure the offset precisely using audio editing software (Audacity)
 
 ### Test 5: Craig vs Quad Comparison
@@ -304,7 +304,7 @@ If clock skew is confirmed as the primary cause:
 ### Fix B: User-Adjustable Offset (Already Exists)
 
 The MatchScheduler already has a manual offset slider (range -10s to +10s).
-This is the quick workaround — users adjust until it sounds right.
+This is the quick workaround -- users adjust until it sounds right.
 
 ### Fix C: Auto-Calibration via Audio Analysis
 
@@ -332,7 +332,7 @@ During playback, detect the marker to auto-align.
 
 | File | What It Does (Timing-Related) |
 |------|-------------------------------|
-| `quad/src/modules/recording/session.ts:46` | `startTime = new Date()` — recording start |
+| `quad/src/modules/recording/session.ts:46` | `startTime = new Date()` -- recording start |
 | `quad/src/modules/recording/track.ts:89-100` | Silence prepend for late joiners |
 | `quad/src/modules/recording/track.ts:121-137` | Continuous silence padding (20ms timer) |
 | `quad/src/modules/recording/silence.ts` | Silent Opus frame (3 bytes, 20ms) |
@@ -350,8 +350,8 @@ During playback, detect the marker to auto-align.
 | Source | URL / Location |
 |--------|---------------|
 | mvdsv epoch code | `github.com/QW-Group/mvdsv/blob/master/src/sv_demo.c#L1307-L1309` |
-| KTX countdown + demo start | `github.com/QW-Group/ktx/blob/master/src/match.c` — `StartTimer()` |
-| KTX stats JSON date | `github.com/QW-Group/ktx/blob/master/src/stats_json.c` — `json_match_header()` |
+| KTX countdown + demo start | `github.com/QW-Group/ktx/blob/master/src/match.c` -- `StartTimer()` |
+| KTX stats JSON date | `github.com/QW-Group/ktx/blob/master/src/stats_json.c` -- `json_match_header()` |
 | ktxstats example | `https://d.quake.world/{sha256[0:3]}/{sha256}.mvd.ktxstats.json` |
 | Hub API | `https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games` |
 

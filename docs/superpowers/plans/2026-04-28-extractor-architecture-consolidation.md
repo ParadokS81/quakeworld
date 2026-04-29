@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Settle the canonical project shape across all four current QW Oracle Layer 1 extractors (ezQuake, FTE, QWCL, MVDSV), making fork onboarding (unezQuake → ezQuake, antilag-mvdsv → MVDSV) trivial when those land. Eliminate the misleading naming where ezQuake's project-specific handlers live in `extractor_lib/handler_*.py` (suggesting "shared base classes") when they're actually consumed only by ezQuake.
+**Goal:** Settle the canonical project shape across all four current QW Oracle Layer 1 extractors (ezQuake, FTE, QWCL, MVDSV), making fork onboarding (unezQuake -> ezQuake, antilag-mvdsv -> MVDSV) trivial when those land. Eliminate the misleading naming where ezQuake's project-specific handlers live in `extractor_lib/handler_*.py` (suggesting "shared base classes") when they're actually consumed only by ezQuake.
 
 **Source:** Phase 1 architecture inventory ran 2026-04-28. Findings in conversation. The MVDSV Phase 2e follow-up validation pass exposed the question; the inventory answered it: project-private `_handler_*.py` is the canonical shape, used today by FTE/QWCL/MVDSV. ezQuake is the one outlier; consolidating ezQuake into the same shape unifies the architecture and makes the family-base-class lift pattern unambiguous when forks arrive.
 
@@ -28,7 +28,7 @@
 ## Phase A: ezQuake handler relocation
 
 **Files affected:**
-- Move (8 files): `apps/qw-oracle/scripts/extractors/extractor_lib/handler_*.py` → `apps/qw-oracle/scripts/extractors/ezquake/_handler_*.py`
+- Move (8 files): `apps/qw-oracle/scripts/extractors/extractor_lib/handler_*.py` -> `apps/qw-oracle/scripts/extractors/ezquake/_handler_*.py`
 - Modify (3 files): `apps/qw-oracle/scripts/extractors/extractor_lib/__init__.py`, `apps/qw-oracle/scripts/extractors/ezquake/extract.py`, `apps/qw-oracle/scripts/extractors/ezquake/tests/test_parameterized_paths.py`
 - Delete (one cache): `apps/qw-oracle/scripts/extractors/extractor_lib/__pycache__/` (stale after the move)
 
@@ -67,14 +67,14 @@ For each file, this is a `git mv` plus a class rename plus a docstring touch-up.
 
 | Source | Destination | Class rename |
 |---|---|---|
-| `extractor_lib/handler_cvars.py` | `ezquake/_handler_cvars.py` | `CvarsHandler` → `CvarsEzquakeHandler` |
-| `extractor_lib/handler_commands.py` | `ezquake/_handler_commands.py` | `CommandsHandler` → `CommandsEzquakeHandler` |
-| `extractor_lib/handler_macros.py` | `ezquake/_handler_macros.py` | `MacrosHandler` → `MacrosEzquakeHandler` |
-| `extractor_lib/handler_cmdline.py` | `ezquake/_handler_cmdline.py` | `CmdlineHandler` → `CmdlineEzquakeHandler` |
-| `extractor_lib/handler_hud_elements.py` | `ezquake/_handler_hud_elements.py` | `HudElementsHandler` → `HudElementsEzquakeHandler` |
-| `extractor_lib/handler_asset_cvar_bindings.py` | `ezquake/_handler_asset_cvar_bindings.py` | `AssetCvarBindingsHandler` → `AssetCvarBindingsEzquakeHandler` |
-| `extractor_lib/handler_asset_loader_sites.py` | `ezquake/_handler_asset_loader_sites.py` | `AssetLoaderSitesHandler` → `AssetLoaderSitesEzquakeHandler` |
-| `extractor_lib/handler_keynames.py` | `ezquake/_handler_keynames.py` | `KeynamesHandler` → `KeynamesEzquakeHandler` |
+| `extractor_lib/handler_cvars.py` | `ezquake/_handler_cvars.py` | `CvarsHandler` -> `CvarsEzquakeHandler` |
+| `extractor_lib/handler_commands.py` | `ezquake/_handler_commands.py` | `CommandsHandler` -> `CommandsEzquakeHandler` |
+| `extractor_lib/handler_macros.py` | `ezquake/_handler_macros.py` | `MacrosHandler` -> `MacrosEzquakeHandler` |
+| `extractor_lib/handler_cmdline.py` | `ezquake/_handler_cmdline.py` | `CmdlineHandler` -> `CmdlineEzquakeHandler` |
+| `extractor_lib/handler_hud_elements.py` | `ezquake/_handler_hud_elements.py` | `HudElementsHandler` -> `HudElementsEzquakeHandler` |
+| `extractor_lib/handler_asset_cvar_bindings.py` | `ezquake/_handler_asset_cvar_bindings.py` | `AssetCvarBindingsHandler` -> `AssetCvarBindingsEzquakeHandler` |
+| `extractor_lib/handler_asset_loader_sites.py` | `ezquake/_handler_asset_loader_sites.py` | `AssetLoaderSitesHandler` -> `AssetLoaderSitesEzquakeHandler` |
+| `extractor_lib/handler_keynames.py` | `ezquake/_handler_keynames.py` | `KeynamesHandler` -> `KeynamesEzquakeHandler` |
 
 - [ ] **Step 1: Move the files (one git operation per file or one bulk operation)**
 
@@ -231,7 +231,7 @@ Push.
 
 ## Phase B: Subclassing-readiness audit (ezQuake + MVDSV)
 
-ezQuake → unezQuake and MVDSV → antilag-mvdsv are the two known fork relationships. Read the leader projects' handlers with one specific question: **what does a fork need to override, and is the current shape friendly to that?**
+ezQuake -> unezQuake and MVDSV -> antilag-mvdsv are the two known fork relationships. Read the leader projects' handlers with one specific question: **what does a fork need to override, and is the current shape friendly to that?**
 
 Don't refactor everything. Just flag obvious "this is going to be hostile to subclassing" spots and either (a) fix them now if trivial, (b) annotate them with a `# Fork override hook:` comment that documents intent.
 
@@ -323,7 +323,7 @@ The architecture decision must be reflected in the playbook so the next person (
   - Rule of second-consumer: don't lift to Tier 2 until the second project actually exists; speculative family-base classes get the abstraction wrong.
   - Fork import pattern: `from <parent>._handler_<type> import <Class><Parent>Handler`. Subclass directly. Lift to Tier 2 only on subclassing pressure.
   - Cross-codebase port pattern (different from fork): start fresh in `<project>/_handler_*.py`, no inheritance, just `Visitor`.
-  - Concrete examples: ezQuake → (future) unezQuake; MVDSV → (future) antilag-mvdsv.
+  - Concrete examples: ezQuake -> (future) unezQuake; MVDSV -> (future) antilag-mvdsv.
 
 ### Task 11: Add fork-onboarding subsection to "Porting to a new engine"
 

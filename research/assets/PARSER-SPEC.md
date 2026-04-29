@@ -8,7 +8,7 @@ One hidden block written at the start of every demo recording:
 
 | Type ID | Name | Payload |
 |---------|------|---------|
-| `0x0009` | demo_start_timestamp_ms | `uint64_le` — Unix timestamp in milliseconds |
+| `0x0009` | demo_start_timestamp_ms | `uint64_le` -- Unix timestamp in milliseconds |
 
 This is the wall-clock time when the demo starts recording,
 with millisecond precision. Written once, at the very beginning
@@ -61,7 +61,7 @@ Update to read the uint64 timestamp:
 ### 2. PausedDuration already parsed
 
 The existing `PausedDuration` variant (magic 10) already works.
-No parser change needed — MVDSV just writes it to demos now.
+No parser change needed -- MVDSV just writes it to demos now.
 
 ### 3. Add demo_start_timestamp_ms to output
 
@@ -76,13 +76,13 @@ to get accurate wall-clock offsets during pauses.
 
 ## Binary format
 
-### Hidden block type 0x0009 — Demo Start Timestamp
+### Hidden block type 0x0009 -- Demo Start Timestamp
 
 ```
 Offset  Size  Field
 0       4     block_length (uint32_le) = 8
 4       2     type_id (uint16_le) = 0x0009
-6       8     timestamp_ms (uint64_le) — Unix time in milliseconds
+6       8     timestamp_ms (uint64_le) -- Unix time in milliseconds
 ```
 
 Total: 14 bytes in the MVD stream. Written once at demo start.
