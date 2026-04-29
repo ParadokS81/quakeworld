@@ -61,6 +61,7 @@ These arcs shipped with deferred follow-ups already split into separate entries.
 
 - [ezquake variables-ast.json non-determinism (2026-04-29)](#ezquake-variables-astjson-non-determinism-2026-04-29) -- medium pressure. Stable-key sort before JSON write, OR `PYTHONHASHSEED` in driver. Affects validation runbook Section 1.1 acceptance.
 - [extract-tag CLI quality-of-life issues (2026-04-29)](#extract-tag-cli-quality-of-life-issues-2026-04-29) -- low pressure. Loader-summary 2-row gap + `--ordinal` required for already-loaded versions.
+- [Wrap-up split brainstorm (2026-04-29)](#wrap-up-split-brainstorm-2026-04-29) -- docs-check skill is overloaded (~336 lines, #1 repeated task per /insights). Brainstorm split into wrap-light + wrap-full so small sessions get a 30-second wrap and large arcs get the full ritual. Brainstorm-only, no implementation yet.
 
 ---
 
@@ -1429,4 +1430,67 @@ Done for this session. Per-project plans live alongside reports under `docs/supe
 - **FTE report + plan:** `docs/superpowers/reviews/2026-04-28-fte-validation.md` + `docs/superpowers/plans/2026-04-28-fte-validation-followups.md`
 - **QWCL report + plan:** `docs/superpowers/reviews/2026-04-28-qwcl-validation.md` + `docs/superpowers/plans/2026-04-28-qwcl-validation-followups.md`
 - **Predecessor:** Cross-extractor pattern audit follow-up arc (above)
+
+---
+
+## Wrap-up split brainstorm (2026-04-29)
+
+**Added:** 2026-04-29 (during the doc-philosophy-and-discipline session that shipped Verification Discipline + Communication Style CLAUDE.md sections, dropped the ASCII rule, and ran a memory consolidation pass).
+**Status:** Parked for next session. Brainstorm-only — do NOT split or implement until the design is talked through.
+**Verification first:** `wc -l ~/.claude/skills/docs-check/SKILL.md` should report ~336. The skill should still have Steps 1 through 10 + Step 7.5 + Step 9.25 + Step 9.5 in that order.
+
+### What's wrong
+
+The `docs-check` skill at `~/.claude/skills/docs-check/SKILL.md` has grown by accretion: 200-something lines initially, +Mode 2 numerical-drift question (this session), +Step 9.25 memory-hygiene check (this session), now 336 lines. The /insights report (run 2026-04-29 against the last 50 sessions) flagged Session Wrapup as the #1 repeated user goal — ~12 mentions across the top 6 repeated tasks, more than spec-review or extraction.
+
+The friction the operator named directly: "I want to run docs-check after every session... but it's heavy. Token-heavy, lot of steps lot of tasks. Doesn't really work when I do smaller sessions, but those sessions might have had real work that needs to be captured."
+
+So: the most-invoked skill in the workflow is also the heaviest, which means small sessions skip it entirely, which means drift accumulates, which means we then need an audit-and-drain session to clean up. Exactly the loop we just spent 6+ hours breaking.
+
+### Why this needs brainstorm before split
+
+The shape of the split IS the design. Two competing structures surfaced during this session's analysis:
+
+- **Option A — split by job (4 skills).** `doc-trigger-check`, `doc-freshness-check`, `memory-hygiene`, `git-state-review`. Each short and pointed. Cost: 4 files; need a router or wrap-up dispatcher to pick which to run.
+- **Option B — split by session weight (2 skills).** `wrap-light` (~50 lines: git state + memory byte-size sanity + did-handover-shift + arc-history-worthy check) and `wrap-full` (current docs-check, slightly tightened). Operator picks which based on session size via trigger phrase.
+
+Plus a third option discussed but not chosen yet:
+
+- **Option C — dispatcher pattern.** A tiny "wrap-eval" skill that reads session shape (commits, files touched, arc-shipped signals) and recommends light vs full. Cost: dispatcher logic itself becomes a thing to maintain.
+
+The /insights data should drive this. Specifically:
+- What's the actual session-size distribution? Median user response 174s, average 355s, fat tail past 15min. 28 multi-task vs 12 single-task vs 7 iterative vs 2 exploration vs 1 quick — but messages-per-session math (3815 msgs / 50 analyzed = ~76/session) tells a different story.
+- How often does docs-check actually fire today vs get skipped? If skipped on 60% of sessions, that's signal that wrap-light needs to be the default, not the exception.
+
+### Question set wrap-light needs to answer
+
+If we pick Option B, the design choice is which questions wrap-light asks. Candidate set (3-4 questions, 30 seconds total):
+
+1. Did this session ship anything that should land in HANDOVER (deferred work, opened follow-up, parked decision)?
+2. Did MEMORY.md byte-size hit 20KB or any project memory cross 30 files? (Trigger heavier consolidation if yes.)
+3. Are there uncommitted changes? Unpushed commits? Branch drift vs main?
+4. Did this session reveal a friction worth a feedback memory? (One-line capture, not full Step 7 review.)
+
+Wrap-full retains the current full ritual for arc-shipping sessions, but tightened. Specifically: the OPERATIONS.md / corpus-stewardship Mode 1 question (Q9) almost never fires for code-arc sessions; it's a candidate to gate behind a "did this session touch concept-notes/ or skill libraries?" pre-check rather than asking universally.
+
+### Inputs the brainstorm should consult
+
+- `/home/paradoks/.claude/usage-data/report.html` — the /insights report from 2026-04-29 with session-size distribution and friction-pattern data
+- `~/.claude/skills/docs-check/SKILL.md` — current skill source, all 336 lines
+- `~/.claude/skills/docs-check/references/doc-philosophy.md` and `doc-template.md` — the doctrine the skill enforces, both files small and stable
+- This session's transcript context (the multi-pass discussion that surfaced the friction)
+
+### Next-session prompt
+
+A copy-pastable brief lives in this session's wrap-up reply. Use it cold in a fresh terminal — it doesn't depend on this session's context.
+
+### Pressure
+
+Medium. Not blocking work, but every session that ships without a wrap-up costs a slow-drip of drift that compounds. Worth a focused session to get the split right rather than rushing it inline.
+
+### Related
+
+- Doc-philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
+- Memory: `feedback_rule_intent_over_literal.md` (the lesson that drove dropping the ASCII rule applies analogously here — the skill's intent matters more than its literal current shape).
+- Memory: `reference_dream_feature.md` (Anthropic /dream covers the memory half of what wrap-light would do; keep an eye on whether `/dream` becomes available before this brainstorm fires).
 
