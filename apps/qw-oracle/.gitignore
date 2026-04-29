@@ -3,6 +3,9 @@ data/*.db
 data/*.db-journal
 data/*.db-wal
 data/*.db.bak-*
+data/*.db.pre-*
+data/*.db.bak
+data/knowledge.db.*
 exports/
 *.log
 .env
