@@ -8,7 +8,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
-30 entries below, grouped by theme and status. Bodies remain in their current positions in the file; this index is a navigation aid. **How to work an item:** pick from a category, jump to its anchor, verify the body still matches reality (code changes quickly, handover notes can rot), then address it. When done, delete both the index line AND the section.
+34 entries below, grouped by theme and status. Bodies remain in their current positions in the file; this index is a navigation aid. **How to work an item:** pick from a category, jump to its anchor, verify the body still matches reality (code changes quickly, handover notes can rot), then address it. When done, delete both the index line AND the section.
 
 ### Active backlog (waiting on triggers, gated by external events, or shaped but unscoped)
 
@@ -38,9 +38,18 @@ These five entries share context. Read together rather than individually. The po
 - [Cross-extractor Phase 6 ezquake exemptions](#cross-extractor-phase-6-ezquake-exemptions) -- (1) and (3) closed 2026-04-29 by Zero-debt arc. (2) `r_bloom_*` legacy boolean shape remains; convergent with QWCL's 1996-vintage shape; HANDOVER candidate for joint positive-contract arc.
 - [Phase 2e follow-up arc residuals](#phase-2e-follow-up-arc-residuals) -- partially superseded by cross-extractor arc; remaining: pre-existing ezquake F2 informational anomalies (gl_lightmode + 194 doc_only). Triage alongside next ezQuake deep-time refresh.
 
+### Layer 1 expansion tracks (Pass 3 carry-forwards, 2026-04-29) -- qw-oracle scope
+
+These four tracks share methodology: walk the operator's "other" bucket end-to-end, trace each unrecognized file to a community source, classify with a stable role, store in oracle with the right table shape, expose via the same loader -> snapshot -> slipgate consumption flow that asset-bundle and maps already use. Each track is its own qw-oracle-side arc with its own brainstorm + spec + plan. None gates Slipgate Managed Mode V1; each lands more Layer 1 data via delta-sync. Methodology + per-track shape captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`.
+
+- [L1-alpha: Ecosystem-tools registry](#l1-alpha-ecosystem-tools-registry-2026-04-29) -- walk operator's "other" bucket; classify community tools (qizmo, pakexpl, frikbot, demo-tools, AVI-encoder bundles, server-rcon clients) into a new Layer 1 `ecosystem_tools` table.
+- [L1-beta: Cross-format binary fingerprinting](#l1-beta-cross-format-binary-fingerprinting-2026-04-29) -- extend Phase 3.5b's PE flow to AppImage / ELF / Mach-O. Same `clients` table; new fingerprint backends per-format.
+- [L1-gamma: Engine helpdoc / data-file recognition](#l1-gamma-engine-helpdoc--data-file-recognition-2026-04-29) -- extend Phase 2d-bundle output. New roles: `engine-asset:helpdoc-schema`, `engine-asset:helpdoc-content`, `engine-asset:engine-meta`. Path-pattern + extension rules covering `<engine.pk3>/help/**`, `<engine-dir>/*.xsd`, etc.
+- [L1-delta: Stock asset catalog](#l1-delta-stock-asset-catalog-2026-04-29) -- new `stock_pak_contents` table. Per-known-stock-pak listing with semantic roles for files-inside-pak (`id1/pak0.pak` decoded with roles for `end1.bin`, `gfx/menu/*`, `progs/*.mdl`, `sound/*`, `demo1.dem` / `demo2.dem` / `demo3.dem`, `quake.rc`, etc.). Loader pak-extracts and classifies.
+
 ### Slipgate-side arcs
 
-- [Slipgate Managed Mode pivot -- multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) -- **HIGH PRESSURE.** Architecture pivoted to slipgate-IS-quakedir. Pass 1 + Pass 2 complete; **next session: Pass 3 brainstorm** (classifier + bucket-taxonomy + slipgate self-knowledge surface first cut). V1 = Arcs A+B+D+E+C-minimal; ~1 week focused implementation per operator estimate.
+- [Slipgate Managed Mode pivot -- multi-arc project opened](#slipgate-managed-mode-pivot--multi-arc-project-opened) -- **HIGH PRESSURE.** Architecture pivoted to slipgate-IS-quakedir. Pass 1 + Pass 2 + Pass 3 complete; Pass 3 spawned four qw-oracle-side L1 expansion tracks (separate entries). **Next session: Pass 4 brainstorm** (watcher refinements only -- Pass 3.4 absorbed most of the original Pass 4 scope). Pass 5 (launch UX + runtime swap classes + manifest backup UX) and Pass 6 (Arc H catalog data shape) follow. V1 = Arcs A+B+D+E+C-minimal; ~1 week focused implementation per operator estimate.
 - [Feed tab future content](#feed-tab-future-content) -- tournaments, developer landscape, GitHub monitoring, community announcements. Each future content type is its own arc.
 - [Screenshot POC -> Profile picture generator](#screenshot-poc-profile-picture-generator) -- graduate the POC into Profile as a "Generate profile pictures" feature. No active pressure.
 - [Tray menu launch](#tray-menu-launch) -- optional future arc; documents the natural home if launch needs to come back.
@@ -1189,9 +1198,9 @@ All remaining residuals are low pressure. None block any consumer today. Capture
 
 ## Slipgate Managed Mode pivot -- multi-arc project opened
 
-**Added:** 2026-04-28. **Updated:** 2026-04-28 (Pass 2 complete; Pass 3 scoped; doc drains landed; TAIL-1 shipped earlier in same date).
+**Added:** 2026-04-28. **Updated:** 2026-04-29 (Pass 3 complete; drain landed into architecture + vision + roadmap + memory; four L1 expansion tracks split out as separate qw-oracle entries below).
 
-**Status:** Brainstorm Pass 1 (substrate + storage) and Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention) complete and drained into architecture spec body. Pre-arc tail item TAIL-1 (FTE asset bundle wiring) shipped 2026-04-28 (commit `6d6cd1c`). Next session: Pass 3 brainstorm (classifier + bucket-taxonomy refinements + first cut at slipgate self-knowledge surface). First implementation arc (A: asset warehouse substrate) follows after brainstorm passes 3-6 complete.
+**Status:** Brainstorm Pass 1 + Pass 2 + Pass 3 complete and drained into architecture spec body. Pre-arc tail item TAIL-1 (FTE asset bundle wiring) shipped 2026-04-28 (commit `6d6cd1c`). **Next session: Pass 4 brainstorm** -- scope shrunk by Pass 3.4 (capture/swap pipeline + Defenses + cleanup UX all landed there); Pass 4 now carries only refinements (debounce-window tuning + per-extension integrity-check registry growth). Pass 5 (launch UX + runtime swap classes + manifest backup UX) and Pass 6 (Arc H pre-implementation -- catalog data shape) follow. First implementation arc (A: asset warehouse substrate) follows after brainstorm passes complete.
 
 **Verification first:** Confirm the three new docs exist:
 ```
@@ -1263,6 +1272,20 @@ Five sub-passes resolved (manifest schema, entry shape, declared_gamedirs, atomi
 - Seventh content-taxonomy bucket candidate: `user-library` for shared base content (maps, locs)
 - Slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables -- placeholder section in architecture spec; accretes Passes 3-6)
 
+### Brainstorm Pass 3 outcomes (drained 2026-04-29)
+
+Five sub-questions ratified. Drained into architecture spec body, vision spec anchor block, and roadmap per-arc summaries. Pass 3 brainstorm minutes captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`.
+
+- **3.1 Configs-vs-assets divergence axis.** Shared role registry across configs and assets (`asset-roles.json`); shared manifest entry shape (`{sha256, target_path, role, size?, added_via?}`); role-keyed retention policy; hub-knowledge-richness orthogonal to living-vs-immutable axis. Catalog-metadata-divergence + standalone-shareable-config dual lifecycle pushed to Arc H pre-implementation brainstorm (Pass 6).
+- **3.2 Bucket six (user-private) + primary profile + clone-modal-as-V1-selector-primitive.** Bucket 6 single-flavor (user-marked private only); `private.json` schema with explicit-paths-no-glob; right-click "Mark as private" gesture; watcher Case 5 IGNORE; rematerialization preservation via atomic-swap pre-step. Primary profile concept added at data-root level (`profile-roles.json` supersedes `active-profile.json`); set on first creation; "Make this primary" action with confirmation; primary unlocks default fork target, default launch fallback, mental-model anchor; primary does NOT change GC or retention. Clone modal collapses earlier deferred selector-DSL: UI is the grammar; modal output is the typed manifest-entry set. Five consumers (clone, pre-publish review, selective import, pre-extraction overview, export).
+- **3.3 Bucket seven (user-library) V1-ratified.** Maps + locs + mod-content roles (`library:map` / `library:loc` / `library:mod-content`). Storage at `<data-root>/library/manifest.json`; same schema as profile manifest minus `declared_gamedirs`; library has NO tree subdir (entries materialize INTO each profile's tree per `declared_gamedirs`). Profile-overrides-library precedence resolves per-profile loc variation cleanly. Bucket 4 (mod-cache) is the inbox; bucket 7 is kept; promotion gestures move entries between them, with `declared_gamedirs` extension prompt. Library has separate catalog-distribution path (NOT bundled-into-profile-manifests). Hub-side analytics fall out of SHA frequency aggregates for free.
+- **3.4 Classifier rules + capture/swap pipeline + manifest publish rule.** Manifest publish rule: entry iff role recognized AND not user-content-roles AND not library-roles AND path not in private.json. Watcher reframed as two-stage capture/swap pipeline: Stage 1 observes (immediate, free, safe during engine session; writes to `.pending-swap.json`); Stage 2 processes at safe moment (engine-exit auto / user-invoked / idle-nudge). Defenses 1-4 against partial-file capture (never-during-session, stable-mtime, declarative integrity-check table, mod-fingerprint partial detection). Cleanup notification UX. Auto-mode opt-in default OFF. Classifier shared with Arc D (co-design constraint, not suggestion). `register` extended with `link()`-based inode-share at Stage 2 (one directory-entry addition per kept file, effectively zero disk write).
+- **3.5 Slipgate self-knowledge surface single-class reframed.** Earlier two-class proposal collapsed; most "code-bundled" tables are pure data with stable consumption contracts. Schema is the only oracle <-> slipgate coupling event. Per-table cadence (8 tables, mix of bundled + on-sign-in + lazy + on-demand). Delta-sync protocol shape (added / mutated / retired tombstones; per-table independent version stamps). Bundled baselines keep slipgate fully functional offline. "What slipgate knows" UI minimum at Settings -> Knowledge. User-override mechanism at `<data-root>/overrides/<table>.json`. Two-growth-axes principle (code grows recognition vocabulary; catalog grows asset corpus + taxonomies). Hub-as-gravitational-center triangle. Manifest-references-hub-unknown-SHAs placeholder pattern (no P2P; bytes only flow when hub serves). Retroactive metadata enrichment when hub catches up.
+
+**Pass 3 carry-forwards (split out as separate HANDOVER entries):**
+- Arc H pre-implementation brainstorm (Pass 6) -- standalone-shareable-config dual lifecycle + catalog-metadata-divergence configs-vs-assets + library separate-catalog-distribution path. Tracked in this Managed Mode entry's "next session" sequence.
+- L1-alpha / -beta / -gamma / -delta tracks -- four separate qw-oracle backlog entries (see "Layer 1 expansion tracks" section in the index above). qw-oracle scope, NOT Managed Mode arcs; none gates V1.
+
 ### Items superseded by this pivot (cleanup at docs-check)
 
 These existing HANDOVER entries are superseded but left in place for context:
@@ -1277,15 +1300,14 @@ Docs-check at next session wrap-up should evaluate each for clean deletion.
 
 ### Recommended next-session sequence
 
-1. **Brainstorm Pass 3** -- classifier + bucket-taxonomy refinements + first cut at slipgate self-knowledge surface. Pass 3 scope expanded during Pass 2: now resolves seventh-bucket boundary (user-library, shared base content, materialization shape), configs-vs-art-as-assets distinction (authorship/credit metadata), `private.json` schema (sixth-bucket), refined classifier rules for Arc D (maps/locs land in user-library not user-asset). Estimate: 1.5-2 hours focused brainstorm + drain. Carry-forward orchestrator brief similar in shape to Pass 2 brief -- a fresh-context terminal can pick up.
-2. Brainstorm Pass 4 -- watcher contract details (foreground-only confirmation, dispatch case 5 for user-private, mod-fingerprint registry hosting).
-3. Brainstorm Pass 5 -- runtime swap class taxonomy + multi-instance launch UX + manifest backup UX.
-4. Brainstorm Pass 6 -- cloud catalog data shape (Arc H scope; locks blob layout contracts).
-5. Write + execute Arc A (asset warehouse substrate) -- 1-2 days.
-6. Write + execute Arc B (profile manifest + materializer) -- 4-6 days.
-7. Write + execute Arc D + Arc E in tandem (classifier shared).
-8. Write + execute Arc C-minimal -- 2-3 days. V1 ships.
-9. F / G / C-full / H follow as time and demand allow.
+1. **Brainstorm Pass 4 -- watcher contract refinements.** Scope shrunk by Pass 3.4 (capture/swap pipeline + Defenses + cleanup UX all landed there). Pass 4 now covers only debounce-window tuning + per-extension integrity-check registry growth. Likely a short pass.
+2. Brainstorm Pass 5 -- runtime swap class taxonomy (Pass 1 anchor item 5) + multi-instance launch UX + manifest backup UX. Mailslot ruleset-gating verification against ezQuake source via qw-oracle is part of this pass.
+3. Brainstorm Pass 6 / Arc H pre-implementation -- catalog data shape: standalone-shareable-config dual lifecycle, catalog-metadata-divergence configs-vs-assets, library separate-catalog-distribution path. Locks blob-layout contracts before any catalog implementation lands.
+4. Write + execute Arc A (asset warehouse substrate) -- 1-2 days.
+5. Write + execute Arc B (profile manifest + materializer + library manifest + private preservation) -- 4-6 days + 1-2 days for library.
+6. Write + execute Arc D + Arc E in tandem (classifier shared; capture/swap pipeline shipped together).
+7. Write + execute Arc C-minimal (Profiles tab + clone modal as V1 selector primitive + Make-this-primary + delete prompt UX) -- 2-3 days. V1 ships.
+8. F / G / C-full / H follow as time and demand allow.
 
 ### Pressure
 
@@ -1493,4 +1515,101 @@ Medium. Not blocking work, but every session that ships without a wrap-up costs 
 - Doc-philosophy spec: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`
 - Memory: `feedback_rule_intent_over_literal.md` (the lesson that drove dropping the ASCII rule applies analogously here — the skill's intent matters more than its literal current shape).
 - Memory: `reference_dream_feature.md` (Anthropic /dream covers the memory half of what wrap-light would do; keep an eye on whether `/dream` becomes available before this brainstorm fires).
+
+---
+
+## L1-alpha: Ecosystem-tools registry (2026-04-29)
+
+**Added:** 2026-04-29 (Pass 3 carry-forward from Slipgate Managed Mode brainstorm).
+**Pressure:** Medium. None of the four L1 expansion tracks gate Slipgate Managed Mode V1; each shrinks the operator's "other" bucket on a per-track cadence and lands more Layer 1 data via delta-sync to slipgate.
+
+**Methodology (operator's investigative starting principle):**
+
+> Walk the "other" bucket end-to-end. Take every file in operator's Quake directory that slipgate's classifier doesn't recognize, trace each one back to a concrete community source (which tool produced it, where it lives, what it's used for), classify with a stable role, store in oracle with the right table shape, expose via the same loader -> snapshot -> slipgate consumption flow that asset-bundle and maps already use.
+
+This mirrors the closure pattern that worked for asset mapping (Phase 2d-bundle) and map knowledge (Phase 2e-maps): start from operator's empirical evidence, trace each back to source ground-truth, structure into a Layer 1 table, ship the snapshot. Same methodology, new domain.
+
+**Scope (from Pass 3 ratifications doc):**
+
+- Walk operator's "other" bucket end-to-end; classify well-known community tools.
+- Initial seed covers qizmo.exe, pakexpl.exe, frikbot.exe, demo-tools, AVI-encoder bundles, server-rcon clients, etc.
+- New Layer 1 table type `ecosystem_tools` with curator-authored YAML seeds.
+- Loader emits typed records; snapshot to slipgate; classifier consumes; Layer 3 concept-note refs link to user-facing context.
+
+**Implementation shape:** parallel to Phase 2d-bundle and Phase 2e-maps. New extractor handler + seed YAMLs + loader integration + snapshot wiring + slipgate-side classifier consumer.
+
+**Out-of-scope:** engine binaries themselves (covered by L1-beta); engine help-doc files (covered by L1-gamma); files-inside-paks (covered by L1-delta).
+
+**Source for scope and methodology:** `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md` -- "Carry-forwards -- L1 expansion strategy."
+
+---
+
+## L1-beta: Cross-format binary fingerprinting (2026-04-29)
+
+**Added:** 2026-04-29 (Pass 3 carry-forward from Slipgate Managed Mode brainstorm).
+**Pressure:** Medium. None of the four L1 expansion tracks gate Slipgate Managed Mode V1.
+
+**Scope (from Pass 3 ratifications doc):**
+
+Extend Phase 3.5b's PE-fingerprint flow to AppImage / ELF / Mach-O. Same `clients` table; new fingerprint backends per-format.
+
+- AppImage = ELF + squashfs metadata.
+- Mach-O has its own version-string conventions.
+- ELF `.note` sections often carry build metadata.
+
+**Implementation shape:** new `read_appimage_strings`, `read_elf_strings`, `read_macho_strings` parallels to Phase 3.5b's `read_pe_strings`. Same downstream consumers (slipgate's binary fingerprinter, MyQuake -> Browse classification).
+
+**Why this exists:** the operator's "other" bucket likely contains `fteqw64.exe.db`, `ezquake-x86_64.appimage`, and similar non-PE engine binaries that Phase 3.5b's PE-only flow does not recognize. L1-beta closes that gap.
+
+**Source for scope and methodology:** `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md` -- "Carry-forwards -- L1 expansion strategy."
+
+---
+
+## L1-gamma: Engine helpdoc / data-file recognition (2026-04-29)
+
+**Added:** 2026-04-29 (Pass 3 carry-forward from Slipgate Managed Mode brainstorm).
+**Pressure:** Medium. None of the four L1 expansion tracks gate Slipgate Managed Mode V1.
+
+**Scope (from Pass 3 ratifications doc):**
+
+Extend Phase 2d-bundle output. New roles in the asset-roles registry:
+
+- `engine-asset:helpdoc-schema`
+- `engine-asset:helpdoc-content`
+- `engine-asset:engine-meta`
+
+Path-pattern + extension rules in `path_rules` / `extensions` covering `<engine.pk3>/help/**`, `<engine-dir>/*.xsd`, ezQuake JSON helpdocs, and similar engine-bundled data files.
+
+**Implementation shape:** seed-YAML additions for the new roles + extension/path-rule rows + classifier consumption updates. Adjacent to Phase 2d-bundle infrastructure; minimal new tooling.
+
+**Why this exists:** ezQuake JSON helpdocs and similar engine-bundled metadata files appear in the operator's "other" bucket because Phase 2d-bundle's existing roles only cover user-facing assets (textures / sounds / configs / etc.), not engine-internal documentation or schema files.
+
+**Source for scope and methodology:** `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md` -- "Carry-forwards -- L1 expansion strategy."
+
+---
+
+## L1-delta: Stock asset catalog (2026-04-29)
+
+**Added:** 2026-04-29 (Pass 3 carry-forward from Slipgate Managed Mode brainstorm).
+**Pressure:** Medium. None of the four L1 expansion tracks gate Slipgate Managed Mode V1.
+
+**Scope (from Pass 3 ratifications doc):**
+
+New Layer 1 table type `stock_pak_contents`. Per-known-stock-pak listing with semantic roles for files-inside-pak. `id1/pak0.pak` decoded with roles for:
+
+- `end1.bin` (cinematic data)
+- `gfx/menu/*` (menu graphics)
+- `progs/*.mdl` (model files)
+- `sound/*` (sound effects)
+- `demo1.dem` / `demo2.dem` / `demo3.dem` (built-in demos)
+- `quake.rc` (default config)
+- (...full enumeration per pak)
+
+Loader pak-extracts and classifies; emits one entry per file-inside-pak. Slipgate consumes via the same delta-sync surface as asset-roles registry.
+
+**Why this exists:** files-inside-paks are invisible to slipgate's current classifier (which only sees the pak file itself). Operator's "other" bucket likely contains content that came from a manual pak-extract operation; without per-file-inside-pak knowledge, slipgate can't help users understand what those files are.
+
+**Implementation shape:** new extractor that walks known-good stock paks (vanilla 1996, Steam, GoG, nQuake bundle), enumerates contents, classifies per-file via path-pattern rules, stores in `stock_pak_contents`. New table in schema. Loader pipeline addition. Slipgate-side consumer: classifier extension that recognizes "this file matches a known stock-pak content path."
+
+**Source for scope and methodology:** `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md` -- "Carry-forwards -- L1 expansion strategy."
 
