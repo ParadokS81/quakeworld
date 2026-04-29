@@ -6,17 +6,13 @@
 
 ## The five apps
 
-Each app has its own `CLAUDE.md` and `OVERVIEW.md` under `apps/<name>/`. This table is the orientation snapshot only — open the per-app docs for actual detail.
+Per-app docs at `apps/<name>/{README,VISION,OVERVIEW,CLAUDE}.md` (slipgate-app also has `apps/slipgate-app/docs/OVERVIEW.md` as the deep map).
 
-| App | Status | One-line |
-|---|---|---|
-| **matchscheduler** | Maintenance (effective-legacy; will rebuild inside slipgate web) | Firebase web app scheduling 4on4 matches; reads voice manifests from quad and h2h/form from qw-stats |
-| **quad** | Maintenance (stable, 16 teams) | Discord bot recording per-speaker OGG/Opus, uploading to Firebase Storage, plus standin DM flow |
-| **qw-stats** | Paused | PostgreSQL 16 + Express API; 18,000+ 4on4 games; ranking research stalled at identity-resolution Phase 0 |
-| **slipgate-app** | Active (90% of current work) | Tauri v2 + SolidJS + Rust desktop companion; Windows-native; hardware specs, ezQuake config parsing, install management |
-| **qw-oracle** | Active (KTX is the only outstanding engine port) | Three-layer knowledge service over MCP + snapshot distribution. Per-arc history at `apps/qw-oracle/docs/arc-history.md` |
-
-Per-app docs at `apps/<name>/{README,VISION,OVERVIEW,CLAUDE}.md`. slipgate-app has both `apps/slipgate-app/OVERVIEW.md` (thin app-root) and `apps/slipgate-app/docs/OVERVIEW.md` (deep map).
+- **matchscheduler** — *Maintenance, effective-legacy.* Firebase web app scheduling 4on4 matches. Will rebuild inside slipgate web.
+- **quad** — *Maintenance, stable across 16 teams.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
+- **qw-stats** — *Paused.* PostgreSQL 16 + Express API of 18,000+ 4on4 games; ranking research stalled at identity-resolution Phase 0.
+- **slipgate-app** — *Active (90% of current work).* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
+- **qw-oracle** — *Active.* Three-layer knowledge service over MCP + snapshot distribution. KTX is the only outstanding engine port. Ship history at `apps/qw-oracle/docs/arc-history.md`.
 
 ---
 
@@ -80,37 +76,26 @@ Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenera
 
 ---
 
-## Shared Firestore collections
+## Shared persistence (Firestore + Storage)
 
-Project: `matchscheduler-dev`. The authoritative data contract is `contracts/CROSS-PROJECT-SCHEMA.md`. If any shape changes, update that file AND the writer AND the reader in the same commit.
+Firebase project `matchscheduler-dev`. Authoritative contract at `contracts/CROSS-PROJECT-SCHEMA.md` — when any shape changes, update that file AND the writer AND the reader in the same commit.
 
-| Collection | Writer | Reader | Purpose |
+| Path | Writer | Reader | Purpose |
 |---|---|---|---|
-| `voiceRecordings/{demoSha256}` | quad | matchscheduler, slipgate-app (planned) | Voice recording manifest keyed by demo SHA256 |
-| `standin_requests/{requestId}` | matchscheduler | quad | Standin request to Discord DM flow |
-| `standin_preferences/{discordUserId}` | quad | quad + matchscheduler | Opt-out and block settings for standin DMs |
-
-## Shared Firebase Storage
-
-| Path | Writer | Reader |
-|---|---|---|
-| `voice-recordings/{demoSha256}/{playerName}.ogg` | quad | matchscheduler |
-| `team-logos/{teamId}/` | matchscheduler | matchscheduler |
-
-Upload size limits and retention rules live in `contracts/CROSS-PROJECT-SCHEMA.md`.
+| `voiceRecordings/{demoSha256}` (Firestore) | quad | matchscheduler, slipgate-app (planned) | Voice recording manifest keyed by demo SHA256 |
+| `standin_requests/{requestId}` (Firestore) | matchscheduler | quad | Standin request to Discord DM flow |
+| `standin_preferences/{discordUserId}` (Firestore) | quad | quad + matchscheduler | Opt-out and block settings for standin DMs |
+| `voice-recordings/{demoSha256}/{playerName}.ogg` (Storage) | quad | matchscheduler | Sliced per-speaker audio for web playback |
+| `team-logos/{teamId}/` (Storage) | matchscheduler | matchscheduler | Team logo uploads |
 
 ---
 
 ## Packages
 
-Two shared packages under `packages/`:
+Two shared packages under `packages/`. Per-package docs at `packages/<name>/{README,VISION,OVERVIEW,CLAUDE}.md`.
 
-| Package | One-line | Per-package docs |
-|---|---|---|
-| **qw-knowledge** | Shared QW domain knowledge — maps (with spawn info, geometry hints), terminology, strategies, player mappings. Extracted from the archived `voice-analysis` repo during the 2026-03-29 monorepo migration. | `packages/qw-knowledge/{README,VISION,OVERVIEW,CLAUDE}.md` |
-| **qw-version-resolution** | Pure-TS helpers for QW engine version strings (`parseVersionSpec`, `compareVersions`, `existsAtVersion`, `defaultAtVersion`). No deps. Wired into oracle and slipgate via `workspace:*`. | `packages/qw-version-resolution/{README,VISION,OVERVIEW,CLAUDE}.md` |
-
-The former `qw-config` package was fully retired 2026-04-25 — concerns split between oracle (extractors, dissolved Half 1) and slipgate-app (parser/converter/writers/loaders/JSON snapshots, dissolved Half 2).
+- **qw-knowledge** — shared QW domain knowledge (maps with spawn info + geometry hints, terminology, strategies, player mappings). Extracted from archived `voice-analysis` during the 2026-03-29 monorepo migration.
+- **qw-version-resolution** — pure-TS helpers for QW engine version strings (`parseVersionSpec`, `compareVersions`, `existsAtVersion`, `defaultAtVersion`). No deps. Wired into oracle and slipgate via `workspace:*`.
 
 ---
 
