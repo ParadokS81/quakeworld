@@ -346,7 +346,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "bliP: init ->"
+        "trailing_comment": null
       },
       "values": [
         {
@@ -453,7 +453,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "bliP: init ->"
+        "trailing_comment": null
       },
       "desc": "Enables downloading files from the server which are not in \"skins\", \"progs\", \"sound\", \"maps\" nor \"gfx\" directories.",
       "remarks": "Server-side.",
@@ -1550,7 +1550,7 @@
         "group_name_in_source": "Config Management",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "*********************************** DUMP FUNCTIONS ***********************************"
+        "trailing_comment": null
       },
       "desc": "If set & gamedir is not 'qw', configurations will be saved to subdirectory based on gamedir.\nUseful if configurations differ depending on gametype (e.g. team fortress)"
     },
@@ -1952,7 +1952,7 @@
         "group_name_in_source": "Spectator Tracking",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Sets distance of 3rd person camera from tracked player.\nYou can use negative values too.",
       "remarks": "For use with cl_camera_tpp. See cl_camera_tpp_height too."
@@ -1974,7 +1974,7 @@
         "group_name_in_source": "Spectator Tracking",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Sets vertical position of 3rd person camera.\nYou can use negative values too.",
       "remarks": "Set cl_camera_tpp 1 first."
@@ -2179,7 +2179,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "non-static for menu"
+        "trailing_comment": null
       },
       "desc": "Vertical coordinates of the clock.\nIf < 0, the coordinates are calculated from bottom up, e.g. -1 means the screen line just above the scoreboard."
     },
@@ -2275,7 +2275,7 @@
         "group_name_in_source": "Crosshair Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "gamma updates are expensive in hw: update at lower fps, otherwise drops are severe"
+        "trailing_comment": null
       },
       "desc": "This variable allows you to move the position of the crosshair on the Y-axis by the specified amount of pixels."
     },
@@ -2464,7 +2464,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "weapon-switching debugging"
+        "trailing_comment": null
       },
       "desc": "Sends location of opponents, which is stored in .mvd on supported servers."
     },
@@ -2527,7 +2527,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "/ persistent client state"
+        "trailing_comment": null
       },
       "desc": "Views the client-side weapon debugging messages, if stored in .mvd."
     },
@@ -2570,7 +2570,7 @@
         "group_name_in_source": "Network Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "can be 0, 1, or 2"
+        "trailing_comment": null
       },
       "desc": "Allows random deviation to be added to /cl_delay_packet delay.",
       "remarks": "Specified in ms.  Makes /cl_delay_packet better simulate high-ping connections."
@@ -2805,7 +2805,7 @@
         "group_name_in_source": "Network Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1 is FuhQuake and QW262 defaults"
+        "trailing_comment": null
       },
       "desc": "Read network data independently on physical frames.\nWhen using independent physics, network data will be read as early as possible, compared to the old way when it was read only on every physframe (77 times per second).",
       "values": [
@@ -3446,7 +3446,7 @@
         "group_name_in_source": "Input - Keyboard",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Joystick cvars."
+        "trailing_comment": null
       },
       "values": [
         {
@@ -3542,7 +3542,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "#fps"
+        "trailing_comment": null
       },
       "desc": "This variable sets the maximum limit for frames-per-second while in-game. Please see cl_maxfps_menu, vid_vsync, cl_independentphysics, and cl_physfps."
     },
@@ -3563,7 +3563,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "#fps"
+        "trailing_comment": null
       },
       "desc": "This variable sets the maximum limit for frames-per-second while disconnected, has a minimum of 30, set lower to use display frequency."
     },
@@ -3619,7 +3619,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0 is good for indep-phys, 1 is good for old-phys"
+        "trailing_comment": null
       },
       "desc": "Rotating models bob up and down like in Quake3."
     },
@@ -4257,7 +4257,7 @@
         "group_name_in_source": "Chat Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "FIXME: buggy"
+        "trailing_comment": null
       },
       "desc": "This command effects name faking using $/ or cl_fakename used by players.",
       "values": [
@@ -4386,7 +4386,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "9"
+        "trailing_comment": null
       },
       "desc": "If set, disables support for zquake vwep extension."
     },
@@ -5357,7 +5357,7 @@
         "group_name_in_source": "Teamplay Communications",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "adds the current command line as a clc_stringcmd to the client message."
+        "trailing_comment": null
       },
       "desc": "When used with cl_sayfilter_coloredtext, sends two versions of the teamplay colored messages: colored one with \"#c\" at the end and uncolored version of the message with \"#u\" at the end of the message.",
       "remarks": "FuhQuake users then can use \"filter #u\" to see only uncolored messages, ezQuake users can set \"filter #c\" to see only colored messages.",
@@ -6795,7 +6795,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "values: old style, current + default values , current only, default only, current + default if changed, none."
+        "trailing_comment": null
       },
       "desc": "Orange text, LEDs and special chars with [Ctrl] key - kind of MQWCL behaviour when set to 1.",
       "values": [
@@ -6977,7 +6977,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "seconds"
+        "trailing_comment": null
       },
       "desc": "Toggles the display of the notification area.",
       "remarks": "Notification area is the place where chat and game messages are displayed.",
@@ -7009,7 +7009,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "seconds"
+        "trailing_comment": null
       },
       "desc": "This variable sets the maximum number of notify lines (default 4, max 15) to be used at the top of the screen.",
       "remarks": "Only affects con_notify."
@@ -7121,7 +7121,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "values: old style, current + default values , current only, default only, current + default if changed, none."
+        "trailing_comment": null
       },
       "desc": "When enabled, allows you to use the tilde key also in the console and when typing messages.",
       "remarks": "To exit the console with con_tilde_mode 1, use Escape.",
@@ -8086,7 +8086,7 @@
         "group_name_in_source": "Demo Handling",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "This file must be deleted after playback is finished."
+        "trailing_comment": null
       },
       "desc": "Specifies the demo file format used when recording demo with Match tools.",
       "remarks": "See qwdtools_dir, qizmo_dir, match_auto_record.",
@@ -8122,7 +8122,7 @@
         "group_name_in_source": "Demo Handling",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ", CVAR_INIT"
+        "trailing_comment": null
       },
       "desc": "This toggles whether the client should always record pings into the demo or only when the player died and show(team)scores are being shown (QWCL default).",
       "values": [
@@ -8175,7 +8175,7 @@
         "group_name_in_source": "Demo Handling",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Used to save track status when rewinding."
+        "trailing_comment": null
       },
       "desc": "Determines if messages should be printed to console during demo jumps.",
       "values": [
@@ -8237,7 +8237,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "demo playlist options"
+        "trailing_comment": null
       },
       "desc": "will set the default track name in the demo playlist for mvd demos.\nExample: jogi, will always track the player jogi or versions of it (jogihoogi, angryjogi, etc)."
     },
@@ -8954,7 +8954,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ""
+        "trailing_comment": null
       },
       "values": [
         {
@@ -9276,7 +9276,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "frag log type:"
+        "trailing_comment": null
       }
     },
     "fraglimit": {
@@ -9553,7 +9553,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Set the factor for gl_brush_polygonoffset. Negative values offset the brushes towards the player.",
       "values": [
@@ -9623,7 +9623,7 @@
         "group_name_in_source": "Console Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "8*8 graphic characters"
+        "trailing_comment": null
       },
       "desc": "Speeds up start-up time by only searching for minimum number of charsets during start-up.",
       "values": [
@@ -9654,7 +9654,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0"
+        "trailing_comment": null
       },
       "desc": "Clears the screen with gl_clearcolor between each frame.\nPrevents hall-of-mirrors glitches, e.g. when flying out of the map.",
       "remarks": "This can cause problems when going through the surface of a liquid, as you may see a colored flash where the liquid texture would normally glitch."
@@ -9678,7 +9678,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0"
+        "trailing_comment": null
       },
       "desc": "Sets clear color (gl_clear 1).",
       "remarks": "When using vid_framebuffer, the GPU starts from a clean, black buffer and this value is effectively ignored."
@@ -9721,7 +9721,7 @@
         "group_name_in_source": "Lighting",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Toggles color on lighting from glowing items (quad, pent, flags in TF, etc).",
       "remarks": "This implementation does not give a speed increase when gl_colorlights is set to 0, but it does not require a map restart for changes to take effect."
@@ -9837,7 +9837,7 @@
         "group_name_in_source": "Screen & Powerup Blends",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "rgba 0.0 - 1.0"
+        "trailing_comment": null
       },
       "desc": "This variable sets the percentage value for palette shifting effects (damage flash, powerup blend). (needs gl_polyblend 1)."
     },
@@ -10132,7 +10132,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "This is the one to adjust if you notice flicker on lift @ e1m1 for instance, for z-fighting"
+        "trailing_comment": null
       },
       "desc": "Toggles an extra layer of fine detail over world textures.",
       "remarks": "Can impact performance on weak GPUs."
@@ -10178,7 +10178,7 @@
         "group_name_in_source": "Texture Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "************************************ EXTENSIONS ************************************"
+        "trailing_comment": null
       },
       "desc": "Compress textures on GPUs that support it to save VRAM, at the cost of longer load times and degraded quality.",
       "remarks": "No longer needed when you have many hundreds of Mb of VRAM."
@@ -10413,7 +10413,7 @@
         "group_name_in_source": "Screen & Powerup Blends",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "rgba 0.0 - 1.0"
+        "trailing_comment": null
       },
       "desc": "Toggles between OpenGL and Hardware palette changing.",
       "remarks": "1 can be slow on WinNT/2K."
@@ -10609,7 +10609,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "The RGB color of particle lightning beam and sparks.",
       "values": [
@@ -10636,7 +10636,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0.4"
+        "trailing_comment": null
       },
       "desc": "Adjusts size of lightning particle beam.",
       "values": [
@@ -10687,7 +10687,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Size of lightning sparks."
     },
@@ -10749,7 +10749,7 @@
         "group_name_in_source": "Texture Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1 - is off"
+        "trailing_comment": null
       },
       "desc": "Some luma textures have black non-transparent pixels. This can make them transparent.",
       "remarks": "Setting this to 0 will disable the functionality. For some commonly used texture packs value 1 is necessary.",
@@ -10958,7 +10958,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Adds a blue plasma trail to nail trails.",
       "remarks": "Requires gl_nailtrail 1."
@@ -10980,7 +10980,7 @@
         "group_name_in_source": "OpenGL Rendering",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Switches between two type of bubbles nails leave behind in water.",
       "remarks": "gl_turb_trails 1 needs to be set.",
@@ -11747,7 +11747,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Changes the size of the tracer2 trail, which allows you to customize the rockettrail size (see remarks).",
       "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail size."
@@ -11772,7 +11772,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Changes the duration of the tracer2 trail, which allows you to customize the rockettrail (see remarks).",
       "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail duration."
@@ -11878,7 +11878,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0.1"
+        "trailing_comment": null
       },
       "desc": "Chooses among types of blood particles."
     },
@@ -11934,7 +11934,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0.1"
+        "trailing_comment": null
       },
       "desc": "Determines alternate particles for explosions."
     },
@@ -12050,7 +12050,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0.1"
+        "trailing_comment": null
       },
       "desc": "Enable alternate gunshot impact effects."
     },
@@ -12071,7 +12071,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0.1"
+        "trailing_comment": null
       },
       "desc": "Selects alternate gunshot impact effects.",
       "remarks": "Light flashes also appear with gl_coronas 1.",
@@ -12107,7 +12107,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Adds a particle effect when monsters and other players fire a weapon."
     },
@@ -12150,7 +12150,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Adds a flat, orange shockwave to alternate explosion effects."
     },
@@ -12214,7 +12214,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Selects alternate spike impact effects.",
       "remarks": "Light flashes also appear with gl_coronas 1.",
@@ -12250,7 +12250,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Enable alternative teleport effect with extra sparks."
     },
@@ -12488,7 +12488,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0: off, 1: on, 2: in water only"
+        "trailing_comment": null
       },
       "desc": "Enables a flashing layer over players carrying powerups."
     },
@@ -13050,7 +13050,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Toggles between circle and square particles."
     },
@@ -13135,7 +13135,7 @@
         "group_name_in_source": "Turbulency and Sky Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Adds bubbles and fumes of slime over the slime.",
       "values": [
@@ -13458,7 +13458,7 @@
         "group_name_in_source": "Turbulency and Sky Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Turns on rain outdoors.\nRain density is equal to whatever gl_weather_rain is set to.",
       "remarks": "Works on all custom maps except death32c, dakyne and some others."
@@ -13480,7 +13480,7 @@
         "group_name_in_source": "Turbulency and Sky Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Adjusts rain effects performance.",
       "values": [
@@ -13633,7 +13633,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0 - don't force; 1 - as login;"
+        "trailing_comment": null
       },
       "desc": "Server variable, changes the name of the server displayed in server browsers and server lists."
     },
@@ -43406,7 +43406,7 @@
         "group_name_in_source": "MQWCL HUD",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "tp need levels"
+        "trailing_comment": null
       },
       "desc": "Toggles connection of tp_need_* variables with hud elements.",
       "remarks": "E.g.: Use with 'tp_need_health 40' and your health indicator will display red numbers if your health is 40 or lower.",
@@ -44953,7 +44953,7 @@
         "group_name_in_source": "Screenshot Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "**************************** IMAGE RESAMPLING *****************************"
+        "trailing_comment": null
       },
       "desc": "You can set quality of jpeg screenshots with 'image_jpeg_quality_level x' where x is an integer from 0 to 100 inclusive.\nThe larger x is, the better the quality of a jpeg screenshot, but also the bigger the size."
     },
@@ -45066,7 +45066,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Needs vid_restart thus vid_...."
+        "trailing_comment": null
       },
       "desc": "If set, will grab mouse input when not fullscreen."
     },
@@ -45256,7 +45256,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Needs vid_restart thus vid_...."
+        "trailing_comment": null
       },
       "desc": "Whether or not ezQuake will use raw input to sample mouse events.",
       "remarks": "It is recommended to leave this set.",
@@ -47520,7 +47520,7 @@
         "group_name_in_source": "Menu",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "============================================================================="
+        "trailing_comment": null
       },
       "desc": "Shows/hides advanced options entries in the Options menu.",
       "values": [
@@ -48124,7 +48124,7 @@
         "group_name_in_source": "MultiView Demos",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "FIXME: non-ascii chars"
+        "trailing_comment": null
       },
       "desc": "When watching Multi View Demo (.mvd) you can show a table on the screen with full info about players' status.",
       "remarks": "See mvd_info_setup for setting up displayed informations.",
@@ -48176,7 +48176,7 @@
         "group_name_in_source": "MultiView Demos",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "FIXME: non-ascii chars"
+        "trailing_comment": null
       },
       "desc": "Will show a line above the mvd_info table telling you wich column is armor/health/location etc.",
       "values": [
@@ -48229,7 +48229,7 @@
         "group_name_in_source": "MultiView Demos",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "mvd_stats cvars"
+        "trailing_comment": null
       },
       "desc": "You can adjust vertical placement of Players' info table.",
       "remarks": "See scr_mvdinfo and scr_mvdinfo_setup description for more details."
@@ -48878,7 +48878,7 @@
         "group_name_in_source": "MultiView Demos",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Powerup cams"
+        "trailing_comment": null
       },
       "desc": "Adjusts the vertical placement of mvd_status table."
     },
@@ -49267,7 +49267,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "logging \"say\" and \"say_team\" messages to the qconsole_PORT.log file"
+        "trailing_comment": null
       },
       "desc": "Log chat messages into the main server console log.",
       "values": [
@@ -49376,7 +49376,7 @@
         "group_name_in_source": "QTV Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "ignore cl_demospeed during QTV playback by default"
+        "trailing_comment": null
       },
       "desc": "The level on which QTV buffer auto-adjusting will start.\nE.g. when set to 1.5, (and qtv_adjustbuffer is 1), QTV buffer auto-adjusting will start when buffer length reached 150% of it's normal length (determined by qtv_buffertime setting)",
       "values": [
@@ -49696,7 +49696,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "5  seconds must be enough"
+        "trailing_comment": null
       },
       "desc": "Maximum number of simultaneous QTV connections."
     },
@@ -49717,7 +49717,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "5  seconds must be enough"
+        "trailing_comment": null
       },
       "desc": "Password required for QTV to connect to the streamport."
     },
@@ -49791,7 +49791,7 @@
         "group_name_in_source": "QTV Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "ignore cl_demospeed during QTV playback by default"
+        "trailing_comment": null
       },
       "values": [
         {
@@ -50000,7 +50000,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "initialise delayed packet free block"
+        "trailing_comment": null
       }
     },
     "qwm_name": {
@@ -50082,7 +50082,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "qwm = QuakeWorld Mod information placeholders"
+        "trailing_comment": null
       }
     },
     "qws_buildnum": {
@@ -50148,7 +50148,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "qwm = QuakeWorld Mod information placeholders"
+        "trailing_comment": null
       }
     },
     "qws_name": {
@@ -50453,7 +50453,7 @@
         "group_name_in_source": "Status Bar and Scoreboard",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1"
+        "trailing_comment": null
       },
       "desc": "Displays the amount of damage taken recently on the screen above your armour and health."
     },
@@ -50652,7 +50652,7 @@
         "group_name_in_source": "Particle Effects",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Which particles to draw this frame"
+        "trailing_comment": null
       },
       "desc": "Toggles drawing particle effects.\nIntended for helping isolate rendering performance issues.",
       "remarks": "Limited by particle ruleset.",
@@ -50747,7 +50747,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "9"
+        "trailing_comment": null
       },
       "desc": "Whether to draw vweps (other players' weapon models).",
       "remarks": "In order for vweps to work, you must have the appropriate models (vwplayer.mdl and w_*.mdl), and the server you're playing on must have vwep support enabled.",
@@ -51167,7 +51167,7 @@
         "group_name_in_source": "Texture Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Qrack"
+        "trailing_comment": null
       },
       "desc": "Changes color of floors and ceilings when r_drawflat is set to 1.\nEnter RGB value here, e.g. r_floorcolor \"128 128 128\" goes for gray floor.",
       "remarks": "Can not be changed during a match."
@@ -51256,7 +51256,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0: off, 1: dm & single-player, 2: single-player only"
+        "trailing_comment": null
       },
       "desc": "Enables fog.",
       "remarks": "See also other r_fx_fog cvars for fine-tuning.",
@@ -51650,7 +51650,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "7"
+        "trailing_comment": null
       },
       "desc": "Type of trail to use when viewing trails left in /instagib mode.",
       "values": [
@@ -51904,7 +51904,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "info mirrors"
+        "trailing_comment": null
       }
     },
     "r_max_size_1": {
@@ -52181,7 +52181,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "7"
+        "trailing_comment": null
       },
       "desc": "Customizable rail trails.",
       "remarks": "See /r_instagibTrail for customising /instagib mode in KTX.",
@@ -52257,7 +52257,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Returns true if the box is completely outside the frustom"
+        "trailing_comment": null
       },
       "desc": "Filter out vertices causing triangles to have zero area. These types of triangles are a sore spot in some GPUs that risk introducing glitches. An expected side effect is a risk of seeing a sparkling pixel.",
       "remarks": "For macOS arm64 this is force-enabled to prevent cheating. This filtering is a temporary workaround before adding code to avoid generating such triangles in the first place.",
@@ -52564,7 +52564,7 @@
         "group_name_in_source": "FPS and EyeCandy Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "default 2, as CL_DecayLights() used to get called twice per frame"
+        "trailing_comment": null
       },
       "desc": "Adds transparency to the lightning gun beam (shaft).",
       "remarks": "Disabled in ruleset smackdown and smackdrive.",
@@ -52734,7 +52734,7 @@
         "group_name_in_source": "Turbulency and Sky Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "This is the one to adjust if you notice flicker on lift @ e1m1 for instance, for z-fighting"
+        "trailing_comment": null
       },
       "desc": "Sets the scale factor of skybox animation if above 0, and skybox has an animation configuration.",
       "remarks": "Specifying a value above 1.0 will increase the pace of the configured animation."
@@ -53322,7 +53322,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "good news"
+        "trailing_comment": null
       },
       "desc": "Controls the opacity and color of the background of the extra frag messages window.",
       "remarks": "See other r_tracker_* variables description for further info.",
@@ -53350,7 +53350,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "good news"
+        "trailing_comment": null
       },
       "desc": "Controls the size of images when using the tracker.",
       "values": [
@@ -53471,7 +53471,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Medar wanted it to be customizable"
+        "trailing_comment": null
       },
       "desc": "Maximum length of player names in the tracker."
     },
@@ -53492,7 +53492,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Medar wanted it to be customizable"
+        "trailing_comment": null
       },
       "desc": "Text to show before frag messages relating to the current player."
     },
@@ -54001,7 +54001,7 @@
         "group_name_in_source": "Texture Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Qrack"
+        "trailing_comment": null
       },
       "desc": "Changes color of walls when r_drawflat is set to 1.\nEnter RGB value here, e.g. r_wallcolor \"128 128 128\" goes for gray walls.",
       "remarks": "Can not be changed during a match."
@@ -54566,7 +54566,7 @@
         "group_name_in_source": "Chat Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ", CVAR_INIT"
+        "trailing_comment": null
       },
       "desc": "Controls usage of s_mm*, s_chat_*, s_otherchat_* and s_spec_* variables.",
       "values": [
@@ -54720,7 +54720,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "If > 11, default sounds are noticeably different."
+        "trailing_comment": null
       },
       "desc": "Controls whether to resample sounds to s_khz with perfect quality. This cleans up any artifacts resulting from the default interpolation.",
       "remarks": "Resampling takes place as the sounds are loaded.",
@@ -54756,7 +54756,7 @@
         "group_name_in_source": "Sound Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "If > 11, default sounds are noticeably different."
+        "trailing_comment": null
       },
       "desc": "Same as s_linearresample, but specifically for VOIP audio streams."
     },
@@ -55495,7 +55495,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "filters"
+        "trailing_comment": null
       }
     },
     "sb_info_filter": {
@@ -55515,7 +55515,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "not in menu"
+        "trailing_comment": null
       },
       "desc": "Allows custom filters to be written based on the serverinfo strings\nFormat is [+|-]infokey=value with +/- being include/exclude.\nCan also specify +*/-* to include/exclude all, and +key/-key to include/exclude servers with any value for that key\nValues are regular expressions, if the server doesn't have that key specified then the rule is skipped",
       "remarks": "Default (if no rules match) is opposite of the last valid rule specified.\nRules should be separated by spaces\nExamples\n\n+ktxver               // pass any ktx server, hide others\n+*gamedir=fortress    // pass Team Fortress servers, hide others\n-*version=QTV*        // remove QTV servers\n-map=dm4              // fourier woz ere\n"
@@ -55579,7 +55579,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Pings per second"
+        "trailing_comment": null
       },
       "desc": "This determines how long ezQuake will wait for a reply when trying to retrieve information from a server until the attempt times out."
     },
@@ -55600,7 +55600,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "servers table"
+        "trailing_comment": null
       },
       "desc": "Cache the list of alive servers and load it on next startup of the client.",
       "values": [
@@ -55683,7 +55683,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "when enabled, forces \"new ping\" (udp qw query packet, multithreaded) to be used"
+        "trailing_comment": null
       },
       "desc": "This determines how often ezQuake should try to retrieve information from a master server until it is considered to be not responding."
     },
@@ -55704,7 +55704,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "when enabled, forces \"new ping\" (udp qw query packet, multithreaded) to be used"
+        "trailing_comment": null
       },
       "desc": "This determines how long ezQuake will wait for a reply when trying to retrieve information from a master server until the attempt times out."
     },
@@ -55819,7 +55819,7 @@
         "group_name_in_source": "Server Browser",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Pings per second"
+        "trailing_comment": null
       },
       "desc": "This determines how long ezQuake will wait for a reply when trying to ping a server until the attempt times out."
     },
@@ -56632,7 +56632,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "These aren't static as they're also used for multiview hud"
+        "trailing_comment": null
       },
       "desc": "Enable TrueType fonts on autoID text."
     },
@@ -56825,7 +56825,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "*************************** CENTER PRINTING *******************************"
+        "trailing_comment": null
       },
       "desc": "This variable controls how fast the text is displayed at the end of the single player episodes."
     },
@@ -56917,7 +56917,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "The mouse cursor scale."
+        "trailing_comment": null
       },
       "desc": "Frag messages will be colored according to your teamcolor/enemycolor settings.",
       "remarks": "Needs scr_coloredText 1, cl_parsefrags 1, cl_loadfragfiles 1.",
@@ -57157,7 +57157,7 @@
         "group_name_in_source": "Menu",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "so crosshair does't affected by +showscores, or vice versa"
+        "trailing_comment": null
       },
       "desc": "Level of transparency of the cursor used in menus and HUD editor."
     },
@@ -58143,7 +58143,7 @@
         "group_name_in_source": "Status Bar and Scoreboard",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "brown \"spectator\". old: &cF20s&cF50p&cF80e&c883c&cA85t&c668a&c55At&c33Bo&c22Dr"
+        "trailing_comment": null
       },
       "desc": "Disables the border around the scoreboard.",
       "values": [
@@ -58240,7 +58240,7 @@
         "group_name_in_source": "Status Bar and Scoreboard",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "brown \"spectator\". old: &cF20s&cF50p&cF80e&c883c&cA85t&c668a&c55At&c33Bo&c22Dr"
+        "trailing_comment": null
       },
       "values": [
         {
@@ -58555,7 +58555,7 @@
         "group_name_in_source": "Status Bar and Scoreboard",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "VFrags: only draw the frags for the first player when using mvinset"
+        "trailing_comment": null
       },
       "desc": "This variable will change what qtv users are called in the scoreboard.\nWhen teamplay is not on, this variable is cut to 4 characters.\n&cRGB values are not accepted."
     },
@@ -59368,7 +59368,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "non-static for menu"
+        "trailing_comment": null
       },
       "desc": "Enable TrueType fonts on teaminfo text."
     },
@@ -59512,7 +59512,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "non-static for menu"
+        "trailing_comment": null
       },
       "desc": "Will show row with the status of the current player in the teaminfo table.",
       "values": [
@@ -59745,7 +59745,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "dont delete this variable - it used by mods"
+        "trailing_comment": null
       }
     },
     "show_fps": {
@@ -59950,7 +59950,7 @@
         "group_name_in_source": "Screen Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "QW262 HUD."
+        "trailing_comment": null
       }
     },
     "show_velocity_3d_offset_forward": {
@@ -60482,7 +60482,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "bliP: 24/9 kickfake to unfake"
+        "trailing_comment": null
       }
     },
     "sv_aim": {
@@ -60551,7 +60551,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "\"negative\" cvar so it doesn't show on serverinfo for no reason"
+        "trailing_comment": null
       }
     },
     "sv_antilag_no_pred": {
@@ -60639,7 +60639,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "If set, don't send broadcast messages, entities or player info to ServeMe bot"
+        "trailing_comment": null
       }
     },
     "sv_cheats": {
@@ -61575,7 +61575,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "loads .ent files by default if there"
+        "trailing_comment": null
       }
     },
     "sv_maxlogsize": {
@@ -61595,7 +61595,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "bliP: 24/9 ->"
+        "trailing_comment": null
       }
     },
     "sv_maxping": {
@@ -61878,7 +61878,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Maximum packet we will send - currently 256 if extension supported"
+        "trailing_comment": null
       },
       "remarks": "smoother and point in the right direction.",
       "values": [
@@ -62081,7 +62081,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "0 = standard, 1 = pr2 mods set string_t fields as byte offsets to location of actual strings"
+        "trailing_comment": null
       }
     },
     "sv_qwfwd_port": {
@@ -62166,7 +62166,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ""
+        "trailing_comment": null
       }
     },
     "sv_sayteam_to_spec": {
@@ -62306,7 +62306,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "no sv_ prefix? WTF!"
+        "trailing_comment": null
       }
     },
     "sv_specprint": {
@@ -62397,7 +62397,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "<-"
+        "trailing_comment": null
       }
     },
     "sv_stopspeed": {
@@ -62444,7 +62444,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "rcon bandwith limit: requests per second"
+        "trailing_comment": null
       }
     },
     "sv_unfake": {
@@ -62509,7 +62509,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Record voicechat into mvds. Requires player support. 0=noone, 1=everyone, 2=spectators only."
+        "trailing_comment": null
       }
     },
     "sv_voip_echo": {
@@ -62549,7 +62549,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "Echo voice packets back to their sender, a debug/test setting."
+        "trailing_comment": null
       }
     },
     "sv_wateraccelerate": {
@@ -62685,7 +62685,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "1 - use DNS lookup in status command, 0 - don't use"
+        "trailing_comment": null
       }
     },
     "sys_disableWinKeys": {
@@ -62967,7 +62967,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "show extra messages"
+        "trailing_comment": null
       }
     },
     "sys_sleep": {
@@ -63007,7 +63007,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ""
+        "trailing_comment": null
       },
       "desc": "Checks if the the client is outdated. If a new version is found, this will be presented above the in-game menu. The version check performs a HTTP request to GitHub once per launch without introducing any application start delay. Any error querying the latest version assumes the current client is the latest.",
       "values": [
@@ -63481,7 +63481,7 @@
         "group_name_in_source": null,
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "<-"
+        "trailing_comment": null
       }
     },
     "telnet_password": {
@@ -63643,7 +63643,7 @@
         "group_name_in_source": "Teamplay Communications",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "re-triggers stuff"
+        "trailing_comment": null
       },
       "desc": "Controls whether f_took, f_death etc are forced to execute even if the game isn't a team game."
     },
@@ -63664,7 +63664,7 @@
         "group_name_in_source": "Teamplay Communications",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "FIXME: buggy"
+        "trailing_comment": null
       },
       "desc": "Controls whether to load locs for teamplay reporting.\nNote: The locs should be in your \"/id1/locs/\",\n\"/ezquake/locs\" or \"/qw/locs\" folder."
     },
@@ -64791,7 +64791,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "not so important, so let's not have it spam msg need"
+        "trailing_comment": null
       },
       "desc": "Customizes the %u macro."
     },
@@ -64917,7 +64917,7 @@
         "group_name_in_source": "Item Need Amounts",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "not so important, so let's not have it spam msg need"
+        "trailing_comment": null
       },
       "desc": "Customizes the %u macro."
     },
@@ -65127,7 +65127,7 @@
         "group_name_in_source": "Teamplay Communications",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "re-triggers stuff"
+        "trailing_comment": null
       },
       "values": [
         {
@@ -66113,7 +66113,7 @@
         "group_name_in_source": "Video Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": ""
+        "trailing_comment": null
       },
       "desc": "Fast Approximate Anti-Aliasing. Enable vid_framebuffer 2 to avoid filtering HUD. Typically between 1-6.",
       "values": [
@@ -66615,7 +66615,7 @@
         "group_name_in_source": "Screen & Powerup Blends",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "QW262: less flash grenade effect in demos"
+        "trailing_comment": null
       },
       "desc": "Controls the frequency of hardware gamma updates per second. These updates have a performance cost, so it is preferred to not update every frame when playing at thousands of FPS.",
       "remarks": "This can really hurt performance on screen flashing effects, i.e when taking damage - the worst moment to suffer framerate dips!",
@@ -66689,7 +66689,7 @@
         "group_name_in_source": "Video Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "TODO: Move the in_* cvars"
+        "trailing_comment": null
       },
       "desc": "If set, ezQuake will minimise when running in fullscreen mode and it loses focus (e.g. alt-tab)."
     },
@@ -66794,7 +66794,7 @@
         "group_name_in_source": "Video Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "It's here because it needs to be registered before window creation"
+        "trailing_comment": null
       },
       "desc": "If set, GL_EXTENSIONS string will be displayed when printing graphics info."
     },
@@ -66896,7 +66896,7 @@
         "group_name_in_source": "Video Settings",
         "min_bound": null,
         "max_bound": null,
-        "trailing_comment": "It's here because it needs to be registered before window creation"
+        "trailing_comment": null
       },
       "desc": "If set, display graphics info on every vid_restart."
     },

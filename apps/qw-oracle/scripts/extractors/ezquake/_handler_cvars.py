@@ -632,31 +632,33 @@ def _attach_trailing_comments(cvars: list[dict], ezq_src: Path) -> int:
             except OSError:
                 file_cache[cv["source_file"]] = []
         lines = file_cache[cv["source_file"]]
+        # Walk forward up to 2 lines to find the closing `};` of the cvar
+        # struct-init. The closer fixes which line owns the trailing comment
+        # for THIS cvar -- once found, stop probing whether or not a comment
+        # was present. Probing past the closer attached neighbour comments
+        # to the wrong cvar (audit finding F-EZQ-01).
+        # Anchor on `};` so a `,` inside the comment (e.g.
+        # `// example: "59,18"`) cannot silently truncate. Mirrors mvdsv
+        # `_trailing_comment` post-v17 (commit 8747ad9, audit D.1.4).
         for probe in (cv["source_line"], cv["source_line"] + 1, cv["source_line"] + 2):
             idx = probe - 1
             if idx < 0 or idx >= len(lines):
                 continue
             l = lines[idx]
-            # Anchor on the closing `};` of the struct-init so a `,` inside
-            # the trailing comment (e.g. `// example: "59,18"`) does not
-            # silently truncate. Mirrors mvdsv `_trailing_comment` post-v17
-            # (commit 8747ad9) and audit finding D.1.4.
             close_idx = l.rfind("};")
-            if close_idx >= 0:
-                tail = l[close_idx + 2:]
-            else:
-                semi_idx = l.rfind(";")
-                tail = l[semi_idx + 1:] if semi_idx >= 0 else l
-            tail = tail.strip()
+            if close_idx < 0:
+                # Closer not on this line -- multi-line declaration. Keep
+                # walking forward within the +2 window.
+                continue
+            tail = l[close_idx + 2:].strip()
             if tail.startswith("//"):
                 cv["trailing_comment"] = tail[2:].strip()
                 attached += 1
-                break
-            if tail.startswith("/*"):
+            elif tail.startswith("/*"):
                 end = tail.find("*/", 2)
                 cv["trailing_comment"] = (tail[2:end] if end >= 0 else tail[2:]).strip()
                 attached += 1
-                break
+            break
     return attached
 
 
