@@ -66,6 +66,10 @@ Extractors relocated from `packages/qw-config/scripts/` to `apps/qw-oracle/scrip
 
 14 ezQuake versions clean: v3.0, v3.0.1, 3.1, 3.2, 3.2.1, 3.2.2, 3.2.3, 3.6.0, 3.6.1, 3.6.2, 3.6.5, 3.6.6, 3.6.8, 3.6.9, plus head. Pre-3.0 era explicitly de-scoped (community-security framing -- pre-3.6 has known attack vectors). Walk infrastructure shipped: `extract-tag --skip-prune` + `prune-cross-type-orphans` finalize CLI + per-version `backfill_match` detection. Schema v8 -> **v9** (`source_retired_at_version` added to transitions reason CHECK).
 
+## 2026-04-25 -- Layer 1 doc_only audit closed
+
+Audit of 269 doc_only ezquake entities reduced to 194 across 7 shipped fixes (six extractor patterns + one loader dedup + one architectural multi-variant-parse change): P5a SERVER_ONLY clang arg fix (+1 cvar); P1 Cmd_AddLegacyCommand alias detection (+40 commands); P2 struct-literal table walker (+7 commands); P3 nested cvar_t tables (+10 cvars); P6 #define resolution at Cmd_AddCommand sites (+1); 4-variant parse architecture for win/apple TUs (+7 cvars + bonus rows); loader-side help-JSON type-mismatch dedup (-22 orphans). Pattern 4 reclassified as legitimate cat2 drift (mp3-feature deprecation). One row deferred: `-nopriority` cmdline_param at `sv_sys_win.c:645` needs Windows SDK stub headers — re-considered when MVDSV/FTE hit the same wall. Commits `c6fdcf3` / `a099231` / `8f67843` / `0f8f170` / `5dd466c` / `146cd73`. HANDOVER follow-up: "-nopriority cmdline_param recovery (Windows SDK stubs)" sidequest.
+
 ## 2026-04-25 -- Layer 3 concept notes bootstrap
 
 `concept-notes/` directory established with template (`README.md`) + stewardship playbook (`OPERATIONS.md`). Provenance frontmatter schema, two-path curation framing (community-curated imports vs newly-earned authoring), 6 recognized note shapes, tiered voice table. Four note bodies landed during the 3.6.5->3.6.6 shakedown walk: `client-side-server-exec-allowlist`, `skywind-animated-skyboxes`, `completing-legacy-fte-protocol-extensions`, `ruleset-anti-script-restriction-pattern`. Concept-notes count: 6 (now 9 with subsequent additions).
