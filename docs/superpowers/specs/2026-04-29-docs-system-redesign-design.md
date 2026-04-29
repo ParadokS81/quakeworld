@@ -17,17 +17,18 @@ This principle drives every redesign decision below.
 
 ---
 
-## The five-part arc
+## The six-part arc
 
-The redesign is one coherent system delivered as five sequenced plans. Order matters: each step's output is the next step's input.
+The redesign is one coherent system delivered as six sequenced plans. Order matters: each step's output is the next step's input.
 
 | # | Plan | Why this order |
 |---|---|---|
 | 1 | Doctrine update (`doc-philosophy.md` + `doc-template.md`) | Skill cannot enforce rules that don't exist yet; the rules drive everything below. |
 | 2 | Slim existing OVERVIEW.md files across projects | Skill freshness sweep depends on docs already being slim. |
 | 3 | HANDOVER docket migration | Skill's deferred-routing function depends on the new bucket structure existing. |
-| 4 | docs-check skill redesign (one skill, two phases) | All upstream pieces in place. |
-| 5 | CLAUDE.md directive standardization | Final connective tissue across project entry points. |
+| 4 | Memory directory consolidation | Memory bloat (a sibling symptom of the same drift loop) gets a one-time prune + structural rules so the new skill's Phase 1 check has a clean baseline to maintain. |
+| 5 | docs-check skill redesign (one skill, two phases) | All upstream pieces in place. |
+| 6 | CLAUDE.md directive standardization | Final connective tissue across project entry points. |
 
 ---
 
@@ -213,7 +214,55 @@ When an arc ships, the parking file's content gets harvested into `arc-history.m
 
 ---
 
-## Plan 4 — docs-check skill redesign
+## Plan 4 — Memory directory consolidation
+
+**Driver:** the `MEMORY.md` index and the project memory directory at `/home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/` have grown unmanageable. Same drift loop as docs: docs-check Step 9.25 was supposed to keep this in check, but small sessions skip the heavy skill, so consolidation discipline lapses.
+
+**Goal:** one-time consolidation pass that resets the memory corpus to a lean, durable shape — and codifies structural rules so the new skill's Phase 1 memory hygiene check has a clean baseline to maintain.
+
+### Diagnosis (from current state)
+
+Three classes of bloat are likely present:
+
+1. **Arc-receipt memories** — `project_*.md` files whose body is mostly "phase 2a shipped, phase 2b shipped, ..." rather than durable framing. These belong in `arc-history.md` (Plan 3 destination), not in memory.
+2. **Index-line bloat in `MEMORY.md`** — entries that grew past the "one line under ~150 chars" rule because someone appended state-of-the-world detail to an entry rather than updating the underlying memory file.
+3. **Path drift** — memories that name file paths or function names which have moved (e.g., post-`qw-config` dissolution, post-Phase-6 lifts) but the memory text was never updated.
+4. **Duplication** — same fact stated in 2+ memory files. When the fact changes, N places need updating; usually only one gets touched.
+
+### One-time consolidation pass — `/dream`-style four phases
+
+The Anthropic `/dream` feature (currently broken in v2.1.81 per `reference_dream_feature.md`, but the four-phase shape applies regardless) is the methodology:
+
+1. **Orient** — file inventory: list every `*.md` under the memory directory. Cluster by topic (project memories, feedback memories, reference memories, user-profile memories). Identify obvious arc-receipt files for migration.
+2. **Gather signal** — recent arcs from `arc-history.md` (per project) and recent commits. Cross-check: which memories should have updated paths/numbers but didn't?
+3. **Consolidate** — merge duplicates into one canonical home, leaving one-line pointers in the others (or deleting them). Fix path drift in place. Convert relative dates to absolute. Slim arc-receipt bodies to durable framing only; harvest the chronicle into `arc-history.md`.
+4. **Prune & index** — rebuild `MEMORY.md` as a lean index, target ≤ 100 lines / 15KB (well under the 200-line / 25KB harness load limit). Each entry: one line, ~150 chars max, "[Title](file.md) — one-line hook" shape.
+
+### Structural rules going forward
+
+These rules get codified in the doc-philosophy doctrine (or an addendum):
+
+- **Memories are for durable facts**, not arc receipts. If you're tempted to write a memory whose body summarizes work just shipped, the destination is `arc-history.md`, not memory.
+- **MEMORY.md is an index, not a memory.** No prose detail lives in `MEMORY.md` directly; it points at memory files which carry detail.
+- **Hard caps on `MEMORY.md`:** target 100 lines / 15KB; warn at 150 lines / 20KB; the harness's 200-line / 25KB load limit is the failure boundary.
+- **Per-project memory count cap:** ~25 memories per project before consolidation pressure kicks in. The current limit of 30 in Step 9.25 stays as the trigger threshold.
+- **Memory categories stay as-is:** user / feedback / project / reference. The four types are unchanged.
+
+### Acceptance criteria for Plan 4
+
+- `MEMORY.md` is rebuilt as a lean index, ≤ 100 lines / 15KB.
+- Arc-receipt-shaped memories are migrated to the relevant `arc-history.md` and slimmed to durable framing in their `project_*.md` form.
+- Path drift in memories is corrected against current state.
+- Duplicate facts are consolidated; only one canonical home per fact.
+- Structural rules above are added to the doctrine (during Plan 1 or as a Plan 4 addendum).
+
+### Coupling with Plan 3
+
+Plan 3 establishes `arc-history.md` per project. Plan 4 migrates arc-receipt memories INTO those files. So Plan 4 must run AFTER Plan 3, but before Plan 5 (skill redesign) so the new skill's Phase 1 memory hygiene check operates on the consolidated corpus, not the bloated one.
+
+---
+
+## Plan 5 — docs-check skill redesign
 
 **File target:** `~/.claude/skills/docs-check/SKILL.md` (replaces the current 336-line version).
 
@@ -284,7 +333,7 @@ The wrap-up report keeps a similar shape to today's six-section format, but adap
 - The "should I make a new skill?" prompting — operator confirmed skills emerge naturally from repeated patterns, not from prompted introspection.
 - The single-bucket Track A / Track B language — replaced with 5-category routing (4 indexed in HANDOVER + retrospectives to `arc-history.md`).
 
-### Acceptance criteria for Plan 4
+### Acceptance criteria for Plan 5
 
 - `~/.claude/skills/docs-check/SKILL.md` is rewritten to the new structure.
 - Skill is < 200 lines (down from 336; the simplifications make this easy).
@@ -294,7 +343,7 @@ The wrap-up report keeps a similar shape to today's six-section format, but adap
 
 ---
 
-## Plan 5 — CLAUDE.md directive standardization
+## Plan 6 — CLAUDE.md directive standardization
 
 **Scope:** every `CLAUDE.md` in the monorepo (root + per-app + per-package).
 
@@ -305,6 +354,14 @@ Each CLAUDE.md gains a consistent line in the "Where to find things" section:
 > **Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries).**
 
 For projects with two-tier OVERVIEW (slipgate-app has both `OVERVIEW.md` and `docs/OVERVIEW.md`), keep the same explicit two-tier framing already in slipgate-app's CLAUDE.md.
+
+### arc-history.md pointer
+
+Each project that has an `arc-history.md` (per Plan 3's migration) gains a pointer in its CLAUDE.md "Where to find things" table:
+
+> **Chronological log of shipped arcs** | `apps/<project>/docs/arc-history.md`
+
+Not a "READ FIRST" directive — the file is reference material for digging into "what did we ship and when" during a conversation, not orientation. Just findable, not auto-read.
 
 ### Per-project audit
 
@@ -319,9 +376,10 @@ For projects with two-tier OVERVIEW (slipgate-app has both `OVERVIEW.md` and `do
 | `packages/qw-knowledge/CLAUDE.md` | (audit at plan-writing time) | Add directive if missing |
 | `packages/qw-version-resolution/CLAUDE.md` | (audit at plan-writing time) | Add directive if missing |
 
-### Acceptance criteria for Plan 5
+### Acceptance criteria for Plan 6
 
 - Every project CLAUDE.md has a consistent, explicit "Start with OVERVIEW.md" directive.
+- Every project that has an `arc-history.md` has a CLAUDE.md pointer to it (reference, not READ-FIRST).
 - No project has competing pointers to other "READ FIRST" docs.
 - Directive wording is uniform across the fleet.
 
@@ -343,15 +401,15 @@ This is the largest single-arc doctrine change since the doc-philosophy spec was
 
 **Sequencing recommendation for execution:**
 
-- Plans 1 + 2 + 3 can be one execution session (doctrine + slimming + HANDOVER migration).
-- Plan 4 should be its own session because rewriting the skill while the skill is supposed to keep working risks a self-modification race. Do it in a fresh session.
-- Plan 5 can fold into the same session as Plan 4 since both touch CLAUDE.md and SKILL.md territory.
+- **Session A: Plans 1 + 2 + 3** — doctrine + OVERVIEW slimming + HANDOVER migration. One coherent doc-restructure session.
+- **Session B: Plan 4** — memory consolidation pass on its own. Heavy cognitive work; deserves a fresh-context session and unbroken focus.
+- **Session C: Plans 5 + 6** — skill rewrite + CLAUDE.md directive standardization. Plan 5 should run in a fresh session (rewriting a skill while the skill is supposed to keep working risks self-modification race conditions). Plan 6 folds in naturally since both touch CLAUDE.md territory.
 
 ---
 
 ## Related docs and dependencies
 
-- **Existing docs-check skill** — `~/.claude/skills/docs-check/SKILL.md` (will be rewritten in Plan 4)
+- **Existing docs-check skill** — `~/.claude/skills/docs-check/SKILL.md` (will be rewritten in Plan 5)
 - **Existing doctrine** — `~/.claude/skills/docs-check/references/doc-philosophy.md` and `doc-template.md` (will be updated in Plan 1)
 - **Brainstorm parking entry** — `HANDOVER.md` § "Wrap-up split brainstorm (2026-04-29)" (this spec resolves it; HANDOVER entry can be removed when this spec is approved)
 - **/insights data** — `/home/paradoks/.claude/usage-data/report.html` (the data that drove the priority)
