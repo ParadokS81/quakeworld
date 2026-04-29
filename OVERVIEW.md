@@ -8,13 +8,15 @@
 
 Each app has its own `CLAUDE.md` and `OVERVIEW.md` under `apps/<name>/`. This table is the orientation snapshot only — open the per-app docs for actual detail.
 
-| App | Status | One-line | Per-app docs |
-|---|---|---|---|
-| **matchscheduler** | Maintenance (effective-legacy; will be rebuilt inside slipgate web) | Firebase web app for scheduling 4on4 matches; reads voice manifests from quad and h2h/form/maps from qw-stats | `apps/matchscheduler/{README,VISION,OVERVIEW,CLAUDE}.md` |
-| **quad** | Maintenance (stable, integration-critical) | Discord bot recording per-speaker voice (OGG/Opus, 16 teams), uploading to Firebase Storage, plus standin DM flow | `apps/quad/{README,VISION,OVERVIEW,CLAUDE}.md` |
-| **qw-stats** | Paused | PostgreSQL 16 + Express API of 18,000+ 4on4 games (auto-synced every 15 min from QWHub); ranking research stalled at identity-resolution Phase 0 | `apps/qw-stats/{README,VISION,OVERVIEW,CLAUDE}.md` |
-| **slipgate-app** | Active (90% of current work) | Tauri v2 + SolidJS + Rust desktop companion; Windows-native; reads hardware specs, parses ezQuake configs, manages install | `apps/slipgate-app/{README,VISION,OVERVIEW,CLAUDE}.md` plus `apps/slipgate-app/docs/OVERVIEW.md` (deep map) |
-| **qw-oracle** | Active (KTX is the only outstanding engine port) | Three-layer knowledge service (Layer 1 source-extracted facts / Layer 2 chat corpus / Layer 3 concept notes) served over MCP and snapshot distribution | `apps/qw-oracle/{README,VISION,OVERVIEW,CLAUDE,SCHEMA}.md` plus `apps/qw-oracle/docs/arc-history.md` for chronological ship log |
+| App | Status | One-line |
+|---|---|---|
+| **matchscheduler** | Maintenance (effective-legacy; will rebuild inside slipgate web) | Firebase web app scheduling 4on4 matches; reads voice manifests from quad and h2h/form from qw-stats |
+| **quad** | Maintenance (stable, 16 teams) | Discord bot recording per-speaker OGG/Opus, uploading to Firebase Storage, plus standin DM flow |
+| **qw-stats** | Paused | PostgreSQL 16 + Express API; 18,000+ 4on4 games; ranking research stalled at identity-resolution Phase 0 |
+| **slipgate-app** | Active (90% of current work) | Tauri v2 + SolidJS + Rust desktop companion; Windows-native; hardware specs, ezQuake config parsing, install management |
+| **qw-oracle** | Active (KTX is the only outstanding engine port) | Three-layer knowledge service over MCP + snapshot distribution. Per-arc history at `apps/qw-oracle/docs/arc-history.md` |
+
+Per-app docs at `apps/<name>/{README,VISION,OVERVIEW,CLAUDE}.md`. slipgate-app has both `apps/slipgate-app/OVERVIEW.md` (thin app-root) and `apps/slipgate-app/docs/OVERVIEW.md` (deep map).
 
 ---
 
