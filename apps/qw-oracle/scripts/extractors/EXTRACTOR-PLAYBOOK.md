@@ -1,48 +1,63 @@
 # QW Extractor Playbook
 
-Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). ezQuake extraction is fully built and verified at head (2026-04-25); FTE, MVDSV, KTX, and QWFWD are pending. Each of those engines has its own registration idioms, but the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
+Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). Four projects ship today: ezQuake (15 versions, deep-time walked to v3.0 floor), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (single tag 2.33), MVDSV (head, 2026-01-04 snapshot). KTX is pending and uses tree-sitter rather than libclang — see `VALIDATION-RUNBOOK.md` § "Out of scope" for the parallel-runbook plan. Each engine has its own registration idioms; the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
 
-If you are starting a new engine: read the [Porting checklist](#porting-to-a-new-engine) end-to-end before touching code. If you are debugging an existing handler: jump to the [Registration pattern catalog](#registration-pattern-catalog). If you are validating output quality: [Runtime validation](#runtime-validation-playbook).
+If you are starting a new engine: read the [Porting checklist](#porting-to-a-new-engine) end-to-end before touching code. If you are debugging an existing handler: jump to the [Registration pattern catalog](#registration-pattern-catalog). If you are validating output quality: see `VALIDATION-RUNBOOK.md`.
 
 ---
 
 ## Architecture in two diagrams
 
-**Extraction side (apps/qw-oracle/scripts/extractors/<engine>/):**
+**Extraction side (`apps/qw-oracle/scripts/extractors/<project>/` — post-2026-04-28 architecture consolidation):**
 
 ```
   source/*.c, source/*.h  (engine checkout at a specific tag)
         |
         v
-  extract-ezquake-unified.py                     [driver, multiprocessing]
+  <project>/extract.py                           [driver, multiprocessing]
     |
-    +-- clang_config.py                          [compiler flags per variant]
-    |       - clang_args_for()     --> CLIENT  pass
-    |       - clang_args_server_for() --> SERVER pass (adds -DSERVERONLY -DSERVER_ONLY)
-    |       - clang_args_win_for()   --> WIN    pass (adds -DWIN32 -D_WIN32)
-    |       - clang_args_apple_for() --> APPLE  pass (adds -D__APPLE__)
+    +-- extractor_lib/clang_config.py            [compiler flags per project + variant]
+    |       - clang_args_<project>_for()       --> primary pass
+    |       - clang_args_<project>_server_for() --> server pass (where applicable)
+    |       - clang_args_<project>_win_for()    --> Windows pass (where applicable)
+    |       - clang_args_<project>_apple_for()  --> Apple pass (where applicable)
     |
-    +-- _visitor.py                              [shared-walk dispatcher]
+    +-- extractor_lib/_visitor.py                [shared-walk dispatcher]
     |       walk_tu_dispatch(tu, visitors, variant, target_path)
     |       - recurses tu.cursor, filters to target file
     |       - enter_function / exit_function + enter_compound / exit_compound
     |       - visit_cursor on every cursor
     |
-    +-- handler_*.py                             [one per entity type]
-            CommandsHandler      -> ezquake-commands-ast.json
-            CvarsHandler         -> ezquake-variables-ast.json
-            MacrosHandler        -> ezquake-macros-ast.json
-            CmdlineHandler       -> ezquake-cmdline-params-ast.json
-            HudElementsHandler   -> ezquake-hud-elements-ast.json
-            KeynamesHandler      -> ezquake-keynames-ast.json
-            AssetCvarBindings    -> ezquake-asset-cvar-bindings-ast.json
-            AssetLoaderSites     -> ezquake-asset-loader-sites-ast.json
+    +-- extractor_lib/_resolve.py                [cursor-resolution helpers]
+    |       resolve_fn_ref(cursor)               [permissive-fallback policy]
+    |
+    +-- extractor_lib/_source.py                 [string-shape helpers]
+    |       read_extent / strip_quotes / literal_string / strip_array_and_qualifiers
+    |
+    +-- extractor_lib/_cvar_shared.py            [cvar-handler conveniences]
+    |       unescape_c_string / normalize_flags_raw / parse_flag_names / FLAG_NAME_RE
+    |
+    +-- <project>/_handler_*.py                  [project-private handlers, one per entity type]
+            _handler_cvars.py         -> <project>-variables-ast.json
+            _handler_commands.py      -> <project>-commands-ast.json
+            _handler_macros.py        -> <project>-macros-ast.json
+            _handler_cmdline.py       -> <project>-cmdline-params-ast.json
+            _handler_keynames.py      -> ezquake only -> ezquake-keynames-ast.json
+            _handler_hud_elements.py  -> ezquake only
+            _handler_asset_*.py       -> ezquake + fte (asset bundle projects)
+            _handler_ezscript.py      -> fte only (cvar_alias bridging)
+            _handler_protocol.py      -> mvdsv only (protocol_message)
+            _handler_info_keys.py     -> mvdsv only
+            _handler_log_templates.py -> mvdsv only
+            _handler_qc_builtins.py   -> mvdsv only
 ```
 
-**Loader side (apps/qw-oracle):**
+See [Three-tier handler architecture](#three-tier-handler-architecture) below for the rule that drives this layout.
+
+**Loader side (`apps/qw-oracle/scripts/load-knowledge/`):**
 
 ```
-  apps/qw-oracle/scripts/extractors/<engine>/output/*-ast.json  +  <engine>/help_*.json
+  apps/qw-oracle/scripts/extractors/<project>/output/*-ast.json  +  <project>/help_*.json
         |
         v
   apps/qw-oracle/scripts/load-knowledge/
@@ -50,6 +65,7 @@ If you are starting a new engine: read the [Porting checklist](#porting-to-a-new
     +-- load-version.ts          [orchestrator, per (project, version, type)]
     |       - partial-drop guard
     |       - cross-type help-JSON orphan prune at end-of-transaction
+    |       - validInfoKey / validLogTemplate carve-outs (MVDSV-introduced types)
     |
     +-- load-<type>.ts           [per-type adapter]
     |       - isSourceBacked predicate (typically `entry.ast !== null`)
@@ -58,14 +74,14 @@ If you are starting a new engine: read the [Porting checklist](#porting-to-a-new
     +-- transitions.ts / natural-keys.ts / schema.ts / diff-versions.ts
         |
         v
-  apps/qw-oracle/data/knowledge.db   [SQLite, schema v8]
+  apps/qw-oracle/data/knowledge.db   [SQLite, schema v18]
 ```
 
 Key invariants:
 - Each `*-ast.json` entry is keyed by the entity's canonical name.
-- `entry.ast === null` means "help-JSON listed this name, extractor found no source registration." Loader marks it `source_state='doc_only'`.
+- `entry.ast === null` means "help-JSON listed this name, extractor found no source registration." Loader marks it `source_state='doc_only'`. (MVDSV ships no help-JSON, so this state doesn't arise there.)
 - `entry.ast !== null` means "extractor found a registration." Loader marks it `source_state='source_backed'`.
-- The schema field `source_state` is load-bearing for data-quality queries — see `SCHEMA.md`.
+- The schema field `source_state` is load-bearing for data-quality queries — see `SCHEMA.md`. Note the two-level model: entity-level `source_state` is biographical-by-design ("ever was source-backed at some loaded version"); per-version `source_file` is current-state. Consumers that need "current at HEAD" must check the per-version row, not the entity row alone.
 
 ---
 

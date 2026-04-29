@@ -30,7 +30,7 @@ The extractor fleet reads authoritative engine source (Python + libclang for ezQ
 
 A consumer reaches the knowledge foundation via one of two paths:
 
-- **MCP** - live queries. Tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_solved_issues`. Interactive, session-shaped, best for clients that want to ask arbitrary questions. Used by Claude Code today; future chatbots.
+- **MCP** - live queries. Server v0.4.0 with ten tools today: engine-entity surface (`lookup_entity`, `search_entities`), Layer 3 retrieval (`get_concept_note`), Layer 2 chat search (`search_solved_issues`), `qw`-namespace surfaces (`lookup_map`, `search_maps`, `lookup_gameplay_entity`, `search_gameplay_entities`, `lookup_mechanic`, `search_mechanics`). Interactive, session-shaped, best for clients that want to ask arbitrary questions. Used by Claude Code today; future chatbots.
 - **Snapshot distribution** - consumer-tailored JSON snapshots pre-computed from the foundation. Deterministic, shipped with the consumer, no runtime dependency on the oracle. Best for clients that need the same facts repeatedly and want fast, predictable access. slipgate-app's ConfigViewer is the canonical case: it doesn't query MCP on every user action; it ships with a snapshot of the cvar / command / macro facts its features need.
 
 Both surfaces serve the same underlying facts. A consumer picks the surface that fits its access pattern.
@@ -61,10 +61,18 @@ Digest / newsletter ("what happened while I was away") and time-machine ("what w
 
 ## Current reality
 
-Layer 1 covers six namespaces at schema v13: **ezQuake** (10 entity types + 4 asset relation tables, 4015 entities at head, 14-tag deep-time walk to v3.0 floor), **FTE** (5 entity types incl. cross-engine cvar aliases, build-6698 only, asset bundle pending), **QWCL** (3 entity types, single canonical version 2.33), **MVDSV / KTX** (engine ports not started), and **`qw`** (the game itself — 254 maps shipped 2026-04-27, future game-content domains land here). See `OVERVIEW.md` § "Domain inventory" for the live coverage table and current totals.
+Layer 1 covers six namespaces at schema v18:
+- **ezQuake** — 10 entity types + 4 asset relation tables; 4042 entities across 15 versions (v3.0 → 3.6.9 + head; pre-3.0 era de-scoped on community-security framing).
+- **FTE** — 5 entity types including cross-engine cvar aliases; build-6698 (engine + `plugin:ezhud` source root) plus full asset bundle (28 categories + 61 extensions + 13 path rules + 25 cvar bindings + 717 loader sites). 3279 entities total.
+- **QWCL** — 3 entity types (cvar / command / cmdline_param); single canonical version 2.33 (1996-vintage `cvar_t` shape carved out of the post-v17 `flags_raw` contract). 380 entities.
+- **MVDSV** — server-side; 7 entity types including the four MVDSV-introduced ones (protocol_message / info_key / log_template / qc_builtin); 2026-01-04 head snapshot; 1236 entities. No client snapshot (slipgate is the client).
+- **KTX** — engine port not started; tree-sitter-based when it lands. The "zero-debt-before-KTX" arc shipped 2026-04-29 to clean foundations before that work begins.
+- **`qw`** — the game itself, outside the version arc. 254 maps + id1 baseline game mechanics (37 entity defs + 41 mechanic rows). Future game-content domains land here.
 
-Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline - tier classification, session segmentation, summarization - has not been the current focus. Layer 3 has its first prototype notes (2026-04-22); broader population is ongoing as consumer questions surface material Layer 1 alone cannot answer.
+See `OVERVIEW.md` § "Domain inventory" for the live coverage table.
 
-The MCP surface is live (local server, Claude Code consumer). Snapshot distribution is a forward commitment; slipgate's current qw-config JSON consumption is the pre-snapshot state.
+Layer 2 (the 2.66M-message chat corpus) is imported and searchable but its processing pipeline — tier classification, session segmentation, summarization — has not been the current focus. Layer 3 has 9 hand-authored concept notes plus stewardship playbook; broader population is ongoing as consumer questions surface material Layer 1 alone cannot answer.
+
+The MCP surface is live (local server, Claude Code consumer). Snapshot distribution is also live: slipgate-app reads per-project JSON snapshots at `apps/slipgate-app/src/lib/config/data/` produced by Oracle's `build-snapshot` CLI (qw-config dissolution Half 2 closed this loop 2026-04-25).
 
 See `OVERVIEW.md` for the living lifecycle status and the code map.

@@ -1,14 +1,21 @@
 # Layer 1 Entity Types (ezQuake)
 
-Per-entity-type short-form documentation for Layer 1 of the QW Oracle knowledge service. Each entry uses the same five-field template plus a verification-status field, so consumers (docs, dashboards, future engine ports) reason about each type in a consistent shape.
+Per-entity-type short-form documentation for Layer 1 of the QW Oracle knowledge service. Each entry uses the same five-field template plus a verification-status field, so consumers reason about each type in a consistent shape.
 
-This doc is the per-type reference linked from `apps/qw-oracle/README.md` and from the monorepo-level `OVERVIEW.md`. It was produced by Pass 2 of the 2026-04-22 knowledge-service realignment roadmap.
+> **Scope and currency note (2026-04-29):** this doc covers **ezQuake only** (the 10 entity types loaded for that project). It was authored 2026-04-22 by Pass 2 of the knowledge-service realignment roadmap and predates the FTE / QWCL / MVDSV ports. Numbers and paths below are pre-Phase-6:
+> - Entity counts (e.g. "cvar 2901") are from a 2026-04-22 snapshot; current ezQuake@head counts live in the DB and `OVERVIEW.md` § Domain inventory.
+> - All `Sources:` / `Extractor:` references citing `packages/qw-config/scripts/...` paths predate the qw-config dissolution (2026-04-25). Real paths are `apps/qw-oracle/scripts/extractors/<project>/_handler_*.py` (post 2026-04-28 architecture consolidation).
+> - The closing "Future engine ports inherit this shape" section was authored when only ezQuake was loaded; FTE / QWCL / MVDSV all shipped between 2026-04-25 and 2026-04-27.
+>
+> A full refresh covering all four projects + the `qw` namespace is queued. Until it lands, treat this doc as ezQuake background reading; treat `SCHEMA.md` + the live DB + `docs/arc-history.md` as the authoritative current state.
+
+This doc is linked from `apps/qw-oracle/README.md` and from the monorepo-level `OVERVIEW.md`.
 
 **Runtime coverage verified 2026-04-25** via in-engine `cvarlist` / `cmdlist` dump diff:
 - **cvar**: 99.8% name coverage (2688/2693 runtime cvars in DB). Real gaps = 0; the 4 residuals are dynamically-created teamsay macros (`Cvar_Create` at config-exec time — out of reach for static extraction).
 - **command**: 100% of source-registered commands. The 130 runtime "gaps" are all HUD auto-synthesized names (+hud_*, -hud_*, plain plain-name toggles) already present in the DB as `hud_element`, a richer type.
 - **20-row field-accuracy sample**: 20/20 fields (default_value, flags_raw, on_change, source_file/line, trailing_comment) match source exactly, including binary-escaped default values and HUD positional-arg defaults.
-- See `packages/qw-config/docs/EXTRACTOR-PLAYBOOK.md` § Runtime validation playbook for the procedure, or `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` for the full audit that produced these numbers.
+- See `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` § Registration pattern catalog and `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` for the post-Phase-6 procedures, or `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md` for the original audit that produced these numbers.
 
 ## Contents
 

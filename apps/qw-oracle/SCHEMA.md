@@ -1,15 +1,17 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at schema v12, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`.
+Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at **schema v18**, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section, or `docs/arc-history.md` for the chronological chain. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`. The authoritative shape is `scripts/load-knowledge/schema.ts`.
 
 Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 
+> **Doc-currency note (2026-04-29):** the preamble + table map below reflect the live schema (v18) and the live table inventory (31 tables). The per-table sections that follow document tables back through schema v3 with mostly-current detail; some `Populated by:` paths still reference the pre-2026-04-25 `packages/qw-config/scripts/...` layout, and per-table "Count at head" figures are pre-Phase-6. Body refresh is queued (HANDOVER: "SCHEMA.md doc-style inconsistency" — scope being broadened in the next pass). Trust schema.ts and the live DB over per-table prose when they conflict.
+
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as the `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5/v12; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV11ToV12` in order.
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; `ezquake` and `qwcl` are populated today; `fte` is the next target). The `qw` namespace (v13) means "the game itself" -- content that exists outside any engine version arc. The `maps` table uses this namespace and has no `project` column; `qw` appears only in the `Project` TS union in `build-snapshot.ts`.
+- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5/v12/v15; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV17ToV18` in order. The schema version is tracked in the `schema_meta` table, NOT in PRAGMA `user_version` (which stays 0).
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. FTE has only `build-6698`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). MVDSV has only `head` (2026-01-04 snapshot, `f816d28`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; all four are populated today except `ktx`). The `qw` namespace (v13/v14) means "the game itself" — content that exists outside any engine version arc. The `qw` tables (`maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics`) have no `project` column; `qw` appears only in the `Project` TS union in `build-snapshot.ts`.
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
-- **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph).
+- **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive — `$B` blue LED vs `$b` glyph). MVDSV-introduced types carry compound name suffixes for cross-scope disambiguation: `info_key` uses `<bare>:<scope>` (e.g. `*z_ext:serverinfo`); `qc_builtin` uses `<bare>:<table_name>` (v18, mirroring info_key Phase B).
 - **Timestamps** are ISO 8601 strings. `extracted_at` is "most recent extraction for this row" — overwritten on re-run. Git history of `knowledge.db` is not recoverable from the row itself (it is gitignored).
 - **`source_ref` discipline** - every row that can carry a `source_file` / `source_line` does, even when blame is best-effort. The diff pipeline and MCP tools both consult these.
 
@@ -18,12 +20,13 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Group | Tables |
 |---|---|
 | Identity | `versions`, `entities` |
-| Per-type snapshots | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions`, `cvar_alias_versions` |
+| Per-type snapshots (engine, per-version arc) | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions`, `cvar_alias_versions`, `protocol_message_versions`, `info_key_versions`, `log_template_versions`, `qc_builtin_versions` |
 | Relations | `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes` |
+| qw namespace (game content, no version arc) | `maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics` |
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-Total: 22 tables at schema v12 + v13. (v12 widens the entities.type CHECK to admit `cvar_alias` and adds the `cvar_alias_versions` per-version table. v13 is pure-additive: adds the `maps` table in the new `qw` namespace with 2 indexes. No other v12 → v13 changes.)
+**Total: 31 tables at schema v18.** Migration chain (high-level): v1–v8 build the engine-entity arc; v9 adds `source_retired_at_version` to transitions reason CHECK; v10 widens project CHECK across 8 tables for QWCL; v11 adds `source_root` (FTE plugin distinction); v12 adds `cvar_alias` + `cvar_alias_versions`; v13 adds `maps` (`qw` namespace); v14 adds `gameplay_*` tables (`qw` namespace); v15 adds the four MVDSV-introduced entity types; v16 widens the `protocol_message` kind CHECK from 6 to 13 values (`pext_fte` / `pext_mvd` subdivide by macro-body shape); v17 reshapes `info_key` canonical names + cvar normalization; v18 reshapes `qc_builtin` canonical names. See `docs/arc-history.md` for per-arc context.
 
 ---
 
