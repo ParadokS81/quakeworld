@@ -10,8 +10,10 @@ Monorepo-aligned quartet (orient here first):
 - **OVERVIEW.md** - current-state living map: features, Firestore collections, Discord integration, voice-pairing flow
 - **DEPLOYMENT.md** - Firebase deploy flow
 
+**Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries). For deeper File-map / module-guide questions, see `context/ARCHITECTURE-MAP.md`.**
+
 Subsystem docs:
-- **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview (READ FIRST for orientation if modifying code)
+- **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview. Layer 3 reference doc; consult on demand.
 - **Data Schema**: `context/SCHEMA.md` - Firestore document structures (ALWAYS check before writing backend code)
 - **Pillar Documents**: `context/Pillar*.md` - Architecture specifications
 - **Slice Specs**: `context/slices/` - Feature implementation details

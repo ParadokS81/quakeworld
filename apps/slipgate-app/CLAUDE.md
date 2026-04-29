@@ -23,7 +23,7 @@ What the hardware scan collects and how | `docs/SYSTEM-SPECS.md`
 EloShapes API reference for the peripheral database | `docs/PERIPHERAL-SELECTOR.md`
 Deploy/release notes | `DEPLOYMENT.md`
 
-Start with `docs/OVERVIEW.md` when returning to the project after a break - it is the full living feature map.
+**Start with `docs/OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries). For a thinner app-root surface, see `OVERVIEW.md`.**
 
 ## Tech stack
 

@@ -10,6 +10,8 @@ Monorepo-aligned quartet:
 - **OVERVIEW.md** - current-state living map: what is loaded, what the API serves, research docs, code landmarks, parked items
 - Rest of this file: the technical reference (schema, scripts, API, methodology, domain notes). Lazy-migration target is to split this into DEVELOPMENT.md + SCHEMA.md + HEALTH.md when next actively touched; for now it stays consolidated.
 
+**Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries).**
+
 ## Purpose
 
 Build a data-driven ranking system for QuakeWorld 4on4 players and teams using real match statistics from QWHub (hub.quakeworld.nu). The goal is to produce rankings that pass the "sniff test" of experienced players -- if the algorithm doesn't put Milton near the top, it's broken.

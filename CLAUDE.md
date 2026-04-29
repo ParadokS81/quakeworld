@@ -15,6 +15,8 @@
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
 
+**Start with `OVERVIEW.md` when working in this monorepo — it's the load-bearing cross-app map (integration diagram, per-app status, packages, contracts).**
+
 ## How We Work
 
 ### Planning First - Non-Negotiable

@@ -19,6 +19,7 @@ Oracle maintains two SQLite stores side-by-side:
 
 | When you need... | Read... |
 |---|---|
+| Load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries) | `OVERVIEW.md` |
 | Vision: the knowledge service (Layers 1-3 + MCP + snapshot distribution), active-assistance answer-shape, consumer list | `VISION.md` |
 | Schema-as-code (v6 tables, migrations) | `scripts/load-knowledge/schema.ts` |
 | Knowledge-loader pipeline (types, adapters, CLI) | `scripts/load-knowledge/` |
@@ -35,6 +36,8 @@ Oracle maintains two SQLite stores side-by-side:
 | Layer 3 entry template (frontmatter + shape catalog) | `concept-notes/README.md` |
 | Layer 3 stewardship playbook (feeding paths, lifecycle, feedback loop) | `concept-notes/OPERATIONS.md` |
 | Legacy chat-corpus scripts (Layer 2) | `scripts/*.mjs` |
+
+**Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries).**
 
 ## Tech stack
 

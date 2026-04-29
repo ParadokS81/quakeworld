@@ -4,6 +4,8 @@
 
 Shared TypeScript lib for QW version arithmetic. Read `VISION.md` for why, `OVERVIEW.md` for what's here, `README.md` for the elevator pitch.
 
+**Start with `OVERVIEW.md` when working in this package — it's the load-bearing module map (what's here, what depends on what, what's stable vs in-flight).**
+
 ## Always-on rules
 
 - **Pure functions only.** No I/O, no DB, no fs, no network. If a function needs side effects, it does not belong here.

@@ -2,6 +2,8 @@
 
 Shared QW domain knowledge. Read `VISION.md` for identity, `OVERVIEW.md` for what's here, `README.md` for the elevator pitch.
 
+**Start with `OVERVIEW.md` when working in this package — it's the load-bearing module map (what's here, what depends on what, what's stable vs in-flight).**
+
 ## Always-on rules
 
 - **Do not add new content speculatively.** This package is parked pending qw-oracle Layer 3. New concept notes should wait for Layer 3; new reference data should have a named consumer before landing.
