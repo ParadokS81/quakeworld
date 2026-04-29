@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-29
 **Status:** Brainstormed and approved. Awaiting plan-writing.
-**Replaces:** Implicit doctrine in `~/.claude/skills/docs-check/SKILL.md` (336 lines, accreted) plus ad-hoc HANDOVER intake.
+**Replaces:** Implicit doctrine in `~/.claude/skills/docs-check/SKILL.md` (336 lines, accreted) plus ad-hoc HANDOVER intake (HANDOVER currently 1615 lines, 35 H2 anchors).
 **Driver:** docs-check is the #1 repeated-task per `/insights` (~12 mentions across 50 sessions). Heavy enough to skip on small sessions, which causes drift accumulation.
 
 ---
@@ -123,13 +123,19 @@ For each OVERVIEW.md:
 4. Verify: parked-with-purpose attestation, cruft attestation, design intent, code landmarks all preserved.
 5. Verify: feature catalogs, file walkthroughs, command tables that mirror code are gone.
 
+**Litmus test for "load-bearing vs catalog":** for each section, ask *"could a future Claude re-derive this content by grep + reading 1-2 source files in under 2 minutes?"* If yes → catalog → goes. If reproducing it requires cross-session memory, operator input, or attestation about parked-vs-cruft state → load-bearing → stays. This makes the slim-vs-keep call mechanical instead of interpretive — when in doubt, run the test rather than argue intent.
+
 ### Special case: matchscheduler
 
-`apps/matchscheduler/CLAUDE.md` references `context/ARCHITECTURE-MAP.md` as "READ FIRST for orientation" — predates the OVERVIEW doctrine. Reconcile during slim:
+`apps/matchscheduler/CLAUDE.md` references `context/ARCHITECTURE-MAP.md` as "READ FIRST for orientation" — predates the OVERVIEW doctrine. The full `apps/matchscheduler/context/` directory holds 17+ files (ARCHITECTURE-MAP.md, SCHEMA.md, QWHUB-API-REFERENCE.md, four Pillar PRDs, design docs, slices/) — a complete pre-monorepo doc system parallel to the new doctrine.
 
-- Read `context/ARCHITECTURE-MAP.md`.
-- Decide: absorb its load-bearing content into `OVERVIEW.md`, or keep ARCHITECTURE-MAP.md as a Layer 3 reference doc and delete the implicit duplication.
-- Update CLAUDE.md to remove the competing pointer; standardize on OVERVIEW.md per the doctrine.
+**Scope for this arc — narrow, no `context/` reorganization:**
+
+- Ensure `apps/matchscheduler/OVERVIEW.md` matches the slim doctrine (≤150 lines, content matches new "What goes in").
+- Remove the "READ FIRST for orientation" pointer to `context/ARCHITECTURE-MAP.md` from `apps/matchscheduler/CLAUDE.md`. Standardize on the OVERVIEW.md directive per Plan 5.
+- `context/ARCHITECTURE-MAP.md` stays in place as a Layer 3 reference doc — just no longer the orientation directive.
+- The remaining 16 files in `context/` are **out of scope** for this arc. Do not analyze, slim, or relocate them.
+- Add a HANDOVER sidequest entry in Plan 3's migration: "matchscheduler doc system reconciliation" — its own brainstorm when matchscheduler work earns it. Rationale: the 17-file system isn't empirically broken, and touching it without cause expands scope without grounding.
 
 ### Acceptance criteria for Plan 2
 
@@ -142,7 +148,7 @@ For each OVERVIEW.md:
 
 ## Plan 3 — HANDOVER docket migration
 
-**Goal:** convert `HANDOVER.md` from a hot-pot of mixed-lifecycle entries (1496 lines, 34 active items) into a docket — a thin index of pending work, with bodies routed to lifecycle-appropriate destinations.
+**Goal:** convert `HANDOVER.md` from a hot-pot of mixed-lifecycle entries (1615 lines, 35 H2 anchors) into a docket — a thin index of pending work, with bodies routed to lifecycle-appropriate destinations.
 
 ### The five-category routing model
 
@@ -183,7 +189,7 @@ Five sub-sections under the index header, lifecycle-state grouped:
 
 ### One-time migration
 
-The current HANDOVER.md (1496 lines) needs to be migrated. Per-entry decisions:
+The current HANDOVER.md (1615 lines, 35 H2 anchors) needs to be migrated. **Plan 3 ships a pre-classified table mapping every existing H2 anchor to one of the five buckets, with destination filename for arcs and retrospectives — execution is mechanical, not re-derivation.** Per-entry decision shapes:
 
 - **Currently inline body for an arc** (e.g., Slipgate Managed Mode pivot): move body to `docs/superpowers/parking/<topic>.md`. Replace HANDOVER body with a one-line index entry pointing at the parking file.
 - **Shipped arc with retained body for retrospective context** (e.g., Map knowledge layer SHIPPED, Zero-debt-before-KTX arc SHIPPED): move body to the relevant project's `arc-history.md`. Delete the HANDOVER index entry entirely.
@@ -197,11 +203,13 @@ After migration, expected HANDOVER.md size: 150-250 lines (mostly index + small 
 Create `docs/superpowers/parking/` (sibling to `specs/` and `plans/`). Each ongoing or future arc gets one file:
 
 - Filename: `YYYY-MM-DD-<topic>.md` (date is when the entry was opened, not last-touched)
-- Body shape: status, motivation, what's done if anything, what's next, dependencies/triggers, related specs/plans
+- **Body shape: reuse HANDOVER's existing template verbatim** — `**Added:**` / `**Status:**` / `**Verification first:**` / body sections / `**Pressure:**` / `**Related:**`. The shape is battle-tested; no new template. Migrating an HANDOVER body to a parking file is a copy-paste preserving structure.
 
-When an arc graduates from "future" to "ongoing," update the parking file's status; the HANDOVER index entry moves between sub-sections.
+When an arc graduates from "future" to "ongoing," update the parking file's `**Status:**` line; the HANDOVER index entry moves between sub-sections.
 
 When an arc ships, the parking file's content gets harvested into `arc-history.md` (project-level). The parking file itself can be deleted or kept as a seed-record — operator preference.
+
+**arc-history.md bootstrap rule:** create one only when a project ships its first arc in the new format. Do NOT pre-create empty `arc-history.md` files for slipgate / quad / qw-stats / matchscheduler. Today only `apps/qw-oracle/docs/arc-history.md` exists, and that's the only project with shipped retrospectives currently in HANDOVER — both situations align.
 
 ### Acceptance criteria for Plan 3
 
@@ -235,7 +243,7 @@ Steps in order:
 2. **Slim-doc freshness sweep** — for each touched project, scan the slim Layer 1 + Layer 2 docs for numerical drift, path drift, count drift. Track A drains applied inline if mechanical. This is the dominant high-yield function per the wrap-history analysis.
 3. **HANDOVER triage with 5-category routing** — for each finding not Track-A-drained, dispatch to small followup / sidequest / ongoing arc / future arc / shipped retrospective per Plan 3's model. Four categories index into HANDOVER; retrospectives go to `arc-history.md` and skip HANDOVER entirely.
 4. **Friction journal append** — one question: *"did this session reveal anything friction-shaped?"* If yes, append one line to `~/.claude/friction-log.md` (or per-project; TBD during plan-writing) under the appropriate category (tool/infra, reference gap, repeated manual work, communication). No 6-pattern checklist; the cross-session aggregation is `/insights`'s job.
-5. **Memory hygiene quick check** — `wc -c MEMORY.md` byte-size, project memory count. Trigger heavier consolidation only if 20KB / 150 lines / 30 project memories crossed. Otherwise skip.
+5. **Memory hygiene quick check (flag-only)** — `wc -c MEMORY.md` byte-size, project memory count. If 20KB / 150 lines / 30 project memories crossed: log a Section C finding noting that the deferred memory-consolidation arc should be scheduled. **No inline consolidation work in this skill** — that's the deferred arc's job per the Out-of-scope section. Otherwise skip silently.
 6. **Git state review** — same five checks as today (uncommitted, unpushed, branch drift, stale merged branches, remote main drift). Pure read; never mutates.
 
 ### Boundary signal scan
@@ -243,10 +251,10 @@ Steps in order:
 After Phase 1, check for arc-shipping signals:
 
 - Files touched > 15 across the session
-- Branch ahead of main by > 5 commits
+- **Session produced > 5 commits** (counts what actually happened in the session — works regardless of branch model, fits this monorepo's commit-direct-to-main workflow)
 - New top-level file, package, or app shipped
 - A doc-philosophy mandatory file is missing on a touched project (forces Phase 2)
-- OVERVIEW.md last touched > 3 sessions ago AND features landed since
+- **OVERVIEW.md last commit > 7 days ago AND code commits to that project landed since then** (uses verifiable wall-clock + git state instead of intangible session counting)
 - Operator explicitly stated arc-shipping language ("the arc is done", "we shipped X")
 - Operator explicitly requested full sweep ("do a full wrap")
 
@@ -265,6 +273,24 @@ Steps in order:
 ### Step ordering
 
 The full step sequence (Phase 1 + boundary + Phase 2) preserves the critical ordering rule from today's skill: **memory updates run LAST**, after doc updates and friction capture, so newly-surfaced facts flow into memory in the same pass.
+
+### Mode 1 / Mode 2 → Phase 1 / Phase 2 mapping
+
+The current skill's two-mode model maps to the new two-phase model as follows. Plan 4 ships this exact table so the rewrite is mechanical, not re-derived:
+
+| Current question | New phase |
+|---|---|
+| Mode 1 Q1-Q9 (9 Layer 2 triggers): "does the doc EXIST given the trigger?" | **Phase 2 existence check** |
+| Mode 1 Q1-Q9: "if the doc exists, is it FRESH given today's session?" | **Phase 1 freshness sweep** |
+| Mode 2 Q1 (was OVERVIEW touched?) | **Phase 1 freshness sweep** |
+| Mode 2 Q2 (quartet completeness — mandatory file missing) | **Phase 2 existence check** |
+| Mode 2 Q3 (features that belong on map) | **Phase 1 freshness sweep** |
+| Mode 2 Q4 (reconstruction count diagnostic) | **Phase 2 diagnostic** (signals OVERVIEW staleness) |
+| Mode 2 Q5 (numerical drift) | **Phase 1 freshness sweep — the dominant high-yield function** |
+| Mode 2 Q6 (VISION addendum) | **Phase 2** (rare, intent change) |
+| Mode 2 Q7 (session friction) | **Friction journal append (Phase 1, replaces the question)** |
+
+The split logic: every existing question whose value is "is the file present" goes to Phase 2 (rare, arc-shipping cost). Every question whose value is "does today's content match what shipped" stays in Phase 1 (always-runs, where drift catches happen). Mode 2 Q7 collapses to the friction-journal one-line append per spec line 237.
 
 ### Report shape
 
@@ -332,7 +358,7 @@ Not a "READ FIRST" directive — the file is reference material for digging into
 - Every project CLAUDE.md has a consistent, explicit "Start with OVERVIEW.md" directive.
 - Every project that has an `arc-history.md` has a CLAUDE.md pointer to it (reference, not READ-FIRST).
 - No project has competing pointers to other "READ FIRST" docs.
-- Directive wording is uniform across the fleet.
+- Directive intent is uniform across the fleet; minor wording variants OK if project context demands them.
 
 ---
 
