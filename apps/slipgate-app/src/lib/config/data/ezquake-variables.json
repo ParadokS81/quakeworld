@@ -1,8 +1,8 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-26T00:57:36.862Z",
-  "oracle_commit": "bbf8c2ebe1de8ec2539c2e6de446f5a97b3ef57c",
-  "knowledge_db_schema_version": 11,
+  "generated_at": "2026-04-30T23:24:39.244Z",
+  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
   "groups": [
@@ -278,39 +278,6 @@
     }
   ],
   "vars": {
-    "_vid_default_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the default video mode that the client uses.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "_vid_default_mode_win": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the default video mode that the client uses when windowed.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "_windowed_mouse": {
-      "type": "boolean",
-      "group-id": "28",
-      "values": [
-        {
-          "description": "Disable windowed mouse support so you can use the mouse in other applications.",
-          "name": "false"
-        },
-        {
-          "description": "Enabled windowed mouse support so you can use the mouse in the client.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "allow_download": {
       "type": "boolean",
       "group-id": "43",
@@ -346,25 +313,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "allow_download_gfx": {
-      "type": "boolean",
-      "group-id": "43",
-      "desc": "Enables downloading files from the server from the gfx directory.",
-      "remarks": "Server-side.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -552,49 +500,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "auth_validate": {
-      "type": "boolean",
-      "group-id": "27",
-      "remarks": "If you have 'auth_warninvalid 1' and someone gives a dirty hash in a version response (because they are using a hacked client that can't work out the right response), the client will print something like\n'Warning Invalid Client: playername (userid)' in your console ('auth_warninvalid 0' is default).",
-      "values": [
-        {
-          "description": "If you don't want your client to validate other ezQuake clients.",
-          "name": "false"
-        },
-        {
-          "description": "Performs the validation (but you need to use 'validate_clients')",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "auth_viewcrc": {
-      "type": "boolean",
-      "group-id": "27",
-      "values": [
-        {
-          "description": "the client hides the authentication CRC in f_version responses.",
-          "name": "false"
-        },
-        {
-          "description": "the client shows you the authentication CRC in f_version responses.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "auth_warninvalid": {
-      "type": "float",
-      "group-id": "27",
-      "desc": "Check auth_validate.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "b_switch": {
       "type": "enum",
       "group-id": "37",
@@ -653,23 +558,6 @@
       "default": "1",
       "desc": "This variable sets the volume of the CD music.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "block_switch": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not block task-switching",
-          "name": "false"
-        },
-        {
-          "description": "Block task-switching",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -854,162 +742,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the cfg browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the cfg browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the cfg browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the cfg browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the cfg browse.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the cfg browser. Each number represents one column. Their order represents the priority of the sorting.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cfg_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the cfg browser.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -1728,15 +1460,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "cl_debug_weapon_send": {
-      "type": "boolean",
-      "group-id": "21",
-      "default": "0",
-      "desc": "Sends information about client-side weapon selection, which is stored in .mvd on supported servers.",
-      "source_state": "doc_only",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
@@ -3762,14 +3485,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_weaponforgetondeath": {
-      "type": "string",
-      "group-id": "0",
-      "default": "0",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
     "cl_weaponforgetorder": {
       "type": "boolean",
       "group-id": "9",
@@ -4635,73 +4350,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "d_mipcap": {
-      "type": "enum",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "High texture detail.",
-          "name": "0"
-        },
-        {
-          "description": "Medium texture detail.",
-          "name": "1"
-        },
-        {
-          "description": "Low texture detail.",
-          "name": "2"
-        },
-        {
-          "description": "Minimum texture detail.",
-          "name": "3"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "d_mipscale": {
-      "type": "enum",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "Full object detail",
-          "name": "0"
-        },
-        {
-          "description": "Some object detail",
-          "name": "1"
-        },
-        {
-          "description": "Medium object detail",
-          "name": "2"
-        },
-        {
-          "description": "Low object detail",
-          "name": "3"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "d_subdiv16": {
-      "type": "boolean",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "Precise texture mapping (slower, more accurate).",
-          "name": "false"
-        },
-        {
-          "description": "Perspective correction only every 16 pixels (faster, less accurate).",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "deathmatch": {
       "type": "integer",
       "group-id": "43",
@@ -4780,162 +4428,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "demo_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the demo browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the demo browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the demo browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the demo browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the demo browser. Each number represents one column. Their order represents the priority of the sorting.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the demo browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "demo_capture_background_threads": {
       "type": "integer",
       "group-id": "7",
@@ -4998,14 +4490,6 @@
       "default": "128",
       "desc": "Sets bitrate for captured sound stream when demo_capture_mp3 is set to 1.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "demo_capture_quiet": {
-      "type": "boolean",
-      "group-id": "7",
-      "desc": "Stops sound being played during demo capture.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -7903,122 +7387,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "help_files_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color of directories in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_filecolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color for files in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_interline": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Adjust interlining of file list in /help filebrowser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Should the filenames in the help browser get scrolled if they don't fit when the file is selected?",
-      "values": [
-        {
-          "description": "Don't scroll names",
-          "name": "false"
-        },
-        {
-          "description": "Scroll names",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color of a selected file in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_showdate": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file last modification date in /help file browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_showsize": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file size in /help file browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_showstatus": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Show quick info about selected help file in /help file browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_showtime": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file last modification time in /help file browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_sortmode": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Switches sorting methods of files /help file browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "help_files_stripnames": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Strips filenames of help files.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hostname": {
       "type": "string",
       "group-id": "43",
@@ -10257,15 +9625,6 @@
       "default": "after",
       "desc": "Sets vertical align of fps counter.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_fps_decimals": {
-      "type": "integer",
-      "group-id": "29",
-      "desc": "How many decimal number should the FPS HUD element contain.",
-      "remarks": "Code says always three decimals.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -15861,88 +15220,6 @@
       "group-id": "19",
       "default": "0",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_align_x": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_align_y": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_frame": {
-      "type": "float",
-      "group-id": "28",
-      "desc": "Opacity of the background of the mouserate HUD element.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_frame_color": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Defines the color of the background of the mouserate HUD element. See HUD manual for more info.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_order": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_place": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Placement of the mouserate HUD element. HUD elements can be place into various screen areas or other elements. See HUD manual for more info.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_pos_x": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "Horizontal relative position of the mouserate HUD element.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_pos_y": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "Vertical relative position of the mouserate HUD element.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_mouserate_show": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Visibility of the mouserate HUD element.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -22283,49 +21560,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "in_di_buffered": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Direct Input: Use Immedia data instead of buffered mode of reading.",
-      "remarks": "This setting has been added only because Direct Input allows such mode of use. It is not going to decrease input lag, make the mouse responsiveness better, or anything like that. Read the official documentation on Direct Input to know the difference between buffered and immediate mode of use.",
-      "values": [
-        {
-          "description": "Use immediate data",
-          "name": "false"
-        },
-        {
-          "description": "Use events buffer to process the input data",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_di_bufsize": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "Size of the direct input buffer.",
-      "remarks": "On some circumstances the default size does not have to be sufficient.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_evdevice": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Specify device for evdev mouse.\nShould be absolute path like /dev/input/event0.\nUse in_evdevlist command to get lost of devices.",
-      "remarks": "You should have read access to your device.\nsudo chmod 644 /dev/input/event* should help you if you have trouble.",
-      "values": [
-        {
-          "description": "absolute path to mouse event device",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "in_grab_windowed_mouse": {
       "type": "boolean",
       "group-id": "11",
@@ -22377,96 +21611,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "in_m_os_parameters": {
-      "type": "enum",
-      "group-id": "28",
-      "desc": "Allows you to use your system mouse settings in the client.",
-      "values": [
-        {
-          "description": "Do not keep any of the system mouse settings",
-          "name": "0"
-        },
-        {
-          "description": "Keep acceleration settings",
-          "name": "1"
-        },
-        {
-          "description": "Keep speed settings",
-          "name": "2"
-        },
-        {
-          "description": "Keep both acceleration and speed settings",
-          "name": "3"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_m_smooth": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Enables advanced mouse smoothing.\nYou have to be using Direct Input for this to work.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_mmt": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Multithreaded mouse.\nFor most users in_mmt 1 + evdev gives the most smooth input.",
-      "remarks": "Linux only and evdev (in_mouse 3) only.",
-      "values": [
-        {
-          "description": "Read mouse data in main thread",
-          "name": "false"
-        },
-        {
-          "description": "Use separate thread for reading mouse data",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_mouse": {
-      "type": "enum",
-      "group-id": "28",
-      "desc": "Different types of mouse input\n[OBSOLETE in ezQuake 3.0]",
-      "remarks": "Linux: You have to set in_evdevice to proper value (/dev/input/eventX). Use command in_evdevlist to get the lost of proper values. Also in_mmt makes your mouse more smooth.",
-      "values": [
-        {
-          "description": "Mouse off",
-          "name": "0"
-        },
-        {
-          "description": "Windows: standard mouse; Linux: DGA mouse",
-          "name": "1"
-        },
-        {
-          "description": "Windows: Direct Input; Linux: X Mouse",
-          "name": "2"
-        },
-        {
-          "description": "Windows: Raw Input; Linux: EVDEV mouse",
-          "name": "3"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "in_raw": {
       "type": "boolean",
       "group-id": "11",
@@ -22484,24 +21628,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "in_raw_allbuttons": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Forces RAW Input handler to treat more incoming signals as mouse buttons.\nHelps if you cannot get some mouse buttons working in the game.",
-      "values": [
-        {
-          "description": "Only standard set of events is interpreted as mouse buttons",
-          "name": "false"
-        },
-        {
-          "description": "More events are interpreted as mouse buttons",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -23026,23 +22152,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "m_forcewheel": {
-      "type": "boolean",
-      "group-id": "28",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "If you have problems to get MWHEELUP and MWHEELDOWN working set this to 1.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "m_forward": {
       "type": "float",
       "group-id": "11",
@@ -23058,32 +22167,6 @@
       "default": "0.022",
       "desc": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_rate": {
-      "type": "float",
-      "group-id": "28",
-      "desc": "This variable should be set to your mouse rate (in Hz).\nNote: need -m_smooth and -dinput to commandline.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_showrate": {
-      "type": "boolean",
-      "group-id": "28",
-      "remarks": "Note: need -m_smooth and -dinput to commandline.",
-      "values": [
-        {
-          "description": "Disable",
-          "name": "false"
-        },
-        {
-          "description": "Print current mouse rate",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -23735,25 +22818,6 @@
       "default": "",
       "desc": "Maximum transmission unit size.\nSuggests maximum packet size to server, if supported.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mumble_enabled": {
-      "type": "boolean",
-      "group-id": "32",
-      "desc": "Turn on mumble positional audio support.",
-      "remarks": "Requires mumble to be loaded before toggling this on.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -24419,24 +23483,6 @@
       "default": "0",
       "desc": "Adjusts the vertical placement of mvd_status table.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mvd_write_xml": {
-      "type": "boolean",
-      "group-id": "24",
-      "desc": "Enables dumping of XML stats from a MVD.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -25134,30 +24180,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "r_aliastransadj": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_aliastransbase": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_ambient": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable controls the amount of ambient lighting on the map.\nWhen this variable is increased the map will become brighter and all walls and objects will be rendered in a lighter color.\nIt was removed in QWCL and has been re-introduced in this client, however it can only be used when the server is running with cheats enabled (for example \"qwsv -cheats\"), because it could be used as a cheat by making it easier to see players in dark corners when no fullbright skins are used.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "r_bloom": {
       "type": "boolean",
       "group-id": "8",
@@ -25254,14 +24276,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_clearcolor": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable changes the color of the areas outside the map, commonly seen when free floating as a spectator.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -25465,23 +24479,6 @@
       "default": "1",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "r_dspeeds": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not display renderer speed statistics.",
-          "name": "false"
-        },
-        {
-          "description": "Display renderer speed statistics.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "r_dynamic": {
@@ -25960,14 +24957,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_graphheight": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable used to set the number of lines displayed in the \"r_timegraph\" command.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "r_grenadetrail": {
       "type": "enum",
       "group-id": "8",
@@ -26195,43 +25184,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "r_max_size_1": {
-      "type": "enum",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Off.",
-          "name": "0"
-        },
-        {
-          "description": "Blend map textures.",
-          "name": "1"
-        },
-        {
-          "description": "Blend map textures and bsp entities (ammo, health etc.)",
-          "name": "2"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_maxedges": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_maxsurfs": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "r_nearclip": {
       "type": "float",
       "group-id": "53",
@@ -26310,40 +25262,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_numedges": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not print information about the number of edges.",
-          "name": "false"
-        },
-        {
-          "description": "Print information about the number of edges.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_numsurfs": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not print information about the number of surfaces.",
-          "name": "false"
-        },
-        {
-          "description": "Print information about the number of surfaces.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "r_particles_count": {
       "type": "integer",
       "group-id": "36",
@@ -26357,23 +25275,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_polymodelstats": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not print polygon model statistics.",
-          "name": "false"
-        },
-        {
-          "description": "Print polygon model statistics.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -26481,31 +25382,6 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "r_reportedgeout": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not report when running out of edges.",
-          "name": "false"
-        },
-        {
-          "description": "Report when running out of edges.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_reportsurfout": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "r_rlbloodcolor_big": {
@@ -26915,23 +25791,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_timegraph": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not display the timegraph.",
-          "name": "false"
-        },
-        {
-          "description": "Display the timegraph.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -27371,24 +26230,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_turbwarp": {
-      "type": "boolean",
-      "group-id": "31",
-      "remarks": "SW only!\nThis variable has the same effect as r_waterwarp in other quake clients.",
-      "values": [
-        {
-          "description": "Disable warping of surfaces.",
-          "name": "false"
-        },
-        {
-          "description": "Enable warping of surfaces.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "r_viewmodellastfired": {
       "type": "boolean",
       "group-id": "54",
@@ -27469,23 +26310,6 @@
       "default": "10 50 80",
       "desc": "Changes color of water when r_fastturb set to 1.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_zgraph": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not display the z-graph.",
-          "name": "false"
-        },
-        {
-          "description": "Display the z-graph.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -27676,42 +26500,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "s_alsa_device": {
-      "type": "string",
-      "group-id": "26",
-      "default": "default",
-      "desc": "Sets which device ALSA will be trying to open (when s_driver is set to alsa).\nIf \"default\" fails it will try \"hw\" and if that fails too, \"plug:hw\" will be tried.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_alsa_latency": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Specifies latency for ALSA.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_alsa_noworkaround": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "If you are having problems with ALSA you can try to set this var to 1 before you try legacy drivers.",
-      "remarks": "Linux/FreeBSD only.",
-      "values": [
-        {
-          "description": "Workaround enabled.",
-          "name": "0"
-        },
-        {
-          "description": "Workaround disabled. Try this if you are having problems with new ALSA driver.",
-          "name": "1"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_ambientfade": {
       "type": "float",
       "group-id": "45",
@@ -27736,25 +26524,6 @@
       "default": "0",
       "desc": "Audio device to use.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_bits": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "This defines how many sampling bits should be used, when using 16 bits the interpolation quality will be better.",
-      "remarks": "Linux only.\nUse s_restart after you change it.",
-      "values": [
-        {
-          "description": "16 bit sound.",
-          "name": "16"
-        },
-        {
-          "description": "8 bit sound.",
-          "name": "8"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -27788,43 +26557,6 @@
       "desc": "Indicates how large the audio buffer should be, in samples.\nIf 0, ezQuake will choose a sensible default, based on value of s_khz.",
       "remarks": "This is a suggestion only, the driver is free to choose a different value.\nSmaller buffer sizes generally result in lower latency, but higher CPU usage.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_device": {
-      "type": "string",
-      "group-id": "26",
-      "desc": "Allows you to choose from multiple sound devices.",
-      "remarks": "Linux only.\nUse s_restart after you change it.\n\nFor OSS you should use \"/dev/dsp\", \"/dev/dsp0\", \"/dev/dsp1\", etc.\nFor ALSA use \"default\", \"dmix\", etc.",
-      "values": [
-        {
-          "description": "device name.",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_driver": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "Specifices which sounddriver to use: ALSA/OSS or experimental Pulseaudio.",
-      "values": [
-        {
-          "description": "Will use ALSA drivers.",
-          "name": "alsa"
-        },
-        {
-          "description": "Will use OSS drivers.",
-          "name": "oss"
-        },
-        {
-          "description": "Will use experimental Pulseaudio drivers (note: have to be set in all loading configs before starting ezQuake to work!)",
-          "name": "pulse"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -27907,14 +26639,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "s_mixahead": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Only affects OSS and legacy ALSA:\n\nThis variable defines the delay time for sounds. How low you can set your sound mixahead depends on your FPS, when you set it too low, your sound will start crackling.\nGenerally, with 72 FPS you should be able to use a delay of 0.06 seconds.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_mm1_file": {
       "type": "string",
       "group-id": "45",
@@ -27951,42 +26675,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "s_noalsa": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "Determinates sound output for linux clients: ALSA or OSS.",
-      "remarks": "If you don't know what is ALSA and OSS - leave it at the default value.",
-      "values": [
-        {
-          "description": "Use ALSA sound output.",
-          "name": "0"
-        },
-        {
-          "description": "Use OSS sound output.",
-          "name": "1"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_noextraupdate": {
-      "type": "boolean",
-      "group-id": "45",
-      "values": [
-        {
-          "description": "Makes Quake update its sound buffers more often to avoid choppy sound when your fps is really low (20 or worse)",
-          "name": "false"
-        },
-        {
-          "description": "Don't use extra sound updates.\nGives a slight fps boost, but may lead to choppy sound on low-end machines.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_nosound": {
       "type": "boolean",
       "group-id": "45",
@@ -28002,15 +26690,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_oss_device": {
-      "type": "string",
-      "group-id": "26",
-      "default": "/dev/dsp",
-      "desc": "Specifies which device OSS will try to open.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -28047,14 +26726,6 @@
         }
       ],
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_pulseaudio_latency": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Specifies latency for Pulseaudio.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -28118,49 +26789,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "s_stereo": {
-      "type": "boolean",
-      "group-id": "26",
-      "desc": "Use stereo or mono sound.",
-      "remarks": "Linux only.\nUse s_restart after you change it.",
-      "values": [
-        {
-          "description": "Mono.",
-          "name": "false"
-        },
-        {
-          "description": "Stereo.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_swapstereo": {
       "type": "boolean",
       "group-id": "45",
       "default": "0",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_uselegacydrivers": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "If you are having problems with the new ALSA/OSS drivers you can enable this to be able to use legacy sound drivers, as in the ones used before v2.1.",
-      "remarks": "Linux/FreeBSD only.",
-      "values": [
-        {
-          "description": "Will use new sound drivers for ALSA/OSS.",
-          "name": "0"
-        },
-        {
-          "description": "Will use legacy drivers for ALSA/OSS (as used in versions before 2.1)",
-          "name": "1"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -28561,24 +27194,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sb_showcounters": {
-      "type": "boolean",
-      "group-id": "31",
-      "desc": "This toggles whether ezQuake should display the number of servers or players in the status line.",
-      "values": [
-        {
-          "description": "do not show the server/player counter in the status line.",
-          "name": "false"
-        },
-        {
-          "description": "show the server/player counter in the status line.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "sb_showfraglimit": {
       "type": "boolean",
       "group-id": "42",
@@ -28864,24 +27479,6 @@
       "desc": "Sets a fixed length for health/armor bars in autoID.",
       "remarks": "If 0, length will be based on scr_autoid_namelength and/or length of individual player's name.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_autoid_drawname": {
-      "type": "boolean",
-      "group-id": "31",
-      "desc": "Shows player names when using autoID.",
-      "values": [
-        {
-          "description": "Do not show player names.",
-          "name": "false"
-        },
-        {
-          "description": "Show player names.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -31017,162 +29614,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "skin_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the skin browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the skin browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the skin browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the skin browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the skin browser.\nEach number represents one column. Their order represents the priority of the sorting.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "skin_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the skin browser.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "spectator": {
       "type": "boolean",
       "group-id": "37",
@@ -31272,14 +29713,6 @@
       "default": "",
       "server-only": true,
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_aim": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "Sets the value for auto-aiming leniency.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -31531,7 +29964,7 @@
     "sv_demoregexp": {
       "type": "string",
       "group-id": "43",
-      "default": "\\\\.mvd(\\\\.(gz|bz2|rar|zip))?$",
+      "default": "\\.mvd(\\.(gz|bz2|rar|zip))?$",
       "server-only": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
@@ -31609,14 +30042,6 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "sv_fastconnect": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "actually no help.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "sv_forcenick": {
       "type": "boolean",
       "group-id": "43",
@@ -31689,23 +30114,6 @@
       "default": "1",
       "server-only": true,
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_highchars": {
-      "type": "boolean",
-      "group-id": "43",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable high character color names for players.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -32271,14 +30679,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_timeout": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "sv_timestamplen": {
       "type": "integer",
       "group-id": "43",
@@ -32381,22 +30781,6 @@
       "default": "60",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "sw_contrast": {
-      "type": "float",
-      "group-id": "30",
-      "desc": "Change contrast.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sw_gamma": {
-      "type": "float",
-      "group-id": "30",
-      "desc": "Change gamma.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "sys_command_line": {
@@ -33963,37 +32347,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_conaspect": {
-      "type": "string",
-      "group-id": "52",
-      "desc": "Keep the screen proportions to given aspect ratio.",
-      "remarks": "Always changes vid_conheight when you change vid_conwidth.",
-      "values": [
-        {
-          "description": "4:3 or 16:9 or 16:10 etc.",
-          "name": "*"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_config_x": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"640\".",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_config_y": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"400\"",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_conheight": {
       "type": "integer",
       "group-id": "52",
@@ -34023,30 +32376,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_customheight": {
-      "type": "integer",
-      "group-id": "52",
-      "desc": "Screen resolution width for custom screen mode.",
-      "remarks": "vid_mode must be -1.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_customwidth": {
-      "type": "integer",
-      "group-id": "52",
-      "desc": "Screen resolution height for custom screen mode.",
-      "remarks": "vid_mode must be -1.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_depthbits": {
-      "group-id": "31",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_displayfrequency": {
       "type": "integer",
       "group-id": "52",
@@ -34072,25 +32401,6 @@
       "default": "1",
       "desc": "When there is activity in the server, ezQuake's taskbar window will flash.\nActivity includes chat, high priority messages, disconnection from server.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_forcerestoregamma": {
-      "type": "boolean",
-      "group-id": "52",
-      "desc": "Force restore gamma after returning to minimized application.",
-      "remarks": "Might be usefull if you have ATI card.",
-      "values": [
-        {
-          "description": "Old way of restoring gamma.",
-          "name": "false"
-        },
-        {
-          "description": "Force restore in 1 sec.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -34390,14 +32700,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_fullscreen_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the full screen video mode that the game will switch to when the \"vid_fullscreen\" command is executed.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_gamma_workaround": {
       "type": "boolean",
       "group-id": "52",
@@ -34531,22 +32833,6 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "vid_mode": {
-      "type": "float",
-      "group-id": "23",
-      "desc": "This variables sets the next video mode to be used.\nAny change of this variable will cause the video mode to be changed immediately.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_nopageflip": {
-      "type": "float",
-      "group-id": "23",
-      "desc": "This variable toggles the use of page-flipping during supported video modes.\nBy default the game will allow for page-flipping for video modes that support this feature.\nFor example if a given VESA mode can support page flipping, then it defaults to page-flipped operation.\nA VESA mode can be forced to non-page-flipped operation by setting the \"vid_nopageflip\" variable to \"1\", then setting the mode (note that \"vid_nopageflip\" takes operation on the next, not the current video mode, and note that it then stays in effect permanently, even when the client is exited and restarted, unless it is manually set back to \"0\").\nIf there is not enough memory for two pages in a VESA mode, or if the adapter doesn't support page flipping, then the mode will automatically be nnon-page-flipped.\n\nPage-flipping works by drawing multiple virtual game screens at the same time in the video memory and then switching among them to display the current gamescreen. Page-flipped modes thus use less system memory than non-page-flipped modes, but require more video memory.\nWhen using page-flipping, visual quality may be higher, but performance of the game can change to better or worse, depending on the graphics adapter and other hardware (see the discussion of the Pentium Pro below, for a discussion of why page flipping can be faster but is sometimes much slower on that processor). However in most cases the performance (and thus frame rate) will be increased, but for people with hardware that has problems with page-flipping \"vid_nopageflip 1\" may help.\nThe Pentium Pro is an example for such a hardware: it is an okay client platform (sniff!), but it has one weak spot, it is by default very slow on writes to video memory.\nThis means that in default hardware configurations, you are usually much better off setting \"vid_nopageflip\" to \"1\" if you use VESA modes, so drawing is done to system memory instead of to video memory.\nRemember that you must set the mode after setting \"vid_nopageflip\" to \"1\" in order to get \"vid_nopageflip\" to take effect. \"vid_nopageflip 1\" can sometimes be faster on a Pentium too, but not by nearly as much in general, and it's often slower.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_reload_auto": {
       "type": "boolean",
       "group-id": "52",
@@ -34585,24 +32871,6 @@
         }
       ]
     },
-    "vid_resetonswitch": {
-      "type": "boolean",
-      "group-id": "23",
-      "remarks": "This is a workaround for the bug in some NVidia drivers, when you alt-tab out of ezQuake and the screen gets garbaged.\nWhen enabled, the client will reset your Windows video mode every time you press alt-tab. Note that some NVidia drivers lock up your system completely when you alt-tab: vid_resetonswitch will not help in this case (try starting ezQuake with -dibonly).",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_showextensions": {
       "type": "boolean",
       "group-id": "52",
@@ -34629,30 +32897,6 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "vid_stencilbits": {
-      "group-id": "31",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_stretch_by_2": {
-      "type": "boolean",
-      "group-id": "23",
-      "remarks": "This variable toggles whether in \"vid_mode 2\" the picture should be rendered at half-resolution in each direction and stretched up to the specified size.",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "vid_usedesktopres": {
@@ -34709,25 +32953,6 @@
       "desc": "Custom value for experimental vertical synchronization delay reduction.",
       "remarks": "Too low values (0.2 or lower) may significantly decrease FPS and make it not synced with display frequency.\nToo high values (10 and above) may turn off the effect of video lag fix completely.\nUse the lowest value that keeps stable FPS for you.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_wideaspect": {
-      "type": "boolean",
-      "group-id": "52",
-      "desc": "Recalculates screen proportions so that they suit wide-screen displays.\nIf you toggle this variable from 0 to 1, it will recalculate your field of view (fov) and screen proportions (conwidth/conheight ratio) so that the resulting image looks similar on a 16:10 screen as it did on 4:3 screen.",
-      "remarks": "The effect of the variable is only changing values of \"fov\" and \"vid_conheight\" variables when you toggle the value of this variable. The algorithm used to get resulting values is described in the QuakeWorld wiki.",
-      "values": [
-        {
-          "description": "Keep the settings suitable for 4:3 screen.",
-          "name": "false"
-        },
-        {
-          "description": "Recalculate proportions to match 16:10 screens.",
-          "name": "true"
-        }
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -34803,30 +33028,6 @@
       "default": "640",
       "desc": "Width of display when in windowed mode.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_window_x": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_window_y": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_windowed_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the windowed video mode that the game will switch to when the \"vid_windowed\" command is executed.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },

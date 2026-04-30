@@ -1,8 +1,8 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-25T22:27:22.273Z",
-  "oracle_commit": "79d1f587f6700aad2b9270d1b936f8948e6875b9",
-  "knowledge_db_schema_version": 10,
+  "generated_at": "2026-04-30T23:24:45.584Z",
+  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "knowledge_db_schema_version": 18,
   "project": "qwcl",
   "version": "2.33",
   "count": 187

@@ -6,11 +6,19 @@
 // JSONs is preserved so slipgate's loaders need zero structural change;
 // each entity row gains five additive fields:
 //
-//   source_state         "source_backed" | "doc_only" | "source_retired"
+//   source_state         "source_backed"  (filter below excludes doc_only
+//                                           and source_retired; dynamically_
+//                                           registered is mapped through to
+//                                           source_backed by loadEnrichment)
 //   first_seen_version   string
 //   last_seen_version    string
 //   default_history?     Array<{ version, value }>      (omitted when no changes)
 //   retired_at_version?  string                          (omitted when not retired)
+//
+// Filter scope: snapshots ship only entities the user can actually invoke at
+// the targeted version (slipgate's config viewer shows what the engine will
+// accept). doc_only zombies and source_retired entries stay in knowledge.db
+// for Layer 1 historical queries but never reach the slipgate consumer.
 //
 // File-root metadata: schema_version, generated_at, oracle_commit,
 // knowledge_db_schema_version. Lets debugging trace anomalies back to the
@@ -81,6 +89,7 @@ function loadEnrichment(
     SELECT id, name, source_state, first_seen_version, last_seen_version
     FROM entities
     WHERE project = ? AND type = ?
+      AND source_state IN ('source_backed', 'dynamically_registered')
   `).all(project, type) as Array<{
     id: number;
     name: string;
@@ -162,6 +171,7 @@ function fetchCvarRows(db: Database.Database, project: Project, version: string)
     FROM cvar_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ? AND cv.version = ?
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
   `).all(project, version) as Array<{
     name: string;
@@ -183,6 +193,7 @@ function fetchCommandRows(db: Database.Database, project: Project, version: stri
     FROM command_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ? AND cv.version = ?
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
   `).all(project, version) as Array<{
     name: string;
@@ -199,6 +210,7 @@ function fetchMacroRows(db: Database.Database, project: Project, version: string
     FROM macro_versions mv
     JOIN entities e ON e.id = mv.entity_id
     WHERE e.project = ? AND mv.version = ?
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
   `).all(project, version) as Array<{
     name: string;
@@ -216,6 +228,7 @@ function fetchCmdlineRows(db: Database.Database, project: Project, version: stri
     FROM cmdline_param_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ? AND cv.version = ?
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
   `).all(project, version) as Array<{
     name: string;

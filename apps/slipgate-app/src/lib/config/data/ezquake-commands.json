@@ -1,8 +1,8 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-26T00:57:36.862Z",
-  "oracle_commit": "bbf8c2ebe1de8ec2539c2e6de446f5a97b3ef57c",
-  "knowledge_db_schema_version": 11,
+  "generated_at": "2026-04-30T23:24:39.244Z",
+  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
   "groups": [
@@ -952,18 +952,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "dev_cache_print": {
-      "group-id": "deprecated",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "dev_cache_report": {
-      "group-id": "deprecated",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
     "dev_dump_defaults": {
       "group-id": "dev",
       "source_state": "source_backed",
@@ -1003,12 +991,6 @@
     "dev_help_verify_config": {
       "group-id": "dev",
       "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "dev_hunk_print": {
-      "group-id": "deprecated",
-      "source_state": "doc_only",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
@@ -1560,13 +1542,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "in_evdevlist": {
-      "group-id": "deprecated",
-      "desc": "Prints list of evdev devices.\nIf the list is empty, you probably don't have access rights to /dev/input/eventX\nsudo chmod 644 /dev/input/event* should help you.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "in_restart": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -1649,12 +1624,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "loadfont": {
-      "group-id": "deprecated",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
     "loadfragfile": {
       "group-id": "misc",
       "desc": "Loads the specified fragfile.",
@@ -1729,13 +1698,6 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "locname": {
-      "group-id": "deprecated",
-      "desc": "Create a new location in the current spot.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "log": {
@@ -1836,24 +1798,10 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "menu_fps": {
-      "group-id": "deprecated",
-      "desc": "This command will display the fps menu.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "menu_help": {
       "group-id": "menu",
       "desc": "This command will display the help menu.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "menu_keys": {
-      "group-id": "deprecated",
-      "desc": "This command will display the keys menu.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -1868,20 +1816,6 @@
       "group-id": "menu",
       "desc": "This command will display the main menu.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "menu_mp3_control": {
-      "group-id": "deprecated",
-      "desc": "This command will display the mp3 menu.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "menu_mp3_playlist": {
-      "group-id": "deprecated",
-      "desc": "This command will display the mp3 playlist menu.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -1913,13 +1847,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "menu_setup": {
-      "group-id": "deprecated",
-      "desc": "This command will display the setup menu.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "menu_singleplayer": {
       "group-id": "menu",
       "desc": "This command will display the singleplayer menu.",
@@ -1931,13 +1858,6 @@
       "group-id": "menu",
       "desc": "This command will display the server browser.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "menu_video": {
-      "group-id": "deprecated",
-      "desc": "This command will display the video menu.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -1984,117 +1904,6 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_fadeout": {
-      "group-id": "deprecated",
-      "desc": "Like stop but fades out.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_fforward": {
-      "group-id": "deprecated",
-      "desc": "Fast forward 5seconds.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_loadplaylist": {
-      "group-id": "deprecated",
-      "desc": "Loads the playlist filename.m3u\n\nExample:\nmp3_loadplaylist top10\n - loads top10.m3u.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_next": {
-      "group-id": "deprecated",
-      "desc": "Next song.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_pause": {
-      "group-id": "deprecated",
-      "desc": "Pause mp3.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_play": {
-      "group-id": "deprecated",
-      "desc": "Play mp3.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_playlist": {
-      "group-id": "deprecated",
-      "desc": "Displays playlist. Currently playing track is highlighted.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_playtrack": {
-      "group-id": "deprecated",
-      "desc": "Play track number #num from playlist.\n\nExample:\nmp3_playtrack 5\n - plays track 5 from playlist.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_prev": {
-      "group-id": "deprecated",
-      "desc": "Previous song.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_repeat": {
-      "group-id": "deprecated",
-      "desc": "Repeat playlist.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_rewind": {
-      "group-id": "deprecated",
-      "desc": "Rewind 5seconds.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_shuffle": {
-      "group-id": "deprecated",
-      "desc": "Shuffle mp3s.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_songinfo": {
-      "group-id": "deprecated",
-      "desc": "Displays song title and other info like time elapsed, total time, and whether paused, stopped or playing.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_startwinamp": {
-      "group-id": "deprecated",
-      "desc": "Starts winamp if it is not running.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_stop": {
-      "group-id": "deprecated",
-      "desc": "Stop mp3.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "mp3_volume": {
-      "group-id": "deprecated",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
     "msg_trigger": {
@@ -2314,13 +2123,6 @@
     "qtv_query_sourcelist": {
       "group-id": "misc",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "qtv_reconnect": {
-      "group-id": "deprecated",
-      "desc": "Reconnect to last QTV server the client was connected to.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -2594,13 +2396,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "score_own": {
-      "group-id": "deprecated",
-      "desc": "HUD element which display your (or the person's you are observing) amount of frags.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "scr_printspeed": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2660,13 +2455,6 @@
       "group-id": "sb",
       "desc": "Reports the current server info.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "serverstatus": {
-      "group-id": "deprecated",
-      "desc": "Prints the status of the ezQuake server.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -3014,35 +2802,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sys_forget_sandbox": {
-      "group-id": "deprecated",
-      "desc": "Clears the currently selected sandbox directory. On the next restart, ezQuake will prompt you to select a directory again.",
-      "remarks": "macOS only",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "tcl_eval": {
-      "group-id": "deprecated",
-      "desc": "Execute <string> as Tcl code.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "tcl_exec": {
-      "group-id": "deprecated",
-      "desc": "Execute a config as Tcl script.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "tcl_proc": {
-      "group-id": "deprecated",
-      "desc": "Execute a Tcl procedure <name> with parameters <parameters>. Procedure must be defined before thru tcl_eval or tcl_exec commands.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "tcpconnect": {
       "group-id": "misc",
       "desc": "Connects your client to a QuakeWorld server via TCP.",
@@ -3305,13 +3064,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "track-": {
-      "group-id": "deprecated",
-      "desc": "This means when you are spectating or watching an mvd, keys will automatically be assigned to track certain players.\nSo in a 4v4 8 keys are needed, the first 4 make you track the 4 players in the first team and the last 4 make you track the second team.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "track1": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -3482,13 +3234,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "validate_clients": {
-      "group-id": "deprecated",
-      "desc": "This shows authed ezQuake users, non-authed and non-ezQuake users.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "version": {
       "group-id": "misc",
       "desc": "Prints client version number and date into the console.",
@@ -3502,13 +3247,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_forcemode": {
-      "group-id": "deprecated",
-      "desc": "This command will force ezQuake to use a certain video mode.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "vid_framebuffer_palette": {
       "group-id": "video",
       "source_state": "source_backed",
@@ -3519,13 +3257,6 @@
       "group-id": "video",
       "desc": "This command will print out useful information about your video card, GL version, and refresh rate, video mode (width/height resolution and color depth) to console.\nUseful to make sure everything is right, and also to screenshot to show other people.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_minimize": {
-      "group-id": "deprecated",
-      "desc": "This command will minimize the windowed game screen.\nIt was made available because the game takes control over the mouse when it is moved onto the game window thus prohibiting the normal minimization of the game window.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
@@ -3546,20 +3277,6 @@
       "group-id": "video",
       "desc": "Will restart your video renderer. Needed for some changes to take affect.",
       "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_testmode": {
-      "group-id": "deprecated",
-      "desc": "This command will switch to the specified video mode for 5-seconds in order to test it.",
-      "source_state": "doc_only",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "vid_windowed": {
-      "group-id": "deprecated",
-      "desc": "This command will switch the a windowed video mode specified in the \"vid_windowed_mode\" variable.",
-      "source_state": "doc_only",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },

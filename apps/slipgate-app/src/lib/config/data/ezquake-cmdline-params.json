@@ -1,8 +1,8 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-26T00:57:36.862Z",
-  "oracle_commit": "bbf8c2ebe1de8ec2539c2e6de446f5a97b3ef57c",
-  "knowledge_db_schema_version": 11,
+  "generated_at": "2026-04-30T23:24:39.244Z",
+  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
   "params": {
@@ -88,6 +88,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "-d": {
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "-data": {
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
@@ -158,12 +163,6 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-gl-debug": {
-      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev",
-      "source_state": "doc_only",
-      "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
     "-gl-forward-only-profile": {
@@ -333,14 +332,6 @@
         "incomplete"
       ],
       "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "-nomouse": {
-      "flags": [
-        "incomplete"
-      ],
-      "source_state": "doc_only",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
