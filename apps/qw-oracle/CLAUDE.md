@@ -30,6 +30,7 @@
 |---|---|
 | `scripts/extractors/ezquake/diagnostics/` | Historical AST-spike outputs and debug log emissions (artifact dir; regenerable on demand). |
 | `scripts/extractors/mvdsv/validation-fixtures/` | Fixture corpus (artifact dir). The README inside is explicitly indexed via `scripts/extractors/mvdsv/CLAUDE.md` and remains reachable. |
+| `docs/upstream-prs/` | Auto-generated upstream PR digests (regenerable from `seeds/help_json_classifications.yaml` + repo HEAD via `scripts/build-help-json-pr-digest.py`). |
 
 ## Tech stack
 

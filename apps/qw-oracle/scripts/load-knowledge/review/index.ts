@@ -1,6 +1,6 @@
 // apps/qw-oracle/scripts/load-knowledge/review/index.ts
 //
-// Composes the five finders, writes the pre-seeded markdown draft, returns
+// Composes the six finders, writes the pre-seeded markdown draft, returns
 // a ReviewReport. Called by the CLI (index.ts) runReview handler.
 
 import { existsSync, readFileSync } from 'fs';

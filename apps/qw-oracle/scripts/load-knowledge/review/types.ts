@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/review/types.ts
 //
 // Public types for the extraction-review CLI subcommand.
-// Consumed by the five findings-*.ts modules, index.ts, draft-writer.ts,
+// Consumed by the six findings-*.ts modules, index.ts, draft-writer.ts,
 // and by the extraction-review skill on the stdout side.
 // Keep stable: skill prompt pattern-matches field names at runtime.
 
