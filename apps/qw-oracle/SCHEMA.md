@@ -43,7 +43,7 @@ One row per (project, version) pair loaded. The "have I seen this tag?" answer.
 | `version` | TEXT | Upstream tag string, or `head` |
 | `commit_sha` | TEXT | Resolved git SHA for the tag |
 | `tag_date` | TEXT nullable | ISO date of the tag |
-| `ordinal` | INTEGER | Monotone per-project ordering; drives diff "walk forward". Released tags use a semver-encoded number (3.6.1 -> 361, 3.6.6 -> 366). The `head` row uses sentinel `HEAD_ORDINAL = 999999` (exported from `schema.ts`) so it sorts after every release. CLI `--ordinal` is auto-defaulted to `HEAD_ORDINAL` when `--version=head`; tagged versions must pass `--ordinal` explicitly. |
+| `ordinal` | INTEGER | Monotone per-project ordering; drives diff "walk forward". Released tags use a semver-encoded number (3.6.1 -> 361, 3.6.6 -> 366). The `head` row uses sentinel `HEAD_ORDINAL = 999999` (exported from `schema.ts`) so it sorts after every release. CLI `--ordinal` is auto-defaulted to `HEAD_ORDINAL` when `--version=head`. |
 | `parse_state` | TEXT CHECK | `ok` / `partial` -- extractor health for this version |
 | `notes` | TEXT nullable | Free-form extractor notes |
 | `extracted_at` | TEXT | ISO timestamp |

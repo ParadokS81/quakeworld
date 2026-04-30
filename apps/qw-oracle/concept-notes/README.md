@@ -148,6 +148,9 @@ Length: ~15-150 lines depending on shape -- see the voice-and-length table above
 | `completing-legacy-fte-protocol-extensions` | Completing legacy FTE protocol extensions in ezQuake 3.6.6 | domain-guide | draft |
 | `client-side-server-exec-allowlist` | Client-side server-exec allowlist: guarding the client against hostile servers | security-policy | draft |
 | `ruleset-anti-script-restriction-pattern` | QW competitive ruleset anti-script restriction pattern | security-policy | draft |
+| `weapon-scripts` | QuakeWorld weapon scripts: the three practical methods | domain-guide | draft |
+| `lightning-gun-customization` | Customizing the Lightning Gun in QuakeWorld | domain-guide | draft |
+| `player-skins` | Player skins: identification, visibility, and tracking in QuakeWorld | domain-guide | draft |
 
 ## Candidate future notes
 

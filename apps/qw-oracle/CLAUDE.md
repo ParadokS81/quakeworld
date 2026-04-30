@@ -21,7 +21,8 @@ Oracle maintains two SQLite stores side-by-side:
 |---|---|
 | Load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries) | `OVERVIEW.md` |
 | Vision: the knowledge service (Layers 1-3 + MCP + snapshot distribution), active-assistance answer-shape, consumer list | `VISION.md` |
-| Schema-as-code (v6 tables, migrations) | `scripts/load-knowledge/schema.ts` |
+| Dev loops, runners, verifier scripts, prerequisites, gotchas | `DEVELOPMENT.md` |
+| Schema-as-code (v18 tables, migrations) | `scripts/load-knowledge/schema.ts` |
 | Knowledge-loader pipeline (types, adapters, CLI) | `scripts/load-knowledge/` |
 | End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
 | Layer 1 deep-time extraction roadmap (cliffs ahead, validation loop) | `docs/layer1-extraction-roadmap.md` |
@@ -56,7 +57,7 @@ apps/qw-oracle/
 ├── tsconfig.json
 ├── scripts/
 │   ├── load-knowledge/ # Layer 1 loader (TypeScript)
-│   │   ├── schema.ts           # v6 schema + migrations
+│   │   ├── schema.ts           # v18 schema + migrations
 │   │   ├── index.ts            # CLI: load-version, load-assets, diff, enrich
 │   │   ├── load-version.ts     # per-type adapter dispatch
 │   │   ├── load-assets.ts      # relation-row loader (asset_* tables)
