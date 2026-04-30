@@ -637,6 +637,23 @@ Files `sv_sys_win.c`, `sys_win.c`, and similar `#include <winsock2.h>` / `<mmsys
 
 ---
 
+## Help-JSON drift classification
+
+Every project with a `help_<entity_type>.json` file (currently ezQuake; FTE/QWCL pending) drifts over time as upstream renames/retires cvars/commands without pruning the help file. The qw-oracle pipeline classifies each `doc_only` entity into a closed six-value taxonomy (`renamed` / `retired_pre_walk_floor` / `never_implemented` / `extractor_gap` / `aspirational_documentation` / `intentional_typo_or_alias`).
+
+**Per-project workflow:**
+1. Run `python3 scripts/classify-help-json.py --project <name> --propose` to generate proposals via single-pass git-pickaxe blame (`extractor_lib/_help_json_blame.py`). The blame regex covers the union of doc_only names and same-type source-backed names so co-occurring rename additions are captured.
+2. Operator reviews proposals; auto-accepts high-confidence with `--apply --confidence-threshold high`; manually triages medium/low-confidence entries.
+3. Persistent classifications live in `<project>/seeds/help_json_classifications.yaml`.
+4. `extraction-review` CLI emits a `help-json-classification` finding for any `doc_only` entity not in the seed (the doc_only budget gate, enforced via `--fail-on help-json-classification`).
+5. `build-help-json-pr-digest.py --project <X>` generates `apps/qw-oracle/docs/upstream-prs/<X>-help-json-cleanup.md` for upstream PR contribution.
+
+**Auto vs manual:** the classifier proposes four kinds (`never_implemented`, `renamed`, `retired_pre_walk_floor`, `aspirational_documentation`). The other two (`extractor_gap`, `intentional_typo_or_alias`) require operator review and hand-edits to the YAML -- the validator rejects placeholder sidequest strings on `extractor_gap` entries to prevent silent acceptance.
+
+**Schema** (`extractor_lib/_help_json_classification.py`): six closed classification values; per-classification required fields enforced at YAML load time.
+
+---
+
 ## Porting to a new engine
 
 Stepwise checklist. Expect 1-3 days per engine depending on how many new registration patterns surface.

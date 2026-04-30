@@ -44,6 +44,20 @@ git -C research/repos/<project> rev-parse HEAD
 sqlite3 "$DB" "PRAGMA user_version;"  # should equal SCHEMA_VERSION in scripts/load-knowledge/schema.ts
 ```
 
+### Doc_only budget gate
+
+After every extraction, run `extraction-review` over the latest tag-pair with the gate flag:
+
+```bash
+npm --prefix apps/qw-oracle --no-workspaces --silent run load-knowledge -- review \
+  --project <name> --from <prev> --to <next> \
+  --fail-on help-json-classification
+```
+
+The review's `help-json-classification` bucket flags any `doc_only` entity not present in the project's `seeds/help_json_classifications.yaml`. The `--fail-on help-json-classification` flag returns exit code 2 when the bucket has any findings, blocking the snapshot from being merged into slipgate's data dir until each finding is resolved (operator runs `python3 scripts/classify-help-json.py --project <name>` and accepts/edits the proposal, or hand-classifies the entity as `extractor_gap` with a real HANDOVER sidequest reference -- the validator rejects placeholder sidequest strings).
+
+This converts a recurring class of mystery doc_only entries -- formerly accumulated as backlog with no triage -- into either a classification artifact (cached) or an extractor improvement task (sidequest). New mysteries surface at extraction time, not weeks later.
+
 ---
 
 ## Section 1: Reproducibility
