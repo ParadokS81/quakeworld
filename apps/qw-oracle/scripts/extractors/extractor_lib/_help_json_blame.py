@@ -79,7 +79,11 @@ def run_git_log(repo_path: Path) -> str:
         "--pretty=format:===COMMIT===%n%H%n%ad%n",
         "--date=short",
     ]
-    result = subprocess.run(git_cmd, capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        git_cmd, capture_output=True, text=True,
+        encoding="utf-8", errors="replace",
+        check=False,
+    )
     if result.returncode != 0:
         raise RuntimeError(f"git log failed: {result.stderr}")
     return result.stdout
