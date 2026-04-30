@@ -135,12 +135,24 @@ Subcommands:
 
 // Resolve --ordinal from CLI args. The 'head' version defaults to
 // HEAD_ORDINAL when --ordinal is omitted, so operators don't have to remember
-// the sentinel value. Tagged releases must pass --ordinal explicitly (a
-// semver-encoded number; see schema.ts).
-function resolveOrdinal(version: string | undefined, raw: string | undefined): number {
+// the sentinel value. Tagged releases use the explicit --ordinal when
+// passed; otherwise the (project, version) pair is looked up in the
+// versions table -- only net-new versions need the flag.
+function resolveOrdinal(
+  db: ReturnType<typeof openKnowledgeDb>,
+  project: Project,
+  version: string | undefined,
+  raw: string | undefined,
+): number {
   if (raw !== undefined) return Number(raw);
   if (version === 'head') return HEAD_ORDINAL;
-  throw new Error('--ordinal is required for tagged versions');
+  if (version) {
+    const row = db.prepare(
+      `SELECT ordinal FROM versions WHERE project = ? AND version = ?`,
+    ).get(project, version) as { ordinal: number } | undefined;
+    if (row) return row.ordinal;
+  }
+  throw new Error('--ordinal is required for tagged versions not yet in the versions table');
 }
 
 async function runLoadVersion(args: string[]): Promise<void> {
@@ -175,7 +187,7 @@ async function runLoadVersion(args: string[]): Promise<void> {
       jsonPath: values.json!,
       commitSha: values.commit!,
       tagDate: values['tag-date'] ?? null,
-      ordinal: resolveOrdinal(values.version, values.ordinal),
+      ordinal: resolveOrdinal(db, values.project as Project, values.version, values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-cvars@1.0.0',
       forceOverwrite: values.force ?? false,
     });
@@ -277,7 +289,7 @@ async function runLoadAssets(args: string[]): Promise<void> {
       jsonPath: values.json!,
       commitSha: values.commit!,
       tagDate: values['tag-date'] ?? null,
-      ordinal: resolveOrdinal(values.version, values.ordinal),
+      ordinal: resolveOrdinal(db, values.project as Project, values.version, values.ordinal),
       extractorVersion: values['extractor-version'] ?? 'clang-ezquake-assets@1.0.0',
     });
     console.log(JSON.stringify(result, null, 2));
@@ -343,7 +355,7 @@ async function runExtractTag(args: string[]): Promise<void> {
       db,
       project: values.project as Project,
       version: values.version!,
-      ordinal: resolveOrdinal(values.version, values.ordinal),
+      ordinal: resolveOrdinal(db, values.project as Project, values.version, values.ordinal),
       commitSha: values.commit,
       tagDate: values['tag-date'],
       githubToken: values['github-token'] ?? process.env.GITHUB_TOKEN,

@@ -151,6 +151,10 @@ export interface LoadVersionResult {
   entitiesUpserted: number;
   versionsUpserted: number;
   transitionsLogged: number;
+  // Rows in the per-type versions table for this (project, type, version)
+  // after the load completes. Equals `entitiesUpserted - typeMismatchOrphansPruned`
+  // for steady-state runs; the post-load SQL count is authoritative because
+  // the prune can also touch entities from other versions.
   entityCount: number;
   parseState: 'ok' | 'partial';
   typeMismatchOrphansPruned: number;
@@ -674,17 +678,31 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     setMeta.run(`${options.project}:source_repo_commit`, options.commitSha);
     setMeta.run(`${options.project}:source_repo_tag`, options.tagDate ? options.version : '');
 
-    return { upserted, transitions, orphansPruned: orphansPrunedCount };
+    // Post-load row count for this (project, type, version). Reflects the
+    // actual DB state after upserts and cross-type orphan prune, so callers
+    // don't have to math `entries - skipped - pruned`.
+    const dbCount = options.db.prepare(`
+      SELECT COUNT(*) AS n FROM ${adapter.versionsTable} cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = ? AND e.type = ? AND cv.version = ?
+    `).get(options.project, options.type, options.version) as { n: number };
+
+    return {
+      upserted,
+      transitions,
+      orphansPruned: orphansPrunedCount,
+      dbEntityCount: dbCount.n,
+    };
   });
 
-  const { upserted, transitions, orphansPruned } = txn();
+  const { upserted, transitions, orphansPruned, dbEntityCount } = txn();
 
   return {
     extractorRunId,
     entitiesUpserted: upserted,
     versionsUpserted: 1,
     transitionsLogged: transitions,
-    entityCount: entryCount,
+    entityCount: dbEntityCount,
     parseState: parseStateFinal,
     typeMismatchOrphansPruned: orphansPruned,
   };

@@ -12,10 +12,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
-- [ezquake variables-ast.json non-determinism](#ezquake-variables-astjson-non-determinism-2026-04-29) — medium pressure. Stable-key sort or `PYTHONHASHSEED`. Affects validation runbook Section 1.1.
-- [extract-tag CLI quality-of-life issues](#extract-tag-cli-quality-of-life-issues-2026-04-29) — low pressure. Loader-summary 2-row gap + `--ordinal` lookup.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — low pressure. Spec-ready fix in `semantic-match.ts`.
-- [qw-oracle DEVELOPMENT.md missing](#qw-oracle-developmentmd-missing) — discoverability gap; one new doc.
 - [`-nopriority` cmdline_param recovery (Windows SDK stubs)](#-nopriority-cmdline_param-recovery-windows-sdk-stubs) — deferred from Layer 1 doc_only audit; waits on first MVDSV/FTE same-wall hit before solving in one place.
 
 ### Sidequests
@@ -51,6 +48,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [L1-beta: Cross-format binary fingerprinting](docs/superpowers/parking/2026-04-29-l1-beta-cross-format-fingerprinting.md) — Pass 3 carry-forward.
 - [L1-gamma: Engine helpdoc / data-file recognition](docs/superpowers/parking/2026-04-29-l1-gamma-helpdocs.md) — Pass 3 carry-forward.
 - [L1-delta: Stock asset catalog](docs/superpowers/parking/2026-04-29-l1-delta-stock-pak.md) — Pass 3 carry-forward.
+- [Memory system consolidation](docs/superpowers/parking/2026-04-29-memory-system-consolidation.md) — watching; new docs-system structure may have closed the inflow. Re-eval ~2026-05-20 or on Phase 1 hygiene flag.
 
 ### Recently opened (this session)
 - (none — catch-all section for items added during this wrap-up; triaged into the right section next session.)
@@ -76,58 +74,6 @@ Without this, downstream readers can't distinguish "stale snapshot at write-time
 ### Pressure
 
 Low; aspirational rule for future arcs. No retroactive fix planned for the 2026-04-28 reports — rather, calibrate the next validation pass against this rule.
-
----
-
-## ezquake variables-ast.json non-determinism (2026-04-29)
-
-**Added:** 2026-04-29. **Status:** Open. Affects validation runbook Section 1.1 ("re-run extractor and confirm zero git diff") for ezquake.
-
-### Finding
-
-Phase 6 byte-reproducibility check on 2026-04-29 surfaced that `apps/qw-oracle/scripts/extractors/ezquake/output/ezquake-variables-ast.json` shows a symmetric 140-insertion / 140-deletion diff vs git HEAD when re-extracted from a fresh process invocation. The diff is pure ordering — same record set, two records swapped.
-
-- **Within one process:** byte-identical.
-- **Within one day, separate process invocations:** byte-identical (verified across 2nd and 3rd Phase 6 runs).
-- **Across days (morning Phase 1 vs evening Phase 6):** differs by exactly 140 line swaps.
-- **Scope:** ezquake `variables-ast.json` only. The other 7 ezquake JSON files revert to HEAD-identical on rerun. FTE / QWCL / MVDSV all pass byte-reproducibility cleanly today.
-
-### Diagnosis
-
-Classic multiprocessing-order / `PYTHONHASHSEED` non-determinism. The cvar variables extractor uses `multiprocessing` to fan out across TUs (Pattern 13 in `EXTRACTOR-PLAYBOOK.md`: multiprocessing-safe two-row emission for cross-file resolution); worker completion order can leak into final emission ordering for some pair of records. Not a correctness bug — entity counts, source citations, and DB shape are all unchanged across runs.
-
-### Fix shape (two options)
-
-1. **Stable-key sort before JSON write.** Sort emitted rows by `(canonical_name, source_file, line_no)` (or equivalent stable composite) immediately before serialization. Lowest-effort, project-local fix.
-2. **Set `PYTHONHASHSEED` in the driver.** Pin the seed in the extract-tag invocation so dict/set iteration order is deterministic across process boundaries. Broader fix, also addresses any latent same-shape gaps in other handlers.
-
-Option 1 preferred — narrower scope, more obvious intent, doesn't constrain Python runtime semantics elsewhere.
-
-### Why this matters
-
-`apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` Section 1.1 prescribes "re-run the extractor and confirm zero git diff" as foundational acceptance. Currently FAILS for ezquake across long-separated runs until this is fixed. The `validate-extractor` skill assumes Section 1.1 holds, so the skill cannot cleanly green-tick ezquake under the current handler.
-
-### Pressure
-
-Medium. Affects the runbook's foundational acceptance criterion. Not blocking KTX onboarding (KTX is its own extractor with its own handlers), but should be cleared before the next ezquake-touching arc.
-
----
-
-## extract-tag CLI quality-of-life issues (2026-04-29)
-
-**Added:** 2026-04-29. **Status:** Open. Two small pre-existing CLI papercuts; bundle as one quality-of-life pass.
-
-### (1) Loader-summary 2-row discrepancy
-
-`extract-tag --project ezquake --version head` reports `entitiesLoaded.cvar = 2901` while the live DB shows 2899 for `ezquake@head` (gap reproduced across all six 2026-04-29 re-extraction runs). Two rows are counted by the loader pipeline summary but not stored. Either the summary counts a stage that pre-dedups by 2 rows or the DB enforces a uniqueness constraint that two rows hit. Other projects appear consistent (FTE 2482, QWCL 187, MVDSV 183 — summary matches DB).
-
-### (2) `--ordinal` required for already-loaded versions
-
-`extract-tag --project <p> --version <v>` fails with `Error: --ordinal is required for tagged versions` even when the project+version pair is already in the `versions` table. The ordinal is recoverable from `SELECT ordinal FROM versions WHERE project=? AND version=?`. UX win: when the row exists, look it up; only require `--ordinal` for net-new versions.
-
-### Pressure
-
-Low for both. Bundle as one CLI quality-of-life pass when next touching `apps/qw-oracle/scripts/load-knowledge/index.ts` (the `runExtractTag` and `resolveOrdinal` paths).
 
 ---
 
@@ -173,35 +119,6 @@ Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment t
 
 ---
 
-## qw-oracle DEVELOPMENT.md missing
-
-**Added:** 2026-04-21 (during Phase 2c-asset arc cleanup).
-**Status:** Open; low pressure. Discoverability gap.
-**Verification first:** `ls apps/qw-oracle/DEVELOPMENT.md 2>&1` should fail.
-
-### What's missing
-
-`apps/qw-oracle/` lacks a `DEVELOPMENT.md` that indexes the per-project test runners, verifier scripts, and dev-loop commands. Today the relevant commands are scattered:
-
-- `bun run typecheck` (root `package.json`)
-- `npm run load-knowledge -- <subcommand>` (loader CLI)
-- `bun run scripts/verify-rewrite.ts` (MCP server smoke)
-- `pytest scripts/extractors/<project>/tests/` (per-extractor tests)
-- `npm run load-knowledge -- quality-grid --project <p>` (Layer 1 quality-grid)
-- `bun test` (TS unit tests in serve/mcp + scripts)
-
-Each is documented somewhere (CLAUDE.md, individual READMEs, EXTRACTOR-PLAYBOOK.md) but there's no single index. Onboarding an operator-side change-author or a future contributor requires hunting.
-
-### Fix shape
-
-Author `apps/qw-oracle/DEVELOPMENT.md` per the doc-template.md DEVELOPMENT.md entry. Sections: prerequisites (bun, node, python, libclang), per-subsystem dev loops (loader / extractors / MCP / quality-grid / Layer 3), troubleshooting (libclang version mismatch, python venv issues), commands cheatsheet.
-
-### Pressure
-
-Low. The skill's Mode 1 trigger Q6 ("Did this session change how to run, build, or test the project?") doesn't fire for steady-state work, so the doc never gets nudged into existence. Add when the next dev-loop change lands or when a new contributor needs onboarding.
-
----
-
 ## `-nopriority` cmdline_param recovery (Windows SDK stubs)
 
 **Added:** 2026-04-25 (split from the "Layer 1 doc_only audit closed" retrospective during 2026-04-29 docs-system-redesign migration). Original audit body now in `apps/qw-oracle/docs/arc-history.md`.
@@ -227,3 +144,4 @@ Low. Deferred until MVDSV or FTE hits the same wall — then solve in one place.
 - Origin: Layer 1 doc_only audit closure 2026-04-25 (now in `apps/qw-oracle/docs/arc-history.md`).
 - Companion sidequest: "Sub-pattern 2b: cmdline variant-matrix gaps" (2 ezQuake + 11 QWCL entries on same solve).
 - Source citation: `research/repos/ezquake-source/src/sv_sys_win.c:645`.
+
