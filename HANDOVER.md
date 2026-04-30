@@ -12,7 +12,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
-- [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — low pressure. Spec-ready fix in `semantic-match.ts`.
 - [`-nopriority` cmdline_param recovery (Windows SDK stubs)](#-nopriority-cmdline_param-recovery-windows-sdk-stubs) — deferred from Layer 1 doc_only audit; waits on first MVDSV/FTE same-wall hit before solving in one place.
 
 ### Sidequests
@@ -74,48 +73,6 @@ Without this, downstream readers can't distinguish "stale snapshot at write-time
 ### Pressure
 
 Low; aspirational rule for future arcs. No retroactive fix planned for the 2026-04-28 reports — rather, calibrate the next validation pass against this rule.
-
----
-
-## Semantic-pass abbreviation-bridge heuristic
-
-**Added:** 2026-04-24 (sanity-sample calibration P3)
-**Status:** Spec-ready. Not a Phase 2f blocker — operators catch these at walk time. Worth fixing during or before Phase 2f walks reach the affected pairs for better automation.
-**Verification first:** `grep -nE "prefix_signature|abbreviationBridge|abbreviation.bridge|prefix_match" apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` — if any match surfaces, this entry has been acted on and should be removed or updated.
-
-The semantic pass in `apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts` currently matches release-note bodies to clusters via (a) entity-name token overlap, (b) commit-message prefix tags (SECURITY:, RENDERER:, etc.), and (c) cross-name transforms for protocol extensions (`FTE_PEXT_*` <-> `cl_pext_*`). It does not bridge **abbreviation <-> expansion**.
-
-### Concrete case that failed during calibration
-
-3.6.1 → 3.6.2 has a 55-member cluster (PR 567 by ewhac, "INPUT: Restore joystick support") containing entities `joyadvanced`, `joyflysensitivity`, `joypitchsensitivity`, `joyindex`, `joyname`, `aux1`-`aux32`, etc. The associated release-note bullet reads *"Restore joystick support (ewhac)"*. The semantic pass did not propose cluster membership because no entity token literally equals "joystick" — they tokenize as `joy*` single-token names (no underscore) and `aux*`.
-
-A human would bridge trivially: "joystick" starts with "joy", which is the common prefix of N cluster members. The detector should do the same.
-
-### Proposed heuristic
-
-Add to `semantic-match.ts` a fourth match path after (a)-(c):
-
-1. For each cluster, compute a `prefix_signature`: the set of first-3-char substrings shared by at least 3 cluster members' first token. Example: joy-cluster → `{'joy'}`; hud_ammo cluster → `{'hud'}`; gl_outline → `{'gl_'}` (rejected, contains underscore — single-token only).
-2. For each release-note body, tokenize to words (split on whitespace + punctuation).
-3. For each word W of length >= 6, test whether W starts with any cluster's `prefix_signature` entry.
-4. When match, propose cluster membership with rationale: *"abbreviation match: release-note word 'joystick' starts with cluster prefix 'joy' (N members share prefix)"*.
-
-### Guard rails
-
-- Min word length >= 6 (avoids short-word coincidences).
-- Min shared-prefix char length >= 3 (avoids 2-char noise).
-- Min members sharing prefix >= 3 (avoids 2-member coincidences).
-- Single-token names only (gl_outline-family already clusters via `prefix:gl_outline` in the mechanical pass).
-- Over-proposal is the designed failure mode — operator confirms at walk time.
-
-### Pressure
-
-Low. Not blocking Phase 2f. Real walks will catch the gap at operator judgment time.
-
-### Related
-
-- Modify: `apps/qw-oracle/scripts/load-knowledge/review/semantic-match.ts`
-- Verify: re-run `review --project ezquake --from 3.6.1 --to 3.6.2` and confirm `release_notes:25` gains `proposed_cluster_id` pointing at the joystick cluster.
 
 ---
 

@@ -2,16 +2,21 @@
 //
 // Semantic pass for source-invisible (Q5 / release-notes) findings per
 // spec §1.2. Runs after mechanical cluster detection; matches each Q5
-// bullet's body against existing non-Q5 clusters using two heuristic
+// bullet's body against existing non-Q5 clusters using three heuristic
 // signals, and proposes (proposal, not mandate) a cluster_id on the
 // finding.
 //
-// Two-stage detector:
+// Three-stage detector:
 //  1. Direct signal: entity-name token overlap between the release-note
 //     body and cluster members' entity names, with a shared-prefix fuzzy
 //     match (downloadable <-> downloads, transparency <-> verfortrans).
-//  2. Theme extension: once a cluster attracts >=1 Q5 bullet via the
-//     direct signal, pull in other Q5 bullets that share the same
+//  1.5 Abbreviation bridge: a body word starts with a 3-char prefix that
+//     >=3 of a cluster's single-token members share. Bridges expansions
+//     to abbreviated identifier families ("joystick" word -> joy* cvar
+//     cluster, "auxiliary" -> aux* cluster). Only fires when stage 1
+//     produced no proposal for the finding.
+//  2. Theme extension: once a cluster attracts >=1 Q5 bullet via stages
+//     1 or 1.5, pull in other Q5 bullets that share the same
 //     commit-message-style prefix (SECURITY:, PROTOCOL:, RENDERER:, ...).
 //     This is the pattern the 3.6.5 -> 3.6.6 walk hit when #64 + #79
 //     needed to join the security cluster despite lacking entity-name
@@ -26,6 +31,14 @@ import type { Cluster, Finding } from './types.js';
 
 const MIN_TOKEN_LEN = 4;
 const SHARED_PREFIX_THRESHOLD = 5;
+
+// Abbreviation-bridge tunables. Body word "joystick" (8 chars) bridges to
+// joy-cluster (10+ members named joy* / aux*) when no single member-name
+// token directly matches. Operator confirms at walk time; over-proposal is
+// the designed failure mode.
+const ABBREV_MIN_WORD_LEN = 6;
+const ABBREV_MIN_PREFIX_LEN = 3;
+const ABBREV_MIN_MEMBERS = 3;
 
 // Words that show up in release-note bodies but carry no cluster signal.
 // Kept short; expand only when a false-positive is observed.
@@ -86,13 +99,23 @@ export function runSemanticMatch(
   const findingById = new Map<string, Finding>();
   for (const f of findings) findingById.set(f.id, f);
 
-  // Precompute cluster -> { memberNames[], themeCounts{prefix: count} }.
+  // Precompute cluster -> { memberNames[], themeCounts{prefix: count},
+  // prefixSignature{3char-prefix: memberCount} }. prefixSignature only
+  // counts single-token member names (no '_'); multi-token names already
+  // cluster mechanically via clusters.ts's prefix-key path.
   const clusterIndex = targetClusters.map((c) => {
     const memberNames: string[] = [];
     const memberThemes = new Map<string, number>();
+    const prefixCounts = new Map<string, number>();
     for (const memberId of c.members) {
       const name = entityNameFromMemberId(memberId);
-      if (name) memberNames.push(name);
+      if (name) {
+        memberNames.push(name);
+        if (!name.includes('_') && name.length >= ABBREV_MIN_PREFIX_LEN) {
+          const p = name.slice(0, ABBREV_MIN_PREFIX_LEN);
+          prefixCounts.set(p, (prefixCounts.get(p) ?? 0) + 1);
+        }
+      }
       const f = findingById.get(memberId);
       if (f) {
         const theme = extractTheme(f.evidence.to_value ?? '')
@@ -100,7 +123,11 @@ export function runSemanticMatch(
         if (theme) memberThemes.set(theme, (memberThemes.get(theme) ?? 0) + 1);
       }
     }
-    return { cluster: c, memberNames, memberThemes };
+    const prefixSignature = new Map<string, number>();
+    for (const [p, count] of prefixCounts) {
+      if (count >= ABBREV_MIN_MEMBERS) prefixSignature.set(p, count);
+    }
+    return { cluster: c, memberNames, memberThemes, prefixSignature };
   });
 
   // Stage 1: direct entity-name overlap per source-invisible finding.
@@ -169,8 +196,65 @@ export function runSemanticMatch(
     }
   }
 
+  // Stage 1.5: abbreviation bridge. For Q5 findings still without a
+  // proposal, scan body words >=ABBREV_MIN_WORD_LEN chars; if a word
+  // starts with a 3-char prefix that >=ABBREV_MIN_MEMBERS single-token
+  // cluster members share, propose that cluster. When multiple clusters
+  // qualify, pick the highest member-count for the matching prefix.
+  // Feeds themeByCluster too so Stage 2 can extend the same cluster.
+  for (const f of findings) {
+    if (f.bucket !== 'source-invisible') continue;
+    if (proposals.has(f.id)) continue;
+    const body = f.evidence.release_note_body ?? '';
+    if (!body.trim()) continue;
+    const longTokens = tokenizeBody(body).filter((t) => t.length >= ABBREV_MIN_WORD_LEN);
+    if (longTokens.length === 0) continue;
+
+    let best: {
+      cluster_id: string;
+      word: string;
+      prefix: string;
+      memberCount: number;
+    } | null = null;
+    for (const entry of clusterIndex) {
+      if (entry.prefixSignature.size === 0) continue;
+      for (const word of longTokens) {
+        const wordPrefix = word.slice(0, ABBREV_MIN_PREFIX_LEN);
+        const memberCount = entry.prefixSignature.get(wordPrefix);
+        if (memberCount === undefined) continue;
+        if (best === null || memberCount > best.memberCount) {
+          best = {
+            cluster_id: entry.cluster.cluster_id,
+            word,
+            prefix: wordPrefix,
+            memberCount,
+          };
+        }
+      }
+    }
+    if (best) {
+      const rationale = `Abbreviation bridge: release-note word "${best.word}" starts with cluster prefix "${best.prefix}" (${best.memberCount} members share prefix).`;
+      proposals.set(f.id, {
+        cluster_id: best.cluster_id,
+        rationale,
+        score: 0,
+        matchedTokens: [],
+        matchedMembers: [],
+      });
+      const theme = extractTheme(body);
+      if (theme) {
+        let byCluster = themeByCluster.get(best.cluster_id);
+        if (!byCluster) {
+          byCluster = new Map<string, number>();
+          themeByCluster.set(best.cluster_id, byCluster);
+        }
+        byCluster.set(theme, (byCluster.get(theme) ?? 0) + 1);
+      }
+    }
+  }
+
   // Stage 2: theme extension. For each cluster that attracted >=1 Q5
-  // finding in stage 1, pull in unattracted Q5 findings whose body
+  // finding in stages 1 / 1.5, pull in unattracted Q5 findings whose body
   // starts with the same theme prefix.
   for (const f of findings) {
     if (f.bucket !== 'source-invisible') continue;
