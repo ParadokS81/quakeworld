@@ -2,7 +2,7 @@
 
 **Status:** Active development. Schema v18. Four codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV) plus the `qw` namespace for game content (maps + game mechanics). KTX is the only outstanding port. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
 
-## Where to find things
+## Documentation index
 
 | When you need... | Read... |
 |---|---|
@@ -11,14 +11,18 @@
 | Elevator pitch (humans + cold Claude land here first) | `README.md` |
 | Layer 1 data model + per-table shape | `SCHEMA.md` |
 | Dev loops, runners, verifier scripts, prerequisites, gotchas | `DEVELOPMENT.md` |
-| Layer 1 deep-time extraction roadmap (cliffs ahead, validation loop) | `docs/layer1-extraction-roadmap.md` |
-| End-to-end verification queries, per-phase expected counts | `scripts/load-knowledge/e2e-verify.md` |
-| Arc history (chronological ship log) | `docs/arc-history.md` |
 | Schema spec (original design rationale; superseded incrementally by per-arc specs -- see arc history) | `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (root tree) |
-| Layer 3 entry template (frontmatter + shape catalog) | `concept-notes/README.md` |
-| Layer 3 stewardship playbook (feeding paths, lifecycle, feedback loop) | `concept-notes/OPERATIONS.md` |
 
 **Start with `OVERVIEW.md` when working in this project -- it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries).**
+
+## Subsystem scopes
+
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `concept-notes/` | `concept-notes/CLAUDE.md` | Layer 3 corpus + authoring conventions + stewardship playbook |
+| `docs/` | `docs/CLAUDE.md` | App-wide Layer 3 refs (entity-types, extraction roadmap) + arc-history |
+| `scripts/extractors/` | `scripts/extractors/CLAUDE.md` | Per-codebase Layer 1 extractors + PLAYBOOK + RUNBOOK |
+| `scripts/load-knowledge/` | `scripts/load-knowledge/CLAUDE.md` | Layer 1 loader: schema, adapters, dispatcher, diff/blame, snapshots |
 
 ## Tech stack
 
