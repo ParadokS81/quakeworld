@@ -68,6 +68,15 @@ classifications:
     assert result["-gl-debug"]["classification"] == "renamed"
 
 
+def test_load_classifications_rejects_project_mismatch():
+    yaml_text = """
+project: ezquake
+classifications: []
+"""
+    with pytest.raises(ClassificationError, match="project"):
+        load_classifications(yaml_text, project="fte")
+
+
 def test_classification_enum_closed_set():
     assert Classification.RENAMED.value == "renamed"
     assert Classification.NEVER_IMPLEMENTED.value == "never_implemented"
