@@ -48,3 +48,29 @@ if [ "${#WARN[@]}" -gt 0 ]; then
 fi
 
 echo "================="
+
+# Calendar checks: surface dated reminders whose due date <= today.
+# Format per line: YYYY-MM-DD | description
+# Lines starting with '#' or empty are ignored.
+# Edit the file to clear / snooze / add entries.
+CHECKS_FILE="$(git rev-parse --show-toplevel 2>/dev/null)/.claude/calendar-checks.txt"
+if [ -f "$CHECKS_FILE" ]; then
+  TODAY="$(date +%F)"
+  DUE_LINES=()
+  while IFS= read -r line || [ -n "$line" ]; do
+    [ -z "$line" ] && continue
+    case "$line" in \#*) continue ;; esac
+    DATE="${line%% |*}"
+    DESC="${line#*| }"
+    [ "$DATE" = "$line" ] && continue   # malformed, skip
+    if [[ ! "$TODAY" < "$DATE" ]]; then
+      DUE_LINES+=("[DUE] $DATE -- $DESC")
+    fi
+  done < "$CHECKS_FILE"
+  if [ "${#DUE_LINES[@]}" -gt 0 ]; then
+    echo ""
+    echo "=== calendar checks ==="
+    for entry in "${DUE_LINES[@]}"; do echo "$entry"; done
+    echo "======================="
+  fi
+fi

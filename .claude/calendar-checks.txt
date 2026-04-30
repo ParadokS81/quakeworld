@@ -1,0 +1,8 @@
+# Calendar reminders surfaced by .claude/scripts/session-start-git-state.sh
+# at session start once today's date >= the listed due date.
+#
+# Format: YYYY-MM-DD | description
+# Lines starting with '#' or empty are ignored.
+# Edit this file to clear (delete the line), snooze (push the date), or add new entries.
+
+2026-05-20 | memory verification (parking 2026-04-29-memory-system-consolidation.md) + run /insights and compare against the 2026-04-29 run for workflow-improvement signal
