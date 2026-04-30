@@ -142,4 +142,4 @@ All sibling integration is network-based — no filesystem coupling between mono
 
 ---
 
-*Last slimmed: 2026-04-29 per docs-system-redesign spec Plan 2 (apply litmus test; cut catalog narrative; keep parked-with-purpose attestation, cruft attestation, design intent, code landmarks, integration boundaries).*
+*Last slimmed: 2026-04-30 per slipgate retrofit (collapsed two-OVERVIEW pattern, removed stale ROADMAP/FEATURES narrative). Prior slim 2026-04-29 per docs-system-redesign spec Plan 2 (apply litmus test; cut catalog narrative; keep parked-with-purpose attestation, cruft attestation, design intent, code landmarks, integration boundaries).*
