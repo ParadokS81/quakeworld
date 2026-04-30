@@ -47,7 +47,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [L1-beta: Cross-format binary fingerprinting](docs/superpowers/parking/2026-04-29-l1-beta-cross-format-fingerprinting.md) — Pass 3 carry-forward.
 - [L1-gamma: Engine helpdoc / data-file recognition](docs/superpowers/parking/2026-04-29-l1-gamma-helpdocs.md) — Pass 3 carry-forward.
 - [L1-delta: Stock asset catalog](docs/superpowers/parking/2026-04-29-l1-delta-stock-pak.md) — Pass 3 carry-forward.
-- [Memory system consolidation](docs/superpowers/parking/2026-04-29-memory-system-consolidation.md) — **trigger fired 2026-04-30 (Phase 1 hygiene flag: 78 files ≥ 30 threshold).** Activate when operator bandwidth opens; new docs-system structure may have closed the inflow but file count still high.
+- [Memory system consolidation](docs/superpowers/parking/2026-04-29-memory-system-consolidation.md) — **watching.** File count flat at 2026-04-29 post-trim baseline (~77); inflow controls in place via docs-check Phase 1 Step 5 + arc-history.md routing. Calendar check ~2026-05-20 per parking file trigger #3.
 
 ### Recently opened (this session)
 - (none — catch-all section for items added during this wrap-up; triaged into the right section next session.)
