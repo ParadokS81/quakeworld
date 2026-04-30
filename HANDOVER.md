@@ -12,13 +12,11 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
-- [`-nopriority` cmdline_param recovery (Windows SDK stubs)](#-nopriority-cmdline_param-recovery-windows-sdk-stubs) — deferred from Layer 1 doc_only audit; waits on first MVDSV/FTE same-wall hit before solving in one place.
 
 ### Sidequests
 - **Plugin v-table asset detection (loader-sites handler)** — FTE plugins reach loaders through `cvarfuncs->...` v-table calls, not direct CALL_EXPR. Only `plugin:ezhud` affected; ezhud images ship bundled with FTE. Low pressure. (Engine-agnostic structural finding; no body to migrate.)
 - **Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)** — engine-agnostic limitation. Bundle reconciliation correctly treats these as `seedRetained`; only the AST-corroboration signal is partial. Low pressure.
-- **Sub-pattern 2b: cmdline variant-matrix gaps** — partially resolved 2026-04-25; 2 ezQuake + 11 QWCL entries remain on the same SDK-stub-headers solve. Bundle with `-nopriority` followup when triggered.
-- **Phase 2e follow-up arc residuals** — partially superseded by cross-extractor arc; remaining: 2 pre-existing ezquake F2 informational anomalies (`gl_lightmode` + 194 doc_only). Triage alongside next ezQuake deep-time refresh.
+- **Phase 2e follow-up arc residuals** — partially superseded by cross-extractor arc and by 2026-05-01 help-JSON classification arc. Remaining: 1 pre-existing ezquake F2 informational anomaly (`gl_lightmode`). Triage alongside next ezQuake deep-time refresh.
 - **Map knowledge layer follow-ups** — slipgate map-browser UI; advanced `search_maps` filters; author seed-YAML curation; automated quarterly stats refresh; future `maps.quake.world` richer-metadata refactor. (Bundled from the Map knowledge SHIPPED retrospective's "Remaining" list; arc body now in `apps/qw-oracle/docs/arc-history.md`.)
 - **matchscheduler doc system reconciliation** — 17-file `apps/matchscheduler/context/` predates monorepo doctrine. Earned its own brainstorm when matchscheduler work next surfaces friction with the existing system. Per docs-redesign spec Plan 2 narrowed scope (2026-04-29).
 
@@ -27,7 +25,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Slipgate Managed Mode pivot](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — **HIGH PRESSURE.** Pass 1+2+3 complete; Pass 4 brainstorm next. V1 = Arcs A+B+D+E+C-minimal.
 - [Cross-extractor pattern audit follow-up arc](docs/superpowers/parking/2026-04-28-cross-extractor-pattern-audit.md) — five phases shipped + 13 audit-deferred residuals + 2 new follow-ups.
 - [Per-project Mode B validation synthesis follow-ups](docs/superpowers/parking/2026-04-28-mode-b-validation-followups.md) — three Mode B validations shipped; some closed, some queued.
-- [Help-JSON classification infrastructure — Tasks 5-8](docs/superpowers/plans/2026-04-30-help-json-classification-infrastructure.md) — Tasks 1-4 shipped 2026-05-01 (commits `bb092fc`..`26ae789`): schema/validator, single-pass git-pickaxe blame index, classify-help-json CLI, post-smoke similarity-gate fixes, and the 193-entry ezQuake seed YAML. Remaining: Task 5 (TS review-module integration + `--fail-on` gate), Task 6 (PR digest generator), Task 7 (extraction-review CLI bucket wire-up), Task 8 (PLAYBOOK + RUNBOOK doc updates). Fresh-session prompt at `docs/superpowers/parking/2026-05-01-help-json-classification-tasks-5-8-prompt.md`.
 
 ### Future arcs (waiting on trigger)
 - [Cross-extractor Phase 6 residuals](docs/superpowers/parking/2026-04-28-cross-extractor-phase6-residuals.md) — D.1.8 lifecycle hooks + broader positive-contracts coverage + deep-time-walk obligation.
@@ -51,7 +48,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Recently opened (this session)
 - **New-doc_only-on-next-ezquake-bump alert** — when ezquake-source HEAD advances to a new tag and we re-walk, run `python3 apps/qw-oracle/scripts/classify-help-json.py --project ezquake --propose` from monorepo root. The seed already covers the 193 existing doc_only entries; the CLI will only print proposals for any newly-arrived doc_only names. Operator manually triages or seeds the new entries. No automatic alerting between sessions — Claude only runs when invoked.
-- **Extractor improvement: `COM_CheckParm` bare-call cmdline_param recognition** — observed during help-JSON classification: `-nomouse` was in v3.0 source (`in_sdl2.c`) registered via `COM_CheckParm("-nomouse")` but our libclang extractor only recognizes `CMDLINE_DEF(...)` macros, so it silently became doc_only. Likely more cmdline params hidden by the same pattern. Folding `COM_CheckParm("...")` call sites into the cmdline-param extractor would surface them. Low pressure — bundle with future cmdline-param extractor work or with the existing `-nopriority` Windows-SDK-stubs sidequest.
+- **Extractor improvement: `COM_CheckParm` bare-call cmdline_param recognition** — observed during help-JSON classification: `-nomouse` was in v3.0 source (`in_sdl2.c`) registered via `COM_CheckParm("-nomouse")` but our libclang extractor only recognizes `CMDLINE_DEF(...)` macros, so it silently became doc_only. Likely more cmdline params hidden by the same pattern. Folding `COM_CheckParm("...")` call sites into the cmdline-param extractor would surface them. Low pressure — bundle with future cmdline-param extractor work.
 
 ---
 
@@ -74,32 +71,3 @@ Without this, downstream readers can't distinguish "stale snapshot at write-time
 ### Pressure
 
 Low; aspirational rule for future arcs. No retroactive fix planned for the 2026-04-28 reports — rather, calibrate the next validation pass against this rule.
-
----
-
-## `-nopriority` cmdline_param recovery (Windows SDK stubs)
-
-**Added:** 2026-04-25 (split from the "Layer 1 doc_only audit closed" retrospective during 2026-04-29 docs-system-redesign migration). Original audit body now in `apps/qw-oracle/docs/arc-history.md`.
-**Status:** Open. One row remains unrecovered. Bundled with "Sub-pattern 2b: cmdline variant-matrix gaps" — same SDK-stubs solve.
-**Verification first:** `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name FROM entities WHERE project='ezquake' AND type='cmdline_param' AND source_state='source_backed' AND name='-nopriority'"` should return zero rows (entity remains doc_only / not source-recovered).
-
-### What's missing
-
-`-nopriority` cmdline_param at `research/repos/ezquake-source/src/sv_sys_win.c:645` remains unrecovered after the Layer 1 doc_only audit closure. The 4-variant parse architecture (Item A from that audit) is sound and reaches the file, but `sv_sys_win.c`'s `Sys_Init` function body references Windows SDK types (`VER_PLATFORM_WIN32_NT`, `GetCurrentProcess()`, `SetPriorityClass`, `HIGH_PRIORITY_CLASS`) via `#include <mmsystem.h>` and `<winsock2.h>` — headers not present in the Linux libclang environment. The Sys_Init body refuses to parse cleanly past the SDL.h / winsock2.h errors, so the COM_CheckParm at line 645 is never visited.
-
-### Recovery options when this becomes pressure
-
-1. **Stub Windows SDK headers.** A minimal directory of empty/declarative `.h` files for winsock2, mmsystem, SDL, etc. at `research/repos/ezquake-source/win-sdk-stubs/`, added to `clang_args_win_for` via `-I`. Adds env complexity; unblocks parsing of all Windows-specific TUs in one go.
-2. **Hand-register the row in `help_cmdline_params.json`** upstream and treat Linux-side extraction as silent on Windows-SDK-dependent call sites.
-3. **Source refactor upstream** — split Sys_Init so the COM_CheckParm call isn't intertwined with Windows-SDK type usage. Unlikely.
-
-### Pressure
-
-Low. Deferred until MVDSV or FTE hits the same wall — then solve in one place. Bundle with the "Sub-pattern 2b: cmdline variant-matrix gaps" sidequest.
-
-### Related
-
-- Origin: Layer 1 doc_only audit closure 2026-04-25 (now in `apps/qw-oracle/docs/arc-history.md`).
-- Companion sidequest: "Sub-pattern 2b: cmdline variant-matrix gaps" (2 ezQuake + 11 QWCL entries on same solve).
-- Source citation: `research/repos/ezquake-source/src/sv_sys_win.c:645`.
-
