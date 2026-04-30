@@ -18,8 +18,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - **Plugin v-table asset detection (loader-sites handler)** — FTE plugins reach loaders through `cvarfuncs->...` v-table calls, not direct CALL_EXPR. Only `plugin:ezhud` affected; ezhud images ship bundled with FTE. Low pressure. (Engine-agnostic structural finding; no body to migrate.)
 - **Cvar-binding handler indirection gap (snprintf chains + CVARFC callbacks)** — engine-agnostic limitation. Bundle reconciliation correctly treats these as `seedRetained`; only the AST-corroboration signal is partial. Low pressure.
 - **Sub-pattern 2b: cmdline variant-matrix gaps** — partially resolved 2026-04-25; 2 ezQuake + 11 QWCL entries remain on the same SDK-stub-headers solve. Bundle with `-nopriority` followup when triggered.
-- **Workstream B: concept-note authoring scaffolding** — template MDX-compatibility test against ezquake.com vitepress + authoring-ritual shape. Polish; not blocking.
-- **Workstream C: /docs ingest pipeline prep** — gap-report output format as contributor onboarding kit; next guide-rewrite candidate (`scripting.md` for ROI, `player-skins.md` for tighter scope).
 - **Phase 2e follow-up arc residuals** — partially superseded by cross-extractor arc; remaining: 2 pre-existing ezquake F2 informational anomalies (`gl_lightmode` + 194 doc_only). Triage alongside next ezQuake deep-time refresh.
 - **Map knowledge layer follow-ups** — slipgate map-browser UI; advanced `search_maps` filters; author seed-YAML curation; automated quarterly stats refresh; future `maps.quake.world` richer-metadata refactor. (Bundled from the Map knowledge SHIPPED retrospective's "Remaining" list; arc body now in `apps/qw-oracle/docs/arc-history.md`.)
 - **matchscheduler doc system reconciliation** — 17-file `apps/matchscheduler/context/` predates monorepo doctrine. Earned its own brainstorm when matchscheduler work next surfaces friction with the existing system. Per docs-redesign spec Plan 2 narrowed scope (2026-04-29).
@@ -43,6 +41,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw_event_log as cross-validation oracle for Layer 1](docs/superpowers/parking/2026-04-XX-qw-event-log-cross-validation.md) — gated on KTX cvars + KTX gameplay overrides.
 - [SCHEMA.md doc-style inconsistency](docs/superpowers/parking/2026-04-29-schemamd-style-refresh.md) — per-table body refresh + topical-vs-per-version style decision.
 - [Layer 3 concept note: death rules](docs/superpowers/parking/2026-04-29-layer3-death-rules-concept-note.md) — gated on KTX gameplay overrides; three-anchor synthesis.
+- [qw-oracle showcase site + contributor pipeline](docs/superpowers/parking/2026-04-30-qw-oracle-showcase-site-contributor-pipeline.md) — collaborative concept-note authoring; trigger = operator commits to building the showcase site. Consolidates retired Workstream B + C sidequests.
 - [L1-alpha: Ecosystem-tools registry](docs/superpowers/parking/2026-04-29-l1-alpha-ecosystem-tools.md) — Pass 3 carry-forward.
 - [L1-beta: Cross-format binary fingerprinting](docs/superpowers/parking/2026-04-29-l1-beta-cross-format-fingerprinting.md) — Pass 3 carry-forward.
 - [L1-gamma: Engine helpdoc / data-file recognition](docs/superpowers/parking/2026-04-29-l1-gamma-helpdocs.md) — Pass 3 carry-forward.
