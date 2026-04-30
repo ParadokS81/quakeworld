@@ -27,6 +27,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Slipgate Managed Mode pivot](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — **HIGH PRESSURE.** Pass 1+2+3 complete; Pass 4 brainstorm next. V1 = Arcs A+B+D+E+C-minimal.
 - [Cross-extractor pattern audit follow-up arc](docs/superpowers/parking/2026-04-28-cross-extractor-pattern-audit.md) — five phases shipped + 13 audit-deferred residuals + 2 new follow-ups.
 - [Per-project Mode B validation synthesis follow-ups](docs/superpowers/parking/2026-04-28-mode-b-validation-followups.md) — three Mode B validations shipped; some closed, some queued.
+- [Help-JSON classification infrastructure (Arc A)](docs/superpowers/plans/2026-04-30-help-json-classification-infrastructure.md) — plan written 2026-04-30; converts the 194-entry ezQuake doc_only mystery heap into seed-YAML + git-pickaxe + PR-digest infrastructure. Drains 5 extraction-related sidequests at execution. Awaiting plan review.
 
 ### Future arcs (waiting on trigger)
 - [Cross-extractor Phase 6 residuals](docs/superpowers/parking/2026-04-28-cross-extractor-phase6-residuals.md) — D.1.8 lifecycle hooks + broader positive-contracts coverage + deep-time-walk obligation.
