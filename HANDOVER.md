@@ -27,7 +27,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Slipgate Managed Mode pivot](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — **HIGH PRESSURE.** Pass 1+2+3 complete; Pass 4 brainstorm next. V1 = Arcs A+B+D+E+C-minimal.
 - [Cross-extractor pattern audit follow-up arc](docs/superpowers/parking/2026-04-28-cross-extractor-pattern-audit.md) — five phases shipped + 13 audit-deferred residuals + 2 new follow-ups.
 - [Per-project Mode B validation synthesis follow-ups](docs/superpowers/parking/2026-04-28-mode-b-validation-followups.md) — three Mode B validations shipped; some closed, some queued.
-- [Help-JSON classification infrastructure (Arc A)](docs/superpowers/plans/2026-04-30-help-json-classification-infrastructure.md) — plan written 2026-04-30; converts the 194-entry ezQuake doc_only mystery heap into seed-YAML + git-pickaxe + PR-digest infrastructure. Drains 5 extraction-related sidequests at execution. Awaiting plan review.
+- [Help-JSON classification infrastructure — Tasks 5-8](docs/superpowers/plans/2026-04-30-help-json-classification-infrastructure.md) — Tasks 1-4 shipped 2026-05-01 (commits `bb092fc`..`26ae789`): schema/validator, single-pass git-pickaxe blame index, classify-help-json CLI, post-smoke similarity-gate fixes, and the 193-entry ezQuake seed YAML. Remaining: Task 5 (TS review-module integration + `--fail-on` gate), Task 6 (PR digest generator), Task 7 (extraction-review CLI bucket wire-up), Task 8 (PLAYBOOK + RUNBOOK doc updates). Fresh-session prompt at `docs/superpowers/parking/2026-05-01-help-json-classification-tasks-5-8-prompt.md`.
 
 ### Future arcs (waiting on trigger)
 - [Cross-extractor Phase 6 residuals](docs/superpowers/parking/2026-04-28-cross-extractor-phase6-residuals.md) — D.1.8 lifecycle hooks + broader positive-contracts coverage + deep-time-walk obligation.
@@ -50,7 +50,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Memory system consolidation](docs/superpowers/parking/2026-04-29-memory-system-consolidation.md) — **watching.** File count flat at 2026-04-29 post-trim baseline (~77); inflow controls in place via docs-check Phase 1 Step 5 + arc-history.md routing. Calendar check ~2026-05-20 per parking file trigger #3.
 
 ### Recently opened (this session)
-- (none — catch-all section for items added during this wrap-up; triaged into the right section next session.)
+- **New-doc_only-on-next-ezquake-bump alert** — when ezquake-source HEAD advances to a new tag and we re-walk, run `python3 apps/qw-oracle/scripts/classify-help-json.py --project ezquake --propose` from monorepo root. The seed already covers the 193 existing doc_only entries; the CLI will only print proposals for any newly-arrived doc_only names. Operator manually triages or seeds the new entries. No automatic alerting between sessions — Claude only runs when invoked.
+- **Extractor improvement: `COM_CheckParm` bare-call cmdline_param recognition** — observed during help-JSON classification: `-nomouse` was in v3.0 source (`in_sdl2.c`) registered via `COM_CheckParm("-nomouse")` but our libclang extractor only recognizes `CMDLINE_DEF(...)` macros, so it silently became doc_only. Likely more cmdline params hidden by the same pattern. Folding `COM_CheckParm("...")` call sites into the cmdline-param extractor would surface them. Low pressure — bundle with future cmdline-param extractor work or with the existing `-nopriority` Windows-SDK-stubs sidequest.
 
 ---
 
