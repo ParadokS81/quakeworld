@@ -12,7 +12,8 @@ export type Bucket =
   | 'retirement'
   | 'semantic-crossing'
   | 'unclassified'
-  | 'source-invisible';
+  | 'source-invisible'
+  | 'help-json-classification';
 
 export type DispositionKind =
   | 'classify'
@@ -88,6 +89,7 @@ export interface ReviewCounts {
   'semantic-crossing': number;
   unclassified: number;
   'source-invisible': number;
+  'help-json-classification': number;
 }
 
 export interface ReviewReport {

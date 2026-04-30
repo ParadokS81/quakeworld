@@ -81,7 +81,8 @@ function renderFrontmatter(report: ReviewReport): string {
 
 function renderSummary(report: ReviewReport): string {
   const c = report.counts;
-  const total = c.addition + c.retirement + c['semantic-crossing'] + c.unclassified + c['source-invisible'];
+  const total = c.addition + c.retirement + c['semantic-crossing'] + c.unclassified +
+                c['source-invisible'] + c['help-json-classification'];
   return [
     '## Summary',
     '',
@@ -90,6 +91,7 @@ function renderSummary(report: ReviewReport): string {
     `- Semantic crossings: ${c['semantic-crossing']} (${c['semantic-crossing']} pending)`,
     `- Unclassified promotions: ${c.unclassified} (${c.unclassified} pending)`,
     `- Source-invisible changes: ${c['source-invisible']} (${c['source-invisible']} pending)`,
+    `- Help-JSON classifications: ${c['help-json-classification']} (${c['help-json-classification']} pending)`,
     `- **Total:** ${total}`,
   ].join('\n');
 }

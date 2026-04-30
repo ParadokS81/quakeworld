@@ -6,12 +6,17 @@
 import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import * as yaml from 'js-yaml';
 import type Database from 'better-sqlite3';
 import { findAdditions } from './findings-additions.js';
 import { findRetirements } from './findings-retirements.js';
 import { findSemanticCrossings } from './findings-semantic-crossings.js';
 import { findUnclassified } from './findings-unclassified.js';
 import { findSourceInvisible } from './findings-source-invisible.js';
+import {
+  findHelpJsonClassifications,
+  type SeedMap,
+} from './findings-help-json-classifications.js';
 import { detectClusters } from './clusters.js';
 import { annotatePriorRefs, loadPriorWalks } from './prior-walks.js';
 import { runSemanticMatch } from './semantic-match.js';
@@ -21,6 +26,21 @@ import type { Finding, ReviewCounts, ReviewReport } from './types.js';
 import type { Project } from '../types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function loadHelpJsonSeed(project: Project): SeedMap {
+  const seedPath = join(
+    __dirname, '..', '..', 'extractors', project,
+    'seeds', 'help_json_classifications.yaml',
+  );
+  if (!existsSync(seedPath)) return {};
+  const parsed = yaml.load(readFileSync(seedPath, 'utf-8')) as
+    { classifications?: Array<{ name: string; classification: string }> } | null;
+  const map: SeedMap = {};
+  for (const entry of parsed?.classifications ?? []) {
+    map[entry.name] = entry as SeedMap[string];
+  }
+  return map;
+}
 
 export interface RunReviewOptions {
   db: Database.Database;
@@ -39,12 +59,14 @@ export function runReview(options: RunReviewOptions): ReviewReport {
 
   const now = new Date().toISOString();
 
+  const helpJsonSeed = loadHelpJsonSeed(options.project);
   const rawFindings: Finding[] = [
     ...findAdditions(options.db, options.project, options.fromVersion, options.toVersion),
     ...findRetirements(options.db, options.project, options.fromVersion, options.toVersion),
     ...findSemanticCrossings(options.db, options.project, options.fromVersion, options.toVersion),
     ...findUnclassified(options.db, options.project, options.fromVersion, options.toVersion),
     ...findSourceInvisible(options.db, options.project, options.fromVersion, options.toVersion),
+    ...findHelpJsonClassifications(options.db, options.project, helpJsonSeed),
   ];
 
   const { clusters: rawClusters, findings: clusteredFindings } = detectClusters(rawFindings, {
@@ -73,6 +95,7 @@ export function runReview(options: RunReviewOptions): ReviewReport {
     'semantic-crossing': 0,
     unclassified: 0,
     'source-invisible': 0,
+    'help-json-classification': 0,
   };
   for (const f of findings) counts[f.bucket] += 1;
 

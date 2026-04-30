@@ -113,6 +113,7 @@ Subcommands:
                 extract-tag was invoked with --skip-prune.
   review        --project <p> --from <v1> --to <v2>
                 [--out <path>] [--ezquake-repo <path>] [--force]
+                [--fail-on <bucket>] (repeatable; exit 2 if bucket has findings)
   quality-grid  --project <p>
                 [--family regression|anomaly|both] [--probe <name>]
                 [--list] [--json]
@@ -409,6 +410,7 @@ async function runReviewCli(args: string[]): Promise<void> {
       out: { type: 'string' },
       'ezquake-repo': { type: 'string' },
       force: { type: 'boolean' },
+      'fail-on': { type: 'string', multiple: true },
     },
   });
 
@@ -435,6 +437,22 @@ async function runReviewCli(args: string[]): Promise<void> {
       ezquakeRepoPath: values['ezquake-repo']
         ?? '/home/paradoks/projects/quakeworld/research/repos/ezquake-source',
     });
+
+    // Gate: fire BEFORE the JSON dump so failed runs don't emit a
+    // misleading-looking success payload to stdout. Exit 2 distinguishes
+    // gate-fail from generic error (exit 1).
+    const failOnBuckets = (values['fail-on'] as string[] | undefined) ?? [];
+    for (const bucket of failOnBuckets) {
+      const count = (report.counts as unknown as Record<string, number>)[bucket] ?? 0;
+      if (count > 0) {
+        process.stderr.write(
+          `Gate fail: bucket '${bucket}' has ${count} findings.\n` +
+          `Resolve via classify-help-json.py --project ${values.project} or omit --fail-on.\n`
+        );
+        process.exit(2);
+      }
+    }
+
     // stdout contract: emit the full report as JSON for the skill to consume.
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
   } finally {
