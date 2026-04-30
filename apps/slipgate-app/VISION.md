@@ -16,7 +16,7 @@ Slipgate App is a lightweight desktop companion that sits in the system tray and
 
 The app's core advantage is direct local access: it can scan your hardware, read your quake directory, parse your configs, and manage your client install without requiring you to upload anything first. A web interface could theoretically do most of the same things with a headless helper or file uploads, but the desktop app makes it frictionless. Where the data gets *displayed and manipulated* (desktop app vs web interface) is a design question the team has different opinions on - vikpe leans toward keeping features in the web, ParadokS and infiniti see value in the app being a front for some of them. Regardless of that debate, the local-access utility is undisputed.
 
-Some of the intended capabilities exist today (hardware scan, config parsing, client updater). Others are on the drawing board lower in this doc. For the current state of what is actually built, see `OVERVIEW.md` (thin app-root map) and `docs/OVERVIEW.md` (full feature map).
+Some of the intended capabilities exist today (hardware scan, config parsing, client updater). Others are on the drawing board lower in this doc. For the current state of what is actually built, see `OVERVIEW.md` (the living map).
 
 ## Who it's for
 

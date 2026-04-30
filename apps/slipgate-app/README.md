@@ -12,7 +12,7 @@ A Windows-first desktop companion for QuakeWorld players. Built as a Tauri v2 tr
 - **Clients** - ezQuake install management: version detection from the .exe, updater (stable + snapshot channels), launcher with IP input and spec mode.
 - **Tools** - QW-specific calculators: FPS alignment to the 77 Hz server tick, sensitivity recalculation across DPI changes, FOV recalculation across resolution changes.
 
-See `OVERVIEW.md` for the app-root map and `docs/OVERVIEW.md` for the complete feature map with file landmarks and per-tab detail. See `VISION.md` for what's on the drawing board and why.
+See `OVERVIEW.md` for the living map of features, code landmarks, parked-with-purpose items, and integration points. See `VISION.md` for what's on the drawing board and why.
 
 ## Tech stack
 
@@ -41,8 +41,7 @@ If you are on a machine that is not Windows + WSL2, the app may not build at all
 ## Learn more
 
 - `VISION.md` - why this app exists and where it is going
-- `OVERVIEW.md` - thin app-root map (status, tabs at a glance, external integrations)
-- `docs/OVERVIEW.md` - full living map: features, file landmarks, parked-with-purpose items, integration points
+- `OVERVIEW.md` - living map: features, file landmarks, parked-with-purpose items, integration points
 - `docs/HEALTH.md` - point-in-time tech debt snapshot (2026-04-10)
 - `docs/DEVELOPMENT.md` - setup and dev workflow
 - `docs/DESIGN.md` - design system and UI rules

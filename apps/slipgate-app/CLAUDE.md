@@ -2,28 +2,29 @@
 
 **Status:** Active development. Tauri v2 system tray app that bridges the QuakeWorld game client, the user's computer, and (eventually) the Slipgate web hub. Windows-native in practice.
 
-## Where to find things
+## Documentation index
 
-When you need... | Read...
----|---
-Elevator pitch, tech stack, building from source | `README.md`
-Why this project exists, long-term vision, drawing board | `VISION.md`
-Thin app-root map (status, tabs at a glance, integrations) | `OVERVIEW.md`
-Full feature map - every tab, subsystem, Rust command, parked-with-purpose item | `docs/OVERVIEW.md`
-Tech debt, cleanup priorities, known risks (2026-04-10 snapshot) | `docs/HEALTH.md`
-Dev environment setup (WSL+Windows split, rsync hook, troubleshooting) | `docs/DEVELOPMENT.md`
-Design system, OKLCH theming, UI rules | `docs/DESIGN.md`
-Store shape, SolidJS signals, migration, persistence rules | `docs/STATE.md`
-External API boundaries, IPC contracts, third-party services | `docs/API_CONTRACTS.md`
-ezQuake config parser architecture (how bind classification / exec chains / macros / triggers work) | `docs/CFG-PARSER.md`
-QW weapon-script domain knowledge (firing mechanics, kill-me patterns, fire key types) | `packages/qw-knowledge/weapon-scripts/README.md`
-How ezQuake computes resolution (the absent=default pattern) | `docs/EZQUAKE-RESOLUTION.md`
-Discord OAuth flow as built (+ future GitHub OAuth idea) | `docs/AUTH.md`
-What the hardware scan collects and how | `docs/SYSTEM-SPECS.md`
-EloShapes API reference for the peripheral database | `docs/PERIPHERAL-SELECTOR.md`
-Deploy/release notes | `DEPLOYMENT.md`
+| When you need... | Read... |
+|---|---|
+| Elevator pitch, tech stack, building from source | `README.md` |
+| Why this project exists, long-term vision, drawing board | `VISION.md` |
+| Living map: features, code landmarks, parked-with-purpose, integration boundaries | `OVERVIEW.md` |
+| Deploy / release notes | `DEPLOYMENT.md` |
+| QW weapon-script domain knowledge (firing mechanics, kill-me patterns, fire key types) | `packages/qw-knowledge/weapon-scripts/README.md` |
 
-**Start with `docs/OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries). For a thinner app-root surface, see `OVERVIEW.md`.**
+**Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, cruft attestation, design intent, code landmarks, integration boundaries).**
+
+## Subsystem scopes
+
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `docs/` | `docs/CLAUDE.md` | Layer 2 reference (AUTH / STATE / DESIGN / DEVELOPMENT / HEALTH / API_CONTRACTS / SYSTEM-SPECS / PERIPHERAL-SELECTOR) + Layer 3 (CFG-PARSER, EZQUAKE-RESOLUTION, QUAKE-DIR-CONTROL) |
+
+## Excluded paths
+
+| Path | Why |
+|---|---|
+| `reference/` | Upstream source-code references (ezquake-source, ezquake-docs, ktx, mvdsv, qtv, qtv-go, qwfwd, unezquake) — research material, not authored docs |
 
 ## Tech stack
 

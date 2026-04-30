@@ -2,7 +2,7 @@
 
 **Status:** Active development. Workshop monorepo hosting five QuakeWorld community apps. Solo-developer, Claude-assisted.
 
-## Where to find things
+## Documentation index
 
 | When you need... | Read... |
 |---|---|
@@ -17,6 +17,18 @@
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
 
 **Start with `OVERVIEW.md` when working in this monorepo — it's the load-bearing cross-app map (integration diagram, per-app status, packages, contracts).**
+
+## Subsystem scopes
+
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `apps/matchscheduler/` | `apps/matchscheduler/CLAUDE.md` | Match scheduler (Firebase web) |
+| `apps/quad/` | `apps/quad/CLAUDE.md` | Discord bot |
+| `apps/qw-stats/` | `apps/qw-stats/CLAUDE.md` | Express + PostgreSQL stats API |
+| `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | SQLite knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
+| `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion (active, ~90% of current work) |
+| `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |
+| `packages/qw-version-resolution/` | `packages/qw-version-resolution/CLAUDE.md` | Version arithmetic helpers (engine versions, builds, channels) |
 
 ## How We Work
 
@@ -86,16 +98,6 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 - The `SessionStart` hook at `.claude/scripts/session-start-git-state.sh` prints worktree path, branch, drift vs main, and uncommitted count at every session open. Read the banner first. Loud drift warnings mean investigate, not proceed blindly.
 - The `docs-check` skill's Step 9.5 runs the same 5 checks (plus stale branches and remote-main pull) at session wrap-up. Together SessionStart and docs-check bracket every session so drift gets caught at the start OR at the end, whichever comes first.
 - `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script.
-
-## Per-app entry points
-
-Each app has its own CLAUDE.md with architecture, patterns, and conventions. Read the relevant app's CLAUDE.md before working in it.
-
-- `apps/matchscheduler/CLAUDE.md`
-- `apps/quad/CLAUDE.md`
-- `apps/qw-stats/CLAUDE.md`
-- `apps/slipgate-app/CLAUDE.md`
-- `apps/qw-oracle/CLAUDE.md`
 
 ## WSL development environment
 
