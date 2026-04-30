@@ -1,0 +1,178 @@
+# ezquake: Help-JSON cleanup proposal
+
+This is an auto-generated digest from qw-oracle's Layer 1 extraction pipeline against the ezquake source tree. Each entry below describes a help-JSON entry whose underlying source has changed in a way the help file hasn't reflected. The qw-oracle pipeline classifies these automatically from git pickaxe analysis; this PR proposes the corresponding help-file edits.
+
+## Renamed entries (suggest noting rename or removing)
+
+- `cfg_browser_dircolor` was renamed to `file_browser_dir_color` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_selectedcolor` was renamed to `file_browser_selected_color` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_zipcolor` was renamed to `file_browser_archive_color` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_interline` was renamed to `file_browser_interline` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_scrollnames` was renamed to `file_browser_scrollnames` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_showdate` was renamed to `file_browser_show_date` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_showtime` was renamed to `file_browser_show_time` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_showsize` was renamed to `file_browser_show_size` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_showstatus` was renamed to `file_browser_show_status` in commit 5f7900c6 (2010-01-08).
+- `cfg_browser_sortmode` was renamed to `file_browser_sort_mode` in commit 0e4e0eab (2010-01-13).
+- `cfg_browser_stripnames` was renamed to `file_browser_strip_names` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_dircolor` was renamed to `file_browser_dir_color` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_selectedcolor` was renamed to `file_browser_selected_color` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_zipcolor` was renamed to `file_browser_archive_color` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_interline` was renamed to `file_browser_interline` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_scrollnames` was renamed to `file_browser_scrollnames` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_showdate` was renamed to `file_browser_show_date` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_showtime` was renamed to `file_browser_show_time` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_showsize` was renamed to `file_browser_show_size` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_showstatus` was renamed to `file_browser_show_status` in commit 5f7900c6 (2010-01-08).
+- `skin_browser_sortmode` was renamed to `file_browser_sort_mode` in commit 0e4e0eab (2010-01-13).
+- `skin_browser_stripnames` was renamed to `file_browser_strip_names` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_dircolor` was renamed to `file_browser_dir_color` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_selectedcolor` was renamed to `file_browser_selected_color` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_zipcolor` was renamed to `file_browser_archive_color` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_interline` was renamed to `file_browser_interline` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_scrollnames` was renamed to `file_browser_scrollnames` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_showdate` was renamed to `file_browser_show_date` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_showtime` was renamed to `file_browser_show_time` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_showsize` was renamed to `file_browser_show_size` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_showstatus` was renamed to `file_browser_show_status` in commit 5f7900c6 (2010-01-08).
+- `demo_browser_sortmode` was renamed to `file_browser_sort_mode` in commit 0e4e0eab (2010-01-13).
+- `demo_browser_stripnames` was renamed to `file_browser_strip_names` in commit 5f7900c6 (2010-01-08).
+- `help_files_dircolor` was renamed to `file_browser_dir_color` in commit 5f7900c6 (2010-01-08).
+- `help_files_selectedcolor` was renamed to `file_browser_selected_color` in commit 5f7900c6 (2010-01-08).
+- `help_files_interline` was renamed to `file_browser_interline` in commit 5f7900c6 (2010-01-08).
+- `help_files_scrollnames` was renamed to `file_browser_scrollnames` in commit 5f7900c6 (2010-01-08).
+- `help_files_showdate` was renamed to `file_browser_show_date` in commit 5f7900c6 (2010-01-08).
+- `help_files_showtime` was renamed to `file_browser_show_time` in commit 5f7900c6 (2010-01-08).
+- `help_files_showsize` was renamed to `file_browser_show_size` in commit 5f7900c6 (2010-01-08).
+- `help_files_showstatus` was renamed to `file_browser_show_status` in commit 5f7900c6 (2010-01-08).
+- `help_files_sortmode` was renamed to `file_browser_sort_mode` in commit 0e4e0eab (2010-01-13).
+- `help_files_stripnames` was renamed to `file_browser_strip_names` in commit 5f7900c6 (2010-01-08).
+- `help_files_filecolor` was renamed to `file_browser_file_color` in commit 5f7900c6 (2010-01-08).
+- `-gl-debug` was renamed to `-r-debug` in commit 0d7ea051f0a06784ef59f79fe7f8488df3bc08c9 (2018-07-21).
+- `loadfont` was renamed to `fontload` in commit 228a6770518fc6ba4c673236bbc3c6be2f199662 (2019-02-10).
+- `serverstatus` was renamed to `status` in commit 358380cd51ff29fb35a9abbf790dbe9ce2f602a9 (2008-07-21).
+- `sv_timeout` was renamed to `timeout` in commit 358380cd51ff29fb35a9abbf790dbe9ce2f602a9 (2008-07-21).
+- `vid_borderless` was renamed to `vid_win_borderless` in commit db81ce86 (2021-08-28).
+
+## Retired entries (suggest removing)
+
+- `cfg_browser_democolor` was removed in commit 5f7900c6 (2010-01-08).
+- `skin_browser_democolor` was removed in commit 5f7900c6 (2010-01-08).
+- `demo_browser_democolor` was removed in commit 5f7900c6 (2010-01-08).
+- `-nomouse` was removed in commit 330e11a7 (2018-04-12).
+- `dev_cache_print` was removed in commit e5f91c1cf85b77d3c45c399c8e0b4195316863ac (2018-12-02).
+- `dev_cache_report` was removed in commit e5f91c1cf85b77d3c45c399c8e0b4195316863ac (2018-12-02).
+- `dev_hunk_print` was removed in commit e5f91c1cf85b77d3c45c399c8e0b4195316863ac (2018-12-02).
+- `locname` was removed in commit 969f320605f9d9fd98c4a4988333d5c996454b15 (2018-04-12).
+- `menu_fps` was removed in commit 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf (2007-01-12).
+- `menu_keys` was removed in commit 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf (2007-01-12).
+- `menu_mp3_control` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `menu_mp3_playlist` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `menu_setup` was removed in commit 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf (2007-01-12).
+- `menu_video` was removed in commit 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf (2007-01-12).
+- `mp3_fadeout` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_fforward` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_loadplaylist` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_next` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_pause` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_play` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_playlist` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_playtrack` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_prev` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_repeat` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_rewind` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_shuffle` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_songinfo` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_stop` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_volume` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `tcl_eval` was removed in commit c190f2a321378f83b5f426ab96778deecd365735 (2018-12-26).
+- `tcl_exec` was removed in commit c190f2a321378f83b5f426ab96778deecd365735 (2018-12-26).
+- `tcl_proc` was removed in commit c190f2a321378f83b5f426ab96778deecd365735 (2018-12-26).
+- `vid_forcemode` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
+- `vid_minimize` was removed in commit 21976784adaa939f0b97f284de0c52450db67f7c (2010-02-04).
+- `vid_testmode` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
+- `vid_windowed` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `_vid_default_mode` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `_vid_default_mode_win` was removed in commit 7f0ff419d7d88caa2ab6fbf292d3ad1fc1a0e59c (2009-04-10).
+- `_windowed_mouse` was removed in commit 5fc8abf76a7fa6e7318701676e794d0ec5160d80 (2012-04-20).
+- `allow_download_gfx` was removed in commit 358380cd (2008-07-21).
+- `auth_validate` was removed in commit c92841e51c5293f8b948d6a08741063e7cb8473c (2007-09-14).
+- `auth_viewcrc` was removed in commit c92841e51c5293f8b948d6a08741063e7cb8473c (2007-09-14).
+- `auth_warninvalid` was removed in commit c92841e51c5293f8b948d6a08741063e7cb8473c (2007-09-14).
+- `block_switch` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `cl_debug_weapon_send` was removed in commit 15a8e438 (2021-10-14).
+- `cl_weaponforgetondeath` was removed in commit 15a8e438 (2021-10-14).
+- `con_particles_alpha` was removed in commit 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7 (2020-11-01).
+- `con_particles_images` was removed in commit 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7 (2020-11-01).
+- `d_mipcap` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
+- `d_mipscale` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
+- `d_subdiv16` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
+- `demo_capture_quiet` was removed in commit 00d4944d9bed6c61a22c1e7d074a649fac216ecf (2016-03-02).
+- `gl_ztrick` was removed in commit 68b6d9e87540c0ac1e458853e80bd4a535fd8815 (2018-05-11).
+- `in_m_os_parameters` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
+- `in_m_smooth` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
+- `in_mouse` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
+- `in_raw_allbuttons` was removed in commit b81e0cf8556685ce15591c4219c5ff87dcc793e7 (2009-09-07).
+- `m_forcewheel` was removed in commit 063881ab (2007-01-07).
+- `m_rate` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
+- `m_showrate` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
+- `mp3_player` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_scrolltitle` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_showtime` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mp3_winamp_dir` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+- `mumble_enabled` was removed in commit 768ccc127e0c22b6b8fabe25212d766724095330 (2009-07-22).
+- `mvd_write_xml` was removed in commit c0514ea9e47cd42f65af8722c70121d4f75d5a4b (2007-09-24).
+- `r_draworder` was removed in commit d7984a5f (2004-09-07).
+- `s_alsa_device` was removed in commit 22700cc8676da3871cf29809e5de39f786bd0ba5 (2011-02-06).
+- `s_alsa_latency` was removed in commit 5da7765fa1c1102d923fc9f67652ef144f6927ed (2011-02-07).
+- `s_bits` was removed in commit 82c6b41c (2011-01-20).
+- `s_device` was removed in commit 63493a53f32fd611b59cd8d030b926cbb5e90dc0 (2011-02-06).
+- `s_driver` was removed in commit 22700cc8676da3871cf29809e5de39f786bd0ba5 (2011-02-06).
+- `s_mixahead` was removed in commit 00d4944d9bed6c61a22c1e7d074a649fac216ecf (2016-03-02).
+- `s_noalsa` was removed in commit 82c6b41c27e80d58a595ebe3ac8207329e86300e (2011-01-20).
+- `s_noextraupdate` was removed in commit 00d4944d (2016-03-02).
+- `s_oss_device` was removed in commit 22700cc8676da3871cf29809e5de39f786bd0ba5 (2011-02-06).
+- `s_pulseaudio_latency` was removed in commit 5da7765fa1c1102d923fc9f67652ef144f6927ed (2011-02-07).
+- `s_stereo` was removed in commit 82c6b41c (2011-01-20).
+- `sb_showcounters` was removed in commit bc800a3c (2007-01-19).
+- `sv_aim` was removed in commit 6518bc5d93bb7a5c53bca1028046ab08023ea419 (2005-07-21).
+- `sv_fastconnect` was removed in commit 358380cd (2008-07-21).
+- `sv_highchars` was removed in commit 358380cd51ff29fb35a9abbf790dbe9ce2f602a9 (2008-07-21).
+- `sw_contrast` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `sw_gamma` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_config_x` was removed in commit 6925c3345594ce286e739de52299a43e5d88ec4f (2009-05-08).
+- `vid_config_y` was removed in commit 6925c3345594ce286e739de52299a43e5d88ec4f (2009-05-08).
+- `vid_customheight` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_customwidth` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_depthbits` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_forcerestoregamma` was removed in commit 8ec432ad9f8e69521a41ffcb615e3346e5d40ad8 (2007-05-27).
+- `vid_fullscreen_mode` was removed in commit 6154e978951b243823a56eead035b4ec6176a20f (2009-04-10).
+- `vid_mode` was removed in commit 5fc8abf76a7fa6e7318701676e794d0ec5160d80 (2012-04-20).
+- `vid_nopageflip` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_resetonswitch` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_stencilbits` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_stretch_by_2` was removed in commit 6925c3345594ce286e739de52299a43e5d88ec4f (2009-05-08).
+- `vid_wideaspect` was removed in commit ba597371b1ea7543a6325c7d4ba032b498ab6b42 (2009-03-29).
+- `vid_window_x` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_window_y` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
+- `vid_windowed_mode` was removed in commit 6154e978951b243823a56eead035b4ec6176a20f (2009-04-10).
+- `mp3info` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
+
+## Never-implemented entries (suggest removing)
+
+- `mp3_startwinamp` -- git log -S finds no occurrence of this string in any commit.
+- `qtv_reconnect` -- git log -S finds no occurrence of this string in any commit.
+- `score_own` -- git log -S finds no occurrence of this string in any commit.
+- `sys_forget_sandbox` -- git log -S finds no occurrence of this string in any commit.
+- `track-` -- git log -S finds no occurrence of this string in any commit.
+- `hud_fps_decimals` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_align_x` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_align_y` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_frame` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_frame_color` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_order` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_place` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_pos_x` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_pos_y` -- git log -S finds no occurrence of this string in any commit.
+- `hud_mouserate_show` -- git log -S finds no occurrence of this string in any commit.
+- `vid_allowextensions` -- git log -S finds no occurrence of this string in any commit.
