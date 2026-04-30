@@ -83,10 +83,11 @@ abc123
 
 
 def test_classify_from_blame_renamed_via_co_occurrence():
-    """When -X is removed and -Y (source-backed) is added in the same commit,
-    suggest rename. Critical: the source-backed sibling MUST be present in the
-    blame map — caller is responsible for including source-backed names in the
-    regex/parse pass."""
+    """When -X is removed and -Y (source-backed) is added in the same commit
+    AND the names share enough string structure to plausibly be the same
+    identifier, suggest rename. Critical: the source-backed sibling MUST be
+    present in the blame map -- caller is responsible for including
+    source-backed names in the regex/parse pass."""
     blame = {
         "-gl-debug": [
             {"commit": "abc123", "date": "2018-07-21", "event": "removal",
@@ -103,29 +104,102 @@ def test_classify_from_blame_renamed_via_co_occurrence():
     assert proposal["rename_to"] == "-r-debug"
     assert proposal["rename_at_commit"] == "abc123"
     assert proposal["confidence"] == "high"
+    assert proposal["rename_similarity"] >= 0.65
 
 
 def test_classify_from_blame_finds_rename_when_co_occurrence_predates_later_removal():
     """A doc_only name renamed in commit A may still appear in a later removal
     commit B (stale reference, partial revert). The classifier MUST scan all
-    removals for co-occurrence, not just the latest one."""
+    removals for co-occurrence, not just the latest one. Sibling here is
+    chosen with high string similarity so the rename plausibility gate passes."""
     blame = {
-        "-old": [
+        "-gl-old-feature": [
             {"commit": "commitA", "date": "2018-01-01", "event": "removal",
              "file": "params.h", "context_line": "-..."},
             {"commit": "commitB", "date": "2020-06-15", "event": "removal",
              "file": "comments.txt", "context_line": "-..."},
         ],
-        "-new": [
+        "-r-old-feature": [
             {"commit": "commitA", "date": "2018-01-01", "event": "addition",
              "file": "params.h", "context_line": "+..."},
         ],
     }
-    source_backed_names = {"-new"}
-    proposal = classify_from_blame("-old", blame, source_backed_names)
+    source_backed_names = {"-r-old-feature"}
+    proposal = classify_from_blame("-gl-old-feature", blame, source_backed_names)
     assert proposal["classification"] == "renamed"
-    assert proposal["rename_to"] == "-new"
+    assert proposal["rename_to"] == "-r-old-feature"
     assert proposal["rename_at_commit"] == "commitA"
+
+
+def test_classify_from_blame_skips_self_relocation_commit():
+    """When `name` has BOTH an addition and a removal in the same commit, the
+    name was MOVED between files (refactor), not retired. A high-similarity
+    sibling that also changed in that commit must NOT be reported as a rename
+    target. Models the real ezQuake commit 063881ab where -nomouse was
+    relocated and vid_modelist was unrelatedly edited in the same refactor."""
+    blame = {
+        "-nomouse": [
+            {"commit": "refactor1", "date": "2007-01-07", "event": "removal",
+             "file": "vid_x11.c", "context_line": "-..."},
+            {"commit": "refactor1", "date": "2007-01-07", "event": "addition",
+             "file": "in_linux.c", "context_line": "+..."},
+        ],
+        "-nomouse-prime": [  # high similarity, would otherwise match
+            {"commit": "refactor1", "date": "2007-01-07", "event": "addition",
+             "file": "in_linux.c", "context_line": "+..."},
+        ],
+    }
+    source_backed_names = {"-nomouse-prime"}
+    proposal = classify_from_blame("-nomouse", blame, source_backed_names)
+    assert proposal["classification"] != "renamed"
+
+
+def test_classify_from_blame_filters_low_similarity_sibling():
+    """A doc_only removal that co-occurs with a structurally-unrelated source-backed
+    addition is NOT a rename -- bulk-cleanup commits frequently retire many
+    unrelated names alongside an unrelated new feature. The similarity gate
+    must reject low-ratio candidates and fall through to retired_pre_walk_floor.
+    Models the real ezQuake commit 0e4e0eab where 24 *_browser_* cvars were
+    bulk-retired alongside file_browser_sort_mode (pure-nonsense pairs like
+    auth_validate -> echo were a worse instance of the same pattern)."""
+    blame = {
+        "auth_validate": [
+            {"commit": "bulk1", "date": "2009-04-12", "event": "removal",
+             "file": "auth.c", "context_line": "-..."},
+        ],
+        "echo": [
+            {"commit": "bulk1", "date": "2009-04-12", "event": "addition",
+             "file": "console.c", "context_line": "+..."},
+        ],
+    }
+    source_backed_names = {"echo"}
+    proposal = classify_from_blame("auth_validate", blame, source_backed_names)
+    assert proposal["classification"] == "retired_pre_walk_floor"
+    assert proposal["retired_at_commit"] == "bulk1"
+
+
+def test_classify_from_blame_marks_borderline_similarity_as_medium_confidence():
+    """A co-occurring sibling with similarity in the LOW..HIGH band lands as
+    `renamed` but at medium confidence -- the operator gates auto-acceptance
+    behind --confidence-threshold high so borderline candidates surface for
+    hand review."""
+    blame = {
+        "loadfont": [
+            {"commit": "swap1", "date": "2012-08-03", "event": "removal",
+             "file": "console.c", "context_line": "-..."},
+        ],
+        "fontload": [
+            {"commit": "swap1", "date": "2012-08-03", "event": "addition",
+             "file": "console.c", "context_line": "+..."},
+        ],
+    }
+    source_backed_names = {"fontload"}
+    proposal = classify_from_blame("loadfont", blame, source_backed_names)
+    assert proposal["classification"] == "renamed"
+    assert proposal["rename_to"] == "fontload"
+    assert proposal["confidence"] == "medium"
+    assert proposal["rename_similarity"] >= 0.40
+    assert proposal["rename_similarity"] < 0.65
 
 
 def test_classify_from_blame_never_implemented():

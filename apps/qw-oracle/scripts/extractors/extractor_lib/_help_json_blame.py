@@ -23,8 +23,21 @@ from __future__ import annotations
 
 import re
 import subprocess
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Iterable, TypedDict
+
+
+# Rename plausibility tiers. SequenceMatcher.ratio() between the doc_only name
+# and the candidate source-backed sibling. Below LOW: not a rename, treat as
+# coincidental co-occurrence. LOW..HIGH: medium confidence (operator review
+# needed). >=HIGH: high confidence (auto-acceptable). Calibrated against
+# ezQuake's blame results: real renames like `-gl-debug`->`-r-debug` (0.78)
+# and `loadfont`->`fontload` (0.625) score above LOW; bulk-cleanup false
+# positives like `cfg_browser_color`->`file_browser_sort_mode` (0.38) and
+# `auth_validate`->`echo` (0.16) score below.
+RENAME_SIMILARITY_LOW = 0.40
+RENAME_SIMILARITY_HIGH = 0.65
 
 
 class BlameIndexEntry(TypedDict):
@@ -214,12 +227,24 @@ def classify_from_blame(
     here):
       1. No events ever -> never_implemented (high confidence)
       2. Co-occurring removal of `name` + addition of a source-backed sibling
-         in the same commit -> renamed (high confidence)
-      3. Has removal events but no co-occurring rename target -> retired_pre_walk_floor
+         in the same commit, AND the candidate sibling passes the rename
+         plausibility gate (string-similarity >= RENAME_SIMILARITY_LOW)
+         -> renamed (confidence high or medium per similarity)
+      3. Has removal events but no plausible rename target -> retired_pre_walk_floor
       4. Has only addition events (or events without a clear retirement
          signal) -> aspirational_documentation (low confidence; operator
          re-classifies as extractor_gap by hand if the string is in current
          source)
+
+    Co-occurrence guards (calibrated against ezQuake's full blame in 2026-04):
+      - Self-relocation: when `name` itself has both a removal AND an addition
+        in the same commit, the name was MOVED between files (refactor), not
+        retired. Skip co-occurrence matching for that commit.
+      - String-similarity gate: bulk-cleanup commits frequently retire many
+        unrelated names alongside the introduction of one new feature, which
+        produces N-to-1 false-positive renames. Require the candidate sibling
+        to share enough string structure with `name` to plausibly be the same
+        identifier under a new spelling.
     """
     events = blame.get(name, [])
     if not events:
@@ -231,21 +256,37 @@ def classify_from_blame(
             ),
         }
     removals = [e for e in events if e["event"] == "removal"]
+    additions = [e for e in events if e["event"] == "addition"]
+    self_relocation_commits = {a["commit"] for a in additions}
     if removals:
         for removal in removals:
             co_commit = removal["commit"]
+            # Skip relocations: name re-appeared in this same commit, so the
+            # removal half is half of a code-move, not a retirement.
+            if co_commit in self_relocation_commits:
+                continue
+            best_sibling: str | None = None
+            best_ratio = 0.0
             for sibling, sibling_events in blame.items():
                 if sibling == name or sibling not in source_backed_names:
                     continue
                 for se in sibling_events:
                     if se["event"] == "addition" and se["commit"] == co_commit:
-                        return {
-                            "classification": "renamed",
-                            "confidence": "high",
-                            "rename_to": sibling,
-                            "rename_at_commit": co_commit,
-                            "rename_at_date": removal["date"],
-                        }
+                        ratio = SequenceMatcher(None, name, sibling).ratio()
+                        if ratio > best_ratio:
+                            best_ratio = ratio
+                            best_sibling = sibling
+                        break
+            if best_sibling is not None and best_ratio >= RENAME_SIMILARITY_LOW:
+                confidence = "high" if best_ratio >= RENAME_SIMILARITY_HIGH else "medium"
+                return {
+                    "classification": "renamed",
+                    "confidence": confidence,
+                    "rename_to": best_sibling,
+                    "rename_at_commit": co_commit,
+                    "rename_at_date": removal["date"],
+                    "rename_similarity": round(best_ratio, 3),
+                }
         last_removal = removals[-1]
         return {
             "classification": "retired_pre_walk_floor",

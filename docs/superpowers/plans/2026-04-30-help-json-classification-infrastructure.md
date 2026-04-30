@@ -57,13 +57,20 @@ Locked from brainstorm + 2026-04-30 review revision. **Six values** (was seven; 
 | Classification | Required fields | Source of evidence |
 |---|---|---|
 | `retired_pre_walk_floor` | `retired_at_commit`, `retired_at_date`, `last_source_file_pre_walk`, `last_source_line_pre_walk` (optional — None when blame can't recover it) | git log -S finds string-removal commit before walk floor (3.0 for ezQuake) |
-| `renamed` | `rename_to` (must be a source-backed entity name in same project), `rename_at_commit`, `rename_at_date` | Co-occurrence of remove + add in same commit, near-string match |
+| `renamed` | `rename_to` (must be a source-backed entity name in same project), `rename_at_commit`, `rename_at_date`, `rename_similarity` (0.0-1.0 string similarity to the `rename_to` candidate) | Co-occurrence of remove + add in same commit AND near-string match. See "Co-occurrence guards" below for the rename plausibility filters added 2026-04-30 after the first smoke run produced 120/193 false-positive renames. |
 | `never_implemented` | `evidence_note` (free text describing absence) | git log -S returns no hits, OR hits only inside comment blocks |
 | `extractor_gap` | `gap_reason`, `sidequest` (must match HANDOVER reference pattern) | string IS in current source HEAD; extractor missed it |
 | `aspirational_documentation` | `evidence_note` | help-JSON describes intended/planned feature with no code anywhere |
 | `intentional_typo_or_alias` | `kept_for_compat_with` (a source-backed name) | help-JSON spelling differs from source by typo or back-compat |
 
 **Operator-manual-only kinds:** `intentional_typo_or_alias` and `extractor_gap` are never auto-proposed by the classifier. The classifier suggests up to four kinds: `never_implemented`, `renamed`, `retired_pre_walk_floor`, `aspirational_documentation`. The other two require operator review and hand-edits to the YAML.
+
+**Co-occurrence guards (added 2026-04-30 post-smoke):** the original co-occurrence-only `renamed` heuristic produced ~120/193 false-positive proposals on the first ezQuake smoke run, dominated by two failure modes — (a) code-relocation refactors where a name was moved between files (both add+remove in the same commit) read as a rename to whatever else changed in that commit, and (b) bulk-cleanup commits that retired many unrelated cvars alongside one new feature, producing N-to-1 maps onto the new feature. The `classify_from_blame` decision tree now applies two filters before proposing `renamed`:
+
+1. **Self-relocation skip:** if `name` itself has BOTH a removal AND an addition in the candidate commit, treat the removal as a relocation (not a retirement) and skip co-occurrence matching for that commit.
+2. **String-similarity gate:** require `difflib.SequenceMatcher(None, name, sibling).ratio() >= 0.40`. Confidence ladder: `>= 0.65` → `high`; `0.40 .. < 0.65` → `medium`; below 0.40 → not a rename, fall through to `retired_pre_walk_floor`. The `rename_similarity` field is persisted in the YAML so operators can see the score that drove each proposal.
+
+These thresholds were calibrated against ezQuake's full blame run: real renames like `-gl-debug` → `-r-debug` (0.82) and `loadfont` → `fontload` (0.50) sit above the LOW gate; pure-nonsense pairs like `auth_validate` → `echo` (0.12), `menu_fps` → `+back` (0.0), and `cl_warncmd` → `sv_progtype` (0.19) sit well below. Plausibly-real cases that are still ambiguous (browser cvar unification: `skin_browser_sort_mode` → `file_browser_sort_mode` at 0.86) land at high or medium confidence and the `--confidence-threshold high` auto-accept gate is the operator's coarse first cut; medium-confidence proposals require hand review.
 
 Common required fields on every entry:
 - `name` (entity name as it appears in help-JSON)
@@ -795,6 +802,56 @@ Expected: PASS — all 4 tests green.
 git add apps/qw-oracle/scripts/extractors/extractor_lib/_help_json_blame.py apps/qw-oracle/scripts/extractors/extractor_lib/tests/test_help_json_blame.py
 git commit -m "feat(qw-oracle): single-pass git-pickaxe blame index for help-JSON classification"
 ```
+
+#### Post-smoke amendment (2026-04-30)
+
+Step 1's `classify_from_blame` shipped initially with the naive co-occurrence-only rename heuristic. The Task 3 smoke run on the live ezQuake-source clone produced 120/193 false-positive `renamed` proposals at high confidence (e.g. `-nomouse → vid_modelist`, `auth_validate → echo`, 24× `cfg/skin/demo_browser_*` → `file_browser_sort_mode`). Two filters were added in a follow-up commit; the current `classify_from_blame` decision tree is:
+
+```python
+events = blame.get(name, [])
+if not events:
+    return never_implemented_high_confidence
+removals = [e for e in events if e["event"] == "removal"]
+additions = [e for e in events if e["event"] == "addition"]
+self_relocation_commits = {a["commit"] for a in additions}
+if removals:
+    for removal in removals:
+        co_commit = removal["commit"]
+        # Filter 1: skip relocations -- name re-appeared in this commit, so
+        # the removal is half of a code-move, not a retirement.
+        if co_commit in self_relocation_commits:
+            continue
+        # Filter 2: pick the highest-similarity sibling addition, gate on
+        # SequenceMatcher.ratio() >= RENAME_SIMILARITY_LOW (0.40); confidence
+        # high if >= RENAME_SIMILARITY_HIGH (0.65), else medium.
+        best_sibling, best_ratio = pick_best_sibling(blame, source_backed_names, co_commit)
+        if best_sibling is not None and best_ratio >= RENAME_SIMILARITY_LOW:
+            return {
+                "classification": "renamed",
+                "confidence": "high" if best_ratio >= RENAME_SIMILARITY_HIGH else "medium",
+                "rename_to": best_sibling,
+                "rename_at_commit": co_commit,
+                "rename_at_date": removal["date"],
+                "rename_similarity": round(best_ratio, 3),
+            }
+    return retired_pre_walk_floor (using removals[-1])
+return aspirational_documentation
+```
+
+Calibration evidence (SequenceMatcher.ratio between doc_only name and source-backed candidate):
+
+| Pair | Ratio | Verdict |
+|---|---|---|
+| `-gl-debug` ↔ `-r-debug` | 0.82 | high — real rename |
+| `skin_browser_sort_mode` ↔ `file_browser_sort_mode` | 0.86 | high — plausible unification |
+| `cfg_browser_dir_color` ↔ `file_browser_dir_color` | 0.88 | high — plausible unification |
+| `loadfont` ↔ `fontload` | 0.50 | medium — operator review |
+| `-nomouse` ↔ `vid_modelist` | 0.30 | filtered (relocation also skipped) |
+| `cl_warncmd` ↔ `sv_progtype` | 0.19 | filtered |
+| `auth_validate` ↔ `echo` | 0.12 | filtered |
+| `menu_fps` ↔ `+back` | 0.00 | filtered |
+
+Three regression tests added to `test_help_json_blame.py`: `test_classify_from_blame_skips_self_relocation_commit`, `test_classify_from_blame_filters_low_similarity_sibling`, `test_classify_from_blame_marks_borderline_similarity_as_medium_confidence`. The original `test_classify_from_blame_finds_rename_when_co_occurrence_predates_later_removal` was updated to use a high-similarity name pair so its co-occurrence assertion stays exercised.
 
 ---
 
