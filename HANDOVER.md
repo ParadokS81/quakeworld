@@ -14,7 +14,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
 - [Semantic-pass abbreviation-bridge heuristic](#semantic-pass-abbreviation-bridge-heuristic) — low pressure. Spec-ready fix in `semantic-match.ts`.
 - [`-nopriority` cmdline_param recovery (Windows SDK stubs)](#-nopriority-cmdline_param-recovery-windows-sdk-stubs) — deferred from Layer 1 doc_only audit; waits on first MVDSV/FTE same-wall hit before solving in one place.
-- [`.claude/` canonical exclusion gap](#claude-canonical-exclusion-gap-2026-04-30) — orphan check surfaces `apps/<app>/.claude/commands/*.md` as orphans. Cross-app pattern change → operator consult per amendment 8 before adding `.claude/` to canonical exclusion list in `~/.claude/skills/docs-check/SKILL.md`.
 
 ### Sidequests
 - **Plugin v-table asset detection (loader-sites handler)** — FTE plugins reach loaders through `cvarfuncs->...` v-table calls, not direct CALL_EXPR. Only `plugin:ezhud` affected; ezhud images ship bundled with FTE. Low pressure. (Engine-agnostic structural finding; no body to migrate.)
@@ -145,27 +144,4 @@ Low. Deferred until MVDSV or FTE hits the same wall — then solve in one place.
 - Origin: Layer 1 doc_only audit closure 2026-04-25 (now in `apps/qw-oracle/docs/arc-history.md`).
 - Companion sidequest: "Sub-pattern 2b: cmdline variant-matrix gaps" (2 ezQuake + 11 QWCL entries on same solve).
 - Source citation: `research/repos/ezquake-source/src/sv_sys_win.c:645`.
-
----
-
-## `.claude/` canonical exclusion gap (2026-04-30)
-
-**Added:** 2026-04-30 (slipgate retrofit wrap-up). **Status:** Open. Cross-app doctrine gap surfaced by Phase 2 orphan check.
-**Verification first:** `find . -path '*/.claude/commands/*.md' -not -path '*/node_modules/*' -not -path '*/dist/*'` — these surface as orphans because `.claude/` isn't in the canonical exclusion list.
-
-### What's missing
-
-The Phase 2 Step 2 exclusion table in `~/.claude/skills/docs-check/SKILL.md` doesn't list `.claude/` directories. Slash commands authored under `apps/<app>/.claude/commands/*.md` (and other harness state) are loaded by Claude Code natively, not by the docs-check spider-web walk. Strict orphan detection surfaces them as `[orphan — needs classification or decommission]` even though they shouldn't be in the spider-web at all.
-
-Slipgate has 2 such files (`.claude/commands/cfg-parser.md`, `.claude/commands/restart.md`). Other apps likely similar.
-
-### Proposed fix
-
-Add `.claude/` to canonical exclusions in SKILL.md Phase 2 Step 2 exclusion table, alongside `node_modules/`, `dist/`, `build/`, `.pytest_cache/`. Rationale: harness state loaded by Claude Code natively, not authored content for the docs-check spider-web. Universal across all apps.
-
-Per amendment 8's strictness rule, extending the canonical exclusion list is a cross-app pattern change → operator consults before adding (matches the precedent set by `_*` directory + `.pytest_cache/` extensions on 2026-04-30).
-
-### Pressure
-
-Low. Slipgate retrofit completed without blocking on this; the surfaced files are correctly authored, just incorrectly classified by the strict orphan walk. Resolves with a one-line addition to SKILL.md after operator consult.
 
