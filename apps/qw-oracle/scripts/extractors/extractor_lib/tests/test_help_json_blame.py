@@ -105,6 +105,29 @@ def test_classify_from_blame_renamed_via_co_occurrence():
     assert proposal["confidence"] == "high"
 
 
+def test_classify_from_blame_finds_rename_when_co_occurrence_predates_later_removal():
+    """A doc_only name renamed in commit A may still appear in a later removal
+    commit B (stale reference, partial revert). The classifier MUST scan all
+    removals for co-occurrence, not just the latest one."""
+    blame = {
+        "-old": [
+            {"commit": "commitA", "date": "2018-01-01", "event": "removal",
+             "file": "params.h", "context_line": "-..."},
+            {"commit": "commitB", "date": "2020-06-15", "event": "removal",
+             "file": "comments.txt", "context_line": "-..."},
+        ],
+        "-new": [
+            {"commit": "commitA", "date": "2018-01-01", "event": "addition",
+             "file": "params.h", "context_line": "+..."},
+        ],
+    }
+    source_backed_names = {"-new"}
+    proposal = classify_from_blame("-old", blame, source_backed_names)
+    assert proposal["classification"] == "renamed"
+    assert proposal["rename_to"] == "-new"
+    assert proposal["rename_at_commit"] == "commitA"
+
+
 def test_classify_from_blame_never_implemented():
     """No git history at all = never implemented."""
     blame = {"-nomouse": []}

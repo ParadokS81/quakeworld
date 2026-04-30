@@ -1,6 +1,6 @@
 """Single-pass git-pickaxe index for help-JSON classification.
 
-Strategy: one `git log --all -p --no-merges` pass against the upstream repo.
+Strategy: one `git log --first-parent -p --no-merges` pass against the upstream repo.
 The full stream is consumed by a Python state-machine parser (NO ripgrep
 pre-filter -- ripgrep would discard the ===COMMIT===/SHA/date sentinel lines
 because they don't match the alternation regex, leaving the parser unable
@@ -228,20 +228,21 @@ def classify_from_blame(
         }
     removals = [e for e in events if e["event"] == "removal"]
     if removals:
+        for removal in removals:
+            co_commit = removal["commit"]
+            for sibling, sibling_events in blame.items():
+                if sibling == name or sibling not in source_backed_names:
+                    continue
+                for se in sibling_events:
+                    if se["event"] == "addition" and se["commit"] == co_commit:
+                        return {
+                            "classification": "renamed",
+                            "confidence": "high",
+                            "rename_to": sibling,
+                            "rename_at_commit": co_commit,
+                            "rename_at_date": removal["date"],
+                        }
         last_removal = removals[-1]
-        co_commit = last_removal["commit"]
-        for sibling, sibling_events in blame.items():
-            if sibling == name or sibling not in source_backed_names:
-                continue
-            for se in sibling_events:
-                if se["event"] == "addition" and se["commit"] == co_commit:
-                    return {
-                        "classification": "renamed",
-                        "confidence": "high",
-                        "rename_to": sibling,
-                        "rename_at_commit": co_commit,
-                        "rename_at_date": last_removal["date"],
-                    }
         return {
             "classification": "retired_pre_walk_floor",
             "confidence": "high",
