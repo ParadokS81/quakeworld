@@ -1,0 +1,1993 @@
+project: ezquake
+classifications:
+- name: cfg_browser_dircolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_dir_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_selectedcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_selected_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_zipcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_archive_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_interline
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_interline
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_scrollnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_scrollnames
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_showdate
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_date
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_showtime
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_time
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_showsize
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_size
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_showstatus
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_status
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_sortmode
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_sort_mode
+  rename_at_commit: 0e4e0eab
+  rename_at_date: '2010-01-13'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_stripnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_strip_names
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: cfg_browser_democolor
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  retired_at_commit: 5f7900c6
+  retired_at_date: '2010-01-08'
+  last_source_file_pre_walk: EX_FileList.c
+  evidence_note: 'Per-cvar removed in commit 5f7900c6 file-browser unification; the
+    unified file_browser_* set has no per-type ''demo file'' color cvar (the browser
+    became generic). Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings
+    for all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*,
+    demo_browser_*, help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13)
+    cleaned leftover registration; that commit re-introduced file_browser_sort_mode
+    after it was missed in 5f7900c6.'
+- name: skin_browser_dircolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_dir_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_selectedcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_selected_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_zipcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_archive_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_interline
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_interline
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_scrollnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_scrollnames
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_showdate
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_date
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_showtime
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_time
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_showsize
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_size
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_showstatus
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_status
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_sortmode
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_sort_mode
+  rename_at_commit: 0e4e0eab
+  rename_at_date: '2010-01-13'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_stripnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_strip_names
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: skin_browser_democolor
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  retired_at_commit: 5f7900c6
+  retired_at_date: '2010-01-08'
+  last_source_file_pre_walk: EX_FileList.c
+  evidence_note: 'Per-cvar removed in commit 5f7900c6 file-browser unification; the
+    unified file_browser_* set has no per-type ''demo file'' color cvar (the browser
+    became generic). Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings
+    for all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*,
+    demo_browser_*, help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13)
+    cleaned leftover registration; that commit re-introduced file_browser_sort_mode
+    after it was missed in 5f7900c6.'
+- name: demo_browser_dircolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_dir_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_selectedcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_selected_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_zipcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_archive_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_interline
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_interline
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_scrollnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_scrollnames
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_showdate
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_date
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_showtime
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_time
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_showsize
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_size
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_showstatus
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_status
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_sortmode
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_sort_mode
+  rename_at_commit: 0e4e0eab
+  rename_at_date: '2010-01-13'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_stripnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_strip_names
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: demo_browser_democolor
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  retired_at_commit: 5f7900c6
+  retired_at_date: '2010-01-08'
+  last_source_file_pre_walk: EX_FileList.c
+  evidence_note: 'Per-cvar removed in commit 5f7900c6 file-browser unification; the
+    unified file_browser_* set has no per-type ''demo file'' color cvar (the browser
+    became generic). Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings
+    for all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*,
+    demo_browser_*, help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13)
+    cleaned leftover registration; that commit re-introduced file_browser_sort_mode
+    after it was missed in 5f7900c6.'
+- name: help_files_dircolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_dir_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_selectedcolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_selected_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_interline
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_interline
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_scrollnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_scrollnames
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_showdate
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_date
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_showtime
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_time
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_showsize
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_size
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_showstatus
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_show_status
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_sortmode
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_sort_mode
+  rename_at_commit: 0e4e0eab
+  rename_at_date: '2010-01-13'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_stripnames
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_strip_names
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: help_files_filecolor
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-04-30'
+  rename_to: file_browser_file_color
+  rename_at_commit: 5f7900c6
+  rename_at_date: '2010-01-08'
+  evidence_note: 'Commit 5f7900c6 (johnnycz, 2010-01-08): "one set of settings for
+    all file browsers; -> 50 cvars gone" unified cfg_browser_*, skin_browser_*, demo_browser_*,
+    help_files_* into file_browser_*. Commit 0e4e0eab (2010-01-13) cleaned leftover
+    registration; that commit re-introduced file_browser_sort_mode after it was missed
+    in 5f7900c6.'
+- name: -gl-debug
+  type: cmdline_param
+  classification: renamed
+  confidence: high
+  upstream_pr_action: note_rename
+  classified_at: '2026-05-01'
+  rename_to: -r-debug
+  rename_at_commit: 0d7ea051f0a06784ef59f79fe7f8488df3bc08c9
+  rename_at_date: '2018-07-21'
+  rename_similarity: 0.824
+- name: -nomouse
+  type: cmdline_param
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 330e11a7
+  retired_at_date: '2018-04-12'
+  last_source_file_pre_walk: in_sdl2.c
+  evidence_note: 'Was present at v3.0 in in_sdl2.c via COM_CheckParm("-nomouse") --
+    our extractor only recognizes CMDLINE_DEF macros, so bare COM_CheckParm call sites
+    were silently classified as doc_only. Registration removed in commit 330e11a7.
+    NOTE: COM_CheckParm-call-site recognition would be a useful extractor improvement
+    (fold -SC bare-checkparm cmdline params into source-backed extraction).'
+- name: dev_cache_print
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e5f91c1cf85b77d3c45c399c8e0b4195316863ac
+  retired_at_date: '2018-12-02'
+  last_source_file_pre_walk: zone.c
+- name: dev_cache_report
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e5f91c1cf85b77d3c45c399c8e0b4195316863ac
+  retired_at_date: '2018-12-02'
+  last_source_file_pre_walk: zone.c
+- name: dev_hunk_print
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e5f91c1cf85b77d3c45c399c8e0b4195316863ac
+  retired_at_date: '2018-12-02'
+  last_source_file_pre_walk: zone.c
+- name: in_evdevlist
+  type: command
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: loadfont
+  type: command
+  classification: renamed
+  confidence: medium
+  upstream_pr_action: note_rename
+  classified_at: '2026-05-01'
+  rename_to: fontload
+  rename_at_commit: 228a6770518fc6ba4c673236bbc3c6be2f199662
+  rename_at_date: '2019-02-10'
+  rename_similarity: 0.5
+- name: locname
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 969f320605f9d9fd98c4a4988333d5c996454b15
+  retired_at_date: '2018-04-12'
+  last_source_file_pre_walk: help_commands.json
+- name: menu_fps
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf
+  retired_at_date: '2007-01-12'
+  last_source_file_pre_walk: menu_options.c
+- name: menu_keys
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf
+  retired_at_date: '2007-01-12'
+  last_source_file_pre_walk: menu_options.c
+- name: menu_mp3_control
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: menu.c
+- name: menu_mp3_playlist
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: menu.c
+- name: menu_setup
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf
+  retired_at_date: '2007-01-12'
+  last_source_file_pre_walk: menu_options.c
+- name: menu_video
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 9aed44cbeb932c33ba8e86ecaa8461a7350b5dcf
+  retired_at_date: '2007-01-12'
+  last_source_file_pre_walk: menu_options.c
+- name: mp3_fadeout
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_fforward
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_loadplaylist
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_next
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_pause
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_play
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_playlist
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_playtrack
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_prev
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_repeat
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_rewind
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_shuffle
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_songinfo
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_startwinamp
+  type: command
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: mp3_stop
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_volume
+  type: macro
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: qtv_reconnect
+  type: command
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: score_own
+  type: command
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: serverstatus
+  type: command
+  classification: renamed
+  confidence: high
+  upstream_pr_action: note_rename
+  classified_at: '2026-05-01'
+  rename_to: status
+  rename_at_commit: 358380cd51ff29fb35a9abbf790dbe9ce2f602a9
+  rename_at_date: '2008-07-21'
+  rename_similarity: 0.667
+- name: sys_forget_sandbox
+  type: command
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: tcl_eval
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c190f2a321378f83b5f426ab96778deecd365735
+  retired_at_date: '2018-12-26'
+  last_source_file_pre_walk: cl_tcl.c
+- name: tcl_exec
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c190f2a321378f83b5f426ab96778deecd365735
+  retired_at_date: '2018-12-26'
+  last_source_file_pre_walk: cl_tcl.c
+- name: tcl_proc
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c190f2a321378f83b5f426ab96778deecd365735
+  retired_at_date: '2018-12-26'
+  last_source_file_pre_walk: cl_tcl.c
+- name: track-
+  type: command
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: validate_clients
+  type: command
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: vid_forcemode
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bb6f603915e80cf4a9e11990346c213149af7697
+  retired_at_date: '2005-07-05'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_minimize
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 21976784adaa939f0b97f284de0c52450db67f7c
+  retired_at_date: '2010-02-04'
+  last_source_file_pre_walk: vid_glx.c
+- name: vid_testmode
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bb6f603915e80cf4a9e11990346c213149af7697
+  retired_at_date: '2005-07-05'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_windowed
+  type: command
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: _vid_default_mode
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: _vid_default_mode_win
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 7f0ff419d7d88caa2ab6fbf292d3ad1fc1a0e59c
+  retired_at_date: '2009-04-10'
+  last_source_file_pre_walk: vid_win.c
+- name: _windowed_mouse
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 5fc8abf76a7fa6e7318701676e794d0ec5160d80
+  retired_at_date: '2012-04-20'
+  last_source_file_pre_walk: vid_mac.c
+- name: allow_download_gfx
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 358380cd
+  retired_at_date: '2008-07-21'
+  last_source_file_pre_walk: sv_main.c
+  evidence_note: Removed in commit 358380cd ('replacing ezquake sv part with mvdsv
+    one'). CLI proposed renamed -> allow_download_maps but allow_download_maps existed
+    independently since 2004 (cvs2svn import); they were both real cvars at the same
+    time. mvdsv's ruleset just dropped the gfx variant.
+- name: auth_validate
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c92841e51c5293f8b948d6a08741063e7cb8473c
+  retired_at_date: '2007-09-14'
+  last_source_file_pre_walk: auth.c
+- name: auth_viewcrc
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c92841e51c5293f8b948d6a08741063e7cb8473c
+  retired_at_date: '2007-09-14'
+  last_source_file_pre_walk: auth.c
+- name: auth_warninvalid
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c92841e51c5293f8b948d6a08741063e7cb8473c
+  retired_at_date: '2007-09-14'
+  last_source_file_pre_walk: auth.c
+- name: block_switch
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: cl_debug_weapon_send
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 15a8e438
+  retired_at_date: '2021-10-14'
+  last_source_file_pre_walk: cl_main.c
+  evidence_note: 'Removed in commit 15a8e438 (''SS WEAPONS: Remove mistake of a feature'').
+    CLI proposed renamed -> cl_weaponhide but cl_weaponhide was just being whitespace-normalized
+    in the same commit, not introduced.'
+- name: cl_weaponforgetondeath
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 15a8e438
+  retired_at_date: '2021-10-14'
+  last_source_file_pre_walk: cl_input.c
+  evidence_note: 'Removed in commit 15a8e438 (''SS WEAPONS: Remove mistake of a feature'').
+    CLI proposed renamed -> cl_weaponforgetorder but cl_weaponforgetorder was just
+    being whitespace-normalized in the same commit.'
+- name: con_particles_alpha
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7
+  retired_at_date: '2020-11-01'
+  last_source_file_pre_walk: help_variables.json
+- name: con_particles_images
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7
+  retired_at_date: '2020-11-01'
+  last_source_file_pre_walk: help_variables.json
+- name: d_mipcap
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bb6f603915e80cf4a9e11990346c213149af7697
+  retired_at_date: '2005-07-05'
+  last_source_file_pre_walk: d_init.c
+- name: d_mipscale
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bb6f603915e80cf4a9e11990346c213149af7697
+  retired_at_date: '2005-07-05'
+  last_source_file_pre_walk: d_init.c
+- name: d_subdiv16
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bb6f603915e80cf4a9e11990346c213149af7697
+  retired_at_date: '2005-07-05'
+  last_source_file_pre_walk: d_init.c
+- name: demo_capture_quiet
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 00d4944d9bed6c61a22c1e7d074a649fac216ecf
+  retired_at_date: '2016-03-02'
+  last_source_file_pre_walk: movie.c
+- name: gl_ztrick
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 68b6d9e87540c0ac1e458853e80bd4a535fd8815
+  retired_at_date: '2018-05-11'
+  last_source_file_pre_walk: help_variables.json
+- name: hud_fps_decimals
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_align_x
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_align_y
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_frame
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_frame_color
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_order
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_place
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_pos_x
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_pos_y
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: hud_mouserate_show
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: in_di_buffered
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: in_di_bufsize
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: in_evdevice
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: in_m_os_parameters
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 48b9c10c41548b1688168e9cf35b5646f2499fd1
+  retired_at_date: '2007-09-16'
+  last_source_file_pre_walk: in_win.c
+- name: in_m_smooth
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 48b9c10c41548b1688168e9cf35b5646f2499fd1
+  retired_at_date: '2007-09-16'
+  last_source_file_pre_walk: in_win.c
+- name: in_mmt
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: in_mouse
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 48b9c10c41548b1688168e9cf35b5646f2499fd1
+  retired_at_date: '2007-09-16'
+  last_source_file_pre_walk: in_win.c
+- name: in_raw_allbuttons
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: b81e0cf8556685ce15591c4219c5ff87dcc793e7
+  retired_at_date: '2009-09-07'
+  last_source_file_pre_walk: in_win.c
+- name: m_forcewheel
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 063881ab
+  retired_at_date: '2007-01-07'
+  last_source_file_pre_walk: in_win.c
+  evidence_note: Removed in commit 063881ab (input cleanup refactor). The cvar was
+    already commented out at that point. CLI proposed renamed -> m_filter but m_filter
+    was being relocated in the same commit, unrelated.
+- name: m_rate
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 48b9c10c41548b1688168e9cf35b5646f2499fd1
+  retired_at_date: '2007-09-16'
+  last_source_file_pre_walk: in_win.c
+- name: m_showrate
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 48b9c10c41548b1688168e9cf35b5646f2499fd1
+  retired_at_date: '2007-09-16'
+  last_source_file_pre_walk: in_win.c
+- name: mp3_player
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_scrolltitle
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_showtime
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
+- name: mp3_winamp_dir
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_winamp.c
+- name: mumble_enabled
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 768ccc127e0c22b6b8fabe25212d766724095330
+  retired_at_date: '2009-07-22'
+  last_source_file_pre_walk: mumble.c
+- name: mvd_write_xml
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: c0514ea9e47cd42f65af8722c70121d4f75d5a4b
+  retired_at_date: '2007-09-24'
+  last_source_file_pre_walk: mvd_utils.c
+- name: r_aliastransadj
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_aliastransbase
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_ambient
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_clearcolor
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_draworder
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: d7984a5f
+  retired_at_date: '2004-09-07'
+  last_source_file_pre_walk: (software renderer code, removed pre-walk-floor)
+  evidence_note: Last visible in cvs2svn import (2004) in *.c/*.h. Software-renderer
+    cvar; the underlying code was retired before any walked tag. CLI proposed renamed
+    -> r_drawparticles based on a 2018 help-JSON edit, but that edit only touched
+    the docs file, not source.
+- name: r_dspeeds
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_graphheight
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_max_size_1
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_maxedges
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_maxsurfs
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_numedges
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_numsurfs
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_polymodelstats
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_reportedgeout
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_reportsurfout
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_timegraph
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_turbwarp
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: r_zgraph
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: s_alsa_device
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 22700cc8676da3871cf29809e5de39f786bd0ba5
+  retired_at_date: '2011-02-06'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_alsa_latency
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 5da7765fa1c1102d923fc9f67652ef144f6927ed
+  retired_at_date: '2011-02-07'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_alsa_noworkaround
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: s_bits
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 82c6b41c
+  retired_at_date: '2011-01-20'
+  last_source_file_pre_walk: snd_dma.c
+  evidence_note: Removed in commit 82c6b41c (sound subsystem 'A lot of stuff left
+    to do' refactor). CLI proposed renamed -> s_restart but s_restart was just being
+    added as a Cmd_AddCommand alias unrelated to s_bits.
+- name: s_device
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 63493a53f32fd611b59cd8d030b926cbb5e90dc0
+  retired_at_date: '2011-02-06'
+  last_source_file_pre_walk: snd_alsa.c
+- name: s_driver
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 22700cc8676da3871cf29809e5de39f786bd0ba5
+  retired_at_date: '2011-02-06'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_mixahead
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 00d4944d9bed6c61a22c1e7d074a649fac216ecf
+  retired_at_date: '2016-03-02'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_noalsa
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 82c6b41c27e80d58a595ebe3ac8207329e86300e
+  retired_at_date: '2011-01-20'
+  last_source_file_pre_walk: snd_linux.c
+- name: s_noextraupdate
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 00d4944d
+  retired_at_date: '2016-03-02'
+  last_source_file_pre_walk: snd_dma.c
+  evidence_note: 'Removed in commit 00d4944d (''SOUND: Refactored into doing mixing
+    in the callback thread''). CLI proposed renamed -> s_desiredsamples but s_desiredsamples
+    is a NEW cvar from the refactor, not a rename.'
+- name: s_oss_device
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 22700cc8676da3871cf29809e5de39f786bd0ba5
+  retired_at_date: '2011-02-06'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_pulseaudio_latency
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 5da7765fa1c1102d923fc9f67652ef144f6927ed
+  retired_at_date: '2011-02-07'
+  last_source_file_pre_walk: snd_dma.c
+- name: s_stereo
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 82c6b41c
+  retired_at_date: '2011-01-20'
+  last_source_file_pre_walk: snd_dma.c
+  evidence_note: Removed in commit 82c6b41c (sound subsystem refactor). CLI proposed
+    renamed -> s_restart but s_restart is a separate Cmd alias.
+- name: s_uselegacydrivers
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: sb_showcounters
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: bc800a3c
+  retired_at_date: '2007-01-19'
+  last_source_file_pre_walk: EX_browser.c
+  evidence_note: Removed in commit bc800a3c ('Updating menus'). CLI proposed renamed
+    -> sb_sortsources but sb_sortsources existed independently and was just annotated
+    'not in new menu' in the same commit.
+- name: scr_autoid_drawname
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: sv_aim
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6518bc5d93bb7a5c53bca1028046ab08023ea419
+  retired_at_date: '2005-07-21'
+  last_source_file_pre_walk: pr_cmds.c
+- name: sv_fastconnect
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 358380cd
+  retired_at_date: '2008-07-21'
+  last_source_file_pre_walk: sv_main.c
+  evidence_note: Removed in commit 358380cd ('replacing ezquake sv part with mvdsv
+    one'). CLI proposed renamed -> disconnect but disconnect is a server log/command
+    string in that mega-commit, unrelated to sv_fastconnect's function.
+- name: sv_highchars
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 358380cd51ff29fb35a9abbf790dbe9ce2f602a9
+  retired_at_date: '2008-07-21'
+  last_source_file_pre_walk: sv_main.c
+- name: sv_timeout
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: note_rename
+  classified_at: '2026-05-01'
+  rename_to: timeout
+  rename_at_commit: 358380cd51ff29fb35a9abbf790dbe9ce2f602a9
+  rename_at_date: '2008-07-21'
+  rename_similarity: 0.824
+- name: sw_contrast
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: cl_view.c
+- name: sw_gamma
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: cl_view.c
+- name: vid_allowextensions
+  type: cvar
+  classification: never_implemented
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  evidence_note: git log -S finds no occurrence of this string in any commit.
+- name: vid_borderless
+  type: cvar
+  classification: renamed
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  rename_to: vid_win_borderless
+  rename_at_commit: db81ce86
+  rename_at_date: '2021-08-28'
+  rename_similarity: 1.0
+  evidence_note: 'Commit db81ce86 message explicitly documents: ''vid_borderless:
+    removed, exists at vid_win_borderless''. CLI''s similarity picker chose vid_framebuffer_multisample
+    because that adjacent JSON-edit was the first sibling found in the same commit;
+    the commit message is the authoritative rename target.'
+- name: vid_conaspect
+  type: cvar
+  classification: aspirational_documentation
+  confidence: low
+  upstream_pr_action: none
+  classified_at: '2026-05-01'
+  evidence_note: Blame events present but no clear rename or retirement signal. If
+    string IS in current HEAD source, operator should re-classify as extractor_gap
+    with a HANDOVER sidequest reference.
+- name: vid_config_x
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6925c3345594ce286e739de52299a43e5d88ec4f
+  retired_at_date: '2009-05-08'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_config_y
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6925c3345594ce286e739de52299a43e5d88ec4f
+  retired_at_date: '2009-05-08'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_customheight
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: tr_init.c
+- name: vid_customwidth
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: tr_init.c
+- name: vid_depthbits
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: tr_init.c
+- name: vid_forcerestoregamma
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 8ec432ad9f8e69521a41ffcb615e3346e5d40ad8
+  retired_at_date: '2007-05-27'
+  last_source_file_pre_walk: win_glimp.c
+- name: vid_fullscreen_mode
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6154e978951b243823a56eead035b4ec6176a20f
+  retired_at_date: '2009-04-10'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_mode
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 5fc8abf76a7fa6e7318701676e794d0ec5160d80
+  retired_at_date: '2012-04-20'
+  last_source_file_pre_walk: vid_mac.c
+- name: vid_nopageflip
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_resetonswitch
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_stencilbits
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: tr_init.c
+- name: vid_stretch_by_2
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6925c3345594ce286e739de52299a43e5d88ec4f
+  retired_at_date: '2009-05-08'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_wideaspect
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: ba597371b1ea7543a6325c7d4ba032b498ab6b42
+  retired_at_date: '2009-03-29'
+  last_source_file_pre_walk: tr_init.c
+- name: vid_window_x
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_window_y
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 54e53218a1ed560fc235b686c75e9c66cc2b23e1
+  retired_at_date: '2009-11-12'
+  last_source_file_pre_walk: vid_win.c
+- name: vid_windowed_mode
+  type: cvar
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: 6154e978951b243823a56eead035b4ec6176a20f
+  retired_at_date: '2009-04-10'
+  last_source_file_pre_walk: vid_win.c
+- name: mp3info
+  type: macro
+  classification: retired_pre_walk_floor
+  confidence: high
+  upstream_pr_action: remove_from_help_json
+  classified_at: '2026-05-01'
+  retired_at_commit: e1ed450cbc2076d3efd45e69f74c2df28284981b
+  retired_at_date: '2019-03-05'
+  last_source_file_pre_walk: mp3_player.c
