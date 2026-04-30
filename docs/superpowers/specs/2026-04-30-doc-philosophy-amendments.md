@@ -70,6 +70,23 @@ The `_*` directory prefix and `.pytest_cache/` were added to the canonical exclu
 
 Per amendment #8's strictness rule, extending the canonical exclusion list is a cross-app pattern change → consulted with operator before adding. Operator approved adding both as universal entries (decline-to-grandfather) since both are well-defined at the language/tooling layer, not project-specific. qw-oracle-discovered dirs that ARE project-specific (`diagnostics/`, `validation-fixtures/`) stay grandfathered case-by-case in qw-oracle's CLAUDE.md per the original grandfather clause, NOT promoted.
 
+**Per-project exclusions (added 2026-04-30 follow-up to qw-oracle pilot Finding 1).** Apps with artifact-shaped folders that don't match canonical names (`output/`, `reports/`, `reviews/`) may declare additional exclusion paths in their `<app>/CLAUDE.md` under a `## Excluded paths` section (case-sensitive header). The docs-check orphan walk reads this section at walk time and unions it with the canonical list. The mechanism is transparent (visible in the app's own index) rather than implicit, and contained (additions are scoped to the declaring app -- no canonical pollution).
+
+Example:
+
+```markdown
+## Excluded paths
+
+| Path | Why |
+|---|---|
+| `scripts/extractors/ezquake/diagnostics/` | Historical AST-spike outputs (artifact) |
+| `scripts/extractors/mvdsv/validation-fixtures/` | Fixture corpus (artifact dir) |
+```
+
+Per-project exclusions apply to **orphan detection only**. The index walk still indexes a file inside an excluded folder if a CLAUDE.md explicitly references it (the case-by-case judgment of "this specific file IS a doc" remains with the human author).
+
+This refines the original grandfather clause from "no rename pressure" alone (which addressed only renames, not orphan exemption) into a structured per-project mechanism. The qw-oracle pilot resolved its two artifact-shaped folders by indexing the README inline as the strict-spec reading; the per-project mechanism gives a cleaner long-term home and lets pilot-style inline indexing become an explicit choice ("this specific file IS a doc") rather than the only available enforcement path.
+
 ---
 
 ## Amendment 2 — Layer 2 placement
