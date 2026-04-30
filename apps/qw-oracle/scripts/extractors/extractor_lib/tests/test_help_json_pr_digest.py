@@ -1,4 +1,34 @@
-from extractor_lib._help_json_pr_digest import render_digest
+from extractor_lib._help_json_pr_digest import (
+    collect_help_json_names,
+    render_digest,
+)
+
+
+def test_collect_help_json_names_handles_groups_and_nesting():
+    doc = {
+        "groups": [
+            {"id": "1", "name": "Group A (NOT an entity)"},
+            {"id": "2", "name": "Group B"},
+        ],
+        "vid_borderless": {"description": "old name"},
+        "vid_win_borderless": {
+            "description": "new name",
+            "remarks": {"nested_dict_value": "should not be picked"},
+        },
+        "score_own": {"description": "command"},
+    }
+    acc: set[str] = set()
+    collect_help_json_names(doc, acc)
+    # Top-level entity keys are picked up, but "groups" is skipped.
+    assert "vid_borderless" in acc
+    assert "vid_win_borderless" in acc
+    assert "score_own" in acc
+    assert "groups" not in acc
+    # The nested 'remarks' is itself a dict, so its key gets picked up
+    # (false positive risk acknowledged: the filter is "still-in-help-JSON?",
+    # and a nested key sharing a name with a real entity would only cause
+    # the entry NOT to be filtered out -- safer than the inverse).
+    assert "remarks" in acc
 
 
 def test_renamed_entries_grouped_under_renames_section():

@@ -7,10 +7,32 @@ review the digest, file it as an upstream PR, and continue.
 Entries with upstream_pr_action='none' (extractor_gap, intentional_typo_or_alias,
 aspirational_documentation if we decide to keep) are excluded -- those are
 internal sidequests, not upstream contributions.
+
+Also exposes collect_help_json_names: a recursive walker over a parsed
+help-JSON file that returns the set of entity-name keys. Used by the CLI
+build-help-json-pr-digest.py to filter out seed entries already removed
+from HEAD help-JSON.
 """
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Any, Iterable
+
+
+def collect_help_json_names(node: Any, acc: set[str]) -> None:
+    """Walk a parsed help-JSON document and accumulate entity-name keys.
+
+    Help-JSON files key entries by name at any nesting depth (e.g.,
+    {"groups": [...], "<name>": {<fields>}, ...}). Skip the literal
+    'groups' key since that holds group metadata, not entity names.
+    """
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if isinstance(v, dict) and k != "groups":
+                acc.add(k)
+            collect_help_json_names(v, acc)
+    elif isinstance(node, list):
+        for item in node:
+            collect_help_json_names(item, acc)
 
 
 def render_digest(project: str, classifications: Iterable[dict]) -> str:

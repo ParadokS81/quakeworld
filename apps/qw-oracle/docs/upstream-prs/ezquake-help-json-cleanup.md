@@ -52,7 +52,6 @@ This is an auto-generated digest from qw-oracle's Layer 1 extraction pipeline ag
 - `loadfont` was renamed to `fontload` in commit 228a6770518fc6ba4c673236bbc3c6be2f199662 (2019-02-10).
 - `serverstatus` was renamed to `status` in commit 358380cd51ff29fb35a9abbf790dbe9ce2f602a9 (2008-07-21).
 - `sv_timeout` was renamed to `timeout` in commit 358380cd51ff29fb35a9abbf790dbe9ce2f602a9 (2008-07-21).
-- `vid_borderless` was renamed to `vid_win_borderless` in commit db81ce86 (2021-08-28).
 
 ## Retired entries (suggest removing)
 
@@ -102,13 +101,10 @@ This is an auto-generated digest from qw-oracle's Layer 1 extraction pipeline ag
 - `block_switch` was removed in commit 54e53218a1ed560fc235b686c75e9c66cc2b23e1 (2009-11-12).
 - `cl_debug_weapon_send` was removed in commit 15a8e438 (2021-10-14).
 - `cl_weaponforgetondeath` was removed in commit 15a8e438 (2021-10-14).
-- `con_particles_alpha` was removed in commit 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7 (2020-11-01).
-- `con_particles_images` was removed in commit 3f13bf4b3ab44a157d508b82c5ae06b948e30ac7 (2020-11-01).
 - `d_mipcap` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
 - `d_mipscale` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
 - `d_subdiv16` was removed in commit bb6f603915e80cf4a9e11990346c213149af7697 (2005-07-05).
 - `demo_capture_quiet` was removed in commit 00d4944d9bed6c61a22c1e7d074a649fac216ecf (2016-03-02).
-- `gl_ztrick` was removed in commit 68b6d9e87540c0ac1e458853e80bd4a535fd8815 (2018-05-11).
 - `in_m_os_parameters` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
 - `in_m_smooth` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
 - `in_mouse` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
@@ -116,13 +112,8 @@ This is an auto-generated digest from qw-oracle's Layer 1 extraction pipeline ag
 - `m_forcewheel` was removed in commit 063881ab (2007-01-07).
 - `m_rate` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
 - `m_showrate` was removed in commit 48b9c10c41548b1688168e9cf35b5646f2499fd1 (2007-09-16).
-- `mp3_player` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
-- `mp3_scrolltitle` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
-- `mp3_showtime` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
-- `mp3_winamp_dir` was removed in commit e1ed450cbc2076d3efd45e69f74c2df28284981b (2019-03-05).
 - `mumble_enabled` was removed in commit 768ccc127e0c22b6b8fabe25212d766724095330 (2009-07-22).
 - `mvd_write_xml` was removed in commit c0514ea9e47cd42f65af8722c70121d4f75d5a4b (2007-09-24).
-- `r_draworder` was removed in commit d7984a5f (2004-09-07).
 - `s_alsa_device` was removed in commit 22700cc8676da3871cf29809e5de39f786bd0ba5 (2011-02-06).
 - `s_alsa_latency` was removed in commit 5da7765fa1c1102d923fc9f67652ef144f6927ed (2011-02-07).
 - `s_bits` was removed in commit 82c6b41c (2011-01-20).
@@ -175,4 +166,3 @@ This is an auto-generated digest from qw-oracle's Layer 1 extraction pipeline ag
 - `hud_mouserate_pos_x` -- git log -S finds no occurrence of this string in any commit.
 - `hud_mouserate_pos_y` -- git log -S finds no occurrence of this string in any commit.
 - `hud_mouserate_show` -- git log -S finds no occurrence of this string in any commit.
-- `vid_allowextensions` -- git log -S finds no occurrence of this string in any commit.
