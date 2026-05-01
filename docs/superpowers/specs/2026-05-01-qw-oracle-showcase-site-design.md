@@ -218,7 +218,7 @@ Operator dashboard surfaces flagged notes. Resolution:
 
 Concrete contrast that lands:
 
-> ezquake.com uses an automated process to display cvar JSON help files. **160 of those references are cvars that no longer exist in the codebase.** They went stale silently because nothing was watching the link between the displayed reference and the source-of-truth.
+> ezquake.com uses an automated process to display cvar JSON help files. **156 of those references are cvars that no longer exist in the codebase** (48 renamed, 93 retired, 15 never-implemented; verified via the help-JSON classifier shipped 2026-05-01). They went stale silently because nothing was watching the link between the displayed reference and the source-of-truth.
 >
 > Concept notes carry typed Layer 1 references. When the codebase changes, every note that touches the change is flagged automatically. Knowledge can drift in prose; the *anchor* between the note and source cannot drift without being detected.
 
