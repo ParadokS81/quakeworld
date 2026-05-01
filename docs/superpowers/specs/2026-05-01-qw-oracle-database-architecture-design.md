@@ -51,14 +51,17 @@ Separately, the operator wants to demonstrate the public-MCP shape on Unraid as 
 
 The CLAUDE.md "SQLite over Postgres" rule is retired for the authoritative store. SQLite remains acceptable for derived artefacts (e.g. if a future consumer ships a small embeddable cache file) and remains in place for `qw.db` until the Layer 2 v2 arc.
 
-### Embedding model: Voyage `voyage-4-large`
+### Embedding model: Voyage 4 series (shared embedding space)
 
-- 1024 dimensions.
-- 200M free tokens per account at signup; per-million pricing $0.12 above that.
-- Same model used at build time (corpus embedding) and query time (query embedding). Mismatch is rejected loudly at MCP startup.
-- Model name + dimension stored in Postgres metadata; swap is a re-embed, not a rewrite.
+- **Build time (corpus embedding): `voyage-4-large`** — 1024 dimensions, top retrieval quality.
+- **Query time (per-query embedding): `voyage-4-lite`** — same shared embedding space, lower latency, lower cost. Geometric compatibility is guaranteed by Voyage; build-time vectors and query-time vectors land in the same space.
+- 200M free tokens per account at signup; per-million pricing $0.12 (`voyage-4-large`) and $0.02 (`voyage-4-lite`) above the free tier.
+- Model names + dimension stored in Postgres `embedding_metadata`; mismatched model strings at MCP startup throw loudly.
+- Swapping the build-time model is a re-embed; swapping the query-time model within the v4 family is a one-line config change with no re-embed.
 
-Voyage was preferred over OpenAI / Cohere on retrieval quality on technical English text. The free tier easily covers full-corpus embedding plus realistic query traffic for the demo phase. Local-on-4090 (BGE-M3, GTE-large) is documented as the principled-fallback path if the operator ever wants zero-API operation; not built in v1.
+The Voyage 4 series shared embedding space is the load-bearing feature here: it lets us pay for quality where it matters (build time, embed-the-corpus-once) and pay for speed/cost where that matters (query time, embed-once-per-question). v3-series and earlier did not share spaces across model sizes, so this is a v4-specific design choice.
+
+Local fallback path: **`voyage-4-nano` (open weights, available on HuggingFace)** sits in the same shared space. If the operator ever wants zero-API operation, `voyage-4-nano` runs on the 4090 (or even on Unraid CPU at lower throughput) and the corpus does not need re-embedding. This is a strictly cleaner fallback story than the v3-era "switch to BGE-M3 and re-embed everything" plan. Not built in v1; documented as a real option.
 
 ### Retrieval shape: hybrid (lexical + semantic), Reciprocal Rank Fusion
 
@@ -290,7 +293,8 @@ DATABASE_URL=postgresql://...
 VOYAGE_API_KEY=...
 PUBLIC_BASE_URL=https://oracle.slipgate.me
 SNAPSHOT_DIR=/var/oracle/snapshots
-EMBEDDING_MODEL=voyage-4-large
+EMBEDDING_MODEL_BUILD=voyage-4-large
+EMBEDDING_MODEL_QUERY=voyage-4-lite
 EMBEDDING_DIMENSION=1024
 MATCH_QUALITY_STRONG_THRESHOLD=<calibrated post-deploy>
 MATCH_QUALITY_WEAK_THRESHOLD=<calibrated post-deploy>
@@ -377,11 +381,13 @@ Each arc closes with eval-set verification. Arc 2 cannot regress Arc 1's MCP beh
 
 ## Risks and mitigations
 
-**Risk: Voyage deprecates `voyage-4-large` and we have to re-embed.**
+**Risk: Voyage deprecates the v4 series and we have to re-embed.**
 Mitigation: model name + dimension stored as DB metadata; `re-embed.ts` script wipes vectors and rebuilds with whatever model is configured. Cost is dollars (or zero, inside free tier of the new model). Workflow event, not a schema event.
 
 **Risk: Voyage API outage at query time.**
-Mitigation: query-side embedding fails → MCP returns `match_quality: 'none'` with a `suggested_fallback` pointing at exact-name lookup tools (`lookup_entity` / `get_concept_note`). Public-MCP availability is degraded but not broken; existing structured queries still work.
+Mitigation, layered:
+1. Short-term outage: query-side embedding fails → MCP returns `match_quality: 'none'` with `suggested_fallback` pointing at exact-name lookup tools (`lookup_entity` / `get_concept_note`). Public-MCP availability is degraded but not broken.
+2. Long-term outage or principled cut-over: switch query-time embedding to `voyage-4-nano` running locally on the 4090 (open-weights, same shared embedding space as `voyage-4-large`). One env var change. Corpus is **not** re-embedded.
 
 **Risk: Postgres-on-Workers performance unknowns at endgame.**
 Mitigation: not v1's problem. Demo runs against a co-located Postgres on Unraid; endgame Workers + Hyperdrive performance gets validated when graduation happens. If it doesn't fit Workers, MCP server runs as a Backend Services container instead (also in the diagram). The MCP code stays the same.
@@ -406,8 +412,9 @@ For traceability — these are the decisions the operator made during the brains
 | Primary serving surface | MCP-first, public | Clients pick their own LLM; we don't bear inference cost |
 | HTTP API | Future, low-priority | "Freedom of choice" but not a design driver |
 | Public chatbot | Deferred | Cost model not validated |
-| Embedding model | Voyage `voyage-4-large` | Quality + free tier + Anthropic ecosystem alignment |
-| Embedding location | Hosted API at runtime | Local-on-4090 is a fallback, not a v1 requirement |
+| Embedding model (build) | Voyage `voyage-4-large` | Quality + free tier + Anthropic ecosystem alignment |
+| Embedding model (query) | Voyage `voyage-4-lite` | Same shared embedding space as build model; lower latency + cost |
+| Embedding location | Hosted API at runtime | `voyage-4-nano` (open weights, same shared space) is a drop-in local fallback if API access ever needs to be cut; not built in v1 |
 | Eval set size | 15-20 helpdesk-sourced questions | Operator domain expertise replaces large eval-team rigour |
 | Layer 2 in v1 | Untouched | Bug that triggered this conversation was Layer 3, not Layer 2 |
 | IRC corpus | Parked for Layer 2 v2 archive | Multilingual / archaic-format complexity, lower signal |
