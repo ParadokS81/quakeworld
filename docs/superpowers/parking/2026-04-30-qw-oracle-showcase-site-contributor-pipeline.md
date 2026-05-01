@@ -1,8 +1,23 @@
 # qw-oracle showcase site + contributor pipeline (2026-04-30)
 
 **Added:** 2026-04-30 (consolidated from sidequests "Workstream B: concept-note authoring scaffolding" and "Workstream C: /docs ingest pipeline prep" during HANDOVER triage).
-**Status:** Future arc; trigger-gated. Solo concept-note authoring continues in the meantime as content R&D.
-**Pressure:** Low until trigger fires. Operator can still hand-write concept notes and iterate on format / cross-layer grounding without unshelving this arc.
+**Status:** **Active; design landed 2026-05-01.** Trigger (d) fired -- operator committed to building the showcase site. Design captured in `docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md`. Next step is claude.ai/design mockup pass, then implementation plan.
+**Pressure:** Medium. Slipgate Managed Mode arc remains higher pressure; showcase work is paced around it.
+
+## What changed at 2026-05-01 (trigger firing)
+
+The brainstorm session that fired the trigger landed the design as a five-section narrative site + parallel Layer 2 mining arc for seed topics. Key resolutions of the open questions below:
+
+- **Stack / hosting:** Firebase Hosting frontend + Unraid + cloudflare tunnel for MCP backend (matchscheduler pattern). Domain `oracle.quake.world` pending vikpe confirmation.
+- **Topic-voting mechanism:** GitHub Issues queue with three convergent feeds (operator wishlist + Layer 2 mining + contributor MCP self-test). No custom voting widget.
+- **MCP+skills bundle distribution:** `claude-plugins` package; tooled contributors install it as the kung-fu-disk transfer of the operator's authoring framework. Hand-written path also supported.
+- **Review-gate mechanics:** Operator final say + Claude review pass for mechanical discipline + GitHub PR comments for threaded review. No published guidelines doc on day one; corpus + review threads are the de facto guidelines.
+- **Alternatives evaluated and rejected:** custom CMS (replaced by GitHub-as-backbone), custom feedback channel UI (collapsed into propose-flow + GitHub Issue native links), Discord-channel-only (skipped; site provides the showcase + recruiting surface GitHub alone cannot).
+- **Parallel Layer 2 mining arc:** prerequisite for site launch (seeds 5-10 topics into the queue at v1). Three sub-tracks: re-ignite Discord scraping, trim/filter pass, hybrid FTS5+vector retrieval via `sqlite-vss`.
+
+The original parking content below is preserved for historical context.
+
+---
 
 ### Why this is parked, not active
 

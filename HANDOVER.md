@@ -23,6 +23,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ### Ongoing arcs
 - [Phase 2d-2h: remaining QW knowledge rollout](docs/superpowers/parking/2026-04-18-qw-knowledge-rollout.md) — KTX is the only remaining engine port.
 - [Slipgate Managed Mode pivot](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — **HIGH PRESSURE.** Pass 1+2+3 complete; Pass 4 brainstorm next. V1 = Arcs A+B+D+E+C-minimal.
+- [qw-oracle showcase site + contributor pipeline](docs/superpowers/parking/2026-04-30-qw-oracle-showcase-site-contributor-pipeline.md) — design landed 2026-05-01 (`docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md`); next step is claude.ai/design mockups, then implementation plan.
 - [Cross-extractor pattern audit follow-up arc](docs/superpowers/parking/2026-04-28-cross-extractor-pattern-audit.md) — five phases shipped + 13 audit-deferred residuals + 2 new follow-ups.
 - [Per-project Mode B validation synthesis follow-ups](docs/superpowers/parking/2026-04-28-mode-b-validation-followups.md) — three Mode B validations shipped; some closed, some queued.
 
@@ -39,7 +40,6 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [qw_event_log as cross-validation oracle for Layer 1](docs/superpowers/parking/2026-04-XX-qw-event-log-cross-validation.md) — gated on KTX cvars + KTX gameplay overrides.
 - [SCHEMA.md doc-style inconsistency](docs/superpowers/parking/2026-04-29-schemamd-style-refresh.md) — per-table body refresh + topical-vs-per-version style decision.
 - [Layer 3 concept note: death rules](docs/superpowers/parking/2026-04-29-layer3-death-rules-concept-note.md) — gated on KTX gameplay overrides; three-anchor synthesis.
-- [qw-oracle showcase site + contributor pipeline](docs/superpowers/parking/2026-04-30-qw-oracle-showcase-site-contributor-pipeline.md) — collaborative concept-note authoring; trigger = operator commits to building the showcase site. Consolidates retired Workstream B + C sidequests.
 - [L1-alpha: Ecosystem-tools registry](docs/superpowers/parking/2026-04-29-l1-alpha-ecosystem-tools.md) — Pass 3 carry-forward.
 - [L1-beta: Cross-format binary fingerprinting](docs/superpowers/parking/2026-04-29-l1-beta-cross-format-fingerprinting.md) — Pass 3 carry-forward.
 - [L1-gamma: Engine helpdoc / data-file recognition](docs/superpowers/parking/2026-04-29-l1-gamma-helpdocs.md) — Pass 3 carry-forward.
