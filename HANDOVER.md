@@ -13,6 +13,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
 - **qw-oracle DEPLOYMENT.md authoring** — Phase 8 of Arc 1 ships production Dockerfile + compose.prod.yml + nginx + CF Tunnel choreography but does not formalize a `DEPLOYMENT.md`. Author one alongside Phase 8 execution so the deploy mechanics have a documentation home. Lightweight; the content already exists scattered across the phase MD.
+- **`scripts/extractors/shared/tests/reserved-subdirs.test.ts` broken module path** — red since before Phase 2. Roughly 5-minute fix; bundle into next extractor maintenance arc.
+- **5 ezquake floor probes stale vs current extractor classification** — `F1.ezquake.floor.{cmdline_param,command,cvar,hud_element}_source_state` + `F1.ezquake.anchor.doc_only_count` fail because the 2026-04-28 floor seed predates extractor classification drift. Refresh the expected counts from current DB state; entity totals are unchanged, only source_backed/doc_only/source_retired splits shifted.
 
 ### Sidequests
 - **Plugin v-table asset detection (loader-sites handler)** — FTE plugins reach loaders through `cvarfuncs->...` v-table calls, not direct CALL_EXPR. Only `plugin:ezhud` affected; ezhud images ship bundled with FTE. Low pressure. (Engine-agnostic structural finding; no body to migrate.)
