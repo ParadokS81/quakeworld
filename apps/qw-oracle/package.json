@@ -6,6 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "load-knowledge": "bun scripts/load-knowledge/index.ts",
+    "load-concepts": "bun scripts/load-concepts/index.ts",
     "load-chat:discord": "bun scripts/load-chat/import-discord.ts",
     "load-chat:sessions": "bun scripts/load-chat/build-sessions.ts",
     "load-chat:session-references": "bun scripts/load-chat/build-session-references.ts",
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "@qw/version-resolution": "workspace:*",
+    "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.1",
     "postgres": "^3.4.5",
     "ulid": "^2.4.0"
