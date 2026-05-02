@@ -33,6 +33,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Per-project Mode B validation synthesis follow-ups](docs/superpowers/parking/2026-04-28-mode-b-validation-followups.md) — three Mode B validations shipped; some closed, some queued.
 
 ### Future arcs (waiting on trigger)
+- **Author trust weighting in retrieval ranking** -- surfaced during Phase 3 close (2026-05-02). Raw author-frequency signal lives in `qw_oracle.messages` already; trust-weight computation belongs in Phase 6 retrieval ranking (or Arc 3 if LLM topic-classification is added). Two approaches: auto-derived from frequency (failure mode: frequency != expertise; e.g. helpdesk askers vs. answerers) or hand-curated authority list (~20-50 names with topic tags). Defer to Phase 6+ retrieval refinement.
 - [Cross-extractor Phase 6 residuals](docs/superpowers/parking/2026-04-28-cross-extractor-phase6-residuals.md) — D.1.8 lifecycle hooks + broader positive-contracts coverage + deep-time-walk obligation.
 - [Cross-extractor Phase 6 ezquake exemptions: r_bloom_* shape](docs/superpowers/parking/2026-04-28-phase6-ezquake-r-bloom-shape.md) — convergent with QWCL 1996-vintage shape; joint positive-contract arc candidate.
 - [Cross-engine alias scaffolding + slipgate version-awareness follow-ups](docs/superpowers/parking/2026-04-26-cross-engine-alias-followups.md) — sub-thread #4 (FTE asset bundle, superseded by Slipgate Managed Mode TAIL-1) + sub-thread #5 (slipgate version-awareness, tracked-by Quake Dir Control plan).
