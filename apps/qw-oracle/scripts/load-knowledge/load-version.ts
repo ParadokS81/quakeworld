@@ -3,10 +3,10 @@
 // Stage 1 orchestrator: ingest one (project, version, type) triple into the
 // knowledge DB. Per-type logic lives in load-{cvars,commands,macros,cmdline-params}.ts;
 // this file owns the shared scaffolding (version upsert, entity upsert,
-// transitions, schema_meta, partial-drop guard).
+// transitions, oracle_meta bookkeeping, partial-drop guard).
 
 import { readFileSync } from 'fs';
-import Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { ulid } from 'ulid';
 import {
   extendFirstSeenVersion,
@@ -110,6 +110,7 @@ import {
   upsertQcBuiltinRow,
 } from './load-qc-builtins.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
+import { deriveEntityDescriptionsForVersion } from './derive-entity-description.js';
 import { INFO_KEY_SCOPES, LOG_TEMPLATE_CHANNELS } from './constants.js';
 import type {
   EntityType,
@@ -127,7 +128,7 @@ const LOG_TEMPLATE_NAME_RE = new RegExp(
 );
 
 export interface LoadVersionOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   version: string;
   type: EntityType;
@@ -166,13 +167,13 @@ const PARTIAL_DROP_GUARD_RATIO = 0.5;
 //   - the field name under which entries live in the extractor JSON
 //   - which table the loader should count against for the drop-guard
 //   - an is-source-backed predicate for the initial source_state decision
-//   - a row builder + upsert call
+//   - a row builder + (async) upsert call
 interface TypeAdapter {
   payloadField: string;
   versionsTable: string;
   isSourceBacked: (entry: any) => boolean;
   buildRow: (entityId: number, version: string, entry: any, now: string) => any;
-  upsertRow: (db: Database.Database, row: any) => void;
+  upsertRow: (tx: postgres.Sql, row: any) => Promise<void>;
   buildOverrides?: (
     entityId: number,
     version: string,
@@ -294,7 +295,7 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
   },
 };
 
-export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
+export async function loadVersion(options: LoadVersionOptions): Promise<LoadVersionResult> {
   const adapter = ADAPTERS[options.type];
   if (!adapter) {
     throw new Error(`Unknown entity type: ${options.type}`);
@@ -336,7 +337,7 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         // for info_key today; if it does for any type, the canonical name
         // emitted by the handler isn't carrying enough discriminator.
         console.warn(
-          `[load-version] dropped duplicate name "${item.name}" in ${options.type} payload — ` +
+          `[load-version] dropped duplicate name "${item.name}" in ${options.type} payload -- ` +
           `cross-scope or cross-shape collision; canonical name should include scope/shape suffix`,
         );
       }
@@ -345,45 +346,41 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     rawEntries = rawPayload as Record<string, any>;
   }
 
-  // Case-fold merge. Source code uses identifiers like `loadFragfile` and
-  // `HUD262_add` while help_*.json files lowercase them, producing two
-  // dict entries for the same logical entity. The loader case-folds names
-  // (line below), so without this merge the second iteration's INSERT OR
-  // REPLACE clobbers the first -- and which side wins depends on dict
-  // ordering. Token primitives are case-sensitive ($G != $g) and excluded.
+  // Case-fold merge (see caseFoldMergeEntries header for rationale).
   const entries = (options.type === 'token_primitive')
     ? rawEntries
     : caseFoldMergeEntries(rawEntries);
 
   const entryCount = Object.keys(entries).length;
+  const sql = options.sql;
 
-  // Drop-guard: bound against the same (project, version, type) only. Keying
-  // on the per-type versions table keeps the guard isolated -- loading
-  // commands doesn't compare row counts against cvar rows.
-  const priorRowCount = options.db.prepare(`
-    SELECT COUNT(*) AS n FROM ${adapter.versionsTable} cv
+  // Drop-guard pre-checks: read-only against pre-load DB state. If they
+  // throw, we abort before opening any txn.
+  const priorRowCountRows = await sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM ${sql(adapter.versionsTable)} cv
     JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND e.type = ? AND cv.version = ?
-  `).get(options.project, options.type, options.version) as { n: number };
+    WHERE e.project = ${options.project} AND e.type = ${options.type} AND cv.version = ${options.version}
+  `;
+  const priorRowCount = priorRowCountRows[0]!.n;
 
-  if (priorRowCount.n > 0 && entryCount === 0 && !options.forceOverwrite) {
+  if (priorRowCount > 0 && entryCount === 0 && !options.forceOverwrite) {
     throw new Error(
-      `Regression: prior run populated ${priorRowCount.n} rows for ${options.project}:${options.type}@${options.version}, ` +
+      `Regression: prior run populated ${priorRowCount} rows for ${options.project}:${options.type}@${options.version}, ` +
       `current JSON has zero. Aborting. Use --force to override.`
     );
   }
 
   let parseStateFinal: 'ok' | 'partial' = options.parseState ?? 'ok';
-  if (priorRowCount.n > 0 && entryCount < priorRowCount.n * PARTIAL_DROP_GUARD_RATIO) {
+  if (priorRowCount > 0 && entryCount < priorRowCount * PARTIAL_DROP_GUARD_RATIO) {
     if (!options.forceOverwrite) {
       throw new Error(
-        `Entity count dropped from ${priorRowCount.n} to ${entryCount} ` +
+        `Entity count dropped from ${priorRowCount} to ${entryCount} ` +
         `(>${(1 - PARTIAL_DROP_GUARD_RATIO) * 100}% drop). Aborting without --force.`
       );
     }
     parseStateFinal = 'partial';
     console.warn(
-      `[load-version] entity count drop from ${priorRowCount.n} to ${entryCount}; ` +
+      `[load-version] entity count drop from ${priorRowCount} to ${entryCount}; ` +
       `marking version.parse_state='partial'.`
     );
   }
@@ -398,11 +395,11 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     const canonical = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
     incomingNames.add(canonical);
   }
-  const existingVersionRows = options.db.prepare(`
-    SELECT cv.entity_id, e.name FROM ${adapter.versionsTable} cv
+  const existingVersionRows = await sql<{ entity_id: number; name: string }[]>`
+    SELECT cv.entity_id, e.name FROM ${sql(adapter.versionsTable)} cv
     JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND e.type = ? AND cv.version = ?
-  `).all(options.project, options.type, options.version) as { entity_id: number; name: string }[];
+    WHERE e.project = ${options.project} AND e.type = ${options.type} AND cv.version = ${options.version}
+  `;
   const staleVersionRows = existingVersionRows.filter(r => !incomingNames.has(r.name));
   if (staleVersionRows.length > 0 && existingVersionRows.length > 0) {
     const staleRatio = staleVersionRows.length / existingVersionRows.length;
@@ -415,8 +412,8 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     }
   }
 
-  const txn = options.db.transaction(() => {
-    upsertVersion(options.db, {
+  const result = await sql.begin(async (tx) => {
+    await upsertVersion(tx, {
       project: options.project,
       version: options.version,
       commit_sha: options.commitSha,
@@ -428,12 +425,11 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     });
 
     if (staleVersionRows.length > 0) {
-      const del = options.db.prepare(
-        `DELETE FROM ${adapter.versionsTable} WHERE entity_id = ? AND version = ?`,
-      );
-      for (const r of staleVersionRows) {
-        del.run(r.entity_id, options.version);
-      }
+      const staleIds = staleVersionRows.map(r => Number(r.entity_id));
+      await tx`
+        DELETE FROM ${tx(adapter.versionsTable)}
+        WHERE entity_id = ANY(${staleIds}::bigint[]) AND version = ${options.version}
+      `;
       console.log(
         `[load-version] cleaned up ${staleVersionRows.length} stale ${options.type} version rows ` +
         `at ${options.project}@${options.version}`,
@@ -447,27 +443,10 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       // Token primitive names ($G vs $g mean different byte values) must
       // preserve case. All other types use case-insensitive canonical keys.
       const name = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
-      // Widened regex: commands/cmdline params can start with +, -; token
-      // primitive names start with $ and carry a single suffix char (which
-      // may be any printable glyph including punctuation -- '\', '(', etc.).
-      // For non-token-primitive types we still require the stricter identifier
-      // charset.
       const validTokenPrimitive = options.type === 'token_primitive' && /^\$.+$/.test(nameRaw);
       const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
-      // QuakeWorld info_key system keys carry a leading '*' (*spectator, *VIP, ...).
-      // Phase B 2026-04-28 (schema v16): info_key canonical names include a
-      // `:<scope>` suffix so cross-scope dups can coexist under the entities
-      // UNIQUE(project, type, name) constraint. The colon is admitted here.
       const validInfoKey = options.type === 'info_key' && INFO_KEY_NAME_RE.test(name);
-      // log_template "names" are <channel>:<printf-template> -- containing
-      // spaces, %-specifiers, escapes, punctuation. The channel-prefix shape is
-      // verified by the schema-level CHECK on log_template_versions.channel and
-      // by the producer-side normalization. The orchestrator-side identifier
-      // regex would reject every row otherwise.
       const validLogTemplate = options.type === 'log_template' && LOG_TEMPLATE_NAME_RE.test(name);
-      // Phase 2 task 2.4 (schema v18): qc_builtin canonical names carry a
-      // `:<table_name>` suffix so cross-table dups (e.g. `cvar_string` in
-      // std + ext_builtins) can coexist. Mirrors info_key Phase B at v16.
       const validQcBuiltin = options.type === 'qc_builtin' && /^[a-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/.test(name);
       if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate && !validQcBuiltin) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
@@ -477,7 +456,7 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       const sourceBacked = adapter.isSourceBacked(entry);
       const initialSourceState: SourceState = sourceBacked ? 'source_backed' : 'doc_only';
 
-      const upsertResult = upsertEntity(options.db, {
+      const upsertResult = await upsertEntity(tx, {
         project: options.project,
         type: options.type,
         name,
@@ -487,7 +466,7 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
       });
 
       if (upsertResult.isNew) {
-        logTransition(options.db, {
+        await logTransition(tx, {
           entity_id: upsertResult.id,
           from_state: '',
           to_state: initialSourceState,
@@ -502,25 +481,20 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         // record a doc_only -> source_backed transition when the extractor
         // newly catches what was previously help-JSON-only. Both must run
         // regardless of order; either can fire without the other.
-        //
-        // Ordinal comparison via the versions table -- '<' on version
-        // strings breaks on multi-tag orderings like '3.10.0' vs '3.6.6'.
-        const ordCheck = options.db.prepare(`
+        const ordRows = await tx<{ cur_ord: number; new_ord: number }[]>`
           SELECT vCur.ordinal AS cur_ord, vNew.ordinal AS new_ord
           FROM entities e
           JOIN versions vCur ON vCur.project = e.project AND vCur.version = e.first_seen_version
-          JOIN versions vNew ON vNew.project = e.project AND vNew.version = ?
-          WHERE e.id = ?
-        `).get(options.version, upsertResult.id) as
-          | { cur_ord: number; new_ord: number }
-          | undefined;
-        if (ordCheck && ordCheck.new_ord < ordCheck.cur_ord) {
-          extendFirstSeenVersion(options.db, upsertResult.id, options.version);
+          JOIN versions vNew ON vNew.project = e.project AND vNew.version = ${options.version}
+          WHERE e.id = ${upsertResult.id}
+        `;
+        if (ordRows.length > 0 && ordRows[0]!.new_ord < ordRows[0]!.cur_ord) {
+          await extendFirstSeenVersion(tx, upsertResult.id, options.version);
         }
 
         if (upsertResult.prevSourceState === 'doc_only' && sourceBacked) {
-          setEntitySourceState(options.db, upsertResult.id, 'source_backed');
-          logTransition(options.db, {
+          await setEntitySourceState(tx, upsertResult.id, 'source_backed');
+          await logTransition(tx, {
             entity_id: upsertResult.id,
             from_state: 'doc_only',
             to_state: 'source_backed',
@@ -532,8 +506,8 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
         }
       }
 
-      adapter.upsertRow(
-        options.db,
+      await adapter.upsertRow(
+        tx,
         adapter.buildRow(upsertResult.id, options.version, entry, now),
       );
 
@@ -547,7 +521,7 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
           name,
         );
         for (const ov of overrides) {
-          upsertSourceOverride(options.db, ov);
+          await upsertSourceOverride(tx, ov);
         }
       }
 
@@ -558,13 +532,15 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
     // prune-cross-type-orphans.ts for the rationale and the order-sensitivity
     // caveat. Skipped during deep-time walks (see options.skipPrune); a final
     // pruneCrossTypeOrphansAllTypes call at end of walk reconciles state.
-    const orphansPrunedCount = options.skipPrune
-      ? 0
-      : pruneCrossTypeOrphans({
-          db: options.db,
-          project: options.project,
-          type: options.type,
-        }).pruned;
+    let orphansPrunedCount = 0;
+    if (!options.skipPrune) {
+      const pruneResult = await pruneCrossTypeOrphans({
+        tx,
+        project: options.project,
+        type: options.type,
+      });
+      orphansPrunedCount = pruneResult.pruned;
+    }
 
     if (orphansPrunedCount > 0) {
       console.log(
@@ -575,136 +551,136 @@ export function loadVersion(options: LoadVersionOptions): LoadVersionResult {
 
     // Per-version state-transition detection. Walk each source_backed
     // entity's version rows ordered by ordinal and watch for citation flips:
-    //   - non-null -> null  : source_retired_at_version (Cvar_Register /
-    //     Cmd_AddCommand removed in source, help-JSON entry kept).
-    //   - null -> non-null  : backfill_match (entity introduced in source
-    //     at this version; help-JSON entry pre-existed at older loaded
-    //     versions, e.g. cl_voip_* listed at v3.0.1 help-JSON but only
-    //     defined in source from 3.1 onward).
-    // Idempotent on (entity_id, reason, version_context) so re-runs don't
-    // duplicate. Entity-level source_state stays 'source_backed' -- it was
-    // real at some loaded version; the per-version story lives on the
-    // transition rows. asset_category is excluded because its versions
-    // table has no source_file column (categories are seed-defined taxonomy,
-    // not per-source-location entities).
+    //   - non-null -> null  : source_retired_at_version
+    //   - null -> non-null  : backfill_match
+    // Idempotent on (entity_id, reason, version_context). asset_category
+    // skipped because its versions table has no source_file column.
     if (options.type !== 'asset_category') {
-    const transitionScan = options.db.prepare(`
-      SELECT e.id AS entity_id, e.name AS entity_name, v.ordinal,
-             vrow.version, vrow.source_file
-      FROM entities e
-      JOIN ${adapter.versionsTable} vrow ON vrow.entity_id = e.id
-      JOIN versions v ON v.project = e.project AND v.version = vrow.version
-      WHERE e.project = ? AND e.type = ? AND e.source_state = 'source_backed'
-      ORDER BY e.id, v.ordinal
-    `).all(options.project, options.type) as Array<{
-      entity_id: number;
-      entity_name: string;
-      ordinal: number;
-      version: string;
-      source_file: string | null;
-    }>;
+      const transitionScan = await tx<Array<{
+        entity_id: number;
+        entity_name: string;
+        ordinal: number;
+        version: string;
+        source_file: string | null;
+      }>>`
+        SELECT e.id AS entity_id, e.name AS entity_name, v.ordinal,
+               vrow.version, vrow.source_file
+        FROM entities e
+        JOIN ${tx(adapter.versionsTable)} vrow ON vrow.entity_id = e.id
+        JOIN versions v ON v.project = e.project AND v.version = vrow.version
+        WHERE e.project = ${options.project} AND e.type = ${options.type} AND e.source_state = 'source_backed'
+        ORDER BY e.id, v.ordinal
+      `;
 
-    const checkExistingRetirement = options.db.prepare(`
-      SELECT 1 FROM source_state_transitions
-      WHERE entity_id = ? AND reason = 'source_retired_at_version' AND version_context = ?
-      LIMIT 1
-    `);
-    const checkExistingBackfill = options.db.prepare(`
-      SELECT 1 FROM source_state_transitions
-      WHERE entity_id = ? AND reason = 'backfill_match' AND version_context = ?
-      LIMIT 1
-    `);
-    let retirementsLogged = 0;
-    let backfillsLogged = 0;
-    let currentEntityId: number | null = null;
-    let prevHadCitation = false;
-    let hasSeenRow = false;
-    for (const row of transitionScan) {
-      if (row.entity_id !== currentEntityId) {
-        currentEntityId = row.entity_id;
-        prevHadCitation = false;
-        hasSeenRow = false;
-      }
-      const hasCitation = row.source_file != null;
-      if (hasSeenRow && prevHadCitation && !hasCitation) {
-        const exists = checkExistingRetirement.get(row.entity_id, row.version);
-        if (!exists) {
-          logTransition(options.db, {
-            entity_id: row.entity_id,
-            from_state: 'source_backed',
-            to_state: 'source_retired',
-            reason: 'source_retired_at_version',
-            version_context: row.version,
-            extractor_run_id: extractorRunId,
-          });
-          retirementsLogged += 1;
+      let retirementsLogged = 0;
+      let backfillsLogged = 0;
+      let currentEntityId: number | null = null;
+      let prevHadCitation = false;
+      let hasSeenRow = false;
+      for (const row of transitionScan) {
+        if (Number(row.entity_id) !== currentEntityId) {
+          currentEntityId = Number(row.entity_id);
+          prevHadCitation = false;
+          hasSeenRow = false;
         }
-      } else if (hasSeenRow && !prevHadCitation && hasCitation) {
-        const exists = checkExistingBackfill.get(row.entity_id, row.version);
-        if (!exists) {
-          logTransition(options.db, {
-            entity_id: row.entity_id,
-            from_state: 'doc_only',
-            to_state: 'source_backed',
-            reason: 'backfill_match',
-            version_context: row.version,
-            extractor_run_id: extractorRunId,
-          });
-          backfillsLogged += 1;
+        const hasCitation = row.source_file != null;
+        if (hasSeenRow && prevHadCitation && !hasCitation) {
+          const exists = await tx<{ one: number }[]>`
+            SELECT 1 AS one FROM source_state_transitions
+            WHERE entity_id = ${Number(row.entity_id)} AND reason = 'source_retired_at_version' AND version_context = ${row.version}
+            LIMIT 1
+          `;
+          if (exists.length === 0) {
+            await logTransition(tx, {
+              entity_id: Number(row.entity_id),
+              from_state: 'source_backed',
+              to_state: 'source_retired',
+              reason: 'source_retired_at_version',
+              version_context: row.version,
+              extractor_run_id: extractorRunId,
+            });
+            retirementsLogged += 1;
+          }
+        } else if (hasSeenRow && !prevHadCitation && hasCitation) {
+          const exists = await tx<{ one: number }[]>`
+            SELECT 1 AS one FROM source_state_transitions
+            WHERE entity_id = ${Number(row.entity_id)} AND reason = 'backfill_match' AND version_context = ${row.version}
+            LIMIT 1
+          `;
+          if (exists.length === 0) {
+            await logTransition(tx, {
+              entity_id: Number(row.entity_id),
+              from_state: 'doc_only',
+              to_state: 'source_backed',
+              reason: 'backfill_match',
+              version_context: row.version,
+              extractor_run_id: extractorRunId,
+            });
+            backfillsLogged += 1;
+          }
         }
+        prevHadCitation = hasCitation;
+        hasSeenRow = true;
       }
-      prevHadCitation = hasCitation;
-      hasSeenRow = true;
+
+      if (retirementsLogged > 0) {
+        console.log(
+          `[load-version] logged ${retirementsLogged} ${options.type} source_retired_at_version transition(s)`,
+        );
+      }
+      if (backfillsLogged > 0) {
+        console.log(
+          `[load-version] logged ${backfillsLogged} ${options.type} backfill_match transition(s)`,
+        );
+      }
     }
 
-    if (retirementsLogged > 0) {
-      console.log(
-        `[load-version] logged ${retirementsLogged} ${options.type} source_retired_at_version transition(s)`,
-      );
-    }
-    if (backfillsLogged > 0) {
-      console.log(
-        `[load-version] logged ${backfillsLogged} ${options.type} backfill_match transition(s)`,
-      );
-    }
+    // oracle_meta is the Postgres-side replacement for SQLite's schema_meta
+    // (per Phase 1 migration 001). Same (key, value) shape; updated_at moves
+    // forward on every upsert so timestamps survive.
+    const setMetaPairs: Array<[string, string]> = [
+      ['last_extraction_run_at', now],
+      ['extractor_version', options.extractorVersion],
+      [`${options.project}:source_repo_commit`, options.commitSha],
+      [`${options.project}:source_repo_tag`, options.tagDate ? options.version : ''],
+    ];
+    for (const [key, value] of setMetaPairs) {
+      await tx`
+        INSERT INTO oracle_meta (key, value, updated_at)
+        VALUES (${key}, ${value}, now())
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+      `;
     }
 
-    const setMeta = options.db.prepare(`
-      INSERT INTO schema_meta (key, value) VALUES (?, ?)
-      ON CONFLICT(key) DO UPDATE SET value = excluded.value
-    `);
-    setMeta.run('last_extraction_run_at', now);
-    setMeta.run('extractor_version', options.extractorVersion);
-    setMeta.run(`${options.project}:source_repo_commit`, options.commitSha);
-    setMeta.run(`${options.project}:source_repo_tag`, options.tagDate ? options.version : '');
+    // D6 / F7: derive entities.description for the just-loaded version. Runs
+    // inside the txn so a roll-back leaves description in sync with the
+    // per-version rows it was derived from.
+    await deriveEntityDescriptionsForVersion(tx, options.project, options.type, options.version);
 
     // Post-load row count for this (project, type, version). Reflects the
-    // actual DB state after upserts and cross-type orphan prune, so callers
-    // don't have to math `entries - skipped - pruned`.
-    const dbCount = options.db.prepare(`
-      SELECT COUNT(*) AS n FROM ${adapter.versionsTable} cv
+    // actual DB state after upserts and cross-type orphan prune.
+    const dbCountRows = await tx<{ n: number }[]>`
+      SELECT COUNT(*)::int AS n FROM ${tx(adapter.versionsTable)} cv
       JOIN entities e ON e.id = cv.entity_id
-      WHERE e.project = ? AND e.type = ? AND cv.version = ?
-    `).get(options.project, options.type, options.version) as { n: number };
+      WHERE e.project = ${options.project} AND e.type = ${options.type} AND cv.version = ${options.version}
+    `;
 
     return {
       upserted,
       transitions,
       orphansPruned: orphansPrunedCount,
-      dbEntityCount: dbCount.n,
+      dbEntityCount: dbCountRows[0]!.n,
     };
   });
 
-  const { upserted, transitions, orphansPruned, dbEntityCount } = txn();
-
   return {
     extractorRunId,
-    entitiesUpserted: upserted,
+    entitiesUpserted: result.upserted,
     versionsUpserted: 1,
-    transitionsLogged: transitions,
-    entityCount: dbEntityCount,
+    transitionsLogged: result.transitions,
+    entityCount: result.dbEntityCount,
     parseState: parseStateFinal,
-    typeMismatchOrphansPruned: orphansPruned,
+    typeMismatchOrphansPruned: result.orphansPruned,
   };
 }
 

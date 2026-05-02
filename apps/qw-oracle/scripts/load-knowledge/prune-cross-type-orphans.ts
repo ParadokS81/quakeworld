@@ -20,7 +20,7 @@
 // For single-tag loads (canonical use case before deep-time walks
 // existed), the per-load prune in load-version.ts is correct because there
 // is no "later" tag to reveal source presence.
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import type { EntityType, Project } from './types.js';
 
 // Mirror of PER_TYPE_VERSION_TABLE in quality-grid.ts. Keep in sync.
@@ -43,7 +43,7 @@ const PER_TYPE_VERSION_TABLE: Record<EntityType, string> = {
 };
 
 export interface PruneCrossTypeOrphansOptions {
-  db: Database.Database;
+  tx: postgres.Sql;
   project: Project;
   type: EntityType;
 }
@@ -57,17 +57,18 @@ export interface PruneCrossTypeOrphansResult {
 // AND have a same-name same-project source_backed counterpart under some
 // OTHER type. Deletes the version rows, transitions, overrides, and entity
 // row.
-export function pruneCrossTypeOrphans(
+export async function pruneCrossTypeOrphans(
   options: PruneCrossTypeOrphansOptions,
-): PruneCrossTypeOrphansResult {
+): Promise<PruneCrossTypeOrphansResult> {
   const versionsTable = PER_TYPE_VERSION_TABLE[options.type];
   if (!versionsTable) {
     throw new Error(`pruneCrossTypeOrphans: unknown type ${options.type}`);
   }
+  const { tx, project, type } = options;
 
-  const findOrphansStmt = options.db.prepare(`
+  const orphanRows = await tx<{ id: number }[]>`
     SELECT e.id FROM entities e
-    WHERE e.project = ? AND e.type = ? AND e.source_state = 'doc_only'
+    WHERE e.project = ${project} AND e.type = ${type} AND e.source_state = 'doc_only'
       AND EXISTS (
         SELECT 1 FROM entities e2
         WHERE e2.project = e.project
@@ -75,40 +76,33 @@ export function pruneCrossTypeOrphans(
           AND e2.type != e.type
           AND e2.source_state = 'source_backed'
       )
-  `);
-  const orphanRows = findOrphansStmt.all(options.project, options.type) as { id: number }[];
+  `;
 
   if (orphanRows.length === 0) {
-    return { type: options.type, pruned: 0 };
+    return { type, pruned: 0 };
   }
 
-  const deleteVersions = options.db.prepare(
-    `DELETE FROM ${versionsTable} WHERE entity_id = ?`,
-  );
-  const deleteTransitions = options.db.prepare(
-    `DELETE FROM source_state_transitions WHERE entity_id = ?`,
-  );
-  const deleteOverrides = options.db.prepare(
-    `DELETE FROM source_overrides WHERE entity_id = ?`,
-  );
-  const deleteEntity = options.db.prepare(`DELETE FROM entities WHERE id = ?`);
+  const ids = orphanRows.map((r) => Number(r.id));
+  // Single bulk delete per table using ANY(int[]) is faster than per-row loop
+  // and stays inside the txn.
+  await tx`DELETE FROM ${tx(versionsTable)} WHERE entity_id = ANY(${ids}::bigint[])`;
+  await tx`DELETE FROM source_state_transitions WHERE entity_id = ANY(${ids}::bigint[])`;
+  await tx`DELETE FROM source_overrides WHERE entity_id = ANY(${ids}::bigint[])`;
+  await tx`DELETE FROM entities WHERE id = ANY(${ids}::bigint[])`;
 
-  for (const { id } of orphanRows) {
-    deleteVersions.run(id);
-    deleteTransitions.run(id);
-    deleteOverrides.run(id);
-    deleteEntity.run(id);
-  }
-
-  return { type: options.type, pruned: orphanRows.length };
+  return { type, pruned: ids.length };
 }
 
 // Project-wide finalize: prune across all entity types. Use at the end of
 // a deep-time walk (see header comment).
-export function pruneCrossTypeOrphansAllTypes(
-  db: Database.Database,
+export async function pruneCrossTypeOrphansAllTypes(
+  tx: postgres.Sql,
   project: Project,
-): PruneCrossTypeOrphansResult[] {
+): Promise<PruneCrossTypeOrphansResult[]> {
   const types = Object.keys(PER_TYPE_VERSION_TABLE) as EntityType[];
-  return types.map(type => pruneCrossTypeOrphans({ db, project, type }));
+  const results: PruneCrossTypeOrphansResult[] = [];
+  for (const type of types) {
+    results.push(await pruneCrossTypeOrphans({ tx, project, type }));
+  }
+  return results;
 }
