@@ -406,7 +406,8 @@ export interface MacroVersionRow {
   help_desc: string | null;
   macro_type: string | null;
   teamplay_restricted: boolean;
-  related_cvars_json: string | null;
+  // JSONB array of cvar idents. NULL when the macro doesn't reference any cvars.
+  related_cvars_json: string[] | null;
   handler_fn: string | null;
   source_file: string | null;
   source_line: number | null;
@@ -423,8 +424,9 @@ export interface CmdlineParamVersionRow {
   help_desc: string | null;
   help_remarks: string | null;
   arguments: string | null;
-  flags_json: string | null;
-  systems_json: string | null;
+  // JSONB arrays. NULL when the extractor didn't tag the param.
+  flags_json: string[] | null;
+  systems_json: string[] | null;
   source_file: string | null;
   source_line: number | null;
   source_column: number | null;
@@ -457,11 +459,12 @@ export interface InfoKeyVersionRow {
   // before this row builds, so scope is always one of the three valid values
   // in practice.
   scope: string;
-  operations: string | null;            // JSON-stringified array of read/write/remove
+  operations: string | null;            // TEXT column (JSON-stringified array of read/write/remove)
   source_file: string | null;
   source_line: number | null;
   containing_function: string | null;
-  call_sites_json: string | null;       // JSON-stringified [{source_file, source_line, operation}]
+  // JSONB array of {source_file, source_line, operation}.
+  call_sites_json: InfoKeyAstBlock['all_call_sites'] | null;
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;
@@ -482,10 +485,10 @@ export interface LogTemplateVersionRow {
   source_file: string | null;
   source_line: number | null;
   containing_function: string | null;
-  // Phase D Task 10: JSON-stringified array of every call site for this
-  // (channel, format_string). Nullable in v17 (pre-Phase-D rows store NULL);
-  // every fresh row carries at least one entry.
-  all_call_sites_json: string | null;
+  // JSONB array of every call site for this (channel, format_string). Nullable
+  // in v17 (pre-Phase-D rows store NULL); every fresh row carries at least one
+  // entry. Schema column is JSONB; postgres-js auto-encodes the array on bind.
+  all_call_sites_json: NonNullable<LogTemplateAstBlock['all_call_sites']> | null;
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;
@@ -537,7 +540,8 @@ export interface HudElementVersionRow {
   source_file: string | null;
   source_line: number | null;
   source_column: number | null;
-  owned_cvars_json: string | null;
+  // JSONB array of cvar idents owned by this HUD element.
+  owned_cvars_json: string[] | null;
   raw_ast_hash: string | null;
   extracted_at: string;
 }
@@ -559,7 +563,8 @@ export interface RulesetVersionRow {
   restrict_setcalc: boolean | null;
   restrict_seteval: boolean | null;
   restrict_setex: boolean | null;
-  locked_cvars_json: string | null;
+  // JSONB array of {cvar_ident, value}.
+  locked_cvars_json: RulesetLockedCvar[] | null;
   source_file: string | null;
   source_line: number | null;
   raw_ast_hash: string | null;
@@ -782,10 +787,11 @@ export interface ReleaseNoteRow {
   section: string;
   ordinal: number;
   body_md: string;
-  referenced_entity_ids_json: string | null;
-  commit_urls_json: string | null;
-  pr_numbers_json: string | null;
-  author_handles_json: string | null;
+  // JSONB arrays. NULL when the bullet has no entries of that kind.
+  referenced_entity_ids_json: string[] | null;
+  commit_urls_json: string[] | null;
+  pr_numbers_json: number[] | null;
+  author_handles_json: string[] | null;
   raw_body_hash: string | null;
   extracted_at: string;
 }

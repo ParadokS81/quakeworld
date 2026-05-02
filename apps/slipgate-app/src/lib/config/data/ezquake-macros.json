@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-30T23:24:39.244Z",
-  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "generated_at": "2026-05-02T17:14:46.522Z",
+  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",

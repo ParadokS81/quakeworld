@@ -83,15 +83,16 @@ const MECHANIC_KIND_BY_LIST: Record<string, string> = {
 };
 
 // Canonicalise object key order so the same logical gate always serialises
-// identically. The unique index keys on the JSONB value (Postgres compares by
-// content), but we also still want stable text output for downstream
-// inspection. Canonical-form JSON serves both.
-function canonicaliseGate(gate: Record<string, unknown> | null | undefined): string {
-  if (!gate || Object.keys(gate).length === 0) return '{}';
+// identically. Returns the ordered object; postgres-js auto-encodes it as JSONB
+// when bound. Pre-stringifying would store a JSONB string scalar (legacy
+// SQLite-era TEXT bug). Postgres compares JSONB by content for the unique
+// index, so the ordered-key form keeps the comparison stable across runs.
+function canonicaliseGate(gate: Record<string, unknown> | null | undefined): Record<string, unknown> {
+  if (!gate || Object.keys(gate).length === 0) return {};
   const sortedKeys = Object.keys(gate).sort();
   const ordered: Record<string, unknown> = {};
   for (const k of sortedKeys) ordered[k] = gate[k];
-  return JSON.stringify(ordered);
+  return ordered;
 }
 
 export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): Promise<LoadGameplayResult> {
@@ -126,7 +127,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
           WHERE gameplay_source_id = ${seed.gameplay_source.id}
             AND kind = ${kind}
             AND name = ${row.name}
-            AND ruleset_gate_json = ${gateJson}::jsonb
+            AND ruleset_gate_json = ${tx.json(gateJson as never)}
         `;
         const wasExisting = existsRows.length > 0;
         await tx`
@@ -140,7 +141,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
             ${row.damage ?? null}, ${row.splash_damage ?? null}, ${row.splash_radius ?? null},
             ${row.refire_seconds ?? null}, ${row.respawn_seconds ?? null},
             ${row.pickup_amount ?? null}, ${row.max_carry ?? null}, ${row.duration_seconds ?? null},
-            ${gateJson}::jsonb, ${row.source_ref}, ${tx.json((row.props ?? {}) as Record<string, never>)}, ${row.notes ?? null}
+            ${tx.json(gateJson as never)}, ${row.source_ref}, ${tx.json((row.props ?? {}) as Record<string, never>)}, ${row.notes ?? null}
           )
           ON CONFLICT (gameplay_source_id, kind, name, ruleset_gate_json) DO UPDATE SET
             classname        = EXCLUDED.classname,
@@ -171,7 +172,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
           WHERE gameplay_source_id = ${seed.gameplay_source.id}
             AND kind = ${kind}
             AND name = ${row.name}
-            AND ruleset_gate_json = ${gateJson}::jsonb
+            AND ruleset_gate_json = ${tx.json(gateJson as never)}
         `;
         const wasExisting = existsRows.length > 0;
         await tx`
@@ -181,7 +182,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
           ) VALUES (
             ${seed.gameplay_source.id}, ${kind}, ${row.name},
             ${row.value_numeric ?? null}, ${row.value_text ?? null},
-            ${gateJson}::jsonb, ${row.source_ref}, ${tx.json((row.props ?? {}) as Record<string, never>)}, ${row.notes ?? null}
+            ${tx.json(gateJson as never)}, ${row.source_ref}, ${tx.json((row.props ?? {}) as Record<string, never>)}, ${row.notes ?? null}
           )
           ON CONFLICT (gameplay_source_id, kind, name, ruleset_gate_json) DO UPDATE SET
             value_numeric = EXCLUDED.value_numeric,

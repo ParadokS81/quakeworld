@@ -251,7 +251,7 @@ export async function upsertMacroVersion(tx: postgres.TransactionSql<{}>, row: M
       registration_file, source_root, raw_ast_hash, extracted_at
     ) VALUES (
       ${row.entity_id}, ${row.version},
-      ${row.help_desc}, ${row.macro_type}, ${asBool(row.teamplay_restricted)}, ${row.related_cvars_json},
+      ${row.help_desc}, ${row.macro_type}, ${asBool(row.teamplay_restricted)}, ${tx.json(row.related_cvars_json as never)},
       ${row.handler_fn}, ${row.source_file}, ${row.source_line}, ${row.source_column},
       ${row.registration_file}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at}
     )
@@ -279,7 +279,7 @@ export async function upsertCmdlineParamVersion(tx: postgres.TransactionSql<{}>,
       source_file, source_line, source_column, raw_ast_hash, extracted_at
     ) VALUES (
       ${row.entity_id}, ${row.version},
-      ${row.help_desc}, ${row.help_remarks}, ${row.arguments}, ${row.flags_json}, ${row.systems_json},
+      ${row.help_desc}, ${row.help_remarks}, ${row.arguments}, ${tx.json(row.flags_json as never)}, ${tx.json(row.systems_json as never)},
       ${row.source_file}, ${row.source_line}, ${row.source_column}, ${row.raw_ast_hash}, ${row.extracted_at}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
@@ -328,7 +328,7 @@ export async function upsertInfoKeyVersion(tx: postgres.TransactionSql<{}>, row:
       raw_ast_hash, source_root, extracted_at
     ) VALUES (
       ${row.entity_id}, ${row.version}, ${row.scope}, ${row.operations},
-      ${row.source_file}, ${row.source_line}, ${row.containing_function}, ${row.call_sites_json},
+      ${row.source_file}, ${row.source_line}, ${row.containing_function}, ${tx.json(row.call_sites_json as never)},
       ${row.raw_ast_hash}, ${row.source_root}, ${row.extracted_at}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
@@ -352,7 +352,7 @@ export async function upsertLogTemplateVersion(tx: postgres.TransactionSql<{}>, 
       raw_ast_hash, source_root, extracted_at
     ) VALUES (
       ${row.entity_id}, ${row.version}, ${row.channel}, ${row.format_string}, ${row.format_string_normalized},
-      ${row.source_file}, ${row.source_line}, ${row.containing_function}, ${row.all_call_sites_json},
+      ${row.source_file}, ${row.source_line}, ${row.containing_function}, ${tx.json(row.all_call_sites_json as never)},
       ${row.raw_ast_hash}, ${row.source_root}, ${row.extracted_at}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
@@ -428,7 +428,7 @@ export async function upsertHudElementVersion(tx: postgres.TransactionSql<{}>, r
       ${row.entity_id}, ${row.version}, ${row.help_desc}, ${row.hud_alias},
       ${row.flags_raw}, ${row.min_state_raw}, ${row.draw_order_raw}, ${row.draw_fn},
       ${row.enclosing_function}, ${row.source_file}, ${row.source_line}, ${row.source_column},
-      ${row.owned_cvars_json}, ${row.raw_ast_hash}, ${row.extracted_at}
+      ${tx.json(row.owned_cvars_json as never)}, ${row.raw_ast_hash}, ${row.extracted_at}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
       help_desc          = EXCLUDED.help_desc,
@@ -460,7 +460,7 @@ export async function upsertRulesetVersion(tx: postgres.TransactionSql<{}>, row:
       ${asBoolOrNull(row.restrict_triggers)}, ${asBoolOrNull(row.restrict_packet)}, ${asBoolOrNull(row.restrict_particles)}, ${asBoolOrNull(row.restrict_play)},
       ${asBoolOrNull(row.restrict_logging)}, ${asBoolOrNull(row.restrict_rollangle)}, ${asBoolOrNull(row.restrict_ipc)}, ${asBoolOrNull(row.restrict_exec)},
       ${asBoolOrNull(row.restrict_setcalc)}, ${asBoolOrNull(row.restrict_seteval)}, ${asBoolOrNull(row.restrict_setex)},
-      ${row.locked_cvars_json}, ${row.source_file}, ${row.source_line}, ${row.raw_ast_hash}, ${row.extracted_at}
+      ${tx.json(row.locked_cvars_json as never)}, ${row.source_file}, ${row.source_line}, ${row.raw_ast_hash}, ${row.extracted_at}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
       enum_ident         = EXCLUDED.enum_ident,
@@ -631,8 +631,8 @@ export async function upsertReleaseNote(tx: postgres.TransactionSql<{}>, row: Re
       author_handles_json, raw_body_hash, extracted_at
     ) VALUES (
       ${row.project}, ${row.version}, ${row.section}, ${row.ordinal}, ${row.body_md},
-      ${row.referenced_entity_ids_json}, ${row.commit_urls_json}, ${row.pr_numbers_json},
-      ${row.author_handles_json}, ${row.raw_body_hash}, ${row.extracted_at}
+      ${tx.json(row.referenced_entity_ids_json as never)}, ${tx.json(row.commit_urls_json as never)}, ${tx.json(row.pr_numbers_json as never)},
+      ${tx.json(row.author_handles_json as never)}, ${row.raw_body_hash}, ${row.extracted_at}
     )
     ON CONFLICT (project, version, section, ordinal) DO UPDATE SET
       body_md                    = EXCLUDED.body_md,

@@ -34,7 +34,9 @@ export function buildHudElementVersionRow(
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,
     source_column: ast?.source_column ?? null,
-    owned_cvars_json: ast?.owned_cvars ? JSON.stringify(ast.owned_cvars) : null,
+    // JSONB column. Pass the JS array directly so postgres-js encodes as JSONB array,
+    // not JSONB string (legacy SQLite-era TEXT bug).
+    owned_cvars_json: ast?.owned_cvars ?? null,
     raw_ast_hash,
     extracted_at: now,
   };

@@ -131,10 +131,12 @@ export async function loadReleaseNotes(
         section: b.section,
         ordinal: b.ordinal,
         body_md: b.body,
-        referenced_entity_ids_json: refs.length ? JSON.stringify(refs) : null,
-        commit_urls_json: b.commitUrls.length ? JSON.stringify(b.commitUrls) : null,
-        pr_numbers_json: prNumbers.length ? JSON.stringify(prNumbers) : null,
-        author_handles_json: b.authorHandles.length ? JSON.stringify(b.authorHandles) : null,
+        // JSONB columns. Pass JS arrays directly so postgres-js encodes as JSONB
+        // arrays, not JSONB strings (legacy SQLite-era TEXT bug).
+        referenced_entity_ids_json: refs.length ? refs : null,
+        commit_urls_json: b.commitUrls.length ? b.commitUrls : null,
+        pr_numbers_json: prNumbers.length ? prNumbers : null,
+        author_handles_json: b.authorHandles.length ? b.authorHandles : null,
         raw_body_hash: createHash('sha1').update(b.body).digest('hex'),
         extracted_at: now,
       };

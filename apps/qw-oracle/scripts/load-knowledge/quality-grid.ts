@@ -204,6 +204,67 @@ async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult
   };
 }
 
+// JSONB-shape regression: every JSONB column intended to hold an array or
+// object must NOT contain a JSONB string scalar. Pre-fix loaders called
+// JSON.stringify before binding to JSONB params; postgres-js then JSON-encoded
+// the string a second time, storing a JSONB string-of-JSON instead of the
+// intended structure. Failure here means a loader regressed to the legacy
+// SQLite-era TEXT-with-stringify pattern. The probe runs cross-project on a
+// single anchor (ezquake) so it doesn't quadruple-count when invoked per
+// project; other-project runs no-op.
+async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
+  if (ctx.project !== 'ezquake') {
+    return {
+      name: 'F1.jsonb_columns_not_strings',
+      family: 'regression',
+      description: 'JSONB array/object columns are not JSONB string scalars (loader bug regression gate)',
+      status: 'PASS',
+      count: 0,
+      summary: 'cross-project probe; only runs under --project ezquake',
+      examples: [],
+    };
+  }
+  const targets: Array<{ table: string; column: string }> = [
+    { table: 'macro_versions', column: 'related_cvars_json' },
+    { table: 'cmdline_param_versions', column: 'flags_json' },
+    { table: 'cmdline_param_versions', column: 'systems_json' },
+    { table: 'ruleset_versions', column: 'locked_cvars_json' },
+    { table: 'hud_element_versions', column: 'owned_cvars_json' },
+    { table: 'info_key_versions', column: 'call_sites_json' },
+    { table: 'log_template_versions', column: 'all_call_sites_json' },
+    { table: 'release_notes', column: 'referenced_entity_ids_json' },
+    { table: 'release_notes', column: 'commit_urls_json' },
+    { table: 'release_notes', column: 'pr_numbers_json' },
+    { table: 'release_notes', column: 'author_handles_json' },
+    { table: 'gameplay_entity_defs', column: 'ruleset_gate_json' },
+    { table: 'gameplay_mechanics', column: 'ruleset_gate_json' },
+  ];
+  const examples: string[] = [];
+  let total = 0;
+  for (const t of targets) {
+    const rows = await ctx.sql<{ cnt: number }[]>`
+      SELECT COUNT(*)::int AS cnt
+      FROM ${ctx.sql(t.table)}
+      WHERE ${ctx.sql(t.column)} IS NOT NULL
+        AND jsonb_typeof(${ctx.sql(t.column)}) = 'string'
+    `;
+    const cnt = rows[0]?.cnt ?? 0;
+    if (cnt > 0) {
+      total += cnt;
+      examples.push(`${t.table}.${t.column}: ${cnt} rows`);
+    }
+  }
+  return {
+    name: 'F1.jsonb_columns_not_strings',
+    family: 'regression',
+    description: 'JSONB array/object columns are not JSONB string scalars (loader bug regression gate)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0 ? 'no JSONB string scalars in array/object columns' : `${total} JSONB string scalars detected`,
+    examples,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Family 2 -- Anomaly probes
 // ---------------------------------------------------------------------------
@@ -1608,6 +1669,7 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.head_ordinal_sentinel', family: 'regression', description: '', run: probeHeadOrdinalSentinel },
   { name: 'F1.cross_type_orphans', family: 'regression', description: '', run: probeCrossTypeOrphans },
   { name: 'F1.entity_has_version_rows', family: 'regression', description: '', run: probeEntityHasVersionRows },
+  { name: 'F1.jsonb_columns_not_strings', family: 'regression', description: '', run: probeJsonbNotStrings },
   // FTE count-range probes
   { name: 'F1.fte.cvars_count', family: 'regression', description: '', run: probeFteCvarsCount },
   { name: 'F1.fte.engine_cvars', family: 'regression', description: '', run: probeFteEngineCvars },

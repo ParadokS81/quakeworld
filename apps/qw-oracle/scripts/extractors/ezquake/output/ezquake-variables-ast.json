@@ -2865,7 +2865,7 @@
     "cl_fakeshaft": {
       "type": "float",
       "group-id": "8",
-      "default": "0",
+      "default": "1",
       "server-only": false,
       "ast": {
         "c_ident": "cl_fakeshaft",

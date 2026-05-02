@@ -28,9 +28,9 @@ export function buildMacroVersionRow(
     help_desc: entry.desc ?? null,
     macro_type: entry.type ?? null,
     teamplay_restricted: !!entry['teamplay-restricted'],
-    related_cvars_json: entry['related-cvars']
-      ? JSON.stringify(entry['related-cvars'])
-      : null,
+    // JSONB column. postgres-js auto-encodes the JS array as JSONB; pre-stringifying
+    // would store a JSONB string scalar (the legacy SQLite-era TEXT bug).
+    related_cvars_json: entry['related-cvars'] ?? null,
     handler_fn: ast?.handler_fn ?? null,
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,

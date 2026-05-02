@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-30T23:24:39.244Z",
-  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "generated_at": "2026-05-02T17:14:46.522Z",
+  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -500,49 +500,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "b_switch": {
-      "type": "enum",
-      "group-id": "37",
-      "default": "",
-      "desc": "This variable allows you to define the highest weapon that the client should switch to upon a backpack pickup.\nThe possible arguments of \"b_switch\" refer to the impulse that is used to switch to a certain weapon.\nNote that a setting of 1 will effectively disable backpack weapon switching.",
-      "values": [
-        {
-          "description": "Axe",
-          "name": "1"
-        },
-        {
-          "description": "Shotgun",
-          "name": "2"
-        },
-        {
-          "description": "Double-Barreled Shotgun",
-          "name": "3"
-        },
-        {
-          "description": "Nailgun",
-          "name": "4"
-        },
-        {
-          "description": "Super Nailgun",
-          "name": "5"
-        },
-        {
-          "description": "Grenade Launcher",
-          "name": "6"
-        },
-        {
-          "description": "Rocket Launcher",
-          "name": "7"
-        },
-        {
-          "description": "ThunderBolt",
-          "name": "8"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "baseskin": {
       "type": "string",
       "group-id": "44",
@@ -634,6 +591,49 @@
         {
           "description": "Black.",
           "name": "16"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "b_switch": {
+      "type": "enum",
+      "group-id": "37",
+      "default": "",
+      "desc": "This variable allows you to define the highest weapon that the client should switch to upon a backpack pickup.\nThe possible arguments of \"b_switch\" refer to the impulse that is used to switch to a certain weapon.\nNote that a setting of 1 will effectively disable backpack weapon switching.",
+      "values": [
+        {
+          "description": "Axe",
+          "name": "1"
+        },
+        {
+          "description": "Shotgun",
+          "name": "2"
+        },
+        {
+          "description": "Double-Barreled Shotgun",
+          "name": "3"
+        },
+        {
+          "description": "Nailgun",
+          "name": "4"
+        },
+        {
+          "description": "Super Nailgun",
+          "name": "5"
+        },
+        {
+          "description": "Grenade Launcher",
+          "name": "6"
+        },
+        {
+          "description": "Rocket Launcher",
+          "name": "7"
+        },
+        {
+          "description": "ThunderBolt",
+          "name": "8"
         }
       ],
       "source_state": "source_backed",
@@ -1501,15 +1501,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "cl_demo_qwd_delta": {
-      "type": "boolean",
-      "group-id": "7",
-      "default": "1",
-      "desc": "Whether or not to write delta packets for entities into .qwd files.\nOlder clients may not be able to play these back.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
     "cl_democlock": {
       "type": "boolean",
       "group-id": "40",
@@ -1577,6 +1568,15 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "cl_demo_qwd_delta": {
+      "type": "boolean",
+      "group-id": "7",
+      "default": "1",
+      "desc": "Whether or not to write delta packets for entities into .qwd files.\nOlder clients may not be able to play these back.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
     "cl_demospeed": {
@@ -2294,6 +2294,44 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "cl_mvinsetcrosshair": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "1",
+      "desc": "Turn crosshair in inset POV in multiview on/off.",
+      "values": [
+        {
+          "description": "Do not display crosshair in inset POV.",
+          "name": "false"
+        },
+        {
+          "description": "Display crosshair in inset POV.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "cl_mvinsethud": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "1",
+      "desc": "Turns inset HUD for inset POV with multiview on/off.",
+      "values": [
+        {
+          "description": "Do not display inset HUD.",
+          "name": "false"
+        },
+        {
+          "description": "Display inset HUD (usually nick of tracked player).",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "cl_mvinset_offset_x": {
       "type": "boolean",
       "group-id": "40",
@@ -2340,44 +2378,6 @@
       "default": "1",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
-      "last_seen_version": "head"
-    },
-    "cl_mvinsetcrosshair": {
-      "type": "boolean",
-      "group-id": "40",
-      "default": "1",
-      "desc": "Turn crosshair in inset POV in multiview on/off.",
-      "values": [
-        {
-          "description": "Do not display crosshair in inset POV.",
-          "name": "false"
-        },
-        {
-          "description": "Display crosshair in inset POV.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cl_mvinsethud": {
-      "type": "boolean",
-      "group-id": "40",
-      "default": "1",
-      "desc": "Turns inset HUD for inset POV with multiview on/off.",
-      "values": [
-        {
-          "description": "Do not display inset HUD.",
-          "name": "false"
-        },
-        {
-          "description": "Display inset HUD (usually nick of tracked player).",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "cl_name_as_skin": {
@@ -5173,15 +5173,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "frag_log_type": {
-      "type": "boolean",
-      "group-id": "43",
-      "default": "0",
-      "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "fraglimit": {
       "type": "integer",
       "group-id": "43",
@@ -5189,6 +5180,15 @@
       "server-only": true,
       "desc": "Amount of frags any player has to reach before the match is over.",
       "remarks": "When set to 0, there won't be any limit.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "frag_log_type": {
+      "type": "boolean",
+      "group-id": "43",
+      "default": "0",
+      "server-only": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -5621,16 +5621,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_ext_texture_compression": {
-      "type": "boolean",
-      "group-id": "50",
-      "default": "0",
-      "desc": "Compress textures on GPUs that support it to save VRAM, at the cost of longer load times and degraded quality.",
-      "remarks": "No longer needed when you have many hundreds of Mb of VRAM.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_externaltextures_bmodels": {
       "type": "boolean",
       "group-id": "50",
@@ -5674,6 +5664,16 @@
       "group-id": "35",
       "default": "0",
       "desc": "Misc trails that appear on objects that frequently move, such as TF grenades, caltrops, etc.\nRailguns in TF also leave behind unique trails.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_ext_texture_compression": {
+      "type": "boolean",
+      "group-id": "50",
+      "default": "0",
+      "desc": "Compress textures on GPUs that support it to save VRAM, at the cost of longer load times and degraded quality.",
+      "remarks": "No longer needed when you have many hundreds of Mb of VRAM.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -6353,137 +6353,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_part_inferno": {
-      "type": "boolean",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Determines particles used for pyro flames in TF.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_lavasplash": {
-      "type": "boolean",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Determines particles used for lava splashes (Spy Gren).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_spikes": {
-      "type": "boolean",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Determines particles used for spikes (nailgun etc).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_telesplash": {
-      "type": "enum",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Determines particles used for teleport effects.",
-      "values": [
-        {
-          "description": "Use classic quake teleport particles.",
-          "name": "0"
-        },
-        {
-          "description": "Use 'new/eye-candy' teleport particles: 'dots' and 'rays'",
-          "name": "1"
-        },
-        {
-          "description": "Use 'new/eye-candy' teleport particles: 'dots' only",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer1_color": {
-      "type": "string",
-      "group-id": "36",
-      "default": "0 124 0",
-      "desc": "Changes the color of the tracer1 trail, which allows you to customize the rockettrail color (see remarks).",
-      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail color.",
-      "values": [
-        {
-          "description": "\"R G B\" format accepted, e.g. \"255 255 0\" for yellow",
-          "name": "*"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer1_size": {
-      "type": "float",
-      "group-id": "36",
-      "default": "3.75",
-      "desc": "Changes the size of the tracer1 trail, which allows you to customize the rockettrail size (see remarks).",
-      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail size.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer1_time": {
-      "type": "float",
-      "group-id": "36",
-      "default": "0.5",
-      "desc": "Changes the duration of the tracer1 trail, which allows you to customize the rockettrail (see remarks).",
-      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail duration.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer2_color": {
-      "type": "string",
-      "group-id": "36",
-      "default": "255 77 0",
-      "desc": "Changes the color of the tracer2 trail, which allows you to customize the rockettrail color (see remarks).",
-      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail color.",
-      "values": [
-        {
-          "description": "\"R G B\" format accepted, e.g. \"255 255 0\" for yellow",
-          "name": "*"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer2_size": {
-      "type": "float",
-      "group-id": "36",
-      "default": "3.75",
-      "desc": "Changes the size of the tracer2 trail, which allows you to customize the rockettrail size (see remarks).",
-      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail size.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_tracer2_time": {
-      "type": "float",
-      "group-id": "36",
-      "default": "0.5",
-      "desc": "Changes the duration of the tracer2 trail, which allows you to customize the rockettrail (see remarks).",
-      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail duration.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_part_trails": {
-      "type": "boolean",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Determines particles used for (rocket etc) trails.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_particle_blobs": {
       "type": "float",
       "group-id": "36",
@@ -6763,6 +6632,137 @@
       "group-id": "36",
       "default": "3",
       "desc": "Changes width of particle trails, e.g. wall hit by nail, explosion particles trail, etc.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_inferno": {
+      "type": "boolean",
+      "group-id": "36",
+      "default": "0",
+      "desc": "Determines particles used for pyro flames in TF.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_lavasplash": {
+      "type": "boolean",
+      "group-id": "36",
+      "default": "0",
+      "desc": "Determines particles used for lava splashes (Spy Gren).",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_spikes": {
+      "type": "boolean",
+      "group-id": "36",
+      "default": "0",
+      "desc": "Determines particles used for spikes (nailgun etc).",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_telesplash": {
+      "type": "enum",
+      "group-id": "36",
+      "default": "0",
+      "desc": "Determines particles used for teleport effects.",
+      "values": [
+        {
+          "description": "Use classic quake teleport particles.",
+          "name": "0"
+        },
+        {
+          "description": "Use 'new/eye-candy' teleport particles: 'dots' and 'rays'",
+          "name": "1"
+        },
+        {
+          "description": "Use 'new/eye-candy' teleport particles: 'dots' only",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer1_color": {
+      "type": "string",
+      "group-id": "36",
+      "default": "0 124 0",
+      "desc": "Changes the color of the tracer1 trail, which allows you to customize the rockettrail color (see remarks).",
+      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail color.",
+      "values": [
+        {
+          "description": "\"R G B\" format accepted, e.g. \"255 255 0\" for yellow",
+          "name": "*"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer1_size": {
+      "type": "float",
+      "group-id": "36",
+      "default": "3.75",
+      "desc": "Changes the size of the tracer1 trail, which allows you to customize the rockettrail size (see remarks).",
+      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail size.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer1_time": {
+      "type": "float",
+      "group-id": "36",
+      "default": "0.5",
+      "desc": "Changes the duration of the tracer1 trail, which allows you to customize the rockettrail (see remarks).",
+      "remarks": "If you set r_rockettrail 6 and gl_part_trails 1, this variable will change your rockettrail duration.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer2_color": {
+      "type": "string",
+      "group-id": "36",
+      "default": "255 77 0",
+      "desc": "Changes the color of the tracer2 trail, which allows you to customize the rockettrail color (see remarks).",
+      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail color.",
+      "values": [
+        {
+          "description": "\"R G B\" format accepted, e.g. \"255 255 0\" for yellow",
+          "name": "*"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer2_size": {
+      "type": "float",
+      "group-id": "36",
+      "default": "3.75",
+      "desc": "Changes the size of the tracer2 trail, which allows you to customize the rockettrail size (see remarks).",
+      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail size.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_tracer2_time": {
+      "type": "float",
+      "group-id": "36",
+      "default": "0.5",
+      "desc": "Changes the duration of the tracer2 trail, which allows you to customize the rockettrail (see remarks).",
+      "remarks": "If you set r_rockettrail 7 and gl_part_trails 1, this variable will change your rockettrail duration.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_part_trails": {
+      "type": "boolean",
+      "group-id": "36",
+      "default": "0",
+      "desc": "Determines particles used for (rocket etc) trails.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -7275,35 +7275,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_turb_effects": {
-      "type": "boolean",
-      "group-id": "51",
-      "default": "1",
-      "desc": "Controls if shotgun/nailgun impact points will spawn bubbles underwater.",
-      "remarks": "Requires QMB particles to be enabled (corresponding gl_particle_xxx option enabled).",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "gl_turb_fire": {
-      "type": "boolean",
-      "group-id": "51",
-      "default": "1",
-      "desc": "Controls if explosions/fire will spawn bubbles underwater.",
-      "remarks": "Requires QMB particles to be enabled (corresponding gl_particle_xxx option enabled).",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "gl_turb_trails": {
-      "type": "float",
-      "group-id": "51",
-      "default": "0",
-      "desc": "This gives rockets/grenades/nails and other things an alternate underwater trail.\nVery nice to have nailgun fights underwater...",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_turbalpha": {
       "type": "float",
       "group-id": "51",
@@ -7331,6 +7302,35 @@
           "name": "1.00"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gl_turb_effects": {
+      "type": "boolean",
+      "group-id": "51",
+      "default": "1",
+      "desc": "Controls if shotgun/nailgun impact points will spawn bubbles underwater.",
+      "remarks": "Requires QMB particles to be enabled (corresponding gl_particle_xxx option enabled).",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "gl_turb_fire": {
+      "type": "boolean",
+      "group-id": "51",
+      "default": "1",
+      "desc": "Controls if explosions/fire will spawn bubbles underwater.",
+      "remarks": "Requires QMB particles to be enabled (corresponding gl_particle_xxx option enabled).",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "gl_turb_trails": {
+      "type": "float",
+      "group-id": "51",
+      "default": "0",
+      "desc": "This gives rockets/grenades/nails and other things an alternate underwater trail.\nVery nice to have nailgun fights underwater...",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -8225,137 +8225,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_armor_digits": {
-      "type": "float",
-      "group-id": "19",
-      "default": "3",
-      "desc": "Sets number of digits for armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_draw": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_frame": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets frame visibility and style for armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_frame_color": {
-      "type": "string",
-      "group-id": "19",
-      "default": "0 0 0",
-      "desc": "Defines the color of the background of the armor HUD element. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_hidezero": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Hide armor number if 0.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_order": {
-      "type": "integer",
-      "group-id": "19",
-      "default": "0",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_pent_666": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "face",
-      "desc": "Sets relative positioning for armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_pos_x": {
-      "type": "float",
-      "group-id": "19",
-      "default": "-32",
-      "desc": "Sets horizontal position of armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_pos_y": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets vertical position of armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_proportional": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_scale": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Sets size of armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_show": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Switches showing of armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_armor_style": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Switches graphical style of armor level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_armordamage_align": {
       "type": "string",
       "group-id": "19",
@@ -8572,6 +8441,137 @@
           "name": "true"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_digits": {
+      "type": "float",
+      "group-id": "19",
+      "default": "3",
+      "desc": "Sets number of digits for armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_draw": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_frame": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets frame visibility and style for armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_frame_color": {
+      "type": "string",
+      "group-id": "19",
+      "default": "0 0 0",
+      "desc": "Defines the color of the background of the armor HUD element. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_hidezero": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Hide armor number if 0.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_order": {
+      "type": "integer",
+      "group-id": "19",
+      "default": "0",
+      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_pent_666": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_place": {
+      "type": "string",
+      "group-id": "19",
+      "default": "face",
+      "desc": "Sets relative positioning for armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_pos_x": {
+      "type": "float",
+      "group-id": "19",
+      "default": "-32",
+      "desc": "Sets horizontal position of armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_pos_y": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets vertical position of armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_scale": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Sets size of armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_show": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Switches showing of armor level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_armor_style": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Switches graphical style of armor level.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -13688,120 +13688,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_health_digits": {
-      "type": "float",
-      "group-id": "19",
-      "default": "3",
-      "desc": "Sets number of digits for health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_draw": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_frame": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets frame visibility and style for health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_frame_color": {
-      "type": "string",
-      "group-id": "19",
-      "default": "0 0 0",
-      "desc": "Defines the color of the background of the health HUD element. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_order": {
-      "type": "integer",
-      "group-id": "19",
-      "default": "0",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "face",
-      "desc": "Sets relative positioning for health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_pos_x": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets horizontal position of health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_pos_y": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets vertical position of health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_proportional": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_scale": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Sets size of health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_show": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Switches showing of health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_health_style": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Switches graphical style of health level.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_healthdamage_align": {
       "type": "string",
       "group-id": "19",
@@ -14018,6 +13904,120 @@
           "name": "true"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_digits": {
+      "type": "float",
+      "group-id": "19",
+      "default": "3",
+      "desc": "Sets number of digits for health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_draw": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_frame": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets frame visibility and style for health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_frame_color": {
+      "type": "string",
+      "group-id": "19",
+      "default": "0 0 0",
+      "desc": "Defines the color of the background of the health HUD element. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_order": {
+      "type": "integer",
+      "group-id": "19",
+      "default": "0",
+      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_place": {
+      "type": "string",
+      "group-id": "19",
+      "default": "face",
+      "desc": "Sets relative positioning for health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_pos_x": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets horizontal position of health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_pos_y": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets vertical position of health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_scale": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Sets size of health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_show": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Switches showing of health level.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_health_style": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Switches graphical style of health level.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -15277,84 +15277,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_net_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_order": {
-      "type": "integer",
-      "group-id": "19",
-      "default": "0",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_period": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Sets period for updating net statistics.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "top",
-      "desc": "Sets relative positioning for net statistics.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_pos_x": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets horizontal position of net statistics.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_pos_y": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets vertical position of net statistics.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_proportional": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "hud_net_scale": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
-    "hud_net_show": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Switches showing of net statistics.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_netgraph_align_x": {
       "type": "string",
       "group-id": "19",
@@ -15539,6 +15461,59 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "hud_net_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_order": {
+      "type": "integer",
+      "group-id": "19",
+      "default": "0",
+      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_period": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Sets period for updating net statistics.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_place": {
+      "type": "string",
+      "group-id": "19",
+      "default": "top",
+      "desc": "Sets relative positioning for net statistics.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_pos_x": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets horizontal position of net statistics.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_pos_y": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets vertical position of net statistics.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "hud_netproblem_align_x": {
       "type": "string",
       "group-id": "19",
@@ -15631,6 +15606,31 @@
       "type": "boolean",
       "group-id": "19",
       "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "hud_net_scale": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "hud_net_show": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Switches showing of net statistics.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -16594,14 +16594,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_radar_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_radar_itemfilter": {
       "type": "string",
       "group-id": "19",
@@ -16614,6 +16606,14 @@
           "name": "*"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_radar_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -17192,6 +17192,131 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "hud_scoreclock_align_x": {
+      "type": "string",
+      "group-id": "19",
+      "default": "center",
+      "desc": "Sets horizontal align of scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_align_y": {
+      "type": "string",
+      "group-id": "19",
+      "default": "bottom",
+      "desc": "Sets vertical align of scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_draw": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_format": {
+      "type": "string",
+      "group-id": "19",
+      "default": "%d-%m-%Y %H:%M:%S",
+      "desc": "Controls in what format the scoreclock is displayed. Check the link below for available options. You can also add text, e.g. \"time: %H:%M:%S\"",
+      "remarks": "https://www.man7.org/linux/man-pages/man3/strftime.3.html",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_frame": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets frame visibility and style for scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_frame_color": {
+      "type": "string",
+      "group-id": "19",
+      "default": "0 0 0",
+      "desc": "Defines the color of the background of the scoreclock HUD element. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_order": {
+      "type": "integer",
+      "group-id": "19",
+      "default": "0",
+      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_place": {
+      "type": "string",
+      "group-id": "19",
+      "default": "screen",
+      "desc": "Sets relative positioning for scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_pos_x": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets horizontal position of scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_pos_y": {
+      "type": "float",
+      "group-id": "19",
+      "default": "-10",
+      "desc": "Sets vertical position of scoreclock.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Toggles whether the scoreclock uses charset chars or TTF chars",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_scale": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Scale of the scoreclock HUD element.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "hud_scoreclock_show": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Toggles whether the scoreclock is displayed. It is only displayed when the scoreboard is open.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
     "hud_score_difference_align": {
       "type": "string",
       "group-id": "19",
@@ -17464,6 +17589,144 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "hud_scoremapname_align_x": {
+      "type": "string",
+      "group-id": "19",
+      "default": "right",
+      "desc": "Sets horizontal align of scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_align_y": {
+      "type": "string",
+      "group-id": "19",
+      "default": "bottom",
+      "desc": "Sets vertical align of scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_draw": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_frame": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets frame visibility and style for scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_frame_color": {
+      "type": "string",
+      "group-id": "19",
+      "default": "0 0 0",
+      "desc": "Defines the color of the background of the scoremapname HUD element. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_order": {
+      "type": "integer",
+      "group-id": "19",
+      "default": "0",
+      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_place": {
+      "type": "string",
+      "group-id": "19",
+      "default": "screen",
+      "desc": "Sets relative positioning for scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_pos_x": {
+      "type": "float",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Sets horizontal position of scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_pos_y": {
+      "type": "float",
+      "group-id": "19",
+      "default": "-10",
+      "desc": "Sets vertical position of scoremapname.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_proportional": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Toggles whether the scoremapname uses charset chars or TTF chars",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_scale": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
+      "desc": "Scale of the scoremapname HUD element.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_show": {
+      "type": "boolean",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Toggles whether the scoremapname is displayed. It is only displayed when the scoreboard is open.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
+    "hud_scoremapname_style": {
+      "type": "enum",
+      "group-id": "19",
+      "default": "0",
+      "desc": "Style of the scoremapname HUD element.",
+      "values": [
+        {
+          "description": "Full name, example: The Abandoned Base (dm3)",
+          "name": "0"
+        },
+        {
+          "description": "Level name, example: The Abandoned Base",
+          "name": "1"
+        },
+        {
+          "description": "Map name, example: dm3",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.8",
+      "last_seen_version": "head"
+    },
     "hud_score_position_align": {
       "type": "string",
       "group-id": "19",
@@ -17734,269 +17997,6 @@
       "default": "0",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_align_x": {
-      "type": "string",
-      "group-id": "19",
-      "default": "center",
-      "desc": "Sets horizontal align of scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_align_y": {
-      "type": "string",
-      "group-id": "19",
-      "default": "bottom",
-      "desc": "Sets vertical align of scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_draw": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_format": {
-      "type": "string",
-      "group-id": "19",
-      "default": "%d-%m-%Y %H:%M:%S",
-      "desc": "Controls in what format the scoreclock is displayed. Check the link below for available options. You can also add text, e.g. \"time: %H:%M:%S\"",
-      "remarks": "https://www.man7.org/linux/man-pages/man3/strftime.3.html",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_frame": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets frame visibility and style for scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_frame_color": {
-      "type": "string",
-      "group-id": "19",
-      "default": "0 0 0",
-      "desc": "Defines the color of the background of the scoreclock HUD element. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_order": {
-      "type": "integer",
-      "group-id": "19",
-      "default": "0",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "screen",
-      "desc": "Sets relative positioning for scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_pos_x": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets horizontal position of scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_pos_y": {
-      "type": "float",
-      "group-id": "19",
-      "default": "-10",
-      "desc": "Sets vertical position of scoreclock.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_proportional": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Toggles whether the scoreclock uses charset chars or TTF chars",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_scale": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Scale of the scoreclock HUD element.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoreclock_show": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Toggles whether the scoreclock is displayed. It is only displayed when the scoreboard is open.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_align_x": {
-      "type": "string",
-      "group-id": "19",
-      "default": "right",
-      "desc": "Sets horizontal align of scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_align_y": {
-      "type": "string",
-      "group-id": "19",
-      "default": "bottom",
-      "desc": "Sets vertical align of scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_draw": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_frame": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets frame visibility and style for scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_frame_color": {
-      "type": "string",
-      "group-id": "19",
-      "default": "0 0 0",
-      "desc": "Defines the color of the background of the scoremapname HUD element. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_order": {
-      "type": "integer",
-      "group-id": "19",
-      "default": "0",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_place": {
-      "type": "string",
-      "group-id": "19",
-      "default": "screen",
-      "desc": "Sets relative positioning for scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_pos_x": {
-      "type": "float",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Sets horizontal position of scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_pos_y": {
-      "type": "float",
-      "group-id": "19",
-      "default": "-10",
-      "desc": "Sets vertical position of scoremapname.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_proportional": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Toggles whether the scoremapname uses charset chars or TTF chars",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_scale": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "desc": "Scale of the scoremapname HUD element.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_show": {
-      "type": "boolean",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Toggles whether the scoremapname is displayed. It is only displayed when the scoreboard is open.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
-      "last_seen_version": "head"
-    },
-    "hud_scoremapname_style": {
-      "type": "enum",
-      "group-id": "19",
-      "default": "0",
-      "desc": "Style of the scoremapname HUD element.",
-      "values": [
-        {
-          "description": "Full name, example: The Abandoned Base (dm3)",
-          "name": "0"
-        },
-        {
-          "description": "Level name, example: The Abandoned Base",
-          "name": "1"
-        },
-        {
-          "description": "Map name, example: dm3",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.8",
       "last_seen_version": "head"
     },
     "hud_sigil1_align_x": {
@@ -20172,14 +20172,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_teamholdinfo_item_opacity": {
-      "type": "float",
-      "group-id": "19",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_teamholdinfo_itemfilter": {
       "type": "string",
       "group-id": "19",
@@ -20192,6 +20184,14 @@
           "name": "*"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "hud_teamholdinfo_item_opacity": {
+      "type": "float",
+      "group-id": "19",
+      "default": "1",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -21403,11 +21403,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "ignore_no_weapon": {
+    "ignore_not_enough_ammo": {
       "type": "boolean",
       "group-id": "3",
       "default": "0",
-      "desc": "Toggle showing the \"no weapon.\" message emitted by KTX when attempting to fire a weapon you don't have.",
+      "desc": "Toggle showing the \"not enough ammo.\" message emitted by KTX when attempting to fire a weapon without enough ammo.",
       "values": [
         {
           "description": "",
@@ -21422,11 +21422,11 @@
       "first_seen_version": "3.6.8",
       "last_seen_version": "head"
     },
-    "ignore_not_enough_ammo": {
+    "ignore_no_weapon": {
       "type": "boolean",
       "group-id": "3",
       "default": "0",
-      "desc": "Toggle showing the \"not enough ammo.\" message emitted by KTX when attempting to fire a weapon without enough ammo.",
+      "desc": "Toggle showing the \"no weapon.\" message emitted by KTX when attempting to fire a weapon you don't have.",
       "values": [
         {
           "description": "",
@@ -22143,51 +22143,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "m_filter": {
-      "type": "float",
-      "group-id": "11",
-      "default": "0",
-      "desc": "This variable toggles mouse input filtering.\nWhen set to \"1\", the values which are received from the mouse's input will first be averaged together and then that value will be used in the game.\nThe reason for this command is that some mice had problems with sending sporadic coordinates which make the input from the mouse jerky, also when using a serial or PS/2 mouse, the Windows operating system will only sample mouse input every 25ms, that is 40 times a second (for USB mice the sample rate is 125 Hz, that is every 8 ms).\nWhen set to \"1\" this variable will smooth out the input but it will cause latency between the movement of the mouse and the actual response in the game.\nWhen using a PS/2 mouse it is thus first recommended to try to increase the sampling rate either by changing it via your mouse driver or by using the ps2rate program which can be downloaded at ps2rate homepage.\nIf you are playing the game at frame rates above 40 FPS and if you can't increase the sampling rate of your PS/2 rate or if you are playing with a serial mouse it is recommended that you enable this toggle.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_forward": {
-      "type": "float",
-      "group-id": "11",
-      "default": "1",
-      "desc": "This variable controls how fast the player should move forward and back when the mouse is moved forward and back.\nThis command has no effect if the +mlook command is in effect because when the mouse is moved forward and back the player looks up and down instead of moving forward and back.\nSome players might want to set this variable to \"0\" if they happen not to use +mlook constantly and they only want to use the mouse to turn the player.\nSetting this variable to \"0\" will prevent the inadvertent movement of the player forward and back while trying to make precise turns with the mouse.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_pitch": {
-      "type": "float",
-      "group-id": "11",
-      "default": "0.022",
-      "desc": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_side": {
-      "type": "float",
-      "group-id": "11",
-      "default": "0.8",
-      "desc": "When the +strafe command is active or when \"lookspring\" is set to \"1\" this variable is used to control the sensitivity when the mouse is moved left and right to make the player move left and right.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "m_yaw": {
-      "type": "float",
-      "group-id": "11",
-      "default": "0.022",
-      "desc": "This variable controls how fast the player turns left and right when the mouse is moved left and right.\nIt is recommended that this variable be left alone and instead the \"sensitivity\" variable is used to change the level of precision.\nIf you set this variable to a negative value you will reverse the mouse movement.\nSome script writers use this variable to increase the level of precision when the \"fov\" variable is used to zoom the screen.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "mapname": {
       "type": "string",
       "group-id": "2",
@@ -22756,6 +22711,33 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "m_filter": {
+      "type": "float",
+      "group-id": "11",
+      "default": "0",
+      "desc": "This variable toggles mouse input filtering.\nWhen set to \"1\", the values which are received from the mouse's input will first be averaged together and then that value will be used in the game.\nThe reason for this command is that some mice had problems with sending sporadic coordinates which make the input from the mouse jerky, also when using a serial or PS/2 mouse, the Windows operating system will only sample mouse input every 25ms, that is 40 times a second (for USB mice the sample rate is 125 Hz, that is every 8 ms).\nWhen set to \"1\" this variable will smooth out the input but it will cause latency between the movement of the mouse and the actual response in the game.\nWhen using a PS/2 mouse it is thus first recommended to try to increase the sampling rate either by changing it via your mouse driver or by using the ps2rate program which can be downloaded at ps2rate homepage.\nIf you are playing the game at frame rates above 40 FPS and if you can't increase the sampling rate of your PS/2 rate or if you are playing with a serial mouse it is recommended that you enable this toggle.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "m_forward": {
+      "type": "float",
+      "group-id": "11",
+      "default": "1",
+      "desc": "This variable controls how fast the player should move forward and back when the mouse is moved forward and back.\nThis command has no effect if the +mlook command is in effect because when the mouse is moved forward and back the player looks up and down instead of moving forward and back.\nSome players might want to set this variable to \"0\" if they happen not to use +mlook constantly and they only want to use the mouse to turn the player.\nSetting this variable to \"0\" will prevent the inadvertent movement of the player forward and back while trying to make precise turns with the mouse.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "m_pitch": {
+      "type": "float",
+      "group-id": "11",
+      "default": "0.022",
+      "desc": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "msg": {
       "type": "enum",
       "group-id": "37",
@@ -22808,6 +22790,15 @@
           "name": "3"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "m_side": {
+      "type": "float",
+      "group-id": "11",
+      "default": "0.8",
+      "desc": "When the +strafe command is active or when \"lookspring\" is set to \"1\" this variable is used to control the sensitivity when the mouse is moved left and right to make the player move left and right.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -23486,6 +23477,15 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "m_yaw": {
+      "type": "float",
+      "group-id": "11",
+      "default": "0.022",
+      "desc": "This variable controls how fast the player turns left and right when the mouse is moved left and right.\nIt is recommended that this variable be left alone and instead the \"sensitivity\" variable is used to change the level of precision.\nIf you set this variable to a negative value you will reverse the mouse movement.\nSome script writers use this variable to increase the level of precision when the \"fov\" variable is used to zoom the screen.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "name": {
       "type": "string",
       "group-id": "37",
@@ -23974,6 +23974,15 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
+    "qtv_sayenabled": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "server-only": true,
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
     "qtv_say_team": {
       "type": "boolean",
       "group-id": "38",
@@ -23990,15 +23999,6 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "qtv_sayenabled": {
-      "type": "boolean",
-      "group-id": "0",
-      "default": "0",
-      "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
     "qtv_skipchained": {
@@ -24180,6 +24180,73 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
+    "railcolor": {
+      "type": "enum",
+      "group-id": "37",
+      "default": "",
+      "desc": "Player's rail color.",
+      "remarks": "Sent to server, requires mod support.",
+      "values": [
+        {
+          "description": "Server decides color.",
+          "name": ""
+        },
+        {
+          "description": "White.",
+          "name": "0"
+        },
+        {
+          "description": "Blue.",
+          "name": "1"
+        },
+        {
+          "description": "Green.",
+          "name": "2"
+        },
+        {
+          "description": "Light Blue.",
+          "name": "3"
+        },
+        {
+          "description": "Red.",
+          "name": "4"
+        },
+        {
+          "description": "Magenta.",
+          "name": "5"
+        },
+        {
+          "description": "Yellow.",
+          "name": "6"
+        },
+        {
+          "description": "White.",
+          "name": "7"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "rate": {
+      "type": "float",
+      "group-id": "37",
+      "default": "25000",
+      "desc": "Sets the maximum amount of bytes per second that the server should send to the client.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head",
+      "default_history": [
+        {
+          "version": "v3.0",
+          "value": "5760"
+        },
+        {
+          "version": "3.6.0",
+          "value": "25000"
+        }
+      ]
+    },
     "r_bloom": {
       "type": "boolean",
       "group-id": "8",
@@ -24275,6 +24342,25 @@
           "name": "*"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "rcon_address": {
+      "type": "string",
+      "group-id": "2",
+      "default": "",
+      "desc": "Address of the server to query with remote console commands.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "rcon_password": {
+      "type": "string",
+      "group-id": "2",
+      "default": "",
+      "server-only": true,
+      "desc": "Password used for remote console communication.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -24514,12 +24600,103 @@
         }
       ]
     },
+    "registered": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "1",
+      "server-only": true,
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "r_enemyskincolor": {
       "type": "string",
       "group-id": "44",
       "default": "",
       "desc": "Allows you to set color for enemies you see in RGB format.",
       "remarks": "See r_skincolormode for more info.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_0": {
+      "type": "string",
+      "group-id": "22",
+      "default": "",
+      "desc": "Whole matched pattern of the regular expression match.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_1": {
+      "type": "string",
+      "group-id": "22",
+      "default": "",
+      "desc": "First matched subpattern of the regexp match.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_2": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_3": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_4": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_5": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_6": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_7": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_8": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match_9": {
+      "type": "string",
+      "group-id": "0",
+      "default": "",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -25830,6 +26007,15 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "r_tracker_colorfix": {
+      "type": "integer",
+      "group-id": "40",
+      "default": "0",
+      "desc": "Both players in fragline will be colored according to good/bad/myfrag/etc values.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
     "r_tracker_color_fragonme": {
       "type": "string",
       "group-id": "40",
@@ -25882,15 +26068,6 @@
       "desc": "Color to use when reporting an opponent's teamkill.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_tracker_colorfix": {
-      "type": "integer",
-      "group-id": "40",
-      "default": "0",
-      "desc": "Both players in fragline will be colored according to good/bad/myfrag/etc values.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
     "r_tracker_flags": {
@@ -26230,6 +26407,16 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "ruleset": {
+      "type": "string",
+      "group-id": "37",
+      "default": "default",
+      "desc": "Enforces a set of restrictions on the client features.",
+      "remarks": "Most commonly used is \"smackdown\"",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "r_viewmodellastfired": {
       "type": "boolean",
       "group-id": "54",
@@ -26313,193 +26500,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "railcolor": {
-      "type": "enum",
-      "group-id": "37",
-      "default": "",
-      "desc": "Player's rail color.",
-      "remarks": "Sent to server, requires mod support.",
-      "values": [
-        {
-          "description": "Server decides color.",
-          "name": ""
-        },
-        {
-          "description": "White.",
-          "name": "0"
-        },
-        {
-          "description": "Blue.",
-          "name": "1"
-        },
-        {
-          "description": "Green.",
-          "name": "2"
-        },
-        {
-          "description": "Light Blue.",
-          "name": "3"
-        },
-        {
-          "description": "Red.",
-          "name": "4"
-        },
-        {
-          "description": "Magenta.",
-          "name": "5"
-        },
-        {
-          "description": "Yellow.",
-          "name": "6"
-        },
-        {
-          "description": "White.",
-          "name": "7"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "rate": {
-      "type": "float",
-      "group-id": "37",
-      "default": "25000",
-      "desc": "Sets the maximum amount of bytes per second that the server should send to the client.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head",
-      "default_history": [
-        {
-          "version": "v3.0",
-          "value": "5760"
-        },
-        {
-          "version": "3.6.0",
-          "value": "25000"
-        }
-      ]
-    },
-    "rcon_address": {
-      "type": "string",
-      "group-id": "2",
-      "default": "",
-      "desc": "Address of the server to query with remote console commands.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "rcon_password": {
-      "type": "string",
-      "group-id": "2",
-      "default": "",
-      "server-only": true,
-      "desc": "Password used for remote console communication.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_0": {
-      "type": "string",
-      "group-id": "22",
-      "default": "",
-      "desc": "Whole matched pattern of the regular expression match.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_1": {
-      "type": "string",
-      "group-id": "22",
-      "default": "",
-      "desc": "First matched subpattern of the regexp match.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_2": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_3": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_4": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_5": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_6": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_7": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_8": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match_9": {
-      "type": "string",
-      "group-id": "0",
-      "default": "",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "registered": {
-      "type": "boolean",
-      "group-id": "0",
-      "default": "1",
-      "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "ruleset": {
-      "type": "string",
-      "group-id": "37",
-      "default": "default",
-      "desc": "Enforces a set of restrictions on the client features.",
-      "remarks": "Most commonly used is \"smackdown\"",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_ambientfade": {
       "type": "float",
       "group-id": "45",
@@ -26514,285 +26514,6 @@
       "group-id": "45",
       "default": "0.3",
       "desc": "Volume level of ambient sounds (produced by liquid and sky brushes).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_audiodevice": {
-      "type": "integer",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Audio device to use.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_chat_custom": {
-      "type": "enum",
-      "group-id": "3",
-      "default": "1",
-      "desc": "Controls usage of s_mm*, s_chat_*, s_otherchat_* and s_spec_* variables.",
-      "values": [
-        {
-          "description": "No chat sounds played.",
-          "name": "0"
-        },
-        {
-          "description": "Chat sounds played for mm1 & mm2.",
-          "name": "1"
-        },
-        {
-          "description": "Chat sounds played for mm2 only.",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_desiredsamples": {
-      "type": "integer",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Indicates how large the audio buffer should be, in samples.\nIf 0, ezQuake will choose a sensible default, based on value of s_khz.",
-      "remarks": "This is a suggestion only, the driver is free to choose a different value.\nSmaller buffer sizes generally result in lower latency, but higher CPU usage.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_inputdevice": {
-      "type": "boolean",
-      "group-id": "0",
-      "default": "0",
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
-    "s_khz": {
-      "type": "enum",
-      "group-id": "45",
-      "default": "11",
-      "desc": "Sets the audio sampling rate.\nIn ezQuake, this introduces artifacts which give a \"crisper\"/\"grainy\" feel to some sounds, as the interpolation is not perfect. All the original sounds are 11k, except for shaft which is 22k and will sound different when setting s_khz over 11.",
-      "remarks": "If you dislike the changes in sound, you can i.e. convert the shaft sounds down to 11k (and fail \"f_modified\" checks), go back to s_khz 11, or use s_linearresample for perfect resampling.",
-      "values": [
-        {
-          "description": "11kHz sound (default).",
-          "name": "11"
-        },
-        {
-          "description": "22kHz sound.",
-          "name": "22"
-        },
-        {
-          "description": "44kHz sound.",
-          "name": "44"
-        },
-        {
-          "description": "48kHz sound.",
-          "name": "48"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_linearresample": {
-      "type": "enum",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Controls whether to resample sounds to s_khz with perfect quality. This cleans up any artifacts resulting from the default interpolation.",
-      "remarks": "Resampling takes place as the sounds are loaded.",
-      "values": [
-        {
-          "description": "No linear resampling.",
-          "name": "0"
-        },
-        {
-          "description": "Linear resampling when upsampling only.",
-          "name": "1"
-        },
-        {
-          "description": "Linear resampling when downsampling and upsampling.",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_linearresample_stream": {
-      "type": "integer",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Same as s_linearresample, but specifically for VOIP audio streams.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_loadas8bit": {
-      "type": "boolean",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Reduce sound samples down to 8-bit at load time, trading quality for lower memory usage.",
-      "remarks": "This used to help with performance on systems with low memory.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_mm1_file": {
-      "type": "string",
-      "group-id": "45",
-      "default": "misc/talk.wav",
-      "desc": "You can specify notification sound for messagemode1 (/messagemode or /say foo) messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_mm1_volume": {
-      "type": "float",
-      "group-id": "45",
-      "default": "1",
-      "desc": "You can specify volume of notification sound for messagemode1 (/messagemode or /say foo) messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_mm2_file": {
-      "type": "string",
-      "group-id": "45",
-      "default": "misc/talk.wav",
-      "desc": "You can specify notification sound for messagemode2 (/messagemode2 or /say_team foo) messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_mm2_volume": {
-      "type": "float",
-      "group-id": "45",
-      "default": "1",
-      "desc": "You can specify volume of notification sound for messagemode2 (/messagemode2 or /say_team foo) messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_nosound": {
-      "type": "boolean",
-      "group-id": "45",
-      "default": "0",
-      "values": [
-        {
-          "description": "Enable the playback of sounds.",
-          "name": "false"
-        },
-        {
-          "description": "Disable the playback of sounds.\nNote that it effectively just resets sound volume to zero, but the sound engine still runs.\nIf you want disable sound in order to get more fps, use the -nosound command line option instead.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_otherchat_file": {
-      "type": "string",
-      "group-id": "45",
-      "default": "misc/talk.wav",
-      "desc": "You can specify notification sound for other messages (than messagemode, messagemode2 and from spectators).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_otherchat_volume": {
-      "type": "float",
-      "group-id": "45",
-      "default": "1",
-      "desc": "You can specify volume of notification sound for other messages (than messagemode, messagemode2 and from spectators).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_precache": {
-      "type": "boolean",
-      "group-id": "45",
-      "default": "1",
-      "values": [
-        {
-          "description": "Disable automatic sound caching.",
-          "name": "false"
-        },
-        {
-          "description": "Enable automatic sound caching.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_raw_volume": {
-      "type": "float",
-      "group-id": "45",
-      "default": "1",
-      "desc": "Controls volume of voice (voip) playback.",
-      "remarks": "See cl_voip_play.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_show": {
-      "type": "enum",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Toggles displaying how many and/or which sound files are currently being played.",
-      "values": [
-        {
-          "description": "Do not show anything.",
-          "name": "0"
-        },
-        {
-          "description": "Print the number of sounds playing.",
-          "name": "1"
-        },
-        {
-          "description": "Print the volume in left/right speakers, name of sound file playing, and number of sounds playing.",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_silent_racing": {
-      "type": "boolean",
-      "group-id": "45",
-      "default": "0",
-      "desc": "Toggles whether or not you can hear other players when racing.",
-      "source_state": "source_backed",
-      "first_seen_version": "3.2",
-      "last_seen_version": "head"
-    },
-    "s_spec_file": {
-      "type": "string",
-      "group-id": "45",
-      "default": "misc/talk.wav",
-      "desc": "You can specify notification sound for spectator messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_spec_volume": {
-      "type": "float",
-      "group-id": "45",
-      "default": "1",
-      "desc": "You can specify volume of notification sound for spectator messages.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_swapstereo": {
-      "type": "boolean",
-      "group-id": "45",
-      "default": "0",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -26813,6 +26534,15 @@
           "name": "1"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_audiodevice": {
+      "type": "integer",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Audio device to use.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -27386,6 +27116,29 @@
         {
           "description": "display the status.",
           "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_chat_custom": {
+      "type": "enum",
+      "group-id": "3",
+      "default": "1",
+      "desc": "Controls usage of s_mm*, s_chat_*, s_otherchat_* and s_spec_* variables.",
+      "values": [
+        {
+          "description": "No chat sounds played.",
+          "name": "0"
+        },
+        {
+          "description": "Chat sounds played for mm1 & mm2.",
+          "name": "1"
+        },
+        {
+          "description": "Chat sounds played for mm2 only.",
+          "name": "2"
         }
       ],
       "source_state": "source_backed",
@@ -29355,6 +29108,16 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "s_desiredsamples": {
+      "type": "integer",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Indicates how large the audio buffer should be, in samples.\nIf 0, ezQuake will choose a sensible default, based on value of s_khz.",
+      "remarks": "This is a suggestion only, the driver is free to choose a different value.\nSmaller buffer sizes generally result in lower latency, but higher CPU usage.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "sensitivity": {
       "type": "float",
       "group-id": "10",
@@ -29369,6 +29132,24 @@
       "group-id": "0",
       "default": "",
       "server-only": true,
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "showdrop": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "values": [
+        {
+          "description": "Disable text dump printing dropped packets.",
+          "name": "false"
+        },
+        {
+          "description": "Enable text dump printing dropped packets.",
+          "name": "true"
+        }
+      ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29405,105 +29186,6 @@
       "group-id": "40",
       "default": "-1",
       "desc": "Determine where the show_fps is positioned on your screen on the Y co-ordinate.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_speed": {
-      "type": "enum",
-      "group-id": "40",
-      "default": "0",
-      "desc": "Displays a speed counter in the top right corner in the client's units (Horizontal velocity).\n\n320 - Normal walking speed.\n440 - Accel jump.\n450 - Bunnyhopping.",
-      "values": [
-        {
-          "description": "Off.",
-          "name": "0"
-        },
-        {
-          "description": "More accurate counter (Best used when LPB).",
-          "name": "1"
-        },
-        {
-          "description": "Predicted speed (Less laggy when HPB).",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_speed_x": {
-      "type": "float",
-      "group-id": "40",
-      "default": "-1",
-      "desc": "Determine where the show_speed is positioned on your screen on the X co-ordinate.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_speed_y": {
-      "type": "float",
-      "group-id": "40",
-      "default": "1",
-      "desc": "Determine where the show_speed is positioned on your screen on the Y co-ordinate.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_velocity_3d": {
-      "type": "enum",
-      "group-id": "40",
-      "default": "0",
-      "desc": "Shows your velocity as 3d vector and its projections (*GL ONLY*).",
-      "remarks": "See also show_velocity_3d_offset_forward, show_velocity_3d_offset_down.",
-      "values": [
-        {
-          "description": "off (default)",
-          "name": "0"
-        },
-        {
-          "description": "velocity and projections.",
-          "name": "1"
-        },
-        {
-          "description": "only horizontal velocity and projections.",
-          "name": "2"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_velocity_3d_offset_down": {
-      "type": "integer",
-      "group-id": "40",
-      "default": "5",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "show_velocity_3d_offset_forward": {
-      "type": "float",
-      "group-id": "40",
-      "default": "2.5",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "showdrop": {
-      "type": "boolean",
-      "group-id": "40",
-      "default": "0",
-      "values": [
-        {
-          "description": "Disable text dump printing dropped packets.",
-          "name": "false"
-        },
-        {
-          "description": "Enable text dump printing dropped packets.",
-          "name": "true"
-        }
-      ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29569,11 +29251,128 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "show_speed": {
+      "type": "enum",
+      "group-id": "40",
+      "default": "0",
+      "desc": "Displays a speed counter in the top right corner in the client's units (Horizontal velocity).\n\n320 - Normal walking speed.\n440 - Accel jump.\n450 - Bunnyhopping.",
+      "values": [
+        {
+          "description": "Off.",
+          "name": "0"
+        },
+        {
+          "description": "More accurate counter (Best used when LPB).",
+          "name": "1"
+        },
+        {
+          "description": "Predicted speed (Less laggy when HPB).",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "show_speed_x": {
+      "type": "float",
+      "group-id": "40",
+      "default": "-1",
+      "desc": "Determine where the show_speed is positioned on your screen on the X co-ordinate.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "show_speed_y": {
+      "type": "float",
+      "group-id": "40",
+      "default": "1",
+      "desc": "Determine where the show_speed is positioned on your screen on the Y co-ordinate.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "showturtle": {
       "type": "float",
       "group-id": "40",
       "default": "0",
       "desc": "Sets the value at which the turtle icon will be displayed. For example, if showturtle is set to 70, the turtle will appear when the FPS drops to 70 or below.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "show_velocity_3d": {
+      "type": "enum",
+      "group-id": "40",
+      "default": "0",
+      "desc": "Shows your velocity as 3d vector and its projections (*GL ONLY*).",
+      "remarks": "See also show_velocity_3d_offset_forward, show_velocity_3d_offset_down.",
+      "values": [
+        {
+          "description": "off (default)",
+          "name": "0"
+        },
+        {
+          "description": "velocity and projections.",
+          "name": "1"
+        },
+        {
+          "description": "only horizontal velocity and projections.",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "show_velocity_3d_offset_down": {
+      "type": "integer",
+      "group-id": "40",
+      "default": "5",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "show_velocity_3d_offset_forward": {
+      "type": "float",
+      "group-id": "40",
+      "default": "2.5",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_inputdevice": {
+      "type": "boolean",
+      "group-id": "0",
+      "default": "0",
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "s_khz": {
+      "type": "enum",
+      "group-id": "45",
+      "default": "11",
+      "desc": "Sets the audio sampling rate.\nIn ezQuake, this introduces artifacts which give a \"crisper\"/\"grainy\" feel to some sounds, as the interpolation is not perfect. All the original sounds are 11k, except for shaft which is 22k and will sound different when setting s_khz over 11.",
+      "remarks": "If you dislike the changes in sound, you can i.e. convert the shaft sounds down to 11k (and fail \"f_modified\" checks), go back to s_khz 11, or use s_linearresample for perfect resampling.",
+      "values": [
+        {
+          "description": "11kHz sound (default).",
+          "name": "11"
+        },
+        {
+          "description": "22kHz sound.",
+          "name": "22"
+        },
+        {
+          "description": "44kHz sound.",
+          "name": "44"
+        },
+        {
+          "description": "48kHz sound.",
+          "name": "48"
+        }
+      ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29614,6 +29413,121 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "s_linearresample": {
+      "type": "enum",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Controls whether to resample sounds to s_khz with perfect quality. This cleans up any artifacts resulting from the default interpolation.",
+      "remarks": "Resampling takes place as the sounds are loaded.",
+      "values": [
+        {
+          "description": "No linear resampling.",
+          "name": "0"
+        },
+        {
+          "description": "Linear resampling when upsampling only.",
+          "name": "1"
+        },
+        {
+          "description": "Linear resampling when downsampling and upsampling.",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_linearresample_stream": {
+      "type": "integer",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Same as s_linearresample, but specifically for VOIP audio streams.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_loadas8bit": {
+      "type": "boolean",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Reduce sound samples down to 8-bit at load time, trading quality for lower memory usage.",
+      "remarks": "This used to help with performance on systems with low memory.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_mm1_file": {
+      "type": "string",
+      "group-id": "45",
+      "default": "misc/talk.wav",
+      "desc": "You can specify notification sound for messagemode1 (/messagemode or /say foo) messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_mm1_volume": {
+      "type": "float",
+      "group-id": "45",
+      "default": "1",
+      "desc": "You can specify volume of notification sound for messagemode1 (/messagemode or /say foo) messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_mm2_file": {
+      "type": "string",
+      "group-id": "45",
+      "default": "misc/talk.wav",
+      "desc": "You can specify notification sound for messagemode2 (/messagemode2 or /say_team foo) messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_mm2_volume": {
+      "type": "float",
+      "group-id": "45",
+      "default": "1",
+      "desc": "You can specify volume of notification sound for messagemode2 (/messagemode2 or /say_team foo) messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_nosound": {
+      "type": "boolean",
+      "group-id": "45",
+      "default": "0",
+      "values": [
+        {
+          "description": "Enable the playback of sounds.",
+          "name": "false"
+        },
+        {
+          "description": "Disable the playback of sounds.\nNote that it effectively just resets sound volume to zero, but the sound engine still runs.\nIf you want disable sound in order to get more fps, use the -nosound command line option instead.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_otherchat_file": {
+      "type": "string",
+      "group-id": "45",
+      "default": "misc/talk.wav",
+      "desc": "You can specify notification sound for other messages (than messagemode, messagemode2 and from spectators).",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_otherchat_volume": {
+      "type": "float",
+      "group-id": "45",
+      "default": "1",
+      "desc": "You can specify volume of notification sound for other messages (than messagemode, messagemode2 and from spectators).",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "spectator": {
       "type": "boolean",
       "group-id": "37",
@@ -29638,6 +29552,34 @@
       "default": "",
       "server-only": true,
       "desc": "A password spectators must use to connect to local server.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_precache": {
+      "type": "boolean",
+      "group-id": "45",
+      "default": "1",
+      "values": [
+        {
+          "description": "Disable automatic sound caching.",
+          "name": "false"
+        },
+        {
+          "description": "Enable automatic sound caching.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_raw_volume": {
+      "type": "float",
+      "group-id": "45",
+      "default": "1",
+      "desc": "Controls volume of voice (voip) playback.",
+      "remarks": "See cl_voip_play.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29693,6 +29635,84 @@
           "name": "pcx"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_show": {
+      "type": "enum",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Toggles displaying how many and/or which sound files are currently being played.",
+      "values": [
+        {
+          "description": "Do not show anything.",
+          "name": "0"
+        },
+        {
+          "description": "Print the number of sounds playing.",
+          "name": "1"
+        },
+        {
+          "description": "Print the volume in left/right speakers, name of sound file playing, and number of sounds playing.",
+          "name": "2"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_silent_racing": {
+      "type": "boolean",
+      "group-id": "45",
+      "default": "0",
+      "desc": "Toggles whether or not you can hear other players when racing.",
+      "source_state": "source_backed",
+      "first_seen_version": "3.2",
+      "last_seen_version": "head"
+    },
+    "s_spec_file": {
+      "type": "string",
+      "group-id": "45",
+      "default": "misc/talk.wav",
+      "desc": "You can specify notification sound for spectator messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_spec_volume": {
+      "type": "float",
+      "group-id": "45",
+      "default": "1",
+      "desc": "You can specify volume of notification sound for spectator messages.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_stereo": {
+      "type": "boolean",
+      "group-id": "26",
+      "desc": "Use stereo or mono sound.",
+      "remarks": "Linux only.\nUse s_restart after you change it.",
+      "values": [
+        {
+          "description": "Mono.",
+          "name": "false"
+        },
+        {
+          "description": "Stereo.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head",
+      "retired_at_version": "3.2"
+    },
+    "s_swapstereo": {
+      "type": "boolean",
+      "group-id": "45",
+      "default": "0",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -32156,158 +32176,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "v_gunkick": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0",
-      "desc": "Kickback effect when the weapon is fired.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_idlescale": {
-      "type": "integer",
-      "group-id": "53",
-      "default": "0",
-      "desc": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_ipitch_cycle": {
-      "type": "float",
-      "group-id": "53",
-      "default": "1",
-      "desc": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_ipitch_level": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.3",
-      "desc": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_iroll_cycle": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.5",
-      "desc": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_iroll_level": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.1",
-      "desc": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_iyaw_cycle": {
-      "type": "float",
-      "group-id": "53",
-      "default": "2",
-      "desc": "Sets how quickly you look left and right when v_idlescale is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_iyaw_level": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.3",
-      "desc": "Sets how far you look left and right when v_idlescale is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_kickpitch": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.0",
-      "desc": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
-      "remarks": "v_kicktime must be >0 for this to take effect.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_kickroll": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.0",
-      "desc": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
-      "remarks": "v_kicktime must be >0 for this to take effect.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_kicktime": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0.0",
-      "desc": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_pentcshift": {
-      "type": "float",
-      "group-id": "39",
-      "default": "0.5",
-      "desc": "This variable (0..1) will add a temporary red hue to your screen if you are carry the Pent powerup. Requires gl_polyblend 1.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_quadcshift": {
-      "type": "float",
-      "group-id": "39",
-      "default": "0.5",
-      "desc": "This variable (0..1) will add a temporary blue hue to your screen if you are carry the Quad powerup. Requires gl_polyblend 1.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_ringcshift": {
-      "type": "float",
-      "group-id": "39",
-      "default": "0.5",
-      "desc": "This variable (0..1) will add a temporary yellow hue to your screen if you are carry the Ring powerup. Requires gl_polyblend 1.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_suitcshift": {
-      "type": "float",
-      "group-id": "39",
-      "default": "0.5",
-      "desc": "This variable (0..1) will add a temporary green hue to your screen if you are carry the Suit powerup. Requires gl_polyblend 1.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "v_viewheight": {
-      "type": "float",
-      "group-id": "53",
-      "default": "0",
-      "desc": "New variable v_viewheight can be used to get the effect of negative/zero values \nof cl_bobcycle etc in qw 2.33.\nNegative values of v_viewheight = lower viewheight, \npositive = higher.\nCan't go below -7 or above 4 because that's the range you can get with qw 2.33 by exploiting the bob cycle bug.\n\nUsing v_viewheight automatically turns off weapon model bobbing (cl_bob*).",
-      "values": [
-        {
-          "description": "Range -7 to 4.",
-          "name": "*"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "version": {
       "type": "string",
       "group-id": "43",
@@ -32315,6 +32183,15 @@
       "server-only": true,
       "source_state": "source_backed",
       "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "v_gunkick": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0",
+      "desc": "Kickback effect when the weapon is fired.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "vid_24bit_depth": {
@@ -32700,14 +32577,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_gamma_workaround": {
-      "type": "boolean",
-      "group-id": "52",
-      "default": "1",
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
     "vid_gammacorrection": {
       "type": "enum",
       "group-id": "52",
@@ -32728,6 +32597,14 @@
       ],
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "vid_gamma_workaround": {
+      "type": "boolean",
+      "group-id": "52",
+      "default": "1",
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
     "vid_gl_core_profile": {
@@ -32778,26 +32655,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vid_hwgamma_fps": {
-      "type": "integer",
-      "group-id": "39",
-      "default": "60",
-      "desc": "Controls the frequency of hardware gamma updates per second. These updates have a performance cost, so it is preferred to not update every frame when playing at thousands of FPS.",
-      "remarks": "This can really hurt performance on screen flashing effects, i.e when taking damage - the worst moment to suffer framerate dips!",
-      "values": [
-        {
-          "description": "Update hardware gamma every frame.",
-          "name": "0"
-        },
-        {
-          "description": "Update hardware gamma at the specified frame rate.",
-          "name": "*"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
     "vid_hwgammacontrol": {
       "type": "enum",
       "group-id": "52",
@@ -32820,6 +32677,35 @@
           "name": "3"
         }
       ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "vid_hwgamma_fps": {
+      "type": "integer",
+      "group-id": "39",
+      "default": "60",
+      "desc": "Controls the frequency of hardware gamma updates per second. These updates have a performance cost, so it is preferred to not update every frame when playing at thousands of FPS.",
+      "remarks": "This can really hurt performance on screen flashing effects, i.e when taking damage - the worst moment to suffer framerate dips!",
+      "values": [
+        {
+          "description": "Update hardware gamma every frame.",
+          "name": "0"
+        },
+        {
+          "description": "Update hardware gamma at the specified frame rate.",
+          "name": "*"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "v_idlescale": {
+      "type": "integer",
+      "group-id": "53",
+      "default": "0",
+      "desc": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -33077,6 +32963,24 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "v_ipitch_cycle": {
+      "type": "float",
+      "group-id": "53",
+      "default": "1",
+      "desc": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_ipitch_level": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.3",
+      "desc": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "vip_password": {
       "type": "string",
       "group-id": "43",
@@ -33095,6 +32999,71 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "v_iroll_cycle": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.5",
+      "desc": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_iroll_level": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.1",
+      "desc": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_iyaw_cycle": {
+      "type": "float",
+      "group-id": "53",
+      "default": "2",
+      "desc": "Sets how quickly you look left and right when v_idlescale is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_iyaw_level": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.3",
+      "desc": "Sets how far you look left and right when v_idlescale is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_kickpitch": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.0",
+      "desc": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
+      "remarks": "v_kicktime must be >0 for this to take effect.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_kickroll": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.0",
+      "desc": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
+      "remarks": "v_kicktime must be >0 for this to take effect.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_kicktime": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0.0",
+      "desc": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "vm_rtchecks": {
       "type": "boolean",
       "group-id": "0",
@@ -33109,6 +33078,78 @@
       "default": "0.7",
       "desc": "Sets sound volume.",
       "remarks": "This can go above 1, but sound will get more and more distorted.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_pentcshift": {
+      "type": "float",
+      "group-id": "39",
+      "default": "0.5",
+      "desc": "This variable (0..1) will add a temporary red hue to your screen if you are carry the Pent powerup. Requires gl_polyblend 1.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_quadcshift": {
+      "type": "float",
+      "group-id": "39",
+      "default": "0.5",
+      "desc": "This variable (0..1) will add a temporary blue hue to your screen if you are carry the Quad powerup. Requires gl_polyblend 1.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_ringcshift": {
+      "type": "float",
+      "group-id": "39",
+      "default": "0.5",
+      "desc": "This variable (0..1) will add a temporary yellow hue to your screen if you are carry the Ring powerup. Requires gl_polyblend 1.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_suitcshift": {
+      "type": "float",
+      "group-id": "39",
+      "default": "0.5",
+      "desc": "This variable (0..1) will add a temporary green hue to your screen if you are carry the Suit powerup. Requires gl_polyblend 1.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "v_viewheight": {
+      "type": "float",
+      "group-id": "53",
+      "default": "0",
+      "desc": "New variable v_viewheight can be used to get the effect of negative/zero values \nof cl_bobcycle etc in qw 2.33.\nNegative values of v_viewheight = lower viewheight, \npositive = higher.\nCan't go below -7 or above 4 because that's the range you can get with qw 2.33 by exploiting the bob cycle bug.\n\nUsing v_viewheight automatically turns off weapon model bobbing (cl_bob*).",
+      "values": [
+        {
+          "description": "Range -7 to 4.",
+          "name": "*"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "watervis": {
+      "type": "boolean",
+      "group-id": "43",
+      "default": "0",
+      "server-only": true,
+      "desc": "This server-side cvar is mirrored to serverinfo as a hint to clients on whether the server is using the so-called watervised maps.",
+      "remarks": "It's a bad idea to use watervis 1 if the maps the server is using are not watervised.\nLiquids will appear 'transparent' but you won't be able to see any items/players/etc through it.\nIt is a bad idea anyway because Quake maps were not designed for transparent water (or other liquids); enabling it changes gameplay, decreases fps and produces more network traffic and puts non-GL players at a disadvantage because the software renderer doesn't support transparent water (yet).\nNot saved to config with cfg_save command.",
+      "values": [
+        {
+          "description": "No watervis.",
+          "name": "false"
+        },
+        {
+          "description": "GLQuake users can see through liquids if they set gl_turbalpha to a value < 1.",
+          "name": "true"
+        }
+      ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -33150,27 +33191,6 @@
         {
           "description": "ThunderBolt.",
           "name": "8"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "watervis": {
-      "type": "boolean",
-      "group-id": "43",
-      "default": "0",
-      "server-only": true,
-      "desc": "This server-side cvar is mirrored to serverinfo as a hint to clients on whether the server is using the so-called watervised maps.",
-      "remarks": "It's a bad idea to use watervis 1 if the maps the server is using are not watervised.\nLiquids will appear 'transparent' but you won't be able to see any items/players/etc through it.\nIt is a bad idea anyway because Quake maps were not designed for transparent water (or other liquids); enabling it changes gameplay, decreases fps and produces more network traffic and puts non-GL players at a disadvantage because the software renderer doesn't support transparent water (yet).\nNot saved to config with cfg_save command.",
-      "values": [
-        {
-          "description": "No watervis.",
-          "name": "false"
-        },
-        {
-          "description": "GLQuake users can see through liquids if they set gl_turbalpha to a value < 1.",
-          "name": "true"
         }
       ],
       "source_state": "source_backed",

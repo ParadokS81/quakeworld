@@ -48,7 +48,10 @@ export function buildInfoKeyVersionRow(
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,
     containing_function: ast?.containing_function ?? null,
-    call_sites_json: ast?.all_call_sites ? JSON.stringify(ast.all_call_sites) : null,
+    // JSONB column. Pass the JS array directly so postgres-js encodes as JSONB array,
+    // not JSONB string (legacy SQLite-era TEXT bug). NOTE: `operations` above is TEXT,
+    // so its JSON.stringify is correct.
+    call_sites_json: ast?.all_call_sites ?? null,
     raw_ast_hash,
     // MVDSV entries don't carry source_root (single-engine project, NULL =
     // "engine" per SCHEMA.md semantics). info_key is MVDSV-only today.

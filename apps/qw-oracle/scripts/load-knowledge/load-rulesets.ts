@@ -42,7 +42,9 @@ export function buildRulesetVersionRow(
     restrict_setcalc: intToBool(ast?.restrict_setcalc),
     restrict_seteval: intToBool(ast?.restrict_seteval),
     restrict_setex: intToBool(ast?.restrict_setex),
-    locked_cvars_json: ast?.locked_cvars ? JSON.stringify(ast.locked_cvars) : null,
+    // JSONB column. Pass the JS array directly so postgres-js encodes as JSONB array,
+    // not JSONB string (legacy SQLite-era TEXT bug).
+    locked_cvars_json: ast?.locked_cvars ?? null,
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,
     raw_ast_hash,

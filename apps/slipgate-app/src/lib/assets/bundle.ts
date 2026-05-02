@@ -31,7 +31,7 @@ export type AssetPathRule = {
   ordinal: number;
   description: string;
   source_ref: string;
-  source_verified: number;
+  source_verified: boolean;
   notes: string | null;
 };
 
@@ -57,7 +57,7 @@ export type AssetLoaderSite = {
   path_literal: string | null;
   path_cvar_id: string | null;
   confidence: "certain" | "heuristic" | "unclassified" | string;
-  dev_only: number;
+  dev_only: boolean;
 };
 
 export type AssetBundle = {

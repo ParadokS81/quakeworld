@@ -1,6 +1,6 @@
 {
   "project": "ezquake",
-  "version": "3.6.9",
+  "version": "head",
   "client_defaults": {
     "screenshot_filename_prefixes": [
       "ezquake"

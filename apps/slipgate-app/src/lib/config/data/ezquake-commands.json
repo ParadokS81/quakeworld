@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-04-30T23:24:39.244Z",
-  "oracle_commit": "f5b2a49257b9ba215446179f8fae1f2455662f81",
+  "generated_at": "2026-05-02T17:14:46.522Z",
+  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -64,358 +64,6 @@
     }
   ],
   "commands": {
-    "+attack": {
-      "group-id": "action",
-      "desc": "When active the player will fire the weapon he is currently holding.\nThis is the primary command used to make the player fire the gun.\nFor as long as the key that is bound to this command is held down and this command is active the player will keep on firing the gun.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+attack2": {
-      "group-id": "action",
-      "desc": "Secondary attack button.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+back": {
-      "group-id": "action",
-      "desc": "When active the player will move backwards.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+cl_wp_stats": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+fire": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+fire_ar": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "+forward": {
-      "group-id": "action",
-      "desc": "When active the player will move forward.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+jump": {
-      "group-id": "action",
-      "desc": "When active the player will do a single jump. The next jump won't be performed until \"-jump\" has been issued.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+klook": {
-      "group-id": "action",
-      "desc": "When active, \"+forward\" and \"+back\" become \"+lookup\" and \"+lookdown\"  respectively.\nThis command is useful if the player needs to look at objects which are above or below him.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+left": {
-      "group-id": "action",
-      "desc": "When active the player will turn left.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+lookdown": {
-      "group-id": "action",
-      "desc": "When active the player will look down.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+lookup": {
-      "group-id": "action",
-      "desc": "When active the player will look up.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+mlook": {
-      "group-id": "action",
-      "desc": "When active moving the mouse or joystick forwards and backwards performs \"+lookup\" and \"+lookdown\" respectively.\nThis command is very useful if the player needs to look at objects which are above or below him.\nMost players execute this command and never remove it. This way they can use the keyboard to move the player forward and back and strafe left and right, while using the mouse to turn the player left and right and to make him look up and down.\nIn order to have this command set permanently you will have to create a file called autoexec.cfg in the qw/ directory and put in the line \"+mlook\" into that file.\nBy doing this the game will automatically execute the autoexec.cfg file and it will also active that command.\nAlmost every player uses this command nowadays, because the combination of using mouse and keyboard is widely considered the best.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+movedown": {
-      "group-id": "action",
-      "desc": "When active the player will swim down when in the water.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+moveleft": {
-      "group-id": "action",
-      "desc": "When active the player will strafe left.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+moveright": {
-      "group-id": "action",
-      "desc": "When active the player will strafe right.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+moveup": {
-      "group-id": "action",
-      "desc": "When active the player will swim up when in the water.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+qtv_delay": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "+right": {
-      "group-id": "action",
-      "desc": "When active the player will turn right.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+showscores": {
-      "group-id": "action",
-      "desc": "Display scoreboard.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+showteamscores": {
-      "group-id": "action",
-      "desc": "Display team scoreboard.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+speed": {
-      "group-id": "action",
-      "desc": "When active the player will run.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+strafe": {
-      "group-id": "action",
-      "desc": "When active, \"+left\" and \"+right\" function like \"+moveleft\" and \"+moveright\", strafing in that direction.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+use": {
-      "group-id": "action",
-      "desc": "When used it will activate objects in the game that have been designed to react at \"+use\"",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "+voip": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
-    "+zoom": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-attack": {
-      "group-id": "action",
-      "desc": "When used the player will stop firing the gun if \"+attack\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-attack2": {
-      "group-id": "action",
-      "desc": "Secondary attack button.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-back": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving back if \"+back\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-cl_wp_stats": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-fire": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-fire_ar": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "-forward": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving forward if \"+forward\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-jump": {
-      "group-id": "action",
-      "desc": "When used the player will stop jumping if \"+jump\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-klook": {
-      "group-id": "action",
-      "desc": "When used the forward and back keys will stop making the player look up and down if \"+klook\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-left": {
-      "group-id": "action",
-      "desc": "When used the player will stop turning left if \"+left\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-lookdown": {
-      "group-id": "action",
-      "desc": "When used the player will stop looking down if \"+lookdown\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-lookup": {
-      "group-id": "action",
-      "desc": "When used the player will stop looking up if \"+lookup\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-mlook": {
-      "group-id": "action",
-      "desc": "When used the mouse forward and back movement will stop making the player look up and down if \"+mlook\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-movedown": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving down if \"+movedown\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-moveleft": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving left if \"+moveleft\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-moveright": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving right if \"+moveright\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-moveup": {
-      "group-id": "action",
-      "desc": "When used the player will stop moving up if \"+moveup\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-qtv_delay": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "-right": {
-      "group-id": "action",
-      "desc": "When used the player will stop turning right if \"+right\" is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-showscores": {
-      "group-id": "action",
-      "desc": "When used the score screen will disappear if +showscores is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-showteamscores": {
-      "group-id": "action",
-      "desc": "When used the score screen will disappear if +showteamscores is active.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-speed": {
-      "group-id": "action",
-      "desc": "When used the player will walk.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-strafe": {
-      "group-id": "action",
-      "desc": "When used the turn left and turn right keys will once again perform their original functions.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-use": {
-      "group-id": "action",
-      "desc": "When used it will stop activating objects in the game that have been designed to react at \"+use\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "-voip": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
-    "-zoom": {
-      "group-id": "action",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "acc_block": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -475,19 +123,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "alias_in": {
-      "group-id": "misc",
-      "desc": "Inserts contents of variable into alias.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "alias_out": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "aliasedit": {
       "group-id": "misc",
       "desc": "Allows you to edit your alias in console manually.",
@@ -495,9 +130,22 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "alias_in": {
+      "group-id": "misc",
+      "desc": "Inserts contents of variable into alias.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "aliaslist": {
       "group-id": "misc",
       "desc": "Prints all aliases.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "alias_out": {
+      "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -527,6 +175,34 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+attack": {
+      "group-id": "action",
+      "desc": "When active the player will fire the weapon he is currently holding.\nThis is the primary command used to make the player fire the gun.\nFor as long as the key that is bound to this command is held down and this command is active the player will keep on firing the gun.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-attack": {
+      "group-id": "action",
+      "desc": "When used the player will stop firing the gun if \"+attack\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+attack2": {
+      "group-id": "action",
+      "desc": "Secondary attack button.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-attack2": {
+      "group-id": "action",
+      "desc": "Secondary attack button.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "authenticate": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -536,6 +212,20 @@
     "autotrack": {
       "group-id": "misc",
       "desc": "Toggles auto-tracking.\nAuto-tracking switches views for you when you are a spectator or when you are watching a demo or a broadcasted QTV match.\nIt chooses the best available autotrack - if you are spectator, looks for server-side command autotrack, if you are watching a demo or QTV stream, turns on both demo_autotrack and mvd_autotrack, mvd_autotrack will get turned off as soon as demo_autotrack data are found.\nAs a last resort if all previous autotrack are not available, cl_hightrack will be used.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+back": {
+      "group-id": "action",
+      "desc": "When active the player will move backwards.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-back": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving back if \"+back\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -675,19 +365,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_messages": {
-      "group-id": "misc",
-      "desc": "Prints amount and size of messages sent from server to ezQuake client.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cl_truelightning": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "clear": {
       "group-id": "misc",
       "desc": "This command clears the console screen of any text.",
@@ -707,6 +384,31 @@
       "desc": "Copies all the following arguments to the system clipboard",
       "source_state": "source_backed",
       "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "cl_messages": {
+      "group-id": "misc",
+      "desc": "Prints amount and size of messages sent from server to ezQuake client.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "cl_truelightning": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+cl_wp_stats": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-cl_wp_stats": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "cmd": {
@@ -734,6 +436,20 @@
       "group-id": "comm",
       "desc": "This command sets the color for the player's shirt and pants.",
       "remarks": "If only the shirt color is given, the pant color will match.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "connect": {
+      "group-id": "game",
+      "desc": "Connects your client to a QuakeWorld server.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "connectbr": {
+      "group-id": "misc",
+      "desc": "Connects to given server via fastest available path (ping-wise).",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -786,20 +502,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "connect": {
-      "group-id": "game",
-      "desc": "Connects your client to a QuakeWorld server.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "connectbr": {
-      "group-id": "misc",
-      "desc": "Connects to given server via fastest available path (ping-wise).",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "contrast": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -812,8 +514,28 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "cvaredit": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "cvar_in": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "cvarlist": {
+      "group-id": "dev",
+      "desc": "Print cvars.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "cvarlist_re": {
+      "group-id": "misc",
+      "desc": "This command same as cvarlist, but supports (perl) regexp matching.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -834,26 +556,6 @@
     "cvar_reset_re": {
       "group-id": "misc",
       "desc": "Resets cvar(s) matching the regex to default.\n\nExample:\ncvar_reset ^gl_.*\n- resets all gl_ settings to default values.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cvaredit": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "cvarlist": {
-      "group-id": "dev",
-      "desc": "Print cvars.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "cvarlist_re": {
-      "group-id": "misc",
-      "desc": "This command same as cvarlist, but supports (perl) regexp matching.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -994,6 +696,13 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
+    "devmap": {
+      "group-id": "misc",
+      "desc": "Try it in cheats mode, start a map (devmap dm6) and type fly.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "dev_physicsnormalsave": {
       "group-id": "dev",
       "source_state": "source_backed",
@@ -1018,13 +727,6 @@
       "remarks": "If a leak exists in the level, qbsp generates a non-zero .pts file in the maps directory.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "devmap": {
-      "group-id": "misc",
-      "desc": "Try it in cheats mode, start a map (devmap dm6) and type fly.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "dir": {
@@ -1111,27 +813,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "f_modified": {
-      "group-id": "misc",
-      "desc": "All the usual dm models, sounds, palettes etc are included in the check.\nIn Team Fortress the TF flag, dispensers and sentry guns are also checked. There is also an f_modified command which will print your f_modified response.",
-      "remarks": "You need to install security files.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "f_ruleset": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "f_server": {
-      "group-id": "misc",
-      "desc": "Prints proxies you are using.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "filter": {
       "group-id": "stateful",
       "desc": "Message filtering system. Only team messages are filtered.\nUse filter with no parameters to list current filters and filter clear to remove all filters.\n\nExample:\nfilter #a  say_team i can see this message #a.\nsay_team i can't see this message #d.",
@@ -1158,6 +839,30 @@
       "desc": "Update the database of the current players on all servers. Based on QTV.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+fire": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-fire": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+fire_ar": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-fire_ar": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
     "floodprot": {
@@ -1188,6 +893,14 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "f_modified": {
+      "group-id": "misc",
+      "desc": "All the usual dm models, sounds, palettes etc are included in the check.\nIn Team Fortress the TF flag, dispensers and sentry guns are also checked. There is also an f_modified command which will print your f_modified response.",
+      "remarks": "You need to install security files.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "fontlist": {
       "group-id": "misc",
       "desc": "Lists TrueType fonts available on the system.",
@@ -1209,9 +922,29 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+forward": {
+      "group-id": "action",
+      "desc": "When active the player will move forward.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-forward": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving forward if \"+forward\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "fraglogfile": {
       "group-id": "misc",
       "desc": "Enables logging of kills to a file.\nUseful for external frag polling programs.\nThe file name is frag_##.log",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "f_ruleset": {
+      "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1226,6 +959,13 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "f_server": {
+      "group-id": "misc",
+      "desc": "Prints proxies you are using.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "fs_loadpak": {
@@ -1515,6 +1255,13 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "ignorelist": {
+      "group-id": "misc",
+      "desc": "Prints ignore list.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "ignore_team": {
       "group-id": "misc",
       "desc": "Ignores a team instead of players.\n\nExample:\nignore_team nine\n - ignores whole clan nine.",
@@ -1528,13 +1275,6 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "ignorelist": {
-      "group-id": "misc",
-      "desc": "Prints ignore list.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "impulse": {
       "group-id": "misc",
       "desc": "This command calls a game function or QuakeC function.\nOften impulses are used by the mod by defining aliases for game functions like \"ready\" and \"break\" that call certain impulses.",
@@ -1542,15 +1282,15 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "in_restart": {
-      "group-id": "misc",
+    "inc": {
+      "group-id": "config",
+      "desc": "Increments a variable by one or adds to it the optional second argument.\nThere are no 'add' or 'dec' commands because 'inc' can handle both addition and subtraction.\n\nExample:\ninc sensitivity -2\n - subtracts 2 from sensitivity.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "inc": {
-      "group-id": "config",
-      "desc": "Increments a variable by one or adds to it the optional second argument.\nThere are no 'add' or 'dec' commands because 'inc' can handle both addition and subtraction.\n\nExample:\ninc sensitivity -2\n - subtracts 2 from sensitivity.",
+    "in_restart": {
+      "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1575,6 +1315,20 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+jump": {
+      "group-id": "action",
+      "desc": "When active the player will do a single jump. The next jump won't be performed until \"-jump\" has been issued.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-jump": {
+      "group-id": "action",
+      "desc": "When used the player will stop jumping if \"+jump\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "kick": {
       "group-id": "misc",
       "desc": "Removes a user from the server. Use the status command to receive the user's id.\n\nExample:\nkick 1234",
@@ -1585,6 +1339,34 @@
     "kill": {
       "group-id": "game",
       "desc": "Suicide. (-2 frags on ktpro/kteam servers)",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+klook": {
+      "group-id": "action",
+      "desc": "When active, \"+forward\" and \"+back\" become \"+lookup\" and \"+lookdown\"  respectively.\nThis command is useful if the player needs to look at objects which are above or below him.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-klook": {
+      "group-id": "action",
+      "desc": "When used the forward and back keys will stop making the player look up and down if \"+klook\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+left": {
+      "group-id": "action",
+      "desc": "When active the player will turn left.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-left": {
+      "group-id": "action",
+      "desc": "When used the player will stop turning left if \"+left\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1733,6 +1515,34 @@
     },
     "logtelnet": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+lookdown": {
+      "group-id": "action",
+      "desc": "When active the player will look down.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-lookdown": {
+      "group-id": "action",
+      "desc": "When used the player will stop looking down if \"+lookdown\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+lookup": {
+      "group-id": "action",
+      "desc": "When active the player will look up.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-lookup": {
+      "group-id": "action",
+      "desc": "When used the player will stop looking up if \"+lookup\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1888,6 +1698,20 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+mlook": {
+      "group-id": "action",
+      "desc": "When active moving the mouse or joystick forwards and backwards performs \"+lookup\" and \"+lookdown\" respectively.\nThis command is very useful if the player needs to look at objects which are above or below him.\nMost players execute this command and never remove it. This way they can use the keyboard to move the player forward and back and strafe left and right, while using the mouse to turn the player left and right and to make him look up and down.\nIn order to have this command set permanently you will have to create a file called autoexec.cfg in the qw/ directory and put in the line \"+mlook\" into that file.\nBy doing this the game will automatically execute the autoexec.cfg file and it will also active that command.\nAlmost every player uses this command nowadays, because the combination of using mouse and keyboard is widely considered the best.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-mlook": {
+      "group-id": "action",
+      "desc": "When used the mouse forward and back movement will stop making the player look up and down if \"+mlook\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "mod": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -1902,6 +1726,62 @@
     },
     "move": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+movedown": {
+      "group-id": "action",
+      "desc": "When active the player will swim down when in the water.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-movedown": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving down if \"+movedown\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+moveleft": {
+      "group-id": "action",
+      "desc": "When active the player will strafe left.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-moveleft": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving left if \"+moveleft\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+moveright": {
+      "group-id": "action",
+      "desc": "When active the player will strafe right.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-moveright": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving right if \"+moveright\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+moveup": {
+      "group-id": "action",
+      "desc": "When active the player will swim up when in the water.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-moveup": {
+      "group-id": "action",
+      "desc": "When used the player will stop moving up if \"+moveup\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1945,16 +1825,16 @@
       "first_seen_version": "3.2",
       "last_seen_version": "head"
     },
-    "mvd_remove_item": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "3.2",
-      "last_seen_version": "head"
-    },
     "mvdrecord": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "mvd_remove_item": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "3.2",
       "last_seen_version": "head"
     },
     "mvdstop": {
@@ -2102,6 +1982,18 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+qtv_delay": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
+    "-qtv_delay": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.6.0",
+      "last_seen_version": "head"
+    },
     "qtv_fixuser": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2109,6 +2001,12 @@
       "last_seen_version": "head"
     },
     "qtv_list": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "qtvplay": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
@@ -2126,6 +2024,12 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "qtvreconnect": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "qtv_status": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2133,18 +2037,6 @@
       "last_seen_version": "head"
     },
     "qtv_update": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "qtvplay": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "qtvreconnect": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
@@ -2172,48 +2064,6 @@
     "rcon": {
       "group-id": "comm",
       "desc": "Issue the set of commands to the server you are currently connected to or have set in rcon_address.\nYou must know the rcon password for that specific server.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger": {
-      "group-id": "misc",
-      "desc": "When used w/o parameter, prints a list of all triggers.\nWhen regexp is not defined prints options set for rt_name trigger; otherwise creates or changes rt_name trigger.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_delete": {
-      "group-id": "misc",
-      "desc": "Deletes the corresponding trigger.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_disable": {
-      "group-id": "misc",
-      "desc": "Disables activation of one or more triggers.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_enable": {
-      "group-id": "misc",
-      "desc": "Enables activation of one or more triggers.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_match": {
-      "group-id": "misc",
-      "desc": "Allows to direct a <string> to a trigger <trigger_name>. If this string match regexp, then a corresponding alias is activated.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "re_trigger_options": {
-      "group-id": "misc",
-      "desc": "Changes options for a corresponding trigger.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -2276,6 +2126,62 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
+    "re_trigger": {
+      "group-id": "misc",
+      "desc": "When used w/o parameter, prints a list of all triggers.\nWhen regexp is not defined prints options set for rt_name trigger; otherwise creates or changes rt_name trigger.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_delete": {
+      "group-id": "misc",
+      "desc": "Deletes the corresponding trigger.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_disable": {
+      "group-id": "misc",
+      "desc": "Disables activation of one or more triggers.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_enable": {
+      "group-id": "misc",
+      "desc": "Enables activation of one or more triggers.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_match": {
+      "group-id": "misc",
+      "desc": "Allows to direct a <string> to a trigger <trigger_name>. If this string match regexp, then a corresponding alias is activated.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "re_trigger_options": {
+      "group-id": "misc",
+      "desc": "Changes options for a corresponding trigger.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+right": {
+      "group-id": "action",
+      "desc": "When active the player will turn right.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-right": {
+      "group-id": "action",
+      "desc": "When used the player will stop turning right if \"+right\" is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "rm": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2297,18 +2203,6 @@
       "last_seen_version": "head"
     },
     "s_audiodevicelist": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_listdrivers": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "s_restart": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
@@ -2396,6 +2290,19 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "screenshot": {
+      "group-id": "video",
+      "desc": "Saves a still picture of current screen to your hard drive.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "script": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "scr_printspeed": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2430,19 +2337,6 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.1",
-      "last_seen_version": "head"
-    },
-    "screenshot": {
-      "group-id": "video",
-      "desc": "Saves a still picture of current screen to your hard drive.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "script": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "serverexec": {
@@ -2505,12 +2399,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "set_tp": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "setinfo": {
       "group-id": "misc",
       "desc": "Sets information about your FuhWorld user.\nUsed without a key it will list all of your current settings. Specifying a non-existent key and a value will create the new key.",
@@ -2525,14 +2413,48 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "set_tp": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "show": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+showscores": {
+      "group-id": "action",
+      "desc": "Display scoreboard.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-showscores": {
+      "group-id": "action",
+      "desc": "When used the score screen will disappear if +showscores is active.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "showskins": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+showteamscores": {
+      "group-id": "action",
+      "desc": "Display team scoreboard.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-showteamscores": {
+      "group-id": "action",
+      "desc": "When used the score screen will disappear if +showteamscores is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -2601,6 +2523,12 @@
       "first_seen_version": "3.6.6",
       "last_seen_version": "head"
     },
+    "s_listdrivers": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "snap": {
       "group-id": "misc",
       "desc": "Remote screenshot from a player.\n\nExample:\nsnap 1234\n - server requests remote screenshot from user 1234",
@@ -2641,6 +2569,26 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+speed": {
+      "group-id": "action",
+      "desc": "When active the player will run.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-speed": {
+      "group-id": "action",
+      "desc": "When used the player will walk.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "s_restart": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "status": {
       "group-id": "sb",
       "desc": "Reports information on the current connected clients and the server.",
@@ -2672,6 +2620,26 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.6.5",
+      "last_seen_version": "head"
+    },
+    "+strafe": {
+      "group-id": "action",
+      "desc": "When active, \"+left\" and \"+right\" function like \"+moveleft\" and \"+moveright\", strafing in that direction.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-strafe": {
+      "group-id": "action",
+      "desc": "When used the turn left and turn right keys will once again perform their original functions.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "svadmin": {
+      "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "sv_democancel": {
@@ -2796,12 +2764,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "svadmin": {
-      "group-id": "misc",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "tcpconnect": {
       "group-id": "misc",
       "desc": "Connects your client to a QuakeWorld server via TCP.",
@@ -2851,13 +2813,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "toggle_re": {
-      "group-id": "misc",
-      "desc": "You can turn variable values ON and OFF.\n\nExample:\ntoggle ^gl_part.* - turns all particle effects on/off.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "toggleconsole": {
       "group-id": "misc",
       "desc": "Brings the console up and down.",
@@ -2880,6 +2835,13 @@
     },
     "toggleproxymenu": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "toggle_re": {
+      "group-id": "misc",
+      "desc": "You can turn variable values ON and OFF.\n\nExample:\ntoggle ^gl_part.* - turns all particle effects on/off.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -3116,16 +3078,16 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "unalias_re": {
+    "unaliasall": {
       "group-id": "config",
-      "desc": "Deletes given alias(es).\n\nExample:\nunalias ^_zoom.\n - removes all aliases beginning with '_zoom', e.g. _zoom_in, _zoom_out",
+      "desc": "Removes all aliases.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "unaliasall": {
+    "unalias_re": {
       "group-id": "config",
-      "desc": "Removes all aliases.",
+      "desc": "Deletes given alias(es).\n\nExample:\nunalias ^_zoom.\n - removes all aliases beginning with '_zoom', e.g. _zoom_in, _zoom_out",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -3151,6 +3113,20 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "unignoreall": {
+      "group-id": "misc",
+      "desc": "Removes all users from ignore list.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "unignoreall_team": {
+      "group-id": "misc",
+      "desc": "Removes all ignored teams from ignore list.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "unignore_id": {
       "group-id": "misc",
       "desc": "Removes userid from ignore list.",
@@ -3171,20 +3147,6 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "unignoreall": {
-      "group-id": "misc",
-      "desc": "Removes all users from ignore list.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "unignoreall_team": {
-      "group-id": "misc",
-      "desc": "Removes all ignored teams from ignore list.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "unset": {
       "group-id": "config",
       "desc": "Removes user-created variable.",
@@ -3195,6 +3157,20 @@
     "unset_re": {
       "group-id": "misc",
       "desc": "Removes user-created variable.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+use": {
+      "group-id": "action",
+      "desc": "When used it will activate objects in the game that have been designed to react at \"+use\"",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-use": {
+      "group-id": "action",
+      "desc": "When used it will stop activating objects in the game that have been designed to react at \"+use\".",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -3317,6 +3293,18 @@
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
+    "+voip": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "-voip": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
     "wait": {
       "group-id": "config",
       "desc": "Adds one wait frame.",
@@ -3347,6 +3335,18 @@
     },
     "z_ext_list": {
       "group-id": "misc",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+zoom": {
+      "group-id": "action",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "-zoom": {
+      "group-id": "action",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"

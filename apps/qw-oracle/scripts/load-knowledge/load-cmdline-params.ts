@@ -38,8 +38,10 @@ export function buildCmdlineParamVersionRow(
     help_desc: entry.desc ?? null,
     help_remarks: entry.remarks ?? null,
     arguments: entry.arguments ?? null,
-    flags_json: entry.flags ? JSON.stringify(entry.flags) : null,
-    systems_json: entry.systems ? JSON.stringify(entry.systems) : null,
+    // JSONB columns. postgres-js auto-encodes the JS array as JSONB; pre-stringifying
+    // would store a JSONB string scalar (the legacy SQLite-era TEXT bug).
+    flags_json: entry.flags ?? null,
+    systems_json: entry.systems ?? null,
     source_file: sourceFile,
     source_line: sourceLine,
     source_column: primarySite?.source_column ?? ast?.source_column ?? null,
