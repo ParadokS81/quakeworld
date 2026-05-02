@@ -44,7 +44,6 @@ async function seed(): Promise<void> {
 
 describe('makeFloorCountProbe', () => {
   beforeEach(async () => { await seed(); });
-  afterAll(async () => { await sql.end(); });
 
   it('returns PASS when count matches expected', async () => {
     const probe = makeFloorCountProbe('fte', 'cvar', 2);
@@ -76,6 +75,7 @@ describe('makeFloorCountProbe', () => {
 
 describe('makeFloorSourceStateProbe', () => {
   beforeEach(async () => { await seed(); });
+  afterAll(async () => { await sql.end(); });
 
   it('returns PASS when source_state distribution matches', async () => {
     const probe = makeFloorSourceStateProbe('fte', 'cvar', { source_backed: 2 });

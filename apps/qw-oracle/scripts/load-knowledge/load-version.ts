@@ -305,7 +305,21 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
   const now = new Date().toISOString();
 
   const raw = readFileSync(options.jsonPath, 'utf-8');
-  const payload = JSON.parse(raw) as Record<string, unknown>;
+  // Postgres TEXT/JSONB reject the U+0000 NUL byte; SQLite accepted it. Some
+  // upstream sources (FTE C string literals via libclang) leak embedded NULs.
+  // Strip them at the JSON-parse boundary so they never reach an upsert.
+  const NUL_CHAR = String.fromCharCode(0);
+  const stripFn = (v: unknown): unknown => {
+    if (typeof v === 'string') return v.includes(NUL_CHAR) ? v.split(NUL_CHAR).join('') : v;
+    if (Array.isArray(v)) return v.map(stripFn);
+    if (v && typeof v === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const [k, val] of Object.entries(v)) out[k] = stripFn(val);
+      return out;
+    }
+    return v;
+  };
+  const payload = stripFn(JSON.parse(raw)) as Record<string, unknown>;
   const rawPayload = (payload as any)[adapter.payloadField];
   if (!rawPayload || typeof rawPayload !== 'object') {
     throw new Error(
@@ -682,6 +696,23 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     parseState: parseStateFinal,
     typeMismatchOrphansPruned: result.orphansPruned,
   };
+}
+
+// Recursively strip U+0000 NUL bytes from any string in a parsed-JSON tree.
+// Postgres TEXT and JSONB reject NULs; SQLite accepted them silently. The
+// strip is idempotent and lossless for any string that does not actually
+// contain a NUL.
+function stripNulBytes(v: unknown): unknown {
+  if (typeof v === 'string') {
+    return v.includes(' ') ? v.replace(/ /g, '') : v;
+  }
+  if (Array.isArray(v)) return v.map(stripNulBytes);
+  if (v && typeof v === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(v)) out[k] = stripNulBytes(val);
+    return out;
+  }
+  return v;
 }
 
 // Group dict entries by their lowercase key and merge case-variants. The two
