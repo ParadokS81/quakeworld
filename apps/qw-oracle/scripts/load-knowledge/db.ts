@@ -1,30 +1,23 @@
 // apps/qw-oracle/scripts/load-knowledge/db.ts
 //
-// Opens the knowledge DB at apps/qw-oracle/data/knowledge.db,
-// applies migrations, returns a better-sqlite3 handle.
-// Gitignored - regenerable from extractor JSON.
+// postgres-js Sql singleton for the Layer 1 loader. Connection URL comes
+// from DATABASE_URL; the default targets the local Phase-1 dev container
+// (apps/qw-oracle/db/docker-compose.dev.yml).
+//
+// Schema is owned by the migrator (db/migrations/), not this file. Run
+// `bun db/migrate.ts` before invoking the loader against a fresh DB.
 
-import Database from 'better-sqlite3';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import { mkdirSync } from 'fs';
-import { applySchema } from './schema.js';
+import postgres from 'postgres';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DEFAULT_DB_PATH = join(__dirname, '..', '..', 'data', 'knowledge.db');
+const DEFAULT_URL = 'postgresql://qworacle:dev@127.0.0.1:5432/qw_oracle';
 
-export function openKnowledgeDb(options: { path?: string; inMemory?: boolean } = {}): Database.Database {
-  const target = options.inMemory ? ':memory:' : (options.path ?? DEFAULT_DB_PATH);
+export const sql = postgres(process.env.DATABASE_URL ?? DEFAULT_URL, {
+  // The migrator-applied schema includes generated columns (entities.description_tsv);
+  // postgres-js's default notice handler is fine, but the loader prints its
+  // own progress lines and we don't want NOTICE chatter mixed in.
+  onnotice: () => {},
+});
 
-  if (!options.inMemory) {
-    mkdirSync(dirname(target), { recursive: true });
-  }
-
-  const db = new Database(target);
-  db.pragma('journal_mode = WAL');
-  db.pragma('synchronous = NORMAL');
-  db.pragma('foreign_keys = ON');
-
-  applySchema(db);
-  return db;
+export async function closeSql(): Promise<void> {
+  await sql.end();
 }

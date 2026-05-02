@@ -20,7 +20,7 @@ Phase 1 (Foundation) complete:
 - Postgres dev container running at `127.0.0.1:5432`, image `pgvector/pgvector:pg16`.
 - Migrator (`bun db/migrate.ts`) applies `.sql` files from `db/migrations/` in lexical order, tracking applied migrations in a `schema_migrations` (filename, applied_at, sha256) table.
 - `db/migrations/001_extensions_and_meta.sql` already landed: enables `pgvector`; creates `oracle_meta` (key, value) for the SQLite-equivalent metadata that load-version.ts writes (`schema_version`, `last_extraction_run_at`, etc.); does NOT create any Layer 1 tables.
-- Two databases exist on the same container: `qw_oracle_dev` (working DB) and `qw_oracle_test` (test DB). Both have extensions enabled.
+- Two databases exist on the same container: `qw_oracle` (working DB) and `qw_oracle_test` (test DB). Both have extensions enabled.
 - `package.json` carries `postgres` (postgres-js) as a runtime dep; `tsx` already removed; `bun` is the runtime for everything.
 - `apps/qw-oracle/db/` directory exists with `migrate.ts` + `migrations/` subdir.
 
@@ -177,13 +177,13 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
 - [ ] Run `bun scripts/generate-pg-migration.ts > db/migrations/002_layer1_schema.sql`.
 - [ ] Review the file end-to-end. Specifically eyeball: the entities CHECKs (project + type + source_state); the change_events `UNIQUE (entity_id, to_version, field_name, change_kind)` constraint (F6 - this is the diff pipeline's idempotency guarantee, and the legacy plan dropped it); the asset relation tables' FKs on `entities(canonical_id)` (D1); every `*_versions` table's `PRIMARY KEY (entity_id, version)` and FK to `entities(id)` (D1).
 - [ ] Walk every CHECK constraint in the file and confirm the enum values exactly match `schema.ts`. F2 is the named risk; the resolution is mechanical generation, but eyeball verification is the safety net before sub-agent verification.
-- [ ] Run `bun db/migrate.ts` against `qw_oracle_dev`. Expected: migration applied, `schema_migrations` row appended.
+- [ ] Run `bun db/migrate.ts` against `qw_oracle`. Expected: migration applied, `schema_migrations` row appended.
 - [ ] Run the same migrator against `qw_oracle_test`. Expected: same result.
 - [ ] If migration fails, do NOT edit the .sql file directly - fix the generator and re-emit. The .sql file is treated as build output until ship.
 
 **Verification:**
-- `psql qw_oracle_dev -c "\dt" | wc -l` returns 32 or more (header lines + at least 31 table rows; `oracle_meta` from Phase 1 plus the 30 emitted here equals 31).
-- `psql qw_oracle_dev -c "SELECT count(*) FROM schema_migrations"` returns >= 2 (001 + 002).
+- `psql qw_oracle -c "\dt" | wc -l` returns 32 or more (header lines + at least 31 table rows; `oracle_meta` from Phase 1 plus the 30 emitted here equals 31).
+- `psql qw_oracle -c "SELECT count(*) FROM schema_migrations"` returns >= 2 (001 + 002).
 
 ### Task 4: Add embedding + tsvector columns on entities
 
@@ -206,11 +206,11 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
   ```
 - [ ] tsvector config is `'english'` (D7 implication: Layer 1 entity descriptions are curated English content).
 - [ ] HNSW build parameters use Postgres defaults; tuning is deferred to Phase 5 / Phase 8 calibration.
-- [ ] Run `bun db/migrate.ts` against `qw_oracle_dev` and `qw_oracle_test`. Both should succeed; the HNSW index on an empty column is instantaneous.
+- [ ] Run `bun db/migrate.ts` against `qw_oracle` and `qw_oracle_test`. Both should succeed; the HNSW index on an empty column is instantaneous.
 
 **Verification:**
-- `psql qw_oracle_dev -c "\d entities"` shows the four new columns plus `description_tsv` (GENERATED).
-- `psql qw_oracle_dev -c "\di entities_desc*"` returns two indexes (`entities_desc_tsv_gin`, `entities_desc_embedding_hnsw`).
+- `psql qw_oracle -c "\d entities"` shows the four new columns plus `description_tsv` (GENERATED).
+- `psql qw_oracle -c "\di entities_desc*"` returns two indexes (`entities_desc_tsv_gin`, `entities_desc_embedding_hnsw`).
 
 ### Task 5: Per-table column-list diff against SQLite (F4 resolution)
 
@@ -222,7 +222,7 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
 **Steps:**
 - [ ] For each of the 30 generator-emitted tables, print the Postgres column list and the SQLite column list side by side. Use:
   ```
-  psql qw_oracle_dev -c "\d <table>"
+  psql qw_oracle -c "\d <table>"
   sqlite3 apps/qw-oracle/data/knowledge.db ".schema <table>"
   ```
 - [ ] Diff visually. Expected differences (acceptable):
@@ -246,7 +246,7 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
 - Modify: `apps/qw-oracle/scripts/load-knowledge/db.ts`
 
 **Steps:**
-- [ ] Rewrite `db.ts` to export a postgres-js `Sql` singleton. Connection URL from `DATABASE_URL` env var; default to `postgresql://qworacle:dev@127.0.0.1:5432/qw_oracle_dev` for local dev (the credentials Phase 1 set up). Bun's `process.env.DATABASE_URL` works directly.
+- [ ] Rewrite `db.ts` to export a postgres-js `Sql` singleton. Connection URL from `DATABASE_URL` env var; default to `postgresql://qworacle:dev@127.0.0.1:5432/qw_oracle` for local dev (the credentials Phase 1 set up). Bun's `process.env.DATABASE_URL` works directly.
 - [ ] Drop the `applySchema(db)` call - the migrator owns schema now (D3 implication).
 - [ ] Drop the `mkdirSync` for the data directory - Postgres has its own data path.
 - [ ] Drop the `pragma` calls (SQLite-only).
@@ -353,8 +353,8 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
 - [ ] When `entities.description` changes, set `entities.description_embedding_stale = TRUE` so Phase 5's embedding pipeline knows to re-embed. The UPDATE can do both columns in one statement using a `CASE WHEN <new> IS DISTINCT FROM <old> THEN TRUE ELSE description_embedding_stale END` guard. Simpler equivalent: always set stale = TRUE in the UPDATE; Phase 5's hash-based skip catches the no-op cases. Pick the simpler form.
 
 **Verification:**
-- After re-loading ezQuake head in Task 13, `psql qw_oracle_dev -c "SELECT count(*) FROM entities WHERE project='ezquake' AND type='cvar' AND description IS NOT NULL"` returns approximately 2901 (matches the cvar-with-help count documented in SCHEMA.md, allowing for the small subset of cvars with no help_desc).
-- `psql qw_oracle_dev -c "SELECT count(*) FROM entities WHERE description_tsv != ''::tsvector"` returns >= 8000 (most entities of types with help_desc).
+- After re-loading ezQuake head in Task 13, `psql qw_oracle -c "SELECT count(*) FROM entities WHERE project='ezquake' AND type='cvar' AND description IS NOT NULL"` returns approximately 2901 (matches the cvar-with-help count documented in SCHEMA.md, allowing for the small subset of cvars with no help_desc).
+- `psql qw_oracle -c "SELECT count(*) FROM entities WHERE description_tsv != ''::tsvector"` returns >= 8000 (most entities of types with help_desc).
 
 ### Task 11: Rewrite tests (D13)
 
@@ -513,7 +513,7 @@ The legacy SQLite chat store (`apps/qw-oracle/scripts/db.mjs`, `apps/qw-oracle/s
   - The derive helper is called automatically inside `loadVersion`, so this is satisfied by the load itself for the `last_seen_version` of each entity. No separate command needed.
 - [ ] Compare counts against the baseline. Use:
   ```
-  psql qw_oracle_dev -c "SELECT project, COUNT(*) FROM entities GROUP BY project ORDER BY project"
+  psql qw_oracle -c "SELECT project, COUNT(*) FROM entities GROUP BY project ORDER BY project"
   ```
   Expected: ezquake=4042, fte=3279, mvdsv=1236, qwcl=380. Mismatch >0.5% on any project triggers investigation.
 - [ ] Per-table row counts: spot-check the largest tables (`cvar_versions`, `source_state_transitions`, `source_overrides`, `asset_loader_sites`). Tolerance: same as entities (0.5%) for tables that are version-arc deterministic; loose tolerance (count >= baseline) for `source_state_transitions` (idempotency-key path may produce extra rows on first run).
@@ -528,35 +528,35 @@ Operator runs these queries from `apps/qw-oracle/` and eyeballs the output. PASS
 
 1. **All 31 tables present in dev DB.**
    ```
-   psql qw_oracle_dev -c "\dt" | grep -E "^ public" | wc -l
+   psql qw_oracle -c "\dt" | grep -E "^ public" | wc -l
    ```
    PASS condition: returns 31 (30 from migrations 002 + the `oracle_meta` from Phase 1's 001) plus a few system tables; the public-schema-table count line should print >= 31.
    FAIL condition: < 31. Re-run migrator; check `schema_migrations` for partially-applied migrations.
 
 2. **All 15 entity-type CHECK values present (F2 closure).**
    ```
-   psql qw_oracle_dev -c "SELECT pg_get_constraintdef(c.oid) FROM pg_constraint c JOIN pg_class t ON c.conrelid = t.oid WHERE t.relname = 'entities' AND c.contype = 'c' AND c.conname LIKE '%type%'"
+   psql qw_oracle -c "SELECT pg_get_constraintdef(c.oid) FROM pg_constraint c JOIN pg_class t ON c.conrelid = t.oid WHERE t.relname = 'entities' AND c.contype = 'c' AND c.conname LIKE '%type%'"
    ```
    PASS condition: the printed CHECK includes all 15 type values: cvar, command, macro, cmdline_param, keyname, hud_element, ruleset, token_primitive, asset_category, flag_bit, cvar_alias, protocol_message, info_key, log_template, qc_builtin.
    FAIL condition: missing values, OR plan-author values like `asset_consumption` or `cross_engine_alias` (those would mean the generator missed a SQLite value).
 
 3. **change_events idempotency UNIQUE in place (F6 closure).**
    ```
-   psql qw_oracle_dev -c "SELECT pg_get_constraintdef(c.oid) FROM pg_constraint c JOIN pg_class t ON c.conrelid = t.oid WHERE t.relname = 'change_events' AND c.contype = 'u'"
+   psql qw_oracle -c "SELECT pg_get_constraintdef(c.oid) FROM pg_constraint c JOIN pg_class t ON c.conrelid = t.oid WHERE t.relname = 'change_events' AND c.contype = 'u'"
    ```
    PASS condition: prints `UNIQUE (entity_id, to_version, field_name, change_kind)`.
    FAIL condition: no UNIQUE constraint listed.
 
 4. **Per-project entity counts match the baseline (F17 closure).**
    ```
-   psql qw_oracle_dev -c "SELECT project, COUNT(*) FROM entities GROUP BY project ORDER BY project"
+   psql qw_oracle -c "SELECT project, COUNT(*) FROM entities GROUP BY project ORDER BY project"
    ```
    PASS condition: ezquake=4042 (+/- 21), fte=3279 (+/- 16), mvdsv=1236 (+/- 6), qwcl=380 (+/- 2). The +/- envelopes are 0.5% rounded down.
    FAIL condition: anything outside the 0.5% envelope on any project.
 
 5. **entities.description populated (F7 + D6 closure).**
    ```
-   psql qw_oracle_dev -c "SELECT type, count(*) FILTER (WHERE description IS NOT NULL) AS with_desc, count(*) AS total FROM entities GROUP BY type ORDER BY type"
+   psql qw_oracle -c "SELECT type, count(*) FILTER (WHERE description IS NOT NULL) AS with_desc, count(*) AS total FROM entities GROUP BY type ORDER BY type"
    ```
    PASS condition: cvar / command / macro / cmdline_param / hud_element / asset_category have `with_desc` > 50% of total. ruleset / keyname / token_primitive / flag_bit / cvar_alias / protocol_message / info_key / log_template / qc_builtin may have `with_desc = total` (synthesised) or `with_desc = 0` (deliberate; per the Task 10 mapping); each type's pattern matches the mapping documented in Task 10.
    FAIL condition: cvar `with_desc` is 0 (description derivation never ran) OR ruleset/keyname `with_desc > 0` (synthesised when D6 mapping says NULL - safe but suggests an unintended derivation).
@@ -585,17 +585,17 @@ Operator runs these queries from `apps/qw-oracle/` and eyeballs the output. PASS
 9. **Loader is idempotent on re-run (D17 + arc-history claim).**
    ```
    cd apps/qw-oracle && bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version 3.6.9
-   psql qw_oracle_dev -c "SELECT count(*) FROM entities WHERE project='ezquake'"
+   psql qw_oracle -c "SELECT count(*) FROM entities WHERE project='ezquake'"
    # Run the same extract-tag again
    bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version 3.6.9
-   psql qw_oracle_dev -c "SELECT count(*) FROM entities WHERE project='ezquake'"
+   psql qw_oracle -c "SELECT count(*) FROM entities WHERE project='ezquake'"
    ```
    PASS condition: the two entity counts are identical.
    FAIL condition: counts differ - upsert logic somewhere is producing duplicates.
 
 ## Outputs to next phase
 
-Postgres `qw_oracle_dev` and `qw_oracle_test` databases each hold the full Layer 1 schema (31 tables) and `qw_oracle_dev` has the Layer 1 entity rows from every loaded extractor tag. `entities.description` is populated. `entities.description_embedding` and `entities.description_embedding_sha256` are NULL (Phase 5 fills them). The loader at `scripts/load-knowledge/` runs against Postgres only; SQLite knowledge.db is gone. `package.json` carries `postgres` and not `better-sqlite3`. `bun test` is green. Layer 2's SQLite store (`apps/qw-oracle/data/qw.db` and the `import-*.mjs` scripts) is untouched - that is Phase 3's input.
+Postgres `qw_oracle` and `qw_oracle_test` databases each hold the full Layer 1 schema (31 tables) and `qw_oracle` has the Layer 1 entity rows from every loaded extractor tag. `entities.description` is populated. `entities.description_embedding` and `entities.description_embedding_sha256` are NULL (Phase 5 fills them). The loader at `scripts/load-knowledge/` runs against Postgres only; SQLite knowledge.db is gone. `package.json` carries `postgres` and not `better-sqlite3`. `bun test` is green. Layer 2's SQLite store (`apps/qw-oracle/data/qw.db` and the `import-*.mjs` scripts) is untouched - that is Phase 3's input.
 
 ## Open questions / deferred items
 
@@ -621,17 +621,17 @@ Postgres `qw_oracle_dev` and `qw_oracle_test` databases each hold the full Layer
 
 ## Recovery (if verification fails)
 
-- **If verification step 1 (table count) fails:** Re-run `bun db/migrate.ts` against `qw_oracle_dev`. If the migrator says "all migrations applied," check `schema_migrations` for any rows with `applied_at IS NULL` (a partial commit). If found, drop the partial table(s) and re-run. If not found, the generator is missing a CREATE TABLE - inspect `db/migrations/002_layer1_schema.sql` against the schema.ts inventory.
+- **If verification step 1 (table count) fails:** Re-run `bun db/migrate.ts` against `qw_oracle`. If the migrator says "all migrations applied," check `schema_migrations` for any rows with `applied_at IS NULL` (a partial commit). If found, drop the partial table(s) and re-run. If not found, the generator is missing a CREATE TABLE - inspect `db/migrations/002_layer1_schema.sql` against the schema.ts inventory.
 
 - **If verification step 2 (CHECK enum) fails:** The generator missed a v15-era widening or hand-rewrote a CHECK that was already correct. Diff the generator's output against `schema.ts` for the entities table (search for `CREATE TABLE entities` in both). Fix the generator, regenerate, and apply the regenerated migration via `DROP TABLE entities CASCADE` on the dev DB followed by `bun db/migrate.ts`.
 
 - **If verification step 3 (change_events UNIQUE) fails:** Same recovery shape as step 2 - generator missed the UNIQUE clause. F6 explicitly calls this out; the schema.ts text has it on line 180.
 
-- **If verification step 4 (entity counts) fails:** A loaded tag is missing or a loader silently skipped rows. Run the per-tag loader for the project that drifted, with `--force` to overwrite. If the count is still wrong, run `psql qw_oracle_dev -c "SELECT project, type, count(*) FROM entities GROUP BY project, type ORDER BY project, type"` and compare against the per-type row inventory in Task 15. The per-type breakdown surfaces which adapter ran short.
+- **If verification step 4 (entity counts) fails:** A loaded tag is missing or a loader silently skipped rows. Run the per-tag loader for the project that drifted, with `--force` to overwrite. If the count is still wrong, run `psql qw_oracle -c "SELECT project, type, count(*) FROM entities GROUP BY project, type ORDER BY project, type"` and compare against the per-type row inventory in Task 15. The per-type breakdown surfaces which adapter ran short.
 
 - **If verification step 5 (description population) fails:** The derive step is bypassed. Search load-version.ts for the `await deriveEntityDescriptionsForVersion(...)` call; verify it is inside the txn, after the per-version row upsert loop, before the txn commit. Run derivation manually for a single (project, type, version) to confirm the SQL works:
   ```
-  psql qw_oracle_dev -c "UPDATE entities SET description = (SELECT help_desc FROM cvar_versions WHERE entity_id = entities.id AND version = entities.last_seen_version) WHERE project='ezquake' AND type='cvar' AND last_seen_version='head'"
+  psql qw_oracle -c "UPDATE entities SET description = (SELECT help_desc FROM cvar_versions WHERE entity_id = entities.id AND version = entities.last_seen_version) WHERE project='ezquake' AND type='cvar' AND last_seen_version='head'"
   ```
   If the manual SQL works but the loader's call does not, suspect a transaction-isolation bug.
 
