@@ -134,13 +134,25 @@ Cache this check's result in `oracle_meta` so it runs once per startup, not per 
 
 ---
 
-## D9. IRC encoding gap — explicit acceptance, not silent carry-forward
+## D9 (revised 2026-05-02). Layer 2 is Discord-only in Arc 1
 
-**Decision:** Layer 2 IRC import in Arc 1 ships with the **known corruption** of pre-2016 non-English content. This is documented in `apps/qw-oracle/CLAUDE.md` Layer 2 status section, in `OVERVIEW.md` if relevant, and noted in the phase MD as an accepted limitation. Re-import with correct codepage is Arc 3 work.
+**Decision:** Layer 2 corpus in Arc 1 covers **Discord only**. IRC is excluded entirely. The `messages.platform` column drops the `'irc'` enum value (or the column is removed entirely if a single-platform contract is cleaner). No IRC importer, no IRC parser, no mojibake baseline machinery, no `mirc-logs/` traversal.
 
-**Why:** Legacy plan said "v1 ships with whatever the existing .mjs script produced" — silent carry-forward. That's an accepted limitation, but it should be visible to the operator and to anyone querying Layer 2 search and getting empty hits for non-English queries.
+**Why:** IRC content is mostly low-signal noise (channel join/part, status messages, repetitive bot output) and pre-2016 non-English content is corrupted at the codepage level. Discord covers 9+ years of substantive community chatter and is the actual signal source for `search_solved_issues`. Carrying IRC forward through Arc 1 spends complexity budget on a corpus the operator doesn't intend to query.
 
-**Implication:** Phase 3 verification includes a query like `SELECT count(*) FROM messages WHERE platform = 'irc' AND content ~ '[^\x20-\x7E]'` to surface non-ASCII row counts; the phase doc records the number so future Arc 3 has a baseline.
+**Original D9 (deprecated):** The earlier version of D9 said "ship with the known IRC corruption, document it, defer the codepage re-import to Arc 3." That was a lesser fix; full exclusion is better. The deprecated text is preserved in git history (`d4f98c2`) for reference.
+
+**Implication for the redrafted Phase 3:**
+- `messages.platform` enum: `CHECK (platform = 'discord')`, or drop the column entirely.
+- Drop the `import-irc.ts` task and all IRC-shaped tests.
+- Drop the mojibake baseline verification gate.
+- Drop the `mirc-logs/` directory references in CLAUDE.md status prose; the Layer 2 status section now says "Discord-only; IRC deferred to Arc 3 alongside any future re-import work."
+- `search_solved_issues` (Phase 6) operates on a single-platform corpus — slight simplification.
+- Eval queries (Phase 8) cite Discord sessions only.
+
+**Reconsider in Arc 3** if and only if (a) the codepage re-import work makes IRC content trustworthy, AND (b) operator demand exists for IRC-era queries. Otherwise IRC stays out indefinitely.
+
+**F9 / F13 status under D9-revised:** F9 (English stemming on mixed-language chat) still resolves via `'simple'` config since Discord itself has multi-language content (Swedish / Russian / German names, etc.) — the decision text in D7 stands. F13 (IRC encoding gap) is **dissolved** — the gap doesn't apply to a corpus that doesn't contain IRC.
 
 ---
 

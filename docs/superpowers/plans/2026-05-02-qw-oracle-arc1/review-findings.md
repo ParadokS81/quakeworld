@@ -78,9 +78,9 @@ Findings are tagged with which decision in `decisions.md` resolves them. If a fi
 
 ### F9 — tsvector English stemming on mixed-language chat
 
-**Resolved by:** D7 (`'simple'` config for chat tsvectors).
+**Resolved by:** D7 (`'simple'` config for chat tsvectors). Still applies under D9-revised: Discord itself has multi-language content (Swedish / Russian / German handles and snippets), so `'simple'` config remains the right call even with IRC excluded.
 
-**Evidence:** Legacy plan used `to_tsvector('english', content)` on `messages` and `session_search`. Memory note `project_qw_oracle_irc_encoding_gap.md` documents substantial non-English IRC content. SQLite FTS5 was language-agnostic; English stemming is a regression for non-English corpus.
+**Evidence:** Legacy plan used `to_tsvector('english', content)` on `messages` and `session_search`. SQLite FTS5 was language-agnostic; English stemming is a regression for any non-English content in the corpus.
 
 ### F10 — Calibration → eval feedback loop overfits
 
@@ -104,9 +104,11 @@ Findings are tagged with which decision in `decisions.md` resolves them. If a fi
 
 ### F13 — IRC encoding gap silently preserved
 
-**Resolved by:** D9 (explicit acceptance, documented).
+**Status:** DISSOLVED by D9-revised (2026-05-02). IRC is excluded from Arc 1 entirely; the encoding gap doesn't apply to a corpus that doesn't contain IRC.
 
-**Evidence:** Legacy plan's Task 13 said "v1 ships with whatever the existing .mjs script produced." Memory `project_qw_oracle_irc_encoding_gap.md` documents the corruption. Decision: accept it for Arc 1, document it visibly, defer fix to Arc 3.
+**Original framing (kept for reference):** Legacy plan's Task 13 said "v1 ships with whatever the existing .mjs script produced." Memory `project_qw_oracle_irc_encoding_gap.md` documents the corruption. The original D9 said "accept it, document it, defer fix to Arc 3." The revised D9 goes further: drop IRC entirely.
+
+**Action for the Phase 3 redraft:** No mojibake baseline gate, no `import-irc.ts`, no IRC-shaped tests. The Phase 3 already-drafted (commit `81f84d4`) is superseded; redraft per the recovery prompt in `handoff-prompt.md`.
 
 ### F14 — Voyage shared-embedding-space unverified
 
@@ -154,7 +156,7 @@ Findings are tagged with which decision in `decisions.md` resolves them. If a fi
 |---|---|
 | Phase 1 (Foundation) | F5, F16 partial (constants relocation can start here) |
 | Phase 2 (Layer 1 port) | F1, F2, F3, F4, F6, F7, F15 (load-knowledge tests), F16, F17, F18 |
-| Phase 3 (Layer 2 port) | F9, F13 |
+| Phase 3 (Layer 2 port) | F9 (still applies — Discord has multi-language content); F13 dissolved by D9-revised (IRC excluded) |
 | Phase 4 (Layer 3 + graph) | (none — legacy plan got Layer 3 mostly right) |
 | Phase 5 (Embedding pipeline) | F14 |
 | Phase 6 (MCP rewrite) | F12, F15 (mcp tests) |

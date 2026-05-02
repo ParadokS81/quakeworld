@@ -1,5 +1,9 @@
 # Phase 3 - Layer 2 port
 
+> **SUPERSEDED 2026-05-02.** This draft was approved at review then superseded by `decisions.md` D9-revised: Layer 2 in Arc 1 is **Discord-only**; IRC is excluded entirely. Redraft pending. Use this file as reference for Discord-side shape only — drop the IRC importer (Task 4), the IRC-shaped tests, the mojibake baseline machinery (verification gate 5), and the `'irc'` platform value from the `messages.platform` enum. The redraft will land at the same path; this banner gets removed when the redraft commits.
+>
+> ---
+
 > **Drafter checklist before writing this phase:**
 > 1. Read `decisions.md` (full).
 > 2. Read `review-findings.md` and identify which findings apply to this phase (see "Phase ownership of findings" table).
