@@ -34,19 +34,20 @@
 
 ## Tech stack
 
-- **TypeScript + Node 20+ / Bun** for the Layer 1 loader (`scripts/load-knowledge/`).
-- **Plain .mjs scripts** for the Layer 2 corpus import (`scripts/import-*.mjs`, `scripts/stats.mjs`).
-- **better-sqlite3 11** for both stores; **ulid** for extractor-run IDs; **js-yaml** for seed ingestion.
+- **TypeScript + Bun** for the Layer 1 loader (`scripts/load-knowledge/`). Schema migrations applied by `db/migrate.ts` from `.sql` files in `db/migrations/`.
+- **Plain .mjs scripts** for the Layer 2 corpus import (`scripts/import-*.mjs`, `scripts/stats.mjs`); these still use `better-sqlite3` against `data/qw.db` until Phase 3 of Arc 1 ports them.
+- **PostgreSQL 16 + pgvector** for Layer 1 (`apps/qw-oracle/db/migrations/`); the loader and MCP-Layer-1 paths use **postgres-js**. `better-sqlite3` is still pulled in by the Layer 2 import scripts and the MCP server (`serve/mcp/`) until Phase 3 + Phase 6 of Arc 1 port them. **ulid** for extractor-run IDs; **js-yaml** for seed ingestion.
 - **Python 3 + libclang 18** for the engine-source extractors (live at `scripts/extractors/<project>/`; shared lib at `scripts/extractors/extractor_lib/`).
 
 ## Always-on rules
 
 - **npm `--no-workspaces` required** for add/install commands in this directory (monorepo setup).
-- **`tsx -e` cannot resolve relative paths** -- use a temp file inside `scripts/load-knowledge/` instead.
+- **Bun is the runtime** for everything under `scripts/load-knowledge/` and `db/`. CLI scripts use `bun scripts/.../index.ts` and rely on `import.meta.main` guards (Bun-only).
 - **Raw data is immutable** -- never modify imported Layer 2 messages; all derived processing regenerates from raw.
 - **Layer 1 extractors are idempotent** -- re-running against the same tag produces the same rows.
 - **Regression guards are load-bearing** -- `load-version` aborts when entity counts drop >50% without `--force`. Don't bypass.
 - **Source citation discipline** -- every Layer 1 row that can carry a `source_ref` must; every Layer 2 summary must trace back to message IDs; every Layer 3 claim cites code line / message ID / concept note.
-- **Schema evolution updates `SCHEMA.md`** -- schema changes update `SCHEMA.md` alongside the migration. Architecturally-significant changes (new entity-identity concepts, cross-cutting blame models, migrations that reshape how diffs work) additionally get a dated spec under root `docs/superpowers/specs/`. Small additive migrations don't need a spec -- `SCHEMA.md` + git history + `schema.ts` comments are enough.
+- **Schema evolution is append-only** -- new schema changes land as a new `db/migrations/<NNN>_<name>.sql` file (run via `bun db/migrate.ts`); never edit an applied migration. Update `SCHEMA.md` alongside. Architecturally-significant changes additionally get a dated spec under root `docs/superpowers/specs/`. Small additive migrations don't need a spec -- `SCHEMA.md` + git history + the `.sql` file's header comment are enough.
+- **JSONB columns receive JS values, not pre-stringified JSON** -- pass the JS array/object directly (or wrap with `tx.json(...)` for postgres-js type compliance); pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug). Probe `F1.jsonb_columns_not_strings` is the regression gate.
 - **Tag every generated output** with model + prompt version.
-- **Keep it simple** -- scripts over frameworks, SQLite over Postgres. Local-first processing -- minimise API costs, maximise iteration speed.
+- **Keep it simple** -- scripts over frameworks; Postgres for Layer 1 + Layer 2 (post-Phase-3); local-first processing -- minimise API costs, maximise iteration speed.
