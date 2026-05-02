@@ -23,7 +23,7 @@
 import type postgres from 'postgres';
 import type { EntityType, Project } from './types.js';
 
-type DeriveFn = (tx: postgres.Sql, project: Project, version: string) => Promise<void>;
+type DeriveFn = (tx: postgres.TransactionSql<{}>, project: Project, version: string) => Promise<void>;
 
 // Each helper updates entities.description for the (project, type, version)
 // triple via a single UPDATE statement. The WHERE filter keys on
@@ -31,7 +31,7 @@ type DeriveFn = (tx: postgres.Sql, project: Project, version: string) => Promise
 // at the version we just ingested -- older rows whose last_seen_version is
 // elsewhere are not disturbed.
 
-async function deriveCvar(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -46,7 +46,7 @@ async function deriveCvar(tx: postgres.Sql, project: Project, version: string): 
   `;
 }
 
-async function deriveCommand(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveCommand(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -61,7 +61,7 @@ async function deriveCommand(tx: postgres.Sql, project: Project, version: string
   `;
 }
 
-async function deriveMacro(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveMacro(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -76,7 +76,7 @@ async function deriveMacro(tx: postgres.Sql, project: Project, version: string):
   `;
 }
 
-async function deriveCmdlineParam(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveCmdlineParam(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -91,7 +91,7 @@ async function deriveCmdlineParam(tx: postgres.Sql, project: Project, version: s
   `;
 }
 
-async function deriveHudElement(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveHudElement(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -106,7 +106,7 @@ async function deriveHudElement(tx: postgres.Sql, project: Project, version: str
   `;
 }
 
-async function deriveAssetCategory(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveAssetCategory(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
       description = vt.description,
@@ -121,7 +121,7 @@ async function deriveAssetCategory(tx: postgres.Sql, project: Project, version: 
   `;
 }
 
-async function deriveTokenPrimitive(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveTokenPrimitive(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "<category> token <form>" e.g. "led token $B".
   await tx`
     UPDATE entities SET
@@ -137,7 +137,7 @@ async function deriveTokenPrimitive(tx: postgres.Sql, project: Project, version:
   `;
 }
 
-async function deriveFlagBit(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveFlagBit(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "<bitmask_family> <entity name>" e.g. "cvar_flag CVAR_USERINFO".
   await tx`
     UPDATE entities SET
@@ -153,7 +153,7 @@ async function deriveFlagBit(tx: postgres.Sql, project: Project, version: string
   `;
 }
 
-async function deriveCvarAlias(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveCvarAlias(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "alias of <target_canonical_id>; drift status: <default_drift_status>; freshness: <freshness_state>"
   // target_canonical_id may be NULL (resolution-deferred); fall back to target_name.
   await tx`
@@ -173,7 +173,7 @@ async function deriveCvarAlias(tx: postgres.Sql, project: Project, version: stri
   `;
 }
 
-async function deriveProtocolMessage(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveProtocolMessage(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "<kind> protocol message: <name>; value <value>; <trailing_comment>"
   await tx`
     UPDATE entities SET
@@ -192,7 +192,7 @@ async function deriveProtocolMessage(tx: postgres.Sql, project: Project, version
   `;
 }
 
-async function deriveInfoKey(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveInfoKey(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "<scope> info key: <bare_name>; ops <operations>"
   // bare_name = entity name with the trailing :<scope> suffix stripped.
   await tx`
@@ -211,7 +211,7 @@ async function deriveInfoKey(tx: postgres.Sql, project: Project, version: string
   `;
 }
 
-async function deriveLogTemplate(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveLogTemplate(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "<channel> log template: <format_string_normalized>"
   await tx`
     UPDATE entities SET
@@ -227,7 +227,7 @@ async function deriveLogTemplate(tx: postgres.Sql, project: Project, version: st
   `;
 }
 
-async function deriveQcBuiltin(tx: postgres.Sql, project: Project, version: string): Promise<void> {
+async function deriveQcBuiltin(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "qc_builtin <table_name>[<builtin_index>] -> <handler_fn>; <qc_signature>; <trailing_comment>"
   await tx`
     UPDATE entities SET
@@ -265,7 +265,7 @@ const DERIVE_BY_TYPE: Partial<Record<EntityType, DeriveFn>> = {
 };
 
 export async function deriveEntityDescriptionsForVersion(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   project: Project,
   type: EntityType,
   version: string,

@@ -12,7 +12,7 @@ export interface TransitionInput {
   extractor_run_id: string;
 }
 
-export async function logTransition(tx: postgres.Sql, input: TransitionInput): Promise<void> {
+export async function logTransition(tx: postgres.TransactionSql<{}>, input: TransitionInput): Promise<void> {
   await tx`
     INSERT INTO source_state_transitions
       (entity_id, from_state, to_state, reason, version_context, extractor_run_id, created_at)

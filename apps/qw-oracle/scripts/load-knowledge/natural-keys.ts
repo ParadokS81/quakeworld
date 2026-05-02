@@ -69,7 +69,7 @@ export function canonicalIdFor(project: Project, type: EntityType, name: string)
 // `extracted_at` semantics: most-recent extraction timestamp for this (project, version).
 // Overwritten on every re-run.
 export async function upsertVersion(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   row: VersionRow,
 ): Promise<{ id: number }> {
   const rows = await tx<{ id: number }[]>`
@@ -103,7 +103,7 @@ export interface UpsertEntityResult {
 }
 
 export async function upsertEntity(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   input: UpsertEntityInput,
 ): Promise<UpsertEntityResult> {
   // Token primitives are case-sensitive; everything else canonicalises to
@@ -149,7 +149,7 @@ export async function upsertEntity(
 }
 
 export async function setEntitySourceState(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   entityId: number,
   newState: SourceState,
 ): Promise<void> {
@@ -158,7 +158,7 @@ export async function setEntitySourceState(
 }
 
 export async function extendFirstSeenVersion(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   entityId: number,
   earlierVersion: string,
 ): Promise<void> {
@@ -174,7 +174,7 @@ export async function extendFirstSeenVersion(
 // teamplay_restricted, restrict_*, source_verified, dev_only) coerce 0/1 ints
 // to true/false at the upsert boundary.
 
-export async function upsertCvarVersion(tx: postgres.Sql, row: CvarVersionRow): Promise<void> {
+export async function upsertCvarVersion(tx: postgres.TransactionSql<{}>, row: CvarVersionRow): Promise<void> {
   await tx`
     INSERT INTO cvar_versions (
       entity_id, version,
@@ -214,7 +214,7 @@ export async function upsertCvarVersion(tx: postgres.Sql, row: CvarVersionRow): 
   `;
 }
 
-export async function upsertCommandVersion(tx: postgres.Sql, row: CommandVersionRow): Promise<void> {
+export async function upsertCommandVersion(tx: postgres.TransactionSql<{}>, row: CommandVersionRow): Promise<void> {
   await tx`
     INSERT INTO command_versions (
       entity_id, version,
@@ -242,7 +242,7 @@ export async function upsertCommandVersion(tx: postgres.Sql, row: CommandVersion
   `;
 }
 
-export async function upsertMacroVersion(tx: postgres.Sql, row: MacroVersionRow): Promise<void> {
+export async function upsertMacroVersion(tx: postgres.TransactionSql<{}>, row: MacroVersionRow): Promise<void> {
   await tx`
     INSERT INTO macro_versions (
       entity_id, version,
@@ -271,7 +271,7 @@ export async function upsertMacroVersion(tx: postgres.Sql, row: MacroVersionRow)
   `;
 }
 
-export async function upsertCmdlineParamVersion(tx: postgres.Sql, row: CmdlineParamVersionRow): Promise<void> {
+export async function upsertCmdlineParamVersion(tx: postgres.TransactionSql<{}>, row: CmdlineParamVersionRow): Promise<void> {
   await tx`
     INSERT INTO cmdline_param_versions (
       entity_id, version,
@@ -296,7 +296,7 @@ export async function upsertCmdlineParamVersion(tx: postgres.Sql, row: CmdlinePa
   `;
 }
 
-export async function upsertProtocolMessageVersion(tx: postgres.Sql, row: ProtocolMessageVersionRow): Promise<void> {
+export async function upsertProtocolMessageVersion(tx: postgres.TransactionSql<{}>, row: ProtocolMessageVersionRow): Promise<void> {
   await tx`
     INSERT INTO protocol_message_versions (
       entity_id, version, kind, value, value_kind,
@@ -320,7 +320,7 @@ export async function upsertProtocolMessageVersion(tx: postgres.Sql, row: Protoc
   `;
 }
 
-export async function upsertInfoKeyVersion(tx: postgres.Sql, row: InfoKeyVersionRow): Promise<void> {
+export async function upsertInfoKeyVersion(tx: postgres.TransactionSql<{}>, row: InfoKeyVersionRow): Promise<void> {
   await tx`
     INSERT INTO info_key_versions (
       entity_id, version, scope, operations,
@@ -344,7 +344,7 @@ export async function upsertInfoKeyVersion(tx: postgres.Sql, row: InfoKeyVersion
   `;
 }
 
-export async function upsertLogTemplateVersion(tx: postgres.Sql, row: LogTemplateVersionRow): Promise<void> {
+export async function upsertLogTemplateVersion(tx: postgres.TransactionSql<{}>, row: LogTemplateVersionRow): Promise<void> {
   await tx`
     INSERT INTO log_template_versions (
       entity_id, version, channel, format_string, format_string_normalized,
@@ -369,7 +369,7 @@ export async function upsertLogTemplateVersion(tx: postgres.Sql, row: LogTemplat
   `;
 }
 
-export async function upsertQcBuiltinVersion(tx: postgres.Sql, row: QcBuiltinVersionRow): Promise<void> {
+export async function upsertQcBuiltinVersion(tx: postgres.TransactionSql<{}>, row: QcBuiltinVersionRow): Promise<void> {
   await tx`
     INSERT INTO qc_builtin_versions (
       entity_id, version, table_name, builtin_index, handler_fn, qc_signature,
@@ -394,7 +394,7 @@ export async function upsertQcBuiltinVersion(tx: postgres.Sql, row: QcBuiltinVer
   `;
 }
 
-export async function upsertKeynameVersion(tx: postgres.Sql, row: KeynameVersionRow): Promise<void> {
+export async function upsertKeynameVersion(tx: postgres.TransactionSql<{}>, row: KeynameVersionRow): Promise<void> {
   await tx`
     INSERT INTO keyname_versions (
       entity_id, version, key_code, key_code_ident,
@@ -417,7 +417,7 @@ export async function upsertKeynameVersion(tx: postgres.Sql, row: KeynameVersion
   `;
 }
 
-export async function upsertHudElementVersion(tx: postgres.Sql, row: HudElementVersionRow): Promise<void> {
+export async function upsertHudElementVersion(tx: postgres.TransactionSql<{}>, row: HudElementVersionRow): Promise<void> {
   await tx`
     INSERT INTO hud_element_versions (
       entity_id, version, help_desc, hud_alias,
@@ -447,7 +447,7 @@ export async function upsertHudElementVersion(tx: postgres.Sql, row: HudElementV
   `;
 }
 
-export async function upsertRulesetVersion(tx: postgres.Sql, row: RulesetVersionRow): Promise<void> {
+export async function upsertRulesetVersion(tx: postgres.TransactionSql<{}>, row: RulesetVersionRow): Promise<void> {
   await tx`
     INSERT INTO ruleset_versions (
       entity_id, version, enum_ident, loader_fn, maxfps,
@@ -485,7 +485,7 @@ export async function upsertRulesetVersion(tx: postgres.Sql, row: RulesetVersion
   `;
 }
 
-export async function upsertTokenPrimitiveVersion(tx: postgres.Sql, row: TokenPrimitiveVersionRow): Promise<void> {
+export async function upsertTokenPrimitiveVersion(tx: postgres.TransactionSql<{}>, row: TokenPrimitiveVersionRow): Promise<void> {
   await tx`
     INSERT INTO token_primitive_versions (
       entity_id, version, form, suffix_char, byte_value,
@@ -511,7 +511,7 @@ export async function upsertTokenPrimitiveVersion(tx: postgres.Sql, row: TokenPr
 
 // --- asset-consumption upserts ----------------------------------------------
 
-export async function upsertAssetCategoryVersion(tx: postgres.Sql, row: AssetCategoryVersionRow): Promise<void> {
+export async function upsertAssetCategoryVersion(tx: postgres.TransactionSql<{}>, row: AssetCategoryVersionRow): Promise<void> {
   await tx`
     INSERT INTO asset_category_versions (
       entity_id, version, display_name, description, notes,
@@ -532,7 +532,7 @@ export async function upsertAssetCategoryVersion(tx: postgres.Sql, row: AssetCat
 // The four relation-row upserts use natural keys given by the table's UNIQUE
 // constraint. ON CONFLICT updates every non-key column.
 
-export async function upsertAssetExtension(tx: postgres.Sql, row: AssetExtensionRow): Promise<void> {
+export async function upsertAssetExtension(tx: postgres.TransactionSql<{}>, row: AssetExtensionRow): Promise<void> {
   await tx`
     INSERT INTO asset_extensions (
       project, version, extension, path_hint, category_id,
@@ -551,7 +551,7 @@ export async function upsertAssetExtension(tx: postgres.Sql, row: AssetExtension
   `;
 }
 
-export async function upsertAssetPathRule(tx: postgres.Sql, row: AssetPathRuleRow): Promise<void> {
+export async function upsertAssetPathRule(tx: postgres.TransactionSql<{}>, row: AssetPathRuleRow): Promise<void> {
   await tx`
     INSERT INTO asset_path_rules (
       project, version, canonical_id, rule_kind, ordinal, description,
@@ -572,7 +572,7 @@ export async function upsertAssetPathRule(tx: postgres.Sql, row: AssetPathRuleRo
   `;
 }
 
-export async function upsertAssetCvarBinding(tx: postgres.Sql, row: AssetCvarBindingRow): Promise<void> {
+export async function upsertAssetCvarBinding(tx: postgres.TransactionSql<{}>, row: AssetCvarBindingRow): Promise<void> {
   await tx`
     INSERT INTO asset_cvar_bindings (
       project, version, cvar_canonical_id, category_id, path_pattern,
@@ -591,7 +591,7 @@ export async function upsertAssetCvarBinding(tx: postgres.Sql, row: AssetCvarBin
   `;
 }
 
-export async function upsertAssetLoaderSite(tx: postgres.Sql, row: AssetLoaderSiteRow): Promise<void> {
+export async function upsertAssetLoaderSite(tx: postgres.TransactionSql<{}>, row: AssetLoaderSiteRow): Promise<void> {
   await tx`
     INSERT INTO asset_loader_sites (
       project, version, canonical_id, function_name,
@@ -623,7 +623,7 @@ export async function upsertAssetLoaderSite(tx: postgres.Sql, row: AssetLoaderSi
   `;
 }
 
-export async function upsertReleaseNote(tx: postgres.Sql, row: ReleaseNoteRow): Promise<void> {
+export async function upsertReleaseNote(tx: postgres.TransactionSql<{}>, row: ReleaseNoteRow): Promise<void> {
   await tx`
     INSERT INTO release_notes (
       project, version, section, ordinal, body_md,
@@ -645,7 +645,7 @@ export async function upsertReleaseNote(tx: postgres.Sql, row: ReleaseNoteRow): 
   `;
 }
 
-export async function upsertCvarAliasVersion(tx: postgres.Sql, row: CvarAliasVersionRow): Promise<void> {
+export async function upsertCvarAliasVersion(tx: postgres.TransactionSql<{}>, row: CvarAliasVersionRow): Promise<void> {
   // Best-effort target_canonical_id resolution: if target entity exists in
   // the DB, link the FK; otherwise leave NULL (per spec). A separate
   // resolver pass can re-link rows when target projects later load.
@@ -710,7 +710,7 @@ export async function upsertCvarAliasVersion(tx: postgres.Sql, row: CvarAliasVer
   `;
 }
 
-export async function upsertFlagBitVersion(tx: postgres.Sql, row: FlagBitVersionRow): Promise<void> {
+export async function upsertFlagBitVersion(tx: postgres.TransactionSql<{}>, row: FlagBitVersionRow): Promise<void> {
   await tx`
     INSERT INTO flag_bit_versions (
       entity_id, version, bitmask_family, value_raw, value_numeric,
@@ -730,7 +730,7 @@ export async function upsertFlagBitVersion(tx: postgres.Sql, row: FlagBitVersion
   `;
 }
 
-export async function upsertRelationChange(tx: postgres.Sql, row: RelationChangeRow): Promise<void> {
+export async function upsertRelationChange(tx: postgres.TransactionSql<{}>, row: RelationChangeRow): Promise<void> {
   await tx`
     INSERT INTO relation_changes (
       relation_table, project, from_version, to_version, change_kind,
@@ -751,7 +751,7 @@ export async function upsertRelationChange(tx: postgres.Sql, row: RelationChange
   `;
 }
 
-export async function upsertSourceOverride(tx: postgres.Sql, row: SourceOverrideRow): Promise<void> {
+export async function upsertSourceOverride(tx: postgres.TransactionSql<{}>, row: SourceOverrideRow): Promise<void> {
   await tx`
     INSERT INTO source_overrides (
       entity_id, version, field_name, source_file, source_line,

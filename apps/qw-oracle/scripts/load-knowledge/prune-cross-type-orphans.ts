@@ -43,7 +43,7 @@ const PER_TYPE_VERSION_TABLE: Record<EntityType, string> = {
 };
 
 export interface PruneCrossTypeOrphansOptions {
-  tx: postgres.Sql;
+  tx: postgres.TransactionSql<{}>;
   project: Project;
   type: EntityType;
 }
@@ -96,7 +96,7 @@ export async function pruneCrossTypeOrphans(
 // Project-wide finalize: prune across all entity types. Use at the end of
 // a deep-time walk (see header comment).
 export async function pruneCrossTypeOrphansAllTypes(
-  tx: postgres.Sql,
+  tx: postgres.TransactionSql<{}>,
   project: Project,
 ): Promise<PruneCrossTypeOrphansResult[]> {
   const types = Object.keys(PER_TYPE_VERSION_TABLE) as EntityType[];
