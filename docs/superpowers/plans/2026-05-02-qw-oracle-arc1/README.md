@@ -30,14 +30,14 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D14
 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
-| 1 | not started | `phase-1-foundation.md` | Postgres dev container + migrator + smoke test | DB up, schema_migrations tracking works |
-| 2 | not started | `phase-2-layer1-port.md` | Schema-as-generator → all 31 tables + loader port | Layer 1 entity rows in Postgres, counts match SQLite snapshot |
-| 3 | not started | `phase-3-layer2-port.md` | Discord + IRC import → tsvector | Chat corpus searchable via tsvector |
-| 4 | not started | `phase-4-layer3-graph.md` | Concept loader + bidirectional graph + chunker | Concepts + chunks + graph rows in DB; embeddings empty |
-| 5 | not started | `phase-5-embeddings.md` | Voyage client + entity & chunk embedding pipelines | All vectors present; embedding_metadata + api_log written |
-| 6 | not started | `phase-6-mcp-rewrite.md` | All MCP tools on Postgres + RRF + new tools + HTTP/SSE | MCP server runs locally end-to-end on Postgres |
-| 7 | not started | `phase-7-observability.md` | query_log standardised + OBSERVABILITY.md cheatsheet | MCP self-monitors; operator queries are documented |
-| 8 | not started | `phase-8-eval-deploy.md` | Eval set + calibration + Docker prod + Unraid deploy | Public MCP live at `oracle.slipgate.me/mcp` |
+| 1 | shipped | `phase-1-foundation.md` | Postgres dev container + migrator + smoke test | DB up, schema_migrations tracking works |
+| 2 | approved | `phase-2-layer1-port.md` | Schema-as-generator -> all 31 tables + loader port | Layer 1 entity rows in Postgres, counts match SQLite snapshot |
+| 3 | approved | `phase-3-layer2-port.md` | Discord-only import (D9-revised) -> tsvector | Chat corpus searchable via tsvector |
+| 4 | approved | `phase-4-layer3-graph.md` | Concept loader + bidirectional graph + chunker | Concepts + chunks + graph rows in DB; embeddings empty |
+| 5 | approved | `phase-5-embeddings.md` | Voyage client + entity & chunk embedding pipelines + D8 verifier | All vectors present; embedding_metadata + api_log written |
+| 6 | approved | `phase-6-mcp-rewrite.md` | All MCP tools on Postgres + RRF + new tools + HTTP/SSE | MCP server runs locally end-to-end on Postgres |
+| 7 | approved | `phase-7-observability.md` | query_log standardised + OBSERVABILITY.md cheatsheet | MCP self-monitors; operator queries are documented |
+| 8 | approved | `phase-8-eval-deploy.md` | Eval set + calibration + Docker prod + Unraid deploy | Public MCP live at `oracle.slipgate.me/mcp` |
 
 When a phase MD lands, change `not started` → `drafted (awaiting review)` → `approved` → `in execution` → `shipped`.
 
