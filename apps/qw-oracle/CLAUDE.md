@@ -60,14 +60,15 @@
 ## Tech stack
 
 - **TypeScript + Bun** for the Layer 1 loader (`scripts/load-knowledge/`). Schema migrations applied by `db/migrate.ts` from `.sql` files in `db/migrations/`.
-- **Plain .mjs scripts** for the Layer 2 corpus import (`scripts/import-*.mjs`, `scripts/stats.mjs`); these still use `better-sqlite3` against `data/qw.db` until Phase 3 of Arc 1 ports them.
-- **PostgreSQL 16 + pgvector** for Layer 1 (`apps/qw-oracle/db/migrations/`); the loader and MCP-Layer-1 paths use **postgres-js**. `better-sqlite3` is still pulled in by the Layer 2 import scripts and the MCP server (`serve/mcp/`) until Phase 3 + Phase 6 of Arc 1 port them. **ulid** for extractor-run IDs; **js-yaml** for seed ingestion.
+- **TypeScript + Bun** for the Layer 2 chat loader (`scripts/load-chat/`); ports the legacy Discord export through to Postgres via postgres-js.
+- **TypeScript + Bun** for the Layer 3 concept loader (`scripts/load-concepts/`); parses `concept-notes/*.md` via gray-matter and upserts into the 5 Layer 3 tables atomically per slug.
+- **PostgreSQL 16 + pgvector** for Layer 1 + Layer 2 + Layer 3 (`apps/qw-oracle/db/migrations/`); the loader and MCP-Layer-1 paths use **postgres-js**. `better-sqlite3` is still pulled in only by the MCP server (`serve/mcp/`) until Phase 6 of Arc 1 ports it. **ulid** for extractor-run IDs; **js-yaml** for seed ingestion; **gray-matter** for concept-note frontmatter.
 - **Python 3 + libclang 18** for the engine-source extractors (live at `scripts/extractors/<project>/`; shared lib at `scripts/extractors/extractor_lib/`).
 
 ## Always-on rules
 
-- **npm `--no-workspaces` required** for add/install commands in this directory (monorepo setup).
-- **Bun is the runtime** for everything under `scripts/load-knowledge/` and `db/`. CLI scripts use `bun scripts/.../index.ts` and rely on `import.meta.main` guards (Bun-only).
+- **`bun install` for adding/installing deps** in this directory. Do NOT use npm -- `apps/qw-oracle/package.json` carries the `@qw/version-resolution: workspace:*` dep, which npm rejects with `EUNSUPPORTEDPROTOCOL` even when run with `--no-workspaces`. Bun handles `workspace:` natively. (D2 also pins Bun as the runtime; this rule extends D2 to install-time.)
+- **Bun is the runtime** for everything under `scripts/load-knowledge/`, `scripts/load-chat/`, `scripts/load-concepts/`, and `db/`. CLI scripts use `bun scripts/.../index.ts` and rely on `import.meta.main` guards (Bun-only).
 - **Raw data is immutable** -- never modify imported Layer 2 messages; all derived processing regenerates from raw.
 - **Layer 1 extractors are idempotent** -- re-running against the same tag produces the same rows.
 - **Regression guards are load-bearing** -- `load-version` aborts when entity counts drop >50% without `--force`. Don't bypass.
@@ -75,4 +76,4 @@
 - **Schema evolution is append-only** -- new schema changes land as a new `db/migrations/<NNN>_<name>.sql` file (run via `bun db/migrate.ts`); never edit an applied migration. Update `SCHEMA.md` alongside. Architecturally-significant changes additionally get a dated spec under root `docs/superpowers/specs/`. Small additive migrations don't need a spec -- `SCHEMA.md` + git history + the `.sql` file's header comment are enough.
 - **JSONB columns receive JS values, not pre-stringified JSON** -- pass the JS array/object directly (or wrap with `tx.json(...)` for postgres-js type compliance); pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug). Probe `F1.jsonb_columns_not_strings` is the regression gate.
 - **Tag every generated output** with model + prompt version.
-- **Keep it simple** -- scripts over frameworks; Postgres for Layer 1 + Layer 2 (post-Phase-3); local-first processing -- minimise API costs, maximise iteration speed.
+- **Keep it simple** -- scripts over frameworks; Postgres for Layer 1 + Layer 2 + Layer 3 (post-Phase-4); local-first processing -- minimise API costs, maximise iteration speed.
