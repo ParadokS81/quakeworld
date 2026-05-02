@@ -16,7 +16,7 @@
 // extract-tag idempotently re-upserts.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertInfoKeyVersion } from './natural-keys.js';
 import type { InfoKeyEntry, InfoKeyVersionRow } from './types.js';
 
@@ -57,6 +57,6 @@ export function buildInfoKeyVersionRow(
   };
 }
 
-export function upsertInfoKeyRow(db: Database.Database, row: InfoKeyVersionRow): void {
-  upsertInfoKeyVersion(db, row);
+export async function upsertInfoKeyRow(tx: postgres.TransactionSql<{}>, row: InfoKeyVersionRow): Promise<void> {
+  await upsertInfoKeyVersion(tx, row);
 }

@@ -173,7 +173,7 @@ interface TypeAdapter {
   versionsTable: string;
   isSourceBacked: (entry: any) => boolean;
   buildRow: (entityId: number, version: string, entry: any, now: string) => any;
-  upsertRow: (tx: postgres.Sql, row: any) => Promise<void>;
+  upsertRow: (tx: postgres.TransactionSql<{}>, row: any) => Promise<void>;
   buildOverrides?: (
     entityId: number,
     version: string,

@@ -278,7 +278,7 @@ export function buildAssetBundle(
       ordinal: r.ordinal,
       description: r.description.trim(),
       source_ref: r.source_ref ?? null,
-      source_verified: r.source_verified ?? 0,
+      source_verified: !!r.source_verified,
       notes: notesParts.length ? notesParts.join(' | ') : null,
       raw_ast_hash: null,
     });
@@ -392,7 +392,7 @@ export function buildAssetBundle(
       path_literal: s.path_literal,
       path_cvar_id: s.path_cvar_id,
       confidence: s.confidence,
-      dev_only: s.dev_only,
+      dev_only: !!s.dev_only,
       notes: s.notes ?? null,
       path_template: s.path_template ?? null,
       path_parameters: s.path_parameters ?? null,

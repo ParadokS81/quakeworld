@@ -8,7 +8,7 @@
 // fallbacks guard against the same isSourceBacked edge case.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertQcBuiltinVersion } from './natural-keys.js';
 import type { QcBuiltinEntry, QcBuiltinVersionRow } from './types.js';
 
@@ -51,6 +51,6 @@ export function buildQcBuiltinVersionRow(
   };
 }
 
-export function upsertQcBuiltinRow(db: Database.Database, row: QcBuiltinVersionRow): void {
-  upsertQcBuiltinVersion(db, row);
+export async function upsertQcBuiltinRow(tx: postgres.TransactionSql<{}>, row: QcBuiltinVersionRow): Promise<void> {
+  await upsertQcBuiltinVersion(tx, row);
 }

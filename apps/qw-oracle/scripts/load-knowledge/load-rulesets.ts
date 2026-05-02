@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-rulesets.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertRulesetVersion } from './natural-keys.js';
 import type { RulesetEntry, RulesetVersionRow, SourceOverrideRow } from './types.js';
 
@@ -21,23 +21,27 @@ export function buildRulesetVersionRow(
   const raw_ast_hash = ast
     ? createHash('sha1').update(JSON.stringify(ast)).digest('hex')
     : null;
+  // Coerce 0/1 ints from extractor JSON to JS booleans (Postgres BOOLEAN
+  // column). null survives; non-null int -> bool.
+  const intToBool = (v: number | null | undefined): boolean | null =>
+    v == null ? null : v ? true : false;
   return {
     entity_id: entityId,
     version,
     enum_ident: ast?.enum_ident ?? null,
     loader_fn: ast?.loader_fn ?? null,
     maxfps: ast?.maxfps ?? null,
-    restrict_triggers: ast?.restrict_triggers ?? null,
-    restrict_packet: ast?.restrict_packet ?? null,
-    restrict_particles: ast?.restrict_particles ?? null,
-    restrict_play: ast?.restrict_play ?? null,
-    restrict_logging: ast?.restrict_logging ?? null,
-    restrict_rollangle: ast?.restrict_rollangle ?? null,
-    restrict_ipc: ast?.restrict_ipc ?? null,
-    restrict_exec: ast?.restrict_exec ?? null,
-    restrict_setcalc: ast?.restrict_setcalc ?? null,
-    restrict_seteval: ast?.restrict_seteval ?? null,
-    restrict_setex: ast?.restrict_setex ?? null,
+    restrict_triggers: intToBool(ast?.restrict_triggers),
+    restrict_packet: intToBool(ast?.restrict_packet),
+    restrict_particles: intToBool(ast?.restrict_particles),
+    restrict_play: intToBool(ast?.restrict_play),
+    restrict_logging: intToBool(ast?.restrict_logging),
+    restrict_rollangle: intToBool(ast?.restrict_rollangle),
+    restrict_ipc: intToBool(ast?.restrict_ipc),
+    restrict_exec: intToBool(ast?.restrict_exec),
+    restrict_setcalc: intToBool(ast?.restrict_setcalc),
+    restrict_seteval: intToBool(ast?.restrict_seteval),
+    restrict_setex: intToBool(ast?.restrict_setex),
     locked_cvars_json: ast?.locked_cvars ? JSON.stringify(ast.locked_cvars) : null,
     source_file: ast?.source_file ?? null,
     source_line: ast?.source_line ?? null,
@@ -46,8 +50,8 @@ export function buildRulesetVersionRow(
   };
 }
 
-export function upsertRulesetRow(db: Database.Database, row: RulesetVersionRow): void {
-  upsertRulesetVersion(db, row);
+export async function upsertRulesetRow(tx: postgres.TransactionSql<{}>, row: RulesetVersionRow): Promise<void> {
+  await upsertRulesetVersion(tx, row);
 }
 
 export function buildRulesetOverrides(

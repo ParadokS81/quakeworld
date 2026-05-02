@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-macros.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertMacroVersion } from './natural-keys.js';
 import type { MacroEntry, MacroVersionRow } from './types.js';
 
@@ -27,7 +27,7 @@ export function buildMacroVersionRow(
     version,
     help_desc: entry.desc ?? null,
     macro_type: entry.type ?? null,
-    teamplay_restricted: entry['teamplay-restricted'] ? 1 : 0,
+    teamplay_restricted: !!entry['teamplay-restricted'],
     related_cvars_json: entry['related-cvars']
       ? JSON.stringify(entry['related-cvars'])
       : null,
@@ -44,6 +44,6 @@ export function buildMacroVersionRow(
   };
 }
 
-export function upsertMacroRow(db: Database.Database, row: MacroVersionRow): void {
-  upsertMacroVersion(db, row);
+export async function upsertMacroRow(tx: postgres.TransactionSql<{}>, row: MacroVersionRow): Promise<void> {
+  await upsertMacroVersion(tx, row);
 }

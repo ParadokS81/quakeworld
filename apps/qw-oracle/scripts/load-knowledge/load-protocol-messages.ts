@@ -7,7 +7,7 @@
 // because isSourceBacked filters them upstream.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertProtocolMessageVersion } from './natural-keys.js';
 import type { ProtocolMessageEntry, ProtocolMessageVersionRow } from './types.js';
 
@@ -53,6 +53,6 @@ export function buildProtocolMessageVersionRow(
   };
 }
 
-export function upsertProtocolMessageRow(db: Database.Database, row: ProtocolMessageVersionRow): void {
-  upsertProtocolMessageVersion(db, row);
+export async function upsertProtocolMessageRow(tx: postgres.TransactionSql<{}>, row: ProtocolMessageVersionRow): Promise<void> {
+  await upsertProtocolMessageVersion(tx, row);
 }

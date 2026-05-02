@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-token-primitives.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertTokenPrimitiveVersion } from './natural-keys.js';
 import type { TokenPrimitiveEntry, TokenPrimitiveVersionRow } from './types.js';
 
@@ -39,6 +39,6 @@ export function buildTokenPrimitiveVersionRow(
   };
 }
 
-export function upsertTokenPrimitiveRow(db: Database.Database, row: TokenPrimitiveVersionRow): void {
-  upsertTokenPrimitiveVersion(db, row);
+export async function upsertTokenPrimitiveRow(tx: postgres.TransactionSql<{}>, row: TokenPrimitiveVersionRow): Promise<void> {
+  await upsertTokenPrimitiveVersion(tx, row);
 }

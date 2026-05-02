@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-commands.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertCommandVersion } from './natural-keys.js';
 import type { CommandEntry, CommandVersionRow } from './types.js';
 
@@ -41,6 +41,6 @@ export function buildCommandVersionRow(
   };
 }
 
-export function upsertCommandRow(db: Database.Database, row: CommandVersionRow): void {
-  upsertCommandVersion(db, row);
+export async function upsertCommandRow(tx: postgres.TransactionSql<{}>, row: CommandVersionRow): Promise<void> {
+  await upsertCommandVersion(tx, row);
 }

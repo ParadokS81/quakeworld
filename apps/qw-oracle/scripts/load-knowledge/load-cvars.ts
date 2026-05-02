@@ -5,7 +5,7 @@
 // command / macro / cmdline_param types.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertCvarVersion } from './natural-keys.js';
 import type {
   CvarVersionRow,
@@ -60,7 +60,7 @@ export function buildCvarVersionRow(
     storage_class: ast?.storage_class ?? null,
     group_name_in_source: ast?.group_name_in_source ?? null,
     trailing_comment: ast?.trailing_comment ?? null,
-    server_only: entry['server-only'] ? 1 : 0,
+    server_only: !!entry['server-only'],
     // FTE entries carry source_root as a top-level field; ezQuake/QWCL entries
     // have no source_root field (NULL = "engine" per SCHEMA.md semantics).
     source_root: entry.source_root ?? null,
@@ -70,8 +70,8 @@ export function buildCvarVersionRow(
   };
 }
 
-export function upsertCvarRow(db: Database.Database, row: CvarVersionRow): void {
-  upsertCvarVersion(db, row);
+export async function upsertCvarRow(tx: postgres.TransactionSql<{}>, row: CvarVersionRow): Promise<void> {
+  await upsertCvarVersion(tx, row);
 }
 
 export function buildCvarOverrides(

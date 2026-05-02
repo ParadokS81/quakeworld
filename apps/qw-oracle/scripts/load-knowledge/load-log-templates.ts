@@ -10,7 +10,7 @@
 // same isSourceBacked edge case.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertLogTemplateVersion } from './natural-keys.js';
 import type { LogTemplateEntry, LogTemplateVersionRow } from './types.js';
 
@@ -61,6 +61,6 @@ export function buildLogTemplateVersionRow(
   };
 }
 
-export function upsertLogTemplateRow(db: Database.Database, row: LogTemplateVersionRow): void {
-  upsertLogTemplateVersion(db, row);
+export async function upsertLogTemplateRow(tx: postgres.TransactionSql<{}>, row: LogTemplateVersionRow): Promise<void> {
+  await upsertLogTemplateVersion(tx, row);
 }

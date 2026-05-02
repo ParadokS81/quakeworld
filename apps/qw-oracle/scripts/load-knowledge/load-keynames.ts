@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-keynames.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertKeynameVersion } from './natural-keys.js';
 import type { KeynameEntry, KeynameVersionRow } from './types.js';
 
@@ -35,6 +35,6 @@ export function buildKeynameVersionRow(
   };
 }
 
-export function upsertKeynameRow(db: Database.Database, row: KeynameVersionRow): void {
-  upsertKeynameVersion(db, row);
+export async function upsertKeynameRow(tx: postgres.TransactionSql<{}>, row: KeynameVersionRow): Promise<void> {
+  await upsertKeynameVersion(tx, row);
 }

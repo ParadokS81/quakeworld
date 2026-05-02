@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-asset-categories.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertAssetCategoryVersion } from './natural-keys.js';
 import type { AssetCategoryEntry, AssetCategoryVersionRow } from './types.js';
 
@@ -39,6 +39,6 @@ export function buildAssetCategoryVersionRow(
   };
 }
 
-export function upsertAssetCategoryRow(db: Database.Database, row: AssetCategoryVersionRow): void {
-  upsertAssetCategoryVersion(db, row);
+export async function upsertAssetCategoryRow(tx: postgres.TransactionSql<{}>, row: AssetCategoryVersionRow): Promise<void> {
+  await upsertAssetCategoryVersion(tx, row);
 }

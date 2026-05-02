@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-hud-elements.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertHudElementVersion } from './natural-keys.js';
 import type { HudElementEntry, HudElementVersionRow, SourceOverrideRow } from './types.js';
 
@@ -40,8 +40,8 @@ export function buildHudElementVersionRow(
   };
 }
 
-export function upsertHudElementRow(db: Database.Database, row: HudElementVersionRow): void {
-  upsertHudElementVersion(db, row);
+export async function upsertHudElementRow(tx: postgres.TransactionSql<{}>, row: HudElementVersionRow): Promise<void> {
+  await upsertHudElementVersion(tx, row);
 }
 
 export function buildHudElementOverrides(

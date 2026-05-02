@@ -405,7 +405,7 @@ export interface MacroVersionRow {
   version: string;
   help_desc: string | null;
   macro_type: string | null;
-  teamplay_restricted: number;
+  teamplay_restricted: boolean;
   related_cvars_json: string | null;
   handler_fn: string | null;
   source_file: string | null;
@@ -548,17 +548,17 @@ export interface RulesetVersionRow {
   enum_ident: string | null;
   loader_fn: string | null;
   maxfps: number | null;
-  restrict_triggers: number | null;
-  restrict_packet: number | null;
-  restrict_particles: number | null;
-  restrict_play: number | null;
-  restrict_logging: number | null;
-  restrict_rollangle: number | null;
-  restrict_ipc: number | null;
-  restrict_exec: number | null;
-  restrict_setcalc: number | null;
-  restrict_seteval: number | null;
-  restrict_setex: number | null;
+  restrict_triggers: boolean | null;
+  restrict_packet: boolean | null;
+  restrict_particles: boolean | null;
+  restrict_play: boolean | null;
+  restrict_logging: boolean | null;
+  restrict_rollangle: boolean | null;
+  restrict_ipc: boolean | null;
+  restrict_exec: boolean | null;
+  restrict_setcalc: boolean | null;
+  restrict_seteval: boolean | null;
+  restrict_setex: boolean | null;
   locked_cvars_json: string | null;
   source_file: string | null;
   source_line: number | null;
@@ -662,7 +662,7 @@ export interface AssetPathRuleRow {
   ordinal: number;
   description: string;
   source_ref: string | null;
-  source_verified: number;
+  source_verified: boolean;
   notes: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
@@ -697,7 +697,7 @@ export interface AssetLoaderSiteRow {
   path_literal: string | null;
   path_cvar_id: string | null;
   confidence: AssetLoaderSiteConfidence;
-  dev_only: number;
+  dev_only: boolean;
   notes: string | null;
   // Path 1 additions. Optional so the DB loader can ignore cleanly; bundle
   // carries them verbatim for downstream consumers.
@@ -769,7 +769,7 @@ export interface CvarVersionRow {
   storage_class: string | null;
   group_name_in_source: string | null;
   trailing_comment: string | null;
-  server_only: number;
+  server_only: boolean;
   source_root: string | null;
 
   raw_ast_hash: string | null;

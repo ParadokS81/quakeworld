@@ -10,7 +10,7 @@
 
 import { readFileSync } from 'fs';
 import { createHash } from 'crypto';
-import Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import {
   upsertAssetCvarBinding,
   upsertAssetExtension,
@@ -28,7 +28,7 @@ import type {
 } from './types.js';
 
 export interface LoadAssetsOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   version: string;
   jsonPath: string;
@@ -53,7 +53,7 @@ export interface LoadAssetsResult {
   };
 }
 
-export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
+export async function loadAssets(options: LoadAssetsOptions): Promise<LoadAssetsResult> {
   const now = new Date().toISOString();
 
   const raw = readFileSync(options.jsonPath, 'utf-8');
@@ -70,16 +70,23 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
     );
   }
 
-  // Cache entity lookups: canonical_id -> exists
-  const entityExists = (canonical: string): boolean => {
-    const r = options.db
-      .prepare(`SELECT 1 FROM entities WHERE canonical_id = ?`)
-      .get(canonical);
-    return r !== undefined;
-  };
+  const result = await options.sql.begin(async (tx) => {
+    // Cache entity lookups: canonical_id -> exists. Scoped to this txn so the
+    // lookup sees rows just-upserted by load-version (which runs before
+    // load-assets in extract-tag's pipeline).
+    const knownCache = new Map<string, boolean>();
+    const entityExists = async (canonical: string): Promise<boolean> => {
+      const cached = knownCache.get(canonical);
+      if (cached !== undefined) return cached;
+      const rows = await tx<{ one: number }[]>`
+        SELECT 1 AS one FROM entities WHERE canonical_id = ${canonical}
+      `;
+      const exists = rows.length > 0;
+      knownCache.set(canonical, exists);
+      return exists;
+    };
 
-  const txn = options.db.transaction(() => {
-    upsertVersion(options.db, {
+    await upsertVersion(tx, {
       project: options.project,
       version: options.version,
       commit_sha: options.commitSha,
@@ -90,19 +97,17 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
       extracted_at: now,
     });
 
-    // Wipe existing relation rows for this (project, version) before
-    // re-inserting from the bundle. The four upsert helpers use INSERT OR
-    // REPLACE keyed on UNIQUE(project, version, ..., path_hint /
-    // path_pattern), but SQLite treats NULL as distinct in UNIQUE
-    // constraints — so re-runs of load-assets at the same (project, version)
-    // append duplicate rows for every entry whose path_hint or path_pattern
-    // is NULL instead of upserting. Mirroring the bundle exactly via a
-    // wipe-then-insert pass sidesteps the NULL-distinct trap and keeps the
-    // DB an idempotent reflection of the bundle.
-    options.db.prepare(`DELETE FROM asset_extensions    WHERE project=? AND version=?`).run(options.project, options.version);
-    options.db.prepare(`DELETE FROM asset_path_rules    WHERE project=? AND version=?`).run(options.project, options.version);
-    options.db.prepare(`DELETE FROM asset_cvar_bindings WHERE project=? AND version=?`).run(options.project, options.version);
-    options.db.prepare(`DELETE FROM asset_loader_sites  WHERE project=? AND version=?`).run(options.project, options.version);
+    // Wipe existing relation rows for this (project, version) before re-inserting
+    // from the bundle. The four upsert helpers use ON CONFLICT keyed on
+    // UNIQUE(project, version, ..., path_hint / path_pattern). Postgres treats
+    // NULLs in unique indexes as distinct (matching SQLite), so re-runs at the
+    // same (project, version) would otherwise append duplicate rows for entries
+    // whose path_hint or path_pattern is NULL. Wipe-then-insert keeps the DB an
+    // idempotent reflection of the bundle.
+    await tx`DELETE FROM asset_extensions    WHERE project=${options.project} AND version=${options.version}`;
+    await tx`DELETE FROM asset_path_rules    WHERE project=${options.project} AND version=${options.version}`;
+    await tx`DELETE FROM asset_cvar_bindings WHERE project=${options.project} AND version=${options.version}`;
+    await tx`DELETE FROM asset_loader_sites  WHERE project=${options.project} AND version=${options.version}`;
 
     let extCount = 0;
     let ruleCount = 0;
@@ -112,7 +117,7 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
 
     // Extensions.
     for (const e of bundle.asset_extensions) {
-      if (!entityExists(e.category_id)) {
+      if (!(await entityExists(e.category_id))) {
         console.warn(`[load-assets] asset_extensions: category ${e.category_id} not in entities; skipping ${e.extension}/${e.path_hint ?? ''}`);
         drops.categoryStale += 1;
         continue;
@@ -129,7 +134,7 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
         raw_ast_hash: e.raw_ast_hash ?? hashRow(e),
         extracted_at: now,
       };
-      upsertAssetExtension(options.db, row);
+      await upsertAssetExtension(tx, row);
       extCount += 1;
     }
 
@@ -143,12 +148,12 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
         ordinal: r.ordinal,
         description: r.description,
         source_ref: r.source_ref,
-        source_verified: r.source_verified,
+        source_verified: !!r.source_verified,
         notes: r.notes,
         raw_ast_hash: r.raw_ast_hash ?? hashRow(r),
         extracted_at: now,
       };
-      upsertAssetPathRule(options.db, row);
+      await upsertAssetPathRule(tx, row);
       ruleCount += 1;
     }
 
@@ -156,12 +161,12 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
     // resolve -- these indicate seed drift and we prefer a loud warning over
     // a row that'll FK-fail on commit.
     for (const b of bundle.asset_cvar_bindings) {
-      if (!entityExists(b.cvar_canonical_id)) {
+      if (!(await entityExists(b.cvar_canonical_id))) {
         console.warn(`[load-assets] asset_cvar_bindings: cvar ${b.cvar_canonical_id} not in entities; skipping`);
         drops.cvarBindingStale += 1;
         continue;
       }
-      if (!entityExists(b.category_id)) {
+      if (!(await entityExists(b.category_id))) {
         console.warn(`[load-assets] asset_cvar_bindings: category ${b.category_id} not in entities; skipping ${b.cvar_canonical_id}`);
         drops.categoryStale += 1;
         continue;
@@ -179,7 +184,7 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
         raw_ast_hash: b.raw_ast_hash ?? hashRow(b),
         extracted_at: now,
       };
-      upsertAssetCvarBinding(options.db, row);
+      await upsertAssetCvarBinding(tx, row);
       bindCount += 1;
     }
 
@@ -188,13 +193,13 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
     // dropping the whole site.
     for (const s of bundle.asset_loader_sites) {
       let reads_category_id = s.reads_category_id;
-      if (reads_category_id && !entityExists(reads_category_id)) {
+      if (reads_category_id && !(await entityExists(reads_category_id))) {
         console.warn(`[load-assets] asset_loader_sites: category ${reads_category_id} not in entities; clearing for ${s.canonical_id}`);
         drops.categoryStale += 1;
         reads_category_id = null;
       }
       let path_cvar_id = s.path_cvar_id;
-      if (path_cvar_id && !entityExists(path_cvar_id)) {
+      if (path_cvar_id && !(await entityExists(path_cvar_id))) {
         console.warn(`[load-assets] asset_loader_sites: cvar ${path_cvar_id} not in entities; clearing for ${s.canonical_id}`);
         drops.loaderCvarStale += 1;
         path_cvar_id = null;
@@ -214,34 +219,37 @@ export function loadAssets(options: LoadAssetsOptions): LoadAssetsResult {
         path_literal: s.path_literal,
         path_cvar_id,
         confidence: s.confidence,
-        dev_only: s.dev_only,
+        dev_only: !!s.dev_only,
         notes: s.notes,
         raw_ast_hash: s.raw_ast_hash ?? hashRow(s),
         extracted_at: now,
       };
-      upsertAssetLoaderSite(options.db, row);
+      await upsertAssetLoaderSite(tx, row);
       siteCount += 1;
     }
 
-    const setMeta = options.db.prepare(`
-      INSERT INTO schema_meta (key, value) VALUES (?, ?)
-      ON CONFLICT(key) DO UPDATE SET value = excluded.value
-    `);
-    setMeta.run('last_extraction_run_at', now);
-    setMeta.run('assets_extractor_version', options.extractorVersion);
+    const setMetaPairs: Array<[string, string]> = [
+      ['last_extraction_run_at', now],
+      ['assets_extractor_version', options.extractorVersion],
+    ];
+    for (const [key, value] of setMetaPairs) {
+      await tx`
+        INSERT INTO oracle_meta (key, value, updated_at)
+        VALUES (${key}, ${value}, now())
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+      `;
+    }
 
     return { extCount, ruleCount, bindCount, siteCount, drops };
   });
 
-  const { extCount, ruleCount, bindCount, siteCount, drops } = txn();
-
   return {
     versionsUpserted: 1,
-    extensionsUpserted: extCount,
-    pathRulesUpserted: ruleCount,
-    cvarBindingsUpserted: bindCount,
-    loaderSitesUpserted: siteCount,
-    droppedRefs: drops,
+    extensionsUpserted: result.extCount,
+    pathRulesUpserted: result.ruleCount,
+    cvarBindingsUpserted: result.bindCount,
+    loaderSitesUpserted: result.siteCount,
+    droppedRefs: result.drops,
   };
 }
 

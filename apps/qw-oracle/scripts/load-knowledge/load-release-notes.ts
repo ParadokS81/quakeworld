@@ -18,7 +18,7 @@
 // scaffolding off the critical path while preserving lookup flexibility.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { GitHubClient } from './github.js';
 import { upsertReleaseNote } from './natural-keys.js';
 import type { Project, ReleaseNoteRow } from './types.js';
@@ -40,7 +40,7 @@ export function projectHasGithubUpstream(project: Project): boolean {
 }
 
 export interface LoadReleaseNotesOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   version: string;
   githubToken: string;
@@ -64,10 +64,10 @@ export async function loadReleaseNotes(
     );
   }
 
-  const versionRow = options.db.prepare(
-    `SELECT 1 FROM versions WHERE project = ? AND version = ?`,
-  ).get(options.project, options.version);
-  if (!versionRow) {
+  const versionRows = await options.sql<{ one: number }[]>`
+    SELECT 1 AS one FROM versions WHERE project = ${options.project} AND version = ${options.version}
+  `;
+  if (versionRows.length === 0) {
     throw new Error(
       `No versions row for ${options.project}:${options.version}. Run load-version first so entity cross-references resolve.`,
     );
@@ -86,7 +86,7 @@ export async function loadReleaseNotes(
   }
 
   const bullets = parseReleaseBody(body);
-  const entityNames = loadEntityNameIndex(options.db, options.project);
+  const entityNames = await loadEntityNameIndex(options.sql, options.project);
 
   // Resolve every bullet's commit URLs to their associated PR numbers. Release
   // bodies overwhelmingly cite commits (not #NNNN inline), so without this
@@ -108,7 +108,7 @@ export async function loadReleaseNotes(
   let entityRefsResolved = 0;
   let bulletsWithEntityRef = 0;
 
-  const txn = options.db.transaction(() => {
+  await options.sql.begin(async (tx) => {
     for (const b of bullets) {
       sectionsSeen.add(b.section);
       const refs = resolveEntityRefs(b.body, entityNames);
@@ -138,11 +138,9 @@ export async function loadReleaseNotes(
         raw_body_hash: createHash('sha1').update(b.body).digest('hex'),
         extracted_at: now,
       };
-      upsertReleaseNote(options.db, row);
+      await upsertReleaseNote(tx, row);
     }
   });
-
-  txn();
 
   return {
     bulletsInserted: bullets.length,
@@ -380,13 +378,13 @@ function extractCandidateTokens(text: string): string[] {
   return [...set];
 }
 
-function loadEntityNameIndex(
-  db: Database.Database,
+async function loadEntityNameIndex(
+  sql: postgres.Sql,
   project: Project,
-): Map<string, string> {
-  const rows = db.prepare(
-    `SELECT name, canonical_id FROM entities WHERE project = ?`,
-  ).all(project) as Array<{ name: string; canonical_id: string }>;
+): Promise<Map<string, string>> {
+  const rows = await sql<Array<{ name: string; canonical_id: string }>>`
+    SELECT name, canonical_id FROM entities WHERE project = ${project}
+  `;
   const index = new Map<string, string>();
   for (const r of rows) {
     // entities.name is already canonicalised (lowercase except token_primitive).

@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-flag-bits.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertFlagBitVersion } from './natural-keys.js';
 import type { FlagBitEntry, FlagBitVersionRow } from './types.js';
 
@@ -35,6 +35,6 @@ export function buildFlagBitVersionRow(
   };
 }
 
-export function upsertFlagBitRow(db: Database.Database, row: FlagBitVersionRow): void {
-  upsertFlagBitVersion(db, row);
+export async function upsertFlagBitRow(tx: postgres.TransactionSql<{}>, row: FlagBitVersionRow): Promise<void> {
+  await upsertFlagBitVersion(tx, row);
 }

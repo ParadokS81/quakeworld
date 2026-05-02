@@ -1,7 +1,7 @@
 // apps/qw-oracle/scripts/load-knowledge/load-cmdline-params.ts
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { upsertCmdlineParamVersion } from './natural-keys.js';
 import type { CmdlineParamEntry, CmdlineParamVersionRow } from './types.js';
 
@@ -48,6 +48,6 @@ export function buildCmdlineParamVersionRow(
   };
 }
 
-export function upsertCmdlineParamRow(db: Database.Database, row: CmdlineParamVersionRow): void {
-  upsertCmdlineParamVersion(db, row);
+export async function upsertCmdlineParamRow(tx: postgres.TransactionSql<{}>, row: CmdlineParamVersionRow): Promise<void> {
+  await upsertCmdlineParamVersion(tx, row);
 }

@@ -4,7 +4,7 @@
 // docs/superpowers/specs/2026-04-26-cross-engine-alias-schema-design.md.
 
 import { createHash } from 'crypto';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { parseVersionSpec } from '@qw/version-resolution';
 import { upsertCvarAliasVersion } from './natural-keys.js';
 import type { CvarAliasEntry, CvarAliasVersionRow } from './types.js';
@@ -91,6 +91,6 @@ export function buildCvarAliasVersionRow(
   };
 }
 
-export function upsertCvarAliasRow(db: Database.Database, row: CvarAliasVersionRow): void {
-  upsertCvarAliasVersion(db, row);
+export async function upsertCvarAliasRow(tx: postgres.TransactionSql<{}>, row: CvarAliasVersionRow): Promise<void> {
+  await upsertCvarAliasVersion(tx, row);
 }
