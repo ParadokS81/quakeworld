@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: qw-oracle-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: qw_oracle
+      POSTGRES_USER: qworacle
+      POSTGRES_PASSWORD: dev
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - qw-oracle-pgdata-dev:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qworacle -d qw_oracle"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+volumes:
+  qw-oracle-pgdata-dev:
