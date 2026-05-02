@@ -12,6 +12,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
+- **qw-oracle DEPLOYMENT.md authoring** — Phase 8 of Arc 1 ships production Dockerfile + compose.prod.yml + nginx + CF Tunnel choreography but does not formalize a `DEPLOYMENT.md`. Author one alongside Phase 8 execution so the deploy mechanics have a documentation home. Lightweight; the content already exists scattered across the phase MD.
 
 ### Sidequests
 - **Plugin v-table asset detection (loader-sites handler)** — FTE plugins reach loaders through `cvarfuncs->...` v-table calls, not direct CALL_EXPR. Only `plugin:ezhud` affected; ezhud images ship bundled with FTE. Low pressure. (Engine-agnostic structural finding; no body to migrate.)
