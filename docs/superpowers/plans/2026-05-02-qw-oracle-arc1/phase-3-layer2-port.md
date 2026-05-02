@@ -10,6 +10,8 @@
 
 Port the Discord half of the existing chat corpus, plus its derivation pipeline (raw messages -> classified labels -> conversation sessions -> session-level search index), from SQLite + FTS5 to Postgres + tsvector + GIN. IRC is excluded entirely from Arc 1 per `decisions.md` D9-revised: no IRC importer, no IRC parser, no `mirc-logs/` traversal, no mojibake baseline machinery, no `'irc'` value in any CHECK constraint. The legacy `.mjs` Layer 2 ingest pipeline plus the IRC-only scripts are deleted; Discord ingest is rewritten in TypeScript under `apps/qw-oracle/scripts/load-chat/`.
 
+Four port-time hygiene tightenings ride along with this port (see `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` issues A2+#3, A1, A3, A4 disposition): (1) `BOT_COMMAND_PATTERNS` dropped from `classify.ts` -- Discord's `author_is_bot` flag is the only bot signal needed; (2) session-builder consumes only `category IN ('chat', 'link')` messages for gap computation and session creation (filter-then-segment), eliminating empty sessions by construction; (3) duplicate `'xd'` removed from `REACTION_WORDS`; (4) `message_labels.session_id` becomes NULLABLE so label rows exist for all imported messages, including bot/reaction/system messages with no parent session. Additionally, a `session_references` table is built from Discord's reply graph (`messages.referenced_message_id`), providing cross-session reply edge counts for Phase 6's `search_solved_issues`.
+
 The `messages.platform` column is preserved with `CHECK (platform = 'discord')`. Dropping the column entirely was the alternative D9-revised allowed; keeping it makes a future widening (Arc 3 reconsideration of IRC after a successful codepage re-import, per `decisions.md` D9-revised paragraph 5) a one-line CHECK change rather than a full schema migration. The same shape is used on `sessions.platform` and `session_search.platform`. tsvector configuration is `'simple'` per D7 because Discord itself carries multi-language content (Swedish, Russian, German handles and snippets) where English stemming is a regression.
 
 The classifier rules and the `GAP_THRESHOLD_MINUTES = 15` session boundary transfer 1:1 from `scripts/process-tier1.mjs`. The `search_solved_issues` MCP tool is NOT ported in this phase (Phase 6 territory); the MCP runtime stays broken at the qw.db layer the same way Phase 2 left it broken at the knowledge.db layer. This carry-forward is by design and ends in Phase 6.
@@ -40,6 +42,7 @@ apps/qw-oracle/scripts/load-chat/classify.ts                    # hand-written; 
 apps/qw-oracle/scripts/load-chat/build-sessions.ts              # hand-written port of scripts/process-tier1.mjs
 apps/qw-oracle/scripts/load-chat/build-search-index.ts          # hand-written port of scripts/build-search-index.mjs
 apps/qw-oracle/scripts/load-chat/seed-discord-channels.ts       # hand-written; one-shot SQL apply for db/seeds/discord_channels.sql
+apps/qw-oracle/scripts/load-chat/build-session-references.ts    # hand-written; builds session_references from messages.referenced_message_id
 apps/qw-oracle/scripts/load-chat/import-discord.test.ts         # hand-written
 apps/qw-oracle/scripts/load-chat/build-sessions.test.ts         # hand-written
 apps/qw-oracle/scripts/load-chat/CLAUDE.md                      # hand-written; subsystem entry doc paralleling scripts/load-knowledge/CLAUDE.md
@@ -203,14 +206,35 @@ CREATE INDEX sessions_started         ON sessions(started_at);
 -- message-to-label). Port preserves that shape rather than the legacy plan's
 -- PRIMARY KEY (message_id, session_id, category) because the live derivation
 -- produces exactly one row per message.
+--
+-- session_id is NULLABLE: under filter-then-segment, bot/reaction/system
+-- messages never start a session, so label rows for those messages are written
+-- with session_id IS NULL. Every imported message still has exactly one label
+-- row (the "every message has a label" invariant holds); session-scoped queries
+-- simply add WHERE session_id IS NOT NULL.
 CREATE TABLE message_labels (
   message_id  TEXT PRIMARY KEY REFERENCES messages(id) ON DELETE CASCADE,
-  session_id  BIGINT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  session_id  BIGINT REFERENCES sessions(id) ON DELETE CASCADE,
   category    TEXT NOT NULL CHECK (category IN ('chat', 'bot', 'reaction', 'link', 'system')),
   version     TEXT NOT NULL
 );
 CREATE INDEX message_labels_session   ON message_labels(session_id);
 CREATE INDEX message_labels_category  ON message_labels(category);
+
+-- Cross-session reply graph. Built post-segmentation by build-session-references.ts.
+-- Each row: source session contains a message that replies to a message in
+-- target session (via messages.referenced_message_id). reference_count is the
+-- number of such reply edges between the pair. Within-session replies are skipped
+-- (source = target). Phase 6's search_solved_issues uses this to surface related
+-- sessions when the reply graph crosses a session boundary.
+CREATE TABLE session_references (
+  source_session_id   BIGINT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  target_session_id   BIGINT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  reference_count     INTEGER NOT NULL,
+  PRIMARY KEY (source_session_id, target_session_id),
+  CHECK (source_session_id <> target_session_id)
+);
+CREATE INDEX session_references_target ON session_references(target_session_id);
 
 -- Concatenated chat content per session, indexed for FTS. Replaces SQLite
 -- FTS5's session_search VIRTUAL TABLE. Postgres has no FTS5 analogue; we ship
@@ -249,13 +273,13 @@ DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test     bun db/
 **Verification.**
 
 ```
-docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "\dt messages discord_channels import_log processing_log sessions message_labels session_search"
+docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "\dt messages discord_channels import_log processing_log sessions message_labels session_search session_references"
 docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT filename FROM schema_migrations WHERE filename = '004_layer2_chat.sql'"
 docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT pg_get_indexdef(oid) FROM pg_class WHERE relname IN ('messages_content_tsv_gin','session_search_tsv_gin')"
 docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid IN ('messages'::regclass,'sessions'::regclass,'session_search'::regclass,'import_log'::regclass) AND contype='c' AND pg_get_constraintdef(oid) LIKE '%platform%'"
 ```
 
-- PASS condition: 7 tables listed; `004_layer2_chat.sql` present in `schema_migrations`; both tsvector index defs include `to_tsvector('simple'`; every platform CHECK contains `platform = 'discord'` (no `'irc'` literal anywhere).
+- PASS condition: 8 tables listed (messages, discord_channels, import_log, processing_log, sessions, message_labels, session_search, session_references); `004_layer2_chat.sql` present in `schema_migrations`; both tsvector index defs include `to_tsvector('simple'`; every platform CHECK contains `platform = 'discord'` (no `'irc'` literal anywhere).
 - FAIL condition: missing tables, missing migration row, any tsvector index uses `'english'` (D7 violation - regenerate the migration with `'simple'` and re-apply), or any platform CHECK still allows `'irc'` (D9-revised violation).
 
 ### Task 2: Hand-seed `discord_channels`
@@ -610,28 +634,75 @@ docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d
 - PASS condition: helpdesk row in `import_log` with `message_count` ~103361 (the SQLite Discord-only baseline, recorded in Task 3); `messages` row count for `#helpdesk` matches.
 - FAIL condition: zero rows imported, or `message_count` drifts > 1% from the recorded baseline.
 
-### Task 5: `classify.ts` + `build-sessions.ts` (port of process-tier1.mjs)
+### Task 5: `classify.ts` + `build-sessions.ts` (port of process-tier1.mjs with hygiene tightenings)
 
-**Goal.** Faithful port of `scripts/process-tier1.mjs`'s deterministic classifier and gap-segmenter, writing into Postgres `sessions` + `message_labels`. Idempotent gating preserved via `processing_log.version`. Per the live `.mjs`: `VERSION = 'v1'`, `GAP_THRESHOLD_MINUTES = 15`. The classifier is platform-agnostic so the port is verbatim from the SQLite era; it just runs over a smaller (Discord-only) row set.
+**Goal.** Port `scripts/process-tier1.mjs`'s deterministic classifier and gap-segmenter, writing into Postgres `sessions` + `message_labels`. Idempotent gating preserved via `processing_log.version`. `VERSION = 'v1'`, `GAP_THRESHOLD_MINUTES = 15` (unchanged per operator decision).
+
+Three hygiene tightenings vs. the SQLite era, all applied in this task:
+
+1. **Drop `BOT_COMMAND_PATTERNS`** from `classify.ts`. Discord's `author_is_bot` flag covers bot detection reliably (96.1% of Discord bot-tagged rows use this flag per the hygiene audit). The pattern slice was an IRC-era artifact (`process-tier1.mjs:26-30`) that produces false positives on Discord (.zip, .tar.gz, !Voteban human content -- see `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` bot category audit).
+
+2. **Filter-then-segment** in `build-sessions.ts`. Session boundaries are computed ONLY over messages with `category IN ('chat', 'link')`. Bot, reaction, and system messages do NOT advance `prevTs` and do NOT start new sessions. All messages (including filtered-out bot/reaction/system) still receive a label row; their `session_id` is `NULL`. The 15-minute gap threshold is unchanged. This is a behavioral change from `process-tier1.mjs:148-172` where bots/reactions DID bridge gaps (they advanced `prevTs` on any non-system message); under the new shape empty sessions disappear by construction -- no explicit "skip if zero chat" check is needed.
+
+   Algorithm (implemented in `processChannel`):
+   - Fetch ALL messages for the channel ordered by `created_at` (unchanged).
+   - For each message: classify it; then check `if category === 'chat' || category === 'link'` before gap-detection logic and `prevTs` update. Only chat/link messages trigger `flushSession` and advance `prevTs`.
+   - Label rows for ALL messages: chat/link get `session_id = <current session id>` after flush; bot/reaction/system get `session_id = NULL`.
+   - `flushSession` is a no-op if there are zero chat/link messages buffered (empty-session-by-construction invariant). No explicit check needed.
+
+3. **Remove duplicate `'xd'`** from `REACTION_WORDS`. `process-tier1.mjs:37` and `:39` both contain `'xd'`; `Set` dedupes silently but the duplicate is noise.
+
+**Verification baselines under filter-then-segment.** Computed via SQLite window-function probe against `data/qw.db` (read-only, before deletion):
+
+```sql
+-- Probe to compute filter-then-segment session count (run before qw.db deletion)
+-- Uses existing message_labels categories already stored by process-tier1.mjs v1.
+-- julianday math preserves sub-second precision; strftime('%s') would truncate
+-- fractional seconds and under-count gaps in the 900-901 second window. Discord
+-- timestamps carry ms precision (e.g. '2016-04-05T11:30:43.787Z'), and the Bun
+-- executor compares via Date.getTime() in integer ms. This probe matches that
+-- behavior to within float-precision edge cases at exactly-900-second gaps.
+WITH filtered AS (
+  SELECT m.id, m.channel_name, m.created_at
+  FROM messages m
+  JOIN message_labels ml ON ml.message_id = m.id
+  WHERE m.platform = 'discord'
+    AND ml.category IN ('chat', 'link')
+),
+with_gap AS (
+  SELECT
+    channel_name,
+    created_at,
+    (julianday(created_at) - julianday(LAG(created_at) OVER (PARTITION BY channel_name ORDER BY created_at))) * 86400 AS gap_sec
+  FROM filtered
+)
+SELECT COUNT(*) AS new_session_count
+FROM with_gap
+WHERE gap_sec IS NULL OR gap_sec > 900;
+```
+
+Verified result (run 2026-05-02 against `data/qw.db`): **84,369 sessions** (down from 88,214 under the old algorithm; the reduction comes from empty sessions disappearing -- those 4,272 sessions had no chat/link content so they never form a boundary under filter-then-segment).
+
+`message_labels` row count is unchanged at **717,389** -- every imported message still gets exactly one label row.
 
 **Files.** `apps/qw-oracle/scripts/load-chat/classify.ts`, `apps/qw-oracle/scripts/load-chat/build-sessions.ts`.
 
 **Steps.**
 
-- [ ] Create `apps/qw-oracle/scripts/load-chat/classify.ts`. Pure-function classifier; no DB access. Direct port of `process-tier1.mjs:23-93`.
+- [ ] Create `apps/qw-oracle/scripts/load-chat/classify.ts`. Pure-function classifier; no DB access.
 
 ```ts
 // apps/qw-oracle/scripts/load-chat/classify.ts
 //
 // Deterministic message classifier. No LLM. Port of scripts/process-tier1.mjs
-// classification rules, line-for-line, including the bot command patterns and
-// the reaction-words list.
-
-const BOT_COMMAND_PATTERNS: RegExp[] = [
-  /^[!.]\w/,                                        // !command or .command
-  /^(my luck|fishbot |learn |forget |suka|logan)/i,
-  /^(ttop10|!ttop10|!top10)/i,
-];
+// classification rules (process-tier1.mjs:56-93) with two hygiene tightenings:
+//
+// 1. BOT_COMMAND_PATTERNS removed -- IRC-era artifact (process-tier1.mjs:26-30).
+//    Discord exposes author_is_bot reliably; the pattern slice false-positives on
+//    .zip / .tar.gz / !Voteban / numeric expressions from human authors.
+//    See docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md bot category audit.
+//
+// 2. Duplicate 'xd' removed from REACTION_WORDS (was at process-tier1.mjs:37 and :39).
 
 const REACTION_WORDS: ReadonlySet<string> = new Set([
   // text emoticons
@@ -680,15 +751,22 @@ export function classifyMessage(msg: ClassifyInput): Category {
 }
 ```
 
-- [ ] Create `apps/qw-oracle/scripts/load-chat/build-sessions.ts`. Port of `process-tier1.mjs:95-273`. The shape is preserved: per-channel pass, gap segmentation on non-system messages, flush-session on gap-exceeded, classifier output written to `message_labels`.
+- [ ] Create `apps/qw-oracle/scripts/load-chat/build-sessions.ts`. Port of `process-tier1.mjs:95-273` with filter-then-segment.
 
 ```ts
 // apps/qw-oracle/scripts/load-chat/build-sessions.ts
 //
-// Port of scripts/process-tier1.mjs. Rebuilds sessions + message_labels from
-// raw messages. Idempotent: existing-version short-circuit, then TRUNCATE +
-// rebuild. Classifier rules and gap-segmentation logic match the SQLite-era
-// pipeline 1:1.
+// Port of scripts/process-tier1.mjs with filter-then-segment hygiene change.
+// Key behavioral difference from process-tier1.mjs:148-172:
+//   Old: ANY non-system message advances prevTs and can bridge a gap.
+//   New: ONLY chat/link messages drive gap detection and session creation.
+//   Bot/reaction/system messages are still classified and written to
+//   message_labels with session_id IS NULL.
+//
+// Consequence: empty sessions (sessions with zero chat/link messages) disappear
+// by construction -- no explicit skip needed because they never form a session
+// boundary. Expected session count drops from 88,214 to 84,369 (verified against
+// qw.db 2026-05-02; see Task 5 probe SQL).
 //
 // Usage:
 //   bun scripts/load-chat/build-sessions.ts            # checks processing_log; aborts if version 'v1' already shipped
@@ -763,7 +841,11 @@ async function processChannel(
   // All channel writes inside one transaction; speed and crash-safety.
   await db.begin(async (tx) => {
     async function flushSession(): Promise<void> {
-      if (!sessionStart || sessionMessages.length === 0) return;
+      // Under filter-then-segment, sessionStart is only set when a chat/link
+      // message opened this session. If sessionChatCount is 0 we somehow
+      // reached flushSession with no chat/link content -- skip (shouldn't
+      // happen under the new algorithm, but guards the empty-session invariant).
+      if (!sessionStart || sessionChatCount === 0) return;
       const inserted = await tx<{ id: number }[]>`
         INSERT INTO sessions (channel_name, platform, started_at, ended_at,
                               message_count, chat_message_count, participant_count,
@@ -795,6 +877,11 @@ async function processChannel(
       sessionEnd = null;
     }
 
+    // orphanBuffer: messages that arrived before the first chat/link message in
+    // a potential new session, or after a flush with no subsequent chat/link.
+    // These are written with session_id IS NULL after the channel pass completes.
+    const orphanBuffer: PendingLabel[] = [];
+
     for (const msg of messages) {
       const ts = new Date(msg.created_at).getTime();
       const category = classifyMessage({
@@ -803,22 +890,41 @@ async function processChannel(
         content: msg.content,
         attachment_count: msg.attachment_count,
       });
-      if (category !== 'system') {
+
+      // Only chat/link messages drive gap detection and session creation.
+      // Bot/reaction/system messages do NOT advance prevTs (changed from
+      // process-tier1.mjs:148-172 which advanced prevTs for all non-system).
+      if (category === 'chat' || category === 'link') {
         if (prevTs === null || ts - prevTs > gapMs) {
           await flushSession();
           sessionStart = msg.created_at;
         }
         sessionEnd = msg.created_at;
         prevTs = ts;
-      }
-      sessionMessages.push(msg);
-      if (category === 'chat' || category === 'link') {
+        sessionMessages.push(msg);
         sessionParticipants.add(msg.author_name);
         sessionChatCount += 1;
+        labelsBuffer.push({ messageId: msg.id, category });
+      } else {
+        // bot/reaction/system: record for labeling with NULL session_id later.
+        sessionMessages.push(msg);
+        orphanBuffer.push({ messageId: msg.id, category });
       }
-      labelsBuffer.push({ messageId: msg.id, category });
     }
     await flushSession();
+
+    // Write orphaned labels (bot/reaction/system) with session_id IS NULL.
+    // Preserves the "every imported message has a label row" invariant.
+    for (const lbl of orphanBuffer) {
+      await tx`
+        INSERT INTO message_labels (message_id, session_id, category, version)
+        VALUES (${lbl.messageId}, NULL, ${lbl.category}, ${VERSION})
+        ON CONFLICT (message_id) DO UPDATE
+          SET session_id = NULL,
+              category   = EXCLUDED.category,
+              version    = EXCLUDED.version
+      `;
+    }
   });
 
   return { sessions: totalSessions, labeled: messages.length };
@@ -886,8 +992,85 @@ docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d
 docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT category, COUNT(*) FROM message_labels GROUP BY category ORDER BY COUNT(*) DESC"
 ```
 
-- PASS condition: `sessions` count is within 1% of the Discord-only baseline recorded in Task 3; `message_labels` count equals `messages` count (1:1 labeling); category breakdown roughly matches the Discord-only baseline recorded in Task 3.
+- PASS condition: `sessions` count is within 1% of **84,369** (filter-then-segment baseline, probed 2026-05-02); `message_labels` count equals `messages` count (717,389 -- every message has exactly one label row); category breakdown matches Discord-only expected (chat ~664,830; reaction ~25,878; link ~17,381; bot ~9,156; system ~144); `message_labels` rows with `session_id IS NULL` cover the non-chat/non-link set (~35,178 rows for bot + reaction + system combined: 9,156 + 25,878 + 144, per design doc category audit).
 - FAIL condition: drift on session count or label count beyond 1%; missing categories; or label count != message count (PRIMARY KEY constraint violation suggests a duplicate message id slipped through).
+
+### Task 5b: `build-session-references.ts` (reply graph)
+
+**Goal.** After sessions are built, aggregate Discord reply edges (`messages.referenced_message_id`) into `session_references`. Each row captures how many times a message in `source_session` replied to a message in `target_session`. Within-session replies (source = target) are skipped. Phase 6's `search_solved_issues` uses this table to surface sessions linked by reply chains.
+
+**Files.** `apps/qw-oracle/scripts/load-chat/build-session-references.ts`.
+
+**Steps.**
+
+- [ ] Create `apps/qw-oracle/scripts/load-chat/build-session-references.ts`:
+
+```ts
+// apps/qw-oracle/scripts/load-chat/build-session-references.ts
+//
+// Builds session_references from messages.referenced_message_id.
+// Must run after build-sessions.ts (needs message_labels.session_id populated).
+// Idempotent: TRUNCATE + rebuild.
+//
+// Algorithm:
+//   For each message m that has a referenced_message_id:
+//     - source_session = message_labels.session_id for m (may be NULL if m is bot/reaction)
+//     - target_session = message_labels.session_id for the referenced message (may be NULL)
+//     - If either session is NULL or source = target: skip.
+//     - Otherwise: increment the (source, target) count.
+//
+// Usage:
+//   bun scripts/load-chat/build-session-references.ts
+
+import { db, closeDb } from '../../shared/db.ts';
+
+async function main(): Promise<void> {
+  console.log('[build-session-references] truncating session_references');
+  await db`TRUNCATE session_references`;
+
+  // Single INSERT ... SELECT aggregation over the reply graph.
+  // Both source and target message_labels rows must have non-NULL session_id
+  // (i.e., the replying message and the referenced message both belong to a
+  // real chat/link session). Cross-session condition excludes within-session
+  // replies (source_session_id <> target_session_id).
+  const result = await db`
+    INSERT INTO session_references (source_session_id, target_session_id, reference_count)
+    SELECT
+      src_lbl.session_id  AS source_session_id,
+      tgt_lbl.session_id  AS target_session_id,
+      COUNT(*)            AS reference_count
+    FROM messages m
+    JOIN message_labels src_lbl ON src_lbl.message_id = m.id
+    JOIN messages ref_m         ON ref_m.id = m.referenced_message_id
+    JOIN message_labels tgt_lbl ON tgt_lbl.message_id = ref_m.id
+    WHERE m.referenced_message_id IS NOT NULL
+      AND src_lbl.session_id IS NOT NULL
+      AND tgt_lbl.session_id IS NOT NULL
+      AND src_lbl.session_id <> tgt_lbl.session_id
+    GROUP BY src_lbl.session_id, tgt_lbl.session_id
+    ON CONFLICT (source_session_id, target_session_id) DO UPDATE
+      SET reference_count = EXCLUDED.reference_count
+  `;
+  console.log('[build-session-references] done');
+}
+
+if (import.meta.main) {
+  try { await main(); } finally { await closeDb(); }
+}
+```
+
+**Verification.**
+
+```
+cd apps/qw-oracle
+bun scripts/load-chat/build-session-references.ts
+docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT COUNT(*) FROM session_references"
+docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT target_session_id, SUM(reference_count) AS inbound FROM session_references GROUP BY target_session_id ORDER BY inbound DESC LIMIT 5"
+docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT COUNT(*) FROM session_references WHERE source_session_id = target_session_id"
+```
+
+- PASS condition: `session_references` row count > 0 (Discord has 32,863 messages with `referenced_message_id`; some fraction cross session boundaries); the within-session self-reference count = 0 (the CHECK constraint enforces this but the query confirms no data violation); the top-5 inbound query returns rows showing some sessions are referenced by many others.
+- FAIL condition: row count = 0 (suggests `referenced_message_id` data was not imported, or all replies happened within the same session -- verify `SELECT COUNT(*) FROM messages WHERE referenced_message_id IS NOT NULL`); or within-session count > 0 (logic error in the aggregate).
 
 ### Task 6: `build-search-index.ts` (port of build-search-index.mjs)
 
@@ -1378,6 +1561,15 @@ bun scripts/load-chat/build-sessions.ts
 
 Expected: session count and label count match the Discord-only baseline recorded in Task 3 (label count == message count == ~717,389; one `processing_log` row with `version='v1', finished_at IS NOT NULL`).
 
+- [ ] Build session references (reply graph):
+
+```
+cd apps/qw-oracle
+bun scripts/load-chat/build-session-references.ts
+```
+
+Expected: `session_references` row count > 0. Discord has 32,863 messages with `referenced_message_id`; some fraction cross session boundaries.
+
 - [ ] Build search index:
 
 ```
@@ -1417,11 +1609,11 @@ ls apps/qw-oracle/data/qw.db* 2>&1     # expect: 'No such file or directory'
 
 Run from `apps/qw-oracle/`. PASS = proceed to Phase 4. FAIL = consult Recovery.
 
-1. **All 7 Layer 2 tables exist.**
+1. **All 8 Layer 2 tables exist.**
    ```
-   docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "\dt messages discord_channels import_log processing_log sessions message_labels session_search"
+   docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "\dt messages discord_channels import_log processing_log sessions message_labels session_search session_references"
    ```
-   PASS condition: all 7 listed.
+   PASS condition: all 8 listed.
    FAIL condition: any missing.
 
 2. **tsvector config is `'simple'` on Layer 2 tsv columns (D7, F9 closure).**
@@ -1445,8 +1637,8 @@ Run from `apps/qw-oracle/`. PASS = proceed to Phase 4. FAIL = consult Recovery.
    docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT category, COUNT(*)::int FROM message_labels GROUP BY category ORDER BY COUNT(*) DESC"
    docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "SELECT channel_name, COUNT(*)::int FROM messages GROUP BY channel_name ORDER BY channel_name"
    ```
-   PASS condition: `messages.platform` shows only `discord ~717,389`; per-channel counts match baseline (#antilag ~19,438; #dev-corner ~206,739; #helpdesk ~103,361; #quakeworld ~387,851); sessions / message_labels / session_search / discord_channels / import_log all within 1% of recorded numbers; categories present (`chat`, `system`, `reaction`, `link`, `bot`); `discord_channels` = 4; `import_log` = 4.
-   FAIL condition: any count drifts beyond 1%, or `messages` returns any platform != `'discord'`.
+   PASS condition: `messages.platform` shows only `discord ~717,389`; per-channel counts match baseline (#antilag ~19,438; #dev-corner ~206,739; #helpdesk ~103,361; #quakeworld ~387,851); `sessions` within 1% of **84,369** (filter-then-segment baseline, probed 2026-05-02); `message_labels` = 717,389 (1:1 with messages); `session_search` within 1% of `sessions` count; `discord_channels` = 4; `import_log` = 4; categories present (`chat`, `system`, `reaction`, `link`, `bot`); `message_labels` rows with `session_id IS NULL` > 0 (the non-chat/non-link set).
+   FAIL condition: any count drifts beyond 1%, or `messages` returns any platform != `'discord'`, or `message_labels` count != `messages` count.
 
 5. **`message_labels` is 1:1 with `messages` (PRIMARY KEY invariant).**
    ```
@@ -1498,8 +1690,8 @@ If all 10 PASS, Phase 4 may proceed.
 
 ## Outputs to next phase
 
-- `qw_oracle` and `qw_oracle_test` carry the Discord-only Layer 2 schema (7 tables; tsvector `'simple'`; platform CHECK locked to `'discord'`; FK CASCADEs in place).
-- `qw_oracle` is populated: ~717k messages, all on `platform='discord'`; sessions and message_labels match per Task 3 baseline; session_search rebuilt for sessions with chat content; `import_log` and `processing_log` carry per-file / per-version bookkeeping.
+- `qw_oracle` and `qw_oracle_test` carry the Discord-only Layer 2 schema (8 tables; tsvector `'simple'`; platform CHECK locked to `'discord'`; FK CASCADEs in place; `message_labels.session_id` NULLABLE; `session_references` reply-graph table present).
+- `qw_oracle` is populated: ~717k messages, all on `platform='discord'`; sessions ~84,369 (filter-then-segment baseline); message_labels = 717,389 (every message labeled; non-chat/non-link rows have session_id IS NULL); session_search rebuilt for sessions with chat content; `session_references` holds cross-session reply edges; `import_log` and `processing_log` carry per-file / per-version bookkeeping.
 - `apps/qw-oracle/scripts/load-chat/` holds the new TS pipeline; `package.json` exposes it via `load-chat:*` scripts (no `load-chat:irc`).
 - `data/qw.db*` files are gone; legacy `.mjs` scripts are gone.
 - `apps/qw-oracle/CLAUDE.md` documents the Layer 2 status: Discord-only, IRC excluded under D9-revised.
@@ -1530,6 +1722,8 @@ Phase 4 inputs: this state, plus the Layer 3 concept-note source files at `apps/
    **Who can resolve:** operator if a future audit calls for uniform BIGINT.
 
 6. **Resolved 2026-05-02:** `messages.platform` (and the symmetric columns on `sessions`, `session_search`, `import_log`) is **kept** with `CHECK (platform = 'discord')`. Operator confirmed: Arc 3 reconsideration becomes a one-line `ALTER TABLE ... DROP CONSTRAINT ... ADD CONSTRAINT ... CHECK (platform IN ('discord', 'irc'))`; dropping would force a column-add migration plus a backfill of existing rows in Arc 3 (order of magnitude more work). The redundant-column cost is negligible (4 bytes per row at most), and asymmetric drops vs. `sessions` / `session_search` / `import_log` would be a code smell. No further action - the migration in Task 1 already encodes this.
+
+7. **Resolved 2026-05-02 (Phase 3 amendment):** The "Layer 2 hygiene sidequest" that was parked at `docs/superpowers/parking/2026-05-02-layer2-hygiene-sidequest-prompt.md` is dissolved. The four cheap fixes (filter-then-segment, nullable session_id, drop BOT_COMMAND_PATTERNS, drop duplicate xd) and the reply-reference graph are absorbed into Phase 3. The micro-session over-segmentation issue (#2 in the hygiene design doc) and reply-chain-merging (#6) remain open for a future post-Arc-1 pass if the operator judges the session shape needs improvement after Phase 8 eval. No parking prompt exists for that work yet; the hygiene design doc at `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` is the durable research artifact. See `decisions.md` D18.
 
 ## Recovery (if verification fails)
 

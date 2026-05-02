@@ -235,4 +235,32 @@ Each phase MD has an "Open questions" section at the bottom. If the drafter enco
 
 ---
 
-*End of decisions. If a future phase needs to override one of these, that override goes here as an amendment with date + reason — not silently in the phase MD.*
+## D18. Layer 2 port absorbs hygiene tightenings + reply-reference graph (2026-05-02)
+
+**Decision:** Phase 3 absorbs four port-time hygiene tightenings from the Layer 2 hygiene design doc (`docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md`) plus a reply-reference graph table. The post-Arc-1 "Layer 2 hygiene sidequest" is dissolved -- nothing of substance remains for it.
+
+**What Phase 3 now does beyond the plain port:**
+
+1. **Filter-then-segment.** `build-sessions.ts` drives session boundaries only over `category IN ('chat', 'link')`. Bot/reaction/system messages do NOT advance the gap clock and do NOT open sessions. Empty sessions disappear by construction. Gap threshold stays at 15 minutes (one algorithmic change at a time; if Phase 8 eval reveals the threshold is wrong, flip the constant then).
+
+2. **`message_labels.session_id` is NULLABLE.** Label rows for bot/reaction/system messages are written with `session_id IS NULL`. Preserves the invariant that every imported message has exactly one label row. Session-scoped queries add `WHERE session_id IS NOT NULL`.
+
+3. **`BOT_COMMAND_PATTERNS` dropped from `classify.ts`.** Discord exposes `author_is_bot` reliably; the regex slice was IRC-era and produces false positives on Discord content (.zip, .tar.gz, numeric expressions). The 359 human messages currently false-positive-flagged will be reclassified as 'chat' under the new shape -- which is correct.
+
+4. **Duplicate `'xd'` removed from `REACTION_WORDS`.** `process-tier1.mjs:37` and `:39` both had `'xd'`; `Set` deduped silently but the duplicate is noise.
+
+5. **`session_references` table.** Built post-segmentation from `messages.referenced_message_id`. Aggregates cross-session reply edge counts into `(source_session_id, target_session_id, reference_count)`. Within-session replies skipped. Phase 6's `search_solved_issues` will use this table. Phase 3 only builds it; Phase 6 queries it.
+
+**Verification baselines (probed 2026-05-02 against `data/qw.db` before deletion):**
+
+- Old session count (SQLite era, `process-tier1.mjs` algorithm): 88,214
+- New session count (filter-then-segment): **84,369** (SQL window-function probe; see Task 5 in `phase-3-layer2-port.md`)
+- `message_labels` row count: **717,389** (unchanged; every message still has one label row)
+
+**Sidequest status:** The hygiene design doc's issues #2 (micro-session over-segmentation) and #6 (reply-chain-aware merging) remain open for a potential post-Arc-1 pass. No parking prompt for that work currently exists. The design doc at `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` is the durable research artifact for anyone who picks it up.
+
+**Encoding:** `docs/superpowers/plans/2026-05-02-qw-oracle-arc1/phase-3-layer2-port.md` Task 5 (filter-then-segment + classify hygiene) and Task 5b (build-session-references).
+
+---
+
+*End of decisions. If a future phase needs to override one of these, that override goes here as an amendment with date + reason -- not silently in the phase MD.*
