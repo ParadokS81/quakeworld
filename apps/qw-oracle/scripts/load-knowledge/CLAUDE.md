@@ -1,6 +1,6 @@
 # qw-oracle/scripts/load-knowledge/
 
-The Layer 1 loader: SQLite schema, per-entity-type adapters, version dispatcher, diff/blame engine, snapshot builder.
+The Layer 1 loader: per-entity-type adapters, version dispatcher, diff/blame engine, snapshot builder. Backed by Postgres + postgres-js since Arc 1 Phase 2 (2026-05-02).
 
 ## Documentation index
 
@@ -11,6 +11,6 @@ The Layer 1 loader: SQLite schema, per-entity-type adapters, version dispatcher,
 ## Always-on rules
 
 - **Adapter pattern** -- each `load-<type>.ts` reads extractor JSON, upserts via `natural-keys.ts`, registers diffs via `diff-versions.ts`.
-- **Schema migrations** -- bump `SCHEMA_VERSION` in `schema.ts`, add `SCHEMA_V<N>_MIGRATION_SQL` + `migrateV<N-1>ToV<N>`. CHECK widening requires a table rebuild (pattern at v8/v10/v12).
+- **Schema migrations** -- the migrator at `apps/qw-oracle/db/migrate.ts` runs `.sql` files in `db/migrations/` in lexical order, tracking applied migrations via `schema_migrations` (filename, applied_at, sha256). Append-only; editing an already-applied migration is rejected. Runtime constants (SCHEMA_VERSION, HEAD_ORDINAL, etc.) live in `constants.ts`; runtime metadata writes to the `oracle_meta` table.
 - **Regression drop-guard load-bearing** -- `load-version.ts` aborts on >50% entity-count drop without `--force`. Don't bypass.
 - **`review/` subdir** -- semantic-match + cluster-confirmation tools; deeper diff workflow, separate from the main loader path.

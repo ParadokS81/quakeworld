@@ -19,13 +19,11 @@
   },
   "dependencies": {
     "@qw/version-resolution": "workspace:*",
-    "better-sqlite3": "^11.0.0",
     "js-yaml": "^4.1.1",
     "postgres": "^3.4.5",
     "ulid": "^2.4.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.19.39",
     "bun-types": "^1.3.12",
