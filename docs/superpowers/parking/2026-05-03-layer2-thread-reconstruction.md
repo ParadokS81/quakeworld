@@ -2,13 +2,15 @@
 
 **Status:** Parked. Trigger: post-Phase-8 deploy of qw-oracle Arc 1, after real-query evidence from `query_log` establishes whether FTS-only Layer 2 retrieval is the bottleneck.
 
-**Author context:** ParadokS + Claude (Opus 4.7), surfaced during Phase 3 close (2026-05-02) and given research backing on 2026-05-03 just after Phase 4 shipped.
+**Author context:** ParadokS + Claude (Opus 4.7), surfaced during Phase 3 close (2026-05-02), given research backing on 2026-05-03 just after Phase 4 shipped, and refined later that same day with hallucination-mitigation, junk-pruning, and survivorship-bias updates.
 
 ---
 
 ## TL;DR
 
-Arc 1's Layer 2 ships with timestamp-based session segmentation (15-min gap heuristic) and FTS retrieval. This document captures a richer alternative: re-segment Discord chat by topic threads using LLM analysis over monthly windows, then summarize and embed those threads as the primary retrieval unit. Cost is equivalent to the original "summarize each session and embed" plan that was already deferred to Arc 3 -- the LLM is reading the corpus either way; the question is whether it sees timestamp buckets or natural-boundary windows.
+Arc 1's Layer 2 ships with timestamp-based session segmentation (15-min gap heuristic) and FTS retrieval. This document captures a richer alternative: re-segment Discord chat by topic threads using LLM analysis over natural-lull-bounded chunks of the corpus, then summarize and embed those threads as the primary retrieval unit. Cost is roughly equivalent to the original "summarize each session and embed" plan that was already deferred to Arc 3 -- the LLM is reading the corpus either way; the question is whether it sees timestamp buckets or topic-coherent threads.
+
+The pipeline is five stages: glossary primer bootstrap, heuristic junk pruning, within-session disentanglement, cross-session topic merging, final summary + embed. Threads are tagged with a resolution status (`solved` / `unresolved` / `informational`) which is structural metadata, NOT a retrieval filter.
 
 The within-session disentanglement step is well-trodden academic territory (~18 years of research; field name "conversation disentanglement"). The cross-session recurring-topic merging step is novel but tractable via embedding-similarity clustering, not per-message classification.
 
@@ -16,22 +18,25 @@ The within-session disentanglement step is well-trodden academic territory (~18 
 
 The architectural thesis: **a chat session bounded by a 15-minute timestamp gap is an artifact of the recording medium, not a unit of meaning.** Real chat has multiple topics interleaved in single sittings, and recurring topics span days, weeks, years. A retrieval system whose primary unit is the timestamp-bucket loses both signals -- the interleaved-topics case is conflated, and the cross-time-recurring case is fragmented.
 
-An LLM with month-long context can produce thread units that respect the actual conversational structure rather than the timing artifact. Search hits return threads (rich retrieval units that span what the conversation actually was), with the underlying timestamp-sessions still available for adjacent-context display.
+An LLM with sufficient context can produce thread units that respect the actual conversational structure rather than the timing artifact. Search hits return threads (rich retrieval units that span what the conversation actually was), with the underlying timestamp-sessions still available for adjacent-context display.
 
 ## The cost-equivalence insight
 
 The original Arc 1 plan deferred Layer 2 enrichment (segment / classify / summarise / embed) to Arc 3 per `decisions.md` D5. Specifically, Arc 3 was going to summarize each session and embed the summaries. That's ~86,423 LLM calls over the current corpus.
 
-A primer-grounded monthly-window thread reconstruction approach is roughly equivalent total compute:
+A primer-grounded, junk-pruned, quiet-hour-chunked thread reconstruction approach is roughly equivalent total compute:
 
 | Approach | Calls | Total tokens | Sonnet cost |
 |---|---|---|---|
 | Per-session summarize + embed (original Arc 3 plan) | ~86k | ~50M | ~$195 |
 | Stage 0 glossary bootstrap (5-10 iterations) | ~100-200 | ~5M | ~$5-15 |
-| Stages 1+2+3 monthly thread reconstruction + summarize + embed | ~240 | ~40M | ~$120 |
-| **Total full pipeline (Stages 0+1+2+3)** | **~440** | **~45M** | **~$125-135** |
+| Stage 1 heuristic-pruning bootstrap (10% sample → derive script) | ~25 | ~5M | ~$15 |
+| Stage 2 within-session disentanglement on pruned corpus | ~200 | ~30M | ~$90 |
+| Stage 3 cross-session merging (mostly embedding ops) | minimal LLM | -- | < $5 |
+| Stage 4 final summary + embed at thread granularity | ~50 | ~5M | ~$15 |
+| **Total full pipeline (Stages 0+1+2+3+4)** | **~400-500** | **~50M** | **~$130-140** |
 
-So this is not "more compute" -- it is the same compute spent on a different unit, with a small extra investment ($5-15) in Stage 0 that produces a durable primer asset shared across the whole knowledge service. The LLM reads the corpus either way; the question is whether it sees timestamp buckets or primer-grounded natural-boundary windows.
+So this is not "more compute" -- it is the same compute spent on a different unit, with small extra investment in primer + junk-heuristic bootstrap that produces durable artifacts shared across the whole knowledge service. The LLM reads the corpus either way; the question is whether it sees timestamp buckets or primer-grounded, junk-pruned, natural-boundary windows.
 
 ## Architecture
 
@@ -50,11 +55,13 @@ CREATE TABLE chat_threads (
   topic_summary          TEXT NOT NULL,
   topic_embedding        vector(1024),
   topic_summary_tsv      tsvector GENERATED ALWAYS AS (to_tsvector('simple', coalesce(topic_summary, ''))) STORED,
+  resolution_status      TEXT NOT NULL CHECK (resolution_status IN ('solved', 'unresolved', 'informational')),
   reconstruction_version TEXT NOT NULL,
   reconstructed_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX chat_threads_channel_started ON chat_threads(channel_name, date_range_start);
 CREATE INDEX chat_threads_topic_tsv       ON chat_threads USING GIN (topic_summary_tsv);
+CREATE INDEX chat_threads_status          ON chat_threads(resolution_status);
 -- pgvector index on topic_embedding per Phase 5 conventions
 
 CREATE TABLE thread_messages (
@@ -67,9 +74,11 @@ CREATE INDEX thread_messages_message ON thread_messages(message_id);
 
 The junction table is many-to-many: a meta-comment that responds to two ongoing topics belongs to both threads. `sessions` (Phase 3) stays unchanged as raw timestamp grouping; threads layer on top. `session_references` (Phase 3 reply graph) coexists -- it carries Discord-native explicit reply structure, while threads carry LLM-derived topic structure.
 
-### Pipeline (four stages, primer-grounded)
+`resolution_status` is metadata, not a filter (see "What this is NOT" below). The CHECK enum is intentionally tiny: anything more nuanced should live in `topic_summary` text rather than a structured field.
 
-LLMs reading raw QW chat without grounding will treat domain terms (`cl_bob`, `+forward`, `rune timing`, `cmt5`) as unfamiliar tokens. This is one of the dominant failure modes in chat-disentanglement quality. The pipeline therefore starts with an iterative bootstrap that builds a strong domain primer before any production work runs.
+### Pipeline (five stages, primer-grounded, junk-pruned, lull-chunked)
+
+LLMs reading raw QW chat without grounding will treat domain terms (`cl_bob`, `+forward`, `rune timing`, `cmt5`) as unfamiliar tokens. They will also lose attention on long banter-heavy windows and start hallucinating message IDs. The pipeline therefore starts with two preparatory stages that build durable artifacts (a domain primer and a junk-pruning heuristic) before any expensive disentanglement work runs.
 
 **Stage 0: Iterative glossary bootstrap (runs once until convergence).**
 
@@ -87,24 +96,55 @@ Primer artifacts persist as a durable file (likely extends `packages/qw-knowledg
 
 **Cost:** each iteration ~$1-2 in Sonnet compute; 5-10 iterations to convergence = $5-15 total. Plus 30-60 minutes of operator triage per round.
 
-**Stage 1: Within-session disentanglement (primer-grounded).** For each session containing more than one chat / link message, an LLM call (with primer prepended) splits the session into topic-coherent sub-threads. Output per call: thread proposals with member message IDs and a one-sentence topic label. Local, bounded, fits in standard context windows. The primer presence is what differentiates this from the academic benchmarks (none of which prime with domain glossary).
+**Stage 1: Heuristic junk pruning (NEW preparatory stage).**
 
-**Stage 2: Cross-session topic merging.** For each within-session thread proposal, embed the topic label using the Phase 5 Voyage pipeline. Cluster threads whose summary embeddings exceed a similarity threshold (e.g. cosine > 0.85) and whose participant sets overlap by at least one author. Merge into thread groups. The final `chat_threads` rows are the merged groups; the resulting cross-session thread can span days or years.
+Banter (`lol`, `brb`, random one-line social chatter) is dead weight at thread reconstruction time -- it costs tokens and dilutes the LLM's attention on real content. Filtering it on-the-fly inside the disentanglement prompt is unreliable at scale (the LLM will sometimes treat banter as topic-relevant, sometimes drop attention on it). A cheaper, more deterministic option: derive a programmatic junk-pruning heuristic up front, apply it to the whole corpus, and feed only the survivors to Stage 2.
 
-**Stage 3: Final summary + embed at thread granularity.** Each merged thread gets a final topic summary (LLM with primer) and topic embedding (Voyage). These are what `search_solved_issues` ultimately retrieves against.
+Two-pass shape:
+1. **Bootstrap pass.** Take a stratified 10% sample of the corpus (across channels, years, channel-character contexts). Run a Stage-2-style disentanglement prompt on each sample chunk with an extra instruction: "Tag each message as one of `domain` / `banter` / `meta`." This is throwaway analysis -- we are not keeping the disentanglement output, only the per-message tags.
+2. **Heuristic derivation.** Analyze the LLM-tagged sample to discover what `banter` looks like in this corpus. Likely signals: short messages (< 4 tokens), absence of any primer term, regex matches for common banter patterns (`^(lol|lmao|brb|gg|wp|ty|np|haha+|xd+)\W*$`, emoji-only, single-word reactions), no inbound or outbound reply edges, etc. Produce a fast Python (or TypeScript) script that approximates the LLM's `banter` judgment with high recall.
+3. **Production pass.** Run the script over the remaining 90% of the corpus. Drop messages tagged junk by the heuristic. Capture metrics: % pruned per channel, total token reduction, retained message count.
 
-Stage 1 dominates LLM cost. Stage 2 uses cheap embedding ops over a much smaller derived corpus (~100k thread-summary embeddings rather than per-message pairwise classification). Stage 3 is a small post-processing pass.
+Operator manually spot-checks heuristic precision on a small held-out batch before committing to the prune. Recall is more important than precision at this stage -- false positives (real content mislabeled junk) are visible in spot checks; false negatives (junk that survives) are absorbed by Stage 2's primer-grounded reasoning anyway.
 
-The literature has nothing on cross-month topic linkage in chat, but recasting it as embedding-similarity clustering side-steps the missing-precedent problem -- this part is GraphRAG-style community detection, which is a known pattern.
+Heuristic artifacts persist alongside the primer: a versioned regex/feature script under the qw-oracle repo, reusable for any future chat-corpus passes.
 
-**Why this 4-stage shape compounds:**
+**Cost:** ~$10-15 LLM compute for the bootstrap pass, plus a few hours of script-tuning. The heuristic itself runs in seconds over the full corpus and costs nothing afterwards.
+
+**Stage 2: Within-session disentanglement (primer-grounded, lull-chunked).**
+
+For each LLM call: a chunk of the pruned corpus, with the primer prepended, asking the LLM to split the chunk into topic-coherent sub-threads. Output per call: thread proposals with member message IDs and a one-sentence topic label. Local, bounded, fits in standard context windows. The primer presence is what differentiates this from the academic benchmarks (none of which prime with domain glossary).
+
+**Chunking strategy: quiet-hour cuts, not arbitrary windows.** Feeding an LLM massive blocks of text and asking for exact message IDs back is the dominant hallucination failure mode. Arbitrary fixed-size windows (e.g. "every 5,000 messages") will sometimes cut the middle of an active conversation and force the LLM to reason across an artificial seam. Instead, walk the corpus per-channel and use the original Arc 1 timestamp-gap concept at a larger scale: find natural lulls (multi-hour gaps, overnight quiet, weekend dead patches) and use those as chunk boundaries.
+
+The 15-minute Phase 3 sessions are too small to be meaningful chunks for this stage -- a natural-lull chunk will typically span several Phase 3 sessions. The Phase 3 sessions remain unchanged for adjacent-context display; they just are not the chunking unit here.
+
+**Chunk size is a tunable parameter, not a fixed value.** The Sample Test (below) doubles as chunk-size calibration: try multiple max-chunk sizes (e.g. 500, 1500, 3000, 6000 messages between cuts) and observe message-ID hallucination rate, attention drift, and disentanglement quality. Pick the largest size that holds quality.
+
+**Stage 3: Cross-session topic merging.**
+
+For each within-session thread proposal from Stage 2, embed the topic label using the Phase 5 Voyage pipeline. Cluster threads whose summary embeddings exceed a similarity threshold (e.g. cosine > 0.85) and whose participant sets overlap by at least one author. Optionally use `session_references` reply edges as an additional similarity signal. Merge into thread groups. The final `chat_threads` rows are the merged groups; the resulting cross-session thread can span days or years.
+
+This stage uses cheap embedding ops over a derived corpus (~tens of thousands of thread summaries rather than per-message pairwise classification). The literature has nothing on cross-month topic linkage in chat, but recasting it as embedding-similarity clustering side-steps the missing-precedent problem -- this part is GraphRAG-style community detection, which is a known pattern.
+
+**Stage 4: Final summary + embed at thread granularity (with status tagging).**
+
+Each merged thread gets a final topic summary (LLM with primer) and topic embedding (Voyage). The same call also assigns `resolution_status`:
+- `solved` -- the thread reached a clear conclusion (a fix, a confirmed answer, a working procedure).
+- `unresolved` -- a question or problem was raised and the thread petered out without a clear resolution.
+- `informational` -- a discussion / debate / share-out that did not need to "resolve" (announcements, banter that survived pruning, news).
+
+The summary + embedding are what `search_solved_issues` ultimately retrieves against. The status tag is structural metadata for operator-side analysis, not a retrieval filter.
+
+**Why this 5-stage shape compounds:**
 
 Each stage produces a durable artifact that the next consumes. Decoupled debugging:
-- If Stage 1 quality is poor on the sample test, the diagnosis is the primer -- back to Stage 0.
-- If Stage 2 quality is poor, the diagnosis is the similarity threshold or participant heuristic -- not the primer.
-- If Stage 3 summaries are weak, the diagnosis is the prompt -- the segmentation is fine.
+- If Stage 2 quality is poor on the sample test, the diagnosis is the primer (back to Stage 0) or the chunking (re-tune in Stage 2 sweep) or the pruning (re-tune Stage 1 heuristic).
+- If Stage 3 quality is poor, the diagnosis is the similarity threshold or participant heuristic -- not the primer or pruning.
+- If Stage 4 summaries are weak, the diagnosis is the prompt -- the segmentation is fine.
+- If `resolution_status` distribution looks wrong (e.g. 95% `informational`), the diagnosis is the Stage 4 prompt's status criteria, not anything upstream.
 
-Each stage's output is also independently inspectable. Operator can spot-check Stage 1 thread proposals before paying for Stage 2, etc.
+Each stage's output is also independently inspectable. Operator can spot-check primer coverage (Stage 0), heuristic recall (Stage 1), thread proposals (Stage 2), merge clusters (Stage 3), and final summaries + status tags (Stage 4) before paying for the next stage.
 
 ### Retrieval implications for Phase 6
 
@@ -113,11 +153,22 @@ If folded in **before** Phase 6 (new Phase 5.5):
 - Hybrid retrieval combines `chat_threads.topic_summary_tsv` (lexical) with `chat_threads.topic_embedding` (semantic) via RRF
 - Member messages are dereferenced for context display
 - Public MCP demo from day one runs on thread-based retrieval
+- All threads regardless of `resolution_status` are in the index; status is exposed in tool output as metadata, not used as a filter
 
 If folded in **after** Phase 8:
 - Phase 6 ships with sessions as the retrieval unit (current plan)
 - A later phase rewrites `search_solved_issues` to operate on threads
 - Migration cost is small: one tool's query rewriting plus the new schema migration
+
+### Operator-side use of `resolution_status`
+
+Independently of MCP retrieval, the status field unlocks two strategic workflows:
+
+1. **Layer 3 authoring backlog.** Cluster `unresolved` threads by topic embedding. Each cluster of recurring unresolved questions is a concrete signal that the community has a real, unanswered problem in that area -- which is exactly the kind of question Layer 3 concept notes should answer. The ranked list of unresolved-thread clusters becomes the operator's prioritised authoring queue.
+
+2. **Oracle regression benchmarks.** Take the unresolved questions and run them against the live qw-oracle MCP. If the Oracle (with current Layer 1 / Layer 2 / Layer 3 coverage) can now answer a question that the original community thread could not, that is direct evidence of value delivered. If it still cannot, the gap is concrete and actionable. The unresolved set is a self-renewing benchmark suite that grows with the corpus.
+
+This is why filtering unresolved threads out of the index would be a mistake (see "What this is NOT").
 
 ## Research backing
 
@@ -133,7 +184,7 @@ Field name: **conversation disentanglement** (sometimes "thread disentanglement"
 
 - `irc-disentanglement` (github.com/jkkummerfeld/irc-disentanglement) -- Kummerfeld 2019 baseline; IRC-only.
 - `CODI` (github.com/USIREVEAL/CODI) -- REST microservice; claims Discord support; research-grade (~8 GitHub stars).
-- `BERTopic` (github.com/MaartenGr/BERTopic) -- topic-clustering complement (useful for Stage 2 if a non-LLM clustering path is preferred).
+- `BERTopic` (github.com/MaartenGr/BERTopic) -- topic-clustering complement (useful for Stage 3 if a non-LLM clustering path is preferred).
 
 ### Commercial gap (confirmed)
 
@@ -146,10 +197,12 @@ These are the genuinely novel parts of the proposed architecture:
 1. **Multi-year recurring topic threads.** All published benchmarks use single-day windows. Cross-week / cross-month / cross-year topic linkage is uncharted in the academic literature.
 2. **Many-to-many message-thread membership.** All standard models are one-to-one (each message gets exactly one parent / thread). No training data, no evaluation protocol, no annotation scheme.
 3. **LLM-based reconstruction at 100k+ message scale.** No published cost / quality numbers at this scale. The largest annotated benchmark is 77,563 messages, and that is one channel one era.
+4. **Domain-primer grounding.** No published disentanglement work primes the model with a glossary of domain-specific terms before classification. Stage 0 is doing something the literature has not measured.
+5. **Heuristic junk pre-pruning.** Disentanglement papers operate on already-curated corpora. The Stage 1 bootstrap-then-script pattern (LLM tags junk on a sample → derive deterministic filter) is engineering, not research, but it is also not in the published pipelines.
 
 ### What this means
 
-The within-session step (Stage 1) maps to well-trodden territory; expected quality is in the 50-80% conversation-level F1 range (extrapolating from Kummerfeld 2019 / Bhukar 2023). Modern LLMs with good prompting likely land in similar territory without specific training. The cross-session merging (Stage 2) is novel-but-tractable because it operates on thread summaries (small, embedding-friendly) rather than raw messages. We are not building on a blank map for the hard parts -- we are using disentanglement literature where it is strong, and substituting embedding-similarity clustering for the parts the literature does not cover.
+The within-session step (Stage 2) maps to well-trodden territory; expected quality is in the 50-80% conversation-level F1 range (extrapolating from Kummerfeld 2019 / Bhukar 2023). Modern LLMs with good prompting likely land in similar territory without specific training, and the Stage 0 primer + Stage 1 pruning + Stage 2 quiet-hour chunking should push higher. The cross-session merging (Stage 3) is novel-but-tractable because it operates on thread summaries (small, embedding-friendly) rather than raw messages. We are not building on a blank map for the hard parts -- we are using disentanglement literature where it is strong, and substituting embedding-similarity clustering for the parts the literature does not cover.
 
 ## When to revisit
 
@@ -159,28 +212,38 @@ Trigger: post-Phase-8 deploy of qw-oracle Arc 1. Specifically:
 2. Real query patterns observed in `query_log` (Phase 7's standardized telemetry).
 3. Evidence: a meaningful fraction of `search_solved_issues` queries return weak / no hits where the corpus genuinely contains relevant content (i.e. FTS-only Layer 2 retrieval is the bottleneck, not Layer 1 entity coverage or Layer 3 concept-note coverage).
 
-If the bottleneck turns out to be elsewhere -- e.g. Layer 3 concept gaps, or Layer 1 entity-description quality -- thread reconstruction is the wrong lever to pull.
+If the bottleneck turns out to be elsewhere -- e.g. Layer 3 concept gaps, or Layer 1 entity-description quality -- thread reconstruction is the wrong lever to pull. The Stage 0 primer artifact is durable regardless and should be built first; primer-led Layer 1 / Layer 3 enrichment is independently valuable.
 
 ## The sample test (when triggered)
 
-**Prerequisite:** Stage 0 primer must be bootstrapped to convergence first. Otherwise arms 2 and 3 are evaluating the WRONG hypothesis -- a weak primer producing weak threads, rather than the architecture itself producing weak threads. Bootstrap first, evaluate after.
+**Prerequisites:**
 
-Once the primer is solid, run a 50-100 session sample test comparing four retrieval pipelines:
+1. Stage 0 primer must be bootstrapped to convergence first. Otherwise arms 2 and 3 are evaluating the WRONG hypothesis -- a weak primer producing weak threads, rather than the architecture itself producing weak threads.
+2. Stage 1 junk-pruning heuristic must be derived and validated. Otherwise Stage 2 sees noisy input and quality numbers are confounded by junk volume rather than disentanglement quality.
+
+Once both preparatory artifacts are solid, run a 50-100 lull-chunk sample test comparing four retrieval pipelines:
 
 | # | Pipeline | Description |
 |---|---|---|
 | 0 | FTS baseline | Phase 3 as-shipped: session tsvector lexical only |
 | 1 | Per-session embed (primer-grounded) | One summary per timestamp-session via primer-grounded LLM; embed summary |
-| 2 | Within-session threads | Stage 1 only; sub-threads at session granularity; embed per-thread summaries |
-| 3 | Full hybrid | Stages 1+2+3 cross-session merging |
+| 2 | Within-session threads | Stages 0+1+2 only; sub-threads at session granularity; embed per-thread summaries |
+| 3 | Full hybrid | Stages 0+1+2+3+4 cross-session merging + status tagging |
 
-Run all four against 10-15 representative queries from real production `query_log`. Cost: pennies in compute (Stage 0 already paid), an afternoon of pipeline scaffolding.
+Run all four against 10-15 representative queries from real production `query_log`. Cost: pennies in compute (Stages 0+1 already paid), an afternoon of pipeline scaffolding.
+
+**Stage 2 chunk-size calibration runs inside this test.** Within Pipelines 2 and 3, sweep at least 3 quiet-hour chunk sizes (e.g. 500, 1500, 3000 messages). Track:
+- Message-ID hallucination rate (LLM emits IDs that are not in the chunk -- direct evidence of attention loss)
+- Disentanglement coherence (operator spot-check on N threads per size)
+- Cost per chunk (tokens × calls)
+
+Pick the largest chunk size where hallucination stays near zero and coherence holds. Use that for any production run.
 
 Decision criteria:
 
 - If Pipeline 3 beats Pipeline 0 by a margin worth the schema complexity -> fold into Arc 1 as a new phase OR open Arc 3 with this as primary scope.
 - If Pipeline 1 beats Pipeline 3 by enough -> ship Pipeline 1 (simpler, no thread reconstruction; primer + per-session embed is itself a meaningful upgrade over FTS-only).
-- If neither beats Pipeline 0 meaningfully -> bottleneck is elsewhere; this lever does not help. Park indefinitely. The primer artifact is still durable; non-thread uses remain (Layer 1 / Layer 3 enrichment).
+- If neither beats Pipeline 0 meaningfully -> bottleneck is elsewhere; this lever does not help. Park indefinitely. The primer + junk-heuristic artifacts are still durable; non-thread uses remain (Layer 1 / Layer 3 enrichment, future corpus passes).
 
 ## Decision criteria for fold-in vs Arc 3
 
@@ -190,13 +253,15 @@ Decision criteria:
 | Sample-test margin Pipeline 3 vs Pipeline 0 | > 30% improvement on representative queries | < 15% |
 | Operator capacity / Arc 1 momentum | Still rolling | Other priorities pressing |
 | Arc 3 timing | Far away | Near-term |
+| `unresolved` cluster volume worth surfacing pre-deploy | High (operator wants the authoring backlog now) | Low (status field can come later) |
 
 ## What this is NOT
 
 - **Not a replacement** for Layer 1 entity embeddings (Phase 5) or Layer 3 chunk embeddings (Phase 5). Those are a separate concern. This is purely Layer 2 architecture.
-- **Not a replacement** for the reply-graph table (`session_references` shipped in Phase 3). Reply-graph is structured Discord-native data; thread reconstruction is LLM-derived. Both can coexist; Stage 2 merging can use reply-graph edges as a similarity signal.
+- **Not a replacement** for the reply-graph table (`session_references` shipped in Phase 3). Reply-graph is structured Discord-native data; thread reconstruction is LLM-derived. Both can coexist; Stage 3 merging can use reply-graph edges as a similarity signal.
 - **Not on the Arc 1 critical path.** Phases 5-8 ship without this. The original Arc 1 contract stands.
-- **Not novel as an idea.** The field has 18 years of research. What is novel is the combination (cross-session merging via embedding similarity + many-to-many membership + LLM-driven Stage 1 at 700k message scale).
+- **Not novel as an idea.** The field has 18 years of research. What is novel is the combination (cross-session merging via embedding similarity + many-to-many membership + LLM-driven Stage 2 at 700k message scale + domain primer grounding + heuristic junk pre-prune).
+- **Not a retrieval filter for unresolved threads.** Resolution status is structural metadata. Filtering unresolved threads out of the index would be the chat-corpus equivalent of Abraham Wald's WW2 bomber survivorship-bias error -- the threads that "made it home" (got solved) are the visible ones, but the threads that got abandoned are the structural vulnerabilities the community walked away from. Those are exactly the threads that surface gaps in current Layer 1 / Layer 3 coverage and that the operator wants visibility into. ALL threads regardless of `resolution_status` remain in the embedding index. Status drives operator-side workflows (authoring backlog, regression benchmarks), not retrieval filtering.
 
 ## Cross-references
 
@@ -205,6 +270,8 @@ Decision criteria:
 - `docs/superpowers/plans/2026-05-02-qw-oracle-arc1/decisions.md` D18 (Phase 3 hygiene amendments + dissolved L2 sidequest; thread reconstruction is the next-tier improvement after the hygiene fixes shipped in Phase 3).
 - `docs/superpowers/plans/2026-05-02-qw-oracle-arc1/phase-3-layer2-port.md` (current Layer 2 schema; this doc proposes additions, not modifications).
 - `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` (the dissolved L2 sidequest research; framed the post-Arc-1 segmentation work that this doc supersedes).
+- `packages/qw-knowledge/terminology` (existing voice-transcript-derived glossary that seeds Stage 0).
+- `apps/quad/` voice-transcript analyzer (precedent pattern for Stage 0 iterative LLM-uncertainty-sampling).
 
 ---
 
