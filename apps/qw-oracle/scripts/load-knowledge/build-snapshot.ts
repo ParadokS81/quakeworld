@@ -28,7 +28,7 @@
 // live in the extractor AST output, not knowledge.db, so we read them from
 // scripts/extractors/<project>/output/. QWCL has no group taxonomy.
 
-import Database from 'better-sqlite3';
+import postgres from 'postgres';
 import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -44,7 +44,7 @@ const DEFAULT_OUTPUT_DIR = join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'src', 'l
 
 const SNAPSHOT_SCHEMA_VERSION = 'snapshot-v1';
 
-// ─── enrichment shape (shared by every emitter) ────────────────────────────
+// --- enrichment shape (shared by every emitter) ----------------------------
 
 interface EnrichmentBlock {
   source_state: 'source_backed' | 'doc_only' | 'source_retired';
@@ -57,7 +57,7 @@ interface EnrichmentBlock {
 // Numeric-aware equality. Stored values stay raw (preserves fidelity to
 // upstream help_variables.json), but the comparison ignores formatting-only
 // differences like "0" vs "0.0", ".33" vs "0.33", "1.0" vs "1". Pure
-// string-token changes ("%H:%M:%S" → "0") still surface as transitions
+// string-token changes ("%H:%M:%S" -> "0") still surface as transitions
 // because Number() returns NaN for the non-numeric side.
 const NUMERIC_RE = /^-?(\d+(\.\d+)?|\.\d+)$/;
 function defaultsEqual(a: string | null, b: string | null): boolean {
@@ -71,58 +71,59 @@ function defaultsEqual(a: string | null, b: string | null): boolean {
   return false;
 }
 
-// Per (entity_id) → enrichment. Built once per project+type.
+// Per (entity_id) -> enrichment. Built once per project+type.
 //
 // default_history is computed by walking cvar_versions in ordinal order and
 // emitting (version, value) when the default differs from the prior version.
-// Only emitted when ≥2 distinct values exist (otherwise the field is
+// Only emitted when >=2 distinct values exist (otherwise the field is
 // uninteresting and would just duplicate the current default). The first
 // entry is always the value at first_seen_version (the baseline); subsequent
-// entries are change points. Only applies to cvars — other types don't carry
+// entries are change points. Only applies to cvars -- other types don't carry
 // a meaningful default_value column.
-function loadEnrichment(
-  db: Database.Database,
+async function loadEnrichment(
+  sql: postgres.Sql,
   project: Project,
   type: string,
-): Map<string, EnrichmentBlock> {
-  const entities = db.prepare(`
-    SELECT id, name, source_state, first_seen_version, last_seen_version
-    FROM entities
-    WHERE project = ? AND type = ?
-      AND source_state IN ('source_backed', 'dynamically_registered')
-  `).all(project, type) as Array<{
+): Promise<Map<string, EnrichmentBlock>> {
+  const entities = await sql<Array<{
     id: number;
     name: string;
     source_state: 'source_backed' | 'doc_only' | 'source_retired' | 'dynamically_registered';
     first_seen_version: string;
     last_seen_version: string;
-  }>;
+  }>>`
+    SELECT id, name, source_state, first_seen_version, last_seen_version
+    FROM entities
+    WHERE project = ${project} AND type = ${type}
+      AND source_state IN ('source_backed', 'dynamically_registered')
+  `;
 
   const historyByEntity = new Map<number, Array<{ version: string; value: string }>>();
   if (type === 'cvar') {
-    const rows = db.prepare(`
-      SELECT cv.entity_id, cv.version, cv.default_value, v.ordinal
-      FROM cvar_versions cv
-      JOIN entities e ON e.id = cv.entity_id
-      JOIN versions v ON v.project = e.project AND v.version = cv.version
-      WHERE e.project = ? AND cv.default_value IS NOT NULL
-      ORDER BY cv.entity_id, v.ordinal
-    `).all(project) as Array<{
+    const rows = await sql<Array<{
       entity_id: number;
       version: string;
       default_value: string;
       ordinal: number;
-    }>;
+    }>>`
+      SELECT cv.entity_id, cv.version, cv.default_value, v.ordinal
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      JOIN versions v ON v.project = e.project AND v.version = cv.version
+      WHERE e.project = ${project} AND cv.default_value IS NOT NULL
+      ORDER BY cv.entity_id, v.ordinal
+    `;
 
     let currentEntity: number | null = null;
     let priorValue: string | null = null;
     let history: Array<{ version: string; value: string }> = [];
     for (const r of rows) {
-      if (r.entity_id !== currentEntity) {
+      const entityId = Number(r.entity_id);
+      if (entityId !== currentEntity) {
         if (currentEntity != null && history.length >= 2) {
           historyByEntity.set(currentEntity, history);
         }
-        currentEntity = r.entity_id;
+        currentEntity = entityId;
         priorValue = null;
         history = [];
       }
@@ -137,14 +138,14 @@ function loadEnrichment(
   }
 
   // source_state_transitions records the canonical "removed_from_head" event.
-  const retirements = db.prepare(`
+  const retirements = await sql<Array<{ entity_id: number; version_context: string }>>`
     SELECT t.entity_id, t.version_context
     FROM source_state_transitions t
     JOIN entities e ON e.id = t.entity_id
-    WHERE e.project = ? AND e.type = ? AND t.reason = 'removed_from_head'
-  `).all(project, type) as Array<{ entity_id: number; version_context: string }>;
+    WHERE e.project = ${project} AND e.type = ${type} AND t.reason = 'removed_from_head'
+  `;
   const retiredAt = new Map<number, string>();
-  for (const r of retirements) retiredAt.set(r.entity_id, r.version_context);
+  for (const r of retirements) retiredAt.set(Number(r.entity_id), r.version_context);
 
   const out = new Map<string, EnrichmentBlock>();
   for (const e of entities) {
@@ -153,27 +154,19 @@ function loadEnrichment(
       first_seen_version: e.first_seen_version,
       last_seen_version: e.last_seen_version,
     };
-    const history = historyByEntity.get(e.id);
+    const history = historyByEntity.get(Number(e.id));
     if (history) block.default_history = history;
-    const retired = retiredAt.get(e.id);
+    const retired = retiredAt.get(Number(e.id));
     if (retired != null) block.retired_at_version = retired;
     out.set(e.name, block);
   }
   return out;
 }
 
-// ─── per-version row fetch (current state at the snapshot's version) ───────
+// --- per-version row fetch (current state at the snapshot's version) -------
 
-function fetchCvarRows(db: Database.Database, project: Project, version: string) {
-  return db.prepare(`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_values, cv.help_group_id,
-           cv.help_type, cv.default_value, cv.flag_names, cv.server_only, cv.source_root
-    FROM cvar_versions cv
-    JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND cv.version = ?
-      AND e.source_state IN ('source_backed', 'dynamically_registered')
-    ORDER BY e.name
-  `).all(project, version) as Array<{
+async function fetchCvarRows(sql: postgres.Sql, project: Project, version: string) {
+  return await sql<Array<{
     name: string;
     help_desc: string | null;
     help_remarks: string | null;
@@ -182,65 +175,75 @@ function fetchCvarRows(db: Database.Database, project: Project, version: string)
     help_type: string | null;
     default_value: string | null;
     flag_names: string | null;
-    server_only: number;
+    server_only: boolean;
     source_root: string | null;
-  }>;
-}
-
-function fetchCommandRows(db: Database.Database, project: Project, version: string) {
-  return db.prepare(`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_group_id, cv.source_root
-    FROM command_versions cv
+  }>>`
+    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_values, cv.help_group_id,
+           cv.help_type, cv.default_value, cv.flag_names, cv.server_only, cv.source_root
+    FROM cvar_versions cv
     JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND cv.version = ?
+    WHERE e.project = ${project} AND cv.version = ${version}
       AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
-  `).all(project, version) as Array<{
+  `;
+}
+
+async function fetchCommandRows(sql: postgres.Sql, project: Project, version: string) {
+  return await sql<Array<{
     name: string;
     help_desc: string | null;
     help_remarks: string | null;
     help_group_id: string | null;
     source_root: string | null;
-  }>;
-}
-
-function fetchMacroRows(db: Database.Database, project: Project, version: string) {
-  return db.prepare(`
-    SELECT e.name, mv.help_desc, mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json, mv.source_root
-    FROM macro_versions mv
-    JOIN entities e ON e.id = mv.entity_id
-    WHERE e.project = ? AND mv.version = ?
+  }>>`
+    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_group_id, cv.source_root
+    FROM command_versions cv
+    JOIN entities e ON e.id = cv.entity_id
+    WHERE e.project = ${project} AND cv.version = ${version}
       AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
-  `).all(project, version) as Array<{
+  `;
+}
+
+async function fetchMacroRows(sql: postgres.Sql, project: Project, version: string) {
+  // related_cvars_json is JSONB; postgres-js auto-decodes it to a JS value.
+  return await sql<Array<{
     name: string;
     help_desc: string | null;
     macro_type: string | null;
-    teamplay_restricted: number;
-    related_cvars_json: string | null;
+    teamplay_restricted: boolean;
+    related_cvars_json: unknown | null;
     source_root: string | null;
-  }>;
-}
-
-function fetchCmdlineRows(db: Database.Database, project: Project, version: string) {
-  return db.prepare(`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.systems_json, cv.flags_json, cv.arguments
-    FROM cmdline_param_versions cv
-    JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = ? AND cv.version = ?
+  }>>`
+    SELECT e.name, mv.help_desc, mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json, mv.source_root
+    FROM macro_versions mv
+    JOIN entities e ON e.id = mv.entity_id
+    WHERE e.project = ${project} AND mv.version = ${version}
       AND e.source_state IN ('source_backed', 'dynamically_registered')
     ORDER BY e.name
-  `).all(project, version) as Array<{
+  `;
+}
+
+async function fetchCmdlineRows(sql: postgres.Sql, project: Project, version: string) {
+  // systems_json / flags_json are JSONB; postgres-js auto-decodes them.
+  return await sql<Array<{
     name: string;
     help_desc: string | null;
     help_remarks: string | null;
-    systems_json: string | null;
-    flags_json: string | null;
+    systems_json: unknown | null;
+    flags_json: unknown | null;
     arguments: string | null;
-  }>;
+  }>>`
+    SELECT e.name, cv.help_desc, cv.help_remarks, cv.systems_json, cv.flags_json, cv.arguments
+    FROM cmdline_param_versions cv
+    JOIN entities e ON e.id = cv.entity_id
+    WHERE e.project = ${project} AND cv.version = ${version}
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
+    ORDER BY e.name
+  `;
 }
 
-// ─── ezQuake variables / commands / macros / cmdline emit ──────────────────
+// --- ezQuake variables / commands / macros / cmdline emit ------------------
 
 interface EzqVariablesAst {
   groups: Array<{ id: string; 'major-group': string; name: string }>;
@@ -263,19 +266,19 @@ function readExtractorAst<T>(project: Project, fileName: string): T {
   return JSON.parse(readFileSync(path, 'utf-8')) as T;
 }
 
-function emitEzqVariables(
-  db: Database.Database,
+async function emitEzqVariables(
+  sql: postgres.Sql,
   project: Project,
   version: string,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
+): Promise<{ count: number; bytes: number }> {
   // Groups taxonomy comes from the extractor AST output (carried over from
-  // help_variables.json's `groups` block — pure metadata, project-scoped).
+  // help_variables.json's `groups` block -- pure metadata, project-scoped).
   const ast = readExtractorAst<EzqVariablesAst>(project, 'ezquake-variables-ast.json');
 
-  const enrichment = loadEnrichment(db, project, 'cvar');
-  const rows = fetchCvarRows(db, project, version);
+  const enrichment = await loadEnrichment(sql, project, 'cvar');
+  const rows = await fetchCvarRows(sql, project, version);
 
   const vars: Record<string, Record<string, unknown>> = {};
   for (const r of rows) {
@@ -287,6 +290,7 @@ function emitEzqVariables(
     if (r.help_desc) entry.desc = r.help_desc;
     if (r.help_remarks) entry.remarks = r.help_remarks;
     if (r.help_values) {
+      // help_values is TEXT (pre-stringified JSON); still need JSON.parse.
       try { entry.values = JSON.parse(r.help_values); } catch { /* keep absent */ }
     }
     if (r.source_root != null) entry.source_root = r.source_root;
@@ -308,16 +312,16 @@ interface EzqCommandsAst {
   commands: Record<string, unknown>;
 }
 
-function emitEzqCommands(
-  db: Database.Database,
+async function emitEzqCommands(
+  sql: postgres.Sql,
   project: Project,
   version: string,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
+): Promise<{ count: number; bytes: number }> {
   const ast = readExtractorAst<EzqCommandsAst>(project, `${project}-commands-ast.json`);
-  const enrichment = loadEnrichment(db, project, 'command');
-  const rows = fetchCommandRows(db, project, version);
+  const enrichment = await loadEnrichment(sql, project, 'command');
+  const rows = await fetchCommandRows(sql, project, version);
 
   const commands: Record<string, Record<string, unknown>> = {};
   for (const r of rows) {
@@ -335,15 +339,15 @@ function emitEzqCommands(
   return writeJson(join(outputDir, `${project}-commands.json`), out, rows.length);
 }
 
-function emitEzqMacros(
-  db: Database.Database,
+async function emitEzqMacros(
+  sql: postgres.Sql,
   project: Project,
   version: string,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
-  const enrichment = loadEnrichment(db, project, 'macro');
-  const rows = fetchMacroRows(db, project, version);
+): Promise<{ count: number; bytes: number }> {
+  const enrichment = await loadEnrichment(sql, project, 'macro');
+  const rows = await fetchMacroRows(sql, project, version);
 
   const macros: Record<string, Record<string, unknown>> = {};
   for (const r of rows) {
@@ -351,8 +355,9 @@ function emitEzqMacros(
     if (r.help_desc) entry.desc = r.help_desc;
     if (r.macro_type) entry.type = r.macro_type;
     if (r.teamplay_restricted) entry['teamplay-restricted'] = true;
-    if (r.related_cvars_json) {
-      try { entry['related-cvars'] = JSON.parse(r.related_cvars_json); } catch { /* keep absent */ }
+    if (r.related_cvars_json != null) {
+      // related_cvars_json is JSONB; already decoded by postgres-js.
+      entry['related-cvars'] = r.related_cvars_json;
     }
     if (r.source_root != null) entry.source_root = r.source_root;
     const enr = enrichment.get(r.name);
@@ -364,15 +369,15 @@ function emitEzqMacros(
   return writeJson(join(outputDir, `${project}-macros.json`), out, rows.length);
 }
 
-function emitEzqCmdline(
-  db: Database.Database,
+async function emitEzqCmdline(
+  sql: postgres.Sql,
   project: Project,
   version: string,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
-  const enrichment = loadEnrichment(db, project, 'cmdline_param');
-  const rows = fetchCmdlineRows(db, project, version);
+): Promise<{ count: number; bytes: number }> {
+  const enrichment = await loadEnrichment(sql, project, 'cmdline_param');
+  const rows = await fetchCmdlineRows(sql, project, version);
 
   const params: Record<string, Record<string, unknown>> = {};
   for (const r of rows) {
@@ -380,12 +385,9 @@ function emitEzqCmdline(
     if (r.help_desc) entry.desc = r.help_desc;
     if (r.help_remarks) entry.remarks = r.help_remarks;
     if (r.arguments) entry.arguments = r.arguments;
-    if (r.systems_json) {
-      try { entry.systems = JSON.parse(r.systems_json); } catch { /* keep absent */ }
-    }
-    if (r.flags_json) {
-      try { entry.flags = JSON.parse(r.flags_json); } catch { /* keep absent */ }
-    }
+    // systems_json / flags_json are JSONB; already decoded.
+    if (r.systems_json != null) entry.systems = r.systems_json;
+    if (r.flags_json != null) entry.flags = r.flags_json;
     const enr = enrichment.get(r.name);
     if (enr) Object.assign(entry, enr);
     params[r.name] = entry;
@@ -395,13 +397,13 @@ function emitEzqCmdline(
   return writeJson(join(outputDir, `${project}-cmdline-params.json`), out, rows.length);
 }
 
-// ─── QWCL variables emit ───────────────────────────────────────────────────
+// --- QWCL variables emit ---------------------------------------------------
 //
 // The legacy slipgate qwcl-variables.json is a flat array
 // `[{name, default, description, category, descriptionSource}]`. Preserved
 // here so slipgate's qwcl loader needs no structural change. Description
 // cross-reference from ezQuake (when available) is computed against the same
-// knowledge.db rather than reading legacy JSONs — keeps Oracle as the single
+// knowledge.db rather than reading legacy JSONs -- keeps Oracle as the single
 // producer of truth.
 
 function inferQwclCategory(name: string): string {
@@ -417,23 +419,23 @@ function inferQwclCategory(name: string): string {
   return 'Miscellaneous';
 }
 
-function emitQwclVariables(
-  db: Database.Database,
+async function emitQwclVariables(
+  sql: postgres.Sql,
   version: string,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
-  const enrichment = loadEnrichment(db, 'qwcl', 'cvar');
-  const rows = fetchCvarRows(db, 'qwcl', version);
+): Promise<{ count: number; bytes: number }> {
+  const enrichment = await loadEnrichment(sql, 'qwcl', 'cvar');
+  const rows = await fetchCvarRows(sql, 'qwcl', version);
 
   // Cross-reference description from ezquake when available (only for cvars
   // shared by name). Same producer, single trip through the DB.
   const ezqDescs = new Map<string, string>();
-  const ezqRows = db.prepare(`
+  const ezqRows = await sql<Array<{ name: string; help_desc: string }>>`
     SELECT e.name, cv.help_desc
     FROM cvar_versions cv JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = 'ezquake' AND cv.version = 'head' AND cv.help_desc IS NOT NULL
-  `).all() as Array<{ name: string; help_desc: string }>;
+  `;
   for (const r of ezqRows) ezqDescs.set(r.name, r.help_desc);
 
   const out: Array<Record<string, unknown>> = [];
@@ -455,7 +457,7 @@ function emitQwclVariables(
 
   // Array-shape file: file-root metadata can't live alongside the array, so
   // we emit a wrapper object with `_meta` + `entries`. Slipgate's existing
-  // qwcl loader reads the array directly — to preserve that, fall back to
+  // qwcl loader reads the array directly -- to preserve that, fall back to
   // emitting just the array when an env var asks for legacy shape. Default
   // is the wrapper, since Arc 2 is the migration boundary.
   //
@@ -467,10 +469,10 @@ function emitQwclVariables(
   return writeJson(join(outputDir, 'qwcl-variables.json'), out, out.length);
 }
 
-// ─── asset bundle emit ─────────────────────────────────────────────────────
+// --- asset bundle emit -----------------------------------------------------
 //
 // Delegates to build-asset-bundle.ts, which is the canonical seed-merging
-// pipeline (4 seed YAMLs + 3 AST output JSONs → 1 bundle JSON). Calling it
+// pipeline (4 seed YAMLs + 3 AST output JSONs -> 1 bundle JSON). Calling it
 // here ensures the bundle in slipgate's data dir reflects the FULL current
 // state of asset taxonomy: every extension recognized by the extractor,
 // every cvar binding the seed + AST reconciler emitted, every loader site
@@ -494,14 +496,17 @@ function emitEzqAssetBundle(
   };
 }
 
-// ─── qw maps emitter ───────────────────────────────────────────────────────
+// --- qw maps emitter -------------------------------------------------------
 
-function emitQwMaps(
-  db: Database.Database,
+async function emitQwMaps(
+  sql: postgres.Sql,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
-  const rows = db.prepare(`
+): Promise<{ count: number; bytes: number }> {
+  // All *_json columns on `maps` are JSONB; postgres-js auto-decodes them to
+  // JS values. Keep the raw row shape generic; the mapping below preserves
+  // the legacy snapshot field names.
+  const rows = await sql<Array<Record<string, unknown>>>`
     SELECT canonical_name, file_name, display_name, author,
            bsp_version, bsp_size_bytes, bsp_sha256,
            worldspawn_json, entity_count, class_counts_json,
@@ -511,7 +516,7 @@ function emitQwMaps(
            notes, source_bsp_url, extracted_at
     FROM maps
     ORDER BY canonical_name
-  `).all() as Array<Record<string, unknown>>;
+  `;
 
   const maps = rows.map((r) => ({
     canonical_name: r.canonical_name,
@@ -521,16 +526,16 @@ function emitQwMaps(
     bsp_version: r.bsp_version,
     bsp_size_bytes: r.bsp_size_bytes,
     bsp_sha256: r.bsp_sha256,
-    worldspawn: JSON.parse(r.worldspawn_json as string),
+    worldspawn: r.worldspawn_json,
     entity_count: r.entity_count,
-    class_counts: JSON.parse(r.class_counts_json as string),
-    item_summary: JSON.parse(r.item_summary_json as string),
-    spawn_summary: JSON.parse(r.spawn_summary_json as string),
-    features: JSON.parse(r.features_json as string),
-    wads_referenced: JSON.parse(r.wads_referenced_json as string),
-    inferred_gamemodes: JSON.parse(r.inferred_gamemodes_json as string),
+    class_counts: r.class_counts_json,
+    item_summary: r.item_summary_json,
+    spawn_summary: r.spawn_summary_json,
+    features: r.features_json,
+    wads_referenced: r.wads_referenced_json,
+    inferred_gamemodes: r.inferred_gamemodes_json,
     popularity_total: r.popularity_total,
-    popularity_by_mode: r.popularity_by_mode_json ? JSON.parse(r.popularity_by_mode_json as string) : null,
+    popularity_by_mode: r.popularity_by_mode_json ?? null,
     popularity_rank: r.popularity_rank,
     notes: r.notes,
     source_bsp_url: r.source_bsp_url,
@@ -540,33 +545,41 @@ function emitQwMaps(
   return writeJson(join(outputDir, 'qw-maps.json'), out, maps.length);
 }
 
-// ─── qw gameplay emitter ───────────────────────────────────────────────────
+// --- qw gameplay emitter ---------------------------------------------------
 
-function emitGameplay(
-  db: Database.Database,
+async function emitGameplay(
+  sql: postgres.Sql,
   meta: SnapshotMeta,
   outputDir: string,
-): { count: number; bytes: number } {
-  const sources = db.prepare(`SELECT id, display_name, description, source_root, notes FROM gameplay_sources ORDER BY id`).all();
-  const entities = (db.prepare(`
+): Promise<{ count: number; bytes: number }> {
+  const sources = await sql`
+    SELECT id, display_name, description, source_root, notes
+    FROM gameplay_sources
+    ORDER BY id
+  `;
+  // props_json / ruleset_gate_json are JSONB; postgres-js already decoded
+  // them. Rename the raw columns into the snapshot's field names below.
+  const entityRows = await sql<Array<Record<string, unknown>>>`
     SELECT gameplay_source_id, kind, name, classname,
            damage, splash_damage, splash_radius, refire_seconds, respawn_seconds,
            pickup_amount, max_carry, duration_seconds,
            ruleset_gate_json, source_ref, props_json, notes
     FROM gameplay_entity_defs
     ORDER BY gameplay_source_id, kind, name, ruleset_gate_json
-  `).all() as Array<Record<string, unknown>>).map((r) => {
-    const { props_json, ruleset_gate_json, ...rest } = r as { props_json: string; ruleset_gate_json: string };
-    return { ...rest, props: JSON.parse(props_json), ruleset_gate: JSON.parse(ruleset_gate_json) };
+  `;
+  const entities = entityRows.map((r) => {
+    const { props_json, ruleset_gate_json, ...rest } = r;
+    return { ...rest, props: props_json, ruleset_gate: ruleset_gate_json };
   });
-  const mechanics = (db.prepare(`
+  const mechanicRows = await sql<Array<Record<string, unknown>>>`
     SELECT gameplay_source_id, kind, name, value_numeric, value_text,
            ruleset_gate_json, source_ref, props_json, notes
     FROM gameplay_mechanics
     ORDER BY gameplay_source_id, kind, name, ruleset_gate_json
-  `).all() as Array<Record<string, unknown>>).map((r) => {
-    const { props_json, ruleset_gate_json, ...rest } = r as { props_json: string; ruleset_gate_json: string };
-    return { ...rest, props: JSON.parse(props_json), ruleset_gate: JSON.parse(ruleset_gate_json) };
+  `;
+  const mechanics = mechanicRows.map((r) => {
+    const { props_json, ruleset_gate_json, ...rest } = r;
+    return { ...rest, props: props_json, ruleset_gate: ruleset_gate_json };
   });
 
   const payload = {
@@ -579,7 +592,7 @@ function emitGameplay(
   return writeJson(join(outputDir, 'qw-gameplay.json'), payload, entities.length + mechanics.length);
 }
 
-// ─── meta + writer ─────────────────────────────────────────────────────────
+// --- meta + writer ---------------------------------------------------------
 
 interface SnapshotMeta {
   schema_version: string;
@@ -612,9 +625,10 @@ function writeJson(path: string, content: unknown, count: number): { count: numb
   return { count, bytes: body.length };
 }
 
-// ─── public entry point ────────────────────────────────────────────────────
+// --- public entry point ----------------------------------------------------
 
 export interface BuildSnapshotOptions {
+  sql?: postgres.Sql;
   project: Project;
   version?: string;
   outputDir?: string;
@@ -627,7 +641,7 @@ export interface BuildSnapshotResult {
   files: Array<{ file: string; entities: number; bytes: number }>;
 }
 
-// Default version per project — qwcl has no `head` (single-commit repo);
+// Default version per project -- qwcl has no `head` (single-commit repo);
 // qw is the version-less game-itself namespace (maps table has no versions row);
 // every other project tracks a moving head snapshot.
 const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
@@ -639,18 +653,28 @@ const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   qw:      'static',
 };
 
-export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
+export async function buildSnapshot(opts: BuildSnapshotOptions): Promise<BuildSnapshotResult> {
   const version = opts.version ?? PROJECT_DEFAULT_SNAPSHOT_VERSION[opts.project];
   const outputDir = opts.outputDir ?? DEFAULT_OUTPUT_DIR;
   mkdirSync(outputDir, { recursive: true });
 
-  const db = openDbReadonly();
+  // build-snapshot is a pure consumer of the DB; the schema is owned by the
+  // migrator. When the caller doesn't pass a Sql handle we open a local one
+  // and tear it down at the end so CLI invocation remains self-contained.
+  const ownedSql = opts.sql == null;
+  const sql = opts.sql ?? postgres(
+    process.env.DATABASE_URL ?? 'postgresql://qworacle:dev@127.0.0.1:5432/qw_oracle',
+    { onnotice: () => {} },
+  );
+
   try {
     // qw is the static-version namespace (the game itself, not an engine).
     // It has no row in `versions`; skip the existence check.
     if (opts.project !== 'qw') {
-      const ver = db.prepare(`SELECT 1 FROM versions WHERE project=? AND version=?`).get(opts.project, version);
-      if (!ver) {
+      const verRows = await sql<{ one: number }[]>`
+        SELECT 1 AS one FROM versions WHERE project = ${opts.project} AND version = ${version}
+      `;
+      if (verRows.length === 0) {
         throw new Error(`No versions row for ${opts.project}@${version}; run extract-tag first.`);
       }
     }
@@ -659,23 +683,23 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
     const files: Array<{ file: string; entities: number; bytes: number }> = [];
 
     if (opts.project === 'qwcl') {
-      const r = emitQwclVariables(db, version, meta, outputDir);
+      const r = await emitQwclVariables(sql, version, meta, outputDir);
       files.push({ file: 'qwcl-variables.json', entities: r.count, bytes: r.bytes });
     } else if (opts.project === 'ezquake') {
-      const v = emitEzqVariables(db, opts.project, version, meta, outputDir);
+      const v = await emitEzqVariables(sql, opts.project, version, meta, outputDir);
       files.push({ file: `${opts.project}-variables.json`, entities: v.count, bytes: v.bytes });
-      const c = emitEzqCommands(db, opts.project, version, meta, outputDir);
+      const c = await emitEzqCommands(sql, opts.project, version, meta, outputDir);
       files.push({ file: `${opts.project}-commands.json`, entities: c.count, bytes: c.bytes });
-      const m = emitEzqMacros(db, opts.project, version, meta, outputDir);
+      const m = await emitEzqMacros(sql, opts.project, version, meta, outputDir);
       files.push({ file: `${opts.project}-macros.json`, entities: m.count, bytes: m.bytes });
-      const cl = emitEzqCmdline(db, opts.project, version, meta, outputDir);
+      const cl = await emitEzqCmdline(sql, opts.project, version, meta, outputDir);
       files.push({ file: `${opts.project}-cmdline-params.json`, entities: cl.count, bytes: cl.bytes });
       const ab = emitEzqAssetBundle(opts.project, version, outputDir);
       files.push({ file: `${opts.project}-asset-bundle.json`, entities: ab.count, bytes: ab.bytes });
     } else if (opts.project === 'qw') {
-      const r = emitQwMaps(db, meta, outputDir);
+      const r = await emitQwMaps(sql, meta, outputDir);
       files.push({ file: 'qw-maps.json', entities: r.count, bytes: r.bytes });
-      const g = emitGameplay(db, meta, outputDir);
+      const g = await emitGameplay(sql, meta, outputDir);
       files.push({ file: 'qw-gameplay.json', entities: g.count, bytes: g.bytes });
     } else {
       throw new Error(`build-snapshot does not yet support project=${opts.project}.`);
@@ -683,18 +707,8 @@ export function buildSnapshot(opts: BuildSnapshotOptions): BuildSnapshotResult {
 
     return { project: opts.project, version, outputDir, files };
   } finally {
-    db.close();
+    if (ownedSql) {
+      await sql.end();
+    }
   }
-}
-
-// Read-only handle that bypasses the normal applySchema migration path —
-// build-snapshot is a pure consumer of the DB; it should never run migrations
-// or write. If the DB is at an older schema, the caller should run any
-// other CLI subcommand first (which triggers applySchema).
-function openDbReadonly(): Database.Database {
-  const path = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'data', 'knowledge.db');
-  if (!existsSync(path)) {
-    throw new Error(`knowledge.db not found at ${path}; run extract-tag first.`);
-  }
-  return new Database(path, { readonly: true });
 }
