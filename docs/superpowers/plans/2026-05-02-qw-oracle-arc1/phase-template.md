@@ -125,8 +125,12 @@ Then verify, file-by-file:
 3. Every FK reference — verify it matches the FK convention locked in
    decisions.md D1 (entity_id INTEGER for *_versions, canonical_id TEXT for
    asset relation tables).
-4. Every file path mentioned in "Files touched" — verify the path exists
-   (for Modified/Deleted) or its parent dir exists (for Created).
+4. Every file path mentioned in "Files touched":
+   - For Modified/Deleted: verify the path exists in the live codebase.
+   - For Created: verify the parent directory exists. The file ITSELF is
+     expected NOT to exist yet — this is a paper plan, not executed code.
+     Do NOT flag a Created file's non-existence as CRITICAL or anything
+     else. Skip it entirely.
 5. Every `import.meta.main` usage — confirmed allowed (D2 says yes under Bun).
 6. Every shell command — does it use `bun` for scripts (D2)?
 7. Every reference to a finding (F1-F18 in review-findings.md) — does this
