@@ -2,8 +2,9 @@
 //
 // Filters happen in TS (not SQL json_extract) because map count is ~250 --
 // small enough that a full table scan + JS-side filter is faster to maintain
-// than building dynamic JSON-extract WHERE clauses and binding parameters.
-import type { Database } from 'bun:sqlite';
+// than building dynamic JSONB-extract WHERE clauses and binding parameters.
+
+import { db } from '../db.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const DEFAULT_LIMIT = 25;
@@ -72,27 +73,27 @@ interface RawRow {
   display_name: string | null;
   popularity_rank: number | null;
   popularity_total: number | null;
-  spawn_summary_json: string;
-  inferred_gamemodes_json: string;
-  item_summary_json: string;
-  features_json: string;
+  spawn_summary_json: Record<string, number>;
+  inferred_gamemodes_json: string[];
+  item_summary_json: Record<string, number>;
+  features_json: { teleporters: number; has_water: boolean; has_lava: boolean; has_slime: boolean };
 }
 
-export function searchMaps(db: Database, args: SearchMapsArgs): SearchMapsResponse {
-  const rows = db.query(`
+export async function searchMaps(args: SearchMapsArgs): Promise<SearchMapsResponse> {
+  const rows = await db<RawRow[]>`
     SELECT canonical_name, display_name, popularity_rank, popularity_total,
            spawn_summary_json, inferred_gamemodes_json, item_summary_json, features_json
     FROM maps
-  `).all() as RawRow[];
+  `;
 
   const limit = Math.min(Math.max(args.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
 
   const filtered: SearchMapsRow[] = [];
   for (const row of rows) {
-    const items    = JSON.parse(row.item_summary_json)       as Record<string, number>;
-    const features = JSON.parse(row.features_json)           as { teleporters: number; has_water: boolean; has_lava: boolean; has_slime: boolean };
-    const spawns   = JSON.parse(row.spawn_summary_json)      as Record<string, number>;
-    const modes    = JSON.parse(row.inferred_gamemodes_json) as string[];
+    const items    = row.item_summary_json;
+    const features = row.features_json;
+    const spawns   = row.spawn_summary_json;
+    const modes    = row.inferred_gamemodes_json;
 
     if (args.has_weapon?.length    && !args.has_weapon.every((w) => (items[w] ?? 0) > 0))    continue;
     if (args.lacks_weapon?.length  && args.lacks_weapon.some((w) => (items[w] ?? 0) > 0))    continue;

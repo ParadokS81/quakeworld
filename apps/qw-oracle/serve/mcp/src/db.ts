@@ -1,23 +1,12 @@
 // apps/qw-oracle/serve/mcp/src/db.ts
 //
-// Layer 1 (engine + game content) used to live in knowledge.db; Layer 2
-// (community chat corpus) used to live in qw.db. Both have been retired
-// by Arc 1 Phases 2 and 3 respectively. Phase 6 rewires this module to
-// postgres-js. Until then, both exports are tripwires: any property access
-// throws a named error so the failure surfaces clearly instead of as a
-// confusing bun:sqlite file-not-found.
+// Single Postgres client for every MCP tool. Re-exports the project-wide
+// shared client so the loader, the embed pipelines, and the MCP server all
+// hit the same connection pool. The SQLite era's split between knowledgeDb
+// (Layer 1) and corpusDb (Layer 2) is gone - one engine, all three layers,
+// one client.
+//
+// The bun:sqlite imports that lived here previously are removed. Every
+// consumer in serve/mcp/src/tools/ is rewritten in this phase.
 
-import type { Database } from 'bun:sqlite';
-
-function makeStub(name: string): Database {
-  const message =
-    `MCP DB '${name}' is not yet rewired to Postgres. ` +
-    `Arc 1 Phase 6 (mcp-rewrite) replaces bun:sqlite with postgres-js.`;
-  return new Proxy({} as Database, {
-    get() { throw new Error(message); },
-    apply() { throw new Error(message); },
-  });
-}
-
-export const knowledgeDb = makeStub('knowledge.db');
-export const corpusDb = makeStub('qw.db');
+export { db, closeDb } from '../../../shared/db.ts';

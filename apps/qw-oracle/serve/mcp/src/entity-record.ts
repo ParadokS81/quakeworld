@@ -1,4 +1,11 @@
-import { knowledgeDb } from './db.ts';
+// apps/qw-oracle/serve/mcp/src/entity-record.ts
+//
+// Single helper that materialises an entities-row hit into the
+// EntityRecord shape returned by lookup_entity and search_entities.
+// The conceptIndex Map went away with Phase 4's bidirectional graph;
+// linked_concepts now comes from a SELECT against concept_entities.
+
+import { db } from './db.ts';
 import type {
   AssetRelation,
   EntityRecord,
@@ -11,27 +18,22 @@ export interface EntityRow {
   id: number;
   canonical_id: string;
   project: string;
-  type: EntityType;
+  type: EntityType | string; // accept v15+ server-side types (info_key, protocol_message, log_template, qc_builtin)
   name: string;
   source_state: SourceState;
   first_seen_version: string;
   last_seen_version: string;
 }
 
-// Phase 2e MVDSV (schema v15) added four server-side entity types whose
-// per-version tables aren't in the user-facing 5-type EntityType union.
-// The map here uses a string key so info_key lookups (Phase B 2026-04-28
-// cross-scope split) can resolve their version table without widening the
-// MCP-side EntityType. Unknown entity types fall through to an empty
-// version-data record below (`if (!row) ...`).
+// Per-type *_versions table. Server-side types from schema v15+ (info_key,
+// protocol_message, log_template, qc_builtin) are wired so lookup_entity
+// can return rich records for them too.
 const VERSION_TABLE: Record<string, string> = {
   cvar: 'cvar_versions',
   command: 'command_versions',
   macro: 'macro_versions',
   cmdline_param: 'cmdline_param_versions',
   ruleset: 'ruleset_versions',
-  // v15+ server-side types. Wired up so MCP lookup_entity can return rich
-  // records for these too.
   info_key: 'info_key_versions',
   protocol_message: 'protocol_message_versions',
   log_template: 'log_template_versions',
@@ -52,42 +54,32 @@ const CONSUMED_VERSION_KEYS = new Set([
   'extracted_at',
 ]);
 
-function fetchVersionData(entity: EntityRow): EntityVersionData {
-  const table = VERSION_TABLE[entity.type];
-  if (!table) {
-    // Unknown entity type (e.g. token_primitive, hud_element, keyname,
-    // asset_category, flag_bit, cvar_alias). Return the empty stub so the
-    // wrapping record still carries identity + linked_concepts even when
-    // the per-type version table isn't wired into the MCP record builder.
-    return {
-      version: entity.last_seen_version,
-      help_desc: null,
-      help_remarks: null,
-      help_type: null,
-      default_value: null,
-      flag_names: null,
-      source_file: null,
-      source_line: null,
-      type_specific: {},
-    };
-  }
-  const row = knowledgeDb
-    .prepare(`SELECT * FROM ${table} WHERE entity_id = ? AND version = ?`)
-    .get(entity.id, entity.last_seen_version) as Record<string, unknown> | undefined;
+function emptyVersion(version: string): EntityVersionData {
+  return {
+    version,
+    help_desc: null,
+    help_remarks: null,
+    help_type: null,
+    default_value: null,
+    flag_names: null,
+    source_file: null,
+    source_line: null,
+    type_specific: {},
+  };
+}
 
-  if (!row) {
-    return {
-      version: entity.last_seen_version,
-      help_desc: null,
-      help_remarks: null,
-      help_type: null,
-      default_value: null,
-      flag_names: null,
-      source_file: null,
-      source_line: null,
-      type_specific: {},
-    };
-  }
+async function fetchVersionData(entity: EntityRow): Promise<EntityVersionData> {
+  const table = VERSION_TABLE[entity.type];
+  if (!table) return emptyVersion(entity.last_seen_version);
+
+  // Table name is from a closed allow-list so direct interpolation is safe;
+  // postgres-js does not parameterise identifiers.
+  const rows = await db.unsafe<Record<string, unknown>[]>(
+    `SELECT * FROM ${table} WHERE entity_id = $1 AND version = $2`,
+    [entity.id, entity.last_seen_version],
+  );
+  const row = rows[0];
+  if (!row) return emptyVersion(entity.last_seen_version);
 
   const type_specific: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(row)) {
@@ -107,16 +99,6 @@ function fetchVersionData(entity: EntityRow): EntityVersionData {
   };
 }
 
-const selectAssetRelations = knowledgeDb.prepare(`
-  SELECT b.category_id, b.path_pattern, b.load_trigger, b.source_ref,
-         (SELECT GROUP_CONCAT(extension, ',')
-          FROM asset_extensions e
-          WHERE e.category_id = b.category_id AND e.project = b.project AND e.version = b.version
-         ) AS extensions
-  FROM asset_cvar_bindings b
-  WHERE b.cvar_canonical_id = ? AND b.project = ? AND b.version = ?
-`);
-
 interface AssetRelationRow {
   category_id: string;
   path_pattern: string | null;
@@ -125,13 +107,24 @@ interface AssetRelationRow {
   extensions: string | null;
 }
 
-function fetchAssetRelations(entity: EntityRow): AssetRelation[] {
+async function fetchAssetRelations(entity: EntityRow): Promise<AssetRelation[]> {
   if (entity.type !== 'cvar') return [];
-  const rows = selectAssetRelations.all(
-    entity.canonical_id,
-    entity.project,
-    entity.last_seen_version,
-  ) as unknown as AssetRelationRow[];
+  const rows = await db<AssetRelationRow[]>`
+    SELECT b.category_id,
+           b.path_pattern,
+           b.load_trigger,
+           b.source_ref,
+           (SELECT string_agg(extension, ',')
+            FROM asset_extensions e
+            WHERE e.category_id = b.category_id
+              AND e.project = b.project
+              AND e.version = b.version
+           ) AS extensions
+    FROM asset_cvar_bindings b
+    WHERE b.cvar_canonical_id = ${entity.canonical_id}
+      AND b.project = ${entity.project}
+      AND b.version = ${entity.last_seen_version}
+  `;
   return rows.map((r) => {
     const categoryName = r.category_id.split(':').pop() ?? r.category_id;
     const [file, line] = (r.source_ref ?? '').split(':');
@@ -145,20 +138,32 @@ function fetchAssetRelations(entity: EntityRow): AssetRelation[] {
   });
 }
 
-export function toEntityRecord(
-  entity: EntityRow,
-  conceptIndex: Map<string, string[]>,
-): EntityRecord {
+async function fetchLinkedConcepts(entity: EntityRow): Promise<string[]> {
+  const rows = await db<{ concept_slug: string }[]>`
+    SELECT concept_slug
+    FROM concept_entities
+    WHERE entity_canonical_id = ${entity.canonical_id}
+    ORDER BY concept_slug
+  `;
+  return rows.map((r) => `concept:${r.concept_slug}`);
+}
+
+export async function toEntityRecord(entity: EntityRow): Promise<EntityRecord> {
+  const [current, asset_relations, linked_concepts] = await Promise.all([
+    fetchVersionData(entity),
+    fetchAssetRelations(entity),
+    fetchLinkedConcepts(entity),
+  ]);
   return {
     id: entity.canonical_id,
-    type: entity.type,
+    type: entity.type as EntityType,
     project: entity.project,
     name: entity.name,
     source_state: entity.source_state,
     first_seen_version: entity.first_seen_version,
     last_seen_version: entity.last_seen_version,
-    current: fetchVersionData(entity),
-    asset_relations: fetchAssetRelations(entity),
-    linked_concepts: conceptIndex.get(entity.canonical_id) ?? [],
+    current,
+    asset_relations,
+    linked_concepts,
   };
 }

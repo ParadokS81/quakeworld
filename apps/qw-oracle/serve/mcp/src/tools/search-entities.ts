@@ -1,128 +1,111 @@
-import { knowledgeDb } from '../db.ts';
+// apps/qw-oracle/serve/mcp/src/tools/search-entities.ts
+//
+// Hybrid retrieval: tsvector (description_tsv, 'english' config from Phase 2)
+// + pgvector kNN (description_embedding) + Reciprocal Rank Fusion. The
+// substring fallback that lived here in the SQLite era is retired - vague
+// queries land in the vector path, exact-name queries land in lookup_entity.
+
+import { db } from '../db.ts';
+import { embedTexts } from '../../../../shared/embedding.ts';
+import { reciprocalRankFusion } from '../../../../shared/rrf.ts';
 import { toEntityRecord, type EntityRow } from '../entity-record.ts';
 import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
-interface SearchEntitiesArgs {
+const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
+// Placeholder thresholds; calibrated by Phase 8 against eval set.
+const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.05');
+const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.02');
+
+const USER_FACING_TYPES = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'] as const;
+
+interface Args {
   query: string;
   project?: string;
-  type?: EntityType;
+  type?: EntityType | string;
   limit?: number;
 }
 
-const VERSION_TABLE: Record<EntityType, string> = {
-  cvar: 'cvar_versions',
-  command: 'command_versions',
-  macro: 'macro_versions',
-  cmdline_param: 'cmdline_param_versions',
-  ruleset: 'ruleset_versions',
-};
-
-const ALL_TYPES: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
-
-// ruleset_versions has no help_desc column (rulesets are enum + restriction
-// flags, not user-facing prose), so description-match must skip it.
-const DESCRIBED_TYPES: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param'];
-
-function buildFilters(args: SearchEntitiesArgs, params: (string | number)[]): string[] {
-  const filters: string[] = [];
-  if (args.project) {
-    filters.push(`e.project = ?${params.length + 1}`);
-    params.push(args.project);
-  }
-  if (args.type) {
-    filters.push(`e.type = ?${params.length + 1}`);
-    params.push(args.type);
-  } else {
-    filters.push("e.type IN ('cvar','command','macro','cmdline_param','ruleset')");
-  }
-  return filters;
-}
-
-// Name match comes first, ranked highest. Substring match against canonical
-// name in the entities table; one query covers all five types.
-function nameMatchEntities(args: SearchEntitiesArgs, limit: number): EntityRow[] {
-  const params: (string | number)[] = [`%${args.query}%`];
-  const filters = buildFilters(args, params);
-  filters.unshift('e.name LIKE ?1 COLLATE NOCASE');
-  params.push(limit);
-  const sql = `
-    SELECT e.id, e.canonical_id, e.project, e.type, e.name, e.source_state,
-           e.first_seen_version, e.last_seen_version
-    FROM entities e
-    WHERE ${filters.join(' AND ')}
-    ORDER BY e.name
-    LIMIT ?${params.length}
+async function lexicalCandidates(args: Args, fanout: number): Promise<EntityRow[]> {
+  const projectClause = args.project ? db`AND project = ${args.project}` : db``;
+  const typeClause = args.type
+    ? db`AND type = ${args.type}`
+    : db`AND type IN ${db(USER_FACING_TYPES)}`;
+  return db<EntityRow[]>`
+    SELECT id, canonical_id, project, type, name, source_state,
+           first_seen_version, last_seen_version
+    FROM entities
+    WHERE description_tsv @@ websearch_to_tsquery('english', ${args.query})
+      ${projectClause}
+      ${typeClause}
+    ORDER BY ts_rank(description_tsv, websearch_to_tsquery('english', ${args.query})) DESC
+    LIMIT ${fanout}
   `;
-  return knowledgeDb.prepare(sql).all(...params) as unknown as EntityRow[];
 }
 
-// Description match: per-type, joining each version table at last_seen_version.
-// Run only for types in scope, only up to the remaining quota.
-function descriptionMatchEntities(
-  args: SearchEntitiesArgs,
-  remaining: number,
-  exclude: Set<string>,
-): EntityRow[] {
-  if (remaining <= 0) return [];
-  const types = args.type ? [args.type] : DESCRIBED_TYPES;
-  const out: EntityRow[] = [];
-  for (const t of types) {
-    if (out.length >= remaining) break;
-    if (t === 'ruleset') continue;
-    const slots = remaining - out.length;
-    const versionTable = VERSION_TABLE[t];
-    const params: (string | number)[] = [`%${args.query}%`, t];
-    const projectFilter = args.project ? `AND e.project = ?${params.length + 1}` : '';
-    if (args.project) params.push(args.project);
-    params.push(slots);
-    const sql = `
-      SELECT e.id, e.canonical_id, e.project, e.type, e.name, e.source_state,
-             e.first_seen_version, e.last_seen_version
-      FROM entities e
-      JOIN ${versionTable} v ON v.entity_id = e.id AND v.version = e.last_seen_version
-      WHERE v.help_desc LIKE ?1 COLLATE NOCASE
-        AND e.type = ?2
-        ${projectFilter}
-      ORDER BY e.name
-      LIMIT ?${params.length}
-    `;
-    const rows = knowledgeDb.prepare(sql).all(...params) as unknown as EntityRow[];
-    for (const r of rows) {
-      if (!exclude.has(r.canonical_id)) out.push(r);
-    }
-  }
-  return out;
+async function semanticCandidates(
+  args: Args,
+  vector: number[],
+  fanout: number,
+): Promise<EntityRow[]> {
+  const vec = `[${vector.join(',')}]`;
+  const projectClause = args.project ? db`AND project = ${args.project}` : db``;
+  const typeClause = args.type
+    ? db`AND type = ${args.type}`
+    : db`AND type IN ${db(USER_FACING_TYPES)}`;
+  return db<EntityRow[]>`
+    SELECT id, canonical_id, project, type, name, source_state,
+           first_seen_version, last_seen_version
+    FROM entities
+    WHERE description_embedding IS NOT NULL
+      ${projectClause}
+      ${typeClause}
+    ORDER BY description_embedding <=> ${vec}::vector
+    LIMIT ${fanout}
+  `;
 }
 
-export function searchEntities(
-  args: SearchEntitiesArgs,
-  conceptIndex: Map<string, string[]>,
-): ToolResponse<EntityRecord> {
+export async function searchEntities(args: Args): Promise<ToolResponse<EntityRecord>> {
   const limit = Math.min(args.limit ?? 10, 25);
+  const fanout = limit * 4;
 
-  const nameMatches = nameMatchEntities(args, limit);
-  const seen = new Set(nameMatches.map((e) => e.canonical_id));
-  const descMatches = descriptionMatchEntities(args, limit - nameMatches.length, seen);
+  const lexPromise = lexicalCandidates(args, fanout);
 
-  const allRows = [...nameMatches, ...descMatches];
-  const results = allRows.map((e) => toEntityRecord(e, conceptIndex));
+  let semHits: EntityRow[] = [];
+  try {
+    const result = await embedTexts([args.query], QUERY_MODEL, 'query');
+    await db`
+      INSERT INTO embedding_api_log (source, model, input_tokens, latency_ms)
+      VALUES ('mcp-query', ${result.model}, ${result.tokensInput}, ${result.latencyMs})
+    `;
+    semHits = await semanticCandidates(args, result.vectors[0]!, fanout);
+  } catch (err) {
+    await db`
+      INSERT INTO embedding_api_log (source, model, input_tokens, error)
+      VALUES ('mcp-query', ${QUERY_MODEL}, 0, ${(err as Error).message})
+    `;
+    // Lexical-only degraded path; no throw.
+  }
+
+  const lexHits = await lexPromise;
+
+  const fused = reciprocalRankFusion([lexHits, semHits], (e) => e.canonical_id);
+  const top = fused.slice(0, limit);
+
+  const results = await Promise.all(top.map((f) => toEntityRecord(f.item)));
 
   let matchQuality: 'strong' | 'weak' | 'none';
-  if (results.length === 0) {
-    matchQuality = 'none';
-  } else if (nameMatches.length > 0) {
-    matchQuality = 'strong';
-  } else {
-    matchQuality = 'weak';
-  }
+  if (top.length === 0) matchQuality = 'none';
+  else if (top[0]!.score >= STRONG_THRESHOLD) matchQuality = 'strong';
+  else if (top[0]!.score >= WEAK_THRESHOLD) matchQuality = 'weak';
+  else matchQuality = 'none';
 
   return {
     results,
     match_quality: matchQuality,
     suggested_fallback:
       matchQuality === 'none'
-        ? `No entities match "${args.query}". Try a broader term or search_solved_issues for Layer 2 community discussion.`
+        ? `No strong matches for "${args.query}". Try search_concepts for how-to questions, or call redirect_to_human.`
         : null,
     meta: {
       tool: 'search_entities',

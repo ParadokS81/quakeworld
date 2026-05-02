@@ -73,11 +73,13 @@ export interface SessionMessage {
   discord_url?: string;
 }
 
+// D9-revised: Layer 2 corpus is Discord-only in Arc 1; the prior 'irc' option
+// and the | string SQLite-era hedge are gone.
 export interface SessionHit {
   session_id: string;
   numeric_id: number;
   channel: string;
-  platform: 'irc' | 'discord' | string;
+  platform: 'discord';
   started_at: string;
   ended_at: string;
   chat_message_count: number;
@@ -94,6 +96,28 @@ export interface ConceptNote {
   title: string;
   body: string;
   related_entities: string[];
+  related_concepts: string[];
   external_refs: string[];
   frontmatter: Record<string, unknown>;
+}
+
+// Layer 3 search hit: per-chunk match with parent concept context.
+export interface SearchConceptResult {
+  id: string;                 // concept:<slug>
+  slug: string;
+  title: string;
+  summary: string;
+  match_score: number;        // fused RRF score
+  match_quality: 'strong' | 'weak' | 'none';
+  snippet: string;            // ~600 chars, centred on the matched span
+  related_entities: string[];
+  related_concepts: string[];
+}
+
+// One row of redirect_targets surfaced by the redirect_to_human tool.
+export interface RedirectTarget {
+  topic: string;
+  display_name: string;
+  url: string;
+  description: string | null;
 }

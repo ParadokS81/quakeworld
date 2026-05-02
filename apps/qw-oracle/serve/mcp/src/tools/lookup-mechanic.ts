@@ -1,4 +1,11 @@
-import type { Database } from 'bun:sqlite';
+// apps/qw-oracle/serve/mcp/src/tools/lookup-mechanic.ts
+//
+// Layer 1 qw-namespace gameplay-mechanic lookup. JSONB columns deserialise
+// automatically; the SQLite-era JSON.parse pattern is gone. Sort by gate
+// width ascending so empty/least-restrictive gate (default '{}'::jsonb)
+// surfaces first.
+
+import { db } from '../db.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export type LookupMechanicArgs = {
@@ -12,9 +19,9 @@ export interface GameplayMechanicRow {
   name: string;
   value_numeric: number | null;
   value_text: string | null;
-  ruleset_gate_json: string;
+  ruleset_gate_json: Record<string, unknown>;
   source_ref: string;
-  props_json: string;
+  props_json: Record<string, unknown>;
   notes: string | null;
 }
 
@@ -35,24 +42,23 @@ export type LookupMechanicResponse =
       meta: Meta;
     };
 
-export function lookupMechanic(db: Database, args: LookupMechanicArgs): LookupMechanicResponse {
+export async function lookupMechanic(args: LookupMechanicArgs): Promise<LookupMechanicResponse> {
   const meta: Meta = {
     tool: 'lookup_mechanic',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
   };
   const source = args.gameplay_source ?? 'id1';
-  const row = db
-    .query(`
-      SELECT gameplay_source_id, kind, name, value_numeric, value_text,
-             ruleset_gate_json, source_ref, props_json, notes
-      FROM gameplay_mechanics
-      WHERE name = ? COLLATE NOCASE
-        AND gameplay_source_id = ?
-      ORDER BY length(ruleset_gate_json) ASC, ruleset_gate_json
-      LIMIT 1
-    `)
-    .get(args.name, source) as GameplayMechanicRow | null;
+  const rows = await db<GameplayMechanicRow[]>`
+    SELECT gameplay_source_id, kind, name, value_numeric, value_text,
+           ruleset_gate_json, source_ref, props_json, notes
+    FROM gameplay_mechanics
+    WHERE name ILIKE ${args.name}
+      AND gameplay_source_id = ${source}
+    ORDER BY length(ruleset_gate_json::text) ASC, ruleset_gate_json::text
+    LIMIT 1
+  `;
+  const row = rows[0];
 
   if (!row) {
     return {
@@ -66,8 +72,8 @@ export function lookupMechanic(db: Database, args: LookupMechanicArgs): LookupMe
     found: true,
     mechanic: {
       ...rest,
-      props: JSON.parse(props_json),
-      ruleset_gate: JSON.parse(ruleset_gate_json),
+      props: props_json,
+      ruleset_gate: ruleset_gate_json,
     },
     meta,
   };

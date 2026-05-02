@@ -1,5 +1,9 @@
 // apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts
-import type { Database } from 'bun:sqlite';
+//
+// Layer 1 qw-namespace map lookup. JSONB columns deserialise automatically;
+// the legacy *_json string-and-parse pattern from the SQLite era is gone.
+
+import { db } from '../db.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export interface MapRecordRow {
@@ -40,16 +44,16 @@ interface MapsTableRow {
   bsp_version: string;
   bsp_size_bytes: number;
   bsp_sha256: string;
-  worldspawn_json: string;
+  worldspawn_json: Record<string, string>;
   entity_count: number;
-  class_counts_json: string;
-  item_summary_json: string;
-  spawn_summary_json: string;
-  features_json: string;
-  wads_referenced_json: string;
-  inferred_gamemodes_json: string;
+  class_counts_json: Record<string, number>;
+  item_summary_json: Record<string, number>;
+  spawn_summary_json: Record<string, number>;
+  features_json: MapRecordRow['features'];
+  wads_referenced_json: string[];
+  inferred_gamemodes_json: string[];
   popularity_total: number | null;
-  popularity_by_mode_json: string | null;
+  popularity_by_mode_json: Record<string, number> | null;
   popularity_rank: number | null;
   notes: string | null;
   source_bsp_url: string;
@@ -57,32 +61,30 @@ interface MapsTableRow {
 }
 
 function rowToRecord(row: MapsTableRow): MapRecordRow {
-  // All three popularity fields must be non-null to produce a popularity object.
-  const popularity = row.popularity_rank != null && row.popularity_total != null && row.popularity_by_mode_json != null
-    ? {
-        total: row.popularity_total,
-        by_mode: JSON.parse(row.popularity_by_mode_json) as Record<string, number>,
-        rank: row.popularity_rank,
-      }
-    : null;
+  const popularity =
+    row.popularity_rank != null && row.popularity_total != null && row.popularity_by_mode_json != null
+      ? {
+          total: row.popularity_total,
+          by_mode: row.popularity_by_mode_json,
+          rank: row.popularity_rank,
+        }
+      : null;
   return {
     canonical_name: row.canonical_name,
     file_name: row.file_name,
     display_name: row.display_name,
-    // NULL author in DB means no attribution metadata; surface as "unknown"
-    // rather than leaking null into MCP responses.
     author: row.author ?? 'unknown',
     bsp_version: row.bsp_version as 'V29' | 'BSP2',
     bsp_size_bytes: row.bsp_size_bytes,
     bsp_sha256: row.bsp_sha256,
-    worldspawn: JSON.parse(row.worldspawn_json) as Record<string, string>,
+    worldspawn: row.worldspawn_json,
     entity_count: row.entity_count,
-    class_counts: JSON.parse(row.class_counts_json) as Record<string, number>,
-    item_summary: JSON.parse(row.item_summary_json) as Record<string, number>,
-    spawn_summary: JSON.parse(row.spawn_summary_json) as Record<string, number>,
-    features: JSON.parse(row.features_json) as MapRecordRow['features'],
-    wads_referenced: JSON.parse(row.wads_referenced_json) as string[],
-    inferred_gamemodes: JSON.parse(row.inferred_gamemodes_json) as string[],
+    class_counts: row.class_counts_json,
+    item_summary: row.item_summary_json,
+    spawn_summary: row.spawn_summary_json,
+    features: row.features_json,
+    wads_referenced: row.wads_referenced_json,
+    inferred_gamemodes: row.inferred_gamemodes_json,
     popularity,
     notes: row.notes,
     source_bsp_url: row.source_bsp_url,
@@ -90,7 +92,6 @@ function rowToRecord(row: MapsTableRow): MapRecordRow {
   };
 }
 
-// Simple iterative Levenshtein to find closest canonical_name on miss.
 function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
   if (!a.length) return b.length;
@@ -111,8 +112,8 @@ function levenshtein(a: string, b: string): number {
   return prev[n];
 }
 
-function suggestClosest(db: Database, name: string): string | null {
-  const rows = db.query(`SELECT canonical_name FROM maps`).all() as Array<{ canonical_name: string }>;
+async function suggestClosest(name: string): Promise<string | null> {
+  const rows = await db<{ canonical_name: string }[]>`SELECT canonical_name FROM maps`;
   let best: { name: string; dist: number } | null = null;
   const target = name.toLowerCase();
   for (const r of rows) {
@@ -120,22 +121,22 @@ function suggestClosest(db: Database, name: string): string | null {
     if (best == null || d < best.dist) best = { name: r.canonical_name, dist: d };
   }
   if (!best) return null;
-  // Suppress suggestions that are too distant to be useful typo hints.
   if (best.dist > Math.max(2, Math.floor(target.length / 3))) return null;
   return best.name;
 }
 
-export function lookupMap(db: Database, args: Args): LookupMapResponse {
+export async function lookupMap(args: Args): Promise<LookupMapResponse> {
   const meta = {
     tool: 'lookup_map',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
   };
-  const row = db
-    .query(`SELECT * FROM maps WHERE canonical_name = ? COLLATE NOCASE`)
-    .get(args.name) as MapsTableRow | null;
+  const rows = await db<MapsTableRow[]>`
+    SELECT * FROM maps WHERE canonical_name ILIKE ${args.name}
+  `;
+  const row = rows[0];
   if (!row) {
-    return { found: false, name: args.name, suggestion: suggestClosest(db, args.name), meta };
+    return { found: false, name: args.name, suggestion: await suggestClosest(args.name), meta };
   }
   return { found: true, record: rowToRecord(row), meta };
 }

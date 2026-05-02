@@ -1,4 +1,10 @@
-import type { Database } from 'bun:sqlite';
+// apps/qw-oracle/serve/mcp/src/tools/search-mechanics.ts
+//
+// Layer 1 qw-namespace gameplay-mechanic listing/filter. Postgres-js port:
+// ILIKE for case-insensitive substring (no COLLATE NOCASE), parameterised
+// fragments via tagged-template composition.
+
+import { db } from '../db.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export type SearchMechanicsArgs = {
@@ -33,33 +39,31 @@ export interface SearchMechanicsResponse {
 const MAX_LIMIT = 100;
 const DEFAULT_LIMIT = 50;
 
-export function searchMechanics(db: Database, args: SearchMechanicsArgs): SearchMechanicsResponse {
+export async function searchMechanics(args: SearchMechanicsArgs): Promise<SearchMechanicsResponse> {
   const meta: Meta = {
     tool: 'search_mechanics',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
   };
   const source = args.gameplay_source ?? 'id1';
-  const where: string[] = ['gameplay_source_id = ?'];
-  const params: unknown[] = [source];
-
-  if (args.query) {
-    where.push('(name LIKE ? COLLATE NOCASE OR value_text LIKE ? COLLATE NOCASE OR notes LIKE ? COLLATE NOCASE)');
-    const q = `%${args.query}%`;
-    params.push(q, q, q);
-  }
-  if (args.kind) { where.push('kind = ?'); params.push(args.kind); }
-
   const limit = Math.min(args.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
-  const sql = `
+
+  const queryClause = args.query
+    ? db`AND (name ILIKE ${'%' + args.query + '%'}
+              OR value_text ILIKE ${'%' + args.query + '%'}
+              OR notes ILIKE ${'%' + args.query + '%'})`
+    : db``;
+  const kindClause = args.kind ? db`AND kind = ${args.kind}` : db``;
+
+  const rowsPlusOne = await db<SearchMechanicsRow[]>`
     SELECT kind, name, value_numeric, value_text, source_ref
     FROM gameplay_mechanics
-    WHERE ${where.join(' AND ')}
+    WHERE gameplay_source_id = ${source}
+      ${queryClause}
+      ${kindClause}
     ORDER BY kind, name
-    LIMIT ?
+    LIMIT ${limit + 1}
   `;
-  params.push(limit + 1);
-  const rowsPlusOne = db.query(sql).all(...params as never[]) as SearchMechanicsRow[];
   const truncated = rowsPlusOne.length > limit;
   const rows = rowsPlusOne.slice(0, limit);
   return { rows, count: rows.length, truncated, meta };
