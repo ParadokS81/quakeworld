@@ -19,7 +19,7 @@
 // Run: npm run load-knowledge -- quality-grid [--project <p>] [--family regression|anomaly|both] [--probe <name>] [--json]
 
 import type Database from 'better-sqlite3';
-import { HEAD_ORDINAL } from './schema.js';
+import { HEAD_ORDINAL } from './constants.js';
 import type { Project } from './types.js';
 
 export type ProbeFamily = 'regression' | 'anomaly';

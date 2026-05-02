@@ -34,7 +34,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Project } from './types.js';
-import { SCHEMA_VERSION } from './schema.js';
+import { SCHEMA_VERSION } from './constants.js';
 import { buildAssetBundle } from './build-asset-bundle.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

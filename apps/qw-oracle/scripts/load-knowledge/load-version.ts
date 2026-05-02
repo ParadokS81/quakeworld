@@ -110,7 +110,7 @@ import {
   upsertQcBuiltinRow,
 } from './load-qc-builtins.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
-import { INFO_KEY_SCOPES, LOG_TEMPLATE_CHANNELS } from './schema.js';
+import { INFO_KEY_SCOPES, LOG_TEMPLATE_CHANNELS } from './constants.js';
 import type {
   EntityType,
   Project,

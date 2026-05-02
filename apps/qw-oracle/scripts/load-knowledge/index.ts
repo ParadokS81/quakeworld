@@ -8,7 +8,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { openKnowledgeDb } from './db.js';
 import { loadVersion } from './load-version.js';
-import { HEAD_ORDINAL } from './schema.js';
+import { HEAD_ORDINAL } from './constants.js';
 import type { EntityType, Project } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
